@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 536291AECEC
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 110D91AED82
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:52:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726534AbgDRNsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 09:48:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55250 "EHLO mail.kernel.org"
+        id S1726507AbgDRNss (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 09:48:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726089AbgDRNsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 09:48:46 -0400
+        id S1726539AbgDRNsr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 09:48:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 798F821D6C;
-        Sat, 18 Apr 2020 13:48:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FBC5221F4;
+        Sat, 18 Apr 2020 13:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587217726;
-        bh=zcJtmfhcKpw/H11ES2lD9L7QUnOKJ0if8zjxjDQ4Yok=;
+        s=default; t=1587217727;
+        bh=EKyrqKcM92RTUv/jYokQKHedpF2ezK8XL3yesjlpMl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThSbhDIMV6N4ITLvuOK0Ss7FDJMvt8BTKo49E903P82ipog21vS7fylcGvnSCnjIh
-         pcrHQ3DX4swCxLjmSe5dJ+FSFKBlgz1ztR7HG1U6NG+5ZdkJnCTOWEVro0eUTdMTtt
-         HF7Fa7t9nC3Lf5zA2mvnAO+iBzUTHfXHTI8HCPJE=
+        b=G7QTssvgFogMpSSMGg1849eH7IpDibn8BTn40YkCDfo6hw4ALLW7ZbI7EZ5P8wLy+
+         vS0tf58nzV17Q8TUWJfEDoQ3ybKtG5djWxofa/fPgO1MboJ54GIVHZj7p6kGcqjJ9u
+         UEUZLIe5hTEknblkZHCY6wRg6inYOBpG2F64Jbyk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
+Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
         Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>,
         iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.6 25/73] dma-direct: fix data truncation in dma_direct_get_required_mask()
-Date:   Sat, 18 Apr 2020 09:47:27 -0400
-Message-Id: <20200418134815.6519-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 26/73] dma-debug: fix displaying of dma allocation type
+Date:   Sat, 18 Apr 2020 09:47:28 -0400
+Message-Id: <20200418134815.6519-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
 References: <20200418134815.6519-1-sashal@kernel.org>
@@ -44,39 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit cdcda0d1f8f4ab84efe7cd9921c98364398aefd7 ]
+[ Upstream commit 9bb50ed7470944238ec8e30a94ef096caf9056ee ]
 
-The upper 32-bit physical address gets truncated inadvertently
-when dma_direct_get_required_mask() invokes phys_to_dma_direct().
-This results in dma_addressing_limited() return incorrect value
-when used in platforms with LPAE enabled.
-Fix it here by explicitly type casting 'max_pfn' to phys_addr_t
-in order to prevent overflow of intermediate value while evaluating
-'(max_pfn - 1) << PAGE_SHIFT'.
+The commit 2e05ea5cdc1a ("dma-mapping: implement dma_map_single_attrs using
+dma_map_page_attrs") removed "dma_debug_page" enum, but missed to update
+type2name string table. This causes incorrect displaying of dma allocation
+type.
+Fix it by removing "page" string from type2name string table and switch to
+use named initializers.
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Before (dma_alloc_coherent()):
+k3-ringacc 4b800000.ringacc: scather-gather idx 2208 P=d1140000 N=d114 D=d1140000 L=40 DMA_BIDIRECTIONAL dma map error check not applicable
+k3-ringacc 4b800000.ringacc: scather-gather idx 2216 P=d1150000 N=d115 D=d1150000 L=40 DMA_BIDIRECTIONAL dma map error check not applicable
+
+After:
+k3-ringacc 4b800000.ringacc: coherent idx 2208 P=d1140000 N=d114 D=d1140000 L=40 DMA_BIDIRECTIONAL dma map error check not applicable
+k3-ringacc 4b800000.ringacc: coherent idx 2216 P=d1150000 N=d115 D=d1150000 L=40 DMA_BIDIRECTIONAL dma map error check not applicable
+
+Fixes: 2e05ea5cdc1a ("dma-mapping: implement dma_map_single_attrs using dma_map_page_attrs")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/direct.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/dma/debug.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index ac7956c38f693..4b24275e306a4 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -39,7 +39,8 @@ static inline struct page *dma_direct_to_page(struct device *dev,
+diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
+index 2031ed1ad7fa1..9e1777c81f559 100644
+--- a/kernel/dma/debug.c
++++ b/kernel/dma/debug.c
+@@ -137,9 +137,12 @@ static const char *const maperr2str[] = {
+ 	[MAP_ERR_CHECKED] = "dma map error checked",
+ };
  
- u64 dma_direct_get_required_mask(struct device *dev)
- {
--	u64 max_dma = phys_to_dma_direct(dev, (max_pfn - 1) << PAGE_SHIFT);
-+	phys_addr_t phys = (phys_addr_t)(max_pfn - 1) << PAGE_SHIFT;
-+	u64 max_dma = phys_to_dma_direct(dev, phys);
+-static const char *type2name[5] = { "single", "page",
+-				    "scather-gather", "coherent",
+-				    "resource" };
++static const char *type2name[] = {
++	[dma_debug_single] = "single",
++	[dma_debug_sg] = "scather-gather",
++	[dma_debug_coherent] = "coherent",
++	[dma_debug_resource] = "resource",
++};
  
- 	return (1ULL << (fls64(max_dma) - 1)) * 2 - 1;
- }
+ static const char *dir2name[4] = { "DMA_BIDIRECTIONAL", "DMA_TO_DEVICE",
+ 				   "DMA_FROM_DEVICE", "DMA_NONE" };
 -- 
 2.20.1
 
