@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1EFA1AF017
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:49:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA7F51AEF8B
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726050AbgDROrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:47:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55598 "EHLO mail.kernel.org"
+        id S1728746AbgDROoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:44:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728730AbgDROoD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:44:03 -0400
+        id S1728735AbgDROoF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:44:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4824321D82;
-        Sat, 18 Apr 2020 14:44:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 872AC2072B;
+        Sat, 18 Apr 2020 14:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587221043;
-        bh=n5R+iUYkZcQVuufntqixjQeaRuYWuCmmRZ1T0GkuHIk=;
+        s=default; t=1587221044;
+        bh=xV9REuOpUpnCxUDKzgm7XHp/MDIMvBN90V8kj2yUejU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H16tDVo/VwQCtFC1ds0GpgsoVNeQxHxFcL2Vquhv7rVGS2bykXx87oG9Z3koAbZYo
-         eoaQLPZxbcoENGtxFyTGZ3RuxQnMJdIsYgEXJ+dpIXJ306XimLYREtS7hsyft5IbNS
-         efo3lOso+9XA6+lAXbfLZjmGHZSbuhqnLuS9gSlw=
+        b=hxYUBP9FEXZk+CJiTnCmynfJRkODalwp/3YEPJxZiqNxwnw/kyzK3ZldmAY77ZCWG
+         7zlKsynO6BZ9VSmYuC5cLqm0cb76Ca7mjOK49FT1VOPMLZR0lUcZFBsOEH65iVCtag
+         vbymTsta4zWy808ENkBOQ1LvShng/JomdVUha7b0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 27/28] KVM: s390: vsie: Fix delivery of addressing exceptions
-Date:   Sat, 18 Apr 2020 10:43:27 -0400
-Message-Id: <20200418144328.10265-27-sashal@kernel.org>
+Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 28/28] scsi: mpt3sas: Fix kernel panic observed on soft HBA unplug
+Date:   Sat, 18 Apr 2020 10:43:28 -0400
+Message-Id: <20200418144328.10265-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144328.10265-1-sashal@kernel.org>
 References: <20200418144328.10265-1-sashal@kernel.org>
@@ -45,52 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 ]
+[ Upstream commit cc41f11a21a51d6869d71e525a7264c748d7c0d7 ]
 
-Whenever we get an -EFAULT, we failed to read in guest 2 physical
-address space. Such addressing exceptions are reported via a program
-intercept to the nested hypervisor.
+Generic protection fault type kernel panic is observed when user performs
+soft (ordered) HBA unplug operation while IOs are running on drives
+connected to HBA.
 
-We faked the intercept, we have to return to guest 2. Instead, right
-now we would be returning -EFAULT from the intercept handler, eventually
-crashing the VM.
-the correct thing to do is to return 1 as rc == 1 is the internal
-representation of "we have to go back into g2".
+When user performs ordered HBA removal operation, the kernel calls PCI
+device's .remove() call back function where driver is flushing out all the
+outstanding SCSI IO commands with DID_NO_CONNECT host byte and also unmaps
+sg buffers allocated for these IO commands.
 
-Addressing exceptions can only happen if the g2->g3 page tables
-reference invalid g2 addresses (say, either a table or the final page is
-not accessible - so something that basically never happens in sane
-environments.
+However, in the ordered HBA removal case (unlike of real HBA hot removal),
+HBA device is still alive and hence HBA hardware is performing the DMA
+operations to those buffers on the system memory which are already unmapped
+while flushing out the outstanding SCSI IO commands and this leads to
+kernel panic.
 
-Identified by manual code inspection.
+Don't flush out the outstanding IOs from .remove() path in case of ordered
+removal since HBA will be still alive in this case and it can complete the
+outstanding IOs. Flush out the outstanding IOs only in case of 'physical
+HBA hot unplug' where there won't be any communication with the HBA.
 
-Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[borntraeger@de.ibm.com: fix patch description]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+During shutdown also it is possible that HBA hardware can perform DMA
+operations on those outstanding IO buffers which are completed with
+DID_NO_CONNECT by the driver from .shutdown(). So same above fix is applied
+in shutdown path as well.
+
+It is safe to drop the outstanding commands when HBA is inaccessible such
+as when permanent PCI failure happens, when HBA is in non-operational
+state, or when someone does a real HBA hot unplug operation. Since driver
+knows that HBA is inaccessible during these cases, it is safe to drop the
+outstanding commands instead of waiting for SCSI error recovery to kick in
+and clear these outstanding commands.
+
+Link: https://lore.kernel.org/r/1585302763-23007-1-git-send-email-sreekanth.reddy@broadcom.com
+Fixes: c666d3be99c0 ("scsi: mpt3sas: wait for and flush running commands on shutdown/unload")
+Cc: stable@vger.kernel.org #v4.14.174+
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/vsie.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 061906f98dc5c..0120383219c03 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1027,6 +1027,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		scb_s->iprcc = PGM_ADDRESSING;
- 		scb_s->pgmilc = 4;
- 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
-+		rc = 1;
- 	}
- 	return rc;
- }
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index 9ef0c6265cd2b..400c055167b0e 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -8280,8 +8280,8 @@ static void scsih_remove(struct pci_dev *pdev)
+ 
+ 	ioc->remove_host = 1;
+ 
+-	mpt3sas_wait_for_commands_to_complete(ioc);
+-	_scsih_flush_running_cmds(ioc);
++	if (!pci_device_is_present(pdev))
++		_scsih_flush_running_cmds(ioc);
+ 
+ 	_scsih_fw_event_cleanup_queue(ioc);
+ 
+@@ -8354,8 +8354,8 @@ scsih_shutdown(struct pci_dev *pdev)
+ 
+ 	ioc->remove_host = 1;
+ 
+-	mpt3sas_wait_for_commands_to_complete(ioc);
+-	_scsih_flush_running_cmds(ioc);
++	if (!pci_device_is_present(pdev))
++		_scsih_flush_running_cmds(ioc);
+ 
+ 	_scsih_fw_event_cleanup_queue(ioc);
+ 
 -- 
 2.20.1
 
