@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2A141AEF93
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:44:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 471B71AEFAD
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:48:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726836AbgDROoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:44:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55912 "EHLO mail.kernel.org"
+        id S1728787AbgDROoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:44:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728779AbgDROoT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:44:19 -0400
+        id S1728782AbgDROoV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:44:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4699522260;
-        Sat, 18 Apr 2020 14:44:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D2E12224F;
+        Sat, 18 Apr 2020 14:44:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587221058;
-        bh=kn3vplV2Ajsfs0kgxnWd05XDF0uaf40IGq6aiy9WXAM=;
+        s=default; t=1587221060;
+        bh=MVIksO+Ihzwb/MQhxnPtAiLylvCrk8ZR2r+pMllTCrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dzg/vmHEF20NynI28Iu2Y5jtd4lL5o8QVznACpLJ2NWIubspaXbv0WQ8sEU0SnXTZ
-         CvBIh294pFv9M2qaREhp62KQGJwfGBoOIHEaTu2Xb7zfADfutAsWtHnUu855R9NO74
-         RpzAcRFJuAkRBHeBvGa7tvBwmOXsLzaSOKTuFZCI=
+        b=oFvKTzdxPu3MkPvHk0za23IiNdHJNZOVTlXjm7ifnIK1FERfHK03btla1LU8IhIHN
+         z0s0pB6JJimMMlGX3Baalcm156BvEeTZW0QkZMf2B8BiaoNa7okkcCs/prLq1xxrmk
+         BBDTJTm8gncV5ytf56dnhfdjg2ouEsoB4BaUvjmY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vasily Averin <vvs@virtuozzo.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        NeilBrown <neilb@suse.com>, Steven Rostedt <rostedt@goodmis.org>,
         Waiman Long <longman@redhat.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Ingo Molnar <mingo@redhat.com>, NeilBrown <neilb@suse.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 10/23] kernel/gcov/fs.c: gcov_seq_next() should increase position index
-Date:   Sat, 18 Apr 2020 10:43:52 -0400
-Message-Id: <20200418144405.10565-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 11/23] ipc/util.c: sysvipc_find_ipc() should increase position index
+Date:   Sat, 18 Apr 2020 10:43:53 -0400
+Message-Id: <20200418144405.10565-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144405.10565-1-sashal@kernel.org>
 References: <20200418144405.10565-1-sashal@kernel.org>
@@ -53,7 +53,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit f4d74ef6220c1eda0875da30457bef5c7111ab06 ]
+[ Upstream commit 89163f93c6f969da5811af5377cc10173583123b ]
 
 If seq_file .next function does not change position index, read after
 some lseek can generate unexpected output.
@@ -61,36 +61,40 @@ some lseek can generate unexpected output.
 https://bugzilla.kernel.org/show_bug.cgi?id=206283
 Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
+Acked-by: Waiman Long <longman@redhat.com>
 Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Ingo Molnar <mingo@redhat.com>
 Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Ingo Molnar <mingo@redhat.com>
 Cc: NeilBrown <neilb@suse.com>
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
 Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Waiman Long <longman@redhat.com>
-Link: http://lkml.kernel.org/r/f65c6ee7-bd00-f910-2f8a-37cc67e4ff88@virtuozzo.com
+Link: http://lkml.kernel.org/r/b7a20945-e315-8bb0-21e6-3875c14a8494@virtuozzo.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/gcov/fs.c | 2 +-
+ ipc/util.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/gcov/fs.c b/kernel/gcov/fs.c
-index edf67c493a8e1..e473f6a1f6ca7 100644
---- a/kernel/gcov/fs.c
-+++ b/kernel/gcov/fs.c
-@@ -108,9 +108,9 @@ static void *gcov_seq_next(struct seq_file *seq, void *data, loff_t *pos)
- {
- 	struct gcov_iterator *iter = data;
+diff --git a/ipc/util.c b/ipc/util.c
+index 798cad18dd878..e65ecf3ccbdab 100644
+--- a/ipc/util.c
++++ b/ipc/util.c
+@@ -751,13 +751,13 @@ static struct kern_ipc_perm *sysvipc_find_ipc(struct ipc_ids *ids, loff_t pos,
+ 			total++;
+ 	}
  
-+	(*pos)++;
- 	if (gcov_iter_next(iter))
++	*new_pos = pos + 1;
+ 	if (total >= ids->in_use)
  		return NULL;
--	(*pos)++;
  
- 	return iter;
- }
+ 	for (; pos < IPCMNI; pos++) {
+ 		ipc = idr_find(&ids->ipcs_idr, pos);
+ 		if (ipc != NULL) {
+-			*new_pos = pos + 1;
+ 			rcu_read_lock();
+ 			ipc_lock_object(ipc);
+ 			return ipc;
 -- 
 2.20.1
 
