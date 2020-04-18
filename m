@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 946F51AED7D
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:52:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05BFA1AED76
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:52:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727939AbgDRNwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 09:52:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55638 "EHLO mail.kernel.org"
+        id S1726391AbgDRNwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 09:52:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726641AbgDRNs4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 09:48:56 -0400
+        id S1726654AbgDRNs5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 09:48:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F6D822251;
-        Sat, 18 Apr 2020 13:48:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5581421D7E;
+        Sat, 18 Apr 2020 13:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587217735;
-        bh=Yb0dT5Mf5FCK4nJCMD4GNxe6Lfw8RlG4lpvc3T+67PM=;
+        s=default; t=1587217737;
+        bh=1pQapq9m3603xrXiSN4BF3wGZPcBk5uTiJAJZ3h1E+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUi75cWiTr5AgK+kt5Kfpr1nZiRt46cten2zm11HgswXSKgaoXO1NNh87XC5fPde3
-         WENXUBCKMvi46pn/wPpw0zSPZxSo1lbeAXZ34qMB45vRr8XQg/p7x5yYyMG7kxfbPw
-         eT+aj/TIZ2EIBzsH4MJNDsYSoo9h8266UPYXpBjM=
+        b=TAwvHTQdJZG7qxmET/gQk+u6Ndlxn69kGa1ZtdgHZLBIp3GMSgL0S5gH5A/qepm9C
+         QLWB9LCR3NgVp/821f6rME4JRgTtz/6Kl3gYYlJcKwKdFFjbGZIteFpFZcb3hKua7I
+         O60QpjerqWHZ7XEV4T6NIU0Pe8el9mo1mXYH54vo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 32/73] block: fix busy device checking in blk_drop_partitions
-Date:   Sat, 18 Apr 2020 09:47:34 -0400
-Message-Id: <20200418134815.6519-32-sashal@kernel.org>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 33/73] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
+Date:   Sat, 18 Apr 2020 09:47:35 -0400
+Message-Id: <20200418134815.6519-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
 References: <20200418134815.6519-1-sashal@kernel.org>
@@ -42,36 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit d3ef5536274faf89e626276b833be122a16bdb81 ]
+[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
 
-bd_super is only set by get_tree_bdev and mount_bdev, and thus not by
-other openers like btrfs or the XFS realtime and log devices, as well as
-block devices directly opened from user space.  Check bd_openers
-instead.
+We have to properly retry again by returning -EINVAL immediately in case
+somebody else instantiated the table concurrently. We missed to add the
+goto in this function only. The code now matches the other, similar
+shadowing functions.
 
-Fixes: 77032ca66f86 ("Return EBUSY from BLKRRPART for mounted whole-dev fs")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+We are overwriting an existing region 2 table entry. All allocated pages
+are added to the crst_list to be freed later, so they are not lost
+forever. However, when unshadowing the region 2 table, we wouldn't trigger
+unshadowing of the original shadowed region 3 table that we replaced. It
+would get unshadowed when the original region 3 table is modified. As it's
+not connected to the page table hierarchy anymore, it's not going to get
+used anymore. However, for a limited time, this page table will stick
+around, so it's in some sense a temporary memory leak.
+
+Identified by manual code inspection. I don't think this classifies as
+stable material.
+
+Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/partition-generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/mm/gmap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/partition-generic.c b/block/partition-generic.c
-index 564fae77711df..5f3b2a959aa51 100644
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -468,7 +468,7 @@ int blk_drop_partitions(struct gendisk *disk, struct block_device *bdev)
- 
- 	if (!disk_part_scan_enabled(disk))
- 		return 0;
--	if (bdev->bd_part_count || bdev->bd_super)
-+	if (bdev->bd_part_count || bdev->bd_openers)
- 		return -EBUSY;
- 	res = invalidate_partition(disk, 0);
- 	if (res)
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index edcdca97e85ee..06d602c5ec7b7 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1840,6 +1840,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 		goto out_free;
+ 	} else if (*table & _REGION_ENTRY_ORIGIN) {
+ 		rc = -EAGAIN;		/* Race with shadow */
++		goto out_free;
+ 	}
+ 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
+ 	/* mark as invalid as long as the parent table is not protected */
 -- 
 2.20.1
 
