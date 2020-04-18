@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE641AEFFA
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 228311AEFB3
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:48:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727785AbgDROqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:46:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56130 "EHLO mail.kernel.org"
+        id S1728823AbgDROob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:44:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728813AbgDROo2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:44:28 -0400
+        id S1728817AbgDROoa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:44:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1066621BE5;
-        Sat, 18 Apr 2020 14:44:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E8F121D79;
+        Sat, 18 Apr 2020 14:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587221067;
-        bh=8ueGKzVpssWmv48W/XObwKppzjDuII99J2uriC02WAw=;
+        s=default; t=1587221069;
+        bh=OrQDEZwaBLAejk69UTzq40l8Q0RYaVFDj1NkNn8/XbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJDR61UE0bitsp066OveImHi48y8jhdNVvN3OYYv6pfw7vBXLuls032jM+37e+9jE
-         s6QmVvBXzD6xRpajGGo0n07FByz7/9x+cX8QBdp5DoYQCzpKz5QOY1ymga/MeBMr9Q
-         Nibuozi9kaQI8Fr9TKSf4iUx+ea63/xv0Ez+Ilh4=
+        b=Yj2Oo5vdo0MfhFxW4lMc78xcoGgRCmt8MMj+cpE1EakzT4EmK+2RM+JpfyCYZB3b7
+         FyWuOQMrAZoI9LYm9FXSvfwTzNH3OjzDN/ypZbVhjTkrvhr3VBeDxeYxTIPEmqquZQ
+         GRDDJAGIcbT91hr6kte1NNMrqEJ72YnDI7M9prfY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 4.9 17/23] libnvdimm: Out of bounds read in __nd_ioctl()
-Date:   Sat, 18 Apr 2020 10:43:59 -0400
-Message-Id: <20200418144405.10565-17-sashal@kernel.org>
+Cc:     Changwei Ge <chge@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
+Subject: [PATCH AUTOSEL 4.9 18/23] ocfs2: no need try to truncate file beyond i_size
+Date:   Sat, 18 Apr 2020 10:44:00 -0400
+Message-Id: <20200418144405.10565-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144405.10565-1-sashal@kernel.org>
 References: <20200418144405.10565-1-sashal@kernel.org>
@@ -43,41 +50,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Changwei Ge <chge@linux.alibaba.com>
 
-[ Upstream commit f84afbdd3a9e5e10633695677b95422572f920dc ]
+[ Upstream commit 783fda856e1034dee90a873f7654c418212d12d7 ]
 
-The "cmd" comes from the user and it can be up to 255.  It it's more
-than the number of bits in long, it results out of bounds read when we
-check test_bit(cmd, &cmd_mask).  The highest valid value for "cmd" is
-ND_CMD_CALL (10) so I added a compare against that.
+Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
+exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
+size.  This restriction is not necessary and violates fallocate(2)
+semantics.
 
-Fixes: 62232e45f4a2 ("libnvdimm: control (ioctl) messages for nvdimm_bus and nvdimm devices")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200225162055.amtosfy7m35aivxg@kili.mountain
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+If fallocate(2) offset is beyond inode size, just return success and do
+nothing further.
+
+Otherwise, ocfs2 will crash the kernel.
+
+  kernel BUG at fs/ocfs2//alloc.c:7264!
+   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
+   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
+   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
+   ocfs2_fallocate+0x83/0xa0 [ocfs2]
+   vfs_fallocate+0x148/0x230
+   SyS_fallocate+0x48/0x80
+   do_syscall_64+0x79/0x170
+
+Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/bus.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/ocfs2/alloc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index 5768a4749564a..65ac1d3870f93 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -851,8 +851,10 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 			return -EFAULT;
- 	}
+diff --git a/fs/ocfs2/alloc.c b/fs/ocfs2/alloc.c
+index 06089becca607..dfb8a923921e0 100644
+--- a/fs/ocfs2/alloc.c
++++ b/fs/ocfs2/alloc.c
+@@ -7246,6 +7246,10 @@ int ocfs2_truncate_inline(struct inode *inode, struct buffer_head *di_bh,
+ 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
+ 	struct ocfs2_inline_data *idata = &di->id2.i_data;
  
--	if (!desc || (desc->out_num + desc->in_num == 0) ||
--			!test_bit(cmd, &cmd_mask))
-+	if (!desc ||
-+	    (desc->out_num + desc->in_num == 0) ||
-+	    cmd > ND_CMD_CALL ||
-+	    !test_bit(cmd, &cmd_mask))
- 		return -ENOTTY;
++	/* No need to punch hole beyond i_size. */
++	if (start >= i_size_read(inode))
++		return 0;
++
+ 	if (end > i_size_read(inode))
+ 		end = i_size_read(inode);
  
- 	/* fail write commands (when read-only) */
 -- 
 2.20.1
 
