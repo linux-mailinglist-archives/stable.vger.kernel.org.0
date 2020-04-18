@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 496001AED8A
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81941AED89
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726810AbgDRNwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 09:52:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55054 "EHLO mail.kernel.org"
+        id S1726641AbgDRNw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 09:52:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726486AbgDRNsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 09:48:41 -0400
+        id S1726493AbgDRNsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 09:48:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B9B92220A;
-        Sat, 18 Apr 2020 13:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3D5522261;
+        Sat, 18 Apr 2020 13:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587217721;
-        bh=gepK8epY5y1X2So4zmONyxVbZIzOOcoBP1WVOXiBqls=;
+        s=default; t=1587217722;
+        bh=1RYs4Lz/2BnS7f8Vf4aqmZgljBRSOk3rbVPrrg1Tko4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obVOWQLq7ASNnaD/55Y9rWq+Lb/pmJBhaDaC7gsgiSVo5IaCKQZX/Nhe7pmlg2KL0
-         wLMqCxpO1gtB2hO/TEenlE3hdDdfOMXvnZWuleu/rnmzsCnGSSo7G6DT157vXyjPYn
-         AjmPbtRGxhO6u+4yS3kXd9NZ0OzXULfDaFy1ZQF8=
+        b=Of4D0hfMKIyBpsC4N8Pr7pU9VESExQVrZFIeyq/LdFikv0eSIFJV9YBMQDbaQWvaU
+         wc3huf+M7z6SSO5ufi/n5YSjf8TIupF4nL657WSh1Z6idpHHkkdqJLBS5qN5bqQdCz
+         NWka2nsYCcp+uB1k95X/aHLtcRfnqO76tE/5YjvA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Santosh Sivaraj <santosh@fossix.org>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 5.6 21/73] tools/test/nvdimm: Fix out of tree build
-Date:   Sat, 18 Apr 2020 09:47:23 -0400
-Message-Id: <20200418134815.6519-21-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.6 22/73] ASoC: Intel: atom: Take the drv->lock mutex before calling sst_send_slot_map()
+Date:   Sat, 18 Apr 2020 09:47:24 -0400
+Message-Id: <20200418134815.6519-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
 References: <20200418134815.6519-1-sashal@kernel.org>
@@ -44,65 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Santosh Sivaraj <santosh@fossix.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 1f776799628139d0da47e710ad86eb58d987ff66 ]
+[ Upstream commit 81630dc042af998b9f58cd8e2c29dab9777ea176 ]
 
-Out of tree build using
+sst_send_slot_map() uses sst_fill_and_send_cmd_unlocked() because in some
+places it is called with the drv->lock mutex already held.
 
-   make M=tools/test/nvdimm O=/tmp/build -C /tmp/build
+So it must always be called with the mutex locked. This commit adds missing
+locking in the sst_set_be_modules() code-path.
 
-fails with the following error
-
-make: Entering directory '/tmp/build'
-  CC [M]  tools/testing/nvdimm/test/nfit.o
-linux/tools/testing/nvdimm/test/nfit.c:19:10: fatal error: nd-core.h: No such file or directory
-   19 | #include <nd-core.h>
-      |          ^~~~~~~~~~~
-compilation terminated.
-
-That is because the kbuild file uses $(src) which points to
-tools/testing/nvdimm, $(srctree) correctly points to root of the linux
-source tree.
-
-Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
-Link: https://lore.kernel.org/r/20200114054051.4115790-1-santosh@fossix.org
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 24c8d14192cc ("ASoC: Intel: mrfld: add DSP core controls")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200402185359.3424-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/nvdimm/Kbuild      | 4 ++--
- tools/testing/nvdimm/test/Kbuild | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/intel/atom/sst-atom-controls.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/nvdimm/Kbuild b/tools/testing/nvdimm/Kbuild
-index dbebf05f59313..47f9cc9dcd94b 100644
---- a/tools/testing/nvdimm/Kbuild
-+++ b/tools/testing/nvdimm/Kbuild
-@@ -21,8 +21,8 @@ DRIVERS := ../../../drivers
- NVDIMM_SRC := $(DRIVERS)/nvdimm
- ACPI_SRC := $(DRIVERS)/acpi/nfit
- DAX_SRC := $(DRIVERS)/dax
--ccflags-y := -I$(src)/$(NVDIMM_SRC)/
--ccflags-y += -I$(src)/$(ACPI_SRC)/
-+ccflags-y := -I$(srctree)/drivers/nvdimm/
-+ccflags-y += -I$(srctree)/drivers/acpi/nfit/
+diff --git a/sound/soc/intel/atom/sst-atom-controls.c b/sound/soc/intel/atom/sst-atom-controls.c
+index baef461a99f19..2c3798034b1de 100644
+--- a/sound/soc/intel/atom/sst-atom-controls.c
++++ b/sound/soc/intel/atom/sst-atom-controls.c
+@@ -966,7 +966,9 @@ static int sst_set_be_modules(struct snd_soc_dapm_widget *w,
+ 	dev_dbg(c->dev, "Enter: widget=%s\n", w->name);
  
- obj-$(CONFIG_LIBNVDIMM) += libnvdimm.o
- obj-$(CONFIG_BLK_DEV_PMEM) += nd_pmem.o
-diff --git a/tools/testing/nvdimm/test/Kbuild b/tools/testing/nvdimm/test/Kbuild
-index fb3c3d7cdb9bd..75baebf8f4ba1 100644
---- a/tools/testing/nvdimm/test/Kbuild
-+++ b/tools/testing/nvdimm/test/Kbuild
-@@ -1,6 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
--ccflags-y := -I$(src)/../../../../drivers/nvdimm/
--ccflags-y += -I$(src)/../../../../drivers/acpi/nfit/
-+ccflags-y := -I$(srctree)/drivers/nvdimm/
-+ccflags-y += -I$(srctree)/drivers/acpi/nfit/
- 
- obj-m += nfit_test.o
- obj-m += nfit_test_iomap.o
+ 	if (SND_SOC_DAPM_EVENT_ON(event)) {
++		mutex_lock(&drv->lock);
+ 		ret = sst_send_slot_map(drv);
++		mutex_unlock(&drv->lock);
+ 		if (ret)
+ 			return ret;
+ 		ret = sst_send_pipe_module_params(w, k);
 -- 
 2.20.1
 
