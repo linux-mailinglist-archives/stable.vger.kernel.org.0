@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C3DD1AED63
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:51:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D37791AED62
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726686AbgDRNvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 09:51:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55846 "EHLO mail.kernel.org"
+        id S1726079AbgDRNvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 09:51:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726636AbgDRNtG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 09:49:06 -0400
+        id S1726715AbgDRNtH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 09:49:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C444021D7E;
-        Sat, 18 Apr 2020 13:49:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D73E822245;
+        Sat, 18 Apr 2020 13:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587217745;
-        bh=iljF7Edtms053YjF9mQtzQ/ve2E9hUgK2Tcg3enhmPM=;
+        s=default; t=1587217746;
+        bh=0PJdmnhUCsTCwdTxrc85iviAyXqH9RK8DKfgmt6eieQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nelnPp9p0ObAwCqshiB1098EZ1Fd7wH+6yFGKyfFeTNqdFyUw4/3La5wsP/ZCVgCA
-         /TXhw1ig14tnEj7tR7liqj08gAD7StGbSdXam21FGaoamh8n0eOspTfQeF/Gsh9DjP
-         28TFmHZD+LxydSRKlNlcAF4uy7+3Js0N4lpSBLrs=
+        b=P+i2fI3Z0caSNMJPmVE/MZxiXD+uzsKh9Ec+8BHXwq/er1O21KZGFChN5B75w/loz
+         618EKmGXeMT0L15/kK5XKhLVumaUIAcC1z7pKLsglL4/HkzSvZhVn4zktfUhmoSJQm
+         WQGcVK4bvQTQ0kmr+RW3tFduOYNIlSgtJwblqa0I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
+Cc:     Ganesh Goudar <ganeshgr@linux.ibm.com>,
+        Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.6 39/73] Revert "powerpc/64: irq_work avoid interrupt when called with hardware irqs enabled"
-Date:   Sat, 18 Apr 2020 09:47:41 -0400
-Message-Id: <20200418134815.6519-39-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 40/73] powerpc/pseries: Fix MCE handling on pseries
+Date:   Sat, 18 Apr 2020 09:47:42 -0400
+Message-Id: <20200418134815.6519-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
 References: <20200418134815.6519-1-sashal@kernel.org>
@@ -43,108 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Ganesh Goudar <ganeshgr@linux.ibm.com>
 
-[ Upstream commit abc3fce76adbdfa8f87272c784b388cd20b46049 ]
+[ Upstream commit a95a0a1654f16366360399574e10efd87e867b39 ]
 
-This reverts commit ebb37cf3ffd39fdb6ec5b07111f8bb2f11d92c5f.
+MCE handling on pSeries platform fails as recent rework to use common
+code for pSeries and PowerNV in machine check error handling tries to
+access per-cpu variables in realmode. The per-cpu variables may be
+outside the RMO region on pSeries platform and needs translation to be
+enabled for access. Just moving these per-cpu variable into RMO region
+did'nt help because we queue some work to workqueues in real mode, which
+again tries to touch per-cpu variables. Also fwnmi_release_errinfo()
+cannot be called when translation is not enabled.
 
-That commit does not play well with soft-masked irq state
-manipulations in idle, interrupt replay, and possibly others due to
-tracing code sometimes using irq_work_queue (e.g., in
-trace_hardirqs_on()). That can cause PACA_IRQ_DEC to become set when
-it is not expected, and be ignored or cleared or cause warnings.
+This patch fixes this by enabling translation in the exception handler
+when all required real mode handling is done. This change only affects
+the pSeries platform.
 
-The net result seems to be missing an irq_work until the next timer
-interrupt in the worst case which is usually not going to be noticed,
-however it could be a long time if the tick is disabled, which is
-against the spirit of irq_work and might cause real problems.
+Without this fix below kernel crash is seen on injecting
+SLB multihit:
 
-The idea is still solid, but it would need more work. It's not really
-clear if it would be worth added complexity, so revert this for
-now (not a straight revert, but replace with a comment explaining why
-we might see interrupts happening, and gives git blame something to
-find).
+BUG: Unable to handle kernel data access on read at 0xc00000027b205950
+Faulting instruction address: 0xc00000000003b7e0
+Oops: Kernel access of bad area, sig: 11 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in: mcetest_slb(OE+) af_packet(E) xt_tcpudp(E) ip6t_rpfilter(E) ip6t_REJECT(E) ipt_REJECT(E) xt_conntrack(E) ip_set(E) nfnetlink(E) ebtable_nat(E) ebtable_broute(E) ip6table_nat(E) ip6table_mangle(E) ip6table_raw(E) ip6table_security(E) iptable_nat(E) nf_nat(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) iptable_mangle(E) iptable_raw(E) iptable_security(E) ebtable_filter(E) ebtables(E) ip6table_filter(E) ip6_tables(E) iptable_filter(E) ip_tables(E) x_tables(E) xfs(E) ibmveth(E) vmx_crypto(E) gf128mul(E) uio_pdrv_genirq(E) uio(E) crct10dif_vpmsum(E) rtc_generic(E) btrfs(E) libcrc32c(E) xor(E) zstd_decompress(E) zstd_compress(E) raid6_pq(E) sr_mod(E) sd_mod(E) cdrom(E) ibmvscsi(E) scsi_transport_srp(E) crc32c_vpmsum(E) dm_mod(E) sg(E) scsi_mod(E)
+CPU: 34 PID: 8154 Comm: insmod Kdump: loaded Tainted: G OE 5.5.0-mahesh #1
+NIP: c00000000003b7e0 LR: c0000000000f2218 CTR: 0000000000000000
+REGS: c000000007dcb960 TRAP: 0300 Tainted: G OE (5.5.0-mahesh)
+MSR: 8000000000001003 <SF,ME,RI,LE> CR: 28002428 XER: 20040000
+CFAR: c0000000000f2214 DAR: c00000027b205950 DSISR: 40000000 IRQMASK: 0
+GPR00: c0000000000f2218 c000000007dcbbf0 c000000001544800 c000000007dcbd70
+GPR04: 0000000000000001 c000000007dcbc98 c008000000d00258 c0080000011c0000
+GPR08: 0000000000000000 0000000300000003 c000000001035950 0000000003000048
+GPR12: 000000027a1d0000 c000000007f9c000 0000000000000558 0000000000000000
+GPR16: 0000000000000540 c008000001110000 c008000001110540 0000000000000000
+GPR20: c00000000022af10 c00000025480fd70 c008000001280000 c00000004bfbb300
+GPR24: c000000001442330 c00800000800000d c008000008000000 4009287a77000510
+GPR28: 0000000000000000 0000000000000002 c000000001033d30 0000000000000001
+NIP [c00000000003b7e0] save_mce_event+0x30/0x240
+LR [c0000000000f2218] pseries_machine_check_realmode+0x2c8/0x4f0
+Call Trace:
+Instruction dump:
+3c4c0151 38429050 7c0802a6 60000000 fbc1fff0 fbe1fff8 f821ffd1 3d42ffaf
+3fc2ffaf e98d0030 394a1150 3bdef530 <7d6a62aa> 1d2b0048 2f8b0063 380b0001
+---[ end trace 46fd63f36bbdd940 ]---
 
-Fixes: ebb37cf3ffd3 ("powerpc/64: irq_work avoid interrupt when called with hardware irqs enabled")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Fixes: 9ca766f9891d ("powerpc/64s/pseries: machine check convert to use common event code")
+Reviewed-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Ganesh Goudar <ganeshgr@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200402120401.1115883-1-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20200320110119.10207-1-ganeshgr@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/time.c | 44 +++++++++++---------------------------
- 1 file changed, 13 insertions(+), 31 deletions(-)
+ arch/powerpc/platforms/pseries/ras.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 1168e8b37e306..716f8d0960a7b 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -522,35 +522,6 @@ static inline void clear_irq_work_pending(void)
- 		"i" (offsetof(struct paca_struct, irq_work_pending)));
- }
+diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platforms/pseries/ras.c
+index 1d7f973c647b3..43710b69e09eb 100644
+--- a/arch/powerpc/platforms/pseries/ras.c
++++ b/arch/powerpc/platforms/pseries/ras.c
+@@ -683,6 +683,17 @@ static int mce_handle_error(struct pt_regs *regs, struct rtas_error_log *errp)
+ #endif
  
--void arch_irq_work_raise(void)
--{
--	preempt_disable();
--	set_irq_work_pending_flag();
--	/*
--	 * Non-nmi code running with interrupts disabled will replay
--	 * irq_happened before it re-enables interrupts, so setthe
--	 * decrementer there instead of causing a hardware exception
--	 * which would immediately hit the masked interrupt handler
--	 * and have the net effect of setting the decrementer in
--	 * irq_happened.
--	 *
--	 * NMI interrupts can not check this when they return, so the
--	 * decrementer hardware exception is raised, which will fire
--	 * when interrupts are next enabled.
--	 *
--	 * BookE does not support this yet, it must audit all NMI
--	 * interrupt handlers to ensure they call nmi_enter() so this
--	 * check would be correct.
--	 */
--	if (IS_ENABLED(CONFIG_BOOKE) || !irqs_disabled() || in_nmi()) {
--		set_dec(1);
--	} else {
--		hard_irq_disable();
--		local_paca->irq_happened |= PACA_IRQ_DEC;
--	}
--	preempt_enable();
--}
--
- #else /* 32-bit */
- 
- DEFINE_PER_CPU(u8, irq_work_pending);
-@@ -559,16 +530,27 @@ DEFINE_PER_CPU(u8, irq_work_pending);
- #define test_irq_work_pending()		__this_cpu_read(irq_work_pending)
- #define clear_irq_work_pending()	__this_cpu_write(irq_work_pending, 0)
- 
-+#endif /* 32 vs 64 bit */
-+
- void arch_irq_work_raise(void)
- {
+ out:
 +	/*
-+	 * 64-bit code that uses irq soft-mask can just cause an immediate
-+	 * interrupt here that gets soft masked, if this is called under
-+	 * local_irq_disable(). It might be possible to prevent that happening
-+	 * by noticing interrupts are disabled and setting decrementer pending
-+	 * to be replayed when irqs are enabled. The problem there is that
-+	 * tracing can call irq_work_raise, including in code that does low
-+	 * level manipulations of irq soft-mask state (e.g., trace_hardirqs_on)
-+	 * which could get tangled up if we're messing with the same state
-+	 * here.
++	 * Enable translation as we will be accessing per-cpu variables
++	 * in save_mce_event() which may fall outside RMO region, also
++	 * leave it enabled because subsequently we will be queuing work
++	 * to workqueues where again per-cpu variables accessed, besides
++	 * fwnmi_release_errinfo() crashes when called in realmode on
++	 * pseries.
++	 * Note: All the realmode handling like flushing SLB entries for
++	 *       SLB multihit is done by now.
 +	 */
- 	preempt_disable();
- 	set_irq_work_pending_flag();
- 	set_dec(1);
- 	preempt_enable();
- }
++	mtmsr(mfmsr() | MSR_IR | MSR_DR);
+ 	save_mce_event(regs, disposition == RTAS_DISP_FULLY_RECOVERED,
+ 			&mce_err, regs->nip, eaddr, paddr);
  
--#endif /* 32 vs 64 bit */
--
- #else  /* CONFIG_IRQ_WORK */
- 
- #define test_irq_work_pending()	0
 -- 
 2.20.1
 
