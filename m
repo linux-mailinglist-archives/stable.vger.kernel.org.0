@@ -2,115 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 182631AEDEC
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:11:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8C071AEE96
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726475AbgDROJc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:09:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36936 "EHLO mail.kernel.org"
+        id S1728192AbgDRONw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:13:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726381AbgDROJa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:09:30 -0400
+        id S1726465AbgDROJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:09:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31E6F21D82;
-        Sat, 18 Apr 2020 14:09:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 868872224F;
+        Sat, 18 Apr 2020 14:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587218970;
-        bh=emCtJ33z/m5pfLdFAGdxdHQ4439wBNBlCSZF5CWCU9Y=;
+        s=default; t=1587218971;
+        bh=vKZF0TjOhUk4OB+KxnVUmgnDdTOjtlFrEOhbpErD2AU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IH+DGyfQD04u08upTe0MCmonyMatbTUMTdUUXVtcmxbt3hI0tKhY/4w2doj74SNuI
-         eLAWpqVrbtt/z5j03El0LTxmOBkg6j/GVtOZVKElbchprdAKnLuLRlHYINFlgVTBFa
-         pKLiS3KEQK8h7VS6AhlKrrK7H4CifdWYOIYvvOt0=
+        b=RC1fUYUyolEbYGroIE9D3Tf6ys3OEU4fXZw/HebESV0Q3TM3x4dhL2An5dHrK/TVk
+         HTfPGDgGM3uaypxsoG+K9p/jp3ceJPGvaWIWmspWQbIeU1RWmRcE5utsvsO1ReES2q
+         ynZDq2HLFPu/S59ZCLSQrXI6huYCZDPeqJQ/VGak=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>,
-        Tony Asleson <tasleson@redhat.com>,
-        Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 16/75] nvme-tcp: fix possible crash in write_zeroes processing
-Date:   Sat, 18 Apr 2020 10:08:11 -0400
-Message-Id: <20200418140910.8280-16-sashal@kernel.org>
+Cc:     =?UTF-8?q?=EC=9D=B4=EA=B2=BD=ED=83=9D?= <gt82.lee@samsung.com>,
+        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.5 17/75] ASoC: dpcm: allow start or stop during pause for backend
+Date:   Sat, 18 Apr 2020 10:08:12 -0400
+Message-Id: <20200418140910.8280-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
 References: <20200418140910.8280-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: 이경택 <gt82.lee@samsung.com>
 
-[ Upstream commit 25e5cb780e62bde432b401f312bb847edc78b432 ]
+[ Upstream commit 21fca8bdbb64df1297e8c65a746c4c9f4a689751 ]
 
-We cannot look at blk_rq_payload_bytes without first checking
-that the request has a mappable physical segments first (e.g.
-blk_rq_nr_phys_segments(rq) != 0) and only then to take the
-request payload bytes. This caused us to send a wrong sgl to
-the target or even dereference a non-existing buffer in case
-we actually got to the data send sequence (if it was in-capsule).
+soc_compr_trigger_fe() allows start or stop after pause_push.
+In dpcm_be_dai_trigger(), however, only pause_release is allowed
+command after pause_push.
+So, start or stop after pause in compress offload is always
+returned as error if the compress offload is used with dpcm.
+To fix the problem, SND_SOC_DPCM_STATE_PAUSED should be allowed
+for start or stop command.
 
-Reported-by: Tony Asleson <tasleson@redhat.com>
-Suggested-by: Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/004d01d607c1$7a3d5250$6eb7f6f0$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ sound/soc/soc-pcm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 49d4373b84eb3..00e6aa59954d4 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -164,16 +164,14 @@ static inline bool nvme_tcp_async_req(struct nvme_tcp_request *req)
- static inline bool nvme_tcp_has_inline_data(struct nvme_tcp_request *req)
- {
- 	struct request *rq;
--	unsigned int bytes;
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 8de29f48442f6..e4ff0796526c7 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -2256,7 +2256,8 @@ int dpcm_be_dai_trigger(struct snd_soc_pcm_runtime *fe, int stream,
+ 		switch (cmd) {
+ 		case SNDRV_PCM_TRIGGER_START:
+ 			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_PREPARE) &&
+-			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP))
++			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
++			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
+ 				continue;
  
- 	if (unlikely(nvme_tcp_async_req(req)))
- 		return false; /* async events don't have a request */
+ 			ret = dpcm_do_trigger(dpcm, be_substream, cmd);
+@@ -2286,7 +2287,8 @@ int dpcm_be_dai_trigger(struct snd_soc_pcm_runtime *fe, int stream,
+ 			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
+ 			break;
+ 		case SNDRV_PCM_TRIGGER_STOP:
+-			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START)
++			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) &&
++			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
+ 				continue;
  
- 	rq = blk_mq_rq_from_pdu(req);
--	bytes = blk_rq_payload_bytes(rq);
- 
--	return rq_data_dir(rq) == WRITE && bytes &&
--		bytes <= nvme_tcp_inline_data_size(req->queue);
-+	return rq_data_dir(rq) == WRITE && req->data_len &&
-+		req->data_len <= nvme_tcp_inline_data_size(req->queue);
- }
- 
- static inline struct page *nvme_tcp_req_cur_page(struct nvme_tcp_request *req)
-@@ -2090,7 +2088,9 @@ static blk_status_t nvme_tcp_map_data(struct nvme_tcp_queue *queue,
- 
- 	c->common.flags |= NVME_CMD_SGL_METABUF;
- 
--	if (rq_data_dir(rq) == WRITE && req->data_len &&
-+	if (!blk_rq_nr_phys_segments(rq))
-+		nvme_tcp_set_sg_null(c);
-+	else if (rq_data_dir(rq) == WRITE &&
- 	    req->data_len <= nvme_tcp_inline_data_size(queue))
- 		nvme_tcp_set_sg_inline(queue, c, req->data_len);
- 	else
-@@ -2117,7 +2117,8 @@ static blk_status_t nvme_tcp_setup_cmd_pdu(struct nvme_ns *ns,
- 	req->data_sent = 0;
- 	req->pdu_len = 0;
- 	req->pdu_sent = 0;
--	req->data_len = blk_rq_payload_bytes(rq);
-+	req->data_len = blk_rq_nr_phys_segments(rq) ?
-+				blk_rq_payload_bytes(rq) : 0;
- 	req->curr_bio = rq->bio;
- 
- 	if (rq_data_dir(rq) == WRITE &&
+ 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
 -- 
 2.20.1
 
