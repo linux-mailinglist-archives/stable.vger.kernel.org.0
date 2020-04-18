@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 541781AF094
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 579791AF08B
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728234AbgDROua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:50:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53928 "EHLO mail.kernel.org"
+        id S1728794AbgDROuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:50:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728506AbgDROnJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:43:09 -0400
+        id S1728474AbgDROnK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:43:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E656E22250;
-        Sat, 18 Apr 2020 14:43:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F286122202;
+        Sat, 18 Apr 2020 14:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220988;
-        bh=DaZJWPTSTAzcStopkRnvBbDOO8N2y9SEPL3j26QQpAs=;
+        s=default; t=1587220989;
+        bh=ak9ZCMwXICKSGNSEGxD3W8Upnrqdz+bPveWVJcwG93o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hsMRDIao9J61wIkweVAOOTY0YvgWEqfXZLLvs43P24d4ae+W8jcAOX/NPub9+ByWp
-         /YZ/KCLaU2/hHDG6YmM1XTBzsJ8UZMQKPexMvtMI0uyQbz4Oq3YvFEs3Et6/eMk61J
-         CE6kWR54KXaaFDOYzcTYATtrSrWJ9AJUd+v/GMa0=
+        b=k8QrUlAdvIjhSLJk/qMpm/O5bhOcGXDWXj1YvRUFcijByYnXyMH4avKwtZoZKSQKT
+         eThJ0NvGg2lsqpQIC6xc+A2nfMEajt1Su+h405i1fQ4UaIrMdxURYSJf66nSvCIi+2
+         w3+QXYxTMN9zX6N2BSgZ2PevPettBMqwRf3SQ9q0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 32/47] libata: Return correct status in sata_pmp_eh_recover_pm() when ATA_DFLAG_DETACH is set
-Date:   Sat, 18 Apr 2020 10:42:12 -0400
-Message-Id: <20200418144227.9802-32-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 33/47] ALSA: ice1724: Fix invalid access for enumerated ctl items
+Date:   Sat, 18 Apr 2020 10:42:13 -0400
+Message-Id: <20200418144227.9802-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
 References: <20200418144227.9802-1-sashal@kernel.org>
@@ -43,76 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 8305f72f952cff21ce8109dc1ea4b321c8efc5af ]
+[ Upstream commit c47914c00be346bc5b48c48de7b0da5c2d1a296c ]
 
-During system resume from suspend, this can be observed on ASM1062 PMP
-controller:
+The access to Analog Capture Source control value implemented in
+prodigy_hifi.c is wrong, as caught by the recently introduced sanity
+check; it should be accessing value.enumerated.item[] instead of
+value.integer.value[].  This patch corrects the wrong access pattern.
 
-ata10.01: SATA link down (SStatus 0 SControl 330)
-ata10.02: hard resetting link
-ata10.02: SATA link down (SStatus 0 SControl 330)
-ata10.00: configured for UDMA/133
-Kernel panic - not syncing: stack-protector: Kernel
- in: sata_pmp_eh_recover+0xa2b/0xa40
-
-CPU: 2 PID: 230 Comm: scsi_eh_9 Tainted: P OE
-#49-Ubuntu
-Hardware name: System manufacturer System Product
- 1001 12/10/2017
-Call Trace:
-dump_stack+0x63/0x8b
-panic+0xe4/0x244
-? sata_pmp_eh_recover+0xa2b/0xa40
-__stack_chk_fail+0x19/0x20
-sata_pmp_eh_recover+0xa2b/0xa40
-? ahci_do_softreset+0x260/0x260 [libahci]
-? ahci_do_hardreset+0x140/0x140 [libahci]
-? ata_phys_link_offline+0x60/0x60
-? ahci_stop_engine+0xc0/0xc0 [libahci]
-sata_pmp_error_handler+0x22/0x30
-ahci_error_handler+0x45/0x80 [libahci]
-ata_scsi_port_error_handler+0x29b/0x770
-? ata_scsi_cmd_error_handler+0x101/0x140
-ata_scsi_error+0x95/0xd0
-? scsi_try_target_reset+0x90/0x90
-scsi_error_handler+0xd0/0x5b0
-kthread+0x121/0x140
-? scsi_eh_get_sense+0x200/0x200
-? kthread_create_worker_on_cpu+0x70/0x70
-ret_from_fork+0x22/0x40
-Kernel Offset: 0xcc00000 from 0xffffffff81000000
-(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-
-Since sata_pmp_eh_recover_pmp() doens't set rc when ATA_DFLAG_DETACH is
-set, sata_pmp_eh_recover() continues to run. During retry it triggers
-the stack protector.
-
-Set correct rc in sata_pmp_eh_recover_pmp() to let sata_pmp_eh_recover()
-jump to pmp_fail directly.
-
-BugLink: https://bugs.launchpad.net/bugs/1821434
-Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 6b8d6e5518e2 ("[ALSA] ICE1724: Added support for Audiotrak Prodigy 7.1 HiFi & HD2, Hercules Fortissimo IV")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200407084402.25589-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-pmp.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/ice1712/prodigy_hifi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ata/libata-pmp.c b/drivers/ata/libata-pmp.c
-index 2ae1799f49927..51eeaea65833d 100644
---- a/drivers/ata/libata-pmp.c
-+++ b/drivers/ata/libata-pmp.c
-@@ -764,6 +764,7 @@ static int sata_pmp_eh_recover_pmp(struct ata_port *ap,
+diff --git a/sound/pci/ice1712/prodigy_hifi.c b/sound/pci/ice1712/prodigy_hifi.c
+index c97b5528e4b80..317bbb725b299 100644
+--- a/sound/pci/ice1712/prodigy_hifi.c
++++ b/sound/pci/ice1712/prodigy_hifi.c
+@@ -550,7 +550,7 @@ static int wm_adc_mux_enum_get(struct snd_kcontrol *kcontrol,
+ 	struct snd_ice1712 *ice = snd_kcontrol_chip(kcontrol);
  
- 	if (dev->flags & ATA_DFLAG_DETACH) {
- 		detach = 1;
-+		rc = -ENODEV;
- 		goto fail;
- 	}
+ 	mutex_lock(&ice->gpio_mutex);
+-	ucontrol->value.integer.value[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
++	ucontrol->value.enumerated.item[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
+ 	mutex_unlock(&ice->gpio_mutex);
+ 	return 0;
+ }
+@@ -564,7 +564,7 @@ static int wm_adc_mux_enum_put(struct snd_kcontrol *kcontrol,
  
+ 	mutex_lock(&ice->gpio_mutex);
+ 	oval = wm_get(ice, WM_ADC_MUX);
+-	nval = (oval & 0xe0) | ucontrol->value.integer.value[0];
++	nval = (oval & 0xe0) | ucontrol->value.enumerated.item[0];
+ 	if (nval != oval) {
+ 		wm_put(ice, WM_ADC_MUX, nval);
+ 		change = 1;
 -- 
 2.20.1
 
