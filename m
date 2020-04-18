@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E891AF0F1
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00CA61AF0FC
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:55:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726596AbgDROmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:42:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51736 "EHLO mail.kernel.org"
+        id S1726381AbgDROx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:53:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726625AbgDROmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:42:00 -0400
+        id S1728212AbgDROmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:42:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 676292224F;
-        Sat, 18 Apr 2020 14:41:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 719FC21D7E;
+        Sat, 18 Apr 2020 14:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220920;
-        bh=SC/vqzeMx1k3k9AAbtjSE5BmU6VVJ9MANDBe3abuSXk=;
+        s=default; t=1587220921;
+        bh=DsmAA6x1Ab/BTWu29Lvg7mHGSP99+DWYv/TQnagX4YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJ3ujVtXKNApUgyMIYJ5qtwCHZ3xirDfQyarkQxK95iX5NO3tOiartrji0/IL0/I1
-         UJWRM/QzuZgxKL8zt/kYGYdQoEw49Z0mYxd6zhmgUSCiv9yYeaXn85tXsWGXKQBeXU
-         nwFgkvqky+qqr89+NaH4ApIhfLgga5GNnMVW/Tqc=
+        b=iUblp/NGzVkcuz9Xx80qnMIake9gMkYj7mQ92kEqbkpx6IL1k0Doy7iDC/ggXupT7
+         dXyt9r38kFnwbkoNIVWDR4++OyLDLVzZKZP/ImWKZMpN6dkppecUTLlus5/t6oJqXs
+         p87jBG/cqHBzIu5/5kLhmSgqXxcBevLrhvAMQUng=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Franti=C5=A1ek=20Ku=C4=8Dera?= <franta-linux@frantovo.cz>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 58/78] ALSA: usb-audio: Add Pioneer DJ DJM-250MK2 quirk
-Date:   Sat, 18 Apr 2020 10:40:27 -0400
-Message-Id: <20200418144047.9013-58-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 59/78] ALSA: hda/realtek - Add quirk for Lenovo Carbon X1 8th gen
+Date:   Sat, 18 Apr 2020 10:40:28 -0400
+Message-Id: <20200418144047.9013-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
 References: <20200418144047.9013-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,75 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: František Kučera <franta-linux@frantovo.cz>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 73d8c94084341e2895169a0462dbc18167f01683 ]
+[ Upstream commit ca707b3f00b4f31a6e1eb37e8ae99f15f2bb1fe5 ]
 
-Pioneer DJ DJM-250MK2 is a mixer that acts like a USB sound card.
-The MIDI controller part is standard but the PCM part is "vendor specific".
-Output is enabled by this quirk: 8 channels, 48 000 Hz, S24_3LE.
-Input is not working.
+The audio setup on the Lenovo Carbon X1 8th gen is the same as that on
+the Lenovo Carbon X1 7th gen, as such it needs the same
+ALC285_FIXUP_THINKPAD_HEADSET_JACK quirk.
 
-Signed-off-by: František Kučera <franta-linux@frantovo.cz>
-Link: https://lore.kernel.org/r/20200401095907.3387-1-konference@frantovo.cz
+This fixes volume control of the speaker not working among other things.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1820196
+Cc: stable@vger.kernel.org
+Suggested-by: Jaroslav Kysela <perex@perex.cz>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20200402174311.238614-1-hdegoede@redhat.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks-table.h | 42 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ sound/pci/hda/patch_realtek.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index d187aa6d50db0..dcaf9eed9a415 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3592,5 +3592,47 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
- 		}
- 	}
- },
-+{
-+	/*
-+	 * Pioneer DJ DJM-250MK2
-+	 * PCM is 8 channels out @ 48 fixed (endpoints 0x01).
-+	 * The output from computer to the mixer is usable.
-+	 *
-+	 * The input (phono or line to computer) is not working.
-+	 * It should be at endpoint 0x82 and probably also 8 channels,
-+	 * but it seems that it works only with Pioneer proprietary software.
-+	 * Even on officially supported OS, the Audacity was unable to record
-+	 * and Mixxx to recognize the control vinyls.
-+	 */
-+	USB_DEVICE_VENDOR_SPEC(0x2b73, 0x0017),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = (const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 8, // outputs
-+					.iface = 0,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x01,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC|
-+						USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 48000 }
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
- 
- #undef USB_DEVICE_VENDOR_SPEC
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 190c1aa6a4e62..7c327a37eba10 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7300,6 +7300,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x17aa, 0x225d, "Thinkpad T480", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x2292, "Thinkpad X1 Yoga 7th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
+ 	SND_PCI_QUIRK(0x17aa, 0x2293, "Thinkpad X1 Carbon 7th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
++	SND_PCI_QUIRK(0x17aa, 0x22be, "Thinkpad X1 Carbon 8th", ALC285_FIXUP_THINKPAD_HEADSET_JACK),
+ 	SND_PCI_QUIRK(0x17aa, 0x30bb, "ThinkCentre AIO", ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY),
+ 	SND_PCI_QUIRK(0x17aa, 0x30e2, "ThinkCentre AIO", ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY),
+ 	SND_PCI_QUIRK(0x17aa, 0x310c, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
 -- 
 2.20.1
 
