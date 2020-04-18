@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A4FE1AEF4D
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 664A21AF0D5
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728270AbgDROmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52006 "EHLO mail.kernel.org"
+        id S1728264AbgDROwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:52:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728260AbgDROmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:42:10 -0400
+        id S1728267AbgDROmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:42:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA30A21974;
-        Sat, 18 Apr 2020 14:42:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D180221F4;
+        Sat, 18 Apr 2020 14:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220929;
-        bh=vfAHXFAy/Y/q0wkxF7wa7tNLX+mcFSUdnGqu55sY0aU=;
+        s=default; t=1587220930;
+        bh=3JzdYpCqmji0rTehDTJoWII9UNX10mUkDZQu7QunwRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vusfOXdmo9YnisglNF7OfSpv+Ug3A9R0ZOI8kq6n1UGRNf4U2oPj1YMRyvaUe9nld
-         F+czt9aSwtYTl8Y7K24zJKkciNBZ13xwunljfXC4aBYZqSNWAGOvZa8bv50pwirg03
-         TroWXH6A/UVTQ/OPEx/EfZ4VMTBZtIqtbKBKz+Vc=
+        b=RyMNqm6zuTen0HuwCBlaPV4sk1L786h5u5ZJig23E0o68MpgSo/P0UbLkh2fhayG9
+         MNsVw0liauB1Bw6jCORHG+/yx4LdxOKWfBlFyGiARkK/fm57enT7nPVesq2Y3Z8F+U
+         0X563qrxJbfspBiuSeTV1/PbdwE4O1cRu7MoFb+I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aurelien Jarno <aurelien@aurel32.net>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 66/78] libbpf: Fix readelf output parsing on powerpc with recent binutils
-Date:   Sat, 18 Apr 2020 10:40:35 -0400
-Message-Id: <20200418144047.9013-66-sashal@kernel.org>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 67/78] PCI: pciehp: Prevent deadlock on disconnect
+Date:   Sat, 18 Apr 2020 10:40:36 -0400
+Message-Id: <20200418144047.9013-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
 References: <20200418144047.9013-1-sashal@kernel.org>
@@ -45,52 +44,275 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Jarno <aurelien@aurel32.net>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 3464afdf11f9a1e031e7858a05351ceca1792fea ]
+[ Upstream commit 87d0f2a5536fdf5053a6d341880f96135549a644 ]
 
-On powerpc with recent versions of binutils, readelf outputs an extra
-field when dumping the symbols of an object file. For example:
+This addresses deadlocks in these common cases in hierarchies containing
+two switches:
 
-    35: 0000000000000838    96 FUNC    LOCAL  DEFAULT [<localentry>: 8]     1 btf_is_struct
+  - All involved ports are runtime suspended and they are unplugged. This
+    can happen easily if the drivers involved automatically enable runtime
+    PM (xHCI for example does that).
 
-The extra "[<localentry>: 8]" prevents the GLOBAL_SYM_COUNT variable to
-be computed correctly and causes the check_abi target to fail.
+  - System is suspended (e.g., closing the lid on a laptop) with a dock +
+    something else connected, and the dock is unplugged while suspended.
 
-Fix that by looking for the symbol name in the last field instead of the
-8th one. This way it should also cope with future extra fields.
+These cases lead to the following deadlock:
 
-Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/bpf/20191201195728.4161537-1-aurelien@aurel32.net
+  INFO: task irq/126-pciehp:198 blocked for more than 120 seconds.
+  irq/126-pciehp  D    0   198      2 0x80000000
+  Call Trace:
+   schedule+0x2c/0x80
+   schedule_timeout+0x246/0x350
+   wait_for_completion+0xb7/0x140
+   kthread_stop+0x49/0x110
+   free_irq+0x32/0x70
+   pcie_shutdown_notification+0x2f/0x50
+   pciehp_remove+0x27/0x50
+   pcie_port_remove_service+0x36/0x50
+   device_release_driver+0x12/0x20
+   bus_remove_device+0xec/0x160
+   device_del+0x13b/0x350
+   device_unregister+0x1a/0x60
+   remove_iter+0x1e/0x30
+   device_for_each_child+0x56/0x90
+   pcie_port_device_remove+0x22/0x40
+   pcie_portdrv_remove+0x20/0x60
+   pci_device_remove+0x3e/0xc0
+   device_release_driver_internal+0x18c/0x250
+   device_release_driver+0x12/0x20
+   pci_stop_bus_device+0x6f/0x90
+   pci_stop_bus_device+0x31/0x90
+   pci_stop_and_remove_bus_device+0x12/0x20
+   pciehp_unconfigure_device+0x88/0x140
+   pciehp_disable_slot+0x6a/0x110
+   pciehp_handle_presence_or_link_change+0x263/0x400
+   pciehp_ist+0x1c9/0x1d0
+   irq_thread_fn+0x24/0x60
+   irq_thread+0xeb/0x190
+   kthread+0x120/0x140
+
+  INFO: task irq/190-pciehp:2288 blocked for more than 120 seconds.
+  irq/190-pciehp  D    0  2288      2 0x80000000
+  Call Trace:
+   __schedule+0x2a2/0x880
+   schedule+0x2c/0x80
+   schedule_preempt_disabled+0xe/0x10
+   mutex_lock+0x2c/0x30
+   pci_lock_rescan_remove+0x15/0x20
+   pciehp_unconfigure_device+0x4d/0x140
+   pciehp_disable_slot+0x6a/0x110
+   pciehp_handle_presence_or_link_change+0x263/0x400
+   pciehp_ist+0x1c9/0x1d0
+   irq_thread_fn+0x24/0x60
+   irq_thread+0xeb/0x190
+   kthread+0x120/0x140
+
+What happens here is that the whole hierarchy is runtime resumed and the
+parent PCIe downstream port, which got the hot-remove event, starts
+removing devices below it, taking pci_lock_rescan_remove() lock. When the
+child PCIe port is runtime resumed it calls pciehp_check_presence() which
+ends up calling pciehp_card_present() and pciehp_check_link_active().  Both
+of these use pcie_capability_read_word(), which notices that the underlying
+device is already gone and returns PCIBIOS_DEVICE_NOT_FOUND with the
+capability value set to 0. When pciehp gets this value it thinks that its
+child device is also hot-removed and schedules its IRQ thread to handle the
+event.
+
+The deadlock happens when the child's IRQ thread runs and tries to acquire
+pci_lock_rescan_remove() which is already taken by the parent and the
+parent waits for the child's IRQ thread to finish.
+
+Prevent this from happening by checking the return value of
+pcie_capability_read_word() and if it is PCIBIOS_DEVICE_NOT_FOUND stop
+performing any hot-removal activities.
+
+[bhelgaas: add common scenarios to commit log]
+Link: https://lore.kernel.org/r/20191029170022.57528-2-mika.westerberg@linux.intel.com
+Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/hotplug/pciehp.h      |  6 ++--
+ drivers/pci/hotplug/pciehp_core.c | 11 ++++--
+ drivers/pci/hotplug/pciehp_ctrl.c |  4 +--
+ drivers/pci/hotplug/pciehp_hpc.c  | 59 +++++++++++++++++++++++++------
+ 4 files changed, 61 insertions(+), 19 deletions(-)
 
-diff --git a/tools/lib/bpf/Makefile b/tools/lib/bpf/Makefile
-index 33e2638ef7f0d..122321d549227 100644
---- a/tools/lib/bpf/Makefile
-+++ b/tools/lib/bpf/Makefile
-@@ -145,7 +145,7 @@ PC_FILE		:= $(addprefix $(OUTPUT),$(PC_FILE))
+diff --git a/drivers/pci/hotplug/pciehp.h b/drivers/pci/hotplug/pciehp.h
+index 882ce82c46990..aa61d4c219d7b 100644
+--- a/drivers/pci/hotplug/pciehp.h
++++ b/drivers/pci/hotplug/pciehp.h
+@@ -174,10 +174,10 @@ void pciehp_set_indicators(struct controller *ctrl, int pwr, int attn);
  
- GLOBAL_SYM_COUNT = $(shell readelf -s --wide $(BPF_IN_SHARED) | \
- 			   cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' | \
--			   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$8}' | \
-+			   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
- 			   sort -u | wc -l)
- VERSIONED_SYM_COUNT = $(shell readelf -s --wide $(OUTPUT)libbpf.so | \
- 			      grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 | sort -u | wc -l)
-@@ -217,7 +217,7 @@ check_abi: $(OUTPUT)libbpf.so
- 		     "versioned in $(VERSION_SCRIPT)." >&2;		 \
- 		readelf -s --wide $(BPF_IN_SHARED) |			 \
- 		    cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' |	 \
--		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$8}'|   \
-+		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
- 		    sort -u > $(OUTPUT)libbpf_global_syms.tmp;		 \
- 		readelf -s --wide $(OUTPUT)libbpf.so |			 \
- 		    grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 |		 \
+ void pciehp_get_latch_status(struct controller *ctrl, u8 *status);
+ int pciehp_query_power_fault(struct controller *ctrl);
+-bool pciehp_card_present(struct controller *ctrl);
+-bool pciehp_card_present_or_link_active(struct controller *ctrl);
++int pciehp_card_present(struct controller *ctrl);
++int pciehp_card_present_or_link_active(struct controller *ctrl);
+ int pciehp_check_link_status(struct controller *ctrl);
+-bool pciehp_check_link_active(struct controller *ctrl);
++int pciehp_check_link_active(struct controller *ctrl);
+ void pciehp_release_ctrl(struct controller *ctrl);
+ 
+ int pciehp_sysfs_enable_slot(struct hotplug_slot *hotplug_slot);
+diff --git a/drivers/pci/hotplug/pciehp_core.c b/drivers/pci/hotplug/pciehp_core.c
+index 56daad828c9e0..312cc45c44c78 100644
+--- a/drivers/pci/hotplug/pciehp_core.c
++++ b/drivers/pci/hotplug/pciehp_core.c
+@@ -139,10 +139,15 @@ static int get_adapter_status(struct hotplug_slot *hotplug_slot, u8 *value)
+ {
+ 	struct controller *ctrl = to_ctrl(hotplug_slot);
+ 	struct pci_dev *pdev = ctrl->pcie->port;
++	int ret;
+ 
+ 	pci_config_pm_runtime_get(pdev);
+-	*value = pciehp_card_present_or_link_active(ctrl);
++	ret = pciehp_card_present_or_link_active(ctrl);
+ 	pci_config_pm_runtime_put(pdev);
++	if (ret < 0)
++		return ret;
++
++	*value = ret;
+ 	return 0;
+ }
+ 
+@@ -158,13 +163,13 @@ static int get_adapter_status(struct hotplug_slot *hotplug_slot, u8 *value)
+  */
+ static void pciehp_check_presence(struct controller *ctrl)
+ {
+-	bool occupied;
++	int occupied;
+ 
+ 	down_read(&ctrl->reset_lock);
+ 	mutex_lock(&ctrl->state_lock);
+ 
+ 	occupied = pciehp_card_present_or_link_active(ctrl);
+-	if ((occupied && (ctrl->state == OFF_STATE ||
++	if ((occupied > 0 && (ctrl->state == OFF_STATE ||
+ 			  ctrl->state == BLINKINGON_STATE)) ||
+ 	    (!occupied && (ctrl->state == ON_STATE ||
+ 			   ctrl->state == BLINKINGOFF_STATE)))
+diff --git a/drivers/pci/hotplug/pciehp_ctrl.c b/drivers/pci/hotplug/pciehp_ctrl.c
+index dd8e4a5fb2826..6503d15effbbd 100644
+--- a/drivers/pci/hotplug/pciehp_ctrl.c
++++ b/drivers/pci/hotplug/pciehp_ctrl.c
+@@ -226,7 +226,7 @@ void pciehp_handle_disable_request(struct controller *ctrl)
+ 
+ void pciehp_handle_presence_or_link_change(struct controller *ctrl, u32 events)
+ {
+-	bool present, link_active;
++	int present, link_active;
+ 
+ 	/*
+ 	 * If the slot is on and presence or link has changed, turn it off.
+@@ -257,7 +257,7 @@ void pciehp_handle_presence_or_link_change(struct controller *ctrl, u32 events)
+ 	mutex_lock(&ctrl->state_lock);
+ 	present = pciehp_card_present(ctrl);
+ 	link_active = pciehp_check_link_active(ctrl);
+-	if (!present && !link_active) {
++	if (present <= 0 && link_active <= 0) {
+ 		mutex_unlock(&ctrl->state_lock);
+ 		return;
+ 	}
+diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
+index 86d97f3112f02..a2a263764ef88 100644
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -201,17 +201,29 @@ static void pcie_write_cmd_nowait(struct controller *ctrl, u16 cmd, u16 mask)
+ 	pcie_do_write_cmd(ctrl, cmd, mask, false);
+ }
+ 
+-bool pciehp_check_link_active(struct controller *ctrl)
++/**
++ * pciehp_check_link_active() - Is the link active
++ * @ctrl: PCIe hotplug controller
++ *
++ * Check whether the downstream link is currently active. Note it is
++ * possible that the card is removed immediately after this so the
++ * caller may need to take it into account.
++ *
++ * If the hotplug controller itself is not available anymore returns
++ * %-ENODEV.
++ */
++int pciehp_check_link_active(struct controller *ctrl)
+ {
+ 	struct pci_dev *pdev = ctrl_dev(ctrl);
+ 	u16 lnk_status;
+-	bool ret;
++	int ret;
+ 
+-	pcie_capability_read_word(pdev, PCI_EXP_LNKSTA, &lnk_status);
+-	ret = !!(lnk_status & PCI_EXP_LNKSTA_DLLLA);
++	ret = pcie_capability_read_word(pdev, PCI_EXP_LNKSTA, &lnk_status);
++	if (ret == PCIBIOS_DEVICE_NOT_FOUND || lnk_status == (u16)~0)
++		return -ENODEV;
+ 
+-	if (ret)
+-		ctrl_dbg(ctrl, "%s: lnk_status = %x\n", __func__, lnk_status);
++	ret = !!(lnk_status & PCI_EXP_LNKSTA_DLLLA);
++	ctrl_dbg(ctrl, "%s: lnk_status = %x\n", __func__, lnk_status);
+ 
+ 	return ret;
+ }
+@@ -373,13 +385,29 @@ void pciehp_get_latch_status(struct controller *ctrl, u8 *status)
+ 	*status = !!(slot_status & PCI_EXP_SLTSTA_MRLSS);
+ }
+ 
+-bool pciehp_card_present(struct controller *ctrl)
++/**
++ * pciehp_card_present() - Is the card present
++ * @ctrl: PCIe hotplug controller
++ *
++ * Function checks whether the card is currently present in the slot and
++ * in that case returns true. Note it is possible that the card is
++ * removed immediately after the check so the caller may need to take
++ * this into account.
++ *
++ * It the hotplug controller itself is not available anymore returns
++ * %-ENODEV.
++ */
++int pciehp_card_present(struct controller *ctrl)
+ {
+ 	struct pci_dev *pdev = ctrl_dev(ctrl);
+ 	u16 slot_status;
++	int ret;
+ 
+-	pcie_capability_read_word(pdev, PCI_EXP_SLTSTA, &slot_status);
+-	return slot_status & PCI_EXP_SLTSTA_PDS;
++	ret = pcie_capability_read_word(pdev, PCI_EXP_SLTSTA, &slot_status);
++	if (ret == PCIBIOS_DEVICE_NOT_FOUND || slot_status == (u16)~0)
++		return -ENODEV;
++
++	return !!(slot_status & PCI_EXP_SLTSTA_PDS);
+ }
+ 
+ /**
+@@ -390,10 +418,19 @@ bool pciehp_card_present(struct controller *ctrl)
+  * Presence Detect State bit, this helper also returns true if the Link Active
+  * bit is set.  This is a concession to broken hotplug ports which hardwire
+  * Presence Detect State to zero, such as Wilocity's [1ae9:0200].
++ *
++ * Returns: %1 if the slot is occupied and %0 if it is not. If the hotplug
++ *	    port is not present anymore returns %-ENODEV.
+  */
+-bool pciehp_card_present_or_link_active(struct controller *ctrl)
++int pciehp_card_present_or_link_active(struct controller *ctrl)
+ {
+-	return pciehp_card_present(ctrl) || pciehp_check_link_active(ctrl);
++	int ret;
++
++	ret = pciehp_card_present(ctrl);
++	if (ret)
++		return ret;
++
++	return pciehp_check_link_active(ctrl);
+ }
+ 
+ int pciehp_query_power_fault(struct controller *ctrl)
 -- 
 2.20.1
 
