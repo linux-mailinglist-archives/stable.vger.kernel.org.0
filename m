@@ -2,93 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9B791AF0AC
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 976B91AF064
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:52:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727911AbgDROv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:51:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52904 "EHLO mail.kernel.org"
+        id S1728403AbgDROmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:42:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728393AbgDROmk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:42:40 -0400
+        id S1728397AbgDROmm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:42:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14E2C22202;
-        Sat, 18 Apr 2020 14:42:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39B4922262;
+        Sat, 18 Apr 2020 14:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220959;
-        bh=/0/tKzES9ZCvf0Wg4Gocxj57HzdAkbrdH3u/I+MnG38=;
+        s=default; t=1587220961;
+        bh=/yBA27/kqdiy37hk84WYeY9GxI6HtW+l5MdCsPRFJ34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhoIauFem9g/EqqRDTpMBeYL1FEEKdyNqA0dv4O5myaBoXv8sV2y1Z3p0sPoNbvdS
-         KebkVBKc657uruoQhEj3xmIJdWcSwKg85s8FVp7qFwjeF0qgvib8MxhA4rOb5wkv8Y
-         rz/ExioMhb1yLBkXC5zvHMHyqpDeizbpRnb8qko0=
+        b=GXTYdjFwTyBGkrhDfy51XgW7A+/p4vDq8g2ds3IQMf6aVzccMFEkO76VDPswTG24T
+         AL867xS88JCjuwPVsyrDLxpbBbkI93NYw8mzu/yZT3WeSQd6s67YRu8LpkO75LvVdl
+         2YVDFAtXA6YXgjpJHT4tK30fi+1pyaCB7N5dPj5c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?=EC=9D=B4=EA=B2=BD=ED=83=9D?= <gt82.lee@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 10/47] ASoC: dpcm: allow start or stop during pause for backend
-Date:   Sat, 18 Apr 2020 10:41:50 -0400
-Message-Id: <20200418144227.9802-10-sashal@kernel.org>
+Cc:     Wu Bo <wubo40@huawei.com>, Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, open-iscsi@googlegroups.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 11/47] scsi: iscsi: Report unbind session event when the target has been removed
+Date:   Sat, 18 Apr 2020 10:41:51 -0400
+Message-Id: <20200418144227.9802-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
 References: <20200418144227.9802-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 이경택 <gt82.lee@samsung.com>
+From: Wu Bo <wubo40@huawei.com>
 
-[ Upstream commit 21fca8bdbb64df1297e8c65a746c4c9f4a689751 ]
+[ Upstream commit 13e60d3ba287d96eeaf1deaadba51f71578119a3 ]
 
-soc_compr_trigger_fe() allows start or stop after pause_push.
-In dpcm_be_dai_trigger(), however, only pause_release is allowed
-command after pause_push.
-So, start or stop after pause in compress offload is always
-returned as error if the compress offload is used with dpcm.
-To fix the problem, SND_SOC_DPCM_STATE_PAUSED should be allowed
-for start or stop command.
+If the daemon is restarted or crashes while logging out of a session, the
+unbind session event sent by the kernel is not processed and is lost.  When
+the daemon starts again, the session can't be unbound because the daemon is
+waiting for the event message. However, the kernel has already logged out
+and the event will not be resent.
 
-Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/004d01d607c1$7a3d5250$6eb7f6f0$@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+When iscsid restart is complete, logout session reports error:
+
+Logging out of session [sid: 6, target: iqn.xxxxx, portal: xx.xx.xx.xx,3260]
+iscsiadm: Could not logout of [sid: 6, target: iscsiadm -m node iqn.xxxxx, portal: xx.xx.xx.xx,3260].
+iscsiadm: initiator reported error (9 - internal error)
+iscsiadm: Could not logout of all requested sessions
+
+Make sure the unbind event is emitted.
+
+[mkp: commit desc and applied by hand since patch was mangled]
+
+Link: https://lore.kernel.org/r/4eab1771-2cb3-8e79-b31c-923652340e99@huawei.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Wu Bo <wubo40@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 356d4e754561b..a0d1ce0edaf9a 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -2266,7 +2266,8 @@ int dpcm_be_dai_trigger(struct snd_soc_pcm_runtime *fe, int stream,
- 		switch (cmd) {
- 		case SNDRV_PCM_TRIGGER_START:
- 			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_PREPARE) &&
--			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP))
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
- 				continue;
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index c0fb9e7890807..04d095488c764 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -2010,7 +2010,7 @@ static void __iscsi_unbind_session(struct work_struct *work)
+ 	if (session->target_id == ISCSI_MAX_TARGET) {
+ 		spin_unlock_irqrestore(&session->lock, flags);
+ 		mutex_unlock(&ihost->mutex);
+-		return;
++		goto unbind_session_exit;
+ 	}
  
- 			ret = dpcm_do_trigger(dpcm, be_substream, cmd);
-@@ -2296,7 +2297,8 @@ int dpcm_be_dai_trigger(struct snd_soc_pcm_runtime *fe, int stream,
- 			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
- 			break;
- 		case SNDRV_PCM_TRIGGER_STOP:
--			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START)
-+			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) &&
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
- 				continue;
+ 	target_id = session->target_id;
+@@ -2022,6 +2022,8 @@ static void __iscsi_unbind_session(struct work_struct *work)
+ 		ida_simple_remove(&iscsi_sess_ida, target_id);
  
- 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
+ 	scsi_remove_target(&session->dev);
++
++unbind_session_exit:
+ 	iscsi_session_event(session, ISCSI_KEVENT_UNBIND_SESSION);
+ 	ISCSI_DBG_TRANS_SESSION(session, "Completed target removal\n");
+ }
 -- 
 2.20.1
 
