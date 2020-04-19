@@ -2,73 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D20151AF82B
-	for <lists+stable@lfdr.de>; Sun, 19 Apr 2020 09:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76FB81AF82C
+	for <lists+stable@lfdr.de>; Sun, 19 Apr 2020 09:19:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725947AbgDSHSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Apr 2020 03:18:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47930 "EHLO mail.kernel.org"
+        id S1725910AbgDSHTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Apr 2020 03:19:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725446AbgDSHSt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 19 Apr 2020 03:18:49 -0400
+        id S1725446AbgDSHTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 19 Apr 2020 03:19:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73C6F21473;
-        Sun, 19 Apr 2020 07:18:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF75B21473;
+        Sun, 19 Apr 2020 07:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587280728;
-        bh=DR9LEZvTTJhuoWhKKe7yQkTo4M1R/evEF1B0NdROUnQ=;
+        s=default; t=1587280745;
+        bh=2hd3+tG/b2HomgOrCn5aeT5qors0DQLI7HGOz4+Ji4s=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xZ5mIA/cz9h70ZorxU2p0QC1tNgzaCnmdd9/icfBqR3qb8Cj/iJbENXgIHyi/1v/0
-         QfEBOghSiMEB9UFIRXp57IZ2/FJGyhhE+S8bQ5DVJvo4E4gx6sy45FSHJyDi/riq11
-         demcSQ3VB+VuOXbuDrBRC/o4KSfjdYw1l13KLTd4=
-Date:   Sun, 19 Apr 2020 09:18:44 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Delio Brignoli <dbrignoli@audioscience.com>, stable@vger.kernel.org
-Subject: Re: usb: dwc3: gadget: Don't clear flags before transfer ended
-Message-ID: <20200419071844.GA3544495@kroah.com>
-References: <C9599B63-1C11-4EBC-AFCC-3A4F14830767@audioscience.com>
- <20200418105325.GA2875820@kroah.com>
- <20200418163643.GC1809@sasha-vm>
+        b=xzqnkESGnFiAu28ZMYIqzZ26/j1HZ/bCclHvB0RXV25qwYZtme2jIiTVfHle23SJP
+         Ixs4oCfWsaEbF1E9UFQwJuhtYMvdmNa5vp0TB9CPn2tzfjIBSq06XOWMUXiVZPcfkH
+         V2j7ILBvEdrCeEPtoHHp1uDTfYPwXD9Kl55VBork=
+Date:   Sun, 19 Apr 2020 09:19:02 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Thomas Backlund <tmb@mageia.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Deucher, Alexander" <alexander.deucher@amd.com>
+Subject: Re: [regression 5.7-rc1] System does not power off, just halts
+Message-ID: <20200419071902.GA3544449@kroah.com>
+References: <f4eaf0ca-6cd6-c224-9205-bf64ca533ff5@molgen.mpg.de>
+ <dcc4851e-0ab5-683a-2cf2-687d64a3c9da@molgen.mpg.de>
+ <CADnq5_OXdpEebFY3+kyQb-WEw0Rb6cqoOFKGqgxaigU5hean1g@mail.gmail.com>
+ <20200414082150.GD4149624@kroah.com>
+ <CADnq5_NCnHFO9kZY-8L34B3uVX5aghXO8+gXNC_cPMOnP7UGAg@mail.gmail.com>
+ <ed41bd20-4cd7-d498-db67-9aa981e656b9@mageia.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200418163643.GC1809@sasha-vm>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ed41bd20-4cd7-d498-db67-9aa981e656b9@mageia.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 18, 2020 at 12:36:43PM -0400, Sasha Levin wrote:
-> On Sat, Apr 18, 2020 at 12:53:25PM +0200, Greg KH wrote:
-> > On Sat, Apr 18, 2020 at 12:25:16PM +0200, Delio Brignoli wrote:
-> > > Please apply the following commit:
+On Sat, Apr 18, 2020 at 10:09:28PM +0300, Thomas Backlund wrote:
+> Den 14-04-2020 kl. 16:07, skrev Alex Deucher:
+> > On Tue, Apr 14, 2020 at 4:21 AM Greg KH <greg@kroah.com> wrote:
 > > > 
-> > > Commit subject: usb: dwc3: gadget: Don't clear flags before transfer ended
-> > > Commit ID: a114c4ca64bd522aec1790c7e5c60c882f699d8f
-> > > Apply to: at least 4.19 stable, and 5.4 stable if possible. Note that all kernels from v4.18-rc1 up to 5.7-rc1 are affected.
+> > > On Mon, Apr 13, 2020 at 01:48:58PM -0400, Alex Deucher wrote:
+> > > > On Mon, Apr 13, 2020 at 1:47 PM Paul Menzel <pmenzel@molgen.mpg.de> wrote:
+> > > > > 
+> > > > > Dear Prike, dear Alex, dear Linux folks,
+> > > > > 
+> > > > > 
+> > > > > Am 13.04.20 um 10:44 schrieb Paul Menzel:
+> > > > > 
+> > > > > > A regression between causes a system with the AMD board MSI B350M MORTAR
+> > > > > > (MS-7A37) with an AMD Ryzen 3 2200G not to power off any more but just
+> > > > > > to halt.
+> > > > > > 
+> > > > > > The regression is introduced in 9ebe5422ad6c..b032227c6293. I am in the
+> > > > > > process to bisect this, but maybe somebody already has an idea.
+> > > > > 
+> > > > > I found the Easter egg:
+> > > > > 
+> > > > > > commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58
+> > > > > > Author: Prike Liang <Prike.Liang@amd.com>
+> > > > > > Date:   Tue Apr 7 20:21:26 2020 +0800
+> > > > > > 
+> > > > > >      drm/amdgpu: fix gfx hang during suspend with video playback (v2)
+> > > > > > 
+> > > > > >      The system will be hang up during S3 suspend because of SMU is pending
+> > > > > >      for GC not respose the register CP_HQD_ACTIVE access request.This issue
+> > > > > >      root cause of accessing the GC register under enter GFX CGGPG and can
+> > > > > >      be fixed by disable GFX CGPG before perform suspend.
+> > > > > > 
+> > > > > >      v2: Use disable the GFX CGPG instead of RLC safe mode guard.
+> > > > > > 
+> > > > > >      Signed-off-by: Prike Liang <Prike.Liang@amd.com>
+> > > > > >      Tested-by: Mengbing Wang <Mengbing.Wang@amd.com>
+> > > > > >      Reviewed-by: Huang Rui <ray.huang@amd.com>
+> > > > > >      Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > > > >      Cc: stable@vger.kernel.org
+> > > > > 
+> > > > > It reverts cleanly on top of 5.7-rc1, and this fixes the issue.
+> > > > > 
+> > > > > Greg, please do not apply this to the stable series. The commit message
+> > > > > doesn’t even reference a issue/bug report, and doesn’t give a detailed
+> > > > > problem description. What system is it?
+> > > > > 
+> > > > > Dave, Alex, how to proceed? Revert? I created issue 1094 [1].
+> > > > 
+> > > > Already fixed:
+> > > > https://patchwork.freedesktop.org/patch/361195/
 > > > 
-> > > Why apply it:
-> > > <https://github.com/torvalds/linux/commit/a114c4ca64bd522aec1790c7e5c60c882f699d8f> fixes <https://github.com/torvalds/linux/commit/6d8a019614f3a7630e0a2c1be4bf1cfc23acf56e>. Without this fix the built-in USB function source/sink test module fails to work with isochronous endpoints [1]. A side-effect of setting dep->flags = DWC3_EP_ENABLED; in dwc3_gadget_ep_cleanup_completed_requests() as part of disabling an ep is that a subsequent attempt to enable the endpoint will skip __dwc3_gadget_ep_enable() effectively leaving the ep disabled.
+> > > Any reason that doesn't have a cc: stable tag on it?
 > > > 
-> > > [1] Our gadget driver on TI AM5729 fails to work exactly like the built-in USB function source/sink test module when switching to alternate interface 1 because of the issue described above.
-> > > 
-> > > TI is currently using 4.19 and 5.4 stable kernels as the basis for their processor SDK kernels for their AM57x SoC and may switch to 5.4 stable at a later time. Thank you.
+> > > And is it committed to any tree at the moment?
 > > 
-> > It does not apply to the 4.19.y kernel tree, can you provide a working
-> > backport of it please so that I can apply it?
+> > It's going out in my -fixes pull this week with a stable tag.
+> > 
+> > Alex
+> > 
 > 
-> I took this as a dependency:
 > 
-> 	c5353b225df9 ("usb: dwc3: gadget: don't enable interrupt when disabling endpoint")
+> The fix is now in linus tree as:
+> b2a7e9735ab2864330be9d00d7f38c961c28de5d
 > 
-> And worked around context conflicts caused by:
+> and should be added to fix all theese stable trees where the breakage got
+> added despite the warnings in this thread:
 > 
-> 	25abad6a0584 ("usb: dwc3: gadget: return errors from __dwc3_gadget_start_isoc()")
-> 	d92021f66063 ("usb: dwc3: Add workaround for isoc start transfer failure")
-> 
-> And queued a114c4ca64bd for 4.19.
+> releases/5.4.33/drm-amdgpu-fix-gfx-hang-during-suspend-with-video-pl.patch:[
+> Upstream commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58 ]
+> releases/5.6.5/drm-amdgpu-fix-gfx-hang-during-suspend-with-video-pl.patch:[
+> Upstream commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58 ]
+> releases/5.5.18/drm-amdgpu-fix-gfx-hang-during-suspend-with-video-pl.patch:[
+> Upstream commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58 ]
 
-Thanks for doing this!
+Now queued up, thanks.
+
+greg k-h
