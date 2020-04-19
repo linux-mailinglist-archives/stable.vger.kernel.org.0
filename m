@@ -2,124 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76FB81AF82C
-	for <lists+stable@lfdr.de>; Sun, 19 Apr 2020 09:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C6FB1AF836
+	for <lists+stable@lfdr.de>; Sun, 19 Apr 2020 09:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725910AbgDSHTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Apr 2020 03:19:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47982 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725446AbgDSHTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 19 Apr 2020 03:19:07 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF75B21473;
-        Sun, 19 Apr 2020 07:19:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587280745;
-        bh=2hd3+tG/b2HomgOrCn5aeT5qors0DQLI7HGOz4+Ji4s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xzqnkESGnFiAu28ZMYIqzZ26/j1HZ/bCclHvB0RXV25qwYZtme2jIiTVfHle23SJP
-         Ixs4oCfWsaEbF1E9UFQwJuhtYMvdmNa5vp0TB9CPn2tzfjIBSq06XOWMUXiVZPcfkH
-         V2j7ILBvEdrCeEPtoHHp1uDTfYPwXD9Kl55VBork=
-Date:   Sun, 19 Apr 2020 09:19:02 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Thomas Backlund <tmb@mageia.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Deucher, Alexander" <alexander.deucher@amd.com>
-Subject: Re: [regression 5.7-rc1] System does not power off, just halts
-Message-ID: <20200419071902.GA3544449@kroah.com>
-References: <f4eaf0ca-6cd6-c224-9205-bf64ca533ff5@molgen.mpg.de>
- <dcc4851e-0ab5-683a-2cf2-687d64a3c9da@molgen.mpg.de>
- <CADnq5_OXdpEebFY3+kyQb-WEw0Rb6cqoOFKGqgxaigU5hean1g@mail.gmail.com>
- <20200414082150.GD4149624@kroah.com>
- <CADnq5_NCnHFO9kZY-8L34B3uVX5aghXO8+gXNC_cPMOnP7UGAg@mail.gmail.com>
- <ed41bd20-4cd7-d498-db67-9aa981e656b9@mageia.org>
+        id S1725903AbgDSHaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Apr 2020 03:30:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46116 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725446AbgDSHaA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Apr 2020 03:30:00 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB76C061A0C
+        for <stable@vger.kernel.org>; Sun, 19 Apr 2020 00:30:00 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id v2so2726212plp.9
+        for <stable@vger.kernel.org>; Sun, 19 Apr 2020 00:30:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=XNH9uUVigAQ0PdUABAnc3aaFBCNeoPAiKMef4fjHVxQ=;
+        b=cSAVEIdDBi4KnI1ffTNd0/PKfUtPOxT77IxGfztNJI0/+ObgYZ4GjA7q12NfyoGrkW
+         KjRzT4gbHo4npoa2KljVXuO02PLTIeoZbnlStB4eLdjz8JehdRiFXhOnufe4UaBoR15j
+         TWqmP06BmMlBEJLiST7Br8VpukRM7f7RbFGFsX6+QMjLku3xDg/8RxfxILKnEvDCRgPx
+         OMYMXX1obrjkIUxgxWwpYJhhxqHcnrI1kUcM9vngMX7HrpXwfT0J2D0oOY/zNx35C9hd
+         5Gh3crvX/LhN1YJMdJMfLYIuQjlTC0T98rfRHuXQJjfLIGqXcRYVhmOMZbHKuW2oStCk
+         gIuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=XNH9uUVigAQ0PdUABAnc3aaFBCNeoPAiKMef4fjHVxQ=;
+        b=W5Dqrc1/lSnTlBbcnbIYqzfNmykAZNrPzl+ng0ZsafbHJQPO701jnoZBgd0xygmo2l
+         mVWQKtqSUnq2iq8hV9XW3OegPo5nBsDjgNmbX7efNXGCXrOqQsgTuSWMT4yz9JG+JFEW
+         wxM+k5JMHsnZdNun/TeAcSNiXAqcPeLjuyrXJFLapc2GOvjfSQBPYFN++dH8J+OEvGAS
+         lmyg3DpCqKw3jUgAhrVQJiqsNcLWr9tmC7o6eBTTSVibtCM6fjXOsC381Xol2OLjC23l
+         qNGXpyvn4Xhrrydj0ELA2eP/onUve1QYfSU9LbmWh6ckwVRBGo7Yxld9VwMGYkqDV+r5
+         5Biw==
+X-Gm-Message-State: AGi0PuacvaEP3U1ybmRGiAFxiDhPjMLEcg8dBim51nbUoK9kUmVs1yMW
+        wOimqIA23VlBvUfQVQii+ebPGLZfS/g=
+X-Google-Smtp-Source: APiQypIgP1ieWTBTDOjBN4Wj7ViwIedI+4Y9aiKkY3kNA9g0+AU6cHDQOUIiPMcyLaecbUXOdD1PjQ==
+X-Received: by 2002:a17:90b:1a87:: with SMTP id ng7mr6787712pjb.84.1587281399639;
+        Sun, 19 Apr 2020 00:29:59 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c3sm23885090pfa.160.2020.04.19.00.29.58
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Apr 2020 00:29:59 -0700 (PDT)
+Message-ID: <5e9bfdf7.1c69fb81.43792.5cda@mx.google.com>
+Date:   Sun, 19 Apr 2020 00:29:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ed41bd20-4cd7-d498-db67-9aa981e656b9@mageia.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.176-124-g10e2890241f3
+Subject: stable-rc/linux-4.14.y boot: 131 boots: 3 failed,
+ 120 passed with 3 offline, 5 untried/unknown (v4.14.176-124-g10e2890241f3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 18, 2020 at 10:09:28PM +0300, Thomas Backlund wrote:
-> Den 14-04-2020 kl. 16:07, skrev Alex Deucher:
-> > On Tue, Apr 14, 2020 at 4:21 AM Greg KH <greg@kroah.com> wrote:
-> > > 
-> > > On Mon, Apr 13, 2020 at 01:48:58PM -0400, Alex Deucher wrote:
-> > > > On Mon, Apr 13, 2020 at 1:47 PM Paul Menzel <pmenzel@molgen.mpg.de> wrote:
-> > > > > 
-> > > > > Dear Prike, dear Alex, dear Linux folks,
-> > > > > 
-> > > > > 
-> > > > > Am 13.04.20 um 10:44 schrieb Paul Menzel:
-> > > > > 
-> > > > > > A regression between causes a system with the AMD board MSI B350M MORTAR
-> > > > > > (MS-7A37) with an AMD Ryzen 3 2200G not to power off any more but just
-> > > > > > to halt.
-> > > > > > 
-> > > > > > The regression is introduced in 9ebe5422ad6c..b032227c6293. I am in the
-> > > > > > process to bisect this, but maybe somebody already has an idea.
-> > > > > 
-> > > > > I found the Easter egg:
-> > > > > 
-> > > > > > commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58
-> > > > > > Author: Prike Liang <Prike.Liang@amd.com>
-> > > > > > Date:   Tue Apr 7 20:21:26 2020 +0800
-> > > > > > 
-> > > > > >      drm/amdgpu: fix gfx hang during suspend with video playback (v2)
-> > > > > > 
-> > > > > >      The system will be hang up during S3 suspend because of SMU is pending
-> > > > > >      for GC not respose the register CP_HQD_ACTIVE access request.This issue
-> > > > > >      root cause of accessing the GC register under enter GFX CGGPG and can
-> > > > > >      be fixed by disable GFX CGPG before perform suspend.
-> > > > > > 
-> > > > > >      v2: Use disable the GFX CGPG instead of RLC safe mode guard.
-> > > > > > 
-> > > > > >      Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-> > > > > >      Tested-by: Mengbing Wang <Mengbing.Wang@amd.com>
-> > > > > >      Reviewed-by: Huang Rui <ray.huang@amd.com>
-> > > > > >      Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> > > > > >      Cc: stable@vger.kernel.org
-> > > > > 
-> > > > > It reverts cleanly on top of 5.7-rc1, and this fixes the issue.
-> > > > > 
-> > > > > Greg, please do not apply this to the stable series. The commit message
-> > > > > doesn’t even reference a issue/bug report, and doesn’t give a detailed
-> > > > > problem description. What system is it?
-> > > > > 
-> > > > > Dave, Alex, how to proceed? Revert? I created issue 1094 [1].
-> > > > 
-> > > > Already fixed:
-> > > > https://patchwork.freedesktop.org/patch/361195/
-> > > 
-> > > Any reason that doesn't have a cc: stable tag on it?
-> > > 
-> > > And is it committed to any tree at the moment?
-> > 
-> > It's going out in my -fixes pull this week with a stable tag.
-> > 
-> > Alex
-> > 
-> 
-> 
-> The fix is now in linus tree as:
-> b2a7e9735ab2864330be9d00d7f38c961c28de5d
-> 
-> and should be added to fix all theese stable trees where the breakage got
-> added despite the warnings in this thread:
-> 
-> releases/5.4.33/drm-amdgpu-fix-gfx-hang-during-suspend-with-video-pl.patch:[
-> Upstream commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58 ]
-> releases/5.6.5/drm-amdgpu-fix-gfx-hang-during-suspend-with-video-pl.patch:[
-> Upstream commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58 ]
-> releases/5.5.18/drm-amdgpu-fix-gfx-hang-during-suspend-with-video-pl.patch:[
-> Upstream commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58 ]
+stable-rc/linux-4.14.y boot: 131 boots: 3 failed, 120 passed with 3 offline=
+, 5 untried/unknown (v4.14.176-124-g10e2890241f3)
 
-Now queued up, thanks.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.176-124-g10e2890241f3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.176-124-g10e2890241f3/
 
-greg k-h
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.176-124-g10e2890241f3
+Git Commit: 10e2890241f3e0a85ad154700a5406acff9d9ade
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 74 unique boards, 20 SoC families, 18 builds out of 201
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 70 days (last pass: v4.14=
+.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 59 days (last pass: v4.14.170-141=
+-g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
+            meson-gxm-q200: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
