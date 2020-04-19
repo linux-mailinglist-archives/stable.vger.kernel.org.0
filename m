@@ -2,80 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 223DA1AFC43
-	for <lists+stable@lfdr.de>; Sun, 19 Apr 2020 18:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3BDF1AFC91
+	for <lists+stable@lfdr.de>; Sun, 19 Apr 2020 19:12:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726211AbgDSQ7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Apr 2020 12:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48462 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725932AbgDSQ7F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Apr 2020 12:59:05 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAAC7C061A0C;
-        Sun, 19 Apr 2020 09:59:04 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id x1so5888880ejd.8;
-        Sun, 19 Apr 2020 09:59:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Yaz56HMp/S89gaKfJpEhbFFnazFPo/RmIrwLmVduCoI=;
-        b=GSVsDoWNqHMk1a/muWiXRDv5VANp+vqo4c08fPkDbG9pNXGJRYCfhBZv19nTVghEV/
-         rR1emnmvALzm3mBWNYCb0tCXhj/GfMY3BYzeoBauJhrrRlhcvWODFDzalNcgQiZnlPhB
-         ZDPKvd6TuNENzsUlt/+aJ2D4KeYw7DbL1Xu9ryn67NfucngIFG5j7z0q7ocNEJzbJmUx
-         SRU25/mNFOHWOVjhmQajYOOgAngNAQCBuYtLc56flZ0Z6Bgu4BqB/z/zgXf0Kl/Ks4k6
-         ymF3jNCnP0eu5hL1crG77BCfqeE3R/o0nZR2x4u83cHj1p0GHFmOpVOfyN+/sztPbXWj
-         vM/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Yaz56HMp/S89gaKfJpEhbFFnazFPo/RmIrwLmVduCoI=;
-        b=jX7BFkqFG6HCm/0BEAdHy9BHUx1xpD76V5CBDyFW7kjg8pDLEWYtBdwFGhTivQEKpY
-         8M0+r2qBp9Xu1+Fw7aYybZLy1Ze+vMMlaEegnOAyD7wrZjFtZkrpTNugjLBJJ8LWJtDC
-         NdROxFBsiMoRcYF6B6GxXgbXIKRjddWAV1pr5mifampVr4FTqLVUKiZE+kE0u8HJbBtO
-         QYOBbl3YT7ltLttrKH7INlPfHvuAl+0RUJqfoNNEFiF45o8FqCj5ScvVWoamVesuUTcb
-         b9SOxByxA1ZLs2KB26jqQ9Hm7fVY7/KnIWA8yOW1i5szFvGaimF4HbBnelhttZXyU+is
-         nxKg==
-X-Gm-Message-State: AGi0PuYFgCbyLmqwFFzqTK3xiFoT+t9FbaWWGNqW1Ww0NwJtz7AVscvC
-        549zmcQz8ekGep7ZhPiAVrVo3hV31pH2KzyT/PE=
-X-Google-Smtp-Source: APiQypInUWs4bxD4QvtZtJ/yVZmP+/efzMlqnIUknrqdkFj4i6HrJej16oCfUeGD8zDR58ToIyQMVGpbDdwIYRbGjLs=
-X-Received: by 2002:a17:906:4048:: with SMTP id y8mr12436425ejj.258.1587315543506;
- Sun, 19 Apr 2020 09:59:03 -0700 (PDT)
+        id S1726778AbgDSRMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Apr 2020 13:12:35 -0400
+Received: from v6.sk ([167.172.42.174]:44022 "EHLO v6.sk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726808AbgDSRMe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 19 Apr 2020 13:12:34 -0400
+Received: from localhost (v6.sk [IPv6:::1])
+        by v6.sk (Postfix) with ESMTP id 68A5C610BC;
+        Sun, 19 Apr 2020 17:12:33 +0000 (UTC)
+From:   Lubomir Rintel <lkundrak@v3.sk>
+To:     soc@kernel.org
+Cc:     Olof Johansson <olof@lixom.net>, Arnd Bergmann <arnd@arndb.de>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        linux-kernel@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
+        stable@vger.kernel.org
+Subject: [PATCH 13/15] ARM: dts: mmp3: Drop usb-nop-xceiv from HSIC phy
+Date:   Sun, 19 Apr 2020 19:11:55 +0200
+Message-Id: <20200419171157.672999-14-lkundrak@v3.sk>
+X-Mailer: git-send-email 2.26.0
+In-Reply-To: <20200419171157.672999-1-lkundrak@v3.sk>
+References: <20200419171157.672999-1-lkundrak@v3.sk>
 MIME-Version: 1.0
-References: <20200418181457.3193175-1-maz@kernel.org>
-In-Reply-To: <20200418181457.3193175-1-maz@kernel.org>
-From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date:   Sun, 19 Apr 2020 18:58:52 +0200
-Message-ID: <CAFBinCDOw07_MHa=EBiLZsw24z3x5ngcW8_xmN6fJ8SqPmyyqg@mail.gmail.com>
-Subject: Re: [PATCH] net: stmmac: dwmac-meson8b: Add missing boundary to RGMII
- TX clock array
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org,
-        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Kevin Hilman <khilman@baylibre.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Marc,
+"usb-nop-xceiv" is good enough if we don't lose the configuration done
+by the firmware, but we'd really prefer a real driver.
 
-On Sat, Apr 18, 2020 at 8:15 PM Marc Zyngier <maz@kernel.org> wrote:
-[...]
-> Digging into this indeed shows that the clock divider array is
-> lacking a final fence, and that the clock subsystems goes in the
-> weeds. Oh well.
->
-> Let's add the empty structure that indicates the end of the array.
-oh. Thank you for fixing this!
+Unfortunately, the PHY core is odd in that when the node is compatible
+with "usb-nop-xceiv", it ignores the other compatible strings. Let's
+just remove it.
 
-> Fixes: bd6f48546b9c ("net: stmmac: dwmac-meson8b: Fix the RGMII TX delay on Meson8b/8m2 SoCs")
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Cc: <stable@vger.kernel.org>
+---
+ arch/arm/boot/dts/mmp3.dtsi | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/boot/dts/mmp3.dtsi b/arch/arm/boot/dts/mmp3.dtsi
+index ae264af12c287..f97fb64404659 100644
+--- a/arch/arm/boot/dts/mmp3.dtsi
++++ b/arch/arm/boot/dts/mmp3.dtsi
+@@ -202,8 +202,7 @@ usb_otg0: usb@d4208000 {
+ 			};
+ 
+ 			hsic_phy0: usb-phy@f0001800 {
+-				compatible = "marvell,mmp3-hsic-phy",
+-					     "usb-nop-xceiv";
++				compatible = "marvell,mmp3-hsic-phy";
+ 				reg = <0xf0001800 0x40>;
+ 				#phy-cells = <0>;
+ 				status = "disabled";
+@@ -224,8 +223,7 @@ hsic0: usb@f0001000 {
+ 			};
+ 
+ 			hsic_phy1: usb-phy@f0002800 {
+-				compatible = "marvell,mmp3-hsic-phy",
+-					     "usb-nop-xceiv";
++				compatible = "marvell,mmp3-hsic-phy";
+ 				reg = <0xf0002800 0x40>;
+ 				#phy-cells = <0>;
+ 				status = "disabled";
+-- 
+2.26.0
+
