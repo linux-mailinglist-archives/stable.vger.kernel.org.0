@@ -2,143 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 136501B0B29
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:54:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACCEB1B0B31
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:54:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729647AbgDTMyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:54:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50414 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728950AbgDTMxv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:53:51 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAE1C206DD;
-        Mon, 20 Apr 2020 12:53:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587387231;
-        bh=AqeoMsaREBe+ByYuI8OlaAnafpi4yqJaR+sdlU66q9E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gExvF0YWY7t5RpU5+awzuSaCYAQbIPLTySe7GqX5OKMa9TZjZIOx+lrtjiXGgPd4O
-         fsWs7So0kA9LO2Mqb/p+Fxleb/Gk2qx/dYRSPvMHlCcCTPLY4aR/iimh6lWug8aj57
-         GVWFQTN+uvqBcbzidArAttUIrfcTRfZ+k/NKNwAo=
-Date:   Mon, 20 Apr 2020 08:53:49 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Edward Cree <ecree@solarflare.com>
-Cc:     Or Gerlitz <gerlitz.or@gmail.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        David Miller <davem@davemloft.net>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
- representors
-Message-ID: <20200420125349.GI1809@sasha-vm>
-References: <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
- <20200414110911.GA341846@kroah.com>
- <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
- <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
- <20200414205755.GF1068@sasha-vm>
- <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
- <20200416000009.GL1068@sasha-vm>
- <779d89c8-1e49-fbb6-8b4f-824767d70cc2@solarflare.com>
- <20200416184924.GN1068@sasha-vm>
- <c9496a54-1b68-5d49-6866-d357c75f7a82@solarflare.com>
+        id S1726889AbgDTMyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:54:22 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:54196 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728618AbgDTMyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 08:54:10 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20959361-1500050 
+        for multiple; Mon, 20 Apr 2020 13:53:58 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     tvrtko.ursulin@intel.com, matthew.auld@intel.com,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Andi Shyti <andi.shyti@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] drm/i915/gem: Remove object_is_locked assertion from unpin_from_display_plane
+Date:   Mon, 20 Apr 2020 13:53:55 +0100
+Message-Id: <20200420125356.26614-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <c9496a54-1b68-5d49-6866-d357c75f7a82@solarflare.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 20, 2020 at 12:45:36PM +0100, Edward Cree wrote:
->On 16/04/2020 19:49, Sasha Levin wrote:
->> Just a question while I process your explanation (thanks for doing it!):
->> wouldn't this be done by the neural network?
->Yes, in the basic case.  (Hopefully we're agreed that this is a long way
-> from "I'm not sure what a fixes tag has to do with inclusion in a stable
-> tree.", which is how this whole brouhaha started.)
+Since moving the obj->vma.list to a spin_lock, and the vm->bound_list to
+its vm->mutex, along with tracking shrinkable status under its own
+spinlock, we no long require the object to be locked by the caller.
 
-My point was more that having or not having a fixes tag on it's own
-doesn't guarantee inclusion in the stable trees - that's why we have and
-explicit stable tag. What was said was (for me) the equivalent of "my
-commit message contains the word 'panic', why wasn't it picked?"
+This is fortunate as it appears we can be called with the lock along an
+error path in flipping:
 
-A Fixes tag affects the probability of a commit being picked up by
-AUTOSEL, yes, but it's not a reliable way to include or exclude patches
-from the stable tree.
+<4> [139.942851] WARN_ON(debug_locks && !lock_is_held(&(&((obj)->base.resv)->lock.base)->dep_map))
+<4> [139.943242] WARNING: CPU: 0 PID: 1203 at drivers/gpu/drm/i915/gem/i915_gem_domain.c:405 i915_gem_object_unpin_from_display_plane+0x70/0x130 [i915]
+<4> [139.943263] Modules linked in: snd_hda_intel i915 vgem snd_hda_codec_realtek snd_hda_codec_generic coretemp snd_intel_dspcfg snd_hda_codec snd_hwdep snd_hda_core r8169 lpc_ich snd_pcm realtek prime_numbers [last unloaded: i915]
+<4> [139.943347] CPU: 0 PID: 1203 Comm: kms_flip Tainted: G     U            5.6.0-gd0fda5c2cf3f1-drmtip_474+ #1
+<4> [139.943363] Hardware name:  /D510MO, BIOS MOPNV10J.86A.0311.2010.0802.2346 08/02/2010
+<4> [139.943589] RIP: 0010:i915_gem_object_unpin_from_display_plane+0x70/0x130 [i915]
+<4> [139.943589] Code: 85 28 01 00 00 be ff ff ff ff 48 8d 78 60 e8 d7 9b f0 e2 85 c0 75 b9 48 c7 c6 50 b9 38 c0 48 c7 c7 e9 48 3c c0 e8 20 d4 e9 e2 <0f> 0b eb a2 48 c7 c1 08 bb 38 c0 ba 0a 01 00 00 48 c7 c6 88 a3 35
+<4> [139.943589] RSP: 0018:ffffb774c0603b48 EFLAGS: 00010282
+<4> [139.943589] RAX: 0000000000000000 RBX: ffff9a142fa36e80 RCX: 0000000000000006
+<4> [139.943589] RDX: 000000000000160d RSI: ffff9a142c1a88f8 RDI: ffffffffa434a64d
+<4> [139.943589] RBP: ffff9a1410a513c0 R08: ffff9a142c1a88f8 R09: 0000000000000000
+<4> [139.943589] R10: 0000000000000000 R11: 0000000000000000 R12: ffff9a1436ee94b8
+<4> [139.943589] R13: 0000000000000001 R14: 00000000ffffffff R15: ffff9a1410960000
+<4> [139.943589] FS:  00007fc73a744e40(0000) GS:ffff9a143da00000(0000) knlGS:0000000000000000
+<4> [139.943589] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+<4> [139.943589] CR2: 00007fc73997e098 CR3: 000000002f5fe000 CR4: 00000000000006f0
+<4> [139.943589] Call Trace:
+<4> [139.943589]  intel_pin_and_fence_fb_obj+0x1c9/0x1f0 [i915]
+<4> [139.943589]  intel_plane_pin_fb+0x3f/0xd0 [i915]
+<4> [139.943589]  intel_prepare_plane_fb+0x13b/0x5c0 [i915]
+<4> [139.943589]  drm_atomic_helper_prepare_planes+0x85/0x110
+<4> [139.943589]  intel_atomic_commit+0xda/0x390 [i915]
+<4> [139.943589]  drm_atomic_helper_page_flip+0x9c/0xd0
+<4> [139.943589]  ? drm_event_reserve_init+0x46/0x60
+<4> [139.943589]  drm_mode_page_flip_ioctl+0x587/0x5d0
 
-It may also sound counter-intuitive but my long term plan (hope) is for
-AUTOSEL to die because maintainers got better at tagging patches. I
-don't want to keep doing this forever :)
+This completes the symmetry lost in commit 8b1c78e06e61 ("drm/i915: Avoid
+calling i915_gem_object_unbind holding object lock").
 
->> It learns what a stable worthy commit is (and what isn't), and applies
->> weights based on these findings, right? So if it learns that most
->> non-stable commits don't have a fixes tag, it's likely to use that and
->> "require" other inputs to have enough weight to compensate over a
->> missing fixes tag so that it'll pass the threshold, no?
->Yes.  The problem comes when there are other inputs the NN doesn't have,
-> that ought to screen off some of the information it's using.  This is
-> probably best illustrated by an unrealistic extreme case...
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1743
+Fixes: 8b1c78e06e61 ("drm/i915: Avoid calling i915_gem_object_unbind holding object lock")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: Andi Shyti <andi.shyti@intel.com>
+Cc: <stable@vger.kernel.org> # v5.6+
+---
+ drivers/gpu/drm/i915/gem/i915_gem_domain.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-It's actually not that unrealistic. We have a few subsystems that
-do a great job with patch selection, and I usually don't find any other
-patches to pick up from there, while some other subsystems in the kernel
-require us to pick almost every patch that flows in there (think files
-that contain device quirks for example).
-
-I've tried to address that by also including the modified filename into
-the inputs of the NN, so that the NN is better at acting differently
-based on the subsystem/filename being patched.
-
-For mlx5, for example, there are two ways it would differentiate it from
-everything else:
-
- - Commit subject lines usually start with net/mlx5, which is used as
-   input to the NN.
- - Filenames touch drivers/net/ethernet/mellanox/mlx5/*
-
-Anyway, yes - I understand your bigger point here around missing
-information from the NN. I'd like to think that based on previous
-experience it does a good job of balancing everything, but I might be
-mistaken.
-
->Let's imagine hypothetically that the maintainer of drivers/blub is an
-> absolutely perfect judge of which patches should go to -stable, and
-> that the transmission path from him to the stable trees never loses a
-> patch.  This would mean that every autosel patch in drivers/blub is
-> necessarily a false positive, because all the 'true positives' it might
-> have found have already been taken out of the pool, so to speak.  But
-> if the NN is just trained to discriminate patches on whether they end
-> up going to stable, it won't see any difference between a drivers/blub
-> patch that the maintainer sent to stable straight away and a
-> drivers/wibble patch that the latter's less diligent maintainer didn't
-> forward and that only got picked up later when a stable kernel user
-> encountered the bug it was fixing.
->As long as the NN doesn't have that piece of information, it's going to
-> either generate lots of false positives in drivers/blub or lots of
-> false negatives in drivers/wibble.
->Now obviously drivers/blub doesn't exist, no maintainer is 100% perfect
-> at -stable submissions; but any difference will produce the same
-> effect on a smaller scale, with the 'blubbish' maintainers seeing a
-> high false positive fraction while from the 'wibblesome' maintainer's
-> point of view autosel is working great.  And since the 'blubs' are the
-> ones who're putting effort of their own into stable selection already,
-> they get aggrieved at having to also put effort into catching the
-> false positives from a system that doesn't seem to be doing much for
-> them, and everyone ends up shouting at each other as we're seeing here.
->
->(Do you want me to do another worked numerical example demonstrating the
-> above, or does it make enough sense in words not to need one?)
-
-Nope, the example above works, thanks!
-
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+index af43e82f45c7..7f76fc68f498 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+@@ -368,7 +368,6 @@ static void i915_gem_object_bump_inactive_ggtt(struct drm_i915_gem_object *obj)
+ 	struct drm_i915_private *i915 = to_i915(obj->base.dev);
+ 	struct i915_vma *vma;
+ 
+-	GEM_BUG_ON(!i915_gem_object_has_pinned_pages(obj));
+ 	if (list_empty(&obj->vma.list))
+ 		return;
+ 
+@@ -400,12 +399,8 @@ static void i915_gem_object_bump_inactive_ggtt(struct drm_i915_gem_object *obj)
+ void
+ i915_gem_object_unpin_from_display_plane(struct i915_vma *vma)
+ {
+-	struct drm_i915_gem_object *obj = vma->obj;
+-
+-	assert_object_held(obj);
+-
+ 	/* Bump the LRU to try and avoid premature eviction whilst flipping  */
+-	i915_gem_object_bump_inactive_ggtt(obj);
++	i915_gem_object_bump_inactive_ggtt(vma->obj);
+ 
+ 	i915_vma_unpin(vma);
+ }
 -- 
-Thanks,
-Sasha
+2.20.1
+
