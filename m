@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B368A1B09D7
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 148311B0A35
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728264AbgDTMmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:42:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35846 "EHLO mail.kernel.org"
+        id S1728284AbgDTMpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:45:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728250AbgDTMml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:42:41 -0400
+        id S1728843AbgDTMpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:45:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61F942072B;
-        Mon, 20 Apr 2020 12:42:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DF8C20736;
+        Mon, 20 Apr 2020 12:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386560;
-        bh=HaUo+E5NxLGCGdFw4NKrqAONKCA3eOeOzeVolfXxgx4=;
+        s=default; t=1587386750;
+        bh=o1XlVPs9AX/xNlQhb4LGlweciPHFW5GnnHfhtJ1QvDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4P5VL/1iEdGJOkB2fJJw40qv5XpwS7Vo6erw935z8Yy/MqLYHB9PcJOeJXXG5hnN
-         bYfoI5xrDC5VG/pAud5LfJeAipLSx8mDMCY8B0aDe+1sigBNuv6Nlxl37offT07hBO
-         Uxia+KDOGXjWDIMknr03ZFWBhkJwMTeRY5QeW8iQ=
+        b=HukaNLv/4joC9X/RK1hxRevHnJPjT9PwrGuJD67dKB30W61d2MUlZGVte+vDKZEYB
+         bK68kxie7/kW6Xt1R4/KIbYXqfedt9gxiqG2Yyz6KHOXP9e3SUqcCf+8q1oE2nBO+6
+         m4UEQNab7Z57E6EgYgdRCcSGKVOayg68UwZAcAfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 46/65] keys: Fix proc_keys_next to increase position index
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        =?UTF-8?q?Ren=C3=A9=20van=20Dorst?= <opensource@vdorst.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 12/60] net: ethernet: mediatek: move mt7623 settings out off the mt7530
 Date:   Mon, 20 Apr 2020 14:38:50 +0200
-Message-Id: <20200420121516.763243061@linuxfoundation.org>
+Message-Id: <20200420121504.762937398@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
-References: <20200420121505.909671922@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: "René van Dorst" <opensource@vdorst.com>
 
-commit 86d32f9a7c54ad74f4514d7fef7c847883207291 upstream.
+[ Upstream commit a5d75538295b06bc6ade1b9da07b9bee57d1c677 ]
 
-If seq_file .next function does not change position index,
-read after some lseek can generate unexpected output:
+Moving mt7623 logic out off mt7530, is required to make hardware setting
+consistent after we introduce phylink to mtk driver.
 
-    $ dd if=/proc/keys bs=1  # full usual output
-    0f6bfdf5 I--Q---     2 perm 3f010000  1000  1000 user      4af2f79ab8848d0a: 740
-    1fb91b32 I--Q---     3 perm 1f3f0000  1000 65534 keyring   _uid.1000: 2
-    27589480 I--Q---     1 perm 0b0b0000     0     0 user      invocation_id: 16
-    2f33ab67 I--Q---   152 perm 3f030000     0     0 keyring   _ses: 2
-    33f1d8fa I--Q---     4 perm 3f030000  1000  1000 keyring   _ses: 1
-    3d427fda I--Q---     2 perm 3f010000  1000  1000 user      69ec44aec7678e5a: 740
-    3ead4096 I--Q---     1 perm 1f3f0000  1000 65534 keyring   _uid_ses.1000: 1
-    521+0 records in
-    521+0 records out
-    521 bytes copied, 0,00123769 s, 421 kB/s
-
-But a read after lseek in middle of last line results in the partial
-last line and then a repeat of the final line:
-
-    $ dd if=/proc/keys bs=500 skip=1
-    dd: /proc/keys: cannot skip to specified offset
-    g   _uid_ses.1000: 1
-    3ead4096 I--Q---     1 perm 1f3f0000  1000 65534 keyring   _uid_ses.1000: 1
-    0+1 records in
-    0+1 records out
-    97 bytes copied, 0,000135035 s, 718 kB/s
-
-and a read after lseek beyond end of file results in the last line being
-shown:
-
-    $ dd if=/proc/keys bs=1000 skip=1   # read after lseek beyond end of file
-    dd: /proc/keys: cannot skip to specified offset
-    3ead4096 I--Q---     1 perm 1f3f0000  1000 65534 keyring   _uid_ses.1000: 1
-    0+1 records in
-    0+1 records out
-    76 bytes copied, 0,000119981 s, 633 kB/s
-
-See https://bugzilla.kernel.org/show_bug.cgi?id=206283
-
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b8fc9f30821e ("net: ethernet: mediatek: Add basic PHYLINK support")
+Reviewed-by: Sean Wang <sean.wang@mediatek.com>
+Tested-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: RenÃ© van Dorst <opensource@vdorst.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- security/keys/proc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c |   24 +++++++++++++++++++++++-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h |    8 ++++++++
+ 2 files changed, 31 insertions(+), 1 deletion(-)
 
---- a/security/keys/proc.c
-+++ b/security/keys/proc.c
-@@ -139,6 +139,8 @@ static void *proc_keys_next(struct seq_f
- 	n = key_serial_next(p, v);
- 	if (n)
- 		*_pos = key_node_serial(n);
-+	else
-+		(*_pos)++;
- 	return n;
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -65,6 +65,17 @@ u32 mtk_r32(struct mtk_eth *eth, unsigne
+ 	return __raw_readl(eth->base + reg);
  }
  
++u32 mtk_m32(struct mtk_eth *eth, u32 mask, u32 set, unsigned reg)
++{
++	u32 val;
++
++	val = mtk_r32(eth, reg);
++	val &= ~mask;
++	val |= set;
++	mtk_w32(eth, val, reg);
++	return reg;
++}
++
+ static int mtk_mdio_busy_wait(struct mtk_eth *eth)
+ {
+ 	unsigned long t_start = jiffies;
+@@ -193,7 +204,7 @@ static void mtk_mac_config(struct phylin
+ 	struct mtk_mac *mac = container_of(config, struct mtk_mac,
+ 					   phylink_config);
+ 	struct mtk_eth *eth = mac->hw;
+-	u32 mcr_cur, mcr_new, sid;
++	u32 mcr_cur, mcr_new, sid, i;
+ 	int val, ge_mode, err;
+ 
+ 	/* MT76x8 has no hardware settings between for the MAC */
+@@ -255,6 +266,17 @@ static void mtk_mac_config(struct phylin
+ 				    PHY_INTERFACE_MODE_TRGMII)
+ 					mtk_gmac0_rgmii_adjust(mac->hw,
+ 							       state->speed);
++
++				/* mt7623_pad_clk_setup */
++				for (i = 0 ; i < NUM_TRGMII_CTRL; i++)
++					mtk_w32(mac->hw,
++						TD_DM_DRVP(8) | TD_DM_DRVN(8),
++						TRGMII_TD_ODT(i));
++
++				/* Assert/release MT7623 RXC reset */
++				mtk_m32(mac->hw, 0, RXC_RST | RXC_DQSISEL,
++					TRGMII_RCK_CTRL);
++				mtk_m32(mac->hw, RXC_RST, 0, TRGMII_RCK_CTRL);
+ 			}
+ 		}
+ 
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -350,10 +350,13 @@
+ #define DQSI0(x)		((x << 0) & GENMASK(6, 0))
+ #define DQSI1(x)		((x << 8) & GENMASK(14, 8))
+ #define RXCTL_DMWTLAT(x)	((x << 16) & GENMASK(18, 16))
++#define RXC_RST			BIT(31)
+ #define RXC_DQSISEL		BIT(30)
+ #define RCK_CTRL_RGMII_1000	(RXC_DQSISEL | RXCTL_DMWTLAT(2) | DQSI1(16))
+ #define RCK_CTRL_RGMII_10_100	RXCTL_DMWTLAT(2)
+ 
++#define NUM_TRGMII_CTRL		5
++
+ /* TRGMII RXC control register */
+ #define TRGMII_TCK_CTRL		0x10340
+ #define TXCTL_DMWTLAT(x)	((x << 16) & GENMASK(18, 16))
+@@ -361,6 +364,11 @@
+ #define TCK_CTRL_RGMII_1000	TXCTL_DMWTLAT(2)
+ #define TCK_CTRL_RGMII_10_100	(TXC_INV | TXCTL_DMWTLAT(2))
+ 
++/* TRGMII TX Drive Strength */
++#define TRGMII_TD_ODT(i)	(0x10354 + 8 * (i))
++#define  TD_DM_DRVP(x)		((x) & 0xf)
++#define  TD_DM_DRVN(x)		(((x) & 0xf) << 4)
++
+ /* TRGMII Interface mode register */
+ #define INTF_MODE		0x10390
+ #define TRGMII_INTF_DIS		BIT(0)
 
 
