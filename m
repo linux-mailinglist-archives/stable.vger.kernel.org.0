@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F411B0B53
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:55:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A09401B0BDD
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:59:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728140AbgDTMzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:55:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41178 "EHLO mail.kernel.org"
+        id S1728082AbgDTMlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728307AbgDTMqB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:46:01 -0400
+        id S1728073AbgDTMlo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:41:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CCD52072B;
-        Mon, 20 Apr 2020 12:45:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FE2E20735;
+        Mon, 20 Apr 2020 12:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386760;
-        bh=8LxFh3QHVelXQxFXtgP1wTdqS7msIxTDDjcCXIBABoc=;
+        s=default; t=1587386504;
+        bh=3w05jCYjIhoDyDncLmt8aY0aq/NFMnH9Bfe0njl5I1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t+U9f4Y4wtryZFzxnSTbXcGqxaSAtiTaQQFO17cqrpdFRVGhOMCqumAaTXje4dAL2
-         cQMveb0eNHT7d5kOe2l788r+nSbc7OC7H+2CUc2lQegKEE7yTzVD3wjXa/Di5x9cwL
-         5esdd6FPHZaCAzd0urA0F0FGcUxBEkxKZ0R2PZ1E=
+        b=A0en1bzV10ZcECkn4SuSifbIaOH0DiatyCgRFik3kmHFN8vX9tB0lqYZcYyDezp/Z
+         wjI86Fmf5lQdFvWj6QMJznif9gHJI+Q4V3FCz21GsA7JoSxkphOvKXU8bWl6RviNxt
+         am4rnaVxxeLk4JO08p96c4zq6skgwQIUEupPoK8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>,
-        Parav Pandit <parav@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 16/60] net/mlx5e: Fix pfnum in devlink port attribute
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.5 50/65] mac80211: fix race in ieee80211_register_hw()
 Date:   Mon, 20 Apr 2020 14:38:54 +0200
-Message-Id: <20200420121505.934598706@linuxfoundation.org>
+Message-Id: <20200420121517.737681332@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
+References: <20200420121505.909671922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +43,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@mellanox.com>
+From: Sumit Garg <sumit.garg@linaro.org>
 
-[ Upstream commit 7482d9cb5b974b7ad1a58fa8714f7a8c05b5d278 ]
+commit 52e04b4ce5d03775b6a78f3ed1097480faacc9fd upstream.
 
-Cited patch missed to extract PCI pf number accurately for PF and VF
-port flavour. It considered PCI device + function number.
-Due to this, device having non zero device number shown large pfnum.
+A race condition leading to a kernel crash is observed during invocation
+of ieee80211_register_hw() on a dragonboard410c device having wcn36xx
+driver built as a loadable module along with a wifi manager in user-space
+waiting for a wifi device (wlanX) to be active.
 
-Hence, use only PCI function number; to avoid similar errors, derive
-pfnum one time for all port flavours.
+Sequence diagram for a particular kernel crash scenario:
 
-Fixes: f60f315d339e ("net/mlx5e: Register devlink ports for physical link, PCI PF, VFs")
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+    user-space  ieee80211_register_hw()  ieee80211_tasklet_handler()
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       |                    |                 |
+       |<---phy0----wiphy_register()          |
+       |-----iwd if_add---->|                 |
+       |                    |<---IRQ----(RX packet)
+       |              Kernel crash            |
+       |              due to unallocated      |
+       |              workqueue.              |
+       |                    |                 |
+       |       alloc_ordered_workqueue()      |
+       |                    |                 |
+       |              Misc wiphy init.        |
+       |                    |                 |
+       |            ieee80211_if_add()        |
+       |                    |                 |
+
+As evident from above sequence diagram, this race condition isn't specific
+to a particular wifi driver but rather the initialization sequence in
+ieee80211_register_hw() needs to be fixed. So re-order the initialization
+sequence and the updated sequence diagram would look like:
+
+    user-space  ieee80211_register_hw()  ieee80211_tasklet_handler()
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       |                    |                 |
+       |       alloc_ordered_workqueue()      |
+       |                    |                 |
+       |              Misc wiphy init.        |
+       |                    |                 |
+       |<---phy0----wiphy_register()          |
+       |-----iwd if_add---->|                 |
+       |                    |<---IRQ----(RX packet)
+       |                    |                 |
+       |            ieee80211_if_add()        |
+       |                    |                 |
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+Link: https://lore.kernel.org/r/1586254255-28713-1-git-send-email-sumit.garg@linaro.org
+[Johannes: fix rtnl imbalances]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -1814,29 +1814,30 @@ static int register_devlink_port(struct
- 	struct mlx5_eswitch_rep *rep = rpriv->rep;
- 	struct netdev_phys_item_id ppid = {};
- 	unsigned int dl_port_index = 0;
-+	u16 pfnum;
- 
- 	if (!is_devlink_port_supported(dev, rpriv))
- 		return 0;
- 
- 	mlx5e_rep_get_port_parent_id(rpriv->netdev, &ppid);
-+	pfnum = PCI_FUNC(dev->pdev->devfn);
- 
- 	if (rep->vport == MLX5_VPORT_UPLINK) {
- 		devlink_port_attrs_set(&rpriv->dl_port,
- 				       DEVLINK_PORT_FLAVOUR_PHYSICAL,
--				       PCI_FUNC(dev->pdev->devfn), false, 0,
-+				       pfnum, false, 0,
- 				       &ppid.id[0], ppid.id_len);
- 		dl_port_index = vport_to_devlink_port_index(dev, rep->vport);
- 	} else if (rep->vport == MLX5_VPORT_PF) {
- 		devlink_port_attrs_pci_pf_set(&rpriv->dl_port,
- 					      &ppid.id[0], ppid.id_len,
--					      dev->pdev->devfn);
-+					      pfnum);
- 		dl_port_index = rep->vport;
- 	} else if (mlx5_eswitch_is_vf_vport(dev->priv.eswitch,
- 					    rpriv->rep->vport)) {
- 		devlink_port_attrs_pci_vf_set(&rpriv->dl_port,
- 					      &ppid.id[0], ppid.id_len,
--					      dev->pdev->devfn,
--					      rep->vport - 1);
-+					      pfnum, rep->vport - 1);
- 		dl_port_index = vport_to_devlink_port_index(dev, rep->vport);
+---
+ net/mac80211/main.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
+
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -1051,7 +1051,7 @@ int ieee80211_register_hw(struct ieee802
+ 		local->hw.wiphy->signal_type = CFG80211_SIGNAL_TYPE_UNSPEC;
+ 		if (hw->max_signal <= 0) {
+ 			result = -EINVAL;
+-			goto fail_wiphy_register;
++			goto fail_workqueue;
+ 		}
  	}
  
+@@ -1113,7 +1113,7 @@ int ieee80211_register_hw(struct ieee802
+ 
+ 	result = ieee80211_init_cipher_suites(local);
+ 	if (result < 0)
+-		goto fail_wiphy_register;
++		goto fail_workqueue;
+ 
+ 	if (!local->ops->remain_on_channel)
+ 		local->hw.wiphy->max_remain_on_channel_duration = 5000;
+@@ -1139,10 +1139,6 @@ int ieee80211_register_hw(struct ieee802
+ 
+ 	local->hw.wiphy->max_num_csa_counters = IEEE80211_MAX_CSA_COUNTERS_NUM;
+ 
+-	result = wiphy_register(local->hw.wiphy);
+-	if (result < 0)
+-		goto fail_wiphy_register;
+-
+ 	/*
+ 	 * We use the number of queues for feature tests (QoS, HT) internally
+ 	 * so restrict them appropriately.
+@@ -1198,9 +1194,9 @@ int ieee80211_register_hw(struct ieee802
+ 		goto fail_flows;
+ 
+ 	rtnl_lock();
+-
+ 	result = ieee80211_init_rate_ctrl_alg(local,
+ 					      hw->rate_control_algorithm);
++	rtnl_unlock();
+ 	if (result < 0) {
+ 		wiphy_debug(local->hw.wiphy,
+ 			    "Failed to initialize rate control algorithm\n");
+@@ -1254,6 +1250,12 @@ int ieee80211_register_hw(struct ieee802
+ 		local->sband_allocated |= BIT(band);
+ 	}
+ 
++	result = wiphy_register(local->hw.wiphy);
++	if (result < 0)
++		goto fail_wiphy_register;
++
++	rtnl_lock();
++
+ 	/* add one default STA interface if supported */
+ 	if (local->hw.wiphy->interface_modes & BIT(NL80211_IFTYPE_STATION) &&
+ 	    !ieee80211_hw_check(hw, NO_AUTO_VIF)) {
+@@ -1293,17 +1295,17 @@ int ieee80211_register_hw(struct ieee802
+ #if defined(CONFIG_INET) || defined(CONFIG_IPV6)
+  fail_ifa:
+ #endif
++	wiphy_unregister(local->hw.wiphy);
++ fail_wiphy_register:
+ 	rtnl_lock();
+ 	rate_control_deinitialize(local);
+ 	ieee80211_remove_interfaces(local);
+- fail_rate:
+ 	rtnl_unlock();
++ fail_rate:
+  fail_flows:
+ 	ieee80211_led_exit(local);
+ 	destroy_workqueue(local->workqueue);
+  fail_workqueue:
+-	wiphy_unregister(local->hw.wiphy);
+- fail_wiphy_register:
+ 	if (local->wiphy_ciphers_allocated)
+ 		kfree(local->hw.wiphy->cipher_suites);
+ 	kfree(local->int_scan_req);
+@@ -1353,8 +1355,8 @@ void ieee80211_unregister_hw(struct ieee
+ 	skb_queue_purge(&local->skb_queue_unreliable);
+ 	skb_queue_purge(&local->skb_queue_tdls_chsw);
+ 
+-	destroy_workqueue(local->workqueue);
+ 	wiphy_unregister(local->hw.wiphy);
++	destroy_workqueue(local->workqueue);
+ 	ieee80211_led_exit(local);
+ 	kfree(local->int_scan_req);
+ }
 
 
