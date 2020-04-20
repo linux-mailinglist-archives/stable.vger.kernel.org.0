@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90ACD1B0BBF
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1E661B09AA
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728369AbgDTM6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:58:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36738 "EHLO mail.kernel.org"
+        id S1727945AbgDTMlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:41:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728359AbgDTMnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:43:18 -0400
+        id S1727924AbgDTMlH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:41:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9CFC2075A;
-        Mon, 20 Apr 2020 12:43:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 949C02070B;
+        Mon, 20 Apr 2020 12:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386598;
-        bh=AOHe/n3kDDZTI78L9QgIyTTp24peUgU2CILtvhhe0Kk=;
+        s=default; t=1587386467;
+        bh=v8NLptpyVYC24OZAKei+xlXW2y89vKtkcFa3OBOY2gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5La4CT2M0i1BUE+DEjbl1EGqurpYqGNdfJRRH2UjDFCA2Vvt1222bXAV4FD9uHhB
-         bu8uvnsSRhafL1uCaM5cstX4z2D1hAUeJCKFqIxYQvW5gIjXV6pxi5Fi/u2bNWEWue
-         ryTz4ePmFIXvEvHEUdpbhLO9YcdKxwlv8OedHmrM=
+        b=TQ5SEf882iIAkD82bDhEgUAQlWrupZ2GZyIBNtsSBTkbPUAT04DeDwNLbkY5sQRpX
+         TnwGxlhITaakWnA7BqPnvqmmOoY+E93L6IMZ0WMKW93H2VijGH8wW7H91eE3oJrZI6
+         JvoTPsJZNm9/o+Y1Vdw0Mz3uBehkVdSm6n2ba0Jk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Toralf=20F=C3=B6rster?= <toralf.foerster@gmx.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 22/71] Revert "ACPI: EC: Do not clear boot_ec_is_ecdt in acpi_ec_add()"
-Date:   Mon, 20 Apr 2020 14:38:36 +0200
-Message-Id: <20200420121512.763120030@linuxfoundation.org>
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.5 33/65] clk: at91: sam9x60: fix usb clock parents
+Date:   Mon, 20 Apr 2020 14:38:37 +0200
+Message-Id: <20200420121513.427689858@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
+References: <20200420121505.909671922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-This reverts commit 281e612b4b9587c0c72e30c49ec279587b20da0f which is
-commit 65a691f5f8f0bb63d6a82eec7b0ffd193d8d8a5f upstream.
+commit 43b203d32b77d1b1b2209e22837f49767020553e upstream.
 
-Rafael writes:
-	It has not been marked for -stable or otherwise requested to be
-	included AFAICS.  Also it depends on other mainline commits that
-	have not been included into 5.6.5.
+SAM9X60's USB clock has 3 parents: plla, upll and main_osc.
 
-Reported-by: Toralf Förster <toralf.foerster@gmx.de>
-Reported-by: Rafael J. Wysocki <rafael@kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>
+Fixes: 01e2113de9a5 ("clk: at91: add sam9x60 pmc driver")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lkml.kernel.org/r/1579261009-4573-3-git-send-email-claudiu.beznea@microchip.com
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/acpi/ec.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -1646,6 +1646,7 @@ static int acpi_ec_add(struct acpi_devic
+---
+ drivers/clk/at91/sam9x60.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+--- a/drivers/clk/at91/sam9x60.c
++++ b/drivers/clk/at91/sam9x60.c
+@@ -237,9 +237,8 @@ static void __init sam9x60_pmc_setup(str
  
- 		if (boot_ec && ec->command_addr == boot_ec->command_addr &&
- 		    ec->data_addr == boot_ec->data_addr) {
-+			boot_ec_is_ecdt = false;
- 			/*
- 			 * Trust PNP0C09 namespace location rather than
- 			 * ECDT ID. But trust ECDT GPE rather than _GPE
-@@ -1665,12 +1666,9 @@ static int acpi_ec_add(struct acpi_devic
+ 	parent_names[0] = "pllack";
+ 	parent_names[1] = "upllck";
+-	parent_names[2] = "mainck";
+-	parent_names[3] = "mainck";
+-	hw = sam9x60_clk_register_usb(regmap, "usbck", parent_names, 4);
++	parent_names[2] = "main_osc";
++	hw = sam9x60_clk_register_usb(regmap, "usbck", parent_names, 3);
+ 	if (IS_ERR(hw))
+ 		goto err_free;
  
- 	if (ec == boot_ec)
- 		acpi_handle_info(boot_ec->handle,
--				 "Boot %s EC initialization complete\n",
-+				 "Boot %s EC used to handle transactions and events\n",
- 				 boot_ec_is_ecdt ? "ECDT" : "DSDT");
- 
--	acpi_handle_info(ec->handle,
--			 "EC: Used to handle transactions and events\n");
--
- 	device->driver_data = ec;
- 
- 	ret = !!request_region(ec->data_addr, 1, "EC data");
 
 
