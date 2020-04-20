@@ -2,28 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B0621B11E1
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 18:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 305191B11AE
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 18:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726525AbgDTQkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 12:40:51 -0400
-Received: from vulcan.kevinlocke.name ([107.191.43.88]:43896 "EHLO
-        vulcan.kevinlocke.name" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726788AbgDTQkq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 12:40:46 -0400
-X-Greylist: delayed 305 seconds by postgrey-1.27 at vger.kernel.org; Mon, 20 Apr 2020 12:40:45 EDT
-Received: from kevinolos (host-69-145-60-23.bln-mt.client.bresnan.net [69.145.60.23])
+        id S1726362AbgDTQhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 12:37:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41314 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726049AbgDTQhS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 12:37:18 -0400
+X-Greylist: delayed 96 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 20 Apr 2020 09:37:18 PDT
+Received: from vulcan.kevinlocke.name (vulcan.kevinlocke.name [IPv6:2001:19f0:5:727:1e84:17da:7c52:5ab4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63620C025491
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 09:37:18 -0700 (PDT)
+Received: from kevinolos (unknown [IPv6:2001:470:b:5c3:2c1c:9654:4aed:d8a1])
         (Authenticated sender: kevin@kevinlocke.name)
-        by vulcan.kevinlocke.name (Postfix) with ESMTPSA id 0453E1849C55;
-        Mon, 20 Apr 2020 16:35:39 +0000 (UTC)
+        by vulcan.kevinlocke.name (Postfix) with ESMTPSA id 1CAED1849C5E;
+        Mon, 20 Apr 2020 16:37:17 +0000 (UTC)
 Received: by kevinolos (Postfix, from userid 1000)
-        id B29D11303663; Mon, 20 Apr 2020 10:35:35 -0600 (MDT)
+        id 0E0651303663; Mon, 20 Apr 2020 10:37:15 -0600 (MDT)
 From:   Kevin Locke <kevin@kevinlocke.name>
-To:     kevin@kevinlocke.name
-Cc:     stable@vger.kernel.org
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org, stable@vger.kernel.org
 Subject: [PATCH] Input: i8042 - add ThinkPad S230u to i8042 nomux list
-Date:   Mon, 20 Apr 2020 10:35:35 -0600
-Message-Id: <feb8a8339a67025dab3850e6377eb6f3a0e782ba.1587400535.git.kevin@kevinlocke.name>
+Date:   Mon, 20 Apr 2020 10:37:15 -0600
+Message-Id: <feb8a8339a67025dab3850e6377eb6f3a0e782ba.1587400635.git.kevin@kevinlocke.name>
 X-Mailer: git-send-email 2.26.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
