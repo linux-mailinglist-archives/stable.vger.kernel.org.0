@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABBC21B0B50
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:55:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30731B09F7
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728144AbgDTMy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:54:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41468 "EHLO mail.kernel.org"
+        id S1728416AbgDTMng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:43:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728879AbgDTMqN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:46:13 -0400
+        id S1728412AbgDTMnd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:43:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59E4F20735;
-        Mon, 20 Apr 2020 12:46:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FA932072B;
+        Mon, 20 Apr 2020 12:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386772;
-        bh=otd2QZ8LurhFqBTT0j5u25PASA7bqvPKOXhJaz2Pir8=;
+        s=default; t=1587386613;
+        bh=SgjDXtDgQGdZHYXIuByUqint4a036yOfcRxQTWh8XgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EccRunhjSjVEFwkRmyiOA+OWjx8grISCoKTQNJsR+Ctv2VoCTcN/JXId5dD8UUesv
-         ivZggJYLaR8pEhqXx9oc+IaZdVTa445fjcyu0ZU3puLcjO9LHHs9YbDzs23z27gnPH
-         RVeIeBuz3UDAxob3lMhaRaoozEuJiR2fVLbTxyzg=
+        b=uH58oHelR66e+UlH0rHzUhGAa4l1GdA75WY9Vjp/sb0p1HyfIHjbPqJf+L81MQKPD
+         7YUhi/y4xMjQRy0Q/0LqXNVbMZ9ai9vxZd/X8Z1WHWfEvN6Av6UfImHqMq3xR2Txuz
+         t8N11TsEMqwb0VDz1Fmy+o1z1j+o/ECG/DmgyNbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michael=20Wei=C3=9F?= <michael.weiss@aisec.fraunhofer.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 03/60] l2tp: Allow management of tunnels and session in user namespace
-Date:   Mon, 20 Apr 2020 14:38:41 +0200
-Message-Id: <20200420121501.460823896@linuxfoundation.org>
+        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.6 28/71] perf report: Fix no branch type statistics report issue
+Date:   Mon, 20 Apr 2020 14:38:42 +0200
+Message-Id: <20200420121514.192225755@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,95 +47,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Michael Weiﬂ" <michael.weiss@aisec.fraunhofer.de>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-[ Upstream commit 2abe05234f2e892728c388169631e4b99f354c86 ]
+commit c3b10649a80e9da2892c1fd3038c53abd57588f6 upstream.
 
-Creation and management of L2TPv3 tunnels and session through netlink
-requires CAP_NET_ADMIN. However, a process with CAP_NET_ADMIN in a
-non-initial user namespace gets an EPERM due to the use of the
-genetlink GENL_ADMIN_PERM flag. Thus, management of L2TP VPNs inside
-an unprivileged container won't work.
+Previously we could get the report of branch type statistics.
 
-We replaced the GENL_ADMIN_PERM by the GENL_UNS_ADMIN_PERM flag
-similar to other network modules which also had this problem, e.g.,
-openvswitch (commit 4a92602aa1cd "openvswitch: allow management from
-inside user namespaces") and nl80211 (commit 5617c6cd6f844 "nl80211:
-Allow privileged operations from user namespaces").
+For example:
 
-I tested this in the container runtime trustm3 (trustm3.github.io)
-and was able to create l2tp tunnels and sessions in unpriviliged
-(user namespaced) containers using a private network namespace.
-For other runtimes such as docker or lxc this should work, too.
+  # perf record -j any,save_type ...
+  # t perf report --stdio
 
-Signed-off-by: Michael Wei√ü <michael.weiss@aisec.fraunhofer.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  #
+  # Branch Statistics:
+  #
+  COND_FWD:  40.6%
+  COND_BWD:   4.1%
+  CROSS_4K:  24.7%
+  CROSS_2M:  12.3%
+      COND:  44.7%
+    UNCOND:   0.0%
+       IND:   6.1%
+      CALL:  24.5%
+       RET:  24.7%
+
+But now for the recent perf, it can't report the branch type statistics.
+
+It's a regression issue caused by commit 40c39e304641 ("perf report: Fix
+a no annotate browser displayed issue"), which only counts the branch
+type statistics for browser mode.
+
+This patch moves the branch_type_count() outside of ui__has_annotation()
+checking, then branch type statistics can work for stdio mode.
+
+Fixes: 40c39e304641 ("perf report: Fix a no annotate browser displayed issue")
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200313134607.12873-1-yao.jin@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/l2tp/l2tp_netlink.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/net/l2tp/l2tp_netlink.c
-+++ b/net/l2tp/l2tp_netlink.c
-@@ -920,51 +920,51 @@ static const struct genl_ops l2tp_nl_ops
- 		.cmd = L2TP_CMD_TUNNEL_CREATE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_tunnel_create,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_TUNNEL_DELETE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_tunnel_delete,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_TUNNEL_MODIFY,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_tunnel_modify,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_TUNNEL_GET,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_tunnel_get,
- 		.dumpit = l2tp_nl_cmd_tunnel_dump,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_SESSION_CREATE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_session_create,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_SESSION_DELETE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_session_delete,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_SESSION_MODIFY,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_session_modify,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_SESSION_GET,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_session_get,
- 		.dumpit = l2tp_nl_cmd_session_dump,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- };
+---
+ tools/perf/builtin-report.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+--- a/tools/perf/builtin-report.c
++++ b/tools/perf/builtin-report.c
+@@ -185,24 +185,23 @@ static int hist_iter__branch_callback(st
+ {
+ 	struct hist_entry *he = iter->he;
+ 	struct report *rep = arg;
+-	struct branch_info *bi;
++	struct branch_info *bi = he->branch_info;
+ 	struct perf_sample *sample = iter->sample;
+ 	struct evsel *evsel = iter->evsel;
+ 	int err;
  
++	branch_type_count(&rep->brtype_stat, &bi->flags,
++			  bi->from.addr, bi->to.addr);
++
+ 	if (!ui__has_annotation() && !rep->symbol_ipc)
+ 		return 0;
+ 
+-	bi = he->branch_info;
+ 	err = addr_map_symbol__inc_samples(&bi->from, sample, evsel);
+ 	if (err)
+ 		goto out;
+ 
+ 	err = addr_map_symbol__inc_samples(&bi->to, sample, evsel);
+ 
+-	branch_type_count(&rep->brtype_stat, &bi->flags,
+-			  bi->from.addr, bi->to.addr);
+-
+ out:
+ 	return err;
+ }
 
 
