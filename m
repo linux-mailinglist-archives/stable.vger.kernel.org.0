@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B30731B09F7
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 184E31B0B1A
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728416AbgDTMng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:43:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37212 "EHLO mail.kernel.org"
+        id S1728278AbgDTMxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:53:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728412AbgDTMnd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:43:33 -0400
+        id S1728959AbgDTMqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:46:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FA932072B;
-        Mon, 20 Apr 2020 12:43:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 357E9206DD;
+        Mon, 20 Apr 2020 12:46:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386613;
-        bh=SgjDXtDgQGdZHYXIuByUqint4a036yOfcRxQTWh8XgI=;
+        s=default; t=1587386799;
+        bh=V/ZN3Ej+8SKU++Q6XvBMg7H0P2XI5oeoKBlKbwFpLp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uH58oHelR66e+UlH0rHzUhGAa4l1GdA75WY9Vjp/sb0p1HyfIHjbPqJf+L81MQKPD
-         7YUhi/y4xMjQRy0Q/0LqXNVbMZ9ai9vxZd/X8Z1WHWfEvN6Av6UfImHqMq3xR2Txuz
-         t8N11TsEMqwb0VDz1Fmy+o1z1j+o/ECG/DmgyNbc=
+        b=r36yUVXap3fYG32ydQLdw/r8LIbGxShUksAGiu8RsOt8z1JhrafOchVDMlznk4dB5
+         nqxCsgKm60QVLPCANcwCLhdUyVAtYIs3Ll/yFHXL81C9LREgHUvuIU5/Dk2xyKqR+X
+         I6OirbhHhaoBmfuGbjRjFFtJiRvhNF+YUW/4GnGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.6 28/71] perf report: Fix no branch type statistics report issue
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Ren=C3=A9=20van=20Dorst?= <opensource@vdorst.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 04/60] net: dsa: mt7530: fix tagged frames pass-through in VLAN-unaware mode
 Date:   Mon, 20 Apr 2020 14:38:42 +0200
-Message-Id: <20200420121514.192225755@linuxfoundation.org>
+Message-Id: <20200420121501.931294644@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,84 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: DENG Qingfang <dqfext@gmail.com>
 
-commit c3b10649a80e9da2892c1fd3038c53abd57588f6 upstream.
+[ Upstream commit e045124e93995fe01e42ed530003ddba5d55db4f ]
 
-Previously we could get the report of branch type statistics.
+In VLAN-unaware mode, the Egress Tag (EG_TAG) field in Port VLAN
+Control register must be set to Consistent to let tagged frames pass
+through as is, otherwise their tags will be stripped.
 
-For example:
-
-  # perf record -j any,save_type ...
-  # t perf report --stdio
-
-  #
-  # Branch Statistics:
-  #
-  COND_FWD:  40.6%
-  COND_BWD:   4.1%
-  CROSS_4K:  24.7%
-  CROSS_2M:  12.3%
-      COND:  44.7%
-    UNCOND:   0.0%
-       IND:   6.1%
-      CALL:  24.5%
-       RET:  24.7%
-
-But now for the recent perf, it can't report the branch type statistics.
-
-It's a regression issue caused by commit 40c39e304641 ("perf report: Fix
-a no annotate browser displayed issue"), which only counts the branch
-type statistics for browser mode.
-
-This patch moves the branch_type_count() outside of ui__has_annotation()
-checking, then branch type statistics can work for stdio mode.
-
-Fixes: 40c39e304641 ("perf report: Fix a no annotate browser displayed issue")
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200313134607.12873-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 83163f7dca56 ("net: dsa: mediatek: add VLAN support for MT7530")
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: René van Dorst <opensource@vdorst.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- tools/perf/builtin-report.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/dsa/mt7530.c |   18 ++++++++++++------
+ drivers/net/dsa/mt7530.h |    7 +++++++
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -185,24 +185,23 @@ static int hist_iter__branch_callback(st
- {
- 	struct hist_entry *he = iter->he;
- 	struct report *rep = arg;
--	struct branch_info *bi;
-+	struct branch_info *bi = he->branch_info;
- 	struct perf_sample *sample = iter->sample;
- 	struct evsel *evsel = iter->evsel;
- 	int err;
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -857,8 +857,9 @@ mt7530_port_set_vlan_unaware(struct dsa_
+ 	 */
+ 	mt7530_rmw(priv, MT7530_PCR_P(port), PCR_PORT_VLAN_MASK,
+ 		   MT7530_PORT_MATRIX_MODE);
+-	mt7530_rmw(priv, MT7530_PVC_P(port), VLAN_ATTR_MASK,
+-		   VLAN_ATTR(MT7530_VLAN_TRANSPARENT));
++	mt7530_rmw(priv, MT7530_PVC_P(port), VLAN_ATTR_MASK | PVC_EG_TAG_MASK,
++		   VLAN_ATTR(MT7530_VLAN_TRANSPARENT) |
++		   PVC_EG_TAG(MT7530_VLAN_EG_CONSISTENT));
  
-+	branch_type_count(&rep->brtype_stat, &bi->flags,
-+			  bi->from.addr, bi->to.addr);
-+
- 	if (!ui__has_annotation() && !rep->symbol_ipc)
- 		return 0;
- 
--	bi = he->branch_info;
- 	err = addr_map_symbol__inc_samples(&bi->from, sample, evsel);
- 	if (err)
- 		goto out;
- 
- 	err = addr_map_symbol__inc_samples(&bi->to, sample, evsel);
- 
--	branch_type_count(&rep->brtype_stat, &bi->flags,
--			  bi->from.addr, bi->to.addr);
--
- out:
- 	return err;
+ 	for (i = 0; i < MT7530_NUM_PORTS; i++) {
+ 		if (dsa_is_user_port(ds, i) &&
+@@ -874,8 +875,8 @@ mt7530_port_set_vlan_unaware(struct dsa_
+ 	if (all_user_ports_removed) {
+ 		mt7530_write(priv, MT7530_PCR_P(MT7530_CPU_PORT),
+ 			     PCR_MATRIX(dsa_user_ports(priv->ds)));
+-		mt7530_write(priv, MT7530_PVC_P(MT7530_CPU_PORT),
+-			     PORT_SPEC_TAG);
++		mt7530_write(priv, MT7530_PVC_P(MT7530_CPU_PORT), PORT_SPEC_TAG
++			     | PVC_EG_TAG(MT7530_VLAN_EG_CONSISTENT));
+ 	}
  }
+ 
+@@ -901,8 +902,9 @@ mt7530_port_set_vlan_aware(struct dsa_sw
+ 	/* Set the port as a user port which is to be able to recognize VID
+ 	 * from incoming packets before fetching entry within the VLAN table.
+ 	 */
+-	mt7530_rmw(priv, MT7530_PVC_P(port), VLAN_ATTR_MASK,
+-		   VLAN_ATTR(MT7530_VLAN_USER));
++	mt7530_rmw(priv, MT7530_PVC_P(port), VLAN_ATTR_MASK | PVC_EG_TAG_MASK,
++		   VLAN_ATTR(MT7530_VLAN_USER) |
++		   PVC_EG_TAG(MT7530_VLAN_EG_DISABLED));
+ }
+ 
+ static void
+@@ -1332,6 +1334,10 @@ mt7530_setup(struct dsa_switch *ds)
+ 			mt7530_cpu_port_enable(priv, i);
+ 		else
+ 			mt7530_port_disable(ds, i);
++
++		/* Enable consistent egress tag */
++		mt7530_rmw(priv, MT7530_PVC_P(i), PVC_EG_TAG_MASK,
++			   PVC_EG_TAG(MT7530_VLAN_EG_CONSISTENT));
+ 	}
+ 
+ 	/* Setup port 5 */
+--- a/drivers/net/dsa/mt7530.h
++++ b/drivers/net/dsa/mt7530.h
+@@ -167,9 +167,16 @@ enum mt7530_port_mode {
+ /* Register for port vlan control */
+ #define MT7530_PVC_P(x)			(0x2010 + ((x) * 0x100))
+ #define  PORT_SPEC_TAG			BIT(5)
++#define  PVC_EG_TAG(x)			(((x) & 0x7) << 8)
++#define  PVC_EG_TAG_MASK		PVC_EG_TAG(7)
+ #define  VLAN_ATTR(x)			(((x) & 0x3) << 6)
+ #define  VLAN_ATTR_MASK			VLAN_ATTR(3)
+ 
++enum mt7530_vlan_port_eg_tag {
++	MT7530_VLAN_EG_DISABLED = 0,
++	MT7530_VLAN_EG_CONSISTENT = 1,
++};
++
+ enum mt7530_vlan_port_attr {
+ 	MT7530_VLAN_USER = 0,
+ 	MT7530_VLAN_TRANSPARENT = 3,
 
 
