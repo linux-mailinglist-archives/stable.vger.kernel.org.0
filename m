@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C2611B0AFA
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3951B09F8
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729047AbgDTMwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:52:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42902 "EHLO mail.kernel.org"
+        id S1728057AbgDTMnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:43:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729018AbgDTMrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:47:07 -0400
+        id S1728395AbgDTMng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:43:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4285206DD;
-        Mon, 20 Apr 2020 12:47:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D66220735;
+        Mon, 20 Apr 2020 12:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386826;
-        bh=w2SkFmHo/Ut+jRMaAS5GKrDYHKTgFsE/O5mcLf2r7iY=;
+        s=default; t=1587386615;
+        bh=YMFdLjTiqvREH9qsLeoZ6Ek6B94lsHuwlxz7QT5Acaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBzU0NAYfhCcELCBi/etelmVwQZ6I87d/cXTLE7LPfOKSk2AKVnOuzCHACKKNTgUJ
-         akHflW5+ydGmnJD42QkJntC8F07CjVa0Fhjl3SUry/30HhvGyPqj41KTTEnnVRrajM
-         d0hwwVEl7OZgbT8yiS7yleNaSA94+Amni4vioz+s=
+        b=MmvEcTsc8XAFGzjCC3uHMumxcAG9pE7GliGN9Okzk3tO6AnuEQuvkas4f6BeoZQEO
+         I2VYtWe6504YQvjVlsdcDguT2r2u99CzBp8cpif2ZxyhQ2mAZW6h03m3j11Uyqb4kW
+         V4JiOm8rH052S/ylRPSCqnUqJsgTLPVtyMkUi8Ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taras Chornyi <taras.chornyi@plvision.eu>,
-        Vadym Kochan <vadym.kochan@plvision.eu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 05/60] net: ipv4: devinet: Fix crash when add/del multicast IP with autojoin
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Sven Van Asbroeck <TheSven73@gmail.com>,
+        Clemens Gruber <clemens.gruber@pqgruber.com>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH 5.6 29/71] pwm: pca9685: Fix PWM/GPIO inter-operation
 Date:   Mon, 20 Apr 2020 14:38:43 +0200
-Message-Id: <20200420121502.351757057@linuxfoundation.org>
+Message-Id: <20200420121514.400840760@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +48,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taras Chornyi <taras.chornyi@plvision.eu>
+From: Sven Van Asbroeck <TheSven73@gmail.com>
 
-[ Upstream commit 690cc86321eb9bcee371710252742fb16fe96824 ]
+commit 9cc5f232a4b6a0ef6e9b57876d61b88f61bdd7c2 upstream.
 
-When CONFIG_IP_MULTICAST is not set and multicast ip is added to the device
-with autojoin flag or when multicast ip is deleted kernel will crash.
+This driver allows pwms to be requested as gpios via gpiolib. Obviously,
+it should not be allowed to request a GPIO when its corresponding PWM is
+already requested (and vice versa). So it requires some exclusion code.
 
-steps to reproduce:
+Given that the PWMm and GPIO cores are not synchronized with respect to
+each other, this exclusion code will also require proper
+synchronization.
 
-ip addr add 224.0.0.0/32 dev eth0
-ip addr del 224.0.0.0/32 dev eth0
+Such a mechanism was in place, but was inadvertently removed by Uwe's
+clean-up in commit e926b12c611c ("pwm: Clear chip_data in pwm_put()").
 
-or
+Upon revisiting the synchronization mechanism, we found that
+theoretically, it could allow two threads to successfully request
+conflicting PWMs/GPIOs.
 
-ip addr add 224.0.0.0/32 dev eth0 autojoin
+Replace with a bitmap which tracks PWMs in-use, plus a mutex. As long as
+PWM and GPIO's respective request/free functions modify the in-use
+bitmap while holding the mutex, proper synchronization will be
+guaranteed.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000088
- pc : _raw_write_lock_irqsave+0x1e0/0x2ac
- lr : lock_sock_nested+0x1c/0x60
- Call trace:
-  _raw_write_lock_irqsave+0x1e0/0x2ac
-  lock_sock_nested+0x1c/0x60
-  ip_mc_config.isra.28+0x50/0xe0
-  inet_rtm_deladdr+0x1a8/0x1f0
-  rtnetlink_rcv_msg+0x120/0x350
-  netlink_rcv_skb+0x58/0x120
-  rtnetlink_rcv+0x14/0x20
-  netlink_unicast+0x1b8/0x270
-  netlink_sendmsg+0x1a0/0x3b0
-  ____sys_sendmsg+0x248/0x290
-  ___sys_sendmsg+0x80/0xc0
-  __sys_sendmsg+0x68/0xc0
-  __arm64_sys_sendmsg+0x20/0x30
-  el0_svc_common.constprop.2+0x88/0x150
-  do_el0_svc+0x20/0x80
- el0_sync_handler+0x118/0x190
-  el0_sync+0x140/0x180
-
-Fixes: 93a714d6b53d ("multicast: Extend ip address command to enable multicast group join/leave on")
-Signed-off-by: Taras Chornyi <taras.chornyi@plvision.eu>
-Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: YueHaibing <yuehaibing@huawei.com>
+Fixes: e926b12c611c ("pwm: Clear chip_data in pwm_put()")
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Cc: YueHaibing <yuehaibing@huawei.com>
+Link: https://lkml.org/lkml/2019/5/31/963
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+[cg: Tested on an i.MX6Q board with two NXP PCA9685 chips]
+Tested-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+Reviewed-by: Sven Van Asbroeck <TheSven73@gmail.com> # cg's rebase
+Link: https://lore.kernel.org/lkml/20200330160238.GD2817345@ulmo/
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/devinet.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/net/ipv4/devinet.c
-+++ b/net/ipv4/devinet.c
-@@ -614,12 +614,15 @@ struct in_ifaddr *inet_ifa_byprefix(stru
- 	return NULL;
+---
+ drivers/pwm/pwm-pca9685.c |   85 +++++++++++++++++++++++++---------------------
+ 1 file changed, 48 insertions(+), 37 deletions(-)
+
+--- a/drivers/pwm/pwm-pca9685.c
++++ b/drivers/pwm/pwm-pca9685.c
+@@ -20,6 +20,7 @@
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/pm_runtime.h>
++#include <linux/bitmap.h>
+ 
+ /*
+  * Because the PCA9685 has only one prescaler per chip, changing the period of
+@@ -74,6 +75,7 @@ struct pca9685 {
+ #if IS_ENABLED(CONFIG_GPIOLIB)
+ 	struct mutex lock;
+ 	struct gpio_chip gpio;
++	DECLARE_BITMAP(pwms_inuse, PCA9685_MAXCHAN + 1);
+ #endif
+ };
+ 
+@@ -83,51 +85,51 @@ static inline struct pca9685 *to_pca(str
  }
  
--static int ip_mc_config(struct sock *sk, bool join, const struct in_ifaddr *ifa)
-+static int ip_mc_autojoin_config(struct net *net, bool join,
-+				 const struct in_ifaddr *ifa)
+ #if IS_ENABLED(CONFIG_GPIOLIB)
+-static int pca9685_pwm_gpio_request(struct gpio_chip *gpio, unsigned int offset)
++static bool pca9685_pwm_test_and_set_inuse(struct pca9685 *pca, int pwm_idx)
  {
-+#if defined(CONFIG_IP_MULTICAST)
- 	struct ip_mreqn mreq = {
- 		.imr_multiaddr.s_addr = ifa->ifa_address,
- 		.imr_ifindex = ifa->ifa_dev->dev->ifindex,
- 	};
-+	struct sock *sk = net->ipv4.mc_autojoin_sk;
- 	int ret;
+-	struct pca9685 *pca = gpiochip_get_data(gpio);
+-	struct pwm_device *pwm;
++	bool is_inuse;
  
- 	ASSERT_RTNL();
-@@ -632,6 +635,9 @@ static int ip_mc_config(struct sock *sk,
- 	release_sock(sk);
- 
- 	return ret;
-+#else
-+	return -EOPNOTSUPP;
-+#endif
+ 	mutex_lock(&pca->lock);
+-
+-	pwm = &pca->chip.pwms[offset];
+-
+-	if (pwm->flags & (PWMF_REQUESTED | PWMF_EXPORTED)) {
+-		mutex_unlock(&pca->lock);
+-		return -EBUSY;
++	if (pwm_idx >= PCA9685_MAXCHAN) {
++		/*
++		 * "all LEDs" channel:
++		 * pretend already in use if any of the PWMs are requested
++		 */
++		if (!bitmap_empty(pca->pwms_inuse, PCA9685_MAXCHAN)) {
++			is_inuse = true;
++			goto out;
++		}
++	} else {
++		/*
++		 * regular channel:
++		 * pretend already in use if the "all LEDs" channel is requested
++		 */
++		if (test_bit(PCA9685_MAXCHAN, pca->pwms_inuse)) {
++			is_inuse = true;
++			goto out;
++		}
+ 	}
+-
+-	pwm_set_chip_data(pwm, (void *)1);
+-
++	is_inuse = test_and_set_bit(pwm_idx, pca->pwms_inuse);
++out:
+ 	mutex_unlock(&pca->lock);
+-	pm_runtime_get_sync(pca->chip.dev);
+-	return 0;
++	return is_inuse;
  }
  
- static int inet_rtm_deladdr(struct sk_buff *skb, struct nlmsghdr *nlh,
-@@ -675,7 +681,7 @@ static int inet_rtm_deladdr(struct sk_bu
- 			continue;
+-static bool pca9685_pwm_is_gpio(struct pca9685 *pca, struct pwm_device *pwm)
++static void pca9685_pwm_clear_inuse(struct pca9685 *pca, int pwm_idx)
+ {
+-	bool is_gpio = false;
+-
+ 	mutex_lock(&pca->lock);
++	clear_bit(pwm_idx, pca->pwms_inuse);
++	mutex_unlock(&pca->lock);
++}
  
- 		if (ipv4_is_multicast(ifa->ifa_address))
--			ip_mc_config(net->ipv4.mc_autojoin_sk, false, ifa);
-+			ip_mc_autojoin_config(net, false, ifa);
- 		__inet_del_ifa(in_dev, ifap, 1, nlh, NETLINK_CB(skb).portid);
- 		return 0;
- 	}
-@@ -940,8 +946,7 @@ static int inet_rtm_newaddr(struct sk_bu
- 		 */
- 		set_ifa_lifetime(ifa, valid_lft, prefered_lft);
- 		if (ifa->ifa_flags & IFA_F_MCAUTOJOIN) {
--			int ret = ip_mc_config(net->ipv4.mc_autojoin_sk,
--					       true, ifa);
-+			int ret = ip_mc_autojoin_config(net, true, ifa);
+-	if (pwm->hwpwm >= PCA9685_MAXCHAN) {
+-		unsigned int i;
+-
+-		/*
+-		 * Check if any of the GPIOs are requested and in that case
+-		 * prevent using the "all LEDs" channel.
+-		 */
+-		for (i = 0; i < pca->gpio.ngpio; i++)
+-			if (gpiochip_is_requested(&pca->gpio, i)) {
+-				is_gpio = true;
+-				break;
+-			}
+-	} else if (pwm_get_chip_data(pwm)) {
+-		is_gpio = true;
+-	}
++static int pca9685_pwm_gpio_request(struct gpio_chip *gpio, unsigned int offset)
++{
++	struct pca9685 *pca = gpiochip_get_data(gpio);
  
- 			if (ret < 0) {
- 				inet_free_ifa(ifa);
+-	mutex_unlock(&pca->lock);
+-	return is_gpio;
++	if (pca9685_pwm_test_and_set_inuse(pca, offset))
++		return -EBUSY;
++	pm_runtime_get_sync(pca->chip.dev);
++	return 0;
+ }
+ 
+ static int pca9685_pwm_gpio_get(struct gpio_chip *gpio, unsigned int offset)
+@@ -162,6 +164,7 @@ static void pca9685_pwm_gpio_free(struct
+ 
+ 	pca9685_pwm_gpio_set(gpio, offset, 0);
+ 	pm_runtime_put(pca->chip.dev);
++	pca9685_pwm_clear_inuse(pca, offset);
+ }
+ 
+ static int pca9685_pwm_gpio_get_direction(struct gpio_chip *chip,
+@@ -213,12 +216,17 @@ static int pca9685_pwm_gpio_probe(struct
+ 	return devm_gpiochip_add_data(dev, &pca->gpio, pca);
+ }
+ #else
+-static inline bool pca9685_pwm_is_gpio(struct pca9685 *pca,
+-				       struct pwm_device *pwm)
++static inline bool pca9685_pwm_test_and_set_inuse(struct pca9685 *pca,
++						  int pwm_idx)
+ {
+ 	return false;
+ }
+ 
++static inline void
++pca9685_pwm_clear_inuse(struct pca9685 *pca, int pwm_idx)
++{
++}
++
+ static inline int pca9685_pwm_gpio_probe(struct pca9685 *pca)
+ {
+ 	return 0;
+@@ -402,7 +410,7 @@ static int pca9685_pwm_request(struct pw
+ {
+ 	struct pca9685 *pca = to_pca(chip);
+ 
+-	if (pca9685_pwm_is_gpio(pca, pwm))
++	if (pca9685_pwm_test_and_set_inuse(pca, pwm->hwpwm))
+ 		return -EBUSY;
+ 	pm_runtime_get_sync(chip->dev);
+ 
+@@ -411,8 +419,11 @@ static int pca9685_pwm_request(struct pw
+ 
+ static void pca9685_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
++	struct pca9685 *pca = to_pca(chip);
++
+ 	pca9685_pwm_disable(chip, pwm);
+ 	pm_runtime_put(chip->dev);
++	pca9685_pwm_clear_inuse(pca, pwm->hwpwm);
+ }
+ 
+ static const struct pwm_ops pca9685_pwm_ops = {
 
 
