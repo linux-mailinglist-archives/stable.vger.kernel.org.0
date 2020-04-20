@@ -2,87 +2,253 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5311B0174
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 08:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 516301B02DA
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 09:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726023AbgDTGVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 02:21:09 -0400
-Received: from mail26.static.mailgun.info ([104.130.122.26]:41424 "EHLO
-        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725872AbgDTGVJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 02:21:09 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1587363668; h=References: In-Reply-To: Message-Id: Date:
- Subject: Cc: To: From: Sender;
- bh=FVcurZhnqdUAS+ng2DGudV2uvfN0AkaVvFL9XeQqcZs=; b=REuTxXe1Phr9FTXdtaEzUWKx8PBs3XAcedW4MyH1raYso0GNZ7umobbrz2xPggURhfB4N0+G
- XSIiIweijQY7mzVx9QIRFOruu+vJ5Vl4mJ+FmxdEamJBOKfGj27/fo6n6+vuHphLjLcFBr/r
- TIbvFdA9A9A1nzpTJOq0yTTCGU4=
-X-Mailgun-Sending-Ip: 104.130.122.26
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e9d3f53.7ffb17b5d4c8-smtp-out-n05;
- Mon, 20 Apr 2020 06:21:07 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 1D607C43637; Mon, 20 Apr 2020 06:21:06 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from vbadigan-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: vbadigan)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 75C48C43636;
-        Mon, 20 Apr 2020 06:21:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 75C48C43636
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=vbadigan@codeaurora.org
-From:   Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
-To:     adrian.hunter@intel.com, ulf.hansson@linaro.org
-Cc:     bjorn.andersson@linaro.org, linux-mmc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
-        <stable@vger.kernel.org>, Andy Gross <agross@kernel.org>
-Subject: [PATCH V2 1/3] mmc: sdhci-msm: Enable host capabilities pertains to R1b response
-Date:   Mon, 20 Apr 2020 11:50:23 +0530
-Message-Id: <1587363626-20413-2-git-send-email-vbadigan@codeaurora.org>
-X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1587363626-20413-1-git-send-email-vbadigan@codeaurora.org>
-References: <1587363626-20413-1-git-send-email-vbadigan@codeaurora.org>
+        id S1725959AbgDTH0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 03:26:01 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29614 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725773AbgDTH0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 03:26:01 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03K73AI1057238
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 03:25:59 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30gmu946m9-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 03:25:58 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <hbathini@linux.ibm.com>;
+        Mon, 20 Apr 2020 08:25:14 +0100
+Received: from b06avi18878370.portsmouth.uk.ibm.com (9.149.26.194)
+        by e06smtp01.uk.ibm.com (192.168.101.131) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 20 Apr 2020 08:25:12 +0100
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 03K7PrrF38338976
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 20 Apr 2020 07:25:53 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0E674A4051;
+        Mon, 20 Apr 2020 07:25:53 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7D5BCA4055;
+        Mon, 20 Apr 2020 07:25:51 +0000 (GMT)
+Received: from hbathini.in.ibm.com (unknown [9.102.25.223])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 20 Apr 2020 07:25:51 +0000 (GMT)
+Subject: [PATCH v2 1/2] powerpc/fadump: use static allocation for reserved
+ memory ranges
+From:   Hari Bathini <hbathini@linux.ibm.com>
+To:     Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev <linuxppc-dev@ozlabs.org>
+Cc:     Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Vasant Hegde <hegdevasant@linux.ibm.com>,
+        Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
+        stable@vger.kernel.org
+Date:   Mon, 20 Apr 2020 12:55:50 +0530
+User-Agent: StGit/0.17.1-dirty
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+x-cbid: 20042007-4275-0000-0000-000003C31EA3
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 20042007-4276-0000-0000-000038D89F5F
+Message-Id: <158736754835.20831.15003408332721022400.stgit@hbathini.in.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-04-20_02:2020-04-17,2020-04-20 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ spamscore=0 phishscore=0 adultscore=0 suspectscore=2 priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 mlxlogscore=999 clxscore=1011
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2004200063
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MSM sd host controller is capable of HW busy detection of device busy
-signaling over DAT0 line. And it requires the R1B response for
-commands that have this response associated with them.
+At times, memory ranges have to be looked up during early boot, when
+kernel couldn't be initialized for dynamic memory allocation. In fact,
+reserved-ranges look up is needed during FADump memory reservation.
+Without accounting for reserved-ranges in reserving memory for FADump,
+MPIPL boot fails with memory corruption issues. So, extend memory
+ranges handling to support static allocation and populate reserved
+memory ranges during early boot.
 
-So set the below two host capabilities for qcom SDHC.
-	- MMC_CAP_WAIT_WHILE_BUSY
-	- MMC_CAP_NEED_RSP_BUSY
-
-Cc: <stable@vger.kernel.org> # v4.19+
-Signed-off-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: dda9dbfeeb7a ("powerpc/fadump: consider reserved ranges while releasing memory")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
 ---
- drivers/mmc/host/sdhci-msm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/include/asm/fadump-internal.h |    4 +
+ arch/powerpc/kernel/fadump.c               |   77 ++++++++++++++++------------
+ 2 files changed, 48 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-msm.c b/drivers/mmc/host/sdhci-msm.c
-index 09ff731..d826e9b 100644
---- a/drivers/mmc/host/sdhci-msm.c
-+++ b/drivers/mmc/host/sdhci-msm.c
-@@ -2087,6 +2087,9 @@ static int sdhci_msm_probe(struct platform_device *pdev)
- 		goto clk_disable;
+diff --git a/arch/powerpc/include/asm/fadump-internal.h b/arch/powerpc/include/asm/fadump-internal.h
+index c814a2b..8d61c8f 100644
+--- a/arch/powerpc/include/asm/fadump-internal.h
++++ b/arch/powerpc/include/asm/fadump-internal.h
+@@ -64,12 +64,14 @@ struct fadump_memory_range {
+ };
+ 
+ /* fadump memory ranges info */
++#define RNG_NAME_SZ			16
+ struct fadump_mrange_info {
+-	char				name[16];
++	char				name[RNG_NAME_SZ];
+ 	struct fadump_memory_range	*mem_ranges;
+ 	u32				mem_ranges_sz;
+ 	u32				mem_range_cnt;
+ 	u32				max_mem_ranges;
++	bool				is_static;
+ };
+ 
+ /* Platform specific callback functions */
+diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
+index 59e60a9..679277b 100644
+--- a/arch/powerpc/kernel/fadump.c
++++ b/arch/powerpc/kernel/fadump.c
+@@ -40,8 +40,17 @@ struct kobject *fadump_kobj;
+ 
+ #ifndef CONFIG_PRESERVE_FA_DUMP
+ static DEFINE_MUTEX(fadump_mutex);
+-struct fadump_mrange_info crash_mrange_info = { "crash", NULL, 0, 0, 0 };
+-struct fadump_mrange_info reserved_mrange_info = { "reserved", NULL, 0, 0, 0 };
++struct fadump_mrange_info crash_mrange_info = { "crash", NULL, 0, 0, 0, false };
++
++#define RESERVED_RNGS_SZ	16384 /* 16K - 128 entries */
++#define RESERVED_RNGS_CNT	(RESERVED_RNGS_SZ / \
++				 sizeof(struct fadump_memory_range))
++static struct fadump_memory_range rngs[RESERVED_RNGS_CNT];
++struct fadump_mrange_info reserved_mrange_info = { "reserved", rngs,
++						   RESERVED_RNGS_SZ, 0,
++						   RESERVED_RNGS_CNT, true };
++
++static void __init early_init_dt_scan_reserved_ranges(unsigned long node);
+ 
+ #ifdef CONFIG_CMA
+ static struct cma *fadump_cma;
+@@ -110,6 +119,11 @@ static int __init fadump_cma_init(void) { return 1; }
+ int __init early_init_dt_scan_fw_dump(unsigned long node, const char *uname,
+ 				      int depth, void *data)
+ {
++	if (depth == 0) {
++		early_init_dt_scan_reserved_ranges(node);
++		return 0;
++	}
++
+ 	if (depth != 1)
+ 		return 0;
+ 
+@@ -728,10 +742,14 @@ void fadump_free_cpu_notes_buf(void)
+ 
+ static void fadump_free_mem_ranges(struct fadump_mrange_info *mrange_info)
+ {
++	if (mrange_info->is_static) {
++		mrange_info->mem_range_cnt = 0;
++		return;
++	}
++
+ 	kfree(mrange_info->mem_ranges);
+-	mrange_info->mem_ranges = NULL;
+-	mrange_info->mem_ranges_sz = 0;
+-	mrange_info->max_mem_ranges = 0;
++	memset((void *)((u64)mrange_info + RNG_NAME_SZ), 0,
++	       (sizeof(struct fadump_mrange_info) - RNG_NAME_SZ));
+ }
+ 
+ /*
+@@ -788,6 +806,12 @@ static inline int fadump_add_mem_range(struct fadump_mrange_info *mrange_info,
+ 		if (mrange_info->mem_range_cnt == mrange_info->max_mem_ranges) {
+ 			int ret;
+ 
++			if (mrange_info->is_static) {
++				pr_err("Reached array size limit for %s memory ranges\n",
++				       mrange_info->name);
++				return -ENOSPC;
++			}
++
+ 			ret = fadump_alloc_mem_ranges(mrange_info);
+ 			if (ret)
+ 				return ret;
+@@ -1204,20 +1228,19 @@ static void sort_and_merge_mem_ranges(struct fadump_mrange_info *mrange_info)
+  * Scan reserved-ranges to consider them while reserving/releasing
+  * memory for FADump.
+  */
+-static inline int fadump_scan_reserved_mem_ranges(void)
++static void __init early_init_dt_scan_reserved_ranges(unsigned long node)
+ {
+-	struct device_node *root;
+ 	const __be32 *prop;
+ 	int len, ret = -1;
+ 	unsigned long i;
+ 
+-	root = of_find_node_by_path("/");
+-	if (!root)
+-		return ret;
++	/* reserved-ranges already scanned */
++	if (reserved_mrange_info.mem_range_cnt != 0)
++		return;
+ 
+-	prop = of_get_property(root, "reserved-ranges", &len);
++	prop = of_get_flat_dt_prop(node, "reserved-ranges", &len);
+ 	if (!prop)
+-		return ret;
++		return;
+ 
+ 	/*
+ 	 * Each reserved range is an (address,size) pair, 2 cells each,
+@@ -1239,7 +1262,8 @@ static inline int fadump_scan_reserved_mem_ranges(void)
+ 		}
  	}
  
-+	msm_host->mmc->caps |= MMC_CAP_WAIT_WHILE_BUSY;
-+	msm_host->mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
-+
- 	pm_runtime_get_noresume(&pdev->dev);
- 	pm_runtime_set_active(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
--- 
-Qualcomm India Private Limited, on behalf of Qualcomm Innovation Center, Inc., is a member of Code Aurora Forum, a Linux Foundation Collaborative Project
+-	return ret;
++	/* Compact reserved ranges */
++	sort_and_merge_mem_ranges(&reserved_mrange_info);
+ }
+ 
+ /*
+@@ -1253,32 +1277,21 @@ static void fadump_release_memory(u64 begin, u64 end)
+ 	u64 ra_start, ra_end, tstart;
+ 	int i, ret;
+ 
+-	fadump_scan_reserved_mem_ranges();
+-
+ 	ra_start = fw_dump.reserve_dump_area_start;
+ 	ra_end = ra_start + fw_dump.reserve_dump_area_size;
+ 
+ 	/*
+-	 * Add reserved dump area to reserved ranges list
+-	 * and exclude all these ranges while releasing memory.
++	 * If reserved ranges array limit is hit, overwrite the last reserved
++	 * memory range with reserved dump area to ensure it is excluded from
++	 * the memory being released (reused for next FADump registration).
+ 	 */
+-	ret = fadump_add_mem_range(&reserved_mrange_info, ra_start, ra_end);
+-	if (ret != 0) {
+-		/*
+-		 * Not enough memory to setup reserved ranges but the system is
+-		 * running shortage of memory. So, release all the memory except
+-		 * Reserved dump area (reused for next fadump registration).
+-		 */
+-		if (begin < ra_end && end > ra_start) {
+-			if (begin < ra_start)
+-				fadump_release_reserved_area(begin, ra_start);
+-			if (end > ra_end)
+-				fadump_release_reserved_area(ra_end, end);
+-		} else
+-			fadump_release_reserved_area(begin, end);
++	if (reserved_mrange_info.mem_range_cnt ==
++	    reserved_mrange_info.max_mem_ranges)
++		reserved_mrange_info.mem_range_cnt--;
+ 
++	ret = fadump_add_mem_range(&reserved_mrange_info, ra_start, ra_end);
++	if (ret != 0)
+ 		return;
+-	}
+ 
+ 	/* Get the reserved ranges list in order first. */
+ 	sort_and_merge_mem_ranges(&reserved_mrange_info);
+
