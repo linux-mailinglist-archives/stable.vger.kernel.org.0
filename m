@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC2F1B0A66
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E18C21B0AC2
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:51:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729149AbgDTMrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:47:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44070 "EHLO mail.kernel.org"
+        id S1728600AbgDTMuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:50:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729147AbgDTMrs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:47:48 -0400
+        id S1729327AbgDTMs6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:48:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F70E206D4;
-        Mon, 20 Apr 2020 12:47:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8CD020747;
+        Mon, 20 Apr 2020 12:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386867;
-        bh=HFt2cNSRVwRrNyRATsHeOZAVGfis+zFjOerb5zwBaPs=;
+        s=default; t=1587386938;
+        bh=8WPosGjN0jxtOq3cCBjVoeG6FQNU+YhySU9UeScm48Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q6mMuE+zFfFCtF+QgRcYESnaqMgoKf5y1Rze1s7z1XVTZDwNQOga9+KediHu/XXiS
-         BY9E9qcC4fehvg4X/6fBQ1JeooKKmSmu2ZhcYSnKNy7JHDIk9wWHLL5baQP4WsFsoa
-         K72o3uJyLau3DLlaTCpdgP9Nmppt9E3qUfR7mwpU=
+        b=yi9wSPRQqX18PCYpLrBwp4LxutrxTBRazaeFJhff+ye0wYcixlWnN752UsmPoWL6o
+         PwI1Vr6aIMf1Pj7UdkOL4AhuriqaB/bvRYRBg/74DhHLow7pMnftwDN0MbPbvLOw0R
+         uOaBoGa+zdAG7trs5zNc+mZrMkrz3gr1Yx25CaiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Allen <john.allen@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 60/60] x86/microcode/AMD: Increase microcode PATCH_MAX_SIZE
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 28/40] ext4: do not zeroout extents beyond i_disksize
 Date:   Mon, 20 Apr 2020 14:39:38 +0200
-Message-Id: <20200420121516.353448570@linuxfoundation.org>
+Message-Id: <20200420121503.040390506@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
+References: <20200420121444.178150063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Allen <john.allen@amd.com>
+From: Jan Kara <jack@suse.cz>
 
-commit bdf89df3c54518eed879d8fac7577fcfb220c67e upstream.
+commit 801674f34ecfed033b062a0f217506b93c8d5e8a upstream.
 
-Future AMD CPUs will have microcode patches that exceed the default 4K
-patch size. Raise our limit.
+We do not want to create initialized extents beyond end of file because
+for e2fsck it is impossible to distinguish them from a case of corrupted
+file size / extent tree and so it complains like:
 
-Signed-off-by: John Allen <john.allen@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org # v4.14..
-Link: https://lkml.kernel.org/r/20200409152931.GA685273@mojo.amd.com
+Inode 12, i_size is 147456, should be 163840.  Fix? no
+
+Code in ext4_ext_convert_to_initialized() and
+ext4_split_convert_extents() try to make sure it does not create
+initialized extents beyond inode size however they check against
+inode->i_size which is wrong. They should instead check against
+EXT4_I(inode)->i_disksize which is the current inode size on disk.
+That's what e2fsck is going to see in case of crash before all dirty
+data is written. This bug manifests as generic/456 test failure (with
+recent enough fstests where fsx got fixed to properly pass
+FALLOC_KEEP_SIZE_FL flags to the kernel) when run with dioread_lock
+mount option.
+
+CC: stable@vger.kernel.org
+Fixes: 21ca087a3891 ("ext4: Do not zero out uninitialized extents beyond i_size")
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20200331105016.8674-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/microcode_amd.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/extents.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/x86/include/asm/microcode_amd.h
-+++ b/arch/x86/include/asm/microcode_amd.h
-@@ -41,7 +41,7 @@ struct microcode_amd {
- 	unsigned int			mpb[0];
- };
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -3438,8 +3438,8 @@ static int ext4_ext_convert_to_initializ
+ 		(unsigned long long)map->m_lblk, map_len);
  
--#define PATCH_MAX_SIZE PAGE_SIZE
-+#define PATCH_MAX_SIZE (3 * PAGE_SIZE)
+ 	sbi = EXT4_SB(inode->i_sb);
+-	eof_block = (inode->i_size + inode->i_sb->s_blocksize - 1) >>
+-		inode->i_sb->s_blocksize_bits;
++	eof_block = (EXT4_I(inode)->i_disksize + inode->i_sb->s_blocksize - 1)
++			>> inode->i_sb->s_blocksize_bits;
+ 	if (eof_block < map->m_lblk + map_len)
+ 		eof_block = map->m_lblk + map_len;
  
- #ifdef CONFIG_MICROCODE_AMD
- extern void __init load_ucode_amd_bsp(unsigned int family);
+@@ -3694,8 +3694,8 @@ static int ext4_split_convert_extents(ha
+ 		  __func__, inode->i_ino,
+ 		  (unsigned long long)map->m_lblk, map->m_len);
+ 
+-	eof_block = (inode->i_size + inode->i_sb->s_blocksize - 1) >>
+-		inode->i_sb->s_blocksize_bits;
++	eof_block = (EXT4_I(inode)->i_disksize + inode->i_sb->s_blocksize - 1)
++			>> inode->i_sb->s_blocksize_bits;
+ 	if (eof_block < map->m_lblk + map->m_len)
+ 		eof_block = map->m_lblk + map->m_len;
+ 	/*
 
 
