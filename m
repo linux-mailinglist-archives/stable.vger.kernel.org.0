@@ -2,239 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 390541B144D
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 20:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 822F51B14A7
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 20:35:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727936AbgDTSUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 14:20:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57488 "EHLO
+        id S1727776AbgDTSfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 14:35:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727106AbgDTSUO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 14:20:14 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C7C4C061A0F
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 11:20:14 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id a8so3170122edv.2
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 11:20:14 -0700 (PDT)
+        with ESMTP id S1726021AbgDTSfd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 14:35:33 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E25C061A0C
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 11:35:32 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id x3so5356078pfp.7
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 11:35:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ZtO01bYahgOb7Z9oRmIlu41t03TJcXzE5gRBaNEAL7Q=;
-        b=hfCwL9e+vf+caPGwbcjlSh2CVWoPvLRnIJcrj9mrBBg13LqXHm391fyBRHAGUhOojJ
-         LFECsoHiwbzsCXzyE4yH5jK/CDgMbH7FByj4ye7bEj/Ofh9EY2YC2x6C7G6R7GjxFyvx
-         2gRQywjHtfuTQV7PlTAPcwJydCPzueCu7uy7izUk1uyjenndaa6On7aS8aabj3t4uFE+
-         p8oCadvi8p8EhSxf6uH8wrvny0KrtCMVNd4OS91UYmaa2RWisGlQjHRt7xajzGeHfkD+
-         77kA25TlmNCq/KLfxDuchQz6UT/xj/9zjeQ2akTKJ8eiod7ODfifUo9nA88OMQiZpONE
-         lY+A==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=LVpzx1DTyznQssnETN0u40lacrbSnqfJ7fVuJMH+SWc=;
+        b=LLITbydjYJ41nahhWjbUatTadyL5yQxMCqDJMS0gNkGE8t4eQNeWqeDYZ183GeKiAM
+         JiNaFh0I1TtsEjDqUKuL1ZqWu6s3Q0aRltOj2VLBcje/XiP1t1GOtIip3LFM0Wezzzwa
+         IdIgWQPJV0PBj+JX/jXYA8tObp8VMxa3By0fED8k0lmh291lheIMRYD3yFWtxWLyzXP4
+         4pMMZijpVmCbpeZ5oraX2VNW6a+2q/ol6oslMufbpLoeDd5ZHgvpOcrE6Rj6e+CFV0U2
+         RdZRiA5c4ttwvDkGDxlwBeBWDK7Bri3N/jU+hWrItLTeYlVKGnMj2Zcc4aCIqfTvTVqa
+         25ew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ZtO01bYahgOb7Z9oRmIlu41t03TJcXzE5gRBaNEAL7Q=;
-        b=rV6D7vKByhCAXtO6mW/H6TV+RFxM7rj0qnjwD/jolXcljU9NXI57UBbFQ7ynolA6G3
-         x5sDHIWkDOGNvdQ88cxY0Win4/5ItZ/0DTA8DsvPX/qXnbENmvu5RTx+sxbf1qmBcWL+
-         0SS7evySq7vusVkDC3jfWcCHVhVnxn2Jg5ZtFhN4vPaZThIdh2dCp8Ooec8ZMH9APo+q
-         q3TVsuy65rPwfq/PUapj3XDPG4FIll9bWrcn3Sg/aZpxL67/lEUwYo+sfvuRagu/PkE6
-         k/Q0/26+caVsOlfT3n70Jxkw5a5Wshu0cV97t8hhFWV82gbuwvB9pUCdZhewvPodjQ3r
-         KC2A==
-X-Gm-Message-State: AGi0PuboNSc/y2WpawEy+4r9J2Fjt0GJ0IsaokGbyTbb9Z00pgyQyIV3
-        RdF16xzmRTMeVykowtD5HsGzVKnzLxiWirN58c6eoQ==
-X-Google-Smtp-Source: APiQypIB2bw4dzyFz/giglaCjVx3tH8usOa1T6pRutdl0wU2qwmyfZCwpwPbaM4BrQQaPmzCgUG//qy8oe92xQNI5M4=
-X-Received: by 2002:a50:ee86:: with SMTP id f6mr16488628edr.123.1587406812976;
- Mon, 20 Apr 2020 11:20:12 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=LVpzx1DTyznQssnETN0u40lacrbSnqfJ7fVuJMH+SWc=;
+        b=hSmOTCg0Itvfhzm0AjF5Q2wgwpxn5sh5gqHfHWu5mVONRtzaAyi0Kbt4gW5NGIWgZg
+         /nCQx9ZHeEHA5Zn970xJgjKPuT3x+3RWsL1uRjvIwONrrBtYO+/ELx8eh7rP8jlzjYZY
+         nk7vsBVr/DHEqES9aP7IJRQ0sGaHFAC4dn3hHA4wz4xZwKQHgXPwQaBI0wulcA5mILd/
+         tTYzosh5V2kYrWrcB8sRxyzRB7GLgj/77lNnz9EcKYjjkh4Tvec+7mPZcFG/sVStRTcH
+         yYUVUEu71qm6mm8Wsb3eRMgbpk2mkHacTl5N7T7wjEcya97rHps96HDSXfTKDPu4V4QM
+         ye7w==
+X-Gm-Message-State: AGi0Puaje0EJW4Nt7jViUMyjao+gSfE/+m+b7QHvP0ckzzG7uvrO27/U
+        rRIMxt6pV/0ErC7awIaOf5GfuSbUH7g=
+X-Google-Smtp-Source: APiQypIexp0zFsGwHGpxmIFQEGxjxX4NqFD0sMD3RSsHqwcBsDzARv0+MAvS0DJuZzTxIQyyiPMB3Q==
+X-Received: by 2002:a62:6dc3:: with SMTP id i186mr7073951pfc.273.1587407732071;
+        Mon, 20 Apr 2020 11:35:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i18sm57030pjx.33.2020.04.20.11.35.31
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Apr 2020 11:35:31 -0700 (PDT)
+Message-ID: <5e9deb73.1c69fb81.61a2d.03a8@mx.google.com>
+Date:   Mon, 20 Apr 2020 11:35:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <67FF611B-D10E-4BAF-92EE-684C83C9107E@amacapital.net>
- <CAHk-=wjePyyiNZo0oufYSn0s46qMYHoFyyNKhLOm5MXnKtfLcg@mail.gmail.com>
- <CAPcyv4jQ3s_ZVRvw6jAmm3vcebc-Ucf7FHYP3_nTybwdfQeG8Q@mail.gmail.com> <CAHk-=wjSqtXAqfUJxFtWNwmguFASTgB0dz1dT3V-78Quiezqbg@mail.gmail.com>
-In-Reply-To: <CAHk-=wjSqtXAqfUJxFtWNwmguFASTgB0dz1dT3V-78Quiezqbg@mail.gmail.com>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Mon, 20 Apr 2020 11:20:01 -0700
-Message-ID: <CAPcyv4hrfZsg48Gw_s7xTLLhjLTk_U+PV0MsLnG+xh3652xFCQ@mail.gmail.com>
-Subject: Re: [PATCH] x86/memcpy: Introduce memcpy_mcsafe_fast
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, X86 ML <x86@kernel.org>,
-        stable <stable@vger.kernel.org>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.176-136-ge60eb60a661c
+Subject: stable-rc/linux-4.14.y boot: 98 boots: 1 failed,
+ 85 passed with 6 offline, 5 untried/unknown,
+ 1 conflict (v4.14.176-136-ge60eb60a661c)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 20, 2020 at 10:29 AM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Sun, Apr 19, 2020 at 10:08 PM Dan Williams <dan.j.williams@intel.com> wrote:
-> >
-> > Do we have examples of doing exception handling from C? I thought all
-> > the exception handling copy routines were assembly routines?
->
-> You need assembler for the actual access, but that's a _single_
-> instruction - best done as inline asm.
->
-> The best example of something that does *exactly* what you want to do is likely
->
->         unsafe_get_user();
->         unsafe_put_user();
->
-> which basically turns into a single instruction with exception
-> handling, with the exception hander jumping directly to an error
-> label.
->
-> Ok, so right now gcc can't do that for inline asm with outputs, so it
-> generates fairly nasty code (a secondary register with the error state
-> that then causes a conditional branch on it), but that's a compiler
-> limitation that will eventually go away (where "eventially" means that
-> it already works in LLVM with experimental patches).
->
-> You could literally mis-use those helpers as-is (please don't - the
-> code generation is correct, but at the very least we'd have to
-> re-organize a bit to make it a better interface, ie have an
-> alternative name like "unsafe_get_kernel()" for kernel pointer
-> accesses).
->
-> You'd have to do the alignment guarantees yourself, but there are
-> examples of that in this area too (strnlen_user() does exactly that -
-> aligned word accesses).
+stable-rc/linux-4.14.y boot: 98 boots: 1 failed, 85 passed with 6 offline, =
+5 untried/unknown, 1 conflict (v4.14.176-136-ge60eb60a661c)
 
-Ok, I'll take a deeper look, but my initial reaction is that this
-approach could be a way to replace memcpy_mcsafe_slow(), but would be
-unfortunate for the fast case which can just use rep; movs;
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.176-136-ge60eb60a661c/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.176-136-ge60eb60a661c/
 
->
-> So the point here is that the current interfaces are garbage, _if_ the
-> whole "access a single value" is actually performance-critical.
->
-> And if that is *not* the case, then the best thing to do is likely to
-> just use a static call. No inlining of single instructions at all,
-> just always use a function call, and then pick the function
-> appropriately.
->
-> Honestly, I can't imagine that the "single access" case is so
-> timing-critical that the static call isn't the right model. Your use
-> case is _not_ as important or common as doing user accesses.
->
-> Finally, the big question is whether the completely broken hardware
-> even matters. Are there actual customers that actually use the garbage
-> "we can crash the machine" stuff?
->
-> Because when it comes to things like nvdimms etc, the _primary_
-> performance target would be getting the kernel entirely out of the
-> way, and allowing databases etc to just access the damn thing
-> directly.
->
-> And if you allow user space to access it directly, then you just have
-> to admit that it's not a software issue any more - it's the hardware
-> that is terminally broken and unusable garbage. It's not even
-> interesting to work around things in the kernel, because user space
-> can just crash the machine directly.
->
-> This is why I absolutely detest that thing so much. The hardware is
-> _so_ fundamentally broken that I have always considered the kernel
-> workarounds to basically be "staging" level stuff - good enough for
-> some random testing of known-broken stuff, but not something that
-> anybody sane should ever use.
->
-> So my preference would actually be to just call the broken cases to be
-> largely ignored, at least from a performance angle. If you can only
-> access it through the kernel, the biggest performance limitation is
-> that you cannot do any DAX-like thing at all safely, so then the
-> performance of some kernel accessors is completely secondary and
-> meaningless. When a kernel entry/exit takes a few thousand cycles on
-> the broken hardware (due to _other_ bugs), what's the point about
-> worrying about trying to inline some single access to the nvdimm?
->
-> Did the broken hardware ever spread out into the general public?
-> Because if not, then the proper thing to do might be to just make it a
-> compile-time option for the (few) customers that signed up for testing
-> the initial broken stuff, and make the way _forward_ be a clean model
-> without the need to worry about any exceptions at all.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.176-136-ge60eb60a661c
+Git Commit: e60eb60a661c0738dafb0907de42ff3ff8ac91d0
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 52 unique boards, 16 SoC families, 16 builds out of 200
 
-There are 3 classes of hardware, all of them trigger exceptions* it's
-just the recoverability of those exceptions that is different:
+Boot Regressions Detected:
 
-1/ Recovery not supported all exceptions report PCC=1 (processor
-context corrupted) and the kernel decides to panic.
+arm:
 
-2/ Recovery supported, user processes killed on consumption, panic on
-kernel consumption outside of an exception handler instrumented code
-path. Unfortunately there is no architectural way to distinguish
-class1 from class2 outside of a PCI quirk whitelist. The kernel prior
-to memcpy_mcsafe() just unconditionally enabled recovery for user
-consumption, panicked on kernel consumption, and hoped that exceptions
-are sent with PCC=0. The introduction of memcpy_mcsafe() to handle
-poison consumption from kernel-space without a panic introduced this
-not pretty caveat that some platforms needed to do special snowflake
-memcpy to avoid known scenarios** that trigger PCC=1 when they could
-otherwise trigger PCC=0. So a PCI quirk whitelist was added for those.
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v4.14.176-124-g=
+10e2890241f3)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.14.176-124-g=
+10e2890241f3)
 
-3/ Recovery supported *and* special snowflake memcpy rules relaxed.
-Still no architectural way to discover this state so let us just
-enable memcpy_mcsafe_fast() always and let the former whitelist become
-a blacklist of "this CPU requires you to do a dance to avoid some
-PCC=1 cases, but that dance impacts performance".
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 72 days (last pass: v4.14=
+.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
 
-* I'm at a loss of why you seem to be suggesting that hardware should
-/ could avoid all exceptions. What else could hardware do besides
-throw an exception on consumption of a naturally occuring multi-bit
-ECC error? Data is gone, and only software might know how to recover.
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.14.176-124-g10e2890=
+241f3)
 
-** Unaligned access across a cacheline boundary, fast string consumption...
+i386:
 
-> > The writes can mmu-fault now that memcpy_mcsafe() is also used by
-> > _copy_to_iter_mcsafe(). This allows a clean bypass of the block layer
-> > in fs/dax.c in addition to the pmem driver access of poisoned memory.
-> > Now that the fallback is a sane rep; movs; it can be considered for
-> > plain copy_to_iter() for other user copies so you get exception
-> > handling on kernel access of poison outside of persistent memory. To
-> > Andy's point I think a recoverable copy (for exceptions or faults) is
-> > generally useful.
->
-> I think that's completely independent.
->
-> If we have good reasons for having targets with exception handling,
-> then that has absolutely nothing to do with machine checks or buggy
-> hardware.
->
-> And it sure shouldn't be called "mcsafe", since it has nothing to do
-> with that situation any more.
+    i386_defconfig:
+        gcc-8:
+          qemu_i386:
+              lab-baylibre: new failure (last pass: v4.14.176-124-g10e28902=
+41f3)
 
-Ok, true.
+Boot Failure Detected:
 
-> > I understand the gripes about the mcsafe_slow() implementation, but
-> > how do I implement mcsafe_fast() any better than how it is currently
-> > organized given that, setting aside machine check handling,
-> > memcpy_mcsafe() is the core of a copy_to_iter*() front-end that can
-> > mmu-fault on either source or destination access?
->
-> So honestly, once it is NOT about the broken machine check garbage,
-> then it should be sold on its own independent reasons.
->
-> Do we want to have a "copy_to_iter_safe" that can handle page faults?
-> Because we have lots of those kinds of things, we have
->
->  - load_unaligned_zeropad()
->
->    This loads a single word knowing that the _first_ byte is valid,
-> but can take an exception and zero-pad if it crosses a page boundary
->
->  - probe_kernel_read()/write()
->
->    This is a kernel memcpy() with the source/destination perhaps being unmapped.
->
->  - various perf and tracing helpers that have special semantics.
->
-> but once it's about some generic interface, then it also needs to take
-> other architectures into account.
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
 
-For the fast case it's really just copy_user_enhanced_fast_string()
-without forced stac/clac when the source and dest are both kernel
-accesses.
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
