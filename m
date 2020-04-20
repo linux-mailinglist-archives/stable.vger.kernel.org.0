@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A06551B0A55
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21FC21B0BB0
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728496AbgDTMrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:47:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43276 "EHLO mail.kernel.org"
+        id S1727913AbgDTMnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:43:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729071AbgDTMrV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:47:21 -0400
+        id S1727825AbgDTMns (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:43:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D91422242;
-        Mon, 20 Apr 2020 12:47:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EBE820738;
+        Mon, 20 Apr 2020 12:43:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386840;
-        bh=X+b+QV3PvZjiosKYrqlH8COZv8vfZjJYoAlH/tuFyhE=;
+        s=default; t=1587386627;
+        bh=FCcXvTLuWCFsDQQPNpkZ4jF3bjg+075quiwNXKwV5lM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Oo95t4VBiyVYqmSa/u35cGd1YnJf+cZAn1n9F9J0DDu/SVgySVv5tpaEDsg764lU
-         Q+0/KkhoSTICAO94nmYS8j8eWwx2GcbJVFTM2ZxUUeHaihDVE8oQbtrxarsU1tnFx/
-         7U8lX/6ja8+9WX+vSmZGHJrYer5alcscDEziS06E=
+        b=oIxR8wnGVgoapzawd7aNGUdu4r5EsSqXXRgEnMkil1G9EtBH+wh95czoI1/cm92GG
+         pMc8/Lw3c1BB3BSDVS+5vD74aMJEj8zHzqjy9P6foPwfsshB3+83jUlPe+LH8ipY54
+         USEK+rEfNpGBLUeT61ZKIRqaQjOmVN4ek4Mvzzjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Yakunin <zeil@yandex-team.ru>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 09/60] net: revert default NAPI poll timeout to 2 jiffies
+        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.6 33/71] ext4: fix incorrect inodes per group in error message
 Date:   Mon, 20 Apr 2020 14:38:47 +0200
-Message-Id: <20200420121503.672835099@linuxfoundation.org>
+Message-Id: <20200420121515.515234631@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Josh Triplett <josh@joshtriplett.org>
 
-[ Upstream commit a4837980fd9fa4c70a821d11831698901baef56b ]
+commit b9c538da4e52a7b79dfcf4cfa487c46125066dfb upstream.
 
-For HZ < 1000 timeout 2000us rounds up to 1 jiffy but expires randomly
-because next timer interrupt could come shortly after starting softirq.
+If ext4_fill_super detects an invalid number of inodes per group, the
+resulting error message printed the number of blocks per group, rather
+than the number of inodes per group. Fix it to print the correct value.
 
-For commonly used CONFIG_HZ=1000 nothing changes.
-
-Fixes: 7acf8a1e8a28 ("Replace 2 jiffies with sysctl netdev_budget_usecs to enable softirq tuning")
-Reported-by: Dmitry Yakunin <zeil@yandex-team.ru>
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cd6bb35bf7f6d ("ext4: use more strict checks for inodes_per_block on mount")
+Link: https://lore.kernel.org/r/8be03355983a08e5d4eed480944613454d7e2550.1585434649.git.josh@joshtriplett.org
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/dev.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -3863,7 +3863,8 @@ EXPORT_SYMBOL(netdev_max_backlog);
- 
- int netdev_tstamp_prequeue __read_mostly = 1;
- int netdev_budget __read_mostly = 300;
--unsigned int __read_mostly netdev_budget_usecs = 2000;
-+/* Must be at least 2 jiffes to guarantee 1 jiffy timeout */
-+unsigned int __read_mostly netdev_budget_usecs = 2 * USEC_PER_SEC / HZ;
- int weight_p __read_mostly = 64;           /* old backlog weight */
- int dev_weight_rx_bias __read_mostly = 1;  /* bias for backlog weight */
- int dev_weight_tx_bias __read_mostly = 1;  /* bias for output_queue quota */
+---
+ fs/ext4/super.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4157,7 +4157,7 @@ static int ext4_fill_super(struct super_
+ 	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
+ 	    sbi->s_inodes_per_group > blocksize * 8) {
+ 		ext4_msg(sb, KERN_ERR, "invalid inodes per group: %lu\n",
+-			 sbi->s_blocks_per_group);
++			 sbi->s_inodes_per_group);
+ 		goto failed_mount;
+ 	}
+ 	sbi->s_itb_per_group = sbi->s_inodes_per_group /
 
 
