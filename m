@@ -2,174 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06D731B1310
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 19:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3DCA1B132E
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 19:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726913AbgDTRbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 13:31:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49754 "EHLO
+        id S1726534AbgDTRdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 13:33:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725784AbgDTRbT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 13:31:19 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748EAC061A0C
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 10:31:17 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id l19so8396841lje.10
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 10:31:17 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726296AbgDTRdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 13:33:05 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223CEC061A0C
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 10:33:05 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id t4so4189165plq.12
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 10:33:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=NIryELAm6gImzJkGH6fQiYjp+mAEletB7eZIJsyqgWk=;
-        b=krnMdGb/MWv2/hJFB2GXAivA1eafT/qLbqvbghWtyv7B4Zpq/GcxvHi6mOd+6FBM6C
-         IY5BdQiWf7sdkhevezJPXXQjRugRZy0mDc6xcxmSPQsM2u3cbnw+z69yM3DOOQGwzCJu
-         SSNbDvdaUQAGzazYsVocKKQJWyDeffZwnGaAUWk6PRvukjItFTuj4aVvsEWCSI685UF8
-         IJ503RbuLWh37H/qn5eVIFJK+0vQ6eNWomJ//9XsZC1rCpLVbE6i16bTzPysDUuOzYf3
-         K5lPzAN6eO9nger9P74Ws7hlToyCxgIMqr1EYuvkgky1tvewNclC/FXB24Fofob0rrID
-         IdBA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Bhf92DpJzg5M6q5XNSu0Z/wtjrVpMgkBiiaETe2AuN8=;
+        b=ia24aDD/VKx/PrUr8nWeVtwSfm/+swfGtAWExOCU14TWXFgFS4cQoHRdnKHoG6ZEgz
+         r4Jeyk25lqhA50mJ+X4BO6VWuPQYw8AH1EcLNv4x0pZVG3MV7R/8mt1wwIRAEn+WSzgE
+         4QEWaUVtpPF5vcooQwOJasoAkMrmKmXLyQVIAl0RzexQIw/hsNEs1VzrsynBVbZCrDT3
+         G74YXBRb60os/FVvuKG4MtdcSgzO8ZEc+Yf0DuSURN71o9fD9pGHagzlVEp9qTF0+M8x
+         FSDR7mW7oV97EJNtHIh1cLfqu4LqBz97zQ+sY/OFN05O5u6NPf/krYWIDni3dnLjwT+N
+         nRtg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=NIryELAm6gImzJkGH6fQiYjp+mAEletB7eZIJsyqgWk=;
-        b=Dvn01uU2F+XfSlloH/p9MDZqL6v34MmbfteeUffEnxeHZy62v0iUuCKyxMF0XPD/HV
-         ATeH0qof+O2KcEBk9oWBHR4Vd2wltS4Jv/LJzibYvN29FzQfdtllPXjhl1aMyGfzVeFt
-         tHq+Nf6lOYcQHGXksbSAITqloGsAq+1kAQaXrM/sm+H/9VNn/a/I3IaVM0VQI7CQ3p/h
-         jApu64MFyq7CEjrf3jrncfUd1kBQrZxTPEjNgy+CkFJQZPQNnuSWRIE1qBqxMUNC3BnV
-         X0PsbKWM/36Ky/ZkD+PjGTqmF88OYD3TgX/n0Ulslu9PxsykSpYWIKJoPo/VRMrVOKHN
-         1dtw==
-X-Gm-Message-State: AGi0Puagg48Avk49UJYMHn/npsaV3InhkUmN000S0/2858bhL9d2seC0
-        m9Z29ZJ9611IABdJvnI5nWEomktR1RZhlTSTYNuz0w==
-X-Google-Smtp-Source: APiQypJPD4m+tp3Womo4xhkAYM19+Ic04WM4krQ4hxUkoUaj9x6ghuqC4Zj9qVE2fQ/7SPMQH92K3u/JyQ21IzldG4k=
-X-Received: by 2002:a2e:9496:: with SMTP id c22mr9468296ljh.165.1587403875593;
- Mon, 20 Apr 2020 10:31:15 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Bhf92DpJzg5M6q5XNSu0Z/wtjrVpMgkBiiaETe2AuN8=;
+        b=l0u08S4jewQqxXArDiLcmtoDxWJYBda6otTf75mnZbTmT4NzFTAMv2h+CP0M6WyiXp
+         WMsg+pVH2IQlJlUA9sJ/doPSfuFNm7PD0s3ZGrdq85EfhzLzLiNnhturpUaMNcSYRpwc
+         MAqtPY5o/YwIuu2aSIFzBaD3XdI1jcQnCBkFRkH4p2A+MFwab2uU7o0DZKsbrn63ZP3D
+         VWiJGeeVhXLI3LHQUlcmQx6/2pm0qBI+fSD3Bwkj1z/XgKdVJXDz4qCdiSxTrdgmKizJ
+         cjwTek8P7SBD/K7NYOz8HyLToNMJ6g+CJobaC2n7yAtNWKg4pLfh1VE6Uq99oU9nArL9
+         IaqA==
+X-Gm-Message-State: AGi0PuZK13jZ7nMOyo2e4IO+grl7NxwthjAzCMfLv4uaVVaaTaFxeOJ5
+        NyOXA2vQbcAfc3ljZ97qve2+Vni9mUw=
+X-Google-Smtp-Source: APiQypK3Fu/T+6oTj9CYKV7CMQHdrZMI94+OaC+ekalix3DEkGZgNFiWQPQ9p+ch+17O1NRl85ECmw==
+X-Received: by 2002:a17:902:b10d:: with SMTP id q13mr17352924plr.265.1587403984342;
+        Mon, 20 Apr 2020 10:33:04 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 127sm73124pfz.128.2020.04.20.10.33.03
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Apr 2020 10:33:03 -0700 (PDT)
+Message-ID: <5e9ddccf.1c69fb81.5d0c0.03aa@mx.google.com>
+Date:   Mon, 20 Apr 2020 10:33:03 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200420121508.491252919@linuxfoundation.org>
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 20 Apr 2020 23:01:04 +0530
-Message-ID: <CA+G9fYscmrzf27SWRSxS5v-oYvJcRaqQw1rmDj-27kqBJXjRcQ@mail.gmail.com>
-Subject: Re: [PATCH 5.6 00/71] 5.6.6-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.219-69-g1e8fb731b4b5
+Subject: stable-rc/linux-4.4.y boot: 84 boots: 2 failed,
+ 70 passed with 5 offline, 6 untried/unknown,
+ 1 conflict (v4.4.219-69-g1e8fb731b4b5)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Apr 2020 at 18:13, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.6.6 release.
-> There are 71 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 22 Apr 2020 12:10:36 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.6.6-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.6.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable-rc/linux-4.4.y boot: 84 boots: 2 failed, 70 passed with 5 offline, 6=
+ untried/unknown, 1 conflict (v4.4.219-69-g1e8fb731b4b5)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.219-69-g1e8fb731b4b5/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.219-69-g1e8fb731b4b5/
 
-Summary
-------------------------------------------------------------------------
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.219-69-g1e8fb731b4b5
+Git Commit: 1e8fb731b4b54ce20c995c2248d2548a0dac04fa
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 45 unique boards, 15 SoC families, 16 builds out of 190
 
-kernel: 5.6.6-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.6.y
-git commit: 906ecc0031ed5fb7b4dfddb2c990f975e114829d
-git describe: v5.6.5-72-g906ecc0031ed
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.6-oe/bui=
-ld/v5.6.5-72-g906ecc0031ed
+Boot Regressions Detected:
 
+arm:
 
-No regressions (compared to build v5.6.5)
+    multi_v7_defconfig:
+        gcc-8:
+          am335x-boneblack:
+              lab-baylibre: new failure (last pass: v4.4.219-66-gb854626c87=
+20)
 
-No fixes (compared to build v5.6.5)
+    omap2plus_defconfig:
+        gcc-8:
+          am335x-boneblack:
+              lab-baylibre: new failure (last pass: v4.4.219-66-gb854626c87=
+20)
 
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 72 days (last pass: v4.4.=
+212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
 
-Ran 32044 total tests in the following environments and test suites.
+i386:
 
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
+    i386_defconfig:
+        gcc-8:
+          qemu_i386:
+              lab-baylibre: new failure (last pass: v4.4.219-66-gb854626c87=
+20)
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-sched-tests
-* v4l2-compliance
-* ltp-hugetlb-tests
-* ltp-mm-tests
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-ipc-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
+Boot Failures Detected:
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+arm:
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
