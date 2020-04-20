@@ -2,219 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41EDE1B02DE
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 09:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53BFF1B038B
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 09:57:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725886AbgDTH0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 03:26:36 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22840 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725773AbgDTH0g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 03:26:36 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03K73rQf054878
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 03:26:34 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 30gcs2w6e5-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 03:26:34 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <hbathini@linux.ibm.com>;
-        Mon, 20 Apr 2020 08:25:49 +0100
-Received: from b06avi18878370.portsmouth.uk.ibm.com (9.149.26.194)
-        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Mon, 20 Apr 2020 08:25:46 +0100
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 03K7QSqt35324388
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Apr 2020 07:26:28 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 52730AE045;
-        Mon, 20 Apr 2020 07:26:28 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DF52BAE055;
-        Mon, 20 Apr 2020 07:26:26 +0000 (GMT)
-Received: from hbathini.in.ibm.com (unknown [9.102.25.223])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 20 Apr 2020 07:26:26 +0000 (GMT)
-Subject: [PATCH v2 2/2] powerpc/fadump: consider reserved ranges while
- reserving memory
-From:   Hari Bathini <hbathini@linux.ibm.com>
-To:     Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev <linuxppc-dev@ozlabs.org>
-Cc:     Sourabh Jain <sourabhjain@linux.ibm.com>,
-        Vasant Hegde <hegdevasant@linux.ibm.com>,
-        Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
-        stable@vger.kernel.org
-Date:   Mon, 20 Apr 2020 12:56:25 +0530
-In-Reply-To: <158736754835.20831.15003408332721022400.stgit@hbathini.in.ibm.com>
-References: <158736754835.20831.15003408332721022400.stgit@hbathini.in.ibm.com>
-User-Agent: StGit/0.17.1-dirty
+        id S1725959AbgDTH52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 03:57:28 -0400
+Received: from mail.zx2c4.com ([192.95.5.64]:60873 "EHLO mail.zx2c4.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725865AbgDTH51 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 03:57:27 -0400
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTP id f1d5d349;
+        Mon, 20 Apr 2020 07:46:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=from:to:cc
+        :subject:date:message-id:mime-version:content-transfer-encoding;
+         s=mail; bh=0Z8VrEBoEqZW0fKOw8SFpT75CtM=; b=LEZN2u8UUIfHMWZ/6gzr
+        jda7Lan1GDm6qALfJit0LKgKlxjjh4TxYIysBvtXR8xoofnLuvZf0ZOJOhfuaIrb
+        QG+/BQ8XGxyixgk0GenBb+sDPPZlb7M6Y0B+yWGhA36cMrONeEZn/Eq0oI6WS977
+        l273zcfyJMyGuW8AMOzRM2IATs2s4pNzL0mYyKKimqFyIkBD1vFeMrYYJNbL/T1b
+        ufUeBxO2b+0c9kBdhT2buCza4PHsNFN9S3DcUJ+4sOCsqgnbtVgIwICISOoc3EDp
+        8PE3jm9sjwWS2TKvsZa7vVpbQK9f0TynAlNhBfOpBwTqg5qRYSKYTFXC6URD9Eru
+        cQ==
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 111377eb (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Mon, 20 Apr 2020 07:46:50 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     herbert@gondor.apana.org.au, linux-crypto@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ebiggers@google.com, ardb@kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org
+Subject: [PATCH crypto-stable] crypto: arch/lib - limit simd usage to PAGE_SIZE chunks
+Date:   Mon, 20 Apr 2020 01:57:11 -0600
+Message-Id: <20200420075711.2385190-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-x-cbid: 20042007-0016-0000-0000-00000307C6C9
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 20042007-0017-0000-0000-0000336BD6F2
-Message-Id: <158736755834.20831.6987298467765783948.stgit@hbathini.in.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-04-20_02:2020-04-17,2020-04-20 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
- impostorscore=0 priorityscore=1501 mlxlogscore=999 lowpriorityscore=0
- phishscore=0 adultscore=0 clxscore=1015 spamscore=0 mlxscore=0
- suspectscore=2 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2004200058
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 0962e8004e97 ("powerpc/prom: Scan reserved-ranges node for
-memory reservations") enabled support to parse reserved-ranges DT
-node and reserve kernel memory falling in these ranges for F/W
-purposes. Memory reserved for FADump should not overlap with these
-ranges as it could corrupt memory meant for F/W or crash'ed kernel
-memory to be exported as vmcore.
+The initial Zinc patchset, after some mailing list discussion, contained
+code to ensure that kernel_fpu_enable would not be kept on for more than
+a PAGE_SIZE chunk, since it disables preemption. The choice of PAGE_SIZE
+isn't totally scientific, but it's not a bad guess either, and it's
+what's used in both the x86 poly1305 and blake2s library code already.
+Unfortunately it appears to have been left out of the final patchset
+that actually added the glue code. So, this commit adds back the
+PAGE_SIZE chunking.
 
-But since commit 579ca1a27675 ("powerpc/fadump: make use of memblock's
-bottom up allocation mode"), memblock_find_in_range() is being used to
-find the appropriate area to reserve memory for FADump, which can't
-account for reserved-ranges as these ranges are reserved only after
-FADump memory reservation.
-
-With reserved-ranges now being populated during early boot, look out
-for these memory ranges while reserving memory for FADump. Without
-this change, MPIPL on PowerNV systems aborts with hostboot failure,
-when memory reserved for FADump is less than 4096MB.
-
-Fixes: 579ca1a27675 ("powerpc/fadump: make use of memblock's bottom up allocation mode")
+Fixes: 84e03fa39fbe ("crypto: x86/chacha - expose SIMD ChaCha routine as library function")
+Fixes: b3aad5bad26a ("crypto: arm64/chacha - expose arm64 ChaCha routine as library function")
+Fixes: a44a3430d71b ("crypto: arm/chacha - expose ARM ChaCha routine as library function")
+Fixes: f569ca164751 ("crypto: arm64/poly1305 - incorporate OpenSSL/CRYPTOGAMS NEON implementation")
+Fixes: a6b803b3ddc7 ("crypto: arm/poly1305 - incorporate OpenSSL/CRYPTOGAMS NEON implementation")
+Cc: Eric Biggers <ebiggers@google.com>
+Cc: Ard Biesheuvel <ardb@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
+Eric, Ard - I'm wondering if this was in fact just an oversight in Ard's
+patches, or if there was actually some later discussion in which we
+concluded that the PAGE_SIZE chunking wasn't required, perhaps because
+of FPU changes. If that's the case, please do let me know, in which case
+I'll submit a _different_ patch that removes the chunking from x86 poly
+and blake. I can't find any emails that would indicate that, but I might
+be mistaken.
 
-Changes in v2:
-* Add an out parameter 'found' for fadump_locate_reserve_mem() and set it to "true"
-  when a suitable memory area is located.
+ arch/arm/crypto/chacha-glue.c        | 16 +++++++++++++---
+ arch/arm/crypto/poly1305-glue.c      | 17 +++++++++++++----
+ arch/arm64/crypto/chacha-neon-glue.c | 16 +++++++++++++---
+ arch/arm64/crypto/poly1305-glue.c    | 17 +++++++++++++----
+ arch/x86/crypto/chacha_glue.c        | 16 +++++++++++++---
+ 5 files changed, 65 insertions(+), 17 deletions(-)
 
-
- arch/powerpc/kernel/fadump.c |   81 +++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 71 insertions(+), 10 deletions(-)
-
-diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
-index 679277b..0ffe69c 100644
---- a/arch/powerpc/kernel/fadump.c
-+++ b/arch/powerpc/kernel/fadump.c
-@@ -445,10 +445,73 @@ static int __init fadump_get_boot_mem_regions(void)
- 	return ret;
+diff --git a/arch/arm/crypto/chacha-glue.c b/arch/arm/crypto/chacha-glue.c
+index 6fdb0ac62b3d..0e29ebac95fd 100644
+--- a/arch/arm/crypto/chacha-glue.c
++++ b/arch/arm/crypto/chacha-glue.c
+@@ -91,9 +91,19 @@ void chacha_crypt_arch(u32 *state, u8 *dst, const u8 *src, unsigned int bytes,
+ 		return;
+ 	}
+ 
+-	kernel_neon_begin();
+-	chacha_doneon(state, dst, src, bytes, nrounds);
+-	kernel_neon_end();
++	for (;;) {
++		unsigned int todo = min_t(unsigned int, PAGE_SIZE, bytes);
++
++		kernel_neon_begin();
++		chacha_doneon(state, dst, src, todo, nrounds);
++		kernel_neon_end();
++
++		bytes -= todo;
++		if (!bytes)
++			break;
++		src += todo;
++		dst += todo;
++	}
  }
+ EXPORT_SYMBOL(chacha_crypt_arch);
  
-+/*
-+ * Returns true, if the given range overlaps with reserved memory ranges
-+ * starting at idx. Also, updates idx to index of overlapping memory range
-+ * with the given memory range.
-+ * False, otherwise.
-+ */
-+static bool overlaps_reserved_ranges(u64 base, u64 end, int *idx)
-+{
-+	bool ret = false;
-+	int i;
+diff --git a/arch/arm/crypto/poly1305-glue.c b/arch/arm/crypto/poly1305-glue.c
+index ceec04ec2f40..536a4a943ebe 100644
+--- a/arch/arm/crypto/poly1305-glue.c
++++ b/arch/arm/crypto/poly1305-glue.c
+@@ -160,13 +160,22 @@ void poly1305_update_arch(struct poly1305_desc_ctx *dctx, const u8 *src,
+ 		unsigned int len = round_down(nbytes, POLY1305_BLOCK_SIZE);
+ 
+ 		if (static_branch_likely(&have_neon) && do_neon) {
+-			kernel_neon_begin();
+-			poly1305_blocks_neon(&dctx->h, src, len, 1);
+-			kernel_neon_end();
++			for (;;) {
++				unsigned int todo = min_t(unsigned int, PAGE_SIZE, len);
 +
-+	for (i = *idx; i < reserved_mrange_info.mem_range_cnt; i++) {
-+		u64 rbase = reserved_mrange_info.mem_ranges[i].base;
-+		u64 rend = rbase + reserved_mrange_info.mem_ranges[i].size;
++				kernel_neon_begin();
++				poly1305_blocks_neon(&dctx->h, src, todo, 1);
++				kernel_neon_end();
 +
-+		if (end <= rbase)
-+			break;
-+
-+		if ((end > rbase) &&  (base < rend)) {
-+			*idx = i;
-+			ret = true;
-+			break;
-+		}
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-+ * Locate a suitable memory area to reserve memory for FADump. While at it,
-+ * lookup reserved-ranges & avoid overlap with them, as they are used by F/W.
-+ */
-+static u64 __init fadump_locate_reserve_mem(u64 base, u64 size, bool *found)
-+{
-+	struct fadump_memory_range *mrngs;
-+	phys_addr_t mstart, mend;
-+	int idx = 0;
-+	u64 i;
-+
-+	*found = false;
-+	mrngs = reserved_mrange_info.mem_ranges;
-+	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
-+				&mstart, &mend, NULL) {
-+		pr_debug("%llu) mstart: %llx, mend: %llx, base: %llx\n",
-+			 i, mstart, mend, base);
-+
-+		if (mstart > base)
-+			base = PAGE_ALIGN(mstart);
-+
-+		while ((mend > base) && ((mend - base) >= size)) {
-+			if (!overlaps_reserved_ranges(base, base+size, &idx)) {
-+				*found = true;
-+				goto out;
++				len -= todo;
++				if (!len)
++					break;
++				src += todo;
 +			}
+ 		} else {
+ 			poly1305_blocks_arm(&dctx->h, src, len, 1);
++			src += len;
+ 		}
+-		src += len;
+ 		nbytes %= POLY1305_BLOCK_SIZE;
+ 	}
+ 
+diff --git a/arch/arm64/crypto/chacha-neon-glue.c b/arch/arm64/crypto/chacha-neon-glue.c
+index 37ca3e889848..3eff767f4f77 100644
+--- a/arch/arm64/crypto/chacha-neon-glue.c
++++ b/arch/arm64/crypto/chacha-neon-glue.c
+@@ -87,9 +87,19 @@ void chacha_crypt_arch(u32 *state, u8 *dst, const u8 *src, unsigned int bytes,
+ 	    !crypto_simd_usable())
+ 		return chacha_crypt_generic(state, dst, src, bytes, nrounds);
+ 
+-	kernel_neon_begin();
+-	chacha_doneon(state, dst, src, bytes, nrounds);
+-	kernel_neon_end();
++	for (;;) {
++		unsigned int todo = min_t(unsigned int, PAGE_SIZE, bytes);
 +
-+			base = mrngs[idx].base + mrngs[idx].size;
-+			base = PAGE_ALIGN(base);
-+		}
++		kernel_neon_begin();
++		chacha_doneon(state, dst, src, todo, nrounds);
++		kernel_neon_end();
++
++		bytes -= todo;
++		if (!bytes)
++			break;
++		src += todo;
++		dst += todo;
 +	}
-+
-+out:
-+	return base;
-+}
-+
- int __init fadump_reserve_mem(void)
- {
--	u64 base, size, mem_boundary, bootmem_min, align = PAGE_SIZE;
--	bool is_memblock_bottom_up = memblock_bottom_up();
-+	u64 base, size, mem_boundary, bootmem_min;
- 	int ret = 1;
+ }
+ EXPORT_SYMBOL(chacha_crypt_arch);
  
- 	if (!fw_dump.fadump_enabled)
-@@ -469,9 +532,9 @@ int __init fadump_reserve_mem(void)
- 			PAGE_ALIGN(fadump_calculate_reserve_size());
- #ifdef CONFIG_CMA
- 		if (!fw_dump.nocma) {
--			align = FADUMP_CMA_ALIGNMENT;
- 			fw_dump.boot_memory_size =
--				ALIGN(fw_dump.boot_memory_size, align);
-+				ALIGN(fw_dump.boot_memory_size,
-+				      FADUMP_CMA_ALIGNMENT);
+diff --git a/arch/arm64/crypto/poly1305-glue.c b/arch/arm64/crypto/poly1305-glue.c
+index e97b092f56b8..616134bef02c 100644
+--- a/arch/arm64/crypto/poly1305-glue.c
++++ b/arch/arm64/crypto/poly1305-glue.c
+@@ -143,13 +143,22 @@ void poly1305_update_arch(struct poly1305_desc_ctx *dctx, const u8 *src,
+ 		unsigned int len = round_down(nbytes, POLY1305_BLOCK_SIZE);
+ 
+ 		if (static_branch_likely(&have_neon) && crypto_simd_usable()) {
+-			kernel_neon_begin();
+-			poly1305_blocks_neon(&dctx->h, src, len, 1);
+-			kernel_neon_end();
++			for (;;) {
++				unsigned int todo = min_t(unsigned int, PAGE_SIZE, len);
++
++				kernel_neon_begin();
++				poly1305_blocks_neon(&dctx->h, src, todo, 1);
++				kernel_neon_end();
++
++				len -= todo;
++				if (!len)
++					break;
++				src += todo;
++			}
+ 		} else {
+ 			poly1305_blocks(&dctx->h, src, len, 1);
++			src += len;
  		}
- #endif
+-		src += len;
+ 		nbytes %= POLY1305_BLOCK_SIZE;
+ 	}
  
-@@ -535,17 +598,15 @@ int __init fadump_reserve_mem(void)
- 		pr_debug("Reserve dump area start address: 0x%lx\n",
- 			 fw_dump.reserve_dump_area_start);
- 	} else {
-+		bool found = false;
+diff --git a/arch/x86/crypto/chacha_glue.c b/arch/x86/crypto/chacha_glue.c
+index b412c21ee06e..10733035b81c 100644
+--- a/arch/x86/crypto/chacha_glue.c
++++ b/arch/x86/crypto/chacha_glue.c
+@@ -153,9 +153,19 @@ void chacha_crypt_arch(u32 *state, u8 *dst, const u8 *src, unsigned int bytes,
+ 	    bytes <= CHACHA_BLOCK_SIZE)
+ 		return chacha_crypt_generic(state, dst, src, bytes, nrounds);
+ 
+-	kernel_fpu_begin();
+-	chacha_dosimd(state, dst, src, bytes, nrounds);
+-	kernel_fpu_end();
++	for (;;) {
++		unsigned int todo = min_t(unsigned int, PAGE_SIZE, bytes);
 +
- 		/*
- 		 * Reserve memory at an offset closer to bottom of the RAM to
- 		 * minimize the impact of memory hot-remove operation.
- 		 */
--		memblock_set_bottom_up(true);
--		base = memblock_find_in_range(base, mem_boundary, size, align);
--
--		/* Restore the previous allocation mode */
--		memblock_set_bottom_up(is_memblock_bottom_up);
-+		base = fadump_locate_reserve_mem(base, size, &found);
++		kernel_fpu_begin();
++		chacha_dosimd(state, dst, src, todo, nrounds);
++		kernel_fpu_end();
++
++		bytes -= todo;
++		if (!bytes)
++			break;
++		src += todo;
++		dst += todo;
++	}
+ }
+ EXPORT_SYMBOL(chacha_crypt_arch);
  
--		if (!base) {
-+		if (!found || (base > (mem_boundary - size))) {
- 			pr_err("Failed to find memory chunk for reservation!\n");
- 			goto error_out;
- 		}
+-- 
+2.26.1
 
