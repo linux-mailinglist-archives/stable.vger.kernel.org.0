@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3473A1B08DA
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:09:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 761231B08DC
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:09:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725944AbgDTMJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:09:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47400 "EHLO mail.kernel.org"
+        id S1726812AbgDTMJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:09:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725886AbgDTMJC (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:09:02 -0400
+        id S1725886AbgDTMJL (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:09:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8125206F6;
-        Mon, 20 Apr 2020 12:09:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1BD222202;
+        Mon, 20 Apr 2020 12:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587384541;
-        bh=iKf5C19mCtcgeEr+vRNCXNgSlPu9nb2MqiMYvIjUahE=;
+        s=default; t=1587384551;
+        bh=S4ZbAFZKwRhRlWkn9j2Hms1n7aHCg1aAYmVgwRuV0ow=;
         h=Subject:To:From:Date:From;
-        b=UdBhlH59HLOO9k/Dedy2thDZPv3ix11Tm2t+CDl51ERw/r6CsO2NApRDBlD3hN480
-         iLl7ywNloADi0GFsw3X1FmzQM24aGkZ04y1FfyZI878tgkhFzeorM0+Knw3uSMn2MH
-         iebBALsAK6eWBWKuKfjQkSTLgRgItI7OQ9YwVxfw=
-Subject: patch "iio: imu: st_lsm6dsx: flush hw FIFO before resetting the device" added to staging-linus
-To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, mario.tesi@st.com,
-        vitor.soares@synopsys.com
+        b=qACmiHLpn3AN5eya67kGDMO5+gMfTaPuMWn9ROJuKXW9F+wF5/mbC64xEb0Z8pb/U
+         GQwZX9H9lwahOr54QmU+9vYqXLRPxgdH4SlpJPvFtH5QzIV63Te0+k13GqmQ84+X3q
+         hmc0dc2mh9t4Ws5jIxyPj3cs86fyU1AjHbf66kW0=
+Subject: patch "iio: xilinx-xadc: Fix clearing interrupt when enabling trigger" added to staging-linus
+To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Apr 2020 14:08:46 +0200
-Message-ID: <1587384526195225@kroah.com>
+Date:   Mon, 20 Apr 2020 14:08:47 +0200
+Message-ID: <158738452798139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: imu: st_lsm6dsx: flush hw FIFO before resetting the device
+    iio: xilinx-xadc: Fix clearing interrupt when enabling trigger
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -56,73 +55,44 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 3a63da26db0a864134f023f088d41deacd509997 Mon Sep 17 00:00:00 2001
-From: Lorenzo Bianconi <lorenzo@kernel.org>
-Date: Fri, 13 Mar 2020 19:06:00 +0100
-Subject: iio: imu: st_lsm6dsx: flush hw FIFO before resetting the device
+From f954b098fbac4d183219ce5b42d76d6df2aed50a Mon Sep 17 00:00:00 2001
+From: Lars-Peter Clausen <lars@metafoo.de>
+Date: Fri, 3 Apr 2020 15:27:14 +0200
+Subject: iio: xilinx-xadc: Fix clearing interrupt when enabling trigger
 
-flush hw FIFO before device reset in order to avoid possible races
-on interrupt line 1. If the first interrupt line is asserted during
-hw reset the device will work in I3C-only mode (if it is supported)
+When enabling the trigger and unmasking the end-of-sequence (EOS) interrupt
+the EOS interrupt should be cleared from the status register. Otherwise it
+is possible that it was still set from a previous capture. If that is the
+case the interrupt would fire immediately even though no conversion has
+been done yet and stale data is being read from the device.
 
-Fixes: 801a6e0af0c6 ("iio: imu: st_lsm6dsx: add support to LSM6DSO")
-Fixes: 43901008fde0 ("iio: imu: st_lsm6dsx: add support to LSM6DSR")
-Reported-by: Mario Tesi <mario.tesi@st.com>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Reviewed-by: Vitor Soares <vitor.soares@synopsys.com>
-Tested-by: Vitor Soares <vitor.soares@synopsys.com>
+The old code only clears the interrupt if the interrupt was previously
+unmasked. Which does not make much sense since the interrupt is always
+masked at this point and in addition masking the interrupt does not clear
+the interrupt from the status register. So the clearing needs to be done
+unconditionally.
+
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 24 +++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ drivers/iio/adc/xilinx-xadc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index 84d219ae6aee..4426524b59f2 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -2036,11 +2036,21 @@ static int st_lsm6dsx_init_hw_timer(struct st_lsm6dsx_hw *hw)
- 	return 0;
- }
+diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
+index f50e04a8b0ec..62ded9683a57 100644
+--- a/drivers/iio/adc/xilinx-xadc-core.c
++++ b/drivers/iio/adc/xilinx-xadc-core.c
+@@ -674,7 +674,7 @@ static int xadc_trigger_set_state(struct iio_trigger *trigger, bool state)
  
--static int st_lsm6dsx_init_device(struct st_lsm6dsx_hw *hw)
-+static int st_lsm6dsx_reset_device(struct st_lsm6dsx_hw *hw)
- {
- 	const struct st_lsm6dsx_reg *reg;
- 	int err;
- 
-+	/*
-+	 * flush hw FIFO before device reset in order to avoid
-+	 * possible races on interrupt line 1. If the first interrupt
-+	 * line is asserted during hw reset the device will work in
-+	 * I3C-only mode (if it is supported)
-+	 */
-+	err = st_lsm6dsx_flush_fifo(hw);
-+	if (err < 0 && err != -ENOTSUPP)
-+		return err;
-+
- 	/* device sw reset */
- 	reg = &hw->settings->reset;
- 	err = regmap_update_bits(hw->regmap, reg->addr, reg->mask,
-@@ -2059,6 +2069,18 @@ static int st_lsm6dsx_init_device(struct st_lsm6dsx_hw *hw)
- 
- 	msleep(50);
- 
-+	return 0;
-+}
-+
-+static int st_lsm6dsx_init_device(struct st_lsm6dsx_hw *hw)
-+{
-+	const struct st_lsm6dsx_reg *reg;
-+	int err;
-+
-+	err = st_lsm6dsx_reset_device(hw);
-+	if (err < 0)
-+		return err;
-+
- 	/* enable Block Data Update */
- 	reg = &hw->settings->bdu;
- 	err = regmap_update_bits(hw->regmap, reg->addr, reg->mask,
+ 	spin_lock_irqsave(&xadc->lock, flags);
+ 	xadc_read_reg(xadc, XADC_AXI_REG_IPIER, &val);
+-	xadc_write_reg(xadc, XADC_AXI_REG_IPISR, val & XADC_AXI_INT_EOS);
++	xadc_write_reg(xadc, XADC_AXI_REG_IPISR, XADC_AXI_INT_EOS);
+ 	if (state)
+ 		val |= XADC_AXI_INT_EOS;
+ 	else
 -- 
 2.26.1
 
