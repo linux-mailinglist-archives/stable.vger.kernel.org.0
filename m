@@ -2,95 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E251B15F1
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 21:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B5B1B163C
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 21:52:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726208AbgDTT30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 15:29:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40774 "EHLO
+        id S1727902AbgDTTv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 15:51:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725897AbgDTT3Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 15:29:25 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DD27C061A0C
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 12:29:25 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id gr25so8911627ejb.10
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 12:29:25 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726109AbgDTTv4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 15:51:56 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD576C061A0C;
+        Mon, 20 Apr 2020 12:51:56 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id o10so2360354pgb.6;
+        Mon, 20 Apr 2020 12:51:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ce20/CIQIX522RaPVTyPTfJEPqiyAriKhvUnxTulqdM=;
-        b=Ew/qZu4sDhUqxZ/TYFqRH0ERtCxbKG4Z8viu2sPjWVDAgBWlvcnLRlRx5rwXTM/Oah
-         mIYHqq0r+8iblP15rxoSx33CEyZunyDuuLZACk8dgur1ueNplknlYmcAylmjCtPf23DA
-         W9fH6ydZ1sJNeXLG+uo/C5iF+Bx7zwA18kCdy3xNxw5iz8+YxTIHSDrMrmLspd9T1TpP
-         ntKFG8X9R+1/qJUVjBuCLfLmn2FSJJekaPBY9XT3Vh9StB1/hFnewJwuLeKxA0WHVKuW
-         mtpVxRXs6eZYVS5FIIcDdh1u3GSNKMaWuB1GMxDd8IXaXWIKV6KMRQ2rSrylkdDm8eYG
-         MzqQ==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=gfbJjm1Sf6mKMssI9xCaVtP/MJBYEDKbhSsjEdXyNZk=;
+        b=Xp4hOpmogasRFmoELwe1D0+DNzVSi1WH58/+nQEWWgmgvfwLPUa5byi2KqEDlWK4Ha
+         lQZQb/n1DKBhHjD5lH8F05w46QB3XK/+k2TVBPLtYXgaGld68ZpLvTWf5wauA6O78EB8
+         Oe6p4BDiqZXlnu1V7rVlyYHgkbaXt/xwVYCawZU1Shk4OANkAJKOBE6lKj+4WamDzLyP
+         tF8teYQCXA2q8s2lvWSB31RvzJxtopUJCcc8eiaxo9Y+R7k0gEovaVAVP+nMbpR8rXD1
+         7aIMtXsIMHnE+UCQWm7iYaMePq0AWTgfUiv5po+xVoIAh6xmh/VYCRqBjCPL1rlVIPQ1
+         ejHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ce20/CIQIX522RaPVTyPTfJEPqiyAriKhvUnxTulqdM=;
-        b=BWITqzOWo2j4IgacUofJ2w6+elqowm0zEZCw5lXRFSyyH5TItLAQnDw+r5Sfi0xYMm
-         7xez/dhIhO7XWkyE4OFjqUJJZFLfZXJ5PNPjdZklra0FhObZvNSWf5Iv3aPD5f5BLJP/
-         Tc1FvcFNd3B/Zrhu6OE7r5ILB/03RcmL5ADL50tHQJEqVkNdyCA3l5gEb71W0WfjgZ7W
-         IusLLoI8wk1vcnhSRIhVQ79w0TFn7HqP2aG0M6GMeTFa5Usw3BubuGqxBCeUoxwG3ECN
-         +XeVXramPBDKK8NzQpper/Q72t5j0OgrZGk5i69bNypylKZ/yNmHD7X3mkxo2QrgyZbS
-         S73A==
-X-Gm-Message-State: AGi0PuY6PI2DqDVmrzmWGjqece8idJQLMKeGDVg6g+Fr5wPeVv30n1CO
-        3GuUbGJU186O8T9RG/IlQKOzAA2kePKAZzifpNNNlgzW
-X-Google-Smtp-Source: APiQypK9aQrIzZ87xSipVCdNGdFMMM1E4PzK+Awa+HpCEy9iTdMb3+e2PhmQ2RqaH5oAUbvtfE2smMIkNiOOGSkMCww=
-X-Received: by 2002:a17:906:6d8e:: with SMTP id h14mr17131940ejt.123.1587410964104;
- Mon, 20 Apr 2020 12:29:24 -0700 (PDT)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=gfbJjm1Sf6mKMssI9xCaVtP/MJBYEDKbhSsjEdXyNZk=;
+        b=bAp19XhigKUKBlktjafq+RXV7hDftRRiqfzNRPTmn7V4sI+LjEP5Jb1vwfY56T0+FN
+         4+x6hkEE1hSNiKZThHlmDKgx/O4OeN0NJHRej1EMK08wL2UbVPU9xKprD6iMUMtO/Tjn
+         E+yC9BR9MT7mrp19PpvCPHrOmshSeR+pIa1W1IhBJ1aCvjuE3sHzj85pzJp1KZKGPPc7
+         BflMuuxS81/8Sl9kaYhyH2KuwIRK+cbP7vkoxEC881vt+t73EzniWQkICEEzZxcBxsh+
+         I1Pe9epH5wDGwx1R7HZwAdPiJYPnCajpcQO7vBGoXRKHCgMMM4f/hnJgWuNy6CDzCETM
+         z0VQ==
+X-Gm-Message-State: AGi0Pua+JBV46/sfsXcrZ1vl61JGh5GlCFuCwKGcQrnfHtqVUpK2bg6R
+        0oPU6ZfmOeDkn2vjdavXSEw68CQt
+X-Google-Smtp-Source: APiQypLJC7QJM5+PKOQHeD2GkfQVvJK8WyZsqM02DgXbdKsRKfPkNmObVsvY4/BjO0WU9m17vk8deQ==
+X-Received: by 2002:a65:4c41:: with SMTP id l1mr18028512pgr.43.1587412316178;
+        Mon, 20 Apr 2020 12:51:56 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id c15sm144605pgk.66.2020.04.20.12.51.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 20 Apr 2020 12:51:55 -0700 (PDT)
+Subject: Re: [PATCH 4.19 00/40] 4.19.117-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20200420121444.178150063@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <8e489b3d-eb31-89d1-ec79-e89e3c30707e@roeck-us.net>
+Date:   Mon, 20 Apr 2020 12:51:53 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <67FF611B-D10E-4BAF-92EE-684C83C9107E@amacapital.net>
- <CAHk-=wjePyyiNZo0oufYSn0s46qMYHoFyyNKhLOm5MXnKtfLcg@mail.gmail.com>
- <CAPcyv4jQ3s_ZVRvw6jAmm3vcebc-Ucf7FHYP3_nTybwdfQeG8Q@mail.gmail.com>
- <CAHk-=wjSqtXAqfUJxFtWNwmguFASTgB0dz1dT3V-78Quiezqbg@mail.gmail.com>
- <CAPcyv4hrfZsg48Gw_s7xTLLhjLTk_U+PV0MsLnG+xh3652xFCQ@mail.gmail.com> <CAHk-=wgcc=5kiph7o+aBZoWBCbu=9nQDQtD41DvuRRrqixohUA@mail.gmail.com>
-In-Reply-To: <CAHk-=wgcc=5kiph7o+aBZoWBCbu=9nQDQtD41DvuRRrqixohUA@mail.gmail.com>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Mon, 20 Apr 2020 12:29:12 -0700
-Message-ID: <CAPcyv4iTaBNPMwqUwas+J4rxd867QL7JnQBYB8NKnYaTA-R_Tw@mail.gmail.com>
-Subject: Re: [PATCH] x86/memcpy: Introduce memcpy_mcsafe_fast
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, X86 ML <x86@kernel.org>,
-        stable <stable@vger.kernel.org>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 20, 2020 at 12:13 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
-> On Mon, Apr 20, 2020 at 11:20 AM Dan Williams <dan.j.williams@intel.com> wrote:
-[..]
-> I really really detest the whole mcsafe garbage. And I absolutely
-> *ABHOR* how nobody inside of Intel has apparently ever questioned the
-> brokenness at a really fundamental level.
->
-> That "I throw my hands in the air and just give up" thing is a
-> disease. It's absolutely not "what else could we do".
+On 4/20/20 5:39 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.117 release.
+> There are 40 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 22 Apr 2020 12:10:36 +0000.
+> Anything received after that time might be too late.
+> 
 
-So I grew up in the early part of my career validating ARM CPUs where
-a data-abort was either precise or imprecise and the precise error
-could be handled like a page fault as you know which instruction
-faulted and how to restart the thread. So I didn't take x86 CPU
-designers' word for it, I honestly thought that "hmm the x86 machine
-check thingy looks like it's trying to implement precise vs imprecise
-data-aborts, and precise / synchronous is maybe a good thing because
-it's akin to a page fault". I didn't consider asynchronous to be
-better because that means there is a gap between when the data
-corruption is detected and when it might escape the system that some
-external agent could trust the result and start acting on before the
-asynchronous signal is delivered.
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 418 pass: 418 fail: 0
+
+Guenter
