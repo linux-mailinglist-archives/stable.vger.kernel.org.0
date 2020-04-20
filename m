@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D801A1B0A5E
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 505AA1B0A82
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:49:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727962AbgDTMrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:47:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43714 "EHLO mail.kernel.org"
+        id S1729331AbgDTMsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:48:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728192AbgDTMrg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:47:36 -0400
+        id S1726991AbgDTMst (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:48:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27081206DD;
-        Mon, 20 Apr 2020 12:47:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A48F20735;
+        Mon, 20 Apr 2020 12:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386855;
-        bh=2Ie6yKzF7v/mul/AuyrteBRsfgDx4BWHEpn8CwEjUOA=;
+        s=default; t=1587386928;
+        bh=foRUgx3kHTVvLrsvmFGzq49A+mAA4agcq0rc10os9tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HjhzUJtCALfRhW4fq7ojPoMDN5KFPJDvzMsOAQgDMBBHD5w33IcMhRvjeqvx7JsE8
-         B87rscNuH2pmvCo+1VIEM5t/8JRoLt/eZEo3A/PwFUX9E/4IzbkBy49zj+EC/WzLDC
-         y3TwpO014l4OjNdkmrqlxw1pQ3W/lfNwzatuWfh8=
+        b=yZ5/jmkIQoDvq0mcZhfs0l8szGvE18UgBkHHahtJAmAFtoUatU7ntPuva3t/9M+v7
+         QH+EEu/89pxVemdUA4f5QBJjpQ81cjPy7G3LLSIINeFFtKy8w9z9s1QJWmXkldcdxO
+         1vuuRk87IXeRt4bOlkEFv0xlwyIvR1GqaA+XqzC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Lokesh Vutla <lokeshvutla@ti.com>
-Subject: [PATCH 5.4 55/60] irqchip/ti-sci-inta: Fix processing of masked irqs
-Date:   Mon, 20 Apr 2020 14:39:33 +0200
-Message-Id: <20200420121515.114222770@linuxfoundation.org>
+        syzbot+6693adf1698864d21734@syzkaller.appspotmail.com,
+        syzbot+a4aee3f42d7584d76761@syzkaller.appspotmail.com,
+        stable@kernel.org, Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 24/40] mac80211_hwsim: Use kstrndup() in place of kasprintf()
+Date:   Mon, 20 Apr 2020 14:39:34 +0200
+Message-Id: <20200420121501.234251204@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
+References: <20200420121444.178150063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
 
-commit 3688b0db5c331f4ec3fa5eb9f670a4b04f530700 upstream.
+commit 7ea862048317aa76d0f22334202779a25530980c upstream.
 
-The ti_sci_inta_irq_handler() does not take into account INTA IRQs state
-(masked/unmasked) as it uses INTA_STATUS_CLEAR_j register to get INTA IRQs
-status, which provides raw status value.
-This causes hard IRQ handlers to be called or threaded handlers to be
-scheduled many times even if corresponding INTA IRQ is masked.
-Above, first of all, affects the LEVEL interrupts processing and causes
-unexpected behavior up the system stack or crash.
+syzbot reports a warning:
 
-Fix it by using the Interrupt Masked Status INTA_STATUSM_j register which
-provides masked INTA IRQs status.
+precision 33020 too large
+WARNING: CPU: 0 PID: 9618 at lib/vsprintf.c:2471 set_precision+0x150/0x180 lib/vsprintf.c:2471
+ vsnprintf+0xa7b/0x19a0 lib/vsprintf.c:2547
+ kvasprintf+0xb2/0x170 lib/kasprintf.c:22
+ kasprintf+0xbb/0xf0 lib/kasprintf.c:59
+ hwsim_del_radio_nl+0x63a/0x7e0 drivers/net/wireless/mac80211_hwsim.c:3625
+ genl_family_rcv_msg_doit net/netlink/genetlink.c:672 [inline]
+ ...
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Fixes: 9f1463b86c13 ("irqchip/ti-sci-inta: Add support for Interrupt Aggregator driver")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Lokesh Vutla <lokeshvutla@ti.com>
-Link: https://lore.kernel.org/r/20200408191532.31252-1-grygorii.strashko@ti.com
-Cc: stable@vger.kernel.org
+Thus it seems that kasprintf() with "%.*s" format can not be used for
+duplicating a string with arbitrary length. Replace it with kstrndup().
+
+Note that later this string is limited to NL80211_WIPHY_NAME_MAXLEN == 64,
+but the code is simpler this way.
+
+Reported-by: syzbot+6693adf1698864d21734@syzkaller.appspotmail.com
+Reported-by: syzbot+a4aee3f42d7584d76761@syzkaller.appspotmail.com
+Cc: stable@kernel.org
+Signed-off-by: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
+Link: https://lore.kernel.org/r/20200410123257.14559-1-tuomas.tynkkynen@iki.fi
+[johannes: add note about length limit]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/irqchip/irq-ti-sci-inta.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mac80211_hwsim.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/irqchip/irq-ti-sci-inta.c
-+++ b/drivers/irqchip/irq-ti-sci-inta.c
-@@ -37,6 +37,7 @@
- #define VINT_ENABLE_SET_OFFSET	0x0
- #define VINT_ENABLE_CLR_OFFSET	0x8
- #define VINT_STATUS_OFFSET	0x18
-+#define VINT_STATUS_MASKED_OFFSET	0x20
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -3327,9 +3327,9 @@ static int hwsim_new_radio_nl(struct sk_
+ 		param.no_vif = true;
  
- /**
-  * struct ti_sci_inta_event_desc - Description of an event coming to
-@@ -116,7 +117,7 @@ static void ti_sci_inta_irq_handler(stru
- 	chained_irq_enter(irq_desc_get_chip(desc), desc);
- 
- 	val = readq_relaxed(inta->base + vint_desc->vint_id * 0x1000 +
--			    VINT_STATUS_OFFSET);
-+			    VINT_STATUS_MASKED_OFFSET);
- 
- 	for_each_set_bit(bit, &val, MAX_EVENTS_PER_VINT) {
- 		virq = irq_find_mapping(domain, vint_desc->events[bit].hwirq);
+ 	if (info->attrs[HWSIM_ATTR_RADIO_NAME]) {
+-		hwname = kasprintf(GFP_KERNEL, "%.*s",
+-				   nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
+-				   (char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]));
++		hwname = kstrndup((char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]),
++				  nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
++				  GFP_KERNEL);
+ 		if (!hwname)
+ 			return -ENOMEM;
+ 		param.hwname = hwname;
+@@ -3385,9 +3385,9 @@ static int hwsim_del_radio_nl(struct sk_
+ 	if (info->attrs[HWSIM_ATTR_RADIO_ID]) {
+ 		idx = nla_get_u32(info->attrs[HWSIM_ATTR_RADIO_ID]);
+ 	} else if (info->attrs[HWSIM_ATTR_RADIO_NAME]) {
+-		hwname = kasprintf(GFP_KERNEL, "%.*s",
+-				   nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
+-				   (char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]));
++		hwname = kstrndup((char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]),
++				  nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
++				  GFP_KERNEL);
+ 		if (!hwname)
+ 			return -ENOMEM;
+ 	} else
 
 
