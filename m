@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C001B09BE
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:41:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC881B0A3D
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728106AbgDTMlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:41:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34568 "EHLO mail.kernel.org"
+        id S1728349AbgDTMqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:46:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728094AbgDTMlt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:41:49 -0400
+        id S1728884AbgDTMqI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:46:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 681E120735;
-        Mon, 20 Apr 2020 12:41:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AB59206DD;
+        Mon, 20 Apr 2020 12:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386508;
-        bh=3WFfkTC2VyLFMYYkexTop0RZ0E1qTf1xEmB51Q2uf1k=;
+        s=default; t=1587386767;
+        bh=5Xy1zSPQ+mdSo3B1aRXGosoRE7Xufwwvy2PkysIsSp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tr+/koOszpjEeDykoqySJR3/XB58LrqKidvfFu9RbXzDKoIwO/p42l/0YM417pdr7
-         djNFE+WAVZOG5cCe/mrXiroxKHlMlgS+PIuFZsbIJYn3Q4bYzK9SqgNVSNq5NupYCm
-         cmBLBLgrwQQ/hHj8Hu23SD1H9nzWmkh1xflC7hCc=
+        b=Z+irm6Rbj/U0t2BHzR8RwHgFgX95QxhkwtysipXLtYOnulj+WMJ9gSAr0fjPAKT2E
+         FJidnvCYAroNgxF6bOV464UeDXtDz7t0t+2MD0pHqiTtB2yFxWpGOVr9D5Qv012kPB
+         dJHsS6Cl2Q0FwBPTTjOmZ4K39GKkFZa9Jxo7kGVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 52/65] net/mlx5e: Encapsulate updating netdev queues into a function
-Date:   Mon, 20 Apr 2020 14:38:56 +0200
-Message-Id: <20200420121518.174265026@linuxfoundation.org>
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.4 19/60] ovl: fix value of i_ino for lower hardlink corner case
+Date:   Mon, 20 Apr 2020 14:38:57 +0200
+Message-Id: <20200420121506.968500059@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
-References: <20200420121505.909671922@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit c2c95271f9f39ea9b34db2301b3b6c5105cdb447 ]
+commit 300b124fcf6ad2cd99a7b721e0f096785e0a3134 upstream.
 
-As a preparation for one of the following commits, create a function to
-encapsulate the code that notifies the kernel about the new amount of
-RX and TX queues. The code will be called multiple times in the next
-commit.
+Commit 6dde1e42f497 ("ovl: make i_ino consistent with st_ino in more
+cases"), relaxed the condition nfs_export=on in order to set the value of
+i_ino to xino map of real ino.
 
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Specifically, it also relaxed the pre-condition that index=on for
+consistent i_ino. This opened the corner case of lower hardlink in
+ovl_get_inode(), which calls ovl_fill_inode() with ino=0 and then
+ovl_init_inode() is called to set i_ino to lower real ino without the xino
+mapping.
+
+Pass the correct values of ino;fsid in this case to ovl_fill_inode(), so it
+can initialize i_ino correctly.
+
+Fixes: 6dde1e42f497 ("ovl: make i_ino consistent with st_ino in more ...")
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../net/ethernet/mellanox/mlx5/core/en_main.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ fs/overlayfs/inode.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 67fe002dfade5..35b0acce425f8 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -2895,6 +2895,17 @@ static void mlx5e_netdev_set_tcs(struct net_device *netdev)
- 		netdev_set_tc_queue(netdev, tc, nch, 0);
- }
- 
-+static void mlx5e_update_netdev_queues(struct mlx5e_priv *priv)
-+{
-+	int num_txqs = priv->channels.num * priv->channels.params.num_tc;
-+	int num_rxqs = priv->channels.num * priv->profile->rq_groups;
-+	struct net_device *netdev = priv->netdev;
-+
-+	mlx5e_netdev_set_tcs(netdev);
-+	netif_set_real_num_tx_queues(netdev, num_txqs);
-+	netif_set_real_num_rx_queues(netdev, num_rxqs);
-+}
-+
- static void mlx5e_build_txq_maps(struct mlx5e_priv *priv)
- {
- 	int i, ch;
-@@ -2916,13 +2927,7 @@ static void mlx5e_build_txq_maps(struct mlx5e_priv *priv)
- 
- void mlx5e_activate_priv_channels(struct mlx5e_priv *priv)
- {
--	int num_txqs = priv->channels.num * priv->channels.params.num_tc;
--	int num_rxqs = priv->channels.num * priv->profile->rq_groups;
--	struct net_device *netdev = priv->netdev;
--
--	mlx5e_netdev_set_tcs(netdev);
--	netif_set_real_num_tx_queues(netdev, num_txqs);
--	netif_set_real_num_rx_queues(netdev, num_rxqs);
-+	mlx5e_update_netdev_queues(priv);
- 
- 	mlx5e_build_txq_maps(priv);
- 	mlx5e_activate_channels(&priv->channels);
--- 
-2.20.1
-
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -881,7 +881,7 @@ struct inode *ovl_get_inode(struct super
+ 	struct dentry *lowerdentry = lowerpath ? lowerpath->dentry : NULL;
+ 	bool bylower = ovl_hash_bylower(sb, upperdentry, lowerdentry,
+ 					oip->index);
+-	int fsid = bylower ? oip->lowerpath->layer->fsid : 0;
++	int fsid = bylower ? lowerpath->layer->fsid : 0;
+ 	bool is_dir, metacopy = false;
+ 	unsigned long ino = 0;
+ 	int err = oip->newinode ? -EEXIST : -ENOMEM;
+@@ -931,6 +931,8 @@ struct inode *ovl_get_inode(struct super
+ 			err = -ENOMEM;
+ 			goto out_err;
+ 		}
++		ino = realinode->i_ino;
++		fsid = lowerpath->layer->fsid;
+ 	}
+ 	ovl_fill_inode(inode, realinode->i_mode, realinode->i_rdev, ino, fsid);
+ 	ovl_inode_init(inode, upperdentry, lowerdentry, oip->lowerdata);
 
 
