@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E9941B0ADF
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:53:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 839D61B0AF8
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728474AbgDTMrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:47:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43114 "EHLO mail.kernel.org"
+        id S1728009AbgDTMw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:52:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728166AbgDTMrN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:47:13 -0400
+        id S1729047AbgDTMrQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:47:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 192E52072B;
-        Mon, 20 Apr 2020 12:47:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 878E92072B;
+        Mon, 20 Apr 2020 12:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386833;
-        bh=wVsjuW5qeAGCM3ngUkESGHskmplY5sshpRswX7BlpvU=;
+        s=default; t=1587386836;
+        bh=qKGdh4Za47dTXjFZpK413jDKrBnm5xyHnkOpBgWgldg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyodU6zGXI4CNn+2SOxcPI89/kot7QYauwRJS3DMUnyCY6Exp3DGS87Som05jjSbA
-         xZ6FmhEY5aqfI5GFbmzzvx3qPs2nuNmy6u3vmec+ZwA9hXR154BQTSHmQg18mdQMif
-         hLj6NUoVoIMJYFAqNYJBemKM/a4mOWkWz8WJU0fM=
+        b=mtxmCcR5MCTXIq43fq1QpUfCxgHnk/K5Z0OY9R9m7Qt2Su6uDHObGXC/EJ/bbu709
+         m9dedQG+d5RGVnHsgS2RGAHjPg8xOjQOoKwJ/oZ43ejOgIuKaLq8PDjAvGUYEt8b3J
+         fELZYDvQS3pcnaEQrgvoRQHzJGi2kzHVknUT61Ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Stallard <code@timstallard.me.uk>,
+        stable@vger.kernel.org, Atsushi Nemoto <atsushi.nemoto@sord.co.jp>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 06/60] net: ipv6: do not consider routes via gateways for anycast address check
-Date:   Mon, 20 Apr 2020 14:38:44 +0200
-Message-Id: <20200420121502.638950350@linuxfoundation.org>
+Subject: [PATCH 5.4 07/60] net: phy: micrel: use genphy_read_status for KSZ9131
+Date:   Mon, 20 Apr 2020 14:38:45 +0200
+Message-Id: <20200420121503.007491690@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
 References: <20200420121500.490651540@linuxfoundation.org>
@@ -43,66 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Stallard <code@timstallard.me.uk>
+From: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
 
-[ Upstream commit 03e2a984b6165621f287fadf5f4b5cd8b58dcaba ]
+[ Upstream commit 68dac3eb50be32957ae6e1e6da9281a3b7c6658b ]
 
-The behaviour for what is considered an anycast address changed in
-commit 45e4fd26683c ("ipv6: Only create RTF_CACHE routes after
-encountering pmtu exception"). This now considers the first
-address in a subnet where there is a route via a gateway
-to be an anycast address.
+KSZ9131 will not work with some switches due to workaround for KSZ9031
+introduced in commit d2fd719bcb0e83cb39cfee22ee800f98a56eceb3
+("net/phy: micrel: Add workaround for bad autoneg").
+Use genphy_read_status instead of dedicated ksz9031_read_status.
 
-This breaks path MTU discovery and traceroutes when a host in a
-remote network uses the address at the start of a prefix
-(eg 2600:: advertised as 2600::/48 in the DFZ) as ICMP errors
-will not be sent to anycast addresses.
-
-This patch excludes any routes with a gateway, or via point to
-point links, like the behaviour previously from
-rt6_is_gw_or_nonexthop in net/ipv6/route.c.
-
-This can be tested with:
-ip link add v1 type veth peer name v2
-ip netns add test
-ip netns exec test ip link set lo up
-ip link set v2 netns test
-ip link set v1 up
-ip netns exec test ip link set v2 up
-ip addr add 2001:db8::1/64 dev v1 nodad
-ip addr add 2001:db8:100:: dev lo nodad
-ip netns exec test ip addr add 2001:db8::2/64 dev v2 nodad
-ip netns exec test ip route add unreachable 2001:db8:1::1
-ip netns exec test ip route add 2001:db8:100::/64 via 2001:db8::1
-ip netns exec test sysctl net.ipv6.conf.all.forwarding=1
-ip route add 2001:db8:1::1 via 2001:db8::2
-ping -I 2001:db8::1 2001:db8:1::1 -c1
-ping -I 2001:db8:100:: 2001:db8:1::1 -c1
-ip addr delete 2001:db8:100:: dev lo
-ip netns delete test
-
-Currently the first ping will get back a destination unreachable ICMP
-error, but the second will never get a response, with "icmp6_send:
-acast source" logged. After this patch, both get destination
-unreachable ICMP replies.
-
-Fixes: 45e4fd26683c ("ipv6: Only create RTF_CACHE routes after encountering pmtu exception")
-Signed-off-by: Tim Stallard <code@timstallard.me.uk>
+Fixes: bff5b4b37372 ("net: phy: micrel: add Microchip KSZ9131 initial driver")
+Signed-off-by: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/ip6_route.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/micrel.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/ip6_route.h
-+++ b/include/net/ip6_route.h
-@@ -254,6 +254,7 @@ static inline bool ipv6_anycast_destinat
- 
- 	return rt->rt6i_flags & RTF_ANYCAST ||
- 		(rt->rt6i_dst.plen < 127 &&
-+		 !(rt->rt6i_flags & (RTF_GATEWAY | RTF_NONEXTHOP)) &&
- 		 ipv6_addr_equal(&rt->rt6i_dst.addr, daddr));
- }
- 
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -1154,7 +1154,7 @@ static struct phy_driver ksphy_driver[]
+ 	.driver_data	= &ksz9021_type,
+ 	.probe		= kszphy_probe,
+ 	.config_init	= ksz9131_config_init,
+-	.read_status	= ksz9031_read_status,
++	.read_status	= genphy_read_status,
+ 	.ack_interrupt	= kszphy_ack_interrupt,
+ 	.config_intr	= kszphy_config_intr,
+ 	.get_sset_count = kszphy_get_sset_count,
 
 
