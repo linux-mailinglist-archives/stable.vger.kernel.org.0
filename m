@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B6F1B0A7C
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:49:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B1831B0ACA
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729303AbgDTMsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45434 "EHLO mail.kernel.org"
+        id S1729543AbgDTMvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729300AbgDTMsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:48:42 -0400
+        id S1729274AbgDTMso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:48:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D35332082E;
-        Mon, 20 Apr 2020 12:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 449122072B;
+        Mon, 20 Apr 2020 12:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386921;
-        bh=N3SYcejc4Dv4IM02RTBR2f2yjBYBu8UqWsPgUiD0uOU=;
+        s=default; t=1587386923;
+        bh=GxhdlBmpsPege9HnDm7gfiKhMN+7fazKKcr9Va8+fnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lyi1AsiVAjCLMRWGrLk13WxfsUQvjgwKikiGXbCqqf2vnqPof1y+GcT0Djt1/6T8n
-         m5/B5rs+J+PTwqRTebWJscIYf+jCdybwRgUVXgNLK00G2THgSZGSMDluBToRPSqVaG
-         F2aKy5cW050OMtSXD5XF+8z0+WYsB2k0Bt+gL2kk=
+        b=Dju6cWJb8diPsmGFw8Jo8I9bjeov0I2+EBa9amfRWViCojMeXXxyJtmyd9Ve/Mm1f
+         u1QcnuCJanc9v9Xt/joHzcBwUtcUBfHjyppzjqoJcuhYE+kOTcUNMeyMuYY127pgUf
+         glllMeuBi0vMRbHVAjdI9lkxiCDCA/vWlqCbP+1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 21/40] keys: Fix proc_keys_next to increase position index
-Date:   Mon, 20 Apr 2020 14:39:31 +0200
-Message-Id: <20200420121500.246935593@linuxfoundation.org>
+        stable@vger.kernel.org, Xiao Yang <yangx.jy@cn.fujitsu.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 22/40] tracing: Fix the race between registering snapshot event trigger and triggering snapshot operation
+Date:   Mon, 20 Apr 2020 14:39:32 +0200
+Message-Id: <20200420121500.526690215@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
 References: <20200420121444.178150063@linuxfoundation.org>
@@ -45,70 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Xiao Yang <yangx.jy@cn.fujitsu.com>
 
-commit 86d32f9a7c54ad74f4514d7fef7c847883207291 upstream.
+commit 0bbe7f719985efd9adb3454679ecef0984cb6800 upstream.
 
-If seq_file .next function does not change position index,
-read after some lseek can generate unexpected output:
+Traced event can trigger 'snapshot' operation(i.e. calls snapshot_trigger()
+or snapshot_count_trigger()) when register_snapshot_trigger() has completed
+registration but doesn't allocate buffer for 'snapshot' event trigger.  In
+the rare case, 'snapshot' operation always detects the lack of allocated
+buffer so make register_snapshot_trigger() allocate buffer first.
 
-    $ dd if=/proc/keys bs=1  # full usual output
-    0f6bfdf5 I--Q---     2 perm 3f010000  1000  1000 user      4af2f79ab8848d0a: 740
-    1fb91b32 I--Q---     3 perm 1f3f0000  1000 65534 keyring   _uid.1000: 2
-    27589480 I--Q---     1 perm 0b0b0000     0     0 user      invocation_id: 16
-    2f33ab67 I--Q---   152 perm 3f030000     0     0 keyring   _ses: 2
-    33f1d8fa I--Q---     4 perm 3f030000  1000  1000 keyring   _ses: 1
-    3d427fda I--Q---     2 perm 3f010000  1000  1000 user      69ec44aec7678e5a: 740
-    3ead4096 I--Q---     1 perm 1f3f0000  1000 65534 keyring   _uid_ses.1000: 1
-    521+0 records in
-    521+0 records out
-    521 bytes copied, 0,00123769 s, 421 kB/s
+trigger-snapshot.tc in kselftest reproduces the issue on slow vm:
+-----------------------------------------------------------
+cat trace
+...
+ftracetest-3028  [002] ....   236.784290: sched_process_fork: comm=ftracetest pid=3028 child_comm=ftracetest child_pid=3036
+     <...>-2875  [003] ....   240.460335: tracing_snapshot_instance_cond: *** SNAPSHOT NOT ALLOCATED ***
+     <...>-2875  [003] ....   240.460338: tracing_snapshot_instance_cond: *** stopping trace here!   ***
+-----------------------------------------------------------
 
-But a read after lseek in middle of last line results in the partial
-last line and then a repeat of the final line:
+Link: http://lkml.kernel.org/r/20200414015145.66236-1-yangx.jy@cn.fujitsu.com
 
-    $ dd if=/proc/keys bs=500 skip=1
-    dd: /proc/keys: cannot skip to specified offset
-    g   _uid_ses.1000: 1
-    3ead4096 I--Q---     1 perm 1f3f0000  1000 65534 keyring   _uid_ses.1000: 1
-    0+1 records in
-    0+1 records out
-    97 bytes copied, 0,000135035 s, 718 kB/s
-
-and a read after lseek beyond end of file results in the last line being
-shown:
-
-    $ dd if=/proc/keys bs=1000 skip=1   # read after lseek beyond end of file
-    dd: /proc/keys: cannot skip to specified offset
-    3ead4096 I--Q---     1 perm 1f3f0000  1000 65534 keyring   _uid_ses.1000: 1
-    0+1 records in
-    0+1 records out
-    76 bytes copied, 0,000119981 s, 633 kB/s
-
-See https://bugzilla.kernel.org/show_bug.cgi?id=206283
-
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 93e31ffbf417a ("tracing: Add 'snapshot' event trigger command")
+Signed-off-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/keys/proc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/trace_events_trigger.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/security/keys/proc.c
-+++ b/security/keys/proc.c
-@@ -144,6 +144,8 @@ static void *proc_keys_next(struct seq_f
- 	n = key_serial_next(p, v);
- 	if (n)
- 		*_pos = key_node_serial(n);
-+	else
-+		(*_pos)++;
- 	return n;
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -1081,14 +1081,10 @@ register_snapshot_trigger(char *glob, st
+ 			  struct event_trigger_data *data,
+ 			  struct trace_event_file *file)
+ {
+-	int ret = register_trigger(glob, ops, data, file);
++	if (tracing_alloc_snapshot_instance(file->tr) != 0)
++		return 0;
+ 
+-	if (ret > 0 && tracing_alloc_snapshot_instance(file->tr) != 0) {
+-		unregister_trigger(glob, ops, data, file);
+-		ret = 0;
+-	}
+-
+-	return ret;
++	return register_trigger(glob, ops, data, file);
  }
  
+ static int
 
 
