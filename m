@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39B251B0BAE
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC8481B0A37
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728124AbgDTMn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:43:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37740 "EHLO mail.kernel.org"
+        id S1728860AbgDTMpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:45:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728484AbgDTMn6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:43:58 -0400
+        id S1728855AbgDTMpx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:45:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 414542070B;
-        Mon, 20 Apr 2020 12:43:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB598206DD;
+        Mon, 20 Apr 2020 12:45:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386637;
-        bh=7+5pEKWARNc84ZkGGLnLU/rBEp2gTmMmQzl/RUdX5DU=;
+        s=default; t=1587386753;
+        bh=9cG006k3LbqtUOh3C3GQ/cY8hx5/Uc58zO0Ys8/zvsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dXHoxOORb1EH6E72EudVi2tS+rx7Yj8iVDiQkyAF/jPFXvlW1bakD+ZVphFZhzH+l
-         mjvxfluqXS5ZNuaKgkxBsNYs5do0Eel+0M8c4X4qzkV06BrS+4Daw3E8i7trSD1apP
-         /OeIUoPEX7k9Gz3OkfayKPk8FiIJ9geJIK7YDoAs=
+        b=PPVoQCSjstu0YAR+jMwjXKwGpzRDQlR+zlC+MmMWRjYPAbm4pp8hsf/nzrL6Z63IE
+         /VYLrm/xJi0Teuyw63p0zu6F5vwU7F0fHtUtHxtjmb/GZxrjASmRPfw9KXQsQS+nQB
+         9RFWErxjs/3mMqVVg73m6jLNcMAVAmdH3jltKQVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.6 37/71] ARM: dts: imx7-colibri: fix muxing of usbc_det pin
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Feras Daoud <ferasda@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.4 13/60] net/mlx5: Fix frequent ioread PCI access during recovery
 Date:   Mon, 20 Apr 2020 14:38:51 +0200
-Message-Id: <20200420121516.650346866@linuxfoundation.org>
+Message-Id: <20200420121504.994289810@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-commit 7007f2eca0f258710899ca486da00546d03db0ed upstream.
+[ Upstream commit 8c702a53bb0a79bfa203ba21ef1caba43673c5b7 ]
 
-USB_C_DET pin shouldn't be in ethernet group.
+High frequency of PCI ioread calls during recovery flow may cause the
+following trace on powerpc:
 
-Creating a separate group allows one to use this pin
-as an USB ID pin.
+[ 248.670288] EEH: 2100000 reads ignored for recovering device at
+location=Slot1 driver=mlx5_core pci addr=0000:01:00.1
+[ 248.670331] EEH: Might be infinite loop in mlx5_core driver
+[ 248.670361] CPU: 2 PID: 35247 Comm: kworker/u192:11 Kdump: loaded
+Tainted: G OE ------------ 4.14.0-115.14.1.el7a.ppc64le #1
+[ 248.670425] Workqueue: mlx5_health0000:01:00.1 health_recover_work
+[mlx5_core]
+[ 248.670471] Call Trace:
+[ 248.670492] [c00020391c11b960] [c000000000c217ac] dump_stack+0xb0/0xf4
+(unreliable)
+[ 248.670548] [c00020391c11b9a0] [c000000000045818]
+eeh_check_failure+0x5c8/0x630
+[ 248.670631] [c00020391c11ba50] [c00000000068fce4]
+ioread32be+0x114/0x1c0
+[ 248.670692] [c00020391c11bac0] [c00800000dd8b400]
+mlx5_error_sw_reset+0x160/0x510 [mlx5_core]
+[ 248.670752] [c00020391c11bb60] [c00800000dd75824]
+mlx5_disable_device+0x34/0x1d0 [mlx5_core]
+[ 248.670822] [c00020391c11bbe0] [c00800000dd8affc]
+health_recover_work+0x11c/0x3c0 [mlx5_core]
+[ 248.670891] [c00020391c11bc80] [c000000000164fcc]
+process_one_work+0x1bc/0x5f0
+[ 248.670955] [c00020391c11bd20] [c000000000167f8c]
+worker_thread+0xac/0x6b0
+[ 248.671015] [c00020391c11bdc0] [c000000000171618] kthread+0x168/0x1b0
+[ 248.671067] [c00020391c11be30] [c00000000000b65c]
+ret_from_kernel_thread+0x5c/0x80
 
-Fixes: b326629f25b7 ("ARM: dts: imx7: add Toradex Colibri iMX7S/iMX7D suppor")
-Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reduce the PCI ioread frequency during recovery by using msleep()
+instead of cond_resched()
+
+Fixes: 3e5b72ac2f29 ("net/mlx5: Issue SW reset on FW assert")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Reviewed-by: Feras Daoud <ferasda@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm/boot/dts/imx7-colibri.dtsi |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/health.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/imx7-colibri.dtsi
-+++ b/arch/arm/boot/dts/imx7-colibri.dtsi
-@@ -345,7 +345,7 @@
- &iomuxc {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_gpio1 &pinctrl_gpio2 &pinctrl_gpio3 &pinctrl_gpio4
--		     &pinctrl_gpio7>;
-+		     &pinctrl_gpio7 &pinctrl_usbc_det>;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
+@@ -243,7 +243,7 @@ recover_from_sw_reset:
+ 		if (mlx5_get_nic_state(dev) == MLX5_NIC_IFC_DISABLED)
+ 			break;
  
- 	pinctrl_gpio1: gpio1-grp {
- 		fsl,pins = <
-@@ -450,7 +450,6 @@
+-		cond_resched();
++		msleep(20);
+ 	} while (!time_after(jiffies, end));
  
- 	pinctrl_enet1: enet1grp {
- 		fsl,pins = <
--			MX7D_PAD_ENET1_CRS__GPIO7_IO14			0x14
- 			MX7D_PAD_ENET1_RGMII_RX_CTL__ENET1_RGMII_RX_CTL	0x73
- 			MX7D_PAD_ENET1_RGMII_RD0__ENET1_RGMII_RD0	0x73
- 			MX7D_PAD_ENET1_RGMII_RD1__ENET1_RGMII_RD1	0x73
-@@ -648,6 +647,12 @@
- 		>;
- 	};
- 
-+	pinctrl_usbc_det: gpio-usbc-det {
-+		fsl,pins = <
-+			MX7D_PAD_ENET1_CRS__GPIO7_IO14	0x14
-+		>;
-+	};
-+
- 	pinctrl_usbh_reg: gpio-usbh-vbus {
- 		fsl,pins = <
- 			MX7D_PAD_UART3_CTS_B__GPIO4_IO7	0x14 /* SODIMM 129 USBH PEN */
+ 	if (mlx5_get_nic_state(dev) != MLX5_NIC_IFC_DISABLED) {
 
 
