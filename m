@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A78B11B0BAF
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B368A1B09D7
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728449AbgDTMn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:43:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37712 "EHLO mail.kernel.org"
+        id S1728264AbgDTMmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:42:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728476AbgDTMnz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:43:55 -0400
+        id S1728250AbgDTMml (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:42:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDD1020724;
-        Mon, 20 Apr 2020 12:43:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61F942072B;
+        Mon, 20 Apr 2020 12:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386635;
-        bh=JOOTuWI6U2ZH4Csf9zK1OR4MtIve53GIFno1otkRgWE=;
+        s=default; t=1587386560;
+        bh=HaUo+E5NxLGCGdFw4NKrqAONKCA3eOeOzeVolfXxgx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0m1Y2YuJn13fs7tKdeOvVjpxwSpKMqyVoUk/C7TFaAlQrvEI+z0BsZIgcRJ01H/vO
-         hbWBtqmqEie1A/aLTqc+8nbge3D4UeTWYzB7SCnIqBaRQs2F4pZFspM/JJPMKBolPL
-         Lnep060Cx30RrAA63m8tbxpmCPuvOFSBiWBNF9Rc=
+        b=j4P5VL/1iEdGJOkB2fJJw40qv5XpwS7Vo6erw935z8Yy/MqLYHB9PcJOeJXXG5hnN
+         bYfoI5xrDC5VG/pAud5LfJeAipLSx8mDMCY8B0aDe+1sigBNuv6Nlxl37offT07hBO
+         Uxia+KDOGXjWDIMknr03ZFWBhkJwMTeRY5QeW8iQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.6 36/71] clk: at91: usb: use proper usbs_mask
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.5 46/65] keys: Fix proc_keys_next to increase position index
 Date:   Mon, 20 Apr 2020 14:38:50 +0200
-Message-Id: <20200420121516.378556189@linuxfoundation.org>
+Message-Id: <20200420121516.763243061@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
+References: <20200420121505.909671922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit d7a83d67a1694c42cc95fc0755d823f7ca3bfcfb upstream.
+commit 86d32f9a7c54ad74f4514d7fef7c847883207291 upstream.
 
-Use usbs_mask passed as argument. The usbs_mask is different for
-SAM9X60.
+If seq_file .next function does not change position index,
+read after some lseek can generate unexpected output:
 
-Fixes: 2423eeaead6f8 ("clk: at91: usb: Add sam9x60 support")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lkml.kernel.org/r/1579261009-4573-4-git-send-email-claudiu.beznea@microchip.com
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+    $ dd if=/proc/keys bs=1  # full usual output
+    0f6bfdf5 I--Q---     2 perm 3f010000  1000  1000 user      4af2f79ab8848d0a: 740
+    1fb91b32 I--Q---     3 perm 1f3f0000  1000 65534 keyring   _uid.1000: 2
+    27589480 I--Q---     1 perm 0b0b0000     0     0 user      invocation_id: 16
+    2f33ab67 I--Q---   152 perm 3f030000     0     0 keyring   _ses: 2
+    33f1d8fa I--Q---     4 perm 3f030000  1000  1000 keyring   _ses: 1
+    3d427fda I--Q---     2 perm 3f010000  1000  1000 user      69ec44aec7678e5a: 740
+    3ead4096 I--Q---     1 perm 1f3f0000  1000 65534 keyring   _uid_ses.1000: 1
+    521+0 records in
+    521+0 records out
+    521 bytes copied, 0,00123769 s, 421 kB/s
+
+But a read after lseek in middle of last line results in the partial
+last line and then a repeat of the final line:
+
+    $ dd if=/proc/keys bs=500 skip=1
+    dd: /proc/keys: cannot skip to specified offset
+    g   _uid_ses.1000: 1
+    3ead4096 I--Q---     1 perm 1f3f0000  1000 65534 keyring   _uid_ses.1000: 1
+    0+1 records in
+    0+1 records out
+    97 bytes copied, 0,000135035 s, 718 kB/s
+
+and a read after lseek beyond end of file results in the last line being
+shown:
+
+    $ dd if=/proc/keys bs=1000 skip=1   # read after lseek beyond end of file
+    dd: /proc/keys: cannot skip to specified offset
+    3ead4096 I--Q---     1 perm 1f3f0000  1000 65534 keyring   _uid_ses.1000: 1
+    0+1 records in
+    0+1 records out
+    76 bytes copied, 0,000119981 s, 633 kB/s
+
+See https://bugzilla.kernel.org/show_bug.cgi?id=206283
+
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/at91/clk-usb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/keys/proc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/clk/at91/clk-usb.c
-+++ b/drivers/clk/at91/clk-usb.c
-@@ -211,7 +211,7 @@ _at91sam9x5_clk_register_usb(struct regm
+--- a/security/keys/proc.c
++++ b/security/keys/proc.c
+@@ -139,6 +139,8 @@ static void *proc_keys_next(struct seq_f
+ 	n = key_serial_next(p, v);
+ 	if (n)
+ 		*_pos = key_node_serial(n);
++	else
++		(*_pos)++;
+ 	return n;
+ }
  
- 	usb->hw.init = &init;
- 	usb->regmap = regmap;
--	usb->usbs_mask = SAM9X5_USBS_MASK;
-+	usb->usbs_mask = usbs_mask;
- 
- 	hw = &usb->hw;
- 	ret = clk_hw_register(NULL, &usb->hw);
 
 
