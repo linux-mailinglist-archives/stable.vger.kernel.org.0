@@ -2,113 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42AC71B0AA1
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 136501B0B29
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728519AbgDTMtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:49:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46510 "EHLO mail.kernel.org"
+        id S1729647AbgDTMyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:54:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729431AbgDTMta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:49:30 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1728950AbgDTMxv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:53:51 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F34D22260;
-        Mon, 20 Apr 2020 12:49:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAE1C206DD;
+        Mon, 20 Apr 2020 12:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386969;
-        bh=PvzQYekc9rviXYusn8MIPZu7+m17k5b5gSCNGZcpQa8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JA/27YagO1LSLa8fU/qw4pLhK2axoe1AZlA2Q0pg04iMpqsgVFGB0hE5lhS7B336V
-         iFUC/oGh/EIUet/xXNXiBF6DIseq2nRdIvgEN+pefDVpKw7vkWmIbZ+QCN038o4TeF
-         oYBWsahhKPFgFHKF7iWPxdkFmO68a4GtBGJDSKyI=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Austin Kim <austindh.kim@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
-        Roman Gushchin <guro@fb.com>, Roman Penyaev <rpenyaev@suse.de>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.19 40/40] mm/vmalloc.c: move area->pages after if statement
-Date:   Mon, 20 Apr 2020 14:39:50 +0200
-Message-Id: <20200420121508.076569623@linuxfoundation.org>
-X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
-References: <20200420121444.178150063@linuxfoundation.org>
-User-Agent: quilt/0.66
+        s=default; t=1587387231;
+        bh=AqeoMsaREBe+ByYuI8OlaAnafpi4yqJaR+sdlU66q9E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gExvF0YWY7t5RpU5+awzuSaCYAQbIPLTySe7GqX5OKMa9TZjZIOx+lrtjiXGgPd4O
+         fsWs7So0kA9LO2Mqb/p+Fxleb/Gk2qx/dYRSPvMHlCcCTPLY4aR/iimh6lWug8aj57
+         GVWFQTN+uvqBcbzidArAttUIrfcTRfZ+k/NKNwAo=
+Date:   Mon, 20 Apr 2020 08:53:49 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Edward Cree <ecree@solarflare.com>
+Cc:     Or Gerlitz <gerlitz.or@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linux Netdev List <netdev@vger.kernel.org>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        David Miller <davem@davemloft.net>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
+ representors
+Message-ID: <20200420125349.GI1809@sasha-vm>
+References: <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
+ <20200414110911.GA341846@kroah.com>
+ <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
+ <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
+ <20200414205755.GF1068@sasha-vm>
+ <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
+ <20200416000009.GL1068@sasha-vm>
+ <779d89c8-1e49-fbb6-8b4f-824767d70cc2@solarflare.com>
+ <20200416184924.GN1068@sasha-vm>
+ <c9496a54-1b68-5d49-6866-d357c75f7a82@solarflare.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <c9496a54-1b68-5d49-6866-d357c75f7a82@solarflare.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austindh.kim@gmail.com>
+On Mon, Apr 20, 2020 at 12:45:36PM +0100, Edward Cree wrote:
+>On 16/04/2020 19:49, Sasha Levin wrote:
+>> Just a question while I process your explanation (thanks for doing it!):
+>> wouldn't this be done by the neural network?
+>Yes, in the basic case.  (Hopefully we're agreed that this is a long way
+> from "I'm not sure what a fixes tag has to do with inclusion in a stable
+> tree.", which is how this whole brouhaha started.)
 
-commit 7ea362427c170061b8822dd41bafaa72b3bcb9ad upstream.
+My point was more that having or not having a fixes tag on it's own
+doesn't guarantee inclusion in the stable trees - that's why we have and
+explicit stable tag. What was said was (for me) the equivalent of "my
+commit message contains the word 'panic', why wasn't it picked?"
 
-If !area->pages statement is true where memory allocation fails, area is
-freed.
+A Fixes tag affects the probability of a commit being picked up by
+AUTOSEL, yes, but it's not a reliable way to include or exclude patches
+from the stable tree.
 
-In this case 'area->pages = pages' should not executed.  So move
-'area->pages = pages' after if statement.
+It may also sound counter-intuitive but my long term plan (hope) is for
+AUTOSEL to die because maintainers got better at tagging patches. I
+don't want to keep doing this forever :)
 
-[akpm@linux-foundation.org: give area->pages the same treatment]
-Link: http://lkml.kernel.org/r/20190830035716.GA190684@LGEARND20B15
-Signed-off-by: Austin Kim <austindh.kim@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Roman Penyaev <rpenyaev@suse.de>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> It learns what a stable worthy commit is (and what isn't), and applies
+>> weights based on these findings, right? So if it learns that most
+>> non-stable commits don't have a fixes tag, it's likely to use that and
+>> "require" other inputs to have enough weight to compensate over a
+>> missing fixes tag so that it'll pass the threshold, no?
+>Yes.  The problem comes when there are other inputs the NN doesn't have,
+> that ought to screen off some of the information it's using.  This is
+> probably best illustrated by an unrealistic extreme case...
 
----
- mm/vmalloc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+It's actually not that unrealistic. We have a few subsystems that
+do a great job with patch selection, and I usually don't find any other
+patches to pick up from there, while some other subsystems in the kernel
+require us to pick almost every patch that flows in there (think files
+that contain device quirks for example).
 
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1668,7 +1668,6 @@ static void *__vmalloc_area_node(struct
- 	nr_pages = get_vm_area_size(area) >> PAGE_SHIFT;
- 	array_size = (nr_pages * sizeof(struct page *));
- 
--	area->nr_pages = nr_pages;
- 	/* Please note that the recursion is strictly bounded. */
- 	if (array_size > PAGE_SIZE) {
- 		pages = __vmalloc_node(array_size, 1, nested_gfp|highmem_mask,
-@@ -1676,13 +1675,16 @@ static void *__vmalloc_area_node(struct
- 	} else {
- 		pages = kmalloc_node(array_size, nested_gfp, node);
- 	}
--	area->pages = pages;
--	if (!area->pages) {
-+
-+	if (!pages) {
- 		remove_vm_area(area->addr);
- 		kfree(area);
- 		return NULL;
- 	}
- 
-+	area->pages = pages;
-+	area->nr_pages = nr_pages;
-+
- 	for (i = 0; i < area->nr_pages; i++) {
- 		struct page *page;
- 
+I've tried to address that by also including the modified filename into
+the inputs of the NN, so that the NN is better at acting differently
+based on the subsystem/filename being patched.
 
+For mlx5, for example, there are two ways it would differentiate it from
+everything else:
 
+ - Commit subject lines usually start with net/mlx5, which is used as
+   input to the NN.
+ - Filenames touch drivers/net/ethernet/mellanox/mlx5/*
+
+Anyway, yes - I understand your bigger point here around missing
+information from the NN. I'd like to think that based on previous
+experience it does a good job of balancing everything, but I might be
+mistaken.
+
+>Let's imagine hypothetically that the maintainer of drivers/blub is an
+> absolutely perfect judge of which patches should go to -stable, and
+> that the transmission path from him to the stable trees never loses a
+> patch.  This would mean that every autosel patch in drivers/blub is
+> necessarily a false positive, because all the 'true positives' it might
+> have found have already been taken out of the pool, so to speak.  But
+> if the NN is just trained to discriminate patches on whether they end
+> up going to stable, it won't see any difference between a drivers/blub
+> patch that the maintainer sent to stable straight away and a
+> drivers/wibble patch that the latter's less diligent maintainer didn't
+> forward and that only got picked up later when a stable kernel user
+> encountered the bug it was fixing.
+>As long as the NN doesn't have that piece of information, it's going to
+> either generate lots of false positives in drivers/blub or lots of
+> false negatives in drivers/wibble.
+>Now obviously drivers/blub doesn't exist, no maintainer is 100% perfect
+> at -stable submissions; but any difference will produce the same
+> effect on a smaller scale, with the 'blubbish' maintainers seeing a
+> high false positive fraction while from the 'wibblesome' maintainer's
+> point of view autosel is working great.  And since the 'blubs' are the
+> ones who're putting effort of their own into stable selection already,
+> they get aggrieved at having to also put effort into catching the
+> false positives from a system that doesn't seem to be doing much for
+> them, and everyone ends up shouting at each other as we're seeing here.
+>
+>(Do you want me to do another worked numerical example demonstrating the
+> above, or does it make enough sense in words not to need one?)
+
+Nope, the example above works, thanks!
+
+-- 
+Thanks,
+Sasha
