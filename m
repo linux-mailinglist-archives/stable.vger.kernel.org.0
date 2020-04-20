@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B43821B0AAE
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F16C01B0A5C
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:48:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729487AbgDTMtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:49:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46962 "EHLO mail.kernel.org"
+        id S1728539AbgDTMrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:47:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729480AbgDTMtr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:49:47 -0400
+        id S1729102AbgDTMrb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:47:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A32C20736;
-        Mon, 20 Apr 2020 12:49:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40DEE221F4;
+        Mon, 20 Apr 2020 12:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386986;
-        bh=/5P2lY970bwoIolqfPFDUT2oL89XWpEFfu7S0tXYhuc=;
+        s=default; t=1587386850;
+        bh=bCIEyiPkV8o12eWrXDzdZoMDxhQhg7Z7FfRhpj/KWFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FkRAdCmlJctsIGw3vExkcQH2ipVSP757aZQPM15laqByEUU1U2Bx46BBucGrQe8+H
-         XiUqqeiRM7Gy1c7L+m/po/0SFXJEr6z/0D8c6Iv2Oi2n/YgN9tQWeAGNY9g1T6AikV
-         otP9rdstPb2hCcIpaxqgkGEu6Lb8bAjjjm7Ff0j8=
+        b=cM1E6Xfn5A3X3Ch5sL3+ncpY3QtKE948otghen1/NRd221DGiy9qh9hvTyRzvp9qe
+         sUkFBVKDlNpalp/QGlPwhZ1WdM4+uHLqH9PNqgevjCBIrc8GV+rL6pPhLkH6iC+Snl
+         Bm5CDjOxJI1x5QN+0PUiLD/kwPLJggWO/OeW1cmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 20/40] ALSA: usb-audio: Check mapping at creating connector controls, too
-Date:   Mon, 20 Apr 2020 14:39:30 +0200
-Message-Id: <20200420121459.997660932@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 5.4 53/60] i2c: designware: platdrv: Remove DPM_FLAG_SMART_SUSPEND flag on BYT and CHT
+Date:   Mon, 20 Apr 2020 14:39:31 +0200
+Message-Id: <20200420121514.581962052@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
-References: <20200420121444.178150063@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,105 +46,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 934b96594ed66b07dbc7e576d28814466df3a494 upstream.
+commit d79294d0de12ddd1420110813626d691f440b86f upstream.
 
-Add the mapping check to build_connector_control() so that the device
-specific quirk can provide the node to skip for the badly behaving
-connector controls.  As an example, ALC1220-VB-based codec implements
-the skip entry for the broken SPDIF connector detection.
+We already set DPM_FLAG_SMART_PREPARE, so we completely skip all
+callbacks (other then prepare) where possible, quoting from
+dw_i2c_plat_prepare():
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206873
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200412081331.4742-5-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+        /*
+         * If the ACPI companion device object is present for this device, it
+         * may be accessed during suspend and resume of other devices via I2C
+         * operation regions, so tell the PM core and middle layers to avoid
+         * skipping system suspend/resume callbacks for it in that case.
+         */
+        return !has_acpi_companion(dev);
+
+Also setting the DPM_FLAG_SMART_SUSPEND will cause acpi_subsys_suspend()
+to leave the controller runtime-suspended even if dw_i2c_plat_prepare()
+returned 0.
+
+Leaving the controller runtime-suspended normally, when the I2C controller
+is suspended during the suspend_late phase, is not an issue because
+the pm_runtime_get_sync() done by i2c_dw_xfer() will (runtime-)resume it.
+
+But for dw I2C controllers on Bay- and Cherry-Trail devices acpi_lpss.c
+leaves the controller alive until the suspend_noirq phase, because it may
+be used by the _PS3 ACPI methods of PCI devices and PCI devices are left
+powered on until the suspend_noirq phase.
+
+Between the suspend_late and resume_early phases runtime-pm is disabled.
+So for any ACPI I2C OPRegion accesses done after the suspend_late phase,
+the pm_runtime_get_sync() done by i2c_dw_xfer() is a no-op and the
+controller is left runtime-suspended.
+
+i2c_dw_xfer() has a check to catch this condition (rather then waiting
+for the I2C transfer to timeout because the controller is suspended).
+acpi_subsys_suspend() leaving the controller runtime-suspended in
+combination with an ACPI I2C OPRegion access done after the suspend_late
+phase triggers this check, leading to the following error being logged
+on a Bay Trail based Lenovo Thinkpad 8 tablet:
+
+[   93.275882] i2c_designware 80860F41:00: Transfer while suspended
+[   93.275993] WARNING: CPU: 0 PID: 412 at drivers/i2c/busses/i2c-designware-master.c:429 i2c_dw_xfer+0x239/0x280
+...
+[   93.276252] Workqueue: kacpi_notify acpi_os_execute_deferred
+[   93.276267] RIP: 0010:i2c_dw_xfer+0x239/0x280
+...
+[   93.276340] Call Trace:
+[   93.276366]  __i2c_transfer+0x121/0x520
+[   93.276379]  i2c_transfer+0x4c/0x100
+[   93.276392]  i2c_acpi_space_handler+0x219/0x510
+[   93.276408]  ? up+0x40/0x60
+[   93.276419]  ? i2c_acpi_notify+0x130/0x130
+[   93.276433]  acpi_ev_address_space_dispatch+0x1e1/0x252
+...
+
+So since on BYT and CHT platforms we want ACPI I2c OPRegion accesses
+to work until the suspend_noirq phase, we need the controller to be
+runtime-resumed during the suspend phase if it is runtime-suspended
+suspended at that time. This means that we must not set the
+DPM_FLAG_SMART_SUSPEND on these platforms.
+
+On BYT and CHT we already have a special ACCESS_NO_IRQ_SUSPEND flag
+to make sure the controller stays functional until the suspend_noirq
+phase. This commit makes the driver not set the DPM_FLAG_SMART_SUSPEND
+flag when that flag is set.
+
+Cc: stable@vger.kernel.org
+Fixes: b30f2f65568f ("i2c: designware: Set IRQF_NO_SUSPEND flag for all BYT and CHT controllers")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer.c      |   18 +++++++++++-------
- sound/usb/mixer_maps.c |    4 +++-
- 2 files changed, 14 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1765,11 +1765,15 @@ static void get_connector_control_name(s
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -370,10 +370,16 @@ static int dw_i2c_plat_probe(struct plat
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 	adap->nr = -1;
  
- /* Build a mixer control for a UAC connector control (jack-detect) */
- static void build_connector_control(struct usb_mixer_interface *mixer,
-+				    const struct usbmix_name_map *imap,
- 				    struct usb_audio_term *term, bool is_input)
- {
- 	struct snd_kcontrol *kctl;
- 	struct usb_mixer_elem_info *cval;
+-	dev_pm_set_driver_flags(&pdev->dev,
+-				DPM_FLAG_SMART_PREPARE |
+-				DPM_FLAG_SMART_SUSPEND |
+-				DPM_FLAG_LEAVE_SUSPENDED);
++	if (dev->flags & ACCESS_NO_IRQ_SUSPEND) {
++		dev_pm_set_driver_flags(&pdev->dev,
++					DPM_FLAG_SMART_PREPARE |
++					DPM_FLAG_LEAVE_SUSPENDED);
++	} else {
++		dev_pm_set_driver_flags(&pdev->dev,
++					DPM_FLAG_SMART_PREPARE |
++					DPM_FLAG_SMART_SUSPEND |
++					DPM_FLAG_LEAVE_SUSPENDED);
++	}
  
-+	if (check_ignored_ctl(find_map(imap, term->id, 0)))
-+		return;
-+
- 	cval = kzalloc(sizeof(*cval), GFP_KERNEL);
- 	if (!cval)
- 		return;
-@@ -2109,7 +2113,7 @@ static int parse_audio_input_terminal(st
- 	/* Check for jack detection. */
- 	if ((iterm.type & 0xff00) != 0x0100 &&
- 	    uac_v2v3_control_is_readable(bmctls, control))
--		build_connector_control(state->mixer, &iterm, true);
-+		build_connector_control(state->mixer, state->map, &iterm, true);
- 
- 	return 0;
- }
-@@ -3070,13 +3074,13 @@ static int snd_usb_mixer_controls_badd(s
- 		memset(&iterm, 0, sizeof(iterm));
- 		iterm.id = UAC3_BADD_IT_ID4;
- 		iterm.type = UAC_BIDIR_TERMINAL_HEADSET;
--		build_connector_control(mixer, &iterm, true);
-+		build_connector_control(mixer, map->map, &iterm, true);
- 
- 		/* Output Term - Insertion control */
- 		memset(&oterm, 0, sizeof(oterm));
- 		oterm.id = UAC3_BADD_OT_ID3;
- 		oterm.type = UAC_BIDIR_TERMINAL_HEADSET;
--		build_connector_control(mixer, &oterm, false);
-+		build_connector_control(mixer, map->map, &oterm, false);
- 	}
- 
- 	return 0;
-@@ -3151,8 +3155,8 @@ static int snd_usb_mixer_controls(struct
- 			if ((state.oterm.type & 0xff00) != 0x0100 &&
- 			    uac_v2v3_control_is_readable(le16_to_cpu(desc->bmControls),
- 							 UAC2_TE_CONNECTOR)) {
--				build_connector_control(state.mixer, &state.oterm,
--							false);
-+				build_connector_control(state.mixer, state.map,
-+							&state.oterm, false);
- 			}
- 		} else {  /* UAC_VERSION_3 */
- 			struct uac3_output_terminal_descriptor *desc = p;
-@@ -3177,8 +3181,8 @@ static int snd_usb_mixer_controls(struct
- 			if ((state.oterm.type & 0xff00) != 0x0100 &&
- 			    uac_v2v3_control_is_readable(le32_to_cpu(desc->bmControls),
- 							 UAC3_TE_INSERTION)) {
--				build_connector_control(state.mixer, &state.oterm,
--							false);
-+				build_connector_control(state.mixer, state.map,
-+							&state.oterm, false);
- 			}
- 		}
- 	}
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -364,9 +364,11 @@ static const struct usbmix_name_map dell
- };
- 
- /* Some mobos shipped with a dummy HD-audio show the invalid GET_MIN/GET_MAX
-- * response for Input Gain Pad (id=19, control=12).  Skip it.
-+ * response for Input Gain Pad (id=19, control=12) and the connector status
-+ * for SPDIF terminal (id=18).  Skip them.
-  */
- static const struct usbmix_name_map asus_rog_map[] = {
-+	{ 18, NULL }, /* OT, connector control */
- 	{ 19, NULL, 12 }, /* FU, Input Gain Pad */
- 	{}
- };
+ 	/* The code below assumes runtime PM to be disabled. */
+ 	WARN_ON(pm_runtime_enabled(&pdev->dev));
 
 
