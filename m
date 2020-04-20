@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B14C31B08D8
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:08:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3473A1B08DA
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726470AbgDTMIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47240 "EHLO mail.kernel.org"
+        id S1725944AbgDTMJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:09:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726380AbgDTMIu (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:08:50 -0400
+        id S1725886AbgDTMJC (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:09:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE6C5206B9;
-        Mon, 20 Apr 2020 12:08:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8125206F6;
+        Mon, 20 Apr 2020 12:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587384529;
-        bh=dzdJnTgqh7oJ3dtwi7/GMQM7mnYrX09aCBt0SvsniJM=;
+        s=default; t=1587384541;
+        bh=iKf5C19mCtcgeEr+vRNCXNgSlPu9nb2MqiMYvIjUahE=;
         h=Subject:To:From:Date:From;
-        b=rh5EdrsL9G5SfGrRLu7Y1laAATNKa0yVdczj/xPlSyVADExNn23Ihm04wWFC0yBDZ
-         nshzKl2ZoplmGQy0UfG5C8R71EIXiP+POFovVd7BkkzSixjMaq7yvWOvOfAhu73kLz
-         1XD8nP4ZMajV3JwuLIQMBa3MEWbG77hgUZn9WWUQ=
-Subject: patch "iio: adc: stm32-adc: fix sleep in atomic context" added to staging-linus
-To:     olivier.moysan@st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, fabrice.gasnier@st.com
+        b=UdBhlH59HLOO9k/Dedy2thDZPv3ix11Tm2t+CDl51ERw/r6CsO2NApRDBlD3hN480
+         iLl7ywNloADi0GFsw3X1FmzQM24aGkZ04y1FfyZI878tgkhFzeorM0+Knw3uSMn2MH
+         iebBALsAK6eWBWKuKfjQkSTLgRgItI7OQ9YwVxfw=
+Subject: patch "iio: imu: st_lsm6dsx: flush hw FIFO before resetting the device" added to staging-linus
+To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, mario.tesi@st.com,
+        vitor.soares@synopsys.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Apr 2020 14:08:44 +0200
-Message-ID: <158738452424172@kroah.com>
+Date:   Mon, 20 Apr 2020 14:08:46 +0200
+Message-ID: <1587384526195225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: stm32-adc: fix sleep in atomic context
+    iio: imu: st_lsm6dsx: flush hw FIFO before resetting the device
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,84 +56,73 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From e2042d2936dfc84e9c600fe9b9d0039ca0e54b7d Mon Sep 17 00:00:00 2001
-From: Olivier Moysan <olivier.moysan@st.com>
-Date: Mon, 9 Mar 2020 11:02:12 +0100
-Subject: iio: adc: stm32-adc: fix sleep in atomic context
+From 3a63da26db0a864134f023f088d41deacd509997 Mon Sep 17 00:00:00 2001
+From: Lorenzo Bianconi <lorenzo@kernel.org>
+Date: Fri, 13 Mar 2020 19:06:00 +0100
+Subject: iio: imu: st_lsm6dsx: flush hw FIFO before resetting the device
 
-This commit fixes the following error:
-"BUG: sleeping function called from invalid context at kernel/irq/chip.c"
+flush hw FIFO before device reset in order to avoid possible races
+on interrupt line 1. If the first interrupt line is asserted during
+hw reset the device will work in I3C-only mode (if it is supported)
 
-In DMA mode suppress the trigger irq handler, and make the buffer
-transfers directly in DMA callback, instead.
-
-Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
-Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Fixes: 801a6e0af0c6 ("iio: imu: st_lsm6dsx: add support to LSM6DSO")
+Fixes: 43901008fde0 ("iio: imu: st_lsm6dsx: add support to LSM6DSR")
+Reported-by: Mario Tesi <mario.tesi@st.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Reviewed-by: Vitor Soares <vitor.soares@synopsys.com>
+Tested-by: Vitor Soares <vitor.soares@synopsys.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/stm32-adc.c | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 24 +++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
-index 80c3f963527b..ae622ee6d08c 100644
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1418,8 +1418,30 @@ static unsigned int stm32_adc_dma_residue(struct stm32_adc *adc)
- static void stm32_adc_dma_buffer_done(void *data)
- {
- 	struct iio_dev *indio_dev = data;
-+	struct stm32_adc *adc = iio_priv(indio_dev);
-+	int residue = stm32_adc_dma_residue(adc);
-+
-+	/*
-+	 * In DMA mode the trigger services of IIO are not used
-+	 * (e.g. no call to iio_trigger_poll).
-+	 * Calling irq handler associated to the hardware trigger is not
-+	 * relevant as the conversions have already been done. Data
-+	 * transfers are performed directly in DMA callback instead.
-+	 * This implementation avoids to call trigger irq handler that
-+	 * may sleep, in an atomic context (DMA irq handler context).
-+	 */
-+	dev_dbg(&indio_dev->dev, "%s bufi=%d\n", __func__, adc->bufi);
- 
--	iio_trigger_poll_chained(indio_dev->trig);
-+	while (residue >= indio_dev->scan_bytes) {
-+		u16 *buffer = (u16 *)&adc->rx_buf[adc->bufi];
-+
-+		iio_push_to_buffers(indio_dev, buffer);
-+
-+		residue -= indio_dev->scan_bytes;
-+		adc->bufi += indio_dev->scan_bytes;
-+		if (adc->bufi >= adc->rx_buf_sz)
-+			adc->bufi = 0;
-+	}
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index 84d219ae6aee..4426524b59f2 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -2036,11 +2036,21 @@ static int st_lsm6dsx_init_hw_timer(struct st_lsm6dsx_hw *hw)
+ 	return 0;
  }
  
- static int stm32_adc_dma_start(struct iio_dev *indio_dev)
-@@ -1845,6 +1867,7 @@ static int stm32_adc_probe(struct platform_device *pdev)
+-static int st_lsm6dsx_init_device(struct st_lsm6dsx_hw *hw)
++static int st_lsm6dsx_reset_device(struct st_lsm6dsx_hw *hw)
  {
- 	struct iio_dev *indio_dev;
- 	struct device *dev = &pdev->dev;
-+	irqreturn_t (*handler)(int irq, void *p) = NULL;
- 	struct stm32_adc *adc;
- 	int ret;
+ 	const struct st_lsm6dsx_reg *reg;
+ 	int err;
  
-@@ -1911,9 +1934,11 @@ static int stm32_adc_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		return ret;
- 
-+	if (!adc->dma_chan)
-+		handler = &stm32_adc_trigger_handler;
++	/*
++	 * flush hw FIFO before device reset in order to avoid
++	 * possible races on interrupt line 1. If the first interrupt
++	 * line is asserted during hw reset the device will work in
++	 * I3C-only mode (if it is supported)
++	 */
++	err = st_lsm6dsx_flush_fifo(hw);
++	if (err < 0 && err != -ENOTSUPP)
++		return err;
 +
- 	ret = iio_triggered_buffer_setup(indio_dev,
--					 &iio_pollfunc_store_time,
--					 &stm32_adc_trigger_handler,
-+					 &iio_pollfunc_store_time, handler,
- 					 &stm32_adc_buffer_setup_ops);
- 	if (ret) {
- 		dev_err(&pdev->dev, "buffer setup failed\n");
+ 	/* device sw reset */
+ 	reg = &hw->settings->reset;
+ 	err = regmap_update_bits(hw->regmap, reg->addr, reg->mask,
+@@ -2059,6 +2069,18 @@ static int st_lsm6dsx_init_device(struct st_lsm6dsx_hw *hw)
+ 
+ 	msleep(50);
+ 
++	return 0;
++}
++
++static int st_lsm6dsx_init_device(struct st_lsm6dsx_hw *hw)
++{
++	const struct st_lsm6dsx_reg *reg;
++	int err;
++
++	err = st_lsm6dsx_reset_device(hw);
++	if (err < 0)
++		return err;
++
+ 	/* enable Block Data Update */
+ 	reg = &hw->settings->bdu;
+ 	err = regmap_update_bits(hw->regmap, reg->addr, reg->mask,
 -- 
 2.26.1
 
