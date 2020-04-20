@@ -2,71 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 594F31B00F6
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 07:24:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5311B0174
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 08:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725815AbgDTFYX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 01:24:23 -0400
-Received: from mail-pj1-f67.google.com ([209.85.216.67]:33931 "EHLO
-        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725710AbgDTFYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 01:24:23 -0400
-Received: by mail-pj1-f67.google.com with SMTP id q16so4308105pje.1;
-        Sun, 19 Apr 2020 22:24:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=K1EufJhoKXAZrVxjekdMJrvgmrsL3ufW1zU9l0LvEYY=;
-        b=HVeKQHzxiuxv+qQwaXjPA47AOpTsyCWdwIHlUUQK3mBWn7VpgD0mafpO6j4iB4mrIO
-         M8WSFhOMRJFkzaVHyboFFYI1BO0FaFOonH5xymxHLoy+3oJlnCf7egx4TqUmmhogjFrt
-         nLI64L7C/9F7d0gzJGR+oNcI7oYdM8EZbF9eoDhRnntI2nroQqda5nupyyoBX7HV4/5P
-         zcS/VKuOzETRn61FcUkVfEPGuKwlc/XUt7x4JkTIMqOp8TCT/oGrtW7u8Cm+eRCYdcTM
-         h07Y11qlUSOlUYogx+BNRVVZcPMKpBs4jFy6JDy91eBBOITQkY2VEN0J2z1ZsbupUFcF
-         61vw==
-X-Gm-Message-State: AGi0PuZ38S9ZJ+opDQzLMZz4IItS5SiZMgRgOkx56CLAObCHmOZGkkKS
-        +gk9itxZKjtP8N/g237sfQ89gC24
-X-Google-Smtp-Source: APiQypKGL2ACEgr6lcqS/nTfLQ/3dlQmBWrZf/B68lXNXdC97qK11XT6Prr3sMiFI/6YeYSmGA8OEw==
-X-Received: by 2002:a17:902:8b82:: with SMTP id ay2mr15735468plb.285.1587360262734;
-        Sun, 19 Apr 2020 22:24:22 -0700 (PDT)
-Received: from sultan-box.localdomain ([104.200.129.62])
-        by smtp.gmail.com with ESMTPSA id m3sm25197383pgt.27.2020.04.19.22.24.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Apr 2020 22:24:21 -0700 (PDT)
-Date:   Sun, 19 Apr 2020 22:24:19 -0700
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     stable@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Matthew Auld <matthew.auld@intel.com>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4] drm/i915: Synchronize active and retire callbacks
-Message-ID: <20200420052419.GA40250@sultan-box.localdomain>
-References: <20200404024156.GA10382@sultan-box.localdomain>
- <20200407064007.7599-1-sultan@kerneltoast.com>
- <20200414061312.GA90768@sultan-box.localdomain>
- <158685263618.16269.9317893477736764675@build.alporthouse.com>
- <20200414144309.GB2082@sultan-box.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200414144309.GB2082@sultan-box.localdomain>
+        id S1726023AbgDTGVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 02:21:09 -0400
+Received: from mail26.static.mailgun.info ([104.130.122.26]:41424 "EHLO
+        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725872AbgDTGVJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 02:21:09 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1587363668; h=References: In-Reply-To: Message-Id: Date:
+ Subject: Cc: To: From: Sender;
+ bh=FVcurZhnqdUAS+ng2DGudV2uvfN0AkaVvFL9XeQqcZs=; b=REuTxXe1Phr9FTXdtaEzUWKx8PBs3XAcedW4MyH1raYso0GNZ7umobbrz2xPggURhfB4N0+G
+ XSIiIweijQY7mzVx9QIRFOruu+vJ5Vl4mJ+FmxdEamJBOKfGj27/fo6n6+vuHphLjLcFBr/r
+ TIbvFdA9A9A1nzpTJOq0yTTCGU4=
+X-Mailgun-Sending-Ip: 104.130.122.26
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e9d3f53.7ffb17b5d4c8-smtp-out-n05;
+ Mon, 20 Apr 2020 06:21:07 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 1D607C43637; Mon, 20 Apr 2020 06:21:06 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from vbadigan-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: vbadigan)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 75C48C43636;
+        Mon, 20 Apr 2020 06:21:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 75C48C43636
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=vbadigan@codeaurora.org
+From:   Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+To:     adrian.hunter@intel.com, ulf.hansson@linaro.org
+Cc:     bjorn.andersson@linaro.org, linux-mmc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        <stable@vger.kernel.org>, Andy Gross <agross@kernel.org>
+Subject: [PATCH V2 1/3] mmc: sdhci-msm: Enable host capabilities pertains to R1b response
+Date:   Mon, 20 Apr 2020 11:50:23 +0530
+Message-Id: <1587363626-20413-2-git-send-email-vbadigan@codeaurora.org>
+X-Mailer: git-send-email 1.9.1
+In-Reply-To: <1587363626-20413-1-git-send-email-vbadigan@codeaurora.org>
+References: <1587363626-20413-1-git-send-email-vbadigan@codeaurora.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Chris,
+MSM sd host controller is capable of HW busy detection of device busy
+signaling over DAT0 line. And it requires the R1B response for
+commands that have this response associated with them.
 
-Could you please look at this in earnest? This is a real bug that crashes my
-laptop without any kind of provocation. It is undeniably a bug in i915, and I've
-clearly described it in my patch. If you dont like the patch, I'm open to any
-suggestions you have for an alternative solution. My goal here is to make i915
-better, but it's difficult when communication only goes one way.
+So set the below two host capabilities for qcom SDHC.
+	- MMC_CAP_WAIT_WHILE_BUSY
+	- MMC_CAP_NEED_RSP_BUSY
 
-Thanks,
-Sultan
+Cc: <stable@vger.kernel.org> # v4.19+
+Signed-off-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+---
+ drivers/mmc/host/sdhci-msm.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/mmc/host/sdhci-msm.c b/drivers/mmc/host/sdhci-msm.c
+index 09ff731..d826e9b 100644
+--- a/drivers/mmc/host/sdhci-msm.c
++++ b/drivers/mmc/host/sdhci-msm.c
+@@ -2087,6 +2087,9 @@ static int sdhci_msm_probe(struct platform_device *pdev)
+ 		goto clk_disable;
+ 	}
+ 
++	msm_host->mmc->caps |= MMC_CAP_WAIT_WHILE_BUSY;
++	msm_host->mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
++
+ 	pm_runtime_get_noresume(&pdev->dev);
+ 	pm_runtime_set_active(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
+-- 
+Qualcomm India Private Limited, on behalf of Qualcomm Innovation Center, Inc., is a member of Code Aurora Forum, a Linux Foundation Collaborative Project
