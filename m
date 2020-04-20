@@ -2,207 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8601B04ED
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 10:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE3CB1B0524
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 11:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726020AbgDTI4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 04:56:31 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:63436 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725886AbgDTI4b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 04:56:31 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03K8ZlIB034261
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 04:56:30 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 30h72gjwv6-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 04:56:30 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <hbathini@linux.ibm.com>;
-        Mon, 20 Apr 2020 09:55:46 +0100
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
-        by e06smtp01.uk.ibm.com (192.168.101.131) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Mon, 20 Apr 2020 09:55:44 +0100
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 03K8uOB055705726
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 20 Apr 2020 08:56:25 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE9E052054;
-        Mon, 20 Apr 2020 08:56:24 +0000 (GMT)
-Received: from hbathini.in.ibm.com (unknown [9.102.25.223])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 2825752050;
-        Mon, 20 Apr 2020 08:56:22 +0000 (GMT)
-Subject: [PATCH v3 2/2] powerpc/fadump: consider reserved ranges while
- reserving memory
-From:   Hari Bathini <hbathini@linux.ibm.com>
-To:     Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev <linuxppc-dev@ozlabs.org>
-Cc:     Sourabh Jain <sourabhjain@linux.ibm.com>,
-        Vasant Hegde <hegdevasant@linux.ibm.com>,
-        Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
-        stable@vger.kernel.org
-Date:   Mon, 20 Apr 2020 14:26:22 +0530
-In-Reply-To: <158737294432.26700.4830263187856221314.stgit@hbathini.in.ibm.com>
-References: <158737294432.26700.4830263187856221314.stgit@hbathini.in.ibm.com>
-User-Agent: StGit/0.17.1-dirty
-MIME-Version: 1.0
+        id S1725775AbgDTJCq convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 20 Apr 2020 05:02:46 -0400
+Received: from mga14.intel.com ([192.55.52.115]:11723 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725773AbgDTJCp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 05:02:45 -0400
+IronPort-SDR: 8AZtY0E8gMiCPcFSVhByZ7WM/ik7jgvxFfnSNDpV5t0NH58FtZ61rdjr0l77VM9tffk1iZ2ov+
+ U3WCktlvG+Og==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Apr 2020 02:02:45 -0700
+IronPort-SDR: W43QuHTRN9lzxVVxpdQ/51zBDFMLtoJ72uvQxBoQqvQmZYsFpzmPIHn7amsBqoXBhDPvVGlBwL
+ UxS+phTST7ww==
+X-IronPort-AV: E=Sophos;i="5.72,406,1580803200"; 
+   d="scan'208";a="429053088"
+Received: from jlahtine-desk.ger.corp.intel.com (HELO localhost) ([10.252.46.49])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Apr 2020 02:02:42 -0700
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-x-cbid: 20042008-4275-0000-0000-000003C32A8E
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 20042008-4276-0000-0000-000038D8AB98
-Message-Id: <158737297693.26700.16193820746269425424.stgit@hbathini.in.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-04-20_02:2020-04-17,2020-04-20 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- mlxscore=0 suspectscore=2 spamscore=0 mlxlogscore=999 phishscore=0
- priorityscore=1501 impostorscore=0 adultscore=0 lowpriorityscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2004200072
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20200414082344.GA10645@kroah.com>
+References: <20200407065210.GA263852@kroah.com> <20200407071809.3148-1-sultan@kerneltoast.com> <20200410090838.GD1691838@kroah.com> <20200410141738.GB2025@sultan-box.localdomain> <20200411113957.GB2606747@kroah.com> <158685210730.16269.15932754047962572236@build.alporthouse.com> <20200414082344.GA10645@kroah.com>
+Subject: Re: [PATCH v2] drm/i915: Fix ref->mutex deadlock in i915_active_wait()
+From:   Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc:     Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Greg KH <gregkh@linuxfoundation.org>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Date:   Mon, 20 Apr 2020 12:02:39 +0300
+Message-ID: <158737335977.8380.15005528012712372014@jlahtine-desk.ger.corp.intel.com>
+User-Agent: alot/0.8.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 0962e8004e97 ("powerpc/prom: Scan reserved-ranges node for
-memory reservations") enabled support to parse reserved-ranges DT
-node and reserve kernel memory falling in these ranges for F/W
-purposes. Memory reserved for FADump should not overlap with these
-ranges as it could corrupt memory meant for F/W or crash'ed kernel
-memory to be exported as vmcore.
+Quoting Greg KH (2020-04-14 11:23:44)
+> On Tue, Apr 14, 2020 at 09:15:07AM +0100, Chris Wilson wrote:
+> > Quoting Greg KH (2020-04-11 12:39:57)
+> > > On Fri, Apr 10, 2020 at 07:17:38AM -0700, Sultan Alsawaf wrote:
+> > > > On Fri, Apr 10, 2020 at 11:08:38AM +0200, Greg KH wrote:
+> > > > > On Tue, Apr 07, 2020 at 12:18:09AM -0700, Sultan Alsawaf wrote:
+> > > > > > From: Sultan Alsawaf <sultan@kerneltoast.com>
+> > > > > > 
+> > > > > > The following deadlock exists in i915_active_wait() due to a double lock
+> > > > > > on ref->mutex (call chain listed in order from top to bottom):
+> > > > > >  i915_active_wait();
+> > > > > >  mutex_lock_interruptible(&ref->mutex); <-- ref->mutex first acquired
+> > > > > >  i915_active_request_retire();
+> > > > > >  node_retire();
+> > > > > >  active_retire();
+> > > > > >  mutex_lock_nested(&ref->mutex, SINGLE_DEPTH_NESTING); <-- DEADLOCK
+> > > > > > 
+> > > > > > Fix the deadlock by skipping the second ref->mutex lock when
+> > > > > > active_retire() is called through i915_active_request_retire().
+> > > > > > 
+> > > > > > Note that this bug only affects 5.4 and has since been fixed in 5.5.
+> > > > > > Normally, a backport of the fix from 5.5 would be in order, but the
+> > > > > > patch set that fixes this deadlock involves massive changes that are
+> > > > > > neither feasible nor desirable for backporting [1][2][3]. Therefore,
+> > > > > > this small patch was made to address the deadlock specifically for 5.4.
+> > > > > > 
+> > > > > > [1] 274cbf20fd10 ("drm/i915: Push the i915_active.retire into a worker")
+> > > > > > [2] 093b92287363 ("drm/i915: Split i915_active.mutex into an irq-safe spinlock for the rbtree")
+> > > > > > [3] 750bde2fd4ff ("drm/i915: Serialise with remote retirement")
+> > > > > > 
+> > > > > > Fixes: 12c255b5dad1 ("drm/i915: Provide an i915_active.acquire callback")
+> > > > > > Cc: <stable@vger.kernel.org> # 5.4.x
+> > > > > > Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+> > > > > > ---
+> > > > > >  drivers/gpu/drm/i915/i915_active.c | 27 +++++++++++++++++++++++----
+> > > > > >  drivers/gpu/drm/i915/i915_active.h |  4 ++--
+> > > > > >  2 files changed, 25 insertions(+), 6 deletions(-)
+> > > > > 
+> > > > > Now queued up, thanks.
+> > > > > 
+> > > > > greg k-h
+> > > > 
+> > > > I'm sorry, I meant the v3 [1]. Apologies for the confusion. The v3 was picked
+> > > > into Ubuntu so that's what we're rolling with.
+> > > 
+> > > Ok, thanks, hopefully now I picked upthe right one...
+> > 
+> > The patch does not fix a deadlock. Greg, this patch is not a backport of
+> > a bugfix, why is it in stable?
+> 
+> Because it says it can't be a backport as the 3 above mentioned patches
+> do the same thing instead?
 
-But since commit 579ca1a27675 ("powerpc/fadump: make use of memblock's
-bottom up allocation mode"), memblock_find_in_range() is being used to
-find the appropriate area to reserve memory for FADump, which can't
-account for reserved-ranges as these ranges are reserved only after
-FADump memory reservation.
+Apologies for jumping late to the thread.
 
-With reserved-ranges now being populated during early boot, look out
-for these memory ranges while reserving memory for FADump. Without
-this change, MPIPL on PowerNV systems aborts with hostboot failure,
-when memory reserved for FADump is less than 4096MB.
+> I will be glad to drop this, but I need some kind of direction here, and
+> given that at least one distro is already shipping this, it felt like
+> the correct thing to do.
+>
+> So, what do you want me to do?
 
-Fixes: 579ca1a27675 ("powerpc/fadump: make use of memblock's bottom up allocation mode")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
-Reviewed-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
----
+I think the the patch should be dropped for now before the issue is
+properly addressed. Either by backporting the mainline fixes or if
+those are too big and there indeed is a smaller alternative patch
+that is properly reviewed. But the above patch is not, at least yet.
 
-Changes in v3:
-* Updated fadump_locate_reserve_mem() to use return '0' instead of an out parameter
-  as suggested by Mahesh and added his 'Reviewed-by' tag with that change.
+There is an another similar thread where there's jumping into
+conclusions and doing ad-hoc patches for already fixed issues:
 
+https://lore.kernel.org/dri-devel/20200414144309.GB2082@sultan-box.localdomain/
 
- arch/powerpc/kernel/fadump.c |   76 +++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 67 insertions(+), 9 deletions(-)
+I appreciate enthusiasm to provide fixes to i915 but we should
+continue do the regular due diligence to make sure we're properly
+fixing bugs in upstream kernels. And when fixing them, to make
+sure we're not simply papering over them for a single use case.
 
-diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
-index 679277b..63aac8b 100644
---- a/arch/powerpc/kernel/fadump.c
-+++ b/arch/powerpc/kernel/fadump.c
-@@ -445,10 +445,72 @@ static int __init fadump_get_boot_mem_regions(void)
- 	return ret;
- }
- 
-+/*
-+ * Returns true, if the given range overlaps with reserved memory ranges
-+ * starting at idx. Also, updates idx to index of overlapping memory range
-+ * with the given memory range.
-+ * False, otherwise.
-+ */
-+static bool overlaps_reserved_ranges(u64 base, u64 end, int *idx)
-+{
-+	bool ret = false;
-+	int i;
-+
-+	for (i = *idx; i < reserved_mrange_info.mem_range_cnt; i++) {
-+		u64 rbase = reserved_mrange_info.mem_ranges[i].base;
-+		u64 rend = rbase + reserved_mrange_info.mem_ranges[i].size;
-+
-+		if (end <= rbase)
-+			break;
-+
-+		if ((end > rbase) &&  (base < rend)) {
-+			*idx = i;
-+			ret = true;
-+			break;
-+		}
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-+ * Locate a suitable memory area to reserve memory for FADump. While at it,
-+ * lookup reserved-ranges & avoid overlap with them, as they are used by F/W.
-+ */
-+static u64 __init fadump_locate_reserve_mem(u64 base, u64 size)
-+{
-+	struct fadump_memory_range *mrngs;
-+	phys_addr_t mstart, mend;
-+	int idx = 0;
-+	u64 i, ret = 0;
-+
-+	mrngs = reserved_mrange_info.mem_ranges;
-+	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
-+				&mstart, &mend, NULL) {
-+		pr_debug("%llu) mstart: %llx, mend: %llx, base: %llx\n",
-+			 i, mstart, mend, base);
-+
-+		if (mstart > base)
-+			base = PAGE_ALIGN(mstart);
-+
-+		while ((mend > base) && ((mend - base) >= size)) {
-+			if (!overlaps_reserved_ranges(base, base+size, &idx)) {
-+				ret = base;
-+				goto out;
-+			}
-+
-+			base = mrngs[idx].base + mrngs[idx].size;
-+			base = PAGE_ALIGN(base);
-+		}
-+	}
-+
-+out:
-+	return ret;
-+}
-+
- int __init fadump_reserve_mem(void)
- {
--	u64 base, size, mem_boundary, bootmem_min, align = PAGE_SIZE;
--	bool is_memblock_bottom_up = memblock_bottom_up();
-+	u64 base, size, mem_boundary, bootmem_min;
- 	int ret = 1;
- 
- 	if (!fw_dump.fadump_enabled)
-@@ -469,9 +531,9 @@ int __init fadump_reserve_mem(void)
- 			PAGE_ALIGN(fadump_calculate_reserve_size());
- #ifdef CONFIG_CMA
- 		if (!fw_dump.nocma) {
--			align = FADUMP_CMA_ALIGNMENT;
- 			fw_dump.boot_memory_size =
--				ALIGN(fw_dump.boot_memory_size, align);
-+				ALIGN(fw_dump.boot_memory_size,
-+				      FADUMP_CMA_ALIGNMENT);
- 		}
- #endif
- 
-@@ -539,11 +601,7 @@ int __init fadump_reserve_mem(void)
- 		 * Reserve memory at an offset closer to bottom of the RAM to
- 		 * minimize the impact of memory hot-remove operation.
- 		 */
--		memblock_set_bottom_up(true);
--		base = memblock_find_in_range(base, mem_boundary, size, align);
--
--		/* Restore the previous allocation mode */
--		memblock_set_bottom_up(is_memblock_bottom_up);
-+		base = fadump_locate_reserve_mem(base, size);
- 
- 		if (!base) {
- 			pr_err("Failed to find memory chunk for reservation!\n");
+It would be preferred to file a bug for the seen issues,
+describing how to reproduce them with vanilla upstream kernels:
 
+https://gitlab.freedesktop.org/drm/intel/-/wikis/How-to-file-i915-bugs
+
+That way we have enough information to assess the severity of the
+bug and to prioritize the work accordingly.
+
+Best Regards, Joonas
