@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC161B09B2
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 377D81B0BF8
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 15:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728009AbgDTMl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:41:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34114 "EHLO mail.kernel.org"
+        id S1728036AbgDTMlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:41:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728017AbgDTMlY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:41:24 -0400
+        id S1726659AbgDTMl1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:41:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9F3820724;
-        Mon, 20 Apr 2020 12:41:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DC00206D4;
+        Mon, 20 Apr 2020 12:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386484;
-        bh=qKGdh4Za47dTXjFZpK413jDKrBnm5xyHnkOpBgWgldg=;
+        s=default; t=1587386486;
+        bh=bEjaCmYY0pfSHupnWZ/TGkvHI37YcRbek+nsIYvW0Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzndnCIeGPKzNnU6EoP/etPVUJwCQu/hF+0RK+Z7m+RDm6+zahAO0qcyBJLML1y0w
-         uTsSLkIBcoP9SO1Y7lJRHPUARo7Gd7lHRBJw5Y2g7afNY8T1XhrMnlU+JXvQZVPJDp
-         g4FTE8ilPpNCIXsP0HcOw26WdfEYJ1zSLpC8ePog=
+        b=wIK3+DSNtJEIIIcfikZKkPeApEinzbhk81LWaKcib7WNay8wZMtdUxU1o4ojWegOD
+         udgBiGsO0cGvsCDdACH0Fi4NNUSCbYMcvizncMoXU8nF2RKvCfbe6mP/Bjo+WSkqMj
+         P7Y55I0q+Gls4EAk5yA87ZsBnd671rQfykqa+3N0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atsushi Nemoto <atsushi.nemoto@sord.co.jp>,
+        stable@vger.kernel.org, Wang Wenhu <wenhu.wang@vivo.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 07/65] net: phy: micrel: use genphy_read_status for KSZ9131
-Date:   Mon, 20 Apr 2020 14:38:11 +0200
-Message-Id: <20200420121508.277155738@linuxfoundation.org>
+Subject: [PATCH 5.5 08/65] net: qrtr: send msgs from local of same id as broadcast
+Date:   Mon, 20 Apr 2020 14:38:12 +0200
+Message-Id: <20200420121508.406006980@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
 References: <20200420121505.909671922@linuxfoundation.org>
@@ -43,33 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
+From: Wang Wenhu <wenhu.wang@vivo.com>
 
-[ Upstream commit 68dac3eb50be32957ae6e1e6da9281a3b7c6658b ]
+[ Upstream commit 6dbf02acef69b0742c238574583b3068afbd227c ]
 
-KSZ9131 will not work with some switches due to workaround for KSZ9031
-introduced in commit d2fd719bcb0e83cb39cfee22ee800f98a56eceb3
-("net/phy: micrel: Add workaround for bad autoneg").
-Use genphy_read_status instead of dedicated ksz9031_read_status.
+If the local node id(qrtr_local_nid) is not modified after its
+initialization, it equals to the broadcast node id(QRTR_NODE_BCAST).
+So the messages from local node should not be taken as broadcast
+and keep the process going to send them out anyway.
 
-Fixes: bff5b4b37372 ("net: phy: micrel: add Microchip KSZ9131 initial driver")
-Signed-off-by: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
+The definitions are as follow:
+static unsigned int qrtr_local_nid = NUMA_NO_NODE;
+
+Fixes: fdf5fd397566 ("net: qrtr: Broadcast messages only from control port")
+Signed-off-by: Wang Wenhu <wenhu.wang@vivo.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/micrel.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/qrtr/qrtr.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -1154,7 +1154,7 @@ static struct phy_driver ksphy_driver[]
- 	.driver_data	= &ksz9021_type,
- 	.probe		= kszphy_probe,
- 	.config_init	= ksz9131_config_init,
--	.read_status	= ksz9031_read_status,
-+	.read_status	= genphy_read_status,
- 	.ack_interrupt	= kszphy_ack_interrupt,
- 	.config_intr	= kszphy_config_intr,
- 	.get_sset_count = kszphy_get_sset_count,
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -763,20 +763,21 @@ static int qrtr_sendmsg(struct socket *s
+ 
+ 	node = NULL;
+ 	if (addr->sq_node == QRTR_NODE_BCAST) {
+-		enqueue_fn = qrtr_bcast_enqueue;
+-		if (addr->sq_port != QRTR_PORT_CTRL) {
++		if (addr->sq_port != QRTR_PORT_CTRL &&
++		    qrtr_local_nid != QRTR_NODE_BCAST) {
+ 			release_sock(sk);
+ 			return -ENOTCONN;
+ 		}
++		enqueue_fn = qrtr_bcast_enqueue;
+ 	} else if (addr->sq_node == ipc->us.sq_node) {
+ 		enqueue_fn = qrtr_local_enqueue;
+ 	} else {
+-		enqueue_fn = qrtr_node_enqueue;
+ 		node = qrtr_node_lookup(addr->sq_node);
+ 		if (!node) {
+ 			release_sock(sk);
+ 			return -ECONNRESET;
+ 		}
++		enqueue_fn = qrtr_node_enqueue;
+ 	}
+ 
+ 	plen = (len + 3) & ~3;
 
 
