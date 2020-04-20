@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A74FA1B0BF9
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 15:00:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39B251B0BAE
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726659AbgDTM7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:59:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34342 "EHLO mail.kernel.org"
+        id S1728124AbgDTMn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:43:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728042AbgDTMlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:41:37 -0400
+        id S1728484AbgDTMn6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:43:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 279A0206D4;
-        Mon, 20 Apr 2020 12:41:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 414542070B;
+        Mon, 20 Apr 2020 12:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386496;
-        bh=BQw15EaX0H/tDEXPed4GXaY54eyMlZZmCdnxyv/tpqc=;
+        s=default; t=1587386637;
+        bh=7+5pEKWARNc84ZkGGLnLU/rBEp2gTmMmQzl/RUdX5DU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1Y3lZSoUye6zvorXKX49vd5UHHLZ3a7KWqXe7jtjkIme1grEmv4/WfgY8hRdmSji
-         EgKNzWm8MHIxPln98SrQfzOQKxJLmW7/LzuPjzPOeQx3VmXf6Wa2vsBIekywm3NKYf
-         EKE4MiagVZvxpk2LUbKqwr/YLDdCUb78eotldPZI=
+        b=dXHoxOORb1EH6E72EudVi2tS+rx7Yj8iVDiQkyAF/jPFXvlW1bakD+ZVphFZhzH+l
+         mjvxfluqXS5ZNuaKgkxBsNYs5do0Eel+0M8c4X4qzkV06BrS+4Daw3E8i7trSD1apP
+         /OeIUoPEX7k9Gz3OkfayKPk8FiIJ9geJIK7YDoAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Yang <yangx.jy@cn.fujitsu.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.5 47/65] tracing: Fix the race between registering snapshot event trigger and triggering snapshot operation
+        stable@vger.kernel.org,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.6 37/71] ARM: dts: imx7-colibri: fix muxing of usbc_det pin
 Date:   Mon, 20 Apr 2020 14:38:51 +0200
-Message-Id: <20200420121517.073782170@linuxfoundation.org>
+Message-Id: <20200420121516.650346866@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
-References: <20200420121505.909671922@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Yang <yangx.jy@cn.fujitsu.com>
+From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 
-commit 0bbe7f719985efd9adb3454679ecef0984cb6800 upstream.
+commit 7007f2eca0f258710899ca486da00546d03db0ed upstream.
 
-Traced event can trigger 'snapshot' operation(i.e. calls snapshot_trigger()
-or snapshot_count_trigger()) when register_snapshot_trigger() has completed
-registration but doesn't allocate buffer for 'snapshot' event trigger.  In
-the rare case, 'snapshot' operation always detects the lack of allocated
-buffer so make register_snapshot_trigger() allocate buffer first.
+USB_C_DET pin shouldn't be in ethernet group.
 
-trigger-snapshot.tc in kselftest reproduces the issue on slow vm:
------------------------------------------------------------
-cat trace
-...
-ftracetest-3028  [002] ....   236.784290: sched_process_fork: comm=ftracetest pid=3028 child_comm=ftracetest child_pid=3036
-     <...>-2875  [003] ....   240.460335: tracing_snapshot_instance_cond: *** SNAPSHOT NOT ALLOCATED ***
-     <...>-2875  [003] ....   240.460338: tracing_snapshot_instance_cond: *** stopping trace here!   ***
------------------------------------------------------------
+Creating a separate group allows one to use this pin
+as an USB ID pin.
 
-Link: http://lkml.kernel.org/r/20200414015145.66236-1-yangx.jy@cn.fujitsu.com
-
-Cc: stable@vger.kernel.org
-Fixes: 93e31ffbf417a ("tracing: Add 'snapshot' event trigger command")
-Signed-off-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: b326629f25b7 ("ARM: dts: imx7: add Toradex Colibri iMX7S/iMX7D suppor")
+Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_events_trigger.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/imx7-colibri.dtsi |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace_events_trigger.c
-+++ b/kernel/trace/trace_events_trigger.c
-@@ -1088,14 +1088,10 @@ register_snapshot_trigger(char *glob, st
- 			  struct event_trigger_data *data,
- 			  struct trace_event_file *file)
- {
--	int ret = register_trigger(glob, ops, data, file);
-+	if (tracing_alloc_snapshot_instance(file->tr) != 0)
-+		return 0;
+--- a/arch/arm/boot/dts/imx7-colibri.dtsi
++++ b/arch/arm/boot/dts/imx7-colibri.dtsi
+@@ -345,7 +345,7 @@
+ &iomuxc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_gpio1 &pinctrl_gpio2 &pinctrl_gpio3 &pinctrl_gpio4
+-		     &pinctrl_gpio7>;
++		     &pinctrl_gpio7 &pinctrl_usbc_det>;
  
--	if (ret > 0 && tracing_alloc_snapshot_instance(file->tr) != 0) {
--		unregister_trigger(glob, ops, data, file);
--		ret = 0;
--	}
--
--	return ret;
-+	return register_trigger(glob, ops, data, file);
- }
+ 	pinctrl_gpio1: gpio1-grp {
+ 		fsl,pins = <
+@@ -450,7 +450,6 @@
  
- static int
+ 	pinctrl_enet1: enet1grp {
+ 		fsl,pins = <
+-			MX7D_PAD_ENET1_CRS__GPIO7_IO14			0x14
+ 			MX7D_PAD_ENET1_RGMII_RX_CTL__ENET1_RGMII_RX_CTL	0x73
+ 			MX7D_PAD_ENET1_RGMII_RD0__ENET1_RGMII_RD0	0x73
+ 			MX7D_PAD_ENET1_RGMII_RD1__ENET1_RGMII_RD1	0x73
+@@ -648,6 +647,12 @@
+ 		>;
+ 	};
+ 
++	pinctrl_usbc_det: gpio-usbc-det {
++		fsl,pins = <
++			MX7D_PAD_ENET1_CRS__GPIO7_IO14	0x14
++		>;
++	};
++
+ 	pinctrl_usbh_reg: gpio-usbh-vbus {
+ 		fsl,pins = <
+ 			MX7D_PAD_UART3_CTS_B__GPIO4_IO7	0x14 /* SODIMM 129 USBH PEN */
 
 
