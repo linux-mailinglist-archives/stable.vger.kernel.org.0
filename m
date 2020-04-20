@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8481B0A37
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FC081B0B54
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728860AbgDTMpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:45:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40960 "EHLO mail.kernel.org"
+        id S1728877AbgDTMzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:55:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728855AbgDTMpx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:45:53 -0400
+        id S1728868AbgDTMp4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:45:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB598206DD;
-        Mon, 20 Apr 2020 12:45:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A84E2072B;
+        Mon, 20 Apr 2020 12:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386753;
-        bh=9cG006k3LbqtUOh3C3GQ/cY8hx5/Uc58zO0Ys8/zvsc=;
+        s=default; t=1587386755;
+        bh=bbRjPx1l8zYLS8ZjOXl1hmhn4EhtfYc4TTol1ueqNpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PPVoQCSjstu0YAR+jMwjXKwGpzRDQlR+zlC+MmMWRjYPAbm4pp8hsf/nzrL6Z63IE
-         /VYLrm/xJi0Teuyw63p0zu6F5vwU7F0fHtUtHxtjmb/GZxrjASmRPfw9KXQsQS+nQB
-         9RFWErxjs/3mMqVVg73m6jLNcMAVAmdH3jltKQVs=
+        b=EnKh0fZ8ArI05gJxcYK7sLbFognsYTv5qDCXzy/x+Iq2hmhkU0zu7GIJ1+NAfZeDc
+         bmwclHERV/JIZacoHu5bGYlyvUDgg6Do5DjCW+ySnOz23lhLsC6yA0Kug6cP4BMAs9
+         nAKH7FgooHYi80Vsh2yimbYPtLRSDYRthu78a+IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
-        Feras Daoud <ferasda@mellanox.com>,
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
+        Aya Levin <ayal@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 13/60] net/mlx5: Fix frequent ioread PCI access during recovery
-Date:   Mon, 20 Apr 2020 14:38:51 +0200
-Message-Id: <20200420121504.994289810@linuxfoundation.org>
+Subject: [PATCH 5.4 14/60] net/mlx5e: Add missing release firmware call
+Date:   Mon, 20 Apr 2020 14:38:52 +0200
+Message-Id: <20200420121505.245092312@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
 References: <20200420121500.490651540@linuxfoundation.org>
@@ -44,63 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@mellanox.com>
+From: Eran Ben Elisha <eranbe@mellanox.com>
 
-[ Upstream commit 8c702a53bb0a79bfa203ba21ef1caba43673c5b7 ]
+[ Upstream commit d19987ccf57501894fdd8fadc2e55e4a3dd57239 ]
 
-High frequency of PCI ioread calls during recovery flow may cause the
-following trace on powerpc:
+Once driver finishes flashing the firmware image, it should release it.
 
-[ 248.670288] EEH: 2100000 reads ignored for recovering device at
-location=Slot1 driver=mlx5_core pci addr=0000:01:00.1
-[ 248.670331] EEH: Might be infinite loop in mlx5_core driver
-[ 248.670361] CPU: 2 PID: 35247 Comm: kworker/u192:11 Kdump: loaded
-Tainted: G OE ------------ 4.14.0-115.14.1.el7a.ppc64le #1
-[ 248.670425] Workqueue: mlx5_health0000:01:00.1 health_recover_work
-[mlx5_core]
-[ 248.670471] Call Trace:
-[ 248.670492] [c00020391c11b960] [c000000000c217ac] dump_stack+0xb0/0xf4
-(unreliable)
-[ 248.670548] [c00020391c11b9a0] [c000000000045818]
-eeh_check_failure+0x5c8/0x630
-[ 248.670631] [c00020391c11ba50] [c00000000068fce4]
-ioread32be+0x114/0x1c0
-[ 248.670692] [c00020391c11bac0] [c00800000dd8b400]
-mlx5_error_sw_reset+0x160/0x510 [mlx5_core]
-[ 248.670752] [c00020391c11bb60] [c00800000dd75824]
-mlx5_disable_device+0x34/0x1d0 [mlx5_core]
-[ 248.670822] [c00020391c11bbe0] [c00800000dd8affc]
-health_recover_work+0x11c/0x3c0 [mlx5_core]
-[ 248.670891] [c00020391c11bc80] [c000000000164fcc]
-process_one_work+0x1bc/0x5f0
-[ 248.670955] [c00020391c11bd20] [c000000000167f8c]
-worker_thread+0xac/0x6b0
-[ 248.671015] [c00020391c11bdc0] [c000000000171618] kthread+0x168/0x1b0
-[ 248.671067] [c00020391c11be30] [c00000000000b65c]
-ret_from_kernel_thread+0x5c/0x80
-
-Reduce the PCI ioread frequency during recovery by using msleep()
-instead of cond_resched()
-
-Fixes: 3e5b72ac2f29 ("net/mlx5: Issue SW reset on FW assert")
-Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
-Reviewed-by: Feras Daoud <ferasda@mellanox.com>
+Fixes: 9c8bca2637b8 ("mlx5: Move firmware flash implementation to devlink")
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Reviewed-by: Aya Levin <ayal@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/health.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/devlink.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
-@@ -243,7 +243,7 @@ recover_from_sw_reset:
- 		if (mlx5_get_nic_state(dev) == MLX5_NIC_IFC_DISABLED)
- 			break;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
+@@ -23,7 +23,10 @@ static int mlx5_devlink_flash_update(str
+ 	if (err)
+ 		return err;
  
--		cond_resched();
-+		msleep(20);
- 	} while (!time_after(jiffies, end));
+-	return mlx5_firmware_flash(dev, fw, extack);
++	err = mlx5_firmware_flash(dev, fw, extack);
++	release_firmware(fw);
++
++	return err;
+ }
  
- 	if (mlx5_get_nic_state(dev) != MLX5_NIC_IFC_DISABLED) {
+ static u8 mlx5_fw_ver_major(u32 version)
 
 
