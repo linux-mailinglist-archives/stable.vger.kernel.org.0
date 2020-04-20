@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDDA51B0A21
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4AE41B0AE9
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:53:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728672AbgDTMpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:45:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39422 "EHLO mail.kernel.org"
+        id S1728338AbgDTMsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:48:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728638AbgDTMpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:45:09 -0400
+        id S1729182AbgDTMsK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:48:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 875E120747;
-        Mon, 20 Apr 2020 12:45:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 319FA206D4;
+        Mon, 20 Apr 2020 12:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386709;
-        bh=3U4MOA2zSjanbkoh2i0PBmMVJ0JOxoR9ZqVWiBu1pGM=;
+        s=default; t=1587386889;
+        bh=BQw15EaX0H/tDEXPed4GXaY54eyMlZZmCdnxyv/tpqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2y2J8XF4e9oJjMtKXGfcQqvmdY34H4aIAufKZ+48guUrCGpJNuyzelnTy72mjCuV
-         +p0BYm6luH1c25+xEqlQr5BtZ1CWeENisiB86pFk/+JMCp2er5qvxOHHrSDpxlZMIv
-         H70bMEjYCM4BEfU+zYYi/Kopuszo90PF6nHYIz8U=
+        b=GUuh8xoGLWz6ebkS5uzXbIZjlkcRlnE3+j+qpjX6JfsGHACoBteRN5vPxnahPp9Wp
+         0LtVrkCzAuvEWdPcs8gzZGYczydRKJW4lYNx0LO2FfzGETenuIA7Zm4i8CHty32mRX
+         +1MhYdOB63pIL53bdP5EH7SbURKnLr5m6JYjyAnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kerrisk <mtk.manpages@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>
-Subject: [PATCH 5.6 67/71] proc, time/namespace: Show clock symbolic names in /proc/pid/timens_offsets
+        stable@vger.kernel.org, Xiao Yang <yangx.jy@cn.fujitsu.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 43/60] tracing: Fix the race between registering snapshot event trigger and triggering snapshot operation
 Date:   Mon, 20 Apr 2020 14:39:21 +0200
-Message-Id: <20200420121522.296713087@linuxfoundation.org>
+Message-Id: <20200420121512.244151528@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,102 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Vagin <avagin@gmail.com>
+From: Xiao Yang <yangx.jy@cn.fujitsu.com>
 
-commit 94d440d618467806009c8edc70b094d64e12ee5a upstream.
+commit 0bbe7f719985efd9adb3454679ecef0984cb6800 upstream.
 
-Michael Kerrisk suggested to replace numeric clock IDs with symbolic names.
+Traced event can trigger 'snapshot' operation(i.e. calls snapshot_trigger()
+or snapshot_count_trigger()) when register_snapshot_trigger() has completed
+registration but doesn't allocate buffer for 'snapshot' event trigger.  In
+the rare case, 'snapshot' operation always detects the lack of allocated
+buffer so make register_snapshot_trigger() allocate buffer first.
 
-Now the content of these files looks like this:
-$ cat /proc/774/timens_offsets
-monotonic      864000         0
-boottime      1728000         0
+trigger-snapshot.tc in kselftest reproduces the issue on slow vm:
+-----------------------------------------------------------
+cat trace
+...
+ftracetest-3028  [002] ....   236.784290: sched_process_fork: comm=ftracetest pid=3028 child_comm=ftracetest child_pid=3036
+     <...>-2875  [003] ....   240.460335: tracing_snapshot_instance_cond: *** SNAPSHOT NOT ALLOCATED ***
+     <...>-2875  [003] ....   240.460338: tracing_snapshot_instance_cond: *** stopping trace here!   ***
+-----------------------------------------------------------
 
-For setting offsets, both representations of clocks (numeric and symbolic)
-can be used.
+Link: http://lkml.kernel.org/r/20200414015145.66236-1-yangx.jy@cn.fujitsu.com
 
-As for compatibility, it is acceptable to change things as long as
-userspace doesn't care. The format of timens_offsets files is very new and
-there are no userspace tools yet which rely on this format.
-
-But three projects crun, util-linux and criu rely on the interface of
-setting time offsets and this is why it's required to continue supporting
-the numeric clock IDs on write.
-
-Fixes: 04a8682a71be ("fs/proc: Introduce /proc/pid/timens_offsets")
-Suggested-by: Michael Kerrisk <mtk.manpages@gmail.com>
-Signed-off-by: Andrei Vagin <avagin@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Michael Kerrisk <mtk.manpages@gmail.com>
-Acked-by: Michael Kerrisk <mtk.manpages@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200411154031.642557-1-avagin@gmail.com
+Fixes: 93e31ffbf417a ("tracing: Add 'snapshot' event trigger command")
+Signed-off-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/base.c          |   14 +++++++++++++-
- kernel/time/namespace.c |   15 ++++++++++++++-
- 2 files changed, 27 insertions(+), 2 deletions(-)
+ kernel/trace/trace_events_trigger.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1573,6 +1573,7 @@ static ssize_t timens_offsets_write(stru
- 	noffsets = 0;
- 	for (pos = kbuf; pos; pos = next_line) {
- 		struct proc_timens_offset *off = &offsets[noffsets];
-+		char clock[10];
- 		int err;
- 
- 		/* Find the end of line and ensure we don't look past it */
-@@ -1584,10 +1585,21 @@ static ssize_t timens_offsets_write(stru
- 				next_line = NULL;
- 		}
- 
--		err = sscanf(pos, "%u %lld %lu", &off->clockid,
-+		err = sscanf(pos, "%9s %lld %lu", clock,
- 				&off->val.tv_sec, &off->val.tv_nsec);
- 		if (err != 3 || off->val.tv_nsec >= NSEC_PER_SEC)
- 			goto out;
-+
-+		clock[sizeof(clock) - 1] = 0;
-+		if (strcmp(clock, "monotonic") == 0 ||
-+		    strcmp(clock, __stringify(CLOCK_MONOTONIC)) == 0)
-+			off->clockid = CLOCK_MONOTONIC;
-+		else if (strcmp(clock, "boottime") == 0 ||
-+			 strcmp(clock, __stringify(CLOCK_BOOTTIME)) == 0)
-+			off->clockid = CLOCK_BOOTTIME;
-+		else
-+			goto out;
-+
- 		noffsets++;
- 		if (noffsets == ARRAY_SIZE(offsets)) {
- 			if (next_line)
---- a/kernel/time/namespace.c
-+++ b/kernel/time/namespace.c
-@@ -337,7 +337,20 @@ static struct user_namespace *timens_own
- 
- static void show_offset(struct seq_file *m, int clockid, struct timespec64 *ts)
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -1088,14 +1088,10 @@ register_snapshot_trigger(char *glob, st
+ 			  struct event_trigger_data *data,
+ 			  struct trace_event_file *file)
  {
--	seq_printf(m, "%d %lld %ld\n", clockid, ts->tv_sec, ts->tv_nsec);
-+	char *clock;
-+
-+	switch (clockid) {
-+	case CLOCK_BOOTTIME:
-+		clock = "boottime";
-+		break;
-+	case CLOCK_MONOTONIC:
-+		clock = "monotonic";
-+		break;
-+	default:
-+		clock = "unknown";
-+		break;
-+	}
-+	seq_printf(m, "%-10s %10lld %9ld\n", clock, ts->tv_sec, ts->tv_nsec);
+-	int ret = register_trigger(glob, ops, data, file);
++	if (tracing_alloc_snapshot_instance(file->tr) != 0)
++		return 0;
+ 
+-	if (ret > 0 && tracing_alloc_snapshot_instance(file->tr) != 0) {
+-		unregister_trigger(glob, ops, data, file);
+-		ret = 0;
+-	}
+-
+-	return ret;
++	return register_trigger(glob, ops, data, file);
  }
  
- void proc_timens_show_offsets(struct task_struct *p, struct seq_file *m)
+ static int
 
 
