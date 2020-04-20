@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 505AA1B0A82
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:49:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 524F01B0A5F
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729331AbgDTMsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:48:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45596 "EHLO mail.kernel.org"
+        id S1729117AbgDTMrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:47:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726991AbgDTMst (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:48:49 -0400
+        id S1728618AbgDTMri (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:47:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A48F20735;
-        Mon, 20 Apr 2020 12:48:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C7F0206DD;
+        Mon, 20 Apr 2020 12:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386928;
-        bh=foRUgx3kHTVvLrsvmFGzq49A+mAA4agcq0rc10os9tk=;
+        s=default; t=1587386858;
+        bh=2wn0F3Rb9BTNHNvimEOaOhQbgSSFphhXDg2fGL1HMX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZ5/jmkIQoDvq0mcZhfs0l8szGvE18UgBkHHahtJAmAFtoUatU7ntPuva3t/9M+v7
-         QH+EEu/89pxVemdUA4f5QBJjpQ81cjPy7G3LLSIINeFFtKy8w9z9s1QJWmXkldcdxO
-         1vuuRk87IXeRt4bOlkEFv0xlwyIvR1GqaA+XqzC0=
+        b=Xv/3iubbAl6bhnVKoCwmUCYE/x4pOYDhB4pQkmMfuDd79I/qco4ZXao6e9W6wRNo+
+         5Zf/HSL9p+XK0hUbHJo+I9G1K8Kd0xii4bNrw6wVR/ad43oUc1OUhJb5hIyNeb9lIy
+         qIn6Z79Vo+UGuQge3VqPWJ7bt7P/pIxPgf539j6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6693adf1698864d21734@syzkaller.appspotmail.com,
-        syzbot+a4aee3f42d7584d76761@syzkaller.appspotmail.com,
-        stable@kernel.org, Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 24/40] mac80211_hwsim: Use kstrndup() in place of kasprintf()
+        Reinette Chatre <reinette.chatre@intel.com>,
+        James Morse <james.morse@arm.com>, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 56/60] x86/resctrl: Preserve CDP enable over CPU hotplug
 Date:   Mon, 20 Apr 2020 14:39:34 +0200
-Message-Id: <20200420121501.234251204@linuxfoundation.org>
+Message-Id: <20200420121515.373669661@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
-References: <20200420121444.178150063@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
+From: James Morse <james.morse@arm.com>
 
-commit 7ea862048317aa76d0f22334202779a25530980c upstream.
+commit 9fe0450785abbc04b0ed5d3cf61fcdb8ab656b4b upstream.
 
-syzbot reports a warning:
+Resctrl assumes that all CPUs are online when the filesystem is mounted,
+and that CPUs remember their CDP-enabled state over CPU hotplug.
 
-precision 33020 too large
-WARNING: CPU: 0 PID: 9618 at lib/vsprintf.c:2471 set_precision+0x150/0x180 lib/vsprintf.c:2471
- vsnprintf+0xa7b/0x19a0 lib/vsprintf.c:2547
- kvasprintf+0xb2/0x170 lib/kasprintf.c:22
- kasprintf+0xbb/0xf0 lib/kasprintf.c:59
- hwsim_del_radio_nl+0x63a/0x7e0 drivers/net/wireless/mac80211_hwsim.c:3625
- genl_family_rcv_msg_doit net/netlink/genetlink.c:672 [inline]
- ...
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+This goes wrong when resctrl's CDP-enabled state changes while all the
+CPUs in a domain are offline.
 
-Thus it seems that kasprintf() with "%.*s" format can not be used for
-duplicating a string with arbitrary length. Replace it with kstrndup().
+When a domain comes online, enable (or disable!) CDP to match resctrl's
+current setting.
 
-Note that later this string is limited to NL80211_WIPHY_NAME_MAXLEN == 64,
-but the code is simpler this way.
-
-Reported-by: syzbot+6693adf1698864d21734@syzkaller.appspotmail.com
-Reported-by: syzbot+a4aee3f42d7584d76761@syzkaller.appspotmail.com
-Cc: stable@kernel.org
-Signed-off-by: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
-Link: https://lore.kernel.org/r/20200410123257.14559-1-tuomas.tynkkynen@iki.fi
-[johannes: add note about length limit]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 5ff193fbde20 ("x86/intel_rdt: Add basic resctrl filesystem support")
+Suggested-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200221162105.154163-1-james.morse@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/mac80211_hwsim.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/kernel/cpu/resctrl/core.c     |    2 ++
+ arch/x86/kernel/cpu/resctrl/internal.h |    1 +
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c |   13 +++++++++++++
+ 3 files changed, 16 insertions(+)
 
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -3327,9 +3327,9 @@ static int hwsim_new_radio_nl(struct sk_
- 		param.no_vif = true;
+--- a/arch/x86/kernel/cpu/resctrl/core.c
++++ b/arch/x86/kernel/cpu/resctrl/core.c
+@@ -578,6 +578,8 @@ static void domain_add_cpu(int cpu, stru
+ 	d->id = id;
+ 	cpumask_set_cpu(cpu, &d->cpu_mask);
  
- 	if (info->attrs[HWSIM_ATTR_RADIO_NAME]) {
--		hwname = kasprintf(GFP_KERNEL, "%.*s",
--				   nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
--				   (char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]));
-+		hwname = kstrndup((char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]),
-+				  nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
-+				  GFP_KERNEL);
- 		if (!hwname)
- 			return -ENOMEM;
- 		param.hwname = hwname;
-@@ -3385,9 +3385,9 @@ static int hwsim_del_radio_nl(struct sk_
- 	if (info->attrs[HWSIM_ATTR_RADIO_ID]) {
- 		idx = nla_get_u32(info->attrs[HWSIM_ATTR_RADIO_ID]);
- 	} else if (info->attrs[HWSIM_ATTR_RADIO_NAME]) {
--		hwname = kasprintf(GFP_KERNEL, "%.*s",
--				   nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
--				   (char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]));
-+		hwname = kstrndup((char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]),
-+				  nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
-+				  GFP_KERNEL);
- 		if (!hwname)
- 			return -ENOMEM;
- 	} else
++	rdt_domain_reconfigure_cdp(r);
++
+ 	if (r->alloc_capable && domain_setup_ctrlval(r, d)) {
+ 		kfree(d);
+ 		return;
+--- a/arch/x86/kernel/cpu/resctrl/internal.h
++++ b/arch/x86/kernel/cpu/resctrl/internal.h
+@@ -601,5 +601,6 @@ bool has_busy_rmid(struct rdt_resource *
+ void __check_limbo(struct rdt_domain *d, bool force_free);
+ bool cbm_validate_intel(char *buf, u32 *data, struct rdt_resource *r);
+ bool cbm_validate_amd(char *buf, u32 *data, struct rdt_resource *r);
++void rdt_domain_reconfigure_cdp(struct rdt_resource *r);
+ 
+ #endif /* _ASM_X86_RESCTRL_INTERNAL_H */
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -1769,6 +1769,19 @@ static int set_cache_qos_cfg(int level,
+ 	return 0;
+ }
+ 
++/* Restore the qos cfg state when a domain comes online */
++void rdt_domain_reconfigure_cdp(struct rdt_resource *r)
++{
++	if (!r->alloc_capable)
++		return;
++
++	if (r == &rdt_resources_all[RDT_RESOURCE_L2DATA])
++		l2_qos_cfg_update(&r->alloc_enabled);
++
++	if (r == &rdt_resources_all[RDT_RESOURCE_L3DATA])
++		l3_qos_cfg_update(&r->alloc_enabled);
++}
++
+ /*
+  * Enable or disable the MBA software controller
+  * which helps user specify bandwidth in MBps.
 
 
