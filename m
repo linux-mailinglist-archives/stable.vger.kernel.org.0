@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21FC21B0BB0
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 157971B0BD5
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727913AbgDTMnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:43:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37566 "EHLO mail.kernel.org"
+        id S1726498AbgDTM6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:58:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727825AbgDTMns (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:43:48 -0400
+        id S1726482AbgDTMme (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:42:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EBE820738;
-        Mon, 20 Apr 2020 12:43:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E80102070B;
+        Mon, 20 Apr 2020 12:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386627;
-        bh=FCcXvTLuWCFsDQQPNpkZ4jF3bjg+075quiwNXKwV5lM=;
+        s=default; t=1587386553;
+        bh=tcAAzz3EXEsisJM9NOt1ZeTYwQanWfluG2iG9Gwhh/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oIxR8wnGVgoapzawd7aNGUdu4r5EsSqXXRgEnMkil1G9EtBH+wh95czoI1/cm92GG
-         pMc8/Lw3c1BB3BSDVS+5vD74aMJEj8zHzqjy9P6foPwfsshB3+83jUlPe+LH8ipY54
-         USEK+rEfNpGBLUeT61ZKIRqaQjOmVN4ek4Mvzzjk=
+        b=mJIagZGKzKI84QyPivPjg37fYAwgB2fbr7DPg9MhWbimpW01zVOaIOJYzP8tRcUBo
+         B5+4TQ9yOeEZ2Szsg1irtElGT/xavMUXQn7a9Oc5ZhkV7ZZWeTttnPk6KSK/9pHUyC
+         fuURewMGuHqujh2eAK2TONvmfGa97isvUewt0JzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.6 33/71] ext4: fix incorrect inodes per group in error message
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 43/65] ALSA: usb-audio: Dont create jack controls for PCM terminals
 Date:   Mon, 20 Apr 2020 14:38:47 +0200
-Message-Id: <20200420121515.515234631@linuxfoundation.org>
+Message-Id: <20200420121515.904545828@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
+References: <20200420121505.909671922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Triplett <josh@joshtriplett.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit b9c538da4e52a7b79dfcf4cfa487c46125066dfb upstream.
+commit 7dc3c5a0172e6c0449502103356c3628d05bc0e0 upstream.
 
-If ext4_fill_super detects an invalid number of inodes per group, the
-resulting error message printed the number of blocks per group, rather
-than the number of inodes per group. Fix it to print the correct value.
+Some funky firmwares set the connector flag even on PCM terminals
+although it doesn't make sense (and even actually the firmware doesn't
+react properly!).  Let's skip creation of jack controls in such a
+case.
 
-Fixes: cd6bb35bf7f6d ("ext4: use more strict checks for inodes_per_block on mount")
-Link: https://lore.kernel.org/r/8be03355983a08e5d4eed480944613454d7e2550.1585434649.git.josh@joshtriplett.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206873
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200412081331.4742-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/mixer.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4157,7 +4157,7 @@ static int ext4_fill_super(struct super_
- 	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
- 	    sbi->s_inodes_per_group > blocksize * 8) {
- 		ext4_msg(sb, KERN_ERR, "invalid inodes per group: %lu\n",
--			 sbi->s_blocks_per_group);
-+			 sbi->s_inodes_per_group);
- 		goto failed_mount;
- 	}
- 	sbi->s_itb_per_group = sbi->s_inodes_per_group /
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -2088,7 +2088,8 @@ static int parse_audio_input_terminal(st
+ 	check_input_term(state, term_id, &iterm);
+ 
+ 	/* Check for jack detection. */
+-	if (uac_v2v3_control_is_readable(bmctls, control))
++	if ((iterm.type & 0xff00) != 0x0100 &&
++	    uac_v2v3_control_is_readable(bmctls, control))
+ 		build_connector_control(state->mixer, &iterm, true);
+ 
+ 	return 0;
+@@ -3128,7 +3129,8 @@ static int snd_usb_mixer_controls(struct
+ 			if (err < 0 && err != -EINVAL)
+ 				return err;
+ 
+-			if (uac_v2v3_control_is_readable(le16_to_cpu(desc->bmControls),
++			if ((state.oterm.type & 0xff00) != 0x0100 &&
++			    uac_v2v3_control_is_readable(le16_to_cpu(desc->bmControls),
+ 							 UAC2_TE_CONNECTOR)) {
+ 				build_connector_control(state.mixer, &state.oterm,
+ 							false);
+@@ -3153,7 +3155,8 @@ static int snd_usb_mixer_controls(struct
+ 			if (err < 0 && err != -EINVAL)
+ 				return err;
+ 
+-			if (uac_v2v3_control_is_readable(le32_to_cpu(desc->bmControls),
++			if ((state.oterm.type & 0xff00) != 0x0100 &&
++			    uac_v2v3_control_is_readable(le32_to_cpu(desc->bmControls),
+ 							 UAC3_TE_INSERTION)) {
+ 				build_connector_control(state.mixer, &state.oterm,
+ 							false);
 
 
