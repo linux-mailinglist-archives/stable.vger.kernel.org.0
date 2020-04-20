@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0CDC1B09CE
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9347F1B0BB1
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728215AbgDTMm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:42:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
+        id S1728428AbgDTMnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:43:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728189AbgDTMm0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:42:26 -0400
+        id S1728412AbgDTMnj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:43:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90F112070B;
-        Mon, 20 Apr 2020 12:42:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82D6220724;
+        Mon, 20 Apr 2020 12:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386546;
-        bh=aj7jSU0TCG/lF1yPRu6YAFGC5R8mSASegSlZmQ/WKYg=;
+        s=default; t=1587386618;
+        bh=QR1PakUlj/lMWqZD6e71EiolwzkgVTbC7dDXGfQ2WCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7vu6CrcKq6sFd33EXsi1g7EdEVfYT5w6lY4fiAvE5VUDbFh+Za2Ht89xIqEzq9g5
-         3eo0+caC9+s0oXgb64yyiG5sldKagBtUvrcNxNEo1dBGx7Zyzk1cB3VngvbA6hNHQr
-         LgtyOxPpYR9jv61V1LJGiOWRAF+TWQBi6WVdqRGk=
+        b=fr3Oja6kBNXL5zxP4/em3wA7/HTMbrUjssZeT7wt5n9WUvt5l8gajV0xtuMeSHoMt
+         cb/dPBa5PsFcCqL6PYDKVKCuCkGDIrvt5iUpO5jV+E6hLxmC+CjV6lkL6efJW9ZSJz
+         BMof/+4sA4Y70UISK8oJjsR2KyaiixOK+e6tJtA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Barber <barberadam995@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 40/65] ALSA: hda/realtek - Enable the headset mic on Asus FX505DT
+        stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 30/71] net: stmmac: xgmac: Fix VLAN register handling
 Date:   Mon, 20 Apr 2020 14:38:44 +0200
-Message-Id: <20200420121515.139831340@linuxfoundation.org>
+Message-Id: <20200420121514.644286735@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
-References: <20200420121505.909671922@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Barber <barberadam995@gmail.com>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-commit 4963d66b8a26c489958063abb6900ea6ed8e4836 upstream.
+commit 21f64e72e7073199a6f8d7d8efe52cd814d7d665 upstream.
 
-On Asus FX505DT with Realtek ALC233, the headset mic is connected
-to pin 0x19, with default 0x411111f0.
+Commit 907a076881f1, forgot that we need to clear old values of
+XGMAC_VLAN_TAG register when we switch from VLAN perfect matching to
+HASH matching.
 
-Enable headset mic by reconfiguring the pin to an external mic
-associated with the headphone on 0x21. Mic jack detection was also
-found to be working.
+Fix it.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207131
-Signed-off-by: Adam Barber <barberadam995@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200410090032.2759-1-barberadam995@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 907a076881f1 ("net: stmmac: xgmac: fix incorrect XGMAC_VLAN_TAG register writting")
+Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7253,6 +7253,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1043, 0x18f1, "Asus FX505DT", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x19ce, "ASUS B9450FA", ALC294_FIXUP_ASUS_HPE),
- 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
- 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
+--- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
+@@ -576,8 +576,13 @@ static void dwxgmac2_update_vlan_hash(st
+ 			value |= XGMAC_VLAN_EDVLP;
+ 			value |= XGMAC_VLAN_ESVL;
+ 			value |= XGMAC_VLAN_DOVLTC;
++		} else {
++			value &= ~XGMAC_VLAN_EDVLP;
++			value &= ~XGMAC_VLAN_ESVL;
++			value &= ~XGMAC_VLAN_DOVLTC;
+ 		}
+ 
++		value &= ~XGMAC_VLAN_VID;
+ 		writel(value, ioaddr + XGMAC_VLAN_TAG);
+ 	} else if (perfect_match) {
+ 		u32 value = readl(ioaddr + XGMAC_PACKET_FILTER);
+@@ -588,13 +593,19 @@ static void dwxgmac2_update_vlan_hash(st
+ 
+ 		value = readl(ioaddr + XGMAC_VLAN_TAG);
+ 
++		value &= ~XGMAC_VLAN_VTHM;
+ 		value |= XGMAC_VLAN_ETV;
+ 		if (is_double) {
+ 			value |= XGMAC_VLAN_EDVLP;
+ 			value |= XGMAC_VLAN_ESVL;
+ 			value |= XGMAC_VLAN_DOVLTC;
++		} else {
++			value &= ~XGMAC_VLAN_EDVLP;
++			value &= ~XGMAC_VLAN_ESVL;
++			value &= ~XGMAC_VLAN_DOVLTC;
+ 		}
+ 
++		value &= ~XGMAC_VLAN_VID;
+ 		writel(value | perfect_match, ioaddr + XGMAC_VLAN_TAG);
+ 	} else {
+ 		u32 value = readl(ioaddr + XGMAC_PACKET_FILTER);
 
 
