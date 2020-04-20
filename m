@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A4F01B0A3A
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10AA11B0A07
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728296AbgDTMp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:45:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41100 "EHLO mail.kernel.org"
+        id S1728508AbgDTMoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:44:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728879AbgDTMp6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:45:58 -0400
+        id S1728505AbgDTMoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:44:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A44E9206DD;
-        Mon, 20 Apr 2020 12:45:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BD7A20738;
+        Mon, 20 Apr 2020 12:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386758;
-        bh=BCsMp6KmgZiVCIqWnfB2eIy61jHp4A1fOmlCIapij5I=;
+        s=default; t=1587386642;
+        bh=eZOTwLQ+89n4izqg2qhLqC8W3atJDfDu9J0twFIibYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gM/zodchYYRAtbdcQP0nAvFXatLRF6wBdM0+GHjFTFALtobR+uSN3j3DHbqHME8c+
-         IMKJBXc2TwTFTYz0qYmj4uZcVDELlYJZ9jwDsRhQO6iz0F/lghnPU1SYj94PPN6E9M
-         eueWckHtNxOTIn2DAwAA16U8x+nWJERtZABSZUvM=
+        b=UJ2NpiQCI7mbh6PVzSSjByAjC6kR4YpeypkIoWywYfwsWPj1qBuL3EE49SuoDyCxS
+         PyPA7nye4I996bmwumfpZuxjPi63Y2Ex+C45vHswgLpR1Ziq+A0QJu0Z2p2JPOycRk
+         951Vk+8NqTgyV3Ktrh9jEd+r9hNf1af7K6cm5L0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmytro Linkin <dmitrolin@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 15/60] net/mlx5e: Fix nest_level for vlan pop action
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.6 39/71] usb: dwc3: gadget: Dont clear flags before transfer ended
 Date:   Mon, 20 Apr 2020 14:38:53 +0200
-Message-Id: <20200420121505.524678777@linuxfoundation.org>
+Message-Id: <20200420121517.193262046@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Linkin <dmitrolin@mellanox.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 70f478ca085deec4d6c1f187f773f5827ddce7e8 ]
+commit a114c4ca64bd522aec1790c7e5c60c882f699d8f upstream.
 
-Current value of nest_level, assigned from net_device lower_level value,
-does not reflect the actual number of vlan headers, needed to pop.
-For ex., if we have untagged ingress traffic sended over vlan devices,
-instead of one pop action, driver will perform two pop actions.
-To fix that, calculate nest_level as difference between vlan device and
-parent device lower_levels.
+We track END_TRANSFER command completion. Don't clear transfer
+started/ended flag prematurely. Otherwise, we'd run into the problem
+with restarting transfer before END_TRANSFER command finishes.
 
-Fixes: f3b0a18bb6cb ("net: remove unnecessary variables and callback")
-Signed-off-by: Dmytro Linkin <dmitrolin@mellanox.com>
-Signed-off-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -3181,12 +3181,13 @@ static int add_vlan_pop_action(struct ml
- 			       struct mlx5_esw_flow_attr *attr,
- 			       u32 *action)
- {
--	int nest_level = attr->parse_attr->filter_dev->lower_level;
- 	struct flow_action_entry vlan_act = {
- 		.id = FLOW_ACTION_VLAN_POP,
- 	};
--	int err = 0;
-+	int nest_level, err = 0;
+---
+ drivers/usb/dwc3/gadget.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2570,10 +2570,8 @@ static void dwc3_gadget_endpoint_transfe
  
-+	nest_level = attr->parse_attr->filter_dev->lower_level -
-+						priv->netdev->lower_level;
- 	while (nest_level--) {
- 		err = parse_tc_vlan_action(priv, &vlan_act, attr, action);
- 		if (err)
+ 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
+ 
+-	if (stop) {
++	if (stop)
+ 		dwc3_stop_active_transfer(dep, true, true);
+-		dep->flags = DWC3_EP_ENABLED;
+-	}
+ 
+ 	/*
+ 	 * WORKAROUND: This is the 2nd half of U1/U2 -> U0 workaround.
 
 
