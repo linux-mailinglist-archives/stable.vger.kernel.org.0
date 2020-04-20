@@ -2,72 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E70201B1410
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 20:11:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 634071B1413
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 20:11:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726951AbgDTSLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 14:11:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56080 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726532AbgDTSLN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 14:11:13 -0400
-X-Greylist: delayed 226 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 20 Apr 2020 11:11:13 PDT
-Received: from shards.monkeyblade.net (shards.monkeyblade.net [IPv6:2620:137:e000::1:9])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC55EC061A0C;
-        Mon, 20 Apr 2020 11:11:13 -0700 (PDT)
-Received: from localhost (unknown [IPv6:2601:601:9f00:477::3d5])
-        (using TLSv1 with cipher AES256-SHA (256/256 bits))
-        (Client did not present a certificate)
-        (Authenticated sender: davem-davemloft)
-        by shards.monkeyblade.net (Postfix) with ESMTPSA id CB017127D487D;
-        Mon, 20 Apr 2020 11:11:12 -0700 (PDT)
-Date:   Mon, 20 Apr 2020 11:11:11 -0700 (PDT)
-Message-Id: <20200420.111111.1335274381489892106.davem@davemloft.net>
-To:     maz@kernel.org
-Cc:     netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, peppe.cavallaro@st.com,
-        alexandre.torgue@st.com, joabreu@synopsys.com,
-        khilman@baylibre.com, martin.blumenstingl@googlemail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] net: stmmac: dwmac-meson8b: Add missing boundary to
- RGMII TX clock array
-From:   David Miller <davem@davemloft.net>
-In-Reply-To: <20200418181457.3193175-1-maz@kernel.org>
-References: <20200418181457.3193175-1-maz@kernel.org>
-X-Mailer: Mew version 6.8 on Emacs 26.1
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Mon, 20 Apr 2020 11:11:13 -0700 (PDT)
+        id S1726748AbgDTSLs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 14:11:48 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52478 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726532AbgDTSLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 14:11:48 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id A5ADDAD39
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 18:11:46 +0000 (UTC)
+Subject: Re: [PATCH v3 1/9] xen/events: avoid removing an event channel while
+ handling it
+To:     stable@vger.kernel.org
+References: <20200417115454.24931-1-jgross@suse.com>
+ <20200417115454.24931-2-jgross@suse.com>
+From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <6a36aebc-e490-52a7-f36b-f8d8b88288e2@suse.com>
+Date:   Mon, 20 Apr 2020 20:11:46 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
+MIME-Version: 1.0
+In-Reply-To: <20200417115454.24931-2-jgross@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
-Date: Sat, 18 Apr 2020 19:14:57 +0100
-
-> Running with KASAN on a VIM3L systems leads to the following splat
-> when probing the Ethernet device:
+On 17.04.20 13:54, Juergen Gross wrote:
+> Today it can happen that an event channel is being removed from the
+> system while the event handling loop is active. This can lead to a
+> race resulting in crashes or WARN() splats.
 > 
-> ==================================================================
-> BUG: KASAN: global-out-of-bounds in _get_maxdiv+0x74/0xd8
-> Read of size 4 at addr ffffa000090615f4 by task systemd-udevd/139
-> CPU: 1 PID: 139 Comm: systemd-udevd Tainted: G            E     5.7.0-rc1-00101-g8624b7577b9c #781
-> Hardware name: amlogic w400/w400, BIOS 2020.01-rc5 03/12/2020
-...
-> Digging into this indeed shows that the clock divider array is
-> lacking a final fence, and that the clock subsystems goes in the
-> weeds. Oh well.
+> Fix this problem by using a rwlock taken as reader in the event
+> handling loop and as writer when removing an event channel.
 > 
-> Let's add the empty structure that indicates the end of the array.
+> As the observed problem was a NULL dereference in evtchn_from_irq()
+> make this function more robust against races by testing the irq_info
+> pointer to be not NULL before dereferencing it.
 > 
-> Fixes: bd6f48546b9c ("net: stmmac: dwmac-meson8b: Fix the RGMII TX delay on Meson8b/8m2 SoCs")
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Cc: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> Cc: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
 > Cc: stable@vger.kernel.org
+> Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+> Signed-off-by: Juergen Gross <jgross@suse.com>
 
-Please do not CC: stable@vger.kernel.org for networking changes as per
-netdev-FAQ
+Please ignore, script went wild.
 
-Applied and queued up for -stable, thanks.
+
+Juergen
