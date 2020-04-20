@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC9B1B0ACD
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8FA31B0A4F
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:48:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729272AbgDTMsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:48:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45248 "EHLO mail.kernel.org"
+        id S1729038AbgDTMrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:47:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728217AbgDTMse (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:48:34 -0400
+        id S1729032AbgDTMrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:47:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6667F2072B;
-        Mon, 20 Apr 2020 12:48:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60019206D4;
+        Mon, 20 Apr 2020 12:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386913;
-        bh=ENj6Qt52KrnVwLM66JGBO+2QFyAr22rkd+rd3OdPeVk=;
+        s=default; t=1587386828;
+        bh=zdaV98C4qGP4BiZi+UEicnipIKDAQoW3KWA80HZLGKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGB+clyx4p79u6Lj6O9ONhjiqFGqbdXM7gkIpvw/uakwbP7biQro9I4lEKOtyWdLO
-         eFdq7DJJu4FarEjv3x3z7OHYpf4H3Bk6ukz0FlNq19onF/JZrJK0cw7eCFVST1GndY
-         bshHcy4Nq8ezfbN2rmfISJuBz94naL+cLH+qg96A=
+        b=Bn39YE6rtws3JHzDixQ/j9ZqfN7bVH61YISLdNpPmgbpPhs38UvoVTnV70UDSOhB5
+         hH05Q/HGTbIryAASEaWNRkTir3cqdgfalmrrKvwF+vDOBI3izJSWlVJMYRbbiy4lAv
+         O1HDQZw7VAnTjCA/M9LWbKW91r0B7g4T/14ThdMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.19 09/40] ovl: fix value of i_ino for lower hardlink corner case
+        stable@vger.kernel.org,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.4 41/60] arm64: vdso: dont free unallocated pages
 Date:   Mon, 20 Apr 2020 14:39:19 +0200
-Message-Id: <20200420121454.159987874@linuxfoundation.org>
+Message-Id: <20200420121511.768372248@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
-References: <20200420121444.178150063@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit 300b124fcf6ad2cd99a7b721e0f096785e0a3134 upstream.
+commit 9cc3d0c6915aee5140f8335d41bbc3ff1b79aa4e upstream.
 
-Commit 6dde1e42f497 ("ovl: make i_ino consistent with st_ino in more
-cases"), relaxed the condition nfs_export=on in order to set the value of
-i_ino to xino map of real ino.
+The aarch32_vdso_pages[] array never has entries allocated in the C_VVAR
+or C_VDSO slots, and as the array is zero initialized these contain
+NULL.
 
-Specifically, it also relaxed the pre-condition that index=on for
-consistent i_ino. This opened the corner case of lower hardlink in
-ovl_get_inode(), which calls ovl_fill_inode() with ino=0 and then
-ovl_init_inode() is called to set i_ino to lower real ino without the xino
-mapping.
+However in __aarch32_alloc_vdso_pages() when
+aarch32_alloc_kuser_vdso_page() fails we attempt to free the page whose
+struct page is at NULL, which is obviously nonsensical.
 
-Pass the correct values of ino;fsid in this case to ovl_fill_inode(), so it
-can initialize i_ino correctly.
+This patch removes the erroneous page freeing.
 
-Fixes: 6dde1e42f497 ("ovl: make i_ino consistent with st_ino in more ...")
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 7c1deeeb0130 ("arm64: compat: VDSO setup for compat layer")
+Cc: <stable@vger.kernel.org> # 5.3.x-
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/overlayfs/inode.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/vdso.c |   13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
 
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -884,7 +884,7 @@ struct inode *ovl_get_inode(struct super
- 	struct dentry *lowerdentry = lowerpath ? lowerpath->dentry : NULL;
- 	bool bylower = ovl_hash_bylower(sb, upperdentry, lowerdentry,
- 					oip->index);
--	int fsid = bylower ? oip->lowerpath->layer->fsid : 0;
-+	int fsid = bylower ? lowerpath->layer->fsid : 0;
- 	bool is_dir, metacopy = false;
- 	unsigned long ino = 0;
- 	int err = oip->newinode ? -EEXIST : -ENOMEM;
-@@ -934,6 +934,8 @@ struct inode *ovl_get_inode(struct super
- 			err = -ENOMEM;
- 			goto out_err;
- 		}
-+		ino = realinode->i_ino;
-+		fsid = lowerpath->layer->fsid;
- 	}
- 	ovl_fill_inode(inode, realinode->i_mode, realinode->i_rdev, ino, fsid);
- 	ovl_inode_init(inode, upperdentry, lowerdentry, oip->lowerdata);
+--- a/arch/arm64/kernel/vdso.c
++++ b/arch/arm64/kernel/vdso.c
+@@ -260,18 +260,7 @@ static int __aarch32_alloc_vdso_pages(vo
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = aarch32_alloc_kuser_vdso_page();
+-	if (ret) {
+-		unsigned long c_vvar =
+-			(unsigned long)page_to_virt(aarch32_vdso_pages[C_VVAR]);
+-		unsigned long c_vdso =
+-			(unsigned long)page_to_virt(aarch32_vdso_pages[C_VDSO]);
+-
+-		free_page(c_vvar);
+-		free_page(c_vdso);
+-	}
+-
+-	return ret;
++	return aarch32_alloc_kuser_vdso_page();
+ }
+ #else
+ static int __aarch32_alloc_vdso_pages(void)
 
 
