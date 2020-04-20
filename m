@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D0D91B0AE2
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFFD41B0A7F
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729112AbgDTMrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:47:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43652 "EHLO mail.kernel.org"
+        id S1729311AbgDTMsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:48:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729091AbgDTMrd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:47:33 -0400
+        id S1729291AbgDTMsq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:48:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABC122072B;
-        Mon, 20 Apr 2020 12:47:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC5FE20736;
+        Mon, 20 Apr 2020 12:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386853;
-        bh=JNYBM1DqjYWaI/f+MVZCYi82oRdiai3bNp++sT13rCI=;
+        s=default; t=1587386926;
+        bh=a2o+7wxm1EjJaOtWR/GTY6328eM1fT4ITgPauq9wxso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cz7h+WJY8Kj+y9YEvEGQip8tzf//QasqK1F2HCZzn4Vi6CyYB23xSWmBYWP/vM3bQ
-         ax6/b+44xtlRN2YmVRDl6HgjnXX1PdOKZcFYZh/9b2xrxHpp6ZSOXGO//jSKpu09O4
-         mA3XooOfMW9eVBkY3ulzxWAkxTSJyyVH2C4sY32A=
+        b=zFMyEPRJRrPKMnmiM41ZmjdJnGIAEqXC2JV7WvHNaG98iTAUH0TOQtDV2xqaublCo
+         U7U/bxWEF1L9aVhDBCHI72dWmb+sFz94t7LTbtWarl0XYWD5rfxC43EKLaq4YoiMiN
+         oWQzuudjCRL4UDnwlqqGcThtE2lciIIRn2RNf8XU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 54/60] ext4: do not zeroout extents beyond i_disksize
-Date:   Mon, 20 Apr 2020 14:39:32 +0200
-Message-Id: <20200420121514.830085605@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 23/40] btrfs: check commit root generation in should_ignore_root
+Date:   Mon, 20 Apr 2020 14:39:33 +0200
+Message-Id: <20200420121500.696971642@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
+References: <20200420121444.178150063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 801674f34ecfed033b062a0f217506b93c8d5e8a upstream.
+commit 4d4225fc228e46948486d8b8207955f0c031b92e upstream.
 
-We do not want to create initialized extents beyond end of file because
-for e2fsck it is impossible to distinguish them from a case of corrupted
-file size / extent tree and so it complains like:
+Previously we would set the reloc root's last snapshot to transid - 1.
+However there was a problem with doing this, and we changed it to
+setting the last snapshot to the generation of the commit node of the fs
+root.
 
-Inode 12, i_size is 147456, should be 163840.  Fix? no
+This however broke should_ignore_root().  The assumption is that if we
+are in a generation newer than when the reloc root was created, then we
+would find the reloc root through normal backref lookups, and thus can
+ignore any fs roots we find with an old enough reloc root.
 
-Code in ext4_ext_convert_to_initialized() and
-ext4_split_convert_extents() try to make sure it does not create
-initialized extents beyond inode size however they check against
-inode->i_size which is wrong. They should instead check against
-EXT4_I(inode)->i_disksize which is the current inode size on disk.
-That's what e2fsck is going to see in case of crash before all dirty
-data is written. This bug manifests as generic/456 test failure (with
-recent enough fstests where fsx got fixed to properly pass
-FALLOC_KEEP_SIZE_FL flags to the kernel) when run with dioread_lock
-mount option.
+Now that the last snapshot could be considerably further in the past
+than before, we'd end up incorrectly ignoring an fs root.  Thus we'd
+find no nodes for the bytenr we were searching for, and we'd fail to
+relocate anything.  We'd loop through the relocate code again and see
+that there were still used space in that block group, attempt to
+relocate those bytenr's again, fail in the same way, and just loop like
+this forever.  This is tricky in that we have to not modify the fs root
+at all during this time, so we need to have a block group that has data
+in this fs root that is not shared by any other root, which is why this
+has been difficult to reproduce.
 
-CC: stable@vger.kernel.org
-Fixes: 21ca087a3891 ("ext4: Do not zero out uninitialized extents beyond i_size")
-Reviewed-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20200331105016.8674-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 054570a1dc94 ("Btrfs: fix relocation incorrectly dropping data references")
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/extents.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/btrfs/relocation.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -3549,8 +3549,8 @@ static int ext4_ext_convert_to_initializ
- 		(unsigned long long)map->m_lblk, map_len);
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -525,8 +525,8 @@ static int should_ignore_root(struct btr
+ 	if (!reloc_root)
+ 		return 0;
  
- 	sbi = EXT4_SB(inode->i_sb);
--	eof_block = (inode->i_size + inode->i_sb->s_blocksize - 1) >>
--		inode->i_sb->s_blocksize_bits;
-+	eof_block = (EXT4_I(inode)->i_disksize + inode->i_sb->s_blocksize - 1)
-+			>> inode->i_sb->s_blocksize_bits;
- 	if (eof_block < map->m_lblk + map_len)
- 		eof_block = map->m_lblk + map_len;
- 
-@@ -3805,8 +3805,8 @@ static int ext4_split_convert_extents(ha
- 		  __func__, inode->i_ino,
- 		  (unsigned long long)map->m_lblk, map->m_len);
- 
--	eof_block = (inode->i_size + inode->i_sb->s_blocksize - 1) >>
--		inode->i_sb->s_blocksize_bits;
-+	eof_block = (EXT4_I(inode)->i_disksize + inode->i_sb->s_blocksize - 1)
-+			>> inode->i_sb->s_blocksize_bits;
- 	if (eof_block < map->m_lblk + map->m_len)
- 		eof_block = map->m_lblk + map->m_len;
+-	if (btrfs_root_last_snapshot(&reloc_root->root_item) ==
+-	    root->fs_info->running_transaction->transid - 1)
++	if (btrfs_header_generation(reloc_root->commit_root) ==
++	    root->fs_info->running_transaction->transid)
+ 		return 0;
  	/*
+ 	 * if there is reloc tree and it was created in previous
 
 
