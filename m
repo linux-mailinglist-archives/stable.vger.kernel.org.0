@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0159A1B09FC
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2CFE1B09D3
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:42:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728441AbgDTMnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:43:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37390 "EHLO mail.kernel.org"
+        id S1727010AbgDTMme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:42:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728433AbgDTMnk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:43:40 -0400
+        id S1728225AbgDTMm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:42:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03B8820724;
-        Mon, 20 Apr 2020 12:43:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08AEC20724;
+        Mon, 20 Apr 2020 12:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386620;
-        bh=7CwSGAnApzkj0TifNjJBsWcj8qqd9Xu9EoZHAW2GmvQ=;
+        s=default; t=1587386548;
+        bh=PRh9IJDdS+o73XwbAPa6itI1Z1L1fcKUk3RuRn007Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dau61tKXpv9Hr7WIsnWF49MyMXe9I/wE8eUCcfgwcMAS/HqBLz1GydCG0RQziNKaC
-         RCHOcag8yzsmAMSFWTiPOUkSf2ue9zIPWoyhwO4nj6Aw2eGW5KeEz8WK2W92edB9Ia
-         3Q8LnTRvuMr0mw8J9nvuEJl5DGzMFqxYFNaG6bdA=
+        b=lXSW/gwlY6FTpnuphbNJRVuNdUygkLsMLnMwIqYm2Vi0vixIO8fTbkCYovqBxcRSZ
+         T6NknDscyCbLI1gAO5a471TIEFVSKGceuLcvxrAPLCmT2C3BFEV7vRytKH40kNab77
+         aS+SW5aRNwlT3j/tWyldva/uxGO702MPDmVhYzPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruno Meneguele <bmeneg@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 31/71] net/bpfilter: remove superfluous testing message
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 41/65] ALSA: usb-audio: Filter error from connector kctl ops, too
 Date:   Mon, 20 Apr 2020 14:38:45 +0200
-Message-Id: <20200420121514.928669975@linuxfoundation.org>
+Message-Id: <20200420121515.390565476@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
+References: <20200420121505.909671922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bruno Meneguele <bmeneg@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 41c55ea6c2a7ca4c663eeec05bdf54f4e2419699 upstream.
+commit 48cc42973509afac24e83d6edc23901d102872d1 upstream.
 
-A testing message was brought by 13d0f7b814d9 ("net/bpfilter: fix dprintf
-usage for /dev/kmsg") but should've been deleted before patch submission.
-Although it doesn't cause any harm to the code or functionality itself, it's
-totally unpleasant to have it displayed on every loop iteration with no real
-use case. Thus remove it unconditionally.
+The ignore_ctl_error option should filter the error at kctl accesses,
+but there was an overlook: mixer_ctl_connector_get() returns an error
+from the request.
 
-Fixes: 13d0f7b814d9 ("net/bpfilter: fix dprintf usage for /dev/kmsg")
-Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch covers the forgotten code path and apply filter_error()
+properly.  The locking error is still returned since this is a fatal
+error that has to be reported even with ignore_ctl_error option.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206873
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200412081331.4742-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bpfilter/main.c |    1 -
- 1 file changed, 1 deletion(-)
+ sound/usb/mixer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bpfilter/main.c
-+++ b/net/bpfilter/main.c
-@@ -35,7 +35,6 @@ static void loop(void)
- 		struct mbox_reply reply;
- 		int n;
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -1446,7 +1446,7 @@ error:
+ 		usb_audio_err(chip,
+ 			"cannot get connectors status: req = %#x, wValue = %#x, wIndex = %#x, type = %d\n",
+ 			UAC_GET_CUR, validx, idx, cval->val_type);
+-		return ret;
++		return filter_error(cval, ret);
+ 	}
  
--		fprintf(debug_f, "testing the buffer\n");
- 		n = read(0, &req, sizeof(req));
- 		if (n != sizeof(req)) {
- 			fprintf(debug_f, "invalid request %d\n", n);
+ 	ucontrol->value.integer.value[0] = val;
 
 
