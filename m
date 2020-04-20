@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56B301B0B4D
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4CE21B0A14
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729570AbgDTMyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:54:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41666 "EHLO mail.kernel.org"
+        id S1728532AbgDTMo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:44:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728909AbgDTMqV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:46:21 -0400
+        id S1728566AbgDTMoZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:44:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A99BF20736;
-        Mon, 20 Apr 2020 12:46:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6620C206DD;
+        Mon, 20 Apr 2020 12:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386780;
-        bh=y3pcqYQywdv657EcLBgi9iL8MyEr1EzQSc0kbGUvRAI=;
+        s=default; t=1587386664;
+        bh=Ee0rTNJ5wGbk6j/GMNwLsv1TUL2vjWg/zZsKORfPaVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qhE7aYwvsM1PRsFCQEd7xLAFQgz5vvy4wmgCAZ5qWdfrT2iLyd4/+GmxYYjf7ZZUP
-         NWOWxxQZcouiWJzraReCrdRVbr+mqyUqBKth6xjjZrmI6NLKJM0ru5T8tz2/lAOgE5
-         D5j63z0X9ToSLxStSMiFxUp2ygtwcWeXl12WB9RM=
+        b=YdBuwHbUoOUr2L/8gQmnTCk1RFmgXWgqRLM5k/kJGPwReziAJta8xM37y2UfPCi8I
+         HPi/eJwIvtV8gXnsug9M1WYQSy7zRnzmqOfdbno2YxamTZcCjozgCvqbfid6sYFL3g
+         lxFcCThy7wF5ypmRoDJSsltOKg7BD93rzAPDDe2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.4 23/60] acpi/nfit: improve bounds checking for func
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 47/71] ALSA: usb-audio: Check mapping at creating connector controls, too
 Date:   Mon, 20 Apr 2020 14:39:01 +0200
-Message-Id: <20200420121508.158062718@linuxfoundation.org>
+Message-Id: <20200420121518.775063938@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +42,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 01091c496f920e634ea84b689f480c39016752a8 upstream.
+commit 934b96594ed66b07dbc7e576d28814466df3a494 upstream.
 
-The 'func' variable can come from the user in the __nd_ioctl().  If it's
-too high then the (1 << func) shift in acpi_nfit_clear_to_send() is
-undefined.  In acpi_nfit_ctl() we pass 'func' to test_bit(func, &dsm_mask)
-which could result in an out of bounds access.
+Add the mapping check to build_connector_control() so that the device
+specific quirk can provide the node to skip for the badly behaving
+connector controls.  As an example, ALC1220-VB-based codec implements
+the skip entry for the broken SPDIF connector detection.
 
-To fix these issues, I introduced the NVDIMM_CMD_MAX (31) define and
-updated nfit_dsm_revid() to use that define as well instead of magic
-numbers.
-
-Fixes: 11189c1089da ("acpi/nfit: Fix command-supported detection")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Link: https://lore.kernel.org/r/20200225161927.hvftuq7kjn547fyj@kili.mountain
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206873
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200412081331.4742-5-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/nfit/core.c |   10 ++++++----
- drivers/acpi/nfit/nfit.h |    1 +
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ sound/usb/mixer.c      |   18 +++++++++++-------
+ sound/usb/mixer_maps.c |    4 +++-
+ 2 files changed, 14 insertions(+), 8 deletions(-)
 
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -360,7 +360,7 @@ static union acpi_object *acpi_label_inf
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -1750,11 +1750,15 @@ static void get_connector_control_name(s
  
- static u8 nfit_dsm_revid(unsigned family, unsigned func)
+ /* Build a mixer control for a UAC connector control (jack-detect) */
+ static void build_connector_control(struct usb_mixer_interface *mixer,
++				    const struct usbmix_name_map *imap,
+ 				    struct usb_audio_term *term, bool is_input)
  {
--	static const u8 revid_table[NVDIMM_FAMILY_MAX+1][32] = {
-+	static const u8 revid_table[NVDIMM_FAMILY_MAX+1][NVDIMM_CMD_MAX+1] = {
- 		[NVDIMM_FAMILY_INTEL] = {
- 			[NVDIMM_INTEL_GET_MODES] = 2,
- 			[NVDIMM_INTEL_GET_FWINFO] = 2,
-@@ -386,7 +386,7 @@ static u8 nfit_dsm_revid(unsigned family
+ 	struct snd_kcontrol *kctl;
+ 	struct usb_mixer_elem_info *cval;
  
- 	if (family > NVDIMM_FAMILY_MAX)
- 		return 0;
--	if (func > 31)
-+	if (func > NVDIMM_CMD_MAX)
- 		return 0;
- 	id = revid_table[family][func];
- 	if (id == 0)
-@@ -492,7 +492,8 @@ int acpi_nfit_ctl(struct nvdimm_bus_desc
- 	 * Check for a valid command.  For ND_CMD_CALL, we also have to
- 	 * make sure that the DSM function is supported.
- 	 */
--	if (cmd == ND_CMD_CALL && !test_bit(func, &dsm_mask))
-+	if (cmd == ND_CMD_CALL &&
-+	    (func > NVDIMM_CMD_MAX || !test_bit(func, &dsm_mask)))
- 		return -ENOTTY;
- 	else if (!test_bit(cmd, &cmd_mask))
- 		return -ENOTTY;
-@@ -3499,7 +3500,8 @@ static int acpi_nfit_clear_to_send(struc
- 	if (nvdimm && cmd == ND_CMD_CALL &&
- 			call_pkg->nd_family == NVDIMM_FAMILY_INTEL) {
- 		func = call_pkg->nd_command;
--		if ((1 << func) & NVDIMM_INTEL_SECURITY_CMDMASK)
-+		if (func > NVDIMM_CMD_MAX ||
-+		    (1 << func) & NVDIMM_INTEL_SECURITY_CMDMASK)
- 			return -EOPNOTSUPP;
++	if (check_ignored_ctl(find_map(imap, term->id, 0)))
++		return;
++
+ 	cval = kzalloc(sizeof(*cval), GFP_KERNEL);
+ 	if (!cval)
+ 		return;
+@@ -2090,7 +2094,7 @@ static int parse_audio_input_terminal(st
+ 	/* Check for jack detection. */
+ 	if ((iterm.type & 0xff00) != 0x0100 &&
+ 	    uac_v2v3_control_is_readable(bmctls, control))
+-		build_connector_control(state->mixer, &iterm, true);
++		build_connector_control(state->mixer, state->map, &iterm, true);
+ 
+ 	return 0;
+ }
+@@ -3051,13 +3055,13 @@ static int snd_usb_mixer_controls_badd(s
+ 		memset(&iterm, 0, sizeof(iterm));
+ 		iterm.id = UAC3_BADD_IT_ID4;
+ 		iterm.type = UAC_BIDIR_TERMINAL_HEADSET;
+-		build_connector_control(mixer, &iterm, true);
++		build_connector_control(mixer, map->map, &iterm, true);
+ 
+ 		/* Output Term - Insertion control */
+ 		memset(&oterm, 0, sizeof(oterm));
+ 		oterm.id = UAC3_BADD_OT_ID3;
+ 		oterm.type = UAC_BIDIR_TERMINAL_HEADSET;
+-		build_connector_control(mixer, &oterm, false);
++		build_connector_control(mixer, map->map, &oterm, false);
  	}
  
---- a/drivers/acpi/nfit/nfit.h
-+++ b/drivers/acpi/nfit/nfit.h
-@@ -34,6 +34,7 @@
- 		| ACPI_NFIT_MEM_NOT_ARMED | ACPI_NFIT_MEM_MAP_FAILED)
+ 	return 0;
+@@ -3132,8 +3136,8 @@ static int snd_usb_mixer_controls(struct
+ 			if ((state.oterm.type & 0xff00) != 0x0100 &&
+ 			    uac_v2v3_control_is_readable(le16_to_cpu(desc->bmControls),
+ 							 UAC2_TE_CONNECTOR)) {
+-				build_connector_control(state.mixer, &state.oterm,
+-							false);
++				build_connector_control(state.mixer, state.map,
++							&state.oterm, false);
+ 			}
+ 		} else {  /* UAC_VERSION_3 */
+ 			struct uac3_output_terminal_descriptor *desc = p;
+@@ -3158,8 +3162,8 @@ static int snd_usb_mixer_controls(struct
+ 			if ((state.oterm.type & 0xff00) != 0x0100 &&
+ 			    uac_v2v3_control_is_readable(le32_to_cpu(desc->bmControls),
+ 							 UAC3_TE_INSERTION)) {
+-				build_connector_control(state.mixer, &state.oterm,
+-							false);
++				build_connector_control(state.mixer, state.map,
++							&state.oterm, false);
+ 			}
+ 		}
+ 	}
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -360,9 +360,11 @@ static const struct usbmix_name_map cors
+ };
  
- #define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_HYPERV
-+#define NVDIMM_CMD_MAX 31
- 
- #define NVDIMM_STANDARD_CMDMASK \
- (1 << ND_CMD_SMART | 1 << ND_CMD_SMART_THRESHOLD | 1 << ND_CMD_DIMM_FLAGS \
+ /* Some mobos shipped with a dummy HD-audio show the invalid GET_MIN/GET_MAX
+- * response for Input Gain Pad (id=19, control=12).  Skip it.
++ * response for Input Gain Pad (id=19, control=12) and the connector status
++ * for SPDIF terminal (id=18).  Skip them.
+  */
+ static const struct usbmix_name_map asus_rog_map[] = {
++	{ 18, NULL }, /* OT, connector control */
+ 	{ 19, NULL, 12 }, /* FU, Input Gain Pad */
+ 	{}
+ };
 
 
