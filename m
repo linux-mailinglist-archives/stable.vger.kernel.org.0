@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B0851B0A6E
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:48:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D881B0AAB
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:51:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729204AbgDTMsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:48:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44496 "EHLO mail.kernel.org"
+        id S1729448AbgDTMtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:49:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729184AbgDTMsD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:48:03 -0400
+        id S1729478AbgDTMto (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:49:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1FDA206D4;
-        Mon, 20 Apr 2020 12:48:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08DAB20736;
+        Mon, 20 Apr 2020 12:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386882;
-        bh=QA1Pu+fudMlSNRK1ueStGrdWInKuciI08bM72ymnRqE=;
+        s=default; t=1587386984;
+        bh=lk8RXi6P02tjNYEpzp1QVhe8R8pqNPciBylaCpMcTC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s0uuQ98hIJ29zJ2ANX57VIoF4BLRpqoiLDQtgN5T4LabLyctf74RlghQ0ue2Md3JN
-         bXvOXGu2bUXeYONsDllkp4Jp3Mvc9VhHyqMN4nA+vDYhDDY6KgONAib89EQ93ows5k
-         eGfmdOcisX+YX8lfTGf61QZ5+VbXB7oMFBf6J7pM=
+        b=IWuliNSI8Dobkbo8e78sVhut3jzHJi+ZU4q2oAYCDWant3SSTAIN76c2q1FG+gC9s
+         XdbAFbp2XcztN+KBlYWS7v8gtEUEnhi8P60WSH863zm+gE2M/q12TcdV0XFGwC4Bmn
+         wqrXtiXgsLa691Yew/NagwiIvbE43l5S7bbvmD30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/60] net/mlx5e: Use preactivate hook to set the indirection table
-Date:   Mon, 20 Apr 2020 14:39:28 +0200
-Message-Id: <20200420121513.877347142@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 19/40] ALSA: usb-audio: Dont create jack controls for PCM terminals
+Date:   Mon, 20 Apr 2020 14:39:29 +0200
+Message-Id: <20200420121459.811766207@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
+References: <20200420121444.178150063@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,110 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit fe867cac9e1967c553e4ac2aece5fc8675258010 ]
+commit 7dc3c5a0172e6c0449502103356c3628d05bc0e0 upstream.
 
-mlx5e_ethtool_set_channels updates the indirection table before
-switching to the new channels. If the switch fails, the indirection
-table is new, but the channels are old, which is wrong. Fix it by using
-the preactivate hook of mlx5e_safe_switch_channels to update the
-indirection table at the stage when nothing can fail anymore.
+Some funky firmwares set the connector flag even on PCM terminals
+although it doesn't make sense (and even actually the firmware doesn't
+react properly!).  Let's skip creation of jack controls in such a
+case.
 
-As the code that updates the indirection table is now encapsulated into
-a new function, use that function in the attach flow when the driver has
-to reduce the number of channels, and prepare the code for the next
-commit.
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206873
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200412081331.4742-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 85082dba0a ("net/mlx5e: Correctly handle RSS indirection table when changing number of channels")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h     |  1 +
- .../net/ethernet/mellanox/mlx5/core/en_ethtool.c | 10 ++--------
- .../net/ethernet/mellanox/mlx5/core/en_main.c    | 16 ++++++++++++++--
- 3 files changed, 17 insertions(+), 10 deletions(-)
+ sound/usb/mixer.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index 3cb5b4321bf93..11426f94c90c6 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -1043,6 +1043,7 @@ int mlx5e_safe_reopen_channels(struct mlx5e_priv *priv);
- int mlx5e_safe_switch_channels(struct mlx5e_priv *priv,
- 			       struct mlx5e_channels *new_chs,
- 			       mlx5e_fp_preactivate preactivate);
-+int mlx5e_num_channels_changed(struct mlx5e_priv *priv);
- void mlx5e_activate_priv_channels(struct mlx5e_priv *priv);
- void mlx5e_deactivate_priv_channels(struct mlx5e_priv *priv);
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -2107,7 +2107,8 @@ static int parse_audio_input_terminal(st
+ 	check_input_term(state, term_id, &iterm);
  
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-index c6776f308d5e6..304ddce6b0872 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -445,9 +445,7 @@ int mlx5e_ethtool_set_channels(struct mlx5e_priv *priv,
+ 	/* Check for jack detection. */
+-	if (uac_v2v3_control_is_readable(bmctls, control))
++	if ((iterm.type & 0xff00) != 0x0100 &&
++	    uac_v2v3_control_is_readable(bmctls, control))
+ 		build_connector_control(state->mixer, &iterm, true);
  
- 	if (!test_bit(MLX5E_STATE_OPENED, &priv->state)) {
- 		*cur_params = new_channels.params;
--		if (!netif_is_rxfh_configured(priv->netdev))
--			mlx5e_build_default_indir_rqt(priv->rss_params.indirection_rqt,
--						      MLX5E_INDIR_RQT_SIZE, count);
-+		mlx5e_num_channels_changed(priv);
- 		goto out;
- 	}
+ 	return 0;
+@@ -3147,7 +3148,8 @@ static int snd_usb_mixer_controls(struct
+ 			if (err < 0 && err != -EINVAL)
+ 				return err;
  
-@@ -455,12 +453,8 @@ int mlx5e_ethtool_set_channels(struct mlx5e_priv *priv,
- 	if (arfs_enabled)
- 		mlx5e_arfs_disable(priv);
+-			if (uac_v2v3_control_is_readable(le16_to_cpu(desc->bmControls),
++			if ((state.oterm.type & 0xff00) != 0x0100 &&
++			    uac_v2v3_control_is_readable(le16_to_cpu(desc->bmControls),
+ 							 UAC2_TE_CONNECTOR)) {
+ 				build_connector_control(state.mixer, &state.oterm,
+ 							false);
+@@ -3172,7 +3174,8 @@ static int snd_usb_mixer_controls(struct
+ 			if (err < 0 && err != -EINVAL)
+ 				return err;
  
--	if (!netif_is_rxfh_configured(priv->netdev))
--		mlx5e_build_default_indir_rqt(priv->rss_params.indirection_rqt,
--					      MLX5E_INDIR_RQT_SIZE, count);
--
- 	/* Switch to new channels, set new parameters and close old ones */
--	err = mlx5e_safe_switch_channels(priv, &new_channels, NULL);
-+	err = mlx5e_safe_switch_channels(priv, &new_channels, mlx5e_num_channels_changed);
- 
- 	if (arfs_enabled) {
- 		int err2 = mlx5e_arfs_enable(priv);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index c58f02258ddfa..88ea279c29bb8 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -2908,6 +2908,17 @@ static void mlx5e_update_netdev_queues(struct mlx5e_priv *priv)
- 	netif_set_real_num_rx_queues(netdev, num_rxqs);
- }
- 
-+int mlx5e_num_channels_changed(struct mlx5e_priv *priv)
-+{
-+	u16 count = priv->channels.params.num_channels;
-+
-+	if (!netif_is_rxfh_configured(priv->netdev))
-+		mlx5e_build_default_indir_rqt(priv->rss_params.indirection_rqt,
-+					      MLX5E_INDIR_RQT_SIZE, count);
-+
-+	return 0;
-+}
-+
- static void mlx5e_build_txq_maps(struct mlx5e_priv *priv)
- {
- 	int i, ch;
-@@ -5315,9 +5326,10 @@ int mlx5e_attach_netdev(struct mlx5e_priv *priv)
- 	max_nch = mlx5e_get_max_num_channels(priv->mdev);
- 	if (priv->channels.params.num_channels > max_nch) {
- 		mlx5_core_warn(priv->mdev, "MLX5E: Reducing number of channels to %d\n", max_nch);
-+		/* Reducing the number of channels - RXFH has to be reset. */
-+		priv->netdev->priv_flags &= ~IFF_RXFH_CONFIGURED;
- 		priv->channels.params.num_channels = max_nch;
--		mlx5e_build_default_indir_rqt(priv->rss_params.indirection_rqt,
--					      MLX5E_INDIR_RQT_SIZE, max_nch);
-+		mlx5e_num_channels_changed(priv);
- 	}
- 
- 	err = profile->init_tx(priv);
--- 
-2.20.1
-
+-			if (uac_v2v3_control_is_readable(le32_to_cpu(desc->bmControls),
++			if ((state.oterm.type & 0xff00) != 0x0100 &&
++			    uac_v2v3_control_is_readable(le32_to_cpu(desc->bmControls),
+ 							 UAC3_TE_INSERTION)) {
+ 				build_connector_control(state.mixer, &state.oterm,
+ 							false);
 
 
