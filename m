@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B331B0BF5
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 15:00:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F2C91B0B45
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727983AbgDTMlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:41:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33848 "EHLO mail.kernel.org"
+        id S1728829AbgDTMpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727975AbgDTMlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:41:14 -0400
+        id S1728827AbgDTMpq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:45:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2F242072B;
-        Mon, 20 Apr 2020 12:41:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77A7D20736;
+        Mon, 20 Apr 2020 12:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386474;
-        bh=0EGY66fsxLPM8SesOHH0e4VqaPDSb1hdf79Q4j0V9AU=;
+        s=default; t=1587386746;
+        bh=fGBeDcGkMF8qnx98mzK/4Lz582y1joSmdAPT16srA5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f28uBNnZR+rAGpHKvvesjMCr3ge4gsiUqn6icwisphzDEEqEamWF0lUoOPY3R38pj
-         7wT7aIi2QQtdYXLpckLacySNyhCcMPvsFHCZ7/q2v7vkob5vfjMT2y+YwQDSTGsIIJ
-         aFTwp1WihxrL+UThpw28NvEezyl9LMiQIoMFgpT0=
+        b=OfHTLSr0aEveML/yccqaDGViFXNQVguBYaF8MN8MBDLsgjQARX7QcxCukd50Monce
+         1JX5lH9/0C2q3EjfJXOWM/hwLS68HzG3JiEfMmaPB0JmbWzReNsoKlkYWkh85JhWDL
+         FR9U9o0VAWjWNUWGlu7NkxLG/6COYnRNHpKDxmGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Angus Ainslie (Purism)" <angus@akkea.ca>,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.5 36/65] arm64: dts: librem5-devkit: add a vbus supply to usb0
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 02/60] hsr: check protocol version in hsr_newlink()
 Date:   Mon, 20 Apr 2020 14:38:40 +0200
-Message-Id: <20200420121514.100912290@linuxfoundation.org>
+Message-Id: <20200420121501.202750478@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
-References: <20200420121505.909671922@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angus Ainslie (Purism) <angus@akkea.ca>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit dde061b865598ad91f50140760e1d224e5045db9 upstream.
+[ Upstream commit 4faab8c446def7667adf1f722456c2f4c304069c ]
 
-Without a VBUS supply the dwc3 driver won't go into otg mode.
+In the current hsr code, only 0 and 1 protocol versions are valid.
+But current hsr code doesn't check the version, which is received by
+userspace.
 
-Fixes: eb4ea0857c83 ("arm64: dts: fsl: librem5: Add a device tree for the Librem5 devkit")
-Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
-Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Test commands:
+    ip link add dummy0 type dummy
+    ip link add dummy1 type dummy
+    ip link add hsr0 type hsr slave1 dummy0 slave2 dummy1 version 4
+
+In the test commands, version 4 is invalid.
+So, the command should be failed.
+
+After this patch, following error will occur.
+"Error: hsr: Only versions 0..1 are supported."
+
+Fixes: ee1c27977284 ("net/hsr: Added support for HSR v1")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts |    1 +
- 1 file changed, 1 insertion(+)
+ net/hsr/hsr_netlink.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
-@@ -743,6 +743,7 @@
- };
+--- a/net/hsr/hsr_netlink.c
++++ b/net/hsr/hsr_netlink.c
+@@ -61,10 +61,16 @@ static int hsr_newlink(struct net *src_n
+ 	else
+ 		multicast_spec = nla_get_u8(data[IFLA_HSR_MULTICAST_SPEC]);
  
- &usb3_phy0 {
-+	vbus-supply = <&reg_5v_p>;
- 	status = "okay";
- };
+-	if (!data[IFLA_HSR_VERSION])
++	if (!data[IFLA_HSR_VERSION]) {
+ 		hsr_version = 0;
+-	else
++	} else {
+ 		hsr_version = nla_get_u8(data[IFLA_HSR_VERSION]);
++		if (hsr_version > 1) {
++			NL_SET_ERR_MSG_MOD(extack,
++					   "Only versions 0..1 are supported");
++			return -EINVAL;
++		}
++	}
  
+ 	return hsr_dev_finalize(dev, link, multicast_spec, hsr_version);
+ }
 
 
