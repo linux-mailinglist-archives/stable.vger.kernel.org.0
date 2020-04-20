@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0BEB1B0A8D
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:51:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7BC21B0AF4
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729323AbgDTMsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45690 "EHLO mail.kernel.org"
+        id S1728589AbgDTMwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:52:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729327AbgDTMsx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:48:53 -0400
+        id S1729128AbgDTMrn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:47:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1DE320735;
-        Mon, 20 Apr 2020 12:48:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 699F4206DD;
+        Mon, 20 Apr 2020 12:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386933;
-        bh=Td6phF6OipQfRwHy9dH1WczrdeUDuqNXLRmhK2Nm+34=;
+        s=default; t=1587386862;
+        bh=Hbe7QW9W/V7h7WcXvDZaceOhOyxayfXkhvMBlyiy8+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=St83J7M57uUAz4vkN92neg2uX2A3o5BZF/q7HE3VjmBwAA2USNoldlgh9DfUUjX6g
-         hsgQss+jLk0GWdLeneNrZnmEer3Y7xD47NCXK91KuW3K1g36HBkth2jBB941w11syR
-         tJ6u5wLu76zU6Ck/f94BKqh5gqSuLn0+qEd2tWvc=
+        b=u17q0UO9Oend+vW0ifYNZEnhAOGxYhg8X2pYwcVLmDdeEYBkN16btr1R4NPhIb4s0
+         fLijhm+bIhKVTOURLaMaTKNzs3GpcEbNbm7Cci6nRRHJhYz0RfeHzHIALYyt4vI7Rk
+         RksveEwPZ6PJHJTHYsoxAdI9q0OYuitOpQ9DWnuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Rahul Kundu <rahul.kundu@chelsio.com>,
+        Maurizio Lombardi <mlombard@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/40] usb: dwc3: gadget: Dont clear flags before transfer ended
+Subject: [PATCH 5.4 58/60] scsi: target: remove boilerplate code
 Date:   Mon, 20 Apr 2020 14:39:36 +0200
-Message-Id: <20200420121502.311210933@linuxfoundation.org>
+Message-Id: <20200420121515.859192997@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
-References: <20200420121444.178150063@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit a114c4ca64bd522aec1790c7e5c60c882f699d8f ]
+[ Upstream commit e49a7d994379278d3353d7ffc7994672752fb0ad ]
 
-We track END_TRANSFER command completion. Don't clear transfer
-started/ended flag prematurely. Otherwise, we'd run into the problem
-with restarting transfer before END_TRANSFER command finishes.
+iscsit_free_session() is equivalent to iscsit_stop_session() followed by a
+call to iscsit_close_session().
 
-Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/20200313170656.9716-2-mlombard@redhat.com
+Tested-by: Rahul Kundu <rahul.kundu@chelsio.com>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/target/iscsi/iscsi_target.c | 46 ++---------------------------
+ drivers/target/iscsi/iscsi_target.h |  1 -
+ 2 files changed, 2 insertions(+), 45 deletions(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 019aee3a79568..8a4455d0af8b9 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2366,10 +2366,8 @@ static void dwc3_gadget_endpoint_transfer_in_progress(struct dwc3_ep *dep,
+diff --git a/drivers/target/iscsi/iscsi_target.c b/drivers/target/iscsi/iscsi_target.c
+index d19e051f2bc23..dda735cfb1568 100644
+--- a/drivers/target/iscsi/iscsi_target.c
++++ b/drivers/target/iscsi/iscsi_target.c
+@@ -4569,49 +4569,6 @@ void iscsit_fail_session(struct iscsi_session *sess)
+ 	sess->session_state = TARG_SESS_STATE_FAILED;
+ }
  
- 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
- 
--	if (stop) {
-+	if (stop)
- 		dwc3_stop_active_transfer(dep, true, true);
--		dep->flags = DWC3_EP_ENABLED;
+-int iscsit_free_session(struct iscsi_session *sess)
+-{
+-	u16 conn_count = atomic_read(&sess->nconn);
+-	struct iscsi_conn *conn, *conn_tmp = NULL;
+-	int is_last;
+-
+-	spin_lock_bh(&sess->conn_lock);
+-	atomic_set(&sess->sleep_on_sess_wait_comp, 1);
+-
+-	list_for_each_entry_safe(conn, conn_tmp, &sess->sess_conn_list,
+-			conn_list) {
+-		if (conn_count == 0)
+-			break;
+-
+-		if (list_is_last(&conn->conn_list, &sess->sess_conn_list)) {
+-			is_last = 1;
+-		} else {
+-			iscsit_inc_conn_usage_count(conn_tmp);
+-			is_last = 0;
+-		}
+-		iscsit_inc_conn_usage_count(conn);
+-
+-		spin_unlock_bh(&sess->conn_lock);
+-		iscsit_cause_connection_reinstatement(conn, 1);
+-		spin_lock_bh(&sess->conn_lock);
+-
+-		iscsit_dec_conn_usage_count(conn);
+-		if (is_last == 0)
+-			iscsit_dec_conn_usage_count(conn_tmp);
+-
+-		conn_count--;
 -	}
+-
+-	if (atomic_read(&sess->nconn)) {
+-		spin_unlock_bh(&sess->conn_lock);
+-		wait_for_completion(&sess->session_wait_comp);
+-	} else
+-		spin_unlock_bh(&sess->conn_lock);
+-
+-	iscsit_close_session(sess);
+-	return 0;
+-}
+-
+ void iscsit_stop_session(
+ 	struct iscsi_session *sess,
+ 	int session_sleep,
+@@ -4696,7 +4653,8 @@ int iscsit_release_sessions_for_tpg(struct iscsi_portal_group *tpg, int force)
+ 	list_for_each_entry_safe(se_sess, se_sess_tmp, &free_list, sess_list) {
+ 		sess = (struct iscsi_session *)se_sess->fabric_sess_ptr;
  
- 	/*
- 	 * WORKAROUND: This is the 2nd half of U1/U2 -> U0 workaround.
+-		iscsit_free_session(sess);
++		iscsit_stop_session(sess, 1, 1);
++		iscsit_close_session(sess);
+ 		session_count++;
+ 	}
+ 
+diff --git a/drivers/target/iscsi/iscsi_target.h b/drivers/target/iscsi/iscsi_target.h
+index c95f56a3ce31b..7409ce2a66078 100644
+--- a/drivers/target/iscsi/iscsi_target.h
++++ b/drivers/target/iscsi/iscsi_target.h
+@@ -43,7 +43,6 @@ extern int iscsi_target_rx_thread(void *);
+ extern int iscsit_close_connection(struct iscsi_conn *);
+ extern int iscsit_close_session(struct iscsi_session *);
+ extern void iscsit_fail_session(struct iscsi_session *);
+-extern int iscsit_free_session(struct iscsi_session *);
+ extern void iscsit_stop_session(struct iscsi_session *, int, int);
+ extern int iscsit_release_sessions_for_tpg(struct iscsi_portal_group *, int);
+ 
 -- 
 2.20.1
 
