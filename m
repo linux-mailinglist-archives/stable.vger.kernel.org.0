@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29ACF1B0990
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42CE11B0BC5
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:58:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726981AbgDTMkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:40:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
+        id S1726341AbgDTM62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:58:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727007AbgDTMkN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:40:13 -0400
+        id S1727072AbgDTMm6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:42:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DC96206D4;
-        Mon, 20 Apr 2020 12:40:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCD5D221F4;
+        Mon, 20 Apr 2020 12:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386412;
-        bh=9cG006k3LbqtUOh3C3GQ/cY8hx5/Uc58zO0Ys8/zvsc=;
+        s=default; t=1587386578;
+        bh=25m4OHjRHxYq+pBnFf00VwlRPqJ/xs5F8ZNWaOoKDxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrLiEjw7FRBXowl2zyeoDTC6f0sXnKLOJCtcDTAQv1kGMqhr7nPuJvEZEWfqs+Duy
-         iDPPdF68SD8jPa7QTIheUZIUTZk/PwPX++vFljbbC2ytLqu5PhWq+3P1/zZ7bZq3RK
-         hL7eU3CgfPBT2pMAj3rDALsP/vnnJWJ2WA4NZMFc=
+        b=oeqvT28sce90gsun/r4XZrcm4guJwOmHOFmWeNbB13U8cCOZmMl0XmFl0WzjT2k7s
+         V8COuPIuxpRjygw7wwdkdlurUTfAwML9LJ9R7h0Pbg6VwiPwOvPXe2r+nJkrSU4hUI
+         jCiasMadCUjCw9m0ASwYzCdy7xscfM7yTJBDG9RE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
-        Feras Daoud <ferasda@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.5 13/65] net/mlx5: Fix frequent ioread PCI access during recovery
-Date:   Mon, 20 Apr 2020 14:38:17 +0200
-Message-Id: <20200420121509.188216905@linuxfoundation.org>
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Ren=C3=A9=20van=20Dorst?= <opensource@vdorst.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 04/71] net: dsa: mt7530: fix tagged frames pass-through in VLAN-unaware mode
+Date:   Mon, 20 Apr 2020 14:38:18 +0200
+Message-Id: <20200420121509.210524210@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
-References: <20200420121505.909671922@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@mellanox.com>
+From: DENG Qingfang <dqfext@gmail.com>
 
-[ Upstream commit 8c702a53bb0a79bfa203ba21ef1caba43673c5b7 ]
+[ Upstream commit e045124e93995fe01e42ed530003ddba5d55db4f ]
 
-High frequency of PCI ioread calls during recovery flow may cause the
-following trace on powerpc:
+In VLAN-unaware mode, the Egress Tag (EG_TAG) field in Port VLAN
+Control register must be set to Consistent to let tagged frames pass
+through as is, otherwise their tags will be stripped.
 
-[ 248.670288] EEH: 2100000 reads ignored for recovering device at
-location=Slot1 driver=mlx5_core pci addr=0000:01:00.1
-[ 248.670331] EEH: Might be infinite loop in mlx5_core driver
-[ 248.670361] CPU: 2 PID: 35247 Comm: kworker/u192:11 Kdump: loaded
-Tainted: G OE ------------ 4.14.0-115.14.1.el7a.ppc64le #1
-[ 248.670425] Workqueue: mlx5_health0000:01:00.1 health_recover_work
-[mlx5_core]
-[ 248.670471] Call Trace:
-[ 248.670492] [c00020391c11b960] [c000000000c217ac] dump_stack+0xb0/0xf4
-(unreliable)
-[ 248.670548] [c00020391c11b9a0] [c000000000045818]
-eeh_check_failure+0x5c8/0x630
-[ 248.670631] [c00020391c11ba50] [c00000000068fce4]
-ioread32be+0x114/0x1c0
-[ 248.670692] [c00020391c11bac0] [c00800000dd8b400]
-mlx5_error_sw_reset+0x160/0x510 [mlx5_core]
-[ 248.670752] [c00020391c11bb60] [c00800000dd75824]
-mlx5_disable_device+0x34/0x1d0 [mlx5_core]
-[ 248.670822] [c00020391c11bbe0] [c00800000dd8affc]
-health_recover_work+0x11c/0x3c0 [mlx5_core]
-[ 248.670891] [c00020391c11bc80] [c000000000164fcc]
-process_one_work+0x1bc/0x5f0
-[ 248.670955] [c00020391c11bd20] [c000000000167f8c]
-worker_thread+0xac/0x6b0
-[ 248.671015] [c00020391c11bdc0] [c000000000171618] kthread+0x168/0x1b0
-[ 248.671067] [c00020391c11be30] [c00000000000b65c]
-ret_from_kernel_thread+0x5c/0x80
-
-Reduce the PCI ioread frequency during recovery by using msleep()
-instead of cond_resched()
-
-Fixes: 3e5b72ac2f29 ("net/mlx5: Issue SW reset on FW assert")
-Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
-Reviewed-by: Feras Daoud <ferasda@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: 83163f7dca56 ("net: dsa: mediatek: add VLAN support for MT7530")
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: René van Dorst <opensource@vdorst.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/health.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/mt7530.c |   18 ++++++++++++------
+ drivers/net/dsa/mt7530.h |    7 +++++++
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
-@@ -243,7 +243,7 @@ recover_from_sw_reset:
- 		if (mlx5_get_nic_state(dev) == MLX5_NIC_IFC_DISABLED)
- 			break;
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -857,8 +857,9 @@ mt7530_port_set_vlan_unaware(struct dsa_
+ 	 */
+ 	mt7530_rmw(priv, MT7530_PCR_P(port), PCR_PORT_VLAN_MASK,
+ 		   MT7530_PORT_MATRIX_MODE);
+-	mt7530_rmw(priv, MT7530_PVC_P(port), VLAN_ATTR_MASK,
+-		   VLAN_ATTR(MT7530_VLAN_TRANSPARENT));
++	mt7530_rmw(priv, MT7530_PVC_P(port), VLAN_ATTR_MASK | PVC_EG_TAG_MASK,
++		   VLAN_ATTR(MT7530_VLAN_TRANSPARENT) |
++		   PVC_EG_TAG(MT7530_VLAN_EG_CONSISTENT));
  
--		cond_resched();
-+		msleep(20);
- 	} while (!time_after(jiffies, end));
+ 	for (i = 0; i < MT7530_NUM_PORTS; i++) {
+ 		if (dsa_is_user_port(ds, i) &&
+@@ -874,8 +875,8 @@ mt7530_port_set_vlan_unaware(struct dsa_
+ 	if (all_user_ports_removed) {
+ 		mt7530_write(priv, MT7530_PCR_P(MT7530_CPU_PORT),
+ 			     PCR_MATRIX(dsa_user_ports(priv->ds)));
+-		mt7530_write(priv, MT7530_PVC_P(MT7530_CPU_PORT),
+-			     PORT_SPEC_TAG);
++		mt7530_write(priv, MT7530_PVC_P(MT7530_CPU_PORT), PORT_SPEC_TAG
++			     | PVC_EG_TAG(MT7530_VLAN_EG_CONSISTENT));
+ 	}
+ }
  
- 	if (mlx5_get_nic_state(dev) != MLX5_NIC_IFC_DISABLED) {
+@@ -901,8 +902,9 @@ mt7530_port_set_vlan_aware(struct dsa_sw
+ 	/* Set the port as a user port which is to be able to recognize VID
+ 	 * from incoming packets before fetching entry within the VLAN table.
+ 	 */
+-	mt7530_rmw(priv, MT7530_PVC_P(port), VLAN_ATTR_MASK,
+-		   VLAN_ATTR(MT7530_VLAN_USER));
++	mt7530_rmw(priv, MT7530_PVC_P(port), VLAN_ATTR_MASK | PVC_EG_TAG_MASK,
++		   VLAN_ATTR(MT7530_VLAN_USER) |
++		   PVC_EG_TAG(MT7530_VLAN_EG_DISABLED));
+ }
+ 
+ static void
+@@ -1333,6 +1335,10 @@ mt7530_setup(struct dsa_switch *ds)
+ 			mt7530_cpu_port_enable(priv, i);
+ 		else
+ 			mt7530_port_disable(ds, i);
++
++		/* Enable consistent egress tag */
++		mt7530_rmw(priv, MT7530_PVC_P(i), PVC_EG_TAG_MASK,
++			   PVC_EG_TAG(MT7530_VLAN_EG_CONSISTENT));
+ 	}
+ 
+ 	/* Setup port 5 */
+--- a/drivers/net/dsa/mt7530.h
++++ b/drivers/net/dsa/mt7530.h
+@@ -167,9 +167,16 @@ enum mt7530_port_mode {
+ /* Register for port vlan control */
+ #define MT7530_PVC_P(x)			(0x2010 + ((x) * 0x100))
+ #define  PORT_SPEC_TAG			BIT(5)
++#define  PVC_EG_TAG(x)			(((x) & 0x7) << 8)
++#define  PVC_EG_TAG_MASK		PVC_EG_TAG(7)
+ #define  VLAN_ATTR(x)			(((x) & 0x3) << 6)
+ #define  VLAN_ATTR_MASK			VLAN_ATTR(3)
+ 
++enum mt7530_vlan_port_eg_tag {
++	MT7530_VLAN_EG_DISABLED = 0,
++	MT7530_VLAN_EG_CONSISTENT = 1,
++};
++
+ enum mt7530_vlan_port_attr {
+ 	MT7530_VLAN_USER = 0,
+ 	MT7530_VLAN_TRANSPARENT = 3,
 
 
