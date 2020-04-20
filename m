@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8E561B0BC4
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29ACF1B0990
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727095AbgDTMm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:42:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36234 "EHLO mail.kernel.org"
+        id S1726981AbgDTMkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:40:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728294AbgDTMm5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:42:57 -0400
+        id S1727007AbgDTMkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:40:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 550712072B;
-        Mon, 20 Apr 2020 12:42:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DC96206D4;
+        Mon, 20 Apr 2020 12:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386575;
-        bh=otd2QZ8LurhFqBTT0j5u25PASA7bqvPKOXhJaz2Pir8=;
+        s=default; t=1587386412;
+        bh=9cG006k3LbqtUOh3C3GQ/cY8hx5/Uc58zO0Ys8/zvsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=snvMmV5TtUs0XM4OIrInTXiWw3v2SjT0eDar6QDlAQEddRFUvFSMTW6QAuOgx/y9i
-         JhnnQrYPgpFN+JXe8EHF433P743NuUqCeFZOhiuiz06RHGqnTGx2oVHnX4pG0QfbSh
-         Sb7yxgG5yi2MDWwNMq0Y521vClRYZ3Ju7bCgcvSQ=
+        b=nrLiEjw7FRBXowl2zyeoDTC6f0sXnKLOJCtcDTAQv1kGMqhr7nPuJvEZEWfqs+Duy
+         iDPPdF68SD8jPa7QTIheUZIUTZk/PwPX++vFljbbC2ytLqu5PhWq+3P1/zZ7bZq3RK
+         hL7eU3CgfPBT2pMAj3rDALsP/vnnJWJ2WA4NZMFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michael=20Wei=C3=9F?= <michael.weiss@aisec.fraunhofer.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 03/71] l2tp: Allow management of tunnels and session in user namespace
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Feras Daoud <ferasda@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.5 13/65] net/mlx5: Fix frequent ioread PCI access during recovery
 Date:   Mon, 20 Apr 2020 14:38:17 +0200
-Message-Id: <20200420121509.093352831@linuxfoundation.org>
+Message-Id: <20200420121509.188216905@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
+References: <20200420121505.909671922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,95 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Michael Weiﬂ" <michael.weiss@aisec.fraunhofer.de>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit 2abe05234f2e892728c388169631e4b99f354c86 ]
+[ Upstream commit 8c702a53bb0a79bfa203ba21ef1caba43673c5b7 ]
 
-Creation and management of L2TPv3 tunnels and session through netlink
-requires CAP_NET_ADMIN. However, a process with CAP_NET_ADMIN in a
-non-initial user namespace gets an EPERM due to the use of the
-genetlink GENL_ADMIN_PERM flag. Thus, management of L2TP VPNs inside
-an unprivileged container won't work.
+High frequency of PCI ioread calls during recovery flow may cause the
+following trace on powerpc:
 
-We replaced the GENL_ADMIN_PERM by the GENL_UNS_ADMIN_PERM flag
-similar to other network modules which also had this problem, e.g.,
-openvswitch (commit 4a92602aa1cd "openvswitch: allow management from
-inside user namespaces") and nl80211 (commit 5617c6cd6f844 "nl80211:
-Allow privileged operations from user namespaces").
+[ 248.670288] EEH: 2100000 reads ignored for recovering device at
+location=Slot1 driver=mlx5_core pci addr=0000:01:00.1
+[ 248.670331] EEH: Might be infinite loop in mlx5_core driver
+[ 248.670361] CPU: 2 PID: 35247 Comm: kworker/u192:11 Kdump: loaded
+Tainted: G OE ------------ 4.14.0-115.14.1.el7a.ppc64le #1
+[ 248.670425] Workqueue: mlx5_health0000:01:00.1 health_recover_work
+[mlx5_core]
+[ 248.670471] Call Trace:
+[ 248.670492] [c00020391c11b960] [c000000000c217ac] dump_stack+0xb0/0xf4
+(unreliable)
+[ 248.670548] [c00020391c11b9a0] [c000000000045818]
+eeh_check_failure+0x5c8/0x630
+[ 248.670631] [c00020391c11ba50] [c00000000068fce4]
+ioread32be+0x114/0x1c0
+[ 248.670692] [c00020391c11bac0] [c00800000dd8b400]
+mlx5_error_sw_reset+0x160/0x510 [mlx5_core]
+[ 248.670752] [c00020391c11bb60] [c00800000dd75824]
+mlx5_disable_device+0x34/0x1d0 [mlx5_core]
+[ 248.670822] [c00020391c11bbe0] [c00800000dd8affc]
+health_recover_work+0x11c/0x3c0 [mlx5_core]
+[ 248.670891] [c00020391c11bc80] [c000000000164fcc]
+process_one_work+0x1bc/0x5f0
+[ 248.670955] [c00020391c11bd20] [c000000000167f8c]
+worker_thread+0xac/0x6b0
+[ 248.671015] [c00020391c11bdc0] [c000000000171618] kthread+0x168/0x1b0
+[ 248.671067] [c00020391c11be30] [c00000000000b65c]
+ret_from_kernel_thread+0x5c/0x80
 
-I tested this in the container runtime trustm3 (trustm3.github.io)
-and was able to create l2tp tunnels and sessions in unpriviliged
-(user namespaced) containers using a private network namespace.
-For other runtimes such as docker or lxc this should work, too.
+Reduce the PCI ioread frequency during recovery by using msleep()
+instead of cond_resched()
 
-Signed-off-by: Michael Wei√ü <michael.weiss@aisec.fraunhofer.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3e5b72ac2f29 ("net/mlx5: Issue SW reset on FW assert")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Reviewed-by: Feras Daoud <ferasda@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/l2tp/l2tp_netlink.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/health.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/l2tp/l2tp_netlink.c
-+++ b/net/l2tp/l2tp_netlink.c
-@@ -920,51 +920,51 @@ static const struct genl_ops l2tp_nl_ops
- 		.cmd = L2TP_CMD_TUNNEL_CREATE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_tunnel_create,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_TUNNEL_DELETE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_tunnel_delete,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_TUNNEL_MODIFY,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_tunnel_modify,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_TUNNEL_GET,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_tunnel_get,
- 		.dumpit = l2tp_nl_cmd_tunnel_dump,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_SESSION_CREATE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_session_create,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_SESSION_DELETE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_session_delete,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_SESSION_MODIFY,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_session_modify,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- 	{
- 		.cmd = L2TP_CMD_SESSION_GET,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
- 		.doit = l2tp_nl_cmd_session_get,
- 		.dumpit = l2tp_nl_cmd_session_dump,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 	},
- };
+--- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
+@@ -243,7 +243,7 @@ recover_from_sw_reset:
+ 		if (mlx5_get_nic_state(dev) == MLX5_NIC_IFC_DISABLED)
+ 			break;
  
+-		cond_resched();
++		msleep(20);
+ 	} while (!time_after(jiffies, end));
+ 
+ 	if (mlx5_get_nic_state(dev) != MLX5_NIC_IFC_DISABLED) {
 
 
