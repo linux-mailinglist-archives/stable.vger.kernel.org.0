@@ -2,50 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A88E01B1879
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 23:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42E5E1B18BF
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 23:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726491AbgDTVb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 17:31:27 -0400
-Received: from gfdefer007.mail.goo.jp ([153.149.229.140]:59858 "EHLO
-        gfdefer007.mail.goo.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726017AbgDTVb1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 17:31:27 -0400
-X-Greylist: delayed 366 seconds by postgrey-1.27 at vger.kernel.org; Mon, 20 Apr 2020 17:31:26 EDT
-Received: from gogw0326.mail.goo.jp (gogw0326.mail.goo.jp [153.153.64.27])
-        by gfdefer007.mail.goo.jp (Postfix) with ESMTP id 95361700522
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 06:25:19 +0900 (JST)
-Received: from mas-vc-mts-101c1.ocn.ad.jp (mas-vc-mts-101c1.ocn.ad.jp [153.153.66.90])
-        by gogw0326.mail.goo.jp (Postfix) with ESMTP id EA475900531;
-        Tue, 21 Apr 2020 06:25:16 +0900 (JST)
-Received: from vcwebmail.mail.goo.jp ([153.149.140.98])
-        by mas-vc-mts-101c1.ocn.ad.jp with ESMTP
-        id QduljORwJ0aWoQduljmqhS; Tue, 21 Apr 2020 06:25:16 +0900
-Received: from md-app-cb005.noc-chibaminato.ocn.ad.jp (md-app-cb005.ocn.ad.jp [153.138.211.201])
-        by vcwebmail.mail.goo.jp (Postfix) with ESMTP;
-        Tue, 21 Apr 2020 06:25:15 +0900 (JST)
-Content-Type: text/plain; charset="us-ascii"
+        id S1726494AbgDTVsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 17:48:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34466 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725989AbgDTVsX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Apr 2020 17:48:23 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22F5AC061A0C
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 14:48:23 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id r14so5613586pfg.2
+        for <stable@vger.kernel.org>; Mon, 20 Apr 2020 14:48:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=9PSeaCNEoRkhPddRhybZ7T70UkYpYW1yuGG6pA7+X3g=;
+        b=tIbR6e1H6tAPrfC87aVdEk2lUZBAcFArRHn5xIintgL3KNGwwKxn7KLYlt/mnZ9wte
+         MiYv71KH/o9oAKc9oNsjHnvq0MT48557FCBJImYjqa8wCXm8EW7lOMnvnB87TzUZX2Eh
+         GdGLi5pg+aUmfBx8V2o84t0U3hQJL9TrvR2xB27vlmHABtTolLbfP2H15hwDBKfpYH3U
+         VUNnPbSX5JVNZnjMOSU9BdzaI6nHSYYvTublAiS6PeE2Q5md1/8xphc7qKBVjPhd+sPn
+         livm5+k1Fj4G9yUlo5p6JSYa2VY1zYrr+558XwSRD1ZD52ODlaK4uIkRZh46VJJKVfMA
+         sXTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=9PSeaCNEoRkhPddRhybZ7T70UkYpYW1yuGG6pA7+X3g=;
+        b=Ha8mugzsT1GnTuh7Ec7jI8b6/FCY0aICPg9RRzd2w1aLt/kXCVrpIMq1bXtWmVuRzs
+         /6E1JJMRz/eyo2wk66jT/RkjzB1KA090d5KQ1a/5/+5NwGhvG44ZVfg2BynZi4QOOn7s
+         GXgj9s/LYHKnRzQQok1ZUHfYwHv3zywqynIMzRTj8UDW9ou9BrJnzn9c8ES8yC3fUlLq
+         XYm64+WBIAPW+3m1DDPQkG+USysC3cx2OrW2oRA1T+1N1KLickig8lCe9K6NFTtGghgo
+         TkzrvKDF/xgYElgzT8l3qJvWPumUuYvmuDe6JtyK5n+MVfV3LXToJZiYvmAwtNTXjluH
+         Xy2Q==
+X-Gm-Message-State: AGi0PuYnS52fJNjHFnbrn5hWeCDLa4iJgc0KXVEExKOl95bKy6UxOp/Z
+        fNYx21XqaWS3m5r5dk1U708IP28ZbFQ=
+X-Google-Smtp-Source: APiQypI1EEWUlLIEvnVyYthUBxJcf+VrWXKaCRK8srtFRFarJbnPXoYohbfy96ytpH48TvMsTjr7oQ==
+X-Received: by 2002:aa7:97a6:: with SMTP id d6mr18495280pfq.92.1587419302063;
+        Mon, 20 Apr 2020 14:48:22 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g25sm440449pfo.150.2020.04.20.14.48.20
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Apr 2020 14:48:20 -0700 (PDT)
+Message-ID: <5e9e18a4.1c69fb81.1ffe1.1b0d@mx.google.com>
+Date:   Mon, 20 Apr 2020 14:48:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-To:     undisclosed-recipients:;
-Subject: Greetings
-From:   Erik C Gonzalez <hanahana_87310_happ@mail.goo.ne.jp>
-Reply-To: Erik C Gonzalez <capt.gonzalezerik44@gmail.com>
-Message-ID: <158741791404.25987.17289460248761231928@mail.goo.ne.jp>
-X-Originating-IP: [162.246.16.38]
-Date:   Tue, 21 Apr 2020 06:25:15 +0900
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.219-84-gd7b7a33b0609
+Subject: stable-rc/linux-4.9.y boot: 103 boots: 1 failed,
+ 92 passed with 5 offline, 5 untried/unknown (v4.9.219-84-gd7b7a33b0609)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
+stable-rc/linux-4.9.y boot: 103 boots: 1 failed, 92 passed with 5 offline, =
+5 untried/unknown (v4.9.219-84-gd7b7a33b0609)
 
-I am a captain with the United Nations troop in Iraq, on war against terrorism.in Iraq Based on the United States legislative and executive decision for withdrawing troops from Iraq this year, I want to know if you can help me handle an in investment, I want to invest on real estate and properties or any lucrative business you have an idea of handling well.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.219-84-gd7b7a33b0609/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.219-84-gd7b7a33b0609/
 
-On the other hand I want to inform you that I have in my possession the sum of 18.2 Million USD which I got from crude oil deal here in Iraq.
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.219-84-gd7b7a33b0609
+Git Commit: d7b7a33b0609424e2b4fe31199b4ee6e570f504c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 56 unique boards, 18 SoC families, 18 builds out of 197
 
-I have already secretly moved this fund out of Iraq to a Bank in Europe. This is a deal. But the question is can i trust you when the funds get to you? You will take your 30% for the assistance and keep the remaining for me in a safe custody which i will use to buy property in ur country.
+Boot Regressions Detected:
 
-Wait Your Reply
-Capt.Erik C. Gonzalez
+arm:
+
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v4.9.219-79-ge4=
+f3ca7a34da)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.9.219-79-ge4=
+f3ca7a34da)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 72 days (last pass: v4.9.=
+213 - first fail: v4.9.213-37-g860ec95da9ad)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.9.219-79-ge4f3ca7a3=
+4da)
+
+Boot Failure Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
