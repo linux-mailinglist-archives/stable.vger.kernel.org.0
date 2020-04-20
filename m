@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B26CB1B09A8
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 812951B0B9A
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727906AbgDTMlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:41:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33486 "EHLO mail.kernel.org"
+        id S1729739AbgDTM4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727900AbgDTMlA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:41:00 -0400
+        id S1728620AbgDTMoy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:44:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27C692070B;
-        Mon, 20 Apr 2020 12:40:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D04BE2072B;
+        Mon, 20 Apr 2020 12:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386459;
-        bh=7s/A5hB/WqsWQ7FK9LN4e5tX6UbcmxnCAt7FXh9RG5o=;
+        s=default; t=1587386694;
+        bh=Hu8tgyiUBh7gWxY1nr8Tvf+Nyv6VuHNif6h6Bv101GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b0bwdGr4xkE2AcrqtJZe6ZW5B1OBMXwDSa4QAJbayJ1BgvfBSn01e+NrRnNHvmjJA
-         AyBDQAHAfYedHMNR+R7X89AwaGkieltAZL6NdBG2VZauAT64IvB+dMLSu9hVRyTSqh
-         ScemR3rHee1bejBwLj/LlJD2lN7LAtmh/xWobUiQ=
+        b=oHSRENdMkJ5I/ZT4D0wv/rAAXjUrtTfbRWWNpBNLAvx9qCZFQ9ERMNmQKB9feJd1C
+         SB8yNNe5LBl/msiWR162FOxaPeLT1h7KloqvdqOxlHinGy0S1OlgMX2W+nMWOCVrg8
+         u/+x6bmP+9wi0h5yxoMtF/MOBn+jo/ecVGkrZ6S0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Triplett <josh@joshtriplett.org>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.5 30/65] ext4: fix incorrect group count in ext4_fill_super error message
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 20/71] net: stmmac: dwmac-sunxi: Provide TX and RX fifo sizes
 Date:   Mon, 20 Apr 2020 14:38:34 +0200
-Message-Id: <20200420121512.738810587@linuxfoundation.org>
+Message-Id: <20200420121512.402748252@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
-References: <20200420121505.909671922@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Triplett <josh@joshtriplett.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit df41460a21b06a76437af040d90ccee03888e8e5 upstream.
+[ Upstream commit 806fd188ce2a4f8b587e83e73c478e6484fbfa55 ]
 
-ext4_fill_super doublechecks the number of groups before mounting; if
-that check fails, the resulting error message prints the group count
-from the ext4_sb_info sbi, which hasn't been set yet. Print the freshly
-computed group count instead (which at that point has just been computed
-in "blocks_count").
+After commit bfcb813203e619a8960a819bf533ad2a108d8105 ("net: dsa:
+configure the MTU for switch ports") my Lamobo R1 platform which uses
+an allwinner,sun7i-a20-gmac compatible Ethernet MAC started to fail
+by rejecting a MTU of 1536. The reason for that is that the DMA
+capabilities are not readable on this version of the IP, and there
+is also no 'tx-fifo-depth' property being provided in Device Tree. The
+property is documented as optional, and is not provided.
 
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-Fixes: 4ec1102813798 ("ext4: Add sanity checks for the superblock before mounting the filesystem")
-Link: https://lore.kernel.org/r/8b957cd1513fcc4550fe675c10bcce2175c33a49.1585431964.git.josh@joshtriplett.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Chen-Yu indicated that the FIFO sizes are 4KB for TX and 16KB for RX, so
+provide these values through platform data as an immediate fix until
+various Device Tree sources get updated accordingly.
+
+Fixes: eaf4fac47807 ("net: stmmac: Do not accept invalid MTU values")
+Suggested-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/ext4/super.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4241,9 +4241,9 @@ static int ext4_fill_super(struct super_
- 			EXT4_BLOCKS_PER_GROUP(sb) - 1);
- 	do_div(blocks_count, EXT4_BLOCKS_PER_GROUP(sb));
- 	if (blocks_count > ((uint64_t)1<<32) - EXT4_DESC_PER_BLOCK(sb)) {
--		ext4_msg(sb, KERN_WARNING, "groups count too large: %u "
-+		ext4_msg(sb, KERN_WARNING, "groups count too large: %llu "
- 		       "(block count %llu, first data block %u, "
--		       "blocks per group %lu)", sbi->s_groups_count,
-+		       "blocks per group %lu)", blocks_count,
- 		       ext4_blocks_count(es),
- 		       le32_to_cpu(es->s_first_data_block),
- 		       EXT4_BLOCKS_PER_GROUP(sb));
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
+@@ -150,6 +150,8 @@ static int sun7i_gmac_probe(struct platf
+ 	plat_dat->init = sun7i_gmac_init;
+ 	plat_dat->exit = sun7i_gmac_exit;
+ 	plat_dat->fix_mac_speed = sun7i_fix_speed;
++	plat_dat->tx_fifo_size = 4096;
++	plat_dat->rx_fifo_size = 16384;
+ 
+ 	ret = sun7i_gmac_init(pdev, plat_dat->bsp_priv);
+ 	if (ret)
 
 
