@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5800A1B0AB7
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 539571B0AE4
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729033AbgDTMuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:50:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
+        id S1729170AbgDTMr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:47:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729453AbgDTMth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:49:37 -0400
+        id S1729166AbgDTMr6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:47:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A614720735;
-        Mon, 20 Apr 2020 12:49:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D17920735;
+        Mon, 20 Apr 2020 12:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386977;
-        bh=fhMCzs+5oAeNDilCXNjN57Y84x/pplV7/I0kKxgTNjk=;
+        s=default; t=1587386877;
+        bh=tb3CnhTugsxZ6NffsdRP741CxsICEx1/rAvamSN6nAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOZSa0T3YmSy5xosrJL/HiCYa4N6Bm7pwm8fgu9rwcb1yLt6ehfuqLA3NBVT0bsVf
-         7xo0ypnjarUwlmZDLyUJi/G2EyXPejPDDBUPf+CkiAOUjk6ON7x++qVR7ZTiNT8tj9
-         TTsY14fkXVihcm7R/MjgzJ37TPtZ5OWioupD+eV0=
+        b=OKsFVnDSqCpgxmsMTB1yKuOIx4+YZOraTs4kbuGd9mtYHIzfzEHF48fsEfU0kTFDL
+         enMTO3mdw6/h1nLbsfKST0HdNWV12D59X3CV7LDCwKXRIpWZg2Axuf3tEyuL3Coj4M
+         /qWeoY9Jk7XFn8noueRZ8VFKUsuqEuoj4kgmVcPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 16/40] ASoC: Intel: mrfld: return error codes when an error occurs
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 48/60] net/mlx5e: Encapsulate updating netdev queues into a function
 Date:   Mon, 20 Apr 2020 14:39:26 +0200
-Message-Id: <20200420121458.268430959@linuxfoundation.org>
+Message-Id: <20200420121513.432501744@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
-References: <20200420121444.178150063@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-commit 3025571edd9df653e1ad649f0638368a39d1bbb5 upstream.
+[ Upstream commit c2c95271f9f39ea9b34db2301b3b6c5105cdb447 ]
 
-Currently function sst_platform_get_resources always returns zero and
-error return codes set by the function are never returned. Fix this
-by returning the error return code in variable ret rather than the
-hard coded zero.
+As a preparation for one of the following commits, create a function to
+encapsulate the code that notifies the kernel about the new amount of
+RX and TX queues. The code will be called multiple times in the next
+commit.
 
-Addresses-Coverity: ("Unused value")
-Fixes: f533a035e4da ("ASoC: Intel: mrfld - create separate module for pci part")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200208220720.36657-1-colin.king@canonical.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/atom/sst/sst_pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/mellanox/mlx5/core/en_main.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
---- a/sound/soc/intel/atom/sst/sst_pci.c
-+++ b/sound/soc/intel/atom/sst/sst_pci.c
-@@ -107,7 +107,7 @@ static int sst_platform_get_resources(st
- 	dev_dbg(ctx->dev, "DRAM Ptr %p\n", ctx->dram);
- do_release_regions:
- 	pci_release_regions(pci);
--	return 0;
-+	return ret;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index ee7c753e9ea04..dc456a222c48d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -2897,6 +2897,17 @@ static void mlx5e_netdev_set_tcs(struct net_device *netdev)
+ 		netdev_set_tc_queue(netdev, tc, nch, 0);
  }
  
- /*
++static void mlx5e_update_netdev_queues(struct mlx5e_priv *priv)
++{
++	int num_txqs = priv->channels.num * priv->channels.params.num_tc;
++	int num_rxqs = priv->channels.num * priv->profile->rq_groups;
++	struct net_device *netdev = priv->netdev;
++
++	mlx5e_netdev_set_tcs(netdev);
++	netif_set_real_num_tx_queues(netdev, num_txqs);
++	netif_set_real_num_rx_queues(netdev, num_rxqs);
++}
++
+ static void mlx5e_build_txq_maps(struct mlx5e_priv *priv)
+ {
+ 	int i, ch;
+@@ -2918,13 +2929,7 @@ static void mlx5e_build_txq_maps(struct mlx5e_priv *priv)
+ 
+ void mlx5e_activate_priv_channels(struct mlx5e_priv *priv)
+ {
+-	int num_txqs = priv->channels.num * priv->channels.params.num_tc;
+-	int num_rxqs = priv->channels.num * priv->profile->rq_groups;
+-	struct net_device *netdev = priv->netdev;
+-
+-	mlx5e_netdev_set_tcs(netdev);
+-	netif_set_real_num_tx_queues(netdev, num_txqs);
+-	netif_set_real_num_rx_queues(netdev, num_rxqs);
++	mlx5e_update_netdev_queues(priv);
+ 
+ 	mlx5e_build_txq_maps(priv);
+ 	mlx5e_activate_channels(&priv->channels);
+-- 
+2.20.1
+
 
 
