@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D84CB1B0A00
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 903F71B0A57
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:48:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728462AbgDTMnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:43:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37624 "EHLO mail.kernel.org"
+        id S1729071AbgDTMrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:47:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728449AbgDTMnv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:43:51 -0400
+        id S1728436AbgDTMrX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:47:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4A842070B;
-        Mon, 20 Apr 2020 12:43:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7AB5206DD;
+        Mon, 20 Apr 2020 12:47:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386630;
-        bh=GP35ms7s6eukRrP35V2qI8Cv1wypBlHoorzFyo/mSfo=;
+        s=default; t=1587386843;
+        bh=33fn3yXMDa+Tc5RNZdD1AuSOPIrelWV2k2G/xTBgVZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IEtvW1Zs0iz6x+9PSJ5pC/1/eFVzsrV3VB2vYC7AAUZ+qoHvastMLUd9T6Vah/ilo
-         1x3x6aiQ9suKoDUTgeFkWoTcfRDmRH+oQW3MQdD8Jy1Q9YSd8AenI5KTNc+XUezBdH
-         EECKixDAL3PKysw89M5m+CAJ+UCgrxNEsg9qwFxU=
+        b=qXB+tzKmhLizJlovnK3DqfwNxOAIDL/B6BBqecvr/zjLK/WbyGBOBf2eZvf/s73CR
+         IthG3mZdfwsth8Xnm1AdUvOLVi8TXYQx6IwY8crG7kq5h9fF74msJOF9d9SoyG7RGj
+         giSVEkB7QpsMoCgkrl5RJZDYQuwC1cYel2i7Es1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.6 34/71] HID: lg-g15: Do not fail the probe when we fail to disable F# emulation
+        stable@vger.kernel.org, Gilberto Bertin <me@jibi.io>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 10/60] net: tun: record RX queue in skb before do_xdp_generic()
 Date:   Mon, 20 Apr 2020 14:38:48 +0200
-Message-Id: <20200420121515.794307788@linuxfoundation.org>
+Message-Id: <20200420121504.321132199@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Gilberto Bertin <me@jibi.io>
 
-commit b8a75eaddae9410767c7d95a1c5f3a547aae7b81 upstream.
+[ Upstream commit 3fe260e00cd0bf0be853c48fcc1e19853df615bb ]
 
-By default the G1-G12 keys on the Logitech gaming keyboards send
-F1 - F12 when in "generic HID" mode.
+This allows netif_receive_generic_xdp() to correctly determine the RX
+queue from which the skb is coming, so that the context passed to the
+XDP program will contain the correct RX queue index.
 
-The first thing the hid-lg-g15 driver does is disable this behavior.
-
-We have received a bugreport that this does not work when the keyboard
-is connected through an Aten KVM switch. Using a gaming keyboard with
-a KVM is a bit weird setup, but still we can try to fail a bit more
-gracefully here.
-
-On the G510 keyboards the same USB-interface which is used for the gaming
-keys is also used for the media-keys. Before this commit we would call
-hid_hw_stop() on failure to disable the F# emulation and then exit the
-probe method with an error code.
-
-This not only causes us to not handle the gaming-keys, but this also
-breaks the media keys which is a regression compared to the situation
-when these keyboards where handled by the generic hidinput driver.
-
-This commit changes the error handling to clear the hiddev drvdata
-(to disable our .raw_event handler) and then returning from the probe
-method with success.
-
-The net result of this is that, when connected through a KVM, things
-work as well as they did before the hid-lg-g15 driver was introduced.
-
-Fixes: ad4203f5a243 ("HID: lg-g15: Add support for the G510 keyboards' gaming keys")
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1806321
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Gilberto Bertin <me@jibi.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/hid/hid-lg-g15.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/tun.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/hid-lg-g15.c
-+++ b/drivers/hid/hid-lg-g15.c
-@@ -803,8 +803,10 @@ static int lg_g15_probe(struct hid_devic
- 	}
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1925,6 +1925,7 @@ drop:
  
- 	if (ret < 0) {
--		hid_err(hdev, "Error disabling keyboard emulation for the G-keys\n");
--		goto error_hw_stop;
-+		hid_err(hdev, "Error %d disabling keyboard emulation for the G-keys, falling back to generic hid-input driver\n",
-+			ret);
-+		hid_set_drvdata(hdev, NULL);
-+		return 0;
- 	}
+ 	skb_reset_network_header(skb);
+ 	skb_probe_transport_header(skb);
++	skb_record_rx_queue(skb, tfile->queue_index);
  
- 	/* Get initial brightness levels */
+ 	if (skb_xdp) {
+ 		struct bpf_prog *xdp_prog;
+@@ -2492,6 +2493,7 @@ build:
+ 	skb->protocol = eth_type_trans(skb, tun->dev);
+ 	skb_reset_network_header(skb);
+ 	skb_probe_transport_header(skb);
++	skb_record_rx_queue(skb, tfile->queue_index);
+ 
+ 	if (skb_xdp) {
+ 		err = do_xdp_generic(xdp_prog, skb);
+@@ -2503,7 +2505,6 @@ build:
+ 	    !tfile->detached)
+ 		rxhash = __skb_get_hash_symmetric(skb);
+ 
+-	skb_record_rx_queue(skb, tfile->queue_index);
+ 	netif_receive_skb(skb);
+ 
+ 	/* No need for get_cpu_ptr() here since this function is
 
 
