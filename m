@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D12741B0BEE
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFFDD1B0B9B
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727917AbgDTMlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:41:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33548 "EHLO mail.kernel.org"
+        id S1729486AbgDTM4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727914AbgDTMlC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:41:02 -0400
+        id S1728623AbgDTMo6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:44:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96C8B20736;
-        Mon, 20 Apr 2020 12:41:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 484612223D;
+        Mon, 20 Apr 2020 12:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386462;
-        bh=dmfp8iJjkzItWWjRKonzZYhBJ02Aif1xYwUp0wvQUfQ=;
+        s=default; t=1587386696;
+        bh=XouSUB2txD38MHiqkRkXVgoIMazlZCnQGpTuJgqMjZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMi8I1HvtK5RqRuYpPA1SfRtp5+vH+jKxUQwHPUrHCvQWgOepN7SECKv/jEpq1owH
-         yedLXnbq/7wxwRepL2ehbcyFIMl02X8MvWKW3CcmN5mAL1iMagF/UHTmohyhi/LHuU
-         KzAC8v6tfJ+MeiEb06iAx/jxGS/02bJgcCmm+TBM=
+        b=GV5PHEqbhqa3gMbCOUKTQCIdOU9ieMUtqgHrAy9KmN2KlDDMR7e9dszamWAE3wUNF
+         WA0kmK3lI8GM9OHAHMeGzFiKibXoXPGw7snN3UdI0jNRHtollN7B2DR3iF2TREpd1I
+         CgqivS8y61FhfEFKDAnQ5RsYOvXUPpFLA72KzXGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.5 31/65] ext4: fix incorrect inodes per group in error message
+        stable@vger.kernel.org,
+        Clemens Gruber <clemens.gruber@pqgruber.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.6 21/71] net: phy: marvell: Fix pause frame negotiation
 Date:   Mon, 20 Apr 2020 14:38:35 +0200
-Message-Id: <20200420121512.931858314@linuxfoundation.org>
+Message-Id: <20200420121512.569348523@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
-References: <20200420121505.909671922@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Triplett <josh@joshtriplett.org>
+From: Clemens Gruber <clemens.gruber@pqgruber.com>
 
-commit b9c538da4e52a7b79dfcf4cfa487c46125066dfb upstream.
+[ Upstream commit 3b72f84f8fb65e83e85e9be58eabcf95a40b8f46 ]
 
-If ext4_fill_super detects an invalid number of inodes per group, the
-resulting error message printed the number of blocks per group, rather
-than the number of inodes per group. Fix it to print the correct value.
+The negotiation of flow control / pause frame modes was broken since
+commit fcf1f59afc67 ("net: phy: marvell: rearrange to use
+genphy_read_lpa()") moved the setting of phydev->duplex below the
+phy_resolve_aneg_pause call. Due to a check of DUPLEX_FULL in that
+function, phydev->pause was no longer set.
 
-Fixes: cd6bb35bf7f6d ("ext4: use more strict checks for inodes_per_block on mount")
-Link: https://lore.kernel.org/r/8be03355983a08e5d4eed480944613454d7e2550.1585434649.git.josh@joshtriplett.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fix it by moving the parsing of the status variable before the blocks
+dealing with the pause frames.
+
+As the Marvell 88E1510 datasheet does not specify the timing between the
+link status and the "Speed and Duplex Resolved" bit, we have to force
+the link down as long as the resolved bit is not set, to avoid reporting
+link up before we even have valid Speed/Duplex.
+
+Tested with a Marvell 88E1510 (RGMII to Copper/1000Base-T)
+
+Fixes: fcf1f59afc67 ("net: phy: marvell: rearrange to use genphy_read_lpa()")
+Signed-off-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/marvell.c |   46 ++++++++++++++++++++++++----------------------
+ 1 file changed, 24 insertions(+), 22 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4112,7 +4112,7 @@ static int ext4_fill_super(struct super_
- 	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
- 	    sbi->s_inodes_per_group > blocksize * 8) {
- 		ext4_msg(sb, KERN_ERR, "invalid inodes per group: %lu\n",
--			 sbi->s_blocks_per_group);
-+			 sbi->s_inodes_per_group);
- 		goto failed_mount;
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -1278,6 +1278,30 @@ static int marvell_read_status_page_an(s
+ 	int lpa;
+ 	int err;
+ 
++	if (!(status & MII_M1011_PHY_STATUS_RESOLVED)) {
++		phydev->link = 0;
++		return 0;
++	}
++
++	if (status & MII_M1011_PHY_STATUS_FULLDUPLEX)
++		phydev->duplex = DUPLEX_FULL;
++	else
++		phydev->duplex = DUPLEX_HALF;
++
++	switch (status & MII_M1011_PHY_STATUS_SPD_MASK) {
++	case MII_M1011_PHY_STATUS_1000:
++		phydev->speed = SPEED_1000;
++		break;
++
++	case MII_M1011_PHY_STATUS_100:
++		phydev->speed = SPEED_100;
++		break;
++
++	default:
++		phydev->speed = SPEED_10;
++		break;
++	}
++
+ 	if (!fiber) {
+ 		err = genphy_read_lpa(phydev);
+ 		if (err < 0)
+@@ -1306,28 +1330,6 @@ static int marvell_read_status_page_an(s
+ 		}
  	}
- 	sbi->s_itb_per_group = sbi->s_inodes_per_group /
+ 
+-	if (!(status & MII_M1011_PHY_STATUS_RESOLVED))
+-		return 0;
+-
+-	if (status & MII_M1011_PHY_STATUS_FULLDUPLEX)
+-		phydev->duplex = DUPLEX_FULL;
+-	else
+-		phydev->duplex = DUPLEX_HALF;
+-
+-	switch (status & MII_M1011_PHY_STATUS_SPD_MASK) {
+-	case MII_M1011_PHY_STATUS_1000:
+-		phydev->speed = SPEED_1000;
+-		break;
+-
+-	case MII_M1011_PHY_STATUS_100:
+-		phydev->speed = SPEED_100;
+-		break;
+-
+-	default:
+-		phydev->speed = SPEED_10;
+-		break;
+-	}
+-
+ 	return 0;
+ }
+ 
 
 
