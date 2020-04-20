@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24F0B1B0B97
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C7D41B0B23
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727886AbgDTMop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:44:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38700 "EHLO mail.kernel.org"
+        id S1729371AbgDTMxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:53:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728606AbgDTMom (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:44:42 -0400
+        id S1728001AbgDTMqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:46:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F6D82072B;
-        Mon, 20 Apr 2020 12:44:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DC9C206E9;
+        Mon, 20 Apr 2020 12:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386682;
-        bh=3w05jCYjIhoDyDncLmt8aY0aq/NFMnH9Bfe0njl5I1E=;
+        s=default; t=1587386794;
+        bh=v8NLptpyVYC24OZAKei+xlXW2y89vKtkcFa3OBOY2gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3bmyavaQYnmDjghg0JXBId9APbPVqTZ3eOl4sfdsIO2zODcjpI89AjkfsEqCBctW
-         TPr9PCbghBOShmJQvgr/Xe0Rb8aXxLCyoYDY3BdsoLNrLNYc3w2LylszLWrzrBq6cl
-         bpcFeeTwqX3ANbUM615fxFvMzTPqAp/jCBF0oZLg=
+        b=LUQ51uT/D9Ms3RSxpMg36MQnMnsK3O2PmBGzijy75BARpmL3R7or9YV3ngeYJYy2y
+         u8XL5F139XgTrOlHMqKuYpoCUjvSNTtGQMSqWOlOcZI0ns3UKD7svHGXUQT/2c42NO
+         xqPFmCzFME9nMge43evEpCcz8MwPda1jp11puseE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.6 53/71] mac80211: fix race in ieee80211_register_hw()
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.4 29/60] clk: at91: sam9x60: fix usb clock parents
 Date:   Mon, 20 Apr 2020 14:39:07 +0200
-Message-Id: <20200420121519.805021247@linuxfoundation.org>
+Message-Id: <20200420121509.214895608@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,149 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Garg <sumit.garg@linaro.org>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit 52e04b4ce5d03775b6a78f3ed1097480faacc9fd upstream.
+commit 43b203d32b77d1b1b2209e22837f49767020553e upstream.
 
-A race condition leading to a kernel crash is observed during invocation
-of ieee80211_register_hw() on a dragonboard410c device having wcn36xx
-driver built as a loadable module along with a wifi manager in user-space
-waiting for a wifi device (wlanX) to be active.
+SAM9X60's USB clock has 3 parents: plla, upll and main_osc.
 
-Sequence diagram for a particular kernel crash scenario:
-
-    user-space  ieee80211_register_hw()  ieee80211_tasklet_handler()
-    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       |                    |                 |
-       |<---phy0----wiphy_register()          |
-       |-----iwd if_add---->|                 |
-       |                    |<---IRQ----(RX packet)
-       |              Kernel crash            |
-       |              due to unallocated      |
-       |              workqueue.              |
-       |                    |                 |
-       |       alloc_ordered_workqueue()      |
-       |                    |                 |
-       |              Misc wiphy init.        |
-       |                    |                 |
-       |            ieee80211_if_add()        |
-       |                    |                 |
-
-As evident from above sequence diagram, this race condition isn't specific
-to a particular wifi driver but rather the initialization sequence in
-ieee80211_register_hw() needs to be fixed. So re-order the initialization
-sequence and the updated sequence diagram would look like:
-
-    user-space  ieee80211_register_hw()  ieee80211_tasklet_handler()
-    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       |                    |                 |
-       |       alloc_ordered_workqueue()      |
-       |                    |                 |
-       |              Misc wiphy init.        |
-       |                    |                 |
-       |<---phy0----wiphy_register()          |
-       |-----iwd if_add---->|                 |
-       |                    |<---IRQ----(RX packet)
-       |                    |                 |
-       |            ieee80211_if_add()        |
-       |                    |                 |
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
-Link: https://lore.kernel.org/r/1586254255-28713-1-git-send-email-sumit.garg@linaro.org
-[Johannes: fix rtnl imbalances]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 01e2113de9a5 ("clk: at91: add sam9x60 pmc driver")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lkml.kernel.org/r/1579261009-4573-3-git-send-email-claudiu.beznea@microchip.com
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/main.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/clk/at91/sam9x60.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/mac80211/main.c
-+++ b/net/mac80211/main.c
-@@ -1051,7 +1051,7 @@ int ieee80211_register_hw(struct ieee802
- 		local->hw.wiphy->signal_type = CFG80211_SIGNAL_TYPE_UNSPEC;
- 		if (hw->max_signal <= 0) {
- 			result = -EINVAL;
--			goto fail_wiphy_register;
-+			goto fail_workqueue;
- 		}
- 	}
+--- a/drivers/clk/at91/sam9x60.c
++++ b/drivers/clk/at91/sam9x60.c
+@@ -237,9 +237,8 @@ static void __init sam9x60_pmc_setup(str
  
-@@ -1113,7 +1113,7 @@ int ieee80211_register_hw(struct ieee802
+ 	parent_names[0] = "pllack";
+ 	parent_names[1] = "upllck";
+-	parent_names[2] = "mainck";
+-	parent_names[3] = "mainck";
+-	hw = sam9x60_clk_register_usb(regmap, "usbck", parent_names, 4);
++	parent_names[2] = "main_osc";
++	hw = sam9x60_clk_register_usb(regmap, "usbck", parent_names, 3);
+ 	if (IS_ERR(hw))
+ 		goto err_free;
  
- 	result = ieee80211_init_cipher_suites(local);
- 	if (result < 0)
--		goto fail_wiphy_register;
-+		goto fail_workqueue;
- 
- 	if (!local->ops->remain_on_channel)
- 		local->hw.wiphy->max_remain_on_channel_duration = 5000;
-@@ -1139,10 +1139,6 @@ int ieee80211_register_hw(struct ieee802
- 
- 	local->hw.wiphy->max_num_csa_counters = IEEE80211_MAX_CSA_COUNTERS_NUM;
- 
--	result = wiphy_register(local->hw.wiphy);
--	if (result < 0)
--		goto fail_wiphy_register;
--
- 	/*
- 	 * We use the number of queues for feature tests (QoS, HT) internally
- 	 * so restrict them appropriately.
-@@ -1198,9 +1194,9 @@ int ieee80211_register_hw(struct ieee802
- 		goto fail_flows;
- 
- 	rtnl_lock();
--
- 	result = ieee80211_init_rate_ctrl_alg(local,
- 					      hw->rate_control_algorithm);
-+	rtnl_unlock();
- 	if (result < 0) {
- 		wiphy_debug(local->hw.wiphy,
- 			    "Failed to initialize rate control algorithm\n");
-@@ -1254,6 +1250,12 @@ int ieee80211_register_hw(struct ieee802
- 		local->sband_allocated |= BIT(band);
- 	}
- 
-+	result = wiphy_register(local->hw.wiphy);
-+	if (result < 0)
-+		goto fail_wiphy_register;
-+
-+	rtnl_lock();
-+
- 	/* add one default STA interface if supported */
- 	if (local->hw.wiphy->interface_modes & BIT(NL80211_IFTYPE_STATION) &&
- 	    !ieee80211_hw_check(hw, NO_AUTO_VIF)) {
-@@ -1293,17 +1295,17 @@ int ieee80211_register_hw(struct ieee802
- #if defined(CONFIG_INET) || defined(CONFIG_IPV6)
-  fail_ifa:
- #endif
-+	wiphy_unregister(local->hw.wiphy);
-+ fail_wiphy_register:
- 	rtnl_lock();
- 	rate_control_deinitialize(local);
- 	ieee80211_remove_interfaces(local);
-- fail_rate:
- 	rtnl_unlock();
-+ fail_rate:
-  fail_flows:
- 	ieee80211_led_exit(local);
- 	destroy_workqueue(local->workqueue);
-  fail_workqueue:
--	wiphy_unregister(local->hw.wiphy);
-- fail_wiphy_register:
- 	if (local->wiphy_ciphers_allocated)
- 		kfree(local->hw.wiphy->cipher_suites);
- 	kfree(local->int_scan_req);
-@@ -1353,8 +1355,8 @@ void ieee80211_unregister_hw(struct ieee
- 	skb_queue_purge(&local->skb_queue_unreliable);
- 	skb_queue_purge(&local->skb_queue_tdls_chsw);
- 
--	destroy_workqueue(local->workqueue);
- 	wiphy_unregister(local->hw.wiphy);
-+	destroy_workqueue(local->workqueue);
- 	ieee80211_led_exit(local);
- 	kfree(local->int_scan_req);
- }
 
 
