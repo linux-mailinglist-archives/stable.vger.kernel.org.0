@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FCBC1B0BC9
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24F0B1B0B97
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:57:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728191AbgDTMmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:42:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35286 "EHLO mail.kernel.org"
+        id S1727886AbgDTMop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:44:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728185AbgDTMmT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:42:19 -0400
+        id S1728606AbgDTMom (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:44:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 160482070B;
-        Mon, 20 Apr 2020 12:42:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F6D82072B;
+        Mon, 20 Apr 2020 12:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386538;
-        bh=/6Zk/WfSEcta6ObKXtkziK3NKWfi7EYrd+xW2/jWKoM=;
+        s=default; t=1587386682;
+        bh=3w05jCYjIhoDyDncLmt8aY0aq/NFMnH9Bfe0njl5I1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WEcTFsuwLE0zG4Urnvhp5kHYLHDy3RyZ6s/IjzG+ydgrTRe4B0XE88+lQiqQorgzu
-         3fZqikUVf153E1+rtjdvYYdrMmdnu0pY4wZClWx/57BKFD2kHUGrnZFyzQspZ5n+Uz
-         A5Y0UyQZCHGKR2G6iun9oL+tXu8e6L7VjMmqLVjA=
+        b=V3bmyavaQYnmDjghg0JXBId9APbPVqTZ3eOl4sfdsIO2zODcjpI89AjkfsEqCBctW
+         TPr9PCbghBOShmJQvgr/Xe0Rb8aXxLCyoYDY3BdsoLNrLNYc3w2LylszLWrzrBq6cl
+         bpcFeeTwqX3ANbUM615fxFvMzTPqAp/jCBF0oZLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rahul Kundu <rahul.kundu@chelsio.com>,
-        Maurizio Lombardi <mlombard@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 63/65] scsi: target: remove boilerplate code
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.6 53/71] mac80211: fix race in ieee80211_register_hw()
 Date:   Mon, 20 Apr 2020 14:39:07 +0200
-Message-Id: <20200420121520.027764023@linuxfoundation.org>
+Message-Id: <20200420121519.805021247@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
-References: <20200420121505.909671922@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,101 +43,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Sumit Garg <sumit.garg@linaro.org>
 
-[ Upstream commit e49a7d994379278d3353d7ffc7994672752fb0ad ]
+commit 52e04b4ce5d03775b6a78f3ed1097480faacc9fd upstream.
 
-iscsit_free_session() is equivalent to iscsit_stop_session() followed by a
-call to iscsit_close_session().
+A race condition leading to a kernel crash is observed during invocation
+of ieee80211_register_hw() on a dragonboard410c device having wcn36xx
+driver built as a loadable module along with a wifi manager in user-space
+waiting for a wifi device (wlanX) to be active.
 
-Link: https://lore.kernel.org/r/20200313170656.9716-2-mlombard@redhat.com
-Tested-by: Rahul Kundu <rahul.kundu@chelsio.com>
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Sequence diagram for a particular kernel crash scenario:
+
+    user-space  ieee80211_register_hw()  ieee80211_tasklet_handler()
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       |                    |                 |
+       |<---phy0----wiphy_register()          |
+       |-----iwd if_add---->|                 |
+       |                    |<---IRQ----(RX packet)
+       |              Kernel crash            |
+       |              due to unallocated      |
+       |              workqueue.              |
+       |                    |                 |
+       |       alloc_ordered_workqueue()      |
+       |                    |                 |
+       |              Misc wiphy init.        |
+       |                    |                 |
+       |            ieee80211_if_add()        |
+       |                    |                 |
+
+As evident from above sequence diagram, this race condition isn't specific
+to a particular wifi driver but rather the initialization sequence in
+ieee80211_register_hw() needs to be fixed. So re-order the initialization
+sequence and the updated sequence diagram would look like:
+
+    user-space  ieee80211_register_hw()  ieee80211_tasklet_handler()
+    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       |                    |                 |
+       |       alloc_ordered_workqueue()      |
+       |                    |                 |
+       |              Misc wiphy init.        |
+       |                    |                 |
+       |<---phy0----wiphy_register()          |
+       |-----iwd if_add---->|                 |
+       |                    |<---IRQ----(RX packet)
+       |                    |                 |
+       |            ieee80211_if_add()        |
+       |                    |                 |
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+Link: https://lore.kernel.org/r/1586254255-28713-1-git-send-email-sumit.garg@linaro.org
+[Johannes: fix rtnl imbalances]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/target/iscsi/iscsi_target.c | 46 ++---------------------------
- drivers/target/iscsi/iscsi_target.h |  1 -
- 2 files changed, 2 insertions(+), 45 deletions(-)
+ net/mac80211/main.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target.c b/drivers/target/iscsi/iscsi_target.c
-index 09e55ea0bf5d5..ff85666d4e029 100644
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -4567,49 +4567,6 @@ void iscsit_fail_session(struct iscsi_session *sess)
- 	sess->session_state = TARG_SESS_STATE_FAILED;
- }
- 
--int iscsit_free_session(struct iscsi_session *sess)
--{
--	u16 conn_count = atomic_read(&sess->nconn);
--	struct iscsi_conn *conn, *conn_tmp = NULL;
--	int is_last;
--
--	spin_lock_bh(&sess->conn_lock);
--	atomic_set(&sess->sleep_on_sess_wait_comp, 1);
--
--	list_for_each_entry_safe(conn, conn_tmp, &sess->sess_conn_list,
--			conn_list) {
--		if (conn_count == 0)
--			break;
--
--		if (list_is_last(&conn->conn_list, &sess->sess_conn_list)) {
--			is_last = 1;
--		} else {
--			iscsit_inc_conn_usage_count(conn_tmp);
--			is_last = 0;
--		}
--		iscsit_inc_conn_usage_count(conn);
--
--		spin_unlock_bh(&sess->conn_lock);
--		iscsit_cause_connection_reinstatement(conn, 1);
--		spin_lock_bh(&sess->conn_lock);
--
--		iscsit_dec_conn_usage_count(conn);
--		if (is_last == 0)
--			iscsit_dec_conn_usage_count(conn_tmp);
--
--		conn_count--;
--	}
--
--	if (atomic_read(&sess->nconn)) {
--		spin_unlock_bh(&sess->conn_lock);
--		wait_for_completion(&sess->session_wait_comp);
--	} else
--		spin_unlock_bh(&sess->conn_lock);
--
--	iscsit_close_session(sess);
--	return 0;
--}
--
- void iscsit_stop_session(
- 	struct iscsi_session *sess,
- 	int session_sleep,
-@@ -4694,7 +4651,8 @@ int iscsit_release_sessions_for_tpg(struct iscsi_portal_group *tpg, int force)
- 	list_for_each_entry_safe(se_sess, se_sess_tmp, &free_list, sess_list) {
- 		sess = (struct iscsi_session *)se_sess->fabric_sess_ptr;
- 
--		iscsit_free_session(sess);
-+		iscsit_stop_session(sess, 1, 1);
-+		iscsit_close_session(sess);
- 		session_count++;
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -1051,7 +1051,7 @@ int ieee80211_register_hw(struct ieee802
+ 		local->hw.wiphy->signal_type = CFG80211_SIGNAL_TYPE_UNSPEC;
+ 		if (hw->max_signal <= 0) {
+ 			result = -EINVAL;
+-			goto fail_wiphy_register;
++			goto fail_workqueue;
+ 		}
  	}
  
-diff --git a/drivers/target/iscsi/iscsi_target.h b/drivers/target/iscsi/iscsi_target.h
-index c95f56a3ce31b..7409ce2a66078 100644
---- a/drivers/target/iscsi/iscsi_target.h
-+++ b/drivers/target/iscsi/iscsi_target.h
-@@ -43,7 +43,6 @@ extern int iscsi_target_rx_thread(void *);
- extern int iscsit_close_connection(struct iscsi_conn *);
- extern int iscsit_close_session(struct iscsi_session *);
- extern void iscsit_fail_session(struct iscsi_session *);
--extern int iscsit_free_session(struct iscsi_session *);
- extern void iscsit_stop_session(struct iscsi_session *, int, int);
- extern int iscsit_release_sessions_for_tpg(struct iscsi_portal_group *, int);
+@@ -1113,7 +1113,7 @@ int ieee80211_register_hw(struct ieee802
  
--- 
-2.20.1
-
+ 	result = ieee80211_init_cipher_suites(local);
+ 	if (result < 0)
+-		goto fail_wiphy_register;
++		goto fail_workqueue;
+ 
+ 	if (!local->ops->remain_on_channel)
+ 		local->hw.wiphy->max_remain_on_channel_duration = 5000;
+@@ -1139,10 +1139,6 @@ int ieee80211_register_hw(struct ieee802
+ 
+ 	local->hw.wiphy->max_num_csa_counters = IEEE80211_MAX_CSA_COUNTERS_NUM;
+ 
+-	result = wiphy_register(local->hw.wiphy);
+-	if (result < 0)
+-		goto fail_wiphy_register;
+-
+ 	/*
+ 	 * We use the number of queues for feature tests (QoS, HT) internally
+ 	 * so restrict them appropriately.
+@@ -1198,9 +1194,9 @@ int ieee80211_register_hw(struct ieee802
+ 		goto fail_flows;
+ 
+ 	rtnl_lock();
+-
+ 	result = ieee80211_init_rate_ctrl_alg(local,
+ 					      hw->rate_control_algorithm);
++	rtnl_unlock();
+ 	if (result < 0) {
+ 		wiphy_debug(local->hw.wiphy,
+ 			    "Failed to initialize rate control algorithm\n");
+@@ -1254,6 +1250,12 @@ int ieee80211_register_hw(struct ieee802
+ 		local->sband_allocated |= BIT(band);
+ 	}
+ 
++	result = wiphy_register(local->hw.wiphy);
++	if (result < 0)
++		goto fail_wiphy_register;
++
++	rtnl_lock();
++
+ 	/* add one default STA interface if supported */
+ 	if (local->hw.wiphy->interface_modes & BIT(NL80211_IFTYPE_STATION) &&
+ 	    !ieee80211_hw_check(hw, NO_AUTO_VIF)) {
+@@ -1293,17 +1295,17 @@ int ieee80211_register_hw(struct ieee802
+ #if defined(CONFIG_INET) || defined(CONFIG_IPV6)
+  fail_ifa:
+ #endif
++	wiphy_unregister(local->hw.wiphy);
++ fail_wiphy_register:
+ 	rtnl_lock();
+ 	rate_control_deinitialize(local);
+ 	ieee80211_remove_interfaces(local);
+- fail_rate:
+ 	rtnl_unlock();
++ fail_rate:
+  fail_flows:
+ 	ieee80211_led_exit(local);
+ 	destroy_workqueue(local->workqueue);
+  fail_workqueue:
+-	wiphy_unregister(local->hw.wiphy);
+- fail_wiphy_register:
+ 	if (local->wiphy_ciphers_allocated)
+ 		kfree(local->hw.wiphy->cipher_suites);
+ 	kfree(local->int_scan_req);
+@@ -1353,8 +1355,8 @@ void ieee80211_unregister_hw(struct ieee
+ 	skb_queue_purge(&local->skb_queue_unreliable);
+ 	skb_queue_purge(&local->skb_queue_tdls_chsw);
+ 
+-	destroy_workqueue(local->workqueue);
+ 	wiphy_unregister(local->hw.wiphy);
++	destroy_workqueue(local->workqueue);
+ 	ieee80211_led_exit(local);
+ 	kfree(local->int_scan_req);
+ }
 
 
