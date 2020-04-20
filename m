@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B7761B0A59
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9881B09EC
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728436AbgDTMr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:47:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        id S1728388AbgDTMn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:43:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729082AbgDTMr0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:47:26 -0400
+        id S1726697AbgDTMn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:43:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5768A206DD;
-        Mon, 20 Apr 2020 12:47:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DC0422202;
+        Mon, 20 Apr 2020 12:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386845;
-        bh=DSUepHg9aX4y6qRmRkTuw/85pmvXZiSkSb8A/au42ZQ=;
+        s=default; t=1587386605;
+        bh=NbH8+8pzy146C4wMp9YpqWUeZEX5f2w+yixkPV9fmYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Le/EvODU/JbjLe3VqR+wJHvn5R+u82T2W49lKV74CRczD5Eiw7adpU+NZu2eiA3nt
-         NgCLaUfbtP8r4ggcwNc7jWpQwTHYXl7qUKHwYiKLyzzGGh+y0h1ciywoQfYFtLf+Xz
-         ziZ5EcPtNkZCpr6IKHp3ObapD4ho4rVTckAqef74=
+        b=wBl1CJQEIIj3ojpcrWS5bg9A2/W1jIFGZHKKb7MlyowSPQLRbrSfLgsiPSUaJH1C6
+         tSsnEAd4GVRkfeB1AOiPZ8WZNU7rY8d7M2Ujn40KL7WpwFzH/nqbArc+1o0iluen1r
+         XXtXNt1QRcQBVAaN4s2CUe8tE3a0Y+LJ4ZOWTOx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 01/60] amd-xgbe: Use __napi_schedule() in BH context
+        stable@vger.kernel.org, Pi-Hsun Shih <pihsun@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH 5.6 25/71] platform/chrome: cros_ec_rpmsg: Fix race with host event
 Date:   Mon, 20 Apr 2020 14:38:39 +0200
-Message-Id: <20200420121500.708342089@linuxfoundation.org>
+Message-Id: <20200420121513.515098905@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
-References: <20200420121500.490651540@linuxfoundation.org>
+In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
+References: <20200420121508.491252919@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,38 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Pi-Hsun Shih <pihsun@chromium.org>
 
-[ Upstream commit d518691cbd3be3dae218e05cca3f3fc9b2f1aa77 ]
+commit f775ac78fcfc6bdc96bdda07029d11f2a5e84869 upstream.
 
-The driver uses __napi_schedule_irqoff() which is fine as long as it is
-invoked with disabled interrupts by everybody. Since the commit
-mentioned below the driver may invoke xgbe_isr_task() in tasklet/softirq
-context. This may lead to list corruption if another driver uses
-__napi_schedule_irqoff() in IRQ context.
+Host event can be sent by remoteproc by any time, and
+cros_ec_rpmsg_callback would be called after cros_ec_rpmsg_create_ept.
+But the cros_ec_device is initialized after that, which cause host event
+handler to use cros_ec_device that are not initialized properly yet.
 
-Use __napi_schedule() which safe to use from IRQ and softirq context.
+Fix this by don't schedule host event handler before cros_ec_register
+returns. Instead, remember that we have a pending host event, and
+schedule host event handler after cros_ec_register.
 
-Fixes: 85b85c853401d ("amd-xgbe: Re-issue interrupt if interrupt status not cleared")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 71cddb7097e2 ("platform/chrome: cros_ec_rpmsg: Fix race with host command when probe failed.")
+Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -514,7 +514,7 @@ static void xgbe_isr_task(unsigned long
- 				xgbe_disable_rx_tx_ints(pdata);
+---
+ drivers/platform/chrome/cros_ec_rpmsg.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+--- a/drivers/platform/chrome/cros_ec_rpmsg.c
++++ b/drivers/platform/chrome/cros_ec_rpmsg.c
+@@ -44,6 +44,8 @@ struct cros_ec_rpmsg {
+ 	struct completion xfer_ack;
+ 	struct work_struct host_event_work;
+ 	struct rpmsg_endpoint *ept;
++	bool has_pending_host_event;
++	bool probe_done;
+ };
  
- 				/* Turn on polling */
--				__napi_schedule_irqoff(&pdata->napi);
-+				__napi_schedule(&pdata->napi);
- 			}
- 		} else {
- 			/* Don't clear Rx/Tx status if doing per channel DMA
+ /**
+@@ -177,7 +179,14 @@ static int cros_ec_rpmsg_callback(struct
+ 		memcpy(ec_dev->din, resp->data, len);
+ 		complete(&ec_rpmsg->xfer_ack);
+ 	} else if (resp->type == HOST_EVENT_MARK) {
+-		schedule_work(&ec_rpmsg->host_event_work);
++		/*
++		 * If the host event is sent before cros_ec_register is
++		 * finished, queue the host event.
++		 */
++		if (ec_rpmsg->probe_done)
++			schedule_work(&ec_rpmsg->host_event_work);
++		else
++			ec_rpmsg->has_pending_host_event = true;
+ 	} else {
+ 		dev_warn(ec_dev->dev, "rpmsg received invalid type = %d",
+ 			 resp->type);
+@@ -240,6 +249,11 @@ static int cros_ec_rpmsg_probe(struct rp
+ 		return ret;
+ 	}
+ 
++	ec_rpmsg->probe_done = true;
++
++	if (ec_rpmsg->has_pending_host_event)
++		schedule_work(&ec_rpmsg->host_event_work);
++
+ 	return 0;
+ }
+ 
 
 
