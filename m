@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B1831B0ACA
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D0D91B0AE2
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:53:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729543AbgDTMvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45472 "EHLO mail.kernel.org"
+        id S1729112AbgDTMrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:47:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729274AbgDTMso (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:48:44 -0400
+        id S1729091AbgDTMrd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:47:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 449122072B;
-        Mon, 20 Apr 2020 12:48:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABC122072B;
+        Mon, 20 Apr 2020 12:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386923;
-        bh=GxhdlBmpsPege9HnDm7gfiKhMN+7fazKKcr9Va8+fnY=;
+        s=default; t=1587386853;
+        bh=JNYBM1DqjYWaI/f+MVZCYi82oRdiai3bNp++sT13rCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dju6cWJb8diPsmGFw8Jo8I9bjeov0I2+EBa9amfRWViCojMeXXxyJtmyd9Ve/Mm1f
-         u1QcnuCJanc9v9Xt/joHzcBwUtcUBfHjyppzjqoJcuhYE+kOTcUNMeyMuYY127pgUf
-         glllMeuBi0vMRbHVAjdI9lkxiCDCA/vWlqCbP+1Q=
+        b=cz7h+WJY8Kj+y9YEvEGQip8tzf//QasqK1F2HCZzn4Vi6CyYB23xSWmBYWP/vM3bQ
+         ax6/b+44xtlRN2YmVRDl6HgjnXX1PdOKZcFYZh/9b2xrxHpp6ZSOXGO//jSKpu09O4
+         mA3XooOfMW9eVBkY3ulzxWAkxTSJyyVH2C4sY32A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Yang <yangx.jy@cn.fujitsu.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 22/40] tracing: Fix the race between registering snapshot event trigger and triggering snapshot operation
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 54/60] ext4: do not zeroout extents beyond i_disksize
 Date:   Mon, 20 Apr 2020 14:39:32 +0200
-Message-Id: <20200420121500.526690215@linuxfoundation.org>
+Message-Id: <20200420121514.830085605@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
-References: <20200420121444.178150063@linuxfoundation.org>
+In-Reply-To: <20200420121500.490651540@linuxfoundation.org>
+References: <20200420121500.490651540@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Yang <yangx.jy@cn.fujitsu.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 0bbe7f719985efd9adb3454679ecef0984cb6800 upstream.
+commit 801674f34ecfed033b062a0f217506b93c8d5e8a upstream.
 
-Traced event can trigger 'snapshot' operation(i.e. calls snapshot_trigger()
-or snapshot_count_trigger()) when register_snapshot_trigger() has completed
-registration but doesn't allocate buffer for 'snapshot' event trigger.  In
-the rare case, 'snapshot' operation always detects the lack of allocated
-buffer so make register_snapshot_trigger() allocate buffer first.
+We do not want to create initialized extents beyond end of file because
+for e2fsck it is impossible to distinguish them from a case of corrupted
+file size / extent tree and so it complains like:
 
-trigger-snapshot.tc in kselftest reproduces the issue on slow vm:
------------------------------------------------------------
-cat trace
-...
-ftracetest-3028  [002] ....   236.784290: sched_process_fork: comm=ftracetest pid=3028 child_comm=ftracetest child_pid=3036
-     <...>-2875  [003] ....   240.460335: tracing_snapshot_instance_cond: *** SNAPSHOT NOT ALLOCATED ***
-     <...>-2875  [003] ....   240.460338: tracing_snapshot_instance_cond: *** stopping trace here!   ***
------------------------------------------------------------
+Inode 12, i_size is 147456, should be 163840.  Fix? no
 
-Link: http://lkml.kernel.org/r/20200414015145.66236-1-yangx.jy@cn.fujitsu.com
+Code in ext4_ext_convert_to_initialized() and
+ext4_split_convert_extents() try to make sure it does not create
+initialized extents beyond inode size however they check against
+inode->i_size which is wrong. They should instead check against
+EXT4_I(inode)->i_disksize which is the current inode size on disk.
+That's what e2fsck is going to see in case of crash before all dirty
+data is written. This bug manifests as generic/456 test failure (with
+recent enough fstests where fsx got fixed to properly pass
+FALLOC_KEEP_SIZE_FL flags to the kernel) when run with dioread_lock
+mount option.
 
-Cc: stable@vger.kernel.org
-Fixes: 93e31ffbf417a ("tracing: Add 'snapshot' event trigger command")
-Signed-off-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+CC: stable@vger.kernel.org
+Fixes: 21ca087a3891 ("ext4: Do not zero out uninitialized extents beyond i_size")
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20200331105016.8674-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_events_trigger.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ fs/ext4/extents.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/kernel/trace/trace_events_trigger.c
-+++ b/kernel/trace/trace_events_trigger.c
-@@ -1081,14 +1081,10 @@ register_snapshot_trigger(char *glob, st
- 			  struct event_trigger_data *data,
- 			  struct trace_event_file *file)
- {
--	int ret = register_trigger(glob, ops, data, file);
-+	if (tracing_alloc_snapshot_instance(file->tr) != 0)
-+		return 0;
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -3549,8 +3549,8 @@ static int ext4_ext_convert_to_initializ
+ 		(unsigned long long)map->m_lblk, map_len);
  
--	if (ret > 0 && tracing_alloc_snapshot_instance(file->tr) != 0) {
--		unregister_trigger(glob, ops, data, file);
--		ret = 0;
--	}
--
--	return ret;
-+	return register_trigger(glob, ops, data, file);
- }
+ 	sbi = EXT4_SB(inode->i_sb);
+-	eof_block = (inode->i_size + inode->i_sb->s_blocksize - 1) >>
+-		inode->i_sb->s_blocksize_bits;
++	eof_block = (EXT4_I(inode)->i_disksize + inode->i_sb->s_blocksize - 1)
++			>> inode->i_sb->s_blocksize_bits;
+ 	if (eof_block < map->m_lblk + map_len)
+ 		eof_block = map->m_lblk + map_len;
  
- static int
+@@ -3805,8 +3805,8 @@ static int ext4_split_convert_extents(ha
+ 		  __func__, inode->i_ino,
+ 		  (unsigned long long)map->m_lblk, map->m_len);
+ 
+-	eof_block = (inode->i_size + inode->i_sb->s_blocksize - 1) >>
+-		inode->i_sb->s_blocksize_bits;
++	eof_block = (EXT4_I(inode)->i_disksize + inode->i_sb->s_blocksize - 1)
++			>> inode->i_sb->s_blocksize_bits;
+ 	if (eof_block < map->m_lblk + map->m_len)
+ 		eof_block = map->m_lblk + map->m_len;
+ 	/*
 
 
