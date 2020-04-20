@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8261B0A1D
-	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D2551B0AEA
+	for <lists+stable@lfdr.de>; Mon, 20 Apr 2020 14:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728644AbgDTMpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Apr 2020 08:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39088 "EHLO mail.kernel.org"
+        id S1729208AbgDTMsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Apr 2020 08:48:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728638AbgDTMpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 20 Apr 2020 08:45:02 -0400
+        id S1729206AbgDTMsM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Apr 2020 08:48:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 352A42072B;
-        Mon, 20 Apr 2020 12:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E309206DD;
+        Mon, 20 Apr 2020 12:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587386701;
-        bh=TIjqOHusg9Qi/arFQl33O0mlfrLq2gCJ6ZxVg3IQaMI=;
+        s=default; t=1587386892;
+        bh=PMPsZAyKkO1vYVopSB3WRyEZCJka8hrgwZwx7kCYqug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3y/kaZuoJsXPuHs9SpskGhjWPn09P9VslHQ9crpm4aMS3K9YgvqXI1vkxMjUxqrY
-         5iskS0FsB435xp3dSzOPV60/udnIzys9Nq/m76LDN9QhS0AfCmOOwJzP7cEGfkCEWm
-         SJqSm5uCGCJKNOhd5Qz9WIZ6SS0Ylu8pUwNfKe/A=
+        b=GJXwV6fQ3TbUvr6OzlUnLuJrbNFHZfpBPvwbmq9dBInM492SfVfML64mBexZ+9v3e
+         ju/WuoUgvxvS9iPu2ZVs2HhXvBGyhUuviHZ0FhWv6om2q+l6wvFffO6zL/W6rqd2UK
+         nAequH2EbGM8ZoIIEQ5lI6W5ph2lE5Bjxz6FOjMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 56/71] net/mlx5e: Rename hw_modify to preactivate
-Date:   Mon, 20 Apr 2020 14:39:10 +0200
-Message-Id: <20200420121520.314919570@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 01/40] amd-xgbe: Use __napi_schedule() in BH context
+Date:   Mon, 20 Apr 2020 14:39:11 +0200
+Message-Id: <20200420121449.587223612@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200420121508.491252919@linuxfoundation.org>
-References: <20200420121508.491252919@linuxfoundation.org>
+In-Reply-To: <20200420121444.178150063@linuxfoundation.org>
+References: <20200420121444.178150063@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,100 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit dca147b3dce5abb5284ff747211960fd2db5ec2e ]
+[ Upstream commit d518691cbd3be3dae218e05cca3f3fc9b2f1aa77 ]
 
-mlx5e_safe_switch_channels accepts a callback to be called before
-activating new channels. It is intended to configure some hardware
-parameters in cases where channels are recreated because some
-configuration has changed.
+The driver uses __napi_schedule_irqoff() which is fine as long as it is
+invoked with disabled interrupts by everybody. Since the commit
+mentioned below the driver may invoke xgbe_isr_task() in tasklet/softirq
+context. This may lead to list corruption if another driver uses
+__napi_schedule_irqoff() in IRQ context.
 
-Recently, this callback has started being used to update the driver's
-internal MLX5E_STATE_XDP_OPEN flag, and the following patches also
-intend to use this callback for software preparations. This patch
-renames the hw_modify callback to preactivate, so that the name fits
-better.
+Use __napi_schedule() which safe to use from IRQ and softirq context.
 
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 85b85c853401d ("amd-xgbe: Re-issue interrupt if interrupt status not cleared")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h      |  6 +++---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 14 ++++++++------
- 2 files changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-drv.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index c9606b8ab6efd..704bd6d5277d2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -1036,14 +1036,14 @@ int mlx5e_open_channels(struct mlx5e_priv *priv,
- 			struct mlx5e_channels *chs);
- void mlx5e_close_channels(struct mlx5e_channels *chs);
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+@@ -515,7 +515,7 @@ static void xgbe_isr_task(unsigned long
+ 				xgbe_disable_rx_tx_ints(pdata);
  
--/* Function pointer to be used to modify WH settings while
-+/* Function pointer to be used to modify HW or kernel settings while
-  * switching channels
-  */
--typedef int (*mlx5e_fp_hw_modify)(struct mlx5e_priv *priv);
-+typedef int (*mlx5e_fp_preactivate)(struct mlx5e_priv *priv);
- int mlx5e_safe_reopen_channels(struct mlx5e_priv *priv);
- int mlx5e_safe_switch_channels(struct mlx5e_priv *priv,
- 			       struct mlx5e_channels *new_chs,
--			       mlx5e_fp_hw_modify hw_modify);
-+			       mlx5e_fp_preactivate preactivate);
- void mlx5e_activate_priv_channels(struct mlx5e_priv *priv);
- void mlx5e_deactivate_priv_channels(struct mlx5e_priv *priv);
- 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 8125c605780be..1c8a4235a48c5 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -2954,7 +2954,7 @@ void mlx5e_deactivate_priv_channels(struct mlx5e_priv *priv)
- 
- static void mlx5e_switch_priv_channels(struct mlx5e_priv *priv,
- 				       struct mlx5e_channels *new_chs,
--				       mlx5e_fp_hw_modify hw_modify)
-+				       mlx5e_fp_preactivate preactivate)
- {
- 	struct net_device *netdev = priv->netdev;
- 	int new_num_txqs;
-@@ -2973,9 +2973,11 @@ static void mlx5e_switch_priv_channels(struct mlx5e_priv *priv,
- 
- 	priv->channels = *new_chs;
- 
--	/* New channels are ready to roll, modify HW settings if needed */
--	if (hw_modify)
--		hw_modify(priv);
-+	/* New channels are ready to roll, call the preactivate hook if needed
-+	 * to modify HW settings or update kernel parameters.
-+	 */
-+	if (preactivate)
-+		preactivate(priv);
- 
- 	priv->profile->update_rx(priv);
- 	mlx5e_activate_priv_channels(priv);
-@@ -2987,7 +2989,7 @@ static void mlx5e_switch_priv_channels(struct mlx5e_priv *priv,
- 
- int mlx5e_safe_switch_channels(struct mlx5e_priv *priv,
- 			       struct mlx5e_channels *new_chs,
--			       mlx5e_fp_hw_modify hw_modify)
-+			       mlx5e_fp_preactivate preactivate)
- {
- 	int err;
- 
-@@ -2995,7 +2997,7 @@ int mlx5e_safe_switch_channels(struct mlx5e_priv *priv,
- 	if (err)
- 		return err;
- 
--	mlx5e_switch_priv_channels(priv, new_chs, hw_modify);
-+	mlx5e_switch_priv_channels(priv, new_chs, preactivate);
- 	return 0;
- }
- 
--- 
-2.20.1
-
+ 				/* Turn on polling */
+-				__napi_schedule_irqoff(&pdata->napi);
++				__napi_schedule(&pdata->napi);
+ 			}
+ 		} else {
+ 			/* Don't clear Rx/Tx status if doing per channel DMA
 
 
