@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37FB81B2E21
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 880DD1B2E26
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726303AbgDURTA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 13:19:00 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:36575 "EHLO
+        id S1728735AbgDURTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 13:19:01 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:46683 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726012AbgDURS7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 13:18:59 -0400
+        by vger.kernel.org with ESMTP id S1729003AbgDURTB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 13:19:01 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 9938D1940B13;
-        Tue, 21 Apr 2020 13:11:01 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:11:01 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3B05A19415B1;
+        Tue, 21 Apr 2020 13:11:30 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:11:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YdjEwu
-        P/gdKEg/UXSEl/qghRa9fXxzKrdUwUXf/ZpOo=; b=GrX5xuwUcTyFQJhb3q6huK
-        OxujEiDgogy2FBF3DSIasi5JMJhgSFhRQaRtLx6AIER5yo+KWeBF4d/J6g8R9bad
-        RYxkUQvpm74PQv5S7jO/zLxqwuHqUlkOCjg1dz6rCfy4WezkIy3XaJmNYgHDRBoI
-        t5mnabahh33xw2ZpR5iPEoGXUHCRuoOfSJ2nzbLe9XZYRWrdsBqnkYEeiG1zW+jm
-        5bUhvPpZ6JZs66f+7c0rxjaSuu5cP9piuw0ZLy4ldG1bXk7qFCKypGxYDJ+SKs7U
-        NQyMm37ElsPmjYyfeorhoazwXUbIk1oAAe+zBiCY4sSihOvOEeBZJ5jNzCHf6j1A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=x2QAZb
+        U/+hV651U0wqhU9By4+mQwAnSgJ3mgrWFdFME=; b=D9wpJ6WAme8jZkEkSItjkJ
+        uSlI1tAfkK52rltkdlQAnYqGvGMlBQScRcWzSS59wFZMkK6EbxiEcg0BK/9ym601
+        9nK6HOnWpRRy3zks4KoFDWUnNJ0LJunZnWqz+f1ukZ0zwXgb0FYSDLFEnI+Q0M9Q
+        oIvSopuAlZmAXsuiR2DA7ofRIJQ5aNuH6ly4nJ4+aZHEnpDJid8V2WInRG/iUWUr
+        ECE0lypOthQF1LZXsKHNYakKoRsUJQ4eUi+345GFWebcXiUIUfCYgg6vLFKdkizM
+        5q5xIYCSr2pAUb9KOlw6008OLqtIFslOygjVc9BRjQyCggbkHarX5hzmGlLJyZ/Q
         ==
-X-ME-Sender: <xms:JSmfXiIWUhEWoCUemQktxS5mjmTWwgySSishP0WopaRKeRP5ipBUAg>
+X-ME-Sender: <xms:QSmfXoR9wf8LkP_mPABM5v84HUPID6Q8Buj9uW2cXW1prqAlwwqXHA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrgeehgddutdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpeegne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:JSmfXvj6kFRO5LqsPwRIHZPSaUUVhdegtqTbTyJHXYNNrmSyoXZzNA>
-    <xmx:JSmfXlxDIE8OrN_wprOTPjru9HI_PBYO36IvK7DufC19jv9hVdSRfA>
-    <xmx:JSmfXsBJ4yNO_WehaGZVioVJ7MUaWYmtB2kImVHY89tVfV5uw9_yOg>
-    <xmx:JSmfXoxySqAAkA1oFvum6b50_rGOGK7-pKWIdJ9w0owrb4PYSa0xgA>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhep
+    ghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:QSmfXtc4nBf-Cr5KiJ9ZUjrqPlhMw69QHWpSFpofBqsbkUWpAUa1zQ>
+    <xmx:QSmfXrrzZ4YzgrexCB6cY1MtQ8ZSlGy6LDk2lNlCpOO4Ya5mOrjfUg>
+    <xmx:QSmfXtYkhnVNdBHECd3l8Xt_MLbkAk4G_QDBsvadhAuk_foHtJx4WQ>
+    <xmx:QimfXuXfDYhAG42C_TC-rGklkJ2q-9sMU3Tk54w-_W7tNQ1SLTHGQQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2530C328006D;
-        Tue, 21 Apr 2020 13:11:01 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] of: unittest: kmemleak in duplicate property update" failed to apply to 5.4-stable tree
-To:     frank.rowand@sony.com, erhard_f@mailbox.org, robh@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 268913065C8E;
+        Tue, 21 Apr 2020 13:11:29 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86/Hyper-V: Unload vmbus channel in hv panic callback" failed to apply to 4.19-stable tree
+To:     Tianyu.Lan@microsoft.com, mikelley@microsoft.com,
+        wei.liu@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 Apr 2020 19:10:52 +0200
-Message-ID: <15874890521947@kroah.com>
+Date:   Tue, 21 Apr 2020 19:11:27 +0200
+Message-ID: <158748908722690@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,117 +69,107 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 29acfb65598f91671413869e0d0a1ec4e74ac705 Mon Sep 17 00:00:00 2001
-From: Frank Rowand <frank.rowand@sony.com>
-Date: Thu, 16 Apr 2020 16:42:50 -0500
-Subject: [PATCH] of: unittest: kmemleak in duplicate property update
+From 74347a99e73ae00b8385f1209aaea193c670f901 Mon Sep 17 00:00:00 2001
+From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Date: Mon, 6 Apr 2020 08:53:26 -0700
+Subject: [PATCH] x86/Hyper-V: Unload vmbus channel in hv panic callback
 
-kmemleak reports several memory leaks from devicetree unittest.
-This is the fix for problem 5 of 5.
+When kdump is not configured, a Hyper-V VM might still respond to
+network traffic after a kernel panic when kernel parameter panic=0.
+The panic CPU goes into an infinite loop with interrupts enabled,
+and the VMbus driver interrupt handler still works because the
+VMbus connection is unloaded only in the kdump path.  The network
+responses make the other end of the connection think the VM is
+still functional even though it has panic'ed, which could affect any
+failover actions that should be taken.
 
-When overlay 'overlay_bad_add_dup_prop' is applied, the apply code
-properly detects that a memory leak will occur if the overlay is removed
-since the duplicate property is located in a base devicetree node and
-reports via printk():
+Fix this by unloading the VMbus connection during the panic process.
+vmbus_initiate_unload() could then be called twice (e.g., by
+hyperv_panic_event() and hv_crash_handler(), so reset the connection
+state in vmbus_initiate_unload() to ensure the unload is done only
+once.
 
-  OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail
-  OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail
+Fixes: 81b18bce48af ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Link: https://lore.kernel.org/r/20200406155331.2105-2-Tianyu.Lan@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 
-The overlay is removed when the apply code detects multiple changesets
-modifying the same property.  This is reported via printk():
-
-  OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/rpm_avail
-
-As a result of this error, the overlay is removed resulting in the
-expected memory leak.
-
-Add another device node level to the overlay so that the duplicate
-property is located in a node added by the overlay, thus no memory
-leak will occur when the overlay is removed.
-
-Thus users of kmemleak will not have to debug this leak in the future.
-
-Fixes: 2fe0e8769df9 ("of: overlay: check prevents multiple fragments touching same property")
-Reported-by: Erhard F. <erhard_f@mailbox.org>
-Signed-off-by: Frank Rowand <frank.rowand@sony.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-
-diff --git a/drivers/of/unittest-data/overlay_bad_add_dup_prop.dts b/drivers/of/unittest-data/overlay_bad_add_dup_prop.dts
-index c190da54f175..6327d1ffb963 100644
---- a/drivers/of/unittest-data/overlay_bad_add_dup_prop.dts
-+++ b/drivers/of/unittest-data/overlay_bad_add_dup_prop.dts
-@@ -3,22 +3,37 @@
- /plugin/;
+diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+index 0370364169c4..501c43c5851d 100644
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -839,6 +839,9 @@ void vmbus_initiate_unload(bool crash)
+ {
+ 	struct vmbus_channel_message_header hdr;
  
- /*
-- * &electric_1/motor-1 and &spin_ctrl_1 are the same node:
-- *   /testcase-data-2/substation@100/motor-1
-+ * &electric_1/motor-1/electric and &spin_ctrl_1/electric are the same node:
-+ *   /testcase-data-2/substation@100/motor-1/electric
-  *
-  * Thus the property "rpm_avail" in each fragment will
-  * result in an attempt to update the same property twice.
-  * This will result in an error and the overlay apply
-  * will fail.
-+ *
-+ * The previous version of this test did not include the extra
-+ * level of node 'electric'.  That resulted in the 'rpm_avail'
-+ * property being located in the pre-existing node 'motor-1'.
-+ * Modifying a property results in a WARNING that a memory leak
-+ * will occur if the overlay is removed.  Since the overlay apply
-+ * fails, the memory leak does actually occur, and kmemleak will
-+ * further report the memory leak if CONFIG_DEBUG_KMEMLEAK is
-+ * enabled.  Adding the overlay node 'electric' avoids the
-+ * memory leak and thus people who use kmemleak will not
-+ * have to debug this non-problem again.
-  */
++	if (xchg(&vmbus_connection.conn_state, DISCONNECTED) == DISCONNECTED)
++		return;
++
+ 	/* Pre-Win2012R2 hosts don't support reconnect */
+ 	if (vmbus_proto_version < VERSION_WIN8_1)
+ 		return;
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 029378c27421..6478240d11ab 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -53,9 +53,12 @@ static int hyperv_panic_event(struct notifier_block *nb, unsigned long val,
+ {
+ 	struct pt_regs *regs;
  
- &electric_1 {
+-	regs = current_pt_regs();
++	vmbus_initiate_unload(true);
  
- 	motor-1 {
--		rpm_avail = < 100 >;
-+		electric {
-+			rpm_avail = < 100 >;
-+		};
- 	};
- };
+-	hyperv_report_panic(regs, val);
++	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
++		regs = current_pt_regs();
++		hyperv_report_panic(regs, val);
++	}
+ 	return NOTIFY_DONE;
+ }
  
- &spin_ctrl_1 {
--		rpm_avail = < 100 200 >;
-+		electric {
-+			rpm_avail = < 100 200 >;
-+		};
- };
-diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index f238b7a3865d..398de04fd19c 100644
---- a/drivers/of/unittest.c
-+++ b/drivers/of/unittest.c
-@@ -3181,21 +3181,21 @@ static __init void of_unittest_overlay_high_level(void)
- 		   "OF: overlay: ERROR: multiple fragments add and/or delete node /testcase-data-2/substation@100/motor-1/controller");
+@@ -1391,10 +1394,16 @@ static int vmbus_bus_init(void)
+ 		}
  
- 	EXPECT_BEGIN(KERN_ERR,
--		     "OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail");
-+		     "OF: overlay: ERROR: multiple fragments add and/or delete node /testcase-data-2/substation@100/motor-1/electric");
- 	EXPECT_BEGIN(KERN_ERR,
--		     "OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail");
-+		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/electric/rpm_avail");
- 	EXPECT_BEGIN(KERN_ERR,
--		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/rpm_avail");
-+		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/electric/name");
+ 		register_die_notifier(&hyperv_die_block);
+-		atomic_notifier_chain_register(&panic_notifier_list,
+-					       &hyperv_panic_block);
+ 	}
  
- 	unittest(overlay_data_apply("overlay_bad_add_dup_prop", NULL),
- 		 "Adding overlay 'overlay_bad_add_dup_prop' failed\n");
++	/*
++	 * Always register the panic notifier because we need to unload
++	 * the VMbus channel connection to prevent any VMbus
++	 * activity after the VM panics.
++	 */
++	atomic_notifier_chain_register(&panic_notifier_list,
++			       &hyperv_panic_block);
++
+ 	vmbus_request_offers();
  
- 	EXPECT_END(KERN_ERR,
--		   "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/rpm_avail");
-+		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/electric/name");
- 	EXPECT_END(KERN_ERR,
--		   "OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail");
-+		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/electric/rpm_avail");
- 	EXPECT_END(KERN_ERR,
--		   "OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail");
-+		     "OF: overlay: ERROR: multiple fragments add and/or delete node /testcase-data-2/substation@100/motor-1/electric");
+ 	return 0;
+@@ -2204,8 +2213,6 @@ static int vmbus_bus_suspend(struct device *dev)
  
- 	unittest(overlay_data_apply("overlay_bad_phandle", NULL),
- 		 "Adding overlay 'overlay_bad_phandle' failed\n");
+ 	vmbus_initiate_unload(false);
+ 
+-	vmbus_connection.conn_state = DISCONNECTED;
+-
+ 	/* Reset the event for the next resume. */
+ 	reinit_completion(&vmbus_connection.ready_for_resume_event);
+ 
+@@ -2289,7 +2296,6 @@ static void hv_kexec_handler(void)
+ {
+ 	hv_stimer_global_cleanup();
+ 	vmbus_initiate_unload(false);
+-	vmbus_connection.conn_state = DISCONNECTED;
+ 	/* Make sure conn_state is set as hv_synic_cleanup checks for it */
+ 	mb();
+ 	cpuhp_remove_state(hyperv_cpuhp_online);
+@@ -2306,7 +2312,6 @@ static void hv_crash_handler(struct pt_regs *regs)
+ 	 * doing the cleanup for current CPU only. This should be sufficient
+ 	 * for kdump.
+ 	 */
+-	vmbus_connection.conn_state = DISCONNECTED;
+ 	cpu = smp_processor_id();
+ 	hv_stimer_cleanup(cpu);
+ 	hv_synic_disable_regs(cpu);
 
