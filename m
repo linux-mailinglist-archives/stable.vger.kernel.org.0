@@ -2,64 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 805691B2E60
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:36:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C62EB1B2E75
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726303AbgDURgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 13:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48194 "EHLO mail.kernel.org"
+        id S1729277AbgDURj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 13:39:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725930AbgDURgU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Apr 2020 13:36:20 -0400
+        id S1729276AbgDURj4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Apr 2020 13:39:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D3C92070B;
-        Tue, 21 Apr 2020 17:36:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51036206D9;
+        Tue, 21 Apr 2020 17:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587490579;
-        bh=Nd2Ky5AP0fOPeOT0iXoL8NcGJnlzJH+eMXG/Jv+MAoc=;
+        s=default; t=1587490795;
+        bh=DeujCKaPmT9s1qf6BsHVmtgKDM79TE6c+FN9jrTESh8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nUOJAshrkd1y0A4PCZzIhTKV8bTQAoF/jYbeh0Z9JZh2G2Na+PT1XPylNbcpeBzaB
-         vmMfn7RADyt3Ar7WmU93tMbrx3uG6iVSeN2vMTqnXdxq2YSszNIXp/O21eT+D9C2g0
-         V1RwOgJzhcDxKFeF2thXZNyj0fylGLDTTCoipiLQ=
-Date:   Tue, 21 Apr 2020 19:36:03 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Thomas Backlund <tmb@mageia.org>
-Cc:     Paolo Valente <paolo.valente@linaro.org>,
-        stable <stable@vger.kernel.org>, Chris Evich <cevich@redhat.com>,
-        Patrick Dung <patdung100@gmail.com>,
-        jordanrussellx+kobz@gmail.com,
-        Thorsten Schubert <tschubert@bafh.org>
-Subject: Re: block, bfq: port of fix commits to (at least) 5.6
-Message-ID: <20200421173603.GA1307163@kroah.com>
-References: <BD02F95A-0A08-4BEB-9309-9941998EE14C@linaro.org>
- <d1583eef-44a0-a278-09c0-45dbfb2e4403@mageia.org>
+        b=soY6fXk15JiN3nPLLPBjWErRD8kBhzIGjOv7YogW3LRXV7/HpsrEHzJIOe/s1ba3V
+         w7bHVNprOWjchp2idrBsYnMSzoRcuqr0z5Mu3HQ66QjNmZWxCybKPL9Ot4T8mr5M/H
+         +qmzOmC0VgYzqFBnqw3IEPtiZCzmbg5OAuHrhJdw=
+Date:   Tue, 21 Apr 2020 19:39:53 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>
+Subject: Re: [PATCH 4.14 06/24] android: binder: Use true and false for
+ boolean values
+Message-ID: <20200421173953.GA1307291@kroah.com>
+References: <20200421124017.272694-1-lee.jones@linaro.org>
+ <20200421124017.272694-7-lee.jones@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d1583eef-44a0-a278-09c0-45dbfb2e4403@mageia.org>
+In-Reply-To: <20200421124017.272694-7-lee.jones@linaro.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 21, 2020 at 08:20:46PM +0300, Thomas Backlund wrote:
-> Den 21-04-2020 kl. 13:25, skrev Paolo Valente:
-> > Hi,
-> > a bug reported for Fedora [1] goes away with the following fix
-> > commits, currently available from 5.7-rc1.
-> > 
-> > 4d38a87fbb77 block, bfq: invoke flush_idle_tree after reparent_active_queues in pd_offline
-> > 576682fa52cb block, bfq: make reparent_leaf_entity actually work only on leaf entities
-> > c89977366500 block, bfq: turn put_queue into release_process_ref in __bfq_bic_change_cgroup
-> > 
+On Tue, Apr 21, 2020 at 01:39:59PM +0100, Lee Jones wrote:
+> From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 > 
-> Just to point out to others picking theese patches...
+> [ Upstream commit 197410ad884eb18b31d48e9d8e64cb5a9e326f2f ]
 > 
-> the list should be applied in reverse order from bottom up (meaning
-> c89977366500 first, then 576682fa52cb and 4d38a87fbb77 last...)
+> Assign true or false to boolean variables instead of an integer value.
+> 
+> This issue was detected with the help of Coccinelle.
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> Cc: Todd Kjos <tkjos@android.com>
+> Cc: Martijn Coenen <maco@android.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  drivers/android/binder.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index 05e75d18b4d93..afb690ed31ed9 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -249,7 +249,7 @@ static struct binder_transaction_log_entry *binder_transaction_log_add(
+>  	unsigned int cur = atomic_inc_return(&log->cur);
+>  
+>  	if (cur >= ARRAY_SIZE(log->entry))
+> -		log->full = 1;
+> +		log->full = true;
 
-Thanks, I've queued these up for 5.4.y and 5.6.y.
+While nice and pretty, this does not actually fix a bug, so it's not
+needed for stable trees.
+
+thanks,
 
 greg k-h
