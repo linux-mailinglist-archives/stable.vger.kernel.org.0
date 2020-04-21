@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47DC01B30B8
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 21:56:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2D151B30BA
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 21:56:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726055AbgDUT4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 15:56:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47196 "EHLO mail.kernel.org"
+        id S1725930AbgDUT4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 15:56:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725930AbgDUT4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Apr 2020 15:56:07 -0400
+        id S1726039AbgDUT4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Apr 2020 15:56:08 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 419C0206E9;
-        Tue, 21 Apr 2020 19:56:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 875B720747;
+        Tue, 21 Apr 2020 19:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587498966;
-        bh=e/y1RzWTH/jAmTOq05OhNkKHqXsGv85OPvpjqcUvbQw=;
-        h=Date:From:To:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=fB2VYdgfGec/irgcgVTEKzgTioW8tCwD9mHcUzPOtuIRskbjWDqI4cs2VC+pVXISj
-         yUN3QrxqAsNpk1iylifEaa/2xFBGechmEufgPnP1BD2gMct/hAO5RiHxJnJd83gA4a
-         plo+WNRcSgYvauqSy2ADDWq8yQNE6AMXxOTMbrr8=
-Date:   Tue, 21 Apr 2020 19:56:05 +0000
+        s=default; t=1587498967;
+        bh=yQvGK8tMgwZYWkYoCKOnL1qo8aBsLOdaXuuKxxFLwbo=;
+        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=VnwV50TAbim7HbyXFE/HY+KAHSLYREj1KxxrcUkzzezow333HcLz11NUyI2Wvo3rL
+         MbScaioSOW7uhfsdaleGIw1nqQKtk8NbHsIO7f+fraoqtFx3HN4AmyLuzjHJvqC8nC
+         bm37JNCnhpfHXF0wm4tPWdMPJOWMQCvEc/0bVuZ8=
+Date:   Tue, 21 Apr 2020 19:56:06 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Luca Coelho <luca@coelho.fi>
-To:     Luca Coelho <luciano.coelho@intel.com>
-To:     kvalo@codeaurora.org
-Cc:     linux-wireless@vger.kernel.org
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2 v5.7] iwlwifi: fix WGDS check when WRDS is disabled
-In-Reply-To: <iwlwifi.20200417133700.72ad25c3998b.I875d935cefd595ed7f640ddcfc7bc802627d2b7f@changeid>
-References: <iwlwifi.20200417133700.72ad25c3998b.I875d935cefd595ed7f640ddcfc7bc802627d2b7f@changeid>
-Message-Id: <20200421195606.419C0206E9@mail.kernel.org>
+Subject: Re: [PATCH] agp/intel: Reinforce the barrier after GTT updates
+In-Reply-To: <20200410083535.25464-1-chris@chris-wilson.co.uk>
+References: <20200410083535.25464-1-chris@chris-wilson.co.uk>
+Message-Id: <20200421195607.875B720747@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,44 +43,38 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: 4.14+
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 983d308cb8f6 ("agp/intel: Serialise after GTT updates").
 
-The bot has tested the following trees: v5.6.5, v5.5.18, v5.4.33, v4.19.116, v4.14.176.
+The bot has tested the following trees: v5.6.5, v5.5.18, v5.4.33, v4.19.116, v4.14.176, v4.9.219, v4.4.219.
 
 v5.6.5: Build OK!
 v5.5.18: Build OK!
-v5.4.33: Failed to apply! Possible dependencies:
-    39c1a9728f93 ("iwlwifi: refactor the SAR tables from mvm to acpi")
-
-v4.19.116: Failed to apply! Possible dependencies:
-    0791c2fce3c8 ("iwlwifi: mvm: support new reduce tx power FW API.")
-    17b809c9b22e ("iwlwifi: dbg: move debug data to a struct")
-    22463857a16b ("iwlwifi: receive umac and lmac error table addresses from TLVs")
-    2d8c261511ab ("iwlwifi: add d3 debug data support")
-    39c1a9728f93 ("iwlwifi: refactor the SAR tables from mvm to acpi")
-    48e775e66e2d ("iwlwifi: mvm: add support for 32kHz external clock indication")
-    4c2f445c0f49 ("iwlwifi: mvm: skip EBS in low latency mode while fragmented scan isn't supported")
-    68025d5f9bfe ("iwlwifi: dbg: refactor dump code to improve readability")
-    8d534e96b500 ("iwlwifi: dbg_ini: create new dump flow and implement prph dump")
-    a6820511f193 ("iwlwifi: dbg: split iwl_fw_error_dump to two functions")
-    ae17404e3860 ("iwlwifi: avoid code duplication in stopping fw debug data recording")
-    c5f97542aa06 ("iwlwifi: change monitor DMA to be coherent")
-    d25eec305c97 ("iwlwifi: fw: add a restart FW debug function")
-    da7527173b18 ("iwlwifi: debug flow cleanup")
-    ea7c2bfdec6d ("Revert "iwlwifi: allow memory debug TLV to specify the memory type"")
-    f130bb75d881 ("iwlwifi: add FW recovery flow")
-
-v4.14.176: Failed to apply! Possible dependencies:
-    1184611ee88f ("iwlwifi: acpi: move code that reads SPLC to acpi")
-    1c73acf58bd6 ("iwlwifi: acpi: move ACPI method definitions to acpi.h")
-    2fa388cfeb1a ("iwlwifi: acpi: generalize iwl_mvm_sar_find_wifi_pkg()")
-    39c1a9728f93 ("iwlwifi: refactor the SAR tables from mvm to acpi")
-    45a5c6f68b26 ("iwlwifi: acpi: use iwl_acpi_get_wifi_pkg when reading reading SPLC")
-    45f65569e0d9 ("iwlwifi: acpi: move function to get mcc into acpi code")
-    48e775e66e2d ("iwlwifi: mvm: add support for 32kHz external clock indication")
-    813df5cef3bb ("iwlwifi: acpi: add common code to read from ACPI")
-    ed1a962db760 ("iwlwifi: acpi: make iwl_get_bios_mcc() use the common acpi functions")
+v5.4.33: Build OK!
+v4.19.116: Build OK!
+v4.14.176: Build OK!
+v4.9.219: Build OK!
+v4.4.219: Failed to apply! Possible dependencies:
+    09cfcb456941 ("drm/i915: Split out load time HW initialization")
+    0a9d2bed5557 ("drm/i915/skl: Making DC6 entry is the last call in suspend flow.")
+    1f814daca43a ("drm/i915: add support for checking if we hold an RPM reference")
+    2f693e28b8df ("drm/i915: Make turning on/off PW1 and Misc I/O part of the init/fini sequences")
+    399bb5b6db02 ("drm/i915: Move allocation of various workqueues earlier during init")
+    414b7999b8be ("drm/i915/gen9: Remove csr.state, csr_lock and related code.")
+    5bab6f60cb4d ("drm/i915: Serialise updates to GGTT with access through GGTT on Braswell")
+    62106b4f6b91 ("drm/i915: Rename dev_priv->gtt to dev_priv->ggtt")
+    73dfc227ff5c ("drm/i915/skl: init/uninit display core as part of the HW power domain state")
+    9c5308ea1cd4 ("drm/i915/skl: Refuse to load outdated dmc firmware")
+    ad5c3d3ffbb2 ("drm/i915: Move MCHBAR setup earlier during init")
+    b6e7d894c3d2 ("drm/i915/skl: Store and print the DMC firmware version we load")
+    bc87229f323e ("drm/i915/skl: enable PC9/10 power states during suspend-to-idle")
+    c140330b5e6b ("drm/i915: Move Braswell stop_machine GGTT insertion workaround")
+    c73666f394fc ("drm/i915/skl: If needed sanitize bios programmed cdclk")
+    d507d73578ef ("drm/i915/gtt: Clean up GGTT probing code")
+    d6473f566417 ("drm/i915: Add support for mapping an object page by page")
+    ebae38d061df ("drm/i915/gen9: csr_init after runtime pm enable")
+    f4448375467d ("drm/i915/gen9: Use dev_priv in csr functions")
+    f514c2d84285 ("drm/i915/gen9: flush DMC fw loading work during system suspend")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
