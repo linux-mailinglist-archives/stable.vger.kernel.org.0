@@ -2,86 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D5E1B23B0
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 12:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0214A1B247C
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 13:02:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726018AbgDUKZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 06:25:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725920AbgDUKZL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 06:25:11 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6CBBC061A0F
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 03:25:10 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id x18so15879644wrq.2
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 03:25:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:content-transfer-encoding:mime-version:subject:message-id:date
-         :cc:to;
-        bh=8fJJInYYzc75EzpOQ+MP4cZi2gwZVx4USUV2GSLc1m4=;
-        b=Z9k27AbR0qfrkKoHSgHnOqbpxsqrBQFHN8V0R2VyOHrb9ZKHZ/3ix+ThmmZYzfR6Dc
-         fgFflSgy7pXJf/nXqbrC9Eqr3xjxqB2+sFTH8iEdKJyTk4Big8gT9NDrYl6aHtMIojp9
-         MyhS2aO4+ZofWVL0OFL345Ls8rTLPOJkUnnCck24OegrtHjME4ZuWnUHxbgYJ+mo/3Bm
-         SlO4Os2oBXWo4phRCw8j2nm3KD2nHgJoYhJiQJiF17hjb8bkb/k/aSZ8S6/RM7Ubfb6i
-         IW3iNuL2/HwOMVJ0HYWJhJ3DhVeffUO/8AGjev/6So1eNFiheWMWzxF8LRl4F8TsCE8g
-         DDew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:content-transfer-encoding:mime-version
-         :subject:message-id:date:cc:to;
-        bh=8fJJInYYzc75EzpOQ+MP4cZi2gwZVx4USUV2GSLc1m4=;
-        b=kWLUDTfHXo1rvGx2QrWy8jbQn6vgM8HDqbJzINE7jVRfUOqTN7RST4VMUEZbWMNhr+
-         Lh6wQWvZO2xCQgRzJyjmksBar5hWTdBSQBgDNFGUbbsPO/zS7t+QrV/7UUmKvXbWCD02
-         pgk8mQ6bw42wLsZwKtZtU0Xr0kqe6FLkCkPNnG/C+gaf30hLpgh8xC9Kj49ibWWJvL/m
-         O8TOsLMNcYmpH0hLNlkNPv+dydCxFOe0ylonYtmzLnWSjGBIe0nHcpI3w181HwFuBWiK
-         MUEkEiOfjrDCKXvcaNy92M1Y0n/rvnpvrqkPET/Yc1xNDNKUpzr1LtMUQuVYb4FqUEDd
-         SbQg==
-X-Gm-Message-State: AGi0Pub4Ut49tX/OiZz0I4iI8IJWjfxacjflbr8eb5o1qfwR0E8oS0B3
-        DqCb5kFySPPQkaIZyXX3xKx0PFpkNOY=
-X-Google-Smtp-Source: APiQypIwpCFcpolwVmQfaLbbnhJJ/nREXn+PUJE/2nWtW4S+eU0JGH3cIe03CMFR7D9vc9zbR22SPA==
-X-Received: by 2002:adf:f844:: with SMTP id d4mr22908396wrq.362.1587464709052;
-        Tue, 21 Apr 2020 03:25:09 -0700 (PDT)
-Received: from [192.168.0.101] ([84.33.162.135])
-        by smtp.gmail.com with ESMTPSA id n2sm3441709wrq.74.2020.04.21.03.25.07
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 21 Apr 2020 03:25:08 -0700 (PDT)
-From:   Paolo Valente <paolo.valente@linaro.org>
-Content-Type: text/plain;
-        charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Subject: block, bfq: port of fix commits to (at least) 5.6
-Message-Id: <BD02F95A-0A08-4BEB-9309-9941998EE14C@linaro.org>
-Date:   Tue, 21 Apr 2020 12:25:37 +0200
-Cc:     Chris Evich <cevich@redhat.com>,
-        Patrick Dung <patdung100@gmail.com>,
-        jordanrussellx+kobz@gmail.com,
-        Thorsten Schubert <tschubert@bafh.org>
-To:     stable <stable@vger.kernel.org>
-X-Mailer: Apple Mail (2.3445.104.11)
+        id S1728285AbgDULCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 07:02:39 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62712 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726018AbgDULCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 07:02:38 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03LB2E6g005951
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 07:02:38 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30gmu7yn2s-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 07:02:37 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <fbarrat@linux.ibm.com>;
+        Tue, 21 Apr 2020 12:01:50 +0100
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (9.149.109.195)
+        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Tue, 21 Apr 2020 12:01:47 +0100
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 03LB2VZd61997204
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 21 Apr 2020 11:02:31 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9FD91A4067;
+        Tue, 21 Apr 2020 11:02:31 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6DC44A4054;
+        Tue, 21 Apr 2020 11:02:31 +0000 (GMT)
+Received: from pic2.home (unknown [9.145.42.232])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 21 Apr 2020 11:02:31 +0000 (GMT)
+Subject: Re: [PATCH AUTOSEL 5.4 69/78] powerpc/powernv/ioda: Fix ref count for
+ devices with their own PE
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev@lists.ozlabs.org
+References: <20200418144047.9013-1-sashal@kernel.org>
+ <20200418144047.9013-69-sashal@kernel.org>
+From:   Frederic Barrat <fbarrat@linux.ibm.com>
+Date:   Tue, 21 Apr 2020 13:02:31 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20200418144047.9013-69-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 20042111-0016-0000-0000-000003088DB2
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 20042111-0017-0000-0000-0000336CA446
+Message-Id: <b4fcb316-4fe8-47ec-81c7-4a79b0543b15@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-04-21_03:2020-04-20,2020-04-21 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 spamscore=0 lowpriorityscore=0 adultscore=0
+ impostorscore=0 mlxscore=0 malwarescore=0 suspectscore=0 mlxlogscore=999
+ clxscore=1031 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2004210084
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-a bug reported for Fedora [1] goes away with the following fix
-commits, currently available from 5.7-rc1.
 
-4d38a87fbb77 block, bfq: invoke flush_idle_tree after =
-reparent_active_queues in pd_offline
-576682fa52cb block, bfq: make reparent_leaf_entity actually work only on =
-leaf entities
-c89977366500 block, bfq: turn put_queue into release_process_ref in =
-__bfq_bic_change_cgroup
 
-It would be useful for Fedora to have these fixes in (at least) 5.6.
-No change should be needed for these commits to apply cleanly.
+Le 18/04/2020 à 16:40, Sasha Levin a écrit :
+> From: Frederic Barrat <fbarrat@linux.ibm.com>
+> 
+> [ Upstream commit 05dd7da76986937fb288b4213b1fa10dbe0d1b33 ]
 
-Thanks,
-Paolo
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=3D205447#c84
+This shouldn't be backported to stable.
+
+   Fred
+
+
+> The pci_dn structure used to store a pointer to the struct pci_dev, so
+> taking a reference on the device was required. However, the pci_dev
+> pointer was later removed from the pci_dn structure, but the reference
+> was kept for the npu device.
+> See commit 902bdc57451c ("powerpc/powernv/idoa: Remove unnecessary
+> pcidev from pci_dn").
+> 
+> We don't need to take a reference on the device when assigning the PE
+> as the struct pnv_ioda_pe is cleaned up at the same time as
+> the (physical) device is released. Doing so prevents the device from
+> being released, which is a problem for opencapi devices, since we want
+> to be able to remove them through PCI hotplug.
+> 
+> Now the ugly part: nvlink npu devices are not meant to be
+> released. Because of the above, we've always leaked a reference and
+> simply removing it now is dangerous and would likely require more
+> work. There's currently no release device callback for nvlink devices
+> for example. So to be safe, this patch leaks a reference on the npu
+> device, but only for nvlink and not opencapi.
+> 
+> Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
+> Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/20191121134918.7155-2-fbarrat@linux.ibm.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>   arch/powerpc/platforms/powernv/pci-ioda.c | 19 ++++++++++++-------
+>   1 file changed, 12 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
+> index 058223233088e..e9cda7e316a50 100644
+> --- a/arch/powerpc/platforms/powernv/pci-ioda.c
+> +++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+> @@ -1062,14 +1062,13 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
+>   		return NULL;
+>   	}
+>   
+> -	/* NOTE: We get only one ref to the pci_dev for the pdn, not for the
+> -	 * pointer in the PE data structure, both should be destroyed at the
+> -	 * same time. However, this needs to be looked at more closely again
+> -	 * once we actually start removing things (Hotplug, SR-IOV, ...)
+> +	/* NOTE: We don't get a reference for the pointer in the PE
+> +	 * data structure, both the device and PE structures should be
+> +	 * destroyed at the same time. However, removing nvlink
+> +	 * devices will need some work.
+>   	 *
+>   	 * At some point we want to remove the PDN completely anyways
+>   	 */
+> -	pci_dev_get(dev);
+>   	pdn->pe_number = pe->pe_number;
+>   	pe->flags = PNV_IODA_PE_DEV;
+>   	pe->pdev = dev;
+> @@ -1084,7 +1083,6 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
+>   		pnv_ioda_free_pe(pe);
+>   		pdn->pe_number = IODA_INVALID_PE;
+>   		pe->pdev = NULL;
+> -		pci_dev_put(dev);
+>   		return NULL;
+>   	}
+>   
+> @@ -1205,6 +1203,14 @@ static struct pnv_ioda_pe *pnv_ioda_setup_npu_PE(struct pci_dev *npu_pdev)
+>   	struct pci_controller *hose = pci_bus_to_host(npu_pdev->bus);
+>   	struct pnv_phb *phb = hose->private_data;
+>   
+> +	/*
+> +	 * Intentionally leak a reference on the npu device (for
+> +	 * nvlink only; this is not an opencapi path) to make sure it
+> +	 * never goes away, as it's been the case all along and some
+> +	 * work is needed otherwise.
+> +	 */
+> +	pci_dev_get(npu_pdev);
+> +
+>   	/*
+>   	 * Due to a hardware errata PE#0 on the NPU is reserved for
+>   	 * error handling. This means we only have three PEs remaining
+> @@ -1228,7 +1234,6 @@ static struct pnv_ioda_pe *pnv_ioda_setup_npu_PE(struct pci_dev *npu_pdev)
+>   			 */
+>   			dev_info(&npu_pdev->dev,
+>   				"Associating to existing PE %x\n", pe_num);
+> -			pci_dev_get(npu_pdev);
+>   			npu_pdn = pci_get_pdn(npu_pdev);
+>   			rid = npu_pdev->bus->number << 8 | npu_pdn->devfn;
+>   			npu_pdn->pe_number = pe_num;
+> 
 
