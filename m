@@ -2,92 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49E1D1B2F0F
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 20:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 479B11B2F49
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 20:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725987AbgDUSZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 14:25:54 -0400
-Received: from mga09.intel.com ([134.134.136.24]:31727 "EHLO mga09.intel.com"
+        id S1725987AbgDUSmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 14:42:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725870AbgDUSZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Apr 2020 14:25:53 -0400
-IronPort-SDR: W2DhOcayZqr81GNYF5klFWcK1/BjvsXyshW3RUjDW3jveQWJZs2aWbxBgax5mk+OM/w39OevUv
- 4+ne49rswsoA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Apr 2020 11:25:52 -0700
-IronPort-SDR: BctA1SX3/lUFspJyrKUdkkcfUlNLKkARaKVpfGU3SRLYEBtKts4GoLW/AZG/qdJCJqsRcs5QUf
- rm5LkkFsRNzg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,411,1580803200"; 
-   d="scan'208";a="402276166"
-Received: from louisec-mobl.ger.corp.intel.com (HELO intel.com) ([10.251.82.233])
-  by orsmga004.jf.intel.com with ESMTP; 21 Apr 2020 11:25:50 -0700
-Date:   Tue, 21 Apr 2020 21:25:49 +0300
-From:   Andi Shyti <andi.shyti@intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org, tvrtko.ursulin@intel.com,
-        matthew.auld@intel.com, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] drm/i915/gem: Remove object_is_locked assertion from
- unpin_from_display_plane
-Message-ID: <20200421182549.GA126110@intel.intel>
-References: <20200420125356.26614-1-chris@chris-wilson.co.uk>
+        id S1725870AbgDUSmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Apr 2020 14:42:09 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AE90206D9;
+        Tue, 21 Apr 2020 18:42:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587494528;
+        bh=W5iqH8D4ozFwKcYfj6Xz7G3N7rFf+lJ6e2XoJilKYKE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uxrTDI7aOq3eN/0af17tTwnT++GuqYFU6PmgagzU7Wvb4b+7GSJ0ROLxU/L51S3Um
+         q53KgHl1Sz03V2jaF2aBzwDKL2by4PkWqLEmTBdoaGHnvXa4FpAcNAq6CXgQSsoLFZ
+         yg9x4uhtUuqn9kqclJDz66KCn2e3kmHC8ordGPSU=
+Date:   Tue, 21 Apr 2020 20:42:06 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.6 00/71] 5.6.6-rc1 review
+Message-ID: <20200421184206.GA1417862@kroah.com>
+References: <20200420121508.491252919@linuxfoundation.org>
+ <b2fe599c-4cd6-1302-99ad-336fdaf67912@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200420125356.26614-1-chris@chris-wilson.co.uk>
+In-Reply-To: <b2fe599c-4cd6-1302-99ad-336fdaf67912@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chris,
+On Tue, Apr 21, 2020 at 10:49:59AM -0600, shuah wrote:
+> On 4/20/20 6:38 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.6.6 release.
+> > There are 71 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Wed, 22 Apr 2020 12:10:36 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.6-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> Compiled and booted on my test system. No dmesg regressions.
+> Reboot/poweroff worked with no hangs.
 
-On Mon, Apr 20, 2020 at 01:53:55PM +0100, Chris Wilson wrote:
-> Since moving the obj->vma.list to a spin_lock, and the vm->bound_list to
-> its vm->mutex, along with tracking shrinkable status under its own
-> spinlock, we no long require the object to be locked by the caller.
-> 
-> This is fortunate as it appears we can be called with the lock along an
-> error path in flipping:
-> 
-> <4> [139.942851] WARN_ON(debug_locks && !lock_is_held(&(&((obj)->base.resv)->lock.base)->dep_map))
-> <4> [139.943242] WARNING: CPU: 0 PID: 1203 at drivers/gpu/drm/i915/gem/i915_gem_domain.c:405 i915_gem_object_unpin_from_display_plane+0x70/0x130 [i915]
-> <4> [139.943263] Modules linked in: snd_hda_intel i915 vgem snd_hda_codec_realtek snd_hda_codec_generic coretemp snd_intel_dspcfg snd_hda_codec snd_hwdep snd_hda_core r8169 lpc_ich snd_pcm realtek prime_numbers [last unloaded: i915]
-> <4> [139.943347] CPU: 0 PID: 1203 Comm: kms_flip Tainted: G     U            5.6.0-gd0fda5c2cf3f1-drmtip_474+ #1
-> <4> [139.943363] Hardware name:  /D510MO, BIOS MOPNV10J.86A.0311.2010.0802.2346 08/02/2010
-> <4> [139.943589] RIP: 0010:i915_gem_object_unpin_from_display_plane+0x70/0x130 [i915]
-> <4> [139.943589] Code: 85 28 01 00 00 be ff ff ff ff 48 8d 78 60 e8 d7 9b f0 e2 85 c0 75 b9 48 c7 c6 50 b9 38 c0 48 c7 c7 e9 48 3c c0 e8 20 d4 e9 e2 <0f> 0b eb a2 48 c7 c1 08 bb 38 c0 ba 0a 01 00 00 48 c7 c6 88 a3 35
-> <4> [139.943589] RSP: 0018:ffffb774c0603b48 EFLAGS: 00010282
-> <4> [139.943589] RAX: 0000000000000000 RBX: ffff9a142fa36e80 RCX: 0000000000000006
-> <4> [139.943589] RDX: 000000000000160d RSI: ffff9a142c1a88f8 RDI: ffffffffa434a64d
-> <4> [139.943589] RBP: ffff9a1410a513c0 R08: ffff9a142c1a88f8 R09: 0000000000000000
-> <4> [139.943589] R10: 0000000000000000 R11: 0000000000000000 R12: ffff9a1436ee94b8
-> <4> [139.943589] R13: 0000000000000001 R14: 00000000ffffffff R15: ffff9a1410960000
-> <4> [139.943589] FS:  00007fc73a744e40(0000) GS:ffff9a143da00000(0000) knlGS:0000000000000000
-> <4> [139.943589] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> <4> [139.943589] CR2: 00007fc73997e098 CR3: 000000002f5fe000 CR4: 00000000000006f0
-> <4> [139.943589] Call Trace:
-> <4> [139.943589]  intel_pin_and_fence_fb_obj+0x1c9/0x1f0 [i915]
-> <4> [139.943589]  intel_plane_pin_fb+0x3f/0xd0 [i915]
-> <4> [139.943589]  intel_prepare_plane_fb+0x13b/0x5c0 [i915]
-> <4> [139.943589]  drm_atomic_helper_prepare_planes+0x85/0x110
-> <4> [139.943589]  intel_atomic_commit+0xda/0x390 [i915]
-> <4> [139.943589]  drm_atomic_helper_page_flip+0x9c/0xd0
-> <4> [139.943589]  ? drm_event_reserve_init+0x46/0x60
-> <4> [139.943589]  drm_mode_page_flip_ioctl+0x587/0x5d0
-> 
-> This completes the symmetry lost in commit 8b1c78e06e61 ("drm/i915: Avoid
-> calling i915_gem_object_unbind holding object lock").
-> 
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1743
-> Fixes: 8b1c78e06e61 ("drm/i915: Avoid calling i915_gem_object_unbind holding object lock")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Matthew Auld <matthew.auld@intel.com>
-> Cc: Andi Shyti <andi.shyti@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.6+
+Yeah, glad that issue is now resolved.  THanks for testing and letting
+me know.
 
-Acked-by: Andi Shyti <andi.shyti@intel.com>
-
-Andi
+greg k-h
