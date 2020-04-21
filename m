@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 118021B2DDE
+	by mail.lfdr.de (Postfix) with ESMTP id C96EE1B2DE0
 	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:14:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728422AbgDUROA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726043AbgDUROA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 21 Apr 2020 13:14:00 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:48733 "EHLO
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:53557 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726043AbgDURN7 (ORCPT
+        by vger.kernel.org with ESMTP id S1725870AbgDURN7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 13:13:59 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2B8C01941E09;
-        Tue, 21 Apr 2020 13:07:32 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:07:32 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 92A211941F43;
+        Tue, 21 Apr 2020 13:07:33 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:07:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=XotD6Z
-        0F15wkPTwFQl+yUx8jYjPH3nbK2N2VrkYaIOI=; b=1iGbkKmNqZnd7cRpMDyjjY
-        oI3zKh91u3bmyPW0nKSzaXSOjHexToMmSGwfgIAM9PMY/IrUlt6vUpTMfYM6LPLd
-        htefM7hI9T/fQk8VC+Dg6AZQhpE+PXlOoDNhmKQ2pKkqwZQMoWk1UoWRDaKt/ZxB
-        8wAMc3aEgJlSvX4lTYw5Ij845MAtuuOZbUaKBp5uk2jedcgpwYMyPTDkQHegbUAC
-        ekqb3aDuFGEBx1B/g9BN9U+o11E6Mc7D5ZrvImJLBipTI17ryGKBdBZJ3U4nM2/2
-        AXgJi+fl3GrE5wvyE8Ht0PjLwESQJQhlN0Rv/lbTNyJ2YUmT/rZHJWh1DacAb69Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Ma9BqZ
+        WYSd13wMGm9np1XJlpm4Rb2Jpmxp+ZUJ3Cnd0=; b=ts0k6zaUIh3NbFBuDHv13G
+        b+W/0RcO1YxpI6SLl9IgmmCnrMJ/npV76niD/6tz9MR/O9jqNcEAXqBK0f+u6ZWB
+        lfKpQ2mi2XALAKclPLPBpryGokD2QBFmwTPQxRuQnjZMq2pXyfzVZFKu8nsxAYol
+        bUG1+D+t8HHQZJmQkwFTepfCbGeb+wv6t1LNgIm5N9p+16VrETxR8Wy/xdw4N6X+
+        j6JGXoK3ix05ez0D4WO+laa2SpKjytZBDDZWn/fhpGMRoy7Z+UWPrZv9LgNwePh0
+        7ykh2DsZ7br+IDlkpRzDIzwP9T2noZH7ZlKl9ESfISmfhwEQFnbQCIHzAWSh3k5A
         ==
-X-ME-Sender: <xms:VCifXn0aDL--FfhAG2NWnaf-ygDDmi28zToE-o6LJfepoZ6EjQgQjw>
+X-ME-Sender: <xms:VSifXkChYEUADQcUQJUyJVi-bkFn08P6IvYh4KWTd0kNlFrY9fZU6g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrgeehgddutdejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpeehne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:VCifXlfsY8qkCa6tNZdUSF_pYYA1Q5TDlYf9pj0wsYvriRWK_m3gNw>
-    <xmx:VCifXqc37waKhyzIMWQrCS28hBX8UphlEZwR2hN3fXtVfZWUWrHrzA>
-    <xmx:VCifXuCALixKl0dEtJwz9gOSp8ZlfqYm4YsD2typWTAKrL6bxLeaGg>
-    <xmx:VCifXhUVT-dYWlmNmq-affxlflbR3QJTNq6GnyK7rKSAkuEkJagdVw>
+X-ME-Proxy: <xmx:VSifXrOrtKFbzx-PQwfEGTrAi9pnOSTgI4vrHUL2eVby8bek9BCioA>
+    <xmx:VSifXn1VIhKKNhoR3BKmt_YdzUtW39zlmfB4YXL5oqU4zjJzueQuMQ>
+    <xmx:VSifXu7waNG0t3kiKhxbZbYEK-CvjaeX1shRsOuFamelPEQqC0DsEQ>
+    <xmx:VSifXishBSmRZ90COMB4COLt8l3XodxAV94laDX8dOX6DQC9oYkeyw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BBFB93065C90;
-        Tue, 21 Apr 2020 13:07:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] rbd: call rbd_dev_unprobe() after unwatching and flushing" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2733C3280069;
+        Tue, 21 Apr 2020 13:07:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] rbd: call rbd_dev_unprobe() after unwatching and flushing" failed to apply to 4.14-stable tree
 To:     idryomov@gmail.com, dillaman@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 Apr 2020 19:07:22 +0200
-Message-ID: <158748884256214@kroah.com>
+Date:   Tue, 21 Apr 2020 19:07:23 +0200
+Message-ID: <1587488843202204@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
