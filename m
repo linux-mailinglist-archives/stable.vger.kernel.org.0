@@ -2,70 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A42301B2361
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 11:55:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E5E1B2366
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 11:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726812AbgDUJz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 05:55:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34614 "EHLO mail.kernel.org"
+        id S1726403AbgDUJ45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 05:56:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726403AbgDUJz5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Apr 2020 05:55:57 -0400
+        id S1725920AbgDUJ44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Apr 2020 05:56:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0BAC20CC7;
-        Tue, 21 Apr 2020 09:55:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C23AD20CC7;
+        Tue, 21 Apr 2020 09:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587462957;
-        bh=BXcCEAkl7Od3Ux/7Tx+tbq4a/38F00dPs4wyLkKcnGo=;
+        s=default; t=1587463016;
+        bh=oi16NvTlPCds/PtaCDgtDmjiWjDjytiV8+wJFUXnaRw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=U4fxJShhB8AgmCjOeQYW+1tqZKnf2Wr2tBgyTXKwIAtIknFz6Vuftbhqkjy4V4uwn
-         wm7hpogylpOSYzbLa0fgXCKXxVKFqzBfhImcsrmFFShYiOe+0dV8yIPkYSHVMX49vf
-         zJbM/uArVPOuG0RvMXknkJXQm5bwTDVJ2uLJpX4s=
-Date:   Tue, 21 Apr 2020 11:55:54 +0200
+        b=LO3vhmg6ln0Ts9dMDyhTcqEhwMy3WWqr8hbcF+fHutcc65SOPbbt18yezpmyH1aio
+         KbUOGrRcO/Hkbmd961cCQ6IB7Gg1O+vzj7Y3yNhEjIDbETM0oD+O18WH1cxw067Vst
+         qFx2S7WU9VsVIgGzxNajYc87i1R30TFjSLSmMz04=
+Date:   Tue, 21 Apr 2020 11:56:54 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chris Paterson <Chris.Paterson2@renesas.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Netdev <netdev@vger.kernel.org>, netfilter-devel@vger.kernel.org,
+        open list <linux-kernel@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        Wang Wenhu <wenhu.wang@vivo.com>,
+        Tim Stallard <code@timstallard.me.uk>,
+        Taras Chornyi <taras.chornyi@plvision.eu>,
+        Taehee Yoo <ap420073@gmail.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        DENG Qingfang <dqfext@gmail.com>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        "David S. Miller" <davem@davemloft.net>
 Subject: Re: [PATCH 4.19 00/40] 4.19.117-rc1 review
-Message-ID: <20200421095554.GC727481@kroah.com>
+Message-ID: <20200421095654.GD727481@kroah.com>
 References: <20200420121444.178150063@linuxfoundation.org>
- <TYAPR01MB22857D9B69F610097596174FB7D40@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <CA+G9fYsPaoo5YE9pAKV+w=MnZ_AGn93iquOC-tAN5arVyUD8FQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <TYAPR01MB22857D9B69F610097596174FB7D40@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYsPaoo5YE9pAKV+w=MnZ_AGn93iquOC-tAN5arVyUD8FQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 20, 2020 at 02:17:02PM +0000, Chris Paterson wrote:
-> Hello Greg,
-> 
-> > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
-> > Behalf Of Greg Kroah-Hartman
-> > Sent: 20 April 2020 13:39
-> > 
+On Tue, Apr 21, 2020 at 03:54:20AM +0530, Naresh Kamboju wrote:
+> On Mon, 20 Apr 2020 at 18:21, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
 > > This is the start of the stable review cycle for the 4.19.117 release.
 > > There are 40 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
 > > let me know.
+> >
+> > Responses should be made by Wed, 22 Apr 2020 12:10:36 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.117-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> No build/boot issues seen for CIP configs for Linux 4.19.117-rc1 (df86600ce713).
 > 
-> Build/test pipeline/logs: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/pipelines/137867597
-> GitLab CI pipeline: https://gitlab.com/cip-project/cip-testing/linux-cip-pipelines/-/blob/master/trees/linux-4.19.y.yml
-> Relevant LAVA jobs: https://lava.ciplatform.org/scheduler/alljobs?length=25&search=df86600ce#table
+> Results from Linaro’s test farm.
+> Regressions on x86_64.
+> 
+> x86_64 boot failed due to kernel BUG and kernel panic.
+> It is hard to reproduce this BUG and kernel panic
+> We are investigating this problem. The full log links are at [1] and [2].
 
-Great, thanks for letting me know.
+THanks for testing all of these and if you find an offending commit for
+this, please let me know.
+
+thanks,
 
 greg k-h
