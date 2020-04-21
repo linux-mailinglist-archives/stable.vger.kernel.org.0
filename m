@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C96EE1B2DE0
+	by mail.lfdr.de (Postfix) with ESMTP id ED6E11B2DE1
 	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:14:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726043AbgDUROA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 13:14:00 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:53557 "EHLO
+        id S1726063AbgDUROB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 13:14:01 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:52143 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725870AbgDURN7 (ORCPT
+        by vger.kernel.org with ESMTP id S1726018AbgDURN7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 13:13:59 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 92A211941F43;
-        Tue, 21 Apr 2020 13:07:33 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id B06DE1941D1B;
+        Tue, 21 Apr 2020 13:08:35 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:07:33 -0400
+  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:08:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Ma9BqZ
-        WYSd13wMGm9np1XJlpm4Rb2Jpmxp+ZUJ3Cnd0=; b=ts0k6zaUIh3NbFBuDHv13G
-        b+W/0RcO1YxpI6SLl9IgmmCnrMJ/npV76niD/6tz9MR/O9jqNcEAXqBK0f+u6ZWB
-        lfKpQ2mi2XALAKclPLPBpryGokD2QBFmwTPQxRuQnjZMq2pXyfzVZFKu8nsxAYol
-        bUG1+D+t8HHQZJmQkwFTepfCbGeb+wv6t1LNgIm5N9p+16VrETxR8Wy/xdw4N6X+
-        j6JGXoK3ix05ez0D4WO+laa2SpKjytZBDDZWn/fhpGMRoy7Z+UWPrZv9LgNwePh0
-        7ykh2DsZ7br+IDlkpRzDIzwP9T2noZH7ZlKl9ESfISmfhwEQFnbQCIHzAWSh3k5A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=B2WTjT
+        lfHGRbC6tpsKRFdij99yzQzXz+TpMNeCkup3o=; b=nsXI+qOn2AGFFyx6w3SjL4
+        juZYl9tq0ZuegIe1EQByMmnGG9m5q1+owX5LAoftLVLZRBHYPJOOudPhW1sJcB5P
+        GPCjYH+8Km+w0ZKtrwilh1Om8oXeclt7QUg3h0VISUdhjlfoMH4CBkNEr5gy9DPJ
+        j/ORNLO70ChTrO3D2ZFRGPzL/b4gSVePCR7C9mrPiz2sNuWH1QgTUj2MsZC5dpLu
+        cVbod0FNKE4Hy1yVr/gVZNMT2jFynw7xeop+6lUaE3AWYZlOb3amUN34OhjjRrm+
+        nslNq5HOi2IuNX1tzOAdA17UKGJzsXNSScBOYd02Sho+6Kb1Bjyh0f8NgNhFBpjw
         ==
-X-ME-Sender: <xms:VSifXkChYEUADQcUQJUyJVi-bkFn08P6IvYh4KWTd0kNlFrY9fZU6g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrgeehgddutdejucetufdoteggodetrfdotf
+X-ME-Sender: <xms:kiifXmTT1j2s33qxDtcfmfSBsAY1z9Ext8bJor3BObAWBR8FQ21HtA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrgeehgddutdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpeehne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:VSifXrOrtKFbzx-PQwfEGTrAi9pnOSTgI4vrHUL2eVby8bek9BCioA>
-    <xmx:VSifXn1VIhKKNhoR3BKmt_YdzUtW39zlmfB4YXL5oqU4zjJzueQuMQ>
-    <xmx:VSifXu7waNG0t3kiKhxbZbYEK-CvjaeX1shRsOuFamelPEQqC0DsEQ>
-    <xmx:VSifXishBSmRZ90COMB4COLt8l3XodxAV94laDX8dOX6DQC9oYkeyw>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
+    ghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:kiifXvM3dSMU2FvuX1gpCk-i_RT2tSsYUuwBIbIAz9RkQubueWSdeQ>
+    <xmx:kiifXgEBBFVn-OiXSlMcmYih2AZ2Hvm-ao7vGKh0xeQ38bdQ3JeItA>
+    <xmx:kiifXrAC1XvDssLyDqO8iUMZ4dG2SAbHVXiiyiZ0cGFhUAUf9N2qqg>
+    <xmx:kyifXjJu6g20ZrRrFtkbcWHWIv-oe-7Hzk7TQUJ3wuPgVT9oBI6_7Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2733C3280069;
-        Tue, 21 Apr 2020 13:07:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] rbd: call rbd_dev_unprobe() after unwatching and flushing" failed to apply to 4.14-stable tree
-To:     idryomov@gmail.com, dillaman@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6AE5C328006E;
+        Tue, 21 Apr 2020 13:08:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] xsk: Add missing check on user supplied headroom size" failed to apply to 4.19-stable tree
+To:     magnus.karlsson@intel.com, daniel@iogearbox.net,
+        minhquangbui99@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 Apr 2020 19:07:23 +0200
-Message-ID: <1587488843202204@kroah.com>
+Date:   Tue, 21 Apr 2020 19:08:33 +0200
+Message-ID: <158748891372198@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,75 +69,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 952c48b0ed18919bff7528501e9a3fff8a24f8cd Mon Sep 17 00:00:00 2001
-From: Ilya Dryomov <idryomov@gmail.com>
-Date: Mon, 16 Mar 2020 15:52:54 +0100
-Subject: [PATCH] rbd: call rbd_dev_unprobe() after unwatching and flushing
- notifies
+From 99e3a236dd43d06c65af0a2ef9cb44306aef6e02 Mon Sep 17 00:00:00 2001
+From: Magnus Karlsson <magnus.karlsson@intel.com>
+Date: Tue, 14 Apr 2020 09:35:15 +0200
+Subject: [PATCH] xsk: Add missing check on user supplied headroom size
 
-rbd_dev_unprobe() is supposed to undo most of rbd_dev_image_probe(),
-including rbd_dev_header_info(), which means that rbd_dev_header_info()
-isn't supposed to be called after rbd_dev_unprobe().
+Add a check that the headroom cannot be larger than the available
+space in the chunk. In the current code, a malicious user can set the
+headroom to a value larger than the chunk size minus the fixed XDP
+headroom. That way packets with a length larger than the supported
+size in the umem could get accepted and result in an out-of-bounds
+write.
 
-However, rbd_dev_image_release() calls rbd_dev_unprobe() before
-rbd_unregister_watch().  This is racy because a header update notify
-can sneak in:
+Fixes: c0c77d8fb787 ("xsk: add user memory registration support sockopt")
+Reported-by: Bui Quang Minh <minhquangbui99@gmail.com>
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=207225
+Link: https://lore.kernel.org/bpf/1586849715-23490-1-git-send-email-magnus.karlsson@intel.com
 
-  "rbd unmap" thread                   ceph-watch-notify worker
-
-  rbd_dev_image_release()
-    rbd_dev_unprobe()
-      free and zero out header
-                                       rbd_watch_cb()
-                                         rbd_dev_refresh()
-                                           rbd_dev_header_info()
-                                             read in header
-
-The same goes for "rbd map" because rbd_dev_image_probe() calls
-rbd_dev_unprobe() on errors.  In both cases this results in a memory
-leak.
-
-Fixes: fd22aef8b47c ("rbd: move rbd_unregister_watch() call into rbd_dev_image_release()")
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Reviewed-by: Jason Dillaman <dillaman@redhat.com>
-
-diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
-index ff2377e6d12c..7aec8bc5df6e 100644
---- a/drivers/block/rbd.c
-+++ b/drivers/block/rbd.c
-@@ -6898,9 +6898,10 @@ static void rbd_print_dne(struct rbd_device *rbd_dev, bool is_snap)
+diff --git a/net/xdp/xdp_umem.c b/net/xdp/xdp_umem.c
+index fa7bb5e060d0..ed7a6060f73c 100644
+--- a/net/xdp/xdp_umem.c
++++ b/net/xdp/xdp_umem.c
+@@ -343,7 +343,7 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ 	u32 chunk_size = mr->chunk_size, headroom = mr->headroom;
+ 	unsigned int chunks, chunks_per_page;
+ 	u64 addr = mr->addr, size = mr->len;
+-	int size_chk, err;
++	int err;
  
- static void rbd_dev_image_release(struct rbd_device *rbd_dev)
- {
--	rbd_dev_unprobe(rbd_dev);
- 	if (rbd_dev->opts)
- 		rbd_unregister_watch(rbd_dev);
-+
-+	rbd_dev_unprobe(rbd_dev);
- 	rbd_dev->image_format = 0;
- 	kfree(rbd_dev->spec->image_id);
- 	rbd_dev->spec->image_id = NULL;
-@@ -6950,7 +6951,7 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
- 	if (ret) {
- 		if (ret == -ENOENT && !need_watch)
- 			rbd_print_dne(rbd_dev, false);
--		goto err_out_watch;
-+		goto err_out_probe;
+ 	if (chunk_size < XDP_UMEM_MIN_CHUNK_SIZE || chunk_size > PAGE_SIZE) {
+ 		/* Strictly speaking we could support this, if:
+@@ -382,8 +382,7 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ 			return -EINVAL;
  	}
  
- 	/*
-@@ -6995,12 +6996,11 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
- 	return 0;
+-	size_chk = chunk_size - headroom - XDP_PACKET_HEADROOM;
+-	if (size_chk < 0)
++	if (headroom >= chunk_size - XDP_PACKET_HEADROOM)
+ 		return -EINVAL;
  
- err_out_probe:
--	rbd_dev_unprobe(rbd_dev);
--err_out_watch:
- 	if (!depth)
- 		up_write(&rbd_dev->header_rwsem);
- 	if (need_watch)
- 		rbd_unregister_watch(rbd_dev);
-+	rbd_dev_unprobe(rbd_dev);
- err_out_format:
- 	rbd_dev->image_format = 0;
- 	kfree(rbd_dev->spec->image_id);
+ 	umem->address = (unsigned long)addr;
 
