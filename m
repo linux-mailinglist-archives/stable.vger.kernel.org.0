@@ -2,123 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A2D71B2749
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 15:14:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E81251B276F
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 15:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728680AbgDUNOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 09:14:36 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:33463 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726780AbgDUNOg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 09:14:36 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id A0A285C018D;
-        Tue, 21 Apr 2020 09:14:34 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 21 Apr 2020 09:14:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=zycOR+6bwJZ4JHSqR6NX+uiN3Tw
-        /gGPTY7r2R6DKCBw=; b=cKWjnJNrRwmj77Rinqy5MmebASJv6OyeEPlnrRQl+p3
-        G9JvXjDqrzf1tZ/3O4Ic2p4JpeE9+Cwr1ZWdzRZJBITdh9Ui9l/OY4u7q+Dm3U89
-        nBBJMAFU0vRVbSTrzRbR9rqbeyl5pn3/B9wv0NdEvL9BDZB3o8Dy5ErjGjI3jJXa
-        n1RKTgh64lWaMDLuWYizBr3ShEsctDePpkj+KHt+WnNs0xo7ecg+kHiNcgbADhDf
-        W7m+01HpvXrJYmSFYeVRnWbjPyq7lea6naMsl7vjqA4cfx2PTb5nc2tZuTkz17xn
-        xT4+Ct2l79UvVyuElyRsgTgvOu34ZYeewRSYM9KbUwg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zycOR+
-        6bwJZ4JHSqR6NX+uiN3Tw/gGPTY7r2R6DKCBw=; b=4P15AjXzP6+3Vg8BvUAboo
-        dRYlSfXBPfdaBwPEY+QKBhLBlsMYOAOc50Q402RqxhEmrrnolZRSJaIzUzMjpU3o
-        4Kh2dAinou8YVMqmAreOLJufb2V/f/+mPkg6CZh055FywUikeWh1F7OwAkYetPp5
-        DcMV15QxW+cQLe9YxbQ10W9VUiRWCl7UCrpI0oT8XxEdV9S0ZJMZQqclzwd6+PzM
-        vWlQf3MJNE21ldXZUdC/p1D0bkzUyq4sjtcMaS0I4LhjbOqRreGYGkJVHTWzevzn
-        svoJLAC5R2EzL5/d9ULy1OVpRTvu2oA8AYmSxKg6sdIoy4tyqcZ6JmLoIOQlGBZQ
-        ==
-X-ME-Sender: <xms:ufGeXsNgwLibxkBMiItC1pgLrc_HMaGVsmZAWJp-HfizbnH2Ji3aUg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrgeehgdeitdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledruddtje
-    enucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgv
-    gheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:ufGeXjvDcsn9MyfggEELC2s8TcZ8GbTJ8-ftSQws3A1wS5B0RXyDwQ>
-    <xmx:ufGeXnFhnZmsVAWRq2CAPj830ZPNIhgIQkShXsWZ7mI_OviAAGYJOg>
-    <xmx:ufGeXmSx0_me1dYA5FsUcEwYunKSVW89YauQ9r3EE1nZRgwBL-Bqog>
-    <xmx:uvGeXn6bNMRg48tAFBjfXpxN8ksNoyy72wvR8kiQNyBqa0n185eddQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 16FA73065C82;
-        Tue, 21 Apr 2020 09:14:32 -0400 (EDT)
-Date:   Tue, 21 Apr 2020 15:14:31 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Pablo Neira Ayuso <pablo@netfilter.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Stefano Brivio <sbrivio@redhat.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Phil Sutter <phil@nwl.cc>, netfilter-devel@vger.kernel.org,
-        coreteam@netfilter.org, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.5 27/35] netfilter: nf_tables: Allow set
- back-ends to report partial overlaps on insertion
-Message-ID: <20200421131431.GA793882@kroah.com>
-References: <20200407000058.16423-1-sashal@kernel.org>
- <20200407000058.16423-27-sashal@kernel.org>
- <20200407021848.626df832@redhat.com>
- <20200413163900.GO27528@sasha-vm>
- <20200413223858.17b0f487@redhat.com>
- <20200414150840.GD1068@sasha-vm>
- <20200421113221.rvh3jkjet32m6ng4@salvia>
+        id S1728896AbgDUNS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 09:18:27 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:51299 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728479AbgDUNSU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 09:18:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1587475098;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=g7gI8fb6o6LKlf8vISbpJtZJf7jBBUPaOiqBddbrn1E=;
+        b=FZSd0Tfwup2GpS49a2qMUt9WRIQB+Ter7YwrwFMFhyka0Cj+K3XlbGxWZi3RaMLQpmUaRR
+        lCv3CqXF/i6VK0/geW8MvxHprfm+RZQo3gloJn/BTwYoe+0ea5QKmgzd5HMVS31wTMmkp/
+        dutgrvLanAB3785Zb6aVDC3mdOhbbUQ=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-331-Ftnh42BTNteKnBSQKvX2nw-1; Tue, 21 Apr 2020 09:18:17 -0400
+X-MC-Unique: Ftnh42BTNteKnBSQKvX2nw-1
+Received: by mail-wr1-f72.google.com with SMTP id j22so7517356wrb.4
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 06:18:17 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=g7gI8fb6o6LKlf8vISbpJtZJf7jBBUPaOiqBddbrn1E=;
+        b=Q43NH069Nrp0gvxQQP+bzdJuqEKf0hSmTIteg9IOHy9/NHcn9zGGbHgnYHdjq2s7AH
+         fWodo3qFZ6AhXJke6mUG0dXn42aUDL9CIfFKUVf1T6MgwEnndvTZ7Glu2CHCSzU7reRR
+         /GBdFbtWXH/JyK4KnS2jnKpCFRoqOEeRIpexs4zILD0GMVRnU//eE6Nib2wyi1eMlth6
+         NNwHqBNNvfPPLO2Udqc9Mi0qo5a8t0qnHXRwk4/FYFrx2FhRvB+X+a6rFXGS2zuJWJ4T
+         MXH/yKtoCTODbugTEEZ0gzi0+j6t+Xox856DJqHRf0UsOvPFi6JQ7j2k7kMuq3sW+Yqc
+         5xgQ==
+X-Gm-Message-State: AGi0PubXdE2BBsDSZyID2Ds4quJdmfs31YQ2RTcA/ofWoOVG7UENNy+w
+        UpRhJSBBUHAtwMM1F0YzU9mM4pKuZfBIo6c3fEFcwPu1I005jm17X0OBb5sfTbD0BMY2ZyL+TI3
+        eoAru4K+jE7c891DG
+X-Received: by 2002:a1c:32c7:: with SMTP id y190mr5179329wmy.13.1587475095510;
+        Tue, 21 Apr 2020 06:18:15 -0700 (PDT)
+X-Google-Smtp-Source: APiQypJOo/12F9ol8UfBE3egEGUQetFBzPEkWc2rpUqQFmDVtIeQhiFoZGNO+C0Ad/Gn0F+CkJNmwQ==
+X-Received: by 2002:a1c:32c7:: with SMTP id y190mr5179300wmy.13.1587475095124;
+        Tue, 21 Apr 2020 06:18:15 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id s30sm3800805wrb.67.2020.04.21.06.18.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 21 Apr 2020 06:18:14 -0700 (PDT)
+Subject: Re: [PATCH v2] platform/x86: intel_int0002_vgpio: Only bind to the
+ INT0002 dev when using s2idle
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc:     Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Maxim Mikityanskiy <maxtram95@gmail.com>,
+        "5 . 3+" <stable@vger.kernel.org>
+References: <20200414131953.131533-1-hdegoede@redhat.com>
+ <4380034.KJPSqyn9gG@kreacher>
+ <a9c4b315-2784-fe59-1236-3e3bf391fd4c@redhat.com>
+ <15138701.54mejVaKjr@kreacher>
+ <6e85613c-e129-831a-bbe8-9f0c4f9fadad@redhat.com>
+Message-ID: <9683ad9e-5969-5f22-74cb-fed232437b35@redhat.com>
+Date:   Tue, 21 Apr 2020 15:18:13 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200421113221.rvh3jkjet32m6ng4@salvia>
+In-Reply-To: <6e85613c-e129-831a-bbe8-9f0c4f9fadad@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 21, 2020 at 01:32:21PM +0200, Pablo Neira Ayuso wrote:
-> Hi Sasha,
-> 
-> On Tue, Apr 14, 2020 at 11:08:40AM -0400, Sasha Levin wrote:
-> > On Mon, Apr 13, 2020 at 10:38:58PM +0200, Stefano Brivio wrote:
-> > > On Mon, 13 Apr 2020 12:39:00 -0400
-> > > Sasha Levin <sashal@kernel.org> wrote:
-> > > 
-> > > > On Tue, Apr 07, 2020 at 02:18:48AM +0200, Stefano Brivio wrote:
-> > > > 
-> > > > >I'm used to not Cc: stable on networking patches (Dave's net.git),
-> > > > >but I guess I should instead if they go through nf.git (Pablo's tree),
-> > > > >right?
-> > > > 
-> > > > Yup, this confusion has caused for quite a few netfilter fixes to not
-> > > > land in -stable. If it goes through Pablo's tree (and unless he intructs
-> > > > otherwise), you should Cc stable.
-> > > 
-> > > Hah, thanks for clarifying.
-> > > 
-> > > What do you think I should do specifically with 72239f2795fa
-> > > ("netfilter: nft_set_rbtree: Drop spurious condition for overlap detection
-> > > on insertion")?
-> > > 
-> > > I haven't Cc'ed stable on that one. Can I expect AUTOSEL to pick it up
-> > > anyway?
-> > 
-> > I'll make sure it gets queued up when it hits Linus's tree :)
-> 
-> 5.6.6 is out and this fix is still not included...
-> 
-> Would you please enqueue...
-> 
-> commit 72239f2795fab9a58633bd0399698ff7581534a3
-> Author: Stefano Brivio <sbrivio@redhat.com>
-> Date:   Wed Apr 1 17:14:38 2020 +0200
-> 
->     netfilter: nft_set_rbtree: Drop spurious condition for overlap detection on insertion
-> 
-> for 5.6.x -stable ?
+Hi,
 
-Now queued up, thanks.
+On 4/16/20 11:00 AM, Hans de Goede wrote:
+> Hi,
+> 
+> On 4/15/20 11:34 PM, Rafael J. Wysocki wrote:
+>> On Wednesday, April 15, 2020 11:48:20 AM CEST Hans de Goede wrote:
+>>> Hi,
+>>>
+>>> On 4/15/20 11:45 AM, Rafael J. Wysocki wrote:
+>>>> On Tuesday, April 14, 2020 3:19:53 PM CEST Hans de Goede wrote:
+>>>>> Commit 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement
+>>>>> irq_set_wake on Bay Trail") stopped passing irq_set_wake requests on to
+>>>>> the parents IRQ because this was breaking suspend (causing immediate
+>>>>> wakeups) on an Asus E202SA.
+>>>>>
+>>>>> This workaround for this issue is mostly fine, on most Cherry Trail
+>>>>> devices where we need the INT0002 device for wakeups by e.g. USB kbds,
+>>>>> the parent IRQ is shared with the ACPI SCI and that is marked as wakeup
+>>>>> anyways.
+>>>>>
+>>>>> But not on all devices, specifically on a Medion Akoya E1239T there is
+>>>>> no SCI at all, and because the irq_set_wake request is not passed on to
+>>>>> the parent IRQ, wake up by the builtin USB kbd does not work here.
+>>>>>
+>>>>> So the workaround for the Asus E202SA immediate wake problem is causing
+>>>>> problems elsewhere; and in hindsight it is not the correct fix,
+>>>>> the Asus E202SA uses Airmont CPU cores, but this does not mean it is a
+>>>>> Cherry Trail based device, Brasswell uses Airmont CPU cores too and this
+>>>>> actually is a Braswell device.
+>>>>>
+>>>>> Most (all?) Braswell devices use classic S3 mode suspend rather then
+>>>>> s2idle suspend and in this case directly dealing with PME events as
+>>>>> the INT0002 driver does likely is not the best idea, so that this is
+>>>>> causing issues is not surprising.
+>>>>>
+>>>>> Replace the workaround of not passing irq_set_wake requests on to the
+>>>>> parents IRQ, by not binding to the INT0002 device when s2idle is not used.
+>>>>> This fixes USB kbd wakeups not working on some Cherry Trail devices,
+>>>>> while still avoiding mucking with the wakeup flags on the Asus E202SA
+>>>>> (and other Brasswell devices).
+>>>>>
+>>>>> Cc: Maxim Mikityanskiy <maxtram95@gmail.com>
+>>>>> Cc: 5.3+ <stable@vger.kernel.org> # 5.3+
+>>>>> Fixes: 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement irq_set_wake on Bay Trail")
+>>>>> Tested-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+>>>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>>>> ---
+>>>>> Changes in v2:
+>>>>> - Rebase on top of 5.7-rc1
+>>>>> ---
+>>>>>    drivers/platform/x86/intel_int0002_vgpio.c | 18 +++++-------------
+>>>>>    1 file changed, 5 insertions(+), 13 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platform/x86/intel_int0002_vgpio.c
+>>>>> index 289c6655d425..30806046b664 100644
+>>>>> --- a/drivers/platform/x86/intel_int0002_vgpio.c
+>>>>> +++ b/drivers/platform/x86/intel_int0002_vgpio.c
+>>>>> @@ -143,21 +143,9 @@ static struct irq_chip int0002_byt_irqchip = {
+>>>>>        .irq_set_wake        = int0002_irq_set_wake,
+>>>>>    };
+>>>>> -static struct irq_chip int0002_cht_irqchip = {
+>>>>> -    .name            = DRV_NAME,
+>>>>> -    .irq_ack        = int0002_irq_ack,
+>>>>> -    .irq_mask        = int0002_irq_mask,
+>>>>> -    .irq_unmask        = int0002_irq_unmask,
+>>>>> -    /*
+>>>>> -     * No set_wake, on CHT the IRQ is typically shared with the ACPI SCI
+>>>>> -     * and we don't want to mess with the ACPI SCI irq settings.
+>>>>> -     */
+>>>>> -    .flags            = IRQCHIP_SKIP_SET_WAKE,
+>>>>> -};
+>>>>> -
+>>>>>    static const struct x86_cpu_id int0002_cpu_ids[] = {
+>>>>>        X86_MATCH_INTEL_FAM6_MODEL(ATOM_SILVERMONT,    &int0002_byt_irqchip),
+>>>>> -    X86_MATCH_INTEL_FAM6_MODEL(ATOM_AIRMONT,    &int0002_cht_irqchip),
+>>>>> +    X86_MATCH_INTEL_FAM6_MODEL(ATOM_AIRMONT,    &int0002_byt_irqchip),
+>>>>>        {}
+>>>>>    };
+>>>>> @@ -181,6 +169,10 @@ static int int0002_probe(struct platform_device *pdev)
+>>>>>        if (!cpu_id)
+>>>>>            return -ENODEV;
+>>>>> +    /* We only need to directly deal with PMEs when using s2idle */
+>>>>> +    if (!pm_suspend_default_s2idle())
+>>>>> +        return -ENODEV;
+>>>>> +
+>>>>
+>>>> What if the system supports s2idle which is not the default suspend option
+>>>> and then it is selected by user space (overriding the default)?
+>>>
+>>> This driver only binds (the cpuid check still visible above) on Bay Trail
+>>> and Cherry Trail/Brasswell systems. AFAIK those never support both modes,
+>>> the laptop variants of these SoCs always use S3 and the tablet versions
+>>> always use s2idle.
+>>
+>> But this means that at least the laptop variants can use s2idle if users choose
+>> that option.
+> 
+> I was under the impression that the laptop variants only supported S3,
+> butyou are right they support both.
+> 
+> Still I believe that the intent of this patch is right as is. The
+> laptop variants are much more like standard X86 devices then the
+> tablet devices.
+> 
+> E.g. they use standard HDA for audio instead of ASoC, the always use
+> the ACPI ac and battery drivers instead of needing native PMIC drivers,
+> etc.  Basically the tablet variants are a lot more like SoCs from other
+> (ARM) vendors, so they need some special handling.  I consider the
+> (undocumented, lifted from android-x86) INT0002 / special manual poking
+> of PMC GPE registers to also be part of the tablet variant special
+> sauce.
+> 
+> My intent of the pm_suspend_default_s2idle() check really is to
+> check for the tablet variant. As Maxim's regression on the laptop
+> (aka normal x86 machine) variant has shown doing the manual
+> poking there seems to be a bad idea.
+> 
+> So I guess I need to rewrite this patch to better match my original
+> intent. Does anyone have any ideas how to check it we are dealing
+> with the tablet variant ?  One option would be to see if s2idle
+> is supported, while S3 is not supported. Rafael any idea how to
+> neatly check for those conditions ?   Anyone else an idea to
+> more directly check if we are running on a tablet version ?
+> 
+>> Switching over from S3 to s2idle and back needs to be supported.
+> 
+> Ack, but even for the laptop variant s2idle path I believe that
+> letting the INT0002 driver bind and poke PMC GPE registers
+> directly is a bad idea.
 
-greg k-h
+Ping? I'll happily rework this patch to replace the s2idle check
+with an are we running on a tablet version of the SoC check,
+but I could use some input on how exactly to detect that we
+are running on a tablet version of the SoC.
+
+Regards,
+
+Hans
+
