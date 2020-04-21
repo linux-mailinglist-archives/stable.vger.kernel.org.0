@@ -2,110 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5135F1B3376
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 01:38:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC311B33A6
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 01:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726400AbgDUXiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 19:38:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49072 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726358AbgDUXiv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 19:38:51 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4F3C0610D5
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 16:38:51 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id z6so148056plk.10
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 16:38:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3qAgQB/2cTQ+8pckTt5JzpnePe/yQpC0vdtjwhJWI6I=;
-        b=N/nYsMwYXvRjazWjHqFnDIMnADrqYTvpKy1gadrjAo8Yv98Ra4iGVLhg8MOuFwfnIz
-         NL9axeiuugohv56iAQ4x2Adj7CobMqw91ZoYs2Sgm5PMmSbjsz+U4ao4jZAxdeY2ihWm
-         gzrZjnjHNr16GpcmrtjMHN3jRhQjLC3xCIcF9I72AwU3Tgjoc6i+o88vv9It+WCLM0xs
-         cJqLhl1J0GRTD/KrTdLNORSNTI2nULUEtynoG6pfqJbx7QNVUHq2e+VdzFJ3uvr+jkTx
-         2eMB5QacLkkZNhpOrY0HFAvYbiJcoffZ7V5A/rMoiyzFti3d/gHPLimyan/+duwI9NSd
-         45jQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3qAgQB/2cTQ+8pckTt5JzpnePe/yQpC0vdtjwhJWI6I=;
-        b=Q0o6YlGrcU22awoRNibQ55gwWmCfo7MQHlhJnvMji3SIJGgBJGjM5WwMug1I8U19Ep
-         ESphTigaMN8GAY7cHRMdZ9i3E1yq8Bv/YSC2K+UW4sDI7AIacRluEbG7huMTK7DdNU4r
-         nNFvEBrQ3vrSVqWtxSaa0E+DTXuohmfdPTum+g1nlaLQApa+FejDaMDXPKcHCj5603MB
-         0Ye4DenNa1RszG266J0NctX88Pjkw/ndPjVCk41juHobEyEFG90yjBgejL8nGbS4ApfT
-         nT3NoEtROAI3H30ycOdjy0DMPLb1EVJ0yoIC7DFOetUTsc5CYzSHLvbnZ1Z4vpCPf1Pn
-         On1A==
-X-Gm-Message-State: AGi0PuYGEHYQR2u72nuPJDCglNM9Wv7n458O5oseLRCiLsAewEM1mkfe
-        TJQQKGxmDaRnvvJap5gO48VTmAXtGoM=
-X-Google-Smtp-Source: APiQypIYuEWMtROElVIRTZU9hDfQ7RPQ+KffrAz0djbrolw313wiAWvshQlv79Z3l6fnLEXiuE8wyQ==
-X-Received: by 2002:a17:90a:9e9:: with SMTP id 96mr8614881pjo.41.1587512331028;
-        Tue, 21 Apr 2020 16:38:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y29sm3476370pfq.162.2020.04.21.16.38.50
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2020 16:38:50 -0700 (PDT)
-Message-ID: <5e9f840a.1c69fb81.8b24a.c02d@mx.google.com>
-Date:   Tue, 21 Apr 2020 16:38:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726183AbgDUXuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 19:50:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53026 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726115AbgDUXuy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Apr 2020 19:50:54 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 122652068F;
+        Tue, 21 Apr 2020 23:50:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587513054;
+        bh=8viM/LvXGNIcXxigimtRux/QgrBXyzTmZ2Cb+SDxUFo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wd5r9DSw+9thC4aswvQkMBByWTNJP5y/oBCbWzC0XFUzTsmSvSDErk3F6BozcYvYT
+         82vMY60blhNFWC+cIk/AQ2JDPJcb/fNuctFKdNtRasK2eA3J5qs7Y182zZ6PObZSOu
+         bWYr1zCPdtu98cVLVKTlgJqkK9B42dqYkx/A54Og=
+Date:   Tue, 21 Apr 2020 19:50:52 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     idryomov@gmail.com, dillaman@redhat.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] rbd: avoid a deadlock on header_rwsem
+ when flushing notifies" failed to apply to 5.4-stable tree
+Message-ID: <20200421235052.GM1809@sasha-vm>
+References: <1587488818238238@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.117
-Subject: stable-rc/linux-4.19.y boot: 47 boots: 1 failed,
- 43 passed with 3 untried/unknown (v4.19.117)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1587488818238238@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 47 boots: 1 failed, 43 passed with 3 untried/u=
-nknown (v4.19.117)
+On Tue, Apr 21, 2020 at 07:06:58PM +0200, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 5.4-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 0e4e1de5b63fa423b13593337a27fd2d2b0bcf77 Mon Sep 17 00:00:00 2001
+>From: Ilya Dryomov <idryomov@gmail.com>
+>Date: Fri, 13 Mar 2020 11:20:51 +0100
+>Subject: [PATCH] rbd: avoid a deadlock on header_rwsem when flushing notifies
+>
+>rbd_unregister_watch() flushes notifies and therefore cannot be called
+>under header_rwsem because a header update notify takes header_rwsem to
+>synchronize with "rbd map".  If mapping an image fails after the watch
+>is established and a header update notify sneaks in, we deadlock when
+>erroring out from rbd_dev_image_probe().
+>
+>Move watch registration and unregistration out of the critical section.
+>The only reason they were put there was to make header_rwsem management
+>slightly more obvious.
+>
+>Fixes: 811c66887746 ("rbd: fix rbd map vs notify races")
+>Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+>Reviewed-by: Jason Dillaman <dillaman@redhat.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.117/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.117/
+There was a conflict with:
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.117
-Git Commit: 8e2406c851877516f12b7ab4e975d033a6d58ebb
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 33 unique boards, 11 SoC families, 14 builds out of 205
+	b9ef2b8858a0 ("rbd: don't establish watch for read-only	mappings")
 
-Boot Regressions Detected:
+And I ended up with a funny resolution, but given the conflict at hand I
+think it makes sense:
 
-arm:
+@@ -6135,6 +6145,8 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
+ err_out_probe:
+        rbd_dev_unprobe(rbd_dev);
+ err_out_watch:
++       if (!depth)
++               up_write(&rbd_dev->header_rwsem);
+        if (!depth)
+                rbd_unregister_watch(rbd_dev);
+ err_out_format:
 
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.19.116-41-gdf86600c=
-e713)
+Queued for 5.4-4.14.
 
-i386:
-
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-collabora: new failure (last pass: v4.19.116-41-gdf86600c=
-e713)
-
-Boot Failure Detected:
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Thanks,
+Sasha
