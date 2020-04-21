@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48F071B267D
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 14:41:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63A0B1B267A
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 14:41:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728976AbgDUMl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 08:41:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60058 "EHLO
+        id S1728778AbgDUMl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 08:41:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728930AbgDUMlL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:41:11 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD6F3C0610D5
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:41:10 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id y24so3496768wma.4
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:41:10 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1728934AbgDUMlM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:41:12 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB89C061A10
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:41:12 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id u16so3491249wmc.5
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:41:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=HeNnO5SC6sCx8UtRBsDRGWXZmLJX6hUUh1srBWTHa7Y=;
-        b=DXtPnSIifgmM8Oh+sb/f2FSreRlEnP0tpk0o2LUvtoFMTvPpw0AMF9QEvo22d/TTCv
-         HnuA++VPn3M/xwGZdcpJ/b+0h0ySBQVvHku5MC8LiOVOTZl9Q1utERAWUO79lgqpM+X9
-         6l91cAa9n2ZoFcai/cgfyEdmyk6NB7jJIplWMRmMvSBdsNbHsVkn5WSsUp+nZ+A6MCVZ
-         fEyV6q1o4Z38aEynXZJurcUgXqfoKBANh3X/rF1vICinUIp4ucAONnB9fe31pYz//cv8
-         XoWhoccoeF2czy+PMsUEffwKjl68jOBwfHi6e1NWjJxRdzpmjUj5c1hf+S5msbYI47m+
-         QP9g==
+        bh=Y2qCj2VEWLETSdDzdg9wby0Dp4VMBOBRFzvR2ZFa7wU=;
+        b=gxdfRnvbMkmyuVPAMawnyxVUxNMmFvuexXJKU1WRh33ZWZgtcX6PZdtXiCg4lZRBIH
+         XJAFyhaNqdsX98wdGhl7eB7Gn/Adv4tbtqWHa2Oof6cw8HXuzg+k98smiLjVwoHHJBhn
+         KPejye8XGj+h8doOcHXx/sHWHA3ywOuZoHImvflnUV/Ax1T4TQDXhbqeM07pbCmeID5v
+         /hm9TJ6F3bfmMt7cf+6ldOsy9HeqJ/EX8laocxi520SOZRd8YWnZH/cVBkH8uM8wxP1y
+         ygpDpiaLaMFwZKAPD7MsV1CnXp7Ztg7mgdyTmGnXENKR5OQ2OlFzDnDW0FblE6A7RVQA
+         w0lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=HeNnO5SC6sCx8UtRBsDRGWXZmLJX6hUUh1srBWTHa7Y=;
-        b=eglTRU+p8JFX/gByCjmS87VPEiYk05BalpFzGynkDHKcGbP7kG0I0tm5Yay1J3VMQu
-         A58i3Nh6WA6z0VoKxw4AugKv4oZKI+ItZtvQ42nc++Qj00l/RtpMyWRNtHIoYbU+BMmy
-         C8DtYlrB22f11QBMa9x0mzoDhPJ3KEoUWcGbpNnXYZAuGoSMa+72ty6G2twAXKRpTiQW
-         N7k/NI9+an3Pm8TJuMYvG7OFU05oxITqapxSZKn9QGtQTdx2o80d3u0CAH1dBXvmV2Hd
-         PSGJfs/CKt47cGwnlyH2FNunaCqsp4RDRKrNbzkgrFdK6t4Z7l06Xke1+drw9oiVJWCp
-         vzAg==
-X-Gm-Message-State: AGi0Pub/2cqclWyS9wHxjz6JvceQgnsQ/mpnn++UlSChEhL9h/4n3xbC
-        WEcGUk0c/YIrMsvzO/CBgttIDDMUbAU=
-X-Google-Smtp-Source: APiQypI+q0vX45mSKiHYYZ7ksv2pyxH98HMAQmvLFawgV+xlbxjVyH33bux4VWhl3+sYFa127yypOw==
-X-Received: by 2002:a05:600c:2255:: with SMTP id a21mr4787083wmm.150.1587472869290;
-        Tue, 21 Apr 2020 05:41:09 -0700 (PDT)
+        bh=Y2qCj2VEWLETSdDzdg9wby0Dp4VMBOBRFzvR2ZFa7wU=;
+        b=QBvZf80XE2/R1d/cPFTw3XbPljqN76ZqSohqM1fNty4kUOb5oFthNSIdFOmBMFHvUL
+         kxh66H9zEwA7MA4H81JueDHyKgYXdxxxZCF2ku8BgVpmL85cXk4dSeLZW6QRnEyI037h
+         dMkfS4My6u7DbsvdWSqweY5AuCJZCPX+JPd8WNXjky2zm+WEKq4dw6LH7KIQIqACNJtZ
+         h4hX/lmM7qStGvXxamJbaOQXEqGdSQrs2SqEjNB4jtYDjdHjEdvgdHeSHBQbRLyATPPZ
+         X/O3VRyvtKm1wpUg3WH8KnJULatXYxiOzEo32qkr+p+5Lq7ach6MycOWyGNZpEbtOPll
+         2AIw==
+X-Gm-Message-State: AGi0PuYeeudLmQF8QPEWtq5x/1JxCmrdpNVwwlMhIugMNIqkQWUqC/yG
+        TOsdKhYwOl4wTKtdLeagOg4D2j51Hc4=
+X-Google-Smtp-Source: APiQypLyACVUnJpzIQswVVw/FLoDeZFabr/mLK8ufw4xJcVpTESApldSVgKFm5Yvf6ADcyTRdcfUhg==
+X-Received: by 2002:a1c:48c:: with SMTP id 134mr4436861wme.47.1587472870366;
+        Tue, 21 Apr 2020 05:41:10 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.41.08
+        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.41.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2020 05:41:08 -0700 (PDT)
+        Tue, 21 Apr 2020 05:41:09 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Lior David <qca_liord@qca.qualcomm.com>,
         Maya Erez <qca_merez@qca.qualcomm.com>,
         Kalle Valo <kvalo@qca.qualcomm.com>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 19/24] wil6210: add block size checks during FW load
-Date:   Tue, 21 Apr 2020 13:40:12 +0100
-Message-Id: <20200421124017.272694-20-lee.jones@linaro.org>
+Subject: [PATCH 4.14 20/24] wil6210: fix length check in __wmi_send
+Date:   Tue, 21 Apr 2020 13:40:13 +0100
+Message-Id: <20200421124017.272694-21-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200421124017.272694-1-lee.jones@linaro.org>
 References: <20200421124017.272694-1-lee.jones@linaro.org>
@@ -68,178 +68,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lior David <qca_liord@qca.qualcomm.com>
 
-[ Upstream commit 705d2fde94b23cd76efbeedde643ffa7c32fac7f ]
+[ Upstream commit 26a6d5274865532502c682ff378ac8ebe2886238 ]
 
-When loading FW from file add block size checks to ensure a
-corrupted FW file will not cause the driver to write outside
-the device memory.
+The current length check:
+sizeof(cmd) + len > r->entry_size
+will allow very large values of len (> U16_MAX - sizeof(cmd))
+and can cause a buffer overflow. Fix the check to cover this case.
+In addition, ensure the mailbox entry_size is not too small,
+since this can also bypass the above check.
 
 Signed-off-by: Lior David <qca_liord@qca.qualcomm.com>
 Signed-off-by: Maya Erez <qca_merez@qca.qualcomm.com>
 Signed-off-by: Kalle Valo <kvalo@qca.qualcomm.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/wireless/ath/wil6210/fw_inc.c  | 58 ++++++++++++++--------
- drivers/net/wireless/ath/wil6210/wil6210.h |  1 +
- drivers/net/wireless/ath/wil6210/wmi.c     | 11 +++-
- 3 files changed, 49 insertions(+), 21 deletions(-)
+ drivers/net/wireless/ath/wil6210/interrupt.c | 22 +++++++++++++++++++-
+ drivers/net/wireless/ath/wil6210/wmi.c       |  2 +-
+ 2 files changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wil6210/fw_inc.c b/drivers/net/wireless/ath/wil6210/fw_inc.c
-index e01acac88825d..7d090150187c8 100644
---- a/drivers/net/wireless/ath/wil6210/fw_inc.c
-+++ b/drivers/net/wireless/ath/wil6210/fw_inc.c
-@@ -26,14 +26,17 @@
- 					     prefix_type, rowsize,	\
- 					     groupsize, buf, len, ascii)
- 
--#define FW_ADDR_CHECK(ioaddr, val, msg) do { \
--		ioaddr = wmi_buffer(wil, val); \
--		if (!ioaddr) { \
--			wil_err_fw(wil, "bad " msg ": 0x%08x\n", \
--				   le32_to_cpu(val)); \
--			return -EINVAL; \
--		} \
--	} while (0)
-+static bool wil_fw_addr_check(struct wil6210_priv *wil,
-+			      void __iomem **ioaddr, __le32 val,
-+			      u32 size, const char *msg)
-+{
-+	*ioaddr = wmi_buffer_block(wil, val, size);
-+	if (!(*ioaddr)) {
-+		wil_err_fw(wil, "bad %s: 0x%08x\n", msg, le32_to_cpu(val));
-+		return false;
-+	}
-+	return true;
-+}
- 
- /**
-  * wil_fw_verify - verify firmware file validity
-@@ -165,7 +168,8 @@ static int fw_handle_data(struct wil6210_priv *wil, const void *data,
- 		return -EINVAL;
- 	}
- 
--	FW_ADDR_CHECK(dst, d->addr, "address");
-+	if (!wil_fw_addr_check(wil, &dst, d->addr, s, "address"))
-+		return -EINVAL;
- 	wil_dbg_fw(wil, "write [0x%08x] <== %zu bytes\n", le32_to_cpu(d->addr),
- 		   s);
- 	wil_memcpy_toio_32(dst, d->data, s);
-@@ -197,7 +201,8 @@ static int fw_handle_fill(struct wil6210_priv *wil, const void *data,
- 		return -EINVAL;
- 	}
- 
--	FW_ADDR_CHECK(dst, d->addr, "address");
-+	if (!wil_fw_addr_check(wil, &dst, d->addr, s, "address"))
-+		return -EINVAL;
- 
- 	v = le32_to_cpu(d->value);
- 	wil_dbg_fw(wil, "fill [0x%08x] <== 0x%08x, %zu bytes\n",
-@@ -253,7 +258,8 @@ static int fw_handle_direct_write(struct wil6210_priv *wil, const void *data,
- 		u32 v = le32_to_cpu(block[i].value);
- 		u32 x, y;
- 
--		FW_ADDR_CHECK(dst, block[i].addr, "address");
-+		if (!wil_fw_addr_check(wil, &dst, block[i].addr, 0, "address"))
-+			return -EINVAL;
- 
- 		x = readl(dst);
- 		y = (x & m) | (v & ~m);
-@@ -319,10 +325,15 @@ static int fw_handle_gateway_data(struct wil6210_priv *wil, const void *data,
- 	wil_dbg_fw(wil, "gw write record [%3d] blocks, cmd 0x%08x\n",
- 		   n, gw_cmd);
- 
--	FW_ADDR_CHECK(gwa_addr, d->gateway_addr_addr, "gateway_addr_addr");
--	FW_ADDR_CHECK(gwa_val, d->gateway_value_addr, "gateway_value_addr");
--	FW_ADDR_CHECK(gwa_cmd, d->gateway_cmd_addr, "gateway_cmd_addr");
--	FW_ADDR_CHECK(gwa_ctl, d->gateway_ctrl_address, "gateway_ctrl_address");
-+	if (!wil_fw_addr_check(wil, &gwa_addr, d->gateway_addr_addr, 0,
-+			       "gateway_addr_addr") ||
-+	    !wil_fw_addr_check(wil, &gwa_val, d->gateway_value_addr, 0,
-+			       "gateway_value_addr") ||
-+	    !wil_fw_addr_check(wil, &gwa_cmd, d->gateway_cmd_addr, 0,
-+			       "gateway_cmd_addr") ||
-+	    !wil_fw_addr_check(wil, &gwa_ctl, d->gateway_ctrl_address, 0,
-+			       "gateway_ctrl_address"))
-+		return -EINVAL;
- 
- 	wil_dbg_fw(wil, "gw addresses: addr 0x%08x val 0x%08x"
- 		   " cmd 0x%08x ctl 0x%08x\n",
-@@ -378,12 +389,19 @@ static int fw_handle_gateway_data4(struct wil6210_priv *wil, const void *data,
- 	wil_dbg_fw(wil, "gw4 write record [%3d] blocks, cmd 0x%08x\n",
- 		   n, gw_cmd);
- 
--	FW_ADDR_CHECK(gwa_addr, d->gateway_addr_addr, "gateway_addr_addr");
-+	if (!wil_fw_addr_check(wil, &gwa_addr, d->gateway_addr_addr, 0,
-+			       "gateway_addr_addr"))
-+		return -EINVAL;
- 	for (k = 0; k < ARRAY_SIZE(block->value); k++)
--		FW_ADDR_CHECK(gwa_val[k], d->gateway_value_addr[k],
--			      "gateway_value_addr");
--	FW_ADDR_CHECK(gwa_cmd, d->gateway_cmd_addr, "gateway_cmd_addr");
--	FW_ADDR_CHECK(gwa_ctl, d->gateway_ctrl_address, "gateway_ctrl_address");
-+		if (!wil_fw_addr_check(wil, &gwa_val[k],
-+				       d->gateway_value_addr[k],
-+				       0, "gateway_value_addr"))
-+			return -EINVAL;
-+	if (!wil_fw_addr_check(wil, &gwa_cmd, d->gateway_cmd_addr, 0,
-+			       "gateway_cmd_addr") ||
-+	    !wil_fw_addr_check(wil, &gwa_ctl, d->gateway_ctrl_address, 0,
-+			       "gateway_ctrl_address"))
-+		return -EINVAL;
- 
- 	wil_dbg_fw(wil, "gw4 addresses: addr 0x%08x cmd 0x%08x ctl 0x%08x\n",
- 		   le32_to_cpu(d->gateway_addr_addr),
-diff --git a/drivers/net/wireless/ath/wil6210/wil6210.h b/drivers/net/wireless/ath/wil6210/wil6210.h
-index c5b6b783100aa..0bfd51adcc81f 100644
---- a/drivers/net/wireless/ath/wil6210/wil6210.h
-+++ b/drivers/net/wireless/ath/wil6210/wil6210.h
-@@ -865,6 +865,7 @@ void wil_mbox_ring_le2cpus(struct wil6210_mbox_ring *r);
- int wil_find_cid(struct wil6210_priv *wil, const u8 *mac);
- void wil_set_ethtoolops(struct net_device *ndev);
- 
-+void __iomem *wmi_buffer_block(struct wil6210_priv *wil, __le32 ptr, u32 size);
- void __iomem *wmi_buffer(struct wil6210_priv *wil, __le32 ptr);
- void __iomem *wmi_addr(struct wil6210_priv *wil, u32 ptr);
- int wmi_read_hdr(struct wil6210_priv *wil, __le32 ptr,
-diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
-index 798516f42f2f9..6cfb820caa3ee 100644
---- a/drivers/net/wireless/ath/wil6210/wmi.c
-+++ b/drivers/net/wireless/ath/wil6210/wmi.c
-@@ -140,13 +140,15 @@ static u32 wmi_addr_remap(u32 x)
- /**
-  * Check address validity for WMI buffer; remap if needed
-  * @ptr - internal (linker) fw/ucode address
-+ * @size - if non zero, validate the block does not
-+ *  exceed the device memory (bar)
-  *
-  * Valid buffer should be DWORD aligned
-  *
-  * return address for accessing buffer from the host;
-  * if buffer is not valid, return NULL.
-  */
--void __iomem *wmi_buffer(struct wil6210_priv *wil, __le32 ptr_)
-+void __iomem *wmi_buffer_block(struct wil6210_priv *wil, __le32 ptr_, u32 size)
- {
- 	u32 off;
- 	u32 ptr = le32_to_cpu(ptr_);
-@@ -161,10 +163,17 @@ void __iomem *wmi_buffer(struct wil6210_priv *wil, __le32 ptr_)
- 	off = HOSTADDR(ptr);
- 	if (off > wil->bar_size - 4)
- 		return NULL;
-+	if (size && ((off + size > wil->bar_size) || (off + size < off)))
-+		return NULL;
- 
- 	return wil->csr + off;
+diff --git a/drivers/net/wireless/ath/wil6210/interrupt.c b/drivers/net/wireless/ath/wil6210/interrupt.c
+index 59def4f3fcf3d..5cf341702dc11 100644
+--- a/drivers/net/wireless/ath/wil6210/interrupt.c
++++ b/drivers/net/wireless/ath/wil6210/interrupt.c
+@@ -358,6 +358,25 @@ static void wil_cache_mbox_regs(struct wil6210_priv *wil)
+ 	wil_mbox_ring_le2cpus(&wil->mbox_ctl.tx);
  }
  
-+void __iomem *wmi_buffer(struct wil6210_priv *wil, __le32 ptr_)
++static bool wil_validate_mbox_regs(struct wil6210_priv *wil)
 +{
-+	return wmi_buffer_block(wil, ptr_, 0);
++	size_t min_size = sizeof(struct wil6210_mbox_hdr) +
++		sizeof(struct wmi_cmd_hdr);
++
++	if (wil->mbox_ctl.rx.entry_size < min_size) {
++		wil_err(wil, "rx mbox entry too small (%d)\n",
++			wil->mbox_ctl.rx.entry_size);
++		return false;
++	}
++	if (wil->mbox_ctl.tx.entry_size < min_size) {
++		wil_err(wil, "tx mbox entry too small (%d)\n",
++			wil->mbox_ctl.tx.entry_size);
++		return false;
++	}
++
++	return true;
 +}
 +
- /**
-  * Check address validity
-  */
+ static irqreturn_t wil6210_irq_misc(int irq, void *cookie)
+ {
+ 	struct wil6210_priv *wil = cookie;
+@@ -393,7 +412,8 @@ static irqreturn_t wil6210_irq_misc(int irq, void *cookie)
+ 	if (isr & ISR_MISC_FW_READY) {
+ 		wil_dbg_irq(wil, "IRQ: FW ready\n");
+ 		wil_cache_mbox_regs(wil);
+-		set_bit(wil_status_mbox_ready, wil->status);
++		if (wil_validate_mbox_regs(wil))
++			set_bit(wil_status_mbox_ready, wil->status);
+ 		/**
+ 		 * Actual FW ready indicated by the
+ 		 * WMI_FW_READY_EVENTID
+diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
+index 6cfb820caa3ee..22bfa10ea8276 100644
+--- a/drivers/net/wireless/ath/wil6210/wmi.c
++++ b/drivers/net/wireless/ath/wil6210/wmi.c
+@@ -231,7 +231,7 @@ static int __wmi_send(struct wil6210_priv *wil, u16 cmdid, void *buf, u16 len)
+ 	uint retry;
+ 	int rc = 0;
+ 
+-	if (sizeof(cmd) + len > r->entry_size) {
++	if (len > r->entry_size - sizeof(cmd)) {
+ 		wil_err(wil, "WMI size too large: %d bytes, max is %d\n",
+ 			(int)(sizeof(cmd) + len), r->entry_size);
+ 		return -ERANGE;
 -- 
 2.25.1
 
