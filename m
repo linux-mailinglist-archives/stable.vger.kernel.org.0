@@ -2,118 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0098D1B306E
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 21:34:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4631B3070
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 21:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726151AbgDUTeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 15:34:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726017AbgDUTeE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 15:34:04 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F7EC061BD3
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 12:34:04 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id x26so7241201pgc.10
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 12:34:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=q/gWr7YCErmg9lp428fGEwOFRo+wgawj4scqEMKypTA=;
-        b=EirFP1CMpgAKwLZPkb502tL//3IqkAULA85fq0De51gzY3XbFGzD7a92PwrD7imMWz
-         upfOMG1DWVKqfqgTI9N/QRfchJc2EuzSVoYgn/Fahiobx4WlA4NoAOu7uEszi+Dw5EEt
-         ksZUx+/TLzTbHGqkyptZPtB/zMPJnRlpLc6U0lM1YmJGZp72I6CRTg0ObI9/ATABQ23M
-         nxovknx4mnUpBfu1MNs09jdPyMADwt5SGoSlAmbcJazUU49TTBRY/+lbs45y4n04XBit
-         2P5+wLpZcESZlfZk5Gn+67blzGRb4QsQuTwb1j2Sjyf6YmKYCUOV3KblHZyViXWvL/8+
-         mpdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=q/gWr7YCErmg9lp428fGEwOFRo+wgawj4scqEMKypTA=;
-        b=XtynLvRLhas3wiOtMsaobE/WUqIC8292WXsWRwGAlGLcb875VMdGE5PF66ufhizu3P
-         7RV+nZQWOChEH71hVRPFox3Th7q9WbUdTrPx37A4eKt9nAUuVi/HZXiv5N56l9DpHgg7
-         3df1/sfawZbxEABaN/mcG7m+2zgtPZGXtkKKbBI1kSTst3/6s9IbHXlvJeiW6CGWOAmi
-         zzFRxKQLox8N/kL5mrkq2IVaQoFjXXLGyS6to1hyHIJ+1YK/00U06mwGd7t0d78VEZyp
-         SfUI3QX4SOfOdK7zfloWTWufQuUBt1MIYrJ00zZu/mAgxjauhMC6lznmettH4dQPsNLO
-         26aA==
-X-Gm-Message-State: AGi0Pubskl49QNL/u8Uosn+SbnPTWrt6uFh/CF/6GpOOsoqbQ3LFlC18
-        7bEMHyCneS9d8aWs9ADP3Agj6onI2Z4=
-X-Google-Smtp-Source: APiQypL99qsYxbHxSfoHE/0WbIkL9YkpZs5NOXgpWBsduaUkGEU/fKRitzbKBA0eSTq35H4kpkQLBQ==
-X-Received: by 2002:a62:808d:: with SMTP id j135mr6508387pfd.53.1587497643506;
-        Tue, 21 Apr 2020 12:34:03 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n16sm3178134pfq.61.2020.04.21.12.34.02
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2020 12:34:02 -0700 (PDT)
-Message-ID: <5e9f4aaa.1c69fb81.f173f.973d@mx.google.com>
-Date:   Tue, 21 Apr 2020 12:34:02 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726017AbgDUTek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 15:34:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37274 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726012AbgDUTej (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Apr 2020 15:34:39 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17D60206D5;
+        Tue, 21 Apr 2020 19:34:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587497679;
+        bh=WgsfyAvDSXyVnPKQOCAvgAZ//ff4LfXWv1CZoa9sgcY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rUfLlBJlwkyzuJ4shduBguWGJEbmt48DGhao4S5uyb+txN7a9MBG+Jwr9lcs61Tko
+         Zdf8dV5aCDPbuTV/14PqC2lgghIvOkqIeozYnqsVDBpf79afdCWlfn7cbf/yYHxoHE
+         DaUq3Z4crex9ygd3ruuJtj9fM7nqvuu6ZpFYmQQ4=
+Date:   Tue, 21 Apr 2020 21:34:37 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Nathan Chancellor <natechancellor@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PATCH 4.9] arm64: cpu_errata: include required headers
+Message-ID: <20200421193437.GA1420935@kroah.com>
+References: <20200421192040.43080-1-natechancellor@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.219
-Subject: stable-rc/linux-4.4.y boot: 41 boots: 2 failed,
- 35 passed with 2 offline, 2 untried/unknown (v4.4.219)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200421192040.43080-1-natechancellor@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 41 boots: 2 failed, 35 passed with 2 offline, 2=
- untried/unknown (v4.4.219)
+On Tue, Apr 21, 2020 at 12:20:41PM -0700, Nathan Chancellor wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> commit 94a5d8790e79ab78f499d2d9f1ff2cab63849d9f upstream.
+> 
+> Without including psci.h and arm-smccc.h, we now get a build failure in
+> some configurations:
+> 
+> arch/arm64/kernel/cpu_errata.c: In function 'arm64_update_smccc_conduit':
+> arch/arm64/kernel/cpu_errata.c:278:10: error: 'psci_ops' undeclared (first use in this function); did you mean 'sysfs_ops'?
+> 
+> arch/arm64/kernel/cpu_errata.c: In function 'arm64_set_ssbd_mitigation':
+> arch/arm64/kernel/cpu_errata.c:311:3: error: implicit declaration of function 'arm_smccc_1_1_hvc' [-Werror=implicit-function-declaration]
+>    arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_WORKAROUND_2, state, NULL);
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> ---
+> 
+> Greg and Sasha,
+> 
+> Please apply this to 4.9. The error in the commit message can be
+> reproduced on 4.9.219 when CONFIG_ARM64_SSBD is enabled and
+> CONFIG_HARDEN_BRANCH_PREDICTOR is disabled. It was reported to me by a
+> user of one of my Android stable trees, where one of the configs in
+> Qualcomm's 4.9 tree reproduced this issue.
+> 
+> This commit is in 4.14 already so this should be the only tree where it
+> is needed.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.219/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.219/
+Now queued up, thanks.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.219
-Git Commit: 10d9c6f92756c1b9049e409cd5e7faed40f95294
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 32 unique boards, 14 SoC families, 11 builds out of 170
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 73 days (last pass: v4.4.=
-212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
-
-Boot Failures Detected:
-
-arm:
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+greg k-h
