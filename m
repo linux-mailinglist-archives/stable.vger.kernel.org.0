@@ -2,95 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 889851B2B85
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 17:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B06E1B2BAC
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 17:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725990AbgDUPrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 11:47:10 -0400
-Received: from sonic316-20.consmr.mail.ne1.yahoo.com ([66.163.187.146]:34070
-        "EHLO sonic316-20.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725613AbgDUPrK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 11:47:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1587484027; bh=q1Er/SdqxATomBDx27mJAnsQxxrJWpCL+Y8MaW3053A=; h=Date:From:Reply-To:Subject:References:From:Subject; b=kL5eb4+VQSB/wuRPIIlBWw/rYhrYrvoX/M+RpFt/+fWUJzRS6owtayvYTXg21f6WP6sAbD7zTHUgU0Ir8YHnNQzOnxHj+G1wOx0H/IqRtiOLudOxlE3dtyDyq4vLyyIu3+mMUAq1gj2KhcJxNYjpFKti2LRO//aLyi8ub4ygYmgDAJNXp4r6PgtSfzrASgq9BlIcX3kugdHRNFJgfVuocsWFsDb7hH7BiyVO7hqCQtaKUqlXUFVl3qtxuUetmr/JH1yTA1kTTdU4uPaMw+ywkBecH2IE1Xss08sPVtF1h1/lbRLvTVmS4mHP5JpWqDooCQboF8E+oo+viLaPTLfmvA==
-X-YMail-OSG: EIzC6S8VM1nhL53PlPZBj6EhqgFLYGcp0jq1BhRICOnK8pyWLtiPkPL_gpoF0zj
- UMQHD7oby8_bIDvAfqoXLy30UpPaoRvx6KMDWjwPU7UayWw2rHiXaW3pnBwRzHBDb4QSdBfDBT.M
- y8sG09QA.d5Q1ie6rHv3EkcnBwUSkjmSoTZigIFEbas02ySJUe.iA3TdrIA9_6.qEJMMOeID_tDx
- mze_GbdGRQ5aIAydqJvu6wfBceSIrfxdHM8gbNcpcCbX2tr.nRGDmHRD6NThpWnVA10Vqb17HjsM
- OHRD6Rg73HOM8VSbBAZYVGO8ENhc0qSSgA4pWCgHmAw4KEdyihTcyYroSc0ZaLbzTxVeKL3nk8nw
- LnmsPVx.GBOheWej30sBzwkVvAZPOU_HQX6DsVqj0xdlBGX7OKf6YNqgioLaugt8yEIipaJawuXI
- .5gLZQbnz2Cj0FgNZN7o9xhr3f01iDtj.7vKPjOhuIrq.GvSAbf10BFB.xrprXtXJh_i4CAkBsUr
- .HMNVxVeduCv5vJHtp5HJjjlRrpy2mfxN6X9jQo2tZUcVsgIO5rKHGTLbbLxd.8hjWmVvOqvEfuI
- e99OG7E0QKGkg04KyCHVsSUW.l.cZe.cNngIXHXAYUu8EF7Wbb5B2vd2aV1i6EVoX9SbXeEaEOEl
- XeQsLSABPy6.BIU5hRt2EOIIV14ZgTF3SULPnTeO_jfr2_UDpE3AWmeyAVmXJNVezfcujCVFF1Qd
- 4t5XJVo3IHYn3Cygc_MpQNyAfG5EApnypOOeQ9SOPtk1PjIW5KETXZKP3eI68Rf.6NpWe8YUjkCe
- JyiRKS0yw3JWYIR89jyd1HIw6T6NgimMOLUngXHo1MAZWddHZUBHjG.nyurA9FKNwtERhM.wOrLv
- lS.p_4C238TfxybgFKH7xah.xMjI2Fzm2EyvSTi_N9m4Oj.PTFE7P_t7vblgQXBMtp7YPp.FwolF
- JEmACT6wKOSVYPAGbmjctguJ_TpzXV_Z5nDRSMrlngiNMd68B0_m5NGQwfoFofG270F5jigwusGX
- 3_AYZJ_LHLMIgZ27HF0TUigM7ugt.vD58vsm3U81a3PrblkHQxVEOLRwAieeBSNhSFpU0yFjvz0M
- ubSvRappSVfE5kxhekJ0qEXB3KgeT5PR4SllI6v4hK_xUUy.mGfiDAobakaHl86Vvx7Ss06yrb0w
- pkcNOwFDQ01CnpbEQRrnzmFCX0n6vU._s0OIUqEJS654Lem_14ZO7UWnt2NpKQecdcmYBNHwrLMq
- qqMR2gV_JZJd2Vm6VyXDmUPmRHaPSrnCLDISPYTNu.a.FJnYJZKrWGt9lVN5gLrQbxAWoNsDd1A-
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 21 Apr 2020 15:47:07 +0000
-Date:   Tue, 21 Apr 2020 15:47:04 +0000 (UTC)
-From:   "Mrs. Mina A. Brunel" <mrs.mainaabrunel126@gmail.com>
-Reply-To: mrs.minaabrunel2021@aol.com
-Message-ID: <767519345.330602.1587484024472@mail.yahoo.com>
-Subject:  My Dear in the lord
+        id S1725960AbgDUPyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 11:54:44 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:33333 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725613AbgDUPyn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 11:54:43 -0400
+Received: by mail-pl1-f196.google.com with SMTP id ay1so5392356plb.0;
+        Tue, 21 Apr 2020 08:54:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=WA9A83mNO4Jsc2bWW6Z8o2K5ouW7sqEUFm9fDXDQEic=;
+        b=gtxmJPBj3O9ErUcTi8LRjbZwGVHqYQWgRgQLQcvFXIStN8gCEZ7QTqOgFgzRSIQ3RG
+         TNfPUbV4P4ouBMiySvmxuOCfu909T81bSgpzoi1Zzu2r831GtkbDHuPDeX5O1dKteDh1
+         sDAbbYO0bE5Ndn1ps6MlFa0SmMRuS6vxPCpysi/DxCAIw1P36IY/fGK0IgsUveBT8/Gw
+         T5VnBBvQEXGU1coRgfBtpHZskQPeNSrxi8ud0QCdFJIL/dA6LPwHScMFfL5aBa3w1Yzf
+         f6ddwx3ISJFkrF9n8gOnd3UcKrg37vaSlniX3A0etgDX0rKCTr/qSbJEmOIZZOyAD1cM
+         gq5g==
+X-Gm-Message-State: AGi0PuYxbpoGzqZXOSWCPUeDGj3UMGua6lBy7KFDrCCUqWo+0A/QVKrZ
+        uN2aQdL12qka8f5wgNYmwUM=
+X-Google-Smtp-Source: APiQypIaMU86jrFKZ3g4JB1E5/X3QoymTNnWg2UjNrJeZc8T2p7/jLVqRto/TPPKBMt8E8Ug9uLBJA==
+X-Received: by 2002:a17:90a:4e81:: with SMTP id o1mr6125309pjh.161.1587484483049;
+        Tue, 21 Apr 2020 08:54:43 -0700 (PDT)
+Received: from sultan-box.localdomain ([104.200.129.62])
+        by smtp.gmail.com with ESMTPSA id x185sm2770600pfx.155.2020.04.21.08.54.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Apr 2020 08:54:42 -0700 (PDT)
+Date:   Tue, 21 Apr 2020 08:54:40 -0700
+From:   Sultan Alsawaf <sultan@kerneltoast.com>
+To:     Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Matthew Auld <matthew.auld@intel.com>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4] drm/i915: Synchronize active and retire callbacks
+Message-ID: <20200421155440.GA2289@sultan-box.localdomain>
+References: <20200404024156.GA10382@sultan-box.localdomain>
+ <20200407064007.7599-1-sultan@kerneltoast.com>
+ <20200414061312.GA90768@sultan-box.localdomain>
+ <158685263618.16269.9317893477736764675@build.alporthouse.com>
+ <20200414144309.GB2082@sultan-box.localdomain>
+ <20200420052419.GA40250@sultan-box.localdomain>
+ <158737090265.8380.6644489879531344891@jlahtine-desk.ger.corp.intel.com>
+ <20200420161514.GB1963@sultan-box.localdomain>
+ <158745189706.5265.10618964185012452715@saswiest-mobl.ger.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <767519345.330602.1587484024472.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15739 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <158745189706.5265.10618964185012452715@saswiest-mobl.ger.corp.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Apr 21, 2020 at 09:51:37AM +0300, Joonas Lahtinen wrote:
+> Quoting Sultan Alsawaf (2020-04-20 19:15:14)
+> > On Mon, Apr 20, 2020 at 11:21:42AM +0300, Joonas Lahtinen wrote:
+> > > So it seems that the patch got pulled into v5.6 and has been backported
+> > > to v5.5 but not v5.4.
+> > 
+> > You're right, that's my mistake.
+> 
+> Did applying the patch to v5.4 fix the issue at hand?
 
+Of course the patch doesn't apply as-is because the code's been shuffled around,
+but yes. The crashes are gone with that patch, and I don't have the motivation
+to check if that patch is actually correct, so hurray, problem solved. I'm not
+going to send the backport myself because I'll probably be ignored, so you can
+go ahead and do that.
 
-My Dear in the lord
-
-
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politician who owns a small =
-gold company in Burkina Faso; He died of Leprosy and Radesyge, in the year =
-February 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Mi=
-llion Euro) Eight million, Five hundred thousand Euros in a bank in Rome th=
-e capital city of Italy in Southern Europe. The money was from the sale of =
-his company and death benefits payment and entitlements of my deceased husb=
-and by his company.
-
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
-
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
-
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
-
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
-
-Thanks
-Mrs. Mina A. Brunel
+Sultan
