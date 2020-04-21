@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45D5A1B2655
+	by mail.lfdr.de (Postfix) with ESMTP id B1DAF1B2656
 	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 14:40:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728739AbgDUMku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 08:40:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59972 "EHLO
+        id S1728881AbgDUMkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 08:40:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728874AbgDUMku (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:40:50 -0400
+        by vger.kernel.org with ESMTP id S1728874AbgDUMkv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:40:51 -0400
 Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B88FDC061A41
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:49 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id y24so3495436wma.4
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF17C061A10
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:50 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id g12so3502198wmh.3
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=FufN8ACRAoxbxjTegJ+M/1R/ELgdwjuEiGq1TqIq1Lc=;
-        b=vLKSrKHBC50HSMEdUg3fKqcwrRGVHBJu7KLH38rc0PcUh6NQ+hOhqV3S39seQRhw0f
-         o33MVGiFdMGCo9284qpruQ2jhc/Ui+O3ieHQvF5mdpbf7MG9xow358kY8NNJkarcutuw
-         Wh1Z8TXg1PshyCVx5EWPyG2Zz9drckRADrqb/2IvB/kAnXdHexjLejkNZrSh7jVaBHSy
-         9oqOfuTlKOJL+xJxIV1wPC2Iyutby492EpNZdi9gSi33CAbI5Ehed4bW5P1EJFyO9fSS
-         BOvzWfpG3PGdtw9BbU4jS5fKPPYyts9IJt8sqR+9BpqZQ2H+YGQPo6Uh5UwprN+xCEpT
-         7rsw==
+        bh=yViPn8Fbz3RmNQjEqtPLmElTrNVmdZ3e4vYeMjUnLFM=;
+        b=N61NQu1JjNoqZQoeblPvtN/rYL8PcxIX/UivRLX4uoB8AiAO/QcqtDpS9rZFB4rA2W
+         YIKO6wWoWYJNeo91Ni3sJSi5x446rGFYwXPA499xzrjTeFZBcR+Roun/SF4RMNpJQ2r7
+         gpCL2FMrbEIHezg5qCcpxepHK7qFFxvXX6aD8Tr9S5P/VqyD6F46nFrrSA9admJc14yK
+         Bn1jD7cbFB9rvgxiWLNIIWQipCMpI2elpKEMK2MhKMO7IfMeoe97ZLsHSAeVfLSMudef
+         KIqYFDRt0THiB9EXByGOQBTPMhMbBjgkI3O9eO43i4nAPNyRme3oxkJWqckyrYobLuNR
+         tbpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=FufN8ACRAoxbxjTegJ+M/1R/ELgdwjuEiGq1TqIq1Lc=;
-        b=SsJxM5e7TaIb8rgOzlBPzl+Q+3MTnc5kSzZ7JUE53lbMfOiboO9SHv0WOl4MmgtXA/
-         FDKssMgkoUkuUcNuuN5nmPbLgsD0MgBJkiRg5YeQDq9Y694Qwh5ta1uNNehxJKAsSbor
-         tjSRP1VJ9gQV4DqzZiJL18X3njAg0Xpczo3mHefP4SFpsh1pQ+Ti875/8rhx1Ukvzmyk
-         jjJC0EqhZSd/vxdCsJZXPKg/PPf5ec7qXTIPr24zixoyiHBIIdNLno0PjAkPkJsqG47e
-         LLQMu/Biv/y09wl592BgU0LQQpqt0xp3qJpBt33aDPgPEScY8FMwibr+Y/pwJ6BVyE5d
-         Gzeg==
-X-Gm-Message-State: AGi0PuZ4ffKQKpnlnxVwQoWapYnrzKvuutHizvJpSGDArms9FV5JKVWl
-        zeV5XjOKqkbqI7wbplrbe3Se7pErXbg=
-X-Google-Smtp-Source: APiQypLDkm0AyICgP+rg7hysUAnYTbVKrjTvaL/62bezJ48PyKrWuUyqg3dDcSP1h71u3NvC3ObVjQ==
-X-Received: by 2002:a1c:4085:: with SMTP id n127mr5008186wma.163.1587472848215;
-        Tue, 21 Apr 2020 05:40:48 -0700 (PDT)
+        bh=yViPn8Fbz3RmNQjEqtPLmElTrNVmdZ3e4vYeMjUnLFM=;
+        b=BqzNVVE1EgZBtzicisTvWlakW93+zcYWLBQ5eT0bCWsni5s1AxDRIx0wdBGLwn4ImK
+         j5Qz7X7Zp1FPvevOhA8NGu+ZW6HqCaAEcjtcnjCHBJ8/9pWbKqAl5q1IrPEC5zdQHxh3
+         pRwTcYD0hsL5PGwEgMA4MnRxhu7HPg0Ppl2MCKaZ/5h4RJTb5B2vwtMCjwvwjok3jcEY
+         +gTHjjYj77BcCRtEmLMRWtzazDV4qisoMfUo64eRmWaHoi8h9dKh6vupKGho6PFfJwCq
+         UXp3oUR1RwrN8waZKQRjHEmPFOFZHVW9vVeb8JssCvn26xVF4aY/S2gNyi5GHS/MJDBK
+         HQQg==
+X-Gm-Message-State: AGi0PuYSvG+U2+GGNHlPj0FNXAUDkB5Iv1uRwqFpZTColOWTsRN3NFsq
+        dMtHr5+APTM30mYkkCvyLMdcTmtsOqA=
+X-Google-Smtp-Source: APiQypKhkZ9+Atlav6XE7j55CLG9RFti6kTxtS1VpW13kozRUX/MqZlaom3n+ZY9C9vhqWebCcArQA==
+X-Received: by 2002:a7b:cf2b:: with SMTP id m11mr4432437wmg.147.1587472849416;
+        Tue, 21 Apr 2020 05:40:49 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.40.46
+        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.40.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2020 05:40:47 -0700 (PDT)
+        Tue, 21 Apr 2020 05:40:48 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     Timur Tabi <timur@codeaurora.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+Cc:     Xu YiPing <xuyiping@hisilicon.com>,
+        Julien Thierry <julien.thierry@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 03/24] Revert "gpio: set up initial state from .get_direction()"
-Date:   Tue, 21 Apr 2020 13:39:56 +0100
-Message-Id: <20200421124017.272694-4-lee.jones@linaro.org>
+Subject: [PATCH 4.14 04/24] arm64: perf: remove unsupported events for Cortex-A73
+Date:   Tue, 21 Apr 2020 13:39:57 +0100
+Message-Id: <20200421124017.272694-5-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200421124017.272694-1-lee.jones@linaro.org>
 References: <20200421124017.272694-1-lee.jones@linaro.org>
@@ -66,68 +66,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timur Tabi <timur@codeaurora.org>
+From: Xu YiPing <xuyiping@hisilicon.com>
 
-[ Upstream commit 1ca2a92b2a99323f666f1b669b7484df4bda05e4 ]
+[ Upstream commit f8ada189550984ee21f27be736042b74a7da1d68 ]
 
-This reverts commit 72d3200061776264941be1b5a9bb8e926b3b30a5.
+bus access read/write events are not supported in A73, based on the
+Cortex-A73 TRM r0p2, section 11.9 Events (pages 11-457 to 11-460).
 
-We cannot blindly query the direction of all GPIOs when the pins are
-first registered.  The get_direction callback normally triggers a
-read/write to hardware, but we shouldn't be touching the hardware for
-an individual GPIO until after it's been properly claimed.
-
-Signed-off-by: Timur Tabi <timur@codeaurora.org>
-Reviewed-by: Stephen Boyd <sboyd@codeaurora.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 5561b6c5e981 "arm64: perf: add support for Cortex-A73"
+Acked-by: Julien Thierry <julien.thierry@arm.com>
+Signed-off-by: Xu YiPing <xuyiping@hisilicon.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/gpio/gpiolib.c | 31 +++++++------------------------
- 1 file changed, 7 insertions(+), 24 deletions(-)
+ arch/arm64/kernel/perf_event.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index f0777a7a4305b..d5b42cc86d718 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1245,31 +1245,14 @@ int gpiochip_add_data(struct gpio_chip *chip, void *data)
- 		struct gpio_desc *desc = &gdev->descs[i];
+diff --git a/arch/arm64/kernel/perf_event.c b/arch/arm64/kernel/perf_event.c
+index 05fdae70e9f6e..53df84b2a07f4 100644
+--- a/arch/arm64/kernel/perf_event.c
++++ b/arch/arm64/kernel/perf_event.c
+@@ -262,12 +262,6 @@ static const unsigned armv8_a73_perf_cache_map[PERF_COUNT_HW_CACHE_MAX]
  
- 		desc->gdev = gdev;
--		/*
--		 * REVISIT: most hardware initializes GPIOs as inputs
--		 * (often with pullups enabled) so power usage is
--		 * minimized. Linux code should set the gpio direction
--		 * first thing; but until it does, and in case
--		 * chip->get_direction is not set, we may expose the
--		 * wrong direction in sysfs.
--		 */
+ 	[C(L1D)][C(OP_READ)][C(RESULT_ACCESS)]	= ARMV8_IMPDEF_PERFCTR_L1D_CACHE_RD,
+ 	[C(L1D)][C(OP_WRITE)][C(RESULT_ACCESS)]	= ARMV8_IMPDEF_PERFCTR_L1D_CACHE_WR,
 -
--		if (chip->get_direction) {
--			/*
--			 * If we have .get_direction, set up the initial
--			 * direction flag from the hardware.
--			 */
--			int dir = chip->get_direction(chip, i);
+-	[C(NODE)][C(OP_READ)][C(RESULT_ACCESS)]	= ARMV8_IMPDEF_PERFCTR_BUS_ACCESS_RD,
+-	[C(NODE)][C(OP_WRITE)][C(RESULT_ACCESS)] = ARMV8_IMPDEF_PERFCTR_BUS_ACCESS_WR,
+-
+-	[C(NODE)][C(OP_READ)][C(RESULT_ACCESS)]	= ARMV8_IMPDEF_PERFCTR_BUS_ACCESS_RD,
+-	[C(NODE)][C(OP_WRITE)][C(RESULT_ACCESS)] = ARMV8_IMPDEF_PERFCTR_BUS_ACCESS_WR,
+ };
  
--			if (!dir)
--				set_bit(FLAG_IS_OUT, &desc->flags);
--		} else if (!chip->direction_input) {
--			/*
--			 * If the chip lacks the .direction_input callback
--			 * we logically assume all lines are outputs.
--			 */
--			set_bit(FLAG_IS_OUT, &desc->flags);
--		}
-+		/* REVISIT: most hardware initializes GPIOs as inputs (often
-+		 * with pullups enabled) so power usage is minimized. Linux
-+		 * code should set the gpio direction first thing; but until
-+		 * it does, and in case chip->get_direction is not set, we may
-+		 * expose the wrong direction in sysfs.
-+		 */
-+		desc->flags = !chip->direction_input ? (1 << FLAG_IS_OUT) : 0;
- 	}
- 
- #ifdef CONFIG_PINCTRL
+ static const unsigned armv8_thunder_perf_cache_map[PERF_COUNT_HW_CACHE_MAX]
 -- 
 2.25.1
 
