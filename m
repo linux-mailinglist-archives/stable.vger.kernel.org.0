@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0FC91B30C4
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 21:56:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36AE41B30C7
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 21:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726262AbgDUT4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 15:56:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47466 "EHLO mail.kernel.org"
+        id S1726106AbgDUT4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 15:56:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726200AbgDUT4O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Apr 2020 15:56:14 -0400
+        id S1726296AbgDUT4Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Apr 2020 15:56:16 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD4D1206D9;
-        Tue, 21 Apr 2020 19:56:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B38120747;
+        Tue, 21 Apr 2020 19:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587498974;
-        bh=xPugJXtBDtdc5k1y/O0zEVTc7QjdHvDoYHPn2VLQFFI=;
-        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
-         From;
-        b=BylQYOJaqcJ3c3usRhV5MlZ8blrIP5jXMyuhzHbkxWfqr2NOtKUBiMR+IzSIEcTwe
-         zvNrpqCqfnhkDW1jsCYwyxu/RT1Oyu8m9GXgMkJCLKRglRSMQHotgf4qF4TYrNsRTI
-         8DZeYfuBCzcZQJ7C+cKOZg4GyxdFzSRio6ZIIVMA=
-Date:   Tue, 21 Apr 2020 19:56:12 +0000
+        s=default; t=1587498975;
+        bh=6x/wFhtn8aM071j72/VXJj4F4EHWZDkKIF9PYyRrkKM=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=0kx5FJf08ZpB3GtSdyjo56633EJ8qs8lNmDQZKMKzwfslo6dmtB+TK27QpvKXxgzn
+         LNZkcB75jQQjuwJ9M1CsVcGlJEOiGN7uwGPMmeRopZcKknz0DEcYiXhRV2NGOuBpYf
+         u7uNXDIm1L48XJg5XpT7OA+gq+OEd5kxPYAVJE60=
+Date:   Tue, 21 Apr 2020 19:56:14 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Huacai Chen <chenhc@lemote.com>
-To:     Xing Li <lixing@loongson.cn>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     kvm@vger.kernel.org, qemu-devel@nongnu.org
+To:     Malcolm Priestley <tvboxspy@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>
+Cc:     stable <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 03/15] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
-In-Reply-To: <1586763024-12197-4-git-send-email-chenhc@lemote.com>
-References: <1586763024-12197-4-git-send-email-chenhc@lemote.com>
-Message-Id: <20200421195613.CD4D1206D9@mail.kernel.org>
+Subject: Re: [PATCH] staging: vt6656: Power save stop wake_up_count wrap around.
+In-Reply-To: <fce47bb5-7ca6-7671-5094-5c6107302f2b@gmail.com>
+References: <fce47bb5-7ca6-7671-5094-5c6107302f2b@gmail.com>
+Message-Id: <20200421195615.0B38120747@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -46,29 +44,59 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 43c93d9bf5e2 ("staging: vt6656: implement power saving code.").
 
 The bot has tested the following trees: v5.6.5, v5.5.18, v5.4.33, v4.19.116, v4.14.176, v4.9.219, v4.4.219.
 
-v5.6.5: Build OK!
-v5.5.18: Build OK!
-v5.4.33: Build OK!
-v4.19.116: Build OK!
-v4.14.176: Build OK!
-v4.9.219: Build OK!
+v5.6.5: Failed to apply! Possible dependencies:
+    10e9a359cea7 ("staging: vt6656: Delete int.c/h file and move functions to usbpipe")
+
+v5.5.18: Failed to apply! Possible dependencies:
+    10e9a359cea7 ("staging: vt6656: Delete int.c/h file and move functions to usbpipe")
+
+v5.4.33: Failed to apply! Possible dependencies:
+    10e9a359cea7 ("staging: vt6656: Delete int.c/h file and move functions to usbpipe")
+
+v4.19.116: Failed to apply! Possible dependencies:
+    10e9a359cea7 ("staging: vt6656: Delete int.c/h file and move functions to usbpipe")
+    69cc1f925e1a ("staging: vt6656: limit reg output to block size")
+    7156f7d9c387 ("staging: vt6656: avoid discarding called function's return code")
+    9df8a97088f2 ("staging: vt6656: Fix styling of the comment related to SPDX-License-Identifier")
+
+v4.14.176: Failed to apply! Possible dependencies:
+    10e9a359cea7 ("staging: vt6656: Delete int.c/h file and move functions to usbpipe")
+    69cc1f925e1a ("staging: vt6656: limit reg output to block size")
+    6b4c6ce89204 ("staging: vt6656: add SPDX identifiers to all vt6656 driver files")
+    7156f7d9c387 ("staging: vt6656: avoid discarding called function's return code")
+    9df8a97088f2 ("staging: vt6656: Fix styling of the comment related to SPDX-License-Identifier")
+
+v4.9.219: Failed to apply! Possible dependencies:
+    0ef48913354e ("staging:vt6656:mac.c Aligned code to match open parenthesis")
+    10e9a359cea7 ("staging: vt6656: Delete int.c/h file and move functions to usbpipe")
+    69cc1f925e1a ("staging: vt6656: limit reg output to block size")
+    6b4c6ce89204 ("staging: vt6656: add SPDX identifiers to all vt6656 driver files")
+    6ddcf34f113a ("staging: vt6656: Add missing identifier names")
+    7156f7d9c387 ("staging: vt6656: avoid discarding called function's return code")
+    759fc3c1e9b6 ("Staging: vt6656: Align lines to match open parenthesis")
+    812930665872 ("staging: vt6656: Alignment should match open parenthesis")
+    9df8a97088f2 ("staging: vt6656: Fix styling of the comment related to SPDX-License-Identifier")
+    a4dc9bd6a35d ("staging: vt6656: convert spaces to tabs for rf.c")
+    e2aefba617e3 ("staging:vt6656:baseband.h: fix function definition argument without identifier name issue")
+
 v4.4.219: Failed to apply! Possible dependencies:
-    029499b47738 ("KVM: x86: MMU: Make mmu_set_spte() return emulate value")
-    19d194c62b25 ("MIPS: KVM: Simplify TLB_* macros")
-    403015b323a2 ("MIPS: KVM: Move non-TLB handling code out of tlb.c")
-    7ee0e5b29d27 ("KVM: x86: MMU: Remove unused parameter of __direct_map()")
-    9a99c4fd6586 ("KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)")
-    9fbfb06a4065 ("MIPS: KVM: Arrayify struct kvm_mips_tlb::tlb_lo*")
-    ba049e93aef7 ("kvm: rename pfn_t to kvm_pfn_t")
-    bdb7ed8608f8 ("MIPS: KVM: Convert headers to kernel sized types")
-    ca64c2beecd4 ("MIPS: KVM: Abstract guest ASID mask")
-    caa1faa7aba6 ("MIPS: KVM: Trivial whitespace and style fixes")
-    e6207bbea16c ("MIPS: KVM: Use MIPS_ENTRYLO_* defs from mipsregs.h")
+    10e9a359cea7 ("staging: vt6656: Delete int.c/h file and move functions to usbpipe")
+    1322739849a8 ("staging:vt6656:baseband.h: Fix alignment issue")
+    555d7a3ada13 ("staging:vt6656:dpc.h:fix parantheses alignment")
+    5678824069d5 ("staging: vt6656: Add space to align functions")
+    69cc1f925e1a ("staging: vt6656: limit reg output to block size")
+    6b4c6ce89204 ("staging: vt6656: add SPDX identifiers to all vt6656 driver files")
+    6ddcf34f113a ("staging: vt6656: Add missing identifier names")
+    7156f7d9c387 ("staging: vt6656: avoid discarding called function's return code")
+    759fc3c1e9b6 ("Staging: vt6656: Align lines to match open parenthesis")
+    9df8a97088f2 ("staging: vt6656: Fix styling of the comment related to SPDX-License-Identifier")
+    a9f47a456ae5 ("staging:vt6656:card.c:fix alignment checks")
+    e2aefba617e3 ("staging:vt6656:baseband.h: fix function definition argument without identifier name issue")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
