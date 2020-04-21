@@ -2,60 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 723321B2665
+	by mail.lfdr.de (Postfix) with ESMTP id 049A01B2664
 	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 14:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728918AbgDUMlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 08:41:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60004 "EHLO
+        id S1728901AbgDUMlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 08:41:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728899AbgDUMk6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:40:58 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92ADAC061A41
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:58 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id v4so2437496wme.1
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:58 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1728915AbgDUMlA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:41:00 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB02C061A10
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:59 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id j1so10871850wrt.1
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=D1qqE7A+oH64Ry/wyerr3JPc4eLEauhFijFSbfrVnb0=;
-        b=GbpiXnfKz53JBMmUyc/D5ljAXLmX/B8de60yB5shRISEC1j6T1ASKoWZVz13gkMMVb
-         QSBaNEebqFl5b5/lIo+N7CIwCoEL3a5ygT4FBZ+kpvxijE7/x1Bq2BERbK+SqTW0fMvJ
-         XWwiq82zh3uyGHUYzYCcMSfxsIT3s2jfkgBu3Yc5HqcelzxvAZ0lvPwZg0o9dASFnhds
-         uUmsojNL0hVtFRUJLsAPjGiN/qq96BmVEJSM2KxhfmxZINfn4uW88WV7oMH8wecgaS5C
-         YpNUQkFZeWUaNM1ynXxoG6oKiX0ia4EzXg/lYAOjTzPbQBjwaI7yGsZ9EkL+1z2FiZQD
-         5I5Q==
+        bh=Y12kj5rwfob3P4HMM4TUh3MSvYrBnXpxaUuKSuJ7rB8=;
+        b=SPeFlrNytCRuHZZY7Lm/dvHA1EJZF1+B1QjuWeye/H2AzQcyfGmYjbqStuToDCi1U3
+         m+nZDgELcnFFtyeyr6+8wqIFcMlHxrVy7DJZ7LD0GkvvWcsAlJYfeqNl17A3l4kZiQAR
+         PU/Ag02LzFqJqmzICC7zfoCc2+OtSfAFcvCDcK42MNGVMT0idQFnECU1DvOdwHN8pFR+
+         lo+Lh39+3QEz+6qnw69zUxJ0BYfF/0J/IWkVtnXhvZYZrQc6ozCsG5OrOt7fn8A3wOEo
+         l6p6444bYVDUUY0NRvCLpso//mkNPKp4qrtUqBQb0dZ6Mn3NKbyCHb4L+czrUu86YaNK
+         oyKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=D1qqE7A+oH64Ry/wyerr3JPc4eLEauhFijFSbfrVnb0=;
-        b=fOr1WnNJhpTpQEKpsrBIblcT8GxzRgGs6rnYvRFnHj+2p1ORE5L3lQ61aEQcKYHTbt
-         5n0WbMa9W090A2+m/UzXUijEzobzUbLr4sno51/TgYBCUn0XaT+4QFE5wfHwFlS+73+5
-         i3SNz3CvTEYtl6qThcxNTNtdVR3fmT0jKdX8/i3qLrO8RLXmiBZ/q5xnTscQAr+xv1pt
-         Wqb3+v2y0s0MC4+Y/65uS4R2QMTZMPOV6DnHaSePKZ0rmk2FursYiqetP/lDdrY43PrO
-         VojpR+MNfDnL5DI/ZEyPlWrBfpwtIkugKDIDMZiFYQ34WpBwMiD8m2oj3TwrQ2S6k5cl
-         wuzg==
-X-Gm-Message-State: AGi0PuZ4X1wRWZYoR1Kgm+wzlZE7pg23SQVJLm0Eoasl3W9AASMiI+eu
-        zSpW1GnLYBa9GxLObUPRUkZQlmNFdnc=
-X-Google-Smtp-Source: APiQypJk9DcplRKoo7qnbk98r/waMpYrW72ZcbleNr/EEw7oInnfybIkOGpDFtiK4Jcy4tWpLbOjXg==
-X-Received: by 2002:a7b:cf2b:: with SMTP id m11mr4432860wmg.147.1587472857141;
-        Tue, 21 Apr 2020 05:40:57 -0700 (PDT)
+        bh=Y12kj5rwfob3P4HMM4TUh3MSvYrBnXpxaUuKSuJ7rB8=;
+        b=N8+LOIy5ezRhVbAV4D8URdgfuqvIxsm7JeKGxd/A+2BqIJlbUpFWABetRKlNuf1Lcd
+         nYA2bpoeE8zE+yfR0dJvEZ7wbp7ceasHZbe/gu82gBxz8Kbmlfp3a8MuAHG3c0Tkotty
+         zqJUqfOYxQ1pzT6eBciZkqh+g9Mer3Gsw73+siqsJZHh1GY4EgzZBSCjkUsOmiXRt9BG
+         19SejSTLlMO7mVH4CuWWVhnt/kIhjN19Wo9/K5mg4xmEUWDlNQNPdpiVNip8iPNcgHI2
+         mHiEZYApDzWpfAGKG8zpWrpdIbx5qUrdq+S5FGJTOFYfHhJkaYzcQ7dvkqoaanmqPakw
+         2idw==
+X-Gm-Message-State: AGi0PubRZw/amDFP+fUfkhd5JXrSpZibQXeb8GpRWBuJAxeoxNB4vdz8
+        Wg7f4RY27wlYlm/i6z+/IBTvxtI4ocw=
+X-Google-Smtp-Source: APiQypKUrUHvK1VRzwRgxmcdhpseXaz8POJy4qGtSJUeJXbXz2RCmQ2ZDeMa3xcjUFnh+FI6nAvjcQ==
+X-Received: by 2002:adf:80ee:: with SMTP id 101mr12270093wrl.156.1587472858307;
+        Tue, 21 Apr 2020 05:40:58 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.40.55
+        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.40.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2020 05:40:56 -0700 (PDT)
+        Tue, 21 Apr 2020 05:40:57 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     Dedy Lansky <dlansky@codeaurora.org>,
-        Maya Erez <merez@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+Cc:     Venkat Gopalakrishnan <venkatg@codeaurora.org>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        Subhash Jadavani <subhashj@codeaurora.org>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 09/24] wil6210: fix temperature debugfs
-Date:   Tue, 21 Apr 2020 13:40:02 +0100
-Message-Id: <20200421124017.272694-10-lee.jones@linaro.org>
+Subject: [PATCH 4.14 10/24] scsi: ufs: make sure all interrupts are processed
+Date:   Tue, 21 Apr 2020 13:40:03 +0100
+Message-Id: <20200421124017.272694-11-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200421124017.272694-1-lee.jones@linaro.org>
 References: <20200421124017.272694-1-lee.jones@linaro.org>
@@ -66,54 +67,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dedy Lansky <dlansky@codeaurora.org>
+From: Venkat Gopalakrishnan <venkatg@codeaurora.org>
 
-[ Upstream commit 6d9eb7ebae3d7e951bc0999235ae7028eb4cae4f ]
+[ Upstream commit 7f6ba4f12e6cbfdefbb95cfd8fc67ece6c15d799 ]
 
-For negative temperatures, "temp" debugfs is showing wrong values.
-Use signed types so proper calculations is done for sub zero
-temperatures.
+As multiple requests are submitted to the ufs host controller in
+parallel there could be instances where the command completion interrupt
+arrives later for a request that is already processed earlier as the
+corresponding doorbell was cleared when handling the previous
+interrupt. Read the interrupt status in a loop after processing the
+received interrupt to catch such interrupts and handle it.
 
-Signed-off-by: Dedy Lansky <dlansky@codeaurora.org>
-Signed-off-by: Maya Erez <merez@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Venkat Gopalakrishnan <venkatg@codeaurora.org>
+Signed-off-by: Asutosh Das <asutoshd@codeaurora.org>
+Reviewed-by: Subhash Jadavani <subhashj@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/wireless/ath/wil6210/debugfs.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
-index 6db00c167d2e1..3a98f75c5d7e5 100644
---- a/drivers/net/wireless/ath/wil6210/debugfs.c
-+++ b/drivers/net/wireless/ath/wil6210/debugfs.c
-@@ -1093,7 +1093,7 @@ static const struct file_operations fops_ssid = {
- };
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index c350453246952..f4f2c4f22b5f5 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -5366,19 +5366,30 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
+ 	u32 intr_status, enabled_intr_status;
+ 	irqreturn_t retval = IRQ_NONE;
+ 	struct ufs_hba *hba = __hba;
++	int retries = hba->nutrs;
  
- /*---------temp------------*/
--static void print_temp(struct seq_file *s, const char *prefix, u32 t)
-+static void print_temp(struct seq_file *s, const char *prefix, s32 t)
- {
- 	switch (t) {
- 	case 0:
-@@ -1101,7 +1101,8 @@ static void print_temp(struct seq_file *s, const char *prefix, u32 t)
- 		seq_printf(s, "%s N/A\n", prefix);
- 	break;
- 	default:
--		seq_printf(s, "%s %d.%03d\n", prefix, t / 1000, t % 1000);
-+		seq_printf(s, "%s %s%d.%03d\n", prefix, (t < 0 ? "-" : ""),
-+			   abs(t / 1000), abs(t % 1000));
- 		break;
- 	}
+ 	spin_lock(hba->host->host_lock);
+ 	intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
+-	enabled_intr_status =
+-		intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
+ 
+-	if (intr_status)
+-		ufshcd_writel(hba, intr_status, REG_INTERRUPT_STATUS);
++	/*
++	 * There could be max of hba->nutrs reqs in flight and in worst case
++	 * if the reqs get finished 1 by 1 after the interrupt status is
++	 * read, make sure we handle them by checking the interrupt status
++	 * again in a loop until we process all of the reqs before returning.
++	 */
++	do {
++		enabled_intr_status =
++			intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
++		if (intr_status)
++			ufshcd_writel(hba, intr_status, REG_INTERRUPT_STATUS);
++		if (enabled_intr_status) {
++			ufshcd_sl_intr(hba, enabled_intr_status);
++			retval = IRQ_HANDLED;
++		}
++
++		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
++	} while (intr_status && --retries);
+ 
+-	if (enabled_intr_status) {
+-		ufshcd_sl_intr(hba, enabled_intr_status);
+-		retval = IRQ_HANDLED;
+-	}
+ 	spin_unlock(hba->host->host_lock);
+ 	return retval;
  }
-@@ -1109,7 +1110,7 @@ static void print_temp(struct seq_file *s, const char *prefix, u32 t)
- static int wil_temp_debugfs_show(struct seq_file *s, void *data)
- {
- 	struct wil6210_priv *wil = s->private;
--	u32 t_m, t_r;
-+	s32 t_m, t_r;
- 	int rc = wmi_get_temperature(wil, &t_m, &t_r);
- 
- 	if (rc) {
 -- 
 2.25.1
 
