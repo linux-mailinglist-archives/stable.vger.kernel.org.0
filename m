@@ -2,69 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B03DC1B30CB
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 21:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30F2A1B30D7
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 21:56:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726116AbgDUT4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 15:56:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47902 "EHLO mail.kernel.org"
+        id S1726112AbgDUT4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 15:56:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726012AbgDUT4X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Apr 2020 15:56:23 -0400
-Received: from localhost (unknown [137.135.114.1])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725930AbgDUT4x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 21 Apr 2020 15:56:53 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A91020747;
-        Tue, 21 Apr 2020 19:56:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3942820747;
+        Tue, 21 Apr 2020 19:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587498983;
-        bh=92sqrSPkQErIEihvZCpDELC2haa1dFyWUE+gZfEtXRQ=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=O2Zi+FG3u9nlMDf57NjvQUINE8D3D8DoqXOXphjpTaDpP5bB3ki67yXqPKiCU4ZMM
-         /UkWTmCwsI+6Dfp60w1I3WIB3gRw+8a+f2x8sI4mf+FjC/PzFlR0kVJfudJ7tGRebN
-         6YfjZnGpc4bxuIp4+geH1owrviG2qjdWrIae6Uhs=
-Date:   Tue, 21 Apr 2020 19:56:22 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Malcolm Priestley <tvboxspy@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>
-Cc:     stable <stable@vger.kernel.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] staging: vt6656: Fix pairwise key entry save.
-In-Reply-To: <da2f7e7f-1658-1320-6eee-0f55770ca391@gmail.com>
-References: <da2f7e7f-1658-1320-6eee-0f55770ca391@gmail.com>
-Message-Id: <20200421195623.2A91020747@mail.kernel.org>
+        s=default; t=1587499012;
+        bh=ETifHYDRK1FzZJ6ND7rFAzLA3xN5oZGfPogquuTNc5Q=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=fYGrdLlQ6fiuttI3ramdPVO44yeoN8o1888LgBd/lARcHjSmUKvRaLOfskJE1JtLz
+         MAm+V9o2QzxbLTcMl3TwR8ojRjJLwszOwpXIT6XLsNw+Cjh3sc4F/EWtwntDhcCSYq
+         uCQ+wsZXZDOdUW0IUveXXlZl5OcvAxPzy2fynAqw=
+Subject: Re: [PATCH 5.5 00/65] 5.5.19-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200420121505.909671922@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <0f30ba9e-ae8a-850c-04a4-1a96567b3dd4@kernel.org>
+Date:   Tue, 21 Apr 2020 13:56:51 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20200420121505.909671922@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+On 4/20/20 6:38 AM, Greg Kroah-Hartman wrote:
+> --------------------
+> NOTE: this is going to be the LAST 5.5.y release, after this one, it will be
+> end-of-life, please move to 5.6.y at this point in time.
+> --------------------
+> 
+> This is the start of the stable review cycle for the 5.5.19 release.
+> There are 65 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 22 Apr 2020 12:10:36 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.19-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-[This is an automated email]
+Compiled and booted on my test system. No dmesg regression.
+Reboot/poweroff work - hang problem fixed.
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: f9ef05ce13e4 ("staging: vt6656: Fix pairwise key for non station modes").
+thanks,
+-- Shuah
 
-The bot has tested the following trees: v5.6.5, v5.5.18, v5.4.33, v4.19.116, v4.14.176, v4.9.219, v4.4.219.
-
-v5.6.5: Build OK!
-v5.5.18: Build OK!
-v5.4.33: Build OK!
-v4.19.116: Build OK!
-v4.14.176: Build OK!
-v4.9.219: Failed to apply! Possible dependencies:
-    5e38e15e689b ("staging:vt6656:key.c Aligned code with open parenthesis")
-
-v4.4.219: Failed to apply! Possible dependencies:
-    5e38e15e689b ("staging:vt6656:key.c Aligned code with open parenthesis")
-
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
-
--- 
-Thanks
-Sasha
