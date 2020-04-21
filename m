@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBB8E1B2E24
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CACC1B2E25
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726335AbgDURTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726245AbgDURTB (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 21 Apr 2020 13:19:01 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:47685 "EHLO
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:57019 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726245AbgDURTA (ORCPT
+        by vger.kernel.org with ESMTP id S1728735AbgDURTA (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 13:19:00 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id D4B001940776;
-        Tue, 21 Apr 2020 13:09:47 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:09:47 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 345AE1940726;
+        Tue, 21 Apr 2020 13:09:49 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:09:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4nlw8r
-        /WIWd0dgpuBsggW4EUb7kJS5KXfhh7RdvEx6c=; b=288ywJbmkewNDiJrSsiXwA
-        eeWVDeiehNPYL0XGQnhpaGns7HwPrMGB9TFYyZVWCfhFG9bwZiGwSuiBXDF9pYgO
-        RocZQAAXkyJVCMVyy1N/eYmsrROQFMIji7tt5jr/zWSz7HdAmkQqmmIssVH/zR3Q
-        IfeCtsmhrIdUHnX8YB8ehw074F7lXh4fAT0ih+bK1z+dvC2BnU6tQPzVSsszNhun
-        RCb4egt2Nbb7mFCQZntuyUwYGtvvKMm3gfk8tFZPAbV8QH6hkk7dj/8YCyeEJvuE
-        rA4QkpplWkM0cK0Bj4g7sS/PkpmUk5WEie51xMQ3ITVVSW3/Za9vIM9dwJ3NvF9w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LCUbzu
+        UKiu4C5k1fXdeiX3CYU9aCgMxIL7YM+VIFN48=; b=eZ/0BYgNicA5rWh/tkxGLm
+        5/QRcOq5wbW8iR/de5SGOMUhvxf+5WPeq3GULdH3fwYcPCH8V9YUaAwvUUVlB+jP
+        mWxPZ1Ibord7TStuTFcdk6jvqVnmJ0dpIkBLa9np9tH/SUI4FLlB3qH7Gbg1Vh/g
+        HN5UJpcyP3TzeDxwIm/M7VR9uwuMKMWvQRZ0J+MdFWt2IOQSPUYvEutOhQnQJEfS
+        ncugPrQe7sMYtRa/dfPo/gN+2BL4vftR45ifVHERbQLfN7o/mpfcGYnYrW5lKqnl
+        tAGmVJOMaZouqcvczQo2pEtUBj65bP7r9C+fQtoEop9d5Z7N1XgD8mIU3ioqGw4A
         ==
-X-ME-Sender: <xms:2yifXrECDlt-_NL211RRx2el5IZtH869eHRIkYGM99Skic7Nk_ko6A>
+X-ME-Sender: <xms:3SifXs8eSb7GOg2BmKkvLGv16RkjpXH3Nes9kzB-i8-YAOisX7m5yw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrgeehgddutdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedune
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:2yifXskgs_UDYHJ1SuzuA6zrY9VSskXx-PZDREiA4A20F6YTRRu_qw>
-    <xmx:2yifXoJ4sNVOtITUHRK3b_cclw5S7L68o6sCIWHDMisWYz3TCGxgLg>
-    <xmx:2yifXtYkP2sO-6SwLeBHahwo8yrEeaRNbzBHGQ43DmAjq1MAbvampQ>
-    <xmx:2yifXn14CtcLlg-oYfOpdsMeJqceWBrVC_OnPtdmwbsccDyvp9RN2w>
+X-ME-Proxy: <xmx:3SifXgrX6OhiVCk3zScUwufjcEzEc_SB8kglNiUmcBIhMFbVWoPfLQ>
+    <xmx:3SifXoIncAhIOpBgo9-uIQgoBgUucAr7oDDqBi0ibit93o2py0gSEg>
+    <xmx:3SifXi13vaXGzctOA-s8cteoodobL6hCz32zdGejeoQSmvARVDOZHA>
+    <xmx:3SifXnIn9cUHbpM_-0QafwNxgHSYblJDCbpeZHXkSrznlBiLnKJssA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6BB083065C73;
-        Tue, 21 Apr 2020 13:09:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] of: unittest: kmemleak in of_unittest_platform_populate()" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id C76173280063;
+        Tue, 21 Apr 2020 13:09:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] of: unittest: kmemleak in of_unittest_platform_populate()" failed to apply to 4.9-stable tree
 To:     frank.rowand@sony.com, erhard_f@mailbox.org, robh@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 21 Apr 2020 19:09:38 +0200
-Message-ID: <158748897816258@kroah.com>
+Message-ID: <1587488978204151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
