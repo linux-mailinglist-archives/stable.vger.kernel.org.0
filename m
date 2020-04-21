@@ -2,61 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DFCA1B2659
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 14:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DAB71B265C
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 14:41:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728884AbgDUMkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 08:40:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59988 "EHLO
+        id S1728903AbgDUMk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 08:40:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728874AbgDUMky (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:40:54 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F493C061A10
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:54 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id u127so3515991wmg.1
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:54 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1728898AbgDUMkz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:40:55 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37023C061A41
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:55 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id 188so3393216wmc.2
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=yaJJtBeg9pW+fx6OVq7h64qYCeUsMdpitM20LISFeq8=;
-        b=lu8K0xiOQyVkDkU3kapyNmhq8Ag8U4Pc18sehh68/yS25iFyM/Dy9YcCAbPQlG2PgO
-         04jwZbd0jj/aHWi8Wq6N+3sqkyMQ/eEND1MgEnPA2eTyB1wfXMXIMT8XXOlJKwoqc90/
-         EL+l++hl9daVos7Jl+H53gXgps5xzkZ4Mj7d91c8dk8ZkUm9/PSm9tDfDk2jQ62fJlTb
-         5Nw+7OWsG60CFvhjbHCYOS5crsqpA4oC3s1W43XJvjkvzsvHDn6Ctr4Lyvoy48zShgVl
-         u2Laei3w1XqlkYLmoK4ru/3JUSfO5UPz6bfB7dq1T1Uf1rrNmoTF1cKa/fM23ynxPemR
-         kynA==
+        bh=GiktMIoV1OYAqlxtIDqvHy2UdqWYzp89wwK6vhfs1Yk=;
+        b=k6ZfrlSYeP4ex/U5u0dtLCo39z1l0m812h9TjU8lb9PuhbvMh/WGM7i3NOINDBpB89
+         p8cHS2WEvetVqB4sfftW+eKTU8D+jq+aVHrgFQ0X3vC3bFaU6Zv4TSKpXjhWVjasBgrL
+         dCjxI2me2G8nMNLN66x34ZHRiYDReY4UdCOk832Eq6yHtC2BfYpNmTmeJ4xWwRWWMh7T
+         R7lnKmDCXOP+nen91Omz5LE3waRk2+otV5MOG9Gwnk7CF2W4ZDtZXEpGx3rsw8YDx6Jn
+         1tCzM/rbSqoqO1Iqrvq8FDO9ZLTtiVhg4VG1er3y01UN4Lymx/6J4CZQo4E9l+c7RvBF
+         WHVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=yaJJtBeg9pW+fx6OVq7h64qYCeUsMdpitM20LISFeq8=;
-        b=K+G6zPejoOCP2x/vbQTo45oTSzporIKKtBiebo5SzQvfH1B6L2WlcryBxfNk3jIhLs
-         n+9kgl/F2PTKc8uc39ymBxaRqM1InMTWpjxGrM5xS5Y0WbYX5ZzpciXTgXzrX3PI2enx
-         zT/qK85VY9VueqT6BVXdcNuFchh+8nBf4hUnWP2+SXYA7mkXtvnWZT0hOQw8IorB0h/8
-         m33LxmeD+veyj/ZzBZQ6L3l50Eod5jmEeoaiaJoPl9Zx299Isa3qGzJ/CvSZLW6VfGEy
-         v+fh92JwhEP7CPS4qysChBrM9sv0+FLeUVyMC04KyBtfnuw7RN5Pu1t0FuA93dAnMaKb
-         D5gA==
-X-Gm-Message-State: AGi0PubQih+CtX8//OGOGDc2wA2LGc8Df2hnlcKzijyKqRjVZbwoYJyX
-        +bJNhwdtpd2Eaw5LOFA2NrqmxykCwPM=
-X-Google-Smtp-Source: APiQypKszn+JoxaYQcsPb4nIwylYVL3u01Q16k+IFvCRNH7MttTMs1ttL49YHbjrBSXa0y1Cdv1PPg==
-X-Received: by 2002:a1c:41d7:: with SMTP id o206mr4762543wma.89.1587472852674;
-        Tue, 21 Apr 2020 05:40:52 -0700 (PDT)
+        bh=GiktMIoV1OYAqlxtIDqvHy2UdqWYzp89wwK6vhfs1Yk=;
+        b=Zve/yQ5M9RZioquhF/rsPZOJgLjfOExc+kG4XTJcqlU8FCqJE40aaxZjJtKTt7GeXc
+         lJRryHgp6WG1NZyTIiCtMU++3s4+FU8YlPVGBtDSrB/Qlj3KykzJhUGiLQTP6/wu4xFK
+         His72xE5/d2nkfz+lbDEXTunyUFx+K+Mc4i5dM47bux8e+Q07t7MU/AfCQsnQ3jxpy0P
+         SzSCQTXCRHu1WYc4zSXnzCz0v8dnGL2/Ueeoq2gVKe8DXtxYHlFUCPUDkfTQzsUfA+iF
+         TtMeJmhNS0N/XEL5LJ7V4B9hRWjRUg5SfrkbtHdFlKgQ2T8uHved3ThPfMTB3IR6CfD0
+         oZvA==
+X-Gm-Message-State: AGi0Pubgao6WXkTivD+cLi8tYuW267wrKKYdeojMtWHGfINVlYVyksM5
+        DbTqPDAjQviH447AICPvhwBSKMnAIIY=
+X-Google-Smtp-Source: APiQypLdJXL3FgvBAN2DJvX9BRvsbxCsSHJjpGsWViLVIvXwx2oyQ0cNn19lHkdhd6eJupZA/IzXbg==
+X-Received: by 2002:a05:600c:29c2:: with SMTP id s2mr4629912wmd.111.1587472853691;
+        Tue, 21 Apr 2020 05:40:53 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.40.50
+        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.40.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2020 05:40:51 -0700 (PDT)
+        Tue, 21 Apr 2020 05:40:52 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
+Cc:     Prasad Sodagudi <psodagud@codeaurora.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 06/24] android: binder: Use true and false for boolean values
-Date:   Tue, 21 Apr 2020 13:39:59 +0100
-Message-Id: <20200421124017.272694-7-lee.jones@linaro.org>
+Subject: [PATCH 4.14 07/24] arch_topology: Fix section miss match warning due to free_raw_capacity()
+Date:   Tue, 21 Apr 2020 13:40:00 +0100
+Message-Id: <20200421124017.272694-8-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200421124017.272694-1-lee.jones@linaro.org>
 References: <20200421124017.272694-1-lee.jones@linaro.org>
@@ -67,54 +66,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+From: Prasad Sodagudi <psodagud@codeaurora.org>
 
-[ Upstream commit 197410ad884eb18b31d48e9d8e64cb5a9e326f2f ]
+[ Upstream commit 82d8ba717ccb54dd803624db044f351b2a54d000 ]
 
-Assign true or false to boolean variables instead of an integer value.
+Remove the __init annotation from free_raw_capacity() to avoid
+the following warning.
 
-This issue was detected with the help of Coccinelle.
+The function init_cpu_capacity_callback() references the
+function __init free_raw_capacity().
+WARNING: vmlinux.o(.text+0x425cc0): Section mismatch in reference
+from the function init_cpu_capacity_callback() to the function
+.init.text:free_raw_capacity().
 
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Cc: Todd Kjos <tkjos@android.com>
-Cc: Martijn Coenen <maco@android.com>
+Signed-off-by: Prasad Sodagudi <psodagud@codeaurora.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/android/binder.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/base/arch_topology.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 05e75d18b4d93..afb690ed31ed9 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -249,7 +249,7 @@ static struct binder_transaction_log_entry *binder_transaction_log_add(
- 	unsigned int cur = atomic_inc_return(&log->cur);
+diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
+index 41be9ff7d70a9..3da53cc6cf2be 100644
+--- a/drivers/base/arch_topology.c
++++ b/drivers/base/arch_topology.c
+@@ -96,7 +96,7 @@ subsys_initcall(register_cpu_capacity_sysctl);
+ static u32 capacity_scale;
+ static u32 *raw_capacity;
  
- 	if (cur >= ARRAY_SIZE(log->entry))
--		log->full = 1;
-+		log->full = true;
- 	e = &log->entry[cur % ARRAY_SIZE(log->entry)];
- 	WRITE_ONCE(e->debug_id_done, 0);
- 	/*
-@@ -2598,7 +2598,7 @@ static bool binder_proc_transaction(struct binder_transaction *t,
- 			target_list = &node->async_todo;
- 			wakeup = false;
- 		} else {
--			node->has_async_transaction = 1;
-+			node->has_async_transaction = true;
- 		}
- 	}
- 
-@@ -3453,7 +3453,7 @@ static int binder_thread_write(struct binder_proc *proc,
- 				w = binder_dequeue_work_head_ilocked(
- 						&buf_node->async_todo);
- 				if (!w) {
--					buf_node->has_async_transaction = 0;
-+					buf_node->has_async_transaction = false;
- 				} else {
- 					binder_enqueue_work_ilocked(
- 							w, &proc->todo);
+-static int __init free_raw_capacity(void)
++static int free_raw_capacity(void)
+ {
+ 	kfree(raw_capacity);
+ 	raw_capacity = NULL;
 -- 
 2.25.1
 
