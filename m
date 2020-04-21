@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CACC1B2E25
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B4101B2E22
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 19:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726245AbgDURTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 13:19:01 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:57019 "EHLO
+        id S1728956AbgDURS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 13:18:59 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:33985 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728735AbgDURTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 13:19:00 -0400
+        by vger.kernel.org with ESMTP id S1725963AbgDURS7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 13:18:59 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 345AE1940726;
-        Tue, 21 Apr 2020 13:09:49 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 9E4C71940774;
+        Tue, 21 Apr 2020 13:10:53 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:09:49 -0400
+  by compute1.internal (MEProxy); Tue, 21 Apr 2020 13:10:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LCUbzu
-        UKiu4C5k1fXdeiX3CYU9aCgMxIL7YM+VIFN48=; b=eZ/0BYgNicA5rWh/tkxGLm
-        5/QRcOq5wbW8iR/de5SGOMUhvxf+5WPeq3GULdH3fwYcPCH8V9YUaAwvUUVlB+jP
-        mWxPZ1Ibord7TStuTFcdk6jvqVnmJ0dpIkBLa9np9tH/SUI4FLlB3qH7Gbg1Vh/g
-        HN5UJpcyP3TzeDxwIm/M7VR9uwuMKMWvQRZ0J+MdFWt2IOQSPUYvEutOhQnQJEfS
-        ncugPrQe7sMYtRa/dfPo/gN+2BL4vftR45ifVHERbQLfN7o/mpfcGYnYrW5lKqnl
-        tAGmVJOMaZouqcvczQo2pEtUBj65bP7r9C+fQtoEop9d5Z7N1XgD8mIU3ioqGw4A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=l9V9Ac
+        /cpetEZL4T3Nu+5Chyv11/EQPEQsAjoIuLhNQ=; b=MfRj70cUnv1VTkFarje5SK
+        gaINEsdowYro86ZoJYBrGWXWDlqKF3V/ZGDHhfB89PgzRaONqACA8hDPyYW3UTMC
+        PBT2kVKV+kkOmHimO76YjkMUUnfggvqJUOUjPGU7AAJSEBT3z1BnJB2MhQwt+KGu
+        fQu0/OcN0ri0TU/FQbtlw32sTJ2LA9bWMsMYJSjCIBbIKSFEAKU4i6iDhac1fVc7
+        Ui++7F9TBowAOWFkg8HfHuubchiUARcGxG8snHdG7EDRczTMAMrUqZvR2xivHFqB
+        GfGsMYdNhRT6zuIUN6XvSC8vL1mlXYC2v72Rjv0UPXH1S78WN2YVLJND1aq/MQMg
         ==
-X-ME-Sender: <xms:3SifXs8eSb7GOg2BmKkvLGv16RkjpXH3Nes9kzB-i8-YAOisX7m5yw>
+X-ME-Sender: <xms:HCmfXnJB3LfTkPe8OVYODdzrs-erAk2SvL8H57CdeH1KXHZwmWhbpQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrgeehgddutdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedune
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpeefne
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:3SifXgrX6OhiVCk3zScUwufjcEzEc_SB8kglNiUmcBIhMFbVWoPfLQ>
-    <xmx:3SifXoIncAhIOpBgo9-uIQgoBgUucAr7oDDqBi0ibit93o2py0gSEg>
-    <xmx:3SifXi13vaXGzctOA-s8cteoodobL6hCz32zdGejeoQSmvARVDOZHA>
-    <xmx:3SifXnIn9cUHbpM_-0QafwNxgHSYblJDCbpeZHXkSrznlBiLnKJssA>
+X-ME-Proxy: <xmx:HCmfXqVkdyyNL3-Hd_Oe7-XvJ-wZWNyKQ5M_P-qQik3d8VtrxZhQKA>
+    <xmx:HCmfXiaDj87BSpS2AGgUK1Iag2QicQMuA96hLTG90nyiLS7sujdzVg>
+    <xmx:HCmfXpw0SIYhUM_rH8f3beQq4KF2ylCUuYvdr3ZUzyVlra3TE5BC1A>
+    <xmx:HSmfXrO4ztwESqs97I_lEALkYD3VBw9QryqOSGuv6IHwK5IGaUwkLQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C76173280063;
-        Tue, 21 Apr 2020 13:09:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] of: unittest: kmemleak in of_unittest_platform_populate()" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9D2D3328006F;
+        Tue, 21 Apr 2020 13:10:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] of: unittest: kmemleak in duplicate property update" failed to apply to 5.6-stable tree
 To:     frank.rowand@sony.com, erhard_f@mailbox.org, robh@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 Apr 2020 19:09:38 +0200
-Message-ID: <1587488978204151@kroah.com>
+Date:   Tue, 21 Apr 2020 19:10:51 +0200
+Message-ID: <1587489051141225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.6-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,41 +67,117 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 216830d2413cc61be3f76bc02ffd905e47d2439e Mon Sep 17 00:00:00 2001
+From 29acfb65598f91671413869e0d0a1ec4e74ac705 Mon Sep 17 00:00:00 2001
 From: Frank Rowand <frank.rowand@sony.com>
-Date: Thu, 16 Apr 2020 16:42:47 -0500
-Subject: [PATCH] of: unittest: kmemleak in of_unittest_platform_populate()
+Date: Thu, 16 Apr 2020 16:42:50 -0500
+Subject: [PATCH] of: unittest: kmemleak in duplicate property update
 
 kmemleak reports several memory leaks from devicetree unittest.
-This is the fix for problem 2 of 5.
+This is the fix for problem 5 of 5.
 
-of_unittest_platform_populate() left an elevated reference count for
-grandchild nodes (which are platform devices).  Fix the platform
-device reference counts so that the memory will be freed.
+When overlay 'overlay_bad_add_dup_prop' is applied, the apply code
+properly detects that a memory leak will occur if the overlay is removed
+since the duplicate property is located in a base devicetree node and
+reports via printk():
 
-Fixes: fb2caa50fbac ("of/selftest: add testcase for nodes with same name and address")
+  OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail
+  OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail
+
+The overlay is removed when the apply code detects multiple changesets
+modifying the same property.  This is reported via printk():
+
+  OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/rpm_avail
+
+As a result of this error, the overlay is removed resulting in the
+expected memory leak.
+
+Add another device node level to the overlay so that the duplicate
+property is located in a node added by the overlay, thus no memory
+leak will occur when the overlay is removed.
+
+Thus users of kmemleak will not have to debug this leak in the future.
+
+Fixes: 2fe0e8769df9 ("of: overlay: check prevents multiple fragments touching same property")
 Reported-by: Erhard F. <erhard_f@mailbox.org>
 Signed-off-by: Frank Rowand <frank.rowand@sony.com>
 Signed-off-by: Rob Herring <robh@kernel.org>
 
+diff --git a/drivers/of/unittest-data/overlay_bad_add_dup_prop.dts b/drivers/of/unittest-data/overlay_bad_add_dup_prop.dts
+index c190da54f175..6327d1ffb963 100644
+--- a/drivers/of/unittest-data/overlay_bad_add_dup_prop.dts
++++ b/drivers/of/unittest-data/overlay_bad_add_dup_prop.dts
+@@ -3,22 +3,37 @@
+ /plugin/;
+ 
+ /*
+- * &electric_1/motor-1 and &spin_ctrl_1 are the same node:
+- *   /testcase-data-2/substation@100/motor-1
++ * &electric_1/motor-1/electric and &spin_ctrl_1/electric are the same node:
++ *   /testcase-data-2/substation@100/motor-1/electric
+  *
+  * Thus the property "rpm_avail" in each fragment will
+  * result in an attempt to update the same property twice.
+  * This will result in an error and the overlay apply
+  * will fail.
++ *
++ * The previous version of this test did not include the extra
++ * level of node 'electric'.  That resulted in the 'rpm_avail'
++ * property being located in the pre-existing node 'motor-1'.
++ * Modifying a property results in a WARNING that a memory leak
++ * will occur if the overlay is removed.  Since the overlay apply
++ * fails, the memory leak does actually occur, and kmemleak will
++ * further report the memory leak if CONFIG_DEBUG_KMEMLEAK is
++ * enabled.  Adding the overlay node 'electric' avoids the
++ * memory leak and thus people who use kmemleak will not
++ * have to debug this non-problem again.
+  */
+ 
+ &electric_1 {
+ 
+ 	motor-1 {
+-		rpm_avail = < 100 >;
++		electric {
++			rpm_avail = < 100 >;
++		};
+ 	};
+ };
+ 
+ &spin_ctrl_1 {
+-		rpm_avail = < 100 200 >;
++		electric {
++			rpm_avail = < 100 200 >;
++		};
+ };
 diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index 20ff2dfc3143..4c7818276857 100644
+index f238b7a3865d..398de04fd19c 100644
 --- a/drivers/of/unittest.c
 +++ b/drivers/of/unittest.c
-@@ -1247,10 +1247,13 @@ static void __init of_unittest_platform_populate(void)
+@@ -3181,21 +3181,21 @@ static __init void of_unittest_overlay_high_level(void)
+ 		   "OF: overlay: ERROR: multiple fragments add and/or delete node /testcase-data-2/substation@100/motor-1/controller");
  
- 	of_platform_populate(np, match, NULL, &test_bus->dev);
- 	for_each_child_of_node(np, child) {
--		for_each_child_of_node(child, grandchild)
--			unittest(of_find_device_by_node(grandchild),
-+		for_each_child_of_node(child, grandchild) {
-+			pdev = of_find_device_by_node(grandchild);
-+			unittest(pdev,
- 				 "Could not create device for node '%pOFn'\n",
- 				 grandchild);
-+			of_dev_put(pdev);
-+		}
- 	}
+ 	EXPECT_BEGIN(KERN_ERR,
+-		     "OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail");
++		     "OF: overlay: ERROR: multiple fragments add and/or delete node /testcase-data-2/substation@100/motor-1/electric");
+ 	EXPECT_BEGIN(KERN_ERR,
+-		     "OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail");
++		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/electric/rpm_avail");
+ 	EXPECT_BEGIN(KERN_ERR,
+-		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/rpm_avail");
++		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/electric/name");
  
- 	of_platform_depopulate(&test_bus->dev);
+ 	unittest(overlay_data_apply("overlay_bad_add_dup_prop", NULL),
+ 		 "Adding overlay 'overlay_bad_add_dup_prop' failed\n");
+ 
+ 	EXPECT_END(KERN_ERR,
+-		   "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/rpm_avail");
++		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/electric/name");
+ 	EXPECT_END(KERN_ERR,
+-		   "OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail");
++		     "OF: overlay: ERROR: multiple fragments add, update, and/or delete property /testcase-data-2/substation@100/motor-1/electric/rpm_avail");
+ 	EXPECT_END(KERN_ERR,
+-		   "OF: overlay: WARNING: memory leak will occur if overlay removed, property: /testcase-data-2/substation@100/motor-1/rpm_avail");
++		     "OF: overlay: ERROR: multiple fragments add and/or delete node /testcase-data-2/substation@100/motor-1/electric");
+ 
+ 	unittest(overlay_data_apply("overlay_bad_phandle", NULL),
+ 		 "Adding overlay 'overlay_bad_phandle' failed\n");
 
