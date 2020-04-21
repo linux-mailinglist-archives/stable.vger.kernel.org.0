@@ -2,59 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA8DC1B2654
-	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 14:40:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D5A1B2655
+	for <lists+stable@lfdr.de>; Tue, 21 Apr 2020 14:40:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728877AbgDUMku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728739AbgDUMku (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 21 Apr 2020 08:40:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59964 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728873AbgDUMks (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:40:48 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36DAEC061A10
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:48 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id j2so16275685wrs.9
-        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:48 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1728874AbgDUMku (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 08:40:50 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B88FDC061A41
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:49 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id y24so3495436wma.4
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 05:40:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=MfNuHxEjbU0bCTmDk+zE6vZTzkddZEYuAf50sMJGKgg=;
-        b=KnHJ0YQYMNBZFko1rb/NrMNY3vNw1ReG2jzEkGiVwQ+cOoP0/8zasnEnCqiIm4lVj5
-         JMupVup4Q8d6d49tgw1t+QxZ+hpiMlgiqa8t5+WgcIX0JPRx3qU6tVg796Cla4/KnGA5
-         fuE202SlRULVKyFtusyN3657+Ck5WZi3O0KV82PMKXyJgpqxvoogNgvtL4GQW/QMo2l+
-         ppK3hyfhcVPWfhYNN8RnT6ZMXBWSqIC2m+xVZJXNd7cCbIn5gSrzWJU0nBU7VklOfbt5
-         O/1EcY3M99vqg2Z9Xcsyxstc75S/kxJ+yv1eIZBSHCjq6BEeH1JPYEz+SkbDtXAIfIOI
-         nPEw==
+        bh=FufN8ACRAoxbxjTegJ+M/1R/ELgdwjuEiGq1TqIq1Lc=;
+        b=vLKSrKHBC50HSMEdUg3fKqcwrRGVHBJu7KLH38rc0PcUh6NQ+hOhqV3S39seQRhw0f
+         o33MVGiFdMGCo9284qpruQ2jhc/Ui+O3ieHQvF5mdpbf7MG9xow358kY8NNJkarcutuw
+         Wh1Z8TXg1PshyCVx5EWPyG2Zz9drckRADrqb/2IvB/kAnXdHexjLejkNZrSh7jVaBHSy
+         9oqOfuTlKOJL+xJxIV1wPC2Iyutby492EpNZdi9gSi33CAbI5Ehed4bW5P1EJFyO9fSS
+         BOvzWfpG3PGdtw9BbU4jS5fKPPYyts9IJt8sqR+9BpqZQ2H+YGQPo6Uh5UwprN+xCEpT
+         7rsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=MfNuHxEjbU0bCTmDk+zE6vZTzkddZEYuAf50sMJGKgg=;
-        b=G6wu2shxkZKgS+kOKLuveZZARBObtxaE0VPw0PuJWoS5UxCGr6fKDn+vJ6JkH+cLMb
-         RCyt0GMCOwOGInVO7MeOwXRkIztvtQvEvoKCPjvF3aHtIxtlPd5Zp1B6zaivHqxZ1gc6
-         LS8e16AbdxKtG/ZpqCY0MDY14OI0i/ONAKd1RzfvmYHbsbCQGRSIc/ZasKMvRKt7xl6z
-         /0XkxhDU9vQSrWnnc0r4xKZO35noxFOFnxEJTjEPYrJLVsHUGzqrnp/fz+9uVbNLD0Ob
-         ZCPeHxrl2BscsjjJzk97Nmq6rP29f/wjgTKcPpcz7qK8F6mdux6p/K+YuBqVxA9uWY4B
-         MG5Q==
-X-Gm-Message-State: AGi0PuZRnIkc9jw8/0dz5QGm4RbsrNryzqsBPpeHDj2YLfBhZ6XhzkNE
-        qyTuJKvhcrIMaYV9SgTfrByPas9L/x0=
-X-Google-Smtp-Source: APiQypIDRKVsAQTQyFKAhqpbU0C302ofCvuJAl3k+iOWY8JAehMX/V279+yxQ8ErJsnR+ybkwrUqEA==
-X-Received: by 2002:a5d:49cb:: with SMTP id t11mr23879759wrs.91.1587472846686;
-        Tue, 21 Apr 2020 05:40:46 -0700 (PDT)
+        bh=FufN8ACRAoxbxjTegJ+M/1R/ELgdwjuEiGq1TqIq1Lc=;
+        b=SsJxM5e7TaIb8rgOzlBPzl+Q+3MTnc5kSzZ7JUE53lbMfOiboO9SHv0WOl4MmgtXA/
+         FDKssMgkoUkuUcNuuN5nmPbLgsD0MgBJkiRg5YeQDq9Y694Qwh5ta1uNNehxJKAsSbor
+         tjSRP1VJ9gQV4DqzZiJL18X3njAg0Xpczo3mHefP4SFpsh1pQ+Ti875/8rhx1Ukvzmyk
+         jjJC0EqhZSd/vxdCsJZXPKg/PPf5ec7qXTIPr24zixoyiHBIIdNLno0PjAkPkJsqG47e
+         LLQMu/Biv/y09wl592BgU0LQQpqt0xp3qJpBt33aDPgPEScY8FMwibr+Y/pwJ6BVyE5d
+         Gzeg==
+X-Gm-Message-State: AGi0PuZ4ffKQKpnlnxVwQoWapYnrzKvuutHizvJpSGDArms9FV5JKVWl
+        zeV5XjOKqkbqI7wbplrbe3Se7pErXbg=
+X-Google-Smtp-Source: APiQypLDkm0AyICgP+rg7hysUAnYTbVKrjTvaL/62bezJ48PyKrWuUyqg3dDcSP1h71u3NvC3ObVjQ==
+X-Received: by 2002:a1c:4085:: with SMTP id n127mr5008186wma.163.1587472848215;
+        Tue, 21 Apr 2020 05:40:48 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.40.45
+        by smtp.gmail.com with ESMTPSA id u3sm3408232wrt.93.2020.04.21.05.40.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2020 05:40:45 -0700 (PDT)
+        Tue, 21 Apr 2020 05:40:47 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+Cc:     Timur Tabi <timur@codeaurora.org>,
         Stephen Boyd <sboyd@codeaurora.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 02/24] clk: Fix debugfs_create_*() usage
-Date:   Tue, 21 Apr 2020 13:39:55 +0100
-Message-Id: <20200421124017.272694-3-lee.jones@linaro.org>
+Subject: [PATCH 4.14 03/24] Revert "gpio: set up initial state from .get_direction()"
+Date:   Tue, 21 Apr 2020 13:39:56 +0100
+Message-Id: <20200421124017.272694-4-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200421124017.272694-1-lee.jones@linaro.org>
 References: <20200421124017.272694-1-lee.jones@linaro.org>
@@ -65,118 +66,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Timur Tabi <timur@codeaurora.org>
 
-[ Upstream commit 4c8326d5ebb0de3191e98980c80ab644026728d0 ]
+[ Upstream commit 1ca2a92b2a99323f666f1b669b7484df4bda05e4 ]
 
-When exposing data access through debugfs, the correct
-debugfs_create_*() functions must be used, matching the data
-types.
+This reverts commit 72d3200061776264941be1b5a9bb8e926b3b30a5.
 
-Remove all casts from data pointers passed to debugfs_create_*()
-functions, as such casts prevent the compiler from flagging bugs.
+We cannot blindly query the direction of all GPIOs when the pins are
+first registered.  The get_direction callback normally triggers a
+read/write to hardware, but we shouldn't be touching the hardware for
+an individual GPIO until after it's been properly claimed.
 
-clk_core.rate and .accuracy are "unsigned long", hence casting
-their addresses to "u32 *" exposed the wrong halves on big-endian
-64-bit systems. Fix this by using debugfs_create_ulong() instead.
-
-Octal permissions are preferred, as they are easier to read than
-symbolic permissions. Hence replace "S_IRUGO" by "0444"
-throughout.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-[sboyd@codeaurora.org: Squash the octal change in too]
-Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+Signed-off-by: Timur Tabi <timur@codeaurora.org>
+Reviewed-by: Stephen Boyd <sboyd@codeaurora.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/clk/clk.c | 32 +++++++++++++++-----------------
- 1 file changed, 15 insertions(+), 17 deletions(-)
+ drivers/gpio/gpiolib.c | 31 +++++++------------------------
+ 1 file changed, 7 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 8341a128dab1d..44b6f23cc851d 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -2172,18 +2172,16 @@ static int clk_debug_create_one(struct clk_core *core, struct dentry *pdentry)
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index f0777a7a4305b..d5b42cc86d718 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1245,31 +1245,14 @@ int gpiochip_add_data(struct gpio_chip *chip, void *data)
+ 		struct gpio_desc *desc = &gdev->descs[i];
  
- 	core->dentry = d;
+ 		desc->gdev = gdev;
+-		/*
+-		 * REVISIT: most hardware initializes GPIOs as inputs
+-		 * (often with pullups enabled) so power usage is
+-		 * minimized. Linux code should set the gpio direction
+-		 * first thing; but until it does, and in case
+-		 * chip->get_direction is not set, we may expose the
+-		 * wrong direction in sysfs.
+-		 */
+-
+-		if (chip->get_direction) {
+-			/*
+-			 * If we have .get_direction, set up the initial
+-			 * direction flag from the hardware.
+-			 */
+-			int dir = chip->get_direction(chip, i);
  
--	d = debugfs_create_u32("clk_rate", S_IRUGO, core->dentry,
--			(u32 *)&core->rate);
-+	d = debugfs_create_ulong("clk_rate", 0444, core->dentry, &core->rate);
- 	if (!d)
- 		goto err_out;
+-			if (!dir)
+-				set_bit(FLAG_IS_OUT, &desc->flags);
+-		} else if (!chip->direction_input) {
+-			/*
+-			 * If the chip lacks the .direction_input callback
+-			 * we logically assume all lines are outputs.
+-			 */
+-			set_bit(FLAG_IS_OUT, &desc->flags);
+-		}
++		/* REVISIT: most hardware initializes GPIOs as inputs (often
++		 * with pullups enabled) so power usage is minimized. Linux
++		 * code should set the gpio direction first thing; but until
++		 * it does, and in case chip->get_direction is not set, we may
++		 * expose the wrong direction in sysfs.
++		 */
++		desc->flags = !chip->direction_input ? (1 << FLAG_IS_OUT) : 0;
+ 	}
  
--	d = debugfs_create_u32("clk_accuracy", S_IRUGO, core->dentry,
--			(u32 *)&core->accuracy);
-+	d = debugfs_create_ulong("clk_accuracy", 0444, core->dentry,
-+				 &core->accuracy);
- 	if (!d)
- 		goto err_out;
- 
--	d = debugfs_create_u32("clk_phase", S_IRUGO, core->dentry,
--			(u32 *)&core->phase);
-+	d = debugfs_create_u32("clk_phase", 0444, core->dentry, &core->phase);
- 	if (!d)
- 		goto err_out;
- 
-@@ -2192,23 +2190,23 @@ static int clk_debug_create_one(struct clk_core *core, struct dentry *pdentry)
- 	if (!d)
- 		goto err_out;
- 
--	d = debugfs_create_u32("clk_prepare_count", S_IRUGO, core->dentry,
--			(u32 *)&core->prepare_count);
-+	d = debugfs_create_u32("clk_prepare_count", 0444, core->dentry,
-+			       &core->prepare_count);
- 	if (!d)
- 		goto err_out;
- 
--	d = debugfs_create_u32("clk_enable_count", S_IRUGO, core->dentry,
--			(u32 *)&core->enable_count);
-+	d = debugfs_create_u32("clk_enable_count", 0444, core->dentry,
-+			       &core->enable_count);
- 	if (!d)
- 		goto err_out;
- 
--	d = debugfs_create_u32("clk_notifier_count", S_IRUGO, core->dentry,
--			(u32 *)&core->notifier_count);
-+	d = debugfs_create_u32("clk_notifier_count", 0444, core->dentry,
-+			       &core->notifier_count);
- 	if (!d)
- 		goto err_out;
- 
- 	if (core->num_parents > 1) {
--		d = debugfs_create_file("clk_possible_parents", S_IRUGO,
-+		d = debugfs_create_file("clk_possible_parents", 0444,
- 				core->dentry, core, &possible_parents_fops);
- 		if (!d)
- 			goto err_out;
-@@ -2304,22 +2302,22 @@ static int __init clk_debug_init(void)
- 	if (!rootdir)
- 		return -ENOMEM;
- 
--	d = debugfs_create_file("clk_summary", S_IRUGO, rootdir, &all_lists,
-+	d = debugfs_create_file("clk_summary", 0444, rootdir, &all_lists,
- 				&clk_summary_fops);
- 	if (!d)
- 		return -ENOMEM;
- 
--	d = debugfs_create_file("clk_dump", S_IRUGO, rootdir, &all_lists,
-+	d = debugfs_create_file("clk_dump", 0444, rootdir, &all_lists,
- 				&clk_dump_fops);
- 	if (!d)
- 		return -ENOMEM;
- 
--	d = debugfs_create_file("clk_orphan_summary", S_IRUGO, rootdir,
-+	d = debugfs_create_file("clk_orphan_summary", 0444, rootdir,
- 				&orphan_list, &clk_summary_fops);
- 	if (!d)
- 		return -ENOMEM;
- 
--	d = debugfs_create_file("clk_orphan_dump", S_IRUGO, rootdir,
-+	d = debugfs_create_file("clk_orphan_dump", 0444, rootdir,
- 				&orphan_list, &clk_dump_fops);
- 	if (!d)
- 		return -ENOMEM;
+ #ifdef CONFIG_PINCTRL
 -- 
 2.25.1
 
