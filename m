@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E361B401B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 908C41B41CE
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730151AbgDVKna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:43:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56386 "EHLO mail.kernel.org"
+        id S1726975AbgDVKGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:06:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730063AbgDVKTh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:19:37 -0400
+        id S1726700AbgDVKGF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:06:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EE8E2076B;
-        Wed, 22 Apr 2020 10:19:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50F5720575;
+        Wed, 22 Apr 2020 10:06:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550775;
-        bh=5awcBRC1vnFsSufAGrSrHlTj08tl0RW0fzavbHxoj8o=;
+        s=default; t=1587549964;
+        bh=zMxR76d63ZCfvoPS1JehDQViBiTPeOazz91jRXSDdM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhODb7AQHCuilWz9HBS6GUxC+b5O9t1/yJZd1NFhaJLqCvm977L5WXmEbC6BsBQoQ
-         yYzMOXzhbXPb7xUA5qjc27+ucnWbiLAIOlDxCSqNbbzEwcUydkBtdoQQ56AQI+kJ83
-         kxKM8Qx8U3iSrGjY4AKlyehkg1iADOIAXuEkvIYk=
+        b=0EVWjoqejLxn90jejcfQqGr2RWwzUNn2Juk6JmZrPIRwKc+3fWi8x5UTFzImju4IY
+         l7JXCn0g+WUqKrc/3oon2BlW5IqhnOpw/YUYxwr4htiZXB2oS3uMhD9XjMMuh9aYmV
+         qLedEQe5EkXdqIXjwWdKNajm0ph3kQn4IlcHZqJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 035/118] drm/ttm: flush the fence on the bo after we individualize the reservation object
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 079/125] ext4: do not zeroout extents beyond i_disksize
 Date:   Wed, 22 Apr 2020 11:56:36 +0200
-Message-Id: <20200422095037.659318325@linuxfoundation.org>
+Message-Id: <20200422095045.854537584@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinhui pan <xinhui.pan@amd.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 1bbcf69e42fe7fd49b6f4339c970729d0e343753 ]
+commit 801674f34ecfed033b062a0f217506b93c8d5e8a upstream.
 
-As we move the ttm_bo_individualize_resv() upwards, we need flush the
-copied fence too. Otherwise the driver keeps waiting for fence.
+We do not want to create initialized extents beyond end of file because
+for e2fsck it is impossible to distinguish them from a case of corrupted
+file size / extent tree and so it complains like:
 
-run&Kill kfdtest, then perf top.
+Inode 12, i_size is 147456, should be 163840.  Fix? no
 
-  25.53%  [ttm]                     [k] ttm_bo_delayed_delete
-  24.29%  [kernel]                  [k] dma_resv_test_signaled_rcu
-  19.72%  [kernel]                  [k] ww_mutex_lock
+Code in ext4_ext_convert_to_initialized() and
+ext4_split_convert_extents() try to make sure it does not create
+initialized extents beyond inode size however they check against
+inode->i_size which is wrong. They should instead check against
+EXT4_I(inode)->i_disksize which is the current inode size on disk.
+That's what e2fsck is going to see in case of crash before all dirty
+data is written. This bug manifests as generic/456 test failure (with
+recent enough fstests where fsx got fixed to properly pass
+FALLOC_KEEP_SIZE_FL flags to the kernel) when run with dioread_lock
+mount option.
 
-Fix: 378e2d5b("drm/ttm: fix ttm_bo_cleanup_refs_or_queue once more")
-Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/series/72339/
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org
+Fixes: 21ca087a3891 ("ext4: Do not zero out uninitialized extents beyond i_size")
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20200331105016.8674-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/ttm/ttm_bo.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ext4/extents.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
-index f078036998092..abf165b2f64fc 100644
---- a/drivers/gpu/drm/ttm/ttm_bo.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo.c
-@@ -517,8 +517,10 @@ static void ttm_bo_cleanup_refs_or_queue(struct ttm_buffer_object *bo)
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -3445,8 +3445,8 @@ static int ext4_ext_convert_to_initializ
+ 		(unsigned long long)map->m_lblk, map_len);
  
- 		dma_resv_unlock(bo->base.resv);
- 	}
--	if (bo->base.resv != &bo->base._resv)
-+	if (bo->base.resv != &bo->base._resv) {
-+		ttm_bo_flush_all_fences(bo);
- 		dma_resv_unlock(&bo->base._resv);
-+	}
+ 	sbi = EXT4_SB(inode->i_sb);
+-	eof_block = (inode->i_size + inode->i_sb->s_blocksize - 1) >>
+-		inode->i_sb->s_blocksize_bits;
++	eof_block = (EXT4_I(inode)->i_disksize + inode->i_sb->s_blocksize - 1)
++			>> inode->i_sb->s_blocksize_bits;
+ 	if (eof_block < map->m_lblk + map_len)
+ 		eof_block = map->m_lblk + map_len;
  
- error:
- 	kref_get(&bo->list_kref);
--- 
-2.20.1
-
+@@ -3701,8 +3701,8 @@ static int ext4_split_convert_extents(ha
+ 		  __func__, inode->i_ino,
+ 		  (unsigned long long)map->m_lblk, map->m_len);
+ 
+-	eof_block = (inode->i_size + inode->i_sb->s_blocksize - 1) >>
+-		inode->i_sb->s_blocksize_bits;
++	eof_block = (EXT4_I(inode)->i_disksize + inode->i_sb->s_blocksize - 1)
++			>> inode->i_sb->s_blocksize_bits;
+ 	if (eof_block < map->m_lblk + map->m_len)
+ 		eof_block = map->m_lblk + map->m_len;
+ 	/*
 
 
