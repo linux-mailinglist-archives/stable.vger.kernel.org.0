@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99DE61B3D1A
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA8F1B3CAC
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729240AbgDVKLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:11:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43958 "EHLO mail.kernel.org"
+        id S1728559AbgDVKHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:07:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729227AbgDVKLl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:11:41 -0400
+        id S1728551AbgDVKHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:07:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A28BE2070B;
-        Wed, 22 Apr 2020 10:11:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D222120575;
+        Wed, 22 Apr 2020 10:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550300;
-        bh=zZc828fF4edIgF7h+Y+tA2AdhzZFPemG6RYMtNeiebY=;
+        s=default; t=1587550055;
+        bh=cH8+4pwgwB93FGammqT5AqRne5uguPxc4pSIHozizFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VasVYX6SQRy2q2f6FQF1p1P85yJeTG5FcoZtTv7my3PWcxbJPEmqAbFJDU1YmOUI8
-         zFN91FyUF0QWxRXq8nN9MxSmw2+5PpyaD9Gxl2jxk5JkP3EpqLZjKvTwXvQODAzJLz
-         fx2GFy/f/9I/zEbA3f8jSNYRAKDmIWQjOQGlSSGs=
+        b=0g6uJ7QG/JPpDHy9TxjWwqNls0IaaU67OtWW8L4M4pC3Cv6xHuNCmusB37B+BxzK2
+         yjaFUYz5uG24Y5qKfHZf7NmqqB6OLDPC6cC2e8BiYV7OM/LvKwBQBnGom98sRxVEsd
+         oki/QhZELvgf5/UFA7i1pTyoXytSfDhsW1QcJ1l4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 089/199] powerpc/hash64/devmap: Use H_PAGE_THP_HUGE when setting up huge devmap PTE entries
-Date:   Wed, 22 Apr 2020 11:56:55 +0200
-Message-Id: <20200422095106.969848295@linuxfoundation.org>
+        Chris Lew <clew@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andy Gross <andy.gross@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 099/125] soc: qcom: smem: Use le32_to_cpu for comparison
+Date:   Wed, 22 Apr 2020 11:56:56 +0200
+Message-Id: <20200422095049.079138157@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,136 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Chris Lew <clew@codeaurora.org>
 
-commit 36b78402d97a3b9aeab136feb9b00d8647ec2c20 upstream.
+[ Upstream commit a216000f0140f415cec96129f777b5234c9d142f ]
 
-H_PAGE_THP_HUGE is used to differentiate between a THP hugepage and
-hugetlb hugepage entries. The difference is WRT how we handle hash
-fault on these address. THP address enables MPSS in segments. We want
-to manage devmap hugepage entries similar to THP pt entries. Hence use
-H_PAGE_THP_HUGE for devmap huge PTE entries.
+Endianness can vary in the system, add le32_to_cpu when comparing
+partition sizes from smem.
 
-With current code while handling hash PTE fault, we do set is_thp =
-true when finding devmap PTE huge PTE entries.
-
-Current code also does the below sequence we setting up huge devmap
-entries.
-
-	entry = pmd_mkhuge(pfn_t_pmd(pfn, prot));
-	if (pfn_t_devmap(pfn))
-		entry = pmd_mkdevmap(entry);
-
-In that case we would find both H_PAGE_THP_HUGE and PAGE_DEVMAP set
-for huge devmap PTE entries. This results in false positive error like
-below.
-
-  kernel BUG at /home/kvaneesh/src/linux/mm/memory.c:4321!
-  Oops: Exception in kernel mode, sig: 5 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-  Modules linked in:
-  CPU: 56 PID: 67996 Comm: t_mmap_dio Not tainted 5.6.0-rc4-59640-g371c804dedbc #128
-  ....
-  NIP [c00000000044c9e4] __follow_pte_pmd+0x264/0x900
-  LR [c0000000005d45f8] dax_writeback_one+0x1a8/0x740
-  Call Trace:
-    str_spec.74809+0x22ffb4/0x2d116c (unreliable)
-    dax_writeback_one+0x1a8/0x740
-    dax_writeback_mapping_range+0x26c/0x700
-    ext4_dax_writepages+0x150/0x5a0
-    do_writepages+0x68/0x180
-    __filemap_fdatawrite_range+0x138/0x180
-    file_write_and_wait_range+0xa4/0x110
-    ext4_sync_file+0x370/0x6e0
-    vfs_fsync_range+0x70/0xf0
-    sys_msync+0x220/0x2e0
-    system_call+0x5c/0x68
-
-This is because our pmd_trans_huge check doesn't exclude _PAGE_DEVMAP.
-
-To make this all consistent, update pmd_mkdevmap to set
-H_PAGE_THP_HUGE and pmd_trans_huge check now excludes _PAGE_DEVMAP
-correctly.
-
-Fixes: ebd31197931d ("powerpc/mm: Add devmap support for ppc64")
-Cc: stable@vger.kernel.org # v4.13+
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200313094842.351830-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Chris Lew <clew@codeaurora.org>
+Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Andy Gross <andy.gross@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/powerpc/include/asm/book3s/64/hash-4k.h  |    6 ++++++
- arch/powerpc/include/asm/book3s/64/hash-64k.h |    8 +++++++-
- arch/powerpc/include/asm/book3s/64/pgtable.h  |    4 +++-
- arch/powerpc/include/asm/book3s/64/radix.h    |    5 +++++
- 4 files changed, 21 insertions(+), 2 deletions(-)
+ drivers/soc/qcom/smem.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/book3s/64/hash-4k.h
-+++ b/arch/powerpc/include/asm/book3s/64/hash-4k.h
-@@ -108,6 +108,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
- extern int hash__has_transparent_hugepage(void);
- #endif
+--- a/drivers/soc/qcom/smem.c
++++ b/drivers/soc/qcom/smem.c
+@@ -646,7 +646,7 @@ static int qcom_smem_enumerate_partition
+ 			return -EINVAL;
+ 		}
  
-+static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
-+{
-+	BUG();
-+	return pmd;
-+}
-+
- #endif /* !__ASSEMBLY__ */
- 
- #endif /* _ASM_POWERPC_BOOK3S_64_HASH_4K_H */
---- a/arch/powerpc/include/asm/book3s/64/hash-64k.h
-+++ b/arch/powerpc/include/asm/book3s/64/hash-64k.h
-@@ -181,7 +181,7 @@ static inline void mark_hpte_slot_valid(
-  */
- static inline int hash__pmd_trans_huge(pmd_t pmd)
- {
--	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE)) ==
-+	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP)) ==
- 		  (_PAGE_PTE | H_PAGE_THP_HUGE));
- }
- 
-@@ -209,6 +209,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
- 				       unsigned long addr, pmd_t *pmdp);
- extern int hash__has_transparent_hugepage(void);
- #endif /*  CONFIG_TRANSPARENT_HUGEPAGE */
-+
-+static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
-+{
-+	return __pmd(pmd_val(pmd) | (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP));
-+}
-+
- #endif	/* __ASSEMBLY__ */
- 
- #endif /* _ASM_POWERPC_BOOK3S_64_HASH_64K_H */
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -1179,7 +1179,9 @@ extern void serialize_against_pte_lookup
- 
- static inline pmd_t pmd_mkdevmap(pmd_t pmd)
- {
--	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
-+	if (radix_enabled())
-+		return radix__pmd_mkdevmap(pmd);
-+	return hash__pmd_mkdevmap(pmd);
- }
- 
- static inline int pmd_devmap(pmd_t pmd)
---- a/arch/powerpc/include/asm/book3s/64/radix.h
-+++ b/arch/powerpc/include/asm/book3s/64/radix.h
-@@ -289,6 +289,11 @@ extern pmd_t radix__pmdp_huge_get_and_cl
- extern int radix__has_transparent_hugepage(void);
- #endif
- 
-+static inline pmd_t radix__pmd_mkdevmap(pmd_t pmd)
-+{
-+	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
-+}
-+
- extern int __meminit radix__vmemmap_create_mapping(unsigned long start,
- 					     unsigned long page_size,
- 					     unsigned long phys);
+-		if (header->size != entry->size) {
++		if (le32_to_cpu(header->size) != le32_to_cpu(entry->size)) {
+ 			dev_err(smem->dev,
+ 				"Partition %d has invalid size\n", i);
+ 			return -EINVAL;
 
 
