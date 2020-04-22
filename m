@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11D431B3C43
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:04:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2ED1B3FA0
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727943AbgDVKEF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:04:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54214 "EHLO mail.kernel.org"
+        id S1730431AbgDVKjI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:39:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727933AbgDVKEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:04:04 -0400
+        id S1729448AbgDVKVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:21:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53DB72076C;
-        Wed, 22 Apr 2020 10:04:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D49DB20882;
+        Wed, 22 Apr 2020 10:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549843;
-        bh=WALJuTDvlNBCj6twB6HtYszOz40olVvACI1e0Rm4CsU=;
+        s=default; t=1587550896;
+        bh=Y8KrPqTYg6EyHN8+4nfG36nHZ7JfVHBBJJRUstUqWxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7YIokuiyCncw+727ApSNTbvrja4wrn7SdEc0oYGTHjiIApA9q7PrJIDC0oQlxVWj
-         6LmcGbLBJqHhqQ8/xigMzSE0Cqam2shBJrx4+HEUkw6Gxg+f6rOHtiOObNKJAWILFv
-         sXT3Q+q/48sySHdxH53Bo8i89J7tCwnhujGOEyz8=
+        b=A9kYYHJfHRsKU2hcmdypXH/qB5iNk0Jutxm4ag5UCwdElHJG0UnHufkbZiWfCQbza
+         yA+HMc8he04+DuMKgIKJYnsSpOGPvCFRXGHzN6LyMNEUQoUSTsoNq2rVq+2NcDlS+C
+         Tatt6K0gVqSoMp2joSYzTKbABl1XLp8bvL1oWJlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Yang Xu <xuyang2018.jy@cn.fujitsu.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 4.9 029/125] KEYS: reaching the keys quotas correctly
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 019/166] ALSA: hda: Dont release card at firmware loading error
 Date:   Wed, 22 Apr 2020 11:55:46 +0200
-Message-Id: <20200422095038.056684890@linuxfoundation.org>
+Message-Id: <20200422095050.507371801@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 2e356101e72ab1361821b3af024d64877d9a798d upstream.
+commit 25faa4bd37c10f19e4b848b9032a17a3d44c6f09 upstream.
 
-Currently, when we add a new user key, the calltrace as below:
+At the error path of the firmware loading error, the driver tries to
+release the card object and set NULL to drvdata.  This may be referred
+badly at the possible PM action, as the driver itself is still bound
+and the PM callbacks read the card object.
 
-add_key()
-  key_create_or_update()
-    key_alloc()
-    __key_instantiate_and_link
-      generic_key_instantiate
-        key_payload_reserve
-          ......
+Instead, we continue the probing as if it were no option set.  This is
+often a better choice than the forced abort, too.
 
-Since commit a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly"),
-we can reach max bytes/keys in key_alloc, but we forget to remove this
-limit when we reserver space for payload in key_payload_reserve. So we
-can only reach max keys but not max bytes when having delta between plen
-and type->def_datalen. Remove this limit when instantiating the key, so we
-can keep consistent with key_alloc.
-
-Also, fix the similar problem in keyctl_chown_key().
-
-Fixes: 0b77f5bfb45c ("keys: make the keyring quotas controllable through /proc/sys")
-Fixes: a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly")
-Cc: stable@vger.kernel.org # 5.0.x
-Cc: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Fixes: 5cb543dba986 ("ALSA: hda - Deferred probing with request_firmware_nowait()")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
+Link: https://lore.kernel.org/r/20200413082034.25166-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/keys/key.c    |    2 +-
- security/keys/keyctl.c |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/hda_intel.c |   19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
 
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -382,7 +382,7 @@ int key_payload_reserve(struct key *key,
- 		spin_lock(&key->user->lock);
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2031,24 +2031,15 @@ static void azx_firmware_cb(const struct
+ {
+ 	struct snd_card *card = context;
+ 	struct azx *chip = card->private_data;
+-	struct pci_dev *pci = chip->pci;
  
- 		if (delta > 0 &&
--		    (key->user->qnbytes + delta >= maxbytes ||
-+		    (key->user->qnbytes + delta > maxbytes ||
- 		     key->user->qnbytes + delta < key->user->qnbytes)) {
- 			ret = -EDQUOT;
- 		}
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -881,8 +881,8 @@ long keyctl_chown_key(key_serial_t id, u
- 				key_quota_root_maxbytes : key_quota_maxbytes;
+-	if (!fw) {
+-		dev_err(card->dev, "Cannot load firmware, aborting\n");
+-		goto error;
+-	}
+-
+-	chip->fw = fw;
++	if (fw)
++		chip->fw = fw;
++	else
++		dev_err(card->dev, "Cannot load firmware, continue without patching\n");
+ 	if (!chip->disabled) {
+ 		/* continue probing */
+-		if (azx_probe_continue(chip))
+-			goto error;
++		azx_probe_continue(chip);
+ 	}
+-	return; /* OK */
+-
+- error:
+-	snd_card_free(card);
+-	pci_set_drvdata(pci, NULL);
+ }
+ #endif
  
- 			spin_lock(&newowner->lock);
--			if (newowner->qnkeys + 1 >= maxkeys ||
--			    newowner->qnbytes + key->quotalen >= maxbytes ||
-+			if (newowner->qnkeys + 1 > maxkeys ||
-+			    newowner->qnbytes + key->quotalen > maxbytes ||
- 			    newowner->qnbytes + key->quotalen <
- 			    newowner->qnbytes)
- 				goto quota_overrun;
 
 
