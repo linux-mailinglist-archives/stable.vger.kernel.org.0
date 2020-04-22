@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FC5D1B4110
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 769B61B4024
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:44:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729039AbgDVKMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:12:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45868 "EHLO mail.kernel.org"
+        id S1729928AbgDVKTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:19:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729042AbgDVKMk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:12:40 -0400
+        id S1729477AbgDVKTV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:19:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8674320575;
-        Wed, 22 Apr 2020 10:12:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 827262076B;
+        Wed, 22 Apr 2020 10:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550359;
-        bh=h8Z/dkCxk8TLX9dyat7PhY4hg5Vbo3TN2LqGCyokX2o=;
+        s=default; t=1587550761;
+        bh=9d6dIVVW/eoJFIE97fA3VAir62eKBHLtOhBqUlU/lXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WS0SFP8QnvJ5KkrzKkhj6+lYYO/EOw9j68N8W+uRYhTWBSa0q0b1lenWI02WxI7Hv
-         1RqheLMxH6RI/FjAEsVqilM1yQMTVEQaPV3cOWfRJ23mkcVsTgPvpBRdZ0Vso6UEOi
-         cOVpFw/l5vsD/br2XEwIFDSrced1fUk3TQz7wEVc=
+        b=YK/QuQnQHlaaiBgTpIJxC8dVbe4WgWKUEHovoV2I0FcHXXT15rIu/1m7sfQOlGIyw
+         2RCs4ueENL40+xa6FQ3mO5gJJZ5bzgqaHaAi8BgzkLIMXBo3IgJKB5pXnOvoGe14Ll
+         Lv3oGFA5kc9XIw4XCMicCfaGj0Ak8T0uJQX7le/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
-        Clemens Gruber <clemens.gruber@pqgruber.com>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 4.14 115/199] pwm: pca9685: Fix PWM/GPIO inter-operation
+        stable@vger.kernel.org, Jack Zhang <Jack.Zhang1@amd.com>,
+        Nirmoy Das <nirmoy.das@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 080/118] drm/amdkfd: kfree the wrong pointer
 Date:   Wed, 22 Apr 2020 11:57:21 +0200
-Message-Id: <20200422095109.145807829@linuxfoundation.org>
+Message-Id: <20200422095044.777383204@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,201 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Van Asbroeck <TheSven73@gmail.com>
+From: Jack Zhang <Jack.Zhang1@amd.com>
 
-commit 9cc5f232a4b6a0ef6e9b57876d61b88f61bdd7c2 upstream.
+[ Upstream commit 3148a6a0ef3cf93570f30a477292768f7eb5d3c3 ]
 
-This driver allows pwms to be requested as gpios via gpiolib. Obviously,
-it should not be allowed to request a GPIO when its corresponding PWM is
-already requested (and vice versa). So it requires some exclusion code.
+Originally, it kfrees the wrong pointer for mem_obj.
+It would cause memory leak under stress test.
 
-Given that the PWMm and GPIO cores are not synchronized with respect to
-each other, this exclusion code will also require proper
-synchronization.
-
-Such a mechanism was in place, but was inadvertently removed by Uwe's
-clean-up in commit e926b12c611c ("pwm: Clear chip_data in pwm_put()").
-
-Upon revisiting the synchronization mechanism, we found that
-theoretically, it could allow two threads to successfully request
-conflicting PWMs/GPIOs.
-
-Replace with a bitmap which tracks PWMs in-use, plus a mutex. As long as
-PWM and GPIO's respective request/free functions modify the in-use
-bitmap while holding the mutex, proper synchronization will be
-guaranteed.
-
-Reported-by: YueHaibing <yuehaibing@huawei.com>
-Fixes: e926b12c611c ("pwm: Clear chip_data in pwm_put()")
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Cc: YueHaibing <yuehaibing@huawei.com>
-Link: https://lkml.org/lkml/2019/5/31/963
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-[cg: Tested on an i.MX6Q board with two NXP PCA9685 chips]
-Tested-by: Clemens Gruber <clemens.gruber@pqgruber.com>
-Reviewed-by: Sven Van Asbroeck <TheSven73@gmail.com> # cg's rebase
-Link: https://lore.kernel.org/lkml/20200330160238.GD2817345@ulmo/
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
+Acked-by: Nirmoy Das <nirmoy.das@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-pca9685.c |   85 +++++++++++++++++++++++++---------------------
- 1 file changed, 48 insertions(+), 37 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pwm/pwm-pca9685.c
-+++ b/drivers/pwm/pwm-pca9685.c
-@@ -31,6 +31,7 @@
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/pm_runtime.h>
-+#include <linux/bitmap.h>
- 
- /*
-  * Because the PCA9685 has only one prescaler per chip, changing the period of
-@@ -85,6 +86,7 @@ struct pca9685 {
- #if IS_ENABLED(CONFIG_GPIOLIB)
- 	struct mutex lock;
- 	struct gpio_chip gpio;
-+	DECLARE_BITMAP(pwms_inuse, PCA9685_MAXCHAN + 1);
- #endif
- };
- 
-@@ -94,51 +96,51 @@ static inline struct pca9685 *to_pca(str
- }
- 
- #if IS_ENABLED(CONFIG_GPIOLIB)
--static int pca9685_pwm_gpio_request(struct gpio_chip *gpio, unsigned int offset)
-+static bool pca9685_pwm_test_and_set_inuse(struct pca9685 *pca, int pwm_idx)
- {
--	struct pca9685 *pca = gpiochip_get_data(gpio);
--	struct pwm_device *pwm;
-+	bool is_inuse;
- 
- 	mutex_lock(&pca->lock);
--
--	pwm = &pca->chip.pwms[offset];
--
--	if (pwm->flags & (PWMF_REQUESTED | PWMF_EXPORTED)) {
--		mutex_unlock(&pca->lock);
--		return -EBUSY;
-+	if (pwm_idx >= PCA9685_MAXCHAN) {
-+		/*
-+		 * "all LEDs" channel:
-+		 * pretend already in use if any of the PWMs are requested
-+		 */
-+		if (!bitmap_empty(pca->pwms_inuse, PCA9685_MAXCHAN)) {
-+			is_inuse = true;
-+			goto out;
-+		}
-+	} else {
-+		/*
-+		 * regular channel:
-+		 * pretend already in use if the "all LEDs" channel is requested
-+		 */
-+		if (test_bit(PCA9685_MAXCHAN, pca->pwms_inuse)) {
-+			is_inuse = true;
-+			goto out;
-+		}
- 	}
--
--	pwm_set_chip_data(pwm, (void *)1);
--
-+	is_inuse = test_and_set_bit(pwm_idx, pca->pwms_inuse);
-+out:
- 	mutex_unlock(&pca->lock);
--	pm_runtime_get_sync(pca->chip.dev);
--	return 0;
-+	return is_inuse;
- }
- 
--static bool pca9685_pwm_is_gpio(struct pca9685 *pca, struct pwm_device *pwm)
-+static void pca9685_pwm_clear_inuse(struct pca9685 *pca, int pwm_idx)
- {
--	bool is_gpio = false;
--
- 	mutex_lock(&pca->lock);
-+	clear_bit(pwm_idx, pca->pwms_inuse);
-+	mutex_unlock(&pca->lock);
-+}
- 
--	if (pwm->hwpwm >= PCA9685_MAXCHAN) {
--		unsigned int i;
--
--		/*
--		 * Check if any of the GPIOs are requested and in that case
--		 * prevent using the "all LEDs" channel.
--		 */
--		for (i = 0; i < pca->gpio.ngpio; i++)
--			if (gpiochip_is_requested(&pca->gpio, i)) {
--				is_gpio = true;
--				break;
--			}
--	} else if (pwm_get_chip_data(pwm)) {
--		is_gpio = true;
--	}
-+static int pca9685_pwm_gpio_request(struct gpio_chip *gpio, unsigned int offset)
-+{
-+	struct pca9685 *pca = gpiochip_get_data(gpio);
- 
--	mutex_unlock(&pca->lock);
--	return is_gpio;
-+	if (pca9685_pwm_test_and_set_inuse(pca, offset))
-+		return -EBUSY;
-+	pm_runtime_get_sync(pca->chip.dev);
-+	return 0;
- }
- 
- static int pca9685_pwm_gpio_get(struct gpio_chip *gpio, unsigned int offset)
-@@ -173,6 +175,7 @@ static void pca9685_pwm_gpio_free(struct
- 
- 	pca9685_pwm_gpio_set(gpio, offset, 0);
- 	pm_runtime_put(pca->chip.dev);
-+	pca9685_pwm_clear_inuse(pca, offset);
- }
- 
- static int pca9685_pwm_gpio_get_direction(struct gpio_chip *chip,
-@@ -224,12 +227,17 @@ static int pca9685_pwm_gpio_probe(struct
- 	return devm_gpiochip_add_data(dev, &pca->gpio, pca);
- }
- #else
--static inline bool pca9685_pwm_is_gpio(struct pca9685 *pca,
--				       struct pwm_device *pwm)
-+static inline bool pca9685_pwm_test_and_set_inuse(struct pca9685 *pca,
-+						  int pwm_idx)
- {
- 	return false;
- }
- 
-+static inline void
-+pca9685_pwm_clear_inuse(struct pca9685 *pca, int pwm_idx)
-+{
-+}
-+
- static inline int pca9685_pwm_gpio_probe(struct pca9685 *pca)
- {
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index 0dc1084b5e829..ad9483b9eea32 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -1112,9 +1112,9 @@ int kfd_gtt_sa_allocate(struct kfd_dev *kfd, unsigned int size,
  	return 0;
-@@ -413,7 +421,7 @@ static int pca9685_pwm_request(struct pw
- {
- 	struct pca9685 *pca = to_pca(chip);
  
--	if (pca9685_pwm_is_gpio(pca, pwm))
-+	if (pca9685_pwm_test_and_set_inuse(pca, pwm->hwpwm))
- 		return -EBUSY;
- 	pm_runtime_get_sync(chip->dev);
- 
-@@ -422,8 +430,11 @@ static int pca9685_pwm_request(struct pw
- 
- static void pca9685_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
- {
-+	struct pca9685 *pca = to_pca(chip);
-+
- 	pca9685_pwm_disable(chip, pwm);
- 	pm_runtime_put(chip->dev);
-+	pca9685_pwm_clear_inuse(pca, pwm->hwpwm);
+ kfd_gtt_no_free_chunk:
+-	pr_debug("Allocation failed with mem_obj = %p\n", mem_obj);
++	pr_debug("Allocation failed with mem_obj = %p\n", *mem_obj);
+ 	mutex_unlock(&kfd->gtt_sa_lock);
+-	kfree(mem_obj);
++	kfree(*mem_obj);
+ 	return -ENOMEM;
  }
  
- static const struct pwm_ops pca9685_pwm_ops = {
+-- 
+2.20.1
+
 
 
