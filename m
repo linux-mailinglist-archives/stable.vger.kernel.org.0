@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F1381B3F3A
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD771B4089
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730322AbgDVKXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59770 "EHLO mail.kernel.org"
+        id S1729228AbgDVKqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:46:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730320AbgDVKXU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:23:20 -0400
+        id S1726050AbgDVKRB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:17:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FEDC20780;
-        Wed, 22 Apr 2020 10:23:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 279E02076B;
+        Wed, 22 Apr 2020 10:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551000;
-        bh=u+ZK0QjmPA3ERKqb6bXhhJqFb/fnt7rrc/MvdpraFAQ=;
+        s=default; t=1587550620;
+        bh=1hYHRaf1AmAgr6p0nm1Jb7dX/9yL1Mu0Pg9f+92y26M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rXb59OwfYnfUttjCtfvBgYXiZxjkA83GKnFxb+gb4B0hvO71uKW94gYCZodBxv2uH
-         /bMIiuFx7/MkrL+chNh62Pd6E5v6KPEZZ0HKsO8BfV7stv52LhYW0ZZoPNdZoc3bsg
-         uyaw+zgAuMrqW9PNO1JT4bzOF58HCqvNFpJh0OCU=
+        b=QewzIikIwrAX2GUQfe6F9zFtqtvKYG1mjjEqZiR/mhmA3L71yhpznTp0pDZY6dmga
+         KaJS6PJx4NkOpDSVZuqwOfL1KeQA3mX39KAuhtHJjPV4RyjYtva8gtc953e5y5OnmI
+         rGba/nJ2SYonFaYIa6mcJP3NcBg7KTXapmYxbJzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        "Andrew F. Davis" <afd@ti.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 059/166] power: supply: bq27xxx_battery: Silence deferred-probe error
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: [PATCH 5.4 025/118] afs: Fix decoding of inline abort codes from version 1 status records
 Date:   Wed, 22 Apr 2020 11:56:26 +0200
-Message-Id: <20200422095055.188150785@linuxfoundation.org>
+Message-Id: <20200422095036.037669270@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 583b53ece0b0268c542a1eafadb62e3d4b0aab8c ]
+commit 3e0d9892c0e7fa426ca6bf921cb4b543ca265714 upstream.
 
-The driver fails to probe with -EPROBE_DEFER if battery's power supply
-(charger driver) isn't ready yet and this results in a bit noisy error
-message in KMSG during kernel's boot up. Let's silence the harmless
-error message.
+If we're decoding an AFSFetchStatus record and we see that the version is 1
+and the abort code is set and we're expecting inline errors, then we store
+the abort code and ignore the remaining status record (which is correct),
+but we don't set the flag to say we got a valid abort code.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Reviewed-by: Andrew F. Davis <afd@ti.com>
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This can affect operation of YFS.RemoveFile2 when removing a file and the
+operation of {,Y}FS.InlineBulkStatus when prospectively constructing or
+updating of a set of inodes during a lookup.
+
+Fix this to indicate the reception of a valid abort code.
+
+Fixes: a38a75581e6e ("afs: Fix unlink to handle YFS.RemoveFile2 better")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/power/supply/bq27xxx_battery.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/afs/fsclient.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/bq27xxx_battery.c b/drivers/power/supply/bq27xxx_battery.c
-index 195c18c2f426e..664e50103eaaf 100644
---- a/drivers/power/supply/bq27xxx_battery.c
-+++ b/drivers/power/supply/bq27xxx_battery.c
-@@ -1885,7 +1885,10 @@ int bq27xxx_battery_setup(struct bq27xxx_device_info *di)
+--- a/fs/afs/fsclient.c
++++ b/fs/afs/fsclient.c
+@@ -88,6 +88,7 @@ static int xdr_decode_AFSFetchStatus(con
  
- 	di->bat = power_supply_register_no_ws(di->dev, psy_desc, &psy_cfg);
- 	if (IS_ERR(di->bat)) {
--		dev_err(di->dev, "failed to register battery\n");
-+		if (PTR_ERR(di->bat) == -EPROBE_DEFER)
-+			dev_dbg(di->dev, "failed to register battery, deferring probe\n");
-+		else
-+			dev_err(di->dev, "failed to register battery\n");
- 		return PTR_ERR(di->bat);
+ 	if (abort_code != 0 && inline_error) {
+ 		status->abort_code = abort_code;
++		scb->have_error = true;
+ 		goto good;
  	}
  
--- 
-2.20.1
-
 
 
