@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EC811B4002
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A2381B3E8E
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730638AbgDVKmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:42:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56730 "EHLO mail.kernel.org"
+        id S1730695AbgDVK0P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:26:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730070AbgDVKUJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:09 -0400
+        id S1730688AbgDVK0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:26:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F2092075A;
-        Wed, 22 Apr 2020 10:19:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78E4920781;
+        Wed, 22 Apr 2020 10:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550795;
-        bh=wR40GoeRsbCaeLZmg7iG6efpBw+ES/ZLLE2S/S1kbak=;
+        s=default; t=1587551172;
+        bh=mHI9eyVLwiMuBtKcYBlu4Th72kzE+NJHQ4mxUFyM80E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMf4OB0XNHE7Ju6b3L7RgHvXSP29TWnLl97i1OtFilfAAq++Gq7yrGCeYQrjIttJ8
-         HfDh8nioncSjjMECr6Q8Tt3F1MnYN0tPOt8BRllOc/rNA+jYK9KwwQTjsPFHsxr1tX
-         qP47ST4JXwn85zfQYl7NQqmts6nQq00ThG1CHsOc=
+        b=yRhSN7KEWRACZHh5jbd73JnPKgyNvYrJeJ6DWM4E+n+qyHVWHNuN1JyPwrj9fThsp
+         elGPHywaHbh0P1k9o3ESF6RcMcOOhLivXAwQ/SZvIWCp1SqVqdcSth/VW3hr+bUk3m
+         ofwsA33YFFJNA+KqVBGq875l4xE+uSVzqZYApFuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/118] libnvdimm: Out of bounds read in __nd_ioctl()
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Jan Kara <jack@suse.com>, linux-ext4@vger.kernel.org,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 131/166] ext2: fix empty body warnings when -Wextra is used
 Date:   Wed, 22 Apr 2020 11:57:38 +0200
-Message-Id: <20200422095047.181414523@linuxfoundation.org>
+Message-Id: <20200422095102.480750890@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit f84afbdd3a9e5e10633695677b95422572f920dc ]
+[ Upstream commit 44a52022e7f15cbaab957df1c14f7a4f527ef7cf ]
 
-The "cmd" comes from the user and it can be up to 255.  It it's more
-than the number of bits in long, it results out of bounds read when we
-check test_bit(cmd, &cmd_mask).  The highest valid value for "cmd" is
-ND_CMD_CALL (10) so I added a compare against that.
+When EXT2_ATTR_DEBUG is not defined, modify the 2 debug macros
+to use the no_printk() macro instead of <nothing>.
+This fixes gcc warnings when -Wextra is used:
 
-Fixes: 62232e45f4a2 ("libnvdimm: control (ioctl) messages for nvdimm_bus and nvdimm devices")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200225162055.amtosfy7m35aivxg@kili.mountain
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+../fs/ext2/xattr.c:252:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+../fs/ext2/xattr.c:258:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+../fs/ext2/xattr.c:330:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+../fs/ext2/xattr.c:872:45: warning: suggest braces around empty body in an ‘else’ statement [-Wempty-body]
+
+I have verified that the only object code change (with gcc 7.5.0) is
+the reversal of some instructions from 'cmp a,b' to 'cmp b,a'.
+
+Link: https://lore.kernel.org/r/e18a7395-61fb-2093-18e8-ed4f8cf56248@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jan Kara <jack@suse.com>
+Cc: linux-ext4@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/bus.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/ext2/xattr.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index d47412dcdf38d..5e5c6aafc070b 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -1010,8 +1010,10 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
- 			return -EFAULT;
- 	}
+diff --git a/fs/ext2/xattr.c b/fs/ext2/xattr.c
+index 0456bc990b5ee..b91f99d9482e9 100644
+--- a/fs/ext2/xattr.c
++++ b/fs/ext2/xattr.c
+@@ -56,6 +56,7 @@
  
--	if (!desc || (desc->out_num + desc->in_num == 0) ||
--			!test_bit(cmd, &cmd_mask))
-+	if (!desc ||
-+	    (desc->out_num + desc->in_num == 0) ||
-+	    cmd > ND_CMD_CALL ||
-+	    !test_bit(cmd, &cmd_mask))
- 		return -ENOTTY;
+ #include <linux/buffer_head.h>
+ #include <linux/init.h>
++#include <linux/printk.h>
+ #include <linux/slab.h>
+ #include <linux/mbcache.h>
+ #include <linux/quotaops.h>
+@@ -84,8 +85,8 @@
+ 		printk("\n"); \
+ 	} while (0)
+ #else
+-# define ea_idebug(f...)
+-# define ea_bdebug(f...)
++# define ea_idebug(inode, f...)	no_printk(f)
++# define ea_bdebug(bh, f...)	no_printk(f)
+ #endif
  
- 	/* fail write commands (when read-only) */
+ static int ext2_xattr_set2(struct inode *, struct buffer_head *,
 -- 
 2.20.1
 
