@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32EFE1B410B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:50:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64FA41B3F49
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729328AbgDVKMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:12:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45296 "EHLO mail.kernel.org"
+        id S1730083AbgDVKXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:23:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729324AbgDVKMU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:12:20 -0400
+        id S1729604AbgDVKXI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:23:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F33552070B;
-        Wed, 22 Apr 2020 10:12:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BA5B2076E;
+        Wed, 22 Apr 2020 10:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550339;
-        bh=ME0WeMs8A61c6lYVuqvVeOyocXUUkTtNfSPHYXf/LFc=;
+        s=default; t=1587550987;
+        bh=xnctP96IABKORGoIgvVEM+OiiZ2hWkTGMixUA2d1amo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B6MA5VjoOfIraeP3uJzb6IWjJzGIfcT77CE1Mn2Yde3njpitgCoI7/u9vKTJYsMhq
-         La7L/kOsZboFcapcMqTiT/e7O7HnQ1SVmiWxwoupOnd5UrpDIu2Eik7DwtM7FMhvVe
-         jtHXeUttDnZ+ka0EohJoqhmDbx9ezfaRD9lHuT44=
+        b=lEuDxhOTvSAeGsGsjCWQs9au5nkYzqiNY9bMIuLqCr06TF+kW8F8VhLyaB1k90FiN
+         eEo6cmkHf01KugduOcbO27/L0lK6prAc49vWiqK6AMGHzkJH98L6W8DNeLtZ4DVrio
+         HUOtumm6e6y6fNMQzthWQdGdQ8C/ZvI8Jxjn7CEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 054/199] ath9k: Handle txpower changes even when TPC is disabled
-Date:   Wed, 22 Apr 2020 11:56:20 +0200
-Message-Id: <20200422095103.649955731@linuxfoundation.org>
+        stable@vger.kernel.org, Yixin Zhang <yixin.zhang@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 054/166] dmaengine: idxd: reflect shadow copy of traffic class programming
+Date:   Wed, 22 Apr 2020 11:56:21 +0200
+Message-Id: <20200422095054.762310621@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Dave Jiang <dave.jiang@intel.com>
 
-commit 968ae2caad0782db5dbbabb560d3cdefd2945d38 upstream.
+[ Upstream commit a1fcaf07ec718bb1f11e29e952c9a4cb733d57a5 ]
 
-When TPC is disabled IEEE80211_CONF_CHANGE_POWER event can be handled to
-reconfigure HW's maximum txpower.
+The traffic class are set to -1 at initialization until the user programs
+them. If the user choose not to, the driver will program appropriate
+defaults. The driver also needs to update the shadowed copies of the values
+after doing the programming.
 
-This fixes 0dBm txpower setting when user attaches to an interface for
-the first time with the following scenario:
-
-ieee80211_do_open()
-    ath9k_add_interface()
-        ath9k_set_txpower() /* Set TX power with not yet initialized
-                               sc->hw->conf.power_level */
-
-    ieee80211_hw_config() /* Iniatilize sc->hw->conf.power_level and
-                             raise IEEE80211_CONF_CHANGE_POWER */
-
-    ath9k_config() /* IEEE80211_CONF_CHANGE_POWER is ignored */
-
-This issue can be reproduced with the following:
-
-  $ modprobe -r ath9k
-  $ modprobe ath9k
-  $ wpa_supplicant -i wlan0 -c /tmp/wpa.conf &
-  $ iw dev /* Here TX power is either 0 or 3 depending on RF chain */
-  $ killall wpa_supplicant
-  $ iw dev /* TX power goes back to calibrated value and subsequent
-              calls will be fine */
-
-Fixes: 283dd11994cde ("ath9k: add per-vif TX power capability")
-Cc: stable@vger.kernel.org
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c52ca478233c ("dmaengine: idxd: add configuration component of driver")
+Reported-by: Yixin Zhang <yixin.zhang@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/158386263076.10898.4586509576813094559.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/dma/idxd/device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/ath/ath9k/main.c
-+++ b/drivers/net/wireless/ath/ath9k/main.c
-@@ -1456,6 +1456,9 @@ static int ath9k_config(struct ieee80211
- 		ath_chanctx_set_channel(sc, ctx, &hw->conf.chandef);
- 	}
+diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
+index ada69e722f84a..f6f49f0f6fae2 100644
+--- a/drivers/dma/idxd/device.c
++++ b/drivers/dma/idxd/device.c
+@@ -584,11 +584,11 @@ static void idxd_group_flags_setup(struct idxd_device *idxd)
+ 		struct idxd_group *group = &idxd->groups[i];
  
-+	if (changed & IEEE80211_CONF_CHANGE_POWER)
-+		ath9k_set_txpower(sc, NULL);
-+
- 	mutex_unlock(&sc->mutex);
- 	ath9k_ps_restore(sc);
- 
+ 		if (group->tc_a == -1)
+-			group->grpcfg.flags.tc_a = 0;
++			group->tc_a = group->grpcfg.flags.tc_a = 0;
+ 		else
+ 			group->grpcfg.flags.tc_a = group->tc_a;
+ 		if (group->tc_b == -1)
+-			group->grpcfg.flags.tc_b = 1;
++			group->tc_b = group->grpcfg.flags.tc_b = 1;
+ 		else
+ 			group->grpcfg.flags.tc_b = group->tc_b;
+ 		group->grpcfg.flags.use_token_limit = group->use_token_limit;
+-- 
+2.20.1
+
 
 
