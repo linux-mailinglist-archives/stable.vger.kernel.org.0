@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1FF61B3FDC
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 458C01B40A8
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:47:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731640AbgDVKl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57070 "EHLO mail.kernel.org"
+        id S1731809AbgDVKq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:46:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730077AbgDVKUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:18 -0400
+        id S1729745AbgDVKQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:16:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A85520776;
-        Wed, 22 Apr 2020 10:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54D4720575;
+        Wed, 22 Apr 2020 10:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550817;
-        bh=SbJ/jaCJ3OrrVtjET4HQ68htaBYLYMg22O0Pj/OIO/Q=;
+        s=default; t=1587550568;
+        bh=w2PUQYTQ73NwbewyrZ1u9QihBf5HuPs7RlYsAgFI3/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=osnQ7d8PCEuFmesOWVbEQBTbyMf0/yZrOevpk1qMDKAFifEM6UxvIktk3YE3fp40/
-         n7a7MHKZrfIBpIdIlAz7fyfHUBybPbKFDiEfyfyaLsZJKY3DA9kIfV302vKIwEho3w
-         /7Brw20kx8F/jSCa2AfeoerGko5YyM29VZGg3zLE=
+        b=MXXSggWKAZIJvvqqtcGA1DDoV9ppZO3e4DsEVOsKgw4SnnRrMnXVXHMrGMX6MvYV2
+         Z6DTmGj7DnNOBhpzW/BaL0p3NLkOMzPzZYr+t9hYhZHWQE+YEyAXg04Gn7FDybSS/y
+         CLLMcPlsdM8ryl+r7Gv3ggTpNPldB2n82qTLsBVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Goyette <simon.goyette@gmail.com>,
-        =?UTF-8?q?Maxime=20Roussin-B=C3=A9langer?= 
-        <maxime.roussinbelanger@gmail.com>,
-        Guillaume Champagne <champagne.guillaume.c@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 105/118] iio: si1133: read 24-bit signed integer for measurement
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Joern Engel <joern@lazybastard.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org
+Subject: [PATCH 4.19 62/64] mtd: phram: fix a double free issue in error path
 Date:   Wed, 22 Apr 2020 11:57:46 +0200
-Message-Id: <20200422095048.371118698@linuxfoundation.org>
+Message-Id: <20200422095024.382706291@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,127 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Roussin-Bélanger <maxime.roussinbelanger@gmail.com>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-commit 328b50e9a0ad1fe8accdf8c19923deebab5e0c01 upstream.
+commit 49c64df880570034308e4a9a49c4bc95cf8cdb33 upstream.
 
-The chip is configured in 24 bit mode. The values read from
-it must always be treated as is. This fixes the issue by
-replacing the previous 16 bits value by a 24 bits buffer.
+The variable 'name' is released multiple times in the error path,
+which may cause double free issues.
+This problem is avoided by adding a goto label to release the memory
+uniformly. And this change also makes the code a bit more cleaner.
 
-This changes affects the value output by previous version of
-the driver, since the least significant byte was missing.
-The upper half of 16 bit values previously output are now
-the upper half of a 24 bit value.
-
-Fixes: e01e7eaf37d8 ("iio: light: introduce si1133")
-
-Reported-by: Simon Goyette <simon.goyette@gmail.com>
-Co-authored-by: Guillaume Champagne <champagne.guillaume.c@gmail.com>
-Signed-off-by: Maxime Roussin-Bélanger <maxime.roussinbelanger@gmail.com>
-Signed-off-by: Guillaume Champagne <champagne.guillaume.c@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 4f678a58d335 ("mtd: fix memory leaks in phram_setup")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: Joern Engel <joern@lazybastard.org>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Vignesh Raghavendra <vigneshr@ti.com>
+Cc: linux-mtd@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200318153156.25612-1-wenyang@linux.alibaba.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/si1133.c |   37 ++++++++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 13 deletions(-)
+ drivers/mtd/devices/phram.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/iio/light/si1133.c
-+++ b/drivers/iio/light/si1133.c
-@@ -102,6 +102,9 @@
- #define SI1133_INPUT_FRACTION_LOW	15
- #define SI1133_LUX_OUTPUT_FRACTION	12
- #define SI1133_LUX_BUFFER_SIZE		9
-+#define SI1133_MEASURE_BUFFER_SIZE	3
-+
-+#define SI1133_SIGN_BIT_INDEX 23
+--- a/drivers/mtd/devices/phram.c
++++ b/drivers/mtd/devices/phram.c
+@@ -240,22 +240,25 @@ static int phram_setup(const char *val)
  
- static const int si1133_scale_available[] = {
- 	1, 2, 4, 8, 16, 32, 64, 128};
-@@ -234,13 +237,13 @@ static const struct si1133_lux_coeff lux
+ 	ret = parse_num64(&start, token[1]);
+ 	if (ret) {
+-		kfree(name);
+ 		parse_err("illegal start address\n");
++		goto error;
  	}
- };
  
--static int si1133_calculate_polynomial_inner(u32 input, u8 fraction, u16 mag,
-+static int si1133_calculate_polynomial_inner(s32 input, u8 fraction, u16 mag,
- 					     s8 shift)
- {
- 	return ((input << fraction) / mag) << shift;
+ 	ret = parse_num64(&len, token[2]);
+ 	if (ret) {
+-		kfree(name);
+ 		parse_err("illegal device length\n");
++		goto error;
+ 	}
+ 
+ 	ret = register_device(name, start, len);
+-	if (!ret)
+-		pr_info("%s device: %#llx at %#llx\n", name, len, start);
+-	else
+-		kfree(name);
++	if (ret)
++		goto error;
+ 
++	pr_info("%s device: %#llx at %#llx\n", name, len, start);
++	return 0;
++
++error:
++	kfree(name);
+ 	return ret;
  }
  
--static int si1133_calculate_output(u32 x, u32 y, u8 x_order, u8 y_order,
-+static int si1133_calculate_output(s32 x, s32 y, u8 x_order, u8 y_order,
- 				   u8 input_fraction, s8 sign,
- 				   const struct si1133_coeff *coeffs)
- {
-@@ -276,7 +279,7 @@ static int si1133_calculate_output(u32 x
-  * The algorithm is from:
-  * https://siliconlabs.github.io/Gecko_SDK_Doc/efm32zg/html/si1133_8c_source.html#l00716
-  */
--static int si1133_calc_polynomial(u32 x, u32 y, u8 input_fraction, u8 num_coeff,
-+static int si1133_calc_polynomial(s32 x, s32 y, u8 input_fraction, u8 num_coeff,
- 				  const struct si1133_coeff *coeffs)
- {
- 	u8 x_order, y_order;
-@@ -614,7 +617,7 @@ static int si1133_measure(struct si1133_
- {
- 	int err;
- 
--	__be16 resp;
-+	u8 buffer[SI1133_MEASURE_BUFFER_SIZE];
- 
- 	err = si1133_set_adcmux(data, 0, chan->channel);
- 	if (err)
-@@ -625,12 +628,13 @@ static int si1133_measure(struct si1133_
- 	if (err)
- 		return err;
- 
--	err = si1133_bulk_read(data, SI1133_REG_HOSTOUT(0), sizeof(resp),
--			       (u8 *)&resp);
-+	err = si1133_bulk_read(data, SI1133_REG_HOSTOUT(0), sizeof(buffer),
-+			       buffer);
- 	if (err)
- 		return err;
- 
--	*val = be16_to_cpu(resp);
-+	*val = sign_extend32((buffer[0] << 16) | (buffer[1] << 8) | buffer[2],
-+			     SI1133_SIGN_BIT_INDEX);
- 
- 	return err;
- }
-@@ -704,9 +708,9 @@ static int si1133_get_lux(struct si1133_
- {
- 	int err;
- 	int lux;
--	u32 high_vis;
--	u32 low_vis;
--	u32 ir;
-+	s32 high_vis;
-+	s32 low_vis;
-+	s32 ir;
- 	u8 buffer[SI1133_LUX_BUFFER_SIZE];
- 
- 	/* Activate lux channels */
-@@ -719,9 +723,16 @@ static int si1133_get_lux(struct si1133_
- 	if (err)
- 		return err;
- 
--	high_vis = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
--	low_vis = (buffer[3] << 16) | (buffer[4] << 8) | buffer[5];
--	ir = (buffer[6] << 16) | (buffer[7] << 8) | buffer[8];
-+	high_vis =
-+		sign_extend32((buffer[0] << 16) | (buffer[1] << 8) | buffer[2],
-+			      SI1133_SIGN_BIT_INDEX);
-+
-+	low_vis =
-+		sign_extend32((buffer[3] << 16) | (buffer[4] << 8) | buffer[5],
-+			      SI1133_SIGN_BIT_INDEX);
-+
-+	ir = sign_extend32((buffer[6] << 16) | (buffer[7] << 8) | buffer[8],
-+			   SI1133_SIGN_BIT_INDEX);
- 
- 	if (high_vis > SI1133_ADC_THRESHOLD || ir > SI1133_ADC_THRESHOLD)
- 		lux = si1133_calc_polynomial(high_vis, ir,
 
 
