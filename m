@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FFAA1B3F40
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 397821B41C5
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728778AbgDVKgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:36:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59636 "EHLO mail.kernel.org"
+        id S1728196AbgDVKFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730291AbgDVKXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:23:15 -0400
+        id S1728193AbgDVKFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:05:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BD122076E;
-        Wed, 22 Apr 2020 10:23:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C0B020781;
+        Wed, 22 Apr 2020 10:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550995;
-        bh=LvKT9IZJFoDqch09JWfp7jN4pO1lzW0qd658CKnycSo=;
+        s=default; t=1587549935;
+        bh=PbbjQLGK7kVdc1c1pndJ6tVmcwajsjq5vId/JCF4hUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EYJCNGj+s1I+uHjC+AWZ+K2ZTIZRto9GZGSjMoUR29ixYlEc/v1rBGuR5j0oty/HK
-         mpPsAx4BsTentRoB/vzjvlKIpuWtPuDi8pbqX45PZ86NzYCZ8CZGsLwKuCKBO5SaW8
-         ERBY04nShwZmOBM0rLry7ZHkMtlhKf7ruj6Syrms=
+        b=LUXYIPPy8xrGu97h4IobsjIs3JWA4MuUttApUttEivc1JRJXV9BbOFaAXHzUpsMHj
+         Cu1lWsyXptYZewULQ/eQHsr7rxjwv9yJsrcbqiE1gx5whPJAr6HkwugKRGAedie4qb
+         Ywwbz4EeyaFie6woWUgQi+HTWj/9kzWdasG4i/eY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 057/166] memory: tegra: Correct debugfs clk rate-range on Tegra124
-Date:   Wed, 22 Apr 2020 11:56:24 +0200
-Message-Id: <20200422095055.015947514@linuxfoundation.org>
+        stable@vger.kernel.org, Wang Wenhu <wenhu.wang@vivo.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 068/125] net: qrtr: send msgs from local of same id as broadcast
+Date:   Wed, 22 Apr 2020 11:56:25 +0200
+Message-Id: <20200422095044.267838759@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Wang Wenhu <wenhu.wang@vivo.com>
 
-[ Upstream commit 141267bffd1dc19a76e4d50e3e4829f85a806875 ]
+[ Upstream commit 6dbf02acef69b0742c238574583b3068afbd227c ]
 
-Correctly set clk rate-range if number of available timings is zero.
-This fixes noisy "invalid range [4294967295, 0]" error messages during
-boot.
+If the local node id(qrtr_local_nid) is not modified after its
+initialization, it equals to the broadcast node id(QRTR_NODE_BCAST).
+So the messages from local node should not be taken as broadcast
+and keep the process going to send them out anyway.
 
-Fixes: 6b9acd935546 ("memory: tegra: Refashion EMC debugfs interface on Tegra124")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The definitions are as follow:
+static unsigned int qrtr_local_nid = NUMA_NO_NODE;
+
+Fixes: fdf5fd397566 ("net: qrtr: Broadcast messages only from control port")
+Signed-off-by: Wang Wenhu <wenhu.wang@vivo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/memory/tegra/tegra124-emc.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/qrtr/qrtr.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/memory/tegra/tegra124-emc.c b/drivers/memory/tegra/tegra124-emc.c
-index 21f05240682b8..33b8216bac30c 100644
---- a/drivers/memory/tegra/tegra124-emc.c
-+++ b/drivers/memory/tegra/tegra124-emc.c
-@@ -1158,6 +1158,11 @@ static void emc_debugfs_init(struct device *dev, struct tegra_emc *emc)
- 			emc->debugfs.max_rate = emc->timings[i].rate;
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -621,20 +621,21 @@ static int qrtr_sendmsg(struct socket *s
+ 
+ 	node = NULL;
+ 	if (addr->sq_node == QRTR_NODE_BCAST) {
+-		enqueue_fn = qrtr_bcast_enqueue;
+-		if (addr->sq_port != QRTR_PORT_CTRL) {
++		if (addr->sq_port != QRTR_PORT_CTRL &&
++		    qrtr_local_nid != QRTR_NODE_BCAST) {
+ 			release_sock(sk);
+ 			return -ENOTCONN;
+ 		}
++		enqueue_fn = qrtr_bcast_enqueue;
+ 	} else if (addr->sq_node == ipc->us.sq_node) {
+ 		enqueue_fn = qrtr_local_enqueue;
+ 	} else {
+-		enqueue_fn = qrtr_node_enqueue;
+ 		node = qrtr_node_lookup(addr->sq_node);
+ 		if (!node) {
+ 			release_sock(sk);
+ 			return -ECONNRESET;
+ 		}
++		enqueue_fn = qrtr_node_enqueue;
  	}
  
-+	if (!emc->num_timings) {
-+		emc->debugfs.min_rate = clk_get_rate(emc->clk);
-+		emc->debugfs.max_rate = emc->debugfs.min_rate;
-+	}
-+
- 	err = clk_set_rate_range(emc->clk, emc->debugfs.min_rate,
- 				 emc->debugfs.max_rate);
- 	if (err < 0) {
--- 
-2.20.1
-
+ 	plen = (len + 3) & ~3;
 
 
