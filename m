@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC0EA1B3DAA
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:18:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 275F41B4163
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729815AbgDVKRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:17:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53312 "EHLO mail.kernel.org"
+        id S1729028AbgDVKKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729812AbgDVKRQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:17:16 -0400
+        id S1728998AbgDVKKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:10:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA18C2075A;
-        Wed, 22 Apr 2020 10:17:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F20072071E;
+        Wed, 22 Apr 2020 10:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550635;
-        bh=6vwtB1Qd6h66fX50E9WXVN5Wtzl4o77srn3IhBVEnAQ=;
+        s=default; t=1587550236;
+        bh=XjmrEhuophM687LSAaFi/HfiN1o+mJnwbGhVRoqqK60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aX+PDEbd2VqGIRp92A5xj2zJlkoyQjCGAR2Rb+mvfGoZu42LysAyvssbjYwcu3HcH
-         Sy6netx3JscfnR1/J99CKQrLjM/+4Hm/B09mofuERNaGLD6c8OwoWkQ45jU9UOZlML
-         wm/rYWk7VZTXayw6qrc2SQpHU17W5VBiq5+f6pdQ=
+        b=mIwSqzp8DT1KABz336mDFLu/CRRdql4mK/WxgOnqXhzNOcIkkw58nS4Fv4s7alU0q
+         9SHwcPt/HvJ+CqNWqIQl0EGLI6JURREh5d5FzHH/HjU8XEKtBOwPjc/pmyQk0u2qEg
+         Tb9kP1Tpuhv0USeuzGJoUXa/Q6IuZhAnzNYJudU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, cki-project@redhat.com,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 030/118] block, bfq: make reparent_leaf_entity actually work only on leaf entities
+        stable@vger.kernel.org, Rosioru Dragos <dragos.rosioru@nxp.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 065/199] crypto: mxs-dcp - fix scatterlist linearization for hash
 Date:   Wed, 22 Apr 2020 11:56:31 +0200
-Message-Id: <20200422095036.800909372@linuxfoundation.org>
+Message-Id: <20200422095104.741897862@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,113 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valente <paolo.valente@linaro.org>
+From: Rosioru Dragos <dragos.rosioru@nxp.com>
 
-commit 576682fa52cbd95deb3773449566274f206acc58 upstream.
+commit fa03481b6e2e82355c46644147b614f18c7a8161 upstream.
 
-bfq_reparent_leaf_entity() reparents the input leaf entity (a leaf
-entity represents just a bfq_queue in an entity tree). Yet, the input
-entity is guaranteed to always be a leaf entity only in two-level
-entity trees. In this respect, because of the error fixed by
-commit 14afc5936197 ("block, bfq: fix overwrite of bfq_group pointer
-in bfq_find_set_group()"), all (wrongly collapsed) entity trees happened
-to actually have only two levels. After the latter commit, this does not
-hold any longer.
+The incorrect traversal of the scatterlist, during the linearization phase
+lead to computing the hash value of the wrong input buffer.
+New implementation uses scatterwalk_map_and_copy()
+to address this issue.
 
-This commit fixes this problem by modifying
-bfq_reparent_leaf_entity(), so that it searches an active leaf entity
-down the path that stems from the input entity. Such a leaf entity is
-guaranteed to exist when bfq_reparent_leaf_entity() is invoked.
-
-Tested-by: cki-project@redhat.com
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@vger.kernel.org>
+Fixes: 15b59e7c3733 ("crypto: mxs - Add Freescale MXS DCP driver")
+Signed-off-by: Rosioru Dragos <dragos.rosioru@nxp.com>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/bfq-cgroup.c |   48 +++++++++++++++++++++++++++++++-----------------
- 1 file changed, 31 insertions(+), 17 deletions(-)
+ drivers/crypto/mxs-dcp.c |   54 ++++++++++++++++++++++-------------------------
+ 1 file changed, 26 insertions(+), 28 deletions(-)
 
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -798,39 +798,53 @@ static void bfq_flush_idle_tree(struct b
- /**
-  * bfq_reparent_leaf_entity - move leaf entity to the root_group.
-  * @bfqd: the device data structure with the root group.
-- * @entity: the entity to move.
-+ * @entity: the entity to move, if entity is a leaf; or the parent entity
-+ *	    of an active leaf entity to move, if entity is not a leaf.
-  */
- static void bfq_reparent_leaf_entity(struct bfq_data *bfqd,
--				     struct bfq_entity *entity)
-+				     struct bfq_entity *entity,
-+				     int ioprio_class)
- {
--	struct bfq_queue *bfqq = bfq_entity_to_bfqq(entity);
-+	struct bfq_queue *bfqq;
-+	struct bfq_entity *child_entity = entity;
+--- a/drivers/crypto/mxs-dcp.c
++++ b/drivers/crypto/mxs-dcp.c
+@@ -25,6 +25,7 @@
+ #include <crypto/sha.h>
+ #include <crypto/internal/hash.h>
+ #include <crypto/internal/skcipher.h>
++#include <crypto/scatterwalk.h>
  
-+	while (child_entity->my_sched_data) { /* leaf not reached yet */
-+		struct bfq_sched_data *child_sd = child_entity->my_sched_data;
-+		struct bfq_service_tree *child_st = child_sd->service_tree +
-+			ioprio_class;
-+		struct rb_root *child_active = &child_st->active;
-+
-+		child_entity = bfq_entity_of(rb_first(child_active));
-+
-+		if (!child_entity)
-+			child_entity = child_sd->in_service_entity;
-+	}
-+
-+	bfqq = bfq_entity_to_bfqq(child_entity);
- 	bfq_bfqq_move(bfqd, bfqq, bfqd->root_group);
- }
+ #define DCP_MAX_CHANS	4
+ #define DCP_BUF_SZ	PAGE_SIZE
+@@ -621,49 +622,46 @@ static int dcp_sha_req_to_buf(struct cry
+ 	struct dcp_async_ctx *actx = crypto_ahash_ctx(tfm);
+ 	struct dcp_sha_req_ctx *rctx = ahash_request_ctx(req);
+ 	struct hash_alg_common *halg = crypto_hash_alg_common(tfm);
+-	const int nents = sg_nents(req->src);
  
- /**
-- * bfq_reparent_active_entities - move to the root group all active
-- *                                entities.
-+ * bfq_reparent_active_queues - move to the root group all active queues.
-  * @bfqd: the device data structure with the root group.
-  * @bfqg: the group to move from.
-- * @st: the service tree with the entities.
-+ * @st: the service tree to start the search from.
-  */
--static void bfq_reparent_active_entities(struct bfq_data *bfqd,
--					 struct bfq_group *bfqg,
--					 struct bfq_service_tree *st)
-+static void bfq_reparent_active_queues(struct bfq_data *bfqd,
-+				       struct bfq_group *bfqg,
-+				       struct bfq_service_tree *st,
-+				       int ioprio_class)
- {
- 	struct rb_root *active = &st->active;
--	struct bfq_entity *entity = NULL;
+ 	uint8_t *in_buf = sdcp->coh->sha_in_buf;
+ 	uint8_t *out_buf = sdcp->coh->sha_out_buf;
+ 
+-	uint8_t *src_buf;
 -
--	if (!RB_EMPTY_ROOT(&st->active))
--		entity = bfq_entity_of(rb_first(active));
-+	struct bfq_entity *entity;
+ 	struct scatterlist *src;
  
--	for (; entity ; entity = bfq_entity_of(rb_first(active)))
--		bfq_reparent_leaf_entity(bfqd, entity);
-+	while ((entity = bfq_entity_of(rb_first(active))))
-+		bfq_reparent_leaf_entity(bfqd, entity, ioprio_class);
+-	unsigned int i, len, clen;
++	unsigned int i, len, clen, oft = 0;
+ 	int ret;
  
- 	if (bfqg->sched_data.in_service_entity)
- 		bfq_reparent_leaf_entity(bfqd,
--			bfqg->sched_data.in_service_entity);
-+					 bfqg->sched_data.in_service_entity,
-+					 ioprio_class);
- }
+ 	int fin = rctx->fini;
+ 	if (fin)
+ 		rctx->fini = 0;
  
- /**
-@@ -881,7 +895,7 @@ static void bfq_pd_offline(struct blkg_p
- 		 * There is no need to put the sync queues, as the
- 		 * scheduler has taken no reference.
- 		 */
--		bfq_reparent_active_entities(bfqd, bfqg, st);
-+		bfq_reparent_active_queues(bfqd, bfqg, st, i);
+-	for_each_sg(req->src, src, nents, i) {
+-		src_buf = sg_virt(src);
+-		len = sg_dma_len(src);
++	src = req->src;
++	len = req->nbytes;
+ 
+-		do {
+-			if (actx->fill + len > DCP_BUF_SZ)
+-				clen = DCP_BUF_SZ - actx->fill;
+-			else
+-				clen = len;
++	while (len) {
++		if (actx->fill + len > DCP_BUF_SZ)
++			clen = DCP_BUF_SZ - actx->fill;
++		else
++			clen = len;
+ 
+-			memcpy(in_buf + actx->fill, src_buf, clen);
+-			len -= clen;
+-			src_buf += clen;
+-			actx->fill += clen;
++		scatterwalk_map_and_copy(in_buf + actx->fill, src, oft, clen,
++					 0);
+ 
+-			/*
+-			 * If we filled the buffer and still have some
+-			 * more data, submit the buffer.
+-			 */
+-			if (len && actx->fill == DCP_BUF_SZ) {
+-				ret = mxs_dcp_run_sha(req);
+-				if (ret)
+-					return ret;
+-				actx->fill = 0;
+-				rctx->init = 0;
+-			}
+-		} while (len);
++		len -= clen;
++		oft += clen;
++		actx->fill += clen;
++
++		/*
++		 * If we filled the buffer and still have some
++		 * more data, submit the buffer.
++		 */
++		if (len && actx->fill == DCP_BUF_SZ) {
++			ret = mxs_dcp_run_sha(req);
++			if (ret)
++				return ret;
++			actx->fill = 0;
++			rctx->init = 0;
++		}
  	}
  
- 	__bfq_deactivate_entity(entity, false);
+ 	if (fin) {
 
 
