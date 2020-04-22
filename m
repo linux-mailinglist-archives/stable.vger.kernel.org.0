@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09F201B3EA5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:31:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF4F1B3FD3
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730766AbgDVKaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:30:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35668 "EHLO mail.kernel.org"
+        id S1730002AbgDVKlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:41:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730764AbgDVK0p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:26:45 -0400
+        id S1730090AbgDVKUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:20:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D06D2071E;
-        Wed, 22 Apr 2020 10:26:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF31C2084D;
+        Wed, 22 Apr 2020 10:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551205;
-        bh=yySHHLraBwaEa7eTZ12dTCbxl9BA6uw6sL6wccS0dZU=;
+        s=default; t=1587550827;
+        bh=w8ay4hs0GJbRR1//Q+FusngJfVtuAxS6jSP+LQOxm0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nO+Q5pO32ktGs0Q0NMfRB5Ep7+qiN19XBp5T3eeOSyi63IZMZa+BV955G+Sy0gX4J
-         id7Im+OnnTDGkm7+6cwmezaSiea2tQaan+2BhQ/nFTvF+o5Axe1EwgCnDidrQRfVEg
-         6ITzYrn0JbY5ze8AztZqQ9Wav3GGCoNucjKf2Lwk=
+        b=kI883auE6VELOx/xhXneCXJ872uazk1Ef+rmjiffOuYgWQusf1bWan2Zxad5QnHmj
+         5myCFxAMwyQVhQ5ZADifPMwumSzmjVWnJY8GI7dx1QAmezHVFS2bCvfedOQjWfy9sx
+         lQ3HlTDzH2WfztbmpYFs6GY2hD15BYnMZmCDmPkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Huang <ahuang12@lenovo.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 142/166] iommu/amd: Fix the configuration of GCR3 table root pointer
-Date:   Wed, 22 Apr 2020 11:57:49 +0200
-Message-Id: <20200422095103.868243828@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Kerello <christophe.kerello@st.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.4 109/118] mtd: rawnand: free the nand_device object
+Date:   Wed, 22 Apr 2020 11:57:50 +0200
+Message-Id: <20200422095048.867543875@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Huang <ahuang12@lenovo.com>
+From: Christophe Kerello <christophe.kerello@st.com>
 
-[ Upstream commit c20f36534666e37858a14e591114d93cc1be0d34 ]
+commit 009264605cdf1b12962c3a46f75818d05452e890 upstream.
 
-The SPA of the GCR3 table root pointer[51:31] masks 20 bits. However,
-this requires 21 bits (Please see the AMD IOMMU specification).
-This leads to the potential failure when the bit 51 of SPA of
-the GCR3 table root pointer is 1'.
+This patch releases the resources allocated in nanddev_init function.
 
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
-Fixes: 52815b75682e2 ("iommu/amd: Add support for IOMMUv2 domain mode")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a7ab085d7c16 ("mtd: rawnand: Initialize the nand_device object")
+Signed-off-by: Christophe Kerello <christophe.kerello@st.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/1579767768-32295-1-git-send-email-christophe.kerello@st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iommu/amd_iommu_types.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/nand/raw/nand_base.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index f8d01d6b00da7..ca8c4522045b3 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -348,7 +348,7 @@
+--- a/drivers/mtd/nand/raw/nand_base.c
++++ b/drivers/mtd/nand/raw/nand_base.c
+@@ -5907,6 +5907,8 @@ void nand_cleanup(struct nand_chip *chip
+ 	    chip->ecc.algo == NAND_ECC_BCH)
+ 		nand_bch_free((struct nand_bch_control *)chip->ecc.priv);
  
- #define DTE_GCR3_VAL_A(x)	(((x) >> 12) & 0x00007ULL)
- #define DTE_GCR3_VAL_B(x)	(((x) >> 15) & 0x0ffffULL)
--#define DTE_GCR3_VAL_C(x)	(((x) >> 31) & 0xfffffULL)
-+#define DTE_GCR3_VAL_C(x)	(((x) >> 31) & 0x1fffffULL)
- 
- #define DTE_GCR3_INDEX_A	0
- #define DTE_GCR3_INDEX_B	1
--- 
-2.20.1
-
++	nanddev_cleanup(&chip->base);
++
+ 	/* Free bad block table memory */
+ 	kfree(chip->bbt);
+ 	kfree(chip->data_buf);
 
 
