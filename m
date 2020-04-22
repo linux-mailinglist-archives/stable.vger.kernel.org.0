@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E19C1B42AA
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23B581B3BE6
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732307AbgDVLDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:03:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46946 "EHLO mail.kernel.org"
+        id S1726002AbgDVKAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:00:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726589AbgDVKAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:00 -0400
+        id S1726591AbgDVKAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B99F2077D;
-        Wed, 22 Apr 2020 09:59:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0B262076C;
+        Wed, 22 Apr 2020 10:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549599;
-        bh=x8S4j1AKPDX8Tcy3wit8RvIVRrO7ULq6y5vs+Y272sw=;
+        s=default; t=1587549602;
+        bh=+U3prn+/Xwk6KvRtW9pZv7787tBJrTh6JRlUQJZZSfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9F5UJPLCJNAy6MRjBXXXNGLYsZjp/HCN0+iSvQ5xhUdGGtorAbiMmWl14JGmH298
-         CY3wkVj7n/BsYImnl9Eg02sm7KTJOI9ymYXhm8HFDdQUk39gozal4fkWgEICd9aTJo
-         MIKs7Uly5lu3uBsLwIv28CE8lMBR+KmMSS4jOhxU=
+        b=aqGnl+1ZJWRKRvsJqSSS0OhFOPc36S6zQaYLraZyJhGrNTF5KVh01ia9NbbYh2zFX
+         SAzaSNoMHHF6JVYUYr9nGF0inUQhUsuwk5Vdqt0oOZ3v+xiuH9vgn/dh/33QX6GJ/F
+         zuaNyfMa5Xv376UoFtLwiB+isdEZGzkQnLR3MoSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 030/100] ath9k: Handle txpower changes even when TPC is disabled
-Date:   Wed, 22 Apr 2020 11:56:00 +0200
-Message-Id: <20200422095028.270207232@linuxfoundation.org>
+        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.4 031/100] signal: Extend exec_id to 64bits
+Date:   Wed, 22 Apr 2020 11:56:01 +0200
+Message-Id: <20200422095028.419279027@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
 References: <20200422095022.476101261@linuxfoundation.org>
@@ -43,57 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 968ae2caad0782db5dbbabb560d3cdefd2945d38 upstream.
+commit d1e7fd6462ca9fc76650fbe6ca800e35b24267da upstream.
 
-When TPC is disabled IEEE80211_CONF_CHANGE_POWER event can be handled to
-reconfigure HW's maximum txpower.
+Replace the 32bit exec_id with a 64bit exec_id to make it impossible
+to wrap the exec_id counter.  With care an attacker can cause exec_id
+wrap and send arbitrary signals to a newly exec'd parent.  This
+bypasses the signal sending checks if the parent changes their
+credentials during exec.
 
-This fixes 0dBm txpower setting when user attaches to an interface for
-the first time with the following scenario:
+The severity of this problem can been seen that in my limited testing
+of a 32bit exec_id it can take as little as 19s to exec 65536 times.
+Which means that it can take as little as 14 days to wrap a 32bit
+exec_id.  Adam Zabrocki has succeeded wrapping the self_exe_id in 7
+days.  Even my slower timing is in the uptime of a typical server.
+Which means self_exec_id is simply a speed bump today, and if exec
+gets noticably faster self_exec_id won't even be a speed bump.
 
-ieee80211_do_open()
-    ath9k_add_interface()
-        ath9k_set_txpower() /* Set TX power with not yet initialized
-                               sc->hw->conf.power_level */
+Extending self_exec_id to 64bits introduces a problem on 32bit
+architectures where reading self_exec_id is no longer atomic and can
+take two read instructions.  Which means that is is possible to hit
+a window where the read value of exec_id does not match the written
+value.  So with very lucky timing after this change this still
+remains expoiltable.
 
-    ieee80211_hw_config() /* Iniatilize sc->hw->conf.power_level and
-                             raise IEEE80211_CONF_CHANGE_POWER */
+I have updated the update of exec_id on exec to use WRITE_ONCE
+and the read of exec_id in do_notify_parent to use READ_ONCE
+to make it clear that there is no locking between these two
+locations.
 
-    ath9k_config() /* IEEE80211_CONF_CHANGE_POWER is ignored */
-
-This issue can be reproduced with the following:
-
-  $ modprobe -r ath9k
-  $ modprobe ath9k
-  $ wpa_supplicant -i wlan0 -c /tmp/wpa.conf &
-  $ iw dev /* Here TX power is either 0 or 3 depending on RF chain */
-  $ killall wpa_supplicant
-  $ iw dev /* TX power goes back to calibrated value and subsequent
-              calls will be fine */
-
-Fixes: 283dd11994cde ("ath9k: add per-vif TX power capability")
+Link: https://lore.kernel.org/kernel-hardening/20200324215049.GA3710@pi3.com.pl
+Fixes: 2.3.23pre2
 Cc: stable@vger.kernel.org
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/ath9k/main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/exec.c             |    2 +-
+ include/linux/sched.h |    4 ++--
+ kernel/signal.c       |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/ath/ath9k/main.c
-+++ b/drivers/net/wireless/ath/ath9k/main.c
-@@ -1437,6 +1437,9 @@ static int ath9k_config(struct ieee80211
- 		ath_chanctx_set_channel(sc, ctx, &hw->conf.chandef);
- 	}
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1207,7 +1207,7 @@ void setup_new_exec(struct linux_binprm
  
-+	if (changed & IEEE80211_CONF_CHANGE_POWER)
-+		ath9k_set_txpower(sc, NULL);
-+
- 	mutex_unlock(&sc->mutex);
- 	ath9k_ps_restore(sc);
+ 	/* An exec changes our domain. We are no longer part of the thread
+ 	   group */
+-	current->self_exec_id++;
++	WRITE_ONCE(current->self_exec_id, current->self_exec_id + 1);
+ 	flush_signal_handlers(current, 0);
+ }
+ EXPORT_SYMBOL(setup_new_exec);
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1612,8 +1612,8 @@ struct task_struct {
+ 	struct seccomp seccomp;
+ 
+ /* Thread group tracking */
+-   	u32 parent_exec_id;
+-   	u32 self_exec_id;
++	u64 parent_exec_id;
++	u64 self_exec_id;
+ /* Protection of (de-)allocation: mm, files, fs, tty, keyrings, mems_allowed,
+  * mempolicy */
+ 	spinlock_t alloc_lock;
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1660,7 +1660,7 @@ bool do_notify_parent(struct task_struct
+ 		 * This is only possible if parent == real_parent.
+ 		 * Check if it has changed security domain.
+ 		 */
+-		if (tsk->parent_exec_id != tsk->parent->self_exec_id)
++		if (tsk->parent_exec_id != READ_ONCE(tsk->parent->self_exec_id))
+ 			sig = SIGCHLD;
+ 	}
  
 
 
