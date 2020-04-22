@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A81751B423E
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4009E1B3C2E
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:04:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727119AbgDVKDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:03:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52854 "EHLO mail.kernel.org"
+        id S1726475AbgDVKDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:03:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727783AbgDVKDP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:03:15 -0400
+        id S1726790AbgDVKDS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:03:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D4DD2076C;
-        Wed, 22 Apr 2020 10:03:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A68420774;
+        Wed, 22 Apr 2020 10:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549795;
-        bh=CaI+v9D1Ksy/IQA5snBLD83O5DgBFgJMn4PiWZLu3jI=;
+        s=default; t=1587549798;
+        bh=T/a03JFRVwZf26cJQ8+4XA7GcZj1JeU8Ggit0HX5RJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0X7+ovs65RlkmBKtpeHOAV0FarAKG1UPx+j1Ma7PJmESfmyu64gR+q0ikuX6WJ/x
-         sIW/SPF5YE1OEtd1KbClcd7ltnIPFEd7vC/xR8qOiVVQYtFV6IT3yUoMx64HFLHv87
-         gbQG+vRRidLmFJzkxUO4ZDa3hWYjpbhIL755xl9Q=
+        b=YlVDHnigydfBgOKFonG1CZZH3h420cLXt0el1o2dIp8cPL0kCH5P/LhWLx7Lbk5dS
+         yPbods0d2NQmqjQ3LKMMdETklPpZljqnOvOlWGjbc/IeOKVkd70B/s2DfXe7/mGXIA
+         PsaYBwU8bbKNXKsrY8fipT39dp6YrZs6+/33zkMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Wei <wei.zheng@vivo.com>,
+        stable@vger.kernel.org, Xu Wang <vulab@iscas.ac.cn>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 002/125] net: vxge: fix wrong __VA_ARGS__ usage
-Date:   Wed, 22 Apr 2020 11:55:19 +0200
-Message-Id: <20200422095033.388151496@linuxfoundation.org>
+Subject: [PATCH 4.9 003/125] qlcnic: Fix bad kzalloc null test
+Date:   Wed, 22 Apr 2020 11:55:20 +0200
+Message-Id: <20200422095033.541183778@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
 References: <20200422095032.909124119@linuxfoundation.org>
@@ -44,96 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wei <wei.zheng@vivo.com>
+From: Xu Wang <vulab@iscas.ac.cn>
 
-[ Upstream commit b317538c47943f9903860d83cc0060409e12d2ff ]
+[ Upstream commit bcaeb886ade124331a6f3a5cef34a3f1484c0a03 ]
 
-printk in macro vxge_debug_ll uses __VA_ARGS__ without "##" prefix,
-it causes a build error when there is no variable
-arguments(e.g. only fmt is specified.).
+In qlcnic_83xx_get_reset_instruction_template, the variable
+of null test is bad, so correct it.
 
-Signed-off-by: Zheng Wei <wei.zheng@vivo.com>
+Signed-off-by: Xu Wang <vulab@iscas.ac.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/neterion/vxge/vxge-config.h |  2 +-
- drivers/net/ethernet/neterion/vxge/vxge-main.h   | 14 +++++++-------
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/neterion/vxge/vxge-config.h b/drivers/net/ethernet/neterion/vxge/vxge-config.h
-index 6ce4412fcc1ad..380e841fdd957 100644
---- a/drivers/net/ethernet/neterion/vxge/vxge-config.h
-+++ b/drivers/net/ethernet/neterion/vxge/vxge-config.h
-@@ -2065,7 +2065,7 @@ vxge_hw_vpath_strip_fcs_check(struct __vxge_hw_device *hldev, u64 vpath_mask);
- 	if ((level >= VXGE_ERR && VXGE_COMPONENT_LL & VXGE_DEBUG_ERR_MASK) ||  \
- 	    (level >= VXGE_TRACE && VXGE_COMPONENT_LL & VXGE_DEBUG_TRACE_MASK))\
- 		if ((mask & VXGE_DEBUG_MASK) == mask)			       \
--			printk(fmt "\n", __VA_ARGS__);			       \
-+			printk(fmt "\n", ##__VA_ARGS__);		       \
- } while (0)
- #else
- #define vxge_debug_ll(level, mask, fmt, ...)
-diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.h b/drivers/net/ethernet/neterion/vxge/vxge-main.h
-index 3a79d93b84453..5b535aa10d23e 100644
---- a/drivers/net/ethernet/neterion/vxge/vxge-main.h
-+++ b/drivers/net/ethernet/neterion/vxge/vxge-main.h
-@@ -454,49 +454,49 @@ int vxge_fw_upgrade(struct vxgedev *vdev, char *fw_name, int override);
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+index 07f9067affc65..cda5b0a9e9489 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+@@ -1720,7 +1720,7 @@ static int qlcnic_83xx_get_reset_instruction_template(struct qlcnic_adapter *p_d
  
- #if (VXGE_DEBUG_LL_CONFIG & VXGE_DEBUG_MASK)
- #define vxge_debug_ll_config(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_LL_CONFIG, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_LL_CONFIG, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_ll_config(level, fmt, ...)
- #endif
+ 	ahw->reset.seq_error = 0;
+ 	ahw->reset.buff = kzalloc(QLC_83XX_RESTART_TEMPLATE_SIZE, GFP_KERNEL);
+-	if (p_dev->ahw->reset.buff == NULL)
++	if (ahw->reset.buff == NULL)
+ 		return -ENOMEM;
  
- #if (VXGE_DEBUG_INIT & VXGE_DEBUG_MASK)
- #define vxge_debug_init(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_INIT, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_INIT, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_init(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_TX & VXGE_DEBUG_MASK)
- #define vxge_debug_tx(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_TX, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_TX, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_tx(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_RX & VXGE_DEBUG_MASK)
- #define vxge_debug_rx(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_RX, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_RX, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_rx(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_MEM & VXGE_DEBUG_MASK)
- #define vxge_debug_mem(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_MEM, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_MEM, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_mem(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_ENTRYEXIT & VXGE_DEBUG_MASK)
- #define vxge_debug_entryexit(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_ENTRYEXIT, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_ENTRYEXIT, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_entryexit(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_INTR & VXGE_DEBUG_MASK)
- #define vxge_debug_intr(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_INTR, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_INTR, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_intr(level, fmt, ...)
- #endif
+ 	p_buff = p_dev->ahw->reset.buff;
 -- 
 2.20.1
 
