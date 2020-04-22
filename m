@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B8901B40E7
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:49:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91DE31B3F1C
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729459AbgDVKtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:49:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48026 "EHLO mail.kernel.org"
+        id S1730406AbgDVKed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:34:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729442AbgDVKNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:13:51 -0400
+        id S1730401AbgDVKYM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:24:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DAE92071E;
-        Wed, 22 Apr 2020 10:13:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CE1620776;
+        Wed, 22 Apr 2020 10:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550430;
-        bh=LXPWYG4z5+vvrhoERwmekrRYM9JEuLFtWYJbqt8j26E=;
+        s=default; t=1587551051;
+        bh=0H5qTCo9MCcBp0sS1kS6EKUNGIM5n9EoGASG7YstmfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wjjKUA1V5I64t8yLb/fcs5uSpUQRJiati7mY8XF/9LnBbWVl30a+vy2rlCz4+wjp0
-         nKlC/E29h7YoUqVHciK2v42+jNAy/XnvnMPo1z719hZEsp24sxlZGwuMtKWSd/5tXq
-         HTNEF5nHbkhV8dNwjogeZ4rXZu/KUCQ6+Q5W8+cI=
+        b=tjiu8AjGRZXu8b/H1Fr/8AbUxPz9P76RsjeI4tAJcIWCucx6hDfzB4VnWepnq1ISk
+         ujAFCBGY1RhIjnnUw2fH0Ky9U3oB3JuwsvoSQFQFukrZ5eyZ320n63qOMS2BtnT9dn
+         kXipxx2u6UBr1iuJnESEmVknCqlVGklOsjSZ4qU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 4.19 05/64] watchdog: sp805: fix restart handler
+        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 082/166] f2fs: Fix mount failure due to SPO after a successful online resize FS
 Date:   Wed, 22 Apr 2020 11:56:49 +0200
-Message-Id: <20200422095013.224193329@linuxfoundation.org>
+Message-Id: <20200422095057.555918140@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
-References: <20200422095008.799686511@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Sahitya Tummala <stummala@codeaurora.org>
 
-commit ea104a9e4d3e9ebc26fb78dac35585b142ee288b upstream.
+[ Upstream commit 682756827501dc52593bf490f2d437c65ec9efcb ]
 
-The restart handler is missing two things, first, the registers
-has to be unlocked and second there is no synchronization for the
-write_relaxed() calls.
+Even though online resize is successfully done, a SPO immediately
+after resize, still causes below error in the next mount.
 
-This was tested on a custom board with the NXP LS1028A SoC.
+[   11.294650] F2FS-fs (sda8): Wrong user_block_count: 2233856
+[   11.300272] F2FS-fs (sda8): Failed to get valid F2FS checkpoint
 
-Fixes: 6c5c0d48b686c ("watchdog: sp805: add restart handler")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200327162450.28506-1-michael@walle.cc
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is because after FS metadata is updated in update_fs_metadata()
+if the SBI_IS_DIRTY is not dirty, then CP will not be done to reflect
+the new user_block_count.
 
+Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/sp805_wdt.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/f2fs/gc.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/watchdog/sp805_wdt.c
-+++ b/drivers/watchdog/sp805_wdt.c
-@@ -137,10 +137,14 @@ wdt_restart(struct watchdog_device *wdd,
- {
- 	struct sp805_wdt *wdt = watchdog_get_drvdata(wdd);
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index 9cff2502e3bc6..2f645c591a000 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1579,11 +1579,17 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 		goto out;
+ 	}
  
-+	writel_relaxed(UNLOCK, wdt->base + WDTLOCK);
- 	writel_relaxed(0, wdt->base + WDTCONTROL);
- 	writel_relaxed(0, wdt->base + WDTLOAD);
- 	writel_relaxed(INT_ENABLE | RESET_ENABLE, wdt->base + WDTCONTROL);
- 
-+	/* Flush posted writes. */
-+	readl_relaxed(wdt->base + WDTLOCK);
++	mutex_lock(&sbi->cp_mutex);
+ 	update_fs_metadata(sbi, -secs);
+ 	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
++	set_sbi_flag(sbi, SBI_IS_DIRTY);
++	mutex_unlock(&sbi->cp_mutex);
 +
- 	return 0;
- }
- 
+ 	err = f2fs_sync_fs(sbi->sb, 1);
+ 	if (err) {
++		mutex_lock(&sbi->cp_mutex);
+ 		update_fs_metadata(sbi, secs);
++		mutex_unlock(&sbi->cp_mutex);
+ 		update_sb_metadata(sbi, secs);
+ 		f2fs_commit_super(sbi, false);
+ 	}
+-- 
+2.20.1
+
 
 
