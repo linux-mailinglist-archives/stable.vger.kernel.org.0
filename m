@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0753F1B417E
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F3D41B3BE9
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:00:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732063AbgDVKwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:52:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36436 "EHLO mail.kernel.org"
+        id S1726605AbgDVKAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:00:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726788AbgDVKJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:09:35 -0400
+        id S1726487AbgDVKAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EB6720575;
-        Wed, 22 Apr 2020 10:09:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7BD62077D;
+        Wed, 22 Apr 2020 10:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550175;
-        bh=RTuKNnHXxFHiX6vH4QmoVgDE+3nYGNXMsr7ILpti56U=;
+        s=default; t=1587549614;
+        bh=wRvSAt//1Dl7jXusj8IViGumHNtyt3coDpWgMy+UbOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWz2Af+JKtXS1iU6jicgFeGdTBQRNrQZi2OcBnzFTUFa/wDLHPEOCPB0c4ZbgKMHD
-         K6pZeiG5+25SqcGHAK2MMIZjtpQBMCzeV/UOdBLYvOjGJ3QSr295+sQEbA0e2aJSiy
-         j/MlMJouSxUNKZr5FOwJS1uoG940jIOE+xc8wSPM=
+        b=gxwCDm2Va/bC/GJ2GTXgvBX3vcdC2gCakg1uS+rPk8qy/8LD4QFQamVZ0RPReDJ5N
+         FfJA2VTB/SlurIFbrZ35hDw+Jl0Yd+TWAMj8XaSPdz1tSLqyhl1hWQ1RbIbPMAI22/
+         +Wl/33VQVUeX1urYB59SVqvg/eR8XSr20ZLL28UE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 039/199] ALSA: hda: Add driver blacklist
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 035/100] futex: futex_wake_op, do not fail on invalid op
 Date:   Wed, 22 Apr 2020 11:56:05 +0200
-Message-Id: <20200422095101.915636767@linuxfoundation.org>
+Message-Id: <20200422095028.981138893@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +47,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 3c6fd1f07ed03a04debbb9a9d782205f1ef5e2ab upstream.
+commit e78c38f6bdd900b2ad9ac9df8eff58b745dc5b3c upstream.
 
-The recent AMD platform exposes an HD-audio bus but without any actual
-codecs, which is internally tied with a USB-audio device, supposedly.
-It results in "no codecs" error of HD-audio bus driver, and it's
-nothing but a waste of resources.
+In commit 30d6e0a4190d ("futex: Remove duplicated code and fix undefined
+behaviour"), I let FUTEX_WAKE_OP to fail on invalid op.  Namely when op
+should be considered as shift and the shift is out of range (< 0 or > 31).
 
-This patch introduces a static blacklist table for skipping such a
-known bogus PCI SSID entry.  As of writing this patch, the known SSIDs
-are:
-* 1043:874f - ASUS ROG Zenith II / Strix
-* 1462:cb59 - MSI TRX40 Creator
-* 1462:cb60 - MSI TRX40
+But strace's test suite does this madness:
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206543
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200408140449.22319-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  futex(0x7fabd78bcffc, 0x5, 0xfacefeed, 0xb, 0x7fabd78bcffc, 0xa0caffee);
+  futex(0x7fabd78bcffc, 0x5, 0xfacefeed, 0xb, 0x7fabd78bcffc, 0xbadfaced);
+  futex(0x7fabd78bcffc, 0x5, 0xfacefeed, 0xb, 0x7fabd78bcffc, 0xffffffff);
+
+When I pick the first 0xa0caffee, it decodes as:
+
+  0x80000000 & 0xa0caffee: oparg is shift
+  0x70000000 & 0xa0caffee: op is FUTEX_OP_OR
+  0x0f000000 & 0xa0caffee: cmp is FUTEX_OP_CMP_EQ
+  0x00fff000 & 0xa0caffee: oparg is sign-extended 0xcaf = -849
+  0x00000fff & 0xa0caffee: cmparg is sign-extended 0xfee = -18
+
+That means the op tries to do this:
+
+  (futex |= (1 << (-849))) == -18
+
+which is completely bogus. The new check of op in the code is:
+
+        if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28)) {
+                if (oparg < 0 || oparg > 31)
+                        return -EINVAL;
+                oparg = 1 << oparg;
+        }
+
+which results obviously in the "Invalid argument" errno:
+
+  FAIL: futex
+  ===========
+
+  futex(0x7fabd78bcffc, 0x5, 0xfacefeed, 0xb, 0x7fabd78bcffc, 0xa0caffee) = -1: Invalid argument
+  futex.test: failed test: ../futex failed with code 1
+
+So let us soften the failure to print only a (ratelimited) message, crop
+the value and continue as if it were right.  When userspace keeps up, we
+can switch this to return -EINVAL again.
+
+[v2] Do not return 0 immediatelly, proceed with the cropped value.
+
+Fixes: 30d6e0a4190d ("futex: Remove duplicated code and fix undefined behaviour")
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Darren Hart <dvhart@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_intel.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ kernel/futex.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2177,6 +2177,17 @@ static const struct hdac_io_ops pci_hda_
- 	.dma_free_pages = dma_free_pages,
- };
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1479,8 +1479,16 @@ static int futex_atomic_op_inuser(unsign
+ 	int oldval, ret;
  
-+/* Blacklist for skipping the whole probe:
-+ * some HD-audio PCI entries are exposed without any codecs, and such devices
-+ * should be ignored from the beginning.
-+ */
-+static const struct snd_pci_quirk driver_blacklist[] = {
-+	SND_PCI_QUIRK(0x1043, 0x874f, "ASUS ROG Zenith II / Strix", 0),
-+	SND_PCI_QUIRK(0x1462, 0xcb59, "MSI TRX40 Creator", 0),
-+	SND_PCI_QUIRK(0x1462, 0xcb60, "MSI TRX40", 0),
-+	{}
-+};
-+
- static const struct hda_controller_ops pci_hda_ops = {
- 	.disable_msi_reset_irq = disable_msi_reset_irq,
- 	.substream_alloc_pages = substream_alloc_pages,
-@@ -2196,6 +2207,11 @@ static int azx_probe(struct pci_dev *pci
- 	bool schedule_probe;
- 	int err;
+ 	if (encoded_op & (FUTEX_OP_OPARG_SHIFT << 28)) {
+-		if (oparg < 0 || oparg > 31)
+-			return -EINVAL;
++		if (oparg < 0 || oparg > 31) {
++			char comm[sizeof(current->comm)];
++			/*
++			 * kill this print and return -EINVAL when userspace
++			 * is sane again
++			 */
++			pr_info_ratelimited("futex_wake_op: %s tries to shift op by %d; fix this program\n",
++					get_task_comm(comm, current), oparg);
++			oparg &= 31;
++		}
+ 		oparg = 1 << oparg;
+ 	}
  
-+	if (snd_pci_quirk_lookup(pci, driver_blacklist)) {
-+		dev_info(&pci->dev, "Skipping the blacklisted device\n");
-+		return -ENODEV;
-+	}
-+
- 	if (dev >= SNDRV_CARDS)
- 		return -ENODEV;
- 	if (!enable[dev]) {
 
 
