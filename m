@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0E9F1B3FED
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D241B3EA9
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731687AbgDVKlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:41:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56846 "EHLO mail.kernel.org"
+        id S1730717AbgDVKaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:30:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730073AbgDVKUK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:10 -0400
+        id S1730722AbgDVK0X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:26:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7766520882;
-        Wed, 22 Apr 2020 10:20:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 491F42075A;
+        Wed, 22 Apr 2020 10:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550802;
-        bh=L3diuykomXJM438VUcko/Yv/Xh1FBjaJwA6TmB8vDSM=;
+        s=default; t=1587551182;
+        bh=fGz7a64lWYFN33TvpNVh9lbizXvizlbW6RS4o/D26oI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pCVBvBC8kiGEn7lKw48NiqfaTC6/0jnScXD6z9iYFD8SW7CvtuIJtjPYQKqSsVSeX
-         ALin+qwlCwC8X6ForqAvy0lZxGK905V16EbBGnBq0R4rMy56+AiQUUJjY+0H+z3Xk1
-         Whua5sA2PLHqa/Prfi1uQ01xx9pZ9Bv2YHIMa7Cs=
+        b=fcj9RF3Yuk1qWYCkIYRZa84LxB2oIArh8FxoYaloLMXuPm9JZ8bUB8WdTBuDnqB5S
+         h5aU7slLfxEnQkMBa40gNkC8flCJAwKtPDr3KDK9pUwks3gnVgDAaazpL0XRzaX1gt
+         yC88SNi0UBIkNUBNM+8S/pHGK9EBWNCLHCHFr9Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/118] drm/nouveau/gr/gp107,gp108: implement workaround for HW hanging during init
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 134/166] iommu/vt-d: Silence RCU-list debugging warning in dmar_find_atsr()
 Date:   Wed, 22 Apr 2020 11:57:41 +0200
-Message-Id: <20200422095047.653781978@linuxfoundation.org>
+Message-Id: <20200422095103.005670022@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 028a12f5aa829b4ba6ac011530b815eda4960e89 ]
+[ Upstream commit c6f4ebdeba4cff590594df931ff1ee610c426431 ]
 
-Certain boards with GP107/GP108 chipsets hang (often, but randomly) for
-unknown reasons during GR initialisation.
+dmar_find_atsr() calls list_for_each_entry_rcu() outside of an RCU read
+side critical section but with dmar_global_lock held. Silence this
+false positive.
 
-The first tell-tale symptom of this issue is:
+ drivers/iommu/intel-iommu.c:4504 RCU-list traversed in non-reader section!!
+ 1 lock held by swapper/0/1:
+ #0: ffffffff9755bee8 (dmar_global_lock){+.+.}, at: intel_iommu_init+0x1a6/0xe19
 
-nouveau 0000:01:00.0: bus: MMIO read of 00000000 FAULT at 409800 [ TIMEOUT ]
+ Call Trace:
+  dump_stack+0xa4/0xfe
+  lockdep_rcu_suspicious+0xeb/0xf5
+  dmar_find_atsr+0x1ab/0x1c0
+  dmar_parse_one_atsr+0x64/0x220
+  dmar_walk_remapping_entries+0x130/0x380
+  dmar_table_init+0x166/0x243
+  intel_iommu_init+0x1ab/0xe19
+  pci_iommu_init+0x1a/0x44
+  do_one_initcall+0xae/0x4d0
+  kernel_init_freeable+0x412/0x4c5
+  kernel_init+0x19/0x193
 
-appearing in dmesg, likely followed by many other failures being logged.
-
-Karol found this WAR for the issue a while back, but efforts to isolate
-the root cause and proper fix have not yielded success so far.  I've
-modified the original patch to include a few more details, limit it to
-GP107/GP108 by default, and added a config option to override this choice.
-
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/nouveau/nvkm/engine/gr/gf100.c    | 26 +++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/iommu/intel-iommu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/gf100.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/gf100.c
-index c578deb5867a8..c71606a45d1de 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/gf100.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/gf100.c
-@@ -1988,8 +1988,34 @@ gf100_gr_init_(struct nvkm_gr *base)
- {
- 	struct gf100_gr *gr = gf100_gr(base);
- 	struct nvkm_subdev *subdev = &base->engine.subdev;
-+	struct nvkm_device *device = subdev->device;
-+	bool reset = device->chipset == 0x137 || device->chipset == 0x138;
- 	u32 ret;
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 4be5494786918..ef0a5246700e5 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -4501,7 +4501,8 @@ static struct dmar_atsr_unit *dmar_find_atsr(struct acpi_dmar_atsr *atsr)
+ 	struct dmar_atsr_unit *atsru;
+ 	struct acpi_dmar_atsr *tmp;
  
-+	/* On certain GP107/GP108 boards, we trigger a weird issue where
-+	 * GR will stop responding to PRI accesses after we've asked the
-+	 * SEC2 RTOS to boot the GR falcons.  This happens with far more
-+	 * frequency when cold-booting a board (ie. returning from D3).
-+	 *
-+	 * The root cause for this is not known and has proven difficult
-+	 * to isolate, with many avenues being dead-ends.
-+	 *
-+	 * A workaround was discovered by Karol, whereby putting GR into
-+	 * reset for an extended period right before initialisation
-+	 * prevents the problem from occuring.
-+	 *
-+	 * XXX: As RM does not require any such workaround, this is more
-+	 *      of a hack than a true fix.
-+	 */
-+	reset = nvkm_boolopt(device->cfgopt, "NvGrResetWar", reset);
-+	if (reset) {
-+		nvkm_mask(device, 0x000200, 0x00001000, 0x00000000);
-+		nvkm_rd32(device, 0x000200);
-+		msleep(50);
-+		nvkm_mask(device, 0x000200, 0x00001000, 0x00001000);
-+		nvkm_rd32(device, 0x000200);
-+	}
-+
- 	nvkm_pmu_pgob(gr->base.engine.subdev.device->pmu, false);
- 
- 	ret = nvkm_falcon_get(gr->fecs.falcon, subdev);
+-	list_for_each_entry_rcu(atsru, &dmar_atsr_units, list) {
++	list_for_each_entry_rcu(atsru, &dmar_atsr_units, list,
++				dmar_rcu_check()) {
+ 		tmp = (struct acpi_dmar_atsr *)atsru->hdr;
+ 		if (atsr->segment != tmp->segment)
+ 			continue;
 -- 
 2.20.1
 
