@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7935F1B428E
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 624571B3C97
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732409AbgDVLCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:02:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48358 "EHLO mail.kernel.org"
+        id S1728427AbgDVKHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:07:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726285AbgDVKAq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:46 -0400
+        id S1727883AbgDVKHD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:07:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 390D220784;
-        Wed, 22 Apr 2020 10:00:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE49220774;
+        Wed, 22 Apr 2020 10:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549645;
-        bh=mIVHQ0uSnkMp/t2dweUoji1QdAwBFsjSYmZqiOKQEuA=;
+        s=default; t=1587550023;
+        bh=qNozrlyI2SnAMAfBALERdcstlwLYUaOaO+RmbvU4N1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bT6NAmoZLuptkbUFZ9DXQjPdmHjlAnYMC6ZURLy+PdwsAJk9LLxtAn/3VAL6jlwa3
-         GXr73gpYKGAtMLXfA3rlTFa1NxWWkyA47ZVGk0q7Cs1Z+FCaYuMCZDs2JxKI19MEH6
-         hGsoQNiPun2ImcdlR3VuinB8o7KZ47E0mPIL5k90=
+        b=ycQm+gc/SOzBAw4wD8IeqMYqrx7W5yhLo/8zhs8kjPJLsZw9Cs/l+AaZ6uytrOzow
+         M1mA97mdHBbuet8RiNTfUc868SgafS9uyEBQ+fhbmvU2Z4FuyT+TzABmSzz/9oxI9e
+         D05GhVJ5fOaay4MBbpqFHbbi/Kaq/DV60nvd4Krg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Gander <simon@tuxera.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 047/100] hfsplus: fix crash and filesystem corruption when deleting files
+        stable@vger.kernel.org, Sean Paul <sean@poorly.run>,
+        Wayne Lin <Wayne.Lin@amd.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Lyude Paul <lyude@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 060/125] drm/dp_mst: Fix clearing payload state on topology disable
 Date:   Wed, 22 Apr 2020 11:56:17 +0200
-Message-Id: <20200422095030.902624869@linuxfoundation.org>
+Message-Id: <20200422095043.155469271@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Gander <simon@tuxera.com>
+From: Lyude Paul <lyude@redhat.com>
 
-commit 25efb2ffdf991177e740b2f63e92b4ec7d310a92 upstream.
+[ Upstream commit 8732fe46b20c951493bfc4dba0ad08efdf41de81 ]
 
-When removing files containing extended attributes, the hfsplus driver may
-remove the wrong entries from the attributes b-tree, causing major
-filesystem damage and in some cases even kernel crashes.
+The issues caused by:
 
-To remove a file, all its extended attributes have to be removed as well.
-The driver does this by looking up all keys in the attributes b-tree with
-the cnid of the file.  Each of these entries then gets deleted using the
-key used for searching, which doesn't contain the attribute's name when it
-should.  Since the key doesn't contain the name, the deletion routine will
-not find the correct entry and instead remove the one in front of it.  If
-parent nodes have to be modified, these become corrupt as well.  This
-causes invalid links and unsorted entries that not even macOS's fsck_hfs
-is able to fix.
+commit 64e62bdf04ab ("drm/dp_mst: Remove VCPI while disabling topology
+mgr")
 
-To fix this, modify the search key before an entry is deleted from the
-attributes b-tree by copying the found entry's key into the search key,
-therefore ensuring that the correct entry gets removed from the tree.
+Prompted me to take a closer look at how we clear the payload state in
+general when disabling the topology, and it turns out there's actually
+two subtle issues here.
 
-Signed-off-by: Simon Gander <simon@tuxera.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200327155541.1521-1-simon@tuxera.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The first is that we're not grabbing &mgr.payload_lock when clearing the
+payloads in drm_dp_mst_topology_mgr_set_mst(). Seeing as the canonical
+lock order is &mgr.payload_lock -> &mgr.lock (because we always want
+&mgr.lock to be the inner-most lock so topology validation always
+works), this makes perfect sense. It also means that -technically- there
+could be racing between someone calling
+drm_dp_mst_topology_mgr_set_mst() to disable the topology, along with a
+modeset occurring that's modifying the payload state at the same time.
 
+The second is the more obvious issue that Wayne Lin discovered, that
+we're not clearing proposed_payloads when disabling the topology.
+
+I actually can't see any obvious places where the racing caused by the
+first issue would break something, and it could be that some of our
+higher-level locks already prevent this by happenstance, but better safe
+then sorry. So, let's make it so that drm_dp_mst_topology_mgr_set_mst()
+first grabs &mgr.payload_lock followed by &mgr.lock so that we never
+race when modifying the payload state. Then, we also clear
+proposed_payloads to fix the original issue of enabling a new topology
+with a dirty payload state. This doesn't clear any of the drm_dp_vcpi
+structures, but those are getting destroyed along with the ports anyway.
+
+Changes since v1:
+* Use sizeof(mgr->payloads[0])/sizeof(mgr->proposed_vcpis[0]) instead -
+  vsyrjala
+
+Cc: Sean Paul <sean@poorly.run>
+Cc: Wayne Lin <Wayne.Lin@amd.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: stable@vger.kernel.org # v4.4+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200122194321.14953-1-lyude@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/attributes.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/fs/hfsplus/attributes.c
-+++ b/fs/hfsplus/attributes.c
-@@ -291,6 +291,10 @@ static int __hfsplus_delete_attr(struct
- 		return -ENOENT;
- 	}
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index 592ebcd440b6d..8dbcb498d56c3 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -2034,6 +2034,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+ 	int ret = 0;
+ 	struct drm_dp_mst_branch *mstb = NULL;
  
-+	/* Avoid btree corruption */
-+	hfs_bnode_read(fd->bnode, fd->search_key,
-+			fd->keyoffset, fd->keylength);
-+
- 	err = hfs_brec_remove(fd);
- 	if (err)
- 		return err;
++	mutex_lock(&mgr->payload_lock);
+ 	mutex_lock(&mgr->lock);
+ 	if (mst_state == mgr->mst_state)
+ 		goto out_unlock;
+@@ -2096,7 +2097,10 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+ 		/* this can fail if the device is gone */
+ 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
+ 		ret = 0;
+-		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct drm_dp_payload));
++		memset(mgr->payloads, 0,
++		       mgr->max_payloads * sizeof(mgr->payloads[0]));
++		memset(mgr->proposed_vcpis, 0,
++		       mgr->max_payloads * sizeof(mgr->proposed_vcpis[0]));
+ 		mgr->payload_mask = 0;
+ 		set_bit(0, &mgr->payload_mask);
+ 		mgr->vcpi_mask = 0;
+@@ -2104,6 +2108,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+ 
+ out_unlock:
+ 	mutex_unlock(&mgr->lock);
++	mutex_unlock(&mgr->payload_lock);
+ 	if (mstb)
+ 		drm_dp_put_mst_branch_device(mstb);
+ 	return ret;
+-- 
+2.20.1
+
 
 
