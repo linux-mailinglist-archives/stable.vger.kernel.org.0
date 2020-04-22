@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62CB21B41FF
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:58:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C45CE1B3FA5
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727887AbgDVKDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:03:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53926 "EHLO mail.kernel.org"
+        id S1731518AbgDVKjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:39:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727882AbgDVKDt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:03:49 -0400
+        id S1728100AbgDVKVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:21:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C606A20781;
-        Wed, 22 Apr 2020 10:03:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9ADA72076E;
+        Wed, 22 Apr 2020 10:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549829;
-        bh=i37P6qfJRL6fKofulh3XjayC0x/qrLAECfJfJUdeHSU=;
+        s=default; t=1587550884;
+        bh=NAnVbASWnjgs7XmskmVMUUmV+KLJ3N68NxMBDVxbZLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jm8n2gLZOzYDagYyWX0MiJWtbSkWM9f4f9wAoMJJqora+OOC8AvvLOnuqzFh9HIg1
-         Q8+IG6GGd5RpE4OG0iIiT2ilH7h7WDh29jdSqxQBypV34d+IxC73abUMEC9gylwakw
-         KarFXhfwlMIu/U1IMzpRyTm60jiHvsAs0Ijoxq1U=
+        b=EiULXAxMJVgzhuY/jxFZnJ17466E2GuVO4Wt+z9TO+vMb2AQSCBVzUdYi14VEch65
+         XGkFucNxzwB5lDljqiSDuGeZstQRyCMeMLfnlhAjARxjbsu48ldZz2KxOdaGQdz9ZF
+         kI2ZMm2ft3zcqfArGd1G1DYCs+0RonZnOGbTSI+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 024/125] ALSA: ice1724: Fix invalid access for enumerated ctl items
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.6 014/166] netfilter: nf_tables: report EOPNOTSUPP on unsupported flags/object type
 Date:   Wed, 22 Apr 2020 11:55:41 +0200
-Message-Id: <20200422095037.181499289@linuxfoundation.org>
+Message-Id: <20200422095049.851270478@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit c47914c00be346bc5b48c48de7b0da5c2d1a296c upstream.
+commit d9583cdf2f38d0f526d9a8c8564dd2e35e649bc7 upstream.
 
-The access to Analog Capture Source control value implemented in
-prodigy_hifi.c is wrong, as caught by the recently introduced sanity
-check; it should be accessing value.enumerated.item[] instead of
-value.integer.value[].  This patch corrects the wrong access pattern.
+EINVAL should be used for malformed netlink messages. New userspace
+utility and old kernels might easily result in EINVAL when exercising
+new set features, which is misleading.
 
-Fixes: 6b8d6e5518e2 ("[ALSA] ICE1724: Added support for Audiotrak Prodigy 7.1 HiFi & HD2, Hercules Fortissimo IV")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200407084402.25589-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 8aeff920dcc9 ("netfilter: nf_tables: add stateful object reference to set elements")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/ice1712/prodigy_hifi.c |    4 ++--
+ net/netfilter/nf_tables_api.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/ice1712/prodigy_hifi.c
-+++ b/sound/pci/ice1712/prodigy_hifi.c
-@@ -569,7 +569,7 @@ static int wm_adc_mux_enum_get(struct sn
- 	struct snd_ice1712 *ice = snd_kcontrol_chip(kcontrol);
- 
- 	mutex_lock(&ice->gpio_mutex);
--	ucontrol->value.integer.value[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
-+	ucontrol->value.enumerated.item[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
- 	mutex_unlock(&ice->gpio_mutex);
- 	return 0;
- }
-@@ -583,7 +583,7 @@ static int wm_adc_mux_enum_put(struct sn
- 
- 	mutex_lock(&ice->gpio_mutex);
- 	oval = wm_get(ice, WM_ADC_MUX);
--	nval = (oval & 0xe0) | ucontrol->value.integer.value[0];
-+	nval = (oval & 0xe0) | ucontrol->value.enumerated.item[0];
- 	if (nval != oval) {
- 		wm_put(ice, WM_ADC_MUX, nval);
- 		change = 1;
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3950,7 +3950,7 @@ static int nf_tables_newset(struct net *
+ 			      NFT_SET_INTERVAL | NFT_SET_TIMEOUT |
+ 			      NFT_SET_MAP | NFT_SET_EVAL |
+ 			      NFT_SET_OBJECT))
+-			return -EINVAL;
++			return -EOPNOTSUPP;
+ 		/* Only one of these operations is supported */
+ 		if ((flags & (NFT_SET_MAP | NFT_SET_OBJECT)) ==
+ 			     (NFT_SET_MAP | NFT_SET_OBJECT))
+@@ -3988,7 +3988,7 @@ static int nf_tables_newset(struct net *
+ 		objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
+ 		if (objtype == NFT_OBJECT_UNSPEC ||
+ 		    objtype > NFT_OBJECT_MAX)
+-			return -EINVAL;
++			return -EOPNOTSUPP;
+ 	} else if (flags & NFT_SET_OBJECT)
+ 		return -EINVAL;
+ 	else
 
 
