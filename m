@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E9ED1B4005
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:43:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6187E1B3E4E
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730124AbgDVKmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:42:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57456 "EHLO mail.kernel.org"
+        id S1730842AbgDVK1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:27:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730126AbgDVKUw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:52 -0400
+        id S1730838AbgDVK1M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:27:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8853021556;
-        Wed, 22 Apr 2020 10:20:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 631CE20784;
+        Wed, 22 Apr 2020 10:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550852;
-        bh=aLEexzmvFjZs+xrFTUh+Epi0eEaW4BXGZTMzypmLQtI=;
+        s=default; t=1587551231;
+        bh=SbJ/jaCJ3OrrVtjET4HQ68htaBYLYMg22O0Pj/OIO/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMu55Mn4mdK6nwBw0PA7A5PobSNgX2kmI+sXPCcWnq87tcwxRDT2n+rKMGG2iaVJ3
-         nDewPXKvA0yK97Bz7WbytoPuDknxJGQRGUThsL9rh0vk0QQvf5z9WFbJnBCJwtxz8j
-         ATHUQgNBjnsBBA1V3weZi85NxijAMTRNrHT+X7lI=
+        b=uy37YYhQ7oQoECc88DvKjbujlQFVGk3X3b4PGU8PKIGyJzI9ijvXEOugWbbCbjNvO
+         zR6ajiepEPpfVJVcVTQ+33NluPElzSzVPyklfpaiaA9R8G9QzuT+C40J5E1cq77AkH
+         hR0DL078zvOxU7SWds0K0TxLgL5EYU1Cis/0ZjLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>
-Subject: [PATCH 5.4 118/118] bpf, test_verifier: switch bpf_get_stacks 0 s> r8 test
+        stable@vger.kernel.org, Simon Goyette <simon.goyette@gmail.com>,
+        =?UTF-8?q?Maxime=20Roussin-B=C3=A9langer?= 
+        <maxime.roussinbelanger@gmail.com>,
+        Guillaume Champagne <champagne.guillaume.c@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.6 152/166] iio: si1133: read 24-bit signed integer for measurement
 Date:   Wed, 22 Apr 2020 11:57:59 +0200
-Message-Id: <20200422095050.095274128@linuxfoundation.org>
+Message-Id: <20200422095104.858179858@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +46,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Maxime Roussin-Bélanger <maxime.roussinbelanger@gmail.com>
 
-[ no upstream commit ]
+commit 328b50e9a0ad1fe8accdf8c19923deebab5e0c01 upstream.
 
-Switch the comparison, so that is_branch_taken() will recognize that below
-branch is never taken:
+The chip is configured in 24 bit mode. The values read from
+it must always be treated as is. This fixes the issue by
+replacing the previous 16 bits value by a 24 bits buffer.
 
-  [...]
-  17: [...] R1_w=inv0 [...] R8_w=inv(id=0,smin_value=-2147483648,smax_value=-1,umin_value=18446744071562067968,var_off=(0xffffffff80000000; 0x7fffffff)) [...]
-  17: (67) r8 <<= 32
-  18: [...] R8_w=inv(id=0,smax_value=-4294967296,umin_value=9223372036854775808,umax_value=18446744069414584320,var_off=(0x8000000000000000; 0x7fffffff00000000)) [...]
-  18: (c7) r8 s>>= 32
-  19: [...] R8_w=inv(id=0,smin_value=-2147483648,smax_value=-1,umin_value=18446744071562067968,var_off=(0xffffffff80000000; 0x7fffffff)) [...]
-  19: (6d) if r1 s> r8 goto pc+16
-  [...] R1_w=inv0 [...] R8_w=inv(id=0,smin_value=-2147483648,smax_value=-1,umin_value=18446744071562067968,var_off=(0xffffffff80000000; 0x7fffffff)) [...]
-  [...]
+This changes affects the value output by previous version of
+the driver, since the least significant byte was missing.
+The upper half of 16 bit values previously output are now
+the upper half of a 24 bit value.
 
-Currently we check for is_branch_taken() only if either K is source, or source
-is a scalar value that is const. For upstream it would be good to extend this
-properly to check whether dst is const and src not.
+Fixes: e01e7eaf37d8 ("iio: light: introduce si1133")
 
-For the sake of the test_verifier, it is probably not needed here:
-
-  # ./test_verifier 101
-  #101/p bpf_get_stack return R0 within range OK
-  Summary: 1 PASSED, 0 SKIPPED, 0 FAILED
-
-I haven't seen this issue in test_progs* though, they are passing fine:
-
-  # ./test_progs-no_alu32 -t get_stack
-  Switching to flavor 'no_alu32' subdirectory...
-  #20 get_stack_raw_tp:OK
-  Summary: 1/0 PASSED, 0 SKIPPED, 0 FAILED
-
-  # ./test_progs -t get_stack
-  #20 get_stack_raw_tp:OK
-  Summary: 1/0 PASSED, 0 SKIPPED, 0 FAILED
-
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
+Reported-by: Simon Goyette <simon.goyette@gmail.com>
+Co-authored-by: Guillaume Champagne <champagne.guillaume.c@gmail.com>
+Signed-off-by: Maxime Roussin-Bélanger <maxime.roussinbelanger@gmail.com>
+Signed-off-by: Guillaume Champagne <champagne.guillaume.c@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- tools/testing/selftests/bpf/verifier/bpf_get_stack.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/verifier/bpf_get_stack.c
-+++ b/tools/testing/selftests/bpf/verifier/bpf_get_stack.c
-@@ -19,7 +19,7 @@
- 	BPF_MOV64_REG(BPF_REG_8, BPF_REG_0),
- 	BPF_ALU64_IMM(BPF_LSH, BPF_REG_8, 32),
- 	BPF_ALU64_IMM(BPF_ARSH, BPF_REG_8, 32),
--	BPF_JMP_REG(BPF_JSGT, BPF_REG_1, BPF_REG_8, 16),
-+	BPF_JMP_REG(BPF_JSLT, BPF_REG_8, BPF_REG_1, 16),
- 	BPF_ALU64_REG(BPF_SUB, BPF_REG_9, BPF_REG_8),
- 	BPF_MOV64_REG(BPF_REG_2, BPF_REG_7),
- 	BPF_ALU64_REG(BPF_ADD, BPF_REG_2, BPF_REG_8),
+---
+ drivers/iio/light/si1133.c |   37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
+
+--- a/drivers/iio/light/si1133.c
++++ b/drivers/iio/light/si1133.c
+@@ -102,6 +102,9 @@
+ #define SI1133_INPUT_FRACTION_LOW	15
+ #define SI1133_LUX_OUTPUT_FRACTION	12
+ #define SI1133_LUX_BUFFER_SIZE		9
++#define SI1133_MEASURE_BUFFER_SIZE	3
++
++#define SI1133_SIGN_BIT_INDEX 23
+ 
+ static const int si1133_scale_available[] = {
+ 	1, 2, 4, 8, 16, 32, 64, 128};
+@@ -234,13 +237,13 @@ static const struct si1133_lux_coeff lux
+ 	}
+ };
+ 
+-static int si1133_calculate_polynomial_inner(u32 input, u8 fraction, u16 mag,
++static int si1133_calculate_polynomial_inner(s32 input, u8 fraction, u16 mag,
+ 					     s8 shift)
+ {
+ 	return ((input << fraction) / mag) << shift;
+ }
+ 
+-static int si1133_calculate_output(u32 x, u32 y, u8 x_order, u8 y_order,
++static int si1133_calculate_output(s32 x, s32 y, u8 x_order, u8 y_order,
+ 				   u8 input_fraction, s8 sign,
+ 				   const struct si1133_coeff *coeffs)
+ {
+@@ -276,7 +279,7 @@ static int si1133_calculate_output(u32 x
+  * The algorithm is from:
+  * https://siliconlabs.github.io/Gecko_SDK_Doc/efm32zg/html/si1133_8c_source.html#l00716
+  */
+-static int si1133_calc_polynomial(u32 x, u32 y, u8 input_fraction, u8 num_coeff,
++static int si1133_calc_polynomial(s32 x, s32 y, u8 input_fraction, u8 num_coeff,
+ 				  const struct si1133_coeff *coeffs)
+ {
+ 	u8 x_order, y_order;
+@@ -614,7 +617,7 @@ static int si1133_measure(struct si1133_
+ {
+ 	int err;
+ 
+-	__be16 resp;
++	u8 buffer[SI1133_MEASURE_BUFFER_SIZE];
+ 
+ 	err = si1133_set_adcmux(data, 0, chan->channel);
+ 	if (err)
+@@ -625,12 +628,13 @@ static int si1133_measure(struct si1133_
+ 	if (err)
+ 		return err;
+ 
+-	err = si1133_bulk_read(data, SI1133_REG_HOSTOUT(0), sizeof(resp),
+-			       (u8 *)&resp);
++	err = si1133_bulk_read(data, SI1133_REG_HOSTOUT(0), sizeof(buffer),
++			       buffer);
+ 	if (err)
+ 		return err;
+ 
+-	*val = be16_to_cpu(resp);
++	*val = sign_extend32((buffer[0] << 16) | (buffer[1] << 8) | buffer[2],
++			     SI1133_SIGN_BIT_INDEX);
+ 
+ 	return err;
+ }
+@@ -704,9 +708,9 @@ static int si1133_get_lux(struct si1133_
+ {
+ 	int err;
+ 	int lux;
+-	u32 high_vis;
+-	u32 low_vis;
+-	u32 ir;
++	s32 high_vis;
++	s32 low_vis;
++	s32 ir;
+ 	u8 buffer[SI1133_LUX_BUFFER_SIZE];
+ 
+ 	/* Activate lux channels */
+@@ -719,9 +723,16 @@ static int si1133_get_lux(struct si1133_
+ 	if (err)
+ 		return err;
+ 
+-	high_vis = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
+-	low_vis = (buffer[3] << 16) | (buffer[4] << 8) | buffer[5];
+-	ir = (buffer[6] << 16) | (buffer[7] << 8) | buffer[8];
++	high_vis =
++		sign_extend32((buffer[0] << 16) | (buffer[1] << 8) | buffer[2],
++			      SI1133_SIGN_BIT_INDEX);
++
++	low_vis =
++		sign_extend32((buffer[3] << 16) | (buffer[4] << 8) | buffer[5],
++			      SI1133_SIGN_BIT_INDEX);
++
++	ir = sign_extend32((buffer[6] << 16) | (buffer[7] << 8) | buffer[8],
++			   SI1133_SIGN_BIT_INDEX);
+ 
+ 	if (high_vis > SI1133_ADC_THRESHOLD || ir > SI1133_ADC_THRESHOLD)
+ 		lux = si1133_calc_polynomial(high_vis, ir,
 
 
