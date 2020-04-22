@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E98E81B3FD5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC0B1B3E9F
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726924AbgDVKlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:41:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57214 "EHLO mail.kernel.org"
+        id S1730753AbgDVK3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:29:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730091AbgDVKUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:30 -0400
+        id S1730769AbgDVK0x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:26:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 657472098B;
-        Wed, 22 Apr 2020 10:20:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDF932071E;
+        Wed, 22 Apr 2020 10:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550829;
-        bh=z8g8OdfadhKw32Sk4wBRsKxWdO7/BnY8Qy81U8Uxue4=;
+        s=default; t=1587551212;
+        bh=oK4kqRGGJPW2CAwiNXBLNogWEszRqkKuvhC/5JUXd5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuhxtKWMX/3GERoy9iyou3U4DDwjHUSLJV+YXQ2WFNO9mUJQ5XoAIv+Hb9uNfMN8P
-         jJ2c7bjtgRriOXjrugbHXv5Wyg6RHXJx9ixuFMbpWeLPdhywPzhZiD6CPRqLXfjuNV
-         POnTDuOf2OOu+PU8eXxK9BGygc+Oi8vyL3creXU0=
+        b=XM7vA2cGJYL1oaijp1d9P/MLz1tON9ukGsJKSzBgWvAqpDEL9wVRokvUGkuLtez0R
+         xHjQqruW1nLSGYPq4xMdFIAiVTm71CvPHN3soBhIsAtD4io3f7oGCZk/zPX8BIpPSr
+         I/PGks0toRpFUzQZ2Xx9ayfvzCbTzFSaMQI5Ph8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 110/118] mtd: spinand: Explicitly use MTD_OPS_RAW to write the bad block marker to OOB
-Date:   Wed, 22 Apr 2020 11:57:51 +0200
-Message-Id: <20200422095049.001390567@linuxfoundation.org>
+        stable@vger.kernel.org, Yicheng Li <yichengli@chromium.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 145/166] platform/chrome: cros_ec: Query EC protocol version if EC transitions between RO/RW
+Date:   Wed, 22 Apr 2020 11:57:52 +0200
+Message-Id: <20200422095104.180569258@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +46,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Yicheng Li <yichengli@chromium.org>
 
-commit 621a7b780bd8b7054647d53d5071961f2c9e0873 upstream.
+[ Upstream commit 42cd0ab476e2daffc23982c37822a78f9a53cdd5 ]
 
-When writing the bad block marker to the OOB area the access mode
-should be set to MTD_OPS_RAW as it is done for reading the marker.
-Currently this only works because req.mode is initialized to
-MTD_OPS_PLACE_OOB (0) and spinand_write_to_cache_op() checks for
-req.mode != MTD_OPS_AUTO_OOB.
+RO and RW of EC may have different EC protocol version. If EC transitions
+between RO and RW, but AP does not reboot (this is true for fingerprint
+microcontroller / cros_fp, but not true for main ec / cros_ec), the AP
+still uses the protocol version queried before transition, which can
+cause problems. In the case of fingerprint microcontroller, this causes
+AP to send the wrong version of EC_CMD_GET_NEXT_EVENT to RO in the
+interrupt handler, which in turn prevents RO to clear the interrupt
+line to AP, in an infinite loop.
 
-Fix this by explicitly setting req.mode to MTD_OPS_RAW.
+Once an EC_HOST_EVENT_INTERFACE_READY is received, we know that there
+might have been a transition between RO and RW, so re-query the protocol.
 
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200218100432.32433-3-frieder.schrempf@kontron.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Yicheng Li <yichengli@chromium.org>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/spi/core.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/chrome/cros_ec.c           | 30 +++++++++++++++++++++
+ include/linux/platform_data/cros_ec_proto.h |  4 +++
+ 2 files changed, 34 insertions(+)
 
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -609,6 +609,7 @@ static int spinand_markbad(struct nand_d
- 		.ooboffs = 0,
- 		.ooblen = sizeof(marker),
- 		.oobbuf.out = marker,
-+		.mode = MTD_OPS_RAW,
- 	};
- 	int ret;
+diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
+index 6fc8f2c3ac517..7ee43b2e0654a 100644
+--- a/drivers/platform/chrome/cros_ec.c
++++ b/drivers/platform/chrome/cros_ec.c
+@@ -138,6 +138,24 @@ static int cros_ec_sleep_event(struct cros_ec_device *ec_dev, u8 sleep_event)
+ 	return ret;
+ }
  
++static int cros_ec_ready_event(struct notifier_block *nb,
++			       unsigned long queued_during_suspend,
++			       void *_notify)
++{
++	struct cros_ec_device *ec_dev = container_of(nb, struct cros_ec_device,
++						     notifier_ready);
++	u32 host_event = cros_ec_get_host_event(ec_dev);
++
++	if (host_event & EC_HOST_EVENT_MASK(EC_HOST_EVENT_INTERFACE_READY)) {
++		mutex_lock(&ec_dev->lock);
++		cros_ec_query_all(ec_dev);
++		mutex_unlock(&ec_dev->lock);
++		return NOTIFY_OK;
++	}
++
++	return NOTIFY_DONE;
++}
++
+ /**
+  * cros_ec_register() - Register a new ChromeOS EC, using the provided info.
+  * @ec_dev: Device to register.
+@@ -237,6 +255,18 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
+ 		dev_dbg(ec_dev->dev, "Error %d clearing sleep event to ec",
+ 			err);
+ 
++	if (ec_dev->mkbp_event_supported) {
++		/*
++		 * Register the notifier for EC_HOST_EVENT_INTERFACE_READY
++		 * event.
++		 */
++		ec_dev->notifier_ready.notifier_call = cros_ec_ready_event;
++		err = blocking_notifier_chain_register(&ec_dev->event_notifier,
++						      &ec_dev->notifier_ready);
++		if (err)
++			return err;
++	}
++
+ 	dev_info(dev, "Chrome EC device registered\n");
+ 
+ 	return 0;
+diff --git a/include/linux/platform_data/cros_ec_proto.h b/include/linux/platform_data/cros_ec_proto.h
+index ba59147701918..3832433266762 100644
+--- a/include/linux/platform_data/cros_ec_proto.h
++++ b/include/linux/platform_data/cros_ec_proto.h
+@@ -125,6 +125,9 @@ struct cros_ec_command {
+  * @host_event_wake_mask: Mask of host events that cause wake from suspend.
+  * @last_event_time: exact time from the hard irq when we got notified of
+  *     a new event.
++ * @notifier_ready: The notifier_block to let the kernel re-query EC
++ *		    communication protocol when the EC sends
++ *		    EC_HOST_EVENT_INTERFACE_READY.
+  * @ec: The platform_device used by the mfd driver to interface with the
+  *      main EC.
+  * @pd: The platform_device used by the mfd driver to interface with the
+@@ -166,6 +169,7 @@ struct cros_ec_device {
+ 	u32 host_event_wake_mask;
+ 	u32 last_resume_result;
+ 	ktime_t last_event_time;
++	struct notifier_block notifier_ready;
+ 
+ 	/* The platform devices used by the mfd driver */
+ 	struct platform_device *ec;
+-- 
+2.20.1
+
 
 
