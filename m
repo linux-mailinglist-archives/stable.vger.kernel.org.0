@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8930C1B4136
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D311B4061
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:45:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727042AbgDVKLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42806 "EHLO mail.kernel.org"
+        id S1729009AbgDVKpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:45:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729160AbgDVKLS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:11:18 -0400
+        id S1729882AbgDVKRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:17:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2592920776;
-        Wed, 22 Apr 2020 10:11:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D80E22076B;
+        Wed, 22 Apr 2020 10:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550277;
-        bh=fL9fnzJr3b736mjTeKAqS6MF9bED42tZ1GIzikhz2JQ=;
+        s=default; t=1587550670;
+        bh=oooFEStGUZHNuhXxGFvK4GTwAIxHao8rhtCGvyKcdGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SACM/CRTzRQ3+C7PXw2r++mrE9MEW53kDaP1TWkN2w5Ntt9AX70Kk+o6D6L5YKFX5
-         4BxAq9TJzfUmu/nX6fWpnLrkFL2SGq2DCIJwNVQmK2bcotyrSZO613w3hWvrexbRlh
-         LXSZXN4ERqafWAx7eXQuLBfuV1nlzuVpy9njX8zA=
+        b=gWQ1/6DBw/4DFvh9GauDMLZpHoWdrQ8aQHy4+TUiRk5m26Q/LgOFSJPLUSIYTik63
+         eRC2saUGJ1u0Hy1KpZkpbHL4abqybF4d2n4L1ps0LJV/2/kl6sorRlrIQREAERkKc1
+         2BLHhhGeH9YRQSXgtdY7PplofIafjiqF3qo4P0fA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.14 081/199] s390/diag: fix display of diagnose call statistics
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 046/118] arm64: dts: clearfog-gt-8k: set gigabit PHY reset deassert delay
 Date:   Wed, 22 Apr 2020 11:56:47 +0200
-Message-Id: <20200422095106.204217180@linuxfoundation.org>
+Message-Id: <20200422095039.517795504@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Mueller <mimu@linux.ibm.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-commit 6c7c851f1b666a8a455678a0b480b9162de86052 upstream.
+[ Upstream commit 46f94c7818e7ab82758fca74935ef3d454340b4e ]
 
-Show the full diag statistic table and not just parts of it.
+If the mv88e6xxx DSA driver is built as a module, it causes the
+ethernet driver to re-probe when it's loaded. This in turn causes
+the gigabit PHY to be momentarily reset and reprogrammed. However,
+we attempt to reprogram the PHY immediately after deasserting reset,
+and the PHY ignores the writes.
 
-The issue surfaced in a KVM guest with a number of vcpus
-defined smaller than NR_DIAG_STAT.
+This results in the PHY operating in the wrong mode, and the copper
+link states down.
 
-Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Set a reset deassert delay of 10ms for the gigabit PHY to avoid this.
 
+Fixes: babc5544c293 ("arm64: dts: clearfog-gt-8k: 1G eth PHY reset signal")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/diag.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/s390/kernel/diag.c
-+++ b/arch/s390/kernel/diag.c
-@@ -79,7 +79,7 @@ static int show_diag_stat(struct seq_fil
+diff --git a/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts b/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
+index a211a046b2f2f..b90d78a5724b2 100644
+--- a/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
++++ b/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
+@@ -367,6 +367,7 @@
+ 		pinctrl-0 = <&cp0_copper_eth_phy_reset>;
+ 		reset-gpios = <&cp0_gpio2 11 GPIO_ACTIVE_LOW>;
+ 		reset-assert-us = <10000>;
++		reset-deassert-us = <10000>;
+ 	};
  
- static void *show_diag_stat_start(struct seq_file *m, loff_t *pos)
- {
--	return *pos <= nr_cpu_ids ? (void *)((unsigned long) *pos + 1) : NULL;
-+	return *pos <= NR_DIAG_STAT ? (void *)((unsigned long) *pos + 1) : NULL;
- }
- 
- static void *show_diag_stat_next(struct seq_file *m, void *v, loff_t *pos)
+ 	switch0: switch0@4 {
+-- 
+2.20.1
+
 
 
