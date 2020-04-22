@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F311B40E5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20F741B41E1
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731620AbgDVKs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:48:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48226 "EHLO mail.kernel.org"
+        id S1729742AbgDVKzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:55:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729459AbgDVKN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:13:58 -0400
+        id S1727054AbgDVKGt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:06:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71B442076E;
-        Wed, 22 Apr 2020 10:13:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BCF420575;
+        Wed, 22 Apr 2020 10:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550437;
-        bh=tjM+Gu6dhZqW2oK0pWrJ6jwHx7kK3RIuVIcVvonX61g=;
+        s=default; t=1587550008;
+        bh=7QgeglU0Ikc/qfy2xfFtJXgiuvLE1HtqwiqKz5k4OpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FY9xkYxWCReaDsWGeH5BwiVDzUhi25iXwTXrYoe+FinqjIn5MT+SVcLm9Zrs/Cdos
-         TKRG0+GR7ffLJmNB+9EOK3GXwYUAU/U+eZv6oteybSJxzXcm6cTDB5HkK4ex+25zXS
-         k+tC1CznPshdAwFWc4N6dTjUe+2MisbwaKDaK2GY=
+        b=K/jasFN4//oYUjKmwiahPSAFNJqInuVlN5pIwq/aUV2ykNC2578car1Ri8ldkfLWt
+         hNMpbzzNcDE/YEA/gKXcfpHA2t+C0vU4dAzxihgrpfHlo+ksEWsjGq/uetYp8ECTL/
+         nCRJp+HFkzPNeUpleIJHf5WZWiYY1PQw+Qw13ZJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 08/64] netfilter: nf_tables: report EOPNOTSUPP on unsupported flags/object type
+        Subhash Jadavani <subhashj@codeaurora.org>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 095/125] scsi: ufs: ufs-qcom: remove broken hci version quirk
 Date:   Wed, 22 Apr 2020 11:56:52 +0200
-Message-Id: <20200422095014.024164240@linuxfoundation.org>
+Message-Id: <20200422095048.517945138@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
-References: <20200422095008.799686511@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Subhash Jadavani <subhashj@codeaurora.org>
 
-commit d9583cdf2f38d0f526d9a8c8564dd2e35e649bc7 upstream.
+[ Upstream commit 69a6fff068567469c0ef1156ae5ac8d3d71701f0 ]
 
-EINVAL should be used for malformed netlink messages. New userspace
-utility and old kernels might easily result in EINVAL when exercising
-new set features, which is misleading.
+UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION is only applicable for QCOM UFS host
+controller version 2.x.y and this has been fixed from version 3.x.y
+onwards, hence this change removes this quirk for version 3.x.y onwards.
 
-Fixes: 8aeff920dcc9 ("netfilter: nf_tables: add stateful object reference to set elements")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+[mkp: applied by hand]
+
+Signed-off-by: Subhash Jadavani <subhashj@codeaurora.org>
+Signed-off-by: Asutosh Das <asutoshd@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/netfilter/nf_tables_api.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufs-qcom.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -3450,7 +3450,7 @@ static int nf_tables_newset(struct net *
- 			      NFT_SET_INTERVAL | NFT_SET_TIMEOUT |
- 			      NFT_SET_MAP | NFT_SET_EVAL |
- 			      NFT_SET_OBJECT))
--			return -EINVAL;
-+			return -EOPNOTSUPP;
- 		/* Only one of these operations is supported */
- 		if ((flags & (NFT_SET_MAP | NFT_SET_OBJECT)) ==
- 			     (NFT_SET_MAP | NFT_SET_OBJECT))
-@@ -3488,7 +3488,7 @@ static int nf_tables_newset(struct net *
- 		objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
- 		if (objtype == NFT_OBJECT_UNSPEC ||
- 		    objtype > NFT_OBJECT_MAX)
--			return -EINVAL;
-+			return -EOPNOTSUPP;
- 	} else if (flags & NFT_SET_OBJECT)
- 		return -EINVAL;
- 	else
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -1094,7 +1094,7 @@ static void ufs_qcom_advertise_quirks(st
+ 		hba->quirks |= UFSHCD_QUIRK_BROKEN_LCC;
+ 	}
+ 
+-	if (host->hw_ver.major >= 0x2) {
++	if (host->hw_ver.major == 0x2) {
+ 		hba->quirks |= UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION;
+ 
+ 		if (!ufs_qcom_cap_qunipro(host))
 
 
