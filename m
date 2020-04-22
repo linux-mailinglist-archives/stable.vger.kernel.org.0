@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 222331B3C7C
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:06:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9FD1B3BED
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728297AbgDVKGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:06:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57938 "EHLO mail.kernel.org"
+        id S1726655AbgDVKAi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:00:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727056AbgDVKGK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:06:10 -0400
+        id S1726637AbgDVKA3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 037C420575;
-        Wed, 22 Apr 2020 10:06:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FAB420735;
+        Wed, 22 Apr 2020 10:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549969;
-        bh=4Yfw7zDvXO8ES44N9Te9KXxXB+R1yHGUNOhl8YlHk/k=;
+        s=default; t=1587549628;
+        bh=TRPQ6FoNpaRGgTm1y3OvKRf/BeBHSp5t3/eYRALSrR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RIMXmVv1V11jyH6gxdoUk5TQ0N/Gu4nZb1BM6xsTuXMpj+4ScKzK5USCOvXW5s8+n
-         EG6sCZWgmerfWCn2nPs95hdsoFwZgfDqW30Gs1x96YHxNUchiwpWuvBJia4TiE7cly
-         avbdPOHGZm12/Z80MkulThmLOzhe8ws0GpR6eQBA=
+        b=wndVlfhhkbsd2cz4v0nboi/FnmqT2oEqKeO0mpOFew8K0xkEK7omTqq8tBxTh6iKX
+         YtyvfDROcsmCfFCfwWsaJw0wUs4/3lkk6GIYiuWv6PRnsORI2V+x8W4+/ZnUP7eYGp
+         zOepJxtxRm9B1vsA9QNvTnLzUNBOqZ/p2CN6a64U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jessica Yu <jeyu@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Ben Hutchings <benh@debian.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 054/125] kmod: make request_module() return an error when autoloading is disabled
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Fredrik Strupe <fredrik@strupe.net>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 4.4 041/100] arm64: armv8_deprecated: Fix undef_hook mask for thumb setend
 Date:   Wed, 22 Apr 2020 11:56:11 +0200
-Message-Id: <20200422095042.255124584@linuxfoundation.org>
+Message-Id: <20200422095029.893378840@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,108 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Fredrik Strupe <fredrik@strupe.net>
 
-commit d7d27cfc5cf0766a26a8f56868c5ad5434735126 upstream.
+commit fc2266011accd5aeb8ebc335c381991f20e26e33 upstream.
 
-Patch series "module autoloading fixes and cleanups", v5.
+For thumb instructions, call_undef_hook() in traps.c first reads a u16,
+and if the u16 indicates a T32 instruction (u16 >= 0xe800), a second
+u16 is read, which then makes up the the lower half-word of a T32
+instruction. For T16 instructions, the second u16 is not read,
+which makes the resulting u32 opcode always have the upper half set to
+0.
 
-This series fixes a bug where request_module() was reporting success to
-kernel code when module autoloading had been completely disabled via
-'echo > /proc/sys/kernel/modprobe'.
+However, having the upper half of instr_mask in the undef_hook set to 0
+masks out the upper half of all thumb instructions - both T16 and T32.
+This results in trapped T32 instructions with the lower half-word equal
+to the T16 encoding of setend (b650) being matched, even though the upper
+half-word is not 0000 and thus indicates a T32 opcode.
 
-It also addresses the issues raised on the original thread
-(https://lkml.kernel.org/lkml/20200310223731.126894-1-ebiggers@kernel.org/T/#u)
-bydocumenting the modprobe sysctl, adding a self-test for the empty path
-case, and downgrading a user-reachable WARN_ONCE().
+An example of such a T32 instruction is eaa0b650, which should raise a
+SIGILL since T32 instructions with an eaa prefix are unallocated as per
+Arm ARM, but instead works as a SETEND because the second half-word is set
+to b650.
 
-This patch (of 4):
+This patch fixes the issue by extending instr_mask to include the
+upper u32 half, which will still match T16 instructions where the upper
+half is 0, but not T32 instructions.
 
-It's long been possible to disable kernel module autoloading completely
-(while still allowing manual module insertion) by setting
-/proc/sys/kernel/modprobe to the empty string.
-
-This can be preferable to setting it to a nonexistent file since it
-avoids the overhead of an attempted execve(), avoids potential
-deadlocks, and avoids the call to security_kernel_module_request() and
-thus on SELinux-based systems eliminates the need to write SELinux rules
-to dontaudit module_request.
-
-However, when module autoloading is disabled in this way,
-request_module() returns 0.  This is broken because callers expect 0 to
-mean that the module was successfully loaded.
-
-Apparently this was never noticed because this method of disabling
-module autoloading isn't used much, and also most callers don't use the
-return value of request_module() since it's always necessary to check
-whether the module registered its functionality or not anyway.
-
-But improperly returning 0 can indeed confuse a few callers, for example
-get_fs_type() in fs/filesystems.c where it causes a WARNING to be hit:
-
-	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
-		fs = __get_fs_type(name, len);
-		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
-	}
-
-This is easily reproduced with:
-
-	echo > /proc/sys/kernel/modprobe
-	mount -t NONEXISTENT none /
-
-It causes:
-
-	request_module fs-NONEXISTENT succeeded, but still no fs?
-	WARNING: CPU: 1 PID: 1106 at fs/filesystems.c:275 get_fs_type+0xd6/0xf0
-	[...]
-
-This should actually use pr_warn_once() rather than WARN_ONCE(), since
-it's also user-reachable if userspace immediately unloads the module.
-Regardless, request_module() should correctly return an error when it
-fails.  So let's make it return -ENOENT, which matches the error when
-the modprobe binary doesn't exist.
-
-I've also sent patches to document and test this case.
-
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Jessica Yu <jeyu@kernel.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jeff Vander Stoep <jeffv@google.com>
-Cc: Ben Hutchings <benh@debian.org>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200310223731.126894-1-ebiggers@kernel.org
-Link: http://lkml.kernel.org/r/20200312202552.241885-1-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 2d888f48e056 ("arm64: Emulate SETEND for AArch32 tasks")
+Cc: <stable@vger.kernel.org> # 4.0.x-
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kmod.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/armv8_deprecated.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/kmod.c
-+++ b/kernel/kmod.c
-@@ -119,7 +119,7 @@ out:
-  * invoke it.
-  *
-  * If module auto-loading support is disabled then this function
-- * becomes a no-operation.
-+ * simply returns -ENOENT.
-  */
- int __request_module(bool wait, const char *fmt, ...)
- {
-@@ -140,7 +140,7 @@ int __request_module(bool wait, const ch
- 	WARN_ON_ONCE(wait && current_is_async());
- 
- 	if (!modprobe_path[0])
--		return 0;
-+		return -ENOENT;
- 
- 	va_start(args, fmt);
- 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+--- a/arch/arm64/kernel/armv8_deprecated.c
++++ b/arch/arm64/kernel/armv8_deprecated.c
+@@ -605,7 +605,7 @@ static struct undef_hook setend_hooks[]
+ 	},
+ 	{
+ 		/* Thumb mode */
+-		.instr_mask	= 0x0000fff7,
++		.instr_mask	= 0xfffffff7,
+ 		.instr_val	= 0x0000b650,
+ 		.pstate_mask	= (COMPAT_PSR_T_BIT | COMPAT_PSR_MODE_MASK),
+ 		.pstate_val	= (COMPAT_PSR_T_BIT | COMPAT_PSR_MODE_USR),
 
 
