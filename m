@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A29FC1B3BE0
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 11:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50CB01B3CC9
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:09:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726523AbgDVJ7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 05:59:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46536 "EHLO mail.kernel.org"
+        id S1728755AbgDVKIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:08:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725961AbgDVJ7p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 05:59:45 -0400
+        id S1728751AbgDVKIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:08:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8280C20735;
-        Wed, 22 Apr 2020 09:59:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8696E2071E;
+        Wed, 22 Apr 2020 10:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549585;
-        bh=/2XVAIVe8wVjZAqWWzOmKbk2XSQeGlcjzHmXAH4lmVM=;
+        s=default; t=1587550126;
+        bh=SnoorjqcdVM9MzF835qihNuP4uKqiI1nel2b0rE2vNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4GYhqJLpnJdMsUAbLg4lZbz6jWGtuyufkYNw0zIPPK+0/kp3jd2kl3OVnXTkhPih
-         hSWPG//Vp5zJ5uioNdCeJHElmr7xAQqX+E9rXeGs5ua5P/PZkKfLbcpenS7Nytz1wm
-         +Muj2YAAaIj+PKg7kfxfHERxBhqA0XV5hEcn2t1Q=
+        b=Z67Cpwz1GY2wwR7JyqC5tYuX88CHtKxlo8GgN87CbLXmnMhgCbw74nNHihZf/ZT0G
+         91NWJDdInj/Z8TtEeJuh0IIeGvubq1KdvMEMV3RZ749VM6zeIV34M+GSrqZjbpcHYU
+         AH8qDhnoS7kzTrmmdnAn7zGX9ZWFK5hQuRka7Bg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.4 016/100] ASoC: dpcm: allow start or stop during pause for backend
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 020/199] efi/x86: Ignore the memory attributes table on i386
 Date:   Wed, 22 Apr 2020 11:55:46 +0200
-Message-Id: <20200422095025.822200592@linuxfoundation.org>
+Message-Id: <20200422095100.216715434@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 이경택 <gt82.lee@samsung.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 21fca8bdbb64df1297e8c65a746c4c9f4a689751 upstream.
+[ Upstream commit dd09fad9d2caad2325a39b766ce9e79cfc690184 ]
 
-soc_compr_trigger_fe() allows start or stop after pause_push.
-In dpcm_be_dai_trigger(), however, only pause_release is allowed
-command after pause_push.
-So, start or stop after pause in compress offload is always
-returned as error if the compress offload is used with dpcm.
-To fix the problem, SND_SOC_DPCM_STATE_PAUSED should be allowed
-for start or stop command.
+Commit:
 
-Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/004d01d607c1$7a3d5250$6eb7f6f0$@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  3a6b6c6fb23667fa ("efi: Make EFI_MEMORY_ATTRIBUTES_TABLE initialization common across all architectures")
 
+moved the call to efi_memattr_init() from ARM specific to the generic
+EFI init code, in order to be able to apply the restricted permissions
+described in that table on x86 as well.
+
+We never enabled this feature fully on i386, and so mapping and
+reserving this table is pointless. However, due to the early call to
+memblock_reserve(), the memory bookkeeping gets confused to the point
+where it produces the splat below when we try to map the memory later
+on:
+
+  ------------[ cut here ]------------
+  ioremap on RAM at 0x3f251000 - 0x3fa1afff
+  WARNING: CPU: 0 PID: 0 at arch/x86/mm/ioremap.c:166 __ioremap_caller ...
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.20.0 #48
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
+  EIP: __ioremap_caller.constprop.0+0x249/0x260
+  Code: 90 0f b7 05 4e 38 40 de 09 45 e0 e9 09 ff ff ff 90 8d 45 ec c6 05 ...
+  EAX: 00000029 EBX: 00000000 ECX: de59c228 EDX: 00000001
+  ESI: 3f250fff EDI: 00000000 EBP: de3edf20 ESP: de3edee0
+  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00200296
+  CR0: 80050033 CR2: ffd17000 CR3: 1e58c000 CR4: 00040690
+  Call Trace:
+   ioremap_cache+0xd/0x10
+   ? old_map_region+0x72/0x9d
+   old_map_region+0x72/0x9d
+   efi_map_region+0x8/0xa
+   efi_enter_virtual_mode+0x260/0x43b
+   start_kernel+0x329/0x3aa
+   i386_start_kernel+0xa7/0xab
+   startup_32_smp+0x164/0x168
+  ---[ end trace e15ccf6b9f356833 ]---
+
+Let's work around this by disregarding the memory attributes table
+altogether on i386, which does not result in a loss of functionality
+or protection, given that we never consumed the contents.
+
+Fixes: 3a6b6c6fb23667fa ("efi: Make EFI_MEMORY_ATTRIBUTES_TABLE ... ")
+Tested-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20200304165917.5893-1-ardb@kernel.org
+Link: https://lore.kernel.org/r/20200308080859.21568-21-ardb@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/efi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1951,7 +1951,8 @@ int dpcm_be_dai_trigger(struct snd_soc_p
- 		switch (cmd) {
- 		case SNDRV_PCM_TRIGGER_START:
- 			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_PREPARE) &&
--			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP))
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
- 				continue;
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index f50072b51aefb..b39b7e6d4e4dc 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -550,7 +550,7 @@ int __init efi_config_parse_tables(void *config_tables, int count, int sz,
+ 		}
+ 	}
  
- 			ret = dpcm_do_trigger(dpcm, be_substream, cmd);
-@@ -1981,7 +1982,8 @@ int dpcm_be_dai_trigger(struct snd_soc_p
- 			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
- 			break;
- 		case SNDRV_PCM_TRIGGER_STOP:
--			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START)
-+			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) &&
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
- 				continue;
+-	if (efi_enabled(EFI_MEMMAP))
++	if (!IS_ENABLED(CONFIG_X86_32) && efi_enabled(EFI_MEMMAP))
+ 		efi_memattr_init();
  
- 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
+ 	/* Parse the EFI Properties table if it exists */
+-- 
+2.20.1
+
 
 
