@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67AEF1B415B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EFC31B41DD
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728060AbgDVKKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:10:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38136 "EHLO mail.kernel.org"
+        id S1729109AbgDVKzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:55:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728285AbgDVKKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:10:02 -0400
+        id S1728446AbgDVKG7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:06:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD28320575;
-        Wed, 22 Apr 2020 10:10:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E772F20774;
+        Wed, 22 Apr 2020 10:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550202;
-        bh=Dq85OBwbLWN5CPivEkWRazfUgAcrK8+PPUm19L5OCe4=;
+        s=default; t=1587550018;
+        bh=nlNAtfmE+7sDz1jRnaVYI4GkYHewHV8jPnDsjl9aIu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H6SA3On2a7YcYnvcmhm5PdUF/k2nw6pBWTUlCLiegA5pIp3FjeJa2go7q4W0MQHFH
-         Ll5nFUyHiccrPdwvK7qQ61PYsquyye7kFWzZ3k/SzCr8k+qnxUq0mlDITWUhv4ls9S
-         MUN4fzowC80SPRiy7NIp6IxynOMwJj4cEl/fCYu8=
+        b=RVkMQgnvUq4PSv7WZxKXB85tUOfkVdFzBmaO14tHfNxLNzQx2iq7QWFfHkyl+48Sf
+         crOwsJ4swZu/CnKYw+fKqFyYF38Esx0xqVT4NrYS/f+h56DTNzc/gRQH4NTl/pIHn1
+         rukXEH3zdSmNSMKIcIDf0NyvjFj2BlAUwOzMYl0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yicong Yang <yangyicong@hisilicon.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 049/199] PCI/ASPM: Clear the correct bits when enabling L1 substates
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 058/125] powerpc/64/tm: Dont let userspace set regs->trap via sigreturn
 Date:   Wed, 22 Apr 2020 11:56:15 +0200
-Message-Id: <20200422095103.092440269@linuxfoundation.org>
+Message-Id: <20200422095042.826990528@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicong Yang <yangyicong@hisilicon.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 58a3862a10a317a81097ab0c78aecebabb1704f5 upstream.
+commit c7def7fbdeaa25feaa19caf4a27c5d10bd8789e4 upstream.
 
-In pcie_config_aspm_l1ss(), we cleared the wrong bits when enabling ASPM L1
-Substates.  Instead of the L1.x enable bits (PCI_L1SS_CTL1_L1SS_MASK, 0xf), we
-cleared the Link Activation Interrupt Enable bit (PCI_L1SS_CAP_L1_PM_SS,
-0x10).
+In restore_tm_sigcontexts() we take the trap value directly from the
+user sigcontext with no checking:
 
-Clear the L1.x enable bits before writing the new L1.x configuration.
+	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
 
-[bhelgaas: changelog]
-Fixes: aeda9adebab8 ("PCI/ASPM: Configure L1 substate settings")
-Link: https://lore.kernel.org/r/1584093227-1292-1-git-send-email-yangyicong@hisilicon.com
-Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-CC: stable@vger.kernel.org	# v4.11+
+This means we can be in the kernel with an arbitrary regs->trap value.
+
+Although that's not immediately problematic, there is a risk we could
+trigger one of the uses of CHECK_FULL_REGS():
+
+	#define CHECK_FULL_REGS(regs)	BUG_ON(regs->trap & 1)
+
+It can also cause us to unnecessarily save non-volatile GPRs again in
+save_nvgprs(), which shouldn't be problematic but is still wrong.
+
+It's also possible it could trick the syscall restart machinery, which
+relies on regs->trap not being == 0xc00 (see 9a81c16b5275 ("powerpc:
+fix double syscall restarts")), though I haven't been able to make
+that happen.
+
+Finally it doesn't match the behaviour of the non-TM case, in
+restore_sigcontext() which zeroes regs->trap.
+
+So change restore_tm_sigcontexts() to zero regs->trap.
+
+This was discovered while testing Nick's upcoming rewrite of the
+syscall entry path. In that series the call to save_nvgprs() prior to
+signal handling (do_notify_resume()) is removed, which leaves the
+low-bit of regs->trap uncleared which can then trigger the FULL_REGS()
+WARNs in setup_tm_sigcontexts().
+
+Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
+Cc: stable@vger.kernel.org # v3.9+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200401023836.3286664-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pcie/aspm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/signal_64.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/pcie/aspm.c
-+++ b/drivers/pci/pcie/aspm.c
-@@ -693,9 +693,9 @@ static void pcie_config_aspm_l1ss(struct
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -469,8 +469,10 @@ static long restore_tm_sigcontexts(struc
+ 	err |= __get_user(tsk->thread.ckpt_regs.ccr,
+ 			  &sc->gp_regs[PT_CCR]);
  
- 	/* Enable what we need to enable */
- 	pci_clear_and_set_dword(parent, up_cap_ptr + PCI_L1SS_CTL1,
--				PCI_L1SS_CAP_L1_PM_SS, val);
-+				PCI_L1SS_CTL1_L1SS_MASK, val);
- 	pci_clear_and_set_dword(child, dw_cap_ptr + PCI_L1SS_CTL1,
--				PCI_L1SS_CAP_L1_PM_SS, val);
-+				PCI_L1SS_CTL1_L1SS_MASK, val);
- }
- 
- static void pcie_config_aspm_dev(struct pci_dev *pdev, u32 val)
++	/* Don't allow userspace to set the trap value */
++	regs->trap = 0;
++
+ 	/* These regs are not checkpointed; they can go in 'regs'. */
+-	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
+ 	err |= __get_user(regs->dar, &sc->gp_regs[PT_DAR]);
+ 	err |= __get_user(regs->dsisr, &sc->gp_regs[PT_DSISR]);
+ 	err |= __get_user(regs->result, &sc->gp_regs[PT_RESULT]);
 
 
