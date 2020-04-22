@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F5AB1B410E
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:50:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57AE01B40D1
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:48:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729012AbgDVKMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:12:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45692 "EHLO mail.kernel.org"
+        id S1729580AbgDVKOq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:14:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728769AbgDVKMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:12:34 -0400
+        id S1729577AbgDVKOp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:14:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98EC920575;
-        Wed, 22 Apr 2020 10:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DEB920776;
+        Wed, 22 Apr 2020 10:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550354;
-        bh=+SrwVG1wkcsfrVwkbz4KAAKDbgLeN74p2Cc+qM20LlY=;
+        s=default; t=1587550484;
+        bh=VKvRnzrhE79l30fPjNatQ8L377zR5ldGkynql46Qu7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7ujgR5POl3x7EgGWVGDs12FjtwdWUi+WDGYivKJ36FNspu4sfgO7msb5+cGQdg0O
-         I/dMw+i/8LZAVX2ofCsONkuzpEsD8FHcREy0xb59UAzDikWT2fnfAfa0iKyLboduI+
-         s7JBVINHM4EUtoRxlZIrjnZk8hiKTW20T6+BO/LA=
+        b=LTkvZ0poKx9A2RHXaqXaEdCUYyyq1leyuUB5d20lsxg6JbUJKSroXKxopXvHr45gM
+         vTyKd8yAEREipUKpUZ+RR92FAYiwHX+GSuQrMlkMQ7Tv/D6O/YLslSUWLZFnC7x+jX
+         kq/6gX3pQ26pK4Uha4B3dHhQAW+o8wQMyw4+lwG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongwu Su <hongwus@codeaurora.org>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Bean Huo <beanhuo@micron.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 113/199] scsi: ufs: Fix ufshcd_hold() caused scheduling while atomic
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 35/64] s390/cpum_sf: Fix wrong page count in error message
 Date:   Wed, 22 Apr 2020 11:57:19 +0200
-Message-Id: <20200422095108.968120627@linuxfoundation.org>
+Message-Id: <20200422095019.152022733@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-commit c63d6099a7959ecc919b2549dc6b71f53521f819 upstream.
+[ Upstream commit 4141b6a5e9f171325effc36a22eb92bf961e7a5c ]
 
-The async version of ufshcd_hold(async == true), which is only called in
-queuecommand path as for now, is expected to work in atomic context, thus
-it should not sleep or schedule out. When it runs into the condition that
-clocks are ON but link is still in hibern8 state, it should bail out
-without flushing the clock ungate work.
+When perf record -e SF_CYCLES_BASIC_DIAG runs with very high
+frequency, the samples arrive faster than the perf process can
+save them to file. Eventually, for longer running processes, this
+leads to the siutation where the trace buffers allocated by perf
+slowly fills up. At one point the auxiliary trace buffer is full
+and  the CPU Measurement sampling facility is turned off. Furthermore
+a warning is printed to the kernel log buffer:
 
-Fixes: f2a785ac2312 ("scsi: ufshcd: Fix race between clk scaling and ungate work")
-Link: https://lore.kernel.org/r/1581392451-28743-6-git-send-email-cang@codeaurora.org
-Reviewed-by: Hongwu Su <hongwus@codeaurora.org>
-Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cpum_sf: The AUX buffer with 0 pages for the diagnostic-sampling
+	mode is full
 
+The number of allocated pages for the auxiliary trace buffer is shown
+as zero pages. That is wrong.
+
+Fix this by saving the number of allocated pages before entering the
+work loop in the interrupt handler. When the interrupt handler processes
+the samples, it may detect the buffer full condition and stop sampling,
+reducing the buffer size to zero.
+Print the correct value in the error message:
+
+cpum_sf: The AUX buffer with 256 pages for the diagnostic-sampling
+	mode is full
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/s390/kernel/perf_cpum_sf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1448,6 +1448,11 @@ start:
- 		 */
- 		if (ufshcd_can_hibern8_during_gating(hba) &&
- 		    ufshcd_is_link_hibern8(hba)) {
-+			if (async) {
-+				rc = -EAGAIN;
-+				hba->clk_gating.active_reqs--;
-+				break;
-+			}
- 			spin_unlock_irqrestore(hba->host->host_lock, flags);
- 			flush_work(&hba->clk_gating.ungate_work);
- 			spin_lock_irqsave(hba->host->host_lock, flags);
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 5bfb1ce129f4b..74a296cea21cc 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1537,6 +1537,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
+ 	perf_aux_output_end(handle, size);
+ 	num_sdb = aux->sfb.num_sdb;
+ 
++	num_sdb = aux->sfb.num_sdb;
+ 	while (!done) {
+ 		/* Get an output handle */
+ 		aux = perf_aux_output_begin(handle, cpuhw->event);
+-- 
+2.20.1
+
 
 
