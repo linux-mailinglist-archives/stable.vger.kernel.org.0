@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25B0A1B3F2F
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5DE51B41C8
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730853AbgDVKf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:35:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60068 "EHLO mail.kernel.org"
+        id S1728243AbgDVKFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:05:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726413AbgDVKXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:23:33 -0400
+        id S1728237AbgDVKFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:05:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E522A2071E;
-        Wed, 22 Apr 2020 10:23:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD4632075A;
+        Wed, 22 Apr 2020 10:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551012;
-        bh=micotk57/YyCbC9O+mxgFISmiIDBkthE9XBBlTkxP7s=;
+        s=default; t=1587549950;
+        bh=2ljXkslZOpMp5BLxMzDGaoSB4iFl8kKSsg9LYxSJrPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkhhVBNyMgjIVI6iepKoaDwSPCK6omcjzTXd8hbuHDNQBgq+u2Hh8ZD0ng4GzGsLl
-         +OFi3A3UO3Eh1PmSYa+GKI30qUO7DigJoTUEwC32en2H2e0qe4e3UQcw7raTnWr5yP
-         eP1/mikO/bOeDe4SMGxf0LL7vXir1F524hpcP2HA=
+        b=YoECw+2QXNL5/8PkCOiisnbfd0zCtPmZ93DG60enIux9mPI6oPZXfozCPESLUoUBB
+         dU6cmpyuCeR1cqV4DMs9y2pZaDotkQ+E6pD/VZPxga2z2Ufy93ROmcrVBiuQCtUsba
+         6PXmP9GR6rNzm9AjT0E9NBHkWJVTIm/NEydH37Qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 063/166] xfs: fix use-after-free when aborting corrupt attr inactivation
+        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 073/125] ext4: fix incorrect inodes per group in error message
 Date:   Wed, 22 Apr 2020 11:56:30 +0200
-Message-Id: <20200422095055.594423338@linuxfoundation.org>
+Message-Id: <20200422095045.028958463@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Josh Triplett <josh@joshtriplett.org>
 
-[ Upstream commit 496b9bcd62b0b3a160be61e3265a086f97adcbd3 ]
+commit b9c538da4e52a7b79dfcf4cfa487c46125066dfb upstream.
 
-Log the corrupt buffer before we release the buffer.
+If ext4_fill_super detects an invalid number of inodes per group, the
+resulting error message printed the number of blocks per group, rather
+than the number of inodes per group. Fix it to print the correct value.
 
-Fixes: a5155b870d687 ("xfs: always log corruption errors")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: cd6bb35bf7f6d ("ext4: use more strict checks for inodes_per_block on mount")
+Link: https://lore.kernel.org/r/8be03355983a08e5d4eed480944613454d7e2550.1585434649.git.josh@joshtriplett.org
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/xfs/xfs_attr_inactive.c | 2 +-
+ fs/ext4/super.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_attr_inactive.c b/fs/xfs/xfs_attr_inactive.c
-index bbfa6ba84dcd7..fe8f60b59ec4d 100644
---- a/fs/xfs/xfs_attr_inactive.c
-+++ b/fs/xfs/xfs_attr_inactive.c
-@@ -145,8 +145,8 @@ xfs_attr3_node_inactive(
- 	 * Since this code is recursive (gasp!) we must protect ourselves.
- 	 */
- 	if (level > XFS_DA_NODE_MAXDEPTH) {
--		xfs_trans_brelse(*trans, bp);	/* no locks for later trans */
- 		xfs_buf_corruption_error(bp);
-+		xfs_trans_brelse(*trans, bp);	/* no locks for later trans */
- 		return -EFSCORRUPTED;
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3820,7 +3820,7 @@ static int ext4_fill_super(struct super_
+ 	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
+ 	    sbi->s_inodes_per_group > blocksize * 8) {
+ 		ext4_msg(sb, KERN_ERR, "invalid inodes per group: %lu\n",
+-			 sbi->s_blocks_per_group);
++			 sbi->s_inodes_per_group);
+ 		goto failed_mount;
  	}
- 
--- 
-2.20.1
-
+ 	sbi->s_itb_per_group = sbi->s_inodes_per_group /
 
 
