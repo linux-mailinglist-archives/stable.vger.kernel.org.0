@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64A581B4199
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A6C1B3F8A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:39:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728740AbgDVKx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:53:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33898 "EHLO mail.kernel.org"
+        id S1731485AbgDVKin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:38:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728707AbgDVKI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:08:27 -0400
+        id S1729810AbgDVKVl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:21:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D00E02076C;
-        Wed, 22 Apr 2020 10:08:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDF022076E;
+        Wed, 22 Apr 2020 10:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550106;
-        bh=YH4AGpdCWy5IFEc8AHZ2MuIqQUIpNjevYeeA9hxY4Kw=;
+        s=default; t=1587550901;
+        bh=YTEsb73itkQL/bKAHc2dPoNzxc5Vsey7cfT5do3YXzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dXAOInUWNDbCOwPrVHvRW+v3wrmvAptsOOsWCZoS0oX0QaJ56B1gE0v4rQiywpNNL
-         jvpAZpWtC5+Q543GtW9CpMvwCtmT8TLLiYoI/7qmaLAL1lUw2cVLQkuwpXBuFsxsqz
-         /TNXNyErfRSdNopvBAHEUigpyWTKp/sezazpBlGg=
+        b=oA/W6tgAy2tYmwrZqAe07gVNyTWrac5Coev7ISNWC7uak+E/+5b8qZboahFT1F5BX
+         bTNRE8ksWJtKYdnUMze4vIJO4PiId0XHPHTj7Nmb0Xj4O+Wwi2MMW0GYIdHnrAIbR8
+         mVkE0xODQxJpoaXN9HwOQwJDX015EjyFQl+Ci/Bg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luo bin <luobin9@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 004/199] hinic: fix wrong para of wait_for_completion_timeout
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>, Miroslav Benes <mbenes@suse.cz>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.6 003/166] objtool: Fix switch table detection in .text.unlikely
 Date:   Wed, 22 Apr 2020 11:55:30 +0200
-Message-Id: <20200422095058.279264154@linuxfoundation.org>
+Message-Id: <20200422095048.339759418@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo bin <luobin9@huawei.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 0da7c322f116210ebfdda59c7da663a6fc5e9cc8 ]
+commit b401efc120a399dfda1f4d2858a4de365c9b08ef upstream.
 
-the second input parameter of wait_for_completion_timeout should
-be jiffies instead of millisecond
+If a switch jump table's indirect branch is in a ".cold" subfunction in
+.text.unlikely, objtool doesn't detect it, and instead prints a false
+warning:
 
-Signed-off-by: Luo bin <luobin9@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  drivers/media/v4l2-core/v4l2-ioctl.o: warning: objtool: v4l_print_format.cold()+0xd6: sibling call from callable instruction with modified stack frame
+  drivers/hwmon/max6650.o: warning: objtool: max6650_probe.cold()+0xa5: sibling call from callable instruction with modified stack frame
+  drivers/media/dvb-frontends/drxk_hard.o: warning: objtool: init_drxk.cold()+0x16f: sibling call from callable instruction with modified stack frame
+
+Fix it by comparing the function, instead of the section and offset.
+
+Fixes: 13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/157c35d42ca9b6354bbb1604fe9ad7d1153ccb21.1585761021.git.jpoimboe@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c | 3 ++-
- drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c | 5 +++--
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ tools/objtool/check.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c
-index 7d95f0866fb0b..e1de97effcd24 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c
-@@ -398,7 +398,8 @@ static int cmdq_sync_cmd_direct_resp(struct hinic_cmdq *cmdq,
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1011,10 +1011,7 @@ static struct rela *find_jump_table(stru
+ 	 * it.
+ 	 */
+ 	for (;
+-	     &insn->list != &file->insn_list &&
+-	     insn->sec == func->sec &&
+-	     insn->offset >= func->offset;
+-
++	     &insn->list != &file->insn_list && insn->func && insn->func->pfunc == func;
+ 	     insn = insn->first_jump_src ?: list_prev_entry(insn, list)) {
  
- 	spin_unlock_bh(&cmdq->cmdq_lock);
- 
--	if (!wait_for_completion_timeout(&done, CMDQ_TIMEOUT)) {
-+	if (!wait_for_completion_timeout(&done,
-+					 msecs_to_jiffies(CMDQ_TIMEOUT))) {
- 		spin_lock_bh(&cmdq->cmdq_lock);
- 
- 		if (cmdq->errcode[curr_prod_idx] == &errcode)
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
-index 278dc13f3dae8..9fcf2e5e00039 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
-@@ -52,7 +52,7 @@
- 
- #define MSG_NOT_RESP                    0xFFFF
- 
--#define MGMT_MSG_TIMEOUT                1000
-+#define MGMT_MSG_TIMEOUT                5000
- 
- #define mgmt_to_pfhwdev(pf_mgmt)        \
- 		container_of(pf_mgmt, struct hinic_pfhwdev, pf_to_mgmt)
-@@ -276,7 +276,8 @@ static int msg_to_mgmt_sync(struct hinic_pf_to_mgmt *pf_to_mgmt,
- 		goto unlock_sync_msg;
- 	}
- 
--	if (!wait_for_completion_timeout(recv_done, MGMT_MSG_TIMEOUT)) {
-+	if (!wait_for_completion_timeout(recv_done,
-+					 msecs_to_jiffies(MGMT_MSG_TIMEOUT))) {
- 		dev_err(&pdev->dev, "MGMT timeout, MSG id = %d\n", msg_id);
- 		err = -ETIMEDOUT;
- 		goto unlock_sync_msg;
--- 
-2.20.1
-
+ 		if (insn != orig_insn && insn->type == INSN_JUMP_DYNAMIC)
 
 
