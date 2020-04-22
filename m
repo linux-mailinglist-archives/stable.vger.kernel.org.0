@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A3ED1B3CD7
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9B6D1B42B3
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728837AbgDVKJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:09:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35706 "EHLO mail.kernel.org"
+        id S1726589AbgDVLD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:03:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728814AbgDVKJO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:09:14 -0400
+        id S1726539AbgDVJ7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 05:59:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B43520776;
-        Wed, 22 Apr 2020 10:09:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D41C42077D;
+        Wed, 22 Apr 2020 09:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550152;
-        bh=Ah1phaatKWQi3TK8AmYCuGygrGtfYztTNYjAIJTHsNw=;
+        s=default; t=1587549592;
+        bh=wM3LJ0wa+yf3/wyfk7WPwpnk96PUqDGpDpM9BiOype4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WaivvUGds2k9bNw98UBmASBVfSj5sqt9G4PtzNydQWdNdQzUDsiNdAcN80FEQmkDK
-         +WJjBuJ5oF4ed61jP6ubvBYUAvBWoEOyPJpXUTT11uumDDzfc6KMbKuHWtFHDUC5fj
-         5fC7ztyQt6ZE/ojJc2AtBWcTP7uq2FEAhq5ODXXE=
+        b=d0wIfv48ZU6a2e69H43YUr3hk8PaaIVTmEIyTqoBZzFubyRFj6AuK2rHuJqKgk/Z1
+         6DfbpgdVzqGfiJxpKcegdmxWhFKI/hUjIGJiIx1vBf2tWVD1T0FeXy7d7b28umlEPx
+         vFXSTYh9YYPRch1Gjwp8KYFZAXlf8n/3u6hD4He0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 030/199] misc: rtsx: set correct pcr_ops for rts522A
-Date:   Wed, 22 Apr 2020 11:55:56 +0200
-Message-Id: <20200422095101.092618537@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Yang Xu <xuyang2018.jy@cn.fujitsu.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: [PATCH 4.4 027/100] KEYS: reaching the keys quotas correctly
+Date:   Wed, 22 Apr 2020 11:55:57 +0200
+Message-Id: <20200422095027.750789793@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
 
-[ Upstream commit 10cea23b6aae15e8324f4101d785687f2c514fe5 ]
+commit 2e356101e72ab1361821b3af024d64877d9a798d upstream.
 
-rts522a should use rts522a_pcr_ops, which is
-diffrent with rts5227 in phy/hw init setting.
+Currently, when we add a new user key, the calltrace as below:
 
-Fixes: ce6a5acc9387 ("mfd: rtsx: Add support for rts522A")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200326032618.20472-1-yuehaibing@huawei.com
+add_key()
+  key_create_or_update()
+    key_alloc()
+    __key_instantiate_and_link
+      generic_key_instantiate
+        key_payload_reserve
+          ......
+
+Since commit a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly"),
+we can reach max bytes/keys in key_alloc, but we forget to remove this
+limit when we reserver space for payload in key_payload_reserve. So we
+can only reach max keys but not max bytes when having delta between plen
+and type->def_datalen. Remove this limit when instantiating the key, so we
+can keep consistent with key_alloc.
+
+Also, fix the similar problem in keyctl_chown_key().
+
+Fixes: 0b77f5bfb45c ("keys: make the keyring quotas controllable through /proc/sys")
+Fixes: a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly")
+Cc: stable@vger.kernel.org # 5.0.x
+Cc: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/mfd/rts5227.c | 1 +
- 1 file changed, 1 insertion(+)
+ security/keys/key.c    |    2 +-
+ security/keys/keyctl.c |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/rts5227.c b/drivers/mfd/rts5227.c
-index ff296a4bf3d23..dc6a9432a4b65 100644
---- a/drivers/mfd/rts5227.c
-+++ b/drivers/mfd/rts5227.c
-@@ -369,6 +369,7 @@ static const struct pcr_ops rts522a_pcr_ops = {
- void rts522a_init_params(struct rtsx_pcr *pcr)
- {
- 	rts5227_init_params(pcr);
-+	pcr->ops = &rts522a_pcr_ops;
+--- a/security/keys/key.c
++++ b/security/keys/key.c
+@@ -376,7 +376,7 @@ int key_payload_reserve(struct key *key,
+ 		spin_lock(&key->user->lock);
  
- 	pcr->reg_pm_ctrl3 = RTS522A_PM_CTRL3;
- }
--- 
-2.20.1
-
+ 		if (delta > 0 &&
+-		    (key->user->qnbytes + delta >= maxbytes ||
++		    (key->user->qnbytes + delta > maxbytes ||
+ 		     key->user->qnbytes + delta < key->user->qnbytes)) {
+ 			ret = -EDQUOT;
+ 		}
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -853,8 +853,8 @@ long keyctl_chown_key(key_serial_t id, u
+ 				key_quota_root_maxbytes : key_quota_maxbytes;
+ 
+ 			spin_lock(&newowner->lock);
+-			if (newowner->qnkeys + 1 >= maxkeys ||
+-			    newowner->qnbytes + key->quotalen >= maxbytes ||
++			if (newowner->qnkeys + 1 > maxkeys ||
++			    newowner->qnbytes + key->quotalen > maxbytes ||
+ 			    newowner->qnbytes + key->quotalen <
+ 			    newowner->qnbytes)
+ 				goto quota_overrun;
 
 
