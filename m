@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC9B1B3FBE
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5DE1B3E9B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:31:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731612AbgDVKk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:40:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56322 "EHLO mail.kernel.org"
+        id S1727837AbgDVK33 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:29:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730120AbgDVKUk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:40 -0400
+        id S1730789AbgDVK05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:26:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34B1D2070B;
-        Wed, 22 Apr 2020 10:20:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB8732076B;
+        Wed, 22 Apr 2020 10:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550839;
-        bh=x9o356t3GFTMdLhsII0MkSSipdwmAm2zA7xCIh92LPE=;
+        s=default; t=1587551217;
+        bh=CV4lsd8GFjskQ68BrjCsNHsoRiEhRicJFGhZqLBaR7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3pAkeymaBsVnfesVEKXIX8ILiViH6psaE7mV5deUWvRk0JM1K9TKZXa4Ih3HyEZX
-         8pQbyFFyZaDYCKB8nw9cJnAYr0/6x4kH411JWi5ghesT32QaCtW7kLRLAf5REDZTju
-         +ydp7wtRx7FGplTNSFOGxe42G5O+4v2T6FL2E2f8=
+        b=QvWUy6fhoe4GPR7kt9Z1EES9dAvGrL6d3HM0rbZtrufQytoCm/8IdSj8cFQrth5cQ
+         3Qjzrfq1DteYx0CRooOKiRNCwNmh2wRmkvYE2ddtJgjSobZSKImu0ughTYx33H6dbb
+         MUXyfQjlcMyRncUGKdaVNxDwnseNUNezJBeh434U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        Joern Engel <joern@lazybastard.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-mtd@lists.infradead.org
-Subject: [PATCH 5.4 113/118] mtd: phram: fix a double free issue in error path
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 147/166] net: dsa: bcm_sf2: Fix overflow checks
 Date:   Wed, 22 Apr 2020 11:57:54 +0200
-Message-Id: <20200422095049.379269957@linuxfoundation.org>
+Message-Id: <20200422095104.361727106@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,64 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 49c64df880570034308e4a9a49c4bc95cf8cdb33 upstream.
+commit d0802dc411f469569a537283b6f3833af47aece9 upstream.
 
-The variable 'name' is released multiple times in the error path,
-which may cause double free issues.
-This problem is avoided by adding a goto label to release the memory
-uniformly. And this change also makes the code a bit more cleaner.
+Commit f949a12fd697 ("net: dsa: bcm_sf2: fix buffer overflow doing
+set_rxnfc") tried to fix the some user controlled buffer overflows in
+bcm_sf2_cfp_rule_set() and bcm_sf2_cfp_rule_del() but the fix was using
+CFP_NUM_RULES, which while it is correct not to overflow the bitmaps, is
+not representative of what the device actually supports. Correct that by
+using bcm_sf2_cfp_rule_size() instead.
 
-Fixes: 4f678a58d335 ("mtd: fix memory leaks in phram_setup")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Cc: Joern Engel <joern@lazybastard.org>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Vignesh Raghavendra <vigneshr@ti.com>
-Cc: linux-mtd@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200318153156.25612-1-wenyang@linux.alibaba.com
+The latter subtracts the number of rules by 1, so change the checks from
+greater than or equal to greater than accordingly.
+
+Fixes: f949a12fd697 ("net: dsa: bcm_sf2: fix buffer overflow doing set_rxnfc")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/devices/phram.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/net/dsa/bcm_sf2_cfp.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/mtd/devices/phram.c
-+++ b/drivers/mtd/devices/phram.c
-@@ -243,22 +243,25 @@ static int phram_setup(const char *val)
+--- a/drivers/net/dsa/bcm_sf2_cfp.c
++++ b/drivers/net/dsa/bcm_sf2_cfp.c
+@@ -882,17 +882,14 @@ static int bcm_sf2_cfp_rule_set(struct d
+ 	     fs->m_ext.data[1]))
+ 		return -EINVAL;
  
- 	ret = parse_num64(&start, token[1]);
- 	if (ret) {
--		kfree(name);
- 		parse_err("illegal start address\n");
-+		goto error;
- 	}
+-	if (fs->location != RX_CLS_LOC_ANY && fs->location >= CFP_NUM_RULES)
++	if (fs->location != RX_CLS_LOC_ANY &&
++	    fs->location > bcm_sf2_cfp_rule_size(priv))
+ 		return -EINVAL;
  
- 	ret = parse_num64(&len, token[2]);
- 	if (ret) {
--		kfree(name);
- 		parse_err("illegal device length\n");
-+		goto error;
- 	}
+ 	if (fs->location != RX_CLS_LOC_ANY &&
+ 	    test_bit(fs->location, priv->cfp.used))
+ 		return -EBUSY;
  
- 	ret = register_device(name, start, len);
--	if (!ret)
--		pr_info("%s device: %#llx at %#llx\n", name, len, start);
--	else
--		kfree(name);
-+	if (ret)
-+		goto error;
+-	if (fs->location != RX_CLS_LOC_ANY &&
+-	    fs->location > bcm_sf2_cfp_rule_size(priv))
+-		return -EINVAL;
+-
+ 	ret = bcm_sf2_cfp_rule_cmp(priv, port, fs);
+ 	if (ret == 0)
+ 		return -EEXIST;
+@@ -973,7 +970,7 @@ static int bcm_sf2_cfp_rule_del(struct b
+ 	struct cfp_rule *rule;
+ 	int ret;
  
-+	pr_info("%s device: %#llx at %#llx\n", name, len, start);
-+	return 0;
-+
-+error:
-+	kfree(name);
- 	return ret;
- }
+-	if (loc >= CFP_NUM_RULES)
++	if (loc > bcm_sf2_cfp_rule_size(priv))
+ 		return -EINVAL;
  
+ 	/* Refuse deleting unused rules, and those that are not unique since
 
 
