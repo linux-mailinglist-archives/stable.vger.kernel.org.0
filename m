@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BCA01B3DC3
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:19:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E0381B3ECD
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729932AbgDVKSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:18:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54662 "EHLO mail.kernel.org"
+        id S1730560AbgDVKZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:25:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729928AbgDVKSN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:18:13 -0400
+        id S1730543AbgDVKZe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:25:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 103F62076B;
-        Wed, 22 Apr 2020 10:18:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5DD32071E;
+        Wed, 22 Apr 2020 10:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550692;
-        bh=u/HMnLGTaLSNri32SyqVZvXqm4KgTOgJ5AYusxzD3mA=;
+        s=default; t=1587551133;
+        bh=FtXTfofnjxnh+C0trmA6BpW36cW+yD3+qYSHdl9Ug4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l538e/JgXw2g/Z9UZnthWv66XTpel90CQf3VmAKe+SBCctlsSXDv2Z/AAquxvcvvu
-         HAM2941LsAiFvDIJIctcdhACSqq073dZu1G1jS0dDy07HdQS/c2F6dpRMnp9Hqm6H5
-         MERgC83T/kMQybAtDJ+tlCuV1PLg2zG+XaySGxwU=
+        b=ixCcJE/7r7EpnszEtK+L1H2QUQrBWFifeltDNeeeEMukXmUWi4QwT0cCQVQ/+i7co
+         FfBQIPH6hBnBY9pLZMdE7W2WmUJBvEWUVyyVqx1S+1Zhu+fpJHKKS9MEDmHYRwEwAE
+         H3mGuSX5rSqZ2aDDkUujBpWT5mUMhmuJR/2Rrbgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 037/118] clk: at91: usb: continue if clk_hw_round_rate() return zero
+Subject: [PATCH 5.6 071/166] NFS: alloc_nfs_open_context() must use the file cred when available
 Date:   Wed, 22 Apr 2020 11:56:38 +0200
-Message-Id: <20200422095038.020122851@linuxfoundation.org>
+Message-Id: <20200422095056.505011559@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit b0ecf1c6c6e82da4847900fad0272abfd014666d ]
+[ Upstream commit 1d179d6bd67369a52edea8562154b31ee20be1cc ]
 
-clk_hw_round_rate() may call round rate function of its parents. In case
-of SAM9X60 two of USB parrents are PLLA and UPLL. These clocks are
-controlled by clk-sam9x60-pll.c driver. The round rate function for this
-driver is sam9x60_pll_round_rate() which call in turn
-sam9x60_pll_get_best_div_mul(). In case the requested rate is not in the
-proper range (rate < characteristics->output[0].min &&
-rate > characteristics->output[0].max) the sam9x60_pll_round_rate() will
-return a negative number to its caller (called by
-clk_core_round_rate_nolock()). clk_hw_round_rate() will return zero in
-case a negative number is returned by clk_core_round_rate_nolock(). With
-this, the USB clock will continue its rate computation even caller of
-clk_hw_round_rate() returned an error. With this, the USB clock on SAM9X60
-may not chose the best parent. I detected this after a suspend/resume
-cycle on SAM9X60.
+If we're creating a nfs_open_context() for a specific file pointer,
+we must use the cred assigned to that file.
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lkml.kernel.org/r/1579261009-4573-2-git-send-email-claudiu.beznea@microchip.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: a52458b48af1 ("NFS/NFSD/SUNRPC: replace generic creds with 'struct cred'.")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/clk-usb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/nfs/inode.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clk/at91/clk-usb.c b/drivers/clk/at91/clk-usb.c
-index bda92980e0155..c0895c993cce2 100644
---- a/drivers/clk/at91/clk-usb.c
-+++ b/drivers/clk/at91/clk-usb.c
-@@ -75,6 +75,9 @@ static int at91sam9x5_clk_usb_determine_rate(struct clk_hw *hw,
- 			tmp_parent_rate = req->rate * div;
- 			tmp_parent_rate = clk_hw_round_rate(parent,
- 							   tmp_parent_rate);
-+			if (!tmp_parent_rate)
-+				continue;
-+
- 			tmp_rate = DIV_ROUND_CLOSEST(tmp_parent_rate, div);
- 			if (tmp_rate < req->rate)
- 				tmp_diff = req->rate - tmp_rate;
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 11bf15800ac99..a10fb87c6ac33 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -959,16 +959,16 @@ struct nfs_open_context *alloc_nfs_open_context(struct dentry *dentry,
+ 						struct file *filp)
+ {
+ 	struct nfs_open_context *ctx;
+-	const struct cred *cred = get_current_cred();
+ 
+ 	ctx = kmalloc(sizeof(*ctx), GFP_KERNEL);
+-	if (!ctx) {
+-		put_cred(cred);
++	if (!ctx)
+ 		return ERR_PTR(-ENOMEM);
+-	}
+ 	nfs_sb_active(dentry->d_sb);
+ 	ctx->dentry = dget(dentry);
+-	ctx->cred = cred;
++	if (filp)
++		ctx->cred = get_cred(filp->f_cred);
++	else
++		ctx->cred = get_current_cred();
+ 	ctx->ll_cred = NULL;
+ 	ctx->state = NULL;
+ 	ctx->mode = f_mode;
 -- 
 2.20.1
 
