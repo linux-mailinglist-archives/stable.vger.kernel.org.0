@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6DA21B3DD7
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:19:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E33031B41D1
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730044AbgDVKTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:19:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55800 "EHLO mail.kernel.org"
+        id S1728333AbgDVKGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729710AbgDVKTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:19:07 -0400
+        id S1726995AbgDVKGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:06:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCB142070B;
-        Wed, 22 Apr 2020 10:19:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F2C20575;
+        Wed, 22 Apr 2020 10:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550746;
-        bh=aVfigafMAvv1hgwZCshZyIH+wEjppUtP4c/qdhe1li8=;
+        s=default; t=1587549976;
+        bh=O8PFb9+YEDcA9NDzZqEKCt+2+vy6aURxzDeWzHgZniA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADZVMr+r7HcERBqaVOXxHONLX2wWTiV6VLdUpW6zy+CHkAxMRVdD1it70SaUyZEm9
-         40Tdo963YJ9H3e4uogjdqMLEHU8XneEBUMaBokUc8CKGuQFvAaXVnvFL8HmreNGTJI
-         IbgNSrFuoK0p8zXKkBzOvySNEvooRJA18MdVJLtU=
+        b=hfvUCtWhyOwl5sEjZDbPZ3D+axdEp86zlYBuqEBx4J+YLBdyVWDhwwbxj0G61biEC
+         drz0/RVbO1XFfM3P0cQMy6TQrqBrNTuJbd2526iopgBDT5l6oF8qQyovFUr8oODCnM
+         puE4/R0JRWYVeyc9sfUCW4MDwI4pGWPTm4VuzAwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Matt Coleman <mcoleman@datto.com>,
+        Rahul Kundu <rahul.kundu@chelsio.com>,
+        Maurizio Lombardi <mlombard@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/118] f2fs: fix the panic in do_checkpoint()
+Subject: [PATCH 4.9 083/125] scsi: target: fix hang when multiple threads try to destroy the same iscsi session
 Date:   Wed, 22 Apr 2020 11:56:40 +0200
-Message-Id: <20200422095038.355618952@linuxfoundation.org>
+Message-Id: <20200422095046.483650649@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,135 +46,246 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sahitya Tummala <stummala@codeaurora.org>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit bf22c3cc8ce71454dddd772284773306a68031d8 ]
+[ Upstream commit 57c46e9f33da530a2485fa01aa27b6d18c28c796 ]
 
-There could be a scenario where f2fs_sync_meta_pages() will not
-ensure that all F2FS_DIRTY_META pages are submitted for IO. Thus,
-resulting in the below panic in do_checkpoint() -
+A number of hangs have been reported against the target driver; they are
+due to the fact that multiple threads may try to destroy the iscsi session
+at the same time. This may be reproduced for example when a "targetcli
+iscsi/iqn.../tpg1 disable" command is executed while a logout operation is
+underway.
 
-f2fs_bug_on(sbi, get_pages(sbi, F2FS_DIRTY_META) &&
-				!f2fs_cp_error(sbi));
+When this happens, two or more threads may end up sleeping and waiting for
+iscsit_close_connection() to execute "complete(session_wait_comp)".  Only
+one of the threads will wake up and proceed to destroy the session
+structure, the remaining threads will hang forever.
 
-This can happen in a low-memory condition, where shrinker could
-also be doing the writepage operation (stack shown below)
-at the same time when checkpoint is running on another core.
+Note that if the blocked threads are somehow forced to wake up with
+complete_all(), they will try to free the same iscsi session structure
+destroyed by the first thread, causing double frees, memory corruptions
+etc...
 
-schedule
-down_write
-f2fs_submit_page_write -> by this time, this page in page cache is tagged
-			as PAGECACHE_TAG_WRITEBACK and PAGECACHE_TAG_DIRTY
-			is cleared, due to which f2fs_sync_meta_pages()
-			cannot sync this page in do_checkpoint() path.
-f2fs_do_write_meta_page
-__f2fs_write_meta_page
-f2fs_write_meta_page
-shrink_page_list
-shrink_inactive_list
-shrink_node_memcg
-shrink_node
-kswapd
+With this patch, the threads that want to destroy the iscsi session will
+increase the session refcount and will set the "session_close" flag to 1;
+then they wait for the driver to close the remaining active connections.
+When the last connection is closed, iscsit_close_connection() will wake up
+all the threads and will wait for the session's refcount to reach zero;
+when this happens, iscsit_close_connection() will destroy the session
+structure because no one is referencing it anymore.
 
-Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+ INFO: task targetcli:5971 blocked for more than 120 seconds.
+       Tainted: P           OE    4.15.0-72-generic #81~16.04.1
+ "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+ targetcli       D    0  5971      1 0x00000080
+ Call Trace:
+  __schedule+0x3d6/0x8b0
+  ? vprintk_func+0x44/0xe0
+  schedule+0x36/0x80
+  schedule_timeout+0x1db/0x370
+  ? __dynamic_pr_debug+0x8a/0xb0
+  wait_for_completion+0xb4/0x140
+  ? wake_up_q+0x70/0x70
+  iscsit_free_session+0x13d/0x1a0 [iscsi_target_mod]
+  iscsit_release_sessions_for_tpg+0x16b/0x1e0 [iscsi_target_mod]
+  iscsit_tpg_disable_portal_group+0xca/0x1c0 [iscsi_target_mod]
+  lio_target_tpg_enable_store+0x66/0xe0 [iscsi_target_mod]
+  configfs_write_file+0xb9/0x120
+  __vfs_write+0x1b/0x40
+  vfs_write+0xb8/0x1b0
+  SyS_write+0x5c/0xe0
+  do_syscall_64+0x73/0x130
+  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+
+Link: https://lore.kernel.org/r/20200313170656.9716-3-mlombard@redhat.com
+Reported-by: Matt Coleman <mcoleman@datto.com>
+Tested-by: Matt Coleman <mcoleman@datto.com>
+Tested-by: Rahul Kundu <rahul.kundu@chelsio.com>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c | 16 +++++++---------
- fs/f2fs/f2fs.h       |  2 +-
- fs/f2fs/super.c      |  2 +-
- 3 files changed, 9 insertions(+), 11 deletions(-)
+ drivers/target/iscsi/iscsi_target.c          |   35 ++++++++++++++++-----------
+ drivers/target/iscsi/iscsi_target_configfs.c |    5 +++
+ drivers/target/iscsi/iscsi_target_login.c    |    5 ++-
+ include/target/iscsi/iscsi_target_core.h     |    2 -
+ 4 files changed, 30 insertions(+), 17 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index a0eef95b9e0ed..410f5c2c6ef17 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -1250,20 +1250,20 @@ static void unblock_operations(struct f2fs_sb_info *sbi)
- 	f2fs_unlock_all(sbi);
- }
+--- a/drivers/target/iscsi/iscsi_target.c
++++ b/drivers/target/iscsi/iscsi_target.c
+@@ -4321,30 +4321,37 @@ int iscsit_close_connection(
+ 	if (!atomic_read(&sess->session_reinstatement) &&
+ 	     atomic_read(&sess->session_fall_back_to_erl0)) {
+ 		spin_unlock_bh(&sess->conn_lock);
++		complete_all(&sess->session_wait_comp);
+ 		iscsit_close_session(sess);
  
--void f2fs_wait_on_all_pages_writeback(struct f2fs_sb_info *sbi)
-+void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type)
- {
- 	DEFINE_WAIT(wait);
+ 		return 0;
+ 	} else if (atomic_read(&sess->session_logout)) {
+ 		pr_debug("Moving to TARG_SESS_STATE_FREE.\n");
+ 		sess->session_state = TARG_SESS_STATE_FREE;
+-		spin_unlock_bh(&sess->conn_lock);
  
- 	for (;;) {
- 		prepare_to_wait(&sbi->cp_wait, &wait, TASK_UNINTERRUPTIBLE);
+-		if (atomic_read(&sess->sleep_on_sess_wait_comp))
+-			complete(&sess->session_wait_comp);
++		if (atomic_read(&sess->session_close)) {
++			spin_unlock_bh(&sess->conn_lock);
++			complete_all(&sess->session_wait_comp);
++			iscsit_close_session(sess);
++		} else {
++			spin_unlock_bh(&sess->conn_lock);
++		}
  
--		if (!get_pages(sbi, F2FS_WB_CP_DATA))
-+		if (!get_pages(sbi, type))
- 			break;
+ 		return 0;
+ 	} else {
+ 		pr_debug("Moving to TARG_SESS_STATE_FAILED.\n");
+ 		sess->session_state = TARG_SESS_STATE_FAILED;
  
- 		if (unlikely(f2fs_cp_error(sbi)))
- 			break;
+-		if (!atomic_read(&sess->session_continuation)) {
+-			spin_unlock_bh(&sess->conn_lock);
++		if (!atomic_read(&sess->session_continuation))
+ 			iscsit_start_time2retain_handler(sess);
+-		} else
+-			spin_unlock_bh(&sess->conn_lock);
  
--		io_schedule_timeout(5*HZ);
-+		io_schedule_timeout(HZ/50);
+-		if (atomic_read(&sess->sleep_on_sess_wait_comp))
+-			complete(&sess->session_wait_comp);
++		if (atomic_read(&sess->session_close)) {
++			spin_unlock_bh(&sess->conn_lock);
++			complete_all(&sess->session_wait_comp);
++			iscsit_close_session(sess);
++		} else {
++			spin_unlock_bh(&sess->conn_lock);
++		}
+ 
+ 		return 0;
  	}
- 	finish_wait(&sbi->cp_wait, &wait);
+@@ -4453,9 +4460,9 @@ static void iscsit_logout_post_handler_c
+ 	complete(&conn->conn_logout_comp);
+ 
+ 	iscsit_dec_conn_usage_count(conn);
++	atomic_set(&sess->session_close, 1);
+ 	iscsit_stop_session(sess, sleep, sleep);
+ 	iscsit_dec_session_usage_count(sess);
+-	iscsit_close_session(sess);
  }
-@@ -1384,8 +1384,6 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
  
- 	/* Flush all the NAT/SIT pages */
- 	f2fs_sync_meta_pages(sbi, META, LONG_MAX, FS_CP_META_IO);
--	f2fs_bug_on(sbi, get_pages(sbi, F2FS_DIRTY_META) &&
--					!f2fs_cp_error(sbi));
+ static void iscsit_logout_post_handler_samecid(
+@@ -4600,8 +4607,6 @@ void iscsit_stop_session(
+ 	int is_last;
  
- 	/*
- 	 * modify checkpoint
-@@ -1493,11 +1491,11 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
+ 	spin_lock_bh(&sess->conn_lock);
+-	if (session_sleep)
+-		atomic_set(&sess->sleep_on_sess_wait_comp, 1);
  
- 	/* Here, we have one bio having CP pack except cp pack 2 page */
- 	f2fs_sync_meta_pages(sbi, META, LONG_MAX, FS_CP_META_IO);
--	f2fs_bug_on(sbi, get_pages(sbi, F2FS_DIRTY_META) &&
--					!f2fs_cp_error(sbi));
-+	/* Wait for all dirty meta pages to be submitted for IO */
-+	f2fs_wait_on_all_pages(sbi, F2FS_DIRTY_META);
+ 	if (connection_sleep) {
+ 		list_for_each_entry_safe(conn, conn_tmp, &sess->sess_conn_list,
+@@ -4659,12 +4664,15 @@ int iscsit_release_sessions_for_tpg(stru
+ 		spin_lock(&sess->conn_lock);
+ 		if (atomic_read(&sess->session_fall_back_to_erl0) ||
+ 		    atomic_read(&sess->session_logout) ||
++		    atomic_read(&sess->session_close) ||
+ 		    (sess->time2retain_timer_flags & ISCSI_TF_EXPIRED)) {
+ 			spin_unlock(&sess->conn_lock);
+ 			continue;
+ 		}
++		iscsit_inc_session_usage_count(sess);
+ 		atomic_set(&sess->session_reinstatement, 1);
+ 		atomic_set(&sess->session_fall_back_to_erl0, 1);
++		atomic_set(&sess->session_close, 1);
+ 		spin_unlock(&sess->conn_lock);
  
- 	/* wait for previous submitted meta pages writeback */
--	f2fs_wait_on_all_pages_writeback(sbi);
-+	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);
+ 		list_move_tail(&se_sess->sess_list, &free_list);
+@@ -4674,8 +4682,9 @@ int iscsit_release_sessions_for_tpg(stru
+ 	list_for_each_entry_safe(se_sess, se_sess_tmp, &free_list, sess_list) {
+ 		sess = (struct iscsi_session *)se_sess->fabric_sess_ptr;
  
- 	/* flush all device cache */
- 	err = f2fs_flush_device_cache(sbi);
-@@ -1506,7 +1504,7 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
++		list_del_init(&se_sess->sess_list);
+ 		iscsit_stop_session(sess, 1, 1);
+-		iscsit_close_session(sess);
++		iscsit_dec_session_usage_count(sess);
+ 		session_count++;
+ 	}
  
- 	/* barrier and flush checkpoint cp pack 2 page if it can */
- 	commit_checkpoint(sbi, ckpt, start_blk);
--	f2fs_wait_on_all_pages_writeback(sbi);
-+	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);
+--- a/drivers/target/iscsi/iscsi_target_configfs.c
++++ b/drivers/target/iscsi/iscsi_target_configfs.c
+@@ -1527,20 +1527,23 @@ static void lio_tpg_close_session(struct
+ 	spin_lock(&sess->conn_lock);
+ 	if (atomic_read(&sess->session_fall_back_to_erl0) ||
+ 	    atomic_read(&sess->session_logout) ||
++	    atomic_read(&sess->session_close) ||
+ 	    (sess->time2retain_timer_flags & ISCSI_TF_EXPIRED)) {
+ 		spin_unlock(&sess->conn_lock);
+ 		spin_unlock_bh(&se_tpg->session_lock);
+ 		return;
+ 	}
++	iscsit_inc_session_usage_count(sess);
+ 	atomic_set(&sess->session_reinstatement, 1);
+ 	atomic_set(&sess->session_fall_back_to_erl0, 1);
++	atomic_set(&sess->session_close, 1);
+ 	spin_unlock(&sess->conn_lock);
  
- 	/*
- 	 * invalidate intermediate page cache borrowed from meta inode
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 9046432b87c2d..1a8b68ceaa62f 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3185,7 +3185,7 @@ int f2fs_get_valid_checkpoint(struct f2fs_sb_info *sbi);
- void f2fs_update_dirty_page(struct inode *inode, struct page *page);
- void f2fs_remove_dirty_inode(struct inode *inode);
- int f2fs_sync_dirty_inodes(struct f2fs_sb_info *sbi, enum inode_type type);
--void f2fs_wait_on_all_pages_writeback(struct f2fs_sb_info *sbi);
-+void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type);
- int f2fs_write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc);
- void f2fs_init_ino_entry_info(struct f2fs_sb_info *sbi);
- int __init f2fs_create_checkpoint_caches(void);
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index ea8dbf1458c99..28441f4971b8d 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1105,7 +1105,7 @@ static void f2fs_put_super(struct super_block *sb)
- 	/* our cp_error case, we can wait for any writeback page */
- 	f2fs_flush_merged_writes(sbi);
+ 	iscsit_stop_time2retain_timer(sess);
+ 	spin_unlock_bh(&se_tpg->session_lock);
  
--	f2fs_wait_on_all_pages_writeback(sbi);
-+	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);
+ 	iscsit_stop_session(sess, 1, 1);
+-	iscsit_close_session(sess);
++	iscsit_dec_session_usage_count(sess);
+ }
  
- 	f2fs_bug_on(sbi, sbi->fsync_node_num);
+ static u32 lio_tpg_get_inst_index(struct se_portal_group *se_tpg)
+--- a/drivers/target/iscsi/iscsi_target_login.c
++++ b/drivers/target/iscsi/iscsi_target_login.c
+@@ -195,6 +195,7 @@ int iscsi_check_for_session_reinstatemen
+ 		spin_lock(&sess_p->conn_lock);
+ 		if (atomic_read(&sess_p->session_fall_back_to_erl0) ||
+ 		    atomic_read(&sess_p->session_logout) ||
++		    atomic_read(&sess_p->session_close) ||
+ 		    (sess_p->time2retain_timer_flags & ISCSI_TF_EXPIRED)) {
+ 			spin_unlock(&sess_p->conn_lock);
+ 			continue;
+@@ -205,6 +206,7 @@ int iscsi_check_for_session_reinstatemen
+ 		   (sess_p->sess_ops->SessionType == sessiontype))) {
+ 			atomic_set(&sess_p->session_reinstatement, 1);
+ 			atomic_set(&sess_p->session_fall_back_to_erl0, 1);
++			atomic_set(&sess_p->session_close, 1);
+ 			spin_unlock(&sess_p->conn_lock);
+ 			iscsit_inc_session_usage_count(sess_p);
+ 			iscsit_stop_time2retain_timer(sess_p);
+@@ -229,7 +231,6 @@ int iscsi_check_for_session_reinstatemen
+ 	if (sess->session_state == TARG_SESS_STATE_FAILED) {
+ 		spin_unlock_bh(&sess->conn_lock);
+ 		iscsit_dec_session_usage_count(sess);
+-		iscsit_close_session(sess);
+ 		return 0;
+ 	}
+ 	spin_unlock_bh(&sess->conn_lock);
+@@ -237,7 +238,6 @@ int iscsi_check_for_session_reinstatemen
+ 	iscsit_stop_session(sess, 1, 1);
+ 	iscsit_dec_session_usage_count(sess);
  
--- 
-2.20.1
-
+-	iscsit_close_session(sess);
+ 	return 0;
+ }
+ 
+@@ -525,6 +525,7 @@ static int iscsi_login_non_zero_tsih_s2(
+ 		sess_p = (struct iscsi_session *)se_sess->fabric_sess_ptr;
+ 		if (atomic_read(&sess_p->session_fall_back_to_erl0) ||
+ 		    atomic_read(&sess_p->session_logout) ||
++		    atomic_read(&sess_p->session_close) ||
+ 		   (sess_p->time2retain_timer_flags & ISCSI_TF_EXPIRED))
+ 			continue;
+ 		if (!memcmp(sess_p->isid, pdu->isid, 6) &&
+--- a/include/target/iscsi/iscsi_target_core.h
++++ b/include/target/iscsi/iscsi_target_core.h
+@@ -671,7 +671,7 @@ struct iscsi_session {
+ 	atomic_t		session_logout;
+ 	atomic_t		session_reinstatement;
+ 	atomic_t		session_stop_active;
+-	atomic_t		sleep_on_sess_wait_comp;
++	atomic_t		session_close;
+ 	/* connection list */
+ 	struct list_head	sess_conn_list;
+ 	struct list_head	cr_active_list;
 
 
