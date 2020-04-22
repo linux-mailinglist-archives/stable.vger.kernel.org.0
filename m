@@ -2,60 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 205C41B4318
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:20:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B421B4319
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726829AbgDVLUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:20:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44398 "EHLO
+        id S1726836AbgDVLUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:20:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726732AbgDVLUa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 07:20:30 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D66AC03C1A8
-        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 04:20:30 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id g12so1901016wmh.3
-        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 04:20:30 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726732AbgDVLUd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 07:20:33 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBD67C03C1A8
+        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 04:20:31 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id s10so1958299wrr.0
+        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 04:20:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=+fghok1gB+76TrHDpTqaBXzeyc4G/qE0r24JbvN7snI=;
-        b=tDv6eQ0fHI/FQGeqqz0RpVlVnXWDecIRaiirD6+U51tERPNBcqy8Xn/KgTff1LVI2+
-         JG1Rn1RwW6Q18Ncq1NEPWczTGjK17ui9dM8wbJ0eaww7oiFWy6JlNiu8pNWWVPQNO+4F
-         cwoBLj7/2y3SAL0Hrl3Yti9bwW58Pu7xTTIgFvZGgsubUR4+CXy1ZpxnHQF4Yqw9CO1c
-         4E/NXlcXwRQ+CjiaqClRJE9mCr9REppMQpdCjptVgP8x2nHDN/wiUn+B+cVWdkYa4d1x
-         lDBKnmYBdYMHNl5MOf+9fAVpJYIJ0V4pZTAnTK52o/NTt/bkk+79hZTDcNOgt1K7IF8t
-         HD2g==
+        bh=fR75NvuHzXWg21/KSMcbyqxjqVfNasU7sbSgFf4Y3Rw=;
+        b=vzi3tbUjo/3bh53PcL1u/EGZ+IKQimXLhw2VPWV5+o3yjdf3alybsMMW8gF+rn/2/+
+         DmwCm+dWo+5KQIHtzr7nRViMoDl9LgHw90b2YynnCi01X4unaCswi+1rE7VyBzfhGoap
+         eFCU84aTyRxmHzZhJC7UNRT1iFfAmbKdIcJVzRstStyeNs7L8ml9y6GPoXUTDl/87AB9
+         8Tbcbw0m1Nd6WyjN/q0UNaeYJBTEfiwNjPBSzB7Netcd22XX/bU3lYn9aUk9kn6kftss
+         9pLMU7JnXWNa1LEcGfwjtSJamO5xbXvVqTa5CT8LlrhPT2Tgx2+bd7KMVmsrOwZBN0d2
+         Z4oA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=+fghok1gB+76TrHDpTqaBXzeyc4G/qE0r24JbvN7snI=;
-        b=H4RFb76UZImwEnChIaHUH2FGDHQ4PHuMhY8auCbPm3egdmSrl0Q9EWgqSeDCDTwve0
-         7JIpnlwMsyxrik4ZEGp+OXuUKZUtSmJ1bjX1+w6jJjfy759IqkXLoXSCMn06YeWnVA6t
-         s4/ZLmKVEUUwgO7YGXVV9XIL5M/WefQnsHUzE35/wsFCXM32x3Ke55jYpJnE873ct4Hh
-         dkaqISkIdRwnXtoZglQiVuElggN3agUcoQP97V2+h6G43A8cPB2IxLVbqITIp2eXb805
-         vZbiNIxRydvNsRzJHsw323cOrAgpXt/Ouz/ZgkiWiukR7nbvoXtRd/rWB0kInlhuS/tV
-         GFUA==
-X-Gm-Message-State: AGi0PuajhvK4g73PWnHISbljKZ40csqXUkQRvjvBbN0dMyLWKcSeWKiO
-        D2rLdiP1zguVK/sA6XHMKlUveFeylfM=
-X-Google-Smtp-Source: APiQypLBvTruPICr9W7IPRofF+TB73mh91zn1Kf8vBZKhctoqxtEdLntsOwvmWG3gBKHon92KlZ2NQ==
-X-Received: by 2002:a1c:9816:: with SMTP id a22mr9687239wme.125.1587554428973;
-        Wed, 22 Apr 2020 04:20:28 -0700 (PDT)
+        bh=fR75NvuHzXWg21/KSMcbyqxjqVfNasU7sbSgFf4Y3Rw=;
+        b=Er2WKNSQTuV9a4aJYuwi45Lrdc8wEyt7TCtVtkqkLavdCr03qvgTVRhg/InpjzxG++
+         TTl1VDioarFrb2NFl4G20eRPh9YsP+CCZ+45+XqWG7RKtq26MsDcPMXvyQNQWgy9FHNe
+         EODcYG8NbsNLPwMQB+12JSmjDvl3MNmt2gA7u/tTawJzUlSj5F9r0Lk2i02Tf6VZZWIy
+         BAcSWKAxpP1MKNf1RzFo5+I93+oY2lKpE9atma1eaZ3bmJmW2MNNC3oDJ2yh9rVZXGxf
+         cFjdROJ+vVki5IP9WT7kS/XsIjwc5QlksfZs7RTJJQfrpI6eGT63E2uh+93PvnM5m8Vi
+         g6VQ==
+X-Gm-Message-State: AGi0PuZDBjaMdVIKI5v8Sa0bYSEo4NCGsLk4k5scaiAgyLKFeN64J6gB
+        WnY/BCRONr57Nkxf4N6SRk/Htw61gM4=
+X-Google-Smtp-Source: APiQypLvLmRLrGlmVC+W7DNBUrWf6ogMeinjTl+MyKIL4hwPaB0iPbnbKHcGGGHTU2YHcCvb+auktg==
+X-Received: by 2002:adf:84c1:: with SMTP id 59mr29786457wrg.350.1587554430322;
+        Wed, 22 Apr 2020 04:20:30 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id n6sm8247255wrs.81.2020.04.22.04.20.27
+        by smtp.gmail.com with ESMTPSA id n6sm8247255wrs.81.2020.04.22.04.20.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Apr 2020 04:20:28 -0700 (PDT)
+        Wed, 22 Apr 2020 04:20:29 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     Rob Herring <robh@kernel.org>, Nicolas Pitre <nico@linaro.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Grant Likely <grant.likely@secretlab.ca>,
+Cc:     Austin Kim <austindh.kim@gmail.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Roman Gushchin <guro@fb.com>, Roman Penyaev <rpenyaev@suse.de>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 19/21] of: fix missing kobject init for !SYSFS && OF_DYNAMIC config
-Date:   Wed, 22 Apr 2020 12:19:55 +0100
-Message-Id: <20200422111957.569589-20-lee.jones@linaro.org>
+Subject: [PATCH 4.9 20/21] mm/vmalloc.c: move 'area->pages' after if statement
+Date:   Wed, 22 Apr 2020 12:19:56 +0100
+Message-Id: <20200422111957.569589-21-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200422111957.569589-1-lee.jones@linaro.org>
 References: <20200422111957.569589-1-lee.jones@linaro.org>
@@ -66,36 +72,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Austin Kim <austindh.kim@gmail.com>
 
-[ Upstream commit bd82bbf38cbe27f2c65660da801900d71bcc5cc8 ]
+[ Upstream commit 7ea362427c170061b8822dd41bafaa72b3bcb9ad ]
 
-The ref counting is broken for OF_DYNAMIC when sysfs is disabled because
-the kobject initialization is skipped. Only the properties
-add/remove/update should be skipped for !SYSFS config.
+If !area->pages statement is true where memory allocation fails, area is
+freed.
 
-Tested-by: Nicolas Pitre <nico@linaro.org>
-Reviewed-by: Frank Rowand <frowand.list@gmail.com>
-Acked-by: Grant Likely <grant.likely@secretlab.ca>
-Signed-off-by: Rob Herring <robh@kernel.org>
+In this case 'area->pages = pages' should not executed.  So move
+'area->pages = pages' after if statement.
+
+[akpm@linux-foundation.org: give area->pages the same treatment]
+Link: http://lkml.kernel.org/r/20190830035716.GA190684@LGEARND20B15
+Signed-off-by: Austin Kim <austindh.kim@gmail.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Roman Penyaev <rpenyaev@suse.de>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/of/base.c | 3 ---
- 1 file changed, 3 deletions(-)
+ mm/vmalloc.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/of/base.c b/drivers/of/base.c
-index c66cdc4307fd7..af80e3d34eda7 100644
---- a/drivers/of/base.c
-+++ b/drivers/of/base.c
-@@ -170,9 +170,6 @@ int __of_attach_node_sysfs(struct device_node *np)
- 	struct property *pp;
- 	int rc;
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index dd66f1fb3fcf6..45e8d51d73233 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -1624,7 +1624,6 @@ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
+ 	nr_pages = get_vm_area_size(area) >> PAGE_SHIFT;
+ 	array_size = (nr_pages * sizeof(struct page *));
  
--	if (!IS_ENABLED(CONFIG_SYSFS))
--		return 0;
--
- 	if (!of_kset)
- 		return 0;
+-	area->nr_pages = nr_pages;
+ 	/* Please note that the recursion is strictly bounded. */
+ 	if (array_size > PAGE_SIZE) {
+ 		pages = __vmalloc_node(array_size, 1, nested_gfp|__GFP_HIGHMEM,
+@@ -1632,13 +1631,16 @@ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
+ 	} else {
+ 		pages = kmalloc_node(array_size, nested_gfp, node);
+ 	}
+-	area->pages = pages;
+-	if (!area->pages) {
++
++	if (!pages) {
+ 		remove_vm_area(area->addr);
+ 		kfree(area);
+ 		return NULL;
+ 	}
+ 
++	area->pages = pages;
++	area->nr_pages = nr_pages;
++
+ 	for (i = 0; i < area->nr_pages; i++) {
+ 		struct page *page;
  
 -- 
 2.25.1
