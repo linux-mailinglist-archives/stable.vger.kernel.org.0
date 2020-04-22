@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E29121B41E5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 353591B3D4F
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726876AbgDVK4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58896 "EHLO mail.kernel.org"
+        id S1728741AbgDVKN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:13:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728392AbgDVKGr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:06:47 -0400
+        id S1726398AbgDVKN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:13:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C200C2075A;
-        Wed, 22 Apr 2020 10:06:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 298BF2076E;
+        Wed, 22 Apr 2020 10:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550006;
-        bh=8cvQTWe3si+sePj6bWCOuMaFO2j/tQNZdvqhTtJ5L84=;
+        s=default; t=1587550435;
+        bh=ZIZwPWB9Q6NZv4fDKlr0cQJtBfcBFdOoZdqqJkEjXX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPXHZNqVqwIHCJzV5vql0HDLXBYM6sjzqDXbEBWz0FYDyu0yst9du/hKlYarsbK4F
-         Bq7FSXAAvDrt4EmM5waWCtS3lR7hX84aUSERZoMqjeVZv/LOS673W4C+q+hAAriJzs
-         upiiAsw6JtlCshzN37dtkPLgTZ4NzrObNQy/EGNw=
+        b=TmKaAKiZ+KQlZo3Ti14Vrm62pYsj04UFaDWa/U+8ULOprmmttvH7BiKzDw2wkXVys
+         ZQLu7EI0ZqKA3Wr+tNjJl+Ehr49Mf38RS6CdxL98uy8FMJ3LHMbAA5gM8M8MhdOE7j
+         C37P7YozVvaEHcH237MshOQneJ8IqUS/a0NR6yMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Venkat Gopalakrishnan <venkatg@codeaurora.org>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Subhash Jadavani <subhashj@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 094/125] scsi: ufs: make sure all interrupts are processed
+        stable@vger.kernel.org,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 07/64] ARM: dts: imx6: Use gpc for FEC interrupt controller to fix wake on LAN.
 Date:   Wed, 22 Apr 2020 11:56:51 +0200
-Message-Id: <20200422095048.399890302@linuxfoundation.org>
+Message-Id: <20200422095013.710989670@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkat Gopalakrishnan <venkatg@codeaurora.org>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-[ Upstream commit 7f6ba4f12e6cbfdefbb95cfd8fc67ece6c15d799 ]
+commit 4141f1a40fc0789f6fd4330e171e1edf155426aa upstream.
 
-As multiple requests are submitted to the ufs host controller in
-parallel there could be instances where the command completion interrupt
-arrives later for a request that is already processed earlier as the
-corresponding doorbell was cleared when handling the previous
-interrupt. Read the interrupt status in a loop after processing the
-received interrupt to catch such interrupts and handle it.
+In order to wake from suspend by ethernet magic packets the GPC
+must be used as intc does not have wakeup functionality.
 
-Signed-off-by: Venkat Gopalakrishnan <venkatg@codeaurora.org>
-Signed-off-by: Asutosh Das <asutoshd@codeaurora.org>
-Reviewed-by: Subhash Jadavani <subhashj@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+But the FEC DT node currently uses interrupt-extended,
+specificying intc, thus breaking WoL.
+
+This problem is probably fallout from the stacked domain conversion
+as intc used to chain to GPC.
+
+So replace "interrupts-extended" by "interrupts" to use the default
+parent which is GPC.
+
+Fixes: b923ff6af0d5 ("ARM: imx6: convert GPC to stacked domains")
+
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/scsi/ufs/ufshcd.c |   27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4397,19 +4397,30 @@ static irqreturn_t ufshcd_intr(int irq,
- 	u32 intr_status, enabled_intr_status;
- 	irqreturn_t retval = IRQ_NONE;
- 	struct ufs_hba *hba = __hba;
-+	int retries = hba->nutrs;
+---
+ arch/arm/boot/dts/imx6qdl.dtsi |    5 ++---
+ arch/arm/boot/dts/imx6qp.dtsi  |    1 -
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+--- a/arch/arm/boot/dts/imx6qdl.dtsi
++++ b/arch/arm/boot/dts/imx6qdl.dtsi
+@@ -1013,9 +1013,8 @@
+ 				compatible = "fsl,imx6q-fec";
+ 				reg = <0x02188000 0x4000>;
+ 				interrupt-names = "int0", "pps";
+-				interrupts-extended =
+-					<&intc 0 118 IRQ_TYPE_LEVEL_HIGH>,
+-					<&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
++				interrupts = <0 118 IRQ_TYPE_LEVEL_HIGH>,
++					     <0 119 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&clks IMX6QDL_CLK_ENET>,
+ 					 <&clks IMX6QDL_CLK_ENET>,
+ 					 <&clks IMX6QDL_CLK_ENET_REF>;
+--- a/arch/arm/boot/dts/imx6qp.dtsi
++++ b/arch/arm/boot/dts/imx6qp.dtsi
+@@ -77,7 +77,6 @@
+ };
  
- 	spin_lock(hba->host->host_lock);
- 	intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
--	enabled_intr_status =
--		intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
- 
--	if (intr_status)
--		ufshcd_writel(hba, intr_status, REG_INTERRUPT_STATUS);
-+	/*
-+	 * There could be max of hba->nutrs reqs in flight and in worst case
-+	 * if the reqs get finished 1 by 1 after the interrupt status is
-+	 * read, make sure we handle them by checking the interrupt status
-+	 * again in a loop until we process all of the reqs before returning.
-+	 */
-+	do {
-+		enabled_intr_status =
-+			intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
-+		if (intr_status)
-+			ufshcd_writel(hba, intr_status, REG_INTERRUPT_STATUS);
-+		if (enabled_intr_status) {
-+			ufshcd_sl_intr(hba, enabled_intr_status);
-+			retval = IRQ_HANDLED;
-+		}
-+
-+		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
-+	} while (intr_status && --retries);
- 
--	if (enabled_intr_status) {
--		ufshcd_sl_intr(hba, enabled_intr_status);
--		retval = IRQ_HANDLED;
--	}
- 	spin_unlock(hba->host->host_lock);
- 	return retval;
- }
+ &fec {
+-	/delete-property/interrupts-extended;
+ 	interrupts = <0 118 IRQ_TYPE_LEVEL_HIGH>,
+ 		     <0 119 IRQ_TYPE_LEVEL_HIGH>;
+ };
 
 
