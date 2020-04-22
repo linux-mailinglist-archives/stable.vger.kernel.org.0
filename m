@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1887E1B3FD8
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E6E41B3FD7
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731424AbgDVKlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:41:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57128 "EHLO mail.kernel.org"
+        id S1728129AbgDVKlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:41:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729772AbgDVKUX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:23 -0400
+        id S1730087AbgDVKUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:20:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EE0B20781;
-        Wed, 22 Apr 2020 10:20:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 794FA2075A;
+        Wed, 22 Apr 2020 10:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550822;
-        bh=gBGl2Mpr3gMecv69cjvXn7IuOzZ3+xBLzvfmu0V5t70=;
+        s=default; t=1587550824;
+        bh=/3hD3gpZuo5EJNwa4Qh75iQMX/6jy1eF2zIF3xg+Ru4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPClpXMrD7UndcSPywj7+1H12+kyQoBiXEVS197dLy+lJCJcYvJbgK6F2I+GWSmF7
-         1U2rdkIygIFebtYjzHmxNUrzejySvUr5QbV9iz1GaOhOqhb91YNsf2DS7z8jTSe7bE
-         7KCrzngQFh455/ZDrwuKaM/C+Y6KXGBkB6STqX20=
+        b=vjZKoE/VedMj0r5vIYqNqEK/ilpIaEy8nBSqaOg8CH+sUef3X4TMLux+WR24B1ITE
+         8wH3BP163jeT9yFzWLnWm8gJEX8ienzneaJ4Bck73LDWg3xqPUNWpOObgh6jK7WDwh
+         wJC1PDMRAmnZjTBbf3uwzbQMFIW500pAUDQKx5yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 107/118] tty: evh_bytechan: Fix out of bounds accesses
-Date:   Wed, 22 Apr 2020 11:57:48 +0200
-Message-Id: <20200422095048.618761876@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.4 108/118] locktorture: Print ratio of acquisitions, not failures
+Date:   Wed, 22 Apr 2020 11:57:49 +0200
+Message-Id: <20200422095048.737340145@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
 References: <20200422095031.522502705@linuxfoundation.org>
@@ -44,108 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Rothwell <sfr@canb.auug.org.au>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-commit 3670664b5da555a2a481449b3baafff113b0ac35 upstream.
+commit 80c503e0e68fbe271680ab48f0fe29bc034b01b7 upstream.
 
-ev_byte_channel_send() assumes that its third argument is a 16 byte
-array. Some places where it is called it may not be (or we can't
-easily tell if it is). Newer compilers have started producing warnings
-about this, so make sure we actually pass a 16 byte array.
+The __torture_print_stats() function in locktorture.c carefully
+initializes local variable "min" to statp[0].n_lock_acquired, but
+then compares it to statp[i].n_lock_fail.  Given that the .n_lock_fail
+field should normally be zero, and given the initialization, it seems
+reasonable to display the maximum and minimum number acquisitions
+instead of miscomputing the maximum and minimum number of failures.
+This commit therefore switches from failures to acquisitions.
 
-There may be more elegant solutions to this, but the driver is quite
-old and hasn't been updated in many years.
+And this turns out to be not only a day-zero bug, but entirely my
+own fault.  I hate it when that happens!
 
-The warnings (from a powerpc allyesconfig build) are:
-
-  In file included from include/linux/byteorder/big_endian.h:5,
-                   from arch/powerpc/include/uapi/asm/byteorder.h:14,
-                   from include/asm-generic/bitops/le.h:6,
-                   from arch/powerpc/include/asm/bitops.h:250,
-                   from include/linux/bitops.h:29,
-                   from include/linux/kernel.h:12,
-                   from include/asm-generic/bug.h:19,
-                   from arch/powerpc/include/asm/bug.h:109,
-                   from include/linux/bug.h:5,
-                   from include/linux/mmdebug.h:5,
-                   from include/linux/gfp.h:5,
-                   from include/linux/slab.h:15,
-                   from drivers/tty/ehv_bytechan.c:24:
-  drivers/tty/ehv_bytechan.c: In function ‘ehv_bc_udbg_putc’:
-  arch/powerpc/include/asm/epapr_hcalls.h:298:20: warning: array subscript 1 is outside array bounds of ‘const char[1]’ [-Warray-bounds]
-    298 |  r6 = be32_to_cpu(p[1]);
-  include/uapi/linux/byteorder/big_endian.h:40:51: note: in definition of macro ‘__be32_to_cpu’
-     40 | #define __be32_to_cpu(x) ((__force __u32)(__be32)(x))
-        |                                                   ^
-  arch/powerpc/include/asm/epapr_hcalls.h:298:7: note: in expansion of macro ‘be32_to_cpu’
-    298 |  r6 = be32_to_cpu(p[1]);
-        |       ^~~~~~~~~~~
-  drivers/tty/ehv_bytechan.c:166:13: note: while referencing ‘data’
-    166 | static void ehv_bc_udbg_putc(char c)
-        |             ^~~~~~~~~~~~~~~~
-
-Fixes: dcd83aaff1c8 ("tty/powerpc: introduce the ePAPR embedded hypervisor byte channel driver")
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Tested-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-[mpe: Trim warnings from change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200109183912.5fcb52aa@canb.auug.org.au
+Fixes: 0af3fe1efa53 ("locktorture: Add a lock-torture kernel module")
+Reported-by: Will Deacon <will@kernel.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/ehv_bytechan.c |   21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ kernel/locking/locktorture.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/ehv_bytechan.c
-+++ b/drivers/tty/ehv_bytechan.c
-@@ -136,6 +136,21 @@ static int find_console_handle(void)
- 	return 1;
- }
- 
-+static unsigned int local_ev_byte_channel_send(unsigned int handle,
-+					       unsigned int *count,
-+					       const char *p)
-+{
-+	char buffer[EV_BYTE_CHANNEL_MAX_BYTES];
-+	unsigned int c = *count;
-+
-+	if (c < sizeof(buffer)) {
-+		memcpy(buffer, p, c);
-+		memset(&buffer[c], 0, sizeof(buffer) - c);
-+		p = buffer;
-+	}
-+	return ev_byte_channel_send(handle, count, p);
-+}
-+
- /*************************** EARLY CONSOLE DRIVER ***************************/
- 
- #ifdef CONFIG_PPC_EARLY_DEBUG_EHV_BC
-@@ -154,7 +169,7 @@ static void byte_channel_spin_send(const
- 
- 	do {
- 		count = 1;
--		ret = ev_byte_channel_send(CONFIG_PPC_EARLY_DEBUG_EHV_BC_HANDLE,
-+		ret = local_ev_byte_channel_send(CONFIG_PPC_EARLY_DEBUG_EHV_BC_HANDLE,
- 					   &count, &data);
- 	} while (ret == EV_EAGAIN);
- }
-@@ -221,7 +236,7 @@ static int ehv_bc_console_byte_channel_s
- 	while (count) {
- 		len = min_t(unsigned int, count, EV_BYTE_CHANNEL_MAX_BYTES);
- 		do {
--			ret = ev_byte_channel_send(handle, &len, s);
-+			ret = local_ev_byte_channel_send(handle, &len, s);
- 		} while (ret == EV_EAGAIN);
- 		count -= len;
- 		s += len;
-@@ -401,7 +416,7 @@ static void ehv_bc_tx_dequeue(struct ehv
- 			    CIRC_CNT_TO_END(bc->head, bc->tail, BUF_SIZE),
- 			    EV_BYTE_CHANNEL_MAX_BYTES);
- 
--		ret = ev_byte_channel_send(bc->handle, &len, bc->buf + bc->tail);
-+		ret = local_ev_byte_channel_send(bc->handle, &len, bc->buf + bc->tail);
- 
- 		/* 'len' is valid only if the return code is 0 or EV_EAGAIN */
- 		if (!ret || (ret == EV_EAGAIN))
+--- a/kernel/locking/locktorture.c
++++ b/kernel/locking/locktorture.c
+@@ -697,10 +697,10 @@ static void __torture_print_stats(char *
+ 		if (statp[i].n_lock_fail)
+ 			fail = true;
+ 		sum += statp[i].n_lock_acquired;
+-		if (max < statp[i].n_lock_fail)
+-			max = statp[i].n_lock_fail;
+-		if (min > statp[i].n_lock_fail)
+-			min = statp[i].n_lock_fail;
++		if (max < statp[i].n_lock_acquired)
++			max = statp[i].n_lock_acquired;
++		if (min > statp[i].n_lock_acquired)
++			min = statp[i].n_lock_acquired;
+ 	}
+ 	page += sprintf(page,
+ 			"%s:  Total: %lld  Max/Min: %ld/%ld %s  Fail: %d %s\n",
 
 
