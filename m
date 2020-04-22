@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 139581B3F26
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF711B4267
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731087AbgDVKey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:34:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60514 "EHLO mail.kernel.org"
+        id S1728801AbgDVLBA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:01:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730387AbgDVKX5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:23:57 -0400
+        id S1726841AbgDVKBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:01:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5F6820784;
-        Wed, 22 Apr 2020 10:23:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4658720735;
+        Wed, 22 Apr 2020 10:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551037;
-        bh=sByr9sNSa2X3ngNDdrYK6UPMYpAcHLw7TEu1niD7Wpc=;
+        s=default; t=1587549703;
+        bh=MlK/zlRV4Vbr+VBF6tClXVnQyWd7bATBm1JqPTpxmts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSL8vQuSLwNgjcaLUpUC1nBDqcqVTZD7Ky5hSo+2gSGqbj+mg7X8FYlgfAV+U85xj
-         dvDQGOv5eF8i0wefh7hZk9VPJRaImSkcFaeJwiyyvy30qB0GRiWmr/4Bgz+J4NoLea
-         jbO1gJXVFcnuvLCm8NupxcGs+LR56oHidGrj/p5o=
+        b=vDwZ8Sqo6zZj5plH6QQKaJ4uvOOYgbYyvjPrkza9YB5jObopPxYQQrkiOwackRqr1
+         ISLuLbAF6z0DNvW11XxSmhSHT13kywLPTgkaQ/063Da98RNxf7Q2LUNkfcT6q9k5y3
+         mdsFdz78kYzTYG6q+wqSKZzaqLSRXkeeKQ9r9Fzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linuxppc-dev@ozlabs.org,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Michael Roth <mdroth@linux.vnet.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 076/166] KVM: PPC: Book3S HV: Fix H_CEDE return code for nested guests
+        stable@vger.kernel.org, "Erhard F." <erhard_f@mailbox.org>,
+        Frank Rowand <frank.rowand@sony.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 4.4 073/100] of: unittest: kmemleak on changeset destroy
 Date:   Wed, 22 Apr 2020 11:56:43 +0200
-Message-Id: <20200422095057.006842072@linuxfoundation.org>
+Message-Id: <20200422095036.308047614@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Roth <mdroth@linux.vnet.ibm.com>
+From: Frank Rowand <frank.rowand@sony.com>
 
-[ Upstream commit 1f50cc1705350a4697923203fedd7d8fb1087fe2 ]
+commit b3fb36ed694b05738d45218ea72cf7feb10ce2b1 upstream.
 
-The h_cede_tm kvm-unit-test currently fails when run inside an L1 guest
-via the guest/nested hypervisor.
+kmemleak reports several memory leaks from devicetree unittest.
+This is the fix for problem 1 of 5.
 
-  ./run-tests.sh -v
-  ...
-  TESTNAME=h_cede_tm TIMEOUT=90s ACCEL= ./powerpc/run powerpc/tm.elf -smp 2,threads=2 -machine cap-htm=on -append "h_cede_tm"
-  FAIL h_cede_tm (2 tests, 1 unexpected failures)
+of_unittest_changeset() reaches deeply into the dynamic devicetree
+functions.  Several nodes were left with an elevated reference
+count and thus were not properly cleaned up.  Fix the reference
+counts so that the memory will be freed.
 
-While the test relates to transactional memory instructions, the actual
-failure is due to the return code of the H_CEDE hypercall, which is
-reported as 224 instead of 0. This happens even when no TM instructions
-are issued.
+Fixes: 201c910bd689 ("of: Transactional DT support.")
+Reported-by: Erhard F. <erhard_f@mailbox.org>
+Signed-off-by: Frank Rowand <frank.rowand@sony.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-224 is the value placed in r3 to execute a hypercall for H_CEDE, and r3
-is where the caller expects the return code to be placed upon return.
-
-In the case of guest running under a nested hypervisor, issuing H_CEDE
-causes a return from H_ENTER_NESTED. In this case H_CEDE is
-specially-handled immediately rather than later in
-kvmppc_pseries_do_hcall() as with most other hcalls, but we forget to
-set the return code for the caller, hence why kvm-unit-test sees the
-224 return code and reports an error.
-
-Guest kernels generally don't check the return value of H_CEDE, so
-that likely explains why this hasn't caused issues outside of
-kvm-unit-tests so far.
-
-Fix this by setting r3 to 0 after we finish processing the H_CEDE.
-
-RHBZ: 1778556
-
-Fixes: 4bad77799fed ("KVM: PPC: Book3S HV: Handle hypercalls correctly when nested")
-Cc: linuxppc-dev@ozlabs.org
-Cc: David Gibson <david@gibson.dropbear.id.au>
-Cc: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
-Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/of/unittest.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 2cefd071b8483..c0c43a7338304 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3616,6 +3616,7 @@ int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
- 		if (trap == BOOK3S_INTERRUPT_SYSCALL && !vcpu->arch.nested &&
- 		    kvmppc_get_gpr(vcpu, 3) == H_CEDE) {
- 			kvmppc_nested_cede(vcpu);
-+			kvmppc_set_gpr(vcpu, 3, 0);
- 			trap = 0;
- 		}
- 	} else {
--- 
-2.20.1
-
+--- a/drivers/of/unittest.c
++++ b/drivers/of/unittest.c
+@@ -544,6 +544,10 @@ static void __init of_unittest_changeset
+ 	mutex_unlock(&of_mutex);
+ 
+ 	of_changeset_destroy(&chgset);
++
++	of_node_put(n1);
++	of_node_put(n2);
++	of_node_put(n21);
+ #endif
+ }
+ 
 
 
