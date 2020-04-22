@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D3DF1B3C41
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5511B3BD3
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 11:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727914AbgDVKD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:03:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54010 "EHLO mail.kernel.org"
+        id S1726403AbgDVJ7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 05:59:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727901AbgDVKDy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:03:54 -0400
+        id S1726387AbgDVJ7U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 05:59:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D14120774;
-        Wed, 22 Apr 2020 10:03:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AE0C20775;
+        Wed, 22 Apr 2020 09:59:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549834;
-        bh=2SURoFrEbUVz8x5iJzwvmYu9E4xXncie7YMpiztaOow=;
+        s=default; t=1587549560;
+        bh=U3hm7SiGMK2dMDjRBbZZI0DRkBM9O1aZDKQ7XAcyxFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gDOyfRPgOzUr+8O3X5zi/gS1kM8/2UkWAsPX8IIsEqSzjFbOe2HJjK2yaoMz7PiRS
-         mTTFXi7DUXLlygtjEej+NwxDL6HJQ/xjGL4kll73XbDO/Q43DZQHqaq0u1VzL9WEUt
-         XbimlLgL3AVxptFek4oZBbD6gUcBjRAi0ro3EIFk=
+        b=AjcZ1iTkBklfMN/bOEvxrbwZ6XDxXRrbYmvkPZkr6VBLmgphGx5+CEzzCdesuF2+1
+         J8xOSFRuzxqW6uOn3NOSwl1nrCi8gWiHZPZWVLtvoi63Koz+4AWsFTTKMWu7WDz/PC
+         +PLNWTirqcQqpfJ9ScerkKU8Gs/J6fx/JZ3FP6e8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 026/125] media: ti-vpe: cal: fix disable_irqs to only the intended target
-Date:   Wed, 22 Apr 2020 11:55:43 +0200
-Message-Id: <20200422095037.543821111@linuxfoundation.org>
+        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 014/100] ASoC: fix regwmask
+Date:   Wed, 22 Apr 2020 11:55:44 +0200
+Message-Id: <20200422095025.481182118@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoit Parrot <bparrot@ti.com>
+From: 이경택 <gt82.lee@samsung.com>
 
-commit 1db56284b9da9056093681f28db48a09a243274b upstream.
+commit 0ab070917afdc93670c2d0ea02ab6defb6246a7c upstream.
 
-disable_irqs() was mistakenly disabling all interrupts when called.
-This cause all port stream to stop even if only stopping one of them.
+If regwshift is 32 and the selected architecture compiles '<<' operator
+for signed int literal into rotating shift, '1<<regwshift' became 1 and
+it makes regwmask to 0x0.
+The literal is set to unsigned long to get intended regwmask.
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
+Link: https://lore.kernel.org/r/001001d60665$db7af3e0$9270dba0$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/ti-vpe/cal.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ sound/soc/soc-ops.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -548,16 +548,16 @@ static void enable_irqs(struct cal_ctx *
- 
- static void disable_irqs(struct cal_ctx *ctx)
- {
-+	u32 val;
-+
- 	/* Disable IRQ_WDMA_END 0/1 */
--	reg_write_field(ctx->dev,
--			CAL_HL_IRQENABLE_CLR(2),
--			CAL_HL_IRQ_CLEAR,
--			CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	val = 0;
-+	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), val);
- 	/* Disable IRQ_WDMA_START 0/1 */
--	reg_write_field(ctx->dev,
--			CAL_HL_IRQENABLE_CLR(3),
--			CAL_HL_IRQ_CLEAR,
--			CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	val = 0;
-+	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), val);
- 	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
- 	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
- }
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -837,7 +837,7 @@ int snd_soc_get_xr_sx(struct snd_kcontro
+ 	unsigned int regbase = mc->regbase;
+ 	unsigned int regcount = mc->regcount;
+ 	unsigned int regwshift = component->val_bytes * BITS_PER_BYTE;
+-	unsigned int regwmask = (1<<regwshift)-1;
++	unsigned int regwmask = (1UL<<regwshift)-1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned long mask = (1UL<<mc->nbits)-1;
+ 	long min = mc->min;
+@@ -886,7 +886,7 @@ int snd_soc_put_xr_sx(struct snd_kcontro
+ 	unsigned int regbase = mc->regbase;
+ 	unsigned int regcount = mc->regcount;
+ 	unsigned int regwshift = component->val_bytes * BITS_PER_BYTE;
+-	unsigned int regwmask = (1<<regwshift)-1;
++	unsigned int regwmask = (1UL<<regwshift)-1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned long mask = (1UL<<mc->nbits)-1;
+ 	long max = mc->max;
 
 
