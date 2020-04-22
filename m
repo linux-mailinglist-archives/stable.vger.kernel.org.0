@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 076DD1B406B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ACC31B4166
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725810AbgDVKqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:46:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53586 "EHLO mail.kernel.org"
+        id S1729078AbgDVKKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:10:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729829AbgDVKRZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:17:25 -0400
+        id S1728533AbgDVKKq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:10:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C55352070B;
-        Wed, 22 Apr 2020 10:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98B532071E;
+        Wed, 22 Apr 2020 10:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550645;
-        bh=OB6uo/HCyFxTsaJ3MtSPMJJb5ck8q2hYb6nWW83YjS4=;
+        s=default; t=1587550246;
+        bh=jjGhZd1676gM1faEzaRyv70Uy8sPoRRPSl6ORlKF1AQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yrHhI+1uBi6QJB7871pwDdLc66nbI8NDM8uVOI/e25eY4vRdQcito0PCT7951zrOt
-         EqiUvpyxLA3XYLW8ky22E96zuyBzQlHMTfPyAGn/+fV48oDYEGKYPwG0ZgxcbcpPge
-         Yh03RJS6RKovdoqmQO18dw+5tZA+XF1h44IAEih0=
+        b=VefO1/OQiqXosLSb0P/Nw+oaIfNc9v3tyTZnIsJ6UlLuhYHfv2PBjOvbdQp/YE7Ea
+         yimFnMgIB4iD4vI2Zk1wlsYYZ8SC4o/E3GRgZY81P0j+0Ni5U8bA7JkdF9DmouMXFb
+         VrYU9zm28O3KeQI0AVIN2stwgRbWk4wMBFUyZ900=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 034/118] x86/Hyper-V: Free hv_panic_page when fail to register kmsg dump
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>, konrad.wilk@oracle.com,
+        dwmw@amazon.co.uk, bp@suse.de, srinivas.eeda@oracle.com,
+        peterz@infradead.org, hpa@zytor.com,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.14 069/199] x86/speculation: Remove redundant arch_smt_update() invocation
 Date:   Wed, 22 Apr 2020 11:56:35 +0200
-Message-Id: <20200422095037.497701884@linuxfoundation.org>
+Message-Id: <20200422095105.093919891@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+From: Zhenzhong Duan <zhenzhong.duan@oracle.com>
 
-[ Upstream commit 7f11a2cc10a4ae3a70e2c73361f4a9a33503539b ]
+commit 34d66caf251df91ff27b24a3a786810d29989eca upstream.
 
-If kmsg_dump_register() fails, hv_panic_page will not be used
-anywhere.  So free and reset it.
+With commit a74cfffb03b7 ("x86/speculation: Rework SMT state change"),
+arch_smt_update() is invoked from each individual CPU hotplug function.
 
-Fixes: 81b18bce48af ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-Link: https://lore.kernel.org/r/20200406155331.2105-3-Tianyu.Lan@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Therefore the extra arch_smt_update() call in the sysfs SMT control is
+redundant.
+
+Fixes: a74cfffb03b7 ("x86/speculation: Rework SMT state change")
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: <konrad.wilk@oracle.com>
+Cc: <dwmw@amazon.co.uk>
+Cc: <bp@suse.de>
+Cc: <srinivas.eeda@oracle.com>
+Cc: <peterz@infradead.org>
+Cc: <hpa@zytor.com>
+Link: https://lkml.kernel.org/r/e2e064f2-e8ef-42ca-bf4f-76b612964752@default
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hv/vmbus_drv.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ kernel/cpu.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 593107c20e977..40f6b73dae940 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1401,9 +1401,13 @@ static int vmbus_bus_init(void)
- 			hv_panic_page = (void *)get_zeroed_page(GFP_KERNEL);
- 			if (hv_panic_page) {
- 				ret = kmsg_dump_register(&hv_kmsg_dumper);
--				if (ret)
-+				if (ret) {
- 					pr_err("Hyper-V: kmsg dump register "
- 						"error 0x%x\n", ret);
-+					hv_free_hyperv_page(
-+					    (unsigned long)hv_panic_page);
-+					hv_panic_page = NULL;
-+				}
- 			} else
- 				pr_err("Hyper-V: panic message page memory "
- 					"allocation failed");
-@@ -1433,7 +1437,6 @@ static int vmbus_bus_init(void)
- 	hv_remove_vmbus_irq();
- 
- 	bus_unregister(&hv_bus);
--	free_page((unsigned long)hv_panic_page);
- 	unregister_sysctl_table(hv_ctl_table_hdr);
- 	hv_ctl_table_hdr = NULL;
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -2089,10 +2089,8 @@ int cpuhp_smt_disable(enum cpuhp_smt_con
+ 		 */
+ 		cpuhp_offline_cpu_device(cpu);
+ 	}
+-	if (!ret) {
++	if (!ret)
+ 		cpu_smt_control = ctrlval;
+-		arch_smt_update();
+-	}
+ 	cpu_maps_update_done();
  	return ret;
--- 
-2.20.1
-
+ }
+@@ -2103,7 +2101,6 @@ int cpuhp_smt_enable(void)
+ 
+ 	cpu_maps_update_begin();
+ 	cpu_smt_control = CPU_SMT_ENABLED;
+-	arch_smt_update();
+ 	for_each_present_cpu(cpu) {
+ 		/* Skip online CPUs and CPUs on offline nodes */
+ 		if (cpu_online(cpu) || !node_online(cpu_to_node(cpu)))
 
 
