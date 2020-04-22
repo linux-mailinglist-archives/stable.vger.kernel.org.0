@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E1681B3FA4
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:40:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE881B4176
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730826AbgDVKjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:39:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
+        id S1726232AbgDVKwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:52:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726974AbgDVKVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:21:22 -0400
+        id S1726819AbgDVKKF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:10:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26ED920776;
-        Wed, 22 Apr 2020 10:21:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B2622070B;
+        Wed, 22 Apr 2020 10:10:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550881;
-        bh=NaUgTf5CoPckAeswaR8INBW8wgTIhdKbod2hpVowooM=;
+        s=default; t=1587550204;
+        bh=b4IWSodilP/n6yol7fL8g/RGKl2d0kiQs1kpArRe4r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fx5crBn+ageKeDJHkrWlKhHCwSylZiCVv1a4B2FmW623HG7uOfINvh+XZBx+3QmPq
-         Q+lhTQsu8V8JGlISHQCmf/09WZxoJ88G/ohs6IYR0xMPMzwNQrXiTv4xMx+gBoB6xj
-         IZ1TsdWEuGhcR07WuYGl7N4rcKrX5VLouSil7q+k=
+        b=zdLD8sTeckPR/B0tcgiAZmchWJMWdl5VlsihsKYMmRguqSCm5Mrvm10CkuIB6uZ0f
+         hxEWG6kF0RQdkAm9sDAAGRLVD0pt8DelDU4msmoJiuFyY6S0kq8htOpm+hDNVf+sAH
+         PxiZy4KiD+lyyaOU780wwAzeZy5oCVgaEkb9aNDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Liu Yiding <liuyd.fnst@cn.fujitsu.com>,
-        Slava Bacherikov <slava@bacher09.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Kees Cook <keescook@chromium.org>,
-        KP Singh <kpsingh@google.com>, Andrii Nakryiko <andriin@fb.com>
-Subject: [PATCH 5.6 013/166] kbuild, btf: Fix dependencies for DEBUG_INFO_BTF
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Michael Wang <yun.wang@linux.alibaba.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 014/199] sched: Avoid scale real weight down to zero
 Date:   Wed, 22 Apr 2020 11:55:40 +0200
-Message-Id: <20200422095049.715550359@linuxfoundation.org>
+Message-Id: <20200422095059.621982077@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,42 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slava Bacherikov <slava@bacher09.org>
+From: Michael Wang <yun.wang@linux.alibaba.com>
 
-commit 7d32e69310d67e6b04af04f26193f79dfc2f05c7 upstream.
+[ Upstream commit 26cf52229efc87e2effa9d788f9b33c40fb3358a ]
 
-Currently turning on DEBUG_INFO_SPLIT when DEBUG_INFO_BTF is also
-enabled will produce invalid btf file, since gen_btf function in
-link-vmlinux.sh script doesn't handle *.dwo files.
+During our testing, we found a case that shares no longer
+working correctly, the cgroup topology is like:
 
-Enabling DEBUG_INFO_REDUCED will also produce invalid btf file,
-and using GCC_PLUGIN_RANDSTRUCT with BTF makes no sense.
+  /sys/fs/cgroup/cpu/A		(shares=102400)
+  /sys/fs/cgroup/cpu/A/B	(shares=2)
+  /sys/fs/cgroup/cpu/A/B/C	(shares=1024)
 
-Fixes: e83b9f55448a ("kbuild: add ability to generate BTF type info for vmlinux")
-Reported-by: Jann Horn <jannh@google.com>
-Reported-by: Liu Yiding <liuyd.fnst@cn.fujitsu.com>
-Signed-off-by: Slava Bacherikov <slava@bacher09.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: KP Singh <kpsingh@google.com>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200402204138.408021-1-slava@bacher09.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  /sys/fs/cgroup/cpu/D		(shares=1024)
+  /sys/fs/cgroup/cpu/D/E	(shares=1024)
+  /sys/fs/cgroup/cpu/D/E/F	(shares=1024)
 
+The same benchmark is running in group C & F, no other tasks are
+running, the benchmark is capable to consumed all the CPUs.
+
+We suppose the group C will win more CPU resources since it could
+enjoy all the shares of group A, but it's F who wins much more.
+
+The reason is because we have group B with shares as 2, since
+A->cfs_rq.load.weight == B->se.load.weight == B->shares/nr_cpus,
+so A->cfs_rq.load.weight become very small.
+
+And in calc_group_shares() we calculate shares as:
+
+  load = max(scale_load_down(cfs_rq->load.weight), cfs_rq->avg.load_avg);
+  shares = (tg_shares * load) / tg_weight;
+
+Since the 'cfs_rq->load.weight' is too small, the load become 0
+after scale down, although 'tg_shares' is 102400, shares of the se
+which stand for group A on root cfs_rq become 2.
+
+While the se of D on root cfs_rq is far more bigger than 2, so it
+wins the battle.
+
+Thus when scale_load_down() scale real weight down to 0, it's no
+longer telling the real story, the caller will have the wrong
+information and the calculation will be buggy.
+
+This patch add check in scale_load_down(), so the real weight will
+be >= MIN_SHARES after scale, after applied the group C wins as
+expected.
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/38e8e212-59a1-64b2-b247-b6d0b52d8dc1@linux.alibaba.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/sched.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -241,6 +241,8 @@ config DEBUG_INFO_DWARF4
- config DEBUG_INFO_BTF
- 	bool "Generate BTF typeinfo"
- 	depends on DEBUG_INFO
-+	depends on !DEBUG_INFO_SPLIT && !DEBUG_INFO_REDUCED
-+	depends on !GCC_PLUGIN_RANDSTRUCT || COMPILE_TEST
- 	help
- 	  Generate deduplicated BTF type information from DWARF debug info.
- 	  Turning this on expects presence of pahole tool, which will convert
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 268f560ec9986..391d73a12ad72 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -89,7 +89,13 @@ static inline void cpu_load_update_active(struct rq *this_rq) { }
+ #ifdef CONFIG_64BIT
+ # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT + SCHED_FIXEDPOINT_SHIFT)
+ # define scale_load(w)		((w) << SCHED_FIXEDPOINT_SHIFT)
+-# define scale_load_down(w)	((w) >> SCHED_FIXEDPOINT_SHIFT)
++# define scale_load_down(w) \
++({ \
++	unsigned long __w = (w); \
++	if (__w) \
++		__w = max(2UL, __w >> SCHED_FIXEDPOINT_SHIFT); \
++	__w; \
++})
+ #else
+ # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT)
+ # define scale_load(w)		(w)
+-- 
+2.20.1
+
 
 
