@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4BD21B3D25
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:12:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 725491B3DFC
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729320AbgDVKMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:12:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45068 "EHLO mail.kernel.org"
+        id S1730335AbgDVKX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:23:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728778AbgDVKMN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:12:13 -0400
+        id S1730273AbgDVKXZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:23:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5F0320575;
-        Wed, 22 Apr 2020 10:12:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F2862084D;
+        Wed, 22 Apr 2020 10:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550332;
-        bh=EHVLxDqmDsahDyCiv52kZHDo+TWJVyTygZscD6oy+zw=;
+        s=default; t=1587551004;
+        bh=uHb5jBjIoswJZxzBsYgMUJiHR8BPe/xFo1UMnp0/+P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vVWf1uSf3wagMvHYWnjI8UoT87b9Z/RnW0YS+Qdnl34z+EfC6duMfhwNG3ed8tMaD
-         2uV2379WdXUQhmptepj7uE7ZQwN3Onhku9yppn06Qx0lIUvtwIT4LBX3Ls2M42X3Nq
-         Ubuuk8xWlzsquMFEROk3R/3ZXoLMsIHWABVB2IPQ=
+        b=JKbaVX0GNT3c/L5dqV4E5YCZuZWliT/E+0hEbxrGbpPiYiK/97sLobWg6H6GumwJy
+         K8YRD/zXJMIOgui48NceCZdVzzjmGYlqGuYZS0w/eKTWQ0RNbFUgfswXpPnAXqXVLc
+         G6+XXEBsYcod53IV0LNtpUnZi9OeLpHmeTh5mwOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 061/199] KVM: VMX: Always VMCLEAR in-use VMCSes during crash with kexec support
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 060/166] clk: tegra: Fix Tegra PMC clock out parents
 Date:   Wed, 22 Apr 2020 11:56:27 +0200
-Message-Id: <20200422095104.355453920@linuxfoundation.org>
+Message-Id: <20200422095055.277409896@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,180 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
 
-commit 31603d4fc2bb4f0815245d496cb970b27b4f636a upstream.
+[ Upstream commit 6fe38aa8cac3a5db38154331742835a4d9740788 ]
 
-VMCLEAR all in-use VMCSes during a crash, even if kdump's NMI shootdown
-interrupted a KVM update of the percpu in-use VMCS list.
+Tegra PMC clocks clk_out_1, clk_out_2, and clk_out_3 supported parents
+are osc, osc_div2, osc_div4 and extern clock.
 
-Because NMIs are not blocked by disabling IRQs, it's possible that
-crash_vmclear_local_loaded_vmcss() could be called while the percpu list
-of VMCSes is being modified, e.g. in the middle of list_add() in
-vmx_vcpu_load_vmcs().  This potential corner case was called out in the
-original commit[*], but the analysis of its impact was wrong.
+Clock driver is using incorrect parents clk_m, clk_m_div2, clk_m_div4
+for PMC clocks.
 
-Skipping the VMCLEARs is wrong because it all but guarantees that a
-loaded, and therefore cached, VMCS will live across kexec and corrupt
-memory in the new kernel.  Corruption will occur because the CPU's VMCS
-cache is non-coherent, i.e. not snooped, and so the writeback of VMCS
-memory on its eviction will overwrite random memory in the new kernel.
-The VMCS will live because the NMI shootdown also disables VMX, i.e. the
-in-progress VMCLEAR will #UD, and existing Intel CPUs do not flush the
-VMCS cache on VMXOFF.
+This patch fixes this.
 
-Furthermore, interrupting list_add() and list_del() is safe due to
-crash_vmclear_local_loaded_vmcss() using forward iteration.  list_add()
-ensures the new entry is not visible to forward iteration unless the
-entire add completes, via WRITE_ONCE(prev->next, new).  A bad "prev"
-pointer could be observed if the NMI shootdown interrupted list_del() or
-list_add(), but list_for_each_entry() does not consume ->prev.
-
-In addition to removing the temporary disabling of VMCLEAR, open code
-loaded_vmcs_init() in __loaded_vmcs_clear() and reorder VMCLEAR so that
-the VMCS is deleted from the list only after it's been VMCLEAR'd.
-Deleting the VMCS before VMCLEAR would allow a race where the NMI
-shootdown could arrive between list_del() and vmcs_clear() and thus
-neither flow would execute a successful VMCLEAR.  Alternatively, more
-code could be moved into loaded_vmcs_init(), but that gets rather silly
-as the only other user, alloc_loaded_vmcs(), doesn't need the smp_wmb()
-and would need to work around the list_del().
-
-Update the smp_*() comments related to the list manipulation, and
-opportunistically reword them to improve clarity.
-
-[*] https://patchwork.kernel.org/patch/1675731/#3720461
-
-Fixes: 8f536b7697a0 ("KVM: VMX: provide the vmclear function and a bitmap to support VMCLEAR in kdump")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200321193751.24985-2-sean.j.christopherson@intel.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx.c |   67 ++++++++++++-----------------------------------------
- 1 file changed, 16 insertions(+), 51 deletions(-)
+ drivers/clk/tegra/clk-tegra-pmc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -1674,43 +1674,15 @@ static void vmcs_load(struct vmcs *vmcs)
- }
+diff --git a/drivers/clk/tegra/clk-tegra-pmc.c b/drivers/clk/tegra/clk-tegra-pmc.c
+index bec3e008335f3..5e044ba1ae364 100644
+--- a/drivers/clk/tegra/clk-tegra-pmc.c
++++ b/drivers/clk/tegra/clk-tegra-pmc.c
+@@ -49,16 +49,16 @@ struct pmc_clk_init_data {
  
- #ifdef CONFIG_KEXEC_CORE
--/*
-- * This bitmap is used to indicate whether the vmclear
-- * operation is enabled on all cpus. All disabled by
-- * default.
-- */
--static cpumask_t crash_vmclear_enabled_bitmap = CPU_MASK_NONE;
--
--static inline void crash_enable_local_vmclear(int cpu)
--{
--	cpumask_set_cpu(cpu, &crash_vmclear_enabled_bitmap);
--}
--
--static inline void crash_disable_local_vmclear(int cpu)
--{
--	cpumask_clear_cpu(cpu, &crash_vmclear_enabled_bitmap);
--}
--
--static inline int crash_local_vmclear_enabled(int cpu)
--{
--	return cpumask_test_cpu(cpu, &crash_vmclear_enabled_bitmap);
--}
--
- static void crash_vmclear_local_loaded_vmcss(void)
- {
- 	int cpu = raw_smp_processor_id();
- 	struct loaded_vmcs *v;
+ static DEFINE_SPINLOCK(clk_out_lock);
  
--	if (!crash_local_vmclear_enabled(cpu))
--		return;
--
- 	list_for_each_entry(v, &per_cpu(loaded_vmcss_on_cpu, cpu),
- 			    loaded_vmcss_on_cpu_link)
- 		vmcs_clear(v->vmcs);
- }
--#else
--static inline void crash_enable_local_vmclear(int cpu) { }
--static inline void crash_disable_local_vmclear(int cpu) { }
- #endif /* CONFIG_KEXEC_CORE */
+-static const char *clk_out1_parents[] = { "clk_m", "clk_m_div2",
+-	"clk_m_div4", "extern1",
++static const char *clk_out1_parents[] = { "osc", "osc_div2",
++	"osc_div4", "extern1",
+ };
  
- static void __loaded_vmcs_clear(void *arg)
-@@ -1722,19 +1694,24 @@ static void __loaded_vmcs_clear(void *ar
- 		return; /* vcpu migration can race with cpu offline */
- 	if (per_cpu(current_vmcs, cpu) == loaded_vmcs->vmcs)
- 		per_cpu(current_vmcs, cpu) = NULL;
--	crash_disable_local_vmclear(cpu);
-+
-+	vmcs_clear(loaded_vmcs->vmcs);
-+	if (loaded_vmcs->shadow_vmcs && loaded_vmcs->launched)
-+		vmcs_clear(loaded_vmcs->shadow_vmcs);
-+
- 	list_del(&loaded_vmcs->loaded_vmcss_on_cpu_link);
+-static const char *clk_out2_parents[] = { "clk_m", "clk_m_div2",
+-	"clk_m_div4", "extern2",
++static const char *clk_out2_parents[] = { "osc", "osc_div2",
++	"osc_div4", "extern2",
+ };
  
- 	/*
--	 * we should ensure updating loaded_vmcs->loaded_vmcss_on_cpu_link
--	 * is before setting loaded_vmcs->vcpu to -1 which is done in
--	 * loaded_vmcs_init. Otherwise, other cpu can see vcpu = -1 fist
--	 * then adds the vmcs into percpu list before it is deleted.
-+	 * Ensure all writes to loaded_vmcs, including deleting it from its
-+	 * current percpu list, complete before setting loaded_vmcs->vcpu to
-+	 * -1, otherwise a different cpu can see vcpu == -1 first and add
-+	 * loaded_vmcs to its percpu list before it's deleted from this cpu's
-+	 * list. Pairs with the smp_rmb() in vmx_vcpu_load_vmcs().
- 	 */
- 	smp_wmb();
+-static const char *clk_out3_parents[] = { "clk_m", "clk_m_div2",
+-	"clk_m_div4", "extern3",
++static const char *clk_out3_parents[] = { "osc", "osc_div2",
++	"osc_div4", "extern3",
+ };
  
--	loaded_vmcs_init(loaded_vmcs);
--	crash_enable_local_vmclear(cpu);
-+	loaded_vmcs->cpu = -1;
-+	loaded_vmcs->launched = 0;
- }
- 
- static void loaded_vmcs_clear(struct loaded_vmcs *loaded_vmcs)
-@@ -2497,18 +2474,17 @@ static void vmx_vcpu_load(struct kvm_vcp
- 	if (!already_loaded) {
- 		loaded_vmcs_clear(vmx->loaded_vmcs);
- 		local_irq_disable();
--		crash_disable_local_vmclear(cpu);
- 
- 		/*
--		 * Read loaded_vmcs->cpu should be before fetching
--		 * loaded_vmcs->loaded_vmcss_on_cpu_link.
--		 * See the comments in __loaded_vmcs_clear().
-+		 * Ensure loaded_vmcs->cpu is read before adding loaded_vmcs to
-+		 * this cpu's percpu list, otherwise it may not yet be deleted
-+		 * from its previous cpu's percpu list.  Pairs with the
-+		 * smb_wmb() in __loaded_vmcs_clear().
- 		 */
- 		smp_rmb();
- 
- 		list_add(&vmx->loaded_vmcs->loaded_vmcss_on_cpu_link,
- 			 &per_cpu(loaded_vmcss_on_cpu, cpu));
--		crash_enable_local_vmclear(cpu);
- 		local_irq_enable();
- 	}
- 
-@@ -3804,17 +3780,6 @@ static int hardware_enable(void)
- 	INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
- 	spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
- 
--	/*
--	 * Now we can enable the vmclear operation in kdump
--	 * since the loaded_vmcss_on_cpu list on this cpu
--	 * has been initialized.
--	 *
--	 * Though the cpu is not in VMX operation now, there
--	 * is no problem to enable the vmclear operation
--	 * for the loaded_vmcss_on_cpu list is empty!
--	 */
--	crash_enable_local_vmclear(cpu);
--
- 	rdmsrl(MSR_IA32_FEATURE_CONTROL, old);
- 
- 	test_bits = FEATURE_CONTROL_LOCKED;
+ static struct pmc_clk_init_data pmc_clks[] = {
+-- 
+2.20.1
+
 
 
