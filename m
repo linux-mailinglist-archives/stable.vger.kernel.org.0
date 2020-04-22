@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F2D21B3BF2
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:02:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF2F1B4173
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726669AbgDVKAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:00:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48280 "EHLO mail.kernel.org"
+        id S1729482AbgDVKw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:52:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726662AbgDVKAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:44 -0400
+        id S1728947AbgDVKKI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:10:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8C9420776;
-        Wed, 22 Apr 2020 10:00:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9888020775;
+        Wed, 22 Apr 2020 10:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549643;
-        bh=4Yfw7zDvXO8ES44N9Te9KXxXB+R1yHGUNOhl8YlHk/k=;
+        s=default; t=1587550207;
+        bh=aGquuusWEy//4Cijg3ojUT8EFZej4syeVu8388MiEp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+sY7rUpOQ+Sj1AaxHr24y/pi08br3lzL32pVLb25cGPlGwRjZPUdhFEtHnHJYlvW
-         eqb+E50k+R4R13q67IGoTpI06h13R0YegcF7RasPVjhBPvdGb91bna2J06PeGz+fj1
-         NBm9RSf6kw4SXIHH0mK3BL8bn7sTeyAkg95HGYVs=
+        b=sIA8bzobJSeocmwKnZv0psD+I6F6FkWpOCFH9Dv0qGWOeb7jDpoLhzcJ7/rpCu3yE
+         92DFBTZ3sRG7rQjiPJp5zLl39lNyqhI6pTPKvBPZDrCgRlDo/XxH1JBmsYJB6rzdmK
+         oaCvrkgGjkG8tSE27upk9whXU9QH2z75Mf1c27wI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jessica Yu <jeyu@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Ben Hutchings <benh@debian.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 046/100] kmod: make request_module() return an error when autoloading is disabled
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.14 050/199] PCI: endpoint: Fix for concurrent memory allocation in OB address region
 Date:   Wed, 22 Apr 2020 11:56:16 +0200
-Message-Id: <20200422095030.658085703@linuxfoundation.org>
+Message-Id: <20200422095103.177403649@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,108 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit d7d27cfc5cf0766a26a8f56868c5ad5434735126 upstream.
+commit 04e046ca57ebed3943422dee10eec9e73aec081e upstream.
 
-Patch series "module autoloading fixes and cleanups", v5.
+pci-epc-mem uses a bitmap to manage the Endpoint outbound (OB) address
+region. This address region will be shared by multiple endpoint
+functions (in the case of multi function endpoint) and it has to be
+protected from concurrent access to avoid updating an inconsistent state.
 
-This series fixes a bug where request_module() was reporting success to
-kernel code when module autoloading had been completely disabled via
-'echo > /proc/sys/kernel/modprobe'.
+Use a mutex to protect bitmap updates to prevent the memory
+allocation API from returning incorrect addresses.
 
-It also addresses the issues raised on the original thread
-(https://lkml.kernel.org/lkml/20200310223731.126894-1-ebiggers@kernel.org/T/#u)
-bydocumenting the modprobe sysctl, adding a self-test for the empty path
-case, and downgrading a user-reachable WARN_ONCE().
-
-This patch (of 4):
-
-It's long been possible to disable kernel module autoloading completely
-(while still allowing manual module insertion) by setting
-/proc/sys/kernel/modprobe to the empty string.
-
-This can be preferable to setting it to a nonexistent file since it
-avoids the overhead of an attempted execve(), avoids potential
-deadlocks, and avoids the call to security_kernel_module_request() and
-thus on SELinux-based systems eliminates the need to write SELinux rules
-to dontaudit module_request.
-
-However, when module autoloading is disabled in this way,
-request_module() returns 0.  This is broken because callers expect 0 to
-mean that the module was successfully loaded.
-
-Apparently this was never noticed because this method of disabling
-module autoloading isn't used much, and also most callers don't use the
-return value of request_module() since it's always necessary to check
-whether the module registered its functionality or not anyway.
-
-But improperly returning 0 can indeed confuse a few callers, for example
-get_fs_type() in fs/filesystems.c where it causes a WARNING to be hit:
-
-	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
-		fs = __get_fs_type(name, len);
-		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
-	}
-
-This is easily reproduced with:
-
-	echo > /proc/sys/kernel/modprobe
-	mount -t NONEXISTENT none /
-
-It causes:
-
-	request_module fs-NONEXISTENT succeeded, but still no fs?
-	WARNING: CPU: 1 PID: 1106 at fs/filesystems.c:275 get_fs_type+0xd6/0xf0
-	[...]
-
-This should actually use pr_warn_once() rather than WARN_ONCE(), since
-it's also user-reachable if userspace immediately unloads the module.
-Regardless, request_module() should correctly return an error when it
-fails.  So let's make it return -ENOENT, which matches the error when
-the modprobe binary doesn't exist.
-
-I've also sent patches to document and test this case.
-
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Jessica Yu <jeyu@kernel.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jeff Vander Stoep <jeffv@google.com>
-Cc: Ben Hutchings <benh@debian.org>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200310223731.126894-1-ebiggers@kernel.org
-Link: http://lkml.kernel.org/r/20200312202552.241885-1-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org # v4.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kmod.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/endpoint/pci-epc-mem.c |   10 ++++++++--
+ include/linux/pci-epc.h            |    3 +++
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
---- a/kernel/kmod.c
-+++ b/kernel/kmod.c
-@@ -119,7 +119,7 @@ out:
-  * invoke it.
-  *
-  * If module auto-loading support is disabled then this function
-- * becomes a no-operation.
-+ * simply returns -ENOENT.
-  */
- int __request_module(bool wait, const char *fmt, ...)
+--- a/drivers/pci/endpoint/pci-epc-mem.c
++++ b/drivers/pci/endpoint/pci-epc-mem.c
+@@ -90,6 +90,7 @@ int __pci_epc_mem_init(struct pci_epc *e
+ 	mem->page_size = page_size;
+ 	mem->pages = pages;
+ 	mem->size = size;
++	mutex_init(&mem->lock);
+ 
+ 	epc->mem = mem;
+ 
+@@ -133,7 +134,7 @@ void __iomem *pci_epc_mem_alloc_addr(str
+ 				     phys_addr_t *phys_addr, size_t size)
  {
-@@ -140,7 +140,7 @@ int __request_module(bool wait, const ch
- 	WARN_ON_ONCE(wait && current_is_async());
+ 	int pageno;
+-	void __iomem *virt_addr;
++	void __iomem *virt_addr = NULL;
+ 	struct pci_epc_mem *mem = epc->mem;
+ 	unsigned int page_shift = ilog2(mem->page_size);
+ 	int order;
+@@ -141,15 +142,18 @@ void __iomem *pci_epc_mem_alloc_addr(str
+ 	size = ALIGN(size, mem->page_size);
+ 	order = pci_epc_mem_get_order(mem, size);
  
- 	if (!modprobe_path[0])
--		return 0;
-+		return -ENOENT;
++	mutex_lock(&mem->lock);
+ 	pageno = bitmap_find_free_region(mem->bitmap, mem->pages, order);
+ 	if (pageno < 0)
+-		return NULL;
++		goto ret;
  
- 	va_start(args, fmt);
- 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+ 	*phys_addr = mem->phys_base + (pageno << page_shift);
+ 	virt_addr = ioremap(*phys_addr, size);
+ 	if (!virt_addr)
+ 		bitmap_release_region(mem->bitmap, pageno, order);
+ 
++ret:
++	mutex_unlock(&mem->lock);
+ 	return virt_addr;
+ }
+ EXPORT_SYMBOL_GPL(pci_epc_mem_alloc_addr);
+@@ -175,7 +179,9 @@ void pci_epc_mem_free_addr(struct pci_ep
+ 	pageno = (phys_addr - mem->phys_base) >> page_shift;
+ 	size = ALIGN(size, mem->page_size);
+ 	order = pci_epc_mem_get_order(mem, size);
++	mutex_lock(&mem->lock);
+ 	bitmap_release_region(mem->bitmap, pageno, order);
++	mutex_unlock(&mem->lock);
+ }
+ EXPORT_SYMBOL_GPL(pci_epc_mem_free_addr);
+ 
+--- a/include/linux/pci-epc.h
++++ b/include/linux/pci-epc.h
+@@ -63,6 +63,7 @@ struct pci_epc_ops {
+  * @bitmap: bitmap to manage the PCI address space
+  * @pages: number of bits representing the address region
+  * @page_size: size of each page
++ * @lock: mutex to protect bitmap
+  */
+ struct pci_epc_mem {
+ 	phys_addr_t	phys_base;
+@@ -70,6 +71,8 @@ struct pci_epc_mem {
+ 	unsigned long	*bitmap;
+ 	size_t		page_size;
+ 	int		pages;
++	/* mutex to protect against concurrent access for memory allocation*/
++	struct mutex	lock;
+ };
+ 
+ /**
 
 
