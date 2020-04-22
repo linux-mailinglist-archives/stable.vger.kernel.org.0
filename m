@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74D1D1B3FDB
+	by mail.lfdr.de (Postfix) with ESMTP id E1FF61B3FDC
 	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731642AbgDVKl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731640AbgDVKl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 22 Apr 2020 06:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57038 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730076AbgDVKUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:15 -0400
+        id S1730077AbgDVKUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:20:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D28C20775;
-        Wed, 22 Apr 2020 10:20:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A85520776;
+        Wed, 22 Apr 2020 10:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550815;
-        bh=rIGziLLxe2ceDpbJPs9IiUJwzSZStLtOnXCL8JvRm3s=;
+        s=default; t=1587550817;
+        bh=SbJ/jaCJ3OrrVtjET4HQ68htaBYLYMg22O0Pj/OIO/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WQh15wk2p532a+cVSJadETed3exGsXo4Igderg2uVSORokG0G1RLDrUi5VdO/0qel
-         xyYbC476ynv19TUWWkLB7hHKFVUBvohZ4tgAIFqbjQ0E/l4hrYloATBGrpaAGgxtxj
-         vVnA/Mzyah2uKN3Air77CoMUsyw0wGyFd35KHO1s=
+        b=osnQ7d8PCEuFmesOWVbEQBTbyMf0/yZrOevpk1qMDKAFifEM6UxvIktk3YE3fp40/
+         n7a7MHKZrfIBpIdIlAz7fyfHUBybPbKFDiEfyfyaLsZJKY3DA9kIfV302vKIwEho3w
+         /7Brw20kx8F/jSCa2AfeoerGko5YyM29VZGg3zLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 5.4 104/118] ARM: dts: sunxi: Fix DE2 clocks register range
-Date:   Wed, 22 Apr 2020 11:57:45 +0200
-Message-Id: <20200422095048.243999707@linuxfoundation.org>
+        stable@vger.kernel.org, Simon Goyette <simon.goyette@gmail.com>,
+        =?UTF-8?q?Maxime=20Roussin-B=C3=A9langer?= 
+        <maxime.roussinbelanger@gmail.com>,
+        Guillaume Champagne <champagne.guillaume.c@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 105/118] iio: si1133: read 24-bit signed integer for measurement
+Date:   Wed, 22 Apr 2020 11:57:46 +0200
+Message-Id: <20200422095048.371118698@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
 References: <20200422095031.522502705@linuxfoundation.org>
@@ -43,73 +46,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Maxime Roussin-Bélanger <maxime.roussinbelanger@gmail.com>
 
-commit da180322582bd9db07f29e6d4a2d170afde0703f upstream.
+commit 328b50e9a0ad1fe8accdf8c19923deebab5e0c01 upstream.
 
-As it can be seen from DE2 manual, clock range is 0x10000.
+The chip is configured in 24 bit mode. The values read from
+it must always be treated as is. This fixes the issue by
+replacing the previous 16 bits value by a 24 bits buffer.
 
-Fix it.
+This changes affects the value output by previous version of
+the driver, since the least significant byte was missing.
+The upper half of 16 bit values previously output are now
+the upper half of a 24 bit value.
 
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Fixes: 73f122c82775 ("ARM: dts: sun8i: a83t: Add display pipeline")
-Fixes: 05a43a262d03 ("ARM: dts: sun8i: r40: Add HDMI pipeline")
-Fixes: 21b299209330 ("ARM: sun8i: v3s: add device nodes for DE2 display pipeline")
-Fixes: d8c6f1f0295c ("ARM: sun8i: h3/h5: add DE2 CCU device node for H3")
-[wens@csie.org: added fixes tags]
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Fixes: e01e7eaf37d8 ("iio: light: introduce si1133")
+
+Reported-by: Simon Goyette <simon.goyette@gmail.com>
+Co-authored-by: Guillaume Champagne <champagne.guillaume.c@gmail.com>
+Signed-off-by: Maxime Roussin-Bélanger <maxime.roussinbelanger@gmail.com>
+Signed-off-by: Guillaume Champagne <champagne.guillaume.c@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/sun8i-a83t.dtsi  |    2 +-
- arch/arm/boot/dts/sun8i-r40.dtsi   |    2 +-
- arch/arm/boot/dts/sun8i-v3s.dtsi   |    2 +-
- arch/arm/boot/dts/sunxi-h3-h5.dtsi |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/light/si1133.c |   37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
 
---- a/arch/arm/boot/dts/sun8i-a83t.dtsi
-+++ b/arch/arm/boot/dts/sun8i-a83t.dtsi
-@@ -313,7 +313,7 @@
+--- a/drivers/iio/light/si1133.c
++++ b/drivers/iio/light/si1133.c
+@@ -102,6 +102,9 @@
+ #define SI1133_INPUT_FRACTION_LOW	15
+ #define SI1133_LUX_OUTPUT_FRACTION	12
+ #define SI1133_LUX_BUFFER_SIZE		9
++#define SI1133_MEASURE_BUFFER_SIZE	3
++
++#define SI1133_SIGN_BIT_INDEX 23
  
- 		display_clocks: clock@1000000 {
- 			compatible = "allwinner,sun8i-a83t-de2-clk";
--			reg = <0x01000000 0x100000>;
-+			reg = <0x01000000 0x10000>;
- 			clocks = <&ccu CLK_BUS_DE>,
- 				 <&ccu CLK_PLL_DE>;
- 			clock-names = "bus",
---- a/arch/arm/boot/dts/sun8i-r40.dtsi
-+++ b/arch/arm/boot/dts/sun8i-r40.dtsi
-@@ -118,7 +118,7 @@
- 		display_clocks: clock@1000000 {
- 			compatible = "allwinner,sun8i-r40-de2-clk",
- 				     "allwinner,sun8i-h3-de2-clk";
--			reg = <0x01000000 0x100000>;
-+			reg = <0x01000000 0x10000>;
- 			clocks = <&ccu CLK_BUS_DE>,
- 				 <&ccu CLK_DE>;
- 			clock-names = "bus",
---- a/arch/arm/boot/dts/sun8i-v3s.dtsi
-+++ b/arch/arm/boot/dts/sun8i-v3s.dtsi
-@@ -105,7 +105,7 @@
+ static const int si1133_scale_available[] = {
+ 	1, 2, 4, 8, 16, 32, 64, 128};
+@@ -234,13 +237,13 @@ static const struct si1133_lux_coeff lux
+ 	}
+ };
  
- 		display_clocks: clock@1000000 {
- 			compatible = "allwinner,sun8i-v3s-de2-clk";
--			reg = <0x01000000 0x100000>;
-+			reg = <0x01000000 0x10000>;
- 			clocks = <&ccu CLK_BUS_DE>,
- 				 <&ccu CLK_DE>;
- 			clock-names = "bus",
---- a/arch/arm/boot/dts/sunxi-h3-h5.dtsi
-+++ b/arch/arm/boot/dts/sunxi-h3-h5.dtsi
-@@ -113,7 +113,7 @@
+-static int si1133_calculate_polynomial_inner(u32 input, u8 fraction, u16 mag,
++static int si1133_calculate_polynomial_inner(s32 input, u8 fraction, u16 mag,
+ 					     s8 shift)
+ {
+ 	return ((input << fraction) / mag) << shift;
+ }
  
- 		display_clocks: clock@1000000 {
- 			/* compatible is in per SoC .dtsi file */
--			reg = <0x01000000 0x100000>;
-+			reg = <0x01000000 0x10000>;
- 			clocks = <&ccu CLK_BUS_DE>,
- 				 <&ccu CLK_DE>;
- 			clock-names = "bus",
+-static int si1133_calculate_output(u32 x, u32 y, u8 x_order, u8 y_order,
++static int si1133_calculate_output(s32 x, s32 y, u8 x_order, u8 y_order,
+ 				   u8 input_fraction, s8 sign,
+ 				   const struct si1133_coeff *coeffs)
+ {
+@@ -276,7 +279,7 @@ static int si1133_calculate_output(u32 x
+  * The algorithm is from:
+  * https://siliconlabs.github.io/Gecko_SDK_Doc/efm32zg/html/si1133_8c_source.html#l00716
+  */
+-static int si1133_calc_polynomial(u32 x, u32 y, u8 input_fraction, u8 num_coeff,
++static int si1133_calc_polynomial(s32 x, s32 y, u8 input_fraction, u8 num_coeff,
+ 				  const struct si1133_coeff *coeffs)
+ {
+ 	u8 x_order, y_order;
+@@ -614,7 +617,7 @@ static int si1133_measure(struct si1133_
+ {
+ 	int err;
+ 
+-	__be16 resp;
++	u8 buffer[SI1133_MEASURE_BUFFER_SIZE];
+ 
+ 	err = si1133_set_adcmux(data, 0, chan->channel);
+ 	if (err)
+@@ -625,12 +628,13 @@ static int si1133_measure(struct si1133_
+ 	if (err)
+ 		return err;
+ 
+-	err = si1133_bulk_read(data, SI1133_REG_HOSTOUT(0), sizeof(resp),
+-			       (u8 *)&resp);
++	err = si1133_bulk_read(data, SI1133_REG_HOSTOUT(0), sizeof(buffer),
++			       buffer);
+ 	if (err)
+ 		return err;
+ 
+-	*val = be16_to_cpu(resp);
++	*val = sign_extend32((buffer[0] << 16) | (buffer[1] << 8) | buffer[2],
++			     SI1133_SIGN_BIT_INDEX);
+ 
+ 	return err;
+ }
+@@ -704,9 +708,9 @@ static int si1133_get_lux(struct si1133_
+ {
+ 	int err;
+ 	int lux;
+-	u32 high_vis;
+-	u32 low_vis;
+-	u32 ir;
++	s32 high_vis;
++	s32 low_vis;
++	s32 ir;
+ 	u8 buffer[SI1133_LUX_BUFFER_SIZE];
+ 
+ 	/* Activate lux channels */
+@@ -719,9 +723,16 @@ static int si1133_get_lux(struct si1133_
+ 	if (err)
+ 		return err;
+ 
+-	high_vis = (buffer[0] << 16) | (buffer[1] << 8) | buffer[2];
+-	low_vis = (buffer[3] << 16) | (buffer[4] << 8) | buffer[5];
+-	ir = (buffer[6] << 16) | (buffer[7] << 8) | buffer[8];
++	high_vis =
++		sign_extend32((buffer[0] << 16) | (buffer[1] << 8) | buffer[2],
++			      SI1133_SIGN_BIT_INDEX);
++
++	low_vis =
++		sign_extend32((buffer[3] << 16) | (buffer[4] << 8) | buffer[5],
++			      SI1133_SIGN_BIT_INDEX);
++
++	ir = sign_extend32((buffer[6] << 16) | (buffer[7] << 8) | buffer[8],
++			   SI1133_SIGN_BIT_INDEX);
+ 
+ 	if (high_vis > SI1133_ADC_THRESHOLD || ir > SI1133_ADC_THRESHOLD)
+ 		lux = si1133_calc_polynomial(high_vis, ir,
 
 
