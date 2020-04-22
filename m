@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A37AA1B4225
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17D131B3BCD
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 11:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727797AbgDVK6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:58:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53838 "EHLO mail.kernel.org"
+        id S1726147AbgDVJ7L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 05:59:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726838AbgDVKDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:03:47 -0400
+        id S1726023AbgDVJ7K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 05:59:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61F7B20774;
-        Wed, 22 Apr 2020 10:03:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 754B12076C;
+        Wed, 22 Apr 2020 09:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549826;
-        bh=/3LBLbFaskxzFJjgyhptmFt7VqVQH1RAEmwmXCB/9dg=;
+        s=default; t=1587549549;
+        bh=PZA3Vw1JHUk8Sy3E3cFgr+3sTMuxx5oWNx1mnU7ajYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5Uptc3ct/5DLvNAN4N9jLba04cD9074GMmdHVCXiqUDF65/2mgXPufhbrBzrEuJP
-         W25rR8HnlCMcl8vPg8q+J7KlGwiD2YKWMO3PklkV+wPopGD08rc+YknamqCXebktaE
-         0w9jHbWcoPVBrKTuDyGRr1skquEIEEOsW0GaNU94=
+        b=XWV+1123JBaB+TMXsq0hu9zNN4frCxQeX4togqxLFyDx0jfT88owdrLnQKGiSdDYC
+         NeeqFGXitTvTAR65iO/vhZjgL0FtHQRl3Q/JmWP8Z6KMKN0si3CVHw+/O+iHyK99zP
+         yYF8KDBLRroU6yhuzjac2g8JsVxKzx+rcqHYlNL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 023/125] ALSA: hda: Fix potential access overflow in beep helper
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 010/100] locking/lockdep: Avoid recursion in lockdep_count_{for,back}ward_deps()
 Date:   Wed, 22 Apr 2020 11:55:40 +0200
-Message-Id: <20200422095037.011489035@linuxfoundation.org>
+Message-Id: <20200422095024.837041098@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-commit 0ad3f0b384d58f3bd1f4fb87d0af5b8f6866f41a upstream.
+[ Upstream commit 25016bd7f4caf5fc983bbab7403d08e64cba3004 ]
 
-The beep control helper function blindly stores the values in two
-stereo channels no matter whether the actual control is mono or
-stereo.  This is practically harmless, but it annoys the recently
-introduced sanity check, resulting in an error when the checker is
-enabled.
+Qian Cai reported a bug when PROVE_RCU_LIST=y, and read on /proc/lockdep
+triggered a warning:
 
-This patch corrects the behavior to store only on the defined array
-member.
+  [ ] DEBUG_LOCKS_WARN_ON(current->hardirqs_enabled)
+  ...
+  [ ] Call Trace:
+  [ ]  lock_is_held_type+0x5d/0x150
+  [ ]  ? rcu_lockdep_current_cpu_online+0x64/0x80
+  [ ]  rcu_read_lock_any_held+0xac/0x100
+  [ ]  ? rcu_read_lock_held+0xc0/0xc0
+  [ ]  ? __slab_free+0x421/0x540
+  [ ]  ? kasan_kmalloc+0x9/0x10
+  [ ]  ? __kmalloc_node+0x1d7/0x320
+  [ ]  ? kvmalloc_node+0x6f/0x80
+  [ ]  __bfs+0x28a/0x3c0
+  [ ]  ? class_equal+0x30/0x30
+  [ ]  lockdep_count_forward_deps+0x11a/0x1a0
 
-Fixes: 0401e8548eac ("ALSA: hda - Move beep helper functions to hda_beep.c")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200407084402.25589-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The warning got triggered because lockdep_count_forward_deps() call
+__bfs() without current->lockdep_recursion being set, as a result
+a lockdep internal function (__bfs()) is checked by lockdep, which is
+unexpected, and the inconsistency between the irq-off state and the
+state traced by lockdep caused the warning.
 
+Apart from this warning, lockdep internal functions like __bfs() should
+always be protected by current->lockdep_recursion to avoid potential
+deadlocks and data inconsistency, therefore add the
+current->lockdep_recursion on-and-off section to protect __bfs() in both
+lockdep_count_forward_deps() and lockdep_count_backward_deps()
+
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200312151258.128036-1-boqun.feng@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_beep.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ kernel/locking/lockdep.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/pci/hda/hda_beep.c
-+++ b/sound/pci/hda/hda_beep.c
-@@ -310,8 +310,12 @@ int snd_hda_mixer_amp_switch_get_beep(st
- {
- 	struct hda_codec *codec = snd_kcontrol_chip(kcontrol);
- 	struct hda_beep *beep = codec->beep;
-+	int chs = get_amp_channels(kcontrol);
-+
- 	if (beep && (!beep->enabled || !ctl_has_mute(kcontrol))) {
--		ucontrol->value.integer.value[0] =
-+		if (chs & 1)
-+			ucontrol->value.integer.value[0] = beep->enabled;
-+		if (chs & 2)
- 			ucontrol->value.integer.value[1] = beep->enabled;
- 		return 0;
- 	}
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index a419696709a1a..0a00720d3cccb 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -1265,9 +1265,11 @@ unsigned long lockdep_count_forward_deps(struct lock_class *class)
+ 	this.class = class;
+ 
+ 	raw_local_irq_save(flags);
++	current->lockdep_recursion = 1;
+ 	arch_spin_lock(&lockdep_lock);
+ 	ret = __lockdep_count_forward_deps(&this);
+ 	arch_spin_unlock(&lockdep_lock);
++	current->lockdep_recursion = 0;
+ 	raw_local_irq_restore(flags);
+ 
+ 	return ret;
+@@ -1292,9 +1294,11 @@ unsigned long lockdep_count_backward_deps(struct lock_class *class)
+ 	this.class = class;
+ 
+ 	raw_local_irq_save(flags);
++	current->lockdep_recursion = 1;
+ 	arch_spin_lock(&lockdep_lock);
+ 	ret = __lockdep_count_backward_deps(&this);
+ 	arch_spin_unlock(&lockdep_lock);
++	current->lockdep_recursion = 0;
+ 	raw_local_irq_restore(flags);
+ 
+ 	return ret;
+-- 
+2.20.1
+
 
 
