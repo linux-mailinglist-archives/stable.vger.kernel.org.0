@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4521B42A4
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B65DA1B4204
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:58:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726587AbgDVLDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:03:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47288 "EHLO mail.kernel.org"
+        id S1727966AbgDVKEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:04:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726104AbgDVKAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:12 -0400
+        id S1727933AbgDVKEJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:04:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C6EC20776;
-        Wed, 22 Apr 2020 10:00:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C5DD2076C;
+        Wed, 22 Apr 2020 10:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549611;
-        bh=TZoybMhF4gxKDISr4rcuiX1uOk1zp5q2YmpQeJdacyM=;
+        s=default; t=1587549848;
+        bh=sPrl9R+yoAc0NrziY7jtHcAjfyMMgN98O+1GI2m295k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RkLFpJDSCW1RZVvggj4a2ZfQdtZUfG8Mqgr+oLOOXw8R+BPawS3lrGiIbjJNeFuot
-         U06PHZoUcNMOEq6CtVN1Pg5OzBtdarWrPsUoLWXa2aCFEA/l4k0vit9lbkj4IASUgv
-         +RQeKKluehFweSS/SRhbRfJ+SbKU0ydqokYroWvk=
+        b=TXdF1eHCBM7VhvgY2KopZUjTZNsTeIl+2z854ekTIE96dMPlIMlRQusWB61a2yFu4
+         6u+bBQ3KqLe9EasclK83tSLSRy139mg8nKHMgzVLm2Q5R74mTMy5iM1OKgj4DQ3Q6v
+         xS0MXFunKPsveqtnomkl6wgcpHauCOB5RLgCBUMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.4 017/100] ASoC: topology: use name_prefix for new kcontrol
-Date:   Wed, 22 Apr 2020 11:55:47 +0200
-Message-Id: <20200422095025.970327637@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.9 031/125] MIPS: OCTEON: irq: Fix potential NULL pointer dereference
+Date:   Wed, 22 Apr 2020 11:55:48 +0200
+Message-Id: <20200422095038.431066604@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 이경택 <gt82.lee@samsung.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit abca9e4a04fbe9c6df4d48ca7517e1611812af25 upstream.
+commit 792a402c2840054533ef56279c212ef6da87d811 upstream.
 
-Current topology doesn't add prefix of component to new kcontrol.
+There is a potential NULL pointer dereference in case kzalloc()
+fails and returns NULL.
 
-Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
-Link: https://lore.kernel.org/r/009b01d60804$ae25c2d0$0a714870$@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this by adding a NULL check on *cd*
+
+This bug was detected with the help of Coccinelle.
+
+Fixes: 64b139f97c01 ("MIPS: OCTEON: irq: add CIB and other fixes")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/cavium-octeon/octeon-irq.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -378,7 +378,7 @@ static int soc_tplg_add_kcontrol(struct
- 	struct snd_soc_component *comp = tplg->comp;
+--- a/arch/mips/cavium-octeon/octeon-irq.c
++++ b/arch/mips/cavium-octeon/octeon-irq.c
+@@ -2199,6 +2199,9 @@ static int octeon_irq_cib_map(struct irq
+ 	}
  
- 	return soc_tplg_add_dcontrol(comp->card->snd_card,
--				comp->dev, k, NULL, comp, kcontrol);
-+				comp->dev, k, comp->name_prefix, comp, kcontrol);
- }
+ 	cd = kzalloc(sizeof(*cd), GFP_KERNEL);
++	if (!cd)
++		return -ENOMEM;
++
+ 	cd->host_data = host_data;
+ 	cd->bit = hw;
  
- /* remove a mixer kcontrol */
 
 
