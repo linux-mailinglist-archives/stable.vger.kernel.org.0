@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6D61B418C
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BE9E1B425E
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728842AbgDVKxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:53:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35418 "EHLO mail.kernel.org"
+        id S1726818AbgDVKB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:01:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728801AbgDVKJG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:09:06 -0400
+        id S1726799AbgDVKB1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:01:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FFE32077D;
-        Wed, 22 Apr 2020 10:09:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C2C32077D;
+        Wed, 22 Apr 2020 10:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550145;
-        bh=n3hQeJ8At695vTAd/LFPvlrNob3UHrP0u/aOixvMnt4=;
+        s=default; t=1587549686;
+        bh=Q1oyFjKzbrGphP40si7zC/EVZ5glG1t3TqYutsH/IvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6s0zMWN9IVJWkow+Pwd+MbI0/ZaGt/lVmLBTy6RqhDlWioeKFkqJ8jfIqBjD6Ynf
-         j21HFQf3i0P6tflfqNj3retENXLKNkcT6ZGDEpLYiwhIxTv6Y1vOtAZI5B+ABihxvF
-         On67s2HuBSj0lJrEc8SVTmwYBPQPotDwnIFVLQtk=
+        b=1edt9nyrwc+BTCfZYrm0BFeX1jXtc3VPGvDPnAvy/gwwxNidQwFHOvR1+7gl/airc
+         XV8oyTiCBBWvD43EvwYQynDGIN5/IId1jPWCxv8vK8mDxaqdgO/vTJl3opzT9GP5TW
+         2DFKtBkenQc7H2Z6eVyxO7Hies6ExFCLML55/JWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 028/199] btrfs: track reloc roots based on their commit root bytenr
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Jari Ruusu <jari.ruusu@gmail.com>
+Subject: [PATCH 4.4 024/100] ALSA: pcm: oss: Fix regression by buffer overflow fix
 Date:   Wed, 22 Apr 2020 11:55:54 +0200
-Message-Id: <20200422095100.907972648@linuxfoundation.org>
+Message-Id: <20200422095027.091141598@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,121 +43,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ea287ab157c2816bf12aad4cece41372f9d146b4 ]
+commit ae769d3556644888c964635179ef192995f40793 upstream.
 
-We always search the commit root of the extent tree for looking up back
-references, however we track the reloc roots based on their current
-bytenr.
+The recent fix for the OOB access in PCM OSS plugins (commit
+f2ecf903ef06: "ALSA: pcm: oss: Avoid plugin buffer overflow") caused a
+regression on OSS applications.  The patch introduced the size check
+in client and slave size calculations to limit to each plugin's buffer
+size, but I overlooked that some code paths call those without
+allocating the buffer but just for estimation.
 
-This is wrong, if we commit the transaction between relocating tree
-blocks we could end up in this code in build_backref_tree
+This patch fixes the bug by skipping the size check for those code
+paths while keeping checking in the actual transfer calls.
 
-  if (key.objectid == key.offset) {
-	  /*
-	   * Only root blocks of reloc trees use backref
-	   * pointing to itself.
-	   */
-	  root = find_reloc_root(rc, cur->bytenr);
-	  ASSERT(root);
-	  cur->root = root;
-	  break;
-  }
+Fixes: f2ecf903ef06 ("ALSA: pcm: oss: Avoid plugin buffer overflow")
+Tested-and-reported-by: Jari Ruusu <jari.ruusu@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200403072515.25539-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-find_reloc_root() is looking based on the bytenr we had in the commit
-root, but if we've COWed this reloc root we will not find that bytenr,
-and we will trip over the ASSERT(root).
-
-Fix this by using the commit_root->start bytenr for indexing the commit
-root.  Then we change the __update_reloc_root() caller to be used when
-we switch the commit root for the reloc root during commit.
-
-This fixes the panic I was seeing when we started throttling relocation
-for delayed refs.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/relocation.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ sound/core/oss/pcm_plugin.c |   32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index 42f388ed0796b..04db7c5f5ca4e 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1306,7 +1306,7 @@ static int __must_check __add_reloc_root(struct btrfs_root *root)
- 	if (!node)
- 		return -ENOMEM;
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -196,7 +196,9 @@ int snd_pcm_plugin_free(struct snd_pcm_p
+ 	return 0;
+ }
  
--	node->bytenr = root->node->start;
-+	node->bytenr = root->commit_root->start;
- 	node->data = root;
- 
- 	spin_lock(&rc->reloc_root_tree.lock);
-@@ -1337,10 +1337,11 @@ static void __del_reloc_root(struct btrfs_root *root)
- 	if (rc && root->node) {
- 		spin_lock(&rc->reloc_root_tree.lock);
- 		rb_node = tree_search(&rc->reloc_root_tree.rb_root,
--				      root->node->start);
-+				      root->commit_root->start);
- 		if (rb_node) {
- 			node = rb_entry(rb_node, struct mapping_node, rb_node);
- 			rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
-+			RB_CLEAR_NODE(&node->rb_node);
- 		}
- 		spin_unlock(&rc->reloc_root_tree.lock);
- 		if (!node)
-@@ -1358,7 +1359,7 @@ static void __del_reloc_root(struct btrfs_root *root)
-  * helper to update the 'address of tree root -> reloc tree'
-  * mapping
-  */
--static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
-+static int __update_reloc_root(struct btrfs_root *root)
+-snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t drv_frames)
++static snd_pcm_sframes_t plug_client_size(struct snd_pcm_substream *plug,
++					  snd_pcm_uframes_t drv_frames,
++					  bool check_size)
  {
- 	struct btrfs_fs_info *fs_info = root->fs_info;
- 	struct rb_node *rb_node;
-@@ -1367,7 +1368,7 @@ static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
+ 	struct snd_pcm_plugin *plugin, *plugin_prev, *plugin_next;
+ 	int stream;
+@@ -209,7 +211,7 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
+ 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin && drv_frames > 0) {
+-			if (drv_frames > plugin->buf_frames)
++			if (check_size && drv_frames > plugin->buf_frames)
+ 				drv_frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames)
+@@ -222,7 +224,7 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
+ 			plugin_next = plugin->next;
+ 			if (plugin->dst_frames)
+ 				drv_frames = plugin->dst_frames(plugin, drv_frames);
+-			if (drv_frames > plugin->buf_frames)
++			if (check_size && drv_frames > plugin->buf_frames)
+ 				drv_frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+@@ -231,7 +233,9 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
+ 	return drv_frames;
+ }
  
- 	spin_lock(&rc->reloc_root_tree.lock);
- 	rb_node = tree_search(&rc->reloc_root_tree.rb_root,
--			      root->node->start);
-+			      root->commit_root->start);
- 	if (rb_node) {
- 		node = rb_entry(rb_node, struct mapping_node, rb_node);
- 		rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
-@@ -1379,7 +1380,7 @@ static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
- 	BUG_ON((struct btrfs_root *)node->data != root);
+-snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t clt_frames)
++static snd_pcm_sframes_t plug_slave_size(struct snd_pcm_substream *plug,
++					 snd_pcm_uframes_t clt_frames,
++					 bool check_size)
+ {
+ 	struct snd_pcm_plugin *plugin, *plugin_prev, *plugin_next;
+ 	snd_pcm_sframes_t frames;
+@@ -252,14 +256,14 @@ snd_pcm_sframes_t snd_pcm_plug_slave_siz
+ 				if (frames < 0)
+ 					return frames;
+ 			}
+-			if (frames > plugin->buf_frames)
++			if (check_size && frames > plugin->buf_frames)
+ 				frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin) {
+-			if (frames > plugin->buf_frames)
++			if (check_size && frames > plugin->buf_frames)
+ 				frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames) {
+@@ -274,6 +278,18 @@ snd_pcm_sframes_t snd_pcm_plug_slave_siz
+ 	return frames;
+ }
  
- 	spin_lock(&rc->reloc_root_tree.lock);
--	node->bytenr = new_bytenr;
-+	node->bytenr = root->node->start;
- 	rb_node = tree_insert(&rc->reloc_root_tree.rb_root,
- 			      node->bytenr, &node->rb_node);
- 	spin_unlock(&rc->reloc_root_tree.lock);
-@@ -1524,6 +1525,7 @@ int btrfs_update_reloc_root(struct btrfs_trans_handle *trans,
++snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug,
++					   snd_pcm_uframes_t drv_frames)
++{
++	return plug_client_size(plug, drv_frames, false);
++}
++
++snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug,
++					  snd_pcm_uframes_t clt_frames)
++{
++	return plug_slave_size(plug, clt_frames, false);
++}
++
+ static int snd_pcm_plug_formats(struct snd_mask *mask, snd_pcm_format_t format)
+ {
+ 	struct snd_mask formats = *mask;
+@@ -628,7 +644,7 @@ snd_pcm_sframes_t snd_pcm_plug_write_tra
+ 		src_channels = dst_channels;
+ 		plugin = next;
  	}
+-	return snd_pcm_plug_client_size(plug, frames);
++	return plug_client_size(plug, frames, true);
+ }
  
- 	if (reloc_root->commit_root != reloc_root->node) {
-+		__update_reloc_root(reloc_root);
- 		btrfs_set_root_node(root_item, reloc_root->node);
- 		free_extent_buffer(reloc_root->commit_root);
- 		reloc_root->commit_root = btrfs_root_node(reloc_root);
-@@ -4712,11 +4714,6 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
- 	BUG_ON(rc->stage == UPDATE_DATA_PTRS &&
- 	       root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID);
+ snd_pcm_sframes_t snd_pcm_plug_read_transfer(struct snd_pcm_substream *plug, struct snd_pcm_plugin_channel *dst_channels_final, snd_pcm_uframes_t size)
+@@ -638,7 +654,7 @@ snd_pcm_sframes_t snd_pcm_plug_read_tran
+ 	snd_pcm_sframes_t frames = size;
+ 	int err;
  
--	if (root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID) {
--		if (buf == root->node)
--			__update_reloc_root(root, cow->start);
--	}
--
- 	level = btrfs_header_level(buf);
- 	if (btrfs_header_generation(buf) <=
- 	    btrfs_root_last_snapshot(&root->root_item))
--- 
-2.20.1
-
+-	frames = snd_pcm_plug_slave_size(plug, frames);
++	frames = plug_slave_size(plug, frames, true);
+ 	if (frames < 0)
+ 		return frames;
+ 
 
 
