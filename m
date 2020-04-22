@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A28C1B3C3E
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:04:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 681E41B3BD0
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 11:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727882AbgDVKDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:03:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53954 "EHLO mail.kernel.org"
+        id S1726372AbgDVJ7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 05:59:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727898AbgDVKDw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:03:52 -0400
+        id S1726358AbgDVJ7S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 05:59:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39B4220774;
-        Wed, 22 Apr 2020 10:03:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABA082076E;
+        Wed, 22 Apr 2020 09:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549831;
-        bh=Q1oyFjKzbrGphP40si7zC/EVZ5glG1t3TqYutsH/IvM=;
+        s=default; t=1587549557;
+        bh=Ah1phaatKWQi3TK8AmYCuGygrGtfYztTNYjAIJTHsNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xY3vmW6minc2+OuE9eeNSSVd3rYLfuiZCy6hpcRrLayQMVWLH41jDIh0OmuVnosxc
-         c+VCAIdpdyR6CTK+/I0VxTaq0zMycCuXtApquo1KzgddEmdu+PAjS2sV2wbEun1pXe
-         XLbz7sRlWM23D4EnzGVuYnnW9cRcEslWOsRa+4+8=
+        b=nVriN0PPgK8tas6k4z1msAuQhcuoQfxuxp/MFkmy5hJk/Poz9Xko1nJTdXrJL/4L7
+         webD0/+XCPMHOdio6SytQH2Q5DEuPUAFa3c8kSSSfwFf7wVZP1Y809sVkTz90LHzOb
+         TzNBOnKUQXCQA/edFtznHDsjVr3Ctp7sVsMl1pKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Jari Ruusu <jari.ruusu@gmail.com>
-Subject: [PATCH 4.9 025/125] ALSA: pcm: oss: Fix regression by buffer overflow fix
-Date:   Wed, 22 Apr 2020 11:55:42 +0200
-Message-Id: <20200422095037.372382990@linuxfoundation.org>
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 013/100] misc: rtsx: set correct pcr_ops for rts522A
+Date:   Wed, 22 Apr 2020 11:55:43 +0200
+Message-Id: <20200422095025.302564921@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,126 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit ae769d3556644888c964635179ef192995f40793 upstream.
+[ Upstream commit 10cea23b6aae15e8324f4101d785687f2c514fe5 ]
 
-The recent fix for the OOB access in PCM OSS plugins (commit
-f2ecf903ef06: "ALSA: pcm: oss: Avoid plugin buffer overflow") caused a
-regression on OSS applications.  The patch introduced the size check
-in client and slave size calculations to limit to each plugin's buffer
-size, but I overlooked that some code paths call those without
-allocating the buffer but just for estimation.
+rts522a should use rts522a_pcr_ops, which is
+diffrent with rts5227 in phy/hw init setting.
 
-This patch fixes the bug by skipping the size check for those code
-paths while keeping checking in the actual transfer calls.
-
-Fixes: f2ecf903ef06 ("ALSA: pcm: oss: Avoid plugin buffer overflow")
-Tested-and-reported-by: Jari Ruusu <jari.ruusu@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200403072515.25539-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: ce6a5acc9387 ("mfd: rtsx: Add support for rts522A")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200326032618.20472-1-yuehaibing@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/oss/pcm_plugin.c |   32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ drivers/mfd/rts5227.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/oss/pcm_plugin.c
-+++ b/sound/core/oss/pcm_plugin.c
-@@ -196,7 +196,9 @@ int snd_pcm_plugin_free(struct snd_pcm_p
- 	return 0;
- }
- 
--snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t drv_frames)
-+static snd_pcm_sframes_t plug_client_size(struct snd_pcm_substream *plug,
-+					  snd_pcm_uframes_t drv_frames,
-+					  bool check_size)
+diff --git a/drivers/mfd/rts5227.c b/drivers/mfd/rts5227.c
+index ff296a4bf3d23..dc6a9432a4b65 100644
+--- a/drivers/mfd/rts5227.c
++++ b/drivers/mfd/rts5227.c
+@@ -369,6 +369,7 @@ static const struct pcr_ops rts522a_pcr_ops = {
+ void rts522a_init_params(struct rtsx_pcr *pcr)
  {
- 	struct snd_pcm_plugin *plugin, *plugin_prev, *plugin_next;
- 	int stream;
-@@ -209,7 +211,7 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
- 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
- 		plugin = snd_pcm_plug_last(plug);
- 		while (plugin && drv_frames > 0) {
--			if (drv_frames > plugin->buf_frames)
-+			if (check_size && drv_frames > plugin->buf_frames)
- 				drv_frames = plugin->buf_frames;
- 			plugin_prev = plugin->prev;
- 			if (plugin->src_frames)
-@@ -222,7 +224,7 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
- 			plugin_next = plugin->next;
- 			if (plugin->dst_frames)
- 				drv_frames = plugin->dst_frames(plugin, drv_frames);
--			if (drv_frames > plugin->buf_frames)
-+			if (check_size && drv_frames > plugin->buf_frames)
- 				drv_frames = plugin->buf_frames;
- 			plugin = plugin_next;
- 		}
-@@ -231,7 +233,9 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
- 	return drv_frames;
+ 	rts5227_init_params(pcr);
++	pcr->ops = &rts522a_pcr_ops;
+ 
+ 	pcr->reg_pm_ctrl3 = RTS522A_PM_CTRL3;
  }
- 
--snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t clt_frames)
-+static snd_pcm_sframes_t plug_slave_size(struct snd_pcm_substream *plug,
-+					 snd_pcm_uframes_t clt_frames,
-+					 bool check_size)
- {
- 	struct snd_pcm_plugin *plugin, *plugin_prev, *plugin_next;
- 	snd_pcm_sframes_t frames;
-@@ -252,14 +256,14 @@ snd_pcm_sframes_t snd_pcm_plug_slave_siz
- 				if (frames < 0)
- 					return frames;
- 			}
--			if (frames > plugin->buf_frames)
-+			if (check_size && frames > plugin->buf_frames)
- 				frames = plugin->buf_frames;
- 			plugin = plugin_next;
- 		}
- 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
- 		plugin = snd_pcm_plug_last(plug);
- 		while (plugin) {
--			if (frames > plugin->buf_frames)
-+			if (check_size && frames > plugin->buf_frames)
- 				frames = plugin->buf_frames;
- 			plugin_prev = plugin->prev;
- 			if (plugin->src_frames) {
-@@ -274,6 +278,18 @@ snd_pcm_sframes_t snd_pcm_plug_slave_siz
- 	return frames;
- }
- 
-+snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug,
-+					   snd_pcm_uframes_t drv_frames)
-+{
-+	return plug_client_size(plug, drv_frames, false);
-+}
-+
-+snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug,
-+					  snd_pcm_uframes_t clt_frames)
-+{
-+	return plug_slave_size(plug, clt_frames, false);
-+}
-+
- static int snd_pcm_plug_formats(struct snd_mask *mask, snd_pcm_format_t format)
- {
- 	struct snd_mask formats = *mask;
-@@ -628,7 +644,7 @@ snd_pcm_sframes_t snd_pcm_plug_write_tra
- 		src_channels = dst_channels;
- 		plugin = next;
- 	}
--	return snd_pcm_plug_client_size(plug, frames);
-+	return plug_client_size(plug, frames, true);
- }
- 
- snd_pcm_sframes_t snd_pcm_plug_read_transfer(struct snd_pcm_substream *plug, struct snd_pcm_plugin_channel *dst_channels_final, snd_pcm_uframes_t size)
-@@ -638,7 +654,7 @@ snd_pcm_sframes_t snd_pcm_plug_read_tran
- 	snd_pcm_sframes_t frames = size;
- 	int err;
- 
--	frames = snd_pcm_plug_slave_size(plug, frames);
-+	frames = plug_slave_size(plug, frames, true);
- 	if (frames < 0)
- 		return frames;
- 
+-- 
+2.20.1
+
 
 
