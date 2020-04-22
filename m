@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61C281B3C11
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DE61B3D1A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726046AbgDVKCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:02:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51208 "EHLO mail.kernel.org"
+        id S1729240AbgDVKLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726964AbgDVKCP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:02:15 -0400
+        id S1729227AbgDVKLl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:11:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B65B520735;
-        Wed, 22 Apr 2020 10:02:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A28BE2070B;
+        Wed, 22 Apr 2020 10:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549735;
-        bh=diZCH/Mg8n9hXnJ0WhmZgAaGP/vFOO2uGKOad9Enxpw=;
+        s=default; t=1587550300;
+        bh=zZc828fF4edIgF7h+Y+tA2AdhzZFPemG6RYMtNeiebY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8rsduVnnO2fEyPzsM+CauwL/nXZvyPrh6ov+Jkd6Iexz4xlfsJtE92vz6NbkSjuH
-         3d9MYDpl3WSE3lMsQEjZATuLpFYHndSYwEnpecQpOE6rfjaKkbEH1+iLe19La0djvA
-         sE0lct6TLgGEtN1L9w2n5/4tIbE9U6QGtYa1P0f8=
+        b=VasVYX6SQRy2q2f6FQF1p1P85yJeTG5FcoZtTv7my3PWcxbJPEmqAbFJDU1YmOUI8
+         zFN91FyUF0QWxRXq8nN9MxSmw2+5PpyaD9Gxl2jxk5JkP3EpqLZjKvTwXvQODAzJLz
+         fx2GFy/f/9I/zEbA3f8jSNYRAKDmIWQjOQGlSSGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 085/100] clk: tegra: Fix Tegra PMC clock out parents
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 089/199] powerpc/hash64/devmap: Use H_PAGE_THP_HUGE when setting up huge devmap PTE entries
 Date:   Wed, 22 Apr 2020 11:56:55 +0200
-Message-Id: <20200422095038.327140491@linuxfoundation.org>
+Message-Id: <20200422095106.969848295@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit 6fe38aa8cac3a5db38154331742835a4d9740788 ]
+commit 36b78402d97a3b9aeab136feb9b00d8647ec2c20 upstream.
 
-Tegra PMC clocks clk_out_1, clk_out_2, and clk_out_3 supported parents
-are osc, osc_div2, osc_div4 and extern clock.
+H_PAGE_THP_HUGE is used to differentiate between a THP hugepage and
+hugetlb hugepage entries. The difference is WRT how we handle hash
+fault on these address. THP address enables MPSS in segments. We want
+to manage devmap hugepage entries similar to THP pt entries. Hence use
+H_PAGE_THP_HUGE for devmap huge PTE entries.
 
-Clock driver is using incorrect parents clk_m, clk_m_div2, clk_m_div4
-for PMC clocks.
+With current code while handling hash PTE fault, we do set is_thp =
+true when finding devmap PTE huge PTE entries.
 
-This patch fixes this.
+Current code also does the below sequence we setting up huge devmap
+entries.
 
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	entry = pmd_mkhuge(pfn_t_pmd(pfn, prot));
+	if (pfn_t_devmap(pfn))
+		entry = pmd_mkdevmap(entry);
+
+In that case we would find both H_PAGE_THP_HUGE and PAGE_DEVMAP set
+for huge devmap PTE entries. This results in false positive error like
+below.
+
+  kernel BUG at /home/kvaneesh/src/linux/mm/memory.c:4321!
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in:
+  CPU: 56 PID: 67996 Comm: t_mmap_dio Not tainted 5.6.0-rc4-59640-g371c804dedbc #128
+  ....
+  NIP [c00000000044c9e4] __follow_pte_pmd+0x264/0x900
+  LR [c0000000005d45f8] dax_writeback_one+0x1a8/0x740
+  Call Trace:
+    str_spec.74809+0x22ffb4/0x2d116c (unreliable)
+    dax_writeback_one+0x1a8/0x740
+    dax_writeback_mapping_range+0x26c/0x700
+    ext4_dax_writepages+0x150/0x5a0
+    do_writepages+0x68/0x180
+    __filemap_fdatawrite_range+0x138/0x180
+    file_write_and_wait_range+0xa4/0x110
+    ext4_sync_file+0x370/0x6e0
+    vfs_fsync_range+0x70/0xf0
+    sys_msync+0x220/0x2e0
+    system_call+0x5c/0x68
+
+This is because our pmd_trans_huge check doesn't exclude _PAGE_DEVMAP.
+
+To make this all consistent, update pmd_mkdevmap to set
+H_PAGE_THP_HUGE and pmd_trans_huge check now excludes _PAGE_DEVMAP
+correctly.
+
+Fixes: ebd31197931d ("powerpc/mm: Add devmap support for ppc64")
+Cc: stable@vger.kernel.org # v4.13+
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200313094842.351830-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/tegra/clk-tegra-pmc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/powerpc/include/asm/book3s/64/hash-4k.h  |    6 ++++++
+ arch/powerpc/include/asm/book3s/64/hash-64k.h |    8 +++++++-
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |    4 +++-
+ arch/powerpc/include/asm/book3s/64/radix.h    |    5 +++++
+ 4 files changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-tegra-pmc.c b/drivers/clk/tegra/clk-tegra-pmc.c
-index 91377abfefa19..17a04300f93bf 100644
---- a/drivers/clk/tegra/clk-tegra-pmc.c
-+++ b/drivers/clk/tegra/clk-tegra-pmc.c
-@@ -60,16 +60,16 @@ struct pmc_clk_init_data {
+--- a/arch/powerpc/include/asm/book3s/64/hash-4k.h
++++ b/arch/powerpc/include/asm/book3s/64/hash-4k.h
+@@ -108,6 +108,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
+ extern int hash__has_transparent_hugepage(void);
+ #endif
  
- static DEFINE_SPINLOCK(clk_out_lock);
++static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
++{
++	BUG();
++	return pmd;
++}
++
+ #endif /* !__ASSEMBLY__ */
  
--static const char *clk_out1_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern1",
-+static const char *clk_out1_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern1",
- };
+ #endif /* _ASM_POWERPC_BOOK3S_64_HASH_4K_H */
+--- a/arch/powerpc/include/asm/book3s/64/hash-64k.h
++++ b/arch/powerpc/include/asm/book3s/64/hash-64k.h
+@@ -181,7 +181,7 @@ static inline void mark_hpte_slot_valid(
+  */
+ static inline int hash__pmd_trans_huge(pmd_t pmd)
+ {
+-	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE)) ==
++	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP)) ==
+ 		  (_PAGE_PTE | H_PAGE_THP_HUGE));
+ }
  
--static const char *clk_out2_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern2",
-+static const char *clk_out2_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern2",
- };
+@@ -209,6 +209,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
+ 				       unsigned long addr, pmd_t *pmdp);
+ extern int hash__has_transparent_hugepage(void);
+ #endif /*  CONFIG_TRANSPARENT_HUGEPAGE */
++
++static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
++{
++	return __pmd(pmd_val(pmd) | (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP));
++}
++
+ #endif	/* __ASSEMBLY__ */
  
--static const char *clk_out3_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern3",
-+static const char *clk_out3_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern3",
- };
+ #endif /* _ASM_POWERPC_BOOK3S_64_HASH_64K_H */
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -1179,7 +1179,9 @@ extern void serialize_against_pte_lookup
  
- static struct pmc_clk_init_data pmc_clks[] = {
--- 
-2.20.1
-
+ static inline pmd_t pmd_mkdevmap(pmd_t pmd)
+ {
+-	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
++	if (radix_enabled())
++		return radix__pmd_mkdevmap(pmd);
++	return hash__pmd_mkdevmap(pmd);
+ }
+ 
+ static inline int pmd_devmap(pmd_t pmd)
+--- a/arch/powerpc/include/asm/book3s/64/radix.h
++++ b/arch/powerpc/include/asm/book3s/64/radix.h
+@@ -289,6 +289,11 @@ extern pmd_t radix__pmdp_huge_get_and_cl
+ extern int radix__has_transparent_hugepage(void);
+ #endif
+ 
++static inline pmd_t radix__pmd_mkdevmap(pmd_t pmd)
++{
++	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
++}
++
+ extern int __meminit radix__vmemmap_create_mapping(unsigned long start,
+ 					     unsigned long page_size,
+ 					     unsigned long phys);
 
 
