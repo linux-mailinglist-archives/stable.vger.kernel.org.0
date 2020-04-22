@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CADC1B4278
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 041051B3DF9
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726746AbgDVKBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:01:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49270 "EHLO mail.kernel.org"
+        id S1730245AbgDVKXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:23:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726442AbgDVKBJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:01:09 -0400
+        id S1730302AbgDVKXR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:23:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1E6320774;
-        Wed, 22 Apr 2020 10:01:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CFD72076B;
+        Wed, 22 Apr 2020 10:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549667;
-        bh=3h2z9IDbzxVQV+fUdUOCvqUsPvo+eOXmgmiUdyvpTDk=;
+        s=default; t=1587550997;
+        bh=UCBTEmjPwfYxedLpiloHCMhgXUjd7KM5HX10MVfS7vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U69WHqVLMS1vQH9JfAzVP0FdyUfvGiFCzjkKhzPYcV3aXnFH8PhhKJ3+4cCb/r9Uv
-         LqWtjOdJDvgq/fP4e2lpVZ6m1HvepUpXHofNerZBzcwht8iFtDC/dq7NOG6EQIhy95
-         3uwwmWMxoItjcn0Sr/ktrIQKyrO6zXDtb14myP2M=
+        b=OoImiid6NkLZFI1ToVJqUZvH4/JIgbWU7R0DohuW9RrhQWPwiPU7PQ8cD6iCrf61V
+         BXfBfgGPCTW1A6KTnbCrhN+OYfGWPb/XN9GiA4BxnVAuiiWm6dI6Qxdz4HxLKjJcQV
+         SSX+ZnsDsB2SZduPJLkvcoIV8HHW9tqxOdBhSXPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 055/100] mfd: dln2: Fix sanity checking for endpoints
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 058/166] arm64: dts: allwinner: a64: Fix display clock register range
 Date:   Wed, 22 Apr 2020 11:56:25 +0200
-Message-Id: <20200422095032.952292386@linuxfoundation.org>
+Message-Id: <20200422095055.101757354@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit fb945c95a482200876993977008b67ea658bd938 ]
+[ Upstream commit 3e9a1a8b7f811de3eb1445d72f68766b704ad17c ]
 
-While the commit 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-tries to harden the sanity checks it made at the same time a regression,
-i.e.  mixed in and out endpoints. Obviously it should have been not tested on
-real hardware at that time, but unluckily it didn't happen.
+Register range of display clocks is 0x10000, as it can be seen from
+DE2 documentation.
 
-So, fix above mentioned typo and make device being enumerated again.
+Fix it.
 
-While here, introduce an enumerator for magic values to prevent similar issue
-to happen in the future.
-
-Fixes: 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-Cc: Oliver Neukum <oneukum@suse.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Fixes: 2c796fc8f5dbd ("arm64: dts: allwinner: a64: add necessary device tree nodes for DE2 CCU")
+[wens@csie.org: added fixes tag]
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/dln2.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
-index 95d0f2df0ad42..672831d5ee32e 100644
---- a/drivers/mfd/dln2.c
-+++ b/drivers/mfd/dln2.c
-@@ -93,6 +93,11 @@ struct dln2_mod_rx_slots {
- 	spinlock_t lock;
- };
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+index 862b47dc9dc90..baa6f08dc1087 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+@@ -264,7 +264,7 @@
  
-+enum dln2_endpoint {
-+	DLN2_EP_OUT	= 0,
-+	DLN2_EP_IN	= 1,
-+};
-+
- struct dln2_dev {
- 	struct usb_device *usb_dev;
- 	struct usb_interface *interface;
-@@ -740,10 +745,10 @@ static int dln2_probe(struct usb_interface *interface,
- 	    hostif->desc.bNumEndpoints < 2)
- 		return -ENODEV;
- 
--	epin = &hostif->endpoint[0].desc;
--	epout = &hostif->endpoint[1].desc;
-+	epout = &hostif->endpoint[DLN2_EP_OUT].desc;
- 	if (!usb_endpoint_is_bulk_out(epout))
- 		return -ENODEV;
-+	epin = &hostif->endpoint[DLN2_EP_IN].desc;
- 	if (!usb_endpoint_is_bulk_in(epin))
- 		return -ENODEV;
- 
+ 			display_clocks: clock@0 {
+ 				compatible = "allwinner,sun50i-a64-de2-clk";
+-				reg = <0x0 0x100000>;
++				reg = <0x0 0x10000>;
+ 				clocks = <&ccu CLK_BUS_DE>,
+ 					 <&ccu CLK_DE>;
+ 				clock-names = "bus",
 -- 
 2.20.1
 
