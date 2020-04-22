@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 459931B3CFF
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58D801B3F2B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729032AbgDVKKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:10:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40700 "EHLO mail.kernel.org"
+        id S1730378AbgDVKfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:35:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729030AbgDVKKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:10:39 -0400
+        id S1730355AbgDVKXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:23:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E7EF2070B;
-        Wed, 22 Apr 2020 10:10:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBD482076B;
+        Wed, 22 Apr 2020 10:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550238;
-        bh=TibIueb0M+lOJQSe1nhs/wwZ4oaHWerhdzbeIDpF7PY=;
+        s=default; t=1587551017;
+        bh=VyOZnvDN6v7p/4EWitshi6AaubiDqI05pzbnVO4r8mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OP+rlgX16N09QJTLaj6a56+/uTXrqjL3tzH3t6pQyozDoCUk+gI+MT0BwHHHmB9xg
-         yZT4+VSK4vprgd+iFdPu1VXzeuW59sv+v1VARrT0BwBxvmegQMLb0QmteRZS/+Bpy+
-         33u5kZjbgKYvUQiD+RWRGZQWr/bQ4Vidu1hbSANo=
+        b=UltxrXb/Si+Mf9aSmJubONQvwQgstDGrO/Lpn4Qj+rh2VnpDbJfNHCKs3tOT2mqNZ
+         bEKqJYNo80XljeWpci718vHnRR/Gh/3PFRODiFQCIOXlFxQ8h9YFq557gCGHZURKpm
+         kSVM8+N5V7SUut18ioTz9tjgUkLaInrQgGVR1G1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 066/199] ALSA: hda: Initialize power_state field properly
+        stable@vger.kernel.org, Tomasz Maciej Nowak <tmn505@gmail.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 065/166] arm64: dts: marvell: espressobin: add ethernet alias
 Date:   Wed, 22 Apr 2020 11:56:32 +0200
-Message-Id: <20200422095104.828618585@linuxfoundation.org>
+Message-Id: <20200422095055.844059869@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tomasz Maciej Nowak <tmn505@gmail.com>
 
-commit 183ab39eb0ea9879bb68422a83e65f750f3192f0 upstream.
+[ Upstream commit 5253cb8c00a6f4356760efb38bca0e0393aa06de ]
 
-The recent commit 98081ca62cba ("ALSA: hda - Record the current power
-state before suspend/resume calls") made the HD-audio driver to store
-the PM state in power_state field.  This forgot, however, the
-initialization at power up.  Although the codec drivers usually don't
-need to refer to this field in the normal operation, let's initialize
-it properly for consistency.
+The maker of this board and its variants, stores MAC address in U-Boot
+environment. Add alias for bootloader to recognise, to which ethernet
+node inject the factory MAC address.
 
-Fixes: 98081ca62cba ("ALSA: hda - Record the current power state before suspend/resume calls")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_codec.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -942,6 +942,7 @@ int snd_hda_codec_new(struct hda_bus *bu
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
+index 53b8ac55a7f3d..e5262dab28f58 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
+@@ -13,6 +13,12 @@
+ #include "armada-372x.dtsi"
  
- 	/* power-up all before initialization */
- 	hda_set_power_state(codec, AC_PWRST_D0);
-+	codec->core.dev.power.power_state = PMSG_ON;
- 
- 	snd_hda_codec_proc_new(codec);
- 
+ / {
++	aliases {
++		ethernet0 = &eth0;
++		serial0 = &uart0;
++		serial1 = &uart1;
++	};
++
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
+-- 
+2.20.1
+
 
 
