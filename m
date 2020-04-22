@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0255A1B41EE
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8BE1B4026
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:44:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729236AbgDVK4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:56:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58336 "EHLO mail.kernel.org"
+        id S1731792AbgDVKnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:43:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728323AbgDVKGY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:06:24 -0400
+        id S1729780AbgDVKTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:19:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B125A20774;
-        Wed, 22 Apr 2020 10:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0827B20784;
+        Wed, 22 Apr 2020 10:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549984;
-        bh=+PJ94ccQdJuqFuZrlOtbwsk/rV08C4OmA0oXebMTwKs=;
+        s=default; t=1587550768;
+        bh=u+ZK0QjmPA3ERKqb6bXhhJqFb/fnt7rrc/MvdpraFAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ca6nBWCOLGDIc7w16cxmqgnCT2zv6Dt2npIu3vVxs8rxSlNXEgW5jGak4MWo+vVui
-         Yh+zTjjrlwIszPHf7dz94wYWeGNGzqi2FQ23w1XM370eKRzlDtE7JjTiMwwN+ua4Xp
-         0HdfD09VkQBJCC3YRIuqablb+og13WeUe2dftXbY=
+        b=2FNdq3YyJSrD/PXQzi9fKoKmutGQfKesb72Hczqvtwx9y1W6RBZ79SSSMvPD0vOc4
+         uv3Z24QalGsJXk1tXLLCT2puLtp23ySZMpugNHfwNWM2XYjKlt+jgdgL3jVJighk9u
+         BqWfam/jBzIK/660v0lBELSTdJKPg5gN3ebdU+r0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
-        Li Bin <huawei.libin@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 086/125] scsi: sg: add sg_remove_request in sg_common_write
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        "Andrew F. Davis" <afd@ti.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 042/118] power: supply: bq27xxx_battery: Silence deferred-probe error
 Date:   Wed, 22 Apr 2020 11:56:43 +0200
-Message-Id: <20200422095046.935017908@linuxfoundation.org>
+Message-Id: <20200422095038.827482435@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Bin <huawei.libin@huawei.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 849f8583e955dbe3a1806e03ecacd5e71cce0a08 upstream.
+[ Upstream commit 583b53ece0b0268c542a1eafadb62e3d4b0aab8c ]
 
-If the dxfer_len is greater than 256M then the request is invalid and we
-need to call sg_remove_request in sg_common_write.
+The driver fails to probe with -EPROBE_DEFER if battery's power supply
+(charger driver) isn't ready yet and this results in a bit noisy error
+message in KMSG during kernel's boot up. Let's silence the harmless
+error message.
 
-Link: https://lore.kernel.org/r/1586777361-17339-1-git-send-email-huawei.libin@huawei.com
-Fixes: f930c7043663 ("scsi: sg: only check for dxfer_len greater than 256M")
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Li Bin <huawei.libin@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Reviewed-by: Andrew F. Davis <afd@ti.com>
+Reviewed-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sg.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/power/supply/bq27xxx_battery.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -809,8 +809,10 @@ sg_common_write(Sg_fd * sfp, Sg_request
- 			"sg_common_write:  scsi opcode=0x%02x, cmd_size=%d\n",
- 			(int) cmnd[0], (int) hp->cmd_len));
+diff --git a/drivers/power/supply/bq27xxx_battery.c b/drivers/power/supply/bq27xxx_battery.c
+index 195c18c2f426e..664e50103eaaf 100644
+--- a/drivers/power/supply/bq27xxx_battery.c
++++ b/drivers/power/supply/bq27xxx_battery.c
+@@ -1885,7 +1885,10 @@ int bq27xxx_battery_setup(struct bq27xxx_device_info *di)
  
--	if (hp->dxfer_len >= SZ_256M)
-+	if (hp->dxfer_len >= SZ_256M) {
-+		sg_remove_request(sfp, srp);
- 		return -EINVAL;
-+	}
+ 	di->bat = power_supply_register_no_ws(di->dev, psy_desc, &psy_cfg);
+ 	if (IS_ERR(di->bat)) {
+-		dev_err(di->dev, "failed to register battery\n");
++		if (PTR_ERR(di->bat) == -EPROBE_DEFER)
++			dev_dbg(di->dev, "failed to register battery, deferring probe\n");
++		else
++			dev_err(di->dev, "failed to register battery\n");
+ 		return PTR_ERR(di->bat);
+ 	}
  
- 	k = sg_start_req(srp, cmnd);
- 	if (k) {
+-- 
+2.20.1
+
 
 
