@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8F01B4284
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E792D1B41FC
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732405AbgDVLCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:02:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48538 "EHLO mail.kernel.org"
+        id S1728166AbgDVKFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:05:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726665AbgDVKAv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:51 -0400
+        id S1726950AbgDVKFV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:05:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE49020735;
-        Wed, 22 Apr 2020 10:00:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 941672076C;
+        Wed, 22 Apr 2020 10:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549650;
-        bh=0/uNQf6ZnvzsvbCpwz/QjbBLazFD+xwFMNPT4GXYeBg=;
+        s=default; t=1587549921;
+        bh=HSkOTg7gCVkv4ZuzABlCeCnUs40TtDv1dq7ADREqtzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6fIxja+tF4emDf/veOOR55um0Tq6aX+CFVkePdcoZJmD3t994bwjCkIwi2Ys3BFS
-         ePjQO6JESIE3hbSW4d8h/5UvQvtx/xCuueLD1AkPLOtpEhclarI23rZ3rzLsy1ncik
-         aF3MRXb1tidPIHfcOKM1SWMFbAU4mAae9jzYeFNk=
+        b=RromsbSRh/j4LtLC2XI75ygfJvYydYWAltGaMG70qArHwPaXp2AP7IXAr/VHWEcaz
+         U6KE2L7/S+ZDemytZAWwMjdxSS/vp0MA8HQg56mNkaSUMw9VAXCXX/d7MFfRjSO6Oz
+         S2sFWe8XB5TI7+zXMAKWluvakppQcAgmdMW/T7so=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 049/100] powerpc/64/tm: Dont let userspace set regs->trap via sigreturn
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Corey Minyard <minyard@acm.org>, Arnd Bergmann <arnd@arndb.de>,
+        openipmi-developer@lists.sourceforge.net,
+        Corey Minyard <cminyard@mvista.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 062/125] ipmi: fix hung processes in __get_guid()
 Date:   Wed, 22 Apr 2020 11:56:19 +0200
-Message-Id: <20200422095031.334888751@linuxfoundation.org>
+Message-Id: <20200422095043.397925547@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-commit c7def7fbdeaa25feaa19caf4a27c5d10bd8789e4 upstream.
+[ Upstream commit 32830a0534700f86366f371b150b17f0f0d140d7 ]
 
-In restore_tm_sigcontexts() we take the trap value directly from the
-user sigcontext with no checking:
+The wait_event() function is used to detect command completion.
+When send_guid_cmd() returns an error, smi_send() has not been
+called to send data. Therefore, wait_event() should not be used
+on the error path, otherwise it will cause the following warning:
 
-	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
+[ 1361.588808] systemd-udevd   D    0  1501   1436 0x00000004
+[ 1361.588813]  ffff883f4b1298c0 0000000000000000 ffff883f4b188000 ffff887f7e3d9f40
+[ 1361.677952]  ffff887f64bd4280 ffffc90037297a68 ffffffff8173ca3b ffffc90000000010
+[ 1361.767077]  00ffc90037297ad0 ffff887f7e3d9f40 0000000000000286 ffff883f4b188000
+[ 1361.856199] Call Trace:
+[ 1361.885578]  [<ffffffff8173ca3b>] ? __schedule+0x23b/0x780
+[ 1361.951406]  [<ffffffff8173cfb6>] schedule+0x36/0x80
+[ 1362.010979]  [<ffffffffa071f178>] get_guid+0x118/0x150 [ipmi_msghandler]
+[ 1362.091281]  [<ffffffff810d5350>] ? prepare_to_wait_event+0x100/0x100
+[ 1362.168533]  [<ffffffffa071f755>] ipmi_register_smi+0x405/0x940 [ipmi_msghandler]
+[ 1362.258337]  [<ffffffffa0230ae9>] try_smi_init+0x529/0x950 [ipmi_si]
+[ 1362.334521]  [<ffffffffa022f350>] ? std_irq_setup+0xd0/0xd0 [ipmi_si]
+[ 1362.411701]  [<ffffffffa0232bd2>] init_ipmi_si+0x492/0x9e0 [ipmi_si]
+[ 1362.487917]  [<ffffffffa0232740>] ? ipmi_pci_probe+0x280/0x280 [ipmi_si]
+[ 1362.568219]  [<ffffffff810021a0>] do_one_initcall+0x50/0x180
+[ 1362.636109]  [<ffffffff812231b2>] ? kmem_cache_alloc_trace+0x142/0x190
+[ 1362.714330]  [<ffffffff811b2ae1>] do_init_module+0x5f/0x200
+[ 1362.781208]  [<ffffffff81123ca8>] load_module+0x1898/0x1de0
+[ 1362.848069]  [<ffffffff811202e0>] ? __symbol_put+0x60/0x60
+[ 1362.913886]  [<ffffffff8130696b>] ? security_kernel_post_read_file+0x6b/0x80
+[ 1362.998514]  [<ffffffff81124465>] SYSC_finit_module+0xe5/0x120
+[ 1363.068463]  [<ffffffff81124465>] ? SYSC_finit_module+0xe5/0x120
+[ 1363.140513]  [<ffffffff811244be>] SyS_finit_module+0xe/0x10
+[ 1363.207364]  [<ffffffff81003c04>] do_syscall_64+0x74/0x180
 
-This means we can be in the kernel with an arbitrary regs->trap value.
-
-Although that's not immediately problematic, there is a risk we could
-trigger one of the uses of CHECK_FULL_REGS():
-
-	#define CHECK_FULL_REGS(regs)	BUG_ON(regs->trap & 1)
-
-It can also cause us to unnecessarily save non-volatile GPRs again in
-save_nvgprs(), which shouldn't be problematic but is still wrong.
-
-It's also possible it could trick the syscall restart machinery, which
-relies on regs->trap not being == 0xc00 (see 9a81c16b5275 ("powerpc:
-fix double syscall restarts")), though I haven't been able to make
-that happen.
-
-Finally it doesn't match the behaviour of the non-TM case, in
-restore_sigcontext() which zeroes regs->trap.
-
-So change restore_tm_sigcontexts() to zero regs->trap.
-
-This was discovered while testing Nick's upcoming rewrite of the
-syscall entry path. In that series the call to save_nvgprs() prior to
-signal handling (do_notify_resume()) is removed, which leaves the
-low-bit of regs->trap uncleared which can then trigger the FULL_REGS()
-WARNs in setup_tm_sigcontexts().
-
-Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
-Cc: stable@vger.kernel.org # v3.9+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200401023836.3286664-1-mpe@ellerman.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 50c812b2b951 ("[PATCH] ipmi: add full sysfs support")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: Corey Minyard <minyard@acm.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: openipmi-developer@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # 2.6.17-
+Message-Id: <20200403090408.58745-1-wenyang@linux.alibaba.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/signal_64.c |    4 +++-
+ drivers/char/ipmi/ipmi_msghandler.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/signal_64.c
-+++ b/arch/powerpc/kernel/signal_64.c
-@@ -462,8 +462,10 @@ static long restore_tm_sigcontexts(struc
- 	err |= __get_user(current->thread.ckpt_regs.ccr,
- 			  &sc->gp_regs[PT_CCR]);
- 
-+	/* Don't allow userspace to set the trap value */
-+	regs->trap = 0;
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index 5d509ccf1299c..74044b52d2c6d 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -2646,7 +2646,9 @@ get_guid(ipmi_smi_t intf)
+ 	if (rv)
+ 		/* Send failed, no GUID available. */
+ 		intf->bmc->guid_set = 0;
+-	wait_event(intf->waitq, intf->bmc->guid_set != 2);
++	else
++		wait_event(intf->waitq, intf->bmc->guid_set != 2);
 +
- 	/* These regs are not checkpointed; they can go in 'regs'. */
--	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
- 	err |= __get_user(regs->dar, &sc->gp_regs[PT_DAR]);
- 	err |= __get_user(regs->dsisr, &sc->gp_regs[PT_DSISR]);
- 	err |= __get_user(regs->result, &sc->gp_regs[PT_RESULT]);
+ 	intf->null_user_handler = NULL;
+ }
+ 
+-- 
+2.20.1
+
 
 
