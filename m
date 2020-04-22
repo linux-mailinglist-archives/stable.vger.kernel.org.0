@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8991F1B3E0B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DFD81B41CC
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729604AbgDVKYY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:24:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60724 "EHLO mail.kernel.org"
+        id S1728289AbgDVKGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:06:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729924AbgDVKYX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:24:23 -0400
+        id S1728281AbgDVKGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:06:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D3AB20784;
-        Wed, 22 Apr 2020 10:24:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1D1B20774;
+        Wed, 22 Apr 2020 10:06:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551061;
-        bh=cV2r83eP8e/jucUSXYvFnWLjmbcZKhtPCDO2eIQor/o=;
+        s=default; t=1587549962;
+        bh=PRGD0wRBw8Ttc2ii2QSsMJutMXrZHYgDAb7KrM8IUUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3bqqjNfVktYKsLO/FoI6SP7LYqXnS6WNovJMFXQAKMfRhxald/UP/0YVaYr5JjBR
-         YzNbsNPP6x+M0evBU6TQ5DT5KNAZXE6iAbId+Z5xrcYwImzhfryae+K+bJfwKVIpPZ
-         pODA8BlLYoRZValhCkY6T7/+uyDPamp+ASFghZ1w=
+        b=hMnG0+LkhakrS7eF6F9LYuViJqvULXYiAdT6ZTq0/N8/wNJIuv1LTMh+Cl2mE8U8D
+         N6dHgdKLhWY1pS64nQYvNzyBoSnxar8EWW88UrAPgVYrgJf7L0DUsxQzexT1Vned57
+         LHzZrbLP4LBDhR6Ia3/LWF+1Smh7U0VHby+zhkC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 068/166] soc: imx: gpc: fix power up sequencing
+        stable@vger.kernel.org,
+        syzbot+6693adf1698864d21734@syzkaller.appspotmail.com,
+        syzbot+a4aee3f42d7584d76761@syzkaller.appspotmail.com,
+        stable@kernel.org, Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 078/125] mac80211_hwsim: Use kstrndup() in place of kasprintf()
 Date:   Wed, 22 Apr 2020 11:56:35 +0200
-Message-Id: <20200422095056.204058571@linuxfoundation.org>
+Message-Id: <20200422095045.694170562@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
 
-[ Upstream commit e0ea2d11f8a08ba7066ff897e16c5217215d1e68 ]
+commit 7ea862048317aa76d0f22334202779a25530980c upstream.
 
-Currently we wait only until the PGC inverts the isolation setting
-before disabling the peripheral clocks. This doesn't ensure that the
-reset is properly propagated through the peripheral devices in the
-power domain.
+syzbot reports a warning:
 
-Wait until the PGC signals that the power up request is done and
-wait a bit for resets to propagate before disabling the clocks.
+precision 33020 too large
+WARNING: CPU: 0 PID: 9618 at lib/vsprintf.c:2471 set_precision+0x150/0x180 lib/vsprintf.c:2471
+ vsnprintf+0xa7b/0x19a0 lib/vsprintf.c:2547
+ kvasprintf+0xb2/0x170 lib/kasprintf.c:22
+ kasprintf+0xbb/0xf0 lib/kasprintf.c:59
+ hwsim_del_radio_nl+0x63a/0x7e0 drivers/net/wireless/mac80211_hwsim.c:3625
+ genl_family_rcv_msg_doit net/netlink/genetlink.c:672 [inline]
+ ...
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Thus it seems that kasprintf() with "%.*s" format can not be used for
+duplicating a string with arbitrary length. Replace it with kstrndup().
+
+Note that later this string is limited to NL80211_WIPHY_NAME_MAXLEN == 64,
+but the code is simpler this way.
+
+Reported-by: syzbot+6693adf1698864d21734@syzkaller.appspotmail.com
+Reported-by: syzbot+a4aee3f42d7584d76761@syzkaller.appspotmail.com
+Cc: stable@kernel.org
+Signed-off-by: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
+Link: https://lore.kernel.org/r/20200410123257.14559-1-tuomas.tynkkynen@iki.fi
+[johannes: add note about length limit]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/soc/imx/gpc.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/net/wireless/mac80211_hwsim.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/soc/imx/gpc.c b/drivers/soc/imx/gpc.c
-index 98b9d9a902ae3..90a8b2c0676ff 100644
---- a/drivers/soc/imx/gpc.c
-+++ b/drivers/soc/imx/gpc.c
-@@ -87,8 +87,8 @@ static int imx6_pm_domain_power_off(struct generic_pm_domain *genpd)
- static int imx6_pm_domain_power_on(struct generic_pm_domain *genpd)
- {
- 	struct imx_pm_domain *pd = to_imx_pm_domain(genpd);
--	int i, ret, sw, sw2iso;
--	u32 val;
-+	int i, ret;
-+	u32 val, req;
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -3060,9 +3060,9 @@ static int hwsim_new_radio_nl(struct sk_
+ 		param.no_vif = true;
  
- 	if (pd->supply) {
- 		ret = regulator_enable(pd->supply);
-@@ -107,17 +107,18 @@ static int imx6_pm_domain_power_on(struct generic_pm_domain *genpd)
- 	regmap_update_bits(pd->regmap, pd->reg_offs + GPC_PGC_CTRL_OFFS,
- 			   0x1, 0x1);
- 
--	/* Read ISO and ISO2SW power up delays */
--	regmap_read(pd->regmap, pd->reg_offs + GPC_PGC_PUPSCR_OFFS, &val);
--	sw = val & 0x3f;
--	sw2iso = (val >> 8) & 0x3f;
--
- 	/* Request GPC to power up domain */
--	val = BIT(pd->cntr_pdn_bit + 1);
--	regmap_update_bits(pd->regmap, GPC_CNTR, val, val);
-+	req = BIT(pd->cntr_pdn_bit + 1);
-+	regmap_update_bits(pd->regmap, GPC_CNTR, req, req);
- 
--	/* Wait ISO + ISO2SW IPG clock cycles */
--	udelay(DIV_ROUND_UP(sw + sw2iso, pd->ipg_rate_mhz));
-+	/* Wait for the PGC to handle the request */
-+	ret = regmap_read_poll_timeout(pd->regmap, GPC_CNTR, val, !(val & req),
-+				       1, 50);
-+	if (ret)
-+		pr_err("powerup request on domain %s timed out\n", genpd->name);
-+
-+	/* Wait for reset to propagate through peripherals */
-+	usleep_range(5, 10);
- 
- 	/* Disable reset clocks for all devices in the domain */
- 	for (i = 0; i < pd->num_clks; i++)
-@@ -343,6 +344,7 @@ static const struct regmap_config imx_gpc_regmap_config = {
- 	.rd_table = &access_table,
- 	.wr_table = &access_table,
- 	.max_register = 0x2ac,
-+	.fast_io = true,
- };
- 
- static struct generic_pm_domain *imx_gpc_onecell_domains[] = {
--- 
-2.20.1
-
+ 	if (info->attrs[HWSIM_ATTR_RADIO_NAME]) {
+-		hwname = kasprintf(GFP_KERNEL, "%.*s",
+-				   nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
+-				   (char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]));
++		hwname = kstrndup((char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]),
++				  nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
++				  GFP_KERNEL);
+ 		if (!hwname)
+ 			return -ENOMEM;
+ 		param.hwname = hwname;
+@@ -3101,9 +3101,9 @@ static int hwsim_del_radio_nl(struct sk_
+ 	if (info->attrs[HWSIM_ATTR_RADIO_ID]) {
+ 		idx = nla_get_u32(info->attrs[HWSIM_ATTR_RADIO_ID]);
+ 	} else if (info->attrs[HWSIM_ATTR_RADIO_NAME]) {
+-		hwname = kasprintf(GFP_KERNEL, "%.*s",
+-				   nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
+-				   (char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]));
++		hwname = kstrndup((char *)nla_data(info->attrs[HWSIM_ATTR_RADIO_NAME]),
++				  nla_len(info->attrs[HWSIM_ATTR_RADIO_NAME]),
++				  GFP_KERNEL);
+ 		if (!hwname)
+ 			return -ENOMEM;
+ 	} else
 
 
