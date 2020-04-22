@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFFDF1B4291
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 262D41B4177
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732369AbgDVLC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:02:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48008 "EHLO mail.kernel.org"
+        id S1731137AbgDVKwd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:52:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726643AbgDVKAi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:38 -0400
+        id S1726798AbgDVKJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:09:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 490382077D;
-        Wed, 22 Apr 2020 10:00:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B427C2070B;
+        Wed, 22 Apr 2020 10:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549633;
-        bh=p711kW7+vtXYNGrEWOxxtf48YYYAKrkRBSY7gjVr1sc=;
+        s=default; t=1587550197;
+        bh=wgY92Up2hqj3U3bxEm7of4dFDNE/XdwTMo46DQJ7BiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6QH5HAdFBCOCnQhgkgTwtB1o6cQoOWsPWgOH4FIhaRgnELdhSJ5LsPUxvzNqB368
-         oxk3iMRwbiOS1hc1pViYgn/AdQBAitRavZSmMiiapf7KkbGAXE/MNjt7Bt2cAtK3HM
-         g3o0s8Lx+yvEYLlipxaAdrB7v2U1uZqcGJyqgfkA=
+        b=DSL94LrshyIwWeaC7jzMIhOjhLD/mp6y1lwRI20bgEAwm55GyAvliENLaviyJjdwX
+         5Z1um0puHgnTgEN7oTeooGCO7p9K/Ip2XuLdLi7VxTn2yk5b8edgqYU519Xij9Uj9n
+         AXVXAb3zI2wST4Kgzih3tJvAAfLFXMGPu6g9U71A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changwei Ge <chge@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 043/100] ocfs2: no need try to truncate file beyond i_size
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 4.14 047/199] thermal: devfreq_cooling: inline all stubs for CONFIG_DEVFREQ_THERMAL=n
 Date:   Wed, 22 Apr 2020 11:56:13 +0200
-Message-Id: <20200422095030.232440704@linuxfoundation.org>
+Message-Id: <20200422095102.898478844@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,59 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changwei Ge <chge@linux.alibaba.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit 783fda856e1034dee90a873f7654c418212d12d7 upstream.
+commit 3f5b9959041e0db6dacbea80bb833bff5900999f upstream.
 
-Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
-exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
-size.  This restriction is not necessary and violates fallocate(2)
-semantics.
+When CONFIG_DEVFREQ_THERMAL is disabled all functions except
+of_devfreq_cooling_register_power() were already inlined. Also inline
+the last function to avoid compile errors when multiple drivers call
+of_devfreq_cooling_register_power() when CONFIG_DEVFREQ_THERMAL is not
+set. Compilation failed with the following message:
+  multiple definition of `of_devfreq_cooling_register_power'
+(which then lists all usages of of_devfreq_cooling_register_power())
 
-If fallocate(2) offset is beyond inode size, just return success and do
-nothing further.
+Thomas Zimmermann reported this problem [0] on a kernel config with
+CONFIG_DRM_LIMA={m,y}, CONFIG_DRM_PANFROST={m,y} and
+CONFIG_DEVFREQ_THERMAL=n after both, the lima and panfrost drivers
+gained devfreq cooling support.
 
-Otherwise, ocfs2 will crash the kernel.
+[0] https://www.spinics.net/lists/dri-devel/msg252825.html
 
-  kernel BUG at fs/ocfs2//alloc.c:7264!
-   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
-   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
-   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
-   ocfs2_fallocate+0x83/0xa0 [ocfs2]
-   vfs_fallocate+0x148/0x230
-   SyS_fallocate+0x48/0x80
-   do_syscall_64+0x79/0x170
-
-Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: a76caf55e5b356 ("thermal: Add devfreq cooling")
+Cc: stable@vger.kernel.org
+Reported-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200403205133.1101808-1-martin.blumenstingl@googlemail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ocfs2/alloc.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/devfreq_cooling.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ocfs2/alloc.c
-+++ b/fs/ocfs2/alloc.c
-@@ -7206,6 +7206,10 @@ int ocfs2_truncate_inline(struct inode *
- 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
- 	struct ocfs2_inline_data *idata = &di->id2.i_data;
+--- a/include/linux/devfreq_cooling.h
++++ b/include/linux/devfreq_cooling.h
+@@ -75,7 +75,7 @@ void devfreq_cooling_unregister(struct t
  
-+	/* No need to punch hole beyond i_size. */
-+	if (start >= i_size_read(inode))
-+		return 0;
-+
- 	if (end > i_size_read(inode))
- 		end = i_size_read(inode);
+ #else /* !CONFIG_DEVFREQ_THERMAL */
  
+-struct thermal_cooling_device *
++static inline struct thermal_cooling_device *
+ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
+ 				  struct devfreq_cooling_power *dfc_power)
+ {
 
 
