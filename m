@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5141B408C
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72CF21B3D1E
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:12:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731787AbgDVKqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:46:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52836 "EHLO mail.kernel.org"
+        id S1729264AbgDVKLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729785AbgDVKQx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:16:53 -0400
+        id S1729257AbgDVKLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:11:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D02062076E;
-        Wed, 22 Apr 2020 10:16:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F57C2070B;
+        Wed, 22 Apr 2020 10:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550613;
-        bh=CZgZG+rKEREoHAtxAe5bzj7Vxs8nuKcRagnJnrkCH1c=;
+        s=default; t=1587550312;
+        bh=JQlAhwaWJDolkGHYfLug13DpnHAwy5RBZ7yJEGbYus0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7VKlygtfp7BoEfObNaX3dY/mwZIJCzyqlM8LE/bZnjM6R4eXqJ4B8fC4SdJ1Fcfq
-         nvTumntxGkrSb909LUlkeZwogOTDbk2uLQODax+cmLzzZdN4B4Q4VFQR5WJ6n7eZkz
-         fGPYUsOUX1KT6KD3izPd8JAhPJ0xMoEv0xz+rhJc=
+        b=z3Kr4eAKV7yTJLloGTh0yV8Kizs0SQrVD7d5/ATpC2e01P3SsHEwcusvSuyyEUtFJ
+         84zA2/ZKJJ4r/+fxmnjxiPasMh55ybEhLuotEWY8NFjARyTAuzbcFiH3wg4USbZVQ2
+         lpCZriJ48VM+m8fb1bbjDFSBiRnoVpIY9YDptXto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>
-Subject: [PATCH 5.4 022/118] x86/Hyper-V: Report crash register data when sysctl_record_panic_msg is not set
-Date:   Wed, 22 Apr 2020 11:56:23 +0200
-Message-Id: <20200422095035.366179385@linuxfoundation.org>
+        stable@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 4.14 058/199] KVM: s390: vsie: Fix region 1 ASCE sanity shadow address checks
+Date:   Wed, 22 Apr 2020 11:56:24 +0200
+Message-Id: <20200422095104.082711515@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 040026df7088c56ccbad28f7042308f67bde63df upstream.
+commit a1d032a49522cb5368e5dfb945a85899b4c74f65 upstream.
 
-When sysctl_record_panic_msg is not set, the panic will
-not be reported to Hyper-V via hyperv_report_panic_msg().
-So the crash should be reported via hyperv_report_panic().
+In case we have a region 1 the following calculation
+(31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11)
+results in 64. As shifts beyond the size are undefined the compiler is
+free to use instructions like sllg. sllg will only use 6 bits of the
+shift value (here 64) resulting in no shift at all. That means that ALL
+addresses will be rejected.
 
-Fixes: 81b18bce48af ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-Link: https://lore.kernel.org/r/20200406155331.2105-6-Tianyu.Lan@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+The can result in endless loops, e.g. when prefix cannot get mapped.
+
+Fixes: 4be130a08420 ("s390/mm: add shadow gmap support")
+Tested-by: Janosch Frank <frankja@linux.ibm.com>
+Reported-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-2-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[borntraeger@de.ibm.com: fix patch description, remove WARN_ON_ONCE]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hv/vmbus_drv.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ arch/s390/mm/gmap.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -48,6 +48,18 @@ static int hyperv_cpuhp_online;
- 
- static void *hv_panic_page;
- 
-+/*
-+ * Boolean to control whether to report panic messages over Hyper-V.
-+ *
-+ * It can be set via /proc/sys/kernel/hyperv/record_panic_msg
-+ */
-+static int sysctl_record_panic_msg = 1;
-+
-+static int hyperv_report_reg(void)
-+{
-+	return !sysctl_record_panic_msg || !hv_panic_page;
-+}
-+
- static int hyperv_panic_event(struct notifier_block *nb, unsigned long val,
- 			      void *args)
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -762,14 +762,18 @@ static void gmap_call_notifier(struct gm
+ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
+ 					     unsigned long gaddr, int level)
  {
-@@ -61,7 +73,7 @@ static int hyperv_panic_event(struct not
- 	 * the notification here.
- 	 */
- 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE
--	    && !hv_panic_page) {
-+	    && hyperv_report_reg()) {
- 		regs = current_pt_regs();
- 		hyperv_report_panic(regs, val);
- 	}
-@@ -79,7 +91,7 @@ static int hyperv_die_event(struct notif
- 	 * doing hyperv_report_panic_msg() later with kmsg data, don't do
- 	 * the notification here.
- 	 */
--	if (!hv_panic_page)
-+	if (hyperv_report_reg())
- 		hyperv_report_panic(regs, val);
- 	return NOTIFY_DONE;
- }
-@@ -1262,13 +1274,6 @@ static void vmbus_isr(void)
- }
++	const int asce_type = gmap->asce & _ASCE_TYPE_MASK;
+ 	unsigned long *table;
  
- /*
-- * Boolean to control whether to report panic messages over Hyper-V.
-- *
-- * It can be set via /proc/sys/kernel/hyperv/record_panic_msg
-- */
--static int sysctl_record_panic_msg = 1;
--
--/*
-  * Callback from kmsg_dump. Grab as much as possible from the end of the kmsg
-  * buffer and call into Hyper-V to transfer the data.
-  */
+ 	if ((gmap->asce & _ASCE_TYPE_MASK) + 4 < (level * 4))
+ 		return NULL;
+ 	if (gmap_is_shadow(gmap) && gmap->removed)
+ 		return NULL;
+-	if (gaddr & (-1UL << (31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11)))
++
++	if (asce_type != _ASCE_TYPE_REGION1 &&
++	    gaddr & (-1UL << (31 + (asce_type >> 2) * 11)))
+ 		return NULL;
++
+ 	table = gmap->table;
+ 	switch (gmap->asce & _ASCE_TYPE_MASK) {
+ 	case _ASCE_TYPE_REGION1:
 
 
