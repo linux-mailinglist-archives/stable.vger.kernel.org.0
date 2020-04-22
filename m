@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B6D1B42B3
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3201B418A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726589AbgDVLD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:03:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
+        id S1728398AbgDVKxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:53:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726539AbgDVJ7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 05:59:52 -0400
+        id S1728842AbgDVKJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:09:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D41C42077D;
-        Wed, 22 Apr 2020 09:59:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E12CE2166E;
+        Wed, 22 Apr 2020 10:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549592;
-        bh=wM3LJ0wa+yf3/wyfk7WPwpnk96PUqDGpDpM9BiOype4=;
+        s=default; t=1587550155;
+        bh=SNp5Cfh7breCq57LI8vZEAzmEX05Q+IiYdGzMs2VsjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0wIfv48ZU6a2e69H43YUr3hk8PaaIVTmEIyTqoBZzFubyRFj6AuK2rHuJqKgk/Z1
-         6DfbpgdVzqGfiJxpKcegdmxWhFKI/hUjIGJiIx1vBf2tWVD1T0FeXy7d7b28umlEPx
-         vFXSTYh9YYPRch1Gjwp8KYFZAXlf8n/3u6hD4He0=
+        b=ozs3bRKde9n5OJRtvrzGbgY9kgLkYcF8QUYEmGSdh7g45LTxcE0GOdI4l/OZb24I6
+         vM1umhgW7PzAZbYWdqBUeiM2G0owM4KeFnSBEMdf9PUs0g0pW3dHNP45NzSIt3Txww
+         sjOrhXC1T/5/EQcXP3mAKxgrxrtDfO2JwETWdMcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Yang Xu <xuyang2018.jy@cn.fujitsu.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 4.4 027/100] KEYS: reaching the keys quotas correctly
+        stable@vger.kernel.org, Silvio Cesare <silvio.cesare@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 031/199] slub: improve bit diffusion for freelist ptr obfuscation
 Date:   Wed, 22 Apr 2020 11:55:57 +0200
-Message-Id: <20200422095027.750789793@linuxfoundation.org>
+Message-Id: <20200422095101.178110516@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +49,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 2e356101e72ab1361821b3af024d64877d9a798d upstream.
+commit 1ad53d9fa3f6168ebcf48a50e08b170432da2257 upstream.
 
-Currently, when we add a new user key, the calltrace as below:
+Under CONFIG_SLAB_FREELIST_HARDENED=y, the obfuscation was relatively weak
+in that the ptr and ptr address were usually so close that the first XOR
+would result in an almost entirely 0-byte value[1], leaving most of the
+"secret" number ultimately being stored after the third XOR.  A single
+blind memory content exposure of the freelist was generally sufficient to
+learn the secret.
 
-add_key()
-  key_create_or_update()
-    key_alloc()
-    __key_instantiate_and_link
-      generic_key_instantiate
-        key_payload_reserve
-          ......
+Add a swab() call to mix bits a little more.  This is a cheap way (1
+cycle) to make attacks need more than a single exposure to learn the
+secret (or to know _where_ the exposure is in memory).
 
-Since commit a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly"),
-we can reach max bytes/keys in key_alloc, but we forget to remove this
-limit when we reserver space for payload in key_payload_reserve. So we
-can only reach max keys but not max bytes when having delta between plen
-and type->def_datalen. Remove this limit when instantiating the key, so we
-can keep consistent with key_alloc.
+kmalloc-32 freelist walk, before:
 
-Also, fix the similar problem in keyctl_chown_key().
+ptr              ptr_addr            stored value      secret
+ffff90c22e019020@ffff90c22e019000 is 86528eb656b3b5bd (86528eb656b3b59d)
+ffff90c22e019040@ffff90c22e019020 is 86528eb656b3b5fd (86528eb656b3b59d)
+ffff90c22e019060@ffff90c22e019040 is 86528eb656b3b5bd (86528eb656b3b59d)
+ffff90c22e019080@ffff90c22e019060 is 86528eb656b3b57d (86528eb656b3b59d)
+ffff90c22e0190a0@ffff90c22e019080 is 86528eb656b3b5bd (86528eb656b3b59d)
+...
 
-Fixes: 0b77f5bfb45c ("keys: make the keyring quotas controllable through /proc/sys")
-Fixes: a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly")
-Cc: stable@vger.kernel.org # 5.0.x
-Cc: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+after:
+
+ptr              ptr_addr            stored value      secret
+ffff9eed6e019020@ffff9eed6e019000 is 793d1135d52cda42 (86528eb656b3b59d)
+ffff9eed6e019040@ffff9eed6e019020 is 593d1135d52cda22 (86528eb656b3b59d)
+ffff9eed6e019060@ffff9eed6e019040 is 393d1135d52cda02 (86528eb656b3b59d)
+ffff9eed6e019080@ffff9eed6e019060 is 193d1135d52cdae2 (86528eb656b3b59d)
+ffff9eed6e0190a0@ffff9eed6e019080 is f93d1135d52cdac2 (86528eb656b3b59d)
+
+[1] https://blog.infosectcbr.com.au/2020/03/weaknesses-in-linux-kernel-heap.html
+
+Fixes: 2482ddec670f ("mm: add SLUB free list pointer obfuscation")
+Reported-by: Silvio Cesare <silvio.cesare@gmail.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/202003051623.AF4F8CB@keescook
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[kees: Backport to v4.19 which doesn't call kasan_reset_untag()]
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/keys/key.c    |    2 +-
- security/keys/keyctl.c |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ mm/slub.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -376,7 +376,7 @@ int key_payload_reserve(struct key *key,
- 		spin_lock(&key->user->lock);
- 
- 		if (delta > 0 &&
--		    (key->user->qnbytes + delta >= maxbytes ||
-+		    (key->user->qnbytes + delta > maxbytes ||
- 		     key->user->qnbytes + delta < key->user->qnbytes)) {
- 			ret = -EDQUOT;
- 		}
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -853,8 +853,8 @@ long keyctl_chown_key(key_serial_t id, u
- 				key_quota_root_maxbytes : key_quota_maxbytes;
- 
- 			spin_lock(&newowner->lock);
--			if (newowner->qnkeys + 1 >= maxkeys ||
--			    newowner->qnbytes + key->quotalen >= maxbytes ||
-+			if (newowner->qnkeys + 1 > maxkeys ||
-+			    newowner->qnbytes + key->quotalen > maxbytes ||
- 			    newowner->qnbytes + key->quotalen <
- 			    newowner->qnbytes)
- 				goto quota_overrun;
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -248,7 +248,7 @@ static inline void *freelist_ptr(const s
+ 				 unsigned long ptr_addr)
+ {
+ #ifdef CONFIG_SLAB_FREELIST_HARDENED
+-	return (void *)((unsigned long)ptr ^ s->random ^ ptr_addr);
++	return (void *)((unsigned long)ptr ^ s->random ^ swab(ptr_addr));
+ #else
+ 	return ptr;
+ #endif
 
 
