@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDB9F1B40A7
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1887E1B3FD8
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729768AbgDVKqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:46:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
+        id S1731424AbgDVKlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:41:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729387AbgDVKQO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:16:14 -0400
+        id S1729772AbgDVKUX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:20:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DCC42075A;
-        Wed, 22 Apr 2020 10:16:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EE0B20781;
+        Wed, 22 Apr 2020 10:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550573;
-        bh=2ChxbW7YBGP4QrMesy6K4vUO/ZUrSpu5r91JYQ2tP0s=;
+        s=default; t=1587550822;
+        bh=gBGl2Mpr3gMecv69cjvXn7IuOzZ3+xBLzvfmu0V5t70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yfat8//MB43ibMB8Qtz1X5yYaRorUbuKuyswnPQistTIcbwD8pZI0U85pQKtDzuK4
-         jvQHFhHWoPHy5Ii4WSj+oqA4zHHLolpjwn3yarK0OXJNgyRoL6/cuyM/4sMEhHUdhO
-         NEmaVy/hwru3YzX8Y+ht7i9jfjm4vXs09E1o6sk0=
+        b=mPClpXMrD7UndcSPywj7+1H12+kyQoBiXEVS197dLy+lJCJcYvJbgK6F2I+GWSmF7
+         1U2rdkIygIFebtYjzHmxNUrzejySvUr5QbV9iz1GaOhOqhb91YNsf2DS7z8jTSe7bE
+         7KCrzngQFh455/ZDrwuKaM/C+Y6KXGBkB6STqX20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Fontana <fontanalorenz@gmail.com>,
-        Leonardo Di Donato <leodidonato@gmail.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.19 64/64] bpf: fix buggy r0 retval refinement for tracing helpers
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 107/118] tty: evh_bytechan: Fix out of bounds accesses
 Date:   Wed, 22 Apr 2020 11:57:48 +0200
-Message-Id: <20200422095024.827942033@linuxfoundation.org>
+Message-Id: <20200422095048.618761876@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
-References: <20200422095008.799686511@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,144 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
 
-[ no upstream commit ]
+commit 3670664b5da555a2a481449b3baafff113b0ac35 upstream.
 
-See the glory details in 100605035e15 ("bpf: Verifier, do_refine_retval_range
-may clamp umin to 0 incorrectly") for why 849fa50662fb ("bpf/verifier: refine
-retval R0 state for bpf_get_stack helper") is buggy. The whole series however
-is not suitable for stable since it adds significant amount [0] of verifier
-complexity in order to add 32bit subreg tracking. Something simpler is needed.
+ev_byte_channel_send() assumes that its third argument is a 16 byte
+array. Some places where it is called it may not be (or we can't
+easily tell if it is). Newer compilers have started producing warnings
+about this, so make sure we actually pass a 16 byte array.
 
-Unfortunately, reverting 849fa50662fb ("bpf/verifier: refine retval R0 state
-for bpf_get_stack helper") or just cherry-picking 100605035e15 ("bpf: Verifier,
-do_refine_retval_range may clamp umin to 0 incorrectly") is not an option since
-it will break existing tracing programs badly (at least those that are using
-bpf_get_stack() and bpf_probe_read_str() helpers). Not fixing it in stable is
-also not an option since on 4.19 kernels an error will cause a soft-lockup due
-to hitting dead-code sanitized branch since we don't hard-wire such branches
-in old kernels yet. But even then for 5.x 849fa50662fb ("bpf/verifier: refine
-retval R0 state for bpf_get_stack helper") would cause wrong bounds on the
-verifier simluation when an error is hit.
+There may be more elegant solutions to this, but the driver is quite
+old and hasn't been updated in many years.
 
-In one of the earlier iterations of mentioned patch series for upstream there
-was the concern that just using smax_value in do_refine_retval_range() would
-nuke bounds by subsequent <<32 >>32 shifts before the comparison against 0 [1]
-which eventually led to the 32bit subreg tracking in the first place. While I
-initially went for implementing the idea [1] to pattern match the two shift
-operations, it turned out to be more complex than actually needed, meaning, we
-could simply treat do_refine_retval_range() similarly to how we branch off
-verification for conditionals or under speculation, that is, pushing a new
-reg state to the stack for later verification. This means, instead of verifying
-the current path with the ret_reg in [S32MIN, msize_max_value] interval where
-later bounds would get nuked, we split this into two: i) for the success case
-where ret_reg can be in [0, msize_max_value], and ii) for the error case with
-ret_reg known to be in interval [S32MIN, -1]. Latter will preserve the bounds
-during these shift patterns and can match reg < 0 test. test_progs also succeed
-with this approach.
+The warnings (from a powerpc allyesconfig build) are:
 
-  [0] https://lore.kernel.org/bpf/158507130343.15666.8018068546764556975.stgit@john-Precision-5820-Tower/
-  [1] https://lore.kernel.org/bpf/158015334199.28573.4940395881683556537.stgit@john-XPS-13-9370/T/#m2e0ad1d5949131014748b6daa48a3495e7f0456d
+  In file included from include/linux/byteorder/big_endian.h:5,
+                   from arch/powerpc/include/uapi/asm/byteorder.h:14,
+                   from include/asm-generic/bitops/le.h:6,
+                   from arch/powerpc/include/asm/bitops.h:250,
+                   from include/linux/bitops.h:29,
+                   from include/linux/kernel.h:12,
+                   from include/asm-generic/bug.h:19,
+                   from arch/powerpc/include/asm/bug.h:109,
+                   from include/linux/bug.h:5,
+                   from include/linux/mmdebug.h:5,
+                   from include/linux/gfp.h:5,
+                   from include/linux/slab.h:15,
+                   from drivers/tty/ehv_bytechan.c:24:
+  drivers/tty/ehv_bytechan.c: In function ‘ehv_bc_udbg_putc’:
+  arch/powerpc/include/asm/epapr_hcalls.h:298:20: warning: array subscript 1 is outside array bounds of ‘const char[1]’ [-Warray-bounds]
+    298 |  r6 = be32_to_cpu(p[1]);
+  include/uapi/linux/byteorder/big_endian.h:40:51: note: in definition of macro ‘__be32_to_cpu’
+     40 | #define __be32_to_cpu(x) ((__force __u32)(__be32)(x))
+        |                                                   ^
+  arch/powerpc/include/asm/epapr_hcalls.h:298:7: note: in expansion of macro ‘be32_to_cpu’
+    298 |  r6 = be32_to_cpu(p[1]);
+        |       ^~~~~~~~~~~
+  drivers/tty/ehv_bytechan.c:166:13: note: while referencing ‘data’
+    166 | static void ehv_bc_udbg_putc(char c)
+        |             ^~~~~~~~~~~~~~~~
 
-Fixes: 849fa50662fb ("bpf/verifier: refine retval R0 state for bpf_get_stack helper")
-Reported-by: Lorenzo Fontana <fontanalorenz@gmail.com>
-Reported-by: Leonardo Di Donato <leodidonato@gmail.com>
-Reported-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Tested-by: John Fastabend <john.fastabend@gmail.com>
-Tested-by: Lorenzo Fontana <fontanalorenz@gmail.com>
-Tested-by: Leonardo Di Donato <leodidonato@gmail.com>
+Fixes: dcd83aaff1c8 ("tty/powerpc: introduce the ePAPR embedded hypervisor byte channel driver")
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Tested-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+[mpe: Trim warnings from change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200109183912.5fcb52aa@canb.auug.org.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/bpf/verifier.c |   45 ++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 11 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -188,8 +188,7 @@ struct bpf_call_arg_meta {
- 	bool pkt_access;
- 	int regno;
- 	int access_size;
--	s64 msize_smax_value;
--	u64 msize_umax_value;
-+	u64 msize_max_value;
- };
- 
- static DEFINE_MUTEX(bpf_verifier_lock);
-@@ -2076,8 +2075,7 @@ static int check_func_arg(struct bpf_ver
- 		/* remember the mem_size which may be used later
- 		 * to refine return values.
- 		 */
--		meta->msize_smax_value = reg->smax_value;
--		meta->msize_umax_value = reg->umax_value;
-+		meta->msize_max_value = reg->umax_value;
- 
- 		/* The register is SCALAR_VALUE; the access check
- 		 * happens using its boundaries.
-@@ -2448,21 +2446,44 @@ static int prepare_func_exit(struct bpf_
- 	return 0;
+---
+ drivers/tty/ehv_bytechan.c |   21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
+
+--- a/drivers/tty/ehv_bytechan.c
++++ b/drivers/tty/ehv_bytechan.c
+@@ -136,6 +136,21 @@ static int find_console_handle(void)
+ 	return 1;
  }
  
--static void do_refine_retval_range(struct bpf_reg_state *regs, int ret_type,
--				   int func_id,
--				   struct bpf_call_arg_meta *meta)
-+static int do_refine_retval_range(struct bpf_verifier_env *env,
-+				  struct bpf_reg_state *regs, int ret_type,
-+				  int func_id, struct bpf_call_arg_meta *meta)
- {
- 	struct bpf_reg_state *ret_reg = &regs[BPF_REG_0];
-+	struct bpf_reg_state tmp_reg = *ret_reg;
-+	bool ret;
++static unsigned int local_ev_byte_channel_send(unsigned int handle,
++					       unsigned int *count,
++					       const char *p)
++{
++	char buffer[EV_BYTE_CHANNEL_MAX_BYTES];
++	unsigned int c = *count;
++
++	if (c < sizeof(buffer)) {
++		memcpy(buffer, p, c);
++		memset(&buffer[c], 0, sizeof(buffer) - c);
++		p = buffer;
++	}
++	return ev_byte_channel_send(handle, count, p);
++}
++
+ /*************************** EARLY CONSOLE DRIVER ***************************/
  
- 	if (ret_type != RET_INTEGER ||
- 	    (func_id != BPF_FUNC_get_stack &&
- 	     func_id != BPF_FUNC_probe_read_str))
--		return;
-+		return 0;
-+
-+	/* Error case where ret is in interval [S32MIN, -1]. */
-+	ret_reg->smin_value = S32_MIN;
-+	ret_reg->smax_value = -1;
+ #ifdef CONFIG_PPC_EARLY_DEBUG_EHV_BC
+@@ -154,7 +169,7 @@ static void byte_channel_spin_send(const
  
--	ret_reg->smax_value = meta->msize_smax_value;
--	ret_reg->umax_value = meta->msize_umax_value;
- 	__reg_deduce_bounds(ret_reg);
- 	__reg_bound_offset(ret_reg);
-+	__update_reg_bounds(ret_reg);
-+
-+	ret = push_stack(env, env->insn_idx + 1, env->insn_idx, false);
-+	if (!ret)
-+		return -EFAULT;
-+
-+	*ret_reg = tmp_reg;
-+
-+	/* Success case where ret is in range [0, msize_max_value]. */
-+	ret_reg->smin_value = 0;
-+	ret_reg->smax_value = meta->msize_max_value;
-+	ret_reg->umin_value = ret_reg->smin_value;
-+	ret_reg->umax_value = ret_reg->smax_value;
-+
-+	__reg_deduce_bounds(ret_reg);
-+	__reg_bound_offset(ret_reg);
-+	__update_reg_bounds(ret_reg);
-+
-+	return 0;
+ 	do {
+ 		count = 1;
+-		ret = ev_byte_channel_send(CONFIG_PPC_EARLY_DEBUG_EHV_BC_HANDLE,
++		ret = local_ev_byte_channel_send(CONFIG_PPC_EARLY_DEBUG_EHV_BC_HANDLE,
+ 					   &count, &data);
+ 	} while (ret == EV_EAGAIN);
  }
+@@ -221,7 +236,7 @@ static int ehv_bc_console_byte_channel_s
+ 	while (count) {
+ 		len = min_t(unsigned int, count, EV_BYTE_CHANNEL_MAX_BYTES);
+ 		do {
+-			ret = ev_byte_channel_send(handle, &len, s);
++			ret = local_ev_byte_channel_send(handle, &len, s);
+ 		} while (ret == EV_EAGAIN);
+ 		count -= len;
+ 		s += len;
+@@ -401,7 +416,7 @@ static void ehv_bc_tx_dequeue(struct ehv
+ 			    CIRC_CNT_TO_END(bc->head, bc->tail, BUF_SIZE),
+ 			    EV_BYTE_CHANNEL_MAX_BYTES);
  
- static int
-@@ -2617,7 +2638,9 @@ static int check_helper_call(struct bpf_
- 		return -EINVAL;
- 	}
+-		ret = ev_byte_channel_send(bc->handle, &len, bc->buf + bc->tail);
++		ret = local_ev_byte_channel_send(bc->handle, &len, bc->buf + bc->tail);
  
--	do_refine_retval_range(regs, fn->ret_type, func_id, &meta);
-+	err = do_refine_retval_range(env, regs, fn->ret_type, func_id, &meta);
-+	if (err)
-+		return err;
- 
- 	err = check_map_func_compatibility(env, meta.map_ptr, func_id);
- 	if (err)
+ 		/* 'len' is valid only if the return code is 0 or EV_EAGAIN */
+ 		if (!ret || (ret == EV_EAGAIN))
 
 
