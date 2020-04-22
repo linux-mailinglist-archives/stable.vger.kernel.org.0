@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5DE51B41C8
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8B071B4258
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:00:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728243AbgDVKFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:05:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
+        id S1726912AbgDVKB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:01:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728237AbgDVKFu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:05:50 -0400
+        id S1726889AbgDVKB6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:01:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD4632075A;
-        Wed, 22 Apr 2020 10:05:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B735D20735;
+        Wed, 22 Apr 2020 10:01:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549950;
-        bh=2ljXkslZOpMp5BLxMzDGaoSB4iFl8kKSsg9LYxSJrPg=;
+        s=default; t=1587549718;
+        bh=rrmnOmOsnTMK7HOIQLxfsYxR7IdNREV8GXUA269AL/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YoECw+2QXNL5/8PkCOiisnbfd0zCtPmZ93DG60enIux9mPI6oPZXfozCPESLUoUBB
-         dU6cmpyuCeR1cqV4DMs9y2pZaDotkQ+E6pD/VZPxga2z2Ufy93ROmcrVBiuQCtUsba
-         6PXmP9GR6rNzm9AjT0E9NBHkWJVTIm/NEydH37Qk=
+        b=C34qLx9S8mreB/viOxniADnELUGMxRmMGZKZJK/m99EY90+vB0k0Okiyx19qggdeG
+         OkhLxCrZO/6zKWzQAcZtebsAE8sRe172vmwODU3NzHkTIFKj1DwpXZgeFzIlFOTgky
+         4Q/naLGI90u1e9XBy9YwhqWD1ZPRMweDhJakMdyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
         Josh Triplett <josh@joshtriplett.org>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 073/125] ext4: fix incorrect inodes per group in error message
-Date:   Wed, 22 Apr 2020 11:56:30 +0200
-Message-Id: <20200422095045.028958463@linuxfoundation.org>
+Subject: [PATCH 4.4 061/100] ext4: fix incorrect inodes per group in error message
+Date:   Wed, 22 Apr 2020 11:56:31 +0200
+Message-Id: <20200422095034.054617285@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,7 +65,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/ext4/super.c
 +++ b/fs/ext4/super.c
-@@ -3820,7 +3820,7 @@ static int ext4_fill_super(struct super_
+@@ -3660,7 +3660,7 @@ static int ext4_fill_super(struct super_
  	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
  	    sbi->s_inodes_per_group > blocksize * 8) {
  		ext4_msg(sb, KERN_ERR, "invalid inodes per group: %lu\n",
