@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4606B1B3FF5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B2E1B40BD
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731715AbgDVKmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:42:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56522 "EHLO mail.kernel.org"
+        id S1728950AbgDVKPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:15:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729548AbgDVKTn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:19:43 -0400
+        id S1729665AbgDVKPW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:15:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C30C320780;
-        Wed, 22 Apr 2020 10:19:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 358C820781;
+        Wed, 22 Apr 2020 10:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550783;
-        bh=teWoWnOgcSPlBj5vzx0uZY+S9BuzrPPocOvM7gkc/pk=;
+        s=default; t=1587550521;
+        bh=RxG7sT2TZaY9cUwBJw2sOGIMMnDdQK0IvDqDfreJGso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2GLSle0yKvM5Z+utrsYhhju1oZDlmVSH5RhoycOjiN9+ie+Z0IDLjFRQwpDrf2xP
-         cAzE3E2Tm37WppGMTrpIkY4zP4kocVuxBwAMt/cs9UUuI6l1dmbt9GWygEaLGpgAyv
-         HfG/oZw+A/367/P1XHYaBc55HL8cpQ+x/eg5IGJ0=
+        b=EezFReuAf88KI+hHAHNB5lcFzMJiKrxltlKq9RppOZPJzYjzXR4Gq+a4Ll/2xJT33
+         h4/JwJHFoZubKenLw1Bnqk8F9kSsDcxIwjCKuhLcVRA+m6u/AlDugNo/cqEbfmlp+1
+         nQPqmAUjThekgUfDufxnuz9jP/tMvBPcQ9e+JoHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Liu Yi L <yi.l.liu@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/118] iommu/vt-d: Fix page request descriptor size
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Jan Kara <jack@suse.com>, linux-ext4@vger.kernel.org,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 49/64] ext2: fix empty body warnings when -Wextra is used
 Date:   Wed, 22 Apr 2020 11:57:33 +0200
-Message-Id: <20200422095046.443322368@linuxfoundation.org>
+Message-Id: <20200422095021.673973807@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Pan <jacob.jun.pan@linux.intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 52355fb1919ef7ed9a38e0f3de6e928de1f57217 ]
+[ Upstream commit 44a52022e7f15cbaab957df1c14f7a4f527ef7cf ]
 
-Intel VT-d might support PRS (Page Reqest Support) when it's
-running in the scalable mode. Each page request descriptor
-occupies 32 bytes and is 32-bytes aligned. The page request
-descriptor offset mask should be 32-bytes aligned.
+When EXT2_ATTR_DEBUG is not defined, modify the 2 debug macros
+to use the no_printk() macro instead of <nothing>.
+This fixes gcc warnings when -Wextra is used:
 
-Fixes: 5b438f4ba315d ("iommu/vt-d: Support page request in scalable mode")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+../fs/ext2/xattr.c:252:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+../fs/ext2/xattr.c:258:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+../fs/ext2/xattr.c:330:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+../fs/ext2/xattr.c:872:45: warning: suggest braces around empty body in an ‘else’ statement [-Wempty-body]
+
+I have verified that the only object code change (with gcc 7.5.0) is
+the reversal of some instructions from 'cmp a,b' to 'cmp b,a'.
+
+Link: https://lore.kernel.org/r/e18a7395-61fb-2093-18e8-ed4f8cf56248@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jan Kara <jack@suse.com>
+Cc: linux-ext4@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-svm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext2/xattr.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/intel-svm.c b/drivers/iommu/intel-svm.c
-index 3020506180c10..1d3816cd65d57 100644
---- a/drivers/iommu/intel-svm.c
-+++ b/drivers/iommu/intel-svm.c
-@@ -502,7 +502,7 @@ struct page_req_dsc {
- 	u64 priv_data[2];
- };
+diff --git a/fs/ext2/xattr.c b/fs/ext2/xattr.c
+index dd8f10db82e99..4439bfaf1c57f 100644
+--- a/fs/ext2/xattr.c
++++ b/fs/ext2/xattr.c
+@@ -56,6 +56,7 @@
  
--#define PRQ_RING_MASK ((0x1000 << PRQ_ORDER) - 0x10)
-+#define PRQ_RING_MASK	((0x1000 << PRQ_ORDER) - 0x20)
+ #include <linux/buffer_head.h>
+ #include <linux/init.h>
++#include <linux/printk.h>
+ #include <linux/slab.h>
+ #include <linux/mbcache.h>
+ #include <linux/quotaops.h>
+@@ -84,8 +85,8 @@
+ 		printk("\n"); \
+ 	} while (0)
+ #else
+-# define ea_idebug(f...)
+-# define ea_bdebug(f...)
++# define ea_idebug(inode, f...)	no_printk(f)
++# define ea_bdebug(bh, f...)	no_printk(f)
+ #endif
  
- static bool access_error(struct vm_area_struct *vma, struct page_req_dsc *req)
- {
+ static int ext2_xattr_set2(struct inode *, struct buffer_head *,
 -- 
 2.20.1
 
