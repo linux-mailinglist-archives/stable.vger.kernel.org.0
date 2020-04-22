@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71FDA1B4229
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89EBB1B3BD8
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 11:59:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726616AbgDVK6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:58:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53456 "EHLO mail.kernel.org"
+        id S1726453AbgDVJ7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 05:59:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726587AbgDVKDf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:03:35 -0400
+        id S1726446AbgDVJ7e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 05:59:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5859D20857;
-        Wed, 22 Apr 2020 10:03:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67CBC20775;
+        Wed, 22 Apr 2020 09:59:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549814;
-        bh=HnkQ5CHHdwe9lvr7BpMfGxYss3pgl7ZbZQxAJQZMvlQ=;
+        s=default; t=1587549572;
+        bh=rXNVyeTWN1PwcxtA3YxF+ZGQmp65KQpCYuDUWuHLwSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nO0wbxo8+LyuHVR4Rwd6XjBDjc//5cGQLBWLSx8Ek3T4OZ6tetcEJ6lkEuED+gX91
-         fHDwEo8gXaksSrKmUCQUyCZHuAt5634GV13dcqrB/MZLV93S6+7N98KnX+5TL21+wt
-         nWk7evkNwQuEPBkbe0eXdzY9o7BJ1iPcjp4i5igc=
+        b=1kT9RvwnPnSFYwGFTuTJ62KwgXeU6dcHvgC5x4x9nAu+Fk4QBjiDVbcfublqqSWjT
+         1VuVVVutdq/N6FRmZbIohLc3TwvAjzZ9pHIeeTeg4b1IqltMYjeN5xSfVZCkqq4aWP
+         KRTILbXinT2vv4+A28qshiytcg4CiZujiJb+xwbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 018/125] ASoC: topology: use name_prefix for new kcontrol
-Date:   Wed, 22 Apr 2020 11:55:35 +0200
-Message-Id: <20200422095036.225034486@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 006/100] selftests/x86/ptrace_syscall_32: Fix no-vDSO segfault
+Date:   Wed, 22 Apr 2020 11:55:36 +0200
+Message-Id: <20200422095023.797552500@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 이경택 <gt82.lee@samsung.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit abca9e4a04fbe9c6df4d48ca7517e1611812af25 upstream.
+[ Upstream commit 630b99ab60aa972052a4202a1ff96c7e45eb0054 ]
 
-Current topology doesn't add prefix of component to new kcontrol.
+If AT_SYSINFO is not present, don't try to call a NULL pointer.
 
-Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
-Link: https://lore.kernel.org/r/009b01d60804$ae25c2d0$0a714870$@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/faaf688265a7e1a5b944d6f8bc0f6368158306d3.1584052409.git.luto@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/x86/ptrace_syscall.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -344,7 +344,7 @@ static int soc_tplg_add_kcontrol(struct
- 	struct snd_soc_component *comp = tplg->comp;
+diff --git a/tools/testing/selftests/x86/ptrace_syscall.c b/tools/testing/selftests/x86/ptrace_syscall.c
+index 5105b49cd8aa5..8b3c1236f04dc 100644
+--- a/tools/testing/selftests/x86/ptrace_syscall.c
++++ b/tools/testing/selftests/x86/ptrace_syscall.c
+@@ -284,8 +284,12 @@ int main()
  
- 	return soc_tplg_add_dcontrol(comp->card->snd_card,
--				comp->dev, k, NULL, comp, kcontrol);
-+				comp->dev, k, comp->name_prefix, comp, kcontrol);
- }
+ #if defined(__i386__) && (!defined(__GLIBC__) || __GLIBC__ > 2 || __GLIBC_MINOR__ >= 16)
+ 	vsyscall32 = (void *)getauxval(AT_SYSINFO);
+-	printf("[RUN]\tCheck AT_SYSINFO return regs\n");
+-	test_sys32_regs(do_full_vsyscall32);
++	if (vsyscall32) {
++		printf("[RUN]\tCheck AT_SYSINFO return regs\n");
++		test_sys32_regs(do_full_vsyscall32);
++	} else {
++		printf("[SKIP]\tAT_SYSINFO is not available\n");
++	}
+ #endif
  
- /* remove a mixer kcontrol */
+ 	test_ptrace_syscall_restart();
+-- 
+2.20.1
+
 
 
