@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F1F1B40F2
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:49:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B35E1B3E1B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:25:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726362AbgDVKN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:13:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47326 "EHLO mail.kernel.org"
+        id S1730519AbgDVKZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:25:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728407AbgDVKN0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:13:26 -0400
+        id S1729646AbgDVKZL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:25:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70E2620575;
-        Wed, 22 Apr 2020 10:13:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2C852075A;
+        Wed, 22 Apr 2020 10:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550405;
-        bh=3h2z9IDbzxVQV+fUdUOCvqUsPvo+eOXmgmiUdyvpTDk=;
+        s=default; t=1587551111;
+        bh=9NXEEyNPle9buOD5PAzi2advwivMFIPGG4uNAn1qRVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThVXLNxHrx9WIuxySWQY1W4srmY0RMDG35s4YSLN04gdYtAO/RPPIn9mnrh3iaEw2
-         yHLXI5Km18sznrXExjIEGbtgBPbnD2R1kN9Wsqh/4slLEX+3o4ppUdBVFafwuKyE+w
-         8d/zMwXnT4lC2XYHva3+Atle0wl80SGw47T1Y+8I=
+        b=su9okt1vo5fYcgCBzP17QoXRiF4SRY4QMWd1iRpfWLxYORZpxJwLyG2jDNRSHq5vX
+         tryaJ0pF18jcwa2gXIYnAt1lfpNeJE7v1bgkXtUyN+qS3KkNAzeINnHCgHud0ZWdin
+         yFi3SRqdPClWE10sKLyLeaL93EZkcgtJmwRjBf7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 105/199] mfd: dln2: Fix sanity checking for endpoints
+Subject: [PATCH 5.6 104/166] include/linux/swapops.h: correct guards for non_swap_entry()
 Date:   Wed, 22 Apr 2020 11:57:11 +0200
-Message-Id: <20200422095108.300701436@linuxfoundation.org>
+Message-Id: <20200422095100.041447044@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit fb945c95a482200876993977008b67ea658bd938 ]
+[ Upstream commit 3f3673d7d324d872d9d8ddb73b3e5e47fbf12e0d ]
 
-While the commit 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-tries to harden the sanity checks it made at the same time a regression,
-i.e.  mixed in and out endpoints. Obviously it should have been not tested on
-real hardware at that time, but unluckily it didn't happen.
+If CONFIG_DEVICE_PRIVATE is defined, but neither CONFIG_MEMORY_FAILURE nor
+CONFIG_MIGRATION, then non_swap_entry() will return 0, meaning that the
+condition (non_swap_entry(entry) && is_device_private_entry(entry)) in
+zap_pte_range() will never be true even if the entry is a device private
+one.
 
-So, fix above mentioned typo and make device being enumerated again.
+Equally any other code depending on non_swap_entry() will not function as
+expected.
 
-While here, introduce an enumerator for magic values to prevent similar issue
-to happen in the future.
+I originally spotted this just by looking at the code, I haven't actually
+observed any problems.
 
-Fixes: 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-Cc: Oliver Neukum <oneukum@suse.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Looking a bit more closely it appears that actually this situation
+(currently at least) cannot occur:
+
+DEVICE_PRIVATE depends on ZONE_DEVICE
+ZONE_DEVICE depends on MEMORY_HOTREMOVE
+MEMORY_HOTREMOVE depends on MIGRATION
+
+Fixes: 5042db43cc26 ("mm/ZONE_DEVICE: new type of ZONE_DEVICE for unaddressable memory")
+Signed-off-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Link: http://lkml.kernel.org/r/20200305130550.22693-1-steven.price@arm.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/dln2.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ include/linux/swapops.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
-index 95d0f2df0ad42..672831d5ee32e 100644
---- a/drivers/mfd/dln2.c
-+++ b/drivers/mfd/dln2.c
-@@ -93,6 +93,11 @@ struct dln2_mod_rx_slots {
- 	spinlock_t lock;
- };
+diff --git a/include/linux/swapops.h b/include/linux/swapops.h
+index 877fd239b6fff..3208a520d0be3 100644
+--- a/include/linux/swapops.h
++++ b/include/linux/swapops.h
+@@ -348,7 +348,8 @@ static inline void num_poisoned_pages_inc(void)
+ }
+ #endif
  
-+enum dln2_endpoint {
-+	DLN2_EP_OUT	= 0,
-+	DLN2_EP_IN	= 1,
-+};
-+
- struct dln2_dev {
- 	struct usb_device *usb_dev;
- 	struct usb_interface *interface;
-@@ -740,10 +745,10 @@ static int dln2_probe(struct usb_interface *interface,
- 	    hostif->desc.bNumEndpoints < 2)
- 		return -ENODEV;
- 
--	epin = &hostif->endpoint[0].desc;
--	epout = &hostif->endpoint[1].desc;
-+	epout = &hostif->endpoint[DLN2_EP_OUT].desc;
- 	if (!usb_endpoint_is_bulk_out(epout))
- 		return -ENODEV;
-+	epin = &hostif->endpoint[DLN2_EP_IN].desc;
- 	if (!usb_endpoint_is_bulk_in(epin))
- 		return -ENODEV;
- 
+-#if defined(CONFIG_MEMORY_FAILURE) || defined(CONFIG_MIGRATION)
++#if defined(CONFIG_MEMORY_FAILURE) || defined(CONFIG_MIGRATION) || \
++    defined(CONFIG_DEVICE_PRIVATE)
+ static inline int non_swap_entry(swp_entry_t entry)
+ {
+ 	return swp_type(entry) >= MAX_SWAPFILES;
 -- 
 2.20.1
 
