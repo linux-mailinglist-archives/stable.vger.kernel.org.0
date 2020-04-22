@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 353591B3D4F
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:13:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50EC61B3F17
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728741AbgDVKN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:13:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48128 "EHLO mail.kernel.org"
+        id S1731265AbgDVKeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:34:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726398AbgDVKN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:13:56 -0400
+        id S1730407AbgDVKYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:24:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 298BF2076E;
-        Wed, 22 Apr 2020 10:13:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CDA22071E;
+        Wed, 22 Apr 2020 10:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550435;
-        bh=ZIZwPWB9Q6NZv4fDKlr0cQJtBfcBFdOoZdqqJkEjXX4=;
+        s=default; t=1587551056;
+        bh=5nkV7eDi5Bx2nfm80C2yfyXLGRKXoar9TVzuNHHDrnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TmKaAKiZ+KQlZo3Ti14Vrm62pYsj04UFaDWa/U+8ULOprmmttvH7BiKzDw2wkXVys
-         ZQLu7EI0ZqKA3Wr+tNjJl+Ehr49Mf38RS6CdxL98uy8FMJ3LHMbAA5gM8M8MhdOE7j
-         C37P7YozVvaEHcH237MshOQneJ8IqUS/a0NR6yMI=
+        b=aE1+Q71iAjfUZC3ceusuCwHBIapfJGWNeJxzAj94mMcwi+AqhrEL4SeCqTpiikE5S
+         J90FIgC6iID4Lacqnxg877br//a4KfQL+LUtraEchaPCGOq0Fo00DreX5KUY/JAzl3
+         noXr+Peag7QTXZORgPOWlJzcmC4xovhop/FD7V/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 07/64] ARM: dts: imx6: Use gpc for FEC interrupt controller to fix wake on LAN.
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 084/166] s390/cpuinfo: fix wrong output when CPU0 is offline
 Date:   Wed, 22 Apr 2020 11:56:51 +0200
-Message-Id: <20200422095013.710989670@linuxfoundation.org>
+Message-Id: <20200422095057.753892618@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
-References: <20200422095008.799686511@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-commit 4141f1a40fc0789f6fd4330e171e1edf155426aa upstream.
+[ Upstream commit 872f27103874a73783aeff2aac2b41a489f67d7c ]
 
-In order to wake from suspend by ethernet magic packets the GPC
-must be used as intc does not have wakeup functionality.
+/proc/cpuinfo should not print information about CPU 0 when it is offline.
 
-But the FEC DT node currently uses interrupt-extended,
-specificying intc, thus breaking WoL.
-
-This problem is probably fallout from the stacked domain conversion
-as intc used to chain to GPC.
-
-So replace "interrupts-extended" by "interrupts" to use the default
-parent which is GPC.
-
-Fixes: b923ff6af0d5 ("ARM: imx6: convert GPC to stacked domains")
-
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 281eaa8cb67c ("s390/cpuinfo: simplify locking and skip offline cpus early")
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+[heiko.carstens@de.ibm.com: shortened commit message]
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl.dtsi |    5 ++---
- arch/arm/boot/dts/imx6qp.dtsi  |    1 -
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ arch/s390/kernel/processor.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/imx6qdl.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl.dtsi
-@@ -1013,9 +1013,8 @@
- 				compatible = "fsl,imx6q-fec";
- 				reg = <0x02188000 0x4000>;
- 				interrupt-names = "int0", "pps";
--				interrupts-extended =
--					<&intc 0 118 IRQ_TYPE_LEVEL_HIGH>,
--					<&intc 0 119 IRQ_TYPE_LEVEL_HIGH>;
-+				interrupts = <0 118 IRQ_TYPE_LEVEL_HIGH>,
-+					     <0 119 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clks IMX6QDL_CLK_ENET>,
- 					 <&clks IMX6QDL_CLK_ENET>,
- 					 <&clks IMX6QDL_CLK_ENET_REF>;
---- a/arch/arm/boot/dts/imx6qp.dtsi
-+++ b/arch/arm/boot/dts/imx6qp.dtsi
-@@ -77,7 +77,6 @@
- };
+diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
+index 6ebc2117c66c7..91b9b3f73de6e 100644
+--- a/arch/s390/kernel/processor.c
++++ b/arch/s390/kernel/processor.c
+@@ -165,8 +165,9 @@ static void show_cpu_mhz(struct seq_file *m, unsigned long n)
+ static int show_cpuinfo(struct seq_file *m, void *v)
+ {
+ 	unsigned long n = (unsigned long) v - 1;
++	unsigned long first = cpumask_first(cpu_online_mask);
  
- &fec {
--	/delete-property/interrupts-extended;
- 	interrupts = <0 118 IRQ_TYPE_LEVEL_HIGH>,
- 		     <0 119 IRQ_TYPE_LEVEL_HIGH>;
- };
+-	if (!n)
++	if (n == first)
+ 		show_cpu_summary(m, v);
+ 	if (!machine_has_cpu_mhz)
+ 		return 0;
+@@ -179,6 +180,8 @@ static inline void *c_update(loff_t *pos)
+ {
+ 	if (*pos)
+ 		*pos = cpumask_next(*pos - 1, cpu_online_mask);
++	else
++		*pos = cpumask_first(cpu_online_mask);
+ 	return *pos < nr_cpu_ids ? (void *)*pos + 1 : NULL;
+ }
+ 
+-- 
+2.20.1
+
 
 
