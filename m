@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 699211B403D
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9048A1B41A8
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729976AbgDVKSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:18:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55072 "EHLO mail.kernel.org"
+        id S1728663AbgDVKIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:08:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729971AbgDVKSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:18:32 -0400
+        id S1726596AbgDVKIO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:08:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E17E2076E;
-        Wed, 22 Apr 2020 10:18:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 928F52077D;
+        Wed, 22 Apr 2020 10:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550712;
-        bh=f+MIyflL7PoUCPvmXSbksyJDbP3lDfOTiJtP3BLlWqs=;
+        s=default; t=1587550094;
+        bh=TF/01RNQtNtjrq6KbrU+2FAcLCzjC1oerULda68YHj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPSDLGpNzSaWstvYlNFiz8UbjQcNEOpvVgW+O/EuNZ1QdChT4P51Sgfo9uKixX5LM
-         0RMFFcRMpwfmTOLl4Lligm3eKvDqSnci3XSEjnaxkavaWcNuOhzWZpq3ckAQWD5t3q
-         L02VBClZ/B2ltOQpmAlrNb4I2cB0xjeKyv0FrYhk=
+        b=Hm8mr3vwcH0PrpiGEL4YyV1EKdp+HXbmRyMKj07WHPuNjKa+po7MI2nRLuKsjB+Hz
+         doGZ3wtY8W6VLNeYh7DpRWub7r0a2mEnerwFJp8lf0g0xwE0G9/oXwXHVt2mL6j6Ty
+         +ixGwUpcJUPspBWqoRUBVcHc5+sF+l1hHiyqL7QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/118] btrfs: add RCU locks around block group initialization
+Subject: [PATCH 4.9 106/125] NFS: direct.c: Fix memory leak of dreq when nfs_get_lock_context fails
 Date:   Wed, 22 Apr 2020 11:57:03 +0200
-Message-Id: <20200422095042.165012684@linuxfoundation.org>
+Message-Id: <20200422095049.996928532@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
 
-[ Upstream commit 29566c9c773456467933ee22bbca1c2b72a3506c ]
+[ Upstream commit 8605cf0e852af3b2c771c18417499dc4ceed03d5 ]
 
-The space_info list is normally RCU protected and should be traversed
-with rcu_read_lock held. There's a warning
+When dreq is allocated by nfs_direct_req_alloc(), dreq->kref is
+initialized to 2. Therefore we need to call nfs_direct_req_release()
+twice to release the allocated dreq. Usually it is called in
+nfs_file_direct_{read, write}() and nfs_direct_complete().
 
-  [29.104756] WARNING: suspicious RCU usage
-  [29.105046] 5.6.0-rc4-next-20200305 #1 Not tainted
-  [29.105231] -----------------------------
-  [29.105401] fs/btrfs/block-group.c:2011 RCU-list traversed in non-reader section!!
+However, current code only calls nfs_direct_req_relese() once if
+nfs_get_lock_context() fails in nfs_file_direct_{read, write}().
+So, that case would result in memory leak.
 
-pointing out that the locking is missing in btrfs_read_block_groups.
-However this is not necessary as the list traversal happens at mount
-time when there's no other thread potentially accessing the list.
+Fix this by adding the missing call.
 
-To fix the warning and for consistency let's add the RCU lock/unlock,
-the code won't be affected much as it's doing some lightweight
-operations.
-
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/block-group.c | 2 ++
+ fs/nfs/direct.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index 7dcfa7d7632a1..95330f40f998c 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -1829,6 +1829,7 @@ int btrfs_read_block_groups(struct btrfs_fs_info *info)
- 		}
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 53f0012ace42f..de135d2591ffb 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -595,6 +595,7 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter)
+ 	l_ctx = nfs_get_lock_context(dreq->ctx);
+ 	if (IS_ERR(l_ctx)) {
+ 		result = PTR_ERR(l_ctx);
++		nfs_direct_req_release(dreq);
+ 		goto out_release;
  	}
- 
-+	rcu_read_lock();
- 	list_for_each_entry_rcu(space_info, &info->space_info, list) {
- 		if (!(btrfs_get_alloc_profile(info, space_info->flags) &
- 		      (BTRFS_BLOCK_GROUP_RAID10 |
-@@ -1849,6 +1850,7 @@ int btrfs_read_block_groups(struct btrfs_fs_info *info)
- 				list)
- 			inc_block_group_ro(cache, 1);
+ 	dreq->l_ctx = l_ctx;
+@@ -1019,6 +1020,7 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
+ 	l_ctx = nfs_get_lock_context(dreq->ctx);
+ 	if (IS_ERR(l_ctx)) {
+ 		result = PTR_ERR(l_ctx);
++		nfs_direct_req_release(dreq);
+ 		goto out_release;
  	}
-+	rcu_read_unlock();
- 
- 	btrfs_init_global_block_rsv(info);
- 	ret = check_chunk_block_group_mappings(info);
+ 	dreq->l_ctx = l_ctx;
 -- 
 2.20.1
 
