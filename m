@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 431131B3F5F
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:38:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFFDF1B4291
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730183AbgDVKgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:36:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59020 "EHLO mail.kernel.org"
+        id S1732369AbgDVLC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:02:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729884AbgDVKWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:22:45 -0400
+        id S1726643AbgDVKAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1737F2076E;
-        Wed, 22 Apr 2020 10:22:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 490382077D;
+        Wed, 22 Apr 2020 10:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550965;
-        bh=Isrih8rMZJRUmtk7ZuU2q84AJ4iMXZIZZshpIbEwdNY=;
+        s=default; t=1587549633;
+        bh=p711kW7+vtXYNGrEWOxxtf48YYYAKrkRBSY7gjVr1sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkQAMo0x+VojIo//uuhJ1UF8pGRjOr8Q85kmaL5sdV14aQk3ToNAV7ChfyuP69rEz
-         kz9zZjlFOmnUM/LEF1xTUN+l+qGwi5CmllhgIHT+rZqBa2hyb2uOVULeRknA5yjDHA
-         uTegZ/rXW2v6Hni7KIv9Ec2WmPfbiOzZI0D4PNA4=
+        b=a6QH5HAdFBCOCnQhgkgTwtB1o6cQoOWsPWgOH4FIhaRgnELdhSJ5LsPUxvzNqB368
+         oxk3iMRwbiOS1hc1pViYgn/AdQBAitRavZSmMiiapf7KkbGAXE/MNjt7Bt2cAtK3HM
+         g3o0s8Lx+yvEYLlipxaAdrB7v2U1uZqcGJyqgfkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Torsten Duwe <duwe@suse.de>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 046/166] s390/crypto: explicitly memzero stack key material in aes_s390.c
+        stable@vger.kernel.org, Changwei Ge <chge@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 043/100] ocfs2: no need try to truncate file beyond i_size
 Date:   Wed, 22 Apr 2020 11:56:13 +0200
-Message-Id: <20200422095054.041358626@linuxfoundation.org>
+Message-Id: <20200422095030.232440704@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +50,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Torsten Duwe <duwe@suse.de>
+From: Changwei Ge <chge@linux.alibaba.com>
 
-[ Upstream commit 4a559cd15dbc79958fa9b18ad4e8afe4a0bf4744 ]
+commit 783fda856e1034dee90a873f7654c418212d12d7 upstream.
 
-aes_s390.c has several functions which allocate space for key material on
-the stack and leave the used keys there. It is considered good practice
-to clean these locations before the function returns.
+Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
+exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
+size.  This restriction is not necessary and violates fallocate(2)
+semantics.
 
-Link: https://lkml.kernel.org/r/20200221165511.GB6928@lst.de
-Signed-off-by: Torsten Duwe <duwe@suse.de>
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If fallocate(2) offset is beyond inode size, just return success and do
+nothing further.
+
+Otherwise, ocfs2 will crash the kernel.
+
+  kernel BUG at fs/ocfs2//alloc.c:7264!
+   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
+   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
+   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
+   ocfs2_fallocate+0x83/0xa0 [ocfs2]
+   vfs_fallocate+0x148/0x230
+   SyS_fallocate+0x48/0x80
+   do_syscall_64+0x79/0x170
+
+Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/s390/crypto/aes_s390.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ocfs2/alloc.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index 1c23d84a9097d..73044634d3427 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -342,6 +342,7 @@ static int cbc_aes_crypt(struct skcipher_request *req, unsigned long modifier)
- 		memcpy(walk.iv, param.iv, AES_BLOCK_SIZE);
- 		ret = skcipher_walk_done(&walk, nbytes - n);
- 	}
-+	memzero_explicit(&param, sizeof(param));
- 	return ret;
- }
+--- a/fs/ocfs2/alloc.c
++++ b/fs/ocfs2/alloc.c
+@@ -7206,6 +7206,10 @@ int ocfs2_truncate_inline(struct inode *
+ 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
+ 	struct ocfs2_inline_data *idata = &di->id2.i_data;
  
-@@ -470,6 +471,8 @@ static int xts_aes_crypt(struct skcipher_request *req, unsigned long modifier)
- 			 walk.dst.virt.addr, walk.src.virt.addr, n);
- 		ret = skcipher_walk_done(&walk, nbytes - n);
- 	}
-+	memzero_explicit(&pcc_param, sizeof(pcc_param));
-+	memzero_explicit(&xts_param, sizeof(xts_param));
- 	return ret;
- }
++	/* No need to punch hole beyond i_size. */
++	if (start >= i_size_read(inode))
++		return 0;
++
+ 	if (end > i_size_read(inode))
+ 		end = i_size_read(inode);
  
--- 
-2.20.1
-
 
 
