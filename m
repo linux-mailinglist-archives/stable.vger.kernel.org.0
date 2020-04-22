@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 958B01B42B5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D65C1B420A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732481AbgDVLDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:03:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46656 "EHLO mail.kernel.org"
+        id S1728007AbgDVKEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:04:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725961AbgDVJ7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 05:59:51 -0400
+        id S1728032AbgDVKEc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:04:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C15820776;
-        Wed, 22 Apr 2020 09:59:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F77120575;
+        Wed, 22 Apr 2020 10:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549589;
-        bh=Obv2RGH5YaGvCgQQFtLrRO8YWKPExsVOknJMAtx0uhM=;
+        s=default; t=1587549870;
+        bh=1ikYEs3EOoE+TbYWpEa/q2UTB0sAEjEFWOcDFUvzuAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aa/qydBOaK0jQLvzixequzbexnxjOWpo0+cqTvuS+mMmnlT4jcB4s4Zf/EVyxTG87
-         nljGBGzvKzTKy0OH1l5nlFEBi9toZwRymmTsC8b1OP2Y+0ClTfAt9Th6Bbfh90gzpy
-         9n1BeNL//EkYQxJCYHfD8QbfoLDnY3qBCgNLldlc=
+        b=j9FhSkIO+X+PpBacDBKOoFJIlLY8nJ/ASeeoldIo5ee/rFtcVBGZ/+SssgQ8Uvuw1
+         hC+VdNa91pABPYdTNjG6W2EYn5BaKHOHaEWdEcqfeZqKOD5wF/zBXMAqxzFn+79YBK
+         B7j7GW4Vbt4BXKjcYsLIDzyW+psI3kXbJ2KhOfQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 4.4 026/100] thermal: devfreq_cooling: inline all stubs for CONFIG_DEVFREQ_THERMAL=n
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 039/125] KVM: VMX: fix crash cleanup when KVM wasnt used
 Date:   Wed, 22 Apr 2020 11:55:56 +0200
-Message-Id: <20200422095027.507589459@linuxfoundation.org>
+Message-Id: <20200422095039.813059238@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 3f5b9959041e0db6dacbea80bb833bff5900999f upstream.
+commit dbef2808af6c594922fe32833b30f55f35e9da6d upstream.
 
-When CONFIG_DEVFREQ_THERMAL is disabled all functions except
-of_devfreq_cooling_register_power() were already inlined. Also inline
-the last function to avoid compile errors when multiple drivers call
-of_devfreq_cooling_register_power() when CONFIG_DEVFREQ_THERMAL is not
-set. Compilation failed with the following message:
-  multiple definition of `of_devfreq_cooling_register_power'
-(which then lists all usages of of_devfreq_cooling_register_power())
+If KVM wasn't used at all before we crash the cleanup procedure fails with
+ BUG: unable to handle page fault for address: ffffffffffffffc8
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 23215067 P4D 23215067 PUD 23217067 PMD 0
+ Oops: 0000 [#8] SMP PTI
+ CPU: 0 PID: 3542 Comm: bash Kdump: loaded Tainted: G      D           5.6.0-rc2+ #823
+ RIP: 0010:crash_vmclear_local_loaded_vmcss.cold+0x19/0x51 [kvm_intel]
 
-Thomas Zimmermann reported this problem [0] on a kernel config with
-CONFIG_DRM_LIMA={m,y}, CONFIG_DRM_PANFROST={m,y} and
-CONFIG_DEVFREQ_THERMAL=n after both, the lima and panfrost drivers
-gained devfreq cooling support.
+The root cause is that loaded_vmcss_on_cpu list is not yet initialized,
+we initialize it in hardware_enable() but this only happens when we start
+a VM.
 
-[0] https://www.spinics.net/lists/dri-devel/msg252825.html
+Previously, we used to have a bitmap with enabled CPUs and that was
+preventing [masking] the issue.
 
-Fixes: a76caf55e5b356 ("thermal: Add devfreq cooling")
-Cc: stable@vger.kernel.org
-Reported-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200403205133.1101808-1-martin.blumenstingl@googlemail.com
+Initialized loaded_vmcss_on_cpu list earlier, right before we assign
+crash_vmclear_loaded_vmcss pointer. blocked_vcpu_on_cpu list and
+blocked_vcpu_on_cpu_lock are moved altogether for consistency.
+
+Fixes: 31603d4fc2bb ("KVM: VMX: Always VMCLEAR in-use VMCSes during crash with kexec support")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20200401081348.1345307-1-vkuznets@redhat.com>
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/devfreq_cooling.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/include/linux/devfreq_cooling.h
-+++ b/include/linux/devfreq_cooling.h
-@@ -53,7 +53,7 @@ void devfreq_cooling_unregister(struct t
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -3482,10 +3482,6 @@ static int hardware_enable(void)
+ 	if (cr4_read_shadow() & X86_CR4_VMXE)
+ 		return -EBUSY;
  
- #else /* !CONFIG_DEVFREQ_THERMAL */
+-	INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
+-	INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
+-	spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
+-
+ 	rdmsrl(MSR_IA32_FEATURE_CONTROL, old);
  
--struct thermal_cooling_device *
-+static inline struct thermal_cooling_device *
- of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
- 				  struct devfreq_cooling_power *dfc_power)
+ 	test_bits = FEATURE_CONTROL_LOCKED;
+@@ -11860,7 +11856,7 @@ module_exit(vmx_exit)
+ 
+ static int __init vmx_init(void)
  {
+-	int r;
++	int r, cpu;
+ 
+ 	r = kvm_init(&vmx_x86_ops, sizeof(struct vcpu_vmx),
+ 		     __alignof__(struct vcpu_vmx), THIS_MODULE);
+@@ -11882,6 +11878,12 @@ static int __init vmx_init(void)
+ 		}
+ 	}
+ 
++	for_each_possible_cpu(cpu) {
++		INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
++		INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
++		spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
++	}
++
+ #ifdef CONFIG_KEXEC_CORE
+ 	rcu_assign_pointer(crash_vmclear_loaded_vmcss,
+ 			   crash_vmclear_local_loaded_vmcss);
 
 
