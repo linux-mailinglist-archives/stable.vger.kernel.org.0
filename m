@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A933A1B3C7B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81A81B423A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:00:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728302AbgDVKGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:06:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57840 "EHLO mail.kernel.org"
+        id S1727112AbgDVKDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:03:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728297AbgDVKGH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:06:07 -0400
+        id S1725994AbgDVKDG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:03:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B52FF2075A;
-        Wed, 22 Apr 2020 10:06:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4668120774;
+        Wed, 22 Apr 2020 10:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549967;
-        bh=GZarW84cSzMmuoUNp00bkm3TbDZI8aQ59rL2ap05KrQ=;
+        s=default; t=1587549785;
+        bh=fCbnyq0035wIDV3foIDFdpOQFjmvL8wKvS4WwdKxTAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QreRlX7TcbGpSialMjhRlEIesy3+1xRc1Xi8eC8UQ2YWWIJLFdFYweNpy/IPqNKzA
-         TcRZNs16jZPCOxTCgwFX1uxP+GW5M7oQu/k1e428elOVgPi4J7vM1hn8T4zPLvGTBt
-         9/ACa0BcrLZ7pn7M7irTMWTjhEReEIeybQ7CTkRY=
+        b=oLR/o+Nx4vlNXlMDjZp5rfpAJzECwWDtqFMRHMgrVhzgSM4pVao7dnk+u/Jejefq3
+         jzXAjTBpe7rmmyDHYisxI1j1fu83Gab+2ExWc5kjOL3sn9yaVeieID2p2RTNX+yfO2
+         MPPCzU5IJkHD/wHzNuMooXP19B3jXzg9SZSigLEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Goldwyn Rodrigues <rgoldwyn@suse.com>,
         Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 080/125] dm flakey: check for null arg_name in parse_features()
+Subject: [PATCH 4.4 067/100] dm flakey: check for null arg_name in parse_features()
 Date:   Wed, 22 Apr 2020 11:56:37 +0200
-Message-Id: <20200422095045.998156523@linuxfoundation.org>
+Message-Id: <20200422095035.128693758@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,7 +62,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/drivers/md/dm-flakey.c b/drivers/md/dm-flakey.c
-index 742c1fa870dae..36a98f4db0564 100644
+index 78f403b45ab3e..bf82e4ccb5847 100644
 --- a/drivers/md/dm-flakey.c
 +++ b/drivers/md/dm-flakey.c
 @@ -69,6 +69,11 @@ static int parse_features(struct dm_arg_set *as, struct flakey_c *fc,
