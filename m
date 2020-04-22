@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77A3D1B4129
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B48161B408A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731878AbgDVKui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:50:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44932 "EHLO mail.kernel.org"
+        id S1726050AbgDVKqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:46:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729300AbgDVKMH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:12:07 -0400
+        id S1728680AbgDVKQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:16:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0EE12070B;
-        Wed, 22 Apr 2020 10:12:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B641E2070B;
+        Wed, 22 Apr 2020 10:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550327;
-        bh=FJ5gKHUKWaL00/Yg14OCF+bnaMFYnd2VPJmO5ZS6rt0=;
+        s=default; t=1587550618;
+        bh=USHL728CC5BpJX28A7ujeCdhKKJonWU+NgiTGWGo5VA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eUdaiFoul6XLZg4SAbv4yUn4lmcUxpGTLVHd0cZyd9u91m/44RimKFNpLLScJsqFj
-         AKSCI3Mafgmhw2vMK+/aVDET1wg9ERp/bEUzc6/xXw/LSfUE8sP5BHWDTr3nhXMg9J
-         o71I41QjVpqj/aHzUGcmloZpqA/XWjC6e/cx3Y/s=
+        b=awMgd1qHndXcdpyAdYbP7VYyGcI4x1CzlV1Mqe8QdnNPb0sYiDNw61q0AzTt8r2dU
+         vdZwZBa5tIjiiXAmq8DUeW/TV0Eon6JWlTR0YRBOqCSWSOZfEANI41f0fzsK9b7A0l
+         VYQXd4XmGGtbY9R1hEHzwVo5cb4QGZV6HY42xvFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4.14 059/199] KVM: s390: vsie: Fix delivery of addressing exceptions
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: [PATCH 5.4 024/118] afs: Fix missing XDR advance in xdr_decode_{AFS,YFS}FSFetchStatus()
 Date:   Wed, 22 Apr 2020 11:56:25 +0200
-Message-Id: <20200422095104.163280364@linuxfoundation.org>
+Message-Id: <20200422095035.778695497@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 upstream.
+commit c72057b56f7e24865840a6961d801a7f21d30a5f upstream.
 
-Whenever we get an -EFAULT, we failed to read in guest 2 physical
-address space. Such addressing exceptions are reported via a program
-intercept to the nested hypervisor.
+If we receive a status record that has VNOVNODE set in the abort field,
+xdr_decode_AFSFetchStatus() and xdr_decode_YFSFetchStatus() don't advance
+the XDR pointer, thereby corrupting anything subsequent decodes from the
+same block of data.
 
-We faked the intercept, we have to return to guest 2. Instead, right
-now we would be returning -EFAULT from the intercept handler, eventually
-crashing the VM.
-the correct thing to do is to return 1 as rc == 1 is the internal
-representation of "we have to go back into g2".
+This has the potential to affect AFS.InlineBulkStatus and
+YFS.InlineBulkStatus operation, but probably doesn't since the status
+records are extracted as individual blocks of data and the buffer pointer
+is reset between blocks.
 
-Addressing exceptions can only happen if the g2->g3 page tables
-reference invalid g2 addresses (say, either a table or the final page is
-not accessible - so something that basically never happens in sane
-environments.
+It does affect YFS.RemoveFile2 operation, corrupting the volsync record -
+though that is not currently used.
 
-Identified by manual code inspection.
+Other operations abort the entire operation rather than returning an error
+inline, in which case there is no decoding to be done.
 
-Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[borntraeger@de.ibm.com: fix patch description]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fix this by unconditionally advancing the xdr pointer.
+
+Fixes: 684b0f68cf1c ("afs: Fix AFSFetchStatus decoder to provide OpenAFS compatibility")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kvm/vsie.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/afs/fsclient.c  |   14 +++++++++-----
+ fs/afs/yfsclient.c |   12 ++++++++----
+ 2 files changed, 17 insertions(+), 9 deletions(-)
 
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1027,6 +1027,7 @@ static int vsie_run(struct kvm_vcpu *vcp
- 		scb_s->iprcc = PGM_ADDRESSING;
- 		scb_s->pgmilc = 4;
- 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
-+		rc = 1;
+--- a/fs/afs/fsclient.c
++++ b/fs/afs/fsclient.c
+@@ -65,6 +65,7 @@ static int xdr_decode_AFSFetchStatus(con
+ 	bool inline_error = (call->operation_ID == afs_FS_InlineBulkStatus);
+ 	u64 data_version, size;
+ 	u32 type, abort_code;
++	int ret;
+ 
+ 	abort_code = ntohl(xdr->abort_code);
+ 
+@@ -78,7 +79,7 @@ static int xdr_decode_AFSFetchStatus(con
+ 			 */
+ 			status->abort_code = abort_code;
+ 			scb->have_error = true;
+-			return 0;
++			goto good;
+ 		}
+ 
+ 		pr_warn("Unknown AFSFetchStatus version %u\n", ntohl(xdr->if_version));
+@@ -87,7 +88,7 @@ static int xdr_decode_AFSFetchStatus(con
+ 
+ 	if (abort_code != 0 && inline_error) {
+ 		status->abort_code = abort_code;
+-		return 0;
++		goto good;
  	}
- 	return rc;
+ 
+ 	type = ntohl(xdr->type);
+@@ -123,13 +124,16 @@ static int xdr_decode_AFSFetchStatus(con
+ 	data_version |= (u64)ntohl(xdr->data_version_hi) << 32;
+ 	status->data_version = data_version;
+ 	scb->have_status = true;
+-
++good:
++	ret = 0;
++advance:
+ 	*_bp = (const void *)*_bp + sizeof(*xdr);
+-	return 0;
++	return ret;
+ 
+ bad:
+ 	xdr_dump_bad(*_bp);
+-	return afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
++	ret = afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
++	goto advance;
  }
+ 
+ static time64_t xdr_decode_expiry(struct afs_call *call, u32 expiry)
+--- a/fs/afs/yfsclient.c
++++ b/fs/afs/yfsclient.c
+@@ -186,13 +186,14 @@ static int xdr_decode_YFSFetchStatus(con
+ 	const struct yfs_xdr_YFSFetchStatus *xdr = (const void *)*_bp;
+ 	struct afs_file_status *status = &scb->status;
+ 	u32 type;
++	int ret;
+ 
+ 	status->abort_code = ntohl(xdr->abort_code);
+ 	if (status->abort_code != 0) {
+ 		if (status->abort_code == VNOVNODE)
+ 			status->nlink = 0;
+ 		scb->have_error = true;
+-		return 0;
++		goto good;
+ 	}
+ 
+ 	type = ntohl(xdr->type);
+@@ -220,13 +221,16 @@ static int xdr_decode_YFSFetchStatus(con
+ 	status->size		= xdr_to_u64(xdr->size);
+ 	status->data_version	= xdr_to_u64(xdr->data_version);
+ 	scb->have_status	= true;
+-
++good:
++	ret = 0;
++advance:
+ 	*_bp += xdr_size(xdr);
+-	return 0;
++	return ret;
+ 
+ bad:
+ 	xdr_dump_bad(*_bp);
+-	return afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
++	ret = afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
++	goto advance;
+ }
+ 
+ /*
 
 
