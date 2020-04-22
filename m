@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 908C41B41CE
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62EA01B3C28
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:04:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726975AbgDVKGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57780 "EHLO mail.kernel.org"
+        id S1727106AbgDVKDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726700AbgDVKGF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:06:05 -0400
+        id S1727100AbgDVKDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:03:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50F5720575;
-        Wed, 22 Apr 2020 10:06:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC4EC208E4;
+        Wed, 22 Apr 2020 10:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549964;
-        bh=zMxR76d63ZCfvoPS1JehDQViBiTPeOazz91jRXSDdM4=;
+        s=default; t=1587549783;
+        bh=XJr0lxy5vIcZ2OGNprXuiu1yZaGRxoLt/EV3+aKxOn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0EVWjoqejLxn90jejcfQqGr2RWwzUNn2Juk6JmZrPIRwKc+3fWi8x5UTFzImju4IY
-         l7JXCn0g+WUqKrc/3oon2BlW5IqhnOpw/YUYxwr4htiZXB2oS3uMhD9XjMMuh9aYmV
-         qLedEQe5EkXdqIXjwWdKNajm0ph3kQn4IlcHZqJM=
+        b=lWA0ILj8Bdaw+kt3B1ofb7ZneWKzgNMT44P1iiE/7lUf4z8upT6erEJ2IhKLSCpKa
+         dlVQJ+TlxD5HDJVx9nY13acDdb/8Pb1ErDHUlMQTEnDh2CBFHcrx60aAIJM6Iq21hP
+         CICcK71bSZFBfPdMbEzpZcWdEWUvQq4tloAEw1mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
         Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 079/125] ext4: do not zeroout extents beyond i_disksize
+Subject: [PATCH 4.4 066/100] ext4: do not zeroout extents beyond i_disksize
 Date:   Wed, 22 Apr 2020 11:56:36 +0200
-Message-Id: <20200422095045.854537584@linuxfoundation.org>
+Message-Id: <20200422095034.909940954@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/ext4/extents.c
 +++ b/fs/ext4/extents.c
-@@ -3445,8 +3445,8 @@ static int ext4_ext_convert_to_initializ
+@@ -3439,8 +3439,8 @@ static int ext4_ext_convert_to_initializ
  		(unsigned long long)map->m_lblk, map_len);
  
  	sbi = EXT4_SB(inode->i_sb);
