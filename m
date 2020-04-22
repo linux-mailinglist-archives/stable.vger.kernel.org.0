@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96FCE1B3F7F
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:39:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C26FC1B421B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:58:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730694AbgDVKiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:38:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58486 "EHLO mail.kernel.org"
+        id S1726562AbgDVK57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:57:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726446AbgDVKWG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:22:06 -0400
+        id S1728052AbgDVKEf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:04:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CC38214AF;
-        Wed, 22 Apr 2020 10:22:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFBEA20575;
+        Wed, 22 Apr 2020 10:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550926;
-        bh=USHL728CC5BpJX28A7ujeCdhKKJonWU+NgiTGWGo5VA=;
+        s=default; t=1587549875;
+        bh=XjmrEhuophM687LSAaFi/HfiN1o+mJnwbGhVRoqqK60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JA6U5wSD+nc+2FmDgjgB+SfmOjY4fd8y4h3jirEQz41EJ4t6vhTP5vnzTdPu9agwM
-         VqlY+/mzsFbkPr3tqBkJW7bSKOLaCMbbiQxYVfVEhMeT/hiqjtCnpyebE/3cmsiMhF
-         3cZAC+4u8WR1xBBDOzkY8LbtDhv5mV41YctGaT1k=
+        b=N7TLKgmWiSQc38brpxXmEmxPvQjyAMa2lc6M1blLqQhf361YlgjYv5LmCYHSMR4KQ
+         P8lQiA4fRlMiGoT4pMZtBT9SzgsZge1hyIOiDh44XJV12OGG5XTzHTQTCp1IPRNDPe
+         fWKdHKry73sxvlJ26mDOSxmNPSXTtqwrR1MQ+yTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.6 031/166] afs: Fix missing XDR advance in xdr_decode_{AFS,YFS}FSFetchStatus()
+        stable@vger.kernel.org, Rosioru Dragos <dragos.rosioru@nxp.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 041/125] crypto: mxs-dcp - fix scatterlist linearization for hash
 Date:   Wed, 22 Apr 2020 11:55:58 +0200
-Message-Id: <20200422095052.105632264@linuxfoundation.org>
+Message-Id: <20200422095040.173295676@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,122 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Rosioru Dragos <dragos.rosioru@nxp.com>
 
-commit c72057b56f7e24865840a6961d801a7f21d30a5f upstream.
+commit fa03481b6e2e82355c46644147b614f18c7a8161 upstream.
 
-If we receive a status record that has VNOVNODE set in the abort field,
-xdr_decode_AFSFetchStatus() and xdr_decode_YFSFetchStatus() don't advance
-the XDR pointer, thereby corrupting anything subsequent decodes from the
-same block of data.
+The incorrect traversal of the scatterlist, during the linearization phase
+lead to computing the hash value of the wrong input buffer.
+New implementation uses scatterwalk_map_and_copy()
+to address this issue.
 
-This has the potential to affect AFS.InlineBulkStatus and
-YFS.InlineBulkStatus operation, but probably doesn't since the status
-records are extracted as individual blocks of data and the buffer pointer
-is reset between blocks.
-
-It does affect YFS.RemoveFile2 operation, corrupting the volsync record -
-though that is not currently used.
-
-Other operations abort the entire operation rather than returning an error
-inline, in which case there is no decoding to be done.
-
-Fix this by unconditionally advancing the xdr pointer.
-
-Fixes: 684b0f68cf1c ("afs: Fix AFSFetchStatus decoder to provide OpenAFS compatibility")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 15b59e7c3733 ("crypto: mxs - Add Freescale MXS DCP driver")
+Signed-off-by: Rosioru Dragos <dragos.rosioru@nxp.com>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/afs/fsclient.c  |   14 +++++++++-----
- fs/afs/yfsclient.c |   12 ++++++++----
- 2 files changed, 17 insertions(+), 9 deletions(-)
+ drivers/crypto/mxs-dcp.c |   54 ++++++++++++++++++++++-------------------------
+ 1 file changed, 26 insertions(+), 28 deletions(-)
 
---- a/fs/afs/fsclient.c
-+++ b/fs/afs/fsclient.c
-@@ -65,6 +65,7 @@ static int xdr_decode_AFSFetchStatus(con
- 	bool inline_error = (call->operation_ID == afs_FS_InlineBulkStatus);
- 	u64 data_version, size;
- 	u32 type, abort_code;
-+	int ret;
+--- a/drivers/crypto/mxs-dcp.c
++++ b/drivers/crypto/mxs-dcp.c
+@@ -25,6 +25,7 @@
+ #include <crypto/sha.h>
+ #include <crypto/internal/hash.h>
+ #include <crypto/internal/skcipher.h>
++#include <crypto/scatterwalk.h>
  
- 	abort_code = ntohl(xdr->abort_code);
+ #define DCP_MAX_CHANS	4
+ #define DCP_BUF_SZ	PAGE_SIZE
+@@ -621,49 +622,46 @@ static int dcp_sha_req_to_buf(struct cry
+ 	struct dcp_async_ctx *actx = crypto_ahash_ctx(tfm);
+ 	struct dcp_sha_req_ctx *rctx = ahash_request_ctx(req);
+ 	struct hash_alg_common *halg = crypto_hash_alg_common(tfm);
+-	const int nents = sg_nents(req->src);
  
-@@ -78,7 +79,7 @@ static int xdr_decode_AFSFetchStatus(con
- 			 */
- 			status->abort_code = abort_code;
- 			scb->have_error = true;
--			return 0;
-+			goto good;
- 		}
+ 	uint8_t *in_buf = sdcp->coh->sha_in_buf;
+ 	uint8_t *out_buf = sdcp->coh->sha_out_buf;
  
- 		pr_warn("Unknown AFSFetchStatus version %u\n", ntohl(xdr->if_version));
-@@ -87,7 +88,7 @@ static int xdr_decode_AFSFetchStatus(con
+-	uint8_t *src_buf;
+-
+ 	struct scatterlist *src;
  
- 	if (abort_code != 0 && inline_error) {
- 		status->abort_code = abort_code;
--		return 0;
-+		goto good;
+-	unsigned int i, len, clen;
++	unsigned int i, len, clen, oft = 0;
+ 	int ret;
+ 
+ 	int fin = rctx->fini;
+ 	if (fin)
+ 		rctx->fini = 0;
+ 
+-	for_each_sg(req->src, src, nents, i) {
+-		src_buf = sg_virt(src);
+-		len = sg_dma_len(src);
++	src = req->src;
++	len = req->nbytes;
+ 
+-		do {
+-			if (actx->fill + len > DCP_BUF_SZ)
+-				clen = DCP_BUF_SZ - actx->fill;
+-			else
+-				clen = len;
++	while (len) {
++		if (actx->fill + len > DCP_BUF_SZ)
++			clen = DCP_BUF_SZ - actx->fill;
++		else
++			clen = len;
+ 
+-			memcpy(in_buf + actx->fill, src_buf, clen);
+-			len -= clen;
+-			src_buf += clen;
+-			actx->fill += clen;
++		scatterwalk_map_and_copy(in_buf + actx->fill, src, oft, clen,
++					 0);
+ 
+-			/*
+-			 * If we filled the buffer and still have some
+-			 * more data, submit the buffer.
+-			 */
+-			if (len && actx->fill == DCP_BUF_SZ) {
+-				ret = mxs_dcp_run_sha(req);
+-				if (ret)
+-					return ret;
+-				actx->fill = 0;
+-				rctx->init = 0;
+-			}
+-		} while (len);
++		len -= clen;
++		oft += clen;
++		actx->fill += clen;
++
++		/*
++		 * If we filled the buffer and still have some
++		 * more data, submit the buffer.
++		 */
++		if (len && actx->fill == DCP_BUF_SZ) {
++			ret = mxs_dcp_run_sha(req);
++			if (ret)
++				return ret;
++			actx->fill = 0;
++			rctx->init = 0;
++		}
  	}
  
- 	type = ntohl(xdr->type);
-@@ -123,13 +124,16 @@ static int xdr_decode_AFSFetchStatus(con
- 	data_version |= (u64)ntohl(xdr->data_version_hi) << 32;
- 	status->data_version = data_version;
- 	scb->have_status = true;
--
-+good:
-+	ret = 0;
-+advance:
- 	*_bp = (const void *)*_bp + sizeof(*xdr);
--	return 0;
-+	return ret;
- 
- bad:
- 	xdr_dump_bad(*_bp);
--	return afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
-+	ret = afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
-+	goto advance;
- }
- 
- static time64_t xdr_decode_expiry(struct afs_call *call, u32 expiry)
---- a/fs/afs/yfsclient.c
-+++ b/fs/afs/yfsclient.c
-@@ -186,13 +186,14 @@ static int xdr_decode_YFSFetchStatus(con
- 	const struct yfs_xdr_YFSFetchStatus *xdr = (const void *)*_bp;
- 	struct afs_file_status *status = &scb->status;
- 	u32 type;
-+	int ret;
- 
- 	status->abort_code = ntohl(xdr->abort_code);
- 	if (status->abort_code != 0) {
- 		if (status->abort_code == VNOVNODE)
- 			status->nlink = 0;
- 		scb->have_error = true;
--		return 0;
-+		goto good;
- 	}
- 
- 	type = ntohl(xdr->type);
-@@ -220,13 +221,16 @@ static int xdr_decode_YFSFetchStatus(con
- 	status->size		= xdr_to_u64(xdr->size);
- 	status->data_version	= xdr_to_u64(xdr->data_version);
- 	scb->have_status	= true;
--
-+good:
-+	ret = 0;
-+advance:
- 	*_bp += xdr_size(xdr);
--	return 0;
-+	return ret;
- 
- bad:
- 	xdr_dump_bad(*_bp);
--	return afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
-+	ret = afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
-+	goto advance;
- }
- 
- /*
+ 	if (fin) {
 
 
