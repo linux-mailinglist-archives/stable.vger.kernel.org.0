@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 262D41B4177
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A18821B3D98
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:16:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731137AbgDVKwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:52:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37798 "EHLO mail.kernel.org"
+        id S1729764AbgDVKQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:16:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726798AbgDVKJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:09:57 -0400
+        id S1729761AbgDVKQ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:16:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B427C2070B;
-        Wed, 22 Apr 2020 10:09:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0080520775;
+        Wed, 22 Apr 2020 10:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550197;
-        bh=wgY92Up2hqj3U3bxEm7of4dFDNE/XdwTMo46DQJ7BiA=;
+        s=default; t=1587550588;
+        bh=7ekGnQwcskQsAvXyxVhU+OYSAugtcgiQWwJ33Cjr7c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSL94LrshyIwWeaC7jzMIhOjhLD/mp6y1lwRI20bgEAwm55GyAvliENLaviyJjdwX
-         5Z1um0puHgnTgEN7oTeooGCO7p9K/Ip2XuLdLi7VxTn2yk5b8edgqYU519Xij9Uj9n
-         AXVXAb3zI2wST4Kgzih3tJvAAfLFXMGPu6g9U71A=
+        b=mKNvgbuBBHnaW1ikZ6XhLqb8n8WK27s/THaEJHDA1djKoFERieaYsGahuYT0L/HXM
+         0xjaRu8Lnnx1A0ieA9xIcf2D/1un94eHtREwfk68hkTRiPyZvk3BV3L9RA1Me3V25H
+         ZjUKlC5mXMb7BPg98M6CSHdEnRojOh5e0BES+Jo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 4.14 047/199] thermal: devfreq_cooling: inline all stubs for CONFIG_DEVFREQ_THERMAL=n
-Date:   Wed, 22 Apr 2020 11:56:13 +0200
-Message-Id: <20200422095102.898478844@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 013/118] ALSA: hda: Dont release card at firmware loading error
+Date:   Wed, 22 Apr 2020 11:56:14 +0200
+Message-Id: <20200422095033.716915406@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 3f5b9959041e0db6dacbea80bb833bff5900999f upstream.
+commit 25faa4bd37c10f19e4b848b9032a17a3d44c6f09 upstream.
 
-When CONFIG_DEVFREQ_THERMAL is disabled all functions except
-of_devfreq_cooling_register_power() were already inlined. Also inline
-the last function to avoid compile errors when multiple drivers call
-of_devfreq_cooling_register_power() when CONFIG_DEVFREQ_THERMAL is not
-set. Compilation failed with the following message:
-  multiple definition of `of_devfreq_cooling_register_power'
-(which then lists all usages of of_devfreq_cooling_register_power())
+At the error path of the firmware loading error, the driver tries to
+release the card object and set NULL to drvdata.  This may be referred
+badly at the possible PM action, as the driver itself is still bound
+and the PM callbacks read the card object.
 
-Thomas Zimmermann reported this problem [0] on a kernel config with
-CONFIG_DRM_LIMA={m,y}, CONFIG_DRM_PANFROST={m,y} and
-CONFIG_DEVFREQ_THERMAL=n after both, the lima and panfrost drivers
-gained devfreq cooling support.
+Instead, we continue the probing as if it were no option set.  This is
+often a better choice than the forced abort, too.
 
-[0] https://www.spinics.net/lists/dri-devel/msg252825.html
-
-Fixes: a76caf55e5b356 ("thermal: Add devfreq cooling")
-Cc: stable@vger.kernel.org
-Reported-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200403205133.1101808-1-martin.blumenstingl@googlemail.com
+Fixes: 5cb543dba986 ("ALSA: hda - Deferred probing with request_firmware_nowait()")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
+Link: https://lore.kernel.org/r/20200413082034.25166-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/devfreq_cooling.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c |   19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
 
---- a/include/linux/devfreq_cooling.h
-+++ b/include/linux/devfreq_cooling.h
-@@ -75,7 +75,7 @@ void devfreq_cooling_unregister(struct t
- 
- #else /* !CONFIG_DEVFREQ_THERMAL */
- 
--struct thermal_cooling_device *
-+static inline struct thermal_cooling_device *
- of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
- 				  struct devfreq_cooling_power *dfc_power)
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1980,24 +1980,15 @@ static void azx_firmware_cb(const struct
  {
+ 	struct snd_card *card = context;
+ 	struct azx *chip = card->private_data;
+-	struct pci_dev *pci = chip->pci;
+ 
+-	if (!fw) {
+-		dev_err(card->dev, "Cannot load firmware, aborting\n");
+-		goto error;
+-	}
+-
+-	chip->fw = fw;
++	if (fw)
++		chip->fw = fw;
++	else
++		dev_err(card->dev, "Cannot load firmware, continue without patching\n");
+ 	if (!chip->disabled) {
+ 		/* continue probing */
+-		if (azx_probe_continue(chip))
+-			goto error;
++		azx_probe_continue(chip);
+ 	}
+-	return; /* OK */
+-
+- error:
+-	snd_card_free(card);
+-	pci_set_drvdata(pci, NULL);
+ }
+ #endif
+ 
 
 
