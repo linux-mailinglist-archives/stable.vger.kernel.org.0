@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0381B3ECD
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 762E91B3C7F
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:06:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730560AbgDVKZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:25:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34150 "EHLO mail.kernel.org"
+        id S1727056AbgDVKGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:06:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730543AbgDVKZe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:25:34 -0400
+        id S1728317AbgDVKGM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:06:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5DD32071E;
-        Wed, 22 Apr 2020 10:25:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 790712075A;
+        Wed, 22 Apr 2020 10:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551133;
-        bh=FtXTfofnjxnh+C0trmA6BpW36cW+yD3+qYSHdl9Ug4M=;
+        s=default; t=1587549971;
+        bh=idgshFs3pJ4wddZ6Cds1FGvsSASdv3dtQQDtPhm/v8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixCcJE/7r7EpnszEtK+L1H2QUQrBWFifeltDNeeeEMukXmUWi4QwT0cCQVQ/+i7co
-         FfBQIPH6hBnBY9pLZMdE7W2WmUJBvEWUVyyVqx1S+1Zhu+fpJHKKS9MEDmHYRwEwAE
-         H3mGuSX5rSqZ2aDDkUujBpWT5mUMhmuJR/2Rrbgg=
+        b=E/eI5zgEj/E0PEuxqN3sSpPuUICoS1PSdLjZiKLZX4+Gz0omzKdi0uQyvOXOvkqbC
+         yW2TKwJqFxspFC6DiMp5xtkviD56obCT4dwMqdn/o2TJSOGukuz46tj6bnLs2yAEgI
+         uIX2hr6zIYhHE8/iPrAPcc+ZiiBcdr3GQhnUQDvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Jacob Xu <jacobhxu@google.com>,
+        Peter Shier <pshier@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Ben Hutchings <ben@decadent.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 071/166] NFS: alloc_nfs_open_context() must use the file cred when available
+Subject: [PATCH 4.9 081/125] kvm: x86: Host feature SSBD doesnt imply guest feature SPEC_CTRL_SSBD
 Date:   Wed, 22 Apr 2020 11:56:38 +0200
-Message-Id: <20200422095056.505011559@linuxfoundation.org>
+Message-Id: <20200422095046.158101353@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit 1d179d6bd67369a52edea8562154b31ee20be1cc ]
+commit 396d2e878f92ec108e4293f1c77ea3bc90b414ff upstream.
 
-If we're creating a nfs_open_context() for a specific file pointer,
-we must use the cred assigned to that file.
+The host reports support for the synthetic feature X86_FEATURE_SSBD
+when any of the three following hardware features are set:
+  CPUID.(EAX=7,ECX=0):EDX.SSBD[bit 31]
+  CPUID.80000008H:EBX.AMD_SSBD[bit 24]
+  CPUID.80000008H:EBX.VIRT_SSBD[bit 25]
 
-Fixes: a52458b48af1 ("NFS/NFSD/SUNRPC: replace generic creds with 'struct cred'.")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Either of the first two hardware features implies the existence of the
+IA32_SPEC_CTRL MSR, but CPUID.80000008H:EBX.VIRT_SSBD[bit 25] does
+not. Therefore, CPUID.(EAX=7,ECX=0):EDX.SSBD[bit 31] should only be
+set in the guest if CPUID.(EAX=7,ECX=0):EDX.SSBD[bit 31] or
+CPUID.80000008H:EBX.AMD_SSBD[bit 24] is set on the host.
+
+Fixes: 0c54914d0c52a ("KVM: x86: use Intel speculation bugs and features as derived in generic x86 code")
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Jacob Xu <jacobhxu@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Reported-by: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[bwh: Backported to 4.x: adjust indentation]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/x86/kvm/cpuid.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 11bf15800ac99..a10fb87c6ac33 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -959,16 +959,16 @@ struct nfs_open_context *alloc_nfs_open_context(struct dentry *dentry,
- 						struct file *filp)
- {
- 	struct nfs_open_context *ctx;
--	const struct cred *cred = get_current_cred();
- 
- 	ctx = kmalloc(sizeof(*ctx), GFP_KERNEL);
--	if (!ctx) {
--		put_cred(cred);
-+	if (!ctx)
- 		return ERR_PTR(-ENOMEM);
--	}
- 	nfs_sb_active(dentry->d_sb);
- 	ctx->dentry = dget(dentry);
--	ctx->cred = cred;
-+	if (filp)
-+		ctx->cred = get_cred(filp->f_cred);
-+	else
-+		ctx->cred = get_current_cred();
- 	ctx->ll_cred = NULL;
- 	ctx->state = NULL;
- 	ctx->mode = f_mode;
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index c57dab0884fed..63c3ff9e74d42 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -479,7 +479,8 @@ static inline int __do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
+ 				entry->edx |= F(SPEC_CTRL);
+ 			if (boot_cpu_has(X86_FEATURE_STIBP))
+ 				entry->edx |= F(INTEL_STIBP);
+-			if (boot_cpu_has(X86_FEATURE_SSBD))
++			if (boot_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
++			    boot_cpu_has(X86_FEATURE_AMD_SSBD))
+ 				entry->edx |= F(SPEC_CTRL_SSBD);
+ 			/*
+ 			 * We emulate ARCH_CAPABILITIES in software even
 -- 
 2.20.1
 
