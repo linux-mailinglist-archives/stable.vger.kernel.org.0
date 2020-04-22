@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F06B21B3EEE
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:35:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D9E1B4168
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730531AbgDVKcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:32:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33824 "EHLO mail.kernel.org"
+        id S1729030AbgDVKKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:10:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730526AbgDVKZR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:25:17 -0400
+        id S1729084AbgDVKKv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:10:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D64C42075A;
-        Wed, 22 Apr 2020 10:25:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80D7020575;
+        Wed, 22 Apr 2020 10:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551116;
-        bh=0rcL6w+U3QxTPUxJYsUdrnHmbxHPVlcjvRNL/c8lbPI=;
+        s=default; t=1587550250;
+        bh=QxZ8zXJ8KpX3iqu0j8yWWAIOGHgsBEcRzS5kYm1AuSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cpbIX5TeeQpXd1Pyr/G5PCWjOCJ1JtSQ0/tGqrpwQ7lB34MiguAqg0K3p+l26S4Iv
-         82MdMf88zoMihpEMK/N8ual1H5bfWZd9fUnyP5YSY3p3GFg5VD1rdgerp5qcDUZYOX
-         C6yQxREfRqxJc3DlH9BwHxfH1ZlEOzM34reTXgb0=
+        b=y90UIzhCBMaIIprAxErbMPeRQHAltZJH/xk4kQC6Ks7YniYkLrfRkplEtulRk/blT
+         nbX5eFxV3R2nWgSFlL1gFaKskwax4cqdRA6kQEPuLTqfZOaYA6chDZviCFP5zgdfMa
+         jZ3TUEbnj/vDGh4l908hcj6hL8i0Jpe6D40/4QtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 070/166] rtc: 88pm860x: fix possible race condition
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.14 071/199] mm: Use fixed constant in page_frag_alloc instead of size + 1
 Date:   Wed, 22 Apr 2020 11:56:37 +0200
-Message-Id: <20200422095056.412533753@linuxfoundation.org>
+Message-Id: <20200422095105.281754538@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 
-[ Upstream commit 9cf4789e6e4673d0b2c96fa6bb0c35e81b43111a ]
+commit 8644772637deb121f7ac2df690cbf83fa63d3b70 upstream.
 
-The RTC IRQ is requested before the struct rtc_device is allocated,
-this may lead to a NULL pointer dereference in the IRQ handler.
+This patch replaces the size + 1 value introduced with the recent fix for 1
+byte allocs with a constant value.
 
-To fix this issue, allocating the rtc_device struct before requesting
-the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
-to register the RTC device.
+The idea here is to reduce code overhead as the previous logic would have
+to read size into a register, then increment it, and write it back to
+whatever field was being used. By using a constant we can avoid those
+memory reads and arithmetic operations in favor of just encoding the
+maximum value into the operation itself.
 
-Also remove the unnecessary error message as the core already prints the
-info.
+Fixes: 2c2ade81741c ("mm: page_alloc: fix ref bias in page_frag_alloc() for 1-byte allocs")
+Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Link: https://lore.kernel.org/r/20200311223956.51352-1-alexandre.belloni@bootlin.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-88pm860x.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ mm/page_alloc.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
-index 4743b16a8d849..1526402e126b2 100644
---- a/drivers/rtc/rtc-88pm860x.c
-+++ b/drivers/rtc/rtc-88pm860x.c
-@@ -336,6 +336,10 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
- 	info->dev = &pdev->dev;
- 	dev_set_drvdata(&pdev->dev, info);
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4325,11 +4325,11 @@ refill:
+ 		/* Even if we own the page, we do not use atomic_set().
+ 		 * This would break get_page_unless_zero() users.
+ 		 */
+-		page_ref_add(page, size);
++		page_ref_add(page, PAGE_FRAG_CACHE_MAX_SIZE);
  
-+	info->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(info->rtc_dev))
-+		return PTR_ERR(info->rtc_dev);
-+
- 	ret = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
- 					rtc_update_handler, IRQF_ONESHOT, "rtc",
- 					info);
-@@ -377,13 +381,11 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
- 		}
+ 		/* reset page count bias and offset to start of new frag */
+ 		nc->pfmemalloc = page_is_pfmemalloc(page);
+-		nc->pagecnt_bias = size + 1;
++		nc->pagecnt_bias = PAGE_FRAG_CACHE_MAX_SIZE + 1;
+ 		nc->offset = size;
  	}
  
--	info->rtc_dev = devm_rtc_device_register(&pdev->dev, "88pm860x-rtc",
--					    &pm860x_rtc_ops, THIS_MODULE);
--	ret = PTR_ERR(info->rtc_dev);
--	if (IS_ERR(info->rtc_dev)) {
--		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
-+	info->rtc_dev->ops = &pm860x_rtc_ops;
-+
-+	ret = rtc_register_device(info->rtc_dev);
-+	if (ret)
- 		return ret;
--	}
+@@ -4345,10 +4345,10 @@ refill:
+ 		size = nc->size;
+ #endif
+ 		/* OK, page count is 0, we can safely set it */
+-		set_page_count(page, size + 1);
++		set_page_count(page, PAGE_FRAG_CACHE_MAX_SIZE + 1);
  
- 	/*
- 	 * enable internal XO instead of internal 3.25MHz clock since it can
--- 
-2.20.1
-
+ 		/* reset page count bias and offset to start of new frag */
+-		nc->pagecnt_bias = size + 1;
++		nc->pagecnt_bias = PAGE_FRAG_CACHE_MAX_SIZE + 1;
+ 		offset = size - fragsz;
+ 	}
+ 
 
 
