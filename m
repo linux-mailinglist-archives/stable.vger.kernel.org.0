@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F1F1B3F01
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1633E1B41A7
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731188AbgDVKda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:33:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33176 "EHLO mail.kernel.org"
+        id S1727057AbgDVKIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:08:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730454AbgDVKYo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:24:44 -0400
+        id S1728650AbgDVKIJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:08:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98FFC2071E;
-        Wed, 22 Apr 2020 10:24:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B48342077D;
+        Wed, 22 Apr 2020 10:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551084;
-        bh=SyGAg3rZ9yeFpLXHikAhy4J0bskyUaj9d3sDPWmGY00=;
+        s=default; t=1587550089;
+        bh=k14wArMvku5tzqw6qQ4izhm1/3kfQ3VVApMHKECRR1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TqmckDZnBb5HqJyK1UZZjpYRuq7sl+eS9AFBg+0Z0qstK2C7Br7avAGDjb6n3k2oI
-         UZn8tNt/0GHgicgNK/GvP2FvXAkLHItLL+se8OxermbjXgEVrrTtVZWsvojDKu5jVn
-         /bVcZBUgRuYi3CjYB6XiIdSWGcNFmJ+tuhalPTkU=
+        b=vDjB9oicCHj8arRFpg5Gs20aWEeNEa6XFi2wNaisjcTPfklMaAtDnEw/FnTRmOkvO
+         oOzvL92W68mNBYSt+B3Nq4k7ceC/x3g1vO0Idt07xc//KPBw8Fop1pTHCZArPyPOCH
+         dxsiHnjJJ1h1E0ZLti+YcCql7tIhsVkX1oWdOTqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martyn Welch <martyn.welch@collabora.com>,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        "Andrew F. Davis" <afd@ti.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 094/166] um: ubd: Prevent buffer overrun on command completion
+Subject: [PATCH 4.9 104/125] power: supply: bq27xxx_battery: Silence deferred-probe error
 Date:   Wed, 22 Apr 2020 11:57:01 +0200
-Message-Id: <20200422095059.094275557@linuxfoundation.org>
+Message-Id: <20200422095049.729768456@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 6e682d53fc1ef73a169e2a5300326cb23abb32ee ]
+[ Upstream commit 583b53ece0b0268c542a1eafadb62e3d4b0aab8c ]
 
-On the hypervisor side, when completing commands and the pipe is full,
-we retry writing only the entries that failed, by offsetting
-io_req_buffer, but we don't reduce the number of bytes written, which
-can cause a buffer overrun of io_req_buffer, and write garbage to the
-pipe.
+The driver fails to probe with -EPROBE_DEFER if battery's power supply
+(charger driver) isn't ready yet and this results in a bit noisy error
+message in KMSG during kernel's boot up. Let's silence the harmless
+error message.
 
-Cc: Martyn Welch <martyn.welch@collabora.com>
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Reviewed-by: Andrew F. Davis <afd@ti.com>
+Reviewed-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/ubd_kern.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/power/supply/bq27xxx_battery.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
-index 247f95da057b5..eca45ad2166c9 100644
---- a/arch/um/drivers/ubd_kern.c
-+++ b/arch/um/drivers/ubd_kern.c
-@@ -1607,7 +1607,9 @@ int io_thread(void *arg)
- 		written = 0;
+diff --git a/drivers/power/supply/bq27xxx_battery.c b/drivers/power/supply/bq27xxx_battery.c
+index bccb3f595ff3d..247be9155694f 100644
+--- a/drivers/power/supply/bq27xxx_battery.c
++++ b/drivers/power/supply/bq27xxx_battery.c
+@@ -1031,7 +1031,10 @@ int bq27xxx_battery_setup(struct bq27xxx_device_info *di)
  
- 		do {
--			res = os_write_file(kernel_fd, ((char *) io_req_buffer) + written, n);
-+			res = os_write_file(kernel_fd,
-+					    ((char *) io_req_buffer) + written,
-+					    n - written);
- 			if (res >= 0) {
- 				written += res;
- 			}
+ 	di->bat = power_supply_register_no_ws(di->dev, psy_desc, &psy_cfg);
+ 	if (IS_ERR(di->bat)) {
+-		dev_err(di->dev, "failed to register battery\n");
++		if (PTR_ERR(di->bat) == -EPROBE_DEFER)
++			dev_dbg(di->dev, "failed to register battery, deferring probe\n");
++		else
++			dev_err(di->dev, "failed to register battery\n");
+ 		return PTR_ERR(di->bat);
+ 	}
+ 
 -- 
 2.20.1
 
