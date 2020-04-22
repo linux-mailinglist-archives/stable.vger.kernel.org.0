@@ -2,118 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 873831B396F
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 09:52:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0141B1B39E2
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 10:18:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726517AbgDVHwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 03:52:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40314 "EHLO
+        id S1725907AbgDVIS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 04:18:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726154AbgDVHwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 03:52:11 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE76DC03C1A6;
-        Wed, 22 Apr 2020 00:52:10 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id x23so857883lfq.1;
-        Wed, 22 Apr 2020 00:52:10 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1725811AbgDVISZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 04:18:25 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F361C03C1A6;
+        Wed, 22 Apr 2020 01:18:24 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id e25so1307567ljg.5;
+        Wed, 22 Apr 2020 01:18:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=zWLG9WLDxjvVAUx23VHGxafd8rdyiPnw+mQBD7zdx4U=;
-        b=LJ4WHgMeDvdr75XITNJboz1evInfdechCbg7zuDiEkJlbZwCAtI4f+i5gfkxiV4lZQ
-         nGu5z/2oKi+KeNe4C5zOD/W5gWLU5XkFrXGB6aDUyr0UJci1Oenn67TSa4/csTfaSKCP
-         L8QICOrO8ppl4wZMf6wQOBzGH+T15bZs7TW15B3ak10gMLAiq5mtt/P8K0MNADZNCi7x
-         FcrIU4uuxfkFIjmD8KFOGU6TcBo70Y78EC4dM15uazn+/N8/rcfdH7xVUVLTtEtPPSNr
-         hIMSAwHSBYAMU20dllQy1vgbDXpvR5xC3n43cCEdicK06gadabBDdQvRqmA8OEdzVQnY
-         vhAw==
+        h=from:to:cc:subject:date:message-id;
+        bh=nt+kRiqmM2DnZoAPDCxq3F10ZB+J0rcax3yCDJcUZQo=;
+        b=O+ruexNnVUo5OzrLczwc6UYX+jSD+p7msm6KuPB2fMV3u/6qIzH5PiXt3i/UXFejdU
+         eX+aSwjvYfhvFYkV8XPDGAOo1/SmrJqWiAmWTNmduOfZ48pAf01ToMJT2Hyv/8ynP1t8
+         r6eBgt5i43TwWZm13zJ/cUe/KQJs7+JSa44ldvfQyT1m+JHQa/bXWHgKcji7pgcJldhn
+         QpRuSXm5AUkHrb75d2M+rOieLrKbMBKZf4cUtHkvA5qkegrdHqNIU/OZSKdcukUMcBO+
+         XSEWaPTQq95wYAWzpR2jCmygLUCK1wtzmPSyw61ROAwUQ4/nDORzCU/sYdIOo3g6CmGi
+         63hQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=zWLG9WLDxjvVAUx23VHGxafd8rdyiPnw+mQBD7zdx4U=;
-        b=Knou/ytVsAek1kYqF0+NkPk6MUKwrVJAdtCQ4LONhFvVXNZfUGEgS4jDtzDW3OtgfT
-         IqsBSi8IgHviG48TCQEJ5+6Vi81ipu2FmkpS+jEn5uFWuZus+4Z2SF/ExHrk2BZbqmd1
-         ylmn6tEUfBPiZ16FDdI0Sy+PyawTYEKS66kutE75EWaizrHzm9vHX4OcaUVwS6GrCF6s
-         pgRiGJ5ecbHLtTJSAirXZVU4a0Ai4pgJvm/wKvAYQxS+1tUWeVCHlin6Lm+UAsn//p9S
-         fAdxZTvZdMWmCd1Ty4KjSvnlu9S2ldaio1K9X6u3UMV1jNUsj3sWp+RU5KjeNPVlSlz6
-         Mauw==
-X-Gm-Message-State: AGi0PuZB1aBSoh3gkyGg8zYIQLKObGSqBmasiDyabuEMd1t7YolGUpK7
-        tUmURFUTs4baAbBxTiTUFx8=
-X-Google-Smtp-Source: APiQypI7jz/Z2LEcWCbAcGd5SWzfHveB1CjNdzdINAg7okl6sXQdQVEUcEX/zzSsU9pTB+lzqNwS0w==
-X-Received: by 2002:ac2:4426:: with SMTP id w6mr16203406lfl.8.1587541929396;
-        Wed, 22 Apr 2020 00:52:09 -0700 (PDT)
-Received: from luk-pc.lan (host-46-186-7-151.dynamic.mm.pl. [46.186.7.151])
-        by smtp.googlemail.com with ESMTPSA id i20sm4250655lfe.15.2020.04.22.00.52.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Apr 2020 00:52:08 -0700 (PDT)
-From:   LuK1337 <priv.luk@gmail.com>
-Cc:     Cameron Gutman <aicommander@gmail.com>,
-        =?UTF-8?q?=C5=81ukasz=20Patron?= <priv.luk@gmail.com>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Allison Randal <allison@lohutok.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Richard Fontana <rfontana@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: xpad - Add custom init packet for Xbox One S controllers
-Date:   Wed, 22 Apr 2020 09:52:05 +0200
-Message-Id: <20200422075206.18229-1-priv.luk@gmail.com>
-X-Mailer: git-send-email 2.26.0
-In-Reply-To: <92b71dc5-ddd5-7ffd-65f8-65a6610dfe43@gmail.com>
-References: <92b71dc5-ddd5-7ffd-65f8-65a6610dfe43@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=nt+kRiqmM2DnZoAPDCxq3F10ZB+J0rcax3yCDJcUZQo=;
+        b=LxjH02X1KxXtY/0NdN0FPov3SzSYhpTH3vBuQW1LtgBsjg+R9uoByfUPcokOnSyQlS
+         3kNdYjcTsog5edA1UTv84TfpfIxDdsZWF3YqdUrS43f2hYVJmp/+VUNyg3Y/+/JItck0
+         9rPXOlkOZXOUOgw+eJkK9g+v5JxbEA2sVYeCQ1alX3SRyExTttynJ3fLKGhK6uHf0AhZ
+         WgSRfQ1+DYIUdc99r9B58tyq3CbQV5TvVPZbnAloHntvlv1qR/PQFTt+VQg7DKcfTFkq
+         SVXH5/Ya/Uj6gnu6c9Ih6hsmPQ+m42+b+zVYzR0wnAxP9KHh6mtKHA1c1aJaOavxTU4X
+         pupQ==
+X-Gm-Message-State: AGi0PuaZoDdQRinnfAhsSc0ZUmnqrFQiY9cda7WdNf4Nb3DyhpvKQDd4
+        av2Mrc2P7fDUCyphRjJcNnqe5zQ8HwM=
+X-Google-Smtp-Source: APiQypJOPrvwNHcGRwIeARqlkuawGEIenbD2GGiUS/itar2r/mjHhhLGt7usGl8ha9CtKdAADnH41w==
+X-Received: by 2002:a2e:164b:: with SMTP id 11mr15263577ljw.23.1587543502188;
+        Wed, 22 Apr 2020 01:18:22 -0700 (PDT)
+Received: from test.lan ([91.105.39.216])
+        by smtp.gmail.com with ESMTPSA id f21sm3947163lfk.94.2020.04.22.01.18.20
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 22 Apr 2020 01:18:21 -0700 (PDT)
+From:   Evalds Iodzevics <evalds.iodzevics@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, tglx@linutronix.de,
+        ben@decadent.org.uk, bp@suse.de,
+        Evalds Iodzevics <evalds.iodzevics@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] x86/microcode/intel: replace sync_core() with native_cpuid_reg(eax)
+Date:   Wed, 22 Apr 2020 11:17:59 +0300
+Message-Id: <20200422081759.1632-1-evalds.iodzevics@gmail.com>
+X-Mailer: git-send-email 2.17.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Patron <priv.luk@gmail.com>
+On Intel it is required to do CPUID(1) before reading the microcode
+revision MSR. Current code in 4.4 an 4.9 relies on sync_core() to call
+CPUID, unfortunately on 32 bit machines code inside sync_core() always
+jumps past CPUID instruction as it depends on data structure boot_cpu_data
+witch are not populated correctly so early in boot sequence.
 
-Sending [ 0x05, 0x20, 0x00, 0x0f, 0x06 ] packet for
-Xbox One S controllers fixes an issue where controller
-is stuck in Bluetooth mode and not sending any inputs.
+It depends on:
+commit 5dedade6dfa2 ("x86/CPU: Add native CPUID variants returning a single
+datum")
 
-Signed-off-by: Łukasz Patron <priv.luk@gmail.com>
+This patch is for 4.4 but also should apply to 4.9
+
+Signed-off-by: Evalds Iodzevics <evalds.iodzevics@gmail.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/input/joystick/xpad.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/x86/include/asm/microcode_intel.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 6b40a1c68f9f..c77cdb3b62b5 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -458,6 +458,16 @@ static const u8 xboxone_fw2015_init[] = {
- 	0x05, 0x20, 0x00, 0x01, 0x00
- };
+diff --git a/arch/x86/include/asm/microcode_intel.h b/arch/x86/include/asm/microcode_intel.h
+index 90343ba50485..92ce9c8a508b 100644
+--- a/arch/x86/include/asm/microcode_intel.h
++++ b/arch/x86/include/asm/microcode_intel.h
+@@ -60,7 +60,7 @@ static inline u32 intel_get_microcode_revision(void)
+ 	native_wrmsrl(MSR_IA32_UCODE_REV, 0);
  
-+/*
-+ * This packet is required for Xbox One S (0x045e:0x02ea)
-+ * and Xbox One Elite Series 2 (0x045e:0x0b00) pads to
-+ * initialize the controller that was previously used in
-+ * Bluetooth mode.
-+ */
-+static const u8 xboxone_s_init[] = {
-+	0x05, 0x20, 0x00, 0x0f, 0x06
-+};
-+
- /*
-  * This packet is required for the Titanfall 2 Xbox One pads
-  * (0x0e6f:0x0165) to finish initialization and for Hori pads
-@@ -516,6 +526,8 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
- 	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
- 	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
-+	XBOXONE_INIT_PKT(0x045e, 0x02ea, xboxone_s_init),
-+	XBOXONE_INIT_PKT(0x045e, 0x0b00, xboxone_s_init),
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init1),
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init2),
- 	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
+ 	/* As documented in the SDM: Do a CPUID 1 here */
+-	sync_core();
++	native_cpuid_eax(1);
+ 
+ 	/* get the current revision from MSR 0x8B */
+ 	native_rdmsr(MSR_IA32_UCODE_REV, dummy, rev);
 -- 
-2.26.0
+2.17.4
 
