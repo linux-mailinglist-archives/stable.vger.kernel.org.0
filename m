@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF691B3F63
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:38:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F08C91B415A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730514AbgDVKhD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:37:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58854 "EHLO mail.kernel.org"
+        id S1726337AbgDVKJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:09:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730219AbgDVKWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:22:38 -0400
+        id S1728916AbgDVKJw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:09:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8EAB2075A;
-        Wed, 22 Apr 2020 10:22:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6F8B2070B;
+        Wed, 22 Apr 2020 10:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550958;
-        bh=P04iBLwJn0vDXHqxsvdHNKZ9hXQfsXc2NSGvEKJvR4Q=;
+        s=default; t=1587550192;
+        bh=rS6fAOwtq53TVDt14sPui+9k4apRV1Z1cq2QWyeB4ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znGjceKa/IELiTPUvjeB00iu0Y6GHRVXllCdkrlyS7QdipdskNEgUAY5hPo4G+Idc
-         mocpOTsT90inovm+X1UYCaEz/BKRp4qfiqwJNIDBjc7eTHn+hsGRG/u3Rns0y6tYV1
-         hJwaquGL+sQmfei/t9DNuw2j/h2EUSQzDRjbBXn0=
+        b=GIPypwZvgTsc4yRn8b/TWt2m5AcboBWdqN2ZZVGIZeAjxwOSbk2Z24oQBWdCoD8Kq
+         DaFwaimRy7bC+cImRXtB4AbDSiYA9iGoBFaWyHG3+a38tIoOWjBp2s78BtkzEqEzX8
+         VHnxODIsH1tZuYtKlq3B8KcVS2sZbZ1xlSK8eIoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 043/166] clk: imx: pll14xx: Add new frequency entries for pll1443x table
-Date:   Wed, 22 Apr 2020 11:56:10 +0200
-Message-Id: <20200422095053.703642471@linuxfoundation.org>
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.14 045/199] media: ti-vpe: cal: fix disable_irqs to only the intended target
+Date:   Wed, 22 Apr 2020 11:56:11 +0200
+Message-Id: <20200422095102.448080976@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit 57795654fb553a78f07a9f92d87fb2582379cd93 ]
+commit 1db56284b9da9056093681f28db48a09a243274b upstream.
 
-Add new frequency entries to pll1443x table to meet different
-display settings requirement.
+disable_irqs() was mistakenly disabling all interrupts when called.
+This cause all port stream to stop even if only stopping one of them.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/imx/clk-pll14xx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/platform/ti-vpe/cal.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-pll14xx.c b/drivers/clk/imx/clk-pll14xx.c
-index 5b0519a81a7af..37e311e1d0586 100644
---- a/drivers/clk/imx/clk-pll14xx.c
-+++ b/drivers/clk/imx/clk-pll14xx.c
-@@ -55,8 +55,10 @@ static const struct imx_pll14xx_rate_table imx_pll1416x_tbl[] = {
- };
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -544,16 +544,16 @@ static void enable_irqs(struct cal_ctx *
  
- static const struct imx_pll14xx_rate_table imx_pll1443x_tbl[] = {
-+	PLL_1443X_RATE(1039500000U, 173, 2, 1, 16384),
- 	PLL_1443X_RATE(650000000U, 325, 3, 2, 0),
- 	PLL_1443X_RATE(594000000U, 198, 2, 2, 0),
-+	PLL_1443X_RATE(519750000U, 173, 2, 2, 16384),
- 	PLL_1443X_RATE(393216000U, 262, 2, 3, 9437),
- 	PLL_1443X_RATE(361267200U, 361, 3, 3, 17511),
- };
--- 
-2.20.1
-
+ static void disable_irqs(struct cal_ctx *ctx)
+ {
++	u32 val;
++
+ 	/* Disable IRQ_WDMA_END 0/1 */
+-	reg_write_field(ctx->dev,
+-			CAL_HL_IRQENABLE_CLR(2),
+-			CAL_HL_IRQ_CLEAR,
+-			CAL_HL_IRQ_MASK(ctx->csi2_port));
++	val = 0;
++	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
++	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), val);
+ 	/* Disable IRQ_WDMA_START 0/1 */
+-	reg_write_field(ctx->dev,
+-			CAL_HL_IRQENABLE_CLR(3),
+-			CAL_HL_IRQ_CLEAR,
+-			CAL_HL_IRQ_MASK(ctx->csi2_port));
++	val = 0;
++	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
++	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), val);
+ 	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
+ 	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
+ }
 
 
