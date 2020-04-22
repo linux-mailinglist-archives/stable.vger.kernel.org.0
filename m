@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 604691B3ED1
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E82EA1B3CB0
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731096AbgDVKcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:32:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
+        id S1728577AbgDVKHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:07:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730569AbgDVKZ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:25:26 -0400
+        id S1728564AbgDVKHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:07:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66F652075A;
-        Wed, 22 Apr 2020 10:25:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04AF32076C;
+        Wed, 22 Apr 2020 10:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551125;
-        bh=WNjl3YMguWAoEvZRF+md9N2/nSrx4fqcpqzIGbtCVDw=;
+        s=default; t=1587550062;
+        bh=zGC4dr+ld+nnucTsreo0JbDdkNckR7Sp2tOzN775+C0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mG0kLSgahXQnNMdEB5nOZOxEQU30ZFzAauQid/vJdGC+633axLrKTO5o/fqA4JgfQ
-         Xnhio1f6XNSpGVv1wOH8xCLc2GyAw16mEt+IY+zt59kV6qHnGOqdNdGMtJFxA8lf2b
-         B7MH26f7UVmAl5iXxGtHtLUO0cTCLnq9aWZ6WJpw=
+        b=P83ZHGInT3Cesn5dQQVIz1TVZPfyGqfSOvGogrSxzJVr5keA1MxcHhMLBznyPtd64
+         tOWoVmam+yUC6Kk1kLKAFw3k3P0if7bV3z+KHlIuuc903P5J2+td+6W4zb+ni6VK44
+         ZxpcmMbfAwWLjJW9GS1+Dq1sgJ39OH6Fx3g/24mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ricardo Ribalda Delgado <ribalda@kernel.org>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 109/166] leds: core: Fix warning message when init_data
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 119/125] tty: evh_bytechan: Fix out of bounds accesses
 Date:   Wed, 22 Apr 2020 11:57:16 +0200
-Message-Id: <20200422095100.491642637@linuxfoundation.org>
+Message-Id: <20200422095051.784717539@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda Delgado <ribalda@kernel.org>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
 
-[ Upstream commit 64ed6588c2ea618d3f9ca9d8b365ae4c19f76225 ]
+commit 3670664b5da555a2a481449b3baafff113b0ac35 upstream.
 
-The warning message when a led is renamed due to name collition can fail
-to show proper original name if init_data is used. Eg:
+ev_byte_channel_send() assumes that its third argument is a 16 byte
+array. Some places where it is called it may not be (or we can't
+easily tell if it is). Newer compilers have started producing warnings
+about this, so make sure we actually pass a 16 byte array.
 
-[    9.073996] leds-gpio a0040000.leds_0: Led (null) renamed to red_led_1 due to name collision
+There may be more elegant solutions to this, but the driver is quite
+old and hasn't been updated in many years.
 
-Fixes: bb4e9af0348d ("leds: core: Add support for composing LED class device names")
-Signed-off-by: Ricardo Ribalda Delgado <ribalda@kernel.org>
-Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The warnings (from a powerpc allyesconfig build) are:
+
+  In file included from include/linux/byteorder/big_endian.h:5,
+                   from arch/powerpc/include/uapi/asm/byteorder.h:14,
+                   from include/asm-generic/bitops/le.h:6,
+                   from arch/powerpc/include/asm/bitops.h:250,
+                   from include/linux/bitops.h:29,
+                   from include/linux/kernel.h:12,
+                   from include/asm-generic/bug.h:19,
+                   from arch/powerpc/include/asm/bug.h:109,
+                   from include/linux/bug.h:5,
+                   from include/linux/mmdebug.h:5,
+                   from include/linux/gfp.h:5,
+                   from include/linux/slab.h:15,
+                   from drivers/tty/ehv_bytechan.c:24:
+  drivers/tty/ehv_bytechan.c: In function ‘ehv_bc_udbg_putc’:
+  arch/powerpc/include/asm/epapr_hcalls.h:298:20: warning: array subscript 1 is outside array bounds of ‘const char[1]’ [-Warray-bounds]
+    298 |  r6 = be32_to_cpu(p[1]);
+  include/uapi/linux/byteorder/big_endian.h:40:51: note: in definition of macro ‘__be32_to_cpu’
+     40 | #define __be32_to_cpu(x) ((__force __u32)(__be32)(x))
+        |                                                   ^
+  arch/powerpc/include/asm/epapr_hcalls.h:298:7: note: in expansion of macro ‘be32_to_cpu’
+    298 |  r6 = be32_to_cpu(p[1]);
+        |       ^~~~~~~~~~~
+  drivers/tty/ehv_bytechan.c:166:13: note: while referencing ‘data’
+    166 | static void ehv_bc_udbg_putc(char c)
+        |             ^~~~~~~~~~~~~~~~
+
+Fixes: dcd83aaff1c8 ("tty/powerpc: introduce the ePAPR embedded hypervisor byte channel driver")
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Tested-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+[mpe: Trim warnings from change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200109183912.5fcb52aa@canb.auug.org.au
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/leds/led-class.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/ehv_bytechan.c |   21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
-index 1fc40e8af75eb..3363a6551a708 100644
---- a/drivers/leds/led-class.c
-+++ b/drivers/leds/led-class.c
-@@ -376,7 +376,7 @@ int led_classdev_register_ext(struct device *parent,
+--- a/drivers/tty/ehv_bytechan.c
++++ b/drivers/tty/ehv_bytechan.c
+@@ -139,6 +139,21 @@ static int find_console_handle(void)
+ 	return 1;
+ }
  
- 	if (ret)
- 		dev_warn(parent, "Led %s renamed to %s due to name collision",
--				led_cdev->name, dev_name(led_cdev->dev));
-+				proposed_name, dev_name(led_cdev->dev));
++static unsigned int local_ev_byte_channel_send(unsigned int handle,
++					       unsigned int *count,
++					       const char *p)
++{
++	char buffer[EV_BYTE_CHANNEL_MAX_BYTES];
++	unsigned int c = *count;
++
++	if (c < sizeof(buffer)) {
++		memcpy(buffer, p, c);
++		memset(&buffer[c], 0, sizeof(buffer) - c);
++		p = buffer;
++	}
++	return ev_byte_channel_send(handle, count, p);
++}
++
+ /*************************** EARLY CONSOLE DRIVER ***************************/
  
- 	if (led_cdev->flags & LED_BRIGHT_HW_CHANGED) {
- 		ret = led_add_brightness_hw_changed(led_cdev);
--- 
-2.20.1
-
+ #ifdef CONFIG_PPC_EARLY_DEBUG_EHV_BC
+@@ -157,7 +172,7 @@ static void byte_channel_spin_send(const
+ 
+ 	do {
+ 		count = 1;
+-		ret = ev_byte_channel_send(CONFIG_PPC_EARLY_DEBUG_EHV_BC_HANDLE,
++		ret = local_ev_byte_channel_send(CONFIG_PPC_EARLY_DEBUG_EHV_BC_HANDLE,
+ 					   &count, &data);
+ 	} while (ret == EV_EAGAIN);
+ }
+@@ -224,7 +239,7 @@ static int ehv_bc_console_byte_channel_s
+ 	while (count) {
+ 		len = min_t(unsigned int, count, EV_BYTE_CHANNEL_MAX_BYTES);
+ 		do {
+-			ret = ev_byte_channel_send(handle, &len, s);
++			ret = local_ev_byte_channel_send(handle, &len, s);
+ 		} while (ret == EV_EAGAIN);
+ 		count -= len;
+ 		s += len;
+@@ -404,7 +419,7 @@ static void ehv_bc_tx_dequeue(struct ehv
+ 			    CIRC_CNT_TO_END(bc->head, bc->tail, BUF_SIZE),
+ 			    EV_BYTE_CHANNEL_MAX_BYTES);
+ 
+-		ret = ev_byte_channel_send(bc->handle, &len, bc->buf + bc->tail);
++		ret = local_ev_byte_channel_send(bc->handle, &len, bc->buf + bc->tail);
+ 
+ 		/* 'len' is valid only if the return code is 0 or EV_EAGAIN */
+ 		if (!ret || (ret == EV_EAGAIN))
 
 
