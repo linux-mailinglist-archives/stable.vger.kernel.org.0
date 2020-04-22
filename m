@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 641141B4037
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:44:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 382FB1B3ED9
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730033AbgDVKTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:19:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55594 "EHLO mail.kernel.org"
+        id S1730562AbgDVKcR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:32:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728657AbgDVKS7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:18:59 -0400
+        id S1730531AbgDVKZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:25:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 853F52070B;
-        Wed, 22 Apr 2020 10:18:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E7CD2076B;
+        Wed, 22 Apr 2020 10:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550739;
-        bh=9NXEEyNPle9buOD5PAzi2advwivMFIPGG4uNAn1qRVs=;
+        s=default; t=1587551118;
+        bh=/KnOurnx6Etk4y412/BZj+JikJrWXkN0RDnFDDfh8k0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L5OC5bsSEJzFcIT/vnTcZCAJdlUM/pW8GIVNJOhlJe+vOjUuudF9xHEvDzAHgxXjU
-         5R351bYb/mCG6WpnzDjj3H4oKYu03XXMWgg8C0h5GcWsKSrQ7p4O1s6XzwE2qjr9T3
-         vUOmVxzXawQLGnuJDxK3Wp2eDWFrH7INkYlzqhmg=
+        b=mE8rxto+rUCfM1s4OH7QVnwytysJyRql/gl10ntfckgOVZconys+cbPY+OlmSuJZd
+         7Qc+GSiyiCd10HhQyp1pjsUALibuwr5roVf0oNqPgkPBzxx7z6eMJU2kZ9mxojKWrA
+         UZvlaHCfSDsf0xGUWjtDgu9UVhGoIh0icj7PMfII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        John Hubbard <jhubbard@nvidia.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Daniel Santos <daniel.santos@pobox.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Ian Abbott <abbotti@mev.co.uk>, Joe Perches <joe@perches.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/118] include/linux/swapops.h: correct guards for non_swap_entry()
+Subject: [PATCH 5.6 106/166] compiler.h: fix error in BUILD_BUG_ON() reporting
 Date:   Wed, 22 Apr 2020 11:57:13 +0200
-Message-Id: <20200422095043.561695815@linuxfoundation.org>
+Message-Id: <20200422095100.229062452@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,57 +49,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-[ Upstream commit 3f3673d7d324d872d9d8ddb73b3e5e47fbf12e0d ]
+[ Upstream commit af9c5d2e3b355854ff0e4acfbfbfadcd5198a349 ]
 
-If CONFIG_DEVICE_PRIVATE is defined, but neither CONFIG_MEMORY_FAILURE nor
-CONFIG_MIGRATION, then non_swap_entry() will return 0, meaning that the
-condition (non_swap_entry(entry) && is_device_private_entry(entry)) in
-zap_pte_range() will never be true even if the entry is a device private
-one.
+compiletime_assert() uses __LINE__ to create a unique function name.  This
+means that if you have more than one BUILD_BUG_ON() in the same source
+line (which can happen if they appear e.g.  in a macro), then the error
+message from the compiler might output the wrong condition.
 
-Equally any other code depending on non_swap_entry() will not function as
-expected.
+For this source file:
 
-I originally spotted this just by looking at the code, I haven't actually
-observed any problems.
+	#include <linux/build_bug.h>
 
-Looking a bit more closely it appears that actually this situation
-(currently at least) cannot occur:
+	#define macro() \
+		BUILD_BUG_ON(1); \
+		BUILD_BUG_ON(0);
 
-DEVICE_PRIVATE depends on ZONE_DEVICE
-ZONE_DEVICE depends on MEMORY_HOTREMOVE
-MEMORY_HOTREMOVE depends on MIGRATION
+	void foo()
+	{
+		macro();
+	}
 
-Fixes: 5042db43cc26 ("mm/ZONE_DEVICE: new type of ZONE_DEVICE for unaddressable memory")
-Signed-off-by: Steven Price <steven.price@arm.com>
+gcc would output:
+
+./include/linux/compiler.h:350:38: error: call to `__compiletime_assert_9' declared with attribute error: BUILD_BUG_ON failed: 0
+  _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
+
+However, it was not the BUILD_BUG_ON(0) that failed, so it should say 1
+instead of 0. With this patch, we use __COUNTER__ instead of __LINE__, so
+each BUILD_BUG_ON() gets a different function name and the correct
+condition is printed:
+
+./include/linux/compiler.h:350:38: error: call to `__compiletime_assert_0' declared with attribute error: BUILD_BUG_ON failed: 1
+  _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Link: http://lkml.kernel.org/r/20200305130550.22693-1-steven.price@arm.com
+Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reviewed-by: Daniel Santos <daniel.santos@pobox.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Ian Abbott <abbotti@mev.co.uk>
+Cc: Joe Perches <joe@perches.com>
+Link: http://lkml.kernel.org/r/20200331112637.25047-1-vegard.nossum@oracle.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/swapops.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/compiler.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/swapops.h b/include/linux/swapops.h
-index 877fd239b6fff..3208a520d0be3 100644
---- a/include/linux/swapops.h
-+++ b/include/linux/swapops.h
-@@ -348,7 +348,8 @@ static inline void num_poisoned_pages_inc(void)
- }
- #endif
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 5e88e7e33abec..034b0a644efcc 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -347,7 +347,7 @@ static inline void *offset_to_ptr(const int *off)
+  * compiler has support to do so.
+  */
+ #define compiletime_assert(condition, msg) \
+-	_compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
++	_compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
  
--#if defined(CONFIG_MEMORY_FAILURE) || defined(CONFIG_MIGRATION)
-+#if defined(CONFIG_MEMORY_FAILURE) || defined(CONFIG_MIGRATION) || \
-+    defined(CONFIG_DEVICE_PRIVATE)
- static inline int non_swap_entry(swp_entry_t entry)
- {
- 	return swp_type(entry) >= MAX_SWAPFILES;
+ #define compiletime_assert_atomic_type(t)				\
+ 	compiletime_assert(__native_word(t),				\
 -- 
 2.20.1
 
