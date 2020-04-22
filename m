@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E0B1B3E41
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F2F51B3D31
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:12:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730361AbgDVK0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:26:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35624 "EHLO mail.kernel.org"
+        id S1728979AbgDVKMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:12:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730761AbgDVK0n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:26:43 -0400
+        id S1729040AbgDVKMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:12:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03DE42075A;
-        Wed, 22 Apr 2020 10:26:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03EEE2070B;
+        Wed, 22 Apr 2020 10:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551202;
-        bh=sscrRof2T2gOXm1DhhLMfhcfPs75brf/YmFVxd4ypA8=;
+        s=default; t=1587550361;
+        bh=nUV3oOdV2p2DXhHY1bckucVbscrTCRZbYHyN2eBbGf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQex+vrjrq9htQSdHk50oy/JNLQN31pGLM84SABtTDlFfznNbcxo58koXYUc+XY4A
-         lm1u2dYYJHr+wjYsbTkROdzQSO9tCItO7Fl/z7KOQj6La1qCl/fPRpOlvnYeCH0PcN
-         ES43ZNSWWsGtWm3/XnO+s5MKTOt4Nmav86bHqu4M=
+        b=jVUkgbRCcG/++7BowRzakmZS01EdZmnOl0UEpnhzdMrdSG4mZm0UnVjwF13JFvqlw
+         KOHcUxMZ+1vEthD0lqfuWDwUm0mmlaKBSOX3ZCroAwe/c5PAjuCL6E6wnbv44/rgup
+         slQyg86etFBL85I5Kj5lobvXce+FjbaJC0nEk26g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 115/166] csky: Fixup get wrong psr value from phyical reg
+        stable@vger.kernel.org, Josh Triplett <josh@joshtriplett.org>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 116/199] ext4: fix incorrect group count in ext4_fill_super error message
 Date:   Wed, 22 Apr 2020 11:57:22 +0200
-Message-Id: <20200422095101.040429043@linuxfoundation.org>
+Message-Id: <20200422095109.242383624@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,126 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Josh Triplett <josh@joshtriplett.org>
 
-[ Upstream commit 9c0e343d7654a329d1f9b53d253cbf7fb6eff85d ]
+commit df41460a21b06a76437af040d90ccee03888e8e5 upstream.
 
-We should get psr value from regs->psr in stack, not directly get
-it from phyiscal register then save the vector number in
-tsk->trap_no.
+ext4_fill_super doublechecks the number of groups before mounting; if
+that check fails, the resulting error message prints the group count
+from the ext4_sb_info sbi, which hasn't been set yet. Print the freshly
+computed group count instead (which at that point has just been computed
+in "blocks_count").
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+Fixes: 4ec1102813798 ("ext4: Add sanity checks for the superblock before mounting the filesystem")
+Link: https://lore.kernel.org/r/8b957cd1513fcc4550fe675c10bcce2175c33a49.1585431964.git.josh@joshtriplett.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/csky/include/asm/processor.h |  1 +
- arch/csky/kernel/traps.c          | 11 ++++++++++-
- arch/csky/mm/fault.c              |  7 +++++++
- 3 files changed, 18 insertions(+), 1 deletion(-)
+ fs/ext4/super.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/csky/include/asm/processor.h b/arch/csky/include/asm/processor.h
-index 21e0bd5293dde..c6bcd7f7c720b 100644
---- a/arch/csky/include/asm/processor.h
-+++ b/arch/csky/include/asm/processor.h
-@@ -43,6 +43,7 @@ extern struct cpuinfo_csky cpu_data[];
- struct thread_struct {
- 	unsigned long  ksp;       /* kernel stack pointer */
- 	unsigned long  sr;        /* saved status register */
-+	unsigned long  trap_no;   /* saved status register */
- 
- 	/* FPU regs */
- 	struct user_fp __aligned(16) user_fp;
-diff --git a/arch/csky/kernel/traps.c b/arch/csky/kernel/traps.c
-index b057480e7463c..63715cb90ee99 100644
---- a/arch/csky/kernel/traps.c
-+++ b/arch/csky/kernel/traps.c
-@@ -115,8 +115,9 @@ asmlinkage void trap_c(struct pt_regs *regs)
- 	int sig;
- 	unsigned long vector;
- 	siginfo_t info;
-+	struct task_struct *tsk = current;
- 
--	vector = (mfcr("psr") >> 16) & 0xff;
-+	vector = (regs->sr >> 16) & 0xff;
- 
- 	switch (vector) {
- 	case VEC_ZERODIV:
-@@ -129,6 +130,7 @@ asmlinkage void trap_c(struct pt_regs *regs)
- 		sig = SIGTRAP;
- 		break;
- 	case VEC_ILLEGAL:
-+		tsk->thread.trap_no = vector;
- 		die_if_kernel("Kernel mode ILLEGAL", regs, vector);
- #ifndef CONFIG_CPU_NO_USER_BKPT
- 		if (*(uint16_t *)instruction_pointer(regs) != USR_BKPT)
-@@ -146,16 +148,20 @@ asmlinkage void trap_c(struct pt_regs *regs)
- 		sig = SIGTRAP;
- 		break;
- 	case VEC_ACCESS:
-+		tsk->thread.trap_no = vector;
- 		return buserr(regs);
- #ifdef CONFIG_CPU_NEED_SOFTALIGN
- 	case VEC_ALIGN:
-+		tsk->thread.trap_no = vector;
- 		return csky_alignment(regs);
- #endif
- #ifdef CONFIG_CPU_HAS_FPU
- 	case VEC_FPE:
-+		tsk->thread.trap_no = vector;
- 		die_if_kernel("Kernel mode FPE", regs, vector);
- 		return fpu_fpe(regs);
- 	case VEC_PRIV:
-+		tsk->thread.trap_no = vector;
- 		die_if_kernel("Kernel mode PRIV", regs, vector);
- 		if (fpu_libc_helper(regs))
- 			return;
-@@ -164,5 +170,8 @@ asmlinkage void trap_c(struct pt_regs *regs)
- 		sig = SIGSEGV;
- 		break;
- 	}
-+
-+	tsk->thread.trap_no = vector;
-+
- 	send_sig(sig, current, 0);
- }
-diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
-index f76618b630f91..562c7f7087490 100644
---- a/arch/csky/mm/fault.c
-+++ b/arch/csky/mm/fault.c
-@@ -179,11 +179,14 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long write,
- bad_area_nosemaphore:
- 	/* User mode accesses just cause a SIGSEGV */
- 	if (user_mode(regs)) {
-+		tsk->thread.trap_no = (regs->sr >> 16) & 0xff;
- 		force_sig_fault(SIGSEGV, si_code, (void __user *)address);
- 		return;
- 	}
- 
- no_context:
-+	tsk->thread.trap_no = (regs->sr >> 16) & 0xff;
-+
- 	/* Are we prepared to handle this kernel fault? */
- 	if (fixup_exception(regs))
- 		return;
-@@ -198,6 +201,8 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long write,
- 	die_if_kernel("Oops", regs, write);
- 
- out_of_memory:
-+	tsk->thread.trap_no = (regs->sr >> 16) & 0xff;
-+
- 	/*
- 	 * We ran out of memory, call the OOM killer, and return the userspace
- 	 * (which will retry the fault, or kill us if we got oom-killed).
-@@ -206,6 +211,8 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long write,
- 	return;
- 
- do_sigbus:
-+	tsk->thread.trap_no = (regs->sr >> 16) & 0xff;
-+
- 	up_read(&mm->mmap_sem);
- 
- 	/* Kernel mode? Handle exceptions or die */
--- 
-2.20.1
-
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4100,9 +4100,9 @@ static int ext4_fill_super(struct super_
+ 			EXT4_BLOCKS_PER_GROUP(sb) - 1);
+ 	do_div(blocks_count, EXT4_BLOCKS_PER_GROUP(sb));
+ 	if (blocks_count > ((uint64_t)1<<32) - EXT4_DESC_PER_BLOCK(sb)) {
+-		ext4_msg(sb, KERN_WARNING, "groups count too large: %u "
++		ext4_msg(sb, KERN_WARNING, "groups count too large: %llu "
+ 		       "(block count %llu, first data block %u, "
+-		       "blocks per group %lu)", sbi->s_groups_count,
++		       "blocks per group %lu)", blocks_count,
+ 		       ext4_blocks_count(es),
+ 		       le32_to_cpu(es->s_first_data_block),
+ 		       EXT4_BLOCKS_PER_GROUP(sb));
 
 
