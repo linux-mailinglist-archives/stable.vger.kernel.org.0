@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1247A1B3BF6
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:02:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C25E51B4160
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726716AbgDVKBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:01:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48748 "EHLO mail.kernel.org"
+        id S1728496AbgDVKKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:10:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726694AbgDVKA4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:56 -0400
+        id S1728988AbgDVKKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:10:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D788720735;
-        Wed, 22 Apr 2020 10:00:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 158FD20575;
+        Wed, 22 Apr 2020 10:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549655;
-        bh=dO0qlpZrROUVq45PrPUtrziJoBZYcrNZEhmnu2i3hh0=;
+        s=default; t=1587550231;
+        bh=Dd0mG1GMJcdGRJyGJoFduNfbabrP2iJc0jvKndSXVdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0LoYoq+XLbLrNeKPcpQceDpsLiVx6M4W0swpuJihpwujcOWMB81WpZG6eIXAaJjY
-         9zuhib+Y5y2b20+yhMfTTPAzYijNwhz9s1veL7E4fLXCtzWpIoWQo96X/yP//kjI/4
-         HysY3t7VRx2/rMGVNlMS5b1J0vAo64VMeHbuyO4E=
+        b=Jo3qPRyz/KuW34334FaxaTO50044zwWjamrTZvaqR/HDyEJW738T6a6ZhvMnd3/pH
+         3ooSPYfDuxqptgdou0n9EQArUM/2d0LadqNrtEz9tFIcj1ytauU/l7TPTjGYPisph4
+         dRK1XquWLRKToPZ8Vb8bGlzotz1Fl5R0HE95Ixr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Paul <sean@poorly.run>,
-        Wayne Lin <Wayne.Lin@amd.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Lyude Paul <lyude@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 051/100] drm/dp_mst: Fix clearing payload state on topology disable
+        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.14 055/199] signal: Extend exec_id to 64bits
 Date:   Wed, 22 Apr 2020 11:56:21 +0200
-Message-Id: <20200422095031.997131903@linuxfoundation.org>
+Message-Id: <20200422095103.761468165@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,91 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 8732fe46b20c951493bfc4dba0ad08efdf41de81 ]
+commit d1e7fd6462ca9fc76650fbe6ca800e35b24267da upstream.
 
-The issues caused by:
+Replace the 32bit exec_id with a 64bit exec_id to make it impossible
+to wrap the exec_id counter.  With care an attacker can cause exec_id
+wrap and send arbitrary signals to a newly exec'd parent.  This
+bypasses the signal sending checks if the parent changes their
+credentials during exec.
 
-commit 64e62bdf04ab ("drm/dp_mst: Remove VCPI while disabling topology
-mgr")
+The severity of this problem can been seen that in my limited testing
+of a 32bit exec_id it can take as little as 19s to exec 65536 times.
+Which means that it can take as little as 14 days to wrap a 32bit
+exec_id.  Adam Zabrocki has succeeded wrapping the self_exe_id in 7
+days.  Even my slower timing is in the uptime of a typical server.
+Which means self_exec_id is simply a speed bump today, and if exec
+gets noticably faster self_exec_id won't even be a speed bump.
 
-Prompted me to take a closer look at how we clear the payload state in
-general when disabling the topology, and it turns out there's actually
-two subtle issues here.
+Extending self_exec_id to 64bits introduces a problem on 32bit
+architectures where reading self_exec_id is no longer atomic and can
+take two read instructions.  Which means that is is possible to hit
+a window where the read value of exec_id does not match the written
+value.  So with very lucky timing after this change this still
+remains expoiltable.
 
-The first is that we're not grabbing &mgr.payload_lock when clearing the
-payloads in drm_dp_mst_topology_mgr_set_mst(). Seeing as the canonical
-lock order is &mgr.payload_lock -> &mgr.lock (because we always want
-&mgr.lock to be the inner-most lock so topology validation always
-works), this makes perfect sense. It also means that -technically- there
-could be racing between someone calling
-drm_dp_mst_topology_mgr_set_mst() to disable the topology, along with a
-modeset occurring that's modifying the payload state at the same time.
+I have updated the update of exec_id on exec to use WRITE_ONCE
+and the read of exec_id in do_notify_parent to use READ_ONCE
+to make it clear that there is no locking between these two
+locations.
 
-The second is the more obvious issue that Wayne Lin discovered, that
-we're not clearing proposed_payloads when disabling the topology.
+Link: https://lore.kernel.org/kernel-hardening/20200324215049.GA3710@pi3.com.pl
+Fixes: 2.3.23pre2
+Cc: stable@vger.kernel.org
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I actually can't see any obvious places where the racing caused by the
-first issue would break something, and it could be that some of our
-higher-level locks already prevent this by happenstance, but better safe
-then sorry. So, let's make it so that drm_dp_mst_topology_mgr_set_mst()
-first grabs &mgr.payload_lock followed by &mgr.lock so that we never
-race when modifying the payload state. Then, we also clear
-proposed_payloads to fix the original issue of enabling a new topology
-with a dirty payload state. This doesn't clear any of the drm_dp_vcpi
-structures, but those are getting destroyed along with the ports anyway.
-
-Changes since v1:
-* Use sizeof(mgr->payloads[0])/sizeof(mgr->proposed_vcpis[0]) instead -
-  vsyrjala
-
-Cc: Sean Paul <sean@poorly.run>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200122194321.14953-1-lyude@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/exec.c             |    2 +-
+ include/linux/sched.h |    4 ++--
+ kernel/signal.c       |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index f5229b083f8ea..483bd48467312 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2031,6 +2031,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
- 	int ret = 0;
- 	struct drm_dp_mst_branch *mstb = NULL;
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1373,7 +1373,7 @@ void setup_new_exec(struct linux_binprm
  
-+	mutex_lock(&mgr->payload_lock);
- 	mutex_lock(&mgr->lock);
- 	if (mst_state == mgr->mst_state)
- 		goto out_unlock;
-@@ -2093,7 +2094,10 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
- 		/* this can fail if the device is gone */
- 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
- 		ret = 0;
--		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct drm_dp_payload));
-+		memset(mgr->payloads, 0,
-+		       mgr->max_payloads * sizeof(mgr->payloads[0]));
-+		memset(mgr->proposed_vcpis, 0,
-+		       mgr->max_payloads * sizeof(mgr->proposed_vcpis[0]));
- 		mgr->payload_mask = 0;
- 		set_bit(0, &mgr->payload_mask);
- 		mgr->vcpi_mask = 0;
-@@ -2101,6 +2105,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+ 	/* An exec changes our domain. We are no longer part of the thread
+ 	   group */
+-	current->self_exec_id++;
++	WRITE_ONCE(current->self_exec_id, current->self_exec_id + 1);
+ 	flush_signal_handlers(current, 0);
+ }
+ EXPORT_SYMBOL(setup_new_exec);
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -839,8 +839,8 @@ struct task_struct {
+ 	struct seccomp			seccomp;
  
- out_unlock:
- 	mutex_unlock(&mgr->lock);
-+	mutex_unlock(&mgr->payload_lock);
- 	if (mstb)
- 		drm_dp_put_mst_branch_device(mstb);
- 	return ret;
--- 
-2.20.1
-
+ 	/* Thread group tracking: */
+-	u32				parent_exec_id;
+-	u32				self_exec_id;
++	u64				parent_exec_id;
++	u64				self_exec_id;
+ 
+ 	/* Protection against (de-)allocation: mm, files, fs, tty, keyrings, mems_allowed, mempolicy: */
+ 	spinlock_t			alloc_lock;
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1675,7 +1675,7 @@ bool do_notify_parent(struct task_struct
+ 		 * This is only possible if parent == real_parent.
+ 		 * Check if it has changed security domain.
+ 		 */
+-		if (tsk->parent_exec_id != tsk->parent->self_exec_id)
++		if (tsk->parent_exec_id != READ_ONCE(tsk->parent->self_exec_id))
+ 			sig = SIGCHLD;
+ 	}
+ 
 
 
