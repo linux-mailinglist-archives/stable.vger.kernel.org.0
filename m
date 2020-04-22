@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B87F1B3E72
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 281581B3E63
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:28:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727971AbgDVK2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:28:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
+        id S1730475AbgDVK14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:27:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730947AbgDVK1w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:27:52 -0400
+        id S1730954AbgDVK1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:27:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF3202075A;
-        Wed, 22 Apr 2020 10:27:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F8C120781;
+        Wed, 22 Apr 2020 10:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551271;
-        bh=5zaxWXYHdii+8HKF+w3wF4Uacydj1oC+B6fkTZqNBls=;
+        s=default; t=1587551273;
+        bh=R1oW4WBsTpvLSSgLpCQO8YRdPKMjlk6GqAahhZObiYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+IOWXHDjUpa1mYy4aqT9BVhkd0ZC0DNObN/zpMQzm4oeBuQVQtueb2gfYdeQNQAX
-         /LmhYz/GIpTgZRmNpCqTyxRbjlkHmOfBfhkJ1huWjZGhEHpd9B1YkQ+q6QNve9FLwu
-         5Lq015K5ogakO0DGhsnIlMAjKaeSGWRFogo+raeY=
+        b=X0SXTpCTmTv5DKKj4CrbelYugBacoQcPWRU/CducYsn9lb9LktRTItFZ8SeW1DC4e
+         w3mRvhf2UfcBiX5bFh/2orma1jrBbokcqEkyQZ2qxleSFJZzCZ82oEI6F4NZtujeEb
+         yJ4OV4zktaALmVqrIiewUi9kztZHvABPNvwGZ5Gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Fontana <fontanalorenz@gmail.com>,
-        Leonardo Di Donato <leodidonato@gmail.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.6 163/166] bpf: fix buggy r0 retval refinement for tracing helpers
-Date:   Wed, 22 Apr 2020 11:58:10 +0200
-Message-Id: <20200422095105.857178731@linuxfoundation.org>
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.6 164/166] bpf: Test_verifier, bpf_get_stack return value add <0
+Date:   Wed, 22 Apr 2020 11:58:11 +0200
+Message-Id: <20200422095105.976935341@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
 References: <20200422095047.669225321@linuxfoundation.org>
@@ -46,143 +44,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
-Date: Tue, 21 Apr 2020 15:01:49 +0200
+From: John Fastabend <john.fastabend@gmail.com>
 
-[ no upstream commit ]
+commit 9ac26e9973bac5716a2a542e32f380c84db2b88c upstream.
 
-See the glory details in 100605035e15 ("bpf: Verifier, do_refine_retval_range
-may clamp umin to 0 incorrectly") for why 849fa50662fb ("bpf/verifier: refine
-retval R0 state for bpf_get_stack helper") is buggy. The whole series however
-is not suitable for stable since it adds significant amount [0] of verifier
-complexity in order to add 32bit subreg tracking. Something simpler is needed.
+With current ALU32 subreg handling and retval refine fix from last
+patches we see an expected failure in test_verifier. With verbose
+verifier state being printed at each step for clarity we have the
+following relavent lines [I omit register states that are not
+necessarily useful to see failure cause],
 
-Unfortunately, reverting 849fa50662fb ("bpf/verifier: refine retval R0 state
-for bpf_get_stack helper") or just cherry-picking 100605035e15 ("bpf: Verifier,
-do_refine_retval_range may clamp umin to 0 incorrectly") is not an option since
-it will break existing tracing programs badly (at least those that are using
-bpf_get_stack() and bpf_probe_read_str() helpers). Not fixing it in stable is
-also not an option since on 4.19 kernels an error will cause a soft-lockup due
-to hitting dead-code sanitized branch since we don't hard-wire such branches
-in old kernels yet. But even then for 5.x 849fa50662fb ("bpf/verifier: refine
-retval R0 state for bpf_get_stack helper") would cause wrong bounds on the
-verifier simluation when an error is hit.
+#101/p bpf_get_stack return R0 within range FAIL
+Failed to load prog 'Success'!
+[..]
+14: (85) call bpf_get_stack#67
+ R0_w=map_value(id=0,off=0,ks=8,vs=48,imm=0)
+ R3_w=inv48
+15:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+15: (b7) r1 = 0
+16:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+16: (bf) r8 = r0
+17:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+17: (67) r8 <<= 32
+18:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smax_value=9223372032559808512,
+               umax_value=18446744069414584320,
+               var_off=(0x0; 0xffffffff00000000),
+               s32_min_value=0,
+               s32_max_value=0,
+               u32_max_value=0,
+               var32_off=(0x0; 0x0))
+18: (c7) r8 s>>= 32
+19
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smin_value=-2147483648,
+               smax_value=2147483647,
+               var32_off=(0x0; 0xffffffff))
+19: (cd) if r1 s< r8 goto pc+16
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smin_value=-2147483648,
+               smax_value=0,
+               var32_off=(0x0; 0xffffffff))
+20:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smin_value=-2147483648,
+               smax_value=0,
+ R9=inv48
+20: (1f) r9 -= r8
+21: (bf) r2 = r7
+22:
+ R2_w=map_value(id=0,off=0,ks=8,vs=48,imm=0)
+22: (0f) r2 += r8
+value -2147483648 makes map_value pointer be out of bounds
 
-In one of the earlier iterations of mentioned patch series for upstream there
-was the concern that just using smax_value in do_refine_retval_range() would
-nuke bounds by subsequent <<32 >>32 shifts before the comparison against 0 [1]
-which eventually led to the 32bit subreg tracking in the first place. While I
-initially went for implementing the idea [1] to pattern match the two shift
-operations, it turned out to be more complex than actually needed, meaning, we
-could simply treat do_refine_retval_range() similarly to how we branch off
-verification for conditionals or under speculation, that is, pushing a new
-reg state to the stack for later verification. This means, instead of verifying
-the current path with the ret_reg in [S32MIN, msize_max_value] interval where
-later bounds would get nuked, we split this into two: i) for the success case
-where ret_reg can be in [0, msize_max_value], and ii) for the error case with
-ret_reg known to be in interval [S32MIN, -1]. Latter will preserve the bounds
-during these shift patterns and can match reg < 0 test. test_progs also succeed
-with this approach.
+After call bpf_get_stack() on line 14 and some moves we have at line 16
+an r8 bound with max_value 48 but an unknown min value. This is to be
+expected bpf_get_stack call can only return a max of the input size but
+is free to return any negative error in the 32-bit register space. The
+C helper is returning an int so will use lower 32-bits.
 
-  [0] https://lore.kernel.org/bpf/158507130343.15666.8018068546764556975.stgit@john-Precision-5820-Tower/
-  [1] https://lore.kernel.org/bpf/158015334199.28573.4940395881683556537.stgit@john-XPS-13-9370/T/#m2e0ad1d5949131014748b6daa48a3495e7f0456d
+Lines 17 and 18 clear the top 32 bits with a left/right shift but use
+ARSH so we still have worst case min bound before line 19 of -2147483648.
+At this point the signed check 'r1 s< r8' meant to protect the addition
+on line 22 where dst reg is a map_value pointer may very well return
+true with a large negative number. Then the final line 22 will detect
+this as an invalid operation and fail the program. What we want to do
+is proceed only if r8 is positive non-error. So change 'r1 s< r8' to
+'r1 s> r8' so that we jump if r8 is negative.
 
-Fixes: 849fa50662fb ("bpf/verifier: refine retval R0 state for bpf_get_stack helper")
-Reported-by: Lorenzo Fontana <fontanalorenz@gmail.com>
-Reported-by: Leonardo Di Donato <leodidonato@gmail.com>
-Reported-by: John Fastabend <john.fastabend@gmail.com>
+Next we will throw an error because we access past the end of the map
+value. The map value size is 48 and sizeof(struct test_val) is 48 so
+we walk off the end of the map value on the second call to
+get bpf_get_stack(). Fix this by changing sizeof(struct test_val) to
+24 by using 'sizeof(struct test_val) / 2'. After this everything passes
+as expected.
+
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Tested-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/158560426019.10843.3285429543232025187.stgit@john-Precision-5820-Tower
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/bpf/verifier.c |   45 ++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 11 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -227,8 +227,7 @@ struct bpf_call_arg_meta {
- 	bool pkt_access;
- 	int regno;
- 	int access_size;
--	s64 msize_smax_value;
--	u64 msize_umax_value;
-+	u64 msize_max_value;
- 	int ref_obj_id;
- 	int func_id;
- 	u32 btf_id;
-@@ -3568,8 +3567,7 @@ static int check_func_arg(struct bpf_ver
- 		/* remember the mem_size which may be used later
- 		 * to refine return values.
- 		 */
--		meta->msize_smax_value = reg->smax_value;
--		meta->msize_umax_value = reg->umax_value;
-+		meta->msize_max_value = reg->umax_value;
- 
- 		/* The register is SCALAR_VALUE; the access check
- 		 * happens using its boundaries.
-@@ -4095,21 +4093,44 @@ static int prepare_func_exit(struct bpf_
- 	return 0;
- }
- 
--static void do_refine_retval_range(struct bpf_reg_state *regs, int ret_type,
--				   int func_id,
--				   struct bpf_call_arg_meta *meta)
-+static int do_refine_retval_range(struct bpf_verifier_env *env,
-+				  struct bpf_reg_state *regs, int ret_type,
-+				  int func_id, struct bpf_call_arg_meta *meta)
- {
- 	struct bpf_reg_state *ret_reg = &regs[BPF_REG_0];
-+	struct bpf_reg_state tmp_reg = *ret_reg;
-+	bool ret;
- 
- 	if (ret_type != RET_INTEGER ||
- 	    (func_id != BPF_FUNC_get_stack &&
- 	     func_id != BPF_FUNC_probe_read_str))
--		return;
-+		return 0;
-+
-+	/* Error case where ret is in interval [S32MIN, -1]. */
-+	ret_reg->smin_value = S32_MIN;
-+	ret_reg->smax_value = -1;
- 
--	ret_reg->smax_value = meta->msize_smax_value;
--	ret_reg->umax_value = meta->msize_umax_value;
- 	__reg_deduce_bounds(ret_reg);
- 	__reg_bound_offset(ret_reg);
-+	__update_reg_bounds(ret_reg);
-+
-+	ret = push_stack(env, env->insn_idx + 1, env->insn_idx, false);
-+	if (!ret)
-+		return -EFAULT;
-+
-+	*ret_reg = tmp_reg;
-+
-+	/* Success case where ret is in range [0, msize_max_value]. */
-+	ret_reg->smin_value = 0;
-+	ret_reg->smax_value = meta->msize_max_value;
-+	ret_reg->umin_value = ret_reg->smin_value;
-+	ret_reg->umax_value = ret_reg->smax_value;
-+
-+	__reg_deduce_bounds(ret_reg);
-+	__reg_bound_offset(ret_reg);
-+	__update_reg_bounds(ret_reg);
-+
-+	return 0;
- }
- 
- static int
-@@ -4377,7 +4398,9 @@ static int check_helper_call(struct bpf_
- 		regs[BPF_REG_0].ref_obj_id = id;
- 	}
- 
--	do_refine_retval_range(regs, fn->ret_type, func_id, &meta);
-+	err = do_refine_retval_range(env, regs, fn->ret_type, func_id, &meta);
-+	if (err)
-+		return err;
- 
- 	err = check_map_func_compatibility(env, meta.map_ptr, func_id);
- 	if (err)
+---
+ tools/testing/selftests/bpf/verifier/bpf_get_stack.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- a/tools/testing/selftests/bpf/verifier/bpf_get_stack.c
++++ b/tools/testing/selftests/bpf/verifier/bpf_get_stack.c
+@@ -9,17 +9,17 @@
+ 	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_map_lookup_elem),
+ 	BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, 0, 28),
+ 	BPF_MOV64_REG(BPF_REG_7, BPF_REG_0),
+-	BPF_MOV64_IMM(BPF_REG_9, sizeof(struct test_val)),
++	BPF_MOV64_IMM(BPF_REG_9, sizeof(struct test_val)/2),
+ 	BPF_MOV64_REG(BPF_REG_1, BPF_REG_6),
+ 	BPF_MOV64_REG(BPF_REG_2, BPF_REG_7),
+-	BPF_MOV64_IMM(BPF_REG_3, sizeof(struct test_val)),
++	BPF_MOV64_IMM(BPF_REG_3, sizeof(struct test_val)/2),
+ 	BPF_MOV64_IMM(BPF_REG_4, 256),
+ 	BPF_EMIT_CALL(BPF_FUNC_get_stack),
+ 	BPF_MOV64_IMM(BPF_REG_1, 0),
+ 	BPF_MOV64_REG(BPF_REG_8, BPF_REG_0),
+ 	BPF_ALU64_IMM(BPF_LSH, BPF_REG_8, 32),
+ 	BPF_ALU64_IMM(BPF_ARSH, BPF_REG_8, 32),
+-	BPF_JMP_REG(BPF_JSLT, BPF_REG_1, BPF_REG_8, 16),
++	BPF_JMP_REG(BPF_JSGT, BPF_REG_1, BPF_REG_8, 16),
+ 	BPF_ALU64_REG(BPF_SUB, BPF_REG_9, BPF_REG_8),
+ 	BPF_MOV64_REG(BPF_REG_2, BPF_REG_7),
+ 	BPF_ALU64_REG(BPF_ADD, BPF_REG_2, BPF_REG_8),
+@@ -29,7 +29,7 @@
+ 	BPF_MOV64_REG(BPF_REG_3, BPF_REG_2),
+ 	BPF_ALU64_REG(BPF_ADD, BPF_REG_3, BPF_REG_1),
+ 	BPF_MOV64_REG(BPF_REG_1, BPF_REG_7),
+-	BPF_MOV64_IMM(BPF_REG_5, sizeof(struct test_val)),
++	BPF_MOV64_IMM(BPF_REG_5, sizeof(struct test_val)/2),
+ 	BPF_ALU64_REG(BPF_ADD, BPF_REG_1, BPF_REG_5),
+ 	BPF_JMP_REG(BPF_JGE, BPF_REG_3, BPF_REG_1, 4),
+ 	BPF_MOV64_REG(BPF_REG_1, BPF_REG_6),
 
 
