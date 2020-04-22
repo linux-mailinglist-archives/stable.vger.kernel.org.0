@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5CEC1B3E95
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 873B01B3FC1
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730823AbgDVK1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:27:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35978 "EHLO mail.kernel.org"
+        id S1731616AbgDVKk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:40:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729880AbgDVK1C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:27:02 -0400
+        id S1730123AbgDVKUt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:20:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2D682076B;
-        Wed, 22 Apr 2020 10:27:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32AF220CC7;
+        Wed, 22 Apr 2020 10:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551222;
-        bh=JqfIlilzAtnYw9GMvTatNQzCJGbLyz2Z0an4/12Cf7c=;
+        s=default; t=1587550844;
+        bh=iky+RiLWnSpmqdzzO3ElHkKx45CDifUx17zXxIkyz2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzdORwxw3mDpFbE0LgC9K3uw3p8Pqdo3SYompDF+WrU4+OqMcnO2hh3i5TCEFcwKK
-         aYEIIzqThGuATw42odxKhwaAeC0Tf4OFaUR1+D/O9/49mr2TUXUrI4A1f5wiQRfPJa
-         0NSi5APQ63EXeyFKFSeg5tIspEA2/26Wd7nNkJus=
+        b=WVaMlUmvHGpgdG1U57j0IXoBytAn+JVRSYSYLGOorBgUTBorc8B9okL7UG5ib3mPw
+         jja654Yp327BMNpywGz974OaRQL52pOJKAkpQgXtd9z7MUAgxiowI25hsBmJem4R68
+         UqSAsG/y+kfznYbPgZr6LggIRCwSPHai4xAf09dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.6 149/166] dma-debug: fix displaying of dma allocation type
+        stable@vger.kernel.org, Lorenzo Fontana <fontanalorenz@gmail.com>,
+        Leonardo Di Donato <leodidonato@gmail.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.4 115/118] bpf: fix buggy r0 retval refinement for tracing helpers
 Date:   Wed, 22 Apr 2020 11:57:56 +0200
-Message-Id: <20200422095104.561689880@linuxfoundation.org>
+Message-Id: <20200422095049.663707425@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +46,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
+Date: Tue, 21 Apr 2020 15:01:49 +0200
 
-commit 9bb50ed7470944238ec8e30a94ef096caf9056ee upstream.
+[ no upstream commit ]
 
-The commit 2e05ea5cdc1a ("dma-mapping: implement dma_map_single_attrs using
-dma_map_page_attrs") removed "dma_debug_page" enum, but missed to update
-type2name string table. This causes incorrect displaying of dma allocation
-type.
-Fix it by removing "page" string from type2name string table and switch to
-use named initializers.
+See the glory details in 100605035e15 ("bpf: Verifier, do_refine_retval_range
+may clamp umin to 0 incorrectly") for why 849fa50662fb ("bpf/verifier: refine
+retval R0 state for bpf_get_stack helper") is buggy. The whole series however
+is not suitable for stable since it adds significant amount [0] of verifier
+complexity in order to add 32bit subreg tracking. Something simpler is needed.
 
-Before (dma_alloc_coherent()):
-k3-ringacc 4b800000.ringacc: scather-gather idx 2208 P=d1140000 N=d114 D=d1140000 L=40 DMA_BIDIRECTIONAL dma map error check not applicable
-k3-ringacc 4b800000.ringacc: scather-gather idx 2216 P=d1150000 N=d115 D=d1150000 L=40 DMA_BIDIRECTIONAL dma map error check not applicable
+Unfortunately, reverting 849fa50662fb ("bpf/verifier: refine retval R0 state
+for bpf_get_stack helper") or just cherry-picking 100605035e15 ("bpf: Verifier,
+do_refine_retval_range may clamp umin to 0 incorrectly") is not an option since
+it will break existing tracing programs badly (at least those that are using
+bpf_get_stack() and bpf_probe_read_str() helpers). Not fixing it in stable is
+also not an option since on 4.19 kernels an error will cause a soft-lockup due
+to hitting dead-code sanitized branch since we don't hard-wire such branches
+in old kernels yet. But even then for 5.x 849fa50662fb ("bpf/verifier: refine
+retval R0 state for bpf_get_stack helper") would cause wrong bounds on the
+verifier simluation when an error is hit.
 
-After:
-k3-ringacc 4b800000.ringacc: coherent idx 2208 P=d1140000 N=d114 D=d1140000 L=40 DMA_BIDIRECTIONAL dma map error check not applicable
-k3-ringacc 4b800000.ringacc: coherent idx 2216 P=d1150000 N=d115 D=d1150000 L=40 DMA_BIDIRECTIONAL dma map error check not applicable
+In one of the earlier iterations of mentioned patch series for upstream there
+was the concern that just using smax_value in do_refine_retval_range() would
+nuke bounds by subsequent <<32 >>32 shifts before the comparison against 0 [1]
+which eventually led to the 32bit subreg tracking in the first place. While I
+initially went for implementing the idea [1] to pattern match the two shift
+operations, it turned out to be more complex than actually needed, meaning, we
+could simply treat do_refine_retval_range() similarly to how we branch off
+verification for conditionals or under speculation, that is, pushing a new
+reg state to the stack for later verification. This means, instead of verifying
+the current path with the ret_reg in [S32MIN, msize_max_value] interval where
+later bounds would get nuked, we split this into two: i) for the success case
+where ret_reg can be in [0, msize_max_value], and ii) for the error case with
+ret_reg known to be in interval [S32MIN, -1]. Latter will preserve the bounds
+during these shift patterns and can match reg < 0 test. test_progs also succeed
+with this approach.
 
-Fixes: 2e05ea5cdc1a ("dma-mapping: implement dma_map_single_attrs using dma_map_page_attrs")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+  [0] https://lore.kernel.org/bpf/158507130343.15666.8018068546764556975.stgit@john-Precision-5820-Tower/
+  [1] https://lore.kernel.org/bpf/158015334199.28573.4940395881683556537.stgit@john-XPS-13-9370/T/#m2e0ad1d5949131014748b6daa48a3495e7f0456d
+
+Fixes: 849fa50662fb ("bpf/verifier: refine retval R0 state for bpf_get_stack helper")
+Reported-by: Lorenzo Fontana <fontanalorenz@gmail.com>
+Reported-by: Leonardo Di Donato <leodidonato@gmail.com>
+Reported-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Tested-by: John Fastabend <john.fastabend@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/dma/debug.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/bpf/verifier.c |   45 ++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 34 insertions(+), 11 deletions(-)
 
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -137,9 +137,12 @@ static const char *const maperr2str[] =
- 	[MAP_ERR_CHECKED] = "dma map error checked",
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -201,8 +201,7 @@ struct bpf_call_arg_meta {
+ 	bool pkt_access;
+ 	int regno;
+ 	int access_size;
+-	s64 msize_smax_value;
+-	u64 msize_umax_value;
++	u64 msize_max_value;
+ 	int ref_obj_id;
+ 	int func_id;
  };
+@@ -3377,8 +3376,7 @@ static int check_func_arg(struct bpf_ver
+ 		/* remember the mem_size which may be used later
+ 		 * to refine return values.
+ 		 */
+-		meta->msize_smax_value = reg->smax_value;
+-		meta->msize_umax_value = reg->umax_value;
++		meta->msize_max_value = reg->umax_value;
  
--static const char *type2name[5] = { "single", "page",
--				    "scather-gather", "coherent",
--				    "resource" };
-+static const char *type2name[] = {
-+	[dma_debug_single] = "single",
-+	[dma_debug_sg] = "scather-gather",
-+	[dma_debug_coherent] = "coherent",
-+	[dma_debug_resource] = "resource",
-+};
+ 		/* The register is SCALAR_VALUE; the access check
+ 		 * happens using its boundaries.
+@@ -3866,21 +3864,44 @@ static int prepare_func_exit(struct bpf_
+ 	return 0;
+ }
  
- static const char *dir2name[4] = { "DMA_BIDIRECTIONAL", "DMA_TO_DEVICE",
- 				   "DMA_FROM_DEVICE", "DMA_NONE" };
+-static void do_refine_retval_range(struct bpf_reg_state *regs, int ret_type,
+-				   int func_id,
+-				   struct bpf_call_arg_meta *meta)
++static int do_refine_retval_range(struct bpf_verifier_env *env,
++				  struct bpf_reg_state *regs, int ret_type,
++				  int func_id, struct bpf_call_arg_meta *meta)
+ {
+ 	struct bpf_reg_state *ret_reg = &regs[BPF_REG_0];
++	struct bpf_reg_state tmp_reg = *ret_reg;
++	bool ret;
+ 
+ 	if (ret_type != RET_INTEGER ||
+ 	    (func_id != BPF_FUNC_get_stack &&
+ 	     func_id != BPF_FUNC_probe_read_str))
+-		return;
++		return 0;
++
++	/* Error case where ret is in interval [S32MIN, -1]. */
++	ret_reg->smin_value = S32_MIN;
++	ret_reg->smax_value = -1;
+ 
+-	ret_reg->smax_value = meta->msize_smax_value;
+-	ret_reg->umax_value = meta->msize_umax_value;
+ 	__reg_deduce_bounds(ret_reg);
+ 	__reg_bound_offset(ret_reg);
++	__update_reg_bounds(ret_reg);
++
++	ret = push_stack(env, env->insn_idx + 1, env->insn_idx, false);
++	if (!ret)
++		return -EFAULT;
++
++	*ret_reg = tmp_reg;
++
++	/* Success case where ret is in range [0, msize_max_value]. */
++	ret_reg->smin_value = 0;
++	ret_reg->smax_value = meta->msize_max_value;
++	ret_reg->umin_value = ret_reg->smin_value;
++	ret_reg->umax_value = ret_reg->smax_value;
++
++	__reg_deduce_bounds(ret_reg);
++	__reg_bound_offset(ret_reg);
++	__update_reg_bounds(ret_reg);
++
++	return 0;
+ }
+ 
+ static int
+@@ -4112,7 +4133,9 @@ static int check_helper_call(struct bpf_
+ 		regs[BPF_REG_0].ref_obj_id = id;
+ 	}
+ 
+-	do_refine_retval_range(regs, fn->ret_type, func_id, &meta);
++	err = do_refine_retval_range(env, regs, fn->ret_type, func_id, &meta);
++	if (err)
++		return err;
+ 
+ 	err = check_map_func_compatibility(env, meta.map_ptr, func_id);
+ 	if (err)
 
 
