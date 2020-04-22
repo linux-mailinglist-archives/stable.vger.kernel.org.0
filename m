@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D33BE1B4261
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 113FB1B414D
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726079AbgDVKBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:01:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50192 "EHLO mail.kernel.org"
+        id S1728487AbgDVKvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:51:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726841AbgDVKBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:01:39 -0400
+        id S1729135AbgDVKLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:11:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DE2C20735;
-        Wed, 22 Apr 2020 10:01:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C558F208E4;
+        Wed, 22 Apr 2020 10:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549698;
-        bh=a8LiVpgiZbCvH/rqNM3q6PKvM9u9kGxCK1QukDRwi4M=;
+        s=default; t=1587550263;
+        bh=PkqY5os02qCbo/HNGnzajYh6FNoNP4kntucX+B0/Sm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vkDHpEHeKDFGAXmUcL4hGqjykr8cthOjBiQpM4qp+JxDeuD8wweK+MQ+O3xTyJzAV
-         aiXK6vtNRG6VetTQ5pfDDkWKudYWIXassBsMoaL9Ig/WRbN6yO3NUyhRsEUUu+C8v6
-         12qQpXFkG/8NR7PrZnhWeaF4okCLh/a8MiBLViCk=
+        b=mDGkMlVehUC3SkkuQTh+yp+9Oj+7y2yAoTQ1FXbgkBtlvH7bxftrzECpX8dicTH+G
+         3uJTDdyL1WgY01/qejdXXyxUD5ZB4XzgERTfzgstHNH0K9qXZSOFEXkoHId7250wCa
+         PAedLTWvkodp6qLG+MVoXYWBDDgt5veJj51PYwuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
-        Li Bin <huawei.libin@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 071/100] scsi: sg: add sg_remove_request in sg_common_write
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 4.14 075/199] rtc: omap: Use define directive for PIN_CONFIG_ACTIVE_HIGH
 Date:   Wed, 22 Apr 2020 11:56:41 +0200
-Message-Id: <20200422095035.973504996@linuxfoundation.org>
+Message-Id: <20200422095105.646780527@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Bin <huawei.libin@huawei.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 849f8583e955dbe3a1806e03ecacd5e71cce0a08 upstream.
+commit c50156526a2f7176b50134e3e5fb108ba09791b2 upstream.
 
-If the dxfer_len is greater than 256M then the request is invalid and we
-need to call sg_remove_request in sg_common_write.
+Clang warns when one enumerated type is implicitly converted to another:
 
-Link: https://lore.kernel.org/r/1586777361-17339-1-git-send-email-huawei.libin@huawei.com
-Fixes: f930c7043663 ("scsi: sg: only check for dxfer_len greater than 256M")
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Li Bin <huawei.libin@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+drivers/rtc/rtc-omap.c:574:21: warning: implicit conversion from
+enumeration type 'enum rtc_pin_config_param' to different enumeration
+type 'enum pin_config_param' [-Wenum-conversion]
+        {"ti,active-high", PIN_CONFIG_ACTIVE_HIGH, 0},
+        ~                  ^~~~~~~~~~~~~~~~~~~~~~
+drivers/rtc/rtc-omap.c:579:12: warning: implicit conversion from
+enumeration type 'enum rtc_pin_config_param' to different enumeration
+type 'enum pin_config_param' [-Wenum-conversion]
+        PCONFDUMP(PIN_CONFIG_ACTIVE_HIGH, "input active high", NULL, false),
+        ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./include/linux/pinctrl/pinconf-generic.h:163:11: note: expanded from
+macro 'PCONFDUMP'
+        .param = a, .display = b, .format = c, .has_arg = d     \
+                 ^
+2 warnings generated.
+
+It is expected that pinctrl drivers can extend pin_config_param because
+of the gap between PIN_CONFIG_END and PIN_CONFIG_MAX so this conversion
+isn't an issue. Most drivers that take advantage of this define the
+PIN_CONFIG variables as constants, rather than enumerated values. Do the
+same thing here so that Clang no longer warns.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/144
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/sg.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-omap.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -820,8 +820,10 @@ sg_common_write(Sg_fd * sfp, Sg_request
- 			"sg_common_write:  scsi opcode=0x%02x, cmd_size=%d\n",
- 			(int) cmnd[0], (int) hp->cmd_len));
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -559,9 +559,7 @@ static const struct pinctrl_ops rtc_pinc
+ 	.dt_free_map = pinconf_generic_dt_free_map,
+ };
  
--	if (hp->dxfer_len >= SZ_256M)
-+	if (hp->dxfer_len >= SZ_256M) {
-+		sg_remove_request(sfp, srp);
- 		return -EINVAL;
-+	}
+-enum rtc_pin_config_param {
+-	PIN_CONFIG_ACTIVE_HIGH = PIN_CONFIG_END + 1,
+-};
++#define PIN_CONFIG_ACTIVE_HIGH		(PIN_CONFIG_END + 1)
  
- 	k = sg_start_req(srp, cmnd);
- 	if (k) {
+ static const struct pinconf_generic_params rtc_params[] = {
+ 	{"ti,active-high", PIN_CONFIG_ACTIVE_HIGH, 0},
 
 
