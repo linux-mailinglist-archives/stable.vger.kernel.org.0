@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFF271B3C18
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4982C1B3DC8
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726984AbgDVKCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:02:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51552 "EHLO mail.kernel.org"
+        id S1729958AbgDVKS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726994AbgDVKC3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:02:29 -0400
+        id S1729953AbgDVKSZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:18:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25FB72076C;
-        Wed, 22 Apr 2020 10:02:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 502552070B;
+        Wed, 22 Apr 2020 10:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549749;
-        bh=UumA21lU9T2cM3PJ+RxWCkO1Rk/std/qt+SozyD2f4c=;
+        s=default; t=1587550704;
+        bh=ONrlaUTrJlt3oF5jm/4hpTz5zdiFdn6NHQ66OXct7fU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xK52kKqYvFy1DpFNL1CtU/2syUX2Piezr1oxJwgh2GkHLDjxYk0iOiviV0Zy7tMjW
-         AjlH2478YxwHFEmeF2Nr98llL4D7eG2VUKBA++bsJt8KSfH8R3aTpgNuh355NcAJER
-         r/B9dq9Ev0zjSNzigIUvkxR/Oe3I/3I8y8SqrORA=
+        b=G/nGCjGHnBr6DwQPKIhJuEJRB+35a85zH2kpiy1fvxuEPW7C8c4Gkvq5GyLcg7daN
+         EViVdprOTHTumYQrBtOo48jg4V6uFYweJQKMj3AM2W9sa+HwQmGLy7KJUZAgNeOXV1
+         71IMfJHXLJVd2BD3WMrOVbIjQLiFCdp4VVIpz/LE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 090/100] NFS: Fix memory leaks in nfs_pageio_stop_mirroring()
+Subject: [PATCH 5.4 059/118] f2fs: Add a new CP flag to help fsck fix resize SPO issues
 Date:   Wed, 22 Apr 2020 11:57:00 +0200
-Message-Id: <20200422095039.204367531@linuxfoundation.org>
+Message-Id: <20200422095041.707582404@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Sahitya Tummala <stummala@codeaurora.org>
 
-[ Upstream commit 862f35c94730c9270833f3ad05bd758a29f204ed ]
+[ Upstream commit c84ef3c5e65ccf99a7a91a4d731ebb5d6331a178 ]
 
-If we just set the mirror count to 1 without first clearing out
-the mirrors, we can leak queued up requests.
+Add and set a new CP flag CP_RESIZEFS_FLAG during
+online resize FS to help fsck fix the metadata mismatch
+that may happen due to SPO during resize, where SB
+got updated but CP data couldn't be written yet.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+fsck errors -
+Info: CKPT version = 6ed7bccb
+        Wrong user_block_count(2233856)
+[f2fs_do_mount:3365] Checkpoint is polluted
+
+Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pagelist.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ fs/f2fs/checkpoint.c    | 8 ++++++--
+ include/linux/f2fs_fs.h | 1 +
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index af1bb7353792c..f5de58c5773f6 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -886,15 +886,6 @@ static int nfs_pageio_setup_mirroring(struct nfs_pageio_descriptor *pgio,
- 	return 0;
- }
+diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
+index 410f5c2c6ef17..a28ffecc0f95a 100644
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -1301,10 +1301,14 @@ static void update_ckpt_flags(struct f2fs_sb_info *sbi, struct cp_control *cpc)
+ 	else
+ 		__clear_ckpt_flags(ckpt, CP_ORPHAN_PRESENT_FLAG);
  
--/*
-- * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
-- */
--void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
--{
--	pgio->pg_mirror_count = 1;
--	pgio->pg_mirror_idx = 0;
--}
--
- static void nfs_pageio_cleanup_mirroring(struct nfs_pageio_descriptor *pgio)
- {
- 	pgio->pg_mirror_count = 1;
-@@ -1287,6 +1278,14 @@ void nfs_pageio_cond_complete(struct nfs_pageio_descriptor *desc, pgoff_t index)
- 	}
- }
+-	if (is_sbi_flag_set(sbi, SBI_NEED_FSCK) ||
+-		is_sbi_flag_set(sbi, SBI_IS_RESIZEFS))
++	if (is_sbi_flag_set(sbi, SBI_NEED_FSCK))
+ 		__set_ckpt_flags(ckpt, CP_FSCK_FLAG);
  
-+/*
-+ * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
-+ */
-+void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
-+{
-+	nfs_pageio_complete(pgio);
-+}
++	if (is_sbi_flag_set(sbi, SBI_IS_RESIZEFS))
++		__set_ckpt_flags(ckpt, CP_RESIZEFS_FLAG);
++	else
++		__clear_ckpt_flags(ckpt, CP_RESIZEFS_FLAG);
 +
- int __init nfs_init_nfspagecache(void)
- {
- 	nfs_page_cachep = kmem_cache_create("nfs_page",
+ 	if (is_sbi_flag_set(sbi, SBI_CP_DISABLED))
+ 		__set_ckpt_flags(ckpt, CP_DISABLED_FLAG);
+ 	else
+diff --git a/include/linux/f2fs_fs.h b/include/linux/f2fs_fs.h
+index 2847389960281..6bb6f718a1023 100644
+--- a/include/linux/f2fs_fs.h
++++ b/include/linux/f2fs_fs.h
+@@ -124,6 +124,7 @@ struct f2fs_super_block {
+ /*
+  * For checkpoint
+  */
++#define CP_RESIZEFS_FLAG		0x00004000
+ #define CP_DISABLED_QUICK_FLAG		0x00002000
+ #define CP_DISABLED_FLAG		0x00001000
+ #define CP_QUOTA_NEED_FSCK_FLAG		0x00000800
 -- 
 2.20.1
 
