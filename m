@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B071B4258
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E64CC1B3C74
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726912AbgDVKB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:01:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50744 "EHLO mail.kernel.org"
+        id S1728245AbgDVKFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:05:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726889AbgDVKB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:01:58 -0400
+        id S1727080AbgDVKFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:05:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B735D20735;
-        Wed, 22 Apr 2020 10:01:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46CEB2075A;
+        Wed, 22 Apr 2020 10:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549718;
-        bh=rrmnOmOsnTMK7HOIQLxfsYxR7IdNREV8GXUA269AL/k=;
+        s=default; t=1587549952;
+        bh=vzyeGWSnxKHvry/0WkMZLr9DqVuc/TIqJByLXmq2mH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C34qLx9S8mreB/viOxniADnELUGMxRmMGZKZJK/m99EY90+vB0k0Okiyx19qggdeG
-         OkhLxCrZO/6zKWzQAcZtebsAE8sRe172vmwODU3NzHkTIFKj1DwpXZgeFzIlFOTgky
-         4Q/naLGI90u1e9XBy9YwhqWD1ZPRMweDhJakMdyc=
+        b=PBhCMwOsLqM5nPnB46P0vHNLaTm+J0CyV3vAbr+KPJSHFrGBk8n4gDlAFgHYq5Tzn
+         eFwxCHWLiO4mofSuZ1bwpJCn6QT74hE0COBHyDqPkY2J1AZIEeAxFIRr2hAEoSfYAH
+         GI16PTNDcBxYpLhX3LKMVwejJ1XP+4reYu7WrPoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.4 061/100] ext4: fix incorrect inodes per group in error message
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 074/125] ASoC: Intel: mrfld: fix incorrect check on p->sink
 Date:   Wed, 22 Apr 2020 11:56:31 +0200
-Message-Id: <20200422095034.054617285@linuxfoundation.org>
+Message-Id: <20200422095045.153563016@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Triplett <josh@joshtriplett.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit b9c538da4e52a7b79dfcf4cfa487c46125066dfb upstream.
+commit f5e056e1e46fcbb5f74ce560792aeb7d57ce79e6 upstream.
 
-If ext4_fill_super detects an invalid number of inodes per group, the
-resulting error message printed the number of blocks per group, rather
-than the number of inodes per group. Fix it to print the correct value.
+The check on p->sink looks bogus, I believe it should be p->source
+since the following code blocks are related to p->source. Fix
+this by replacing p->sink with p->source.
 
-Fixes: cd6bb35bf7f6d ("ext4: use more strict checks for inodes_per_block on mount")
-Link: https://lore.kernel.org/r/8be03355983a08e5d4eed480944613454d7e2550.1585434649.git.josh@joshtriplett.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 24c8d14192cc ("ASoC: Intel: mrfld: add DSP core controls")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Addresses-Coverity: ("Copy-paste error")
+Link: https://lore.kernel.org/r/20191119113640.166940-1-colin.king@canonical.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    2 +-
+ sound/soc/intel/atom/sst-atom-controls.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3660,7 +3660,7 @@ static int ext4_fill_super(struct super_
- 	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
- 	    sbi->s_inodes_per_group > blocksize * 8) {
- 		ext4_msg(sb, KERN_ERR, "invalid inodes per group: %lu\n",
--			 sbi->s_blocks_per_group);
-+			 sbi->s_inodes_per_group);
- 		goto failed_mount;
- 	}
- 	sbi->s_itb_per_group = sbi->s_inodes_per_group /
+--- a/sound/soc/intel/atom/sst-atom-controls.c
++++ b/sound/soc/intel/atom/sst-atom-controls.c
+@@ -1343,7 +1343,7 @@ int sst_send_pipe_gains(struct snd_soc_d
+ 				dai->capture_widget->name);
+ 		w = dai->capture_widget;
+ 		snd_soc_dapm_widget_for_each_source_path(w, p) {
+-			if (p->connected && !p->connected(w, p->sink))
++			if (p->connected && !p->connected(w, p->source))
+ 				continue;
+ 
+ 			if (p->connect &&  p->source->power &&
 
 
