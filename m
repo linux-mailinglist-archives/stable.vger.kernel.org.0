@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8277C1B40EB
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A69F71B4145
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732076AbgDVKtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:49:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47942 "EHLO mail.kernel.org"
+        id S1729273AbgDVKvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:51:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728973AbgDVKNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:13:48 -0400
+        id S1728277AbgDVKLU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:11:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D225D2070B;
-        Wed, 22 Apr 2020 10:13:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D09E2075A;
+        Wed, 22 Apr 2020 10:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550428;
-        bh=6SjgJX5uXF6l/fbulEwoIwAxqi/rr0lTgQYrB8uQ+Qo=;
+        s=default; t=1587550280;
+        bh=ipGa19nKKTFXIKRlrk5uJWMpFfYkR2QvtOVETI2Td8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WV2tFQ4ZYds5qbBbI0KP9uzzamRgHtyljbzn0i18fM9iZooDfIRtFnUiJanen+Ln0
-         WWtB/qa0pAJtPsQIBxi0dX3dbY35XjmljLxMhBIw+x7OG24ygIFfRHFsX9sNK1Pqr9
-         dSGQC/JhM8NTbstKlKlG04fW/1zUb4j1JlnmMtHs=
+        b=aLCsukNy6fq7RcfGBoPpf0IZDxLKsM7i1e4FOO/IUG1aNfPXNp+/MW+KzS/Qm41mn
+         sVkX2EE9sgXjOtHVDO4XF0gyR/FoWiBc6vAsn67t5/umw2Qux11VbOxDHsSZmnKi1q
+         4Q16DPX98BWtyF1gHjAqGTwZFxJKdx7fOaLVCPTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Roman Gushchin <guro@fb.com>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 04/64] ext4: use non-movable memory for superblock readahead
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 082/199] Input: i8042 - add Acer Aspire 5738z to nomux list
 Date:   Wed, 22 Apr 2020 11:56:48 +0200
-Message-Id: <20200422095013.021182139@linuxfoundation.org>
+Message-Id: <20200422095106.297498160@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
-References: <20200422095008.799686511@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,107 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit d87f639258a6a5980183f11876c884931ad93da2 upstream.
+commit ebc68cedec4aead47d8d11623d013cca9bf8e825 upstream.
 
-Since commit a8ac900b8163 ("ext4: use non-movable memory for the
-superblock") buffers for ext4 superblock were allocated using
-the sb_bread_unmovable() helper which allocated buffer heads
-out of non-movable memory blocks. It was necessarily to not block
-page migrations and do not cause cma allocation failures.
+The Acer Aspire 5738z has a button to disable (and re-enable) the
+touchpad next to the touchpad.
 
-However commit 85c8f176a611 ("ext4: preload block group descriptors")
-broke this by introducing pre-reading of the ext4 superblock.
-The problem is that __breadahead() is using __getblk() underneath,
-which allocates buffer heads out of movable memory.
+When this button is pressed a LED underneath indicates that the touchpad
+is disabled (and an event is send to userspace and GNOME shows its
+touchpad enabled / disable OSD thingie).
 
-It resulted in page migration failures I've seen on a machine
-with an ext4 partition and a preallocated cma area.
+So far so good, but after re-enabling the touchpad it no longer works.
 
-Fix this by introducing sb_breadahead_unmovable() and
-__breadahead_gfp() helpers which use non-movable memory for buffer
-head allocations and use them for the ext4 superblock readahead.
+The laptop does not have an external ps2 port, so mux mode is not needed
+and disabling mux mode fixes the touchpad no longer working after toggling
+it off and back on again, so lets add this laptop model to the nomux list.
 
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Fixes: 85c8f176a611 ("ext4: preload block group descriptors")
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Link: https://lore.kernel.org/r/20200229001411.128010-1-guro@fb.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200331123947.318908-1-hdegoede@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/buffer.c                 |   11 +++++++++++
- fs/ext4/inode.c             |    2 +-
- fs/ext4/super.c             |    2 +-
- include/linux/buffer_head.h |    8 ++++++++
- 4 files changed, 21 insertions(+), 2 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -1336,6 +1336,17 @@ void __breadahead(struct block_device *b
- }
- EXPORT_SYMBOL(__breadahead);
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -534,6 +534,17 @@ static const struct dmi_system_id __init
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo LaVie Z"),
+ 		},
+ 	},
++	{
++		/*
++		 * Acer Aspire 5738z
++		 * Touchpad stops working in mux mode when dis- + re-enabled
++		 * with the touchpad enable/disable toggle hotkey
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
++		},
++	},
+ 	{ }
+ };
  
-+void __breadahead_gfp(struct block_device *bdev, sector_t block, unsigned size,
-+		      gfp_t gfp)
-+{
-+	struct buffer_head *bh = __getblk_gfp(bdev, block, size, gfp);
-+	if (likely(bh)) {
-+		ll_rw_block(REQ_OP_READ, REQ_RAHEAD, 1, &bh);
-+		brelse(bh);
-+	}
-+}
-+EXPORT_SYMBOL(__breadahead_gfp);
-+
- /**
-  *  __bread_gfp() - reads a specified block and returns the bh
-  *  @bdev: the block_device to read from
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4690,7 +4690,7 @@ make_io:
- 			if (end > table)
- 				end = table;
- 			while (b <= end)
--				sb_breadahead(sb, b++);
-+				sb_breadahead_unmovable(sb, b++);
- 		}
- 
- 		/*
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4207,7 +4207,7 @@ static int ext4_fill_super(struct super_
- 	/* Pre-read the descriptors into the buffer cache */
- 	for (i = 0; i < db_count; i++) {
- 		block = descriptor_loc(sb, logical_sb_block, i);
--		sb_breadahead(sb, block);
-+		sb_breadahead_unmovable(sb, block);
- 	}
- 
- 	for (i = 0; i < db_count; i++) {
---- a/include/linux/buffer_head.h
-+++ b/include/linux/buffer_head.h
-@@ -189,6 +189,8 @@ struct buffer_head *__getblk_gfp(struct
- void __brelse(struct buffer_head *);
- void __bforget(struct buffer_head *);
- void __breadahead(struct block_device *, sector_t block, unsigned int size);
-+void __breadahead_gfp(struct block_device *, sector_t block, unsigned int size,
-+		  gfp_t gfp);
- struct buffer_head *__bread_gfp(struct block_device *,
- 				sector_t block, unsigned size, gfp_t gfp);
- void invalidate_bh_lrus(void);
-@@ -319,6 +321,12 @@ sb_breadahead(struct super_block *sb, se
- 	__breadahead(sb->s_bdev, block, sb->s_blocksize);
- }
- 
-+static inline void
-+sb_breadahead_unmovable(struct super_block *sb, sector_t block)
-+{
-+	__breadahead_gfp(sb->s_bdev, block, sb->s_blocksize, 0);
-+}
-+
- static inline struct buffer_head *
- sb_getblk(struct super_block *sb, sector_t block)
- {
 
 
