@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A2D1B4126
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2020B1B3D87
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:15:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728178AbgDVKL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44560 "EHLO mail.kernel.org"
+        id S1729060AbgDVKPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:15:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729267AbgDVKLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:11:55 -0400
+        id S1727881AbgDVKPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:15:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD5AE20575;
-        Wed, 22 Apr 2020 10:11:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17DC120575;
+        Wed, 22 Apr 2020 10:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550315;
-        bh=ZMr3cobph3pHX+whIvaq3dvLnbLGICj7rLWUDrQdOC0=;
+        s=default; t=1587550541;
+        bh=0ouXlNHJWvjkfuC2gmYfU3a8nAoZ49GTebh8z7Xu9Vw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkyqiBCzn/w/KUAgloKfAdg9DXZbvMm0PYubIceBZtyA7UkSUJQfjNKkmwn8F02af
-         zGZYgcUWr3IrJZQFM+1G5KuDgKO0+YTz3BwHisCtn47tOjNxECUavKGN+EFdCGvvNT
-         JW/jqWQHBZJXWx8qu5pLry5b+2JKQ9hyhT0MMdpA=
+        b=wQNfYVxu4RYggsU00ZeNBvaFzXCrJ4hubyJ3wzpWJoCF8ZUhhNPVMj5x6Y2kVRZ4m
+         W+IFmNIk3l/PizGvTAEkwjOUUhO3gSdlfAf+On2W5dg2JnarKaN39vIYcrLPX0Ogop
+         OEsNgrzynvlv0UrnSYpVLypKshLMRUMdWt3ggcqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Clement Courbet <courbet@google.com>,
+        stable@vger.kernel.org,
         Nathan Chancellor <natechancellor@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 094/199] powerpc: Make setjmp/longjmp signature standard
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 4.19 16/64] lib/raid6: use vdupq_n_u8 to avoid endianness warnings
 Date:   Wed, 22 Apr 2020 11:57:00 +0200
-Message-Id: <20200422095107.457740465@linuxfoundation.org>
+Message-Id: <20200422095015.766450493@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clement Courbet <courbet@google.com>
+From: ndesaulniers@google.com <ndesaulniers@google.com>
 
-commit c17eb4dca5a353a9dbbb8ad6934fe57af7165e91 upstream.
+commit 1ad3935b39da78a403e7df7a3813f866c731bc64 upstream.
 
-Declaring setjmp()/longjmp() as taking longs makes the signature
-non-standard, and makes clang complain. In the past, this has been
-worked around by adding -ffreestanding to the compile flags.
+Clang warns: vector initializers are not compatible with NEON intrinsics
+in big endian mode [-Wnonportable-vector-initialization]
 
-The implementation looks like it only ever propagates the value
-(in longjmp) or sets it to 1 (in setjmp), and we only call longjmp
-with integer parameters.
+While this is usually the case, it's not an issue for this case since
+we're initializing the uint8x16_t (16x uint8_t's) with the same value.
 
-This allows removing -ffreestanding from the compilation flags.
+Instead, use vdupq_n_u8 which both compilers lower into a single movi
+instruction: https://godbolt.org/z/vBrgzt
 
-Fixes: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp and longjmp")
-Cc: stable@vger.kernel.org # v4.14+
-Signed-off-by: Clement Courbet <courbet@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200330080400.124803-1-courbet@google.com
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+This avoids the static storage for a constant value.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/214
+Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/setjmp.h |    6 ++++--
- arch/powerpc/kernel/Makefile      |    3 ---
- arch/powerpc/xmon/Makefile        |    3 ---
- 3 files changed, 4 insertions(+), 8 deletions(-)
+ lib/raid6/neon.uc            |    5 ++---
+ lib/raid6/recov_neon_inner.c |    7 ++-----
+ 2 files changed, 4 insertions(+), 8 deletions(-)
 
---- a/arch/powerpc/include/asm/setjmp.h
-+++ b/arch/powerpc/include/asm/setjmp.h
-@@ -12,7 +12,9 @@
+--- a/lib/raid6/neon.uc
++++ b/lib/raid6/neon.uc
+@@ -28,7 +28,6 @@
  
- #define JMP_BUF_LEN    23
+ typedef uint8x16_t unative_t;
  
--extern long setjmp(long *) __attribute__((returns_twice));
--extern void longjmp(long *, long) __attribute__((noreturn));
-+typedef long jmp_buf[JMP_BUF_LEN];
-+
-+extern int setjmp(jmp_buf env) __attribute__((returns_twice));
-+extern void longjmp(jmp_buf env, int val) __attribute__((noreturn));
+-#define NBYTES(x) ((unative_t){x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x})
+ #define NSIZE	sizeof(unative_t)
  
- #endif /* _ASM_POWERPC_SETJMP_H */
---- a/arch/powerpc/kernel/Makefile
-+++ b/arch/powerpc/kernel/Makefile
-@@ -5,9 +5,6 @@
+ /*
+@@ -61,7 +60,7 @@ void raid6_neon$#_gen_syndrome_real(int
+ 	int d, z, z0;
  
- CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
+ 	register unative_t wd$$, wq$$, wp$$, w1$$, w2$$;
+-	const unative_t x1d = NBYTES(0x1d);
++	const unative_t x1d = vdupq_n_u8(0x1d);
  
--# Avoid clang warnings around longjmp/setjmp declarations
--CFLAGS_crash.o += -ffreestanding
+ 	z0 = disks - 3;		/* Highest data disk */
+ 	p = dptr[z0+1];		/* XOR parity */
+@@ -92,7 +91,7 @@ void raid6_neon$#_xor_syndrome_real(int
+ 	int d, z, z0;
+ 
+ 	register unative_t wd$$, wq$$, wp$$, w1$$, w2$$;
+-	const unative_t x1d = NBYTES(0x1d);
++	const unative_t x1d = vdupq_n_u8(0x1d);
+ 
+ 	z0 = stop;		/* P/Q right side optimization */
+ 	p = dptr[disks-2];	/* XOR parity */
+--- a/lib/raid6/recov_neon_inner.c
++++ b/lib/raid6/recov_neon_inner.c
+@@ -10,11 +10,6 @@
+ 
+ #include <arm_neon.h>
+ 
+-static const uint8x16_t x0f = {
+-	0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f,
+-	0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f,
+-};
 -
- subdir-ccflags-$(CONFIG_PPC_WERROR) := -Werror
+ #ifdef CONFIG_ARM
+ /*
+  * AArch32 does not provide this intrinsic natively because it does not
+@@ -41,6 +36,7 @@ void __raid6_2data_recov_neon(int bytes,
+ 	uint8x16_t pm1 = vld1q_u8(pbmul + 16);
+ 	uint8x16_t qm0 = vld1q_u8(qmul);
+ 	uint8x16_t qm1 = vld1q_u8(qmul + 16);
++	uint8x16_t x0f = vdupq_n_u8(0x0f);
  
- ifeq ($(CONFIG_PPC64),y)
---- a/arch/powerpc/xmon/Makefile
-+++ b/arch/powerpc/xmon/Makefile
-@@ -1,9 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for xmon
+ 	/*
+ 	 * while ( bytes-- ) {
+@@ -87,6 +83,7 @@ void __raid6_datap_recov_neon(int bytes,
+ {
+ 	uint8x16_t qm0 = vld1q_u8(qmul);
+ 	uint8x16_t qm1 = vld1q_u8(qmul + 16);
++	uint8x16_t x0f = vdupq_n_u8(0x0f);
  
--# Avoid clang warnings around longjmp/setjmp declarations
--subdir-ccflags-y := -ffreestanding
--
- subdir-ccflags-$(CONFIG_PPC_WERROR) += -Werror
- 
- GCOV_PROFILE := n
+ 	/*
+ 	 * while (bytes--) {
 
 
