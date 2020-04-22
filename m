@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FC131B3C39
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18AB91B42B6
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727868AbgDVKDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:03:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53654 "EHLO mail.kernel.org"
+        id S1732484AbgDVLDg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:03:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726602AbgDVKDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:03:42 -0400
+        id S1726478AbgDVJ7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 05:59:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 912D720575;
-        Wed, 22 Apr 2020 10:03:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 433642076E;
+        Wed, 22 Apr 2020 09:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549822;
-        bh=I2tQbsYyygkptZpEjVSX438TBxfy4L/ZN8/YbUXSsKQ=;
+        s=default; t=1587549577;
+        bh=QKMcaEVYytCyf1hqsXW7L2gDGVX8IfnY0Ttlq6wcg+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/ACTrN8I0TqIIGWmYeJ1mFe+1Qsi5/rxqMORKT/6McidPBDTfoVpMn0qD+y0CTmj
-         qWnzaRMaRX4AuoF/PCE/ixPfphQDecE4k8s51EjFSfRnS8bsRNHmexJv/ucjiN0X4I
-         lh5CDpA75Pej55AX67pUVOC91nAmFqQ4T1SxSRFc=
+        b=NK9czYVYaZ4YexBI9IQp/ROnMU/dELh1vgbI52k82u3TquggE0xCbHrI/3UGDMUVS
+         bBLxBL04m6GTPL7JkwmDSy7/ddiCOdrB8Wmu1QDQyEb7ZA2zfayYe8ngvRyIXF6ehS
+         JWcbI16c+pPYxjgQhwVmQ2RZg8OwBARAyhjvDeX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 021/125] ALSA: usb-audio: Add mixer workaround for TRX40 and co
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 008/100] gfs2: Dont demote a glock until its revokes are written
 Date:   Wed, 22 Apr 2020 11:55:38 +0200
-Message-Id: <20200422095036.712469123@linuxfoundation.org>
+Message-Id: <20200422095024.209082810@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,77 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit 2a48218f8e23d47bd3e23cfdfb8aa9066f7dc3e6 upstream.
+[ Upstream commit df5db5f9ee112e76b5202fbc331f990a0fc316d6 ]
 
-Some recent boards (supposedly with a new AMD platform) contain the
-USB audio class 2 device that is often tied with HD-audio.  The device
-exposes an Input Gain Pad control (id=19, control=12) but this node
-doesn't behave correctly, returning an error for each inquiry of
-GET_MIN and GET_MAX that should have been mandatory.
+Before this patch, run_queue would demote glocks based on whether
+there are any more holders. But if the glock has pending revokes that
+haven't been written to the media, giving up the glock might end in
+file system corruption if the revokes never get written due to
+io errors, node crashes and fences, etc. In that case, another node
+will replay the metadata blocks associated with the glock, but
+because the revoke was never written, it could replay that block
+even though the glock had since been granted to another node who
+might have made changes.
 
-As a workaround, simply ignore this node by adding a usbmix_name_map
-table entry.  The currently known devices are:
-* 0414:a002 - Gigabyte TRX40 Aorus Pro WiFi
-* 0b05:1916 - ASUS ROG Zenith II
-* 0b05:1917 - ASUS ROG Strix
-* 0db0:0d64 - MSI TRX40 Creator
-* 0db0:543d - MSI TRX40
+This patch changes the logic in run_queue so that it never demotes
+a glock until its count of pending revokes reaches zero.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206543
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200408140449.22319-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Reviewed-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer_maps.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ fs/gfs2/glock.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -363,6 +363,14 @@ static const struct usbmix_name_map dell
- 	{ 0 }
- };
- 
-+/* Some mobos shipped with a dummy HD-audio show the invalid GET_MIN/GET_MAX
-+ * response for Input Gain Pad (id=19, control=12).  Skip it.
-+ */
-+static const struct usbmix_name_map asus_rog_map[] = {
-+	{ 19, NULL, 12 }, /* FU, Input Gain Pad */
-+	{}
-+};
-+
- /*
-  * Control map entries
-  */
-@@ -482,6 +490,26 @@ static struct usbmix_ctl_map usbmix_ctl_
- 		.id = USB_ID(0x05a7, 0x1020),
- 		.map = bose_companion5_map,
- 	},
-+	{	/* Gigabyte TRX40 Aorus Pro WiFi */
-+		.id = USB_ID(0x0414, 0xa002),
-+		.map = asus_rog_map,
-+	},
-+	{	/* ASUS ROG Zenith II */
-+		.id = USB_ID(0x0b05, 0x1916),
-+		.map = asus_rog_map,
-+	},
-+	{	/* ASUS ROG Strix */
-+		.id = USB_ID(0x0b05, 0x1917),
-+		.map = asus_rog_map,
-+	},
-+	{	/* MSI TRX40 Creator */
-+		.id = USB_ID(0x0db0, 0x0d64),
-+		.map = asus_rog_map,
-+	},
-+	{	/* MSI TRX40 */
-+		.id = USB_ID(0x0db0, 0x543d),
-+		.map = asus_rog_map,
-+	},
- 	{ 0 } /* terminator */
- };
- 
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 1eb737c466ddc..f80ffccb03160 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -541,6 +541,9 @@ __acquires(&gl->gl_lockref.lock)
+ 			goto out_unlock;
+ 		if (nonblock)
+ 			goto out_sched;
++		smp_mb();
++		if (atomic_read(&gl->gl_revokes) != 0)
++			goto out_sched;
+ 		set_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags);
+ 		GLOCK_BUG_ON(gl, gl->gl_demote_state == LM_ST_EXCLUSIVE);
+ 		gl->gl_target = gl->gl_demote_state;
+-- 
+2.20.1
+
 
 
