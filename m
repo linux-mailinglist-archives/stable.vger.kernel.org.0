@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD771B4089
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BE801B427A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729228AbgDVKqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:46:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52988 "EHLO mail.kernel.org"
+        id S1726951AbgDVLBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726050AbgDVKRB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:17:01 -0400
+        id S1726742AbgDVKBK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:01:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 279E02076B;
-        Wed, 22 Apr 2020 10:17:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D73020776;
+        Wed, 22 Apr 2020 10:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550620;
-        bh=1hYHRaf1AmAgr6p0nm1Jb7dX/9yL1Mu0Pg9f+92y26M=;
+        s=default; t=1587549669;
+        bh=G4im9AdlOXfDKoQn1m8PR/bnrn+ah8nqq88MXdYNarU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QewzIikIwrAX2GUQfe6F9zFtqtvKYG1mjjEqZiR/mhmA3L71yhpznTp0pDZY6dmga
-         KaJS6PJx4NkOpDSVZuqwOfL1KeQA3mX39KAuhtHJjPV4RyjYtva8gtc953e5y5OnmI
-         rGba/nJ2SYonFaYIa6mcJP3NcBg7KTXapmYxbJzk=
+        b=Bf8DHVrr718GP4sYb3VhAFk/fAKBoa6KQRWew2dJPiStFkhuc/y4RqzD31ManH4kF
+         MO/GjBq23CI0aEATmiHde7+2Rqqg5WZJZiilblMChrxlE6fuwo+gJXM50SxlGeNNhu
+         6pgA6hfBDAUK4NiETsMATquIFdR+RZ/CFtSbQDzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.4 025/118] afs: Fix decoding of inline abort codes from version 1 status records
+        stable@vger.kernel.org, Taras Chornyi <taras.chornyi@plvision.eu>,
+        Vadym Kochan <vadym.kochan@plvision.eu>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 056/100] net: ipv4: devinet: Fix crash when add/del multicast IP with autojoin
 Date:   Wed, 22 Apr 2020 11:56:26 +0200
-Message-Id: <20200422095036.037669270@linuxfoundation.org>
+Message-Id: <20200422095033.205387451@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Taras Chornyi <taras.chornyi@plvision.eu>
 
-commit 3e0d9892c0e7fa426ca6bf921cb4b543ca265714 upstream.
+[ Upstream commit 690cc86321eb9bcee371710252742fb16fe96824 ]
 
-If we're decoding an AFSFetchStatus record and we see that the version is 1
-and the abort code is set and we're expecting inline errors, then we store
-the abort code and ignore the remaining status record (which is correct),
-but we don't set the flag to say we got a valid abort code.
+When CONFIG_IP_MULTICAST is not set and multicast ip is added to the device
+with autojoin flag or when multicast ip is deleted kernel will crash.
 
-This can affect operation of YFS.RemoveFile2 when removing a file and the
-operation of {,Y}FS.InlineBulkStatus when prospectively constructing or
-updating of a set of inodes during a lookup.
+steps to reproduce:
 
-Fix this to indicate the reception of a valid abort code.
+ip addr add 224.0.0.0/32 dev eth0
+ip addr del 224.0.0.0/32 dev eth0
 
-Fixes: a38a75581e6e ("afs: Fix unlink to handle YFS.RemoveFile2 better")
-Signed-off-by: David Howells <dhowells@redhat.com>
+or
+
+ip addr add 224.0.0.0/32 dev eth0 autojoin
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000088
+ pc : _raw_write_lock_irqsave+0x1e0/0x2ac
+ lr : lock_sock_nested+0x1c/0x60
+ Call trace:
+  _raw_write_lock_irqsave+0x1e0/0x2ac
+  lock_sock_nested+0x1c/0x60
+  ip_mc_config.isra.28+0x50/0xe0
+  inet_rtm_deladdr+0x1a8/0x1f0
+  rtnetlink_rcv_msg+0x120/0x350
+  netlink_rcv_skb+0x58/0x120
+  rtnetlink_rcv+0x14/0x20
+  netlink_unicast+0x1b8/0x270
+  netlink_sendmsg+0x1a0/0x3b0
+  ____sys_sendmsg+0x248/0x290
+  ___sys_sendmsg+0x80/0xc0
+  __sys_sendmsg+0x68/0xc0
+  __arm64_sys_sendmsg+0x20/0x30
+  el0_svc_common.constprop.2+0x88/0x150
+  do_el0_svc+0x20/0x80
+ el0_sync_handler+0x118/0x190
+  el0_sync+0x140/0x180
+
+Fixes: 93a714d6b53d ("multicast: Extend ip address command to enable multicast group join/leave on")
+Signed-off-by: Taras Chornyi <taras.chornyi@plvision.eu>
+Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/afs/fsclient.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/devinet.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/fs/afs/fsclient.c
-+++ b/fs/afs/fsclient.c
-@@ -88,6 +88,7 @@ static int xdr_decode_AFSFetchStatus(con
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -560,12 +560,15 @@ struct in_ifaddr *inet_ifa_byprefix(stru
+ 	return NULL;
+ }
  
- 	if (abort_code != 0 && inline_error) {
- 		status->abort_code = abort_code;
-+		scb->have_error = true;
- 		goto good;
+-static int ip_mc_config(struct sock *sk, bool join, const struct in_ifaddr *ifa)
++static int ip_mc_autojoin_config(struct net *net, bool join,
++				 const struct in_ifaddr *ifa)
+ {
++#if defined(CONFIG_IP_MULTICAST)
+ 	struct ip_mreqn mreq = {
+ 		.imr_multiaddr.s_addr = ifa->ifa_address,
+ 		.imr_ifindex = ifa->ifa_dev->dev->ifindex,
+ 	};
++	struct sock *sk = net->ipv4.mc_autojoin_sk;
+ 	int ret;
+ 
+ 	ASSERT_RTNL();
+@@ -578,6 +581,9 @@ static int ip_mc_config(struct sock *sk,
+ 	release_sock(sk);
+ 
+ 	return ret;
++#else
++	return -EOPNOTSUPP;
++#endif
+ }
+ 
+ static int inet_rtm_deladdr(struct sk_buff *skb, struct nlmsghdr *nlh)
+@@ -617,7 +623,7 @@ static int inet_rtm_deladdr(struct sk_bu
+ 			continue;
+ 
+ 		if (ipv4_is_multicast(ifa->ifa_address))
+-			ip_mc_config(net->ipv4.mc_autojoin_sk, false, ifa);
++			ip_mc_autojoin_config(net, false, ifa);
+ 		__inet_del_ifa(in_dev, ifap, 1, nlh, NETLINK_CB(skb).portid);
+ 		return 0;
  	}
+@@ -873,8 +879,7 @@ static int inet_rtm_newaddr(struct sk_bu
+ 		 */
+ 		set_ifa_lifetime(ifa, valid_lft, prefered_lft);
+ 		if (ifa->ifa_flags & IFA_F_MCAUTOJOIN) {
+-			int ret = ip_mc_config(net->ipv4.mc_autojoin_sk,
+-					       true, ifa);
++			int ret = ip_mc_autojoin_config(net, true, ifa);
  
+ 			if (ret < 0) {
+ 				inet_free_ifa(ifa);
 
 
