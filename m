@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 560611B3C9B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4EBB1B3DED
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:23:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728475AbgDVKHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:07:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59456 "EHLO mail.kernel.org"
+        id S1730207AbgDVKWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:22:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728472AbgDVKHG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:07:06 -0400
+        id S1730098AbgDVKWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:22:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 254E62076C;
-        Wed, 22 Apr 2020 10:07:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C90D62076B;
+        Wed, 22 Apr 2020 10:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550025;
-        bh=fkfJeNmA8af7oSzYw22zY5mDN3nDtEpq/rmKMEts3g8=;
+        s=default; t=1587550953;
+        bh=ak3MKSqPh/TSr0rPK5DUxHnAyY73imxeaHdwafJvqA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAanALtZWuj6RnbGlWij/uMBPyi+oO/WrygmgoF7h5dhjalvfJa2TBhBDOA3r3zW4
-         W11hLw5lt3tg7V6+lex+J2rcgWZFu+6RMJeQ/aKLLZF1aS5eR4zGsX8PS7U/odhAzx
-         cuArkPQgfxBZ09fsHkQ1Iop3HddWs0/V0fVQlyec=
+        b=lVTRn4MdDUCj4Euxz2XZ109dRmJ+QqSqkeeBxLHYWQUqJyB4dOm5lROfy7JbYJBFV
+         gFIJKI/bP1nr7jQoPdyTYsg3eVu5rBRMlyu1GCG6zx2mR/jecb/3xXxR6+3acPnxk0
+         i+2chHkRBx1rptT3xH5zJJ78LsifNTkY2HIF0Wkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changwei Ge <chge@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 051/125] ocfs2: no need try to truncate file beyond i_size
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 041/166] clk: Dont cache errors from clk_ops::get_phase()
 Date:   Wed, 22 Apr 2020 11:56:08 +0200
-Message-Id: <20200422095041.772870898@linuxfoundation.org>
+Message-Id: <20200422095053.384792841@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,59 +46,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changwei Ge <chge@linux.alibaba.com>
+From: Stephen Boyd <sboyd@kernel.org>
 
-commit 783fda856e1034dee90a873f7654c418212d12d7 upstream.
+[ Upstream commit f21cf9c77ee82ef8adfeb2143adfacf21ec1d5cc ]
 
-Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
-exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
-size.  This restriction is not necessary and violates fallocate(2)
-semantics.
+We don't check for errors from clk_ops::get_phase() before storing away
+the result into the clk_core::phase member. This can lead to some fairly
+confusing debugfs information if these ops do return an error. Let's
+skip the store when this op fails to fix this. While we're here, move
+the locking outside of clk_core_get_phase() to simplify callers from
+the debugfs side.
 
-If fallocate(2) offset is beyond inode size, just return success and do
-nothing further.
-
-Otherwise, ocfs2 will crash the kernel.
-
-  kernel BUG at fs/ocfs2//alloc.c:7264!
-   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
-   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
-   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
-   ocfs2_fallocate+0x83/0xa0 [ocfs2]
-   vfs_fallocate+0x148/0x230
-   SyS_fallocate+0x48/0x80
-   do_syscall_64+0x79/0x170
-
-Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Heiko Stuebner <heiko@sntech.de>
+Cc: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lkml.kernel.org/r/20200205232802.29184-2-sboyd@kernel.org
+Acked-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/alloc.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/clk/clk.c | 48 +++++++++++++++++++++++++++++++----------------
+ 1 file changed, 32 insertions(+), 16 deletions(-)
 
---- a/fs/ocfs2/alloc.c
-+++ b/fs/ocfs2/alloc.c
-@@ -7246,6 +7246,10 @@ int ocfs2_truncate_inline(struct inode *
- 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
- 	struct ocfs2_inline_data *idata = &di->id2.i_data;
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index 95adf6c6db3db..305544b68b8a7 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -2660,12 +2660,14 @@ static int clk_core_get_phase(struct clk_core *core)
+ {
+ 	int ret;
  
-+	/* No need to punch hole beyond i_size. */
-+	if (start >= i_size_read(inode))
+-	clk_prepare_lock();
++	lockdep_assert_held(&prepare_lock);
++	if (!core->ops->get_phase)
 +		return 0;
 +
- 	if (end > i_size_read(inode))
- 		end = i_size_read(inode);
+ 	/* Always try to update cached phase if possible */
+-	if (core->ops->get_phase)
+-		core->phase = core->ops->get_phase(core->hw);
+-	ret = core->phase;
+-	clk_prepare_unlock();
++	ret = core->ops->get_phase(core->hw);
++	if (ret >= 0)
++		core->phase = ret;
  
+ 	return ret;
+ }
+@@ -2679,10 +2681,16 @@ static int clk_core_get_phase(struct clk_core *core)
+  */
+ int clk_get_phase(struct clk *clk)
+ {
++	int ret;
++
+ 	if (!clk)
+ 		return 0;
+ 
+-	return clk_core_get_phase(clk->core);
++	clk_prepare_lock();
++	ret = clk_core_get_phase(clk->core);
++	clk_prepare_unlock();
++
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(clk_get_phase);
+ 
+@@ -2896,13 +2904,21 @@ static struct hlist_head *orphan_list[] = {
+ static void clk_summary_show_one(struct seq_file *s, struct clk_core *c,
+ 				 int level)
+ {
+-	seq_printf(s, "%*s%-*s %7d %8d %8d %11lu %10lu %5d %6d\n",
++	int phase;
++
++	seq_printf(s, "%*s%-*s %7d %8d %8d %11lu %10lu ",
+ 		   level * 3 + 1, "",
+ 		   30 - level * 3, c->name,
+ 		   c->enable_count, c->prepare_count, c->protect_count,
+-		   clk_core_get_rate(c), clk_core_get_accuracy(c),
+-		   clk_core_get_phase(c),
+-		   clk_core_get_scaled_duty_cycle(c, 100000));
++		   clk_core_get_rate(c), clk_core_get_accuracy(c));
++
++	phase = clk_core_get_phase(c);
++	if (phase >= 0)
++		seq_printf(s, "%5d", phase);
++	else
++		seq_puts(s, "-----");
++
++	seq_printf(s, " %6d\n", clk_core_get_scaled_duty_cycle(c, 100000));
+ }
+ 
+ static void clk_summary_show_subtree(struct seq_file *s, struct clk_core *c,
+@@ -2939,6 +2955,7 @@ DEFINE_SHOW_ATTRIBUTE(clk_summary);
+ 
+ static void clk_dump_one(struct seq_file *s, struct clk_core *c, int level)
+ {
++	int phase;
+ 	unsigned long min_rate, max_rate;
+ 
+ 	clk_core_get_boundaries(c, &min_rate, &max_rate);
+@@ -2952,7 +2969,9 @@ static void clk_dump_one(struct seq_file *s, struct clk_core *c, int level)
+ 	seq_printf(s, "\"min_rate\": %lu,", min_rate);
+ 	seq_printf(s, "\"max_rate\": %lu,", max_rate);
+ 	seq_printf(s, "\"accuracy\": %lu,", clk_core_get_accuracy(c));
+-	seq_printf(s, "\"phase\": %d,", clk_core_get_phase(c));
++	phase = clk_core_get_phase(c);
++	if (phase >= 0)
++		seq_printf(s, "\"phase\": %d,", phase);
+ 	seq_printf(s, "\"duty_cycle\": %u",
+ 		   clk_core_get_scaled_duty_cycle(c, 100000));
+ }
+@@ -3434,14 +3453,11 @@ static int __clk_core_init(struct clk_core *core)
+ 		core->accuracy = 0;
+ 
+ 	/*
+-	 * Set clk's phase.
++	 * Set clk's phase by clk_core_get_phase() caching the phase.
+ 	 * Since a phase is by definition relative to its parent, just
+ 	 * query the current clock phase, or just assume it's in phase.
+ 	 */
+-	if (core->ops->get_phase)
+-		core->phase = core->ops->get_phase(core->hw);
+-	else
+-		core->phase = 0;
++	clk_core_get_phase(core);
+ 
+ 	/*
+ 	 * Set clk's duty cycle.
+-- 
+2.20.1
+
 
 
