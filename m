@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D451B3DB4
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:18:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C37001B3BEC
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729533AbgDVKRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:17:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53910 "EHLO mail.kernel.org"
+        id S1726639AbgDVKA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:00:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729862AbgDVKRi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:17:38 -0400
+        id S1726628AbgDVKAZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8941220776;
-        Wed, 22 Apr 2020 10:17:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9251420CC7;
+        Wed, 22 Apr 2020 10:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550658;
-        bh=M6ptCejwI31FoxbckhDkOLx2nSehW9/IaJ0HcvrgiMU=;
+        s=default; t=1587549624;
+        bh=U7Sc4UcTpVDfD4AYm+6C7inxC7cWRxuNaqsEtdpjJLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URu+o84rE5OeWDfFzthA9TdJGBK8JxP71OvSn13SApg1vOi3YVOUvjikP0A8kfLI4
-         oHQmLG4KZbnM1jRSmb51OWru/nbpRvSAobi3DK8PgjDMAjzk9l9aOt16sUpyM0KNUI
-         auDvjN5tr784YVP9lyo73Mk6A02oniuf0CMMMlSU=
+        b=oVVOzdwJmpVjp5k6JO4zoHDr4xcu+mWONUMA6eBGFMZwdH9noiZgFzAIlQcqjfXja
+         FYEYcv579At765qTLROJ8ODRy0JSw0KDHeyG37RciYhZwKzIPOdgkc0fT/JKNgsGks
+         8LmM6p2XumzMGBl7D12VIWpI++5a+CmwJyzQnLJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 008/118] ALSA: hda: Honor PM disablement in PM freeze and thaw_noirq ops
+        stable@vger.kernel.org, Alex Vesker <valex@mellanox.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 039/100] IB/ipoib: Fix lockdep issue found on ipoib_ib_dev_heavy_flush
 Date:   Wed, 22 Apr 2020 11:56:09 +0200
-Message-Id: <20200422095032.889229251@linuxfoundation.org>
+Message-Id: <20200422095029.531359213@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alex Vesker <valex@mellanox.com>
 
-commit 10db5bccc390e8e4bd9fcd1fbd4f1b23f271a405 upstream.
+commit 1f80bd6a6cc8358b81194e1f5fc16449947396ec upstream.
 
-freeze_noirq and thaw_noirq need to check the PM availability like
-other PM ops.  There are cases where the device got disabled due to
-the error, and the PM operation should be ignored for that.
+The locking order of vlan_rwsem (LOCK A) and then rtnl (LOCK B),
+contradicts other flows such as ipoib_open possibly causing a deadlock.
+To prevent this deadlock heavy flush is called with RTNL locked and
+only then tries to acquire vlan_rwsem.
+This deadlock is possible only when there are child interfaces.
 
-Fixes: 3e6db33aaf1d ("ALSA: hda - Set SKL+ hda controller power at freeze() and thaw()")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
-Link: https://lore.kernel.org/r/20200413082034.25166-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[  140.941758] ======================================================
+[  140.946276] WARNING: possible circular locking dependency detected
+[  140.950950] 4.15.0-rc1+ #9 Tainted: G           O
+[  140.954797] ------------------------------------------------------
+[  140.959424] kworker/u32:1/146 is trying to acquire lock:
+[  140.963450]  (rtnl_mutex){+.+.}, at: [<ffffffffc083516a>] __ipoib_ib_dev_flush+0x2da/0x4e0 [ib_ipoib]
+[  140.970006]
+but task is already holding lock:
+[  140.975141]  (&priv->vlan_rwsem){++++}, at: [<ffffffffc0834ee1>] __ipoib_ib_dev_flush+0x51/0x4e0 [ib_ipoib]
+[  140.982105]
+which lock already depends on the new lock.
+[  140.990023]
+the existing dependency chain (in reverse order) is:
+[  140.998650]
+-> #1 (&priv->vlan_rwsem){++++}:
+[  141.005276]        down_read+0x4d/0xb0
+[  141.009560]        ipoib_open+0xad/0x120 [ib_ipoib]
+[  141.014400]        __dev_open+0xcb/0x140
+[  141.017919]        __dev_change_flags+0x1a4/0x1e0
+[  141.022133]        dev_change_flags+0x23/0x60
+[  141.025695]        devinet_ioctl+0x704/0x7d0
+[  141.029156]        sock_do_ioctl+0x20/0x50
+[  141.032526]        sock_ioctl+0x221/0x300
+[  141.036079]        do_vfs_ioctl+0xa6/0x6d0
+[  141.039656]        SyS_ioctl+0x74/0x80
+[  141.042811]        entry_SYSCALL_64_fastpath+0x1f/0x96
+[  141.046891]
+-> #0 (rtnl_mutex){+.+.}:
+[  141.051701]        lock_acquire+0xd4/0x220
+[  141.055212]        __mutex_lock+0x88/0x970
+[  141.058631]        __ipoib_ib_dev_flush+0x2da/0x4e0 [ib_ipoib]
+[  141.063160]        __ipoib_ib_dev_flush+0x71/0x4e0 [ib_ipoib]
+[  141.067648]        process_one_work+0x1f5/0x610
+[  141.071429]        worker_thread+0x4a/0x3f0
+[  141.074890]        kthread+0x141/0x180
+[  141.078085]        ret_from_fork+0x24/0x30
+[  141.081559]
+
+other info that might help us debug this:
+[  141.088967]  Possible unsafe locking scenario:
+[  141.094280]        CPU0                    CPU1
+[  141.097953]        ----                    ----
+[  141.101640]   lock(&priv->vlan_rwsem);
+[  141.104771]                                lock(rtnl_mutex);
+[  141.109207]                                lock(&priv->vlan_rwsem);
+[  141.114032]   lock(rtnl_mutex);
+[  141.116800]
+ *** DEADLOCK ***
+
+Fixes: b4b678b06f6e ("IB/ipoib: Grab rtnl lock on heavy flush when calling ndo_open/stop")
+Signed-off-by: Alex Vesker <valex@mellanox.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_intel.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/infiniband/ulp/ipoib/ipoib_ib.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1068,6 +1068,8 @@ static int azx_freeze_noirq(struct devic
- 	struct azx *chip = card->private_data;
- 	struct pci_dev *pci = to_pci_dev(dev);
+--- a/drivers/infiniband/ulp/ipoib/ipoib_ib.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_ib.c
+@@ -1057,13 +1057,10 @@ static void __ipoib_ib_dev_flush(struct
+ 		ipoib_ib_dev_down(dev);
  
-+	if (!azx_is_pm_ready(card))
-+		return 0;
- 	if (chip->driver_type == AZX_DRIVER_SKL)
- 		pci_set_power_state(pci, PCI_D3hot);
+ 	if (level == IPOIB_FLUSH_HEAVY) {
+-		rtnl_lock();
+ 		if (test_bit(IPOIB_FLAG_INITIALIZED, &priv->flags))
+ 			ipoib_ib_dev_stop(dev);
  
-@@ -1080,6 +1082,8 @@ static int azx_thaw_noirq(struct device
- 	struct azx *chip = card->private_data;
- 	struct pci_dev *pci = to_pci_dev(dev);
+-		result = ipoib_ib_dev_open(dev);
+-		rtnl_unlock();
+-		if (result)
++		if (ipoib_ib_dev_open(dev))
+ 			return;
  
-+	if (!azx_is_pm_ready(card))
-+		return 0;
- 	if (chip->driver_type == AZX_DRIVER_SKL)
- 		pci_set_power_state(pci, PCI_D0);
+ 		if (netif_queue_stopped(dev))
+@@ -1102,7 +1099,9 @@ void ipoib_ib_dev_flush_heavy(struct wor
+ 	struct ipoib_dev_priv *priv =
+ 		container_of(work, struct ipoib_dev_priv, flush_heavy);
  
++	rtnl_lock();
+ 	__ipoib_ib_dev_flush(priv, IPOIB_FLUSH_HEAVY, 0);
++	rtnl_unlock();
+ }
+ 
+ void ipoib_ib_dev_cleanup(struct net_device *dev)
 
 
