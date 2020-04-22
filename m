@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ACC61B4052
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C761B4231
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731674AbgDVKpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:45:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54826 "EHLO mail.kernel.org"
+        id S1726991AbgDVKCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:02:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729943AbgDVKSU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:18:20 -0400
+        id S1726984AbgDVKCX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:02:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 614612075A;
-        Wed, 22 Apr 2020 10:18:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C77A215A4;
+        Wed, 22 Apr 2020 10:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550699;
-        bh=L0c94b19MVAUqN2/oWXuSNcZrhQ1Dm0Nd6V1dgiWk8s=;
+        s=default; t=1587549742;
+        bh=uKXv3sNvVy46P0r1i0/Dj6wNaleBNcC/QD5M1GPVccs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/yBfzAGEPffrkNz9mEZAglxDVaAFzzniurrXmJtuzTxPZ0btLj2urSoELG8cAlNl
-         bxQv56GYmcZ4Z27WY6Stpd9lQqjzcm3rzu1yqmzYod9Umq6JCu3QDssCExTcVVuwQL
-         qEI7lnQPRv8f8UEdlqR50FTFns8BIHY5wAx0j5a8=
+        b=SysHwp/6HsKwhfy65RNS1uXEAW8oU6SyQTJXADBwFmg5QGXddMuVfGZnWA9WafMWT
+         OEUUqG+Qcfy4iMzJkXEEyO4msRVa/ecgZi5enxagWfVJ3c+3xfOgxsoOz8leUIhvJG
+         nyhe/NTA9sAMiT+HwL67mrFaVolueLmTDKBYlS8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Marco Elver <elver@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/118] NFS: direct.c: Fix memory leak of dreq when nfs_get_lock_context fails
+Subject: [PATCH 4.4 088/100] percpu_counter: fix a data race at vm_committed_as
 Date:   Wed, 22 Apr 2020 11:56:58 +0200
-Message-Id: <20200422095041.394003543@linuxfoundation.org>
+Message-Id: <20200422095038.861081230@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 8605cf0e852af3b2c771c18417499dc4ceed03d5 ]
+[ Upstream commit 7e2345200262e4a6056580f0231cccdaffc825f3 ]
 
-When dreq is allocated by nfs_direct_req_alloc(), dreq->kref is
-initialized to 2. Therefore we need to call nfs_direct_req_release()
-twice to release the allocated dreq. Usually it is called in
-nfs_file_direct_{read, write}() and nfs_direct_complete().
+"vm_committed_as.count" could be accessed concurrently as reported by
+KCSAN,
 
-However, current code only calls nfs_direct_req_relese() once if
-nfs_get_lock_context() fails in nfs_file_direct_{read, write}().
-So, that case would result in memory leak.
+ BUG: KCSAN: data-race in __vm_enough_memory / percpu_counter_add_batch
 
-Fix this by adding the missing call.
+ write to 0xffffffff9451c538 of 8 bytes by task 65879 on cpu 35:
+  percpu_counter_add_batch+0x83/0xd0
+  percpu_counter_add_batch at lib/percpu_counter.c:91
+  __vm_enough_memory+0xb9/0x260
+  dup_mm+0x3a4/0x8f0
+  copy_process+0x2458/0x3240
+  _do_fork+0xaa/0x9f0
+  __do_sys_clone+0x125/0x160
+  __x64_sys_clone+0x70/0x90
+  do_syscall_64+0x91/0xb05
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Signed-off-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+ read to 0xffffffff9451c538 of 8 bytes by task 66773 on cpu 19:
+  __vm_enough_memory+0x199/0x260
+  percpu_counter_read_positive at include/linux/percpu_counter.h:81
+  (inlined by) __vm_enough_memory at mm/util.c:839
+  mmap_region+0x1b2/0xa10
+  do_mmap+0x45c/0x700
+  vm_mmap_pgoff+0xc0/0x130
+  ksys_mmap_pgoff+0x6e/0x300
+  __x64_sys_mmap+0x33/0x40
+  do_syscall_64+0x91/0xb05
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The read is outside percpu_counter::lock critical section which results in
+a data race.  Fix it by adding a READ_ONCE() in
+percpu_counter_read_positive() which could also service as the existing
+compiler memory barrier.
+
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Marco Elver <elver@google.com>
+Link: http://lkml.kernel.org/r/1582302724-2804-1-git-send-email-cai@lca.pw
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/percpu_counter.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 29f00da8a0b7f..6b0bf4ebd8124 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -571,6 +571,7 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter)
- 	l_ctx = nfs_get_lock_context(dreq->ctx);
- 	if (IS_ERR(l_ctx)) {
- 		result = PTR_ERR(l_ctx);
-+		nfs_direct_req_release(dreq);
- 		goto out_release;
- 	}
- 	dreq->l_ctx = l_ctx;
-@@ -989,6 +990,7 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
- 	l_ctx = nfs_get_lock_context(dreq->ctx);
- 	if (IS_ERR(l_ctx)) {
- 		result = PTR_ERR(l_ctx);
-+		nfs_direct_req_release(dreq);
- 		goto out_release;
- 	}
- 	dreq->l_ctx = l_ctx;
+diff --git a/include/linux/percpu_counter.h b/include/linux/percpu_counter.h
+index 84a1094496100..b6332cb761a4c 100644
+--- a/include/linux/percpu_counter.h
++++ b/include/linux/percpu_counter.h
+@@ -76,9 +76,9 @@ static inline s64 percpu_counter_read(struct percpu_counter *fbc)
+  */
+ static inline s64 percpu_counter_read_positive(struct percpu_counter *fbc)
+ {
+-	s64 ret = fbc->count;
++	/* Prevent reloads of fbc->count */
++	s64 ret = READ_ONCE(fbc->count);
+ 
+-	barrier();		/* Prevent reloads of fbc->count */
+ 	if (ret >= 0)
+ 		return ret;
+ 	return 0;
 -- 
 2.20.1
 
