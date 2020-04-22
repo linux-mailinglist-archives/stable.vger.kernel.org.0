@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 129A71B41D8
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 674221B4292
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727780AbgDVKG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:06:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59152 "EHLO mail.kernel.org"
+        id S1732372AbgDVLC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:02:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728436AbgDVKG4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:06:56 -0400
+        id S1726644AbgDVKAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77FBE2076C;
-        Wed, 22 Apr 2020 10:06:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B47F02084D;
+        Wed, 22 Apr 2020 10:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550015;
-        bh=B8gJjDgNfO030o6GTT5ZleoRRIawVbH5PA9xnbNJMpQ=;
+        s=default; t=1587549636;
+        bh=RWLeXoutRgfPC7VgJhR9K9c937W8nDWYj2QA4fqneZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QnT29dF1BYrpXBwbKt4tSevJq4cKiiR/1xO/xGdgO5kgpoJvxKZnlP9U842mwKzrM
-         hMy6epyRvPy8l1wCdabBhtTSY4ss4Ltf9nACTuz+UmVWyiig0rGErK0Y3ee2+uY/8g
-         xjegcogS5PgxoGnFqf6D8Fty9KumxxPhdBfINnH4=
+        b=F58NecY7EKGUmiE2YLn9rGNpcUcEmR8Uv0PNgLBLUn8P5zWmFkHtCiF2uC3jo4qTp
+         vYUs+y3ae08BNNclT7WAf/ERpB/La5796osGg4iFsryhCwu2Hyuaab+ZYPxm5lJvT3
+         fa1dqTeLXtyTA4h6MMTRV2+8mW2VhexCWeMO/MMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 057/125] libata: Return correct status in sata_pmp_eh_recover_pm() when ATA_DFLAG_DETACH is set
+        stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.4 044/100] s390/diag: fix display of diagnose call statistics
 Date:   Wed, 22 Apr 2020 11:56:14 +0200
-Message-Id: <20200422095042.659869282@linuxfoundation.org>
+Message-Id: <20200422095030.363196585@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Michael Mueller <mimu@linux.ibm.com>
 
-commit 8305f72f952cff21ce8109dc1ea4b321c8efc5af upstream.
+commit 6c7c851f1b666a8a455678a0b480b9162de86052 upstream.
 
-During system resume from suspend, this can be observed on ASM1062 PMP
-controller:
+Show the full diag statistic table and not just parts of it.
 
-ata10.01: SATA link down (SStatus 0 SControl 330)
-ata10.02: hard resetting link
-ata10.02: SATA link down (SStatus 0 SControl 330)
-ata10.00: configured for UDMA/133
-Kernel panic - not syncing: stack-protector: Kernel
- in: sata_pmp_eh_recover+0xa2b/0xa40
+The issue surfaced in a KVM guest with a number of vcpus
+defined smaller than NR_DIAG_STAT.
 
-CPU: 2 PID: 230 Comm: scsi_eh_9 Tainted: P OE
-#49-Ubuntu
-Hardware name: System manufacturer System Product
- 1001 12/10/2017
-Call Trace:
-dump_stack+0x63/0x8b
-panic+0xe4/0x244
-? sata_pmp_eh_recover+0xa2b/0xa40
-__stack_chk_fail+0x19/0x20
-sata_pmp_eh_recover+0xa2b/0xa40
-? ahci_do_softreset+0x260/0x260 [libahci]
-? ahci_do_hardreset+0x140/0x140 [libahci]
-? ata_phys_link_offline+0x60/0x60
-? ahci_stop_engine+0xc0/0xc0 [libahci]
-sata_pmp_error_handler+0x22/0x30
-ahci_error_handler+0x45/0x80 [libahci]
-ata_scsi_port_error_handler+0x29b/0x770
-? ata_scsi_cmd_error_handler+0x101/0x140
-ata_scsi_error+0x95/0xd0
-? scsi_try_target_reset+0x90/0x90
-scsi_error_handler+0xd0/0x5b0
-kthread+0x121/0x140
-? scsi_eh_get_sense+0x200/0x200
-? kthread_create_worker_on_cpu+0x70/0x70
-ret_from_fork+0x22/0x40
-Kernel Offset: 0xcc00000 from 0xffffffff81000000
-(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-
-Since sata_pmp_eh_recover_pmp() doens't set rc when ATA_DFLAG_DETACH is
-set, sata_pmp_eh_recover() continues to run. During retry it triggers
-the stack protector.
-
-Set correct rc in sata_pmp_eh_recover_pmp() to let sata_pmp_eh_recover()
-jump to pmp_fail directly.
-
-BugLink: https://bugs.launchpad.net/bugs/1821434
+Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
 Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ata/libata-pmp.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/kernel/diag.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/libata-pmp.c
-+++ b/drivers/ata/libata-pmp.c
-@@ -764,6 +764,7 @@ static int sata_pmp_eh_recover_pmp(struc
+--- a/arch/s390/kernel/diag.c
++++ b/arch/s390/kernel/diag.c
+@@ -76,7 +76,7 @@ static int show_diag_stat(struct seq_fil
  
- 	if (dev->flags & ATA_DFLAG_DETACH) {
- 		detach = 1;
-+		rc = -ENODEV;
- 		goto fail;
- 	}
+ static void *show_diag_stat_start(struct seq_file *m, loff_t *pos)
+ {
+-	return *pos <= nr_cpu_ids ? (void *)((unsigned long) *pos + 1) : NULL;
++	return *pos <= NR_DIAG_STAT ? (void *)((unsigned long) *pos + 1) : NULL;
+ }
  
+ static void *show_diag_stat_next(struct seq_file *m, void *v, loff_t *pos)
 
 
