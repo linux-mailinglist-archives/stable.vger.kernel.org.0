@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AB771B3CDE
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:09:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B071C1B3F6B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728295AbgDVKJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:09:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36062 "EHLO mail.kernel.org"
+        id S1731375AbgDVKh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:37:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728292AbgDVKJX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:09:23 -0400
+        id S1729610AbgDVKW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:22:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 519162071E;
-        Wed, 22 Apr 2020 10:09:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E67C2076B;
+        Wed, 22 Apr 2020 10:22:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550162;
-        bh=zYLLeZUuJjFU+3s0q+vvwntAkLUUhn1wQ9t3ln5uvKc=;
+        s=default; t=1587550931;
+        bh=PVXL39a8G9cSFLZbfkP7Np2QJO/Y1QW8+3ErBrGVbnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTTNvYbyltm4XchC9nsVFVtmqw9whaTYBkqKtp1w+lzxKt0drk3P2DIPBRaasW1hY
-         uVx7Tm3imM+gXnq27EXDXDboYsjhjKnduux2n7Ge3QM415wOO0IkzrqdpSHvd7aWdX
-         6vGr0kQ5zIw7Eq3x/N0TnxisxtI6sbctdiZRzH24=
+        b=SGFLZ35YckpxJ94qH8LB7exPrJzqzl+K4FHKmfJhBIQ/i3Qrdh4DdFCu4bifRGGK6
+         jQ5vIMflpXGD9+40o3Zc5nLNTTE7upUp2MimX+HzU3XYUdPt1sBEOvJFQhrWGhH9s6
+         CLWRl0xMtzEKtQUrWeb7AykTLEHlLDVqqqqBrTso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 034/199] ASoC: dpcm: allow start or stop during pause for backend
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: [PATCH 5.6 033/166] afs: Fix rename operation status delivery
 Date:   Wed, 22 Apr 2020 11:56:00 +0200
-Message-Id: <20200422095101.462146954@linuxfoundation.org>
+Message-Id: <20200422095052.366136259@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 이경택 <gt82.lee@samsung.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 21fca8bdbb64df1297e8c65a746c4c9f4a689751 upstream.
+commit b98f0ec91c42d87a70da42726b852ac8d78a3257 upstream.
 
-soc_compr_trigger_fe() allows start or stop after pause_push.
-In dpcm_be_dai_trigger(), however, only pause_release is allowed
-command after pause_push.
-So, start or stop after pause in compress offload is always
-returned as error if the compress offload is used with dpcm.
-To fix the problem, SND_SOC_DPCM_STATE_PAUSED should be allowed
-for start or stop command.
+The afs_deliver_fs_rename() and yfs_deliver_fs_rename() functions both only
+decode the second file status returned unless the parent directories are
+different - unfortunately, this means that the xdr pointer isn't advanced
+and the volsync record will be read incorrectly in such an instance.
 
-Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/004d01d607c1$7a3d5250$6eb7f6f0$@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this by always decoding the second status into the second
+status/callback block which wasn't being used if the dirs were the same.
+
+The afs_update_dentry_version() calls that update the directory data
+version numbers on the dentries can then unconditionally use the second
+status record as this will always reflect the state of the destination dir
+(the two records will be identical if the destination dir is the same as
+the source dir)
+
+Fixes: 260a980317da ("[AFS]: Add "directory write" support.")
+Fixes: 30062bd13e36 ("afs: Implement YFS support in the fs client")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-pcm.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/afs/dir.c       |   13 +++----------
+ fs/afs/fsclient.c  |   12 ++++++------
+ fs/afs/yfsclient.c |    8 +++-----
+ 3 files changed, 12 insertions(+), 21 deletions(-)
 
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -2048,7 +2048,8 @@ int dpcm_be_dai_trigger(struct snd_soc_p
- 		switch (cmd) {
- 		case SNDRV_PCM_TRIGGER_START:
- 			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_PREPARE) &&
--			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP))
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
- 				continue;
+--- a/fs/afs/dir.c
++++ b/fs/afs/dir.c
+@@ -1892,7 +1892,6 @@ static int afs_rename(struct inode *old_
+ 	if (afs_begin_vnode_operation(&fc, orig_dvnode, key, true)) {
+ 		afs_dataversion_t orig_data_version;
+ 		afs_dataversion_t new_data_version;
+-		struct afs_status_cb *new_scb = &scb[1];
  
- 			ret = dpcm_do_trigger(dpcm, be_substream, cmd);
-@@ -2078,7 +2079,8 @@ int dpcm_be_dai_trigger(struct snd_soc_p
- 			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
- 			break;
- 		case SNDRV_PCM_TRIGGER_STOP:
--			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START)
-+			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) &&
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
- 				continue;
+ 		orig_data_version = orig_dvnode->status.data_version + 1;
  
- 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
+@@ -1904,7 +1903,6 @@ static int afs_rename(struct inode *old_
+ 			new_data_version = new_dvnode->status.data_version + 1;
+ 		} else {
+ 			new_data_version = orig_data_version;
+-			new_scb = &scb[0];
+ 		}
+ 
+ 		while (afs_select_fileserver(&fc)) {
+@@ -1912,7 +1910,7 @@ static int afs_rename(struct inode *old_
+ 			fc.cb_break_2 = afs_calc_vnode_cb_break(new_dvnode);
+ 			afs_fs_rename(&fc, old_dentry->d_name.name,
+ 				      new_dvnode, new_dentry->d_name.name,
+-				      &scb[0], new_scb);
++				      &scb[0], &scb[1]);
+ 		}
+ 
+ 		afs_vnode_commit_status(&fc, orig_dvnode, fc.cb_break,
+@@ -1957,13 +1955,8 @@ static int afs_rename(struct inode *old_
+ 		 * Note that if we ever implement RENAME_EXCHANGE, we'll have
+ 		 * to update both dentries with opposing dir versions.
+ 		 */
+-		if (new_dvnode != orig_dvnode) {
+-			afs_update_dentry_version(&fc, old_dentry, &scb[1]);
+-			afs_update_dentry_version(&fc, new_dentry, &scb[1]);
+-		} else {
+-			afs_update_dentry_version(&fc, old_dentry, &scb[0]);
+-			afs_update_dentry_version(&fc, new_dentry, &scb[0]);
+-		}
++		afs_update_dentry_version(&fc, old_dentry, &scb[1]);
++		afs_update_dentry_version(&fc, new_dentry, &scb[1]);
+ 		d_move(old_dentry, new_dentry);
+ 		goto error_tmp;
+ 	}
+--- a/fs/afs/fsclient.c
++++ b/fs/afs/fsclient.c
+@@ -986,16 +986,16 @@ static int afs_deliver_fs_rename(struct
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	/* unmarshall the reply once we've received all of it */
++	/* If the two dirs are the same, we have two copies of the same status
++	 * report, so we just decode it twice.
++	 */
+ 	bp = call->buffer;
+ 	ret = xdr_decode_AFSFetchStatus(&bp, call, call->out_dir_scb);
+ 	if (ret < 0)
+ 		return ret;
+-	if (call->out_dir_scb != call->out_scb) {
+-		ret = xdr_decode_AFSFetchStatus(&bp, call, call->out_scb);
+-		if (ret < 0)
+-			return ret;
+-	}
++	ret = xdr_decode_AFSFetchStatus(&bp, call, call->out_scb);
++	if (ret < 0)
++		return ret;
+ 	xdr_decode_AFSVolSync(&bp, call->out_volsync);
+ 
+ 	_leave(" = 0 [done]");
+--- a/fs/afs/yfsclient.c
++++ b/fs/afs/yfsclient.c
+@@ -1157,11 +1157,9 @@ static int yfs_deliver_fs_rename(struct
+ 	ret = xdr_decode_YFSFetchStatus(&bp, call, call->out_dir_scb);
+ 	if (ret < 0)
+ 		return ret;
+-	if (call->out_dir_scb != call->out_scb) {
+-		ret = xdr_decode_YFSFetchStatus(&bp, call, call->out_scb);
+-		if (ret < 0)
+-			return ret;
+-	}
++	ret = xdr_decode_YFSFetchStatus(&bp, call, call->out_scb);
++	if (ret < 0)
++		return ret;
+ 
+ 	xdr_decode_YFSVolSync(&bp, call->out_volsync);
+ 	_leave(" = 0 [done]");
 
 
