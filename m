@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F0621B3CB5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:08:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB5381B3D75
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:15:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728619AbgDVKIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:08:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32832 "EHLO mail.kernel.org"
+        id S1728876AbgDVKPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:15:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728616AbgDVKIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:08:00 -0400
+        id S1729615AbgDVKPA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:15:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C51D2075A;
-        Wed, 22 Apr 2020 10:07:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 348922075A;
+        Wed, 22 Apr 2020 10:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550079;
-        bh=Zy73fb+bLUy9x3QueBMwp3TN5q/AgOXntl8aBGC4r14=;
+        s=default; t=1587550499;
+        bh=iXMXhubN516VSHJjbodtOZrbU9W45/hHHrxQFuVpNxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ncrEVCtEAUM5kTtdv5JB8Rg7uwQZi1cPxS0D2zerNVpd3JZh5TJ8Hl7qP4EgvcjjJ
-         o6SbfDzL385wUSzMtDGPEBrczI3iVY/WOzfJ9bhOJe2PQWg61vKLqx7IF0NAD9CMYn
-         x4/5QV1ml0Y5K9aSFvW08pAySgHg2TzWuAexk2UU=
+        b=NgP0pDM5sqZAsc8G9kVhenEjjrQDot/x018AjeqoRqC5O8Ey7edKnTUEAKMhhOy3P
+         JKeJp1xNReM+yvaUHNNEYNCqieclOVRaAHgxsSbfDvj2vT37HuKU2dETklfsKlA3ar
+         p5VFlDhU18BiEcXqmcnLZ42jyzIcvnQGc+nr6478=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Nicolas Pitre <nico@linaro.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Grant Likely <grant.likely@secretlab.ca>,
-        Rob Herring <robh@kernel.org>, Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 100/125] of: fix missing kobject init for !SYSFS && OF_DYNAMIC config
-Date:   Wed, 22 Apr 2020 11:56:57 +0200
-Message-Id: <20200422095049.212664300@linuxfoundation.org>
+        stable@vger.kernel.org, "Erhard F." <erhard_f@mailbox.org>,
+        Frank Rowand <frank.rowand@sony.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 4.19 14/64] of: overlay: kmemleak in dup_and_fixup_symbol_prop()
+Date:   Wed, 22 Apr 2020 11:56:58 +0200
+Message-Id: <20200422095015.374331228@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Frank Rowand <frank.rowand@sony.com>
 
-[ Upstream commit bd82bbf38cbe27f2c65660da801900d71bcc5cc8 ]
+commit 478ff649b1c8eb2409b1a54fb75eb46f7c29f140 upstream.
 
-The ref counting is broken for OF_DYNAMIC when sysfs is disabled because
-the kobject initialization is skipped. Only the properties
-add/remove/update should be skipped for !SYSFS config.
+kmemleak reports several memory leaks from devicetree unittest.
+This is the fix for problem 4 of 5.
 
-Tested-by: Nicolas Pitre <nico@linaro.org>
-Reviewed-by: Frank Rowand <frowand.list@gmail.com>
-Acked-by: Grant Likely <grant.likely@secretlab.ca>
+target_path was not freed in the non-error path.
+
+Fixes: e0a58f3e08d4 ("of: overlay: remove a dependency on device node full_name")
+Reported-by: Erhard F. <erhard_f@mailbox.org>
+Signed-off-by: Frank Rowand <frank.rowand@sony.com>
 Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/of/base.c |    3 ---
- 1 file changed, 3 deletions(-)
 
---- a/drivers/of/base.c
-+++ b/drivers/of/base.c
-@@ -170,9 +170,6 @@ int __of_attach_node_sysfs(struct device
- 	struct property *pp;
- 	int rc;
+---
+ drivers/of/overlay.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/of/overlay.c
++++ b/drivers/of/overlay.c
+@@ -261,6 +261,8 @@ static struct property *dup_and_fixup_sy
  
--	if (!IS_ENABLED(CONFIG_SYSFS))
--		return 0;
--
- 	if (!of_kset)
- 		return 0;
+ 	of_property_set_flag(new_prop, OF_DYNAMIC);
  
++	kfree(target_path);
++
+ 	return new_prop;
+ 
+ err_free_new_prop:
 
 
