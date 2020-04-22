@@ -2,61 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0AB61B4312
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 299291B4313
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726813AbgDVLUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:20:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44362 "EHLO
+        id S1726821AbgDVLUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:20:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726812AbgDVLUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 07:20:20 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DC25C03C1A9
-        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 04:20:20 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id t63so1865446wmt.3
-        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 04:20:20 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726809AbgDVLUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 07:20:22 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ACD9C03C1A8
+        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 04:20:22 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id j2so1909336wrs.9
+        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 04:20:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=A8S99CHf5RS+VxaoEq44CGEyVEy00UWcqSXyWTfMRic=;
-        b=ghQniqQuPXT66oglCzo+AqpUidzsJ61bm3SwRAxT2b6c7dgbsTDiovjTz8BCnrstE0
-         owBg0mlY38iJBrsxhZB++j3V/YCVa8HwQXXoIT2PerUm1Cn8sJ+fE+HxDJrS88uCbXdx
-         ez9FdU/JjJVo/6Y2EO3I+q9IKTsUONuXTHngMSOa6vcpGFcbmR2zZK5rMuBoLdsu26FW
-         iX+mwCVgVyujpL78juu9w9afHJcTRxEnC7Y2tPiSq5JG8Qk/Jt+Q33Dv6AyC4XvvJ7e5
-         p+NUlmv+xr1YNQYNR4eBFU5/QDfgNZ2OgtpDmdp8PvTQQkn384E5GXShPO46dYEnBO/X
-         zOeA==
+        bh=NOfGgcTiWADSg1kaZeJWpioqsrn+8/pbHvDt5GKLgns=;
+        b=M2XylByeilRldT27eCzzcVYoKl7S7d8LFXqVBiwq7f9ZJcVTMfvybTTz1vQ99PA+Zh
+         Qa4/bydA6nrCFWozdX/laOENufcTFuOYdZ81cpCZbP9Y1emnnxqkVQlh1SMdk5/I5iSp
+         zOQtMfJhj9CBZRMpEik00HP18/FzS+x2TuBuk306o7qyLdioYa6BT0eOXHU0mEDh3tlZ
+         vudII/r+onS7AgXfF92MbuPiDFahb34c7XrWBf6yRqvbSfXDv25F7gVuxUZJuD/jCXng
+         8uOg84Z+dVKoPB2fr4hvTtt1aZRmtrGCyQzWXzaYU+8Uoiq/oNB0UgYzITnrpg8NXYEX
+         vZYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=A8S99CHf5RS+VxaoEq44CGEyVEy00UWcqSXyWTfMRic=;
-        b=VAIZhv70Tj5Ylv0+G+Ni64HVgbF+iFQ1RIe4q2ijlBF0dumEclw7qW0FtT+dwHH5Im
-         sp0pKvbTwdwf7kNmp6OkjcjM6Hm1+RiHaVpwnWAOXkgXGAez0AEMOLEBP7NNDss5SCuz
-         u/RS/ckE3ydE6cVmWLtSeKJ9QWv+3cbLMxsEbCHgVcwaSu7//Ewm9hs7rg59VT5B7LEN
-         54DzJdeALfdUZfuoUNsx/QqcD2LsLTq8iPjB2kOZJRB2LUTw61QC1aBsai9NGvJ0M3Cp
-         l6F07j76vNeEQYUovJHz0aUVC6Ugqcs/BLmyi+SNSGE+YCH+UUCnPf+Ff1rEh9FbmSKv
-         ASAA==
-X-Gm-Message-State: AGi0Pub4juvF7mT/c4kfNIuLOJ9sDGlAxJiZrDghdSm7Lh0F8GcsgUYg
-        WC6ICLQrdwczkOcdmAeZYrRZA8/hxtg=
-X-Google-Smtp-Source: APiQypJ6SOz70BKGpfudns2Kpkskzj6eMebRy8evi0he5NDN1VDfAYZRn3V90pwFom0tOXVUWIty9Q==
-X-Received: by 2002:a05:600c:20f:: with SMTP id 15mr10337628wmi.71.1587554418967;
-        Wed, 22 Apr 2020 04:20:18 -0700 (PDT)
+        bh=NOfGgcTiWADSg1kaZeJWpioqsrn+8/pbHvDt5GKLgns=;
+        b=Oeyc6CawfaMmkF6uGw49GhY9i9Z771ui0iiKMl8SxDq3/8L5KLHR27xpJwqYtsCkk6
+         5QXwMFwZPuZr26h9deWTEYWELqU/9e+xY03c7T9Ku5swrnyhGYARMlLnXG/KIIihj6jc
+         zzQFClvCzzcyFgeG6EP1sQP5YsufyOW2Jr37blQP4+pDOm8elyU0HBGfe4iqzpbjy9+C
+         fzCURmP8qDzDGlELFvXRoLkyy7RwwAIQE25XIZaL4dkwk7GAJdco6fc9rT/fBiC1wRO5
+         FARvDDhlPG7+uZL/KfIw/H1k/jXJWfk1j96EAeoHD0UhWajXVZJL9fAqwsQuYV7aDZw2
+         /Dlg==
+X-Gm-Message-State: AGi0PuYy7sEcdyeOJ8WctMfCF5vDKgYKuXUxOlmAX15Bh1vp0C94/JNS
+        4o6jNPA5eMITbWfJNjGQ5QKj3jdTYjQ=
+X-Google-Smtp-Source: APiQypIVA5h+bM6Hwe+ax3mQTmy8+O9Vabcgh8Wq09Fo//nuY1fDvSns5awejItArzVfAVxnftW3jA==
+X-Received: by 2002:adf:e586:: with SMTP id l6mr25053936wrm.184.1587554420947;
+        Wed, 22 Apr 2020 04:20:20 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id n6sm8247255wrs.81.2020.04.22.04.20.17
+        by smtp.gmail.com with ESMTPSA id n6sm8247255wrs.81.2020.04.22.04.20.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Apr 2020 04:20:18 -0700 (PDT)
+        Wed, 22 Apr 2020 04:20:20 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     Venkat Gopalakrishnan <venkatg@codeaurora.org>,
+Cc:     Subhash Jadavani <subhashj@codeaurora.org>,
         Asutosh Das <asutoshd@codeaurora.org>,
-        Subhash Jadavani <subhashj@codeaurora.org>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 13/21] scsi: ufs: make sure all interrupts are processed
-Date:   Wed, 22 Apr 2020 12:19:49 +0100
-Message-Id: <20200422111957.569589-14-lee.jones@linaro.org>
+Subject: [PATCH 4.9 14/21] scsi: ufs: ufs-qcom: remove broken hci version quirk
+Date:   Wed, 22 Apr 2020 12:19:50 +0100
+Message-Id: <20200422111957.569589-15-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200422111957.569589-1-lee.jones@linaro.org>
 References: <20200422111957.569589-1-lee.jones@linaro.org>
@@ -67,69 +66,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkat Gopalakrishnan <venkatg@codeaurora.org>
+From: Subhash Jadavani <subhashj@codeaurora.org>
 
-[ Upstream commit 7f6ba4f12e6cbfdefbb95cfd8fc67ece6c15d799 ]
+[ Upstream commit 69a6fff068567469c0ef1156ae5ac8d3d71701f0 ]
 
-As multiple requests are submitted to the ufs host controller in
-parallel there could be instances where the command completion interrupt
-arrives later for a request that is already processed earlier as the
-corresponding doorbell was cleared when handling the previous
-interrupt. Read the interrupt status in a loop after processing the
-received interrupt to catch such interrupts and handle it.
+UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION is only applicable for QCOM UFS host
+controller version 2.x.y and this has been fixed from version 3.x.y
+onwards, hence this change removes this quirk for version 3.x.y onwards.
 
-Signed-off-by: Venkat Gopalakrishnan <venkatg@codeaurora.org>
+[mkp: applied by hand]
+
+Signed-off-by: Subhash Jadavani <subhashj@codeaurora.org>
 Signed-off-by: Asutosh Das <asutoshd@codeaurora.org>
-Reviewed-by: Subhash Jadavani <subhashj@codeaurora.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/scsi/ufs/ufs-qcom.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 0b268f0151c67..84ab53d6d1daf 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4401,19 +4401,30 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
- 	u32 intr_status, enabled_intr_status;
- 	irqreturn_t retval = IRQ_NONE;
- 	struct ufs_hba *hba = __hba;
-+	int retries = hba->nutrs;
+diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
+index 51d559214db60..1fe193590b8bd 100644
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -1094,7 +1094,7 @@ static void ufs_qcom_advertise_quirks(struct ufs_hba *hba)
+ 		hba->quirks |= UFSHCD_QUIRK_BROKEN_LCC;
+ 	}
  
- 	spin_lock(hba->host->host_lock);
- 	intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
--	enabled_intr_status =
--		intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
+-	if (host->hw_ver.major >= 0x2) {
++	if (host->hw_ver.major == 0x2) {
+ 		hba->quirks |= UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION;
  
--	if (intr_status)
--		ufshcd_writel(hba, intr_status, REG_INTERRUPT_STATUS);
-+	/*
-+	 * There could be max of hba->nutrs reqs in flight and in worst case
-+	 * if the reqs get finished 1 by 1 after the interrupt status is
-+	 * read, make sure we handle them by checking the interrupt status
-+	 * again in a loop until we process all of the reqs before returning.
-+	 */
-+	do {
-+		enabled_intr_status =
-+			intr_status & ufshcd_readl(hba, REG_INTERRUPT_ENABLE);
-+		if (intr_status)
-+			ufshcd_writel(hba, intr_status, REG_INTERRUPT_STATUS);
-+		if (enabled_intr_status) {
-+			ufshcd_sl_intr(hba, enabled_intr_status);
-+			retval = IRQ_HANDLED;
-+		}
-+
-+		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
-+	} while (intr_status && --retries);
- 
--	if (enabled_intr_status) {
--		ufshcd_sl_intr(hba, enabled_intr_status);
--		retval = IRQ_HANDLED;
--	}
- 	spin_unlock(hba->host->host_lock);
- 	return retval;
- }
+ 		if (!ufs_qcom_cap_qunipro(host))
 -- 
 2.25.1
 
