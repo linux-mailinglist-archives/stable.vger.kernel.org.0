@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F471B3E7B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:28:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18F1F1B3FF9
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730882AbgDVK12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:27:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36510 "EHLO mail.kernel.org"
+        id S1730307AbgDVKmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:42:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730431AbgDVK11 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:27:27 -0400
+        id S1730108AbgDVKUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:20:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5704720784;
-        Wed, 22 Apr 2020 10:27:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D713820784;
+        Wed, 22 Apr 2020 10:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551246;
-        bh=YLXBwgw3/Lm1c+qH8DOQy+FDCzjJEKmau8CPH+MDC5E=;
+        s=default; t=1587550832;
+        bh=Gqglel3VWWVrZC/6kFFL/p3h0vWJ/7YVXMFCIsSMLSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRas+j1xWW9Z0ESdMm2hnems7LBQ9WGzyFg09Hjr9oZArzVJtiet0Kv1U4VE6xMvB
-         O6IBXbojVjFP0pPs2rkkMi4DicKsdAXPPw6T3mY7/DRI2Sqwf03CTxu8amEqrkWg6O
-         0826RJ1JQtnlHBxgtVRnBirTleWfbbYytvrezClo=
+        b=V4qnvhANLA7v5hyDerw9ZCAnRdV9muTuG8faT0RU9Z2o4hriYLxVwh0PlLmXN9Jx0
+         5zltJvDCC+7YEh1xXXAarj8Tsu6R2wT1jsHN1tkYM09Cb/lvkCsJbyTr+SAeDgYwpp
+         VK5d+R3PjzIaJqhH+DnUPwIe5lnAfjkRWRt2rKPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Bob Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 118/166] f2fs: fix NULL pointer dereference in f2fs_verity_work()
+Subject: [PATCH 5.4 084/118] ACPICA: Fixes for acpiExec namespace init file
 Date:   Wed, 22 Apr 2020 11:57:25 +0200
-Message-Id: <20200422095101.310801277@linuxfoundation.org>
+Message-Id: <20200422095045.304634195@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,101 +45,296 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Bob Moore <robert.moore@intel.com>
 
-[ Upstream commit 79bbefb19f1359fb2cbd144d5a054649e7e583be ]
+[ Upstream commit 9a1ae80412dcaa67a29eecf19de44f32b5f1c357 ]
 
-If both compression and fsverity feature is on, generic/572 will
-report below NULL pointer dereference bug.
+This is the result of squashing the following ACPICA commit ID's:
+6803997e5b4f3635cea6610b51ff69e29d251de3
+f31cdf8bfda22fe265c1a176d0e33d311c82a7f7
 
- BUG: kernel NULL pointer dereference, address: 0000000000000018
- RIP: 0010:f2fs_verity_work+0x60/0x90 [f2fs]
- #PF: supervisor read access in kernel mode
- Workqueue: fsverity_read_queue f2fs_verity_work [f2fs]
- RIP: 0010:f2fs_verity_work+0x60/0x90 [f2fs]
- Call Trace:
-  process_one_work+0x16c/0x3f0
-  worker_thread+0x4c/0x440
-  ? rescuer_thread+0x350/0x350
-  kthread+0xf8/0x130
-  ? kthread_unpark+0x70/0x70
-  ret_from_fork+0x35/0x40
+This change fixes several problems with the support for the
+acpi_exec namespace init file (-fi option). Specifically, it
+fixes AE_ALREADY_EXISTS errors, as well as various seg faults.
 
-There are two issue in f2fs_verity_work():
-- it needs to traverse and verify all pages in bio.
-- if pages in bio belong to non-compressed cluster, accessing
-decompress IO context stored in page private will cause NULL
-pointer dereference.
-
-Fix them.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://github.com/acpica/acpica/commit/f31cdf8b
+Link: https://github.com/acpica/acpica/commit/6803997e
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/compress.c |  2 ++
- fs/f2fs/data.c     | 35 ++++++++++++++++++++++++++++++-----
- 2 files changed, 32 insertions(+), 5 deletions(-)
+ drivers/acpi/acpica/acnamesp.h |  2 ++
+ drivers/acpi/acpica/dbinput.c  | 16 +++++++---------
+ drivers/acpi/acpica/dswexec.c  | 33 ++++++++++++++++++++++++++++++++
+ drivers/acpi/acpica/dswload.c  |  2 --
+ drivers/acpi/acpica/dswload2.c | 35 ++++++++++++++++++++++++++++++++++
+ drivers/acpi/acpica/nsnames.c  |  6 +-----
+ drivers/acpi/acpica/utdelete.c |  9 +++++----
+ 7 files changed, 83 insertions(+), 20 deletions(-)
 
-diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index 1a86e483b0907..eb84c13c1182c 100644
---- a/fs/f2fs/compress.c
-+++ b/fs/f2fs/compress.c
-@@ -476,6 +476,8 @@ void f2fs_decompress_pages(struct bio *bio, struct page *page, bool verity)
- out_vunmap_rbuf:
- 	vunmap(dic->rbuf);
- out_free_dic:
-+	if (verity)
-+		refcount_add(dic->nr_cpages - 1, &dic->ref);
- 	if (!verity)
- 		f2fs_decompress_end_io(dic->rpages, dic->cluster_size,
- 								ret, false);
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index b27b721079116..34990866cfe96 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -191,12 +191,37 @@ static void f2fs_verify_pages(struct page **rpages, unsigned int cluster_size)
+diff --git a/drivers/acpi/acpica/acnamesp.h b/drivers/acpi/acpica/acnamesp.h
+index 7da1864798a0e..ecaa28733dc61 100644
+--- a/drivers/acpi/acpica/acnamesp.h
++++ b/drivers/acpi/acpica/acnamesp.h
+@@ -256,6 +256,8 @@ u32
+ acpi_ns_build_normalized_path(struct acpi_namespace_node *node,
+ 			      char *full_path, u32 path_size, u8 no_trailing);
  
- static void f2fs_verify_bio(struct bio *bio)
- {
--	struct page *page = bio_first_page_all(bio);
--	struct decompress_io_ctx *dic =
--			(struct decompress_io_ctx *)page_private(page);
-+	struct bio_vec *bv;
-+	struct bvec_iter_all iter_all;
++void acpi_ns_normalize_pathname(char *original_path);
 +
-+	bio_for_each_segment_all(bv, bio, iter_all) {
-+		struct page *page = bv->bv_page;
-+		struct decompress_io_ctx *dic;
-+
-+		dic = (struct decompress_io_ctx *)page_private(page);
-+
-+		if (dic) {
-+			if (refcount_dec_not_one(&dic->ref))
-+				continue;
-+			f2fs_verify_pages(dic->rpages,
-+						dic->cluster_size);
-+			f2fs_free_dic(dic);
-+			continue;
-+		}
-+
-+		if (bio->bi_status || PageError(page))
-+			goto clear_uptodate;
+ char *acpi_ns_get_normalized_pathname(struct acpi_namespace_node *node,
+ 				      u8 no_trailing);
  
--	f2fs_verify_pages(dic->rpages, dic->cluster_size);
--	f2fs_free_dic(dic);
-+		if (fsverity_verify_page(page)) {
-+			SetPageUptodate(page);
-+			goto unlock;
-+		}
-+clear_uptodate:
-+		ClearPageUptodate(page);
-+		ClearPageError(page);
-+unlock:
-+		unlock_page(page);
+diff --git a/drivers/acpi/acpica/dbinput.c b/drivers/acpi/acpica/dbinput.c
+index 55a7e10998d87..1ef053585bbb8 100644
+--- a/drivers/acpi/acpica/dbinput.c
++++ b/drivers/acpi/acpica/dbinput.c
+@@ -464,16 +464,14 @@ char *acpi_db_get_next_token(char *string,
+ 		return (NULL);
+ 	}
+ 
+-	/* Remove any spaces at the beginning */
++	/* Remove any spaces at the beginning, ignore blank lines */
+ 
+-	if (*string == ' ') {
+-		while (*string && (*string == ' ')) {
+-			string++;
+-		}
++	while (*string && isspace(*string)) {
++		string++;
 +	}
- }
+ 
+-		if (!(*string)) {
+-			return (NULL);
+-		}
++	if (!(*string)) {
++		return (NULL);
+ 	}
+ 
+ 	switch (*string) {
+@@ -551,7 +549,7 @@ char *acpi_db_get_next_token(char *string,
+ 
+ 		/* Find end of token */
+ 
+-		while (*string && (*string != ' ')) {
++		while (*string && !isspace(*string)) {
+ 			string++;
+ 		}
+ 		break;
+diff --git a/drivers/acpi/acpica/dswexec.c b/drivers/acpi/acpica/dswexec.c
+index d75aae3045958..a68237b97c4c8 100644
+--- a/drivers/acpi/acpica/dswexec.c
++++ b/drivers/acpi/acpica/dswexec.c
+@@ -16,6 +16,9 @@
+ #include "acinterp.h"
+ #include "acnamesp.h"
+ #include "acdebug.h"
++#ifdef ACPI_EXEC_APP
++#include "aecommon.h"
++#endif
+ 
+ #define _COMPONENT          ACPI_DISPATCHER
+ ACPI_MODULE_NAME("dswexec")
+@@ -329,6 +332,10 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
+ 	u32 op_class;
+ 	union acpi_parse_object *next_op;
+ 	union acpi_parse_object *first_arg;
++#ifdef ACPI_EXEC_APP
++	char *namepath;
++	union acpi_operand_object *obj_desc;
++#endif
+ 
+ 	ACPI_FUNCTION_TRACE_PTR(ds_exec_end_op, walk_state);
+ 
+@@ -537,6 +544,32 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
+ 
+ 			status =
+ 			    acpi_ds_eval_buffer_field_operands(walk_state, op);
++			if (ACPI_FAILURE(status)) {
++				break;
++			}
++#ifdef ACPI_EXEC_APP
++			/*
++			 * acpi_exec support for namespace initialization file (initialize
++			 * buffer_fields in this code.)
++			 */
++			namepath =
++			    acpi_ns_get_external_pathname(op->common.node);
++			status = ae_lookup_init_file_entry(namepath, &obj_desc);
++			if (ACPI_SUCCESS(status)) {
++				status =
++				    acpi_ex_write_data_to_field(obj_desc,
++								op->common.
++								node->object,
++								NULL);
++				if ACPI_FAILURE
++					(status) {
++					ACPI_EXCEPTION((AE_INFO, status,
++							"While writing to buffer field"));
++					}
++			}
++			ACPI_FREE(namepath);
++			status = AE_OK;
++#endif
+ 			break;
+ 
+ 		case AML_TYPE_CREATE_OBJECT:
+diff --git a/drivers/acpi/acpica/dswload.c b/drivers/acpi/acpica/dswload.c
+index 4bcf15bf03ded..6cf93fae4d07f 100644
+--- a/drivers/acpi/acpica/dswload.c
++++ b/drivers/acpi/acpica/dswload.c
+@@ -14,7 +14,6 @@
+ #include "acdispat.h"
+ #include "acinterp.h"
+ #include "acnamesp.h"
+-
+ #ifdef ACPI_ASL_COMPILER
+ #include "acdisasm.h"
  #endif
+@@ -399,7 +398,6 @@ acpi_status acpi_ds_load1_end_op(struct acpi_walk_state *walk_state)
+ 	union acpi_parse_object *op;
+ 	acpi_object_type object_type;
+ 	acpi_status status = AE_OK;
+-
+ #ifdef ACPI_ASL_COMPILER
+ 	u8 param_count;
+ #endif
+diff --git a/drivers/acpi/acpica/dswload2.c b/drivers/acpi/acpica/dswload2.c
+index 935a8e2623e4b..15d92bf15f0b6 100644
+--- a/drivers/acpi/acpica/dswload2.c
++++ b/drivers/acpi/acpica/dswload2.c
+@@ -15,6 +15,9 @@
+ #include "acinterp.h"
+ #include "acnamesp.h"
+ #include "acevents.h"
++#ifdef ACPI_EXEC_APP
++#include "aecommon.h"
++#endif
+ 
+ #define _COMPONENT          ACPI_DISPATCHER
+ ACPI_MODULE_NAME("dswload2")
+@@ -373,6 +376,10 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
+ 	struct acpi_namespace_node *new_node;
+ 	u32 i;
+ 	u8 region_space;
++#ifdef ACPI_EXEC_APP
++	union acpi_operand_object *obj_desc;
++	char *namepath;
++#endif
+ 
+ 	ACPI_FUNCTION_TRACE(ds_load2_end_op);
+ 
+@@ -466,6 +473,11 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
+ 		 * be evaluated later during the execution phase
+ 		 */
+ 		status = acpi_ds_create_buffer_field(op, walk_state);
++		if (ACPI_FAILURE(status)) {
++			ACPI_EXCEPTION((AE_INFO, status,
++					"CreateBufferField failure"));
++			goto cleanup;
++			}
+ 		break;
+ 
+ 	case AML_TYPE_NAMED_FIELD:
+@@ -604,6 +616,29 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
+ 		case AML_NAME_OP:
+ 
+ 			status = acpi_ds_create_node(walk_state, node, op);
++			if (ACPI_FAILURE(status)) {
++				goto cleanup;
++			}
++#ifdef ACPI_EXEC_APP
++			/*
++			 * acpi_exec support for namespace initialization file (initialize
++			 * Name opcodes in this code.)
++			 */
++			namepath = acpi_ns_get_external_pathname(node);
++			status = ae_lookup_init_file_entry(namepath, &obj_desc);
++			if (ACPI_SUCCESS(status)) {
++
++				/* Detach any existing object, attach new object */
++
++				if (node->object) {
++					acpi_ns_detach_object(node);
++				}
++				acpi_ns_attach_object(node, obj_desc,
++						      obj_desc->common.type);
++			}
++			ACPI_FREE(namepath);
++			status = AE_OK;
++#endif
+ 			break;
+ 
+ 		case AML_METHOD_OP:
+diff --git a/drivers/acpi/acpica/nsnames.c b/drivers/acpi/acpica/nsnames.c
+index 370bbc8677453..c717fff7d9b57 100644
+--- a/drivers/acpi/acpica/nsnames.c
++++ b/drivers/acpi/acpica/nsnames.c
+@@ -13,9 +13,6 @@
+ #define _COMPONENT          ACPI_NAMESPACE
+ ACPI_MODULE_NAME("nsnames")
+ 
+-/* Local Prototypes */
+-static void acpi_ns_normalize_pathname(char *original_path);
+-
+ /*******************************************************************************
+  *
+  * FUNCTION:    acpi_ns_get_external_pathname
+@@ -30,7 +27,6 @@ static void acpi_ns_normalize_pathname(char *original_path);
+  *              for error and debug statements.
+  *
+  ******************************************************************************/
+-
+ char *acpi_ns_get_external_pathname(struct acpi_namespace_node *node)
+ {
+ 	char *name_buffer;
+@@ -411,7 +407,7 @@ char *acpi_ns_build_prefixed_pathname(union acpi_generic_state *prefix_scope,
+  *
+  ******************************************************************************/
+ 
+-static void acpi_ns_normalize_pathname(char *original_path)
++void acpi_ns_normalize_pathname(char *original_path)
+ {
+ 	char *input_path = original_path;
+ 	char *new_path_buffer;
+diff --git a/drivers/acpi/acpica/utdelete.c b/drivers/acpi/acpica/utdelete.c
+index eee263cb7beb0..c365faf4e6cd4 100644
+--- a/drivers/acpi/acpica/utdelete.c
++++ b/drivers/acpi/acpica/utdelete.c
+@@ -452,13 +452,13 @@ acpi_ut_update_ref_count(union acpi_operand_object *object, u32 action)
+  *
+  * FUNCTION:    acpi_ut_update_object_reference
+  *
+- * PARAMETERS:  object              - Increment ref count for this object
+- *                                    and all sub-objects
++ * PARAMETERS:  object              - Increment or decrement the ref count for
++ *                                    this object and all sub-objects
+  *              action              - Either REF_INCREMENT or REF_DECREMENT
+  *
+  * RETURN:      Status
+  *
+- * DESCRIPTION: Increment the object reference count
++ * DESCRIPTION: Increment or decrement the object reference count
+  *
+  * Object references are incremented when:
+  * 1) An object is attached to a Node (namespace object)
+@@ -492,7 +492,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
+ 		}
+ 
+ 		/*
+-		 * All sub-objects must have their reference count incremented
++		 * All sub-objects must have their reference count updated
+ 		 * also. Different object types have different subobjects.
+ 		 */
+ 		switch (object->common.type) {
+@@ -559,6 +559,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
+ 					break;
+ 				}
+ 			}
++
+ 			next_object = NULL;
+ 			break;
  
 -- 
 2.20.1
