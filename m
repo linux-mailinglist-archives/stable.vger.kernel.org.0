@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F8D1B401C
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8D501B40F0
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731315AbgDVKnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:43:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56360 "EHLO mail.kernel.org"
+        id S1732090AbgDVKtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:49:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730062AbgDVKTe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:19:34 -0400
+        id S1726794AbgDVKNj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:13:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2DA02075A;
-        Wed, 22 Apr 2020 10:19:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED8EF20776;
+        Wed, 22 Apr 2020 10:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550773;
-        bh=akMjQJ64mNR3wfa9mHacNmsGeQLx5+Kc0AWod/pu0pk=;
+        s=default; t=1587550418;
+        bh=brI1eFVheBp82O1Mm9OtdOwC6ysMUp1xIN/FwyHk7UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2fqbyJWMkKZNFjkNHK2cvVxO0Jhi9fr613dCmGWTXwLTxqvRXN61avkwGbKqJIL2
-         qWf0W2lDI35FeuCSJFXSdMR5MzsIFcaPvmvyvYpW9kd6BefvOzH9pl6QRgiQxO/niD
-         fhPYh3ZrE4VG2u7qov/QdjHJXyWkMUpbPE9O++cE=
+        b=dbVqB4dp5Fppz8q1STY5FEliXutVkIBDfecrzfYzhyjINMDCPgE7Hz1VMTDnuoPj8
+         RVK4MELGY2iGp0Hec6MspUsrehCCxeH0otas+XY0lidYaS/xgalvPZmiI2B0ucsymf
+         xW1f3Z/iXjB9z4hVrXByLwSMlhmHVzO/gI7SdLks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vidya Sagar <vidyas@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 044/118] arm64: tegra: Add PCIe endpoint controllers nodes for Tegra194
+        stable@vger.kernel.org, Xi Wang <xi.wang@gmail.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 4.19 01/64] arm, bpf: Fix offset overflow for BPF_MEM BPF_DW
 Date:   Wed, 22 Apr 2020 11:56:45 +0200
-Message-Id: <20200422095039.168075761@linuxfoundation.org>
+Message-Id: <20200422095012.107035823@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,132 +46,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vidya Sagar <vidyas@nvidia.com>
+From: Luke Nelson <lukenels@cs.washington.edu>
 
-[ Upstream commit 0c988b731e6430f0081991fdb4f63f7fc837df9a ]
+commit 4178417cc5359c329790a4a8f4a6604612338cca upstream.
 
-Add endpoint mode controllers nodes for the dual mode PCIe controllers
-present in Tegra194 SoC.
+This patch fixes an incorrect check in how immediate memory offsets are
+computed for BPF_DW on arm.
 
-Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For BPF_LDX/ST/STX + BPF_DW, the 32-bit arm JIT breaks down an 8-byte
+access into two separate 4-byte accesses using off+0 and off+4. If off
+fits in imm12, the JIT emits a ldr/str instruction with the immediate
+and avoids the use of a temporary register. While the current check off
+<= 0xfff ensures that the first immediate off+0 doesn't overflow imm12,
+it's not sufficient for the second immediate off+4, which may cause the
+second access of BPF_DW to read/write the wrong address.
+
+This patch fixes the problem by changing the check to
+off <= 0xfff - 4 for BPF_DW, ensuring off+4 will never overflow.
+
+A side effect of simplifying the check is that it now allows using
+negative immediate offsets in ldr/str. This means that small negative
+offsets can also avoid the use of a temporary register.
+
+This patch introduces no new failures in test_verifier or test_bpf.c.
+
+Fixes: c5eae692571d6 ("ARM: net: bpf: improve 64-bit store implementation")
+Fixes: ec19e02b343db ("ARM: net: bpf: fix LDX instructions")
+Co-developed-by: Xi Wang <xi.wang@gmail.com>
+Signed-off-by: Xi Wang <xi.wang@gmail.com>
+Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20200409221752.28448-1-luke.r.nels@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/boot/dts/nvidia/tegra194.dtsi | 99 ++++++++++++++++++++++++
- 1 file changed, 99 insertions(+)
+ arch/arm/net/bpf_jit_32.c |   40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-index 3c0cf54f0aab3..57adcbb7352d6 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-@@ -1430,6 +1430,105 @@
- 			  0x82000000 0x0  0x40000000 0x1f 0x40000000 0x0 0xc0000000>; /* non-prefetchable memory (3GB) */
- 	};
+--- a/arch/arm/net/bpf_jit_32.c
++++ b/arch/arm/net/bpf_jit_32.c
+@@ -993,21 +993,35 @@ static inline void emit_a32_mul_r64(cons
+ 	arm_bpf_put_reg32(dst_hi, rd[0], ctx);
+ }
  
-+	pcie_ep@14160000 {
-+		compatible = "nvidia,tegra194-pcie-ep", "snps,dw-pcie-ep";
-+		power-domains = <&bpmp TEGRA194_POWER_DOMAIN_PCIEX4A>;
-+		reg = <0x00 0x14160000 0x0 0x00020000   /* appl registers (128K)      */
-+		       0x00 0x36040000 0x0 0x00040000   /* iATU_DMA reg space (256K)  */
-+		       0x00 0x36080000 0x0 0x00040000   /* DBI reg space (256K)       */
-+		       0x14 0x00000000 0x4 0x00000000>; /* Address Space (16G)        */
-+		reg-names = "appl", "atu_dma", "dbi", "addr_space";
++static bool is_ldst_imm(s16 off, const u8 size)
++{
++	s16 off_max = 0;
 +
-+		status = "disabled";
++	switch (size) {
++	case BPF_B:
++	case BPF_W:
++		off_max = 0xfff;
++		break;
++	case BPF_H:
++		off_max = 0xff;
++		break;
++	case BPF_DW:
++		/* Need to make sure off+4 does not overflow. */
++		off_max = 0xfff - 4;
++		break;
++	}
++	return -off_max <= off && off <= off_max;
++}
 +
-+		num-lanes = <4>;
-+		num-ib-windows = <2>;
-+		num-ob-windows = <8>;
-+
-+		clocks = <&bpmp TEGRA194_CLK_PEX0_CORE_4>;
-+		clock-names = "core";
-+
-+		resets = <&bpmp TEGRA194_RESET_PEX0_CORE_4_APB>,
-+			 <&bpmp TEGRA194_RESET_PEX0_CORE_4>;
-+		reset-names = "apb", "core";
-+
-+		interrupts = <GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>;	/* controller interrupt */
-+		interrupt-names = "intr";
-+
-+		nvidia,bpmp = <&bpmp 4>;
-+
-+		nvidia,aspm-cmrt-us = <60>;
-+		nvidia,aspm-pwr-on-t-us = <20>;
-+		nvidia,aspm-l0s-entrance-latency-us = <3>;
-+	};
-+
-+	pcie_ep@14180000 {
-+		compatible = "nvidia,tegra194-pcie-ep", "snps,dw-pcie-ep";
-+		power-domains = <&bpmp TEGRA194_POWER_DOMAIN_PCIEX8B>;
-+		reg = <0x00 0x14180000 0x0 0x00020000   /* appl registers (128K)      */
-+		       0x00 0x38040000 0x0 0x00040000   /* iATU_DMA reg space (256K)  */
-+		       0x00 0x38080000 0x0 0x00040000   /* DBI reg space (256K)       */
-+		       0x18 0x00000000 0x4 0x00000000>; /* Address Space (16G)        */
-+		reg-names = "appl", "atu_dma", "dbi", "addr_space";
-+
-+		status = "disabled";
-+
-+		num-lanes = <8>;
-+		num-ib-windows = <2>;
-+		num-ob-windows = <8>;
-+
-+		clocks = <&bpmp TEGRA194_CLK_PEX0_CORE_0>;
-+		clock-names = "core";
-+
-+		resets = <&bpmp TEGRA194_RESET_PEX0_CORE_0_APB>,
-+			 <&bpmp TEGRA194_RESET_PEX0_CORE_0>;
-+		reset-names = "apb", "core";
-+
-+		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;	/* controller interrupt */
-+		interrupt-names = "intr";
-+
-+		nvidia,bpmp = <&bpmp 0>;
-+
-+		nvidia,aspm-cmrt-us = <60>;
-+		nvidia,aspm-pwr-on-t-us = <20>;
-+		nvidia,aspm-l0s-entrance-latency-us = <3>;
-+	};
-+
-+	pcie_ep@141a0000 {
-+		compatible = "nvidia,tegra194-pcie-ep", "snps,dw-pcie-ep";
-+		power-domains = <&bpmp TEGRA194_POWER_DOMAIN_PCIEX8A>;
-+		reg = <0x00 0x141a0000 0x0 0x00020000   /* appl registers (128K)      */
-+		       0x00 0x3a040000 0x0 0x00040000   /* iATU_DMA reg space (256K)  */
-+		       0x00 0x3a080000 0x0 0x00040000   /* DBI reg space (256K)       */
-+		       0x1c 0x00000000 0x4 0x00000000>; /* Address Space (16G)        */
-+		reg-names = "appl", "atu_dma", "dbi", "addr_space";
-+
-+		status = "disabled";
-+
-+		num-lanes = <8>;
-+		num-ib-windows = <2>;
-+		num-ob-windows = <8>;
-+
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&clkreq_c5_bi_dir_state>;
-+
-+		clocks = <&bpmp TEGRA194_CLK_PEX1_CORE_5>;
-+		clock-names = "core";
-+
-+		resets = <&bpmp TEGRA194_RESET_PEX1_CORE_5_APB>,
-+			 <&bpmp TEGRA194_RESET_PEX1_CORE_5>;
-+		reset-names = "apb", "core";
-+
-+		interrupts = <GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>;	/* controller interrupt */
-+		interrupt-names = "intr";
-+
-+		nvidia,bpmp = <&bpmp 5>;
-+
-+		nvidia,aspm-cmrt-us = <60>;
-+		nvidia,aspm-pwr-on-t-us = <20>;
-+		nvidia,aspm-l0s-entrance-latency-us = <3>;
-+	};
-+
- 	sysram@40000000 {
- 		compatible = "nvidia,tegra194-sysram", "mmio-sram";
- 		reg = <0x0 0x40000000 0x0 0x50000>;
--- 
-2.20.1
-
+ /* *(size *)(dst + off) = src */
+ static inline void emit_str_r(const s8 dst, const s8 src[],
+-			      s32 off, struct jit_ctx *ctx, const u8 sz){
++			      s16 off, struct jit_ctx *ctx, const u8 sz){
+ 	const s8 *tmp = bpf2a32[TMP_REG_1];
+-	s32 off_max;
+ 	s8 rd;
+ 
+ 	rd = arm_bpf_get_reg32(dst, tmp[1], ctx);
+ 
+-	if (sz == BPF_H)
+-		off_max = 0xff;
+-	else
+-		off_max = 0xfff;
+-
+-	if (off < 0 || off > off_max) {
++	if (!is_ldst_imm(off, sz)) {
+ 		emit_a32_mov_i(tmp[0], off, ctx);
+ 		emit(ARM_ADD_R(tmp[0], tmp[0], rd), ctx);
+ 		rd = tmp[0];
+@@ -1036,18 +1050,12 @@ static inline void emit_str_r(const s8 d
+ 
+ /* dst = *(size*)(src + off) */
+ static inline void emit_ldx_r(const s8 dst[], const s8 src,
+-			      s32 off, struct jit_ctx *ctx, const u8 sz){
++			      s16 off, struct jit_ctx *ctx, const u8 sz){
+ 	const s8 *tmp = bpf2a32[TMP_REG_1];
+ 	const s8 *rd = is_stacked(dst_lo) ? tmp : dst;
+ 	s8 rm = src;
+-	s32 off_max;
+-
+-	if (sz == BPF_H)
+-		off_max = 0xff;
+-	else
+-		off_max = 0xfff;
+ 
+-	if (off < 0 || off > off_max) {
++	if (!is_ldst_imm(off, sz)) {
+ 		emit_a32_mov_i(tmp[0], off, ctx);
+ 		emit(ARM_ADD_R(tmp[0], tmp[0], src), ctx);
+ 		rm = tmp[0];
 
 
