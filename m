@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82C3E1B3D13
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:11:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B7D91B3C0F
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:02:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729208AbgDVKLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:11:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43534 "EHLO mail.kernel.org"
+        id S1726939AbgDVKCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729206AbgDVKLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:11:30 -0400
+        id S1726931AbgDVKCF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:02:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD28F2075A;
-        Wed, 22 Apr 2020 10:11:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A43820774;
+        Wed, 22 Apr 2020 10:02:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550290;
-        bh=SoVqO3bK3jHNnFnqoHbBV+IZFxZYUJeXCaLy+Ihncvo=;
+        s=default; t=1587549725;
+        bh=cH8+4pwgwB93FGammqT5AqRne5uguPxc4pSIHozizFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvn4vTwuWvVK6NBiQcgDW1fIS0ss+l5+m9+aT8JMtNskukyhLe3q5y82XCLbOVEqY
-         ADKKPxgZpWyHGskwOZQ/eQrhlaK1TYnPDCAeYAZdEZjfkuOxRo9wDVS+a9hD7CRntz
-         yQXvSZsZj9eV6h27lvcXQJpe+vZjwEUKtejPeRKA=
+        b=pdTmbBpX+6VHcloKjan40Vwf35Ve/wPQHlNdDB7/MkOPB2gMXTahxw+yI8/1WI1nK
+         PL9FCawDYupa0jrpmVF/bga1sjJSL94Si25XH71+X8w+BLsvLt0hiB5C9mWgFP27kr
+         U66f5pMxH703pdeL9a/Y2dsyz9M2Vh2a2nJmHL6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Gander <simon@tuxera.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 085/199] hfsplus: fix crash and filesystem corruption when deleting files
+        Chris Lew <clew@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andy Gross <andy.gross@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.4 081/100] soc: qcom: smem: Use le32_to_cpu for comparison
 Date:   Wed, 22 Apr 2020 11:56:51 +0200
-Message-Id: <20200422095106.605369560@linuxfoundation.org>
+Message-Id: <20200422095037.611762491@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Gander <simon@tuxera.com>
+From: Chris Lew <clew@codeaurora.org>
 
-commit 25efb2ffdf991177e740b2f63e92b4ec7d310a92 upstream.
+[ Upstream commit a216000f0140f415cec96129f777b5234c9d142f ]
 
-When removing files containing extended attributes, the hfsplus driver may
-remove the wrong entries from the attributes b-tree, causing major
-filesystem damage and in some cases even kernel crashes.
+Endianness can vary in the system, add le32_to_cpu when comparing
+partition sizes from smem.
 
-To remove a file, all its extended attributes have to be removed as well.
-The driver does this by looking up all keys in the attributes b-tree with
-the cnid of the file.  Each of these entries then gets deleted using the
-key used for searching, which doesn't contain the attribute's name when it
-should.  Since the key doesn't contain the name, the deletion routine will
-not find the correct entry and instead remove the one in front of it.  If
-parent nodes have to be modified, these become corrupt as well.  This
-causes invalid links and unsorted entries that not even macOS's fsck_hfs
-is able to fix.
-
-To fix this, modify the search key before an entry is deleted from the
-attributes b-tree by copying the found entry's key into the search key,
-therefore ensuring that the correct entry gets removed from the tree.
-
-Signed-off-by: Simon Gander <simon@tuxera.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200327155541.1521-1-simon@tuxera.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Chris Lew <clew@codeaurora.org>
+Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Andy Gross <andy.gross@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/hfsplus/attributes.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/soc/qcom/smem.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/hfsplus/attributes.c
-+++ b/fs/hfsplus/attributes.c
-@@ -292,6 +292,10 @@ static int __hfsplus_delete_attr(struct
- 		return -ENOENT;
- 	}
+--- a/drivers/soc/qcom/smem.c
++++ b/drivers/soc/qcom/smem.c
+@@ -646,7 +646,7 @@ static int qcom_smem_enumerate_partition
+ 			return -EINVAL;
+ 		}
  
-+	/* Avoid btree corruption */
-+	hfs_bnode_read(fd->bnode, fd->search_key,
-+			fd->keyoffset, fd->keylength);
-+
- 	err = hfs_brec_remove(fd);
- 	if (err)
- 		return err;
+-		if (header->size != entry->size) {
++		if (le32_to_cpu(header->size) != le32_to_cpu(entry->size)) {
+ 			dev_err(smem->dev,
+ 				"Partition %d has invalid size\n", i);
+ 			return -EINVAL;
 
 
