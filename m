@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95C761B4231
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F34A1B3F07
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:35:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726991AbgDVKCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:02:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51406 "EHLO mail.kernel.org"
+        id S1731215AbgDVKds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:33:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726984AbgDVKCX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:02:23 -0400
+        id S1730436AbgDVKYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:24:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C77A215A4;
-        Wed, 22 Apr 2020 10:02:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DC3A2071E;
+        Wed, 22 Apr 2020 10:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549742;
-        bh=uKXv3sNvVy46P0r1i0/Dj6wNaleBNcC/QD5M1GPVccs=;
+        s=default; t=1587551076;
+        bh=yq30A9vqJkbH6ukTYjE1PX100A2RCzQdapYKRI6/qVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SysHwp/6HsKwhfy65RNS1uXEAW8oU6SyQTJXADBwFmg5QGXddMuVfGZnWA9WafMWT
-         OEUUqG+Qcfy4iMzJkXEEyO4msRVa/ecgZi5enxagWfVJ3c+3xfOgxsoOz8leUIhvJG
-         nyhe/NTA9sAMiT+HwL67mrFaVolueLmTDKBYlS8Y=
+        b=abhs4m5evGEJx/jChiLvEgFZgIBTzyPtLDm1rzAAdrNxU52Z4R5B0FU+eGytBvZ4o
+         st6Cn3QD6UmC5si4yFFF09HBgG4LHs2ks1/vdS1lFiBtWn3W1uUP2iJYi0gZf+seZV
+         ZiF0IiIIcsJaCbPeLtiIijTuy6hi9RbLE0PwSUik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 088/100] percpu_counter: fix a data race at vm_committed_as
+Subject: [PATCH 5.6 091/166] s390/cpum_sf: Fix wrong page count in error message
 Date:   Wed, 22 Apr 2020 11:56:58 +0200
-Message-Id: <20200422095038.861081230@linuxfoundation.org>
+Message-Id: <20200422095058.435527979@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 7e2345200262e4a6056580f0231cccdaffc825f3 ]
+[ Upstream commit 4141b6a5e9f171325effc36a22eb92bf961e7a5c ]
 
-"vm_committed_as.count" could be accessed concurrently as reported by
-KCSAN,
+When perf record -e SF_CYCLES_BASIC_DIAG runs with very high
+frequency, the samples arrive faster than the perf process can
+save them to file. Eventually, for longer running processes, this
+leads to the siutation where the trace buffers allocated by perf
+slowly fills up. At one point the auxiliary trace buffer is full
+and  the CPU Measurement sampling facility is turned off. Furthermore
+a warning is printed to the kernel log buffer:
 
- BUG: KCSAN: data-race in __vm_enough_memory / percpu_counter_add_batch
+cpum_sf: The AUX buffer with 0 pages for the diagnostic-sampling
+	mode is full
 
- write to 0xffffffff9451c538 of 8 bytes by task 65879 on cpu 35:
-  percpu_counter_add_batch+0x83/0xd0
-  percpu_counter_add_batch at lib/percpu_counter.c:91
-  __vm_enough_memory+0xb9/0x260
-  dup_mm+0x3a4/0x8f0
-  copy_process+0x2458/0x3240
-  _do_fork+0xaa/0x9f0
-  __do_sys_clone+0x125/0x160
-  __x64_sys_clone+0x70/0x90
-  do_syscall_64+0x91/0xb05
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+The number of allocated pages for the auxiliary trace buffer is shown
+as zero pages. That is wrong.
 
- read to 0xffffffff9451c538 of 8 bytes by task 66773 on cpu 19:
-  __vm_enough_memory+0x199/0x260
-  percpu_counter_read_positive at include/linux/percpu_counter.h:81
-  (inlined by) __vm_enough_memory at mm/util.c:839
-  mmap_region+0x1b2/0xa10
-  do_mmap+0x45c/0x700
-  vm_mmap_pgoff+0xc0/0x130
-  ksys_mmap_pgoff+0x6e/0x300
-  __x64_sys_mmap+0x33/0x40
-  do_syscall_64+0x91/0xb05
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Fix this by saving the number of allocated pages before entering the
+work loop in the interrupt handler. When the interrupt handler processes
+the samples, it may detect the buffer full condition and stop sampling,
+reducing the buffer size to zero.
+Print the correct value in the error message:
 
-The read is outside percpu_counter::lock critical section which results in
-a data race.  Fix it by adding a READ_ONCE() in
-percpu_counter_read_positive() which could also service as the existing
-compiler memory barrier.
+cpum_sf: The AUX buffer with 256 pages for the diagnostic-sampling
+	mode is full
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Marco Elver <elver@google.com>
-Link: http://lkml.kernel.org/r/1582302724-2804-1-git-send-email-cai@lca.pw
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/percpu_counter.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/percpu_counter.h b/include/linux/percpu_counter.h
-index 84a1094496100..b6332cb761a4c 100644
---- a/include/linux/percpu_counter.h
-+++ b/include/linux/percpu_counter.h
-@@ -76,9 +76,9 @@ static inline s64 percpu_counter_read(struct percpu_counter *fbc)
-  */
- static inline s64 percpu_counter_read_positive(struct percpu_counter *fbc)
- {
--	s64 ret = fbc->count;
-+	/* Prevent reloads of fbc->count */
-+	s64 ret = READ_ONCE(fbc->count);
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index b095b1c78987d..05b908b3a6b38 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1576,6 +1576,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
+ 	unsigned long range = 0, size;
+ 	unsigned long long overflow = 0;
+ 	struct perf_output_handle *handle = &cpuhw->handle;
++	unsigned long num_sdb;
  
--	barrier();		/* Prevent reloads of fbc->count */
- 	if (ret >= 0)
- 		return ret;
- 	return 0;
+ 	aux = perf_get_aux(handle);
+ 	if (WARN_ON_ONCE(!aux))
+@@ -1587,13 +1588,14 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
+ 			    size >> PAGE_SHIFT);
+ 	perf_aux_output_end(handle, size);
+ 
++	num_sdb = aux->sfb.num_sdb;
+ 	while (!done) {
+ 		/* Get an output handle */
+ 		aux = perf_aux_output_begin(handle, cpuhw->event);
+ 		if (handle->size == 0) {
+ 			pr_err("The AUX buffer with %lu pages for the "
+ 			       "diagnostic-sampling mode is full\n",
+-				aux->sfb.num_sdb);
++				num_sdb);
+ 			debug_sprintf_event(sfdbg, 1,
+ 					    "%s: AUX buffer used up\n",
+ 					    __func__);
 -- 
 2.20.1
 
