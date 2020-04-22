@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D5DE1B3E9B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:31:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ECF41B3E49
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:27:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727837AbgDVK33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:29:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35884 "EHLO mail.kernel.org"
+        id S1730813AbgDVK1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:27:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730789AbgDVK05 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:26:57 -0400
+        id S1730805AbgDVK1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:27:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB8732076B;
-        Wed, 22 Apr 2020 10:26:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32CF32075A;
+        Wed, 22 Apr 2020 10:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551217;
-        bh=CV4lsd8GFjskQ68BrjCsNHsoRiEhRicJFGhZqLBaR7M=;
+        s=default; t=1587551219;
+        bh=Fiy/C+hMDSiklLTNMwKsro5YSZ51P2tQcXoshYJOGXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QvWUy6fhoe4GPR7kt9Z1EES9dAvGrL6d3HM0rbZtrufQytoCm/8IdSj8cFQrth5cQ
-         3Qjzrfq1DteYx0CRooOKiRNCwNmh2wRmkvYE2ddtJgjSobZSKImu0ughTYx33H6dbb
-         MUXyfQjlcMyRncUGKdaVNxDwnseNUNezJBeh434U=
+        b=2CcMe7nD2cvWrKoOdXFftA4YRZ1uFd+zu1tKh+b6e8pcceQq0nKL3J/e5npqgfSn1
+         PzJ2meu9337p86HM/2VTaMduoT3Xg5LC9GgFif5sIT3lPdvsv+SmgRkdyF/1EzwltX
+         bgw/SIeCRfqbB4of2fhncc5lk53Kzs+Ifb4tDdiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 147/166] net: dsa: bcm_sf2: Fix overflow checks
-Date:   Wed, 22 Apr 2020 11:57:54 +0200
-Message-Id: <20200422095104.361727106@linuxfoundation.org>
+        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>
+Subject: [PATCH 5.6 148/166] cifs: ignore cached share root handle closing errors
+Date:   Wed, 22 Apr 2020 11:57:55 +0200
+Message-Id: <20200422095104.463905753@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
 References: <20200422095047.669225321@linuxfoundation.org>
@@ -43,59 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Aurelien Aptel <aaptel@suse.com>
 
-commit d0802dc411f469569a537283b6f3833af47aece9 upstream.
+commit e79b0332ae06b4895dcecddf4bbc5d3917e9383c upstream.
 
-Commit f949a12fd697 ("net: dsa: bcm_sf2: fix buffer overflow doing
-set_rxnfc") tried to fix the some user controlled buffer overflows in
-bcm_sf2_cfp_rule_set() and bcm_sf2_cfp_rule_del() but the fix was using
-CFP_NUM_RULES, which while it is correct not to overflow the bitmaps, is
-not representative of what the device actually supports. Correct that by
-using bcm_sf2_cfp_rule_size() instead.
+Fix tcon use-after-free and NULL ptr deref.
 
-The latter subtracts the number of rules by 1, so change the checks from
-greater than or equal to greater than accordingly.
+Customer system crashes with the following kernel log:
 
-Fixes: f949a12fd697 ("net: dsa: bcm_sf2: fix buffer overflow doing set_rxnfc")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[462233.169868] CIFS VFS: Cancelling wait for mid 4894753 cmd: 14       => a QUERY DIR
+[462233.228045] CIFS VFS: cifs_put_smb_ses: Session Logoff failure rc=-4
+[462233.305922] CIFS VFS: cifs_put_smb_ses: Session Logoff failure rc=-4
+[462233.306205] CIFS VFS: cifs_put_smb_ses: Session Logoff failure rc=-4
+[462233.347060] CIFS VFS: cifs_put_smb_ses: Session Logoff failure rc=-4
+[462233.347107] CIFS VFS: Close unmatched open
+[462233.347113] BUG: unable to handle kernel NULL pointer dereference at 0000000000000038
+...
+    [exception RIP: cifs_put_tcon+0xa0] (this is doing tcon->ses->server)
+ #6 [...] smb2_cancelled_close_fid at ... [cifs]
+ #7 [...] process_one_work at ...
+ #8 [...] worker_thread at ...
+ #9 [...] kthread at ...
+
+The most likely explanation we have is:
+
+* When we put the last reference of a tcon (refcount=0), we close the
+  cached share root handle.
+* If closing a handle is interrupted, SMB2_close() will
+  queue a SMB2_close() in a work thread.
+* The queued object keeps a tcon ref so we bump the tcon
+  refcount, jumping from 0 to 1.
+* We reach the end of cifs_put_tcon(), we free the tcon object despite
+  it now having a refcount of 1.
+* The queued work now runs, but the tcon, ses & server was freed in
+  the meantime resulting in a crash.
+
+THREAD 1
+========
+cifs_put_tcon                 => tcon refcount reach 0
+  SMB2_tdis
+   close_shroot_lease
+    close_shroot_lease_locked => if cached root has lease && refcount = 0
+     smb2_close_cached_fid    => if cached root valid
+      SMB2_close              => retry close in a thread if interrupted
+       smb2_handle_cancelled_close
+        __smb2_handle_cancelled_close    => !! tcon refcount bump 0 => 1 !!
+         INIT_WORK(&cancelled->work, smb2_cancelled_close_fid);
+         queue_work(cifsiod_wq, &cancelled->work) => queue work
+ tconInfoFree(tcon);    ==> freed!
+ cifs_put_smb_ses(ses); ==> freed!
+
+THREAD 2 (workqueue)
+========
+smb2_cancelled_close_fid
+  SMB2_close(0, cancelled->tcon, ...); => use-after-free of tcon
+  cifs_put_tcon(cancelled->tcon);      => tcon refcount reach 0 second time
+  *CRASH*
+
+Fixes: d9191319358d ("CIFS: Close cached root handle only if it has a lease")
+Signed-off-by: Aurelien Aptel <aaptel@suse.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/dsa/bcm_sf2_cfp.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ fs/cifs/smb2misc.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/net/dsa/bcm_sf2_cfp.c
-+++ b/drivers/net/dsa/bcm_sf2_cfp.c
-@@ -882,17 +882,14 @@ static int bcm_sf2_cfp_rule_set(struct d
- 	     fs->m_ext.data[1]))
- 		return -EINVAL;
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -766,6 +766,20 @@ smb2_handle_cancelled_close(struct cifs_
  
--	if (fs->location != RX_CLS_LOC_ANY && fs->location >= CFP_NUM_RULES)
-+	if (fs->location != RX_CLS_LOC_ANY &&
-+	    fs->location > bcm_sf2_cfp_rule_size(priv))
- 		return -EINVAL;
+ 	cifs_dbg(FYI, "%s: tc_count=%d\n", __func__, tcon->tc_count);
+ 	spin_lock(&cifs_tcp_ses_lock);
++	if (tcon->tc_count <= 0) {
++		struct TCP_Server_Info *server = NULL;
++
++		WARN_ONCE(tcon->tc_count < 0, "tcon refcount is negative");
++		spin_unlock(&cifs_tcp_ses_lock);
++
++		if (tcon->ses)
++			server = tcon->ses->server;
++
++		cifs_server_dbg(FYI, "tid=%u: tcon is closing, skipping async close retry of fid %llu %llu\n",
++				tcon->tid, persistent_fid, volatile_fid);
++
++		return 0;
++	}
+ 	tcon->tc_count++;
+ 	spin_unlock(&cifs_tcp_ses_lock);
  
- 	if (fs->location != RX_CLS_LOC_ANY &&
- 	    test_bit(fs->location, priv->cfp.used))
- 		return -EBUSY;
- 
--	if (fs->location != RX_CLS_LOC_ANY &&
--	    fs->location > bcm_sf2_cfp_rule_size(priv))
--		return -EINVAL;
--
- 	ret = bcm_sf2_cfp_rule_cmp(priv, port, fs);
- 	if (ret == 0)
- 		return -EEXIST;
-@@ -973,7 +970,7 @@ static int bcm_sf2_cfp_rule_del(struct b
- 	struct cfp_rule *rule;
- 	int ret;
- 
--	if (loc >= CFP_NUM_RULES)
-+	if (loc > bcm_sf2_cfp_rule_size(priv))
- 		return -EINVAL;
- 
- 	/* Refuse deleting unused rules, and those that are not unique since
 
 
