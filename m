@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4EBB1B3DED
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:23:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85BA31B429D
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730207AbgDVKWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:22:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58776 "EHLO mail.kernel.org"
+        id S1726722AbgDVLCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:02:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730098AbgDVKWe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:22:34 -0400
+        id S1726609AbgDVKAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C90D62076B;
-        Wed, 22 Apr 2020 10:22:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20D9420784;
+        Wed, 22 Apr 2020 10:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550953;
-        bh=ak3MKSqPh/TSr0rPK5DUxHnAyY73imxeaHdwafJvqA8=;
+        s=default; t=1587549621;
+        bh=MB/aj39X83AcnNirctq87Q+dr5GIhkIBHNSj0wVppZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVTRn4MdDUCj4Euxz2XZ109dRmJ+QqSqkeeBxLHYWQUqJyB4dOm5lROfy7JbYJBFV
-         gFIJKI/bP1nr7jQoPdyTYsg3eVu5rBRMlyu1GCG6zx2mR/jecb/3xXxR6+3acPnxk0
-         i+2chHkRBx1rptT3xH5zJJ78LsifNTkY2HIF0Wkw=
+        b=QN+UbLBTpXeBZgLSujVm5vjJpoigzsJYe1h963aGNfqzONcxI1B0484naF+9gfXZa
+         811gUCo+i/1fpMt28F+sBLavFDDT0lHz7DFtSVAbozgr8KAhHcDGTQVWbQ4RUeFpsj
+         8Plx2lXbEhQUDadLq23SvD8C3unenxI6SNUZQCpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 041/166] clk: Dont cache errors from clk_ops::get_phase()
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 038/100] Btrfs: incremental send, fix invalid memory access
 Date:   Wed, 22 Apr 2020 11:56:08 +0200
-Message-Id: <20200422095053.384792841@linuxfoundation.org>
+Message-Id: <20200422095029.340786100@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,134 +43,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <sboyd@kernel.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit f21cf9c77ee82ef8adfeb2143adfacf21ec1d5cc ]
+commit 24e52b11e0ca788513b945a87b57cc0522a92933 upstream.
 
-We don't check for errors from clk_ops::get_phase() before storing away
-the result into the clk_core::phase member. This can lead to some fairly
-confusing debugfs information if these ops do return an error. Let's
-skip the store when this op fails to fix this. While we're here, move
-the locking outside of clk_core_get_phase() to simplify callers from
-the debugfs side.
+When doing an incremental send, while processing an extent that changed
+between the parent and send snapshots and that extent was an inline extent
+in the parent snapshot, it's possible to access a memory region beyond
+the end of leaf if the inline extent is very small and it is the first
+item in a leaf.
 
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Heiko Stuebner <heiko@sntech.de>
-Cc: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lkml.kernel.org/r/20200205232802.29184-2-sboyd@kernel.org
-Acked-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+An example scenario is described below.
+
+The send snapshot has the following leaf:
+
+ leaf 33865728 items 33 free space 773 generation 46 owner 5
+ fs uuid ab7090d8-dafd-4fb9-9246-723b6d2e2fb7
+ chunk uuid 2d16478c-c704-4ab9-b574-68bff2281b1f
+        (...)
+        item 14 key (335 EXTENT_DATA 0) itemoff 3052 itemsize 53
+                generation 36 type 1 (regular)
+                extent data disk byte 12791808 nr 4096
+                extent data offset 0 nr 4096 ram 4096
+                extent compression 0 (none)
+        item 15 key (335 EXTENT_DATA 8192) itemoff 2999 itemsize 53
+                generation 36 type 1 (regular)
+                extent data disk byte 138170368 nr 225280
+                extent data offset 0 nr 225280 ram 225280
+                extent compression 0 (none)
+        (...)
+
+And the parent snapshot has the following leaf:
+
+ leaf 31272960 items 17 free space 17 generation 31 owner 5
+ fs uuid ab7090d8-dafd-4fb9-9246-723b6d2e2fb7
+ chunk uuid 2d16478c-c704-4ab9-b574-68bff2281b1f
+        item 0 key (335 EXTENT_DATA 0) itemoff 3951 itemsize 44
+                generation 31 type 0 (inline)
+                inline extent data size 23 ram_bytes 613 compression 1 (zlib)
+        (...)
+
+When computing the send stream, it is detected that the extent of inode
+335, at file offset 0, and at fs/btrfs/send.c:is_extent_unchanged() we
+grab the leaf from the parent snapshot and access the inline extent item.
+However, before jumping to the 'out' label, we access the 'offset' and
+'disk_bytenr' fields of the extent item, which should not be done for
+inline extents since the inlined data starts at the offset of the
+'disk_bytenr' field and can be very small. For example accessing the
+'offset' field of the file extent item results in the following trace:
+
+[  599.705368] general protection fault: 0000 [#1] PREEMPT SMP
+[  599.706296] Modules linked in: btrfs psmouse i2c_piix4 ppdev acpi_cpufreq serio_raw parport_pc i2c_core evdev tpm_tis tpm_tis_core sg pcspkr parport tpm button su$
+[  599.709340] CPU: 7 PID: 5283 Comm: btrfs Not tainted 4.10.0-rc8-btrfs-next-46+ #1
+[  599.709340] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.1-0-gb3ef39f-prebuilt.qemu-project.org 04/01/2014
+[  599.709340] task: ffff88023eedd040 task.stack: ffffc90006658000
+[  599.709340] RIP: 0010:read_extent_buffer+0xdb/0xf4 [btrfs]
+[  599.709340] RSP: 0018:ffffc9000665ba00 EFLAGS: 00010286
+[  599.709340] RAX: db73880000000000 RBX: 0000000000000000 RCX: 0000000000000001
+[  599.709340] RDX: ffffc9000665ba60 RSI: db73880000000000 RDI: ffffc9000665ba5f
+[  599.709340] RBP: ffffc9000665ba30 R08: 0000000000000001 R09: ffff88020dc5e098
+[  599.709340] R10: 0000000000001000 R11: 0000160000000000 R12: 6db6db6db6db6db7
+[  599.709340] R13: ffff880000000000 R14: 0000000000000000 R15: ffff88020dc5e088
+[  599.709340] FS:  00007f519555a8c0(0000) GS:ffff88023f3c0000(0000) knlGS:0000000000000000
+[  599.709340] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  599.709340] CR2: 00007f1411afd000 CR3: 0000000235f8e000 CR4: 00000000000006e0
+[  599.709340] Call Trace:
+[  599.709340]  btrfs_get_token_64+0x93/0xce [btrfs]
+[  599.709340]  ? printk+0x48/0x50
+[  599.709340]  btrfs_get_64+0xb/0xd [btrfs]
+[  599.709340]  process_extent+0x3a1/0x1106 [btrfs]
+[  599.709340]  ? btree_read_extent_buffer_pages+0x5/0xef [btrfs]
+[  599.709340]  changed_cb+0xb03/0xb3d [btrfs]
+[  599.709340]  ? btrfs_get_token_32+0x7a/0xcc [btrfs]
+[  599.709340]  btrfs_compare_trees+0x432/0x53d [btrfs]
+[  599.709340]  ? process_extent+0x1106/0x1106 [btrfs]
+[  599.709340]  btrfs_ioctl_send+0x960/0xe26 [btrfs]
+[  599.709340]  btrfs_ioctl+0x181b/0x1fed [btrfs]
+[  599.709340]  ? trace_hardirqs_on_caller+0x150/0x1ac
+[  599.709340]  vfs_ioctl+0x21/0x38
+[  599.709340]  ? vfs_ioctl+0x21/0x38
+[  599.709340]  do_vfs_ioctl+0x611/0x645
+[  599.709340]  ? rcu_read_unlock+0x5b/0x5d
+[  599.709340]  ? __fget+0x6d/0x79
+[  599.709340]  SyS_ioctl+0x57/0x7b
+[  599.709340]  entry_SYSCALL_64_fastpath+0x18/0xad
+[  599.709340] RIP: 0033:0x7f51945eec47
+[  599.709340] RSP: 002b:00007ffc21c13e98 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
+[  599.709340] RAX: ffffffffffffffda RBX: ffffffff81096459 RCX: 00007f51945eec47
+[  599.709340] RDX: 00007ffc21c13f20 RSI: 0000000040489426 RDI: 0000000000000004
+[  599.709340] RBP: ffffc9000665bf98 R08: 00007f519450d700 R09: 00007f519450d700
+[  599.709340] R10: 00007f519450d9d0 R11: 0000000000000202 R12: 0000000000000046
+[  599.709340] R13: ffffc9000665bf78 R14: 0000000000000000 R15: 00007f5195574040
+[  599.709340]  ? trace_hardirqs_off_caller+0x43/0xb1
+[  599.709340] Code: 29 f0 49 39 d8 4c 0f 47 c3 49 03 81 58 01 00 00 44 89 c1 4c 01 c2 4c 29 c3 48 c1 f8 03 49 0f af c4 48 c1 e0 0c 4c 01 e8 48 01 c6 <f3> a4 31 f6 4$
+[  599.709340] RIP: read_extent_buffer+0xdb/0xf4 [btrfs] RSP: ffffc9000665ba00
+[  599.762057] ---[ end trace fe00d7af61b9f49e ]---
+
+This is because the 'offset' field starts at an offset of 37 bytes
+(offsetof(struct btrfs_file_extent_item, offset)), has a length of 8
+bytes and therefore attemping to read it causes a 1 byte access beyond
+the end of the leaf, as the first item's content in a leaf is located
+at the tail of the leaf, the item size is 44 bytes and the offset of
+that field plus its length (37 + 8 = 45) goes beyond the item's size
+by 1 byte.
+
+So fix this by accessing the 'offset' and 'disk_bytenr' fields after
+jumping to the 'out' label if we are processing an inline extent. We
+move the reading operation of the 'disk_bytenr' field too because we
+have the same problem as for the 'offset' field explained above when
+the inline data is less then 8 bytes. The access to the 'generation'
+field is also moved but just for the sake of grouping access to all
+the fields.
+
+Fixes: e1cbfd7bf6da ("Btrfs: send, fix file hole not being preserved due to inline extent")
+Cc: <stable@vger.kernel.org>  # v4.12+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/clk.c | 48 +++++++++++++++++++++++++++++++----------------
- 1 file changed, 32 insertions(+), 16 deletions(-)
+ fs/btrfs/send.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 95adf6c6db3db..305544b68b8a7 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -2660,12 +2660,14 @@ static int clk_core_get_phase(struct clk_core *core)
- {
- 	int ret;
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -5022,15 +5022,12 @@ static int is_extent_unchanged(struct se
+ 			goto out;
+ 		}
  
--	clk_prepare_lock();
-+	lockdep_assert_held(&prepare_lock);
-+	if (!core->ops->get_phase)
-+		return 0;
+-		right_disknr = btrfs_file_extent_disk_bytenr(eb, ei);
+ 		if (right_type == BTRFS_FILE_EXTENT_INLINE) {
+ 			right_len = btrfs_file_extent_inline_len(eb, slot, ei);
+ 			right_len = PAGE_ALIGN(right_len);
+ 		} else {
+ 			right_len = btrfs_file_extent_num_bytes(eb, ei);
+ 		}
+-		right_offset = btrfs_file_extent_offset(eb, ei);
+-		right_gen = btrfs_file_extent_generation(eb, ei);
+ 
+ 		/*
+ 		 * Are we at extent 8? If yes, we know the extent is changed.
+@@ -5055,6 +5052,10 @@ static int is_extent_unchanged(struct se
+ 			goto out;
+ 		}
+ 
++		right_disknr = btrfs_file_extent_disk_bytenr(eb, ei);
++		right_offset = btrfs_file_extent_offset(eb, ei);
++		right_gen = btrfs_file_extent_generation(eb, ei);
 +
- 	/* Always try to update cached phase if possible */
--	if (core->ops->get_phase)
--		core->phase = core->ops->get_phase(core->hw);
--	ret = core->phase;
--	clk_prepare_unlock();
-+	ret = core->ops->get_phase(core->hw);
-+	if (ret >= 0)
-+		core->phase = ret;
- 
- 	return ret;
- }
-@@ -2679,10 +2681,16 @@ static int clk_core_get_phase(struct clk_core *core)
-  */
- int clk_get_phase(struct clk *clk)
- {
-+	int ret;
-+
- 	if (!clk)
- 		return 0;
- 
--	return clk_core_get_phase(clk->core);
-+	clk_prepare_lock();
-+	ret = clk_core_get_phase(clk->core);
-+	clk_prepare_unlock();
-+
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(clk_get_phase);
- 
-@@ -2896,13 +2904,21 @@ static struct hlist_head *orphan_list[] = {
- static void clk_summary_show_one(struct seq_file *s, struct clk_core *c,
- 				 int level)
- {
--	seq_printf(s, "%*s%-*s %7d %8d %8d %11lu %10lu %5d %6d\n",
-+	int phase;
-+
-+	seq_printf(s, "%*s%-*s %7d %8d %8d %11lu %10lu ",
- 		   level * 3 + 1, "",
- 		   30 - level * 3, c->name,
- 		   c->enable_count, c->prepare_count, c->protect_count,
--		   clk_core_get_rate(c), clk_core_get_accuracy(c),
--		   clk_core_get_phase(c),
--		   clk_core_get_scaled_duty_cycle(c, 100000));
-+		   clk_core_get_rate(c), clk_core_get_accuracy(c));
-+
-+	phase = clk_core_get_phase(c);
-+	if (phase >= 0)
-+		seq_printf(s, "%5d", phase);
-+	else
-+		seq_puts(s, "-----");
-+
-+	seq_printf(s, " %6d\n", clk_core_get_scaled_duty_cycle(c, 100000));
- }
- 
- static void clk_summary_show_subtree(struct seq_file *s, struct clk_core *c,
-@@ -2939,6 +2955,7 @@ DEFINE_SHOW_ATTRIBUTE(clk_summary);
- 
- static void clk_dump_one(struct seq_file *s, struct clk_core *c, int level)
- {
-+	int phase;
- 	unsigned long min_rate, max_rate;
- 
- 	clk_core_get_boundaries(c, &min_rate, &max_rate);
-@@ -2952,7 +2969,9 @@ static void clk_dump_one(struct seq_file *s, struct clk_core *c, int level)
- 	seq_printf(s, "\"min_rate\": %lu,", min_rate);
- 	seq_printf(s, "\"max_rate\": %lu,", max_rate);
- 	seq_printf(s, "\"accuracy\": %lu,", clk_core_get_accuracy(c));
--	seq_printf(s, "\"phase\": %d,", clk_core_get_phase(c));
-+	phase = clk_core_get_phase(c);
-+	if (phase >= 0)
-+		seq_printf(s, "\"phase\": %d,", phase);
- 	seq_printf(s, "\"duty_cycle\": %u",
- 		   clk_core_get_scaled_duty_cycle(c, 100000));
- }
-@@ -3434,14 +3453,11 @@ static int __clk_core_init(struct clk_core *core)
- 		core->accuracy = 0;
- 
- 	/*
--	 * Set clk's phase.
-+	 * Set clk's phase by clk_core_get_phase() caching the phase.
- 	 * Since a phase is by definition relative to its parent, just
- 	 * query the current clock phase, or just assume it's in phase.
- 	 */
--	if (core->ops->get_phase)
--		core->phase = core->ops->get_phase(core->hw);
--	else
--		core->phase = 0;
-+	clk_core_get_phase(core);
- 
- 	/*
- 	 * Set clk's duty cycle.
--- 
-2.20.1
-
+ 		left_offset_fixed = left_offset;
+ 		if (key.offset < ekey->offset) {
+ 			/* Fix the right offset for 2a and 7. */
 
 
