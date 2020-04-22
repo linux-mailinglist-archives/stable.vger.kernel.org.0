@@ -2,94 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 141121B454C
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 14:42:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B544E1B4569
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 14:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726232AbgDVMmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 08:42:20 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:44858 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726228AbgDVMmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 08:42:19 -0400
-Received: by mail-ot1-f65.google.com with SMTP id j4so1828559otr.11
-        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 05:42:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+1M0NVjVIfiDf5WxyWqgdJi0Ejne9DtjuFiuDolawXg=;
-        b=bg5WE0IC/OU44ImHQioBXVfHSA4VscKN0wS6Cg+S/tUjVO8Plo/RFnto8ByTHZWXkX
-         14N483kk1opbDo1gQSeQedmTGTkcbn+qtquAT6KzMrgk5vEq65Yshe6b9v7Zm8CCTOsm
-         ltRnFqi0wVSyOhuaG+oGHr0Tjs/9pgJYr1beuMw2pxstoKMjUIC6WyhiJN1u+iDKhHG2
-         cQKFJrGD/ptfmhxH65T3ZZl1w994QbRy2zbiVhm4oikd+P9cA9u7QAL5kt78h2lQV+pr
-         HsevLuCZEcbvdUxEX+jdva+pXfJNKu4eB7PV1OMg+f5ER+xp9qCoS2aFQk/QsOvOlYld
-         qgWA==
-X-Gm-Message-State: AGi0PuYg42U+b9GQKBgygT1MnbDbnTcsf653N+voOAT25xRpDTYqQaEh
-        cTj0G4U8IIqudBmvcYi7NCV8VXOZ6jkU3NsVZJs=
-X-Google-Smtp-Source: APiQypKXVAqidqoIdJ8o9BvLpLjmaZMSWD0KW6YTulWW9ox+6sa/rlKruxqpj6YMg0E2J7vnv8VTFirWlN1vHXiyvck=
-X-Received: by 2002:a9d:564:: with SMTP id 91mr452774otw.250.1587559338565;
- Wed, 22 Apr 2020 05:42:18 -0700 (PDT)
+        id S1726451AbgDVMvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 08:51:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60246 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726002AbgDVMvu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 08:51:50 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87E9320857;
+        Wed, 22 Apr 2020 12:51:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587559910;
+        bh=SQkryVGgqoUzY3aJvT8Gf/kltSUg9byJ5NlefWiVwG8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=QNKC+XKcszxrVfeKtalGm+ZbpxJ2JzzPkYK86b1m0xgOpypbG7OUXih/YGp1MOHDD
+         nLxoz1dKTQ9kEBGqoRj1++8cr6ub/J6Uzc8Y7NtfndEoSTPXaoN076qHyoKGY8Wv/b
+         PakdJLJ4IZAY0JIvab9iJ1+oIsMBCc6TVNLNMHzk=
+Date:   Wed, 22 Apr 2020 14:51:47 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chris Paterson <Chris.Paterson2@renesas.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 4.19 00/64] 4.19.118-rc1 review
+Message-ID: <20200422125147.GA3153333@kroah.com>
+References: <20200422095008.799686511@linuxfoundation.org>
+ <TYAPR01MB22852052125D7E1B036BE8AAB7D20@TYAPR01MB2285.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
-References: <20200422111957.569589-1-lee.jones@linaro.org> <20200422111957.569589-5-lee.jones@linaro.org>
- <d4b3dc8228014f29b9449bcff6e61315@AcuMS.aculab.com>
-In-Reply-To: <d4b3dc8228014f29b9449bcff6e61315@AcuMS.aculab.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 22 Apr 2020 14:42:07 +0200
-Message-ID: <CAMuHMdUX8FojWFgK7EE0bm1ifNhr6iqno_k=VkJuQicWGheHYw@mail.gmail.com>
-Subject: Re: [PATCH 4.9 04/21] devres: Align data[] to ARCH_KMALLOC_MINALIGN
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Lee Jones <lee.jones@linaro.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Alexey Brodkin <alexey.brodkin@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>, Greg KH <greg@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <TYAPR01MB22852052125D7E1B036BE8AAB7D20@TYAPR01MB2285.jpnprd01.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi David,
+On Wed, Apr 22, 2020 at 11:10:58AM +0000, Chris Paterson wrote:
+> Hello Greg,
+> 
+> > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> > Behalf Of Greg Kroah-Hartman
+> > Sent: 22 April 2020 10:57
+> > 
+> > This is the start of the stable review cycle for the 4.19.118 release.
+> > There are 64 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> 
+> No build/boot issues seen for CIP configs for Linux 4.19.118-rc1 (b5f03cd61ab6).
+> 
+> Build/test pipeline/logs: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/pipelines/138626535
+> GitLab CI pipeline: https://gitlab.com/cip-project/cip-testing/linux-cip-pipelines/-/blob/master/trees/linux-4.19.y.yml
+> Relevant LAVA jobs: https://lava.ciplatform.org/scheduler/alljobs?length=25&search=b5f03cd61#table
 
-On Wed, Apr 22, 2020 at 2:17 PM David Laight <David.Laight@aculab.com> wrote:
-> From: Lee Jones <lee.jones@linaro.org>
-> > Sent: 22 April 2020 12:20
-> > From: Alexey Brodkin <alexey.brodkin@synopsys.com>
-> >
-> > [ Upstream commit a66d972465d15b1d89281258805eb8b47d66bd36 ]
-> >
-> > Initially we bumped into problem with 32-bit aligned atomic64_t
-> > on ARC, see [1]. And then during quite lengthly discussion Peter Z.
-> > mentioned ARCH_KMALLOC_MINALIGN which IMHO makes perfect sense.
-> > If allocation is done by plain kmalloc() obtained buffer will be
-> > ARCH_KMALLOC_MINALIGN aligned and then why buffer obtained via
-> > devm_kmalloc() should have any other alignment?
-> >
-> > This way we at least get the same behavior for both types of
-> > allocation.
->
-> Anyone any idea how much difference it would actually make
-> to align all architectures to at least 32-bits (or even 64-bits)?
->
-> I think the only times it would make a difference would be for
-> allocations that (for example, 62 bytes on m68k) just
-> fit in a 64 byte block - so suddenly grow to 128 bytes.
-> (Or whatever granularity the allocator uses).
+Thanks for testing 2 of these and letting me know.
 
-I believe ARCH_KMALLOC_MINALIGN is already at least 16 _bytes_
-on all architectures (up to at last 128, perhaps even 256?).
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+greg k-h
