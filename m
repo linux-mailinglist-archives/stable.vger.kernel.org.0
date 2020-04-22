@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 097461B3E3D
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A3F1B409E
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730751AbgDVK0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:26:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35452 "EHLO mail.kernel.org"
+        id S1731982AbgDVKq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:46:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730740AbgDVK0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:26:33 -0400
+        id S1726876AbgDVKQG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:16:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 220272075A;
-        Wed, 22 Apr 2020 10:26:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE8B12071E;
+        Wed, 22 Apr 2020 10:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551192;
-        bh=+e9qoTMeeUTLIN6LPfEmAaCFBw1h2Jg68LOFaxYeyAU=;
+        s=default; t=1587550566;
+        bh=yI5sMb0fFqrnHFnATslHy98th/pP5oqjrtiaS/9DtvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHkwqTg7oIHb1jNR+P85ayQhWfnM5fZ1bZDmwePI1cu23e4BAYFS3z6rWyTjh9T1r
-         ZoV6sWdrwnEFEhHIZ1LQGSCuQX9sfgSllwDHi1sO8GOl8tV4eSCW65MOmHjaxKBNAt
-         s5lxWxyEgu16vOMYxa1YacQFV/jrFouaR+hvdlgo=
+        b=cpQ3ienXOCipLHN/wXjLgYOv0R6wp04jfWorwW3L93H3XBIP1MvQX1eQTPGoQsmDw
+         qwrtus6JQHpDkD+kFzYRqF5eTP/lghQzrV9p4JHPltyTJZSy7C4dpO316Z2B+TjugY
+         Jp6C4FDiL6fpYADL+vIp3/XRMyQvqvCR0Ch0uty4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuantian Tang <andy.tang@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 138/166] thermal: qoriq: Fix a compiling issue
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.19 61/64] mtd: lpddr: Fix a double free in probe()
 Date:   Wed, 22 Apr 2020 11:57:45 +0200
-Message-Id: <20200422095103.413730565@linuxfoundation.org>
+Message-Id: <20200422095024.204592466@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuantian Tang <andy.tang@nxp.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit cbe259fd80b7b02fba0dad79d8fdda8b70a8b963 ]
+commit 4da0ea71ea934af18db4c63396ba2af1a679ef02 upstream.
 
-Qoriq thermal driver is used by both PowerPC and ARM architecture.
-When built for PowerPC architecture, it reports error:
-undefined reference to `.__devm_regmap_init_mmio_clk'
-To fix it, select config REGMAP_MMIO.
+This function is only called from lpddr_probe().  We free "lpddr" both
+here and in the caller, so it's a double free.  The best place to free
+"lpddr" is in lpddr_probe() so let's delete this one.
 
-Fixes: 4316237bd627 (thermal: qoriq: Convert driver to use regmap API)
-Signed-off-by: Yuantian Tang <andy.tang@nxp.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200303084641.35687-1-andy.tang@nxp.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8dc004395d5e ("[MTD] LPDDR qinfo probing.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200228092554.o57igp3nqhyvf66t@kili.mountain
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/thermal/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/lpddr/lpddr_cmds.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
-index 5a05db5438d60..5a0df0e54ce3e 100644
---- a/drivers/thermal/Kconfig
-+++ b/drivers/thermal/Kconfig
-@@ -265,6 +265,7 @@ config QORIQ_THERMAL
- 	tristate "QorIQ Thermal Monitoring Unit"
- 	depends on THERMAL_OF
- 	depends on HAS_IOMEM
-+	select REGMAP_MMIO
- 	help
- 	  Support for Thermal Monitoring Unit (TMU) found on QorIQ platforms.
- 	  It supports one critical trip point and one passive trip point. The
--- 
-2.20.1
-
+--- a/drivers/mtd/lpddr/lpddr_cmds.c
++++ b/drivers/mtd/lpddr/lpddr_cmds.c
+@@ -81,7 +81,6 @@ struct mtd_info *lpddr_cmdset(struct map
+ 	shared = kmalloc_array(lpddr->numchips, sizeof(struct flchip_shared),
+ 						GFP_KERNEL);
+ 	if (!shared) {
+-		kfree(lpddr);
+ 		kfree(mtd);
+ 		return NULL;
+ 	}
 
 
