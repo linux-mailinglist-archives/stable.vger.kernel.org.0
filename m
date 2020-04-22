@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45EB31B3C94
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:07:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB2A1B409B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728432AbgDVKGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:06:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59116 "EHLO mail.kernel.org"
+        id S1729763AbgDVKQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:16:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728427AbgDVKGy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:06:54 -0400
+        id S1729758AbgDVKQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:16:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E16B20575;
-        Wed, 22 Apr 2020 10:06:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 796EB2075A;
+        Wed, 22 Apr 2020 10:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550013;
-        bh=mIVHQ0uSnkMp/t2dweUoji1QdAwBFsjSYmZqiOKQEuA=;
+        s=default; t=1587550585;
+        bh=ZaYqdeRvQZPigS+ANvJSCa11Eqd6O2GHEYnBCZcLTBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xFqXqrA7NNC7JCHZayY72hEe86IIrgY35kVDqN2nrYiwuto2FsR7G6G2i/1KFzFo1
-         tzKXvpIuI24uQEq3PLhLux0nt6mJMGVTScK7rC/DRMRdkWRBS3TODuuoNfXl8XUPew
-         vLSg8USPOyRM9aiS9c8udPUDTkvAW+gfNX1GHvns=
+        b=Jb8S1kHJGiz2hLB84li+8eFRniquru5rFnFXLVbBfPKvrc3wIKckVQ7huau1aXMzu
+         I7zHnZGmh1BGIMS3Ihv2quBFkkC3QyB4d6nl4kpcUcza8CGEALCdWi6T1IkoJ0y0/w
+         5au1exWSsXGr7F/KORV3lEBPJGhJdsAVi0J4jPS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Gander <simon@tuxera.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 056/125] hfsplus: fix crash and filesystem corruption when deleting files
+        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 012/118] irqchip/mbigen: Free msi_desc on device teardown
 Date:   Wed, 22 Apr 2020 11:56:13 +0200
-Message-Id: <20200422095042.513899889@linuxfoundation.org>
+Message-Id: <20200422095033.567991077@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Gander <simon@tuxera.com>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-commit 25efb2ffdf991177e740b2f63e92b4ec7d310a92 upstream.
+commit edfc23f6f9fdbd7825d50ac1f380243cde19b679 upstream.
 
-When removing files containing extended attributes, the hfsplus driver may
-remove the wrong entries from the attributes b-tree, causing major
-filesystem damage and in some cases even kernel crashes.
+Using irq_domain_free_irqs_common() on the irqdomain free path will
+leave the MSI descriptor unfreed when platform devices get removed.
+Properly free it by MSI domain free function.
 
-To remove a file, all its extended attributes have to be removed as well.
-The driver does this by looking up all keys in the attributes b-tree with
-the cnid of the file.  Each of these entries then gets deleted using the
-key used for searching, which doesn't contain the attribute's name when it
-should.  Since the key doesn't contain the name, the deletion routine will
-not find the correct entry and instead remove the one in front of it.  If
-parent nodes have to be modified, these become corrupt as well.  This
-causes invalid links and unsorted entries that not even macOS's fsck_hfs
-is able to fix.
-
-To fix this, modify the search key before an entry is deleted from the
-attributes b-tree by copying the found entry's key into the search key,
-therefore ensuring that the correct entry gets removed from the tree.
-
-Signed-off-by: Simon Gander <simon@tuxera.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200327155541.1521-1-simon@tuxera.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 9650c60ebfec0 ("irqchip/mbigen: Create irq domain for each mbigen device")
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200408114352.1604-1-yuzenghui@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/hfsplus/attributes.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/irqchip/irq-mbigen.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/fs/hfsplus/attributes.c
-+++ b/fs/hfsplus/attributes.c
-@@ -291,6 +291,10 @@ static int __hfsplus_delete_attr(struct
- 		return -ENOENT;
- 	}
+--- a/drivers/irqchip/irq-mbigen.c
++++ b/drivers/irqchip/irq-mbigen.c
+@@ -220,10 +220,16 @@ static int mbigen_irq_domain_alloc(struc
+ 	return 0;
+ }
  
-+	/* Avoid btree corruption */
-+	hfs_bnode_read(fd->bnode, fd->search_key,
-+			fd->keyoffset, fd->keylength);
++static void mbigen_irq_domain_free(struct irq_domain *domain, unsigned int virq,
++				   unsigned int nr_irqs)
++{
++	platform_msi_domain_free(domain, virq, nr_irqs);
++}
 +
- 	err = hfs_brec_remove(fd);
- 	if (err)
- 		return err;
+ static const struct irq_domain_ops mbigen_domain_ops = {
+ 	.translate	= mbigen_domain_translate,
+ 	.alloc		= mbigen_irq_domain_alloc,
+-	.free		= irq_domain_free_irqs_common,
++	.free		= mbigen_irq_domain_free,
+ };
+ 
+ static int mbigen_of_create_domain(struct platform_device *pdev,
 
 
