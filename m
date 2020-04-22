@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC3FD1B3BFC
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE7CA1B3E03
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726800AbgDVKBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:01:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49704 "EHLO mail.kernel.org"
+        id S1730320AbgDVKXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726799AbgDVKBU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:01:20 -0400
+        id S1730370AbgDVKXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:23:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13B5C2076C;
-        Wed, 22 Apr 2020 10:01:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CD8D20781;
+        Wed, 22 Apr 2020 10:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549679;
-        bh=Gffv+ReFDRRO5s95+puu/0ZhUVTFVRoGi0XUyz/4kE8=;
+        s=default; t=1587551019;
+        bh=Tl5o135s64thBmbIF7G/d/qDLyuH1Jw2+Aqxk/Qle+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmLsHHIvMimPLNh+co8MV1nafhvUH0ku2oQUtpMctYCZR/eIVciIeT0869qAnvdZq
-         hSWk11xQ8ZNePAcRHR59Nkh6o3aTnfzbJecRZd8qn66lWy7jXrcUAo+KTENkC3suKE
-         76+B6g3T7E59QNKeRFcZWNrmLjKF67I03V1Ie39A=
+        b=L2K9OcI2cyWDPFEOZHr0GS2s9NwJ5gMrHXMm+QO0VHLKSipBdhAcfHGwpbMF2oLoC
+         f0oibJCsE5VtfPqF7Xa4zeefnff2PLVd4j0ucWJrGFu21AghzsB43HBXuMEj0IOjn4
+         VrsFWGLf7ywijyQFrX8JbRt79OfoEEAtbZvsoTmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 021/100] ALSA: hda: Add driver blacklist
-Date:   Wed, 22 Apr 2020 11:55:51 +0200
-Message-Id: <20200422095026.684017108@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>
+Subject: [PATCH 5.6 025/166] x86/Hyper-V: Unload vmbus channel in hv panic callback
+Date:   Wed, 22 Apr 2020 11:55:52 +0200
+Message-Id: <20200422095051.310276880@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tianyu Lan <Tianyu.Lan@microsoft.com>
 
-commit 3c6fd1f07ed03a04debbb9a9d782205f1ef5e2ab upstream.
+commit 74347a99e73ae00b8385f1209aaea193c670f901 upstream.
 
-The recent AMD platform exposes an HD-audio bus but without any actual
-codecs, which is internally tied with a USB-audio device, supposedly.
-It results in "no codecs" error of HD-audio bus driver, and it's
-nothing but a waste of resources.
+When kdump is not configured, a Hyper-V VM might still respond to
+network traffic after a kernel panic when kernel parameter panic=0.
+The panic CPU goes into an infinite loop with interrupts enabled,
+and the VMbus driver interrupt handler still works because the
+VMbus connection is unloaded only in the kdump path.  The network
+responses make the other end of the connection think the VM is
+still functional even though it has panic'ed, which could affect any
+failover actions that should be taken.
 
-This patch introduces a static blacklist table for skipping such a
-known bogus PCI SSID entry.  As of writing this patch, the known SSIDs
-are:
-* 1043:874f - ASUS ROG Zenith II / Strix
-* 1462:cb59 - MSI TRX40 Creator
-* 1462:cb60 - MSI TRX40
+Fix this by unloading the VMbus connection during the panic process.
+vmbus_initiate_unload() could then be called twice (e.g., by
+hyperv_panic_event() and hv_crash_handler(), so reset the connection
+state in vmbus_initiate_unload() to ensure the unload is done only
+once.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206543
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200408140449.22319-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 81b18bce48af ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Link: https://lore.kernel.org/r/20200406155331.2105-2-Tianyu.Lan@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_intel.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/hv/channel_mgmt.c |    3 +++
+ drivers/hv/vmbus_drv.c    |   21 +++++++++++++--------
+ 2 files changed, 16 insertions(+), 8 deletions(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1982,6 +1982,17 @@ static const struct hdac_io_ops pci_hda_
- 	.dma_free_pages = dma_free_pages,
- };
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -839,6 +839,9 @@ void vmbus_initiate_unload(bool crash)
+ {
+ 	struct vmbus_channel_message_header hdr;
  
-+/* Blacklist for skipping the whole probe:
-+ * some HD-audio PCI entries are exposed without any codecs, and such devices
-+ * should be ignored from the beginning.
-+ */
-+static const struct snd_pci_quirk driver_blacklist[] = {
-+	SND_PCI_QUIRK(0x1043, 0x874f, "ASUS ROG Zenith II / Strix", 0),
-+	SND_PCI_QUIRK(0x1462, 0xcb59, "MSI TRX40 Creator", 0),
-+	SND_PCI_QUIRK(0x1462, 0xcb60, "MSI TRX40", 0),
-+	{}
-+};
++	if (xchg(&vmbus_connection.conn_state, DISCONNECTED) == DISCONNECTED)
++		return;
 +
- static const struct hda_controller_ops pci_hda_ops = {
- 	.disable_msi_reset_irq = disable_msi_reset_irq,
- 	.substream_alloc_pages = substream_alloc_pages,
-@@ -2001,6 +2012,11 @@ static int azx_probe(struct pci_dev *pci
- 	bool schedule_probe;
- 	int err;
+ 	/* Pre-Win2012R2 hosts don't support reconnect */
+ 	if (vmbus_proto_version < VERSION_WIN8_1)
+ 		return;
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -53,9 +53,12 @@ static int hyperv_panic_event(struct not
+ {
+ 	struct pt_regs *regs;
  
-+	if (snd_pci_quirk_lookup(pci, driver_blacklist)) {
-+		dev_info(&pci->dev, "Skipping the blacklisted device\n");
-+		return -ENODEV;
+-	regs = current_pt_regs();
++	vmbus_initiate_unload(true);
+ 
+-	hyperv_report_panic(regs, val);
++	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
++		regs = current_pt_regs();
++		hyperv_report_panic(regs, val);
 +	}
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -1391,10 +1394,16 @@ static int vmbus_bus_init(void)
+ 		}
+ 
+ 		register_die_notifier(&hyperv_die_block);
+-		atomic_notifier_chain_register(&panic_notifier_list,
+-					       &hyperv_panic_block);
+ 	}
+ 
++	/*
++	 * Always register the panic notifier because we need to unload
++	 * the VMbus channel connection to prevent any VMbus
++	 * activity after the VM panics.
++	 */
++	atomic_notifier_chain_register(&panic_notifier_list,
++			       &hyperv_panic_block);
 +
- 	if (dev >= SNDRV_CARDS)
- 		return -ENODEV;
- 	if (!enable[dev]) {
+ 	vmbus_request_offers();
+ 
+ 	return 0;
+@@ -2204,8 +2213,6 @@ static int vmbus_bus_suspend(struct devi
+ 
+ 	vmbus_initiate_unload(false);
+ 
+-	vmbus_connection.conn_state = DISCONNECTED;
+-
+ 	/* Reset the event for the next resume. */
+ 	reinit_completion(&vmbus_connection.ready_for_resume_event);
+ 
+@@ -2289,7 +2296,6 @@ static void hv_kexec_handler(void)
+ {
+ 	hv_stimer_global_cleanup();
+ 	vmbus_initiate_unload(false);
+-	vmbus_connection.conn_state = DISCONNECTED;
+ 	/* Make sure conn_state is set as hv_synic_cleanup checks for it */
+ 	mb();
+ 	cpuhp_remove_state(hyperv_cpuhp_online);
+@@ -2306,7 +2312,6 @@ static void hv_crash_handler(struct pt_r
+ 	 * doing the cleanup for current CPU only. This should be sufficient
+ 	 * for kdump.
+ 	 */
+-	vmbus_connection.conn_state = DISCONNECTED;
+ 	cpu = smp_processor_id();
+ 	hv_stimer_cleanup(cpu);
+ 	hv_synic_disable_regs(cpu);
 
 
