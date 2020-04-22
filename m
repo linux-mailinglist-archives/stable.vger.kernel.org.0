@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4032C1B3F2D
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC0EA1B3DAA
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:18:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730166AbgDVKfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:35:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60102 "EHLO mail.kernel.org"
+        id S1729815AbgDVKRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:17:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730002AbgDVKXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:23:35 -0400
+        id S1729812AbgDVKRQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:17:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 674CF20776;
-        Wed, 22 Apr 2020 10:23:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA18C2075A;
+        Wed, 22 Apr 2020 10:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551014;
-        bh=JTDIwijcZwHGMxB9O0aoixYI7r3ZtbL2U0goW3aJfk4=;
+        s=default; t=1587550635;
+        bh=6vwtB1Qd6h66fX50E9WXVN5Wtzl4o77srn3IhBVEnAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uh2Xni0b88S0EFeU3e95+ZQVMqf/sm+pn7ADna7ZqCKqyUFdKtz0xgpNlTalZFbLm
-         b8MfOuQkRdJid7AhyzE7pm/iY7jSvDuhV1SrCxyiEsrLO3ogY9bV1IdLpBFRr4JVY1
-         ryDmWwOVZilVhDQyiN5hBOIr7RGAblDzC67wSJZ4=
+        b=aX+PDEbd2VqGIRp92A5xj2zJlkoyQjCGAR2Rb+mvfGoZu42LysAyvssbjYwcu3HcH
+         Sy6netx3JscfnR1/J99CKQrLjM/+4Hm/B09mofuERNaGLD6c8OwoWkQ45jU9UOZlML
+         wm/rYWk7VZTXayw6qrc2SQpHU17W5VBiq5+f6pdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Tommi Rantala <tommi.t.rantala@nokia.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 064/166] xfs: fix regression in "cleanup xfs_dir2_block_getdents"
+        stable@vger.kernel.org, cki-project@redhat.com,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 030/118] block, bfq: make reparent_leaf_entity actually work only on leaf entities
 Date:   Wed, 22 Apr 2020 11:56:31 +0200
-Message-Id: <20200422095055.718696569@linuxfoundation.org>
+Message-Id: <20200422095036.800909372@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,80 +44,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tommi Rantala <tommi.t.rantala@nokia.com>
+From: Paolo Valente <paolo.valente@linaro.org>
 
-[ Upstream commit 3d28e7e278913a267b1de360efcd5e5274065ce2 ]
+commit 576682fa52cbd95deb3773449566274f206acc58 upstream.
 
-Commit 263dde869bd09 ("xfs: cleanup xfs_dir2_block_getdents") introduced
-a getdents regression, when it converted the pointer arithmetics to
-offset calculations: offset is updated in the loop already for the next
-iteration, but the updated offset value is used incorrectly in two
-places, where we should have used the not-yet-updated value.
+bfq_reparent_leaf_entity() reparents the input leaf entity (a leaf
+entity represents just a bfq_queue in an entity tree). Yet, the input
+entity is guaranteed to always be a leaf entity only in two-level
+entity trees. In this respect, because of the error fixed by
+commit 14afc5936197 ("block, bfq: fix overwrite of bfq_group pointer
+in bfq_find_set_group()"), all (wrongly collapsed) entity trees happened
+to actually have only two levels. After the latter commit, this does not
+hold any longer.
 
-This caused for example "git clean -ffdx" failures to cleanup certain
-directory structures when running in a container.
+This commit fixes this problem by modifying
+bfq_reparent_leaf_entity(), so that it searches an active leaf entity
+down the path that stems from the input entity. Such a leaf entity is
+guaranteed to exist when bfq_reparent_leaf_entity() is invoked.
 
-Fix the regression by making sure we use proper offset in the loop body.
-Thanks to Christoph Hellwig for suggestion how to best fix the code.
+Tested-by: cki-project@redhat.com
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Cc: Christoph Hellwig <hch@lst.de>
-Fixes: 263dde869bd09 ("xfs: cleanup xfs_dir2_block_getdents")
-Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_dir2_readdir.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ block/bfq-cgroup.c |   48 +++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 31 insertions(+), 17 deletions(-)
 
-diff --git a/fs/xfs/xfs_dir2_readdir.c b/fs/xfs/xfs_dir2_readdir.c
-index 0d3b640cf1cce..871ec22c9aee9 100644
---- a/fs/xfs/xfs_dir2_readdir.c
-+++ b/fs/xfs/xfs_dir2_readdir.c
-@@ -147,7 +147,7 @@ xfs_dir2_block_getdents(
- 	xfs_off_t		cook;
- 	struct xfs_da_geometry	*geo = args->geo;
- 	int			lock_mode;
--	unsigned int		offset;
-+	unsigned int		offset, next_offset;
- 	unsigned int		end;
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -798,39 +798,53 @@ static void bfq_flush_idle_tree(struct b
+ /**
+  * bfq_reparent_leaf_entity - move leaf entity to the root_group.
+  * @bfqd: the device data structure with the root group.
+- * @entity: the entity to move.
++ * @entity: the entity to move, if entity is a leaf; or the parent entity
++ *	    of an active leaf entity to move, if entity is not a leaf.
+  */
+ static void bfq_reparent_leaf_entity(struct bfq_data *bfqd,
+-				     struct bfq_entity *entity)
++				     struct bfq_entity *entity,
++				     int ioprio_class)
+ {
+-	struct bfq_queue *bfqq = bfq_entity_to_bfqq(entity);
++	struct bfq_queue *bfqq;
++	struct bfq_entity *child_entity = entity;
  
- 	/*
-@@ -173,9 +173,10 @@ xfs_dir2_block_getdents(
- 	 * Loop over the data portion of the block.
- 	 * Each object is a real entry (dep) or an unused one (dup).
- 	 */
--	offset = geo->data_entry_offset;
- 	end = xfs_dir3_data_end_offset(geo, bp->b_addr);
--	while (offset < end) {
-+	for (offset = geo->data_entry_offset;
-+	     offset < end;
-+	     offset = next_offset) {
- 		struct xfs_dir2_data_unused	*dup = bp->b_addr + offset;
- 		struct xfs_dir2_data_entry	*dep = bp->b_addr + offset;
- 		uint8_t filetype;
-@@ -184,14 +185,15 @@ xfs_dir2_block_getdents(
- 		 * Unused, skip it.
++	while (child_entity->my_sched_data) { /* leaf not reached yet */
++		struct bfq_sched_data *child_sd = child_entity->my_sched_data;
++		struct bfq_service_tree *child_st = child_sd->service_tree +
++			ioprio_class;
++		struct rb_root *child_active = &child_st->active;
++
++		child_entity = bfq_entity_of(rb_first(child_active));
++
++		if (!child_entity)
++			child_entity = child_sd->in_service_entity;
++	}
++
++	bfqq = bfq_entity_to_bfqq(child_entity);
+ 	bfq_bfqq_move(bfqd, bfqq, bfqd->root_group);
+ }
+ 
+ /**
+- * bfq_reparent_active_entities - move to the root group all active
+- *                                entities.
++ * bfq_reparent_active_queues - move to the root group all active queues.
+  * @bfqd: the device data structure with the root group.
+  * @bfqg: the group to move from.
+- * @st: the service tree with the entities.
++ * @st: the service tree to start the search from.
+  */
+-static void bfq_reparent_active_entities(struct bfq_data *bfqd,
+-					 struct bfq_group *bfqg,
+-					 struct bfq_service_tree *st)
++static void bfq_reparent_active_queues(struct bfq_data *bfqd,
++				       struct bfq_group *bfqg,
++				       struct bfq_service_tree *st,
++				       int ioprio_class)
+ {
+ 	struct rb_root *active = &st->active;
+-	struct bfq_entity *entity = NULL;
+-
+-	if (!RB_EMPTY_ROOT(&st->active))
+-		entity = bfq_entity_of(rb_first(active));
++	struct bfq_entity *entity;
+ 
+-	for (; entity ; entity = bfq_entity_of(rb_first(active)))
+-		bfq_reparent_leaf_entity(bfqd, entity);
++	while ((entity = bfq_entity_of(rb_first(active))))
++		bfq_reparent_leaf_entity(bfqd, entity, ioprio_class);
+ 
+ 	if (bfqg->sched_data.in_service_entity)
+ 		bfq_reparent_leaf_entity(bfqd,
+-			bfqg->sched_data.in_service_entity);
++					 bfqg->sched_data.in_service_entity,
++					 ioprio_class);
+ }
+ 
+ /**
+@@ -881,7 +895,7 @@ static void bfq_pd_offline(struct blkg_p
+ 		 * There is no need to put the sync queues, as the
+ 		 * scheduler has taken no reference.
  		 */
- 		if (be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG) {
--			offset += be16_to_cpu(dup->length);
-+			next_offset = offset + be16_to_cpu(dup->length);
- 			continue;
- 		}
+-		bfq_reparent_active_entities(bfqd, bfqg, st);
++		bfq_reparent_active_queues(bfqd, bfqg, st, i);
+ 	}
  
- 		/*
- 		 * Bump pointer for the next iteration.
- 		 */
--		offset += xfs_dir2_data_entsize(dp->i_mount, dep->namelen);
-+		next_offset = offset +
-+			xfs_dir2_data_entsize(dp->i_mount, dep->namelen);
- 
- 		/*
- 		 * The entry is before the desired starting point, skip it.
--- 
-2.20.1
-
+ 	__bfq_deactivate_entity(entity, false);
 
 
