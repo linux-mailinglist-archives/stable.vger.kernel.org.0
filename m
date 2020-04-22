@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78CDE1B3F5B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:38:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2D21B3BF2
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:02:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730495AbgDVKgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:36:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59146 "EHLO mail.kernel.org"
+        id S1726669AbgDVKAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:00:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730226AbgDVKWv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:22:51 -0400
+        id S1726662AbgDVKAo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07AE72075A;
-        Wed, 22 Apr 2020 10:22:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8C9420776;
+        Wed, 22 Apr 2020 10:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550970;
-        bh=9le1PvFkKlbTxjWl55RK+nnvYIn4LST6W/S4enHx7iU=;
+        s=default; t=1587549643;
+        bh=4Yfw7zDvXO8ES44N9Te9KXxXB+R1yHGUNOhl8YlHk/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z0LKIRzKLL8NcqI09LDHsDDIKOVQlx+NolINRMOebn9SGFat+hgQdwd9z7Glt6iI9
-         ffhTwoTL4TZsPg/xdacOwGoNHd2bzJgfQl2wMeH0Zam/guyziDLxU4F9w54ZnwaA+o
-         bxGMUtJixkPZEGE5yG8gS5SbXjKSmd/qN3lJV9OI=
+        b=C+sY7rUpOQ+Sj1AaxHr24y/pi08br3lzL32pVLb25cGPlGwRjZPUdhFEtHnHJYlvW
+         eqb+E50k+R4R13q67IGoTpI06h13R0YegcF7RasPVjhBPvdGb91bna2J06PeGz+fj1
+         NBm9RSf6kw4SXIHH0mK3BL8bn7sTeyAkg95HGYVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 048/166] f2fs: fix the panic in do_checkpoint()
-Date:   Wed, 22 Apr 2020 11:56:15 +0200
-Message-Id: <20200422095054.239181541@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Ben Hutchings <benh@debian.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 046/100] kmod: make request_module() return an error when autoloading is disabled
+Date:   Wed, 22 Apr 2020 11:56:16 +0200
+Message-Id: <20200422095030.658085703@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,135 +51,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sahitya Tummala <stummala@codeaurora.org>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit bf22c3cc8ce71454dddd772284773306a68031d8 ]
+commit d7d27cfc5cf0766a26a8f56868c5ad5434735126 upstream.
 
-There could be a scenario where f2fs_sync_meta_pages() will not
-ensure that all F2FS_DIRTY_META pages are submitted for IO. Thus,
-resulting in the below panic in do_checkpoint() -
+Patch series "module autoloading fixes and cleanups", v5.
 
-f2fs_bug_on(sbi, get_pages(sbi, F2FS_DIRTY_META) &&
-				!f2fs_cp_error(sbi));
+This series fixes a bug where request_module() was reporting success to
+kernel code when module autoloading had been completely disabled via
+'echo > /proc/sys/kernel/modprobe'.
 
-This can happen in a low-memory condition, where shrinker could
-also be doing the writepage operation (stack shown below)
-at the same time when checkpoint is running on another core.
+It also addresses the issues raised on the original thread
+(https://lkml.kernel.org/lkml/20200310223731.126894-1-ebiggers@kernel.org/T/#u)
+bydocumenting the modprobe sysctl, adding a self-test for the empty path
+case, and downgrading a user-reachable WARN_ONCE().
 
-schedule
-down_write
-f2fs_submit_page_write -> by this time, this page in page cache is tagged
-			as PAGECACHE_TAG_WRITEBACK and PAGECACHE_TAG_DIRTY
-			is cleared, due to which f2fs_sync_meta_pages()
-			cannot sync this page in do_checkpoint() path.
-f2fs_do_write_meta_page
-__f2fs_write_meta_page
-f2fs_write_meta_page
-shrink_page_list
-shrink_inactive_list
-shrink_node_memcg
-shrink_node
-kswapd
+This patch (of 4):
 
-Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It's long been possible to disable kernel module autoloading completely
+(while still allowing manual module insertion) by setting
+/proc/sys/kernel/modprobe to the empty string.
+
+This can be preferable to setting it to a nonexistent file since it
+avoids the overhead of an attempted execve(), avoids potential
+deadlocks, and avoids the call to security_kernel_module_request() and
+thus on SELinux-based systems eliminates the need to write SELinux rules
+to dontaudit module_request.
+
+However, when module autoloading is disabled in this way,
+request_module() returns 0.  This is broken because callers expect 0 to
+mean that the module was successfully loaded.
+
+Apparently this was never noticed because this method of disabling
+module autoloading isn't used much, and also most callers don't use the
+return value of request_module() since it's always necessary to check
+whether the module registered its functionality or not anyway.
+
+But improperly returning 0 can indeed confuse a few callers, for example
+get_fs_type() in fs/filesystems.c where it causes a WARNING to be hit:
+
+	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
+		fs = __get_fs_type(name, len);
+		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
+	}
+
+This is easily reproduced with:
+
+	echo > /proc/sys/kernel/modprobe
+	mount -t NONEXISTENT none /
+
+It causes:
+
+	request_module fs-NONEXISTENT succeeded, but still no fs?
+	WARNING: CPU: 1 PID: 1106 at fs/filesystems.c:275 get_fs_type+0xd6/0xf0
+	[...]
+
+This should actually use pr_warn_once() rather than WARN_ONCE(), since
+it's also user-reachable if userspace immediately unloads the module.
+Regardless, request_module() should correctly return an error when it
+fails.  So let's make it return -ENOENT, which matches the error when
+the modprobe binary doesn't exist.
+
+I've also sent patches to document and test this case.
+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Jessica Yu <jeyu@kernel.org>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jeff Vander Stoep <jeffv@google.com>
+Cc: Ben Hutchings <benh@debian.org>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200310223731.126894-1-ebiggers@kernel.org
+Link: http://lkml.kernel.org/r/20200312202552.241885-1-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/f2fs/checkpoint.c | 16 +++++++---------
- fs/f2fs/f2fs.h       |  2 +-
- fs/f2fs/super.c      |  2 +-
- 3 files changed, 9 insertions(+), 11 deletions(-)
+ kernel/kmod.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index 44e84ac5c9411..9c88fb3d255a2 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -1250,20 +1250,20 @@ static void unblock_operations(struct f2fs_sb_info *sbi)
- 	f2fs_unlock_all(sbi);
- }
- 
--void f2fs_wait_on_all_pages_writeback(struct f2fs_sb_info *sbi)
-+void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type)
+--- a/kernel/kmod.c
++++ b/kernel/kmod.c
+@@ -119,7 +119,7 @@ out:
+  * invoke it.
+  *
+  * If module auto-loading support is disabled then this function
+- * becomes a no-operation.
++ * simply returns -ENOENT.
+  */
+ int __request_module(bool wait, const char *fmt, ...)
  {
- 	DEFINE_WAIT(wait);
+@@ -140,7 +140,7 @@ int __request_module(bool wait, const ch
+ 	WARN_ON_ONCE(wait && current_is_async());
  
- 	for (;;) {
- 		prepare_to_wait(&sbi->cp_wait, &wait, TASK_UNINTERRUPTIBLE);
+ 	if (!modprobe_path[0])
+-		return 0;
++		return -ENOENT;
  
--		if (!get_pages(sbi, F2FS_WB_CP_DATA))
-+		if (!get_pages(sbi, type))
- 			break;
- 
- 		if (unlikely(f2fs_cp_error(sbi)))
- 			break;
- 
--		io_schedule_timeout(5*HZ);
-+		io_schedule_timeout(HZ/50);
- 	}
- 	finish_wait(&sbi->cp_wait, &wait);
- }
-@@ -1384,8 +1384,6 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 
- 	/* Flush all the NAT/SIT pages */
- 	f2fs_sync_meta_pages(sbi, META, LONG_MAX, FS_CP_META_IO);
--	f2fs_bug_on(sbi, get_pages(sbi, F2FS_DIRTY_META) &&
--					!f2fs_cp_error(sbi));
- 
- 	/*
- 	 * modify checkpoint
-@@ -1493,11 +1491,11 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 
- 	/* Here, we have one bio having CP pack except cp pack 2 page */
- 	f2fs_sync_meta_pages(sbi, META, LONG_MAX, FS_CP_META_IO);
--	f2fs_bug_on(sbi, get_pages(sbi, F2FS_DIRTY_META) &&
--					!f2fs_cp_error(sbi));
-+	/* Wait for all dirty meta pages to be submitted for IO */
-+	f2fs_wait_on_all_pages(sbi, F2FS_DIRTY_META);
- 
- 	/* wait for previous submitted meta pages writeback */
--	f2fs_wait_on_all_pages_writeback(sbi);
-+	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);
- 
- 	/* flush all device cache */
- 	err = f2fs_flush_device_cache(sbi);
-@@ -1506,7 +1504,7 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 
- 	/* barrier and flush checkpoint cp pack 2 page if it can */
- 	commit_checkpoint(sbi, ckpt, start_blk);
--	f2fs_wait_on_all_pages_writeback(sbi);
-+	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);
- 
- 	/*
- 	 * invalidate intermediate page cache borrowed from meta inode which are
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 5355be6b6755c..d39f5de114208 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3308,7 +3308,7 @@ int f2fs_get_valid_checkpoint(struct f2fs_sb_info *sbi);
- void f2fs_update_dirty_page(struct inode *inode, struct page *page);
- void f2fs_remove_dirty_inode(struct inode *inode);
- int f2fs_sync_dirty_inodes(struct f2fs_sb_info *sbi, enum inode_type type);
--void f2fs_wait_on_all_pages_writeback(struct f2fs_sb_info *sbi);
-+void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type);
- int f2fs_write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc);
- void f2fs_init_ino_entry_info(struct f2fs_sb_info *sbi);
- int __init f2fs_create_checkpoint_caches(void);
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 65a7a432dfee2..686f5402660ed 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1172,7 +1172,7 @@ static void f2fs_put_super(struct super_block *sb)
- 	/* our cp_error case, we can wait for any writeback page */
- 	f2fs_flush_merged_writes(sbi);
- 
--	f2fs_wait_on_all_pages_writeback(sbi);
-+	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);
- 
- 	f2fs_bug_on(sbi, sbi->fsync_node_num);
- 
--- 
-2.20.1
-
+ 	va_start(args, fmt);
+ 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
 
 
