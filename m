@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57E671B3D59
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:14:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F17751B3D2A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728800AbgDVKOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48548 "EHLO mail.kernel.org"
+        id S1728716AbgDVKMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:12:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729484AbgDVKOL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:14:11 -0400
+        id S1728471AbgDVKMW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:12:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAB412070B;
-        Wed, 22 Apr 2020 10:14:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 629222075A;
+        Wed, 22 Apr 2020 10:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550450;
-        bh=5L12vHqEHOaC7r0soFuYDqTeJHuaOYPdWwuR3ACjprM=;
+        s=default; t=1587550341;
+        bh=riH/lBRgNZh9iLXbysPeiUcE97OY0ociiRapqLHSDp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0yC2cOU/1o/HD+7hfELMHAFqh42QOojVdWSWwgOwU6kjZmlP4BEPtyda53iwldcfk
-         7oaD6y4OJgPnCfGmtSGM9hR5Vruq3tAMRRVcQnuct5XINIQTODaD+Fr4HjjyFuknA+
-         F5hFNqaEntzezUT+41W1U2LblQzf+/DVoOSoqX7Y=
+        b=VZXmoUfbN8fUOlbkdR9s/cqBW89s9lUbrzYT6GbXTR258Asmd1jlL/VToxI22eln3
+         RJZRIv+iiUJ6uyMrR3iTEAQvqWVLDJ8xXkIb8EWUnqzgIXCG+LfqoT3TjliyiEgbSx
+         8hRlRaiKlM+OL4ZgOJ4UwaLC4L04/kSjZhlOvjqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/64] x86/Hyper-V: Free hv_panic_page when fail to register kmsg dump
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 100/199] drm: Remove PageReserved manipulation from drm_pci_alloc
 Date:   Wed, 22 Apr 2020 11:57:06 +0200
-Message-Id: <20200422095017.076629957@linuxfoundation.org>
+Message-Id: <20200422095107.917541008@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
-References: <20200422095008.799686511@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 7f11a2cc10a4ae3a70e2c73361f4a9a33503539b ]
+[ Upstream commit ea36ec8623f56791c6ff6738d0509b7920f85220 ]
 
-If kmsg_dump_register() fails, hv_panic_page will not be used
-anywhere.  So free and reset it.
+drm_pci_alloc/drm_pci_free are very thin wrappers around the core dma
+facilities, and we have no special reason within the drm layer to behave
+differently. In particular, since
 
-Fixes: 81b18bce48af ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-Link: https://lore.kernel.org/r/20200406155331.2105-3-Tianyu.Lan@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+commit de09d31dd38a50fdce106c15abd68432eebbd014
+Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Date:   Fri Jan 15 16:51:42 2016 -0800
+
+    page-flags: define PG_reserved behavior on compound pages
+
+    As far as I can see there's no users of PG_reserved on compound pages.
+    Let's use PF_NO_COMPOUND here.
+
+it has been illegal to combine GFP_COMP with SetPageReserved, so lets
+stop doing both and leave the dma layer to its own devices.
+
+Reported-by: Taketo Kabe
+Bug: https://gitlab.freedesktop.org/drm/intel/issues/1027
+Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v4.5+
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200202171635.4039044-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_pci.c | 25 ++-----------------------
+ 1 file changed, 2 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 5ff7c1708d0e7..dd6d18d918a4b 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1222,9 +1222,13 @@ static int vmbus_bus_init(void)
- 			hv_panic_page = (void *)get_zeroed_page(GFP_KERNEL);
- 			if (hv_panic_page) {
- 				ret = kmsg_dump_register(&hv_kmsg_dumper);
--				if (ret)
-+				if (ret) {
- 					pr_err("Hyper-V: kmsg dump register "
- 						"error 0x%x\n", ret);
-+					free_page(
-+					    (unsigned long)hv_panic_page);
-+					hv_panic_page = NULL;
-+				}
- 			} else
- 				pr_err("Hyper-V: panic message page memory "
- 					"allocation failed");
-@@ -1252,7 +1256,6 @@ static int vmbus_bus_init(void)
- 	hv_remove_vmbus_irq();
+diff --git a/drivers/gpu/drm/drm_pci.c b/drivers/gpu/drm/drm_pci.c
+index 1235c9877d6f1..2078d7706a67b 100644
+--- a/drivers/gpu/drm/drm_pci.c
++++ b/drivers/gpu/drm/drm_pci.c
+@@ -46,8 +46,6 @@
+ drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t align)
+ {
+ 	drm_dma_handle_t *dmah;
+-	unsigned long addr;
+-	size_t sz;
  
- 	bus_unregister(&hv_bus);
--	free_page((unsigned long)hv_panic_page);
- 	unregister_sysctl_table(hv_ctl_table_hdr);
- 	hv_ctl_table_hdr = NULL;
- 	return ret;
+ 	/* pci_alloc_consistent only guarantees alignment to the smallest
+ 	 * PAGE_SIZE order which is greater than or equal to the requested size.
+@@ -61,22 +59,13 @@ drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t ali
+ 		return NULL;
+ 
+ 	dmah->size = size;
+-	dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size, &dmah->busaddr, GFP_KERNEL | __GFP_COMP);
++	dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size, &dmah->busaddr, GFP_KERNEL);
+ 
+ 	if (dmah->vaddr == NULL) {
+ 		kfree(dmah);
+ 		return NULL;
+ 	}
+ 
+-	memset(dmah->vaddr, 0, size);
+-
+-	/* XXX - Is virt_to_page() legal for consistent mem? */
+-	/* Reserve */
+-	for (addr = (unsigned long)dmah->vaddr, sz = size;
+-	     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
+-		SetPageReserved(virt_to_page((void *)addr));
+-	}
+-
+ 	return dmah;
+ }
+ 
+@@ -89,19 +78,9 @@ EXPORT_SYMBOL(drm_pci_alloc);
+  */
+ void __drm_legacy_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
+ {
+-	unsigned long addr;
+-	size_t sz;
+-
+-	if (dmah->vaddr) {
+-		/* XXX - Is virt_to_page() legal for consistent mem? */
+-		/* Unreserve */
+-		for (addr = (unsigned long)dmah->vaddr, sz = dmah->size;
+-		     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
+-			ClearPageReserved(virt_to_page((void *)addr));
+-		}
++	if (dmah->vaddr)
+ 		dma_free_coherent(&dev->pdev->dev, dmah->size, dmah->vaddr,
+ 				  dmah->busaddr);
+-	}
+ }
+ 
+ /**
 -- 
 2.20.1
 
