@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0DC1B4285
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0951D1B3D9B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732408AbgDVLCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:02:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48444 "EHLO mail.kernel.org"
+        id S1726467AbgDVKQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:16:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726650AbgDVKAs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:48 -0400
+        id S1726599AbgDVKQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:16:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE2A720780;
-        Wed, 22 Apr 2020 10:00:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7E212076E;
+        Wed, 22 Apr 2020 10:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549648;
-        bh=B8gJjDgNfO030o6GTT5ZleoRRIawVbH5PA9xnbNJMpQ=;
+        s=default; t=1587550598;
+        bh=J1JkjCc5mTHrf38+AhcltY41zhe8rWp5/agC1s7A4H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yp+R9gtxILTX5qejnIOcKzIgZGPrluDYv/3S3FXveyCWV2bPlkS2ajtZH73My16K8
-         hdQ546Xve5npEpQX1a0g//j8v3vZWBz+RzsGE8gbhj21w8hc+1sU9qcjcK+29BNQVG
-         7s5eQnB0+Axobx8i8vjoRN9O9OWpWJ4/s1hswiZA=
+        b=G7rh7bmfOSICT+NAAgoM3ZQgiIEkNlIbOYZHWxeY/1aeaxGCarT5Ob2V4ZlFNv4H0
+         bhR97ZfIJXz44CPv+lZHKeEF39vB5I6a6psty1S/8oVqMDKCG7QWwLvQa0dkaEhAcb
+         xhy6RNxnH7k0juchnHYqvZwBE9ZPadvfuC1ZYjVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 048/100] libata: Return correct status in sata_pmp_eh_recover_pm() when ATA_DFLAG_DETACH is set
+        stable@vger.kernel.org, "Erhard F." <erhard_f@mailbox.org>,
+        Frank Rowand <frank.rowand@sony.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.4 017/118] of: unittest: kmemleak in of_unittest_overlay_high_level()
 Date:   Wed, 22 Apr 2020 11:56:18 +0200
-Message-Id: <20200422095031.110416210@linuxfoundation.org>
+Message-Id: <20200422095034.404330418@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Frank Rowand <frank.rowand@sony.com>
 
-commit 8305f72f952cff21ce8109dc1ea4b321c8efc5af upstream.
+commit 145fc138f9aae4f9e1331352e301df28e16aed35 upstream.
 
-During system resume from suspend, this can be observed on ASM1062 PMP
-controller:
+kmemleak reports several memory leaks from devicetree unittest.
+This is the fix for problem 3 of 5.
 
-ata10.01: SATA link down (SStatus 0 SControl 330)
-ata10.02: hard resetting link
-ata10.02: SATA link down (SStatus 0 SControl 330)
-ata10.00: configured for UDMA/133
-Kernel panic - not syncing: stack-protector: Kernel
- in: sata_pmp_eh_recover+0xa2b/0xa40
+of_unittest_overlay_high_level() failed to kfree the newly created
+property when the property named 'name' is skipped.
 
-CPU: 2 PID: 230 Comm: scsi_eh_9 Tainted: P OE
-#49-Ubuntu
-Hardware name: System manufacturer System Product
- 1001 12/10/2017
-Call Trace:
-dump_stack+0x63/0x8b
-panic+0xe4/0x244
-? sata_pmp_eh_recover+0xa2b/0xa40
-__stack_chk_fail+0x19/0x20
-sata_pmp_eh_recover+0xa2b/0xa40
-? ahci_do_softreset+0x260/0x260 [libahci]
-? ahci_do_hardreset+0x140/0x140 [libahci]
-? ata_phys_link_offline+0x60/0x60
-? ahci_stop_engine+0xc0/0xc0 [libahci]
-sata_pmp_error_handler+0x22/0x30
-ahci_error_handler+0x45/0x80 [libahci]
-ata_scsi_port_error_handler+0x29b/0x770
-? ata_scsi_cmd_error_handler+0x101/0x140
-ata_scsi_error+0x95/0xd0
-? scsi_try_target_reset+0x90/0x90
-scsi_error_handler+0xd0/0x5b0
-kthread+0x121/0x140
-? scsi_eh_get_sense+0x200/0x200
-? kthread_create_worker_on_cpu+0x70/0x70
-ret_from_fork+0x22/0x40
-Kernel Offset: 0xcc00000 from 0xffffffff81000000
-(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-
-Since sata_pmp_eh_recover_pmp() doens't set rc when ATA_DFLAG_DETACH is
-set, sata_pmp_eh_recover() continues to run. During retry it triggers
-the stack protector.
-
-Set correct rc in sata_pmp_eh_recover_pmp() to let sata_pmp_eh_recover()
-jump to pmp_fail directly.
-
-BugLink: https://bugs.launchpad.net/bugs/1821434
-Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 39a751a4cb7e ("of: change overlay apply input data from unflattened to FDT")
+Reported-by: Erhard F. <erhard_f@mailbox.org>
+Signed-off-by: Frank Rowand <frank.rowand@sony.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ata/libata-pmp.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/of/unittest.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/ata/libata-pmp.c
-+++ b/drivers/ata/libata-pmp.c
-@@ -764,6 +764,7 @@ static int sata_pmp_eh_recover_pmp(struc
- 
- 	if (dev->flags & ATA_DFLAG_DETACH) {
- 		detach = 1;
-+		rc = -ENODEV;
- 		goto fail;
- 	}
- 
+--- a/drivers/of/unittest.c
++++ b/drivers/of/unittest.c
+@@ -2481,8 +2481,11 @@ static __init void of_unittest_overlay_h
+ 				goto err_unlock;
+ 			}
+ 			if (__of_add_property(of_symbols, new_prop)) {
++				kfree(new_prop->name);
++				kfree(new_prop->value);
++				kfree(new_prop);
+ 				/* "name" auto-generated by unflatten */
+-				if (!strcmp(new_prop->name, "name"))
++				if (!strcmp(prop->name, "name"))
+ 					continue;
+ 				unittest(0, "duplicate property '%s' in overlay_base node __symbols__",
+ 					 prop->name);
 
 
