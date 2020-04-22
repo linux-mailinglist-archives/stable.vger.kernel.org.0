@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A461B3D3F
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:13:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 358401B41B6
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726674AbgDVKNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:13:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47246 "EHLO mail.kernel.org"
+        id S1730168AbgDVKyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:54:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726399AbgDVKNX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:13:23 -0400
+        id S1727941AbgDVKH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:07:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F061320776;
-        Wed, 22 Apr 2020 10:13:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE9862076C;
+        Wed, 22 Apr 2020 10:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550403;
-        bh=RvU73F7tLB9ZFjTmEy3uFpOJCsNs03yV0YlJ8KnNps0=;
+        s=default; t=1587550045;
+        bh=GaNAlxoIcuufHCy0GFgNzN8L5z5nlk6PDPiyXYSP6Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/+s1WED1leKjVVLq+fiKNqF5+tj4SWAHMSdRs7qEyaxkigpRQOT1/AFKkKNv8dKU
-         1+7jxkrXXiFPgHbgs3jgPyBiJIjhfO8PEkEovYPOyCM4SmQPTWutpTEvstNsnjVazb
-         YOn6ON2pxknXC8aPQQ3LDtiWx3drl2Y7dsFCSjVQ=
+        b=zq9ZscQS4tVvYQuLd8w7W2OdvWVWN+JkJJVTVwMCRHjn3rrrxjoF/UwPQIM4bFR/e
+         ZYhd7iHRYT6eAugxes06vjWRHpGf0rmQb9iUzJKtL5Ka6G5X2Sb1O7SPDN6JmlE+Pu
+         3kOwSl9CYnX7jwatBQlbZkDFzkcudCRzmMakGQAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 104/199] misc: echo: Remove unnecessary parentheses and simplify check for zero
+Subject: [PATCH 4.9 113/125] NFS: Fix memory leaks in nfs_pageio_stop_mirroring()
 Date:   Wed, 22 Apr 2020 11:57:10 +0200
-Message-Id: <20200422095108.228345182@linuxfoundation.org>
+Message-Id: <20200422095050.951605808@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 85dc2c65e6c975baaf36ea30f2ccc0a36a8c8add ]
+[ Upstream commit 862f35c94730c9270833f3ad05bd758a29f204ed ]
 
-Clang warns when multiple pairs of parentheses are used for a single
-conditional statement.
+If we just set the mirror count to 1 without first clearing out
+the mirrors, we can leak queued up requests.
 
-drivers/misc/echo/echo.c:384:27: warning: equality comparison with
-extraneous parentheses [-Wparentheses-equality]
-        if ((ec->nonupdate_dwell == 0)) {
-             ~~~~~~~~~~~~~~~~~~~~^~~~
-drivers/misc/echo/echo.c:384:27: note: remove extraneous parentheses
-around the comparison to silence this warning
-        if ((ec->nonupdate_dwell == 0)) {
-            ~                    ^   ~
-drivers/misc/echo/echo.c:384:27: note: use '=' to turn this equality
-comparison into an assignment
-        if ((ec->nonupdate_dwell == 0)) {
-                                 ^~
-                                 =
-1 warning generated.
-
-Remove them and while we're at it, simplify the zero check as '!var' is
-used more than 'var == 0'.
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/echo/echo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/pagelist.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/misc/echo/echo.c b/drivers/misc/echo/echo.c
-index 9597e9523cac4..fff13176f9b8b 100644
---- a/drivers/misc/echo/echo.c
-+++ b/drivers/misc/echo/echo.c
-@@ -454,7 +454,7 @@ int16_t oslec_update(struct oslec_state *ec, int16_t tx, int16_t rx)
- 	 */
- 	ec->factor = 0;
- 	ec->shift = 0;
--	if ((ec->nonupdate_dwell == 0)) {
-+	if (!ec->nonupdate_dwell) {
- 		int p, logp, shift;
+diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
+index b6e25126a0b0f..529f3a5762637 100644
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -851,15 +851,6 @@ static int nfs_pageio_setup_mirroring(struct nfs_pageio_descriptor *pgio,
+ 	return 0;
+ }
  
- 		/* Determine:
+-/*
+- * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
+- */
+-void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
+-{
+-	pgio->pg_mirror_count = 1;
+-	pgio->pg_mirror_idx = 0;
+-}
+-
+ static void nfs_pageio_cleanup_mirroring(struct nfs_pageio_descriptor *pgio)
+ {
+ 	pgio->pg_mirror_count = 1;
+@@ -1285,6 +1276,14 @@ void nfs_pageio_cond_complete(struct nfs_pageio_descriptor *desc, pgoff_t index)
+ 	}
+ }
+ 
++/*
++ * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
++ */
++void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
++{
++	nfs_pageio_complete(pgio);
++}
++
+ int __init nfs_init_nfspagecache(void)
+ {
+ 	nfs_page_cachep = kmem_cache_create("nfs_page",
 -- 
 2.20.1
 
