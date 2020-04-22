@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 725491B3DFC
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB08F1B3DA5
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730335AbgDVKX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:23:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59900 "EHLO mail.kernel.org"
+        id S1729801AbgDVKRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:17:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730273AbgDVKXZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:23:25 -0400
+        id S1729798AbgDVKRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:17:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F2862084D;
-        Wed, 22 Apr 2020 10:23:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 124E12076E;
+        Wed, 22 Apr 2020 10:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551004;
-        bh=uHb5jBjIoswJZxzBsYgMUJiHR8BPe/xFo1UMnp0/+P8=;
+        s=default; t=1587550625;
+        bh=UoxmTXfy6bjZv9139OaXUfWx1bTquwXo0PhsUWbBzp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKbaVX0GNT3c/L5dqV4E5YCZuZWliT/E+0hEbxrGbpPiYiK/97sLobWg6H6GumwJy
-         K8YRD/zXJMIOgui48NceCZdVzzjmGYlqGuYZS0w/eKTWQ0RNbFUgfswXpPnAXqXVLc
-         G6+XXEBsYcod53IV0LNtpUnZi9OeLpHmeTh5mwOg=
+        b=QyzjZfInlNLwtkARowKScW6QRgYiszfuBgwt2Zqg51feqWMC8p9buk+RVhSvy/bTn
+         3HSE0rCD7fk/tKmnvEi29BTzEWN0Ql6I7tQUEaKpYyvxYhjuc7xKTtacrfUpalPL52
+         baFnkawwKdoj55IxbQYJV5wa7iRjdDVNas1dG1YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 060/166] clk: tegra: Fix Tegra PMC clock out parents
-Date:   Wed, 22 Apr 2020 11:56:27 +0200
-Message-Id: <20200422095055.277409896@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: [PATCH 5.4 027/118] afs: Fix afs_d_validate() to set the right directory version
+Date:   Wed, 22 Apr 2020 11:56:28 +0200
+Message-Id: <20200422095036.339432568@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 6fe38aa8cac3a5db38154331742835a4d9740788 ]
+commit 40fc81027f892284ce31f8b6de1e497f5b47e71f upstream.
 
-Tegra PMC clocks clk_out_1, clk_out_2, and clk_out_3 supported parents
-are osc, osc_div2, osc_div4 and extern clock.
+If a dentry's version is somewhere between invalid_before and the current
+directory version, we should be setting it forward to the current version,
+not backwards to the invalid_before version.  Note that we're only doing
+this at all because dentry::d_fsdata isn't large enough on a 32-bit system.
 
-Clock driver is using incorrect parents clk_m, clk_m_div2, clk_m_div4
-for PMC clocks.
+Fix this by using a separate variable for invalid_before so that we don't
+accidentally clobber the current dir version.
 
-This patch fixes this.
+Fixes: a4ff7401fbfa ("afs: Keep track of invalid-before version for dentry coherency")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-tegra-pmc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/afs/dir.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-tegra-pmc.c b/drivers/clk/tegra/clk-tegra-pmc.c
-index bec3e008335f3..5e044ba1ae364 100644
---- a/drivers/clk/tegra/clk-tegra-pmc.c
-+++ b/drivers/clk/tegra/clk-tegra-pmc.c
-@@ -49,16 +49,16 @@ struct pmc_clk_init_data {
+--- a/fs/afs/dir.c
++++ b/fs/afs/dir.c
+@@ -1032,7 +1032,7 @@ static int afs_d_revalidate(struct dentr
+ 	struct dentry *parent;
+ 	struct inode *inode;
+ 	struct key *key;
+-	afs_dataversion_t dir_version;
++	afs_dataversion_t dir_version, invalid_before;
+ 	long de_version;
+ 	int ret;
  
- static DEFINE_SPINLOCK(clk_out_lock);
+@@ -1084,8 +1084,8 @@ static int afs_d_revalidate(struct dentr
+ 	if (de_version == (long)dir_version)
+ 		goto out_valid_noupdate;
  
--static const char *clk_out1_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern1",
-+static const char *clk_out1_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern1",
- };
+-	dir_version = dir->invalid_before;
+-	if (de_version - (long)dir_version >= 0)
++	invalid_before = dir->invalid_before;
++	if (de_version - (long)invalid_before >= 0)
+ 		goto out_valid;
  
--static const char *clk_out2_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern2",
-+static const char *clk_out2_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern2",
- };
- 
--static const char *clk_out3_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern3",
-+static const char *clk_out3_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern3",
- };
- 
- static struct pmc_clk_init_data pmc_clks[] = {
--- 
-2.20.1
-
+ 	_debug("dir modified");
 
 
