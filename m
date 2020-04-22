@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 436AE1B3FEC
+	by mail.lfdr.de (Postfix) with ESMTP id B0E9F1B3FED
 	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731676AbgDVKlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731687AbgDVKlz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 22 Apr 2020 06:41:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56818 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730072AbgDVKUK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730073AbgDVKUK (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 22 Apr 2020 06:20:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0865F20857;
-        Wed, 22 Apr 2020 10:19:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7766520882;
+        Wed, 22 Apr 2020 10:20:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550800;
-        bh=zcjOvUCT85bEb9F0JG20QA/GI5+xjX+Y9XXT4eiJ2bs=;
+        s=default; t=1587550802;
+        bh=L3diuykomXJM438VUcko/Yv/Xh1FBjaJwA6TmB8vDSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WF39WtTm/SsiUfeDvVW6vbM+IIs8TaRQ2LsVpwqdJvbp4TTXdQAcu5B1QGuF0Almz
-         0XR/y/dFRJhBbMUpFsCA0sU4Bc49JBIJX4F8WpycdwM8RsES6E4WgVpn9VO9LfgwsD
-         W4UEA5PfDE0e1xjlztLHOpu3fWE/9D8OhjbIymUc=
+        b=pCVBvBC8kiGEn7lKw48NiqfaTC6/0jnScXD6z9iYFD8SW7CvtuIJtjPYQKqSsVSeX
+         ALin+qwlCwC8X6ForqAvy0lZxGK905V16EbBGnBq0R4rMy56+AiQUUJjY+0H+z3Xk1
+         Whua5sA2PLHqa/Prfi1uQ01xx9pZ9Bv2YHIMa7Cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 099/118] f2fs: fix to wait all node page writeback
-Date:   Wed, 22 Apr 2020 11:57:40 +0200
-Message-Id: <20200422095047.482419898@linuxfoundation.org>
+Subject: [PATCH 5.4 100/118] drm/nouveau/gr/gp107,gp108: implement workaround for HW hanging during init
+Date:   Wed, 22 Apr 2020 11:57:41 +0200
+Message-Id: <20200422095047.653781978@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
 References: <20200422095031.522502705@linuxfoundation.org>
@@ -44,56 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit dc5a941223edd803f476a153abd950cc3a83c3e1 ]
+[ Upstream commit 028a12f5aa829b4ba6ac011530b815eda4960e89 ]
 
-There is a race condition that we may miss to wait for all node pages
-writeback, fix it.
+Certain boards with GP107/GP108 chipsets hang (often, but randomly) for
+unknown reasons during GR initialisation.
 
-- fsync()				- shrink
- - f2fs_do_sync_file
-					 - __write_node_page
-					  - set_page_writeback(page#0)
-					  : remove DIRTY/TOWRITE flag
-  - f2fs_fsync_node_pages
-  : won't find page #0 as TOWRITE flag was removeD
-  - f2fs_wait_on_node_pages_writeback
-  : wont' wait page #0 writeback as it was not in fsync_node_list list.
-					   - f2fs_add_fsync_node_entry
+The first tell-tale symptom of this issue is:
 
-Fixes: 50fa53eccf9f ("f2fs: fix to avoid broken of dnode block list")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+nouveau 0000:01:00.0: bus: MMIO read of 00000000 FAULT at 409800 [ TIMEOUT ]
+
+appearing in dmesg, likely followed by many other failures being logged.
+
+Karol found this WAR for the issue a while back, but efforts to isolate
+the root cause and proper fix have not yielded success so far.  I've
+modified the original patch to include a few more details, limit it to
+GP107/GP108 by default, and added a config option to override this choice.
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/node.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ .../gpu/drm/nouveau/nvkm/engine/gr/gf100.c    | 26 +++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 8b66bc4c004b6..f14401a77d601 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -1562,15 +1562,16 @@ static int __write_node_page(struct page *page, bool atomic, bool *submitted,
- 	if (atomic && !test_opt(sbi, NOBARRIER))
- 		fio.op_flags |= REQ_PREFLUSH | REQ_FUA;
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/gr/gf100.c b/drivers/gpu/drm/nouveau/nvkm/engine/gr/gf100.c
+index c578deb5867a8..c71606a45d1de 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/gr/gf100.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/gr/gf100.c
+@@ -1988,8 +1988,34 @@ gf100_gr_init_(struct nvkm_gr *base)
+ {
+ 	struct gf100_gr *gr = gf100_gr(base);
+ 	struct nvkm_subdev *subdev = &base->engine.subdev;
++	struct nvkm_device *device = subdev->device;
++	bool reset = device->chipset == 0x137 || device->chipset == 0x138;
+ 	u32 ret;
  
--	set_page_writeback(page);
--	ClearPageError(page);
--
-+	/* should add to global list before clearing PAGECACHE status */
- 	if (f2fs_in_warm_node_list(sbi, page)) {
- 		seq = f2fs_add_fsync_node_entry(sbi, page);
- 		if (seq_id)
- 			*seq_id = seq;
- 	}
- 
-+	set_page_writeback(page);
-+	ClearPageError(page);
++	/* On certain GP107/GP108 boards, we trigger a weird issue where
++	 * GR will stop responding to PRI accesses after we've asked the
++	 * SEC2 RTOS to boot the GR falcons.  This happens with far more
++	 * frequency when cold-booting a board (ie. returning from D3).
++	 *
++	 * The root cause for this is not known and has proven difficult
++	 * to isolate, with many avenues being dead-ends.
++	 *
++	 * A workaround was discovered by Karol, whereby putting GR into
++	 * reset for an extended period right before initialisation
++	 * prevents the problem from occuring.
++	 *
++	 * XXX: As RM does not require any such workaround, this is more
++	 *      of a hack than a true fix.
++	 */
++	reset = nvkm_boolopt(device->cfgopt, "NvGrResetWar", reset);
++	if (reset) {
++		nvkm_mask(device, 0x000200, 0x00001000, 0x00000000);
++		nvkm_rd32(device, 0x000200);
++		msleep(50);
++		nvkm_mask(device, 0x000200, 0x00001000, 0x00001000);
++		nvkm_rd32(device, 0x000200);
++	}
 +
- 	fio.old_blkaddr = ni.blk_addr;
- 	f2fs_do_write_node_page(nid, &fio);
- 	set_node_addr(sbi, &ni, fio.new_blkaddr, is_fsync_dnode(page));
+ 	nvkm_pmu_pgob(gr->base.engine.subdev.device->pmu, false);
+ 
+ 	ret = nvkm_falcon_get(gr->fecs.falcon, subdev);
 -- 
 2.20.1
 
