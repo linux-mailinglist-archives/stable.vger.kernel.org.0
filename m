@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2BDC1B403E
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0093D1B3DD1
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729996AbgDVKSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:18:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55176 "EHLO mail.kernel.org"
+        id S1726572AbgDVKSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:18:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729989AbgDVKSh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:18:37 -0400
+        id S1730008AbgDVKSo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:18:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9335A20781;
-        Wed, 22 Apr 2020 10:18:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B72B20781;
+        Wed, 22 Apr 2020 10:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550717;
-        bh=5D9GczrhsgcqaRMt/zuHZZcdP2g+4HoM3usyp9z2034=;
+        s=default; t=1587550722;
+        bh=QGF7u/cPWJ5PqpDZ6tAaNUUCujAeJ37DZ/ssCQQWpJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZGopVuMpbgjaGs2ey9F1/ZTLWUlCd6FABw5FbWxcQBZvJ3c//+sqBVkwW/VlLakh
-         4v/lw/ySgVCeh2BYguiVEOzxNHSuOV67fV+upHpspQLqNrPG18crjYqSvrVZAmf8ib
-         quKXLAOGwkKXn0aUbJNYoJTXEGE5wAOThjIoy8Gw=
+        b=0w109pc0+2mIKC07YJTaOYMIm2DN0GuMZ29Ol5niJeaBo5rDX8J2sSUPmF4lslhb+
+         t4HiIgh38Iyjr1XbykfV6iq0p3VWy2w7GrQ2a+WcZ1kZt11HeSUvNQQxH7caR1ZaiV
+         klp2ZEE85K0fJj9gN0fDR3LDT9H+l2h4vRquegKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 064/118] powerpc/maple: Fix declaration made after definition
-Date:   Wed, 22 Apr 2020 11:57:05 +0200
-Message-Id: <20200422095042.432342366@linuxfoundation.org>
+Subject: [PATCH 5.4 065/118] s390/cpum_sf: Fix wrong page count in error message
+Date:   Wed, 22 Apr 2020 11:57:06 +0200
+Message-Id: <20200422095042.568722780@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
 References: <20200422095031.522502705@linuxfoundation.org>
@@ -46,90 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit af6cf95c4d003fccd6c2ecc99a598fb854b537e7 ]
+[ Upstream commit 4141b6a5e9f171325effc36a22eb92bf961e7a5c ]
 
-When building ppc64 defconfig, Clang errors (trimmed for brevity):
+When perf record -e SF_CYCLES_BASIC_DIAG runs with very high
+frequency, the samples arrive faster than the perf process can
+save them to file. Eventually, for longer running processes, this
+leads to the siutation where the trace buffers allocated by perf
+slowly fills up. At one point the auxiliary trace buffer is full
+and  the CPU Measurement sampling facility is turned off. Furthermore
+a warning is printed to the kernel log buffer:
 
-  arch/powerpc/platforms/maple/setup.c:365:1: error: attribute declaration
-  must precede definition [-Werror,-Wignored-attributes]
-  machine_device_initcall(maple, maple_cpc925_edac_setup);
-  ^
+cpum_sf: The AUX buffer with 0 pages for the diagnostic-sampling
+	mode is full
 
-machine_device_initcall expands to __define_machine_initcall, which in
-turn has the macro machine_is used in it, which declares mach_##name
-with an __attribute__((weak)). define_machine actually defines
-mach_##name, which in this file happens before the declaration, hence
-the warning.
+The number of allocated pages for the auxiliary trace buffer is shown
+as zero pages. That is wrong.
 
-To fix this, move define_machine after machine_device_initcall so that
-the declaration occurs before the definition, which matches how
-machine_device_initcall and define_machine work throughout
-arch/powerpc.
+Fix this by saving the number of allocated pages before entering the
+work loop in the interrupt handler. When the interrupt handler processes
+the samples, it may detect the buffer full condition and stop sampling,
+reducing the buffer size to zero.
+Print the correct value in the error message:
 
-While we're here, remove some spaces before tabs.
+cpum_sf: The AUX buffer with 256 pages for the diagnostic-sampling
+	mode is full
 
-Fixes: 8f101a051ef0 ("edac: cpc925 MC platform device setup")
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Suggested-by: Ilie Halip <ilie.halip@gmail.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200323222729.15365-1-natechancellor@gmail.com
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/maple/setup.c | 34 ++++++++++++++--------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/platforms/maple/setup.c b/arch/powerpc/platforms/maple/setup.c
-index 9cd6f3e1000b3..09a0594350b69 100644
---- a/arch/powerpc/platforms/maple/setup.c
-+++ b/arch/powerpc/platforms/maple/setup.c
-@@ -294,23 +294,6 @@ static int __init maple_probe(void)
- 	return 1;
- }
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index fdb8083e7870c..229e1e2f8253a 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1589,6 +1589,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
+ 	perf_aux_output_end(handle, size);
+ 	num_sdb = aux->sfb.num_sdb;
  
--define_machine(maple) {
--	.name			= "Maple",
--	.probe			= maple_probe,
--	.setup_arch		= maple_setup_arch,
--	.init_IRQ		= maple_init_IRQ,
--	.pci_irq_fixup		= maple_pci_irq_fixup,
--	.pci_get_legacy_ide_irq	= maple_pci_get_legacy_ide_irq,
--	.restart		= maple_restart,
--	.halt			= maple_halt,
--       	.get_boot_time		= maple_get_boot_time,
--       	.set_rtc_time		= maple_set_rtc_time,
--       	.get_rtc_time		= maple_get_rtc_time,
--      	.calibrate_decr		= generic_calibrate_decr,
--	.progress		= maple_progress,
--	.power_save		= power4_idle,
--};
--
- #ifdef CONFIG_EDAC
- /*
-  * Register a platform device for CPC925 memory controller on
-@@ -367,3 +350,20 @@ static int __init maple_cpc925_edac_setup(void)
- }
- machine_device_initcall(maple, maple_cpc925_edac_setup);
- #endif
-+
-+define_machine(maple) {
-+	.name			= "Maple",
-+	.probe			= maple_probe,
-+	.setup_arch		= maple_setup_arch,
-+	.init_IRQ		= maple_init_IRQ,
-+	.pci_irq_fixup		= maple_pci_irq_fixup,
-+	.pci_get_legacy_ide_irq	= maple_pci_get_legacy_ide_irq,
-+	.restart		= maple_restart,
-+	.halt			= maple_halt,
-+	.get_boot_time		= maple_get_boot_time,
-+	.set_rtc_time		= maple_set_rtc_time,
-+	.get_rtc_time		= maple_get_rtc_time,
-+	.calibrate_decr		= generic_calibrate_decr,
-+	.progress		= maple_progress,
-+	.power_save		= power4_idle,
-+};
++	num_sdb = aux->sfb.num_sdb;
+ 	while (!done) {
+ 		/* Get an output handle */
+ 		aux = perf_aux_output_begin(handle, cpuhw->event);
 -- 
 2.20.1
 
