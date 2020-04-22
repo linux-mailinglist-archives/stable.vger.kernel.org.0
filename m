@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BA331B409C
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67AEF1B415B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728249AbgDVKQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:16:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52316 "EHLO mail.kernel.org"
+        id S1728060AbgDVKKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:10:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729691AbgDVKQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:16:31 -0400
+        id S1728285AbgDVKKC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:10:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80D862076B;
-        Wed, 22 Apr 2020 10:16:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD28320575;
+        Wed, 22 Apr 2020 10:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550591;
-        bh=dgsp2o5jhO3cVaLbl6yI7GcuL8xJF4PWHyAwkSBbIFo=;
+        s=default; t=1587550202;
+        bh=Dq85OBwbLWN5CPivEkWRazfUgAcrK8+PPUm19L5OCe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXbtkGXZBB1JVl7mlnU4ewxKblAmsa41iUXOTrUnbgvXxDzIsCO3njfgk+LUZNVA9
-         QfK2eutDTY5XNCi4CWzK5imk0zCeNdpddsskHyri+kl2EXTzhUxnVt8Ooc59YvJlfN
-         nQJ9DZ98M/QMT68U0QyhV+nBspVQhqtHZjS+HeD4=
+        b=H6SA3On2a7YcYnvcmhm5PdUF/k2nw6pBWTUlCLiegA5pIp3FjeJa2go7q4W0MQHFH
+         Ll5nFUyHiccrPdwvK7qQ61PYsquyye7kFWzZ3k/SzCr8k+qnxUq0mlDITWUhv4ls9S
+         MUN4fzowC80SPRiy7NIp6IxynOMwJj4cEl/fCYu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bui Quang Minh <minhquangbui99@gmail.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.4 014/118] xsk: Add missing check on user supplied headroom size
+        stable@vger.kernel.org, Yicong Yang <yangyicong@hisilicon.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.14 049/199] PCI/ASPM: Clear the correct bits when enabling L1 substates
 Date:   Wed, 22 Apr 2020 11:56:15 +0200
-Message-Id: <20200422095033.911940986@linuxfoundation.org>
+Message-Id: <20200422095103.092440269@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Yicong Yang <yangyicong@hisilicon.com>
 
-commit 99e3a236dd43d06c65af0a2ef9cb44306aef6e02 upstream.
+commit 58a3862a10a317a81097ab0c78aecebabb1704f5 upstream.
 
-Add a check that the headroom cannot be larger than the available
-space in the chunk. In the current code, a malicious user can set the
-headroom to a value larger than the chunk size minus the fixed XDP
-headroom. That way packets with a length larger than the supported
-size in the umem could get accepted and result in an out-of-bounds
-write.
+In pcie_config_aspm_l1ss(), we cleared the wrong bits when enabling ASPM L1
+Substates.  Instead of the L1.x enable bits (PCI_L1SS_CTL1_L1SS_MASK, 0xf), we
+cleared the Link Activation Interrupt Enable bit (PCI_L1SS_CAP_L1_PM_SS,
+0x10).
 
-Fixes: c0c77d8fb787 ("xsk: add user memory registration support sockopt")
-Reported-by: Bui Quang Minh <minhquangbui99@gmail.com>
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=207225
-Link: https://lore.kernel.org/bpf/1586849715-23490-1-git-send-email-magnus.karlsson@intel.com
+Clear the L1.x enable bits before writing the new L1.x configuration.
+
+[bhelgaas: changelog]
+Fixes: aeda9adebab8 ("PCI/ASPM: Configure L1 substate settings")
+Link: https://lore.kernel.org/r/1584093227-1292-1-git-send-email-yangyicong@hisilicon.com
+Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+CC: stable@vger.kernel.org	# v4.11+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/xdp/xdp_umem.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/pci/pcie/aspm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/xdp/xdp_umem.c
-+++ b/net/xdp/xdp_umem.c
-@@ -343,7 +343,7 @@ static int xdp_umem_reg(struct xdp_umem
- 	u32 chunk_size = mr->chunk_size, headroom = mr->headroom;
- 	unsigned int chunks, chunks_per_page;
- 	u64 addr = mr->addr, size = mr->len;
--	int size_chk, err;
-+	int err;
+--- a/drivers/pci/pcie/aspm.c
++++ b/drivers/pci/pcie/aspm.c
+@@ -693,9 +693,9 @@ static void pcie_config_aspm_l1ss(struct
  
- 	if (chunk_size < XDP_UMEM_MIN_CHUNK_SIZE || chunk_size > PAGE_SIZE) {
- 		/* Strictly speaking we could support this, if:
-@@ -382,8 +382,7 @@ static int xdp_umem_reg(struct xdp_umem
- 			return -EINVAL;
- 	}
+ 	/* Enable what we need to enable */
+ 	pci_clear_and_set_dword(parent, up_cap_ptr + PCI_L1SS_CTL1,
+-				PCI_L1SS_CAP_L1_PM_SS, val);
++				PCI_L1SS_CTL1_L1SS_MASK, val);
+ 	pci_clear_and_set_dword(child, dw_cap_ptr + PCI_L1SS_CTL1,
+-				PCI_L1SS_CAP_L1_PM_SS, val);
++				PCI_L1SS_CTL1_L1SS_MASK, val);
+ }
  
--	size_chk = chunk_size - headroom - XDP_PACKET_HEADROOM;
--	if (size_chk < 0)
-+	if (headroom >= chunk_size - XDP_PACKET_HEADROOM)
- 		return -EINVAL;
- 
- 	umem->address = (unsigned long)addr;
+ static void pcie_config_aspm_dev(struct pci_dev *pdev, u32 val)
 
 
