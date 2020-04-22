@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 653FA1B4280
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32EFE1B410B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732363AbgDVLB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:01:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48650 "EHLO mail.kernel.org"
+        id S1729328AbgDVKMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:12:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726677AbgDVKAy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:54 -0400
+        id S1729324AbgDVKMU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:12:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DEB720774;
-        Wed, 22 Apr 2020 10:00:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F33552070B;
+        Wed, 22 Apr 2020 10:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549652;
-        bh=OKOKCnkfH+Wt2GWJCU6Lu2Z0tpUXUphN44hI0x/swag=;
+        s=default; t=1587550339;
+        bh=ME0WeMs8A61c6lYVuqvVeOyocXUUkTtNfSPHYXf/LFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKLjXaibCcuu1x4dS0zw368x4fs3xJ4Ofax9J0YUKhUR6XNCCQMPGfFPH8xw1hE+y
-         ry/eIxzCSDB+acqHnTCrTNlRCFQVTYud9s17Gbz0YpTWPqM2SctwhAdOcluXTlE/mO
-         VzOy+vYfllTNpo5UTMzpLEzhbV1azMC/omGkhEnc=
+        b=B6MA5VjoOfIraeP3uJzb6IWjJzGIfcT77CE1Mn2Yde3njpitgCoI7/u9vKTJYsMhq
+         La7L/kOsZboFcapcMqTiT/e7O7HnQ1SVmiWxwoupOnd5UrpDIu2Eik7DwtM7FMhvVe
+         jtHXeUttDnZ+ka0EohJoqhmDbx9ezfaRD9lHuT44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 050/100] Btrfs: fix crash during unmount due to race with delayed inode workers
+        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 054/199] ath9k: Handle txpower changes even when TPC is disabled
 Date:   Wed, 22 Apr 2020 11:56:20 +0200
-Message-Id: <20200422095031.628369470@linuxfoundation.org>
+Message-Id: <20200422095103.649955731@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,230 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Remi Pommarel <repk@triplefau.lt>
 
-[ Upstream commit f0cc2cd70164efe8f75c5d99560f0f69969c72e4 ]
+commit 968ae2caad0782db5dbbabb560d3cdefd2945d38 upstream.
 
-During unmount we can have a job from the delayed inode items work queue
-still running, that can lead to at least two bad things:
+When TPC is disabled IEEE80211_CONF_CHANGE_POWER event can be handled to
+reconfigure HW's maximum txpower.
 
-1) A crash, because the worker can try to create a transaction just
-   after the fs roots were freed;
+This fixes 0dBm txpower setting when user attaches to an interface for
+the first time with the following scenario:
 
-2) A transaction leak, because the worker can create a transaction
-   before the fs roots are freed and just after we committed the last
-   transaction and after we stopped the transaction kthread.
+ieee80211_do_open()
+    ath9k_add_interface()
+        ath9k_set_txpower() /* Set TX power with not yet initialized
+                               sc->hw->conf.power_level */
 
-A stack trace example of the crash:
+    ieee80211_hw_config() /* Iniatilize sc->hw->conf.power_level and
+                             raise IEEE80211_CONF_CHANGE_POWER */
 
- [79011.691214] kernel BUG at lib/radix-tree.c:982!
- [79011.692056] invalid opcode: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
- [79011.693180] CPU: 3 PID: 1394 Comm: kworker/u8:2 Tainted: G        W         5.6.0-rc2-btrfs-next-54 #2
- (...)
- [79011.696789] Workqueue: btrfs-delayed-meta btrfs_work_helper [btrfs]
- [79011.697904] RIP: 0010:radix_tree_tag_set+0xe7/0x170
- (...)
- [79011.702014] RSP: 0018:ffffb3c84a317ca0 EFLAGS: 00010293
- [79011.702949] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
- [79011.704202] RDX: ffffb3c84a317cb0 RSI: ffffb3c84a317ca8 RDI: ffff8db3931340a0
- [79011.705463] RBP: 0000000000000005 R08: 0000000000000005 R09: ffffffff974629d0
- [79011.706756] R10: ffffb3c84a317bc0 R11: 0000000000000001 R12: ffff8db393134000
- [79011.708010] R13: ffff8db3931340a0 R14: ffff8db393134068 R15: 0000000000000001
- [79011.709270] FS:  0000000000000000(0000) GS:ffff8db3b6a00000(0000) knlGS:0000000000000000
- [79011.710699] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [79011.711710] CR2: 00007f22c2a0a000 CR3: 0000000232ad4005 CR4: 00000000003606e0
- [79011.712958] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- [79011.714205] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- [79011.715448] Call Trace:
- [79011.715925]  record_root_in_trans+0x72/0xf0 [btrfs]
- [79011.716819]  btrfs_record_root_in_trans+0x4b/0x70 [btrfs]
- [79011.717925]  start_transaction+0xdd/0x5c0 [btrfs]
- [79011.718829]  btrfs_async_run_delayed_root+0x17e/0x2b0 [btrfs]
- [79011.719915]  btrfs_work_helper+0xaa/0x720 [btrfs]
- [79011.720773]  process_one_work+0x26d/0x6a0
- [79011.721497]  worker_thread+0x4f/0x3e0
- [79011.722153]  ? process_one_work+0x6a0/0x6a0
- [79011.722901]  kthread+0x103/0x140
- [79011.723481]  ? kthread_create_worker_on_cpu+0x70/0x70
- [79011.724379]  ret_from_fork+0x3a/0x50
- (...)
+    ath9k_config() /* IEEE80211_CONF_CHANGE_POWER is ignored */
 
-The following diagram shows a sequence of steps that lead to the crash
-during ummount of the filesystem:
+This issue can be reproduced with the following:
 
-        CPU 1                                             CPU 2                                CPU 3
+  $ modprobe -r ath9k
+  $ modprobe ath9k
+  $ wpa_supplicant -i wlan0 -c /tmp/wpa.conf &
+  $ iw dev /* Here TX power is either 0 or 3 depending on RF chain */
+  $ killall wpa_supplicant
+  $ iw dev /* TX power goes back to calibrated value and subsequent
+              calls will be fine */
 
- btrfs_punch_hole()
-   btrfs_btree_balance_dirty()
-     btrfs_balance_delayed_items()
-       --> sees
-           fs_info->delayed_root->items
-           with value 200, which is greater
-           than
-           BTRFS_DELAYED_BACKGROUND (128)
-           and smaller than
-           BTRFS_DELAYED_WRITEBACK (512)
-       btrfs_wq_run_delayed_node()
-         --> queues a job for
-             fs_info->delayed_workers to run
-             btrfs_async_run_delayed_root()
+Fixes: 283dd11994cde ("ath9k: add per-vif TX power capability")
+Cc: stable@vger.kernel.org
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-                                                                                            btrfs_async_run_delayed_root()
-                                                                                              --> job queued by CPU 1
-
-                                                                                              --> starts picking and running
-                                                                                                  delayed nodes from the
-                                                                                                  prepare_list list
-
-                                                 close_ctree()
-
-                                                   btrfs_delete_unused_bgs()
-
-                                                   btrfs_commit_super()
-
-                                                     btrfs_join_transaction()
-                                                       --> gets transaction N
-
-                                                     btrfs_commit_transaction(N)
-                                                       --> set transaction state
-                                                        to TRANTS_STATE_COMMIT_START
-
-                                                                                             btrfs_first_prepared_delayed_node()
-                                                                                               --> picks delayed node X through
-                                                                                                   the prepared_list list
-
-                                                       btrfs_run_delayed_items()
-
-                                                         btrfs_first_delayed_node()
-                                                           --> also picks delayed node X
-                                                               but through the node_list
-                                                               list
-
-                                                         __btrfs_commit_inode_delayed_items()
-                                                            --> runs all delayed items from
-                                                                this node and drops the
-                                                                node's item count to 0
-                                                                through call to
-                                                                btrfs_release_delayed_inode()
-
-                                                         --> finishes running any remaining
-                                                             delayed nodes
-
-                                                       --> finishes transaction commit
-
-                                                   --> stops cleaner and transaction threads
-
-                                                   btrfs_free_fs_roots()
-                                                     --> frees all roots and removes them
-                                                         from the radix tree
-                                                         fs_info->fs_roots_radix
-
-                                                                                             btrfs_join_transaction()
-                                                                                               start_transaction()
-                                                                                                 btrfs_record_root_in_trans()
-                                                                                                   record_root_in_trans()
-                                                                                                     radix_tree_tag_set()
-                                                                                                       --> crashes because
-                                                                                                           the root is not in
-                                                                                                           the radix tree
-                                                                                                           anymore
-
-If the worker is able to call btrfs_join_transaction() before the unmount
-task frees the fs roots, we end up leaking a transaction and all its
-resources, since after the call to btrfs_commit_super() and stopping the
-transaction kthread, we don't expect to have any transaction open anymore.
-
-When this situation happens the worker has a delayed node that has no
-more items to run, since the task calling btrfs_run_delayed_items(),
-which is doing a transaction commit, picks the same node and runs all
-its items first.
-
-We can not wait for the worker to complete when running delayed items
-through btrfs_run_delayed_items(), because we call that function in
-several phases of a transaction commit, and that could cause a deadlock
-because the worker calls btrfs_join_transaction() and the task doing the
-transaction commit may have already set the transaction state to
-TRANS_STATE_COMMIT_DOING.
-
-Also it's not possible to get into a situation where only some of the
-items of a delayed node are added to the fs/subvolume tree in the current
-transaction and the remaining ones in the next transaction, because when
-running the items of a delayed inode we lock its mutex, effectively
-waiting for the worker if the worker is running the items of the delayed
-node already.
-
-Since this can only cause issues when unmounting a filesystem, fix it in
-a simple way by waiting for any jobs on the delayed workers queue before
-calling btrfs_commit_supper() at close_ctree(). This works because at this
-point no one can call btrfs_btree_balance_dirty() or
-btrfs_balance_delayed_items(), and if we end up waiting for any worker to
-complete, btrfs_commit_super() will commit the transaction created by the
-worker.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/async-thread.c |  8 ++++++++
- fs/btrfs/async-thread.h |  2 ++
- fs/btrfs/disk-io.c      | 13 +++++++++++++
- 3 files changed, 23 insertions(+)
+ drivers/net/wireless/ath/ath9k/main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/btrfs/async-thread.c b/fs/btrfs/async-thread.c
-index a09264d8b8533..205d6b43cd7da 100644
---- a/fs/btrfs/async-thread.c
-+++ b/fs/btrfs/async-thread.c
-@@ -389,3 +389,11 @@ void btrfs_set_work_high_priority(struct btrfs_work *work)
- {
- 	set_bit(WORK_HIGH_PRIO_BIT, &work->flags);
- }
-+
-+void btrfs_flush_workqueue(struct btrfs_workqueue *wq)
-+{
-+	if (wq->high)
-+		flush_workqueue(wq->high->normal_wq);
-+
-+	flush_workqueue(wq->normal->normal_wq);
-+}
-diff --git a/fs/btrfs/async-thread.h b/fs/btrfs/async-thread.h
-index 8e1d6576d7647..7ea220726de2f 100644
---- a/fs/btrfs/async-thread.h
-+++ b/fs/btrfs/async-thread.h
-@@ -81,4 +81,6 @@ void btrfs_destroy_workqueue(struct btrfs_workqueue *wq);
- void btrfs_workqueue_set_max(struct btrfs_workqueue *wq, int max);
- void btrfs_set_work_high_priority(struct btrfs_work *work);
- bool btrfs_workqueue_normal_congested(struct btrfs_workqueue *wq);
-+void btrfs_flush_workqueue(struct btrfs_workqueue *wq);
-+
- #endif
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 656f0b7681855..774728143b63f 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3774,6 +3774,19 @@ void close_ctree(struct btrfs_root *root)
- 		 */
- 		btrfs_delete_unused_bgs(root->fs_info);
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -1456,6 +1456,9 @@ static int ath9k_config(struct ieee80211
+ 		ath_chanctx_set_channel(sc, ctx, &hw->conf.chandef);
+ 	}
  
-+		/*
-+		 * There might be existing delayed inode workers still running
-+		 * and holding an empty delayed inode item. We must wait for
-+		 * them to complete first because they can create a transaction.
-+		 * This happens when someone calls btrfs_balance_delayed_items()
-+		 * and then a transaction commit runs the same delayed nodes
-+		 * before any delayed worker has done something with the nodes.
-+		 * We must wait for any worker here and not at transaction
-+		 * commit time since that could cause a deadlock.
-+		 * This is a very rare case.
-+		 */
-+		btrfs_flush_workqueue(fs_info->delayed_workers);
++	if (changed & IEEE80211_CONF_CHANGE_POWER)
++		ath9k_set_txpower(sc, NULL);
 +
- 		ret = btrfs_commit_super(root);
- 		if (ret)
- 			btrfs_err(fs_info, "commit super ret %d", ret);
--- 
-2.20.1
-
+ 	mutex_unlock(&sc->mutex);
+ 	ath9k_ps_restore(sc);
+ 
 
 
