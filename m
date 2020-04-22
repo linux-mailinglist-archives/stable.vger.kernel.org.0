@@ -2,49 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F24E1B3FE3
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 097461B3E3D
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730076AbgDVKlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56980 "EHLO mail.kernel.org"
+        id S1730751AbgDVK0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:26:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730075AbgDVKUN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:13 -0400
+        id S1730740AbgDVK0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:26:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A1EC2076E;
-        Wed, 22 Apr 2020 10:20:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 220272075A;
+        Wed, 22 Apr 2020 10:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550812;
-        bh=lUJfySIV4iy9oc8egJOB4Qa52Ho6PfQJ47fWOfGD2pw=;
+        s=default; t=1587551192;
+        bh=+e9qoTMeeUTLIN6LPfEmAaCFBw1h2Jg68LOFaxYeyAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjYvOcsDgjwWzzD0rH8vQLauinj1mZCYwm/9e4JgSocYuHSMlP2wE//pFsYVByGcB
-         iTqEz9W3qbn+p8pz4s0CKmt9IsfuwJCJ2fQKfYF+zplewDbVSypqd937ZkMF3iDiWS
-         H8OXiA/o7PBxg2K1LLaGYVk9vpXaZdu5VQEc1fM0=
+        b=MHkwqTg7oIHb1jNR+P85ayQhWfnM5fZ1bZDmwePI1cu23e4BAYFS3z6rWyTjh9T1r
+         ZoV6sWdrwnEFEhHIZ1LQGSCuQX9sfgSllwDHi1sO8GOl8tV4eSCW65MOmHjaxKBNAt
+         s5lxWxyEgu16vOMYxa1YacQFV/jrFouaR+hvdlgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrea Righi <righi.andrea@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Peter Rosin <peda@axentia.se>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.4 103/118] fbdev: potential information leak in do_fb_ioctl()
-Date:   Wed, 22 Apr 2020 11:57:44 +0200
-Message-Id: <20200422095048.125647124@linuxfoundation.org>
+        stable@vger.kernel.org, Yuantian Tang <andy.tang@nxp.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 138/166] thermal: qoriq: Fix a compiling issue
+Date:   Wed, 22 Apr 2020 11:57:45 +0200
+Message-Id: <20200422095103.413730565@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Yuantian Tang <andy.tang@nxp.com>
 
-commit d3d19d6fc5736a798b118971935ce274f7deaa82 upstream.
+[ Upstream commit cbe259fd80b7b02fba0dad79d8fdda8b70a8b963 ]
 
-The "fix" struct has a 2 byte hole after ->ywrapstep and the
-"fix = info->fix;" assignment doesn't necessarily clear it.  It depends
-on the compiler.  The solution is just to replace the assignment with an
-memcpy().
+Qoriq thermal driver is used by both PowerPC and ARM architecture.
+When built for PowerPC architecture, it reports error:
+undefined reference to `.__devm_regmap_init_mmio_clk'
+To fix it, select config REGMAP_MMIO.
 
-Fixes: 1f5e31d7e55a ("fbmem: don't call copy_from/to_user() with mutex held")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrea Righi <righi.andrea@gmail.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Peter Rosin <peda@axentia.se>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200113100132.ixpaymordi24n3av@kili.mountain
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4316237bd627 (thermal: qoriq: Convert driver to use regmap API)
+Signed-off-by: Yuantian Tang <andy.tang@nxp.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200303084641.35687-1-andy.tang@nxp.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1110,7 +1110,7 @@ static long do_fb_ioctl(struct fb_info *
- 		break;
- 	case FBIOGET_FSCREENINFO:
- 		lock_fb_info(info);
--		fix = info->fix;
-+		memcpy(&fix, &info->fix, sizeof(fix));
- 		if (info->flags & FBINFO_HIDE_SMEM_START)
- 			fix.smem_start = 0;
- 		unlock_fb_info(info);
+diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
+index 5a05db5438d60..5a0df0e54ce3e 100644
+--- a/drivers/thermal/Kconfig
++++ b/drivers/thermal/Kconfig
+@@ -265,6 +265,7 @@ config QORIQ_THERMAL
+ 	tristate "QorIQ Thermal Monitoring Unit"
+ 	depends on THERMAL_OF
+ 	depends on HAS_IOMEM
++	select REGMAP_MMIO
+ 	help
+ 	  Support for Thermal Monitoring Unit (TMU) found on QorIQ platforms.
+ 	  It supports one critical trip point and one passive trip point. The
+-- 
+2.20.1
+
 
 
