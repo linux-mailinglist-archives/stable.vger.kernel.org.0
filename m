@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAEA61B3DBF
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:18:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18EE21B41A9
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729921AbgDVKSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:18:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54560 "EHLO mail.kernel.org"
+        id S1727915AbgDVKIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:08:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729578AbgDVKSH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:18:07 -0400
+        id S1728668AbgDVKIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:08:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BA0720781;
-        Wed, 22 Apr 2020 10:18:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 163452076C;
+        Wed, 22 Apr 2020 10:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550687;
-        bh=yZRJLnU4ErUB6W+jl5bb662sTl3GJZbnFAsMghgK1O4=;
+        s=default; t=1587550096;
+        bh=NR6BDxCl2kUKKfDXUZWP84PAIdF5Fq3+/GAPcRgkRD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQuQCax6ZwBlohfKsccfU0q0m9TeSpZ73IszbH+n3utUTm/S5lOpb+LJJ3tCjKLHE
-         I5KNbNgHz6PjtHtQJcbJuu42VXEJka6Ax1GiSsp0Uka5e6JbACAhlujNkr0+VTo+ls
-         G8km0mewfu/RmF7vhjXgsm16+qNYYUyeJBhkny38=
+        b=mVSHvQCe5UUv+tNWMYOda/hkMsMJQb4FlHazNgFhzUt2Fk5vR5jL2G98vc17mi3Fk
+         K1BnqOlXqi360nXbn2M2ZHTy/9fyJF1lZTS5flEO5X7qnnmSMUIg49l/zPpWlq7DPS
+         IFOG4csb7PoygdxjyfHpJChbXbecwmLdCcCiBXnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 053/118] ARM: dts: rockchip: fix lvds-encoder ports subnode for rk3188-bqedison2qc
+        Mohit Aggarwal <maggarwa@codeaurora.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 097/125] rtc: pm8xxx: Fix issue in RTC write path
 Date:   Wed, 22 Apr 2020 11:56:54 +0200
-Message-Id: <20200422095040.718760526@linuxfoundation.org>
+Message-Id: <20200422095048.810476787@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Mohit Aggarwal <maggarwa@codeaurora.org>
 
-[ Upstream commit 1a7e99599dffd836fcb720cdc0eaf3cd43d7af4a ]
+[ Upstream commit 83220bf38b77a830f8e62ab1a0d0408304f9b966 ]
 
-A test with the command below gives this error:
+In order to set time in rtc, need to disable
+rtc hw before writing into rtc registers.
 
-arch/arm/boot/dts/rk3188-bqedison2qc.dt.yaml: lvds-encoder:
-'ports' is a required property
+Also fixes disabling of alarm while setting
+rtc time.
 
-Fix error by adding a ports wrapper for port@0 and port@1
-inside the 'lvds-encoder' node for rk3188-bqedison2qc.
-
-make ARCH=arm dtbs_check
-DT_SCHEMA_FILES=Documentation/devicetree/bindings/display/
-bridge/lvds-codec.yaml
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20200316174647.5598-1-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mohit Aggarwal <maggarwa@codeaurora.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/rk3188-bqedison2qc.dts | 27 ++++++++++++++----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c |   49 ++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 38 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3188-bqedison2qc.dts b/arch/arm/boot/dts/rk3188-bqedison2qc.dts
-index 8afb2fd5d9f1b..66a0ff196eb1f 100644
---- a/arch/arm/boot/dts/rk3188-bqedison2qc.dts
-+++ b/arch/arm/boot/dts/rk3188-bqedison2qc.dts
-@@ -58,20 +58,25 @@
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -74,16 +74,18 @@ struct pm8xxx_rtc {
+ /*
+  * Steps to write the RTC registers.
+  * 1. Disable alarm if enabled.
+- * 2. Write 0x00 to LSB.
+- * 3. Write Byte[1], Byte[2], Byte[3] then Byte[0].
+- * 4. Enable alarm if disabled in step 1.
++ * 2. Disable rtc if enabled.
++ * 3. Write 0x00 to LSB.
++ * 4. Write Byte[1], Byte[2], Byte[3] then Byte[0].
++ * 5. Enable rtc if disabled in step 2.
++ * 6. Enable alarm if disabled in step 1.
+  */
+ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	int rc, i;
+ 	unsigned long secs, irq_flags;
+-	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0;
+-	unsigned int ctrl_reg;
++	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0, rtc_disabled = 0;
++	unsigned int ctrl_reg, rtc_ctrl_reg;
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
  
- 	lvds-encoder {
- 		compatible = "ti,sn75lvds83", "lvds-encoder";
--		#address-cells = <1>;
--		#size-cells = <0>;
+@@ -92,23 +94,38 @@ static int pm8xxx_rtc_set_time(struct de
  
--		port@0 {
--			reg = <0>;
--			lvds_in_vop0: endpoint {
--				remote-endpoint = <&vop0_out_lvds>;
-+		ports {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			port@0 {
-+				reg = <0>;
-+
-+				lvds_in_vop0: endpoint {
-+					remote-endpoint = <&vop0_out_lvds>;
-+				};
- 			};
--		};
+ 	rtc_tm_to_time(tm, &secs);
  
--		port@1 {
--			reg = <1>;
--			lvds_out_panel: endpoint {
--				remote-endpoint = <&panel_in_lvds>;
-+			port@1 {
-+				reg = <1>;
++	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
 +
-+				lvds_out_panel: endpoint {
-+					remote-endpoint = <&panel_in_lvds>;
-+				};
- 			};
- 		};
- 	};
--- 
-2.20.1
-
+ 	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
+ 		value[i] = secs & 0xFF;
+ 		secs >>= 8;
+ 	}
+ 
+-	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
+-
+ 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+ 
+-	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &ctrl_reg);
++	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
+ 	if (rc)
+ 		goto rtc_rw_fail;
+ 
+ 	if (ctrl_reg & regs->alarm_en) {
+ 		alarm_enabled = 1;
+ 		ctrl_reg &= ~regs->alarm_en;
+-		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
++		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
++		if (rc) {
++			dev_err(dev, "Write to RTC Alarm control register failed\n");
++			goto rtc_rw_fail;
++		}
++	}
++
++	/* Disable RTC H/w before writing on RTC register */
++	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &rtc_ctrl_reg);
++	if (rc)
++		goto rtc_rw_fail;
++
++	if (rtc_ctrl_reg & PM8xxx_RTC_ENABLE) {
++		rtc_disabled = 1;
++		rtc_ctrl_reg &= ~PM8xxx_RTC_ENABLE;
++		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
+ 		if (rc) {
+ 			dev_err(dev, "Write to RTC control register failed\n");
+ 			goto rtc_rw_fail;
+@@ -137,11 +154,21 @@ static int pm8xxx_rtc_set_time(struct de
+ 		goto rtc_rw_fail;
+ 	}
+ 
++	/* Enable RTC H/w after writing on RTC register */
++	if (rtc_disabled) {
++		rtc_ctrl_reg |= PM8xxx_RTC_ENABLE;
++		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
++		if (rc) {
++			dev_err(dev, "Write to RTC control register failed\n");
++			goto rtc_rw_fail;
++		}
++	}
++
+ 	if (alarm_enabled) {
+ 		ctrl_reg |= regs->alarm_en;
+-		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
++		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
+ 		if (rc) {
+-			dev_err(dev, "Write to RTC control register failed\n");
++			dev_err(dev, "Write to RTC Alarm control register failed\n");
+ 			goto rtc_rw_fail;
+ 		}
+ 	}
 
 
