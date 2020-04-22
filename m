@@ -2,88 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BA911B476C
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 16:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 129321B478E
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 16:44:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbgDVOfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 10:35:55 -0400
-Received: from mga17.intel.com ([192.55.52.151]:64109 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727868AbgDVOfz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 10:35:55 -0400
-IronPort-SDR: oV8hALOPIeLrauz3mfJvucmiVqo6GcKFeR+Y3eiaG+dl5TGEyO7hX9y61QHuHhqbf/6jYY3mc/
- HaNI7WaSogFw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Apr 2020 07:35:54 -0700
-IronPort-SDR: WlTpxIToC63ZaYpO79c+hXOuLKvvFtmdV2ETux+G/lHPyZnaS4Ssrn2O84pniFCkKuBXEOjZjL
- c38dSwyBRPnQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,414,1580803200"; 
-   d="scan'208";a="259086733"
-Received: from tassilo.jf.intel.com (HELO tassilo.localdomain) ([10.7.201.21])
-  by orsmga006.jf.intel.com with ESMTP; 22 Apr 2020 07:35:54 -0700
-Received: by tassilo.localdomain (Postfix, from userid 1000)
-        id 34EA63019B5; Wed, 22 Apr 2020 07:35:54 -0700 (PDT)
-Date:   Wed, 22 Apr 2020 07:35:54 -0700
-From:   Andi Kleen <ak@linux.intel.com>
-To:     John Haxby <john.haxby@oracle.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Jonathan Corbet <corbet@lwn.net>,
-        x86@kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/1] x86/fpu: Allow clearcpuid= to clear several bits
-Message-ID: <20200422143554.GI608746@tassilo.jf.intel.com>
-References: <cover.1587555769.git.john.haxby@oracle.com>
- <03a3a4d135b17115db9ad91413e21af73e244500.1587555769.git.john.haxby@oracle.com>
+        id S1726584AbgDVOn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 10:43:59 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:53391 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726066AbgDVOn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 10:43:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1587566637;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=X1m+KyBEjIchG4rjXeDIQpyNNPLZZU2rr+C9a+kRM8A=;
+        b=dIx1SMB2EVz+ClTo3jWDp3L5NIMBaCX3RsfBtzaNl0cakBoy4wvsl5se9w/lp9mLW1lh/W
+        dDhnDBKEccjq/w1nsRVrGASV2Ls8lR0DdXOdTlYbwrooXRK/rB24NnZHKKV76h0tJtlbEM
+        nwP5XcvUwwhL0wGm22rxJKcU4mGdkuE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-107-hpjANUAGM--r1Tc4Vd1P2A-1; Wed, 22 Apr 2020 10:43:50 -0400
+X-MC-Unique: hpjANUAGM--r1Tc4Vd1P2A-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 22DA6801504;
+        Wed, 22 Apr 2020 14:43:49 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-113-5.ams2.redhat.com [10.36.113.5])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CF411600DE;
+        Wed, 22 Apr 2020 14:43:47 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-usb@vger.kernel.org,
+        Naoki Kiryu <naonaokiryu2@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] usb: typec: altmode: Fix typec_altmode_get_partner sometimes returning an invalid pointer
+Date:   Wed, 22 Apr 2020 16:43:45 +0200
+Message-Id: <20200422144345.43262-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <03a3a4d135b17115db9ad91413e21af73e244500.1587555769.git.john.haxby@oracle.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Naoki Kiryu <naonaokiryu2@gmail.com>
 
-Thanks good catch.
+Before this commit, typec_altmode_get_partner would return a
+const struct typec_altmode * pointing to address 0x08 when
+to_altmode(adev)->partner was NULL.
 
->  	if (cmdline_find_option(boot_command_line, "clearcpuid", arg,
-> -				sizeof(arg)) &&
-> -	    get_option(&argptr, &bit) &&
-> -	    bit >= 0 &&
-> -	    bit < NCAPINTS * 32)
-> -		setup_clear_cpu_cap(bit);
-> +				sizeof(arg))) {
-> +		/* cpuid bit numbers are mostly three digits */
-> +		enum  { nints = sizeof(arg)/(3+1) + 1 };
+Add a check for to_altmode(adev)->partner being NULL to fix this.
 
-Not sure what the digits have to do with the stack space of an int array.
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D206365
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1785972
+Fixes: 5f54a85db5df ("usb: typec: Make sure an alt mode exist before gett=
+ing its partner")
+Cc: stable@vger.kernel.org
+Signed-off-by: Naoki Kiryu <naonaokiryu2@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/usb/typec/bus.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-We should have enough stack to afford some more than 8.
+diff --git a/drivers/usb/typec/bus.c b/drivers/usb/typec/bus.c
+index c823122f9cb7..e8ddb81cb6df 100644
+--- a/drivers/usb/typec/bus.c
++++ b/drivers/usb/typec/bus.c
+@@ -198,7 +198,10 @@ EXPORT_SYMBOL_GPL(typec_altmode_vdm);
+ const struct typec_altmode *
+ typec_altmode_get_partner(struct typec_altmode *adev)
+ {
+-	return adev ? &to_altmode(adev)->partner->adev : NULL;
++	if (!adev || !to_altmode(adev)->partner)
++		return NULL;
++
++	return &to_altmode(adev)->partner->adev;
+ }
+ EXPORT_SYMBOL_GPL(typec_altmode_get_partner);
+=20
+--=20
+2.26.0
 
-Would be good to have a warning if the arguments are longer.
-
-Maybe it would be simpler to fix the early arg parser
-to allow multiple instances again? That would also avoid the limit,
-and keep everything compatible.
-
--Andi
-
-
-> +		int i, bits[nints];
-> +
-> +		get_options(arg, nints, bits);
-> +		for (i = 1; i <= bits[0]; i++) {
-> +			if (bits[i] >= 0 && bits[i] < NCAPINTS * 32)
-> +				setup_clear_cpu_cap(bits[i]);
-> +		}
-> +	}
->  }
->  
->  /*
-> -- 
-> 2.25.3
-> 
