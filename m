@@ -2,120 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D053E1B3A9B
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 10:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 566D91B3B9B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 11:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725810AbgDVIxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 04:53:44 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:54130 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725786AbgDVIxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 04:53:44 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 03M8qfQH130259;
-        Wed, 22 Apr 2020 08:53:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=6DEFYlsRRG2SzwL1Y9o2kEQ/FIaKCy30P9fUvWjBmlQ=;
- b=anqbXe5CFtn/2TNqAMPExqrYy4pHNEs4I668P5/sAHSe/ZNqRxGG96vS40lCVcN/WWGH
- JS13s/P+leo/tsGs7GVqyQ5EK/UIzR8yOGlamOAijLL4H7qbyLM17KkpplOELkXKHjUp
- Ucjm2SMifB8cGNAN7WiPQm1w05RBuCslBQ99IAbMPVb5JSbTRFzu6tQJWsVbvFoi3XX6
- Y+9voKyeNWyIFXVrivOuN7DEV5ZifzlmgHAMPsTMjffifsrYQ1MvzICNyRwVhyf8B3Bn
- 7AiJZ9CmbCfIaRGXYXLLpM6xxZPtiRlwPLGPqErmoh2eAgdh5e6EtW4MWNG07D/xO0B3 mA== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by userp2120.oracle.com with ESMTP id 30jhyc0bsc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Apr 2020 08:53:40 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 03M8pgdh163385;
-        Wed, 22 Apr 2020 08:53:39 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3030.oracle.com with ESMTP id 30gb3tk5wk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 22 Apr 2020 08:53:39 +0000
-Received: from abhmp0015.oracle.com (abhmp0015.oracle.com [141.146.116.21])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 03M8rdiM016813;
-        Wed, 22 Apr 2020 08:53:39 GMT
-Received: from [10.175.2.238] (/10.175.2.238)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 22 Apr 2020 01:53:38 -0700
-Subject: Re: Fwd: Re: [PATCH AUTOSEL 5.6 082/129] compiler.h: fix error in
- BUILD_BUG_ON() reporting
-To:     Greg KH <greg@kroah.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <9b7c57b0-4441-12a1-420d-684a84e97ba0@oracle.com>
- <05565e26-e472-67e5-34e9-c466457a0db3@oracle.com>
- <20200422083446.GA3039100@kroah.com>
-From:   Vegard Nossum <vegard.nossum@oracle.com>
-Message-ID: <aea96721-4b51-ff0c-3da9-660e318654b4@oracle.com>
-Date:   Wed, 22 Apr 2020 10:53:33 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1726105AbgDVJmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 05:42:05 -0400
+Received: from mout.kundenserver.de ([217.72.192.74]:34701 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725912AbgDVJmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 05:42:04 -0400
+Received: from mail-qt1-f174.google.com ([209.85.160.174]) by
+ mrelayeu.kundenserver.de (mreue107 [212.227.15.145]) with ESMTPSA (Nemesis)
+ id 1M6m5o-1jZREC3epy-008IkO; Wed, 22 Apr 2020 11:42:03 +0200
+Received: by mail-qt1-f174.google.com with SMTP id w29so1146268qtv.3;
+        Wed, 22 Apr 2020 02:42:02 -0700 (PDT)
+X-Gm-Message-State: AGi0PuYJ4lhnKrA7GvXIQgQLSMJ+uo9r824fjRAxNy/4+YijFINlsu2W
+        47oMYVCOBwwP0MU+QRy+iM2SdDbG99cxRXwkUi8=
+X-Google-Smtp-Source: APiQypLLKi9cLhzL0W2P5kqrtwWwlXVC0xXk3CH7HLud+3whDHwkik5qt+9WUyNmxGIdtuplja/aMpGLHcNc0ejrzo8=
+X-Received: by 2002:ac8:4e2c:: with SMTP id d12mr25067709qtw.204.1587548521246;
+ Wed, 22 Apr 2020 02:42:01 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200422083446.GA3039100@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9598 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 spamscore=0 adultscore=0
- mlxlogscore=999 phishscore=0 suspectscore=0 bulkscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2004220071
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9598 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 spamscore=0 mlxscore=0
- clxscore=1011 suspectscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0
- impostorscore=0 malwarescore=0 priorityscore=1501 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2004220071
+References: <20200331183844.30488-1-ulf.hansson@linaro.org> <20200331183844.30488-2-ulf.hansson@linaro.org>
+In-Reply-To: <20200331183844.30488-2-ulf.hansson@linaro.org>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 22 Apr 2020 11:41:45 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a0Nqvho82529dAi6oZhh0PgjiRfj=NLdNkkMfZ6Tw25iw@mail.gmail.com>
+Message-ID: <CAK8P3a0Nqvho82529dAi6oZhh0PgjiRfj=NLdNkkMfZ6Tw25iw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] driver core: platform: Initialize dma_parms for
+ platform devices
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Vinod Koul <vkoul@kernel.org>, Haibo Chen <haibo.chen@nxp.com>,
+        Ludovic Barre <ludovic.barre@st.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        dmaengine@vger.kernel.org, "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:MMTRj86fwKfvoZWFKQYMmrK3zViJuqLn7Dx0RpoQJx1H/i3Ue5L
+ S3n12a8r6sTC8ENA+hZRDav1L1/5tawehIpFKXJE7oUHQS4e1e01pTrhziREVkndouLTy4K
+ s46ASiseUsyRfIkkJAVEnXWUd4LLoviiX6bDu2YFSerVctlW90pkLFhIH7c9buCjbAgVb5f
+ 4j/czMBojaviYlI/5vgNQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:RMEJQvaPY2c=:wFZILn3iyycMGvldA+swCI
+ M3gLjdudcxOC14+PRDD/g91GY3XGmN5h0YCuUiqSnoMv29n3/4ftiOJZVjL4PAp0eXKPZCfw9
+ F8XjcL4Ha0DtR26BaSzbrhJAdeGFysGg6L1AZ13kt/0OUiPjOyeFlGWn0ScTQG0eBIZcPV7fs
+ PDRfGY+FXCARqIyXAoKgAZXOtOZFiWn7Lv2C9qyOeF8ZeTyMT59aPc3li6u3XTnjLckD9vNRn
+ sZYbdZBmq70j8RwUpnbTLtkuETfsMhZkGGM4RXdUTk35zEQW+4jBNQEga9ee8ojL6/t8iFTOV
+ YSOBhMBr8JgTMTpSVdr17ahqvnZlg6eOTYDGIJPJZp0bE5eEwqQ765Er0bpMDQoQXYT8oeux8
+ NaYx567ZlAA4q0DDmJFIxdhW7sX7tF0/F2wqbXN2C4zfmtypWmS3fZ4wZzmoPyGq7daNPDHNz
+ UXUQlFgdMbikK/zk+H8uFvDbX67ISa1u2nkUjH9a05IkbpPyjCQ9wu9aqgVtrdlEYZ8Ee7K1I
+ xWScRxFjpSpEBlksAH10E+PpqZpSUR96q6hHCwVOrBDDEfJSYVPJVfYg66FDzgNzPqj7gMMp8
+ L12Vdv9g8NUfvQf9IcJ/4Dw/hyOXShLEecPsCyrjTaMOuCQ2455rj3n7jOMu4e9AfYgllhBRq
+ kMX/RPveshV1PYidewyJiZZ4PZzjK30YGsLcNkjd4hLJyu6qU+Twj1FXnmxg4MioAFERfok+d
+ aMEN6Wt+heJNkYehVFNLg6grpKl6jFw7V3kqL64qly9W5L+3OwLvfhqluXxfjLRGkWJlx4ER/
+ DyPXZIFZPPl1J8tazibTf1CpxUotFmZT9UIlkob0/rPktgd5EU=
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Mar 31, 2020 at 8:38 PM Ulf Hansson <ulf.hansson@linaro.org> wrote:
+>
+> It's currently the platform driver's responsibility to initialize the
+> pointer, dma_parms, for its corresponding struct device. The benefit with
+> this approach allows us to avoid the initialization and to not waste memory
+> for the struct device_dma_parameters, as this can be decided on a case by
+> case basis.
+>
+> However, it has turned out that this approach is not very practical.  Not
+> only does it lead to open coding, but also to real errors. In principle
+> callers of dma_set_max_seg_size() doesn't check the error code, but just
+> assumes it succeeds.
+>
+> For these reasons, let's do the initialization from the common platform bus
+> at the device registration point. This also follows the way the PCI devices
+> are being managed, see pci_device_add().
+>
+> Suggested-by: Christoph Hellwig <hch@lst.de>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-On 4/22/20 10:34 AM, Greg KH wrote:
-> On Wed, Apr 22, 2020 at 10:21:23AM +0200, Vegard Nossum wrote:
->>
->> Hi,
->>
->> There is no point in taking this patch on any stable kernel as it's just
->> improving a build error diagnostic message.
-> 
-> build error messages are nice to have be correct, don't you think?
-> 
-> Seems like a valid fix for me.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
-The patch will break on gcc 4.2 and earlier, so if the older stable
-kernels support those then people might be surprised. The mainline patch
-was deemed fine since gcc 4.6 is required. More info here:
-<https://lkml.org/lkml/2020/3/31/1477>
-
-If no stable kernel is built with gcc <= 4.2 then you can disregard this.
-
-I think the patch also doesn't really satisfy the following criteria
-from stable_kernel_rules.txt:
-
-  - "It must fix a real bug that bothers people": It bothered me (and I
-ran into the bug) on mainline, but that was while writing brand new code
-that used BUILD_BUG_ON(). Presumably these things will not fire on
-existing kernel code.
-
-  - "It must fix a problem that causes a build error ...": It doesn't fix
-any of the things listed, not even a build error, just a _diagnostic_
-for an incredibly rare case of a rare kind of build error.
-
-In the end, I am not personally opposed to having the patch in stable,
-but it seems to go against everything I've ever heard about stable rules
-so I'm a bit surprised when you take it anyway. I think it might reduce
-people's trust in stable kernels if any random weird patch is taken
-uncritically when even the patch author points out that it doesn't fit
-the criteria!
-
-
-Vegard
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
