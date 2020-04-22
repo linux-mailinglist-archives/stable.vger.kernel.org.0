@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D6F1B42A5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE2A1B42A6
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727100AbgDVLDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726712AbgDVLDH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 22 Apr 2020 07:03:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47182 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725924AbgDVKAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:00:07 -0400
+        id S1726102AbgDVKAJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88BF720780;
-        Wed, 22 Apr 2020 10:00:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC35E20774;
+        Wed, 22 Apr 2020 10:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549607;
-        bh=XaxPX5jkkt3FhVpFH+7Y7CjBGsNidhj++XYQ7Stjqvw=;
+        s=default; t=1587549609;
+        bh=zme3VJnPvVfRE8xRvtJi2B0Cfn4I7S00HFEx5DBO+cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=afrlXW9awhkZG774GcN7eUhmntwGRaeIVjYTdXHM15GMXRLK84GEuwqQddY7MSHcV
-         RWm1KntsINT38MOAAACtNGoIcYsk2ohJNdeTuezcNN221mX47mOoiE7KphipDrZv6w
-         O6I1nq654cvccUCsOeBJJdqccVVijTn43j2s10+s=
+        b=eG1cKxDJfe4rVVqNhcbHzbwUFrb0hUjmWm+8lN1U6WLmBOc6Y48OOUsDM0esV3d5L
+         HZYpN0A7gA0ajNipnfWg3ARdLvKCCjmW02GmeYgH4As31MDjftTPSLodWt1Y9eHrk4
+         qjGTAmAAyZBEconWtgtG4CS03FVdxFmdOcjw6cWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.4 033/100] KVM: x86: Allocate new rmap and large page tracking when moving memslot
-Date:   Wed, 22 Apr 2020 11:56:03 +0200
-Message-Id: <20200422095028.713381007@linuxfoundation.org>
+        stable@vger.kernel.org, Rosioru Dragos <dragos.rosioru@nxp.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.4 034/100] crypto: mxs-dcp - fix scatterlist linearization for hash
+Date:   Wed, 22 Apr 2020 11:56:04 +0200
+Message-Id: <20200422095028.843809523@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
 References: <20200422095022.476101261@linuxfoundation.org>
@@ -45,102 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Rosioru Dragos <dragos.rosioru@nxp.com>
 
-commit edd4fa37baa6ee8e44dc65523b27bd6fe44c94de upstream.
+commit fa03481b6e2e82355c46644147b614f18c7a8161 upstream.
 
-Reallocate a rmap array and recalcuate large page compatibility when
-moving an existing memslot to correctly handle the alignment properties
-of the new memslot.  The number of rmap entries required at each level
-is dependent on the alignment of the memslot's base gfn with respect to
-that level, e.g. moving a large-page aligned memslot so that it becomes
-unaligned will increase the number of rmap entries needed at the now
-unaligned level.
+The incorrect traversal of the scatterlist, during the linearization phase
+lead to computing the hash value of the wrong input buffer.
+New implementation uses scatterwalk_map_and_copy()
+to address this issue.
 
-Not updating the rmap array is the most obvious bug, as KVM accesses
-garbage data beyond the end of the rmap.  KVM interprets the bad data as
-pointers, leading to non-canonical #GPs, unexpected #PFs, etc...
-
-  general protection fault: 0000 [#1] SMP
-  CPU: 0 PID: 1909 Comm: move_memory_reg Not tainted 5.4.0-rc7+ #139
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:rmap_get_first+0x37/0x50 [kvm]
-  Code: <48> 8b 3b 48 85 ff 74 ec e8 6c f4 ff ff 85 c0 74 e3 48 89 d8 5b c3
-  RSP: 0018:ffffc9000021bbc8 EFLAGS: 00010246
-  RAX: ffff00617461642e RBX: ffff00617461642e RCX: 0000000000000012
-  RDX: ffff88827400f568 RSI: ffffc9000021bbe0 RDI: ffff88827400f570
-  RBP: 0010000000000000 R08: ffffc9000021bd00 R09: ffffc9000021bda8
-  R10: ffffc9000021bc48 R11: 0000000000000000 R12: 0030000000000000
-  R13: 0000000000000000 R14: ffff88827427d700 R15: ffffc9000021bce8
-  FS:  00007f7eda014700(0000) GS:ffff888277a00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f7ed9216ff8 CR3: 0000000274391003 CR4: 0000000000162eb0
-  Call Trace:
-   kvm_mmu_slot_set_dirty+0xa1/0x150 [kvm]
-   __kvm_set_memory_region.part.64+0x559/0x960 [kvm]
-   kvm_set_memory_region+0x45/0x60 [kvm]
-   kvm_vm_ioctl+0x30f/0x920 [kvm]
-   do_vfs_ioctl+0xa1/0x620
-   ksys_ioctl+0x66/0x70
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x4c/0x170
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f7ed9911f47
-  Code: <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 21 6f 2c 00 f7 d8 64 89 01 48
-  RSP: 002b:00007ffc00937498 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-  RAX: ffffffffffffffda RBX: 0000000001ab0010 RCX: 00007f7ed9911f47
-  RDX: 0000000001ab1350 RSI: 000000004020ae46 RDI: 0000000000000004
-  RBP: 000000000000000a R08: 0000000000000000 R09: 00007f7ed9214700
-  R10: 00007f7ed92149d0 R11: 0000000000000246 R12: 00000000bffff000
-  R13: 0000000000000003 R14: 00007f7ed9215000 R15: 0000000000000000
-  Modules linked in: kvm_intel kvm irqbypass
-  ---[ end trace 0c5f570b3358ca89 ]---
-
-The disallow_lpage tracking is more subtle.  Failure to update results
-in KVM creating large pages when it shouldn't, either due to stale data
-or again due to indexing beyond the end of the metadata arrays, which
-can lead to memory corruption and/or leaking data to guest/userspace.
-
-Note, the arrays for the old memslot are freed by the unconditional call
-to kvm_free_memslot() in __kvm_set_memory_region().
-
-Fixes: 05da45583de9b ("KVM: MMU: large page support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 15b59e7c3733 ("crypto: mxs - Add Freescale MXS DCP driver")
+Signed-off-by: Rosioru Dragos <dragos.rosioru@nxp.com>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/crypto/mxs-dcp.c |   54 ++++++++++++++++++++++-------------------------
+ 1 file changed, 26 insertions(+), 28 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7982,6 +7982,13 @@ int kvm_arch_create_memslot(struct kvm *
- {
- 	int i;
+--- a/drivers/crypto/mxs-dcp.c
++++ b/drivers/crypto/mxs-dcp.c
+@@ -25,6 +25,7 @@
+ #include <crypto/aes.h>
+ #include <crypto/sha.h>
+ #include <crypto/internal/hash.h>
++#include <crypto/scatterwalk.h>
  
-+	/*
-+	 * Clear out the previous array pointers for the KVM_MR_MOVE case.  The
-+	 * old arrays will be freed by __kvm_set_memory_region() if installing
-+	 * the new memslot is successful.
-+	 */
-+	memset(&slot->arch, 0, sizeof(slot->arch));
-+
- 	for (i = 0; i < KVM_NR_PAGE_SIZES; ++i) {
- 		unsigned long ugfn;
- 		int lpages;
-@@ -8050,6 +8057,10 @@ int kvm_arch_prepare_memory_region(struc
- 				const struct kvm_userspace_memory_region *mem,
- 				enum kvm_mr_change change)
- {
-+	if (change == KVM_MR_MOVE)
-+		return kvm_arch_create_memslot(kvm, memslot,
-+					       mem->memory_size >> PAGE_SHIFT);
-+
- 	return 0;
- }
+ #define DCP_MAX_CHANS	4
+ #define DCP_BUF_SZ	PAGE_SIZE
+@@ -626,49 +627,46 @@ static int dcp_sha_req_to_buf(struct cry
+ 	struct dcp_async_ctx *actx = crypto_ahash_ctx(tfm);
+ 	struct dcp_sha_req_ctx *rctx = ahash_request_ctx(req);
+ 	struct hash_alg_common *halg = crypto_hash_alg_common(tfm);
+-	const int nents = sg_nents(req->src);
  
+ 	uint8_t *in_buf = sdcp->coh->sha_in_buf;
+ 	uint8_t *out_buf = sdcp->coh->sha_out_buf;
+ 
+-	uint8_t *src_buf;
+-
+ 	struct scatterlist *src;
+ 
+-	unsigned int i, len, clen;
++	unsigned int i, len, clen, oft = 0;
+ 	int ret;
+ 
+ 	int fin = rctx->fini;
+ 	if (fin)
+ 		rctx->fini = 0;
+ 
+-	for_each_sg(req->src, src, nents, i) {
+-		src_buf = sg_virt(src);
+-		len = sg_dma_len(src);
++	src = req->src;
++	len = req->nbytes;
+ 
+-		do {
+-			if (actx->fill + len > DCP_BUF_SZ)
+-				clen = DCP_BUF_SZ - actx->fill;
+-			else
+-				clen = len;
++	while (len) {
++		if (actx->fill + len > DCP_BUF_SZ)
++			clen = DCP_BUF_SZ - actx->fill;
++		else
++			clen = len;
+ 
+-			memcpy(in_buf + actx->fill, src_buf, clen);
+-			len -= clen;
+-			src_buf += clen;
+-			actx->fill += clen;
++		scatterwalk_map_and_copy(in_buf + actx->fill, src, oft, clen,
++					 0);
+ 
+-			/*
+-			 * If we filled the buffer and still have some
+-			 * more data, submit the buffer.
+-			 */
+-			if (len && actx->fill == DCP_BUF_SZ) {
+-				ret = mxs_dcp_run_sha(req);
+-				if (ret)
+-					return ret;
+-				actx->fill = 0;
+-				rctx->init = 0;
+-			}
+-		} while (len);
++		len -= clen;
++		oft += clen;
++		actx->fill += clen;
++
++		/*
++		 * If we filled the buffer and still have some
++		 * more data, submit the buffer.
++		 */
++		if (len && actx->fill == DCP_BUF_SZ) {
++			ret = mxs_dcp_run_sha(req);
++			if (ret)
++				return ret;
++			actx->fill = 0;
++			rctx->init = 0;
++		}
+ 	}
+ 
+ 	if (fin) {
 
 
