@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 729401B40F9
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D74151B4238
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731651AbgDVKta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:49:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47178 "EHLO mail.kernel.org"
+        id S1726528AbgDVKCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:02:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726604AbgDVKNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:13:21 -0400
+        id S1726710AbgDVKCx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:02:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A05120575;
-        Wed, 22 Apr 2020 10:13:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1770420882;
+        Wed, 22 Apr 2020 10:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550400;
-        bh=EPpaxcS8UexAx2lSQrSz+suQLiTjBG6z20uWIReh5LU=;
+        s=default; t=1587549773;
+        bh=I5yny2GtYN115SjnGt3YvfV6A1qPLytPlWeA7gh9i8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEpFmi8+28k23fsj7hYQP521hzXwdYLduWLH7VO2+6D8G79UectvwOaWLGjtXo+8t
-         kltj3kOYNZCVGwTZYZ/nEpo75P4ZGALIbFOr/r0g18fqfJLxlkjTevXps0O5hBJA47
-         gn0TFhaT6RVRNjgILhRN6iRHwC0c55lPI/jdCxPY=
+        b=frOnmKsY6fQw+oOJh/ZtdfaI/owFmwssiP0/nhgRakp/bs08kvXRYzb1sluvOswi9
+         j3rLwMu+WpwgeiwccphkDUs6xfMCrkSyMprZoM+ydx6sS0l3DdkUuz0EFuUAOIERGc
+         h0WRRN2zG7ruFyoCCHf4LbTOcAEntJh/OF2MDITA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Scott Wood <oss@buserror.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 103/199] powerpc/fsl_booke: Avoid creating duplicate tlb1 entry
+        stable@vger.kernel.org,
+        Evalds Iodzevics <evalds.iodzevics@gmail.com>
+Subject: [PATCH 4.4 099/100] x86/microcode/intel: replace sync_core() with native_cpuid_reg(eax)
 Date:   Wed, 22 Apr 2020 11:57:09 +0200
-Message-Id: <20200422095108.143377880@linuxfoundation.org>
+Message-Id: <20200422095040.684764961@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,80 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+From: Evalds Iodzevics <evalds.iodzevics@gmail.com>
 
-[ Upstream commit aa4113340ae6c2811e046f08c2bc21011d20a072 ]
+On Intel it is required to do CPUID(1) before reading the microcode
+revision MSR. Current code in 4.4 an 4.9 relies on sync_core() to call
+CPUID, unfortunately on 32 bit machines code inside sync_core() always
+jumps past CPUID instruction as it depends on data structure boot_cpu_data
+witch are not populated correctly so early in boot sequence.
 
-In the current implementation, the call to loadcam_multi() is wrapped
-between switch_to_as1() and restore_to_as0() calls so, when it tries
-to create its own temporary AS=1 TLB1 entry, it ends up duplicating
-the existing one created by switch_to_as1(). Add a check to skip
-creating the temporary entry if already running in AS=1.
+It depends on:
+commit 5dedade6dfa2 ("x86/CPU: Add native CPUID variants returning a single
+datum")
 
-Fixes: d9e1831a4202 ("powerpc/85xx: Load all early TLB entries at once")
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Acked-by: Scott Wood <oss@buserror.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200123111914.2565-1-laurentiu.tudor@nxp.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch is for 4.4 but also should apply to 4.9
+
+Signed-off-by: Evalds Iodzevics <evalds.iodzevics@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/mm/tlb_nohash_low.S | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/microcode_intel.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/tlb_nohash_low.S b/arch/powerpc/mm/tlb_nohash_low.S
-index 048b8e9f44928..63964af9a162e 100644
---- a/arch/powerpc/mm/tlb_nohash_low.S
-+++ b/arch/powerpc/mm/tlb_nohash_low.S
-@@ -400,7 +400,7 @@ _GLOBAL(set_context)
-  * extern void loadcam_entry(unsigned int index)
-  *
-  * Load TLBCAM[index] entry in to the L2 CAM MMU
-- * Must preserve r7, r8, r9, and r10
-+ * Must preserve r7, r8, r9, r10 and r11
-  */
- _GLOBAL(loadcam_entry)
- 	mflr	r5
-@@ -436,6 +436,10 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_BIG_PHYS)
-  */
- _GLOBAL(loadcam_multi)
- 	mflr	r8
-+	/* Don't switch to AS=1 if already there */
-+	mfmsr	r11
-+	andi.	r11,r11,MSR_IS
-+	bne	10f
+--- a/arch/x86/include/asm/microcode_intel.h
++++ b/arch/x86/include/asm/microcode_intel.h
+@@ -60,7 +60,7 @@ static inline u32 intel_get_microcode_re
+ 	native_wrmsrl(MSR_IA32_UCODE_REV, 0);
  
- 	/*
- 	 * Set up temporary TLB entry that is the same as what we're
-@@ -461,6 +465,7 @@ _GLOBAL(loadcam_multi)
- 	mtmsr	r6
- 	isync
+ 	/* As documented in the SDM: Do a CPUID 1 here */
+-	sync_core();
++	native_cpuid_eax(1);
  
-+10:
- 	mr	r9,r3
- 	add	r10,r3,r4
- 2:	bl	loadcam_entry
-@@ -469,6 +474,10 @@ _GLOBAL(loadcam_multi)
- 	mr	r3,r9
- 	blt	2b
- 
-+	/* Don't return to AS=0 if we were in AS=1 at function start */
-+	andi.	r11,r11,MSR_IS
-+	bne	3f
-+
- 	/* Return to AS=0 and clear the temporary entry */
- 	mfmsr	r6
- 	rlwinm.	r6,r6,0,~(MSR_IS|MSR_DS)
-@@ -484,6 +493,7 @@ _GLOBAL(loadcam_multi)
- 	tlbwe
- 	isync
- 
-+3:
- 	mtlr	r8
- 	blr
- #endif
--- 
-2.20.1
-
+ 	/* get the current revision from MSR 0x8B */
+ 	native_rdmsr(MSR_IA32_UCODE_REV, dummy, rev);
 
 
