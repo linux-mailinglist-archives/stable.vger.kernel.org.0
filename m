@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45C741B421D
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 909D81B42A0
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726870AbgDVK6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:58:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55034 "EHLO mail.kernel.org"
+        id S1726584AbgDVJ76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 05:59:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728039AbgDVKEd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:04:33 -0400
+        id S1726575AbgDVJ7z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 05:59:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C3AF2075A;
-        Wed, 22 Apr 2020 10:04:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B9B920776;
+        Wed, 22 Apr 2020 09:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549873;
-        bh=b7CWP8ILYjNqGavujzzxfi1GfBdxFbOnepxjuINjK0s=;
+        s=default; t=1587549594;
+        bh=uHfJDHSXVBlydjhYSgY2opUgFgAkXRYmYj1mXLjkKrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fytz9uwV5RjQKO9rjSIcXK5WVcgT4VekuzuROAYbT3rcUTj7RVsvP0dWAdL/ORgGw
-         hMPvjMh4YaQoYxmXNlFWsf25rFVcS+LhQqiwPDnpDgRjZAZaFI3ocfoRQR2I3B1FOE
-         W0eH3CtY41U1MiXbHmXM5uCuOc5w0WtoDzIi/36Y=
+        b=UmKD59y79S0mPzQOFcK/t3orv1WKB/j1xN8CSIzvwWcZ7DYqSjJbHVCTBNpHT94JR
+         0zYBRNmtjaA3AHMHAPzpWIfm9e8Hc+AyBzSJbqzuRDC7JI5SPut5lrGjIeNx60hua3
+         pnry1aSWh7Oc5GDuaKRVErC2duq7YXyuYIMWXJgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9 040/125] btrfs: drop block from cache on error in relocation
-Date:   Wed, 22 Apr 2020 11:55:57 +0200
-Message-Id: <20200422095040.007612140@linuxfoundation.org>
+        stable@vger.kernel.org, Sungbo Eo <mans0n@gorani.run>,
+        Marc Zyngier <maz@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.4 028/100] irqchip/versatile-fpga: Apply clear-mask earlier
+Date:   Wed, 22 Apr 2020 11:55:58 +0200
+Message-Id: <20200422095027.905688275@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Sungbo Eo <mans0n@gorani.run>
 
-commit 8e19c9732ad1d127b5575a10f4fbcacf740500ff upstream.
+commit 6a214a28132f19ace3d835a6d8f6422ec80ad200 upstream.
 
-If we have an error while building the backref tree in relocation we'll
-process all the pending edges and then free the node.  However if we
-integrated some edges into the cache we'll lose our link to those edges
-by simply freeing this node, which means we'll leak memory and
-references to any roots that we've found.
+Clear its own IRQs before the parent IRQ get enabled, so that the
+remaining IRQs do not accidentally interrupt the parent IRQ controller.
 
-Instead we need to use remove_backref_node(), which walks through all of
-the edges that are still linked to this node and free's them up and
-drops any root references we may be holding.
+This patch also fixes a reboot bug on OX820 SoC, where the remaining
+rps-timer IRQ raises a GIC interrupt that is left pending. After that,
+the rps-timer IRQ is cleared during driver initialization, and there's
+no IRQ left in rps-irq when local_irq_enable() is called, which evokes
+an error message "unexpected IRQ trap".
 
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: bdd272cbb97a ("irqchip: versatile FPGA: support cascaded interrupts from DT")
+Signed-off-by: Sungbo Eo <mans0n@gorani.run>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200321133842.2408823-1-mans0n@gorani.run
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/relocation.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-versatile-fpga.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1185,7 +1185,7 @@ out:
- 			free_backref_node(cache, lower);
- 		}
+--- a/drivers/irqchip/irq-versatile-fpga.c
++++ b/drivers/irqchip/irq-versatile-fpga.c
+@@ -211,6 +211,9 @@ int __init fpga_irq_of_init(struct devic
+ 	if (of_property_read_u32(node, "valid-mask", &valid_mask))
+ 		valid_mask = 0;
  
--		free_backref_node(cache, node);
-+		remove_backref_node(cache, node);
- 		return ERR_PTR(err);
- 	}
- 	ASSERT(!node || !node->detached);
++	writel(clear_mask, base + IRQ_ENABLE_CLEAR);
++	writel(clear_mask, base + FIQ_ENABLE_CLEAR);
++
+ 	/* Some chips are cascaded from a parent IRQ */
+ 	parent_irq = irq_of_parse_and_map(node, 0);
+ 	if (!parent_irq) {
+@@ -225,9 +228,6 @@ int __init fpga_irq_of_init(struct devic
+ 	fpga_irq_init(base, node->name, 0, parent_irq, valid_mask, node);
+ #endif
+ 
+-	writel(clear_mask, base + IRQ_ENABLE_CLEAR);
+-	writel(clear_mask, base + FIQ_ENABLE_CLEAR);
+-
+ 	/*
+ 	 * On Versatile AB/PB, some secondary interrupts have a direct
+ 	 * pass-thru to the primary controller for IRQs 20 and 22-31 which need
 
 
