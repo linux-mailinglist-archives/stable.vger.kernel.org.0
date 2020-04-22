@@ -2,49 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B63DD1B3D94
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:16:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 529D51B3E35
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:26:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729391AbgDVKQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51958 "EHLO mail.kernel.org"
+        id S1728776AbgDVK0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:26:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726077AbgDVKQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:16:16 -0400
+        id S1730696AbgDVK0U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:26:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 904FE2070B;
-        Wed, 22 Apr 2020 10:16:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7E5E2075A;
+        Wed, 22 Apr 2020 10:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550576;
-        bh=qtSnn8Vl3H5pXZ6mu5NFbfSFn7P/n2TnP5UxKduBso8=;
+        s=default; t=1587551180;
+        bh=8qfY1PhpS8YCU7EkMHPLz0aR2nf5Kwu2pnxThzBrBOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VvpJb7VXF/6aT4kODJo2uSUH8026fFnAxajjgYFQ7vivIcTyULe52Cgn0+xFYhogk
-         xWIgNv2vCW2lEDmkrhGA5+HdLvmlMgUINJKiFaWG4nTv4jdhOAFNaRoiJTlpfoXtZY
-         OU1X7rI/HbgoUrIHEzDgmKhYhB+N3qI2O3IWWAb4=
+        b=SMOfQojdQOwgcmIokc6ZxTwvxpDSObjDajfMJyG5rHtat/GAEXYsLuR44Q6wK1kaP
+         IT9L9lDMZGugykgOy/mXFyIdznF5x8ZUiYz49wTtRNiWlTqwxACtMFP1rmGav2fC9L
+         ooB/6FoCS56D1xWUYfpqZsxEkrUD1PA8g9sssaWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrea Righi <righi.andrea@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Peter Rosin <peda@axentia.se>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.19 56/64] fbdev: potential information leak in do_fb_ioctl()
+        stable@vger.kernel.org, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 133/166] f2fs: skip GC when section is full
 Date:   Wed, 22 Apr 2020 11:57:40 +0200
-Message-Id: <20200422095023.013014278@linuxfoundation.org>
+Message-Id: <20200422095102.895727071@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
-References: <20200422095008.799686511@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit d3d19d6fc5736a798b118971935ce274f7deaa82 upstream.
+[ Upstream commit 2bac07635ddf9ed59268e61e415d8de9c5eaded7 ]
 
-The "fix" struct has a 2 byte hole after ->ywrapstep and the
-"fix = info->fix;" assignment doesn't necessarily clear it.  It depends
-on the compiler.  The solution is just to replace the assignment with an
-memcpy().
+This fixes skipping GC when segment is full in large section.
 
-Fixes: 1f5e31d7e55a ("fbmem: don't call copy_from/to_user() with mutex held")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrea Righi <righi.andrea@gmail.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Peter Rosin <peda@axentia.se>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200113100132.ixpaymordi24n3av@kili.mountain
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/gc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1122,7 +1122,7 @@ static long do_fb_ioctl(struct fb_info *
- 	case FBIOGET_FSCREENINFO:
- 		if (!lock_fb_info(info))
- 			return -ENODEV;
--		fix = info->fix;
-+		memcpy(&fix, &info->fix, sizeof(fix));
- 		unlock_fb_info(info);
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index 2f645c591a000..3cced15efebc2 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1018,8 +1018,8 @@ static int gc_data_segment(struct f2fs_sb_info *sbi, struct f2fs_summary *sum,
+ 		 * race condition along with SSR block allocation.
+ 		 */
+ 		if ((gc_type == BG_GC && has_not_enough_free_secs(sbi, 0, 0)) ||
+-				get_valid_blocks(sbi, segno, false) ==
+-							sbi->blocks_per_seg)
++				get_valid_blocks(sbi, segno, true) ==
++							BLKS_PER_SEC(sbi))
+ 			return submitted;
  
- 		ret = copy_to_user(argp, &fix, sizeof(fix)) ? -EFAULT : 0;
+ 		if (check_valid_map(sbi, segno, off) == 0)
+-- 
+2.20.1
+
 
 
