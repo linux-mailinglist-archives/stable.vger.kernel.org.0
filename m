@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B35371B3C88
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD3C1B3D49
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728361AbgDVKGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:06:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58508 "EHLO mail.kernel.org"
+        id S1726245AbgDVKNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:13:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728363AbgDVKGc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:06:32 -0400
+        id S1726071AbgDVKNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:13:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FA9A2076C;
-        Wed, 22 Apr 2020 10:06:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8EB42070B;
+        Wed, 22 Apr 2020 10:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549991;
-        bh=uxZn+6iQBZhne3sVwParQxdimdS2QwyNL9wAwNIljlA=;
+        s=default; t=1587550423;
+        bh=H6Z+9XzVrFIBUDc5K9rnUjwU+Iy5AVOXH2RUfq6xHqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=reERQEeYrRyZ59Nc78CMF5CVs4V1GxVGo7KTd6B+jtg6oZQtgk2QkQzcxd9oIb8fY
-         aZ7jTAZsBkrvb/+1cn/RCcGHXh/0CtXj7NYWyxj6GiHRmXEkgRi5QKnj2hwiOK/xFv
-         O1/2byf5Legni/FGIn9ufpbvfpmJzxuUWtPI5riw=
+        b=bl/Ww1YMhOsSPv5DiA5zkD+n8eVLQdh5OxFPBk++TpXF2PqsvwDqvI4+C2YxnwPdF
+         8wJ2hDfNKpdBx4fFmJkqvDNaCwgEavngexlDFjkSdWB+g2R6mnT1DwX5m/mnjfFH6S
+         BwRe78ZheELjSU2wOrZk02Zs9Is4BJNPpaWzOoXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.9 089/125] video: fbdev: sis: Remove unnecessary parentheses and commented code
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>, Miroslav Benes <mbenes@suse.cz>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.19 02/64] objtool: Fix switch table detection in .text.unlikely
 Date:   Wed, 22 Apr 2020 11:56:46 +0200
-Message-Id: <20200422095047.371366550@linuxfoundation.org>
+Message-Id: <20200422095012.643786966@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 864eb1afc60cb43e7df879b97f8ca0d719bbb735 upstream.
+commit b401efc120a399dfda1f4d2858a4de365c9b08ef upstream.
 
-Clang warns when multiple pairs of parentheses are used for a single
-conditional statement.
+If a switch jump table's indirect branch is in a ".cold" subfunction in
+.text.unlikely, objtool doesn't detect it, and instead prints a false
+warning:
 
-drivers/video/fbdev/sis/init301.c:851:42: warning: equality comparison
-with extraneous parentheses [-Wparentheses-equality]
-      } else if((SiS_Pr->SiS_IF_DEF_LVDS == 1) /* ||
-                 ~~~~~~~~~~~~~~~~~~~~~~~~^~~~
-drivers/video/fbdev/sis/init301.c:851:42: note: remove extraneous
-parentheses around the comparison to silence this warning
-      } else if((SiS_Pr->SiS_IF_DEF_LVDS == 1) /* ||
-                ~                        ^   ~
-drivers/video/fbdev/sis/init301.c:851:42: note: use '=' to turn this
-equality comparison into an assignment
-      } else if((SiS_Pr->SiS_IF_DEF_LVDS == 1) /* ||
-                                         ^~
-                                         =
-1 warning generated.
+  drivers/media/v4l2-core/v4l2-ioctl.o: warning: objtool: v4l_print_format.cold()+0xd6: sibling call from callable instruction with modified stack frame
+  drivers/hwmon/max6650.o: warning: objtool: max6650_probe.cold()+0xa5: sibling call from callable instruction with modified stack frame
+  drivers/media/dvb-frontends/drxk_hard.o: warning: objtool: init_drxk.cold()+0x16f: sibling call from callable instruction with modified stack frame
 
-Remove the parentheses and while we're at it, clean up the commented
-code, which has been here since the beginning of git history.
+Fix it by comparing the function, instead of the section and offset.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/118
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Fixes: 13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/157c35d42ca9b6354bbb1604fe9ad7d1153ccb21.1585761021.git.jpoimboe@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sis/init301.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ tools/objtool/check.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/video/fbdev/sis/init301.c
-+++ b/drivers/video/fbdev/sis/init301.c
-@@ -522,9 +522,7 @@ SiS_PanelDelay(struct SiS_Private *SiS_P
- 	    SiS_DDC2Delay(SiS_Pr, 0x4000);
- 	 }
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -938,10 +938,7 @@ static struct rela *find_switch_table(st
+ 	 * it.
+ 	 */
+ 	for (;
+-	     &insn->list != &file->insn_list &&
+-	     insn->sec == func->sec &&
+-	     insn->offset >= func->offset;
+-
++	     &insn->list != &file->insn_list && insn->func && insn->func->pfunc == func;
+ 	     insn = insn->first_jump_src ?: list_prev_entry(insn, list)) {
  
--      } else if((SiS_Pr->SiS_IF_DEF_LVDS == 1) /* ||
--	 (SiS_Pr->SiS_CustomT == CUT_COMPAQ1280) ||
--	 (SiS_Pr->SiS_CustomT == CUT_CLEVO1400) */ ) {			/* 315 series, LVDS; Special */
-+      } else if (SiS_Pr->SiS_IF_DEF_LVDS == 1) {			/* 315 series, LVDS; Special */
- 
- 	 if(SiS_Pr->SiS_IF_DEF_CH70xx == 0) {
- 	    PanelID = SiS_GetReg(SiS_Pr->SiS_P3d4,0x36);
+ 		if (insn != orig_insn && insn->type == INSN_JUMP_DYNAMIC)
 
 
