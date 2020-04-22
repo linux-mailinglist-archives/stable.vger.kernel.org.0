@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B288F1B41D5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE7B91B425A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728391AbgDVKGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:06:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58674 "EHLO mail.kernel.org"
+        id S1728094AbgDVLAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728388AbgDVKGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:06:40 -0400
+        id S1726901AbgDVKB4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:01:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 642922076C;
-        Wed, 22 Apr 2020 10:06:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5230220780;
+        Wed, 22 Apr 2020 10:01:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549998;
-        bh=ply7STCKTzRLwCtHHPvJalCJ1SwVkJNKXSg6UOLgnCI=;
+        s=default; t=1587549715;
+        bh=fMIbKF4UunvlXc7lLG5zLO3UJbltX/cxE/vfANOnhK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvM1Q7p28g/eibymqrt35s/M2MQ9v4ngn0H/aUKsTc1kL5LE+S/4efSvT6vAkYKzz
-         GmAreD3FtFgqV/qgBymYxa3RCXr3tJpkBt82G4G89a7FcpRKhRXCjLDTaoO6hVcwT6
-         0BBihtWdLw1xki4sUnMGgpeCuwdAOOQ5TMWV0vOU=
+        b=lzB4R6gx2YX+QvzqsnBhmhNK32pv7qYJFMk6Wav1ECiyDY4KGxh/+K/aEQTtVy3kx
+         XGjvVrxEZfJ8R1KLRLQeKFwH24C4WUSS7GUEPUWKirGsz99mGYVE7SguQyr+UzjOlq
+         NhmiC8Pk3ichBJPRm5cszZK6aZisdkjFCxOl4HhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Timur Tabi <timur@codeaurora.org>,
-        Stephen Boyd <sboyd@codeaurora.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Subhash Jadavani <subhashj@codeaurora.org>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 091/125] Revert "gpio: set up initial state from .get_direction()"
+Subject: [PATCH 4.4 078/100] scsi: ufs: ufs-qcom: remove broken hci version quirk
 Date:   Wed, 22 Apr 2020 11:56:48 +0200
-Message-Id: <20200422095047.685351272@linuxfoundation.org>
+Message-Id: <20200422095037.111146008@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timur Tabi <timur@codeaurora.org>
+From: Subhash Jadavani <subhashj@codeaurora.org>
 
-[ Upstream commit 1ca2a92b2a99323f666f1b669b7484df4bda05e4 ]
+[ Upstream commit 69a6fff068567469c0ef1156ae5ac8d3d71701f0 ]
 
-This reverts commit 72d3200061776264941be1b5a9bb8e926b3b30a5.
+UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION is only applicable for QCOM UFS host
+controller version 2.x.y and this has been fixed from version 3.x.y
+onwards, hence this change removes this quirk for version 3.x.y onwards.
 
-We cannot blindly query the direction of all GPIOs when the pins are
-first registered.  The get_direction callback normally triggers a
-read/write to hardware, but we shouldn't be touching the hardware for
-an individual GPIO until after it's been properly claimed.
+[mkp: applied by hand]
 
-Signed-off-by: Timur Tabi <timur@codeaurora.org>
-Reviewed-by: Stephen Boyd <sboyd@codeaurora.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Subhash Jadavani <subhashj@codeaurora.org>
+Signed-off-by: Asutosh Das <asutoshd@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpiolib.c |   31 +++++++------------------------
- 1 file changed, 7 insertions(+), 24 deletions(-)
+ drivers/scsi/ufs/ufs-qcom.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1232,31 +1232,14 @@ int gpiochip_add_data(struct gpio_chip *
- 		struct gpio_desc *desc = &gdev->descs[i];
- 
- 		desc->gdev = gdev;
--		/*
--		 * REVISIT: most hardware initializes GPIOs as inputs
--		 * (often with pullups enabled) so power usage is
--		 * minimized. Linux code should set the gpio direction
--		 * first thing; but until it does, and in case
--		 * chip->get_direction is not set, we may expose the
--		 * wrong direction in sysfs.
--		 */
--
--		if (chip->get_direction) {
--			/*
--			 * If we have .get_direction, set up the initial
--			 * direction flag from the hardware.
--			 */
--			int dir = chip->get_direction(chip, i);
- 
--			if (!dir)
--				set_bit(FLAG_IS_OUT, &desc->flags);
--		} else if (!chip->direction_input) {
--			/*
--			 * If the chip lacks the .direction_input callback
--			 * we logically assume all lines are outputs.
--			 */
--			set_bit(FLAG_IS_OUT, &desc->flags);
--		}
-+		/* REVISIT: most hardware initializes GPIOs as inputs (often
-+		 * with pullups enabled) so power usage is minimized. Linux
-+		 * code should set the gpio direction first thing; but until
-+		 * it does, and in case chip->get_direction is not set, we may
-+		 * expose the wrong direction in sysfs.
-+		 */
-+		desc->flags = !chip->direction_input ? (1 << FLAG_IS_OUT) : 0;
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -1032,7 +1032,7 @@ static void ufs_qcom_advertise_quirks(st
+ 		hba->quirks |= UFSHCD_QUIRK_BROKEN_LCC;
  	}
  
- #ifdef CONFIG_PINCTRL
+-	if (host->hw_ver.major >= 0x2) {
++	if (host->hw_ver.major == 0x2) {
+ 		hba->quirks |= UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION;
+ 
+ 		if (!ufs_qcom_cap_qunipro(host))
 
 
