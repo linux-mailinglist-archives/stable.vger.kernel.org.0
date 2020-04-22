@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 145F81B409D
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F0C1B4183
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729755AbgDVKQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:16:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52016 "EHLO mail.kernel.org"
+        id S1729515AbgDVKwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:52:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729130AbgDVKQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:16:19 -0400
+        id S1728868AbgDVKJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:09:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F51F2076B;
-        Wed, 22 Apr 2020 10:16:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3581420775;
+        Wed, 22 Apr 2020 10:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550578;
-        bh=5na/WFwDdrK9PJ7DFInLy3mYcZl0aIp9tPAA67PlMvo=;
+        s=default; t=1587550167;
+        bh=9+rty3PCPjR02VDm+opVqPKa12HLh41JK40ThsA+W6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2nhMToSPz9LUYdaE3hBSRy5UrFI/kcAHHLlxPfbiaWjYTHNkptW5Btocmx6Kn5KOS
-         L8sPjTKPO7/Yd2Z1KRMvXXIRSDz50sMKFzvEGsRidDauM9qXiIzZVx1YkXQqysJSbW
-         Wy5ZSBS2yMyntoqCty5xwm0cjZWUa7IxlYpaeA18=
+        b=sqMfVbE8/RJa8xUNz6OU/dfC2uNBIWGi9B2I+Z9SGl/MUntNfneYCfp0QdrUoTW6I
+         GAbippIm/VvRjK2gWd33RqFWeYe+HzW2BLslbnxEo0tU8giHpcAjrnKexWEt0dlOh3
+         vnB4P0t1f7C6Li36jpV/llfN9ttOm/pQHmt5xyYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Roman Gushchin <guro@fb.com>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 001/118] ext4: use non-movable memory for superblock readahead
+        stable@vger.kernel.org,
+        Sriharsha Allenki <sallenki@codeaurora.org>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.14 036/199] usb: gadget: f_fs: Fix use after free issue as part of queue failure
 Date:   Wed, 22 Apr 2020 11:56:02 +0200
-Message-Id: <20200422095031.716688980@linuxfoundation.org>
+Message-Id: <20200422095101.640140104@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,107 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
+From: Sriharsha Allenki <sallenki@codeaurora.org>
 
-commit d87f639258a6a5980183f11876c884931ad93da2 upstream.
+commit f63ec55ff904b2f2e126884fcad93175f16ab4bb upstream.
 
-Since commit a8ac900b8163 ("ext4: use non-movable memory for the
-superblock") buffers for ext4 superblock were allocated using
-the sb_bread_unmovable() helper which allocated buffer heads
-out of non-movable memory blocks. It was necessarily to not block
-page migrations and do not cause cma allocation failures.
+In AIO case, the request is freed up if ep_queue fails.
+However, io_data->req still has the reference to this freed
+request. In the case of this failure if there is aio_cancel
+call on this io_data it will lead to an invalid dequeue
+operation and a potential use after free issue.
+Fix this by setting the io_data->req to NULL when the request
+is freed as part of queue failure.
 
-However commit 85c8f176a611 ("ext4: preload block group descriptors")
-broke this by introducing pre-reading of the ext4 superblock.
-The problem is that __breadahead() is using __getblk() underneath,
-which allocates buffer heads out of movable memory.
-
-It resulted in page migration failures I've seen on a machine
-with an ext4 partition and a preallocated cma area.
-
-Fix this by introducing sb_breadahead_unmovable() and
-__breadahead_gfp() helpers which use non-movable memory for buffer
-head allocations and use them for the ext4 superblock readahead.
-
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Fixes: 85c8f176a611 ("ext4: preload block group descriptors")
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Link: https://lore.kernel.org/r/20200229001411.128010-1-guro@fb.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 2e4c7553cd6f ("usb: gadget: f_fs: add aio support")
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+CC: stable <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20200326115620.12571-1-sallenki@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/buffer.c                 |   11 +++++++++++
- fs/ext4/inode.c             |    2 +-
- fs/ext4/super.c             |    2 +-
- include/linux/buffer_head.h |    8 ++++++++
- 4 files changed, 21 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/f_fs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -1337,6 +1337,17 @@ void __breadahead(struct block_device *b
- }
- EXPORT_SYMBOL(__breadahead);
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1037,6 +1037,7 @@ static ssize_t ffs_epfile_io(struct file
  
-+void __breadahead_gfp(struct block_device *bdev, sector_t block, unsigned size,
-+		      gfp_t gfp)
-+{
-+	struct buffer_head *bh = __getblk_gfp(bdev, block, size, gfp);
-+	if (likely(bh)) {
-+		ll_rw_block(REQ_OP_READ, REQ_RAHEAD, 1, &bh);
-+		brelse(bh);
-+	}
-+}
-+EXPORT_SYMBOL(__breadahead_gfp);
-+
- /**
-  *  __bread_gfp() - reads a specified block and returns the bh
-  *  @bdev: the block_device to read from
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4680,7 +4680,7 @@ make_io:
- 			if (end > table)
- 				end = table;
- 			while (b <= end)
--				sb_breadahead(sb, b++);
-+				sb_breadahead_unmovable(sb, b++);
+ 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
+ 		if (unlikely(ret)) {
++			io_data->req = NULL;
+ 			usb_ep_free_request(ep->ep, req);
+ 			goto error_lock;
  		}
- 
- 		/*
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4283,7 +4283,7 @@ static int ext4_fill_super(struct super_
- 	/* Pre-read the descriptors into the buffer cache */
- 	for (i = 0; i < db_count; i++) {
- 		block = descriptor_loc(sb, logical_sb_block, i);
--		sb_breadahead(sb, block);
-+		sb_breadahead_unmovable(sb, block);
- 	}
- 
- 	for (i = 0; i < db_count; i++) {
---- a/include/linux/buffer_head.h
-+++ b/include/linux/buffer_head.h
-@@ -189,6 +189,8 @@ struct buffer_head *__getblk_gfp(struct
- void __brelse(struct buffer_head *);
- void __bforget(struct buffer_head *);
- void __breadahead(struct block_device *, sector_t block, unsigned int size);
-+void __breadahead_gfp(struct block_device *, sector_t block, unsigned int size,
-+		  gfp_t gfp);
- struct buffer_head *__bread_gfp(struct block_device *,
- 				sector_t block, unsigned size, gfp_t gfp);
- void invalidate_bh_lrus(void);
-@@ -319,6 +321,12 @@ sb_breadahead(struct super_block *sb, se
- 	__breadahead(sb->s_bdev, block, sb->s_blocksize);
- }
- 
-+static inline void
-+sb_breadahead_unmovable(struct super_block *sb, sector_t block)
-+{
-+	__breadahead_gfp(sb->s_bdev, block, sb->s_blocksize, 0);
-+}
-+
- static inline struct buffer_head *
- sb_getblk(struct super_block *sb, sector_t block)
- {
 
 
