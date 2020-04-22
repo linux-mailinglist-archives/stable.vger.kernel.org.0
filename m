@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49C571B3E04
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:24:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9FD61B425D
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730380AbgDVKXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:23:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60254 "EHLO mail.kernel.org"
+        id S1726814AbgDVKB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:01:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730372AbgDVKXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:23:42 -0400
+        id S1726812AbgDVKBZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:01:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C27432076B;
-        Wed, 22 Apr 2020 10:23:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E601F20774;
+        Wed, 22 Apr 2020 10:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551022;
-        bh=BdWMS2kMpTbgqeNC5wZ91nNso70M7SuEdSXUXsnLKoQ=;
+        s=default; t=1587549684;
+        bh=i37P6qfJRL6fKofulh3XjayC0x/qrLAECfJfJUdeHSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9Kndaw34RxvdpK4/DIrU/UFuAPsMLc98XHZwlxlngdU6vrRmfZfFHTm4HtbTrvAU
-         41fF0/HKRWnsy//hJOh+RKCP0nd/MqTmZDYu1d3np9u+bHJJoxohqx749Ming2VS6t
-         Spp8SbOtS8kUElq1FyIkOuW0jWLvfvQCG0Zf5R9g=
+        b=XOh+1hpKcNRMiXO8PSbaCMHxGmaxvgKjhKIuyye70LCPjJGFUM9p/FQeVtcbd98YV
+         YKSepeUo/93TH0xytQ4UEBsnem/mTIUrWKW6LI5mK9r7Q/5pehmXLJrPgGIjIKO+eq
+         o418nsaLmhM0iBpymtSf1a9QvfkijX9YQ2UL8g0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>
-Subject: [PATCH 5.6 026/166] x86/Hyper-V: Free hv_panic_page when fail to register kmsg dump
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 023/100] ALSA: ice1724: Fix invalid access for enumerated ctl items
 Date:   Wed, 22 Apr 2020 11:55:53 +0200
-Message-Id: <20200422095051.438084348@linuxfoundation.org>
+Message-Id: <20200422095026.928569164@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 7f11a2cc10a4ae3a70e2c73361f4a9a33503539b upstream.
+commit c47914c00be346bc5b48c48de7b0da5c2d1a296c upstream.
 
-If kmsg_dump_register() fails, hv_panic_page will not be used
-anywhere.  So free and reset it.
+The access to Analog Capture Source control value implemented in
+prodigy_hifi.c is wrong, as caught by the recently introduced sanity
+check; it should be accessing value.enumerated.item[] instead of
+value.integer.value[].  This patch corrects the wrong access pattern.
 
-Fixes: 81b18bce48af ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-Link: https://lore.kernel.org/r/20200406155331.2105-3-Tianyu.Lan@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 6b8d6e5518e2 ("[ALSA] ICE1724: Added support for Audiotrak Prodigy 7.1 HiFi & HD2, Hercules Fortissimo IV")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200407084402.25589-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hv/vmbus_drv.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/pci/ice1712/prodigy_hifi.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1385,9 +1385,13 @@ static int vmbus_bus_init(void)
- 			hv_panic_page = (void *)hv_alloc_hyperv_zeroed_page();
- 			if (hv_panic_page) {
- 				ret = kmsg_dump_register(&hv_kmsg_dumper);
--				if (ret)
-+				if (ret) {
- 					pr_err("Hyper-V: kmsg dump register "
- 						"error 0x%x\n", ret);
-+					hv_free_hyperv_page(
-+					    (unsigned long)hv_panic_page);
-+					hv_panic_page = NULL;
-+				}
- 			} else
- 				pr_err("Hyper-V: panic message page memory "
- 					"allocation failed");
-@@ -1416,7 +1420,6 @@ err_alloc:
- 	hv_remove_vmbus_irq();
+--- a/sound/pci/ice1712/prodigy_hifi.c
++++ b/sound/pci/ice1712/prodigy_hifi.c
+@@ -569,7 +569,7 @@ static int wm_adc_mux_enum_get(struct sn
+ 	struct snd_ice1712 *ice = snd_kcontrol_chip(kcontrol);
  
- 	bus_unregister(&hv_bus);
--	hv_free_hyperv_page((unsigned long)hv_panic_page);
- 	unregister_sysctl_table(hv_ctl_table_hdr);
- 	hv_ctl_table_hdr = NULL;
- 	return ret;
+ 	mutex_lock(&ice->gpio_mutex);
+-	ucontrol->value.integer.value[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
++	ucontrol->value.enumerated.item[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
+ 	mutex_unlock(&ice->gpio_mutex);
+ 	return 0;
+ }
+@@ -583,7 +583,7 @@ static int wm_adc_mux_enum_put(struct sn
+ 
+ 	mutex_lock(&ice->gpio_mutex);
+ 	oval = wm_get(ice, WM_ADC_MUX);
+-	nval = (oval & 0xe0) | ucontrol->value.integer.value[0];
++	nval = (oval & 0xe0) | ucontrol->value.enumerated.item[0];
+ 	if (nval != oval) {
+ 		wm_put(ice, WM_ADC_MUX, nval);
+ 		change = 1;
 
 
