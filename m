@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E8F11B3F78
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F6D71B42AE
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731431AbgDVKh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:37:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58510 "EHLO mail.kernel.org"
+        id S1726581AbgDVJ76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 05:59:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728059AbgDVKWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:22:25 -0400
+        id S1726508AbgDVJ75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 05:59:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 110972075A;
-        Wed, 22 Apr 2020 10:22:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBD9820774;
+        Wed, 22 Apr 2020 09:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550928;
-        bh=1hYHRaf1AmAgr6p0nm1Jb7dX/9yL1Mu0Pg9f+92y26M=;
+        s=default; t=1587549597;
+        bh=XQndNtV6aYdAMvOJ3MtddVAuklQSYHjHVv89qNnbkPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJ06maArFcmO2yscmA/xEBNj7KMgegMxmiczSmTZ7B86Q3wBbEobYg1l3JdcMHtdI
-         3Ub9MZn3kHKjx7CvhFewlK+MFC5Eogni3FV0RcPB5bKlakRjMft9eriNL2NYKgwBN2
-         ysdbNEjUHaG4hKv/qZCAbsqFgn0Mqx4/xLg7IkEg=
+        b=R/3cj62pwcYIvYUvrceO5BW6PfAzpnOLZxgQBcSS0vI2Vd+SFd2mLJAlFgOUJNJmE
+         JebKRfk8hkZtYMjFQpde1vZTtxqsEHV1q0qFWAX+DYMdDC/aEQkl2vyMhfs80OBazC
+         8JnqTWW1AHhjG/Obtcy6bIA/q/tO8TXJb2K9BoWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.6 032/166] afs: Fix decoding of inline abort codes from version 1 status records
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.4 029/100] MIPS: OCTEON: irq: Fix potential NULL pointer dereference
 Date:   Wed, 22 Apr 2020 11:55:59 +0200
-Message-Id: <20200422095052.237272734@linuxfoundation.org>
+Message-Id: <20200422095028.120151869@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 3e0d9892c0e7fa426ca6bf921cb4b543ca265714 upstream.
+commit 792a402c2840054533ef56279c212ef6da87d811 upstream.
 
-If we're decoding an AFSFetchStatus record and we see that the version is 1
-and the abort code is set and we're expecting inline errors, then we store
-the abort code and ignore the remaining status record (which is correct),
-but we don't set the flag to say we got a valid abort code.
+There is a potential NULL pointer dereference in case kzalloc()
+fails and returns NULL.
 
-This can affect operation of YFS.RemoveFile2 when removing a file and the
-operation of {,Y}FS.InlineBulkStatus when prospectively constructing or
-updating of a set of inodes during a lookup.
+Fix this by adding a NULL check on *cd*
 
-Fix this to indicate the reception of a valid abort code.
+This bug was detected with the help of Coccinelle.
 
-Fixes: a38a75581e6e ("afs: Fix unlink to handle YFS.RemoveFile2 better")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 64b139f97c01 ("MIPS: OCTEON: irq: add CIB and other fixes")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/afs/fsclient.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/cavium-octeon/octeon-irq.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/afs/fsclient.c
-+++ b/fs/afs/fsclient.c
-@@ -88,6 +88,7 @@ static int xdr_decode_AFSFetchStatus(con
- 
- 	if (abort_code != 0 && inline_error) {
- 		status->abort_code = abort_code;
-+		scb->have_error = true;
- 		goto good;
+--- a/arch/mips/cavium-octeon/octeon-irq.c
++++ b/arch/mips/cavium-octeon/octeon-irq.c
+@@ -2168,6 +2168,9 @@ static int octeon_irq_cib_map(struct irq
  	}
+ 
+ 	cd = kzalloc(sizeof(*cd), GFP_KERNEL);
++	if (!cd)
++		return -ENOMEM;
++
+ 	cd->host_data = host_data;
+ 	cd->bit = hw;
  
 
 
