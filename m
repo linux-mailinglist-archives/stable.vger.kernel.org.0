@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 797121B3F70
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 495E91B3CE5
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:11:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731411AbgDVKhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58616 "EHLO mail.kernel.org"
+        id S1728322AbgDVKJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:09:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729971AbgDVKW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:22:26 -0400
+        id S1728320AbgDVKJd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:09:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DA7121582;
-        Wed, 22 Apr 2020 10:22:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 200A620575;
+        Wed, 22 Apr 2020 10:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550940;
-        bh=qwp1kwgWdt0eV95GZl9VFWbIEj3NYzkRBOqFjzHMJ5A=;
+        s=default; t=1587550172;
+        bh=I2tQbsYyygkptZpEjVSX438TBxfy4L/ZN8/YbUXSsKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivzU4h+nnKmEkkz8Uf3KSsJTbsN1/Ofa9X9U4g/8cpORVoGafrCGxHEof/rjKiiR7
-         x0rTY30k1E9UAL8dEr14LccwKglBMN0CaOi6vi48MbdNYej2UoZMM4CBqruJeuek6Q
-         VfVNdc+NzO0yYwLaEQRPtp/JYTcAOSLSaRL/d39o=
+        b=ihDn1jlDsUqg1XtsJqqKuVRKXjY8v753bu3HbvwSysos4ElXDiM2wH/nY1fw0GiPh
+         9CKszJ+pIEX6urIkceCW3v5qHsNlrm+lhB/qzrvN9ujuD4tIGHRplZ/WcTbdNkP1/u
+         17y0FxuhG7A0KLBS7kHRomNJoBGzudGBd8707kgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, cki-project@redhat.com,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.6 037/166] block, bfq: make reparent_leaf_entity actually work only on leaf entities
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 038/199] ALSA: usb-audio: Add mixer workaround for TRX40 and co
 Date:   Wed, 22 Apr 2020 11:56:04 +0200
-Message-Id: <20200422095052.823317575@linuxfoundation.org>
+Message-Id: <20200422095101.818265943@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,113 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valente <paolo.valente@linaro.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 576682fa52cbd95deb3773449566274f206acc58 upstream.
+commit 2a48218f8e23d47bd3e23cfdfb8aa9066f7dc3e6 upstream.
 
-bfq_reparent_leaf_entity() reparents the input leaf entity (a leaf
-entity represents just a bfq_queue in an entity tree). Yet, the input
-entity is guaranteed to always be a leaf entity only in two-level
-entity trees. In this respect, because of the error fixed by
-commit 14afc5936197 ("block, bfq: fix overwrite of bfq_group pointer
-in bfq_find_set_group()"), all (wrongly collapsed) entity trees happened
-to actually have only two levels. After the latter commit, this does not
-hold any longer.
+Some recent boards (supposedly with a new AMD platform) contain the
+USB audio class 2 device that is often tied with HD-audio.  The device
+exposes an Input Gain Pad control (id=19, control=12) but this node
+doesn't behave correctly, returning an error for each inquiry of
+GET_MIN and GET_MAX that should have been mandatory.
 
-This commit fixes this problem by modifying
-bfq_reparent_leaf_entity(), so that it searches an active leaf entity
-down the path that stems from the input entity. Such a leaf entity is
-guaranteed to exist when bfq_reparent_leaf_entity() is invoked.
+As a workaround, simply ignore this node by adding a usbmix_name_map
+table entry.  The currently known devices are:
+* 0414:a002 - Gigabyte TRX40 Aorus Pro WiFi
+* 0b05:1916 - ASUS ROG Zenith II
+* 0b05:1917 - ASUS ROG Strix
+* 0db0:0d64 - MSI TRX40 Creator
+* 0db0:543d - MSI TRX40
 
-Tested-by: cki-project@redhat.com
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206543
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200408140449.22319-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/bfq-cgroup.c |   48 +++++++++++++++++++++++++++++++-----------------
- 1 file changed, 31 insertions(+), 17 deletions(-)
+ sound/usb/mixer_maps.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -815,39 +815,53 @@ static void bfq_flush_idle_tree(struct b
- /**
-  * bfq_reparent_leaf_entity - move leaf entity to the root_group.
-  * @bfqd: the device data structure with the root group.
-- * @entity: the entity to move.
-+ * @entity: the entity to move, if entity is a leaf; or the parent entity
-+ *	    of an active leaf entity to move, if entity is not a leaf.
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -363,6 +363,14 @@ static const struct usbmix_name_map dell
+ 	{ 0 }
+ };
+ 
++/* Some mobos shipped with a dummy HD-audio show the invalid GET_MIN/GET_MAX
++ * response for Input Gain Pad (id=19, control=12).  Skip it.
++ */
++static const struct usbmix_name_map asus_rog_map[] = {
++	{ 19, NULL, 12 }, /* FU, Input Gain Pad */
++	{}
++};
++
+ /*
+  * Control map entries
   */
- static void bfq_reparent_leaf_entity(struct bfq_data *bfqd,
--				     struct bfq_entity *entity)
-+				     struct bfq_entity *entity,
-+				     int ioprio_class)
- {
--	struct bfq_queue *bfqq = bfq_entity_to_bfqq(entity);
-+	struct bfq_queue *bfqq;
-+	struct bfq_entity *child_entity = entity;
+@@ -482,6 +490,26 @@ static struct usbmix_ctl_map usbmix_ctl_
+ 		.id = USB_ID(0x05a7, 0x1020),
+ 		.map = bose_companion5_map,
+ 	},
++	{	/* Gigabyte TRX40 Aorus Pro WiFi */
++		.id = USB_ID(0x0414, 0xa002),
++		.map = asus_rog_map,
++	},
++	{	/* ASUS ROG Zenith II */
++		.id = USB_ID(0x0b05, 0x1916),
++		.map = asus_rog_map,
++	},
++	{	/* ASUS ROG Strix */
++		.id = USB_ID(0x0b05, 0x1917),
++		.map = asus_rog_map,
++	},
++	{	/* MSI TRX40 Creator */
++		.id = USB_ID(0x0db0, 0x0d64),
++		.map = asus_rog_map,
++	},
++	{	/* MSI TRX40 */
++		.id = USB_ID(0x0db0, 0x543d),
++		.map = asus_rog_map,
++	},
+ 	{ 0 } /* terminator */
+ };
  
-+	while (child_entity->my_sched_data) { /* leaf not reached yet */
-+		struct bfq_sched_data *child_sd = child_entity->my_sched_data;
-+		struct bfq_service_tree *child_st = child_sd->service_tree +
-+			ioprio_class;
-+		struct rb_root *child_active = &child_st->active;
-+
-+		child_entity = bfq_entity_of(rb_first(child_active));
-+
-+		if (!child_entity)
-+			child_entity = child_sd->in_service_entity;
-+	}
-+
-+	bfqq = bfq_entity_to_bfqq(child_entity);
- 	bfq_bfqq_move(bfqd, bfqq, bfqd->root_group);
- }
- 
- /**
-- * bfq_reparent_active_entities - move to the root group all active
-- *                                entities.
-+ * bfq_reparent_active_queues - move to the root group all active queues.
-  * @bfqd: the device data structure with the root group.
-  * @bfqg: the group to move from.
-- * @st: the service tree with the entities.
-+ * @st: the service tree to start the search from.
-  */
--static void bfq_reparent_active_entities(struct bfq_data *bfqd,
--					 struct bfq_group *bfqg,
--					 struct bfq_service_tree *st)
-+static void bfq_reparent_active_queues(struct bfq_data *bfqd,
-+				       struct bfq_group *bfqg,
-+				       struct bfq_service_tree *st,
-+				       int ioprio_class)
- {
- 	struct rb_root *active = &st->active;
--	struct bfq_entity *entity = NULL;
--
--	if (!RB_EMPTY_ROOT(&st->active))
--		entity = bfq_entity_of(rb_first(active));
-+	struct bfq_entity *entity;
- 
--	for (; entity ; entity = bfq_entity_of(rb_first(active)))
--		bfq_reparent_leaf_entity(bfqd, entity);
-+	while ((entity = bfq_entity_of(rb_first(active))))
-+		bfq_reparent_leaf_entity(bfqd, entity, ioprio_class);
- 
- 	if (bfqg->sched_data.in_service_entity)
- 		bfq_reparent_leaf_entity(bfqd,
--			bfqg->sched_data.in_service_entity);
-+					 bfqg->sched_data.in_service_entity,
-+					 ioprio_class);
- }
- 
- /**
-@@ -898,7 +912,7 @@ static void bfq_pd_offline(struct blkg_p
- 		 * There is no need to put the sync queues, as the
- 		 * scheduler has taken no reference.
- 		 */
--		bfq_reparent_active_entities(bfqd, bfqg, st);
-+		bfq_reparent_active_queues(bfqd, bfqg, st, i);
- 	}
- 
- 	__bfq_deactivate_entity(entity, false);
 
 
