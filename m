@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 352521B3C50
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E8F11B3F78
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726422AbgDVKEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:04:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55150 "EHLO mail.kernel.org"
+        id S1731431AbgDVKh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:37:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728023AbgDVKEi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:04:38 -0400
+        id S1728059AbgDVKWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:22:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 508FE2075A;
-        Wed, 22 Apr 2020 10:04:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 110972075A;
+        Wed, 22 Apr 2020 10:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549877;
-        bh=i3Rhkjl2pl8lrpd2bvu8KC/WZTiZaXHdz5AcnTEfjMo=;
+        s=default; t=1587550928;
+        bh=1hYHRaf1AmAgr6p0nm1Jb7dX/9yL1Mu0Pg9f+92y26M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQ3DDe+bttroPiYUaodb8cpPAOpj69jLDD9CVaKeqCiiTVNFuAnyvALkYMJO9+ahQ
-         hHas9HcmzbxRQTenBWNyC88YHqTyPKv0fD9kIuZvsIdPAjP+MGwIfjVYr4QBM2HSZY
-         rx9ZIc4kCj9ZM4MCoyasXK0ppg1uVTGw5LNSZDL4=
+        b=PJ06maArFcmO2yscmA/xEBNj7KMgegMxmiczSmTZ7B86Q3wBbEobYg1l3JdcMHtdI
+         3Ub9MZn3kHKjx7CvhFewlK+MFC5Eogni3FV0RcPB5bKlakRjMft9eriNL2NYKgwBN2
+         ysdbNEjUHaG4hKv/qZCAbsqFgn0Mqx4/xLg7IkEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 042/125] ALSA: hda: Initialize power_state field properly
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: [PATCH 5.6 032/166] afs: Fix decoding of inline abort codes from version 1 status records
 Date:   Wed, 22 Apr 2020 11:55:59 +0200
-Message-Id: <20200422095040.344994387@linuxfoundation.org>
+Message-Id: <20200422095052.237272734@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: David Howells <dhowells@redhat.com>
 
-commit 183ab39eb0ea9879bb68422a83e65f750f3192f0 upstream.
+commit 3e0d9892c0e7fa426ca6bf921cb4b543ca265714 upstream.
 
-The recent commit 98081ca62cba ("ALSA: hda - Record the current power
-state before suspend/resume calls") made the HD-audio driver to store
-the PM state in power_state field.  This forgot, however, the
-initialization at power up.  Although the codec drivers usually don't
-need to refer to this field in the normal operation, let's initialize
-it properly for consistency.
+If we're decoding an AFSFetchStatus record and we see that the version is 1
+and the abort code is set and we're expecting inline errors, then we store
+the abort code and ignore the remaining status record (which is correct),
+but we don't set the flag to say we got a valid abort code.
 
-Fixes: 98081ca62cba ("ALSA: hda - Record the current power state before suspend/resume calls")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Cc: Guenter Roeck <linux@roeck-us.net>
+This can affect operation of YFS.RemoveFile2 when removing a file and the
+operation of {,Y}FS.InlineBulkStatus when prospectively constructing or
+updating of a set of inodes during a lookup.
+
+Fix this to indicate the reception of a valid abort code.
+
+Fixes: a38a75581e6e ("afs: Fix unlink to handle YFS.RemoveFile2 better")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_codec.c |    1 +
+ fs/afs/fsclient.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -876,6 +876,7 @@ int snd_hda_codec_new(struct hda_bus *bu
+--- a/fs/afs/fsclient.c
++++ b/fs/afs/fsclient.c
+@@ -88,6 +88,7 @@ static int xdr_decode_AFSFetchStatus(con
  
- 	/* power-up all before initialization */
- 	hda_set_power_state(codec, AC_PWRST_D0);
-+	codec->core.dev.power.power_state = PMSG_ON;
- 
- 	snd_hda_codec_proc_new(codec);
+ 	if (abort_code != 0 && inline_error) {
+ 		status->abort_code = abort_code;
++		scb->have_error = true;
+ 		goto good;
+ 	}
  
 
 
