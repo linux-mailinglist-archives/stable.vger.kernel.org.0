@@ -2,73 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C33441B4DB5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 21:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1656E1B4DB4
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 21:52:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726090AbgDVTw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 15:52:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39424 "EHLO
+        id S1726081AbgDVTwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 15:52:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726079AbgDVTw2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 15:52:28 -0400
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC366C03C1A9
-        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 12:52:27 -0700 (PDT)
-Received: by mail-lj1-x234.google.com with SMTP id l19so3684394lje.10
-        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 12:52:27 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726079AbgDVTwU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 15:52:20 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60AA4C03C1A9
+        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 12:52:19 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id f7so1647211pfa.9
+        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 12:52:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=VkFY9VA5eLaLmOjmzlzXKbbW8wSFipjY4LA9MnWoz+4=;
-        b=I8hfuQAFNBmhOHu5r31vWndzA0+jY1L9PfO2YihbnK8aT1+SCPNt7rIkDxyrN+r4+Z
-         S0gRfB3ztkpZwWjJDrtWCbdIbHyWfp7kDHWFem6vqrC8rico3KswsnCT0VGjssXfFFYq
-         jz9ZKCk/irQLqmq3uHiplQCaRQZO+nFcQ8VTV5c+AUYjCSIbQWSOmOq+yfyCHssr8PcH
-         hvfNVqqHSa4H+GO0LutcfsW2L0NDLrFGOis71cAQGVmN9jl84JLjeJn81HAF0dFbRAGI
-         iOy3Qo6k38q++KC1asWHiM9SpW7uGavwEuzS2WHJvOizFf05NpWCSmICc9W+MLmLo9+B
-         KBpA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=eYWV8LsXdxtpZr7a9LyHlL9gRW5p/KSEpHf/ulUN/O4=;
+        b=AL3X14gdlF1VCy+/V06OSmg2bsAG0+3iyw8N5/qHrZ6SA/tqg+k2c3o8O8h2F2k5Uw
+         isw0Q/KP2CR7KR5258eE9N/hvZm8w67WICw8zxXOk2nJ0JdwgG81YlGsnqFAyJf0Tnh0
+         wP6OZ/HBuqHg5hPnrXgwLxZEMVDPiosG3kUegq9W/UGW0JhsQvobdqdpZXBYxaQ3hgRO
+         4RfI2GaB7Qi+XLGOAoSGUT1kKMDm/rgGsdEV9DZXflqbCbvC/Qc9ljroS3r8CAq87MQl
+         4SfUaslvNScSEbBbnBHGn+Iln5IZxC7gYx/0POnw511xeLTsl3GzE2Uy/MEJEfiimHC+
+         920w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=VkFY9VA5eLaLmOjmzlzXKbbW8wSFipjY4LA9MnWoz+4=;
-        b=nF006M7t4BskWlZopP0JOTDPRuxZHVg1yFcwWld9cSWmPXjJrX9gKawvXfrVZyEHss
-         MPyvpXHQyrUOmqanEwuUMUFxmEEvL+GuBJXTjf8Mj5oCWkRh0TuX8WJocRZGgjFLdnQ7
-         JYPM9dDYaWnaXYRnoyITIe9zGbp7g3UsKz+FMU3kENSewl+ypyifUzrqDp+YvmyEvWM0
-         U23EuQaJtkOTNRY9o8g9toien7Lfbj3R/i+ZHXdPuokfwzV5VUDl8/pEHvxBmIRQdTJD
-         4RQsFArOwRAjzMIucQvgyCxJRAOsSGewK2PGD4TiBI3l5h748NzNY6alhARFf2JWpLlJ
-         NhLQ==
-X-Gm-Message-State: AGi0PuaE33EnqD27aCTx+cSDCZqYeJeJIA7udjOsEl4pqgywonDGs9V6
-        SkaEAL6zgiJzPUHLmiahynIWL2UfvaxuIL2lT3KVNXgDShE=
-X-Google-Smtp-Source: APiQypI62h1bYnzoMvA4qiCNBzqLIfYNyFcuAONTbIw8bUO3almE/Bg7DyXjizm8LqBWlaVXNjSzsLoV9HD7XR/Wlbw=
-X-Received: by 2002:a2e:8752:: with SMTP id q18mr289099ljj.72.1587585145636;
- Wed, 22 Apr 2020 12:52:25 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=eYWV8LsXdxtpZr7a9LyHlL9gRW5p/KSEpHf/ulUN/O4=;
+        b=BzFJ0dMc11E4Sylel4wBKwvnrAA3aXdhhlHYhMCV1lrZos9OwFRJkNGO9JeucbN1k8
+         vqkYXzsuTwZAQxZC7XEC6okOWXrBEFLL0QdOsbPG4xm7IHMhWFF/2FTxtwWxwIiLGexh
+         lg/FiPhdlOsMF7XKR0AJ+nCCGzHXP44dIxjs0l5rUHGSt/oyMBcspRKRfWA6kitHUR5z
+         JCirouC9a0qFfTVcZHFtQwdxSPisygRyHiKRKRzk6mhRlMzhZd8VVwLYo3+eXe3aVjPR
+         X0rppEZHzcfp44J8lTCHotGyDNk2wONcLLefgB3iPlkeFWwRj1jrrlyBmFMbtXqkcAto
+         e0og==
+X-Gm-Message-State: AGi0Pubx758vXrSIbfqBYhmW3+nPawQVp5tzcnHca82ua7yhCwRiZjsH
+        s2zXx+oUJbe1Ws/a7cXbyEsV/2jj1is=
+X-Google-Smtp-Source: APiQypK84PM7T5f2TSVCQirKVByqfM7OhPF5VuzkSXIgHf8SFfDhe6A/LMcCFHgzfMbsb58yRD6BBg==
+X-Received: by 2002:a62:e206:: with SMTP id a6mr151236pfi.208.1587585138521;
+        Wed, 22 Apr 2020 12:52:18 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s63sm307345pfb.44.2020.04.22.12.52.17
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Apr 2020 12:52:17 -0700 (PDT)
+Message-ID: <5ea0a071.1c69fb81.62706.152d@mx.google.com>
+Date:   Wed, 22 Apr 2020 12:52:17 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-From:   William Dauchy <wdauchy@gmail.com>
-Date:   Wed, 22 Apr 2020 21:52:11 +0200
-Message-ID: <CAJ75kXYo5rYg6pLj=Qf173pwVoxd6KjLMdG-DNuR3PAYmbX7xQ@mail.gmail.com>
-Subject: backport status of "net, ip_tunnel: fix interface lookup with no key"
-To:     stable <stable@vger.kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.117-65-gb5f03cd61ab6
+Subject: stable-rc/linux-4.19.y boot: 59 boots: 0 failed,
+ 52 passed with 7 offline (v4.19.117-65-gb5f03cd61ab6)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+stable-rc/linux-4.19.y boot: 59 boots: 0 failed, 52 passed with 7 offline (=
+v4.19.117-65-gb5f03cd61ab6)
 
-I found the following commit 25629fdaff2ff509dd0b3f5ff93d70a75e79e0a1
-("net, ip_tunnel: fix interface lookup with no key") backported in the
-following stable versions: v5.6.x, v5.5.x, v4.19.x, v4.14.x, v4.9.x,
-v4.4.x.
-However I cannot find it in v5.4.x yet. I checked stable queue on
-netdev side (http://patchwork.ozlabs.org/bundle/davem/stable/?state=*)
-but also main stable queue
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.117-65-gb5f03cd61ab6/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.117-65-gb5f03cd61ab6/
 
-I was wondering whether it was an oversight or I was too hasty?
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.117-65-gb5f03cd61ab6
+Git Commit: b5f03cd61ab67da20381e80c220d6727b914c3bb
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 38 unique boards, 15 SoC families, 13 builds out of 206
 
-Sorry for the noise if I'm mistaken.
+Boot Regressions Detected:
 
-Best regards,
--- 
-William
+arm:
+
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v4.19.117-18-gf=
+f69db5bee37)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.19.117-18-gf=
+f69db5bee37)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 74 days (last pass: v4.19=
+.101 - first fail: v4.19.102-96-g0632821fe218)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-axg-s400:
+              lab-baylibre-seattle: new failure (last pass: v4.19.117-18-gf=
+f69db5bee37)
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
