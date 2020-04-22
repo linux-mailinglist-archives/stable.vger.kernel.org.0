@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 224331B4277
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FFAA1B3F40
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726694AbgDVKBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:01:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49060 "EHLO mail.kernel.org"
+        id S1728778AbgDVKgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726722AbgDVKBD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:01:03 -0400
+        id S1730291AbgDVKXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:23:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F35720774;
-        Wed, 22 Apr 2020 10:01:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BD122076E;
+        Wed, 22 Apr 2020 10:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549662;
-        bh=RvU73F7tLB9ZFjTmEy3uFpOJCsNs03yV0YlJ8KnNps0=;
+        s=default; t=1587550995;
+        bh=LvKT9IZJFoDqch09JWfp7jN4pO1lzW0qd658CKnycSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oduSSCQBbLQITntmz2gyhvovhDD0B5B8HVaE5V0m9FmyZG/ZxOK6mRRsvE5E75vUl
-         3CGAC60iS9d8hbNfsWX9YbKJ6ehPWyHyxc2YEIhf/igQVgDAT4QKExvaE+/ey3/O5C
-         ogWVmuEaDzzFkWPTlQiUcsK+kYMmnhu+wvuC4z0w=
+        b=EYJCNGj+s1I+uHjC+AWZ+K2ZTIZRto9GZGSjMoUR29ixYlEc/v1rBGuR5j0oty/HK
+         mpPsAx4BsTentRoB/vzjvlKIpuWtPuDi8pbqX45PZ86NzYCZ8CZGsLwKuCKBO5SaW8
+         ERBY04nShwZmOBM0rLry7ZHkMtlhKf7ruj6Syrms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 054/100] misc: echo: Remove unnecessary parentheses and simplify check for zero
+Subject: [PATCH 5.6 057/166] memory: tegra: Correct debugfs clk rate-range on Tegra124
 Date:   Wed, 22 Apr 2020 11:56:24 +0200
-Message-Id: <20200422095032.803893481@linuxfoundation.org>
+Message-Id: <20200422095055.015947514@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 85dc2c65e6c975baaf36ea30f2ccc0a36a8c8add ]
+[ Upstream commit 141267bffd1dc19a76e4d50e3e4829f85a806875 ]
 
-Clang warns when multiple pairs of parentheses are used for a single
-conditional statement.
+Correctly set clk rate-range if number of available timings is zero.
+This fixes noisy "invalid range [4294967295, 0]" error messages during
+boot.
 
-drivers/misc/echo/echo.c:384:27: warning: equality comparison with
-extraneous parentheses [-Wparentheses-equality]
-        if ((ec->nonupdate_dwell == 0)) {
-             ~~~~~~~~~~~~~~~~~~~~^~~~
-drivers/misc/echo/echo.c:384:27: note: remove extraneous parentheses
-around the comparison to silence this warning
-        if ((ec->nonupdate_dwell == 0)) {
-            ~                    ^   ~
-drivers/misc/echo/echo.c:384:27: note: use '=' to turn this equality
-comparison into an assignment
-        if ((ec->nonupdate_dwell == 0)) {
-                                 ^~
-                                 =
-1 warning generated.
-
-Remove them and while we're at it, simplify the zero check as '!var' is
-used more than 'var == 0'.
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6b9acd935546 ("memory: tegra: Refashion EMC debugfs interface on Tegra124")
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/echo/echo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/memory/tegra/tegra124-emc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/misc/echo/echo.c b/drivers/misc/echo/echo.c
-index 9597e9523cac4..fff13176f9b8b 100644
---- a/drivers/misc/echo/echo.c
-+++ b/drivers/misc/echo/echo.c
-@@ -454,7 +454,7 @@ int16_t oslec_update(struct oslec_state *ec, int16_t tx, int16_t rx)
- 	 */
- 	ec->factor = 0;
- 	ec->shift = 0;
--	if ((ec->nonupdate_dwell == 0)) {
-+	if (!ec->nonupdate_dwell) {
- 		int p, logp, shift;
+diff --git a/drivers/memory/tegra/tegra124-emc.c b/drivers/memory/tegra/tegra124-emc.c
+index 21f05240682b8..33b8216bac30c 100644
+--- a/drivers/memory/tegra/tegra124-emc.c
++++ b/drivers/memory/tegra/tegra124-emc.c
+@@ -1158,6 +1158,11 @@ static void emc_debugfs_init(struct device *dev, struct tegra_emc *emc)
+ 			emc->debugfs.max_rate = emc->timings[i].rate;
+ 	}
  
- 		/* Determine:
++	if (!emc->num_timings) {
++		emc->debugfs.min_rate = clk_get_rate(emc->clk);
++		emc->debugfs.max_rate = emc->debugfs.min_rate;
++	}
++
+ 	err = clk_set_rate_range(emc->clk, emc->debugfs.min_rate,
+ 				 emc->debugfs.max_rate);
+ 	if (err < 0) {
 -- 
 2.20.1
 
