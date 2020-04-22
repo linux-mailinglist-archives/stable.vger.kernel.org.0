@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B03541B3D96
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD6DF1B4293
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729759AbgDVKQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:16:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52148 "EHLO mail.kernel.org"
+        id S1732356AbgDVLC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 07:02:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729751AbgDVKQX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:16:23 -0400
+        id S1726642AbgDVKAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:00:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBBB72076B;
-        Wed, 22 Apr 2020 10:16:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0583F2082E;
+        Wed, 22 Apr 2020 10:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550583;
-        bh=8Wco1LY/21WJk6K3aCn8LMqP5SK4Id+lrMtZrhm9VNg=;
+        s=default; t=1587549631;
+        bh=0TjgHHZ6g2uWb9ZTLWZjgSGi9JSAKpQN6J2Bl+Hyca4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqhLXHg/5EQ6CLzLU377INjrFgqWNlWfePEyV61HGOZ1Hveii2oFJg7b5Onu6Htrc
-         V42a1UhRBu64HjEGS80Pb2mH3EUJWcH+/PMkpRdxraivkUSWrNZSNj3PhlBjDImaq6
-         lLYCKy2yweh/2nqz7dPdI01ypl8qXyNTHmZQhX3k=
+        b=uWjIR+OToa5Z6G+N3RNbzkD5mzcBfybL7bbuZl9LtZxz9mUgZej6LvdcWBvUSiKiM
+         IJC32x4CAZuxrcnVGg+VY+geNdIU612IalQ1y2L5STYVgmdRWQp1Iscn70jbcsEt4X
+         l7WShHmGptXe96EeZ+RXSamKASh6CrgT0D8k9eUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 011/118] netfilter: nf_tables: report EOPNOTSUPP on unsupported flags/object type
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.4 042/100] ext4: fix a data race at inode->i_blocks
 Date:   Wed, 22 Apr 2020 11:56:12 +0200
-Message-Id: <20200422095033.436693159@linuxfoundation.org>
+Message-Id: <20200422095030.055776332@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Qian Cai <cai@lca.pw>
 
-commit d9583cdf2f38d0f526d9a8c8564dd2e35e649bc7 upstream.
+commit 28936b62e71e41600bab319f262ea9f9b1027629 upstream.
 
-EINVAL should be used for malformed netlink messages. New userspace
-utility and old kernels might easily result in EINVAL when exercising
-new set features, which is misleading.
+inode->i_blocks could be accessed concurrently as noticed by KCSAN,
 
-Fixes: 8aeff920dcc9 ("netfilter: nf_tables: add stateful object reference to set elements")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+ BUG: KCSAN: data-race in ext4_do_update_inode [ext4] / inode_add_bytes
+
+ write to 0xffff9a00d4b982d0 of 8 bytes by task 22100 on cpu 118:
+  inode_add_bytes+0x65/0xf0
+  __inode_add_bytes at fs/stat.c:689
+  (inlined by) inode_add_bytes at fs/stat.c:702
+  ext4_mb_new_blocks+0x418/0xca0 [ext4]
+  ext4_ext_map_blocks+0x1a6b/0x27b0 [ext4]
+  ext4_map_blocks+0x1a9/0x950 [ext4]
+  _ext4_get_block+0xfc/0x270 [ext4]
+  ext4_get_block_unwritten+0x33/0x50 [ext4]
+  __block_write_begin_int+0x22e/0xae0
+  __block_write_begin+0x39/0x50
+  ext4_write_begin+0x388/0xb50 [ext4]
+  ext4_da_write_begin+0x35f/0x8f0 [ext4]
+  generic_perform_write+0x15d/0x290
+  ext4_buffered_write_iter+0x11f/0x210 [ext4]
+  ext4_file_write_iter+0xce/0x9e0 [ext4]
+  new_sync_write+0x29c/0x3b0
+  __vfs_write+0x92/0xa0
+  vfs_write+0x103/0x260
+  ksys_write+0x9d/0x130
+  __x64_sys_write+0x4c/0x60
+  do_syscall_64+0x91/0xb05
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+ read to 0xffff9a00d4b982d0 of 8 bytes by task 8 on cpu 65:
+  ext4_do_update_inode+0x4a0/0xf60 [ext4]
+  ext4_inode_blocks_set at fs/ext4/inode.c:4815
+  ext4_mark_iloc_dirty+0xaf/0x160 [ext4]
+  ext4_mark_inode_dirty+0x129/0x3e0 [ext4]
+  ext4_convert_unwritten_extents+0x253/0x2d0 [ext4]
+  ext4_convert_unwritten_io_end_vec+0xc5/0x150 [ext4]
+  ext4_end_io_rsv_work+0x22c/0x350 [ext4]
+  process_one_work+0x54f/0xb90
+  worker_thread+0x80/0x5f0
+  kthread+0x1cd/0x1f0
+  ret_from_fork+0x27/0x50
+
+ 4 locks held by kworker/u256:0/8:
+  #0: ffff9a025abc4328 ((wq_completion)ext4-rsv-conversion){+.+.}, at: process_one_work+0x443/0xb90
+  #1: ffffab5a862dbe20 ((work_completion)(&ei->i_rsv_conversion_work)){+.+.}, at: process_one_work+0x443/0xb90
+  #2: ffff9a025a9d0f58 (jbd2_handle){++++}, at: start_this_handle+0x1c1/0x9d0 [jbd2]
+  #3: ffff9a00d4b985d8 (&(&ei->i_raw_lock)->rlock){+.+.}, at: ext4_do_update_inode+0xaa/0xf60 [ext4]
+ irq event stamp: 3009267
+ hardirqs last  enabled at (3009267): [<ffffffff980da9b7>] __find_get_block+0x107/0x790
+ hardirqs last disabled at (3009266): [<ffffffff980da8f9>] __find_get_block+0x49/0x790
+ softirqs last  enabled at (3009230): [<ffffffff98a0034c>] __do_softirq+0x34c/0x57c
+ softirqs last disabled at (3009223): [<ffffffff97cc67a2>] irq_exit+0xa2/0xc0
+
+ Reported by Kernel Concurrency Sanitizer on:
+ CPU: 65 PID: 8 Comm: kworker/u256:0 Tainted: G L 5.6.0-rc2-next-20200221+ #7
+ Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
+ Workqueue: ext4-rsv-conversion ext4_end_io_rsv_work [ext4]
+
+The plain read is outside of inode->i_lock critical section which
+results in a data race. Fix it by adding READ_ONCE() there.
+
+Link: https://lore.kernel.org/r/20200222043258.2279-1-cai@lca.pw
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nf_tables_api.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -3598,7 +3598,7 @@ static int nf_tables_newset(struct net *
- 			      NFT_SET_INTERVAL | NFT_SET_TIMEOUT |
- 			      NFT_SET_MAP | NFT_SET_EVAL |
- 			      NFT_SET_OBJECT))
--			return -EINVAL;
-+			return -EOPNOTSUPP;
- 		/* Only one of these operations is supported */
- 		if ((flags & (NFT_SET_MAP | NFT_SET_OBJECT)) ==
- 			     (NFT_SET_MAP | NFT_SET_OBJECT))
-@@ -3636,7 +3636,7 @@ static int nf_tables_newset(struct net *
- 		objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
- 		if (objtype == NFT_OBJECT_UNSPEC ||
- 		    objtype > NFT_OBJECT_MAX)
--			return -EINVAL;
-+			return -EOPNOTSUPP;
- 	} else if (flags & NFT_SET_OBJECT)
- 		return -EINVAL;
- 	else
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4485,7 +4485,7 @@ static int ext4_inode_blocks_set(handle_
+ 				struct ext4_inode_info *ei)
+ {
+ 	struct inode *inode = &(ei->vfs_inode);
+-	u64 i_blocks = inode->i_blocks;
++	u64 i_blocks = READ_ONCE(inode->i_blocks);
+ 	struct super_block *sb = inode->i_sb;
+ 
+ 	if (i_blocks <= ~0U) {
 
 
