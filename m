@@ -2,19 +2,19 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C810B1B38CC
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 09:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B853D1B38F1
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 09:28:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725810AbgDVHUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 03:20:48 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:56603 "EHLO
+        id S1725899AbgDVH2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 03:28:10 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:56752 "EHLO
         fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725786AbgDVHUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 03:20:48 -0400
+        with ESMTP id S1726435AbgDVH2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 03:28:10 -0400
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20979112-1500050 
-        for multiple; Wed, 22 Apr 2020 08:20:38 +0100
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20979191-1500050 
+        for multiple; Wed, 22 Apr 2020 08:28:06 +0100
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
@@ -22,9 +22,11 @@ Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
         Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         stable@vger.kernel.org
 Subject: [PATCH] drm/i915/gem: Hold obj->vma.lock over for_each_ggtt_vma()
-Date:   Wed, 22 Apr 2020 08:20:37 +0100
-Message-Id: <20200422072037.17163-1-chris@chris-wilson.co.uk>
+Date:   Wed, 22 Apr 2020 08:28:05 +0100
+Message-Id: <20200422072805.17340-1-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200422072037.17163-1-chris@chris-wilson.co.uk>
+References: <20200422072037.17163-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -90,15 +92,15 @@ Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Cc: Dave Airlie <airlied@redhat.com>
 Cc: <stable@vger.kernel.org> # v5.5+
 ---
- drivers/gpu/drm/i915/gem/i915_gem_tiling.c | 15 ++++++++++++++-
+ drivers/gpu/drm/i915/gem/i915_gem_tiling.c | 20 ++++++++++++++++++--
  drivers/gpu/drm/i915/i915_vma.c            | 10 ++++++----
- 2 files changed, 20 insertions(+), 5 deletions(-)
+ 2 files changed, 24 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/gem/i915_gem_tiling.c b/drivers/gpu/drm/i915/gem/i915_gem_tiling.c
-index 37f77aee1212..0deb66d2858e 100644
+index 37f77aee1212..0158e49bf9bb 100644
 --- a/drivers/gpu/drm/i915/gem/i915_gem_tiling.c
 +++ b/drivers/gpu/drm/i915/gem/i915_gem_tiling.c
-@@ -182,21 +182,32 @@ i915_gem_object_fence_prepare(struct drm_i915_gem_object *obj,
+@@ -182,21 +182,35 @@ i915_gem_object_fence_prepare(struct drm_i915_gem_object *obj,
  			      int tiling_mode, unsigned int stride)
  {
  	struct i915_ggtt *ggtt = &to_i915(obj->base.dev)->ggtt;
@@ -125,14 +127,18 @@ index 37f77aee1212..0deb66d2858e 100644
 +
 +	list_for_each_entry_safe(vma, vn, &unbind, vm_link) {
  		ret = __i915_vma_unbind(vma);
- 		if (ret)
+-		if (ret)
++		if (ret) {
++			/* Restore the remaining vma on an error */
++			list_splice(&unbind, &ggtt->vm.bound_list);
  			break;
++		}
  	}
 +
  	mutex_unlock(&ggtt->vm.mutex);
  
  	return ret;
-@@ -268,6 +279,7 @@ i915_gem_object_set_tiling(struct drm_i915_gem_object *obj,
+@@ -268,6 +282,7 @@ i915_gem_object_set_tiling(struct drm_i915_gem_object *obj,
  	}
  	mutex_unlock(&obj->mm.lock);
  
@@ -140,7 +146,7 @@ index 37f77aee1212..0deb66d2858e 100644
  	for_each_ggtt_vma(vma, obj) {
  		vma->fence_size =
  			i915_gem_fence_size(i915, vma->size, tiling, stride);
-@@ -278,6 +290,7 @@ i915_gem_object_set_tiling(struct drm_i915_gem_object *obj,
+@@ -278,6 +293,7 @@ i915_gem_object_set_tiling(struct drm_i915_gem_object *obj,
  		if (vma->fence)
  			vma->fence->dirty = true;
  	}
