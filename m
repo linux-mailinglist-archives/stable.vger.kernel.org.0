@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E6E41B3FD7
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09F201B3EA5
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:31:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728129AbgDVKlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:41:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56730 "EHLO mail.kernel.org"
+        id S1730766AbgDVKaE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:30:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730087AbgDVKUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:20:25 -0400
+        id S1730764AbgDVK0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:26:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 794FA2075A;
-        Wed, 22 Apr 2020 10:20:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D06D2071E;
+        Wed, 22 Apr 2020 10:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550824;
-        bh=/3hD3gpZuo5EJNwa4Qh75iQMX/6jy1eF2zIF3xg+Ru4=;
+        s=default; t=1587551205;
+        bh=yySHHLraBwaEa7eTZ12dTCbxl9BA6uw6sL6wccS0dZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vjZKoE/VedMj0r5vIYqNqEK/ilpIaEy8nBSqaOg8CH+sUef3X4TMLux+WR24B1ITE
-         8wH3BP163jeT9yFzWLnWm8gJEX8ienzneaJ4Bck73LDWg3xqPUNWpOObgh6jK7WDwh
-         wJC1PDMRAmnZjTBbf3uwzbQMFIW500pAUDQKx5yI=
+        b=nO+Q5pO32ktGs0Q0NMfRB5Ep7+qiN19XBp5T3eeOSyi63IZMZa+BV955G+Sy0gX4J
+         id7Im+OnnTDGkm7+6cwmezaSiea2tQaan+2BhQ/nFTvF+o5Axe1EwgCnDidrQRfVEg
+         6ITzYrn0JbY5ze8AztZqQ9Wav3GGCoNucjKf2Lwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.4 108/118] locktorture: Print ratio of acquisitions, not failures
+        stable@vger.kernel.org, Adrian Huang <ahuang12@lenovo.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 142/166] iommu/amd: Fix the configuration of GCR3 table root pointer
 Date:   Wed, 22 Apr 2020 11:57:49 +0200
-Message-Id: <20200422095048.737340145@linuxfoundation.org>
+Message-Id: <20200422095103.868243828@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Adrian Huang <ahuang12@lenovo.com>
 
-commit 80c503e0e68fbe271680ab48f0fe29bc034b01b7 upstream.
+[ Upstream commit c20f36534666e37858a14e591114d93cc1be0d34 ]
 
-The __torture_print_stats() function in locktorture.c carefully
-initializes local variable "min" to statp[0].n_lock_acquired, but
-then compares it to statp[i].n_lock_fail.  Given that the .n_lock_fail
-field should normally be zero, and given the initialization, it seems
-reasonable to display the maximum and minimum number acquisitions
-instead of miscomputing the maximum and minimum number of failures.
-This commit therefore switches from failures to acquisitions.
+The SPA of the GCR3 table root pointer[51:31] masks 20 bits. However,
+this requires 21 bits (Please see the AMD IOMMU specification).
+This leads to the potential failure when the bit 51 of SPA of
+the GCR3 table root pointer is 1'.
 
-And this turns out to be not only a day-zero bug, but entirely my
-own fault.  I hate it when that happens!
-
-Fixes: 0af3fe1efa53 ("locktorture: Add a lock-torture kernel module")
-Reported-by: Will Deacon <will@kernel.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Acked-by: Will Deacon <will@kernel.org>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
+Fixes: 52815b75682e2 ("iommu/amd: Add support for IOMMUv2 domain mode")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/locktorture.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iommu/amd_iommu_types.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/locking/locktorture.c
-+++ b/kernel/locking/locktorture.c
-@@ -697,10 +697,10 @@ static void __torture_print_stats(char *
- 		if (statp[i].n_lock_fail)
- 			fail = true;
- 		sum += statp[i].n_lock_acquired;
--		if (max < statp[i].n_lock_fail)
--			max = statp[i].n_lock_fail;
--		if (min > statp[i].n_lock_fail)
--			min = statp[i].n_lock_fail;
-+		if (max < statp[i].n_lock_acquired)
-+			max = statp[i].n_lock_acquired;
-+		if (min > statp[i].n_lock_acquired)
-+			min = statp[i].n_lock_acquired;
- 	}
- 	page += sprintf(page,
- 			"%s:  Total: %lld  Max/Min: %ld/%ld %s  Fail: %d %s\n",
+diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
+index f8d01d6b00da7..ca8c4522045b3 100644
+--- a/drivers/iommu/amd_iommu_types.h
++++ b/drivers/iommu/amd_iommu_types.h
+@@ -348,7 +348,7 @@
+ 
+ #define DTE_GCR3_VAL_A(x)	(((x) >> 12) & 0x00007ULL)
+ #define DTE_GCR3_VAL_B(x)	(((x) >> 15) & 0x0ffffULL)
+-#define DTE_GCR3_VAL_C(x)	(((x) >> 31) & 0xfffffULL)
++#define DTE_GCR3_VAL_C(x)	(((x) >> 31) & 0x1fffffULL)
+ 
+ #define DTE_GCR3_INDEX_A	0
+ #define DTE_GCR3_INDEX_B	1
+-- 
+2.20.1
+
 
 
