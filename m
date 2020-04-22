@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD45D1B40A5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F200A1B3E14
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:25:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729744AbgDVKQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:16:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51456 "EHLO mail.kernel.org"
+        id S1730482AbgDVKZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:25:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728853AbgDVKPw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:15:52 -0400
+        id S1730470AbgDVKYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:24:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EADE52076B;
-        Wed, 22 Apr 2020 10:15:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A0B92076B;
+        Wed, 22 Apr 2020 10:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550551;
-        bh=H6Jz1gPFvJZTTN9HpqV/4O7COMP3h5MT2YQATGXcV4Q=;
+        s=default; t=1587551094;
+        bh=uC9JFgoKOhfTK98rPb7jgE0oqaQzBDX/tz1p1CqrX0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=POoC5iMUPL5IQAHCJfjZ1joRP1ILHp7Vj27wHwZBKPsDIPWJGb3TjPmCBd3Fyojeu
-         4IXVXlZP2GO9GIVZ8/A4BmG9Mrif2WYthSyAT1zNM6uP32JXQWHNTAf1PyQ6/DdTBg
-         PfsXYGDS8QuEGfzsIUhevKgQIW8+M/IqmiojkFM0=
+        b=g2OQPEHpxxNbdKGVB5n2ZBYqLHJ2C40TAzvKoZ7cPvxi00vD+NRXvJeedIfJq4m+I
+         c1pVuRfRjWD0Tdl12iSQn3SWHfw/y88BTX7bTy1t8+ECKoJImOIkMPIrcuaJ3PJWMF
+         d6IGRVejub2VovpG9Bm5S6gQ7GG5KveX1l4pQ8Vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bui Quang Minh <minhquangbui99@gmail.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/64] xsk: Add missing check on user supplied headroom size
+Subject: [PATCH 5.6 097/166] drm/amd/display: Dont try hdcp1.4 when content_type is set to type1
 Date:   Wed, 22 Apr 2020 11:57:04 +0200
-Message-Id: <20200422095016.685614794@linuxfoundation.org>
+Message-Id: <20200422095059.405487984@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
-References: <20200422095008.799686511@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
 
-[ Upstream commit 99e3a236dd43d06c65af0a2ef9cb44306aef6e02 ]
+[ Upstream commit c2850c125d919efbb3a9ab46410d23912934f585 ]
 
-Add a check that the headroom cannot be larger than the available
-space in the chunk. In the current code, a malicious user can set the
-headroom to a value larger than the chunk size minus the fixed XDP
-headroom. That way packets with a length larger than the supported
-size in the umem could get accepted and result in an out-of-bounds
-write.
+[Why]
+When content type property is set to 1. We should enable hdcp2.2 and if we cant
+then stop. Currently the way it works in DC is that if we fail hdcp2, we will
+try hdcp1 after.
 
-Fixes: c0c77d8fb787 ("xsk: add user memory registration support sockopt")
-Reported-by: Bui Quang Minh <minhquangbui99@gmail.com>
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=207225
-Link: https://lore.kernel.org/bpf/1586849715-23490-1-git-send-email-magnus.karlsson@intel.com
+[How]
+Use link config to force disable hdcp1.4 when type1 is set.
+
+Signed-off-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xdp_umem.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/xdp/xdp_umem.c b/net/xdp/xdp_umem.c
-index 556a649512b60..706fad12f22cf 100644
---- a/net/xdp/xdp_umem.c
-+++ b/net/xdp/xdp_umem.c
-@@ -260,7 +260,7 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
- 	u32 chunk_size = mr->chunk_size, headroom = mr->headroom;
- 	unsigned int chunks, chunks_per_page;
- 	u64 addr = mr->addr, size = mr->len;
--	int size_chk, err, i;
-+	int err, i;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
+index 0acd3409dd6ce..3abeff7722e3d 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
+@@ -113,10 +113,13 @@ void hdcp_update_display(struct hdcp_workqueue *hdcp_work,
  
- 	if (chunk_size < XDP_UMEM_MIN_CHUNK_SIZE || chunk_size > PAGE_SIZE) {
- 		/* Strictly speaking we could support this, if:
-@@ -295,8 +295,7 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ 		if (enable_encryption) {
+ 			display->adjust.disable = 0;
+-			if (content_type == DRM_MODE_HDCP_CONTENT_TYPE0)
++			if (content_type == DRM_MODE_HDCP_CONTENT_TYPE0) {
++				hdcp_w->link.adjust.hdcp1.disable = 0;
+ 				hdcp_w->link.adjust.hdcp2.force_type = MOD_HDCP_FORCE_TYPE_0;
+-			else if (content_type == DRM_MODE_HDCP_CONTENT_TYPE1)
++			} else if (content_type == DRM_MODE_HDCP_CONTENT_TYPE1) {
++				hdcp_w->link.adjust.hdcp1.disable = 1;
+ 				hdcp_w->link.adjust.hdcp2.force_type = MOD_HDCP_FORCE_TYPE_1;
++			}
  
- 	headroom = ALIGN(headroom, 64);
+ 			schedule_delayed_work(&hdcp_w->property_validate_dwork,
+ 					      msecs_to_jiffies(DRM_HDCP_CHECK_PERIOD_MS));
+@@ -334,6 +337,7 @@ static void update_config(void *handle, struct cp_psp_stream_config *config)
+ 	link->dp.rev = aconnector->dc_link->dpcd_caps.dpcd_rev.raw;
+ 	display->adjust.disable = 1;
+ 	link->adjust.auth_delay = 2;
++	link->adjust.hdcp1.disable = 0;
  
--	size_chk = chunk_size - headroom - XDP_PACKET_HEADROOM;
--	if (size_chk < 0)
-+	if (headroom >= chunk_size - XDP_PACKET_HEADROOM)
- 		return -EINVAL;
- 
- 	umem->address = (unsigned long)addr;
+ 	hdcp_update_display(hdcp_work, link_index, aconnector, DRM_MODE_HDCP_CONTENT_TYPE0, false);
+ }
 -- 
 2.20.1
 
