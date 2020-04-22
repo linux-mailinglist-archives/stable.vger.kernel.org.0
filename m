@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D381B3E67
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:28:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B87F1B3E72
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730927AbgDVK1w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:27:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37014 "EHLO mail.kernel.org"
+        id S1727971AbgDVK2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:28:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730475AbgDVK1v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:27:51 -0400
+        id S1730947AbgDVK1w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:27:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D4A82071E;
-        Wed, 22 Apr 2020 10:27:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF3202075A;
+        Wed, 22 Apr 2020 10:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551268;
-        bh=OV99kiLKuaD8zHX3k6NPPZ9SZlyskkoMYhZygO12xtQ=;
+        s=default; t=1587551271;
+        bh=5zaxWXYHdii+8HKF+w3wF4Uacydj1oC+B6fkTZqNBls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sr8BRXBAzbsWUgUAPGRTvmB55sj9ywRMV6vytqaNB0ms+w9MPvszPyqVBX4FJUMoE
-         Qsns5KyApNES86WjeOimXzFzhqz58k62wSxGHe6Pgn6xisPsU8ImQ46sj9KLiuz/7O
-         tEiWdJqIhGkVrR5rr8nC7srVFQI55bawNAVGkR1Y=
+        b=N+IOWXHDjUpa1mYy4aqT9BVhkd0ZC0DNObN/zpMQzm4oeBuQVQtueb2gfYdeQNQAX
+         /LmhYz/GIpTgZRmNpCqTyxRbjlkHmOfBfhkJ1huWjZGhEHpd9B1YkQ+q6QNve9FLwu
+         5Lq015K5ogakO0DGhsnIlMAjKaeSGWRFogo+raeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Waiman Long <longman@redhat.com>,
-        David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.6 162/166] KEYS: Dont write out to userspace while holding key semaphore
-Date:   Wed, 22 Apr 2020 11:58:09 +0200
-Message-Id: <20200422095105.769626163@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Fontana <fontanalorenz@gmail.com>,
+        Leonardo Di Donato <leodidonato@gmail.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.6 163/166] bpf: fix buggy r0 retval refinement for tracing helpers
+Date:   Wed, 22 Apr 2020 11:58:10 +0200
+Message-Id: <20200422095105.857178731@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
 References: <20200422095047.669225321@linuxfoundation.org>
@@ -45,572 +46,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
+Date: Tue, 21 Apr 2020 15:01:49 +0200
 
-commit d3ec10aa95819bff18a0d936b18884c7816d0914 upstream.
+[ no upstream commit ]
 
-A lockdep circular locking dependency report was seen when running a
-keyutils test:
+See the glory details in 100605035e15 ("bpf: Verifier, do_refine_retval_range
+may clamp umin to 0 incorrectly") for why 849fa50662fb ("bpf/verifier: refine
+retval R0 state for bpf_get_stack helper") is buggy. The whole series however
+is not suitable for stable since it adds significant amount [0] of verifier
+complexity in order to add 32bit subreg tracking. Something simpler is needed.
 
-[12537.027242] ======================================================
-[12537.059309] WARNING: possible circular locking dependency detected
-[12537.088148] 4.18.0-147.7.1.el8_1.x86_64+debug #1 Tainted: G OE    --------- -  -
-[12537.125253] ------------------------------------------------------
-[12537.153189] keyctl/25598 is trying to acquire lock:
-[12537.175087] 000000007c39f96c (&mm->mmap_sem){++++}, at: __might_fault+0xc4/0x1b0
-[12537.208365]
-[12537.208365] but task is already holding lock:
-[12537.234507] 000000003de5b58d (&type->lock_class){++++}, at: keyctl_read_key+0x15a/0x220
-[12537.270476]
-[12537.270476] which lock already depends on the new lock.
-[12537.270476]
-[12537.307209]
-[12537.307209] the existing dependency chain (in reverse order) is:
-[12537.340754]
-[12537.340754] -> #3 (&type->lock_class){++++}:
-[12537.367434]        down_write+0x4d/0x110
-[12537.385202]        __key_link_begin+0x87/0x280
-[12537.405232]        request_key_and_link+0x483/0xf70
-[12537.427221]        request_key+0x3c/0x80
-[12537.444839]        dns_query+0x1db/0x5a5 [dns_resolver]
-[12537.468445]        dns_resolve_server_name_to_ip+0x1e1/0x4d0 [cifs]
-[12537.496731]        cifs_reconnect+0xe04/0x2500 [cifs]
-[12537.519418]        cifs_readv_from_socket+0x461/0x690 [cifs]
-[12537.546263]        cifs_read_from_socket+0xa0/0xe0 [cifs]
-[12537.573551]        cifs_demultiplex_thread+0x311/0x2db0 [cifs]
-[12537.601045]        kthread+0x30c/0x3d0
-[12537.617906]        ret_from_fork+0x3a/0x50
-[12537.636225]
-[12537.636225] -> #2 (root_key_user.cons_lock){+.+.}:
-[12537.664525]        __mutex_lock+0x105/0x11f0
-[12537.683734]        request_key_and_link+0x35a/0xf70
-[12537.705640]        request_key+0x3c/0x80
-[12537.723304]        dns_query+0x1db/0x5a5 [dns_resolver]
-[12537.746773]        dns_resolve_server_name_to_ip+0x1e1/0x4d0 [cifs]
-[12537.775607]        cifs_reconnect+0xe04/0x2500 [cifs]
-[12537.798322]        cifs_readv_from_socket+0x461/0x690 [cifs]
-[12537.823369]        cifs_read_from_socket+0xa0/0xe0 [cifs]
-[12537.847262]        cifs_demultiplex_thread+0x311/0x2db0 [cifs]
-[12537.873477]        kthread+0x30c/0x3d0
-[12537.890281]        ret_from_fork+0x3a/0x50
-[12537.908649]
-[12537.908649] -> #1 (&tcp_ses->srv_mutex){+.+.}:
-[12537.935225]        __mutex_lock+0x105/0x11f0
-[12537.954450]        cifs_call_async+0x102/0x7f0 [cifs]
-[12537.977250]        smb2_async_readv+0x6c3/0xc90 [cifs]
-[12538.000659]        cifs_readpages+0x120a/0x1e50 [cifs]
-[12538.023920]        read_pages+0xf5/0x560
-[12538.041583]        __do_page_cache_readahead+0x41d/0x4b0
-[12538.067047]        ondemand_readahead+0x44c/0xc10
-[12538.092069]        filemap_fault+0xec1/0x1830
-[12538.111637]        __do_fault+0x82/0x260
-[12538.129216]        do_fault+0x419/0xfb0
-[12538.146390]        __handle_mm_fault+0x862/0xdf0
-[12538.167408]        handle_mm_fault+0x154/0x550
-[12538.187401]        __do_page_fault+0x42f/0xa60
-[12538.207395]        do_page_fault+0x38/0x5e0
-[12538.225777]        page_fault+0x1e/0x30
-[12538.243010]
-[12538.243010] -> #0 (&mm->mmap_sem){++++}:
-[12538.267875]        lock_acquire+0x14c/0x420
-[12538.286848]        __might_fault+0x119/0x1b0
-[12538.306006]        keyring_read_iterator+0x7e/0x170
-[12538.327936]        assoc_array_subtree_iterate+0x97/0x280
-[12538.352154]        keyring_read+0xe9/0x110
-[12538.370558]        keyctl_read_key+0x1b9/0x220
-[12538.391470]        do_syscall_64+0xa5/0x4b0
-[12538.410511]        entry_SYSCALL_64_after_hwframe+0x6a/0xdf
-[12538.435535]
-[12538.435535] other info that might help us debug this:
-[12538.435535]
-[12538.472829] Chain exists of:
-[12538.472829]   &mm->mmap_sem --> root_key_user.cons_lock --> &type->lock_class
-[12538.472829]
-[12538.524820]  Possible unsafe locking scenario:
-[12538.524820]
-[12538.551431]        CPU0                    CPU1
-[12538.572654]        ----                    ----
-[12538.595865]   lock(&type->lock_class);
-[12538.613737]                                lock(root_key_user.cons_lock);
-[12538.644234]                                lock(&type->lock_class);
-[12538.672410]   lock(&mm->mmap_sem);
-[12538.687758]
-[12538.687758]  *** DEADLOCK ***
-[12538.687758]
-[12538.714455] 1 lock held by keyctl/25598:
-[12538.732097]  #0: 000000003de5b58d (&type->lock_class){++++}, at: keyctl_read_key+0x15a/0x220
-[12538.770573]
-[12538.770573] stack backtrace:
-[12538.790136] CPU: 2 PID: 25598 Comm: keyctl Kdump: loaded Tainted: G
-[12538.844855] Hardware name: HP ProLiant DL360 Gen9/ProLiant DL360 Gen9, BIOS P89 12/27/2015
-[12538.881963] Call Trace:
-[12538.892897]  dump_stack+0x9a/0xf0
-[12538.907908]  print_circular_bug.isra.25.cold.50+0x1bc/0x279
-[12538.932891]  ? save_trace+0xd6/0x250
-[12538.948979]  check_prev_add.constprop.32+0xc36/0x14f0
-[12538.971643]  ? keyring_compare_object+0x104/0x190
-[12538.992738]  ? check_usage+0x550/0x550
-[12539.009845]  ? sched_clock+0x5/0x10
-[12539.025484]  ? sched_clock_cpu+0x18/0x1e0
-[12539.043555]  __lock_acquire+0x1f12/0x38d0
-[12539.061551]  ? trace_hardirqs_on+0x10/0x10
-[12539.080554]  lock_acquire+0x14c/0x420
-[12539.100330]  ? __might_fault+0xc4/0x1b0
-[12539.119079]  __might_fault+0x119/0x1b0
-[12539.135869]  ? __might_fault+0xc4/0x1b0
-[12539.153234]  keyring_read_iterator+0x7e/0x170
-[12539.172787]  ? keyring_read+0x110/0x110
-[12539.190059]  assoc_array_subtree_iterate+0x97/0x280
-[12539.211526]  keyring_read+0xe9/0x110
-[12539.227561]  ? keyring_gc_check_iterator+0xc0/0xc0
-[12539.249076]  keyctl_read_key+0x1b9/0x220
-[12539.266660]  do_syscall_64+0xa5/0x4b0
-[12539.283091]  entry_SYSCALL_64_after_hwframe+0x6a/0xdf
+Unfortunately, reverting 849fa50662fb ("bpf/verifier: refine retval R0 state
+for bpf_get_stack helper") or just cherry-picking 100605035e15 ("bpf: Verifier,
+do_refine_retval_range may clamp umin to 0 incorrectly") is not an option since
+it will break existing tracing programs badly (at least those that are using
+bpf_get_stack() and bpf_probe_read_str() helpers). Not fixing it in stable is
+also not an option since on 4.19 kernels an error will cause a soft-lockup due
+to hitting dead-code sanitized branch since we don't hard-wire such branches
+in old kernels yet. But even then for 5.x 849fa50662fb ("bpf/verifier: refine
+retval R0 state for bpf_get_stack helper") would cause wrong bounds on the
+verifier simluation when an error is hit.
 
-One way to prevent this deadlock scenario from happening is to not
-allow writing to userspace while holding the key semaphore. Instead,
-an internal buffer is allocated for getting the keys out from the
-read method first before copying them out to userspace without holding
-the lock.
+In one of the earlier iterations of mentioned patch series for upstream there
+was the concern that just using smax_value in do_refine_retval_range() would
+nuke bounds by subsequent <<32 >>32 shifts before the comparison against 0 [1]
+which eventually led to the 32bit subreg tracking in the first place. While I
+initially went for implementing the idea [1] to pattern match the two shift
+operations, it turned out to be more complex than actually needed, meaning, we
+could simply treat do_refine_retval_range() similarly to how we branch off
+verification for conditionals or under speculation, that is, pushing a new
+reg state to the stack for later verification. This means, instead of verifying
+the current path with the ret_reg in [S32MIN, msize_max_value] interval where
+later bounds would get nuked, we split this into two: i) for the success case
+where ret_reg can be in [0, msize_max_value], and ii) for the error case with
+ret_reg known to be in interval [S32MIN, -1]. Latter will preserve the bounds
+during these shift patterns and can match reg < 0 test. test_progs also succeed
+with this approach.
 
-That requires taking out the __user modifier from all the relevant
-read methods as well as additional changes to not use any userspace
-write helpers. That is,
+  [0] https://lore.kernel.org/bpf/158507130343.15666.8018068546764556975.stgit@john-Precision-5820-Tower/
+  [1] https://lore.kernel.org/bpf/158015334199.28573.4940395881683556537.stgit@john-XPS-13-9370/T/#m2e0ad1d5949131014748b6daa48a3495e7f0456d
 
-  1) The put_user() call is replaced by a direct copy.
-  2) The copy_to_user() call is replaced by memcpy().
-  3) All the fault handling code is removed.
-
-Compiling on a x86-64 system, the size of the rxrpc_read() function is
-reduced from 3795 bytes to 2384 bytes with this patch.
-
-Fixes: ^1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 849fa50662fb ("bpf/verifier: refine retval R0 state for bpf_get_stack helper")
+Reported-by: Lorenzo Fontana <fontanalorenz@gmail.com>
+Reported-by: Leonardo Di Donato <leodidonato@gmail.com>
+Reported-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Tested-by: John Fastabend <john.fastabend@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/keys/big_key-type.h               |    2 
- include/keys/user-type.h                  |    3 -
- include/linux/key-type.h                  |    2 
- net/dns_resolver/dns_key.c                |    2 
- net/rxrpc/key.c                           |   27 +++--------
- security/keys/big_key.c                   |   11 +---
- security/keys/encrypted-keys/encrypted.c  |    7 +-
- security/keys/keyctl.c                    |   73 +++++++++++++++++++++++-------
- security/keys/keyring.c                   |    6 --
- security/keys/request_key_auth.c          |    7 +-
- security/keys/trusted-keys/trusted_tpm1.c |   14 -----
- security/keys/user_defined.c              |    5 --
- 12 files changed, 85 insertions(+), 74 deletions(-)
+ kernel/bpf/verifier.c |   45 ++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 34 insertions(+), 11 deletions(-)
 
---- a/include/keys/big_key-type.h
-+++ b/include/keys/big_key-type.h
-@@ -17,6 +17,6 @@ extern void big_key_free_preparse(struct
- extern void big_key_revoke(struct key *key);
- extern void big_key_destroy(struct key *key);
- extern void big_key_describe(const struct key *big_key, struct seq_file *m);
--extern long big_key_read(const struct key *key, char __user *buffer, size_t buflen);
-+extern long big_key_read(const struct key *key, char *buffer, size_t buflen);
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -227,8 +227,7 @@ struct bpf_call_arg_meta {
+ 	bool pkt_access;
+ 	int regno;
+ 	int access_size;
+-	s64 msize_smax_value;
+-	u64 msize_umax_value;
++	u64 msize_max_value;
+ 	int ref_obj_id;
+ 	int func_id;
+ 	u32 btf_id;
+@@ -3568,8 +3567,7 @@ static int check_func_arg(struct bpf_ver
+ 		/* remember the mem_size which may be used later
+ 		 * to refine return values.
+ 		 */
+-		meta->msize_smax_value = reg->smax_value;
+-		meta->msize_umax_value = reg->umax_value;
++		meta->msize_max_value = reg->umax_value;
  
- #endif /* _KEYS_BIG_KEY_TYPE_H */
---- a/include/keys/user-type.h
-+++ b/include/keys/user-type.h
-@@ -41,8 +41,7 @@ extern int user_update(struct key *key,
- extern void user_revoke(struct key *key);
- extern void user_destroy(struct key *key);
- extern void user_describe(const struct key *user, struct seq_file *m);
--extern long user_read(const struct key *key,
--		      char __user *buffer, size_t buflen);
-+extern long user_read(const struct key *key, char *buffer, size_t buflen);
- 
- static inline const struct user_key_payload *user_key_payload_rcu(const struct key *key)
- {
---- a/include/linux/key-type.h
-+++ b/include/linux/key-type.h
-@@ -127,7 +127,7 @@ struct key_type {
- 	 *   much is copied into the buffer
- 	 * - shouldn't do the copy if the buffer is NULL
- 	 */
--	long (*read)(const struct key *key, char __user *buffer, size_t buflen);
-+	long (*read)(const struct key *key, char *buffer, size_t buflen);
- 
- 	/* handle request_key() for this type instead of invoking
- 	 * /sbin/request-key (optional)
---- a/net/dns_resolver/dns_key.c
-+++ b/net/dns_resolver/dns_key.c
-@@ -302,7 +302,7 @@ static void dns_resolver_describe(const
-  * - the key's semaphore is read-locked
-  */
- static long dns_resolver_read(const struct key *key,
--			      char __user *buffer, size_t buflen)
-+			      char *buffer, size_t buflen)
- {
- 	int err = PTR_ERR(key->payload.data[dns_key_error]);
- 
---- a/net/rxrpc/key.c
-+++ b/net/rxrpc/key.c
-@@ -31,7 +31,7 @@ static void rxrpc_free_preparse_s(struct
- static void rxrpc_destroy(struct key *);
- static void rxrpc_destroy_s(struct key *);
- static void rxrpc_describe(const struct key *, struct seq_file *);
--static long rxrpc_read(const struct key *, char __user *, size_t);
-+static long rxrpc_read(const struct key *, char *, size_t);
- 
- /*
-  * rxrpc defined keys take an arbitrary string as the description and an
-@@ -1042,12 +1042,12 @@ EXPORT_SYMBOL(rxrpc_get_null_key);
-  * - this returns the result in XDR form
-  */
- static long rxrpc_read(const struct key *key,
--		       char __user *buffer, size_t buflen)
-+		       char *buffer, size_t buflen)
- {
- 	const struct rxrpc_key_token *token;
- 	const struct krb5_principal *princ;
- 	size_t size;
--	__be32 __user *xdr, *oldxdr;
-+	__be32 *xdr, *oldxdr;
- 	u32 cnlen, toksize, ntoks, tok, zero;
- 	u16 toksizes[AFSTOKEN_MAX];
- 	int loop;
-@@ -1124,30 +1124,25 @@ static long rxrpc_read(const struct key
- 	if (!buffer || buflen < size)
- 		return size;
- 
--	xdr = (__be32 __user *) buffer;
-+	xdr = (__be32 *)buffer;
- 	zero = 0;
- #define ENCODE(x)				\
- 	do {					\
--		__be32 y = htonl(x);		\
--		if (put_user(y, xdr++) < 0)	\
--			goto fault;		\
-+		*xdr++ = htonl(x);		\
- 	} while(0)
- #define ENCODE_DATA(l, s)						\
- 	do {								\
- 		u32 _l = (l);						\
- 		ENCODE(l);						\
--		if (copy_to_user(xdr, (s), _l) != 0)			\
--			goto fault;					\
--		if (_l & 3 &&						\
--		    copy_to_user((u8 __user *)xdr + _l, &zero, 4 - (_l & 3)) != 0) \
--			goto fault;					\
-+		memcpy(xdr, (s), _l);					\
-+		if (_l & 3)						\
-+			memcpy((u8 *)xdr + _l, &zero, 4 - (_l & 3));	\
- 		xdr += (_l + 3) >> 2;					\
- 	} while(0)
- #define ENCODE64(x)					\
- 	do {						\
- 		__be64 y = cpu_to_be64(x);		\
--		if (copy_to_user(xdr, &y, 8) != 0)	\
--			goto fault;			\
-+		memcpy(xdr, &y, 8);			\
- 		xdr += 8 >> 2;				\
- 	} while(0)
- #define ENCODE_STR(s)				\
-@@ -1238,8 +1233,4 @@ static long rxrpc_read(const struct key
- 	ASSERTCMP((char __user *) xdr - buffer, ==, size);
- 	_leave(" = %zu", size);
- 	return size;
--
--fault:
--	_leave(" = -EFAULT");
--	return -EFAULT;
- }
---- a/security/keys/big_key.c
-+++ b/security/keys/big_key.c
-@@ -352,7 +352,7 @@ void big_key_describe(const struct key *
-  * read the key data
-  * - the key's semaphore is read-locked
-  */
--long big_key_read(const struct key *key, char __user *buffer, size_t buflen)
-+long big_key_read(const struct key *key, char *buffer, size_t buflen)
- {
- 	size_t datalen = (size_t)key->payload.data[big_key_len];
- 	long ret;
-@@ -391,9 +391,8 @@ long big_key_read(const struct key *key,
- 
- 		ret = datalen;
- 
--		/* copy decrypted data to user */
--		if (copy_to_user(buffer, buf->virt, datalen) != 0)
--			ret = -EFAULT;
-+		/* copy out decrypted data */
-+		memcpy(buffer, buf->virt, datalen);
- 
- err_fput:
- 		fput(file);
-@@ -401,9 +400,7 @@ error:
- 		big_key_free_buffer(buf);
- 	} else {
- 		ret = datalen;
--		if (copy_to_user(buffer, key->payload.data[big_key_data],
--				 datalen) != 0)
--			ret = -EFAULT;
-+		memcpy(buffer, key->payload.data[big_key_data], datalen);
- 	}
- 
- 	return ret;
---- a/security/keys/encrypted-keys/encrypted.c
-+++ b/security/keys/encrypted-keys/encrypted.c
-@@ -902,14 +902,14 @@ out:
- }
- 
- /*
-- * encrypted_read - format and copy the encrypted data to userspace
-+ * encrypted_read - format and copy out the encrypted data
-  *
-  * The resulting datablob format is:
-  * <master-key name> <decrypted data length> <encrypted iv> <encrypted data>
-  *
-  * On success, return to userspace the encrypted key datablob size.
-  */
--static long encrypted_read(const struct key *key, char __user *buffer,
-+static long encrypted_read(const struct key *key, char *buffer,
- 			   size_t buflen)
- {
- 	struct encrypted_key_payload *epayload;
-@@ -957,8 +957,7 @@ static long encrypted_read(const struct
- 	key_put(mkey);
- 	memzero_explicit(derived_key, sizeof(derived_key));
- 
--	if (copy_to_user(buffer, ascii_buf, asciiblob_len) != 0)
--		ret = -EFAULT;
-+	memcpy(buffer, ascii_buf, asciiblob_len);
- 	kzfree(ascii_buf);
- 
- 	return asciiblob_len;
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -798,6 +798,21 @@ error:
- }
- 
- /*
-+ * Call the read method
-+ */
-+static long __keyctl_read_key(struct key *key, char *buffer, size_t buflen)
-+{
-+	long ret;
-+
-+	down_read(&key->sem);
-+	ret = key_validate(key);
-+	if (ret == 0)
-+		ret = key->type->read(key, buffer, buflen);
-+	up_read(&key->sem);
-+	return ret;
-+}
-+
-+/*
-  * Read a key's payload.
-  *
-  * The key must either grant the caller Read permission, or it must grant the
-@@ -812,26 +827,27 @@ long keyctl_read_key(key_serial_t keyid,
- 	struct key *key;
- 	key_ref_t key_ref;
- 	long ret;
-+	char *key_data;
- 
- 	/* find the key first */
- 	key_ref = lookup_user_key(keyid, 0, 0);
- 	if (IS_ERR(key_ref)) {
- 		ret = -ENOKEY;
--		goto error;
-+		goto out;
- 	}
- 
- 	key = key_ref_to_ptr(key_ref);
- 
- 	ret = key_read_state(key);
- 	if (ret < 0)
--		goto error2; /* Negatively instantiated */
-+		goto key_put_out; /* Negatively instantiated */
- 
- 	/* see if we can read it directly */
- 	ret = key_permission(key_ref, KEY_NEED_READ);
- 	if (ret == 0)
- 		goto can_read_key;
- 	if (ret != -EACCES)
--		goto error2;
-+		goto key_put_out;
- 
- 	/* we can't; see if it's searchable from this process's keyrings
- 	 * - we automatically take account of the fact that it may be
-@@ -839,26 +855,51 @@ long keyctl_read_key(key_serial_t keyid,
- 	 */
- 	if (!is_key_possessed(key_ref)) {
- 		ret = -EACCES;
--		goto error2;
-+		goto key_put_out;
- 	}
- 
- 	/* the key is probably readable - now try to read it */
- can_read_key:
--	ret = -EOPNOTSUPP;
--	if (key->type->read) {
--		/* Read the data with the semaphore held (since we might sleep)
--		 * to protect against the key being updated or revoked.
--		 */
--		down_read(&key->sem);
--		ret = key_validate(key);
--		if (ret == 0)
--			ret = key->type->read(key, buffer, buflen);
--		up_read(&key->sem);
-+	if (!key->type->read) {
-+		ret = -EOPNOTSUPP;
-+		goto key_put_out;
-+	}
-+
-+	if (!buffer || !buflen) {
-+		/* Get the key length from the read method */
-+		ret = __keyctl_read_key(key, NULL, 0);
-+		goto key_put_out;
-+	}
-+
-+	/*
-+	 * Read the data with the semaphore held (since we might sleep)
-+	 * to protect against the key being updated or revoked.
-+	 *
-+	 * Allocating a temporary buffer to hold the keys before
-+	 * transferring them to user buffer to avoid potential
-+	 * deadlock involving page fault and mmap_sem.
-+	 */
-+	key_data = kmalloc(buflen, GFP_KERNEL);
-+
-+	if (!key_data) {
-+		ret = -ENOMEM;
-+		goto key_put_out;
-+	}
-+	ret = __keyctl_read_key(key, key_data, buflen);
-+
-+	/*
-+	 * Read methods will just return the required length without
-+	 * any copying if the provided length isn't large enough.
-+	 */
-+	if (ret > 0 && ret <= buflen) {
-+		if (copy_to_user(buffer, key_data, ret))
-+			ret = -EFAULT;
- 	}
-+	kzfree(key_data);
- 
--error2:
-+key_put_out:
- 	key_put(key);
--error:
-+out:
- 	return ret;
- }
- 
---- a/security/keys/keyring.c
-+++ b/security/keys/keyring.c
-@@ -459,7 +459,6 @@ static int keyring_read_iterator(const v
- {
- 	struct keyring_read_iterator_context *ctx = data;
- 	const struct key *key = keyring_ptr_to_key(object);
--	int ret;
- 
- 	kenter("{%s,%d},,{%zu/%zu}",
- 	       key->type->name, key->serial, ctx->count, ctx->buflen);
-@@ -467,10 +466,7 @@ static int keyring_read_iterator(const v
- 	if (ctx->count >= ctx->buflen)
- 		return 1;
- 
--	ret = put_user(key->serial, ctx->buffer);
--	if (ret < 0)
--		return ret;
--	ctx->buffer++;
-+	*ctx->buffer++ = key->serial;
- 	ctx->count += sizeof(key->serial);
+ 		/* The register is SCALAR_VALUE; the access check
+ 		 * happens using its boundaries.
+@@ -4095,21 +4093,44 @@ static int prepare_func_exit(struct bpf_
  	return 0;
  }
---- a/security/keys/request_key_auth.c
-+++ b/security/keys/request_key_auth.c
-@@ -22,7 +22,7 @@ static int request_key_auth_instantiate(
- static void request_key_auth_describe(const struct key *, struct seq_file *);
- static void request_key_auth_revoke(struct key *);
- static void request_key_auth_destroy(struct key *);
--static long request_key_auth_read(const struct key *, char __user *, size_t);
-+static long request_key_auth_read(const struct key *, char *, size_t);
  
- /*
-  * The request-key authorisation key type definition.
-@@ -80,7 +80,7 @@ static void request_key_auth_describe(co
-  * - the key's semaphore is read-locked
-  */
- static long request_key_auth_read(const struct key *key,
--				  char __user *buffer, size_t buflen)
-+				  char *buffer, size_t buflen)
+-static void do_refine_retval_range(struct bpf_reg_state *regs, int ret_type,
+-				   int func_id,
+-				   struct bpf_call_arg_meta *meta)
++static int do_refine_retval_range(struct bpf_verifier_env *env,
++				  struct bpf_reg_state *regs, int ret_type,
++				  int func_id, struct bpf_call_arg_meta *meta)
  {
- 	struct request_key_auth *rka = dereference_key_locked(key);
- 	size_t datalen;
-@@ -97,8 +97,7 @@ static long request_key_auth_read(const
- 		if (buflen > datalen)
- 			buflen = datalen;
+ 	struct bpf_reg_state *ret_reg = &regs[BPF_REG_0];
++	struct bpf_reg_state tmp_reg = *ret_reg;
++	bool ret;
  
--		if (copy_to_user(buffer, rka->callout_info, buflen) != 0)
--			ret = -EFAULT;
-+		memcpy(buffer, rka->callout_info, buflen);
- 	}
+ 	if (ret_type != RET_INTEGER ||
+ 	    (func_id != BPF_FUNC_get_stack &&
+ 	     func_id != BPF_FUNC_probe_read_str))
+-		return;
++		return 0;
++
++	/* Error case where ret is in interval [S32MIN, -1]. */
++	ret_reg->smin_value = S32_MIN;
++	ret_reg->smax_value = -1;
  
- 	return ret;
---- a/security/keys/trusted-keys/trusted_tpm1.c
-+++ b/security/keys/trusted-keys/trusted_tpm1.c
-@@ -1130,11 +1130,10 @@ out:
-  * trusted_read - copy the sealed blob data to userspace in hex.
-  * On success, return to userspace the trusted key datablob size.
-  */
--static long trusted_read(const struct key *key, char __user *buffer,
-+static long trusted_read(const struct key *key, char *buffer,
- 			 size_t buflen)
- {
- 	const struct trusted_key_payload *p;
--	char *ascii_buf;
- 	char *bufp;
- 	int i;
- 
-@@ -1143,18 +1142,9 @@ static long trusted_read(const struct ke
- 		return -EINVAL;
- 
- 	if (buffer && buflen >= 2 * p->blob_len) {
--		ascii_buf = kmalloc_array(2, p->blob_len, GFP_KERNEL);
--		if (!ascii_buf)
--			return -ENOMEM;
--
--		bufp = ascii_buf;
-+		bufp = buffer;
- 		for (i = 0; i < p->blob_len; i++)
- 			bufp = hex_byte_pack(bufp, p->blob[i]);
--		if (copy_to_user(buffer, ascii_buf, 2 * p->blob_len) != 0) {
--			kzfree(ascii_buf);
--			return -EFAULT;
--		}
--		kzfree(ascii_buf);
- 	}
- 	return 2 * p->blob_len;
+-	ret_reg->smax_value = meta->msize_smax_value;
+-	ret_reg->umax_value = meta->msize_umax_value;
+ 	__reg_deduce_bounds(ret_reg);
+ 	__reg_bound_offset(ret_reg);
++	__update_reg_bounds(ret_reg);
++
++	ret = push_stack(env, env->insn_idx + 1, env->insn_idx, false);
++	if (!ret)
++		return -EFAULT;
++
++	*ret_reg = tmp_reg;
++
++	/* Success case where ret is in range [0, msize_max_value]. */
++	ret_reg->smin_value = 0;
++	ret_reg->smax_value = meta->msize_max_value;
++	ret_reg->umin_value = ret_reg->smin_value;
++	ret_reg->umax_value = ret_reg->smax_value;
++
++	__reg_deduce_bounds(ret_reg);
++	__reg_bound_offset(ret_reg);
++	__update_reg_bounds(ret_reg);
++
++	return 0;
  }
---- a/security/keys/user_defined.c
-+++ b/security/keys/user_defined.c
-@@ -168,7 +168,7 @@ EXPORT_SYMBOL_GPL(user_describe);
-  * read the key data
-  * - the key's semaphore is read-locked
-  */
--long user_read(const struct key *key, char __user *buffer, size_t buflen)
-+long user_read(const struct key *key, char *buffer, size_t buflen)
- {
- 	const struct user_key_payload *upayload;
- 	long ret;
-@@ -181,8 +181,7 @@ long user_read(const struct key *key, ch
- 		if (buflen > upayload->datalen)
- 			buflen = upayload->datalen;
  
--		if (copy_to_user(buffer, upayload->data, buflen) != 0)
--			ret = -EFAULT;
-+		memcpy(buffer, upayload->data, buflen);
+ static int
+@@ -4377,7 +4398,9 @@ static int check_helper_call(struct bpf_
+ 		regs[BPF_REG_0].ref_obj_id = id;
  	}
  
- 	return ret;
+-	do_refine_retval_range(regs, fn->ret_type, func_id, &meta);
++	err = do_refine_retval_range(env, regs, fn->ret_type, func_id, &meta);
++	if (err)
++		return err;
+ 
+ 	err = check_map_func_compatibility(env, meta.map_ptr, func_id);
+ 	if (err)
 
 
