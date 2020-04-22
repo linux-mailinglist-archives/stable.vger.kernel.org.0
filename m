@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 041051B3DF9
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B51251B411D
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:50:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730245AbgDVKXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:23:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59688 "EHLO mail.kernel.org"
+        id S1728754AbgDVKuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:50:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730302AbgDVKXR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:23:17 -0400
+        id S1729307AbgDVKML (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:12:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CFD72076B;
-        Wed, 22 Apr 2020 10:23:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42B8D2071E;
+        Wed, 22 Apr 2020 10:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550997;
-        bh=UCBTEmjPwfYxedLpiloHCMhgXUjd7KM5HX10MVfS7vk=;
+        s=default; t=1587550329;
+        bh=r9cPRRzUeSOgbRfR8rknZofdFTnT3oSAVu+UkQoNh2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoImiid6NkLZFI1ToVJqUZvH4/JIgbWU7R0DohuW9RrhQWPwiPU7PQ8cD6iCrf61V
-         BXfBfgGPCTW1A6KTnbCrhN+OYfGWPb/XN9GiA4BxnVAuiiWm6dI6Qxdz4HxLKjJcQV
-         SSX+ZnsDsB2SZduPJLkvcoIV8HHW9tqxOdBhSXPQ=
+        b=x5vIS32XvHfFQvS1538ChRL3wbW6wWihpj+o6ki8AHIrvJPLndQQtz1vfLS0mCDTe
+         fYqvQIJ2xSz8nx5NgFB1n2bU1OnYF+V04yGkLOS7OHU7TG68fZzKcEPe4ZwGlVvjKT
+         KTv3y+/d74N/I9vlXFqWL4uwOG2PaSMEI1QGIFCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 058/166] arm64: dts: allwinner: a64: Fix display clock register range
-Date:   Wed, 22 Apr 2020 11:56:25 +0200
-Message-Id: <20200422095055.101757354@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Peter Xu <peterx@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 060/199] KVM: x86: Allocate new rmap and large page tracking when moving memslot
+Date:   Wed, 22 Apr 2020 11:56:26 +0200
+Message-Id: <20200422095104.253905519@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit 3e9a1a8b7f811de3eb1445d72f68766b704ad17c ]
+commit edd4fa37baa6ee8e44dc65523b27bd6fe44c94de upstream.
 
-Register range of display clocks is 0x10000, as it can be seen from
-DE2 documentation.
+Reallocate a rmap array and recalcuate large page compatibility when
+moving an existing memslot to correctly handle the alignment properties
+of the new memslot.  The number of rmap entries required at each level
+is dependent on the alignment of the memslot's base gfn with respect to
+that level, e.g. moving a large-page aligned memslot so that it becomes
+unaligned will increase the number of rmap entries needed at the now
+unaligned level.
 
-Fix it.
+Not updating the rmap array is the most obvious bug, as KVM accesses
+garbage data beyond the end of the rmap.  KVM interprets the bad data as
+pointers, leading to non-canonical #GPs, unexpected #PFs, etc...
 
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Fixes: 2c796fc8f5dbd ("arm64: dts: allwinner: a64: add necessary device tree nodes for DE2 CCU")
-[wens@csie.org: added fixes tag]
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  general protection fault: 0000 [#1] SMP
+  CPU: 0 PID: 1909 Comm: move_memory_reg Not tainted 5.4.0-rc7+ #139
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:rmap_get_first+0x37/0x50 [kvm]
+  Code: <48> 8b 3b 48 85 ff 74 ec e8 6c f4 ff ff 85 c0 74 e3 48 89 d8 5b c3
+  RSP: 0018:ffffc9000021bbc8 EFLAGS: 00010246
+  RAX: ffff00617461642e RBX: ffff00617461642e RCX: 0000000000000012
+  RDX: ffff88827400f568 RSI: ffffc9000021bbe0 RDI: ffff88827400f570
+  RBP: 0010000000000000 R08: ffffc9000021bd00 R09: ffffc9000021bda8
+  R10: ffffc9000021bc48 R11: 0000000000000000 R12: 0030000000000000
+  R13: 0000000000000000 R14: ffff88827427d700 R15: ffffc9000021bce8
+  FS:  00007f7eda014700(0000) GS:ffff888277a00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f7ed9216ff8 CR3: 0000000274391003 CR4: 0000000000162eb0
+  Call Trace:
+   kvm_mmu_slot_set_dirty+0xa1/0x150 [kvm]
+   __kvm_set_memory_region.part.64+0x559/0x960 [kvm]
+   kvm_set_memory_region+0x45/0x60 [kvm]
+   kvm_vm_ioctl+0x30f/0x920 [kvm]
+   do_vfs_ioctl+0xa1/0x620
+   ksys_ioctl+0x66/0x70
+   __x64_sys_ioctl+0x16/0x20
+   do_syscall_64+0x4c/0x170
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f7ed9911f47
+  Code: <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 21 6f 2c 00 f7 d8 64 89 01 48
+  RSP: 002b:00007ffc00937498 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  RAX: ffffffffffffffda RBX: 0000000001ab0010 RCX: 00007f7ed9911f47
+  RDX: 0000000001ab1350 RSI: 000000004020ae46 RDI: 0000000000000004
+  RBP: 000000000000000a R08: 0000000000000000 R09: 00007f7ed9214700
+  R10: 00007f7ed92149d0 R11: 0000000000000246 R12: 00000000bffff000
+  R13: 0000000000000003 R14: 00007f7ed9215000 R15: 0000000000000000
+  Modules linked in: kvm_intel kvm irqbypass
+  ---[ end trace 0c5f570b3358ca89 ]---
+
+The disallow_lpage tracking is more subtle.  Failure to update results
+in KVM creating large pages when it shouldn't, either due to stale data
+or again due to indexing beyond the end of the metadata arrays, which
+can lead to memory corruption and/or leaking data to guest/userspace.
+
+Note, the arrays for the old memslot are freed by the unconditional call
+to kvm_free_memslot() in __kvm_set_memory_region().
+
+Fixes: 05da45583de9b ("KVM: MMU: large page support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-index 862b47dc9dc90..baa6f08dc1087 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-@@ -264,7 +264,7 @@
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8584,6 +8584,13 @@ int kvm_arch_create_memslot(struct kvm *
+ {
+ 	int i;
  
- 			display_clocks: clock@0 {
- 				compatible = "allwinner,sun50i-a64-de2-clk";
--				reg = <0x0 0x100000>;
-+				reg = <0x0 0x10000>;
- 				clocks = <&ccu CLK_BUS_DE>,
- 					 <&ccu CLK_DE>;
- 				clock-names = "bus",
--- 
-2.20.1
-
++	/*
++	 * Clear out the previous array pointers for the KVM_MR_MOVE case.  The
++	 * old arrays will be freed by __kvm_set_memory_region() if installing
++	 * the new memslot is successful.
++	 */
++	memset(&slot->arch, 0, sizeof(slot->arch));
++
+ 	for (i = 0; i < KVM_NR_PAGE_SIZES; ++i) {
+ 		struct kvm_lpage_info *linfo;
+ 		unsigned long ugfn;
+@@ -8657,6 +8664,10 @@ int kvm_arch_prepare_memory_region(struc
+ 				const struct kvm_userspace_memory_region *mem,
+ 				enum kvm_mr_change change)
+ {
++	if (change == KVM_MR_MOVE)
++		return kvm_arch_create_memslot(kvm, memslot,
++					       mem->memory_size >> PAGE_SHIFT);
++
+ 	return 0;
+ }
+ 
 
 
