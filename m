@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 567C01B4201
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 933641B4164
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726894AbgDVKEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:04:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54136 "EHLO mail.kernel.org"
+        id S1728254AbgDVKKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727901AbgDVKEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:04:01 -0400
+        id S1728479AbgDVKK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:10:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFB9B2076C;
-        Wed, 22 Apr 2020 10:04:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D6592070B;
+        Wed, 22 Apr 2020 10:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549841;
-        bh=Obv2RGH5YaGvCgQQFtLrRO8YWKPExsVOknJMAtx0uhM=;
+        s=default; t=1587550226;
+        bh=MPttC5wXtR7BefjcAZ3LylgLYLtku1sJI3+nLqHtGaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqsDTGX94c1dLqH/VLHD7Kr+V5ZYoiZZtg0hoTFahGf2m0Ql2fFplcdM1sDtjq4Ro
-         tjWj0IVg6r5OG5OdlcypIAmSovR/xVES0g2N1y1h07lHdEOeS6tzv4/Or7USQu1Hfl
-         DhyJ4pATGc+qrkppea4rQh5DLbQndaqCE3KFouZY=
+        b=F1+g5E0OhfEQLN8G3XbkBHyv6/shg6MwKg9eMByXVgTOlt6J/29DpaymasVV+cRZY
+         uYc1Sd1gO/QfwJUbmVNSgzDEy/7Npsh4PONXNGcFTB4DuQTOFqpax/EJE5ROGngX7/
+         v/cJPQN2u/fJtkjlo740131eCgAJp3BpPhIhIYOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 4.9 028/125] thermal: devfreq_cooling: inline all stubs for CONFIG_DEVFREQ_THERMAL=n
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 019/199] x86/boot: Use unsigned comparison for addresses
 Date:   Wed, 22 Apr 2020 11:55:45 +0200
-Message-Id: <20200422095037.887922037@linuxfoundation.org>
+Message-Id: <20200422095100.130213510@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-commit 3f5b9959041e0db6dacbea80bb833bff5900999f upstream.
+[ Upstream commit 81a34892c2c7c809f9c4e22c5ac936ae673fb9a2 ]
 
-When CONFIG_DEVFREQ_THERMAL is disabled all functions except
-of_devfreq_cooling_register_power() were already inlined. Also inline
-the last function to avoid compile errors when multiple drivers call
-of_devfreq_cooling_register_power() when CONFIG_DEVFREQ_THERMAL is not
-set. Compilation failed with the following message:
-  multiple definition of `of_devfreq_cooling_register_power'
-(which then lists all usages of of_devfreq_cooling_register_power())
+The load address is compared with LOAD_PHYSICAL_ADDR using a signed
+comparison currently (using jge instruction).
 
-Thomas Zimmermann reported this problem [0] on a kernel config with
-CONFIG_DRM_LIMA={m,y}, CONFIG_DRM_PANFROST={m,y} and
-CONFIG_DEVFREQ_THERMAL=n after both, the lima and panfrost drivers
-gained devfreq cooling support.
+When loading a 64-bit kernel using the new efi32_pe_entry() point added by:
 
-[0] https://www.spinics.net/lists/dri-devel/msg252825.html
+  97aa276579b2 ("efi/x86: Add true mixed mode entry point into .compat section")
 
-Fixes: a76caf55e5b356 ("thermal: Add devfreq cooling")
-Cc: stable@vger.kernel.org
-Reported-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200403205133.1101808-1-martin.blumenstingl@googlemail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+using Qemu with -m 3072, the firmware actually loads us above 2Gb,
+resulting in a very early crash.
 
+Use the JAE instruction to perform a unsigned comparison instead, as physical
+addresses should be considered unsigned.
+
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20200301230436.2246909-6-nivedita@alum.mit.edu
+Link: https://lore.kernel.org/r/20200308080859.21568-14-ardb@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/devfreq_cooling.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/boot/compressed/head_32.S | 2 +-
+ arch/x86/boot/compressed/head_64.S | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/linux/devfreq_cooling.h
-+++ b/include/linux/devfreq_cooling.h
-@@ -53,7 +53,7 @@ void devfreq_cooling_unregister(struct t
- 
- #else /* !CONFIG_DEVFREQ_THERMAL */
- 
--struct thermal_cooling_device *
-+static inline struct thermal_cooling_device *
- of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
- 				  struct devfreq_cooling_power *dfc_power)
- {
+diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
+index 37380c0d59996..01d628ea34024 100644
+--- a/arch/x86/boot/compressed/head_32.S
++++ b/arch/x86/boot/compressed/head_32.S
+@@ -106,7 +106,7 @@ ENTRY(startup_32)
+ 	notl	%eax
+ 	andl    %eax, %ebx
+ 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
+-	jge	1f
++	jae	1f
+ #endif
+ 	movl	$LOAD_PHYSICAL_ADDR, %ebx
+ 1:
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index 39fdede523f21..a25127916e679 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -105,7 +105,7 @@ ENTRY(startup_32)
+ 	notl	%eax
+ 	andl	%eax, %ebx
+ 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
+-	jge	1f
++	jae	1f
+ #endif
+ 	movl	$LOAD_PHYSICAL_ADDR, %ebx
+ 1:
+@@ -280,7 +280,7 @@ ENTRY(startup_64)
+ 	notq	%rax
+ 	andq	%rax, %rbp
+ 	cmpq	$LOAD_PHYSICAL_ADDR, %rbp
+-	jge	1f
++	jae	1f
+ #endif
+ 	movq	$LOAD_PHYSICAL_ADDR, %rbp
+ 1:
+-- 
+2.20.1
+
 
 
