@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D131B3BCD
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 11:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1681B3FA4
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726147AbgDVJ7L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 05:59:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45434 "EHLO mail.kernel.org"
+        id S1730826AbgDVKjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:39:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726023AbgDVJ7K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 05:59:10 -0400
+        id S1726974AbgDVKVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:21:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 754B12076C;
-        Wed, 22 Apr 2020 09:59:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26ED920776;
+        Wed, 22 Apr 2020 10:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549549;
-        bh=PZA3Vw1JHUk8Sy3E3cFgr+3sTMuxx5oWNx1mnU7ajYE=;
+        s=default; t=1587550881;
+        bh=NaUgTf5CoPckAeswaR8INBW8wgTIhdKbod2hpVowooM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWV+1123JBaB+TMXsq0hu9zNN4frCxQeX4togqxLFyDx0jfT88owdrLnQKGiSdDYC
-         NeeqFGXitTvTAR65iO/vhZjgL0FtHQRl3Q/JmWP8Z6KMKN0si3CVHw+/O+iHyK99zP
-         yYF8KDBLRroU6yhuzjac2g8JsVxKzx+rcqHYlNL4=
+        b=Fx5crBn+ageKeDJHkrWlKhHCwSylZiCVv1a4B2FmW623HG7uOfINvh+XZBx+3QmPq
+         Q+lhTQsu8V8JGlISHQCmf/09WZxoJ88G/ohs6IYR0xMPMzwNQrXiTv4xMx+gBoB6xj
+         IZ1TsdWEuGhcR07WuYGl7N4rcKrX5VLouSil7q+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 010/100] locking/lockdep: Avoid recursion in lockdep_count_{for,back}ward_deps()
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Liu Yiding <liuyd.fnst@cn.fujitsu.com>,
+        Slava Bacherikov <slava@bacher09.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Kees Cook <keescook@chromium.org>,
+        KP Singh <kpsingh@google.com>, Andrii Nakryiko <andriin@fb.com>
+Subject: [PATCH 5.6 013/166] kbuild, btf: Fix dependencies for DEBUG_INFO_BTF
 Date:   Wed, 22 Apr 2020 11:55:40 +0200
-Message-Id: <20200422095024.837041098@linuxfoundation.org>
+Message-Id: <20200422095049.715550359@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boqun Feng <boqun.feng@gmail.com>
+From: Slava Bacherikov <slava@bacher09.org>
 
-[ Upstream commit 25016bd7f4caf5fc983bbab7403d08e64cba3004 ]
+commit 7d32e69310d67e6b04af04f26193f79dfc2f05c7 upstream.
 
-Qian Cai reported a bug when PROVE_RCU_LIST=y, and read on /proc/lockdep
-triggered a warning:
+Currently turning on DEBUG_INFO_SPLIT when DEBUG_INFO_BTF is also
+enabled will produce invalid btf file, since gen_btf function in
+link-vmlinux.sh script doesn't handle *.dwo files.
 
-  [ ] DEBUG_LOCKS_WARN_ON(current->hardirqs_enabled)
-  ...
-  [ ] Call Trace:
-  [ ]  lock_is_held_type+0x5d/0x150
-  [ ]  ? rcu_lockdep_current_cpu_online+0x64/0x80
-  [ ]  rcu_read_lock_any_held+0xac/0x100
-  [ ]  ? rcu_read_lock_held+0xc0/0xc0
-  [ ]  ? __slab_free+0x421/0x540
-  [ ]  ? kasan_kmalloc+0x9/0x10
-  [ ]  ? __kmalloc_node+0x1d7/0x320
-  [ ]  ? kvmalloc_node+0x6f/0x80
-  [ ]  __bfs+0x28a/0x3c0
-  [ ]  ? class_equal+0x30/0x30
-  [ ]  lockdep_count_forward_deps+0x11a/0x1a0
+Enabling DEBUG_INFO_REDUCED will also produce invalid btf file,
+and using GCC_PLUGIN_RANDSTRUCT with BTF makes no sense.
 
-The warning got triggered because lockdep_count_forward_deps() call
-__bfs() without current->lockdep_recursion being set, as a result
-a lockdep internal function (__bfs()) is checked by lockdep, which is
-unexpected, and the inconsistency between the irq-off state and the
-state traced by lockdep caused the warning.
+Fixes: e83b9f55448a ("kbuild: add ability to generate BTF type info for vmlinux")
+Reported-by: Jann Horn <jannh@google.com>
+Reported-by: Liu Yiding <liuyd.fnst@cn.fujitsu.com>
+Signed-off-by: Slava Bacherikov <slava@bacher09.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: KP Singh <kpsingh@google.com>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200402204138.408021-1-slava@bacher09.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Apart from this warning, lockdep internal functions like __bfs() should
-always be protected by current->lockdep_recursion to avoid potential
-deadlocks and data inconsistency, therefore add the
-current->lockdep_recursion on-and-off section to protect __bfs() in both
-lockdep_count_forward_deps() and lockdep_count_backward_deps()
-
-Reported-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200312151258.128036-1-boqun.feng@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ lib/Kconfig.debug |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index a419696709a1a..0a00720d3cccb 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -1265,9 +1265,11 @@ unsigned long lockdep_count_forward_deps(struct lock_class *class)
- 	this.class = class;
- 
- 	raw_local_irq_save(flags);
-+	current->lockdep_recursion = 1;
- 	arch_spin_lock(&lockdep_lock);
- 	ret = __lockdep_count_forward_deps(&this);
- 	arch_spin_unlock(&lockdep_lock);
-+	current->lockdep_recursion = 0;
- 	raw_local_irq_restore(flags);
- 
- 	return ret;
-@@ -1292,9 +1294,11 @@ unsigned long lockdep_count_backward_deps(struct lock_class *class)
- 	this.class = class;
- 
- 	raw_local_irq_save(flags);
-+	current->lockdep_recursion = 1;
- 	arch_spin_lock(&lockdep_lock);
- 	ret = __lockdep_count_backward_deps(&this);
- 	arch_spin_unlock(&lockdep_lock);
-+	current->lockdep_recursion = 0;
- 	raw_local_irq_restore(flags);
- 
- 	return ret;
--- 
-2.20.1
-
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -241,6 +241,8 @@ config DEBUG_INFO_DWARF4
+ config DEBUG_INFO_BTF
+ 	bool "Generate BTF typeinfo"
+ 	depends on DEBUG_INFO
++	depends on !DEBUG_INFO_SPLIT && !DEBUG_INFO_REDUCED
++	depends on !GCC_PLUGIN_RANDSTRUCT || COMPILE_TEST
+ 	help
+ 	  Generate deduplicated BTF type information from DWARF debug info.
+ 	  Turning this on expects presence of pahole tool, which will convert
 
 
