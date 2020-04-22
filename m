@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F9791B41B2
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA4A1B3ED5
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729173AbgDVKyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:54:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60424 "EHLO mail.kernel.org"
+        id S1730832AbgDVKcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:32:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726948AbgDVKHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:07:40 -0400
+        id S1730562AbgDVKZY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:25:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EE4820575;
-        Wed, 22 Apr 2020 10:07:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E97482071E;
+        Wed, 22 Apr 2020 10:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550060;
-        bh=Zb2q7FIeXzFHGV5URxwb82rv0SspNQ/Ggeon+/n54N8=;
+        s=default; t=1587551123;
+        bh=uzrTWlHs53ZPHHMtK8nctjkf4SsWJpLaX73oQPd1U6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alF0iQBTggxEjsRPbZa8n+yYKBqrksmUaef/jw8HzG4WcTm6TYH10i/TrEsUAZJnK
-         I0rd4F8kIXIQLH+EMVpNef64slDLMpkvnIexpQpIEjO4A2wqkwlwUuwvIt+U56LD/h
-         3FXcwTl2zrJSMJb8TXVYpe+ONJ4BP6JbG7Z8rbW8=
+        b=FKO36OlYPqqPun1A4G0pY3KrD9niXvdFtqnoh7OXVD8EGRZdTOLWXUX3oEIpWBt/i
+         aUm9Dq6t/52WkWcNZ6bTtQVJXYgDYCFcdxnSO7nqLnqw7bODGGG8BbfCiyKT7NWE5F
+         DvUwvrDEeeorIdnASWGM/VPqmX5LugdOHssyFPBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrea Righi <righi.andrea@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Peter Rosin <peda@axentia.se>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.9 118/125] fbdev: potential information leak in do_fb_ioctl()
+        stable@vger.kernel.org, Karol Herbst <kherbst@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lyude Paul <lyude@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Mika Westerberg <mika.westerberg@intel.com>,
+        linux-pci@vger.kernel.org, linux-pm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 108/166] drm/nouveau: workaround runpm fail by disabling PCI power management on certain intel bridges
 Date:   Wed, 22 Apr 2020 11:57:15 +0200
-Message-Id: <20200422095051.648271141@linuxfoundation.org>
+Message-Id: <20200422095100.404318585@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +50,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Karol Herbst <kherbst@redhat.com>
 
-commit d3d19d6fc5736a798b118971935ce274f7deaa82 upstream.
+[ Upstream commit 434fdb51513bf3057ac144d152e6f2f2b509e857 ]
 
-The "fix" struct has a 2 byte hole after ->ywrapstep and the
-"fix = info->fix;" assignment doesn't necessarily clear it.  It depends
-on the compiler.  The solution is just to replace the assignment with an
-memcpy().
+Fixes the infamous 'runtime PM' bug many users are facing on Laptops with
+Nvidia Pascal GPUs by skipping said PCI power state changes on the GPU.
 
-Fixes: 1f5e31d7e55a ("fbmem: don't call copy_from/to_user() with mutex held")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrea Righi <righi.andrea@gmail.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Peter Rosin <peda@axentia.se>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200113100132.ixpaymordi24n3av@kili.mountain
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Depending on the used kernel there might be messages like those in demsg:
 
+"nouveau 0000:01:00.0: Refused to change power state, currently in D3"
+"nouveau 0000:01:00.0: can't change power state from D3cold to D0 (config
+space inaccessible)"
+followed by backtraces of kernel crashes or timeouts within nouveau.
+
+It's still unkown why this issue exists, but this is a reliable workaround
+and solves a very annoying issue for user having to choose between a
+crashing kernel or higher power consumption of their Laptops.
+
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
+Cc: Mika Westerberg <mika.westerberg@intel.com>
+Cc: linux-pci@vger.kernel.org
+Cc: linux-pm@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: nouveau@lists.freedesktop.org
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205623
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_drm.c | 63 +++++++++++++++++++++++++++
+ drivers/gpu/drm/nouveau/nouveau_drv.h |  2 +
+ 2 files changed, 65 insertions(+)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1132,7 +1132,7 @@ static long do_fb_ioctl(struct fb_info *
- 	case FBIOGET_FSCREENINFO:
- 		if (!lock_fb_info(info))
- 			return -ENODEV;
--		fix = info->fix;
-+		memcpy(&fix, &info->fix, sizeof(fix));
- 		unlock_fb_info(info);
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index b65ae817eabf5..2d4c899e1f8b9 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -618,6 +618,64 @@ nouveau_drm_device_fini(struct drm_device *dev)
+ 	kfree(drm);
+ }
  
- 		ret = copy_to_user(argp, &fix, sizeof(fix)) ? -EFAULT : 0;
++/*
++ * On some Intel PCIe bridge controllers doing a
++ * D0 -> D3hot -> D3cold -> D0 sequence causes Nvidia GPUs to not reappear.
++ * Skipping the intermediate D3hot step seems to make it work again. This is
++ * probably caused by not meeting the expectation the involved AML code has
++ * when the GPU is put into D3hot state before invoking it.
++ *
++ * This leads to various manifestations of this issue:
++ *  - AML code execution to power on the GPU hits an infinite loop (as the
++ *    code waits on device memory to change).
++ *  - kernel crashes, as all PCI reads return -1, which most code isn't able
++ *    to handle well enough.
++ *
++ * In all cases dmesg will contain at least one line like this:
++ * 'nouveau 0000:01:00.0: Refused to change power state, currently in D3'
++ * followed by a lot of nouveau timeouts.
++ *
++ * In the \_SB.PCI0.PEG0.PG00._OFF code deeper down writes bit 0x80 to the not
++ * documented PCI config space register 0x248 of the Intel PCIe bridge
++ * controller (0x1901) in order to change the state of the PCIe link between
++ * the PCIe port and the GPU. There are alternative code paths using other
++ * registers, which seem to work fine (executed pre Windows 8):
++ *  - 0xbc bit 0x20 (publicly available documentation claims 'reserved')
++ *  - 0xb0 bit 0x10 (link disable)
++ * Changing the conditions inside the firmware by poking into the relevant
++ * addresses does resolve the issue, but it seemed to be ACPI private memory
++ * and not any device accessible memory at all, so there is no portable way of
++ * changing the conditions.
++ * On a XPS 9560 that means bits [0,3] on \CPEX need to be cleared.
++ *
++ * The only systems where this behavior can be seen are hybrid graphics laptops
++ * with a secondary Nvidia Maxwell, Pascal or Turing GPU. It's unclear whether
++ * this issue only occurs in combination with listed Intel PCIe bridge
++ * controllers and the mentioned GPUs or other devices as well.
++ *
++ * documentation on the PCIe bridge controller can be found in the
++ * "7th Generation Intel® Processor Families for H Platforms Datasheet Volume 2"
++ * Section "12 PCI Express* Controller (x16) Registers"
++ */
++
++static void quirk_broken_nv_runpm(struct pci_dev *pdev)
++{
++	struct drm_device *dev = pci_get_drvdata(pdev);
++	struct nouveau_drm *drm = nouveau_drm(dev);
++	struct pci_dev *bridge = pci_upstream_bridge(pdev);
++
++	if (!bridge || bridge->vendor != PCI_VENDOR_ID_INTEL)
++		return;
++
++	switch (bridge->device) {
++	case 0x1901:
++		drm->old_pm_cap = pdev->pm_cap;
++		pdev->pm_cap = 0;
++		NV_INFO(drm, "Disabling PCI power management to avoid bug\n");
++		break;
++	}
++}
++
+ static int nouveau_drm_probe(struct pci_dev *pdev,
+ 			     const struct pci_device_id *pent)
+ {
+@@ -699,6 +757,7 @@ static int nouveau_drm_probe(struct pci_dev *pdev,
+ 	if (ret)
+ 		goto fail_drm_dev_init;
+ 
++	quirk_broken_nv_runpm(pdev);
+ 	return 0;
+ 
+ fail_drm_dev_init:
+@@ -734,7 +793,11 @@ static void
+ nouveau_drm_remove(struct pci_dev *pdev)
+ {
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
++	struct nouveau_drm *drm = nouveau_drm(dev);
+ 
++	/* revert our workaround */
++	if (drm->old_pm_cap)
++		pdev->pm_cap = drm->old_pm_cap;
+ 	nouveau_drm_device_remove(dev);
+ 	pci_disable_device(pdev);
+ }
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drv.h b/drivers/gpu/drm/nouveau/nouveau_drv.h
+index c2c332fbde979..2a6519737800c 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drv.h
++++ b/drivers/gpu/drm/nouveau/nouveau_drv.h
+@@ -140,6 +140,8 @@ struct nouveau_drm {
+ 
+ 	struct list_head clients;
+ 
++	u8 old_pm_cap;
++
+ 	struct {
+ 		struct agp_bridge_data *bridge;
+ 		u32 base;
+-- 
+2.20.1
+
 
 
