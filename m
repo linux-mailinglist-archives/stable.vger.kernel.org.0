@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3646F1B3E08
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A5361B4067
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730389AbgDVKYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:24:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60470 "EHLO mail.kernel.org"
+        id S1729825AbgDVKRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:17:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729949AbgDVKXz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:23:55 -0400
+        id S1729822AbgDVKRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:17:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FC3220781;
-        Wed, 22 Apr 2020 10:23:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C8362076B;
+        Wed, 22 Apr 2020 10:17:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551034;
-        bh=2OzrXsnZI6VeFmjEUumNOJf3tK1Ls686mWfBeZijVvc=;
+        s=default; t=1587550642;
+        bh=9pA80RXAeQaWY+lyLFsKyR/D7ioBH6TG8ZHD81mhMwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/9OobrWSbwn+RcWdOsWyfZNV6StUPhx/yCvC6va1H2U4zg9fEYv1av+NzD2InmyK
-         jsE0uLl6ns9hEtugi+tA4W0d7jM2fXFqLjGwXXUFQCBRas2sLzspOegwxtw9E/LMCY
-         WB8SsF905o7XGMrdSTocEi0MRfFjBb4VVa83njBA=
+        b=kOHO3IqnH7F585Y+5mjTi+Zy/S6OIldge+sTD96eHmRkBaMML2dngZ7TmvR5dVaFm
+         Am2ExXtESgcaUIR6zNflCdm2URzu2BsZQ0JcPn53ysTtmUKXdM2YgyKuvN6LX3Juyw
+         olLPmPuXe7P89HJU3aTgHM+SJ90up48yvP6xFg9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Kucheria <amit.kucheria@linaro.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
+        Jason Dillaman <dillaman@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 067/166] arm64: dts: marvell: Fix cpu compatible for AP807-quad
+Subject: [PATCH 5.4 033/118] rbd: call rbd_dev_unprobe() after unwatching and flushing notifies
 Date:   Wed, 22 Apr 2020 11:56:34 +0200
-Message-Id: <20200422095056.093853715@linuxfoundation.org>
+Message-Id: <20200422095037.317196101@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
+References: <20200422095031.522502705@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,124 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Kucheria <amit.kucheria@linaro.org>
+From: Ilya Dryomov <idryomov@gmail.com>
 
-[ Upstream commit d136d2588b21b1a07515632ed61120c9f262909b ]
+[ Upstream commit 952c48b0ed18919bff7528501e9a3fff8a24f8cd ]
 
-make -k ARCH=arm64 dtbs_check shows the following errors. Fix them by
-removing the "arm,armv8" compatible.
+rbd_dev_unprobe() is supposed to undo most of rbd_dev_image_probe(),
+including rbd_dev_header_info(), which means that rbd_dev_header_info()
+isn't supposed to be called after rbd_dev_unprobe().
 
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9130-db.dt.yaml:
-cpu@0: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9130-db.dt.yaml:
-cpu@0: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long CHECK
-arch/arm64/boot/dts/renesas/r8a774a1-hihope-rzg2m-ex.dt.yaml
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9130-db.dt.yaml:
-cpu@1: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9130-db.dt.yaml:
-cpu@1: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9130-db.dt.yaml:
-cpu@100: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9130-db.dt.yaml:
-cpu@100: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9130-db.dt.yaml:
-cpu@101: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9130-db.dt.yaml:
-cpu@101: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
+However, rbd_dev_image_release() calls rbd_dev_unprobe() before
+rbd_unregister_watch().  This is racy because a header update notify
+can sneak in:
 
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9131-db.dt.yaml:
-cpu@0: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9131-db.dt.yaml:
-cpu@0: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9131-db.dt.yaml:
-cpu@1: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9131-db.dt.yaml:
-cpu@1: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9131-db.dt.yaml:
-cpu@100: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9131-db.dt.yaml:
-cpu@100: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9131-db.dt.yaml:
-cpu@101: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9131-db.dt.yaml:
-cpu@101: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
+  "rbd unmap" thread                   ceph-watch-notify worker
 
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9132-db.dt.yaml:
-cpu@0: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9132-db.dt.yaml:
-cpu@0: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9132-db.dt.yaml:
-cpu@1: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9132-db.dt.yaml:
-cpu@1: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9132-db.dt.yaml:
-cpu@100: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9132-db.dt.yaml:
-cpu@100: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9132-db.dt.yaml:
-cpu@101: compatible: Additional items are not allowed ('arm,armv8' was
-unexpected)
-/home/amit/work/builds/build-check/arch/arm64/boot/dts/marvell/cn9132-db.dt.yaml:
-cpu@101: compatible: ['arm,cortex-a72', 'arm,armv8'] is too long
+  rbd_dev_image_release()
+    rbd_dev_unprobe()
+      free and zero out header
+                                       rbd_watch_cb()
+                                         rbd_dev_refresh()
+                                           rbd_dev_header_info()
+                                             read in header
 
-Signed-off-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+The same goes for "rbd map" because rbd_dev_image_probe() calls
+rbd_dev_unprobe() on errors.  In both cases this results in a memory
+leak.
+
+Fixes: fd22aef8b47c ("rbd: move rbd_unregister_watch() call into rbd_dev_image_release()")
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Jason Dillaman <dillaman@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-ap807-quad.dtsi | 8 ++++----
+ drivers/block/rbd.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-ap807-quad.dtsi b/arch/arm64/boot/dts/marvell/armada-ap807-quad.dtsi
-index 840466e143b47..68782f161f122 100644
---- a/arch/arm64/boot/dts/marvell/armada-ap807-quad.dtsi
-+++ b/arch/arm64/boot/dts/marvell/armada-ap807-quad.dtsi
-@@ -17,7 +17,7 @@
+diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
+index bab9c546ba334..274beda31c356 100644
+--- a/drivers/block/rbd.c
++++ b/drivers/block/rbd.c
+@@ -6933,9 +6933,10 @@ static int rbd_dev_header_name(struct rbd_device *rbd_dev)
  
- 		cpu0: cpu@0 {
- 			device_type = "cpu";
--			compatible = "arm,cortex-a72", "arm,armv8";
-+			compatible = "arm,cortex-a72";
- 			reg = <0x000>;
- 			enable-method = "psci";
- 			#cooling-cells = <2>;
-@@ -32,7 +32,7 @@
- 		};
- 		cpu1: cpu@1 {
- 			device_type = "cpu";
--			compatible = "arm,cortex-a72", "arm,armv8";
-+			compatible = "arm,cortex-a72";
- 			reg = <0x001>;
- 			enable-method = "psci";
- 			#cooling-cells = <2>;
-@@ -47,7 +47,7 @@
- 		};
- 		cpu2: cpu@100 {
- 			device_type = "cpu";
--			compatible = "arm,cortex-a72", "arm,armv8";
-+			compatible = "arm,cortex-a72";
- 			reg = <0x100>;
- 			enable-method = "psci";
- 			#cooling-cells = <2>;
-@@ -62,7 +62,7 @@
- 		};
- 		cpu3: cpu@101 {
- 			device_type = "cpu";
--			compatible = "arm,cortex-a72", "arm,armv8";
-+			compatible = "arm,cortex-a72";
- 			reg = <0x101>;
- 			enable-method = "psci";
- 			#cooling-cells = <2>;
+ static void rbd_dev_image_release(struct rbd_device *rbd_dev)
+ {
+-	rbd_dev_unprobe(rbd_dev);
+ 	if (rbd_dev->opts)
+ 		rbd_unregister_watch(rbd_dev);
++
++	rbd_dev_unprobe(rbd_dev);
+ 	rbd_dev->image_format = 0;
+ 	kfree(rbd_dev->spec->image_id);
+ 	rbd_dev->spec->image_id = NULL;
+@@ -6986,7 +6987,7 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
+ 
+ 	ret = rbd_dev_header_info(rbd_dev);
+ 	if (ret)
+-		goto err_out_watch;
++		goto err_out_probe;
+ 
+ 	/*
+ 	 * If this image is the one being mapped, we have pool name and
+@@ -7035,12 +7036,11 @@ static int rbd_dev_image_probe(struct rbd_device *rbd_dev, int depth)
+ 	return 0;
+ 
+ err_out_probe:
+-	rbd_dev_unprobe(rbd_dev);
+-err_out_watch:
+ 	if (!depth)
+ 		up_write(&rbd_dev->header_rwsem);
+ 	if (!depth)
+ 		rbd_unregister_watch(rbd_dev);
++	rbd_dev_unprobe(rbd_dev);
+ err_out_format:
+ 	rbd_dev->image_format = 0;
+ 	kfree(rbd_dev->spec->image_id);
 -- 
 2.20.1
 
