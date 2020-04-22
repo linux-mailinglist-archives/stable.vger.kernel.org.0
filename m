@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0CD91B3DD5
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74BD21B40F3
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729061AbgDVKTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:19:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55638 "EHLO mail.kernel.org"
+        id S1729803AbgDVKtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:49:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729627AbgDVKTC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:19:02 -0400
+        id S1726201AbgDVKNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:13:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0295720776;
-        Wed, 22 Apr 2020 10:19:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAECC20776;
+        Wed, 22 Apr 2020 10:13:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550741;
-        bh=8Zkwt3Nxc5a6mdUgf20I8irYrlccMGLwx42I/QawL/4=;
+        s=default; t=1587550413;
+        bh=RJLVCku9igORfpt5oVv3tIoCepU57wftd4+a8zsHa/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pj0p2ZhGpOtXpInYwS+PA/ifC+a0a66zC1MW+lIqH417Ii3SBFuXIW7XFhi4MGRzJ
-         kvNw49191S+DpKSGNjAaD79fHn5EmUOf6KuZ2llMrk683w2qvqtY7cxXbMqS4/7DQA
-         Mnk6m7lg4X92FHxoztINJMjuByasC3Q6+YtXk9hQ=
+        b=NmOiWFiBK5WknABTJid7dvMwY6hfkNre4ryrlKw4c/rsMUO18iH9RxhtIcV9JJlyG
+         FvaoDm+9FsvO1dmrFdgv6epAtDuxI1f87OzlZYuD+7uYcnjDp+Hv9xQ2QyvqRqTr1R
+         lBv0fZthGFcu0VV8Bvaq04Csgw1vGwoWP2mAfSqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/118] percpu_counter: fix a data race at vm_committed_as
+        stable@vger.kernel.org, Taras Chornyi <taras.chornyi@plvision.eu>,
+        Vadym Kochan <vadym.kochan@plvision.eu>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 108/199] net: ipv4: devinet: Fix crash when add/del multicast IP with autojoin
 Date:   Wed, 22 Apr 2020 11:57:14 +0200
-Message-Id: <20200422095043.698168349@linuxfoundation.org>
+Message-Id: <20200422095108.530696540@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
+References: <20200422095057.806111593@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Taras Chornyi <taras.chornyi@plvision.eu>
 
-[ Upstream commit 7e2345200262e4a6056580f0231cccdaffc825f3 ]
+[ Upstream commit 690cc86321eb9bcee371710252742fb16fe96824 ]
 
-"vm_committed_as.count" could be accessed concurrently as reported by
-KCSAN,
+When CONFIG_IP_MULTICAST is not set and multicast ip is added to the device
+with autojoin flag or when multicast ip is deleted kernel will crash.
 
- BUG: KCSAN: data-race in __vm_enough_memory / percpu_counter_add_batch
+steps to reproduce:
 
- write to 0xffffffff9451c538 of 8 bytes by task 65879 on cpu 35:
-  percpu_counter_add_batch+0x83/0xd0
-  percpu_counter_add_batch at lib/percpu_counter.c:91
-  __vm_enough_memory+0xb9/0x260
-  dup_mm+0x3a4/0x8f0
-  copy_process+0x2458/0x3240
-  _do_fork+0xaa/0x9f0
-  __do_sys_clone+0x125/0x160
-  __x64_sys_clone+0x70/0x90
-  do_syscall_64+0x91/0xb05
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ip addr add 224.0.0.0/32 dev eth0
+ip addr del 224.0.0.0/32 dev eth0
 
- read to 0xffffffff9451c538 of 8 bytes by task 66773 on cpu 19:
-  __vm_enough_memory+0x199/0x260
-  percpu_counter_read_positive at include/linux/percpu_counter.h:81
-  (inlined by) __vm_enough_memory at mm/util.c:839
-  mmap_region+0x1b2/0xa10
-  do_mmap+0x45c/0x700
-  vm_mmap_pgoff+0xc0/0x130
-  ksys_mmap_pgoff+0x6e/0x300
-  __x64_sys_mmap+0x33/0x40
-  do_syscall_64+0x91/0xb05
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+or
 
-The read is outside percpu_counter::lock critical section which results in
-a data race.  Fix it by adding a READ_ONCE() in
-percpu_counter_read_positive() which could also service as the existing
-compiler memory barrier.
+ip addr add 224.0.0.0/32 dev eth0 autojoin
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Marco Elver <elver@google.com>
-Link: http://lkml.kernel.org/r/1582302724-2804-1-git-send-email-cai@lca.pw
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000088
+ pc : _raw_write_lock_irqsave+0x1e0/0x2ac
+ lr : lock_sock_nested+0x1c/0x60
+ Call trace:
+  _raw_write_lock_irqsave+0x1e0/0x2ac
+  lock_sock_nested+0x1c/0x60
+  ip_mc_config.isra.28+0x50/0xe0
+  inet_rtm_deladdr+0x1a8/0x1f0
+  rtnetlink_rcv_msg+0x120/0x350
+  netlink_rcv_skb+0x58/0x120
+  rtnetlink_rcv+0x14/0x20
+  netlink_unicast+0x1b8/0x270
+  netlink_sendmsg+0x1a0/0x3b0
+  ____sys_sendmsg+0x248/0x290
+  ___sys_sendmsg+0x80/0xc0
+  __sys_sendmsg+0x68/0xc0
+  __arm64_sys_sendmsg+0x20/0x30
+  el0_svc_common.constprop.2+0x88/0x150
+  do_el0_svc+0x20/0x80
+ el0_sync_handler+0x118/0x190
+  el0_sync+0x140/0x180
+
+Fixes: 93a714d6b53d ("multicast: Extend ip address command to enable multicast group join/leave on")
+Signed-off-by: Taras Chornyi <taras.chornyi@plvision.eu>
+Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/percpu_counter.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/devinet.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/percpu_counter.h b/include/linux/percpu_counter.h
-index 4f052496cdfd7..0a4f54dd4737b 100644
---- a/include/linux/percpu_counter.h
-+++ b/include/linux/percpu_counter.h
-@@ -78,9 +78,9 @@ static inline s64 percpu_counter_read(struct percpu_counter *fbc)
-  */
- static inline s64 percpu_counter_read_positive(struct percpu_counter *fbc)
- {
--	s64 ret = fbc->count;
-+	/* Prevent reloads of fbc->count */
-+	s64 ret = READ_ONCE(fbc->count);
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -579,12 +579,15 @@ struct in_ifaddr *inet_ifa_byprefix(stru
+ 	return NULL;
+ }
  
--	barrier();		/* Prevent reloads of fbc->count */
- 	if (ret >= 0)
- 		return ret;
- 	return 0;
--- 
-2.20.1
-
+-static int ip_mc_config(struct sock *sk, bool join, const struct in_ifaddr *ifa)
++static int ip_mc_autojoin_config(struct net *net, bool join,
++				 const struct in_ifaddr *ifa)
+ {
++#if defined(CONFIG_IP_MULTICAST)
+ 	struct ip_mreqn mreq = {
+ 		.imr_multiaddr.s_addr = ifa->ifa_address,
+ 		.imr_ifindex = ifa->ifa_dev->dev->ifindex,
+ 	};
++	struct sock *sk = net->ipv4.mc_autojoin_sk;
+ 	int ret;
+ 
+ 	ASSERT_RTNL();
+@@ -597,6 +600,9 @@ static int ip_mc_config(struct sock *sk,
+ 	release_sock(sk);
+ 
+ 	return ret;
++#else
++	return -EOPNOTSUPP;
++#endif
+ }
+ 
+ static int inet_rtm_deladdr(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -638,7 +644,7 @@ static int inet_rtm_deladdr(struct sk_bu
+ 			continue;
+ 
+ 		if (ipv4_is_multicast(ifa->ifa_address))
+-			ip_mc_config(net->ipv4.mc_autojoin_sk, false, ifa);
++			ip_mc_autojoin_config(net, false, ifa);
+ 		__inet_del_ifa(in_dev, ifap, 1, nlh, NETLINK_CB(skb).portid);
+ 		return 0;
+ 	}
+@@ -896,8 +902,7 @@ static int inet_rtm_newaddr(struct sk_bu
+ 		 */
+ 		set_ifa_lifetime(ifa, valid_lft, prefered_lft);
+ 		if (ifa->ifa_flags & IFA_F_MCAUTOJOIN) {
+-			int ret = ip_mc_config(net->ipv4.mc_autojoin_sk,
+-					       true, ifa);
++			int ret = ip_mc_autojoin_config(net, true, ifa);
+ 
+ 			if (ret < 0) {
+ 				inet_free_ifa(ifa);
 
 
