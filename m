@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E251B3FCF
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:41:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 825131B3D7B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:15:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731604AbgDVKk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:40:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57646 "EHLO mail.kernel.org"
+        id S1729111AbgDVKPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:15:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730135AbgDVKVM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:21:12 -0400
+        id S1729642AbgDVKPM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:15:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55746215A4;
-        Wed, 22 Apr 2020 10:21:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 624A320575;
+        Wed, 22 Apr 2020 10:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550861;
-        bh=oInKObr4lNnwZetiYJiXWFagFaAcWKQY3usP8woXmFw=;
+        s=default; t=1587550511;
+        bh=+KmynoHUM8GPQn2SP+1MLZiKCFKLZrqLb2uvnd1KsQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maJCndsNm1olAIN5qR6a7hpVZSI47cmfkmkgv+u2ymMht/6GsvdJVoqJux8uhIVTb
-         j1AiVQRIQNJoOc2Ik9Z7l5JhfRWaIdHymN2wOnlPOVsrk21qwcNSN1OTYxL9UaYSWG
-         Lca0KKJ1Al2pUvipUCCQMD/vM0o8KocIsP/Cq7ww=
+        b=ged5WkkSCHAlTwyHpk+JdUnKwc2V/lrD1tYHP7zxC7ZhW2ZdYP6NIxQuE2b80ba0E
+         BgZkI29kYUXBisMskbjVWMavHDrqB9iO55obMkk3Y/y5XR+nWO3/UbbjuKdeeNJQMM
+         t65m+so3yqdhlOLRqPn15KAFm4ZwIpii15EY3AGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 088/118] iommu/vt-d: Fix mm reference leak
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 45/64] NFS: Fix memory leaks in nfs_pageio_stop_mirroring()
 Date:   Wed, 22 Apr 2020 11:57:29 +0200
-Message-Id: <20200422095045.847292436@linuxfoundation.org>
+Message-Id: <20200422095020.831749047@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Pan <jacob.jun.pan@linux.intel.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 902baf61adf6b187f0a6b789e70d788ea71ff5bc ]
+[ Upstream commit 862f35c94730c9270833f3ad05bd758a29f204ed ]
 
-Move canonical address check before mmget_not_zero() to avoid mm
-reference leak.
+If we just set the mirror count to 1 without first clearing out
+the mirrors, we can leak queued up requests.
 
-Fixes: 9d8c3af31607 ("iommu/vt-d: IOMMU Page Request needs to check if address is canonical.")
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-svm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/nfs/pagelist.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iommu/intel-svm.c b/drivers/iommu/intel-svm.c
-index 518d0b2d12afd..3020506180c10 100644
---- a/drivers/iommu/intel-svm.c
-+++ b/drivers/iommu/intel-svm.c
-@@ -583,14 +583,15 @@ static irqreturn_t prq_event_thread(int irq, void *d)
- 		 * any faults on kernel addresses. */
- 		if (!svm->mm)
- 			goto bad_req;
--		/* If the mm is already defunct, don't handle faults. */
--		if (!mmget_not_zero(svm->mm))
--			goto bad_req;
+diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
+index 9cf59e2622f8e..5dae7c85d9b6e 100644
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -865,15 +865,6 @@ static void nfs_pageio_setup_mirroring(struct nfs_pageio_descriptor *pgio,
+ 	pgio->pg_mirror_count = mirror_count;
+ }
  
- 		/* If address is not canonical, return invalid response */
- 		if (!is_canonical_address(address))
- 			goto bad_req;
+-/*
+- * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
+- */
+-void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
+-{
+-	pgio->pg_mirror_count = 1;
+-	pgio->pg_mirror_idx = 0;
+-}
+-
+ static void nfs_pageio_cleanup_mirroring(struct nfs_pageio_descriptor *pgio)
+ {
+ 	pgio->pg_mirror_count = 1;
+@@ -1302,6 +1293,14 @@ void nfs_pageio_cond_complete(struct nfs_pageio_descriptor *desc, pgoff_t index)
+ 	}
+ }
  
-+		/* If the mm is already defunct, don't handle faults. */
-+		if (!mmget_not_zero(svm->mm))
-+			goto bad_req;
++/*
++ * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
++ */
++void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
++{
++	nfs_pageio_complete(pgio);
++}
 +
- 		down_read(&svm->mm->mmap_sem);
- 		vma = find_extend_vma(svm->mm, address);
- 		if (!vma || address < vma->vm_start)
+ int __init nfs_init_nfspagecache(void)
+ {
+ 	nfs_page_cachep = kmem_cache_create("nfs_page",
 -- 
 2.20.1
 
