@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 613D51B365D
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 06:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4831B365F
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 06:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725787AbgDVEcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 00:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37772 "EHLO
+        id S1725984AbgDVEde (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 00:33:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725355AbgDVEcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 00:32:50 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B49BC061BD3;
-        Tue, 21 Apr 2020 21:32:50 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id f18so764934lja.13;
-        Tue, 21 Apr 2020 21:32:49 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1725961AbgDVEde (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 00:33:34 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5D3C061BD3;
+        Tue, 21 Apr 2020 21:33:33 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id n6so772097ljg.12;
+        Tue, 21 Apr 2020 21:33:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=A5QcfjCn4RHqxFiUd6PW5P9dUEa7LK3ItDiWItR+ENY=;
-        b=LWv/JZzafay7oRFFZtJqFGtvMDPsNV5bw77dhIFOOeJBjFTu5zh4OpuCyAMv0Y217U
-         51SeLdsd6xu3q4qprVgI2FWMiFXF/kFr1q6JtNDSkpLZAePfLFixYyxELG0RznpYIZWl
-         oX0MlD8JslD6H1f/UHsdRUZJa3f/cLrNbv2vRgUN4tALvynmTdC9i0FN9PzwV8isMUFL
-         xjYza4n00Glv4eRD3aYOE326OhwNLa0hzQOWMxrdfHkEIU1Masj9YSAgBKmCSBdao0fl
-         0Zt99AuMLkH3trLAVBKxLLDBj9VchEUyziShKVeDk8zrLxziV41IVHVyPjDSUk7U6yw8
-         1aVg==
+        bh=6A/JSt/lvhm1/8jW+5g+pqNVCFB1Ru0tyfuhWz6X1oI=;
+        b=c7TcHPII2iQm7OBzps9DhQIcRy0VU/z4odqOV8MmTZ9JAzqe0NiJrrV8B79WMKAXGR
+         em1ZWTe8oMnSaNd//LpkmCLn6VF6IbfDfbYPA2EMuVGS3VV3mS16Ul4MhWCTDzl4+iOL
+         x7hMai51AWj2ruoy3BXtBtD3jwzBA4k+YE7RTuUByAvx1CvKe6Gv108C5cJF//UJaa54
+         xpDlgv5F+fnt0RXGflvd+YNYM8ic519NHiuqL+ZNbqMcCTHY9X1tqbzfoXXThyVNY5DP
+         OslJUR1fTRdrXW/A1/QEIANJd6IXUXLsPB4hoej9nICxg6o9ri1Fphd3P93K6fXWQlvg
+         L/cw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=A5QcfjCn4RHqxFiUd6PW5P9dUEa7LK3ItDiWItR+ENY=;
-        b=rG6afltyXvDONh2EyjzGtKKSUX+5LfQhqMqyzTmnmv9vBkzAmi0e1FPVYH6/FKPfsh
-         RpYGKVCc9PKg2ev6rgNeAwcASmC6vkBWIM48VkJPnNZq6K5hImONfsOTmO2zCdgLqFQ8
-         FzkY/qIEwUPFT1HjKYrzwZHs6GL+9fQkjMjHPuDmisp8ERLUKTlTYBprp1blexeTkNJF
-         2CPTwlV/KqhxgUXoP/vM8YWYyUGjz8t7f3bk4VtB6IAylNJfWjFte86eOigfYlwv4hDY
-         pzemmh4xF9jFVvxhxoU3JblOmDu8Pj0u1GtF07g/1iLoGPH3mSZwuIrg2FGF0lj0+toG
-         cxkA==
-X-Gm-Message-State: AGi0PuYWH6uEIL0Tjd+OQ4SLS95eNx92g44y6hWcdE9LxkJfvM4DAAn4
-        jTVAz1j9cGHje9ljyZjoNNZny+LutNFXTLprHu0=
-X-Google-Smtp-Source: APiQypLk+D7TFlox7KCXYhUtX1tRIYss0/OkVkleKJZEfuLyIcHMqz3bBCjV80gtvPEUDaLqY+jwZQ+PgnR7cvHkUuY=
-X-Received: by 2002:a2e:9b0f:: with SMTP id u15mr618934lji.272.1587529968454;
- Tue, 21 Apr 2020 21:32:48 -0700 (PDT)
+        bh=6A/JSt/lvhm1/8jW+5g+pqNVCFB1Ru0tyfuhWz6X1oI=;
+        b=tQlbjz98A9nPLZOZpQCXpEGQczJ4jUrDqiHp9828r4ukHv8B8A5ZiieMTWR335rsLW
+         6iDNmMl+1rTBR4+0SQXh23PLoloHvMECg61zjV0FQj6Xhde+HIaFnkpiv/zw2aXNNKHK
+         1UiUV2MWfvFU+H/GaXdEMHTze6VBdUkRNmrIg14UOxBpfsER81uypEw7usFlDksy9kpN
+         ls7plbwpmBt4uokxeL8rGDJ+Ip7Hygagb8sLriQDA6/z9wTGSMvJwOcJZjZDWVXP0ws6
+         9S+dxqzglXR0iwaX2Nyl1ZjVPyBgH/nQsbZJxlg2Q61Dl54E+5jvkYyb/gX2WS9LiLV5
+         LUVA==
+X-Gm-Message-State: AGi0PubhEG3AvT7qiIc/vuGOHVqC1nYUg3CdZcaC1JGZH6j4C/FQGt8X
+        G9icZfgJRPH/IrCafVxFQNJ7WoBl0VWU9iholpc=
+X-Google-Smtp-Source: APiQypJCzQXTwcVDAsol0GJSsiyf/YRGJPA1BCsaylnkBqP8rfc2a3FzDvddKmzBEi+evnZScUHUz2AZvsuoEtD4s5M=
+X-Received: by 2002:a2e:87d3:: with SMTP id v19mr5744807ljj.176.1587530012019;
+ Tue, 21 Apr 2020 21:33:32 -0700 (PDT)
 MIME-Version: 1.0
-References: <1586763024-12197-3-git-send-email-chenhc@lemote.com> <20200421195611.49A4A206E9@mail.kernel.org>
-In-Reply-To: <20200421195611.49A4A206E9@mail.kernel.org>
+References: <1586763024-12197-4-git-send-email-chenhc@lemote.com> <20200421195613.CD4D1206D9@mail.kernel.org>
+In-Reply-To: <20200421195613.CD4D1206D9@mail.kernel.org>
 From:   chen huacai <zltjiangshi@gmail.com>
-Date:   Wed, 22 Apr 2020 12:40:10 +0800
-Message-ID: <CABDp7Vo_rKn2x8zmrNQzdcFHC_1sxXDot1t_ZEt+Y=Q=jo+wOQ@mail.gmail.com>
-Subject: Re: [PATCH 02/15] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
+Date:   Wed, 22 Apr 2020 12:40:53 +0800
+Message-ID: <CABDp7VoErMhsmG4QepXd-vJgtUiWRYCt77KdjpjwGhpmq3MLZg@mail.gmail.com>
+Subject: Re: [PATCH 03/15] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     Huacai Chen <chenhc@lemote.com>, Xing Li <lixing@loongson.cn>,
         Paolo Bonzini <pbonzini@redhat.com>, stable@vger.kernel.org,
@@ -62,7 +62,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi, Sasha,
 
-On Wed, Apr 22, 2020 at 9:40 AM Sasha Levin <sashal@kernel.org> wrote:
+On Wed, Apr 22, 2020 at 9:42 AM Sasha Levin <sashal@kernel.org> wrote:
 >
 > Hi
 >
@@ -84,6 +84,7 @@ On Wed, Apr 22, 2020 at 9:40 AM Sasha Levin <sashal@kernel.org> wrote:
 >     19d194c62b25 ("MIPS: KVM: Simplify TLB_* macros")
 >     403015b323a2 ("MIPS: KVM: Move non-TLB handling code out of tlb.c")
 >     7ee0e5b29d27 ("KVM: x86: MMU: Remove unused parameter of __direct_map()")
+>     9a99c4fd6586 ("KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)")
 >     9fbfb06a4065 ("MIPS: KVM: Arrayify struct kvm_mips_tlb::tlb_lo*")
 >     ba049e93aef7 ("kvm: rename pfn_t to kvm_pfn_t")
 >     bdb7ed8608f8 ("MIPS: KVM: Convert headers to kernel sized types")
@@ -96,13 +97,12 @@ On Wed, Apr 22, 2020 at 9:40 AM Sasha Levin <sashal@kernel.org> wrote:
 >
 > How should we proceed with this patch?
 Please ignore this patch in linux-4.4 branch and even below.
+
 >
 > --
 > Thanks
 > Sasha
 >
-Thanks,
-Huacai
 
 
 -- 
