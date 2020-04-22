@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08C91B415A
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:52:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B371B3DF0
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726337AbgDVKJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37440 "EHLO mail.kernel.org"
+        id S1729117AbgDVKWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:22:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728916AbgDVKJw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:09:52 -0400
+        id S1730162AbgDVKWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:22:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6F8B2070B;
-        Wed, 22 Apr 2020 10:09:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29A612076B;
+        Wed, 22 Apr 2020 10:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550192;
-        bh=rS6fAOwtq53TVDt14sPui+9k4apRV1Z1cq2QWyeB4ys=;
+        s=default; t=1587550960;
+        bh=pTRJi42QLtD8XK1UmP7p1s0Jn8MlwflehEJVP2yAQXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIPypwZvgTsc4yRn8b/TWt2m5AcboBWdqN2ZZVGIZeAjxwOSbk2Z24oQBWdCoD8Kq
-         DaFwaimRy7bC+cImRXtB4AbDSiYA9iGoBFaWyHG3+a38tIoOWjBp2s78BtkzEqEzX8
-         VHnxODIsH1tZuYtKlq3B8KcVS2sZbZ1xlSK8eIoE=
+        b=T0thnSoyCU5ydWM+tOF4Lg6+cRatFoGzPzb5IAatg5ePu5vkakfop8ShKy5zjoq93
+         GR0OiXH0BNTKGWxX2FG7yFeFwWJJhdpKhkV0vbz6b1OX12vdx1jx6fqvoUf92FzamB
+         bDD2h/WI20MDYOVE/Bo8TYXOOmXmqpudewXz2j0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 045/199] media: ti-vpe: cal: fix disable_irqs to only the intended target
+        stable@vger.kernel.org, Eneas U de Queiroz <cotequeiroz@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 044/166] crypto: qce - use cryptlen when adding extra sgl
 Date:   Wed, 22 Apr 2020 11:56:11 +0200
-Message-Id: <20200422095102.448080976@linuxfoundation.org>
+Message-Id: <20200422095053.829913671@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoit Parrot <bparrot@ti.com>
+From: Eneas U de Queiroz <cotequeiroz@gmail.com>
 
-commit 1db56284b9da9056093681f28db48a09a243274b upstream.
+[ Upstream commit d6364b8128439a8c0e381f80c38667de9f15eef8 ]
 
-disable_irqs() was mistakenly disabling all interrupts when called.
-This cause all port stream to stop even if only stopping one of them.
+The qce crypto driver appends an extra entry to the dst sgl, to maintain
+private state information.
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When the gcm driver sends requests to the ctr skcipher, it passes the
+authentication tag after the actual crypto payload, but it must not be
+touched.
 
+Commit 1336c2221bee ("crypto: qce - save a sg table slot for result
+buf") limited the destination sgl to avoid overwriting the
+authentication tag but it assumed the tag would be in a separate sgl
+entry.
+
+This is not always the case, so it is better to limit the length of the
+destination buffer to req->cryptlen before appending the result buf.
+
+Signed-off-by: Eneas U de Queiroz <cotequeiroz@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/cal.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/crypto/qce/dma.c      | 11 ++++++-----
+ drivers/crypto/qce/dma.h      |  2 +-
+ drivers/crypto/qce/skcipher.c |  5 +++--
+ 3 files changed, 10 insertions(+), 8 deletions(-)
 
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -544,16 +544,16 @@ static void enable_irqs(struct cal_ctx *
+diff --git a/drivers/crypto/qce/dma.c b/drivers/crypto/qce/dma.c
+index 7da893dc00e73..46db5bf366b44 100644
+--- a/drivers/crypto/qce/dma.c
++++ b/drivers/crypto/qce/dma.c
+@@ -48,9 +48,10 @@ void qce_dma_release(struct qce_dma_data *dma)
  
- static void disable_irqs(struct cal_ctx *ctx)
+ struct scatterlist *
+ qce_sgtable_add(struct sg_table *sgt, struct scatterlist *new_sgl,
+-		int max_ents)
++		unsigned int max_len)
  {
-+	u32 val;
-+
- 	/* Disable IRQ_WDMA_END 0/1 */
--	reg_write_field(ctx->dev,
--			CAL_HL_IRQENABLE_CLR(2),
--			CAL_HL_IRQ_CLEAR,
--			CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	val = 0;
-+	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), val);
- 	/* Disable IRQ_WDMA_START 0/1 */
--	reg_write_field(ctx->dev,
--			CAL_HL_IRQENABLE_CLR(3),
--			CAL_HL_IRQ_CLEAR,
--			CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	val = 0;
-+	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), val);
- 	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
- 	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
- }
+ 	struct scatterlist *sg = sgt->sgl, *sg_last = NULL;
++	unsigned int new_len;
+ 
+ 	while (sg) {
+ 		if (!sg_page(sg))
+@@ -61,13 +62,13 @@ qce_sgtable_add(struct sg_table *sgt, struct scatterlist *new_sgl,
+ 	if (!sg)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	while (new_sgl && sg && max_ents) {
+-		sg_set_page(sg, sg_page(new_sgl), new_sgl->length,
+-			    new_sgl->offset);
++	while (new_sgl && sg && max_len) {
++		new_len = new_sgl->length > max_len ? max_len : new_sgl->length;
++		sg_set_page(sg, sg_page(new_sgl), new_len, new_sgl->offset);
+ 		sg_last = sg;
+ 		sg = sg_next(sg);
+ 		new_sgl = sg_next(new_sgl);
+-		max_ents--;
++		max_len -= new_len;
+ 	}
+ 
+ 	return sg_last;
+diff --git a/drivers/crypto/qce/dma.h b/drivers/crypto/qce/dma.h
+index ed25a0d9829e5..7864021693608 100644
+--- a/drivers/crypto/qce/dma.h
++++ b/drivers/crypto/qce/dma.h
+@@ -43,6 +43,6 @@ void qce_dma_issue_pending(struct qce_dma_data *dma);
+ int qce_dma_terminate_all(struct qce_dma_data *dma);
+ struct scatterlist *
+ qce_sgtable_add(struct sg_table *sgt, struct scatterlist *sg_add,
+-		int max_ents);
++		unsigned int max_len);
+ 
+ #endif /* _DMA_H_ */
+diff --git a/drivers/crypto/qce/skcipher.c b/drivers/crypto/qce/skcipher.c
+index 4217b745f1242..63ae75809cb70 100644
+--- a/drivers/crypto/qce/skcipher.c
++++ b/drivers/crypto/qce/skcipher.c
+@@ -97,13 +97,14 @@ qce_skcipher_async_req_handle(struct crypto_async_request *async_req)
+ 
+ 	sg_init_one(&rctx->result_sg, qce->dma.result_buf, QCE_RESULT_BUF_SZ);
+ 
+-	sg = qce_sgtable_add(&rctx->dst_tbl, req->dst, rctx->dst_nents - 1);
++	sg = qce_sgtable_add(&rctx->dst_tbl, req->dst, req->cryptlen);
+ 	if (IS_ERR(sg)) {
+ 		ret = PTR_ERR(sg);
+ 		goto error_free;
+ 	}
+ 
+-	sg = qce_sgtable_add(&rctx->dst_tbl, &rctx->result_sg, 1);
++	sg = qce_sgtable_add(&rctx->dst_tbl, &rctx->result_sg,
++			     QCE_RESULT_BUF_SZ);
+ 	if (IS_ERR(sg)) {
+ 		ret = PTR_ERR(sg);
+ 		goto error_free;
+-- 
+2.20.1
+
 
 
