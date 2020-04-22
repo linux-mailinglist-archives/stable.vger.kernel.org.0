@@ -2,81 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4631B33DE
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 02:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 804731B33F3
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 02:24:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726061AbgDVARX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Apr 2020 20:17:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57348 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726039AbgDVARW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Apr 2020 20:17:22 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E41120575;
-        Wed, 22 Apr 2020 00:17:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587514642;
-        bh=IBPnJPfXD8ClyGxLbkdzTyRpElust0nkRQkdXmy+qug=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eTR7Nx1zy5UDEsgWoyGp1THrYYJKpaxTTGYB+vv2nLvpqmnBQS9MsLhouDOgQrrMq
-         o9THHfeFZMGULNPGxjS8OshQSzE8mdKU9AUMStiyzshes5mcxGw6K5dU5Euk3V9WAn
-         DjG7eC+lCls9CNuE3+kNoiU9EHvauSokGjFxspzc=
-Date:   Tue, 21 Apr 2020 20:17:21 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     magnus.karlsson@intel.com, daniel@iogearbox.net,
-        minhquangbui99@gmail.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] xsk: Add missing check on user supplied
- headroom size" failed to apply to 4.19-stable tree
-Message-ID: <20200422001721.GO1809@sasha-vm>
-References: <158748891372198@kroah.com>
+        id S1726055AbgDVAYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Apr 2020 20:24:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56100 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726039AbgDVAYV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Apr 2020 20:24:21 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D06C0610D5
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 17:24:21 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id o10so198563pgb.6
+        for <stable@vger.kernel.org>; Tue, 21 Apr 2020 17:24:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=a1Gg8wNneCphgtVp98HY4dBGj0YW5dFS2hfrl0OMNOk=;
+        b=ulyODzxScszPlGTNXwT9Fa8rAzUwFLWHi0DhTkA/vEFvpoFwzUvI1c/yXgp7bVHBFr
+         /8R5omGjhxxO6dGr3+Jc36MMitqbTT6/A4MFENaj2qBi4gxFzRCrf5JrYjszJ3kYsNnm
+         jCE4RxRS+QrPlGgXcJ04Jad1kZzrD/Xn/2QWN3iyel1C9BFPHR59qfRM86EaXM1onmaP
+         Xj8t6akAbKNJj5GZPvjuwIXOvTubZnRVtSnzwtBEetlVTIxBLU9VTLHN9pdgGmuEad6X
+         NJJEqP4JlwIz0umCwDE4BRxb26s5WkFrySpPm5LHa07veD+nJEcZyXZTRvVgVAIS4P+1
+         XLyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=a1Gg8wNneCphgtVp98HY4dBGj0YW5dFS2hfrl0OMNOk=;
+        b=N94vI/aIPJInvhuRRv1szylf0fQKwZVQ9+K9ExsFyHY75bjyEVLGUe2kvr65WiIAf2
+         3FW3WV3KFscYPybWdRXNF8tVoyGmEE52hBWK6PGv9GX7JoMiG7BlW554y8F3HkpAT8uF
+         y7fiaRaTRcPGVn7Shaeic4d1mtFixVUPwrM3Fvu1Wsgo6PH6HvX/J3L/fflcgyhfkJbg
+         UGkyR1xgYyzLUG1uTg4S8hf6bYL1DskQwWn7x0rQvceHe7FIAT5rOBn2s0koeSkrpHtE
+         NsVie5LfLkHgkGCttolzwF4a93tDWXUvDYf0uHZ8DBrqyc49AUjzDf+n4SaN9apoQC5X
+         YIfQ==
+X-Gm-Message-State: AGi0PuZ3eWIu8SW+yrFEvulKZdaYuyu4TLM+DN+eH7oOdbDqftk/qjBs
+        eGZ03PVFEQyG/fQw55GmK0/wYe/78Q0=
+X-Google-Smtp-Source: APiQypJavxGYCFXRTJS7EjvWkQwe/SczlXaHvj+Yi8VFXRxKKY1lPXb6FTt0Dz48qakZdhDc/c5gdg==
+X-Received: by 2002:a62:144b:: with SMTP id 72mr24806745pfu.246.1587515060665;
+        Tue, 21 Apr 2020 17:24:20 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q201sm3679124pfq.40.2020.04.21.17.24.19
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Apr 2020 17:24:20 -0700 (PDT)
+Message-ID: <5e9f8eb4.1c69fb81.68ceb.d1c5@mx.google.com>
+Date:   Tue, 21 Apr 2020 17:24:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <158748891372198@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.219
+Subject: stable-rc/linux-4.9.y boot: 36 boots: 0 failed,
+ 33 passed with 3 untried/unknown (v4.9.219)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 21, 2020 at 07:08:33PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 99e3a236dd43d06c65af0a2ef9cb44306aef6e02 Mon Sep 17 00:00:00 2001
->From: Magnus Karlsson <magnus.karlsson@intel.com>
->Date: Tue, 14 Apr 2020 09:35:15 +0200
->Subject: [PATCH] xsk: Add missing check on user supplied headroom size
->
->Add a check that the headroom cannot be larger than the available
->space in the chunk. In the current code, a malicious user can set the
->headroom to a value larger than the chunk size minus the fixed XDP
->headroom. That way packets with a length larger than the supported
->size in the umem could get accepted and result in an out-of-bounds
->write.
->
->Fixes: c0c77d8fb787 ("xsk: add user memory registration support sockopt")
->Reported-by: Bui Quang Minh <minhquangbui99@gmail.com>
->Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
->Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
->Link: https://bugzilla.kernel.org/show_bug.cgi?id=207225
->Link: https://lore.kernel.org/bpf/1586849715-23490-1-git-send-email-magnus.karlsson@intel.com
+stable-rc/linux-4.9.y boot: 36 boots: 0 failed, 33 passed with 3 untried/un=
+known (v4.9.219)
 
-Conflict with 624676e78899 ("xdp: xdp_umem: replace kmap on vmap for
-umem map") around 'i' going away. Fixed and queued for 4.19.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.219/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.219/
 
--- 
-Thanks,
-Sasha
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.219
+Git Commit: 5188957a315f664d46ff58fedecbc0f7503f1b22
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 24 unique boards, 8 SoC families, 14 builds out of 197
+
+Boot Regressions Detected:
+
+arm:
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.9.219-84-gd7b7a33b0=
+609)
+
+---
+For more info write to <info@kernelci.org>
