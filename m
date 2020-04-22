@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE5F1B3F08
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:35:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B412C1B40BE
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730451AbgDVKds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:33:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33070 "EHLO mail.kernel.org"
+        id S1729712AbgDVKP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:15:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730442AbgDVKYj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:24:39 -0400
+        id S1729708AbgDVKP1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:15:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9EBC2076B;
-        Wed, 22 Apr 2020 10:24:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 402F12075A;
+        Wed, 22 Apr 2020 10:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551079;
-        bh=nSl82cjhWjTA2l0ExvViT8VlR3vIJzSYqkYo4UEfc7k=;
+        s=default; t=1587550526;
+        bh=jlCOKvLmCY4J1mQYSp+GJ52kQPnp+v36+Lyr6EuYj8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VbalytijCIGa1NMsDWsQ7PrkghfjQ5CIiQcHcto3a+rWTaGmiB+2ibZN/xDMsG0sx
-         GVHhLL/JVL87/1crP5uzJI0yWTlZqDq19+c6n0mVk8qCo2xC9lMU9fQtM3dIhdhnBD
-         U76Q8xG/pdlr+7UhFiGQfd/yxK1qUDHHEIL/iu9M=
+        b=oqbpzjOdX5CMXf+LD7XndGN1ZaMx7Yoe7+uzos2wJqdo2Ql5J6pmfab7VG+NKnQoU
+         vyLU8XlcjSej0fAskW/5K/v0Kpi40w4yT4yW6oNMj7s04HSvljO/hahEfQTwgDZawy
+         NdJuXqsZa04uRiAkE+12nZuqrCjzXdjx4SBRvQMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liwei Song <liwei.song@windriver.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 092/166] nfsroot: set tcp as the default transport protocol
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>
+Subject: [PATCH 4.19 15/64] x86/Hyper-V: Report crash register data or kmsg before running crash kernel
 Date:   Wed, 22 Apr 2020 11:56:59 +0200
-Message-Id: <20200422095058.585634101@linuxfoundation.org>
+Message-Id: <20200422095015.598699528@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liwei Song <liwei.song@windriver.com>
+From: Tianyu Lan <Tianyu.Lan@microsoft.com>
 
-[ Upstream commit 89c8023fd46167a41246a56b31d1b3c9a20b6970 ]
+commit a11589563e96bf262767294b89b25a9d44e7303b upstream.
 
-UDP is disabled by default in commit b24ee6c64ca7 ("NFS: allow
-deprecation of NFS UDP protocol"), but the default mount options
-is still udp, change it to tcp to avoid the "Unsupported transport
-protocol udp" error if no protocol is specified when mount nfs.
+We want to notify Hyper-V when a Linux guest VM crash occurs, so
+there is a record of the crash even when kdump is enabled.   But
+crash_kexec_post_notifiers defaults to "false", so the kdump kernel
+runs before the notifiers and Hyper-V never gets notified.  Fix this by
+always setting crash_kexec_post_notifiers to be true for Hyper-V VMs.
 
-Fixes: b24ee6c64ca7 ("NFS: allow deprecation of NFS UDP protocol")
-Signed-off-by: Liwei Song <liwei.song@windriver.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 81b18bce48af ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Link: https://lore.kernel.org/r/20200406155331.2105-5-Tianyu.Lan@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/nfsroot.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/mshyperv.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/fs/nfs/nfsroot.c b/fs/nfs/nfsroot.c
-index effaa4247b912..8d32788056022 100644
---- a/fs/nfs/nfsroot.c
-+++ b/fs/nfs/nfsroot.c
-@@ -88,7 +88,7 @@
- #define NFS_ROOT		"/tftpboot/%s"
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -250,6 +250,16 @@ static void __init ms_hyperv_init_platfo
+ 			cpuid_eax(HYPERV_CPUID_NESTED_FEATURES);
+ 	}
  
- /* Default NFSROOT mount options. */
--#define NFS_DEF_OPTIONS		"vers=2,udp,rsize=4096,wsize=4096"
-+#define NFS_DEF_OPTIONS		"vers=2,tcp,rsize=4096,wsize=4096"
- 
- /* Parameters passed from the kernel command line */
- static char nfs_root_parms[NFS_MAXPATHLEN + 1] __initdata = "";
--- 
-2.20.1
-
++	/*
++	 * Hyper-V expects to get crash register data or kmsg when
++	 * crash enlightment is available and system crashes. Set
++	 * crash_kexec_post_notifiers to be true to make sure that
++	 * calling crash enlightment interface before running kdump
++	 * kernel.
++	 */
++	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE)
++		crash_kexec_post_notifiers = true;
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	if (ms_hyperv.features & HV_X64_ACCESS_FREQUENCY_MSRS &&
+ 	    ms_hyperv.misc_features & HV_FEATURE_FREQUENCY_MSRS_AVAILABLE) {
 
 
