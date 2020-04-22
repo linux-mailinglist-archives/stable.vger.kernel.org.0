@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D5431B41AE
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE5F1B3F08
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:35:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729300AbgDVKyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:54:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33050 "EHLO mail.kernel.org"
+        id S1730451AbgDVKds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:33:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728631AbgDVKIF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:08:05 -0400
+        id S1730442AbgDVKYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:24:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4AB62075A;
-        Wed, 22 Apr 2020 10:08:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9EBC2076B;
+        Wed, 22 Apr 2020 10:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550084;
-        bh=RR9zuGd6KTiQ3TJQe/mCK7ogA8Sh/pMX/GIsvBdcKGs=;
+        s=default; t=1587551079;
+        bh=nSl82cjhWjTA2l0ExvViT8VlR3vIJzSYqkYo4UEfc7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLLoHpnLWc0lAH6DLzRCwFeYRwT/H5+YW/Pzo1oTaelJbeGsMKUeuvH0chKzKR6i0
-         N6ViHzV+8Yw5vw5Zt+NPK11n+cuwsvTc5ur5cd77TF8sDpXPzrTrnIU9R2pltGErBS
-         IVvj6GhauebDK4hdQmXAoSRlDDmJ3cUPaUP4RHUo=
+        b=VbalytijCIGa1NMsDWsQ7PrkghfjQ5CIiQcHcto3a+rWTaGmiB+2ibZN/xDMsG0sx
+         GVHhLL/JVL87/1crP5uzJI0yWTlZqDq19+c6n0mVk8qCo2xC9lMU9fQtM3dIhdhnBD
+         U76Q8xG/pdlr+7UhFiGQfd/yxK1qUDHHEIL/iu9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Erhard F." <erhard_f@mailbox.org>,
-        Frank Rowand <frank.rowand@sony.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 102/125] of: unittest: kmemleak in of_unittest_platform_populate()
+        stable@vger.kernel.org, Liwei Song <liwei.song@windriver.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 092/166] nfsroot: set tcp as the default transport protocol
 Date:   Wed, 22 Apr 2020 11:56:59 +0200
-Message-Id: <20200422095049.485814025@linuxfoundation.org>
+Message-Id: <20200422095058.585634101@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
-References: <20200422095032.909124119@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Rowand <frank.rowand@sony.com>
+From: Liwei Song <liwei.song@windriver.com>
 
-[ Upstream commit 216830d2413cc61be3f76bc02ffd905e47d2439e ]
+[ Upstream commit 89c8023fd46167a41246a56b31d1b3c9a20b6970 ]
 
-kmemleak reports several memory leaks from devicetree unittest.
-This is the fix for problem 2 of 5.
+UDP is disabled by default in commit b24ee6c64ca7 ("NFS: allow
+deprecation of NFS UDP protocol"), but the default mount options
+is still udp, change it to tcp to avoid the "Unsupported transport
+protocol udp" error if no protocol is specified when mount nfs.
 
-of_unittest_platform_populate() left an elevated reference count for
-grandchild nodes (which are platform devices).  Fix the platform
-device reference counts so that the memory will be freed.
-
-Fixes: fb2caa50fbac ("of/selftest: add testcase for nodes with same name and address")
-Reported-by: Erhard F. <erhard_f@mailbox.org>
-Signed-off-by: Frank Rowand <frank.rowand@sony.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
+Fixes: b24ee6c64ca7 ("NFS: allow deprecation of NFS UDP protocol")
+Signed-off-by: Liwei Song <liwei.song@windriver.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/unittest.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/nfs/nfsroot.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index 40d170c1ecd50..144d123f6ea4f 100644
---- a/drivers/of/unittest.c
-+++ b/drivers/of/unittest.c
-@@ -825,10 +825,13 @@ static void __init of_unittest_platform_populate(void)
+diff --git a/fs/nfs/nfsroot.c b/fs/nfs/nfsroot.c
+index effaa4247b912..8d32788056022 100644
+--- a/fs/nfs/nfsroot.c
++++ b/fs/nfs/nfsroot.c
+@@ -88,7 +88,7 @@
+ #define NFS_ROOT		"/tftpboot/%s"
  
- 	of_platform_populate(np, match, NULL, &test_bus->dev);
- 	for_each_child_of_node(np, child) {
--		for_each_child_of_node(child, grandchild)
--			unittest(of_find_device_by_node(grandchild),
-+		for_each_child_of_node(child, grandchild) {
-+			pdev = of_find_device_by_node(grandchild);
-+			unittest(pdev,
- 				 "Could not create device for node '%s'\n",
- 				 grandchild->name);
-+			of_dev_put(pdev);
-+		}
- 	}
+ /* Default NFSROOT mount options. */
+-#define NFS_DEF_OPTIONS		"vers=2,udp,rsize=4096,wsize=4096"
++#define NFS_DEF_OPTIONS		"vers=2,tcp,rsize=4096,wsize=4096"
  
- 	of_platform_depopulate(&test_bus->dev);
+ /* Parameters passed from the kernel command line */
+ static char nfs_root_parms[NFS_MAXPATHLEN + 1] __initdata = "";
 -- 
 2.20.1
 
