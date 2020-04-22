@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6225D1B3FB9
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 145951B40C5
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:48:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729627AbgDVKkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:40:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
+        id S1732027AbgDVKrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:47:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730140AbgDVKVN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:21:13 -0400
+        id S1729244AbgDVKPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:15:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D13762076E;
-        Wed, 22 Apr 2020 10:21:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC2E620575;
+        Wed, 22 Apr 2020 10:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550864;
-        bh=KumeSezBYFcfKEPN0JqzpgTR3COOhKtsh9LKtTxA6cU=;
+        s=default; t=1587550514;
+        bh=J2Tscg0fW3pcCyob+6YGj5QCeCv1qdJ+BxsxnfTJYBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AzKNem4JPFhLdruzbkDnJvnupR7Fr/Gfhq6TQu4lSTxZ6SrLQCuHAdVoyVi6qlBm8
-         84xv5lXLx9ChFCsiUU2xSvWKX2Go3EJ5KVySC+29spaT0j3KXuOvXAk9WHUbTgdjdD
-         VvYqcv79NUb5Da6hQWMe8BSLplm7ESOXLtjeQH08=
+        b=TLswHyqUxGOOeL7690T5HGokE8YX2bguNeD/qulb4+Fa3JXDm0Wd562vuNHuYPQCR
+         z6QmaszBoERT/Ab4e3n7opudlj78JEeQ8Ze+FCBs9VsqBH4T+LFT+rrsHZctRsx31D
+         jVAdgPTn0InLg8jawocDI1oDglxUNLz1dRZA0+Wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/118] SUNRPC: fix krb5p mount to provide large enough buffer in rq_rcvsize
+Subject: [PATCH 4.19 46/64] f2fs: fix NULL pointer dereference in f2fs_write_begin()
 Date:   Wed, 22 Apr 2020 11:57:30 +0200
-Message-Id: <20200422095045.987576033@linuxfoundation.org>
+Message-Id: <20200422095021.001448305@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,122 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit df513a7711712758b9cb1a48d86712e7e1ee03f4 ]
+[ Upstream commit 62f63eea291b50a5677ae7503ac128803174698a ]
 
-Ever since commit 2c94b8eca1a2 ("SUNRPC: Use au_rslack when computing
-reply buffer size"). It changed how "req->rq_rcvsize" is calculated. It
-used to use au_cslack value which was nice and large and changed it to
-au_rslack value which turns out to be too small.
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+RIP: 0010:f2fs_write_begin+0x823/0xb90 [f2fs]
+Call Trace:
+ f2fs_quota_write+0x139/0x1d0 [f2fs]
+ write_blk+0x36/0x80 [quota_tree]
+ get_free_dqblk+0x42/0xa0 [quota_tree]
+ do_insert_tree+0x235/0x4a0 [quota_tree]
+ do_insert_tree+0x26e/0x4a0 [quota_tree]
+ do_insert_tree+0x26e/0x4a0 [quota_tree]
+ do_insert_tree+0x26e/0x4a0 [quota_tree]
+ qtree_write_dquot+0x70/0x190 [quota_tree]
+ v2_write_dquot+0x43/0x90 [quota_v2]
+ dquot_acquire+0x77/0x100
+ f2fs_dquot_acquire+0x2f/0x60 [f2fs]
+ dqget+0x310/0x450
+ dquot_transfer+0x7e/0x120
+ f2fs_setattr+0x11a/0x4a0 [f2fs]
+ notify_change+0x349/0x480
+ chown_common+0x168/0x1c0
+ do_fchownat+0xbc/0xf0
+ __x64_sys_fchownat+0x20/0x30
+ do_syscall_64+0x5f/0x220
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Since 5.1, v3 mount with sec=krb5p fails against an Ontap server
-because client's receive buffer it too small.
+Passing fsdata parameter to .write_{begin,end} in f2fs_quota_write(),
+so that if quota file is compressed one, we can avoid above NULL
+pointer dereference when updating quota content.
 
-For gss krb5p, we need to account for the mic token in the verifier,
-and the wrap token in the wrap token.
-
-RFC 4121 defines:
-mic token
-Octet no   Name        Description
-         --------------------------------------------------------------
-         0..1     TOK_ID     Identification field.  Tokens emitted by
-                             GSS_GetMIC() contain the hex value 04 04
-                             expressed in big-endian order in this
-                             field.
-         2        Flags      Attributes field, as described in section
-                             4.2.2.
-         3..7     Filler     Contains five octets of hex value FF.
-         8..15    SND_SEQ    Sequence number field in clear text,
-                             expressed in big-endian order.
-         16..last SGN_CKSUM  Checksum of the "to-be-signed" data and
-                             octet 0..15, as described in section 4.2.4.
-
-that's 16bytes (GSS_KRB5_TOK_HDR_LEN) + chksum
-
-wrap token
-Octet no   Name        Description
-         --------------------------------------------------------------
-          0..1     TOK_ID    Identification field.  Tokens emitted by
-                             GSS_Wrap() contain the hex value 05 04
-                             expressed in big-endian order in this
-                             field.
-          2        Flags     Attributes field, as described in section
-                             4.2.2.
-          3        Filler    Contains the hex value FF.
-          4..5     EC        Contains the "extra count" field, in big-
-                             endian order as described in section 4.2.3.
-          6..7     RRC       Contains the "right rotation count" in big-
-                             endian order, as described in section
-                             4.2.5.
-          8..15    SND_SEQ   Sequence number field in clear text,
-                             expressed in big-endian order.
-          16..last Data      Encrypted data for Wrap tokens with
-                             confidentiality, or plaintext data followed
-                             by the checksum for Wrap tokens without
-                             confidentiality, as described in section
-                             4.2.4.
-
-Also 16bytes of header (GSS_KRB5_TOK_HDR_LEN), encrypted data, and cksum
-(other things like padding)
-
-RFC 3961 defines known cksum sizes:
-Checksum type              sumtype        checksum         section or
-                                value            size         reference
-   ---------------------------------------------------------------------
-   CRC32                            1               4           6.1.3
-   rsa-md4                          2              16           6.1.2
-   rsa-md4-des                      3              24           6.2.5
-   des-mac                          4              16           6.2.7
-   des-mac-k                        5               8           6.2.8
-   rsa-md4-des-k                    6              16           6.2.6
-   rsa-md5                          7              16           6.1.1
-   rsa-md5-des                      8              24           6.2.4
-   rsa-md5-des3                     9              24             ??
-   sha1 (unkeyed)                  10              20             ??
-   hmac-sha1-des3-kd               12              20            6.3
-   hmac-sha1-des3                  13              20             ??
-   sha1 (unkeyed)                  14              20             ??
-   hmac-sha1-96-aes128             15              20         [KRB5-AES]
-   hmac-sha1-96-aes256             16              20         [KRB5-AES]
-   [reserved]                  0x8003               ?         [GSS-KRB5]
-
-Linux kernel now mainly supports type 15,16 so max cksum size is 20bytes.
-(GSS_KRB5_MAX_CKSUM_LEN)
-
-Re-use already existing define of GSS_KRB5_MAX_SLACK_NEEDED that's used
-for encoding the gss_wrap tokens (same tokens are used in reply).
-
-Fixes: 2c94b8eca1a2 ("SUNRPC: Use au_rslack when computing reply buffer size")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Reviewed-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/auth_gss.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/f2fs/super.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
-index d75fddca44c94..f9e1a7e61eda0 100644
---- a/net/sunrpc/auth_gss/auth_gss.c
-+++ b/net/sunrpc/auth_gss/auth_gss.c
-@@ -20,6 +20,7 @@
- #include <linux/sunrpc/clnt.h>
- #include <linux/sunrpc/auth.h>
- #include <linux/sunrpc/auth_gss.h>
-+#include <linux/sunrpc/gss_krb5.h>
- #include <linux/sunrpc/svcauth_gss.h>
- #include <linux/sunrpc/gss_err.h>
- #include <linux/workqueue.h>
-@@ -1050,7 +1051,7 @@ gss_create_new(const struct rpc_auth_create_args *args, struct rpc_clnt *clnt)
- 		goto err_put_mech;
- 	auth = &gss_auth->rpc_auth;
- 	auth->au_cslack = GSS_CRED_SLACK >> 2;
--	auth->au_rslack = GSS_VERF_SLACK >> 2;
-+	auth->au_rslack = GSS_KRB5_MAX_SLACK_NEEDED >> 2;
- 	auth->au_verfsize = GSS_VERF_SLACK >> 2;
- 	auth->au_ralign = GSS_VERF_SLACK >> 2;
- 	auth->au_flags = 0;
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index da348cf4ff56a..45f8f6ec22a55 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1648,6 +1648,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
+ 	int offset = off & (sb->s_blocksize - 1);
+ 	size_t towrite = len;
+ 	struct page *page;
++	void *fsdata = NULL;
+ 	char *kaddr;
+ 	int err = 0;
+ 	int tocopy;
+@@ -1657,7 +1658,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
+ 								towrite);
+ retry:
+ 		err = a_ops->write_begin(NULL, mapping, off, tocopy, 0,
+-							&page, NULL);
++							&page, &fsdata);
+ 		if (unlikely(err)) {
+ 			if (err == -ENOMEM) {
+ 				congestion_wait(BLK_RW_ASYNC, HZ/50);
+@@ -1672,7 +1673,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
+ 		flush_dcache_page(page);
+ 
+ 		a_ops->write_end(NULL, mapping, off, tocopy, tocopy,
+-						page, NULL);
++						page, fsdata);
+ 		offset = 0;
+ 		towrite -= tocopy;
+ 		off += tocopy;
 -- 
 2.20.1
 
