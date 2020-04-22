@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5E11B3E0A
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3A5A1B3C8A
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:06:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729413AbgDVKYX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:24:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60700 "EHLO mail.kernel.org"
+        id S1728363AbgDVKGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:06:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730398AbgDVKYH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:24:07 -0400
+        id S1728372AbgDVKGe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:06:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83F8B20780;
-        Wed, 22 Apr 2020 10:24:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8908420774;
+        Wed, 22 Apr 2020 10:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587551047;
-        bh=jO1jmMq/YmarATDf7hjoodFLJI0M50FJ/PJsvVCWaBA=;
+        s=default; t=1587549994;
+        bh=e0BLSrIFRbPvC47jx0c234YbzrAFTYQdeTkVFHy1MJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C++0b2xrPP+elukZnd6nWZ2wMHtJtncBOgygzlakeGg4X8+tIisFtfxOhuoTqslM+
-         HCzy5dhUt6R6U0bGnTy8z+zY1M4jlYvRK4LPk93tRTRJy4jtiS5P6M+Z2RkQa2GeSt
-         nHgxekYq+Zs+2G5G+YqUqfPuHitfxOngjenHrUJI=
+        b=j/WFXit/83hu98Nkc7HbVTXsL20l9ucnEAfn+wMPRgHBZhwE9s27mcFHwCQ5BxZPu
+         ztoovFTmhasQaUE0/55/qiKFxv50rexAIrOBKQl6KWgUOfx4e/1LBrzBRrZN7OBGV5
+         T+uo3fPxleL48blwA88aV3XRcGwLi1wHya5r5Rf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 080/166] NFS: direct.c: Fix memory leak of dreq when nfs_get_lock_context fails
+        stable@vger.kernel.org, Joe Moriarty <joe.moriarty@oracle.com>,
+        Steven Sistare <steven.sistare@oracle.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 090/125] drm: NULL pointer dereference [null-pointer-deref] (CWE 476) problem
 Date:   Wed, 22 Apr 2020 11:56:47 +0200
-Message-Id: <20200422095057.385114082@linuxfoundation.org>
+Message-Id: <20200422095047.524731877@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
-References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+From: Joe Moriarty <joe.moriarty@oracle.com>
 
-[ Upstream commit 8605cf0e852af3b2c771c18417499dc4ceed03d5 ]
+commit 22a07038c0eaf4d1315a493ce66dcd255accba19 upstream.
 
-When dreq is allocated by nfs_direct_req_alloc(), dreq->kref is
-initialized to 2. Therefore we need to call nfs_direct_req_release()
-twice to release the allocated dreq. Usually it is called in
-nfs_file_direct_{read, write}() and nfs_direct_complete().
+The Parfait (version 2.1.0) static code analysis tool found the
+following NULL pointer derefernce problem.
 
-However, current code only calls nfs_direct_req_relese() once if
-nfs_get_lock_context() fails in nfs_file_direct_{read, write}().
-So, that case would result in memory leak.
+- drivers/gpu/drm/drm_dp_mst_topology.c
+The call to drm_dp_calculate_rad() in function drm_dp_port_setup_pdt()
+could result in a NULL pointer being returned to port->mstb due to a
+failure to allocate memory for port->mstb.
 
-Fix this by adding the missing call.
+Signed-off-by: Joe Moriarty <joe.moriarty@oracle.com>
+Reviewed-by: Steven Sistare <steven.sistare@oracle.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20180212195144.98323-3-joe.moriarty@oracle.com
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/drm_dp_mst_topology.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index b768a0b42e82e..ade2435551c89 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -571,6 +571,7 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter)
- 	l_ctx = nfs_get_lock_context(dreq->ctx);
- 	if (IS_ERR(l_ctx)) {
- 		result = PTR_ERR(l_ctx);
-+		nfs_direct_req_release(dreq);
- 		goto out_release;
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -1041,10 +1041,12 @@ static bool drm_dp_port_setup_pdt(struct
+ 		lct = drm_dp_calculate_rad(port, rad);
+ 
+ 		port->mstb = drm_dp_add_mst_branch_device(lct, rad);
+-		port->mstb->mgr = port->mgr;
+-		port->mstb->port_parent = port;
++		if (port->mstb) {
++			port->mstb->mgr = port->mgr;
++			port->mstb->port_parent = port;
+ 
+-		send_link = true;
++			send_link = true;
++		}
+ 		break;
  	}
- 	dreq->l_ctx = l_ctx;
-@@ -990,6 +991,7 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
- 	l_ctx = nfs_get_lock_context(dreq->ctx);
- 	if (IS_ERR(l_ctx)) {
- 		result = PTR_ERR(l_ctx);
-+		nfs_direct_req_release(dreq);
- 		goto out_release;
- 	}
- 	dreq->l_ctx = l_ctx;
--- 
-2.20.1
-
+ 	return send_link;
 
 
