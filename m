@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 857C21B4112
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:50:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 428611B40E2
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:48:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729364AbgDVKMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:12:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46186 "EHLO mail.kernel.org"
+        id S1728622AbgDVKsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:48:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726974AbgDVKMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:12:49 -0400
+        id S1729121AbgDVKON (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:14:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 598B820575;
-        Wed, 22 Apr 2020 10:12:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55A7F20575;
+        Wed, 22 Apr 2020 10:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550368;
-        bh=6FOR2zsEhJsNHgTc8D9F4CP+7uChdEDp9K6YjoSstNE=;
+        s=default; t=1587550452;
+        bh=Q5DNYxjUVax61dxGa44v4AmWO/qNyNhOY8NEP/zId20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mm1B3xwVpwVPbhuk5oOso12vOQyOc3DIW+y5XVGJVQ/5SWKDJt5S2dmJjXKDK21du
-         DC5r3tmbz3Yhz8oncUPrwU2w2lRpY94g97OqESenqWBZQkIm+Z7EB1uvvWGQmQ2lcW
-         dYTyqPqMjKuoGJUI9OjxP7q2jHOB9uP0cCSyVcYc=
+        b=gsMKY/uu53plPFNmHtokmqJZx1bS12fHvXLo//M/L5Jru7gDe9oogGA/YPzL7tZ1e
+         gvwfyQ8iRQXkDzbM9TwCP/MpMOiwib/8AkW4VIBCAkYf/qV1U6JbLP7OdShPYvVHJy
+         HPhVSgMA/pkwsWteeO/6kJ9b5ZCte6QKvmTyn6jM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taeung Song <treeze.taeung@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/199] ftrace/kprobe: Show the maxactive number on kprobe_events
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 23/64] x86/Hyper-V: Trigger crash enlightenment only once during system crash.
 Date:   Wed, 22 Apr 2020 11:57:07 +0200
-Message-Id: <20200422095107.998120837@linuxfoundation.org>
+Message-Id: <20200422095017.228507281@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Tianyu Lan <Tianyu.Lan@microsoft.com>
 
-[ Upstream commit 6a13a0d7b4d1171ef9b80ad69abc37e1daa941b3 ]
+[ Upstream commit 73f26e526f19afb3a06b76b970a76bcac2cafd05 ]
 
-Show maxactive parameter on kprobe_events.
-This allows user to save the current configuration and
-restore it without losing maxactive parameter.
+When a guest VM panics, Hyper-V should be notified only once via the
+crash synthetic MSRs.  Current Linux code might write these crash MSRs
+twice during a system panic:
+1) hyperv_panic/die_event() calling hyperv_report_panic()
+2) hv_kmsg_dump() calling hyperv_report_panic_msg()
 
-Link: http://lkml.kernel.org/r/4762764a-6df7-bc93-ed60-e336146dce1f@gmail.com
-Link: http://lkml.kernel.org/r/158503528846.22706.5549974121212526020.stgit@devnote2
+Fix this by not calling hyperv_report_panic() if a kmsg dump has been
+successfully registered.  The notification will happen later via
+hyperv_report_panic_msg().
 
-Cc: stable@vger.kernel.org
-Fixes: 696ced4fb1d76 ("tracing/kprobes: expose maxactive for kretprobe in kprobe_events")
-Reported-by: Taeung Song <treeze.taeung@gmail.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 7ed4325a44ea ("Drivers: hv: vmbus: Make panic reporting to be more useful")
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Link: https://lore.kernel.org/r/20200406155331.2105-4-Tianyu.Lan@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_kprobe.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hv/vmbus_drv.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index ea20274a105ae..d66aed6e9c75f 100644
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -877,6 +877,8 @@ static int probes_seq_show(struct seq_file *m, void *v)
- 	int i;
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index dd6d18d918a4b..6469e1f2c4ae0 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -65,7 +65,13 @@ static int hyperv_panic_event(struct notifier_block *nb, unsigned long val,
  
- 	seq_putc(m, trace_kprobe_is_return(tk) ? 'r' : 'p');
-+	if (trace_kprobe_is_return(tk) && tk->rp.maxactive)
-+		seq_printf(m, "%d", tk->rp.maxactive);
- 	seq_printf(m, ":%s/%s", tk->tp.call.class->system,
- 			trace_event_name(&tk->tp.call));
+ 	vmbus_initiate_unload(true);
+ 
+-	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
++	/*
++	 * Hyper-V should be notified only once about a panic.  If we will be
++	 * doing hyperv_report_panic_msg() later with kmsg data, don't do
++	 * the notification here.
++	 */
++	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE
++	    && !hv_panic_page) {
+ 		regs = current_pt_regs();
+ 		hyperv_report_panic(regs, val);
+ 	}
+@@ -78,7 +84,13 @@ static int hyperv_die_event(struct notifier_block *nb, unsigned long val,
+ 	struct die_args *die = (struct die_args *)args;
+ 	struct pt_regs *regs = die->regs;
+ 
+-	hyperv_report_panic(regs, val);
++	/*
++	 * Hyper-V should be notified only once about a panic.  If we will be
++	 * doing hyperv_report_panic_msg() later with kmsg data, don't do
++	 * the notification here.
++	 */
++	if (!hv_panic_page)
++		hyperv_report_panic(regs, val);
+ 	return NOTIFY_DONE;
+ }
  
 -- 
 2.20.1
