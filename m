@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18AB91B42B6
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:03:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6911B3FAE
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:40:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732484AbgDVLDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 07:03:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46292 "EHLO mail.kernel.org"
+        id S1728190AbgDVKju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:39:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726478AbgDVJ7i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 05:59:38 -0400
+        id S1730161AbgDVKVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:21:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 433642076E;
-        Wed, 22 Apr 2020 09:59:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26B312076B;
+        Wed, 22 Apr 2020 10:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587549577;
-        bh=QKMcaEVYytCyf1hqsXW7L2gDGVX8IfnY0Ttlq6wcg+E=;
+        s=default; t=1587550876;
+        bh=SN/5j2Okkn1eVrwRTaxVF3OLAi+cty+PbHxBtT3BDG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NK9czYVYaZ4YexBI9IQp/ROnMU/dELh1vgbI52k82u3TquggE0xCbHrI/3UGDMUVS
-         bBLxBL04m6GTPL7JkwmDSy7/ddiCOdrB8Wmu1QDQyEb7ZA2zfayYe8ngvRyIXF6ehS
-         JWcbI16c+pPYxjgQhwVmQ2RZg8OwBARAyhjvDeX0=
+        b=WWNejAhca18lcqwuOGeh4ZCU26fk49NsQE8Gtz+2v3BbFzyM+HzYKEJXmk5kmH8dj
+         McQEWU9gDl2FxjDG17hQUXKtfZbTEXBNYIwS5aCwQZYnuMVsR7YUr3Ci2Oms0/OHRZ
+         nWPPVGnNj7/zOklXjYW+ujpF3ZnpwFqN1/xGSRWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 008/100] gfs2: Dont demote a glock until its revokes are written
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.6 011/166] bpf: Prevent re-mmap()ing BPF map as writable for initially r/o mapping
 Date:   Wed, 22 Apr 2020 11:55:38 +0200
-Message-Id: <20200422095024.209082810@linuxfoundation.org>
+Message-Id: <20200422095049.430771557@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
-References: <20200422095022.476101261@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+References: <20200422095047.669225321@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Andrii Nakryiko <andriin@fb.com>
 
-[ Upstream commit df5db5f9ee112e76b5202fbc331f990a0fc316d6 ]
+commit 1f6cb19be2e231fe092f40decb71f066eba090d7 upstream.
 
-Before this patch, run_queue would demote glocks based on whether
-there are any more holders. But if the glock has pending revokes that
-haven't been written to the media, giving up the glock might end in
-file system corruption if the revokes never get written due to
-io errors, node crashes and fences, etc. In that case, another node
-will replay the metadata blocks associated with the glock, but
-because the revoke was never written, it could replay that block
-even though the glock had since been granted to another node who
-might have made changes.
+VM_MAYWRITE flag during initial memory mapping determines if already mmap()'ed
+pages can be later remapped as writable ones through mprotect() call. To
+prevent user application to rewrite contents of memory-mapped as read-only and
+subsequently frozen BPF map, remove VM_MAYWRITE flag completely on initially
+read-only mapping.
 
-This patch changes the logic in run_queue so that it never demotes
-a glock until its count of pending revokes reaches zero.
+Alternatively, we could treat any memory-mapping on unfrozen map as writable
+and bump writecnt instead. But there is little legitimate reason to map
+BPF map as read-only and then re-mmap() it as writable through mprotect(),
+instead of just mmap()'ing it as read/write from the very beginning.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Reviewed-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also, at the suggestion of Jann Horn, drop unnecessary refcounting in mmap
+operations. We can just rely on VMA holding reference to BPF map's file
+properly.
+
+Fixes: fc9702273e2e ("bpf: Add mmap() support for BPF_MAP_TYPE_ARRAY")
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/bpf/20200410202613.3679837-1-andriin@fb.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/gfs2/glock.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/bpf/syscall.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index 1eb737c466ddc..f80ffccb03160 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -541,6 +541,9 @@ __acquires(&gl->gl_lockref.lock)
- 			goto out_unlock;
- 		if (nonblock)
- 			goto out_sched;
-+		smp_mb();
-+		if (atomic_read(&gl->gl_revokes) != 0)
-+			goto out_sched;
- 		set_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags);
- 		GLOCK_BUG_ON(gl, gl->gl_demote_state == LM_ST_EXCLUSIVE);
- 		gl->gl_target = gl->gl_demote_state;
--- 
-2.20.1
-
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -592,9 +592,7 @@ static void bpf_map_mmap_open(struct vm_
+ {
+ 	struct bpf_map *map = vma->vm_file->private_data;
+ 
+-	bpf_map_inc_with_uref(map);
+-
+-	if (vma->vm_flags & VM_WRITE) {
++	if (vma->vm_flags & VM_MAYWRITE) {
+ 		mutex_lock(&map->freeze_mutex);
+ 		map->writecnt++;
+ 		mutex_unlock(&map->freeze_mutex);
+@@ -606,13 +604,11 @@ static void bpf_map_mmap_close(struct vm
+ {
+ 	struct bpf_map *map = vma->vm_file->private_data;
+ 
+-	if (vma->vm_flags & VM_WRITE) {
++	if (vma->vm_flags & VM_MAYWRITE) {
+ 		mutex_lock(&map->freeze_mutex);
+ 		map->writecnt--;
+ 		mutex_unlock(&map->freeze_mutex);
+ 	}
+-
+-	bpf_map_put_with_uref(map);
+ }
+ 
+ static const struct vm_operations_struct bpf_map_default_vmops = {
+@@ -641,14 +637,16 @@ static int bpf_map_mmap(struct file *fil
+ 	/* set default open/close callbacks */
+ 	vma->vm_ops = &bpf_map_default_vmops;
+ 	vma->vm_private_data = map;
++	vma->vm_flags &= ~VM_MAYEXEC;
++	if (!(vma->vm_flags & VM_WRITE))
++		/* disallow re-mapping with PROT_WRITE */
++		vma->vm_flags &= ~VM_MAYWRITE;
+ 
+ 	err = map->ops->map_mmap(map, vma);
+ 	if (err)
+ 		goto out;
+ 
+-	bpf_map_inc_with_uref(map);
+-
+-	if (vma->vm_flags & VM_WRITE)
++	if (vma->vm_flags & VM_MAYWRITE)
+ 		map->writecnt++;
+ out:
+ 	mutex_unlock(&map->freeze_mutex);
 
 
