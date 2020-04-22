@@ -2,139 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBB9B1B4B87
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 19:23:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 047101B4C2F
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 19:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726245AbgDVRX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 13:23:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44666 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726057AbgDVRXz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 13:23:55 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ECBDC03C1A9
-        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 10:23:54 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id ms17so1289324pjb.0
-        for <stable@vger.kernel.org>; Wed, 22 Apr 2020 10:23:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hhh025vL+uOwQznfCNq5ud3xSIawsbHSp03//kKBlgI=;
-        b=IB+LLJH7APg/4yo6axC3FTBZpDLhNrjWhvqWa4IJbkJLrahfecytGGgYtsxtryqUKF
-         ZpIDrs7epdc5t6/11bgl+MIRnciGr1UbyG04wPuejCFsno863cwXqHefTmNCnpqr0r4w
-         F5+IG9OKpXOvCzSIw4nPN8sjvrs0/1T4ckGWehU6zMj5mSUyYhG2/ggB56Bc2xHaDrBf
-         cQQFr5MRcwNyJfFCJ0NWIVgzkdELkMmwKv3PsmxRt+9ZzsakmaUfl66e4co11ZPwc4Jo
-         JXuPm1Gn/lK42VVX4BMhZ1fPFD4LK9z5PTY0uE8ncA9lZOuW0OPWcY8KRscwYrQ4+t4T
-         SrdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hhh025vL+uOwQznfCNq5ud3xSIawsbHSp03//kKBlgI=;
-        b=kCUi8R/H0OeacYFIMChJYxBSoATt5jVP61YVB0f0jXTHnJ+IJC22dOapgS+Phjp/mn
-         iwQCp0tn/DijQviu99/Vmseorqo09nd75/WCNq2D924IkOP/pYU28wWkOAjrSiZ0+thc
-         Fv9P0dC5g/Cqv1PpQ9P3uFBzLBYaA8WRNIhOg2rH116XHj94/lMjciBuOYDylqDv2Ibf
-         nWJZUXQ0wDqN1gEGoX89eBGD2r67z48WJPS07RB8MaLNOm91LI2RpPgBXmhs6qFvQupP
-         EddYRu37zsFOtgv3jvnyi+hXrjyZ+Pe51TUNsLoK/bDyhuwMZ88J4F4aZF/CiTZaTtgY
-         7AqA==
-X-Gm-Message-State: AGi0PuaaYGjuCyTQYklgsg9wFOu4k7CuseLouY9VhlevnaaCRcy2c951
-        QAehBdukQ0/BikAf1V9ZeqIhMRRfUGk=
-X-Google-Smtp-Source: APiQypJRwjXZtkYJKqBmA2MgIOOgXCgIZDU8oWUm2XqaJptLP4UrgAfIw9Qy54V8arikCay/Z04Kqw==
-X-Received: by 2002:a17:90a:e00c:: with SMTP id u12mr2521304pjy.167.1587576233486;
-        Wed, 22 Apr 2020 10:23:53 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ie17sm5991035pjb.19.2020.04.22.10.23.52
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Apr 2020 10:23:52 -0700 (PDT)
-Message-ID: <5ea07da8.1c69fb81.7e15f.314d@mx.google.com>
-Date:   Wed, 22 Apr 2020 10:23:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726232AbgDVRx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 13:53:28 -0400
+Received: from imap3.hz.codethink.co.uk ([176.9.8.87]:51326 "EHLO
+        imap3.hz.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726066AbgDVRx2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 13:53:28 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126] helo=xylophone)
+        by imap3.hz.codethink.co.uk with esmtpsa  (Exim 4.92 #3 (Debian))
+        id 1jRJYj-0000t8-Ax; Wed, 22 Apr 2020 18:53:17 +0100
+Message-ID: <577ed3c83bfbb8c15fe5782496250e31dbcfe0b4.camel@codethink.co.uk>
+Subject: Re: [PATCH 4.19 00/40] 4.19.117-rc1 review
+From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Netdev <netdev@vger.kernel.org>, netfilter-devel@vger.kernel.org
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        Wang Wenhu <wenhu.wang@vivo.com>,
+        Tim Stallard <code@timstallard.me.uk>,
+        Taras Chornyi <taras.chornyi@plvision.eu>,
+        Taehee Yoo <ap420073@gmail.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        DENG Qingfang <dqfext@gmail.com>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        "David S. Miller" <davem@davemloft.net>
+Date:   Wed, 22 Apr 2020 18:53:09 +0100
+In-Reply-To: <CA+G9fYsPaoo5YE9pAKV+w=MnZ_AGn93iquOC-tAN5arVyUD8FQ@mail.gmail.com>
+References: <20200420121444.178150063@linuxfoundation.org>
+         <CA+G9fYsPaoo5YE9pAKV+w=MnZ_AGn93iquOC-tAN5arVyUD8FQ@mail.gmail.com>
+Organization: Codethink Ltd.
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.176-200-gcebd79de8787
-Subject: stable-rc/linux-4.14.y boot: 84 boots: 1 failed,
- 75 passed with 5 offline, 3 untried/unknown (v4.14.176-200-gcebd79de8787)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 84 boots: 1 failed, 75 passed with 5 offline, =
-3 untried/unknown (v4.14.176-200-gcebd79de8787)
+On Tue, 2020-04-21 at 03:54 +0530, Naresh Kamboju wrote:
+> On Mon, 20 Apr 2020 at 18:21, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> > This is the start of the stable review cycle for the 4.19.117 release.
+> > There are 40 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Wed, 22 Apr 2020 12:10:36 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.117-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> Results from Linaro’s test farm.
+> Regressions on x86_64.
+> 
+> x86_64 boot failed due to kernel BUG and kernel panic.
+> It is hard to reproduce this BUG and kernel panic
+> We are investigating this problem. The full log links are at [1] and [2].
+> 
+> [ 0.000000] Linux version 4.19.117-rc1+ (TuxBuild@f0f6d9b6cd32) (gcc
+> version 9.3.0 (Debian 9.3.0-8)) #1 SMP Mon Apr 20 12:40:09 UTC 2020
+> <>
+> [    3.237717] igb 0000:01:00.0: Using MSI-X interrupts. 4 rx
+> queue(s), 4 tx queue(s)
+> [    3.246412] BUG: unable to handle kernel paging request at 00000000482444ab
+> [    3.246412] PGD 0 P4D 0
+> [    3.246412] Oops: 0002 [#1] SMP PTI
+> [    3.246412] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 4.19.117-rc1+ #1
+> [    3.246412] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
+> 2.0b 07/27/2017
+> [    3.246412] RIP: 0010:__hw_addr_add_ex+0xa/0xf0
+> [    3.246412] Code: 10 01 49 89 5f 08 48 83 c4 08 5b 5d 41 5c 41 5d
+> 41 5e 41 5f c3 b8 f4 ff ff ff eb ea 0f 1f 40 00 41 57 41 56 41 55 41
+> 54 55 53 <48> 83 8c 10 8b 44 24 48 89 4c 24 08 44 89 04 24 44 89 4c 24
+> 04 89
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.176-200-gcebd79de8787/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.176-200-gcebd79de8787/
+The code from start of function to the faulting instruction is:
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.176-200-gcebd79de8787
-Git Commit: cebd79de87875c1f054d7e674a496868b78e637f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 55 unique boards, 17 SoC families, 17 builds out of 201
+__hw_addr_add_ex:	41 57                	push   %r15
+__hw_addr_add_ex+2:	41 56                	push   %r14
+__hw_addr_add_ex+4:	41 55                	push   %r13
+__hw_addr_add_ex+6:	41 54                	push   %r12
+__hw_addr_add_ex+8:	55                   	push   %rbp
+__hw_addr_add_ex+9:	53                   	push   %rbx
+__hw_addr_add_ex+a:	48 83 8c 10 8b 44 24 	orq    $0xffffffffffffff89,0x4824448b(%rax,%rdx,1)
 
-Boot Regressions Detected:
+But in a Debian compiled 4.19 kernel the function starts with:
 
-arm:
+ffffffff815ec470:       e8 8b 53 21 00          callq  0xffffffff81801800
+ffffffff815ec475:       41 57                   push   %r15
+ffffffff815ec477:       41 56                   push   %r14
+ffffffff815ec479:       41 55                   push   %r13
+ffffffff815ec47b:       41 54                   push   %r12
+ffffffff815ec47d:       55                      push   %rbp
+ffffffff815ec47e:       53                      push   %rbx
+ffffffff815ec47f:       48 83 ec 10             sub    $0x10,%rsp
+ffffffff815ec483:       8b 44 24 48             mov    0x48(%rsp),%eax
 
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: new failure (last pass: v4.14.176-167-g=
-ef12a8a0e717)
-          dm365evm,legacy:
-              lab-baylibre-seattle: new failure (last pass: v4.14.176-167-g=
-ef12a8a0e717)
+(the first instruction is added by ftrace).
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 74 days (last pass: v4.14=
-.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
+It looks like one byte of the faulting instruction has been corrupted
+somehow.  So this function itself is probably not to blame.  It may be
+worth running a memory test on the test system.
 
-i386:
+Ben.
 
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-collabora: new failure (last pass: v4.14.176)
+> [    3.246412] RSP: 0000:ffff9d614002fc48 EFLAGS: 00010246
+> [    3.246412] RAX: 0000000000000000 RBX: ffff975d9c17c000 RCX: 0000000000000001
+> [    3.246412] RDX: 0000000000000020 RSI: ffff9d614002fc88 RDI: ffff975d9c17c290
+> [    3.246412] RBP: ffff975d9c17c000 R08: 0000000000000000 R09: 0000000000000000
+> [    3.246412] R10: ffff975d9da8ee68 R11: 00000000ffffffff R12: 0000000000000008
+> [    3.246412] R13: ffffffffab8ba5bc R14: 0000000000000000 R15: ffffffffaafc93d0
+> [    3.246412] FS:  0000000000000000(0000) GS:ffff975d9fa80000(0000)
+> knlGS:0000000000000000
+> [    3.246412] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    3.438798] ata3: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
+> [    3.246412] CR2: 00000000482444ab CR3: 0000000211c0a001 CR4: 00000000003606e0
+> [    3.246412] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> [    3.246412] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> [    3.246412] Call Trace:
+> [    3.246412]  ? eth_header+0xb0/0xb0
+> [    3.246412]  dev_addr_init+0x76/0xb0
+> [    3.448543] ata4: SATA link down (SStatus 0 SControl 300)
+> [    3.246412]  alloc_netdev_mqs+0x9d/0x3e0
+> [    3.246412]  igb_probe+0x16e/0x14d0
+> [    3.462804] ata7: SATA link down (SStatus 0 SControl 300)
+> [    3.246412]  local_pci_probe+0x3e/0x90
+> [    3.246412]  pci_device_probe+0x102/0x1a0
+> [    3.246412]  really_probe+0x1be/0x260
+> [    3.472410] ata5: SATA link down (SStatus 0 SControl 300)
+> [    3.246412]  driver_probe_device+0x4b/0x90
+> [    3.246412]  __driver_attach+0xbb/0xc0
+> [    3.246412]  ? driver_probe_device+0x90/0x90
+> [    3.246412]  bus_for_each_dev+0x73/0xb0
+> [    3.246412]  bus_add_driver+0x192/0x1d0
+> [    3.246412]  driver_register+0x67/0xb0
+> [    3.246412]  ? e1000_init_module+0x34/0x34
+> [    3.246412]  do_one_initcall+0x41/0x1b4
+> [    3.246412]  kernel_init_freeable+0x15a/0x1e7
+> [    3.246412]  ? rest_init+0x9a/0x9a
+> [    3.246412]  kernel_init+0x5/0xf6
+> [    3.246412]  ret_from_fork+0x35/0x40
+> [    3.246412] Modules linked in:
+> [    3.246412] CR2: 00000000482444ab
+> [    3.246412] ---[ end trace 19f70173fca0a2aa ]---
+> [    3.246412] RIP: 0010:__hw_addr_add_ex+0xa/0xf0
+> [    3.246412] Code: 10 01 49 89 5f 08 48 83 c4 08 5b 5d 41 5c 41 5d
+> 41 5e 41 5f c3 b8 f4 ff ff ff eb ea 0f 1f 40 00 41 57 41 56 41 55 41
+> 54 55 53 <48> 83 8c 10 8b 44 24 48 89 4c 24 08 44 89 04 24 44 89 4c 24
+> 04 89
+> [    3.246412] RSP: 0000:ffff9d614002fc48 EFLAGS: 00010246
+> [    3.246412] RAX: 0000000000000000 RBX: ffff975d9c17c000 RCX: 0000000000000001
+> [    3.246412] RDX: 0000000000000020 RSI: ffff9d614002fc88 RDI: ffff975d9c17c290
+> [    3.246412] RBP: ffff975d9c17c000 R08: 0000000000000000 R09: 0000000000000000
+> [    3.246412] R10: ffff975d9da8ee68 R11: 00000000ffffffff R12: 0000000000000008
+> [    3.246412] R13: ffffffffab8ba5bc R14: 0000000000000000 R15: ffffffffaafc93d0
+> [    3.246412] FS:  0000000000000000(0000) GS:ffff975d9fa80000(0000)
+> knlGS:0000000000000000
+> [    3.246412] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    3.246412] CR2: 00000000482444ab CR3: 0000000211c0a001 CR4: 00000000003606e0
+> [    3.246412] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> [    3.246412] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> [    3.670747] Kernel panic - not syncing: Attempted to kill init!
+> exitcode=0x00000009
+> [    3.670747]
+> [    3.679456] Kernel Offset: 0x29600000 from 0xffffffff81000000
+> (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> [    3.679456] ---[ end Kernel panic - not syncing: Attempted to kill
+> init! exitcode=0x00000009
+> [    3.679456]  ]---
+> [    3.701024] ------------[ cut here ]------------
+> [    3.702023] sched: Unexpected reschedule of offline CPU#2!
+> [    3.702023] WARNING: CPU: 1 PID: 1 at arch/x86/kernel/smp.c:128
+> native_smp_send_reschedule+0x2f/0x40
+> 
+> ref:
+> [1] https://lkft.validation.linaro.org/scheduler/job/1379024#L744
+> [2] https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/build/v4.19.116-41-gdf86600ce713/testrun/1379024/
+> 
+-- 
+Ben Hutchings, Software Developer                         Codethink Ltd
+https://www.codethink.co.uk/                 Dale House, 35 Dale Street
+                                     Manchester, M1 2HF, United Kingdom
 
-Boot Failure Detected:
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
