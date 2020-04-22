@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 837B91B4057
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B54F31B3D54
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:14:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729917AbgDVKSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:18:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54508 "EHLO mail.kernel.org"
+        id S1729469AbgDVKOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:14:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729584AbgDVKSF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:18:05 -0400
+        id S1729466AbgDVKOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:14:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F56F2075A;
-        Wed, 22 Apr 2020 10:18:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7A5220775;
+        Wed, 22 Apr 2020 10:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550685;
-        bh=gESVvPTfx2xSpiVG8TxKGdtaWIy+comoS9exNaI75lo=;
+        s=default; t=1587550440;
+        bh=3Z5JyLwQNBx9DKwIuJSFdTwrYfhOFuoxKbc227IbNgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBoBKJa5D3s/93pmEwVb5SJo41be55o/aBNA/ybgwdCpiw9gjiE82klFYyH5Rz/ws
-         yTay5CrsF4lou1ukZZFrlFgzZkzM0M+Wdf+Z/zRrGvJrzL11KM122nAtY9WZqOOWAq
-         KoU90F9EdxuvGnVZQCSloCJsUQX6zTCiZB1E2mNU=
+        b=Cdh8giHBOE/HgIAELwMKhvj3Snr4ueaLWgPdpvpPE2NBbGjURrfgVjIk/fEEUBM9f
+         ETlxQr0ap+tfX59trXLGunIqwpCZzKX+TeQ/juoCpxap0cDISk5xUXux9e3b91Lshm
+         oJ+vr8wjDzGMjXjuzh3f593SZKjfItoIQGNPedm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Murphy Zhou <jencce.kernel@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/118] NFSv4.2: error out when relink swapfile
+        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 09/64] irqchip/mbigen: Free msi_desc on device teardown
 Date:   Wed, 22 Apr 2020 11:56:53 +0200
-Message-Id: <20200422095040.570318881@linuxfoundation.org>
+Message-Id: <20200422095014.189446952@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+References: <20200422095008.799686511@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Murphy Zhou <jencce.kernel@gmail.com>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-[ Upstream commit f5fdf1243fb750598b46305dd03c553949cfa14f ]
+commit edfc23f6f9fdbd7825d50ac1f380243cde19b679 upstream.
 
-This fixes xfstests generic/356 failure on NFSv4.2.
+Using irq_domain_free_irqs_common() on the irqdomain free path will
+leave the MSI descriptor unfreed when platform devices get removed.
+Properly free it by MSI domain free function.
 
-Signed-off-by: Murphy Zhou <jencce.kernel@gmail.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9650c60ebfec0 ("irqchip/mbigen: Create irq domain for each mbigen device")
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200408114352.1604-1-yuzenghui@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/nfs4file.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/irqchip/irq-mbigen.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index 54f1c1f626fc5..fb55c04cdc6bd 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -210,6 +210,9 @@ static loff_t nfs42_remap_file_range(struct file *src_file, loff_t src_off,
- 	if (remap_flags & ~REMAP_FILE_ADVISORY)
- 		return -EINVAL;
+--- a/drivers/irqchip/irq-mbigen.c
++++ b/drivers/irqchip/irq-mbigen.c
+@@ -231,10 +231,16 @@ static int mbigen_irq_domain_alloc(struc
+ 	return 0;
+ }
  
-+	if (IS_SWAPFILE(dst_inode) || IS_SWAPFILE(src_inode))
-+		return -ETXTBSY;
++static void mbigen_irq_domain_free(struct irq_domain *domain, unsigned int virq,
++				   unsigned int nr_irqs)
++{
++	platform_msi_domain_free(domain, virq, nr_irqs);
++}
 +
- 	/* check alignment w.r.t. clone_blksize */
- 	ret = -EINVAL;
- 	if (bs) {
--- 
-2.20.1
-
+ static const struct irq_domain_ops mbigen_domain_ops = {
+ 	.translate	= mbigen_domain_translate,
+ 	.alloc		= mbigen_irq_domain_alloc,
+-	.free		= irq_domain_free_irqs_common,
++	.free		= mbigen_irq_domain_free,
+ };
+ 
+ static int mbigen_of_create_domain(struct platform_device *pdev,
 
 
