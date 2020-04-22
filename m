@@ -2,65 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 309DA1B3A17
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 10:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 086A81B3A33
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 10:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725924AbgDVIa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 04:30:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48676 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725899AbgDVIa2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 04:30:28 -0400
+        id S1726363AbgDVIeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 04:34:50 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:55939 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725810AbgDVIet (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Apr 2020 04:34:49 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 395A34B9;
+        Wed, 22 Apr 2020 04:34:49 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 22 Apr 2020 04:34:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=GTzuxwscqxNkj3MH9QM7iWDxwu9
+        iCTHXmbcIwpx3NJM=; b=J4mzU3qFoun8/L4/lX0VdR2xWXwjVhrT2yKuRseB42w
+        gH+noP7t27+5oKmCl80vVWLip+1BG63cAHTKAcf1jFW73uRxGaubrabt1iHRUgIV
+        5PWvJX+Smn7PhFz4ISIXjZrAYTL5WLjqnWJsXOeWwBZh6NIJCj+KIMi8DUd9yfXb
+        UOj0aA5Re2NJF2gNGq0YAzBDs9+P3mZAMEbYaTCyQGOKl7YwtUNcEfXyhUouUfLN
+        u4bmW2f6lhRJdtyTWLQKZ45FNnlgENNsGMa9WFCFAni47EgpqdD8T+pUp0Rfo09d
+        ijjEdBDjZgT7bzvkl2n37Oy+diFBEnn4ZV93QjPw7GQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GTzuxw
+        scqxNkj3MH9QM7iWDxwu9iCTHXmbcIwpx3NJM=; b=ADJyHPmxMB0Pag/Gk5aeE2
+        d4HFkONh/1Dc/U1BWvCsViUXFkWmWiTZFhnlqZdp/lRvDg7qbi7PLC2SxWUgCzaw
+        JsN4Pn1AZdmUji0Z4BxAHD2LpI4Re3Jy4weLvzkOwT9+YZYS/hXn7SeP42T2VbMT
+        EU1GQtwmL6c+Tm1eCrvEEZV0H7phM9ukL5v2sENLRsqJBMAUB/MYDmRV0zvc1Hyj
+        ReuhbSz416mqstfH5/gXW+Cn4WYsKlAUgDX+paJIGzC36Lh8iiOvHOJ4rPmWmTlF
+        Y9Gqu8gddBx8zePvPp6+olbRuCxhDRVejiG0PHbHTKMgsjwYuMidtBxBXEh3t5fg
+        ==
+X-ME-Sender: <xms:qAGgXvDvXe0xKsgAr3qmG2o92yxcDedKGTqBWz5glIXearlNRf4Yzg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrgeejgddtfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledruddtje
+    enucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgv
+    gheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:qAGgXkiyzXpg5BOmmG7BF3vSABH_I9-WdBpTmEXphNJR7zGMJZDqyA>
+    <xmx:qAGgXm25jlYK4u_GBr-rw_NGm7tImr4VzAdpDSbY19HjQ4qLsiRHPg>
+    <xmx:qAGgXvwXlC7KnZCY0LnyL61-1iMPsyAMqC7zWGxMeyMrLXn68xcGQw>
+    <xmx:qAGgXhVpw5PI1uC4e9M1XFpgOwn7hR1qHRrmWUyXuKJS6KhjN4WeNA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CD9E206B9;
-        Wed, 22 Apr 2020 08:30:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587544228;
-        bh=hpiBMzNRzZbf9IVQPFpfRT5pC8SY/Z/oyA3qrXR6Wb8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SCbrm/o9Xe+IPzcQlho1XmeRMDC5sPMT0LJcfDT9TqvgS+/yBb7PCjRofHFeahh/n
-         YcjjNuQsW/N1iDsoH0NHh+p7IUHkOT6ecjW2BVTdRsY+VdOIkxEAEXD929mUAJrAQ9
-         raj2lOmkvA/L3vb6FPoWUJLll1gzQpOe5KUzV7bI=
-Date:   Wed, 22 Apr 2020 10:30:25 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     stable@vger.kernel.org, Samuel Neves <sneves@dei.uc.pt>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>
-Subject: Re: [PATCH  for 4.4 and 4.9] x86/vdso: Fix lsl operand order
-Message-ID: <20200422083025.GB3017981@kroah.com>
-References: <20200422050428.1110192-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 39D093065C9D;
+        Wed, 22 Apr 2020 04:34:48 -0400 (EDT)
+Date:   Wed, 22 Apr 2020 10:34:46 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Vegard Nossum <vegard.nossum@oracle.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: Fwd: Re: [PATCH AUTOSEL 5.6 082/129] compiler.h: fix error in
+ BUILD_BUG_ON() reporting
+Message-ID: <20200422083446.GA3039100@kroah.com>
+References: <9b7c57b0-4441-12a1-420d-684a84e97ba0@oracle.com>
+ <05565e26-e472-67e5-34e9-c466457a0db3@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200422050428.1110192-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+In-Reply-To: <05565e26-e472-67e5-34e9-c466457a0db3@oracle.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 22, 2020 at 02:04:28PM +0900, Nobuhiro Iwamatsu wrote:
-> From: Samuel Neves <sneves@dei.uc.pt>
+On Wed, Apr 22, 2020 at 10:21:23AM +0200, Vegard Nossum wrote:
 > 
-> commit e78e5a91456fcecaa2efbb3706572fe043766f4d upstream.
+> Hi,
 > 
-> In the __getcpu function, lsl is using the wrong target and destination
-> registers. Luckily, the compiler tends to choose %eax for both variables,
-> so it has been working so far.
-> 
-> Fixes: a582c540ac1b ("x86/vdso: Use RDPID in preference to LSL when available")
-> Signed-off-by: Samuel Neves <sneves@dei.uc.pt>
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Acked-by: Andy Lutomirski <luto@kernel.org>
-> Cc: stable@vger.kernel.org
-> Link: https://lkml.kernel.org/r/20180901201452.27828-1-sneves@dei.uc.pt
-> Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
-> ---
->  arch/x86/include/asm/vgtod.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> There is no point in taking this patch on any stable kernel as it's just
+> improving a build error diagnostic message.
 
-Good catch, now queued up, thanks.
+build error messages are nice to have be correct, don't you think?
+
+Seems like a valid fix for me.
+
+thanks,
 
 greg k-h
