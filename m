@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B48161B408A
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:46:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CADC1B4278
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:02:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726050AbgDVKqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:46:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52952 "EHLO mail.kernel.org"
+        id S1726746AbgDVKBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:01:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728680AbgDVKQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:16:58 -0400
+        id S1726442AbgDVKBJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:01:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B641E2070B;
-        Wed, 22 Apr 2020 10:16:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1E6320774;
+        Wed, 22 Apr 2020 10:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550618;
-        bh=USHL728CC5BpJX28A7ujeCdhKKJonWU+NgiTGWGo5VA=;
+        s=default; t=1587549667;
+        bh=3h2z9IDbzxVQV+fUdUOCvqUsPvo+eOXmgmiUdyvpTDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awMgd1qHndXcdpyAdYbP7VYyGcI4x1CzlV1Mqe8QdnNPb0sYiDNw61q0AzTt8r2dU
-         vdZwZBa5tIjiiXAmq8DUeW/TV0Eon6JWlTR0YRBOqCSWSOZfEANI41f0fzsK9b7A0l
-         VYQXd4XmGGtbY9R1hEHzwVo5cb4QGZV6HY42xvFE=
+        b=U69WHqVLMS1vQH9JfAzVP0FdyUfvGiFCzjkKhzPYcV3aXnFH8PhhKJ3+4cCb/r9Uv
+         LqWtjOdJDvgq/fP4e2lpVZ6m1HvepUpXHofNerZBzcwht8iFtDC/dq7NOG6EQIhy95
+         3uwwmWMxoItjcn0Sr/ktrIQKyrO6zXDtb14myP2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.4 024/118] afs: Fix missing XDR advance in xdr_decode_{AFS,YFS}FSFetchStatus()
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 055/100] mfd: dln2: Fix sanity checking for endpoints
 Date:   Wed, 22 Apr 2020 11:56:25 +0200
-Message-Id: <20200422095035.778695497@linuxfoundation.org>
+Message-Id: <20200422095032.952292386@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095031.522502705@linuxfoundation.org>
-References: <20200422095031.522502705@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,122 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit c72057b56f7e24865840a6961d801a7f21d30a5f upstream.
+[ Upstream commit fb945c95a482200876993977008b67ea658bd938 ]
 
-If we receive a status record that has VNOVNODE set in the abort field,
-xdr_decode_AFSFetchStatus() and xdr_decode_YFSFetchStatus() don't advance
-the XDR pointer, thereby corrupting anything subsequent decodes from the
-same block of data.
+While the commit 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
+tries to harden the sanity checks it made at the same time a regression,
+i.e.  mixed in and out endpoints. Obviously it should have been not tested on
+real hardware at that time, but unluckily it didn't happen.
 
-This has the potential to affect AFS.InlineBulkStatus and
-YFS.InlineBulkStatus operation, but probably doesn't since the status
-records are extracted as individual blocks of data and the buffer pointer
-is reset between blocks.
+So, fix above mentioned typo and make device being enumerated again.
 
-It does affect YFS.RemoveFile2 operation, corrupting the volsync record -
-though that is not currently used.
+While here, introduce an enumerator for magic values to prevent similar issue
+to happen in the future.
 
-Other operations abort the entire operation rather than returning an error
-inline, in which case there is no decoding to be done.
-
-Fix this by unconditionally advancing the xdr pointer.
-
-Fixes: 684b0f68cf1c ("afs: Fix AFSFetchStatus decoder to provide OpenAFS compatibility")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
+Cc: Oliver Neukum <oneukum@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/fsclient.c  |   14 +++++++++-----
- fs/afs/yfsclient.c |   12 ++++++++----
- 2 files changed, 17 insertions(+), 9 deletions(-)
+ drivers/mfd/dln2.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/afs/fsclient.c
-+++ b/fs/afs/fsclient.c
-@@ -65,6 +65,7 @@ static int xdr_decode_AFSFetchStatus(con
- 	bool inline_error = (call->operation_ID == afs_FS_InlineBulkStatus);
- 	u64 data_version, size;
- 	u32 type, abort_code;
-+	int ret;
+diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+index 95d0f2df0ad42..672831d5ee32e 100644
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -93,6 +93,11 @@ struct dln2_mod_rx_slots {
+ 	spinlock_t lock;
+ };
  
- 	abort_code = ntohl(xdr->abort_code);
++enum dln2_endpoint {
++	DLN2_EP_OUT	= 0,
++	DLN2_EP_IN	= 1,
++};
++
+ struct dln2_dev {
+ 	struct usb_device *usb_dev;
+ 	struct usb_interface *interface;
+@@ -740,10 +745,10 @@ static int dln2_probe(struct usb_interface *interface,
+ 	    hostif->desc.bNumEndpoints < 2)
+ 		return -ENODEV;
  
-@@ -78,7 +79,7 @@ static int xdr_decode_AFSFetchStatus(con
- 			 */
- 			status->abort_code = abort_code;
- 			scb->have_error = true;
--			return 0;
-+			goto good;
- 		}
+-	epin = &hostif->endpoint[0].desc;
+-	epout = &hostif->endpoint[1].desc;
++	epout = &hostif->endpoint[DLN2_EP_OUT].desc;
+ 	if (!usb_endpoint_is_bulk_out(epout))
+ 		return -ENODEV;
++	epin = &hostif->endpoint[DLN2_EP_IN].desc;
+ 	if (!usb_endpoint_is_bulk_in(epin))
+ 		return -ENODEV;
  
- 		pr_warn("Unknown AFSFetchStatus version %u\n", ntohl(xdr->if_version));
-@@ -87,7 +88,7 @@ static int xdr_decode_AFSFetchStatus(con
- 
- 	if (abort_code != 0 && inline_error) {
- 		status->abort_code = abort_code;
--		return 0;
-+		goto good;
- 	}
- 
- 	type = ntohl(xdr->type);
-@@ -123,13 +124,16 @@ static int xdr_decode_AFSFetchStatus(con
- 	data_version |= (u64)ntohl(xdr->data_version_hi) << 32;
- 	status->data_version = data_version;
- 	scb->have_status = true;
--
-+good:
-+	ret = 0;
-+advance:
- 	*_bp = (const void *)*_bp + sizeof(*xdr);
--	return 0;
-+	return ret;
- 
- bad:
- 	xdr_dump_bad(*_bp);
--	return afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
-+	ret = afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
-+	goto advance;
- }
- 
- static time64_t xdr_decode_expiry(struct afs_call *call, u32 expiry)
---- a/fs/afs/yfsclient.c
-+++ b/fs/afs/yfsclient.c
-@@ -186,13 +186,14 @@ static int xdr_decode_YFSFetchStatus(con
- 	const struct yfs_xdr_YFSFetchStatus *xdr = (const void *)*_bp;
- 	struct afs_file_status *status = &scb->status;
- 	u32 type;
-+	int ret;
- 
- 	status->abort_code = ntohl(xdr->abort_code);
- 	if (status->abort_code != 0) {
- 		if (status->abort_code == VNOVNODE)
- 			status->nlink = 0;
- 		scb->have_error = true;
--		return 0;
-+		goto good;
- 	}
- 
- 	type = ntohl(xdr->type);
-@@ -220,13 +221,16 @@ static int xdr_decode_YFSFetchStatus(con
- 	status->size		= xdr_to_u64(xdr->size);
- 	status->data_version	= xdr_to_u64(xdr->data_version);
- 	scb->have_status	= true;
--
-+good:
-+	ret = 0;
-+advance:
- 	*_bp += xdr_size(xdr);
--	return 0;
-+	return ret;
- 
- bad:
- 	xdr_dump_bad(*_bp);
--	return afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
-+	ret = afs_protocol_error(call, -EBADMSG, afs_eproto_bad_status);
-+	goto advance;
- }
- 
- /*
+-- 
+2.20.1
+
 
 
