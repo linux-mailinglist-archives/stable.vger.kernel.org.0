@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E3421B40B7
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E8281B424B
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 13:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729659AbgDVKPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:15:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51254 "EHLO mail.kernel.org"
+        id S1726953AbgDVK7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:59:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729304AbgDVKPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:15:44 -0400
+        id S1727003AbgDVKCc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:02:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 925202075A;
-        Wed, 22 Apr 2020 10:15:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91AC420735;
+        Wed, 22 Apr 2020 10:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550544;
-        bh=EZbrKX1EsilYJ37ASjFlx/jbs5C55Og1fqhF5UYxPaY=;
+        s=default; t=1587549752;
+        bh=IR9dinZycpk9fBA76RYC0kTqq4SSMvLiFis0KZdrM3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqIkbCQ5LIPlEMet97mY6SeV7amJbHOlR/f+F4RHL8W8yJuZ7LgQBSAFyr0gmp1F6
-         eHaqSZ/9+O4GR2R7JOnLVeqeT29MGwawM41NvjwAN/bG/Dv2221qo1/eBDGa2lZmRX
-         +assGc6VJm2L0AjnYOLD2rlHaO+cM+zve6ojl5kU=
+        b=0xmZ/bVJZF51OOJ1QWpMdCta07PUCh1OBUZHn61RFtIIqAF3PluEKjEtxTvj0JyMn
+         JxzLGeT+bKcNg8gkF2+jC50XGLN9BUdxEOZj9zM6YMEgLa3n0QsI8wDSewjm9ynRLr
+         nMDMMqc8qAD1vPWb9t0UV/CcLt0eYeMGOA/bkb0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.19 17/64] video: fbdev: sis: Remove unnecessary parentheses and commented code
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Jan Kara <jack@suse.com>, linux-ext4@vger.kernel.org,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 091/100] ext2: fix empty body warnings when -Wextra is used
 Date:   Wed, 22 Apr 2020 11:57:01 +0200
-Message-Id: <20200422095015.933393475@linuxfoundation.org>
+Message-Id: <20200422095039.371486451@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
-References: <20200422095008.799686511@linuxfoundation.org>
+In-Reply-To: <20200422095022.476101261@linuxfoundation.org>
+References: <20200422095022.476101261@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 864eb1afc60cb43e7df879b97f8ca0d719bbb735 upstream.
+[ Upstream commit 44a52022e7f15cbaab957df1c14f7a4f527ef7cf ]
 
-Clang warns when multiple pairs of parentheses are used for a single
-conditional statement.
+When EXT2_ATTR_DEBUG is not defined, modify the 2 debug macros
+to use the no_printk() macro instead of <nothing>.
+This fixes gcc warnings when -Wextra is used:
 
-drivers/video/fbdev/sis/init301.c:851:42: warning: equality comparison
-with extraneous parentheses [-Wparentheses-equality]
-      } else if((SiS_Pr->SiS_IF_DEF_LVDS == 1) /* ||
-                 ~~~~~~~~~~~~~~~~~~~~~~~~^~~~
-drivers/video/fbdev/sis/init301.c:851:42: note: remove extraneous
-parentheses around the comparison to silence this warning
-      } else if((SiS_Pr->SiS_IF_DEF_LVDS == 1) /* ||
-                ~                        ^   ~
-drivers/video/fbdev/sis/init301.c:851:42: note: use '=' to turn this
-equality comparison into an assignment
-      } else if((SiS_Pr->SiS_IF_DEF_LVDS == 1) /* ||
-                                         ^~
-                                         =
-1 warning generated.
+../fs/ext2/xattr.c:252:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+../fs/ext2/xattr.c:258:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+../fs/ext2/xattr.c:330:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+../fs/ext2/xattr.c:872:45: warning: suggest braces around empty body in an ‘else’ statement [-Wempty-body]
 
-Remove the parentheses and while we're at it, clean up the commented
-code, which has been here since the beginning of git history.
+I have verified that the only object code change (with gcc 7.5.0) is
+the reversal of some instructions from 'cmp a,b' to 'cmp b,a'.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/118
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/e18a7395-61fb-2093-18e8-ed4f8cf56248@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jan Kara <jack@suse.com>
+Cc: linux-ext4@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/sis/init301.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/ext2/xattr.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/video/fbdev/sis/init301.c
-+++ b/drivers/video/fbdev/sis/init301.c
-@@ -848,9 +848,7 @@ SiS_PanelDelay(struct SiS_Private *SiS_P
- 	    SiS_DDC2Delay(SiS_Pr, 0x4000);
- 	 }
+diff --git a/fs/ext2/xattr.c b/fs/ext2/xattr.c
+index 22d817dc821e9..6f6f4f89a2f0c 100644
+--- a/fs/ext2/xattr.c
++++ b/fs/ext2/xattr.c
+@@ -55,6 +55,7 @@
  
--      } else if((SiS_Pr->SiS_IF_DEF_LVDS == 1) /* ||
--	 (SiS_Pr->SiS_CustomT == CUT_COMPAQ1280) ||
--	 (SiS_Pr->SiS_CustomT == CUT_CLEVO1400) */ ) {			/* 315 series, LVDS; Special */
-+      } else if (SiS_Pr->SiS_IF_DEF_LVDS == 1) {			/* 315 series, LVDS; Special */
+ #include <linux/buffer_head.h>
+ #include <linux/init.h>
++#include <linux/printk.h>
+ #include <linux/slab.h>
+ #include <linux/mbcache.h>
+ #include <linux/quotaops.h>
+@@ -85,8 +86,8 @@
+ 		printk("\n"); \
+ 	} while (0)
+ #else
+-# define ea_idebug(f...)
+-# define ea_bdebug(f...)
++# define ea_idebug(inode, f...)	no_printk(f)
++# define ea_bdebug(bh, f...)	no_printk(f)
+ #endif
  
- 	 if(SiS_Pr->SiS_IF_DEF_CH70xx == 0) {
- 	    PanelID = SiS_GetReg(SiS_Pr->SiS_P3d4,0x36);
+ static int ext2_xattr_set2(struct inode *, struct buffer_head *,
+-- 
+2.20.1
+
 
 
