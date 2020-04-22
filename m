@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B51251B411D
-	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FF21B3C6E
+	for <lists+stable@lfdr.de>; Wed, 22 Apr 2020 12:06:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728754AbgDVKuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Apr 2020 06:50:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44980 "EHLO mail.kernel.org"
+        id S1726655AbgDVKFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Apr 2020 06:05:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729307AbgDVKML (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Apr 2020 06:12:11 -0400
+        id S1728205AbgDVKFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:05:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42B8D2071E;
-        Wed, 22 Apr 2020 10:12:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 941D72084D;
+        Wed, 22 Apr 2020 10:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587550329;
-        bh=r9cPRRzUeSOgbRfR8rknZofdFTnT3oSAVu+UkQoNh2Q=;
+        s=default; t=1587549938;
+        bh=tLkQTUfr1Qq0auEeh7aiDCOZwq+IyDJN4FBlWtG9zl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5vIS32XvHfFQvS1538ChRL3wbW6wWihpj+o6ki8AHIrvJPLndQQtz1vfLS0mCDTe
-         fYqvQIJ2xSz8nx5NgFB1n2bU1OnYF+V04yGkLOS7OHU7TG68fZzKcEPe4ZwGlVvjKT
-         KTv3y+/d74N/I9vlXFqWL4uwOG2PaSMEI1QGIFCs=
+        b=nWxcmmxDAaQFYrKpOh3vu/EEgeP7iMT8h6kEf67dd+1dx+FZ+BTE0yqs/oFx51bmb
+         SSn58EKywJ7hFmDTA/kuQhCDx2bAdZDdLokmZnEAu5GjFOCJxVZdN5agVw6ZeUz8qK
+         2atvzZbySHLwrQ6HAo/tSqYxxwci8YznKlhKxT1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 060/199] KVM: x86: Allocate new rmap and large page tracking when moving memslot
+        stable@vger.kernel.org, Tim Stallard <code@timstallard.me.uk>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 069/125] net: ipv6: do not consider routes via gateways for anycast address check
 Date:   Wed, 22 Apr 2020 11:56:26 +0200
-Message-Id: <20200422095104.253905519@linuxfoundation.org>
+Message-Id: <20200422095044.455399481@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
-References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095032.909124119@linuxfoundation.org>
+References: <20200422095032.909124119@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,101 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Tim Stallard <code@timstallard.me.uk>
 
-commit edd4fa37baa6ee8e44dc65523b27bd6fe44c94de upstream.
+[ Upstream commit 03e2a984b6165621f287fadf5f4b5cd8b58dcaba ]
 
-Reallocate a rmap array and recalcuate large page compatibility when
-moving an existing memslot to correctly handle the alignment properties
-of the new memslot.  The number of rmap entries required at each level
-is dependent on the alignment of the memslot's base gfn with respect to
-that level, e.g. moving a large-page aligned memslot so that it becomes
-unaligned will increase the number of rmap entries needed at the now
-unaligned level.
+The behaviour for what is considered an anycast address changed in
+commit 45e4fd26683c ("ipv6: Only create RTF_CACHE routes after
+encountering pmtu exception"). This now considers the first
+address in a subnet where there is a route via a gateway
+to be an anycast address.
 
-Not updating the rmap array is the most obvious bug, as KVM accesses
-garbage data beyond the end of the rmap.  KVM interprets the bad data as
-pointers, leading to non-canonical #GPs, unexpected #PFs, etc...
+This breaks path MTU discovery and traceroutes when a host in a
+remote network uses the address at the start of a prefix
+(eg 2600:: advertised as 2600::/48 in the DFZ) as ICMP errors
+will not be sent to anycast addresses.
 
-  general protection fault: 0000 [#1] SMP
-  CPU: 0 PID: 1909 Comm: move_memory_reg Not tainted 5.4.0-rc7+ #139
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:rmap_get_first+0x37/0x50 [kvm]
-  Code: <48> 8b 3b 48 85 ff 74 ec e8 6c f4 ff ff 85 c0 74 e3 48 89 d8 5b c3
-  RSP: 0018:ffffc9000021bbc8 EFLAGS: 00010246
-  RAX: ffff00617461642e RBX: ffff00617461642e RCX: 0000000000000012
-  RDX: ffff88827400f568 RSI: ffffc9000021bbe0 RDI: ffff88827400f570
-  RBP: 0010000000000000 R08: ffffc9000021bd00 R09: ffffc9000021bda8
-  R10: ffffc9000021bc48 R11: 0000000000000000 R12: 0030000000000000
-  R13: 0000000000000000 R14: ffff88827427d700 R15: ffffc9000021bce8
-  FS:  00007f7eda014700(0000) GS:ffff888277a00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f7ed9216ff8 CR3: 0000000274391003 CR4: 0000000000162eb0
-  Call Trace:
-   kvm_mmu_slot_set_dirty+0xa1/0x150 [kvm]
-   __kvm_set_memory_region.part.64+0x559/0x960 [kvm]
-   kvm_set_memory_region+0x45/0x60 [kvm]
-   kvm_vm_ioctl+0x30f/0x920 [kvm]
-   do_vfs_ioctl+0xa1/0x620
-   ksys_ioctl+0x66/0x70
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x4c/0x170
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f7ed9911f47
-  Code: <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 21 6f 2c 00 f7 d8 64 89 01 48
-  RSP: 002b:00007ffc00937498 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-  RAX: ffffffffffffffda RBX: 0000000001ab0010 RCX: 00007f7ed9911f47
-  RDX: 0000000001ab1350 RSI: 000000004020ae46 RDI: 0000000000000004
-  RBP: 000000000000000a R08: 0000000000000000 R09: 00007f7ed9214700
-  R10: 00007f7ed92149d0 R11: 0000000000000246 R12: 00000000bffff000
-  R13: 0000000000000003 R14: 00007f7ed9215000 R15: 0000000000000000
-  Modules linked in: kvm_intel kvm irqbypass
-  ---[ end trace 0c5f570b3358ca89 ]---
+This patch excludes any routes with a gateway, or via point to
+point links, like the behaviour previously from
+rt6_is_gw_or_nonexthop in net/ipv6/route.c.
 
-The disallow_lpage tracking is more subtle.  Failure to update results
-in KVM creating large pages when it shouldn't, either due to stale data
-or again due to indexing beyond the end of the metadata arrays, which
-can lead to memory corruption and/or leaking data to guest/userspace.
+This can be tested with:
+ip link add v1 type veth peer name v2
+ip netns add test
+ip netns exec test ip link set lo up
+ip link set v2 netns test
+ip link set v1 up
+ip netns exec test ip link set v2 up
+ip addr add 2001:db8::1/64 dev v1 nodad
+ip addr add 2001:db8:100:: dev lo nodad
+ip netns exec test ip addr add 2001:db8::2/64 dev v2 nodad
+ip netns exec test ip route add unreachable 2001:db8:1::1
+ip netns exec test ip route add 2001:db8:100::/64 via 2001:db8::1
+ip netns exec test sysctl net.ipv6.conf.all.forwarding=1
+ip route add 2001:db8:1::1 via 2001:db8::2
+ping -I 2001:db8::1 2001:db8:1::1 -c1
+ping -I 2001:db8:100:: 2001:db8:1::1 -c1
+ip addr delete 2001:db8:100:: dev lo
+ip netns delete test
 
-Note, the arrays for the old memslot are freed by the unconditional call
-to kvm_free_memslot() in __kvm_set_memory_region().
+Currently the first ping will get back a destination unreachable ICMP
+error, but the second will never get a response, with "icmp6_send:
+acast source" logged. After this patch, both get destination
+unreachable ICMP replies.
 
-Fixes: 05da45583de9b ("KVM: MMU: large page support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 45e4fd26683c ("ipv6: Only create RTF_CACHE routes after encountering pmtu exception")
+Signed-off-by: Tim Stallard <code@timstallard.me.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kvm/x86.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ include/net/ip6_route.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8584,6 +8584,13 @@ int kvm_arch_create_memslot(struct kvm *
- {
- 	int i;
+--- a/include/net/ip6_route.h
++++ b/include/net/ip6_route.h
+@@ -195,6 +195,7 @@ static inline bool ipv6_anycast_destinat
  
-+	/*
-+	 * Clear out the previous array pointers for the KVM_MR_MOVE case.  The
-+	 * old arrays will be freed by __kvm_set_memory_region() if installing
-+	 * the new memslot is successful.
-+	 */
-+	memset(&slot->arch, 0, sizeof(slot->arch));
-+
- 	for (i = 0; i < KVM_NR_PAGE_SIZES; ++i) {
- 		struct kvm_lpage_info *linfo;
- 		unsigned long ugfn;
-@@ -8657,6 +8664,10 @@ int kvm_arch_prepare_memory_region(struc
- 				const struct kvm_userspace_memory_region *mem,
- 				enum kvm_mr_change change)
- {
-+	if (change == KVM_MR_MOVE)
-+		return kvm_arch_create_memslot(kvm, memslot,
-+					       mem->memory_size >> PAGE_SHIFT);
-+
- 	return 0;
+ 	return rt->rt6i_flags & RTF_ANYCAST ||
+ 		(rt->rt6i_dst.plen != 128 &&
++		 !(rt->rt6i_flags & (RTF_GATEWAY | RTF_NONEXTHOP)) &&
+ 		 ipv6_addr_equal(&rt->rt6i_dst.addr, daddr));
  }
  
 
