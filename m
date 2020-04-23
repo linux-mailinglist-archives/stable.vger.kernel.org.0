@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 270FE1B5AB0
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E51BB1B5AB3
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728137AbgDWLo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 07:44:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54222 "EHLO mail.kernel.org"
+        id S1727911AbgDWLpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 07:45:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728017AbgDWLo7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 07:44:59 -0400
+        id S1727088AbgDWLpf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 07:45:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E69C2077D;
-        Thu, 23 Apr 2020 11:44:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B29C2077D;
+        Thu, 23 Apr 2020 11:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587642298;
-        bh=x17C//y/xpIp07W84xlvkWhGkIgClDKTf0eoTgGoXSI=;
+        s=default; t=1587642334;
+        bh=pZa2nkfiz+IeJ4GJXA5/5UFzWbJg3mh7gXzhLHL+GPs=;
         h=Subject:To:From:Date:From;
-        b=K+WqGKryyWG6A1PPo4tUBGdywvzyb8iWrHjc+YzOF1JiWW0X5Sb5tqUClK4ICLD0Y
-         eJY13CsS8xLlL7oAiFtvzkwnF3tsi4o2euKt8zmIWuAc4BhAv3+1hvHd3uTclnt72e
-         dUVuqkl5jgr9/Ego2i/uGbzPcDyJmK6TS3u0iY2Q=
-Subject: patch "staging: vt6656: Fix pairwise key entry save." added to staging-linus
-To:     tvboxspy@gmail.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=SuHNw/dhj423ReowN3PsfcFMAfL4/94FbYkzu+NVi34dxXdqQSGhgIojtl7pQuieO
+         j/YjJmRBxOfM0j8OQE6LwJW+jjKBuanMUTA3y3maBb3Qe8mWzEgVH5yW7Q4T4pMt4i
+         ZC/FY9W3qVSBxrJ70qUm3hL/taTk1Cota+ejSFNQ=
+Subject: patch "staging: comedi: Fix comedi_device refcnt leak in comedi_open" added to staging-linus
+To:     xiyuyang19@fudan.edu.cn, abbotti@mev.co.uk,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        tanxin.ctf@gmail.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 Apr 2020 13:44:56 +0200
-Message-ID: <158764229694177@kroah.com>
+Date:   Thu, 23 Apr 2020 13:45:32 +0200
+Message-ID: <1587642332209228@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: vt6656: Fix pairwise key entry save.
+    staging: comedi: Fix comedi_device refcnt leak in comedi_open
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,91 +56,51 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 0b59f10b1d8fe8d50944f21f5d403df9303095a8 Mon Sep 17 00:00:00 2001
-From: Malcolm Priestley <tvboxspy@gmail.com>
-Date: Sat, 18 Apr 2020 22:01:49 +0100
-Subject: staging: vt6656: Fix pairwise key entry save.
+From 332e0e17ad49e084b7db670ef43b5eb59abd9e34 Mon Sep 17 00:00:00 2001
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Date: Mon, 20 Apr 2020 13:44:16 +0800
+Subject: staging: comedi: Fix comedi_device refcnt leak in comedi_open
 
-The problem is that the group key was saved as VNT_KEY_DEFAULTKEY
-was over written by the VNT_KEY_GROUP_ADDRESS index.
+comedi_open() invokes comedi_dev_get_from_minor(), which returns a
+reference of the COMEDI device to "dev" with increased refcount.
 
-mac80211 could not clear the mac_addr in the default key.
+When comedi_open() returns, "dev" becomes invalid, so the refcount
+should be decreased to keep refcount balanced.
 
-The VNT_KEY_DEFAULTKEY is not necesscary so remove it and set as
-VNT_KEY_GROUP_ADDRESS.
+The reference counting issue happens in one exception handling path of
+comedi_open(). When "cfp" allocation is failed, the refcnt increased by
+comedi_dev_get_from_minor() is not decreased, causing a refcnt leak.
 
-mac80211 can clear any key using vnt_mac_disable_keyentry.
+Fix this issue by calling comedi_dev_put() on this error path when "cfp"
+allocation is failed.
 
-Fixes: f9ef05ce13e4 ("staging: vt6656: Fix pairwise key for non station modes")
+Fixes: 20f083c07565 ("staging: comedi: prepare support for per-file read and write subdevices")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/da2f7e7f-1658-1320-6eee-0f55770ca391@gmail.com
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/1587361459-83622-1-git-send-email-xiyuyang19@fudan.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/vt6656/key.c      | 14 +++-----------
- drivers/staging/vt6656/main_usb.c |  6 +++++-
- 2 files changed, 8 insertions(+), 12 deletions(-)
+ drivers/staging/comedi/comedi_fops.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/vt6656/key.c b/drivers/staging/vt6656/key.c
-index 41b73f9670e2..ac3b188984d0 100644
---- a/drivers/staging/vt6656/key.c
-+++ b/drivers/staging/vt6656/key.c
-@@ -83,9 +83,6 @@ static int vnt_set_keymode(struct ieee80211_hw *hw, u8 *mac_addr,
- 	case  VNT_KEY_PAIRWISE:
- 		key_mode |= mode;
- 		key_inx = 4;
--		/* Don't save entry for pairwise key for station mode */
--		if (priv->op_mode == NL80211_IFTYPE_STATION)
--			clear_bit(entry, &priv->key_entry_inuse);
- 		break;
- 	default:
- 		return -EINVAL;
-@@ -109,7 +106,6 @@ static int vnt_set_keymode(struct ieee80211_hw *hw, u8 *mac_addr,
- int vnt_set_keys(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
- 		 struct ieee80211_vif *vif, struct ieee80211_key_conf *key)
- {
--	struct ieee80211_bss_conf *conf = &vif->bss_conf;
- 	struct vnt_private *priv = hw->priv;
- 	u8 *mac_addr = NULL;
- 	u8 key_dec_mode = 0;
-@@ -154,16 +150,12 @@ int vnt_set_keys(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
- 		return -EOPNOTSUPP;
+diff --git a/drivers/staging/comedi/comedi_fops.c b/drivers/staging/comedi/comedi_fops.c
+index 08d1bbbebf2d..e84b4fb493d6 100644
+--- a/drivers/staging/comedi/comedi_fops.c
++++ b/drivers/staging/comedi/comedi_fops.c
+@@ -2725,8 +2725,10 @@ static int comedi_open(struct inode *inode, struct file *file)
  	}
  
--	if (key->flags & IEEE80211_KEY_FLAG_PAIRWISE) {
-+	if (key->flags & IEEE80211_KEY_FLAG_PAIRWISE)
- 		vnt_set_keymode(hw, mac_addr, key, VNT_KEY_PAIRWISE,
- 				key_dec_mode, true);
--	} else {
--		vnt_set_keymode(hw, mac_addr, key, VNT_KEY_DEFAULTKEY,
-+	else
-+		vnt_set_keymode(hw, mac_addr, key, VNT_KEY_GROUP_ADDRESS,
- 				key_dec_mode, true);
+ 	cfp = kzalloc(sizeof(*cfp), GFP_KERNEL);
+-	if (!cfp)
++	if (!cfp) {
++		comedi_dev_put(dev);
+ 		return -ENOMEM;
++	}
  
--		vnt_set_keymode(hw, (u8 *)conf->bssid, key,
--				VNT_KEY_GROUP_ADDRESS, key_dec_mode, true);
--	}
--
- 	return 0;
- }
-diff --git a/drivers/staging/vt6656/main_usb.c b/drivers/staging/vt6656/main_usb.c
-index 752bb2e95321..db310767a5c1 100644
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -855,8 +855,12 @@ static int vnt_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
- 	case SET_KEY:
- 		return vnt_set_keys(hw, sta, vif, key);
- 	case DISABLE_KEY:
--		if (test_bit(key->hw_key_idx, &priv->key_entry_inuse))
-+		if (test_bit(key->hw_key_idx, &priv->key_entry_inuse)) {
- 			clear_bit(key->hw_key_idx, &priv->key_entry_inuse);
-+
-+			vnt_mac_disable_keyentry(priv, key->hw_key_idx);
-+		}
-+
- 	default:
- 		break;
- 	}
+ 	cfp->dev = dev;
+ 
 -- 
 2.26.2
 
