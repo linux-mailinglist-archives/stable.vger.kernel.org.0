@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5691B6828
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8F641B6868
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:15:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728497AbgDWXMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:12:55 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50016 "EHLO
+        id S1728839AbgDWXOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:14:41 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:49822 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728498AbgDWXGv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:51 -0400
+        by vger.kernel.org with ESMTP id S1728443AbgDWXGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:48 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvT-0004if-Jp; Fri, 24 Apr 2020 00:06:35 +0100
+        id 1jRkvV-0004hq-CD; Fri, 24 Apr 2020 00:06:37 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvR-00E6pB-9V; Fri, 24 Apr 2020 00:06:33 +0100
+        id 1jRkvR-00E6pF-CI; Fri, 24 Apr 2020 00:06:33 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Christoph Paasch" <cpaasch@apple.com>,
-        "Soheil Hassas Yeganeh" <soheil@google.com>,
-        "Neal Cardwell" <ncardwell@google.com>,
-        "Eric Dumazet" <edumazet@google.com>,
-        "Jakub Kicinski" <jakub.kicinski@netronome.com>,
-        "Jason Baron" <jbaron@akamai.com>
-Date:   Fri, 24 Apr 2020 00:05:53 +0100
-Message-ID: <lsq.1587683028.868791916@decadent.org.uk>
+        "Lionel Koenig" <lionel.koenig@gmail.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Takashi Iwai" <tiwai@suse.de>
+Date:   Fri, 24 Apr 2020 00:05:54 +0100
+Message-ID: <lsq.1587683028.443437380@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 126/245] tcp: do not send empty skb from tcp_write_xmit()
+Subject: [PATCH 3.16 127/245] ALSA: pcm: Avoid possible info leaks from
+ PCM stream buffers
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,53 +48,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Eric Dumazet <edumazet@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 1f85e6267caca44b30c54711652b0726fadbb131 upstream.
+commit add9d56d7b3781532208afbff5509d7382fb6efe upstream.
 
-Backport of commit fdfc5c8594c2 ("tcp: remove empty skb from
-write queue in error cases") in linux-4.14 stable triggered
-various bugs. One of them has been fixed in commit ba2ddb43f270
-("tcp: Don't dequeue SYN/FIN-segments from write-queue"), but
-we still have crashes in some occasions.
+The current PCM code doesn't initialize explicitly the buffers
+allocated for PCM streams, hence it might leak some uninitialized
+kernel data or previous stream contents by mmapping or reading the
+buffer before actually starting the stream.
 
-Root-cause is that when tcp_sendmsg() has allocated a fresh
-skb and could not append a fragment before being blocked
-in sk_stream_wait_memory(), tcp_write_xmit() might be called
-and decide to send this fresh and empty skb.
+Since this is a common problem, this patch simply adds the clearance
+of the buffer data at hw_params callback.  Although this does only
+zero-clear no matter which format is used, which doesn't mean the
+silence for some formats, but it should be OK because the intention is
+just to clear the previous data on the buffer.
 
-Sending an empty packet is not only silly, it might have caused
-many issues we had in the past with tp->packets_out being
-out of sync.
-
-Fixes: c65f7f00c587 ("[TCP]: Simplify SKB data portion allocation with NETIF_F_SG.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Christoph Paasch <cpaasch@apple.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Cc: Jason Baron <jbaron@akamai.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-[bwh: Backported to 3.16: adjust context]
+Reported-by: Lionel Koenig <lionel.koenig@gmail.com>
+Link: https://lore.kernel.org/r/20191211155742.3213-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/ipv4/tcp_output.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/core/pcm_native.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1992,6 +1992,14 @@ static bool tcp_write_xmit(struct sock *
- 		    unlikely(tso_fragment(sk, skb, limit, mss_now, gfp)))
- 			break;
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -459,6 +459,10 @@ static int snd_pcm_hw_params(struct snd_
+ 	while (runtime->boundary * 2 <= LONG_MAX - runtime->buffer_size)
+ 		runtime->boundary *= 2;
  
-+		/* Argh, we hit an empty skb(), presumably a thread
-+		 * is sleeping in sendmsg()/sk_stream_wait_memory().
-+		 * We do not want to send a pure-ack packet and have
-+		 * a strange looking rtx queue with empty packet(s).
-+		 */
-+		if (TCP_SKB_CB(skb)->end_seq == TCP_SKB_CB(skb)->seq)
-+			break;
++	/* clear the buffer for avoiding possible kernel info leaks */
++	if (runtime->dma_area)
++		memset(runtime->dma_area, 0, runtime->dma_bytes);
 +
- 		TCP_SKB_CB(skb)->when = tcp_time_stamp;
+ 	snd_pcm_timer_resolution_change(substream);
+ 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
  
- 		if (unlikely(tcp_transmit_skb(sk, skb, 1, gfp)))
 
