@@ -2,100 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F081B5C89
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:25:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E08421B5C8A
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:26:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726361AbgDWNZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 09:25:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54588 "EHLO mail.kernel.org"
+        id S1727002AbgDWN0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 09:26:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726224AbgDWNZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 09:25:56 -0400
-Received: from localhost (unknown [137.135.114.1])
+        id S1726429AbgDWN0h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 09:26:37 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93A992084D;
-        Thu, 23 Apr 2020 13:25:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C714C2084D;
+        Thu, 23 Apr 2020 13:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587648355;
-        bh=cv6o0zmk/hxx4v8OAdATFe0wy5blln6IPVpTY4foZ+I=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=Mv3VpH5ldFd4DtVd5oMs2GgYDsnZuOO+rOBumEtt5ZabfC9BUMR+ga70CeR7y/t5k
-         UcZOvPINitIdkLSE0BHbJ6Z40yo5cf0SvE2FHFmzpKUEIQHmNgm2c+4WdCg6YjuRMV
-         o/zzJk9GdQJYfcg/+vrvrB1ALu5QJNSes5qXQtLw=
-Date:   Thu, 23 Apr 2020 13:25:54 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>
-Cc:     <stable@vger.kernel.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: [RESEND PATCH v2 1/2] driver core: platform: Initialize dma_parms for platform devices
-In-Reply-To: <20200422100954.31211-1-ulf.hansson@linaro.org>
-References: <20200422100954.31211-1-ulf.hansson@linaro.org>
-Message-Id: <20200423132555.93A992084D@mail.kernel.org>
+        s=default; t=1587648396;
+        bh=ZJ+mmsVznZTdul6YQsMbuPcvrNKYWkmi0lrtCWMLZQs=;
+        h=Subject:To:From:Date:From;
+        b=bnGTq3KLrgdznFK0jHfBAziU8B0cIaQdbWikpoPy/poeF9nYiCPm4WbAutOApbn5H
+         E0sVIgocnV2PjAbNkx9lgs+MyQjQ57do5gtosiiH6j8VwcefertmP9FSBlDxG0qQqD
+         ZPnyi2Mb/gcMj78eo8bvg/zGbRcyJyVnjYe7Tq0E=
+Subject: patch "USB: sisusbvga: Change port variable from signed to unsigned" added to usb-linus
+To:     liu.changm@northeastern.edu, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 23 Apr 2020 15:26:34 +0200
+Message-ID: <158764839477184@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
 
-[This is an automated email]
+This is a note to let you know that I've just added the patch titled
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+    USB: sisusbvga: Change port variable from signed to unsigned
 
-The bot has tested the following trees: v5.6.5, v5.4.33, v4.19.116, v4.14.176, v4.9.219, v4.4.219.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-v5.6.5: Build OK!
-v5.4.33: Build OK!
-v4.19.116: Failed to apply! Possible dependencies:
-    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
-    e3a36eb6dfae ("driver code: clarify and fix platform device DMA mask allocation")
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-v4.14.176: Failed to apply! Possible dependencies:
-    186c446f4b84 ("media: arch: sh: migor: Use new renesas-ceu camera driver")
-    1a3c230b4151 ("media: arch: sh: ms7724se: Use new renesas-ceu camera driver")
-    39fb993038e1 ("media: arch: sh: ap325rxa: Use new renesas-ceu camera driver")
-    b12c8a70643f ("m68k: Set default dma mask for platform devices")
-    c2f9b05fd5c1 ("media: arch: sh: ecovec: Use new renesas-ceu camera driver")
-    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
-    e3a36eb6dfae ("driver code: clarify and fix platform device DMA mask allocation")
-    f3590dc32974 ("media: arch: sh: kfr2r09: Use new renesas-ceu camera driver")
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-v4.9.219: Failed to apply! Possible dependencies:
-    186c446f4b84 ("media: arch: sh: migor: Use new renesas-ceu camera driver")
-    1a3c230b4151 ("media: arch: sh: ms7724se: Use new renesas-ceu camera driver")
-    39fb993038e1 ("media: arch: sh: ap325rxa: Use new renesas-ceu camera driver")
-    8fd708157a59 ("Input: tsc2007 - move header file out of I2C realm")
-    b12c8a70643f ("m68k: Set default dma mask for platform devices")
-    c2f9b05fd5c1 ("media: arch: sh: ecovec: Use new renesas-ceu camera driver")
-    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
-    e3a36eb6dfae ("driver code: clarify and fix platform device DMA mask allocation")
-    f14434040ce0 ("Input: tsc2007 - add iio interface to read external ADC input and temperature")
-    f3590dc32974 ("media: arch: sh: kfr2r09: Use new renesas-ceu camera driver")
-
-v4.4.219: Failed to apply! Possible dependencies:
-    166dd7d3fbf2 ("powerpc/64: Move MMU backend selection out of platform code")
-    340f3039acd6 ("m68k: convert to dma_map_ops")
-    3808a88985b4 ("powerpc: Move FW feature probing out of pseries probe()")
-    406b0b6ae3fc ("powerpc/64: Move 64-bit probe_machine() to later in the boot process")
-    565713840445 ("powerpc: Move 32-bit probe() machine to later in the boot process")
-    5d31a96e6c01 ("powerpc/livepatch: Add livepatch stack to struct thread_info")
-    63c254a50104 ("powerpc: Add comment explaining the purpose of setup_kdump_trampoline()")
-    b12c8a70643f ("m68k: Set default dma mask for platform devices")
-    b1923caa6e64 ("powerpc: Merge 32-bit and 64-bit setup_arch()")
-    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
-    da6a97bf12d5 ("powerpc: Move epapr_paravirt_early_init() to early_init_devtree()")
-    f63e6d898760 ("powerpc/livepatch: Add livepatch header")
+If you have any questions about this process, please let me know.
 
 
-NOTE: The patch will not be queued to stable trees until it is upstream.
+From 2df7405f79ce1674d73c2786fe1a8727c905d65b Mon Sep 17 00:00:00 2001
+From: Changming Liu <liu.changm@northeastern.edu>
+Date: Mon, 20 Apr 2020 23:41:25 -0400
+Subject: USB: sisusbvga: Change port variable from signed to unsigned
 
-How should we proceed with this patch?
+Change a bunch of arguments of wrapper functions which pass signed
+integer to an unsigned integer which might cause undefined behaviors
+when sign integer overflow.
 
+Signed-off-by: Changming Liu <liu.changm@northeastern.edu>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/BL0PR06MB45482D71EA822D75A0E60A2EE5D50@BL0PR06MB4548.namprd06.prod.outlook.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/misc/sisusbvga/sisusb.c      | 20 ++++++++++----------
+ drivers/usb/misc/sisusbvga/sisusb_init.h | 14 +++++++-------
+ 2 files changed, 17 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/usb/misc/sisusbvga/sisusb.c b/drivers/usb/misc/sisusbvga/sisusb.c
+index 2ab9600d0898..fc8a5da4a07c 100644
+--- a/drivers/usb/misc/sisusbvga/sisusb.c
++++ b/drivers/usb/misc/sisusbvga/sisusb.c
+@@ -1199,18 +1199,18 @@ static int sisusb_read_mem_bulk(struct sisusb_usb_data *sisusb, u32 addr,
+ /* High level: Gfx (indexed) register access */
+ 
+ #ifdef CONFIG_USB_SISUSBVGA_CON
+-int sisusb_setreg(struct sisusb_usb_data *sisusb, int port, u8 data)
++int sisusb_setreg(struct sisusb_usb_data *sisusb, u32 port, u8 data)
+ {
+ 	return sisusb_write_memio_byte(sisusb, SISUSB_TYPE_IO, port, data);
+ }
+ 
+-int sisusb_getreg(struct sisusb_usb_data *sisusb, int port, u8 *data)
++int sisusb_getreg(struct sisusb_usb_data *sisusb, u32 port, u8 *data)
+ {
+ 	return sisusb_read_memio_byte(sisusb, SISUSB_TYPE_IO, port, data);
+ }
+ #endif
+ 
+-int sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port,
++int sisusb_setidxreg(struct sisusb_usb_data *sisusb, u32 port,
+ 		u8 index, u8 data)
+ {
+ 	int ret;
+@@ -1220,7 +1220,7 @@ int sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port,
+ 	return ret;
+ }
+ 
+-int sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port,
++int sisusb_getidxreg(struct sisusb_usb_data *sisusb, u32 port,
+ 		u8 index, u8 *data)
+ {
+ 	int ret;
+@@ -1230,7 +1230,7 @@ int sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port,
+ 	return ret;
+ }
+ 
+-int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port, u8 idx,
++int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, u32 port, u8 idx,
+ 		u8 myand, u8 myor)
+ {
+ 	int ret;
+@@ -1245,7 +1245,7 @@ int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port, u8 idx,
+ }
+ 
+ static int sisusb_setidxregmask(struct sisusb_usb_data *sisusb,
+-		int port, u8 idx, u8 data, u8 mask)
++		u32 port, u8 idx, u8 data, u8 mask)
+ {
+ 	int ret;
+ 	u8 tmp;
+@@ -1258,13 +1258,13 @@ static int sisusb_setidxregmask(struct sisusb_usb_data *sisusb,
+ 	return ret;
+ }
+ 
+-int sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port,
++int sisusb_setidxregor(struct sisusb_usb_data *sisusb, u32 port,
+ 		u8 index, u8 myor)
+ {
+ 	return sisusb_setidxregandor(sisusb, port, index, 0xff, myor);
+ }
+ 
+-int sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port,
++int sisusb_setidxregand(struct sisusb_usb_data *sisusb, u32 port,
+ 		u8 idx, u8 myand)
+ {
+ 	return sisusb_setidxregandor(sisusb, port, idx, myand, 0x00);
+@@ -2785,8 +2785,8 @@ static loff_t sisusb_lseek(struct file *file, loff_t offset, int orig)
+ static int sisusb_handle_command(struct sisusb_usb_data *sisusb,
+ 		struct sisusb_command *y, unsigned long arg)
+ {
+-	int	retval, port, length;
+-	u32	address;
++	int	retval, length;
++	u32	port, address;
+ 
+ 	/* All our commands require the device
+ 	 * to be initialized.
+diff --git a/drivers/usb/misc/sisusbvga/sisusb_init.h b/drivers/usb/misc/sisusbvga/sisusb_init.h
+index 1782c759c4ad..ace09985dae4 100644
+--- a/drivers/usb/misc/sisusbvga/sisusb_init.h
++++ b/drivers/usb/misc/sisusbvga/sisusb_init.h
+@@ -812,17 +812,17 @@ static const struct SiS_VCLKData SiSUSB_VCLKData[] = {
+ int SiSUSBSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo);
+ int SiSUSBSetVESAMode(struct SiS_Private *SiS_Pr, unsigned short VModeNo);
+ 
+-extern int sisusb_setreg(struct sisusb_usb_data *sisusb, int port, u8 data);
+-extern int sisusb_getreg(struct sisusb_usb_data *sisusb, int port, u8 * data);
+-extern int sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_setreg(struct sisusb_usb_data *sisusb, u32 port, u8 data);
++extern int sisusb_getreg(struct sisusb_usb_data *sisusb, u32 port, u8 * data);
++extern int sisusb_setidxreg(struct sisusb_usb_data *sisusb, u32 port,
+ 			    u8 index, u8 data);
+-extern int sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_getidxreg(struct sisusb_usb_data *sisusb, u32 port,
+ 			    u8 index, u8 * data);
+-extern int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, u32 port,
+ 				 u8 idx, u8 myand, u8 myor);
+-extern int sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_setidxregor(struct sisusb_usb_data *sisusb, u32 port,
+ 			      u8 index, u8 myor);
+-extern int sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_setidxregand(struct sisusb_usb_data *sisusb, u32 port,
+ 			       u8 idx, u8 myand);
+ 
+ void sisusb_delete(struct kref *kref);
 -- 
-Thanks
-Sasha
+2.26.2
+
+
