@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E191B5CD6
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:47:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F1911B5CD7
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727898AbgDWNrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 09:47:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37952 "EHLO mail.kernel.org"
+        id S1728001AbgDWNrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 09:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726926AbgDWNrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 09:47:07 -0400
+        id S1726926AbgDWNrP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 09:47:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C9B820728;
-        Thu, 23 Apr 2020 13:47:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A5752076C;
+        Thu, 23 Apr 2020 13:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587649626;
-        bh=+Ol6oKIhfcOGN/dAF0VQgCqyczrRph8CyZn9CC1dlcM=;
+        s=default; t=1587649634;
+        bh=+Vee8TKsu32GnsKJSfjdU/gxrPuGwR2/R8MmmZMeguk=;
         h=Subject:To:From:Date:From;
-        b=KpxROXMWJ6f0iQ1yfbqG+GSm3z6eXfBer6O7duPoSx4DlLVu0Rvu0RFhPNJJrVhrs
-         Fx1UGdocKOSkrXRRRNUKHJOT6kx/lH4m1X6R/6U1qofLF+OPy9rt3WJJcWpRCBg//H
-         3i+wKvbLbHhlne7bwOdDPJZtIiRDi1LzshJLpZ7E=
-Subject: patch "vt: don't use kmalloc() for the unicode screen buffer" added to tty-linus
-To:     nico@fluxnic.net, gregkh@linuxfoundation.org, sam@ravnborg.org,
+        b=b5EzvDiJK8KwzSmuTOzxGMrI8LOhN8W/AqKiY8DuA2q537u1LN2HlQ2+almAEdkYv
+         B3qlg19cLhSAj/wMkkvtX9JfVnRtoa8MKG/vJnfoDkLhKw/8x/bv0yogqneBW5R+gI
+         XVZ/lYUkRbkiD+2JopXVboNAvWtW5vQm6h0tp/RY=
+Subject: patch "tty: serial: owl: add "much needed" clk_prepare_enable()" added to tty-linus
+To:     amittomer25@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 23 Apr 2020 15:47:04 +0200
-Message-ID: <158764962413760@kroah.com>
+Message-ID: <1587649624115211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    vt: don't use kmalloc() for the unicode screen buffer
+    tty: serial: owl: add "much needed" clk_prepare_enable()
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -55,59 +55,54 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 9a98e7a80f95378c9ee0c644705e3b5aa54745f1 Mon Sep 17 00:00:00 2001
-From: Nicolas Pitre <nico@fluxnic.net>
-Date: Sat, 28 Mar 2020 22:25:11 -0400
-Subject: vt: don't use kmalloc() for the unicode screen buffer
+From abf42d2f333b21bf8d33b2fbb8a85fa62037ac01 Mon Sep 17 00:00:00 2001
+From: Amit Singh Tomar <amittomer25@gmail.com>
+Date: Fri, 17 Apr 2020 01:41:57 +0530
+Subject: tty: serial: owl: add "much needed" clk_prepare_enable()
 
-Even if the actual screen size is bounded in vc_do_resize(), the unicode
-buffer is still a little more than twice the size of the glyph buffer
-and may exceed MAX_ORDER down the kmalloc() path. This can be triggered
-from user space.
+commit 8ba92cf59335 ("arm64: dts: actions: s700: Add Clock Management Unit")
+breaks the UART on Cubieboard7-lite (based on S700 SoC), This is due to the
+fact that generic clk routine clk_disable_unused() disables the gate clks,
+and that in turns disables OWL UART (but UART driver never enables it). To
+prove this theory, Andre suggested to use "clk_ignore_unused" in kernel
+commnd line and it worked (Kernel happily lands into RAMFS world :)).
 
-Since there is no point having a physically contiguous buffer here,
-let's avoid the above issue as well as reducing pressure on high order
-allocations by using vmalloc() instead.
+This commit fix this up by adding clk_prepare_enable().
 
-Signed-off-by: Nicolas Pitre <nico@fluxnic.net>
-Cc: <stable@vger.kernel.org>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.2003282214210.2671@knanqh.ubzr
+Fixes: 8ba92cf59335 ("arm64: dts: actions: s700: Add Clock Management Unit")
+Signed-off-by: Amit Singh Tomar <amittomer25@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1587067917-1400-1-git-send-email-amittomer25@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/tty/serial/owl-uart.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
-index 309a39197be0..3272759b1f3c 100644
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -81,6 +81,7 @@
- #include <linux/errno.h>
- #include <linux/kd.h>
- #include <linux/slab.h>
-+#include <linux/vmalloc.h>
- #include <linux/major.h>
- #include <linux/mm.h>
- #include <linux/console.h>
-@@ -350,7 +351,7 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
- 	/* allocate everything in one go */
- 	memsize = cols * rows * sizeof(char32_t);
- 	memsize += rows * sizeof(char32_t *);
--	p = kmalloc(memsize, GFP_KERNEL);
-+	p = vmalloc(memsize);
- 	if (!p)
- 		return NULL;
+diff --git a/drivers/tty/serial/owl-uart.c b/drivers/tty/serial/owl-uart.c
+index 42c8cc93b603..c149f8c30007 100644
+--- a/drivers/tty/serial/owl-uart.c
++++ b/drivers/tty/serial/owl-uart.c
+@@ -680,6 +680,12 @@ static int owl_uart_probe(struct platform_device *pdev)
+ 		return PTR_ERR(owl_port->clk);
+ 	}
  
-@@ -366,7 +367,7 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
++	ret = clk_prepare_enable(owl_port->clk);
++	if (ret) {
++		dev_err(&pdev->dev, "could not enable clk\n");
++		return ret;
++	}
++
+ 	owl_port->port.dev = &pdev->dev;
+ 	owl_port->port.line = pdev->id;
+ 	owl_port->port.type = PORT_OWL;
+@@ -712,6 +718,7 @@ static int owl_uart_remove(struct platform_device *pdev)
  
- static void vc_uniscr_set(struct vc_data *vc, struct uni_screen *new_uniscr)
- {
--	kfree(vc->vc_uni_screen);
-+	vfree(vc->vc_uni_screen);
- 	vc->vc_uni_screen = new_uniscr;
+ 	uart_remove_one_port(&owl_uart_driver, &owl_port->port);
+ 	owl_uart_ports[pdev->id] = NULL;
++	clk_disable_unprepare(owl_port->clk);
+ 
+ 	return 0;
  }
- 
 -- 
 2.26.2
 
