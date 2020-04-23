@@ -2,66 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B171B6598
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 22:40:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EBEF1B6599
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 22:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726539AbgDWUkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 16:40:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45574 "EHLO
+        id S1726637AbgDWUkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 16:40:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726183AbgDWUkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 16:40:22 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C196C09B042
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:22 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id d15so6627527wrx.3
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:22 -0700 (PDT)
+        with ESMTP id S1726183AbgDWUkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 16:40:24 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CCCEC09B042
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:23 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id b11so8233110wrs.6
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=66ViJN+ZbAv/wx0SyJm9vds07oz/mQTCqp+w3CnCjhk=;
-        b=WzDYhDFQM/2pjutTBgryIaO1DpIKReI0rISqK3Jqok7kpFSj1eagDSr5ywq2WRyBNW
-         eukh90hKQfwuKx8LpDrlhC1NPRlGPay9ANIrLEhRS/nMKx+S8dZCgxs5rc96UJM6ZYCe
-         2OAnVLe7aDR/fOHJWY74441+b5FKiOk127YIeVMIjYbTLXB4BPoVqs81EpGpF1utAwLK
-         Jv5RIxojmhx8Zn3OtgCdzSLyHt3AK+/WL2+YKHML7RA+mFczS/D8SoA52yOhi8AMmY1s
-         KAS9kmCGfRcZL9sKEPWzwW7OEaKFc0FW+ks7klEwlOsfijWZFcPGqDqpsRKCe952HHsQ
-         woYA==
+        bh=/hkstutUKkzAeVkb8A6CMmZCBPtBnLhhXsPrhwYxTuA=;
+        b=RP13O6RyAg51iKwhAiHK9NBWC6OAiagMGTL0dHdzMSZMasf6D8uKatMb1p3TgTw5+9
+         hu69D6G8GS8aO4zoNg2jrOANVAaINkxPwzpufAXwKUxit77hykhSqMtB6snpfm0F81hd
+         UmmzrCJuZ0S7w3lC9XM4vWvWUpwWLSA4qBmdUUKFuNAF6md66FZSn4lelg0Z+RvTGyQv
+         JXuLDV+W4OYYzs72yt0EgGSZkbB1dxu8smW0BEWcfF7XhEThos8mE1JHJc/pkLyLLyR8
+         j1orLJzNept+xjBQNR5GMY+RHpSoUoinF/HDHfP9BCQLthN6tH1g9vnprCdmPP+LcYJi
+         9hwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=66ViJN+ZbAv/wx0SyJm9vds07oz/mQTCqp+w3CnCjhk=;
-        b=h7cGNKGnOf0CaaMfVoQksKfLhYPdXavc5mVRBAafi/dcDb0dtf/lb45Y7WAEDIlx2e
-         slqucmDaJM+qI9RBHlX+QdXPBpw/54PLKdWwhozE+LRdvWc1KqIge3JqO5IPh5UzefLo
-         7HapExaGW/xQEY4shFmMnSWuPzhLnk6lgWtQywSI0dEXzCdWOQW2ou+npdixFuXROtmL
-         T7cpZ09j+ufIfuEuSV0wFiX1Wn5rIMulsklhBjcOEpjU9aOSBX7z2xY/cNGP0UZiUVai
-         Y0vBfoVh/XRj+UvVxux1cEIRsMuUKgO7zlW8gBZYDv5VjzQ+2TMQQV6VpZi3sOrXsfyP
-         WPuQ==
-X-Gm-Message-State: AGi0PuZqQlcDHmYZSz8cGiwFk8ENXS5ET+pGTIRWvCrotPe/cz6O7B/m
-        5Fng4YE8NGh4Osm1yurapzz13Z3HWJ0=
-X-Google-Smtp-Source: APiQypI0ovxnSnLxg4sonbzSoaCoggnNvGwbnayVuFhFszPHXdDB8xcLJKhFvQWxMr94hs1LH2dhlg==
-X-Received: by 2002:adf:e681:: with SMTP id r1mr7492314wrm.213.1587674420911;
-        Thu, 23 Apr 2020 13:40:20 -0700 (PDT)
+        bh=/hkstutUKkzAeVkb8A6CMmZCBPtBnLhhXsPrhwYxTuA=;
+        b=bA5zEL0VplLm06SPcQ4mAqdV3GiFx1+Bw8y0+dJI0nIDzRg1Fh4sOjmBCMwLYhoEBG
+         xYHEs5pwLJs5hOW/8yxcJBJLBq7SrkaOHUNVBVFJ+7WUzJDUYh5k/BRzQC56K9LhDh8z
+         DCI3DdNdMafrx4g3TsFQJE3MREFXpUAyVEBzhQcRkd1vUafeP2uxO62jfaBto63APqG+
+         St906KrRTc9dtWYk3slPxdeetrkt3wDFr1rbFuszDqWM6BGnSwuQuf37U8BYCjAvzh30
+         QrOy0YpK96rPsnynNlxcPbaeqUGlaKMoFq6K0ipehknt/fxaO3NN4ufnGn2X8+1SMG2X
+         iZMw==
+X-Gm-Message-State: AGi0PuY3blAz/+DN1DI7aMK3Hplh6reNtU6cg7gDKHJZcVFjj8qUvt51
+        ardMZYryLP+WmENdRDCZj3vd7QSbYN4=
+X-Google-Smtp-Source: APiQypKBN71lAXe1lmBGeAW3QmJygSRproa4ywleUYk72xrQFS47TFCTuFtI9CzCJjSeH9xTiUF1iQ==
+X-Received: by 2002:adf:82b1:: with SMTP id 46mr6465870wrc.44.1587674421980;
+        Thu, 23 Apr 2020 13:40:21 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id u17sm5933726wra.63.2020.04.23.13.40.19
+        by smtp.gmail.com with ESMTPSA id u17sm5933726wra.63.2020.04.23.13.40.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2020 13:40:20 -0700 (PDT)
+        Thu, 23 Apr 2020 13:40:21 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     Alexey Brodkin <alexey.brodkin@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>, Greg KH <greg@kroah.com>,
+Cc:     Markus Elfring <elfring@users.sourceforge.net>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 03/16] devres: Align data[] to ARCH_KMALLOC_MINALIGN
-Date:   Thu, 23 Apr 2020 21:40:01 +0100
-Message-Id: <20200423204014.784944-4-lee.jones@linaro.org>
+Subject: [PATCH 4.4 04/16] crypto: talitos - Delete an error message for a failed memory allocation in talitos_edesc_alloc()
+Date:   Thu, 23 Apr 2020 21:40:02 +0100
+Message-Id: <20200423204014.784944-5-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200423204014.784944-1-lee.jones@linaro.org>
 References: <20200423204014.784944-1-lee.jones@linaro.org>
@@ -72,60 +66,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Brodkin <alexey.brodkin@synopsys.com>
+From: Markus Elfring <elfring@users.sourceforge.net>
 
-[ Upstream commit a66d972465d15b1d89281258805eb8b47d66bd36 ]
+[ Upstream commit 0108aab1161532c9b62a0d05b8115f4d0b529831 ]
 
-Initially we bumped into problem with 32-bit aligned atomic64_t
-on ARC, see [1]. And then during quite lengthly discussion Peter Z.
-mentioned ARCH_KMALLOC_MINALIGN which IMHO makes perfect sense.
-If allocation is done by plain kmalloc() obtained buffer will be
-ARCH_KMALLOC_MINALIGN aligned and then why buffer obtained via
-devm_kmalloc() should have any other alignment?
+Omit an extra message for a memory allocation failure in this function.
 
-This way we at least get the same behavior for both types of
-allocation.
+This issue was detected by using the Coccinelle software.
 
-[1] http://lists.infradead.org/pipermail/linux-snps-arc/2018-July/004009.html
-[2] http://lists.infradead.org/pipermail/linux-snps-arc/2018-July/004036.html
-
-Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Greg KH <greg@kroah.com>
-Cc: <stable@vger.kernel.org> # 4.8+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/base/devres.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/crypto/talitos.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/base/devres.c b/drivers/base/devres.c
-index 8fc654f0807bf..9763325a9c944 100644
---- a/drivers/base/devres.c
-+++ b/drivers/base/devres.c
-@@ -24,8 +24,14 @@ struct devres_node {
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 1c8857e7db894..f3d0a33f4ddb4 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1287,7 +1287,6 @@ static struct talitos_edesc *talitos_edesc_alloc(struct device *dev,
+ 		if (iv_dma)
+ 			dma_unmap_single(dev, iv_dma, ivsize, DMA_TO_DEVICE);
  
- struct devres {
- 	struct devres_node		node;
--	/* -- 3 pointers */
--	unsigned long long		data[];	/* guarantee ull alignment */
-+	/*
-+	 * Some archs want to perform DMA into kmalloc caches
-+	 * and need a guaranteed alignment larger than
-+	 * the alignment of a 64-bit integer.
-+	 * Thus we use ARCH_KMALLOC_MINALIGN here and get exactly the same
-+	 * buffer alignment as if it was allocated by plain kmalloc().
-+	 */
-+	u8 __aligned(ARCH_KMALLOC_MINALIGN) data[];
- };
+-		dev_err(dev, "could not allocate edescriptor\n");
+ 		return ERR_PTR(-ENOMEM);
+ 	}
  
- struct devres_group {
 -- 
 2.25.1
 
