@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C80771B64D8
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 21:52:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A43FD1B64D9
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 21:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728168AbgDWTwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 15:52:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55822 "EHLO mail.kernel.org"
+        id S1728176AbgDWTwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 15:52:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726671AbgDWTwA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 15:52:00 -0400
+        id S1726671AbgDWTwD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 15:52:03 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95F372076C;
-        Thu, 23 Apr 2020 19:51:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B5FC20728;
+        Thu, 23 Apr 2020 19:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587671519;
-        bh=3OrRcBJ568i9fmgNiEvK83+Uio6zmysw9HKECGc1W8I=;
+        s=default; t=1587671522;
+        bh=nT1Q9b4Dgyu4j+2afF+llngj8ZH5eLTlMwhjGW0yEuM=;
         h=Date:From:To:Subject:From;
-        b=gcUSj7AMZfj8aMsK+FACDxWpEIQzeIYvfcdVU2/MSH52X9cO4wdKC02LIRZjtdZ0O
-         +67jf+KvjJs0vlw1W6XWDoVwnxXiKHShMlAobLYrXRR5FjmIxycYixvwjpHYb3PCQS
-         6Q4TtUSDGtWM7MMAQRyVXriT1K64rqDoYsoVox1s=
-Date:   Thu, 23 Apr 2020 12:51:59 -0700
+        b=cym3h7d9jbtkvxd/Vfsta4QeKJIudgQDTfTjpFabagV0pZRWOqD2VWUXvpIl6o0Fp
+         ZPgyTWKmMGRZYPgFFCAxIk0Q1IQu45omP+pwgamyypH/TCwQWSzSSJf73OQg2LtbZK
+         9xLfvhdXXQ7+3pWXagVa5lOVmgWGslqXiusoGQV0=
+Date:   Thu, 23 Apr 2020 12:52:02 -0700
 From:   akpm@linux-foundation.org
-To:     matthew.ruffell@canonical.com, mm-commits@vger.kernel.org,
-        nhorman@tuxdriver.com, pabs3@bonedaddy.net, stable@vger.kernel.org,
-        sudipm.mukherjee@gmail.com, viro@zeniv.linux.org.uk
-Subject:  [merged]
- coredump-fix-null-pointer-dereference-on-coredump.patch removed from -mm
- tree
-Message-ID: <20200423195159.0VMIQNjo-%akpm@linux-foundation.org>
+To:     l.stach@pengutronix.de, martin@martingkelly.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org
+Subject:  [merged] tools-vm-fix-cross-compile-build.patch removed
+ from -mm tree
+Message-ID: <20200423195202.eb2XQdOc8%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -40,54 +38,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: coredump: fix null pointer dereference on coredump
+     Subject: tools/vm: fix cross-compile build
 has been removed from the -mm tree.  Its filename was
-     coredump-fix-null-pointer-dereference-on-coredump.patch
+     tools-vm-fix-cross-compile-build.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: coredump: fix null pointer dereference on coredump
+From: Lucas Stach <l.stach@pengutronix.de>
+Subject: tools/vm: fix cross-compile build
 
-If the core_pattern is set to "|" and any process segfaults then we get
-a null pointer derefernce while trying to coredump. The call stack shows:
-[  108.212680] RIP: 0010:do_coredump+0x628/0x11c0
+7ed1c1901fe5 (tools: fix cross-compile var clobbering) moved the setup of
+the CC variable to tools/scripts/Makefile.include to make the behavior
+consistent across all the tools Makefiles.  As the vm tools missed the
+include we end up with the wrong CC in a cross-compiling evironment.
 
-When the core_pattern has only "|" there is no use of trying the coredump
-and we can check that while formating the corename and exit with an error.
-
-After this change I get:
-[   48.453756] format_corename failed
-[   48.453758] Aborting core
-
-Link: http://lkml.kernel.org/r/20200416194612.21418-1-sudipm.mukherjee@gmail.com
-Fixes: 315c69261dd3 ("coredump: split pipe command whitespace before expanding template")
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Reported-by: Matthew Ruffell <matthew.ruffell@canonical.com>
-Cc: Paul Wise <pabs3@bonedaddy.net>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Neil Horman <nhorman@tuxdriver.com>
+Link: http://lkml.kernel.org/r/20200416104748.25243-1-l.stach@pengutronix.de
+Fixes: 7ed1c1901fe5 (tools: fix cross-compile var clobbering)
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Cc: Martin Kelly <martin@martingkelly.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/coredump.c |    2 ++
+ tools/vm/Makefile |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/fs/coredump.c~coredump-fix-null-pointer-dereference-on-coredump
-+++ a/fs/coredump.c
-@@ -211,6 +211,8 @@ static int format_corename(struct core_n
- 			return -ENOMEM;
- 		(*argv)[(*argc)++] = 0;
- 		++pat_ptr;
-+		if (!(*pat_ptr))
-+			return -ENOMEM;
- 	}
+--- a/tools/vm/Makefile~tools-vm-fix-cross-compile-build
++++ a/tools/vm/Makefile
+@@ -1,6 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for vm tools
+ #
++include ../scripts/Makefile.include
++
+ TARGETS=page-types slabinfo page_owner_sort
  
- 	/* Repeat as long as we have more pattern to process and more output
+ LIB_DIR = ../lib/api
 _
 
-Patches currently in -mm which might be from sudipm.mukherjee@gmail.com are
+Patches currently in -mm which might be from l.stach@pengutronix.de are
 
 
