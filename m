@@ -2,138 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B693F1B59E8
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:02:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D2CC1B5A44
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727069AbgDWLCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 07:02:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39714 "EHLO
+        id S1727967AbgDWLR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 07:17:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727862AbgDWLCO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 07:02:14 -0400
-Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77791C035495
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 04:02:14 -0700 (PDT)
-Received: by mail-lf1-x12a.google.com with SMTP id 198so4400747lfo.7
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 04:02:14 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726805AbgDWLRZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 07:17:25 -0400
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57506C035494
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 04:17:25 -0700 (PDT)
+Received: by mail-lj1-x234.google.com with SMTP id n6so5751470ljg.12
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 04:17:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:from:date:message-id:subject:to:cc;
-        bh=xaW+mnhjgVoJv5NiNtJ4Kk3cEDBGI/xJgmkizAEw7eA=;
-        b=rmz83U7sE205OchDK29ZZjHcr537NHA9Md0lmdSQlIQeWb7U1+11hB7Z6oPW98GvQC
-         Rsxk8XjJvWw4pZNbYsShvLu3J7V61rWY8ZiNlSRjDwqhv+Y7tWei7TDuikYlGXIOdU8S
-         lTSI1YaxQqgPEPIptOiic/RyCmTLErjZ4Q/DH4CE+xqKFnAxBgWgAWNduWzmyG41ROTy
-         LGMUOISFDxVLcIEojqohXMU11/R7zd8Ooc3rMOlufzmYrzUR+AoBWDJDodOTxHh0DW/8
-         ww+qH0N+4aLvA/raI2JfDJ4OWpPHLCfFvkoyJ9K0h9cIND8O0ZVXAs8eHyAUq3CQeK6q
-         kJyA==
+        bh=oAZ3axSS566ERI69yTRudA5pk37T198UyezMCJFyqg0=;
+        b=KSgfMoObN3NHkidu9iYPdBnmPp3engyij0Ehfav1N/WhjTgeC0WAEqV4PiK/2se+vh
+         02HoWakOzVncGdusZNQ8ZY+F4fGiQeQp11DgqhFA6LRJS/KpLsNb/rZLlt7C9BbjD2TH
+         yoXItbqJBSgTggjo6BLsrgNnlCAbD96MbZpV9SlalV5NLuUMbH7QF8llxpE4PTExVmbw
+         d5LdA6pZenEYzRWH599sjZKGNxJ9Yx61SR1VALDpJCDfcBh55QcXhxJE1GvV7OKHQjyy
+         aghumRr0w+KpFu9by9ZQSRdUYR2Hxj4B30onoIvzgWmUdZgQn0CuWqW0NiJ9Mre70Wyh
+         JqXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=xaW+mnhjgVoJv5NiNtJ4Kk3cEDBGI/xJgmkizAEw7eA=;
-        b=UWlRyfDUFuvVR1+Ze5mUiRICzQ4zDLP2jnpxz8Bjf8Z4IdwZ77VvB1kOUn+n/RMIbM
-         7D4oQUqvPT4kAlHgCmNsiUg+xJyowKDryYNXqgAPV+JZTqqYe7pR5GEQpRQqykbdSlW8
-         mPTbK/RA5EikErZWU9CgAuTL/yQYbZ2XhiMpW1r76QGUoRmeYBmsG++NCB7f3LAcwekC
-         FC57f2AnUyOYPGGjWPQLg+pJgkP9dXjOh8exNK9XzDKIitjLHKcEDEk56ijsojRkDziM
-         LTgDuQ1R31jdsUJqxn643+bwitHFu7yA+rKOmjcAEhSRpxGM4em+rttdcjbLviGCUd+q
-         pVEw==
-X-Gm-Message-State: AGi0PuZUPayE4SEOTlMi8GH3/0aqU0Eizrpk3zOwcBYxnkDKYPVBRwjL
-        EvMLU840mUSLi5RxqF2G01Lnjpd4H3QS+Z+WYvmm2dLRv8rWHw==
-X-Google-Smtp-Source: APiQypKsRAnKv/+SUeLr/83RrfVhQJu7iFWPVvghIe1H9p6QL/FXa5l0YD1kXNRT1tXZ4dE827pXlcHN6Zm8ma2X0XI=
-X-Received: by 2002:ac2:5559:: with SMTP id l25mr2071966lfk.55.1587639731920;
- Thu, 23 Apr 2020 04:02:11 -0700 (PDT)
+        bh=oAZ3axSS566ERI69yTRudA5pk37T198UyezMCJFyqg0=;
+        b=hsnCHEy3JeL/aIQM2Sios1HaD5DZOV21jCsSCE1jauyu2/kuZFTetKL96SWbsCx2oD
+         dzIuVf4t7rcOin6GBuPKEyrGxr9pM5FJzSGeFBGOYoj5cTZbcwhCtjE5sSjemXYpZhAP
+         0XeQkeVXqGVnXvFLz0HcxMKhTktZtkZkDK+R8fKimDrynJhKXfaJsM7PvQddLTMlwTlG
+         SqvMi/sLyQz6z8JqYPd2yy6xQduw6112ZraR2GslNZE0Xx0avluW0RHKTcIe+sO0uxLx
+         0Uq1Mvhuv2OEPRe3j1KNpVox5UQy4zrFxGwYYl9Hjfp8iCt5dUJrmGHok9zzVwrXEi1x
+         vKhg==
+X-Gm-Message-State: AGi0PuZANNEe8Tc7yZuaI+gfq5dBAUqBs7ZjA/d8hJp7E3UR2uZwSDre
+        vrlqg03RuPL02oy6JYNFNmZ85XZGj2NGVpevkRqQFi8FXe2nmA==
+X-Google-Smtp-Source: APiQypK0Re1sUKs5qj9tLUP4qPP1QkFHT2aHcKdugHwEJw1KaZvbC8SiMNOvF4Qprdlmol4eRp7pXa/xXuHF+2LAOi8=
+X-Received: by 2002:a2e:9496:: with SMTP id c22mr1938373ljh.165.1587640642860;
+ Thu, 23 Apr 2020 04:17:22 -0700 (PDT)
 MIME-Version: 1.0
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 23 Apr 2020 16:32:00 +0530
-Message-ID: <CA+G9fYtR4cvY9N0NLYDOByHsDyQJwpaYuV8qss6s-D+_DS9x_A@mail.gmail.com>
-Subject: WARNING: net/sched/sch_generic.c:320 dev_watchdog
+Date:   Thu, 23 Apr 2020 16:47:11 +0530
+Message-ID: <CA+G9fYtoYzRbrUVhboUgOOqEC2xt_i4ZmYb9yq33fRmf653_pQ@mail.gmail.com>
+Subject: stable-rc 4.14: Internal error: Oops: 96000004 - pc : __pi_strcmp+0x18/0x154
 To:     linux- stable <stable@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Cc:     Netdev <netdev@vger.kernel.org>, lkft-triage@lists.linaro.org,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
+Cc:     lkft-triage@lists.linaro.org, colin.king@canonical.com,
+        open list <linux-kernel@vger.kernel.org>,
+        "rafael.j.wysocki" <rafael.j.wysocki@intel.com>,
+        freedreno@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        John Stultz <john.stultz@linaro.org>,
+        David Airlie <airlied@linux.ie>,
+        Brian Masney <masneyb@onstation.org>,
+        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        robdclark@gmail.com, linux-arm-msm@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While running selftests: bpf test_sysctl on arm64 hi6220-hikey on
-stable rc 4.14 branch the following kernel warnings were noticed.
+We still notice kernel warnings while booting stable rc 4.14.177-rc1 kernel
+on qualcomm dragonboard 410c development board.
 
-steps to reproduce: (Not always reproducible)
---------------------------
-# cd /opt/kselftests/mainline/bpf
-# ./test_sysctl
+[    7.760140] msm_dsi_host_set_src_pll: can't set parent to
+byte_clk_src. ret=-22
+[    7.763963] msm_dsi_manager_register: failed to register mipi dsi
+host for DSI 0
+[    7.772434]   EA = 0, S1PTW = 0
+[    7.774344] msm 1a00000.mdss: failed to bind 1a98000.dsi (ops
+dsi_ops [msm]): -22
+[    7.779241] Data abort info:
+[    7.789056] msm 1a00000.mdss: master bind failed: -22
+[    7.792091] msm_dsi: probe of 1a98000.dsi failed with error -22
+[    7.794132]   ISV = 0, ISS = 0x00000004
+[    7.802783]   CM = 0, WnR = 0
+[    7.809436] user pgtable: 4k pages, 48-bit VAs, pgd = ffff80003b1d7000
+[    7.809660] [0000000000000000] *pgd=0000000000000000
+[    7.825466] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[    7.825498] Modules linked in: rfkill crc32_ce adv7511 msm(+)
+msm_rng mdt_loader drm_kms_helper rng_core drm fuse
+[    7.829847] Process systemd-udevd (pid: 2635, stack limit =
+0xffff00000f3c0000)
+[    7.840261] CPU: 1 PID: 2635 Comm: systemd-udevd Not tainted 4.14.177-rc1 #1
+[    7.847391] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
+[    7.847397] task: ffff80003b279780 task.stack: ffff00000f3c0000
+[    7.847410] pc : __pi_strcmp+0x18/0x154
+[    7.866993] lr : platform_match+0xc8/0xe8
+[    7.870809] sp : ffff00000f3c3b10 pstate : 40000145
+[    7.874975] x29: ffff00000f3c3b10 x28: ffff80003a56a000
+[    7.879663] x27: ffff0000081a0578 x26: ffff000000ef98d0
+[    7.885219] x25: ffff00000f3c3e50 x24: ffff00000f515000
+[    7.890514] x23: ffff0000095c8000 x22: 0000000000000000
+[    7.895809] x21: 0000000000000000 x20: ffff000000ef8648
+[    7.901104] x19: ffff80003d1998d0 x18: 0000ffff9a0bf0b0
+[    7.906398] x17: 0000ffff9a06b6d0 x16: ffff000008160330
+[    7.911694] x15: 000000002810bf43 x14: 0000000000000043
+[    7.916990] x13: 3a6c6c7030697364 x12: 00000000bcc77e12
+[    7.922283] x11: ffff80003b279fb8 x10: 0101010101010101
+[    7.927581] x9 : 8efefeff06fefeff x8 : 0000000000000000
+[    7.932874] x7 : 0000000000000000 x6 : 0000000000000000
+[    7.938172] x5 : 0000000000000100 x4 : 0000000000000000
+[    7.943466] x3 : 0000000000000000 x2 : ffff0000087be348
+[    7.948761] x1 : ffff000000eed688 x0 : 0000000000000000
+[    7.954056] Call trace:
+[    7.959354]  __pi_strcmp+0x18/0x154
+[    7.970033]  bus_for_each_dev+0x5c/0xa8
+[    7.970056]  driver_attach+0x30/0x
+[    7.972665]  bus_add_driver+0x1d0/0x240
+[    7.976484]  driver_register+0x6c/0x118
+[    7.980044]  __platform_driver_register+0x54/0x60
+[    7.984103]  msm_drm_register+0x48/0x80 [msm]
+[    7.988728]  do_one_initcall+0x44/0x138
+[    7.993065]  do_init_module+0x64/0x1d0
+[    7.996710]  load_module+0x1d48/0x2518
+[    8.000530]  SyS_finit_module+0xb0/0xc8
+[    8.004263]  __sys_trace_return+0x0/0x4
+[    8.007998] Code: f24008ff 540002e1 f2400807 54000141 (f8408402)
+[    8.011820] ---[ end trace 7d6fc616cc3d45e7 ]---
 
-[  132.090274] WARNING: CPU: 0 PID: 0 at
-/usr/src/kernel/net/sched/sch_generic.c:320 dev_watchdog+0x2d0/0x2d8
-[  132.107014] Modules linked in: iptable_filter ip_tables x_tables
-algif_hash veth test_bpf hci_uart crc32_ce crct10dif_ce adv7511
-bluetooth rfkill kirin_drm drm_kms_helper dw_drm_dsi drm fuse [last
-unloaded: test_bpf]
-[  132.134030] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.14.177-rc1 #1
-[  132.148094] Hardware name: HiKey Development Board (DT)
-[  132.161013] task: ffff000009499980 task.stack: ffff000009480000
-[  132.174662] pc : dev_watchdog+0x2d0/0x2d8
-[  132.186390] lr : dev_watchdog+0x2d0/0x2d8
-[  132.198057] sp : ffff000008003d20 pstate : 20000145
-[  132.210625] x29: ffff000008003d20 x28: 0000000000000002
-[  132.223632] x27: 0000000000000001 x26: ffff8000750ec000
-[  132.236678] x25: 00000000ffffffff x24: 0000000000000000
-[  132.249753] x23: ffff00000948a000 x22: ffff8000750ec420
-[  132.262783] x21: 0000000000000000 x20: ffff8000750ec000
-[  132.275840] x19: ffff800075357e00 x18: 0000000000000004
-[  132.288937] x17: 00000000000088b3 x16: 00000000000088b2
-[  132.302062] x15: 00000000000088ae x14: ffff000009757078
-[  132.315219] x13: ffff00000966f198 x12: 000000004b196e61
-[  132.328416] x11: ffff00000949a1b8 x10: ffff00000a200000
-[  132.341633] x9 : 0000000000000020 x8 : 0000000000000000
-[  132.354886] x7 : ffff000008160a7c x6 : 0000000000000000
-[  132.368153] x5 : 0000000000000001 x4 : 0000000000000000
-[  132.381448] x3 : 0000000000000000 x2 : ffff000009493078
-[  132.394700] x1 : ffff000009499980 x0 : 0000000000000038
-[  132.407989] Call trace:
-[  132.418312]  dev_watchdog+0x2d0/0x2d8
-[  132.429841]  call_timer_fn+0xac/0x458
-[  132.441396]  expire_timers+0x108/0x270
-[  132.453093]  run_timer_softirq+0xbc/0x178
-[  132.465099]  __do_softirq+0x12c/0x634
-[  132.476762]  irq_exit+0xe0/0x128
-[  132.487962]  __handle_domain_irq+0x6c/0xc0
-[  132.500060]  gic_handle_irq+0x60/0xb0
-[  132.511755]  el1_irq+0xb4/0x12c
-[  132.522894]  cpuidle_enter_state+0xb4/0x428
-[  132.535164]  cpuidle_enter+0x34/0x48
-[  132.546747]  call_cpuidle+0x44/0x78
-[  132.558281]  do_idle+0x1b4/0x1f8
-[  132.569497]  cpu_startup_entry+0x2c/0x30
-[  132.581484]  rest_init+0x25c/0x270
-[  132.592926]  start_kernel+0x3c4/0x3d8
-[  132.604596] ---[ end trace b4aeed8363f84bc2 ]---
+full test log,
+https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.176-200-gcebd79de8787/testrun/1389032/log
+https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.176-200-gcebd79de8787/testrun/1389032/
+https://lkft.validation.linaro.org/scheduler/job/1389032#L3519
 
-$ git log --oneline net/sched/ | head
-9f8b6c44be17 net_sched: keep alloc_hash updated after hash allocation
-f0c92f59cf52 net_sched: cls_route: remove the right filter from hashtable
-2165d304e82c net: fq: add missing attribute validation for orphan mask
-7c9fbd9447bc net: sched: correct flower port blocking
-3fdba7cb6f45 net/sched: flower: add missing validation of TCA_FLOWER_FLAGS
-221a199d7c17 net/sched: matchall: add missing validation of TCA_MATCHALL_FLAGS
-e79fbd72dca6 net_sched: fix a resource leak in tcindex_set_parms()
-6cb448ee493c net_sched: fix an OOB access in cls_tcindex
-44220931fc22 cls_rsvp: fix rsvp_policy
-b4cdf5066ce2 net_sched: ematch: reject invalid TCF_EM_SIMPLE
+Kernel config:
+http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/dragonboard-410c/lkft/linux-stable-rc-4.14/817/config
 
-ref:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.176-200-gcebd79de8787/testrun/1388864/log
-https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.176-200-gcebd79de8787/testrun/1388864
-
-kernel config:
-http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/hikey/lkft/linux-stable-rc-4.14/816/config
-
---
+-- 
 Linaro LKFT
 https://lkft.linaro.org
