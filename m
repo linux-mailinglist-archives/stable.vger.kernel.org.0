@@ -2,137 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04ACE1B6604
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 23:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDBA81B6633
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 23:40:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725934AbgDWVNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 17:13:36 -0400
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:44036 "EHLO
-        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725877AbgDWVNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 17:13:35 -0400
-Received: from pps.filterd (m0109331.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03NLDNNG032297;
-        Thu, 23 Apr 2020 14:13:29 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=facebook; bh=0uJeAqdPLqw94l+dV1Njb4xsZxCU/7uryhP0/teR86U=;
- b=q+SiZ4XElGA9JCJM0PQ3oRLkxONtJpNZ1Z5VaydQJH6Ssx3bw1JYViwfP5UVJX/0nOpm
- g6waBqIUs5d+4hjcQEiRpCjyTrNmnRzYxg85DhHsFo7hghHlEwCfY/C7uuY4eb4PmI5L
- 6GaZYHjANKd+yFkDBSjiZS2nQafoq74Nl5g= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 30jq4jhfb9-6
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-        Thu, 23 Apr 2020 14:13:29 -0700
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (100.104.31.183)
- by o365-in.thefacebook.com (100.104.35.173) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1847.3; Thu, 23 Apr 2020 14:13:26 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=K6PyXqC8z/oocCJxrnINFX53mPWUqM3W9un6NmgTz0FThrNP5O4ixBZQJGHdMyybQyolx+fgAS98YfZ+sfx7zRtFQpKdHoFfE2tCtxUYS8uJsVRKU2Ulfe29yenxmn5MuLFJxkWWuc++i3Yosn/wwfbBrOy/QXtqeXEyBW3TqjRo3Vazc9URQ/UmITQbeRFVrIwlhvqlnakVucy9gMvjbzwSyTLm/xb712LSvjwKmOV/svSlDIAPrRBRFzDmHwIr0T9f3q7d+ZjtnMULZHMbpApf2aet3XbuwJ/lp8RcUuVBXYogU6qjHv2ojHtKukIUiOPZva9HFCvzlC4KmYMF1A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0uJeAqdPLqw94l+dV1Njb4xsZxCU/7uryhP0/teR86U=;
- b=nQ0S4PR+1vx1C9zSQL7ywb3VD4NlJNy58T7UmL6gN9DmR/NJUyeo7ejmf0P+xTsnHbaOjmJu1u2dO47IcEdAhfK9+p/lVZmCTBxpRHZL5DfrnNNs355m4XSvY3kcSwS1rJNK3tW8QOeGNXtLwtLrkqKfk83QJLgLWGGQ57vjToBN0gUBAnGvpmZq6HZcktrkYduQU1axednqfXz5rXcKq3k6mbWzseZWy38UuvjU0vx0ea+sRnAWMf9RDCtWLd1emD6eiiCozKxMzKnku7linIKFS3sRIylEnwNOZTrqGlERltpeHpK2VGeifKkwNf+JcfIYlTeqjg+UL1tJL353Kw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
- header.d=fb.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
- s=selector2-fb-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0uJeAqdPLqw94l+dV1Njb4xsZxCU/7uryhP0/teR86U=;
- b=CVjJc2yu7v7xhOfRl+ZD00PFlPlRCmknRfD9nO+w36/dRYqv5CUPU0YuHGOOcgydtTbnG+uM5MXfBe0s2Th36qfxrLgfUJDtBUXEaw0/C3PW7E9FQAsI9l1h/FnCllzwW7hcRt8uLWQ3uK9aBuAZsHw1aOefs9PARk0tiM8GLc8=
-Received: from BYAPR15MB4136.namprd15.prod.outlook.com (2603:10b6:a03:96::24)
- by BYAPR15MB2309.namprd15.prod.outlook.com (2603:10b6:a02:8b::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2921.29; Thu, 23 Apr
- 2020 21:13:24 +0000
-Received: from BYAPR15MB4136.namprd15.prod.outlook.com
- ([fe80::bdf9:6577:1d2a:a275]) by BYAPR15MB4136.namprd15.prod.outlook.com
- ([fe80::bdf9:6577:1d2a:a275%7]) with mapi id 15.20.2937.012; Thu, 23 Apr 2020
- 21:13:24 +0000
-Date:   Thu, 23 Apr 2020 14:13:19 -0700
-From:   Roman Gushchin <guro@fb.com>
-To:     Chris Down <chris@chrisdown.name>
-CC:     Yafang Shao <laoar.shao@gmail.com>, <akpm@linux-foundation.org>,
-        <mhocko@kernel.org>, <vdavydov.dev@gmail.com>,
-        <linux-mm@kvack.org>, <stable@vger.kernel.org>,
-        <hannes@cmpxchg.org>
-Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
-Message-ID: <20200423211319.GC83398@carbon.DHCP.thefacebook.com>
-References: <20200423061629.24185-1-laoar.shao@gmail.com>
- <20200423153323.GA1318256@chrisdown.name>
+        id S1726002AbgDWVk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 17:40:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54956 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725777AbgDWVk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 17:40:28 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FBFBC09B042;
+        Thu, 23 Apr 2020 14:40:28 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id k28so5973040lfe.10;
+        Thu, 23 Apr 2020 14:40:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=B4RZTKHTrP3wBG9zJwtWhegdvgn29ox5YrCUT7WXAJ4=;
+        b=ZJcQEntdxgbMblE+z87/QKGJ+awD1Ot2/CtIuojgn1sBDQlha8fMitzxPccH2Udh9s
+         I4B2Zcvkyl5/qQIRa1Uoa0l7mSmBiLeBHnsBLEbMtwa/TZkSL3ztvU+er12+tssMXaeV
+         omsUP4YrSGL70eu6Tz0YZffopVruh6Dxh13cLnAqv1HLnqTHY7VT5/b7t1SAxv/6tdum
+         92IbiU2W7jyitvI2knRYKRav7zxafRZdZnRUos5G1rFkwTntYyuffu26EZ+z58z9yBb5
+         vcfhOddriibnHRmu8Iw+XfrWeQ9U5j9aVZQAaHIDVqUhoUh/hmus61aQIikNCrmovsy7
+         onsw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=B4RZTKHTrP3wBG9zJwtWhegdvgn29ox5YrCUT7WXAJ4=;
+        b=ewxHHxZiL/3RJXpnLOQsaDfcNQbWyI18oIMC7zjDCrpm674x1pWJKmbiR/1kIy4rZq
+         YALSGvUY4FtxsN3xF4fkn2dlb035FAJvJffcrzt3K9mFdcSJVTmi8lskh3I3pQCzyL4z
+         GmmKto7+OrW7VFaP6PqQ6DBvtDTAFjHqNcpi8w4/fB41z2HhatyeEeIebHZWtU67X9i+
+         dD1ERGKQOn+bGm+HY/3vVhyOnSV9wdxN7T88S+Zus655SUYa/MlnrGhtLjtEMKUtTWsO
+         b9vPNJv1Xe8gB3NR6/5N4Bfn2+pF8ZQoSTnbzbV3n+9zEzTV3+pSd2gciHVuTQzPDVs7
+         q40A==
+X-Gm-Message-State: AGi0PuY9O4e8nH3mn7gH/UPVxi9ZYwYdWPTvFuoA/HIPD9/07+DplYSq
+        HwilxE4ODmG7ZmD7Z3JvilZ+iAoXzys=
+X-Google-Smtp-Source: APiQypLGcMo/fEop6NY0fVLEt7nOPRCfs1D3JpZ9PxBpTTWfza5WJZD2RcJ7an3XzqYq23asN5h8mg==
+X-Received: by 2002:a19:7706:: with SMTP id s6mr3714355lfc.31.1587678026931;
+        Thu, 23 Apr 2020 14:40:26 -0700 (PDT)
+Received: from rikard (h-82-196-111-165.NA.cust.bahnhof.se. [82.196.111.165])
+        by smtp.gmail.com with ESMTPSA id s30sm2914129lfc.93.2020.04.23.14.40.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Apr 2020 14:40:26 -0700 (PDT)
+From:   Rikard Falkeborn <rikard.falkeborn@gmail.com>
+X-Google-Original-From: Rikard Falkeborn <rikard.falkeborn>
+Date:   Thu, 23 Apr 2020 23:40:23 +0200
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Kees Cook <keescook@chromium.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Haren Myneni <haren@us.ibm.com>, Joe Perches <joe@perches.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH AUTOSEL 5.4 52/84] linux/bits.h: add compile time sanity
+ check of GENMASK inputs
+Message-ID: <20200423214023.GA1153@rikard>
+References: <20200415114442.14166-1-sashal@kernel.org>
+ <20200415114442.14166-52-sashal@kernel.org>
+ <20200415194032.GA935@rikard>
+ <20200422005735.GW1809@sasha-vm>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200423153323.GA1318256@chrisdown.name>
-X-ClientProxiedBy: MWHPR22CA0065.namprd22.prod.outlook.com
- (2603:10b6:300:12a::27) To BYAPR15MB4136.namprd15.prod.outlook.com
- (2603:10b6:a03:96::24)
-MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from carbon.DHCP.thefacebook.com (2620:10d:c090:400::5:bd8b) by MWHPR22CA0065.namprd22.prod.outlook.com (2603:10b6:300:12a::27) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2937.13 via Frontend Transport; Thu, 23 Apr 2020 21:13:23 +0000
-X-Originating-IP: [2620:10d:c090:400::5:bd8b]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 65692cf8-29f0-4525-c0d2-08d7e7cb2882
-X-MS-TrafficTypeDiagnostic: BYAPR15MB2309:
-X-Microsoft-Antispam-PRVS: <BYAPR15MB23098650D2D204C3A366BDBBBED30@BYAPR15MB2309.namprd15.prod.outlook.com>
-X-FB-Source: Internal
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-Forefront-PRVS: 03827AF76E
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR15MB4136.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10019020)(376002)(396003)(366004)(346002)(39860400002)(136003)(6916009)(9686003)(8936002)(478600001)(2906002)(55016002)(86362001)(316002)(4326008)(33656002)(6506007)(52116002)(7696005)(1076003)(66946007)(6666004)(66556008)(66476007)(81156014)(16526019)(186003)(5660300002)(8676002);DIR:OUT;SFP:1102;
-Received-SPF: None (protection.outlook.com: fb.com does not designate
- permitted sender hosts)
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: mKlsLRlRb/aKHxBFePykZE+sj7cUg3pnn4WK5Tsj3g14ez/zZY9feqbwrm+x1l594Yc1nCildidEjchhrMkIFK3aLpCl3MCfC2D2c68BRdYPg2WBhrnQOfWt2+gK1X4sHSAizlGGtBwYwdZ011uIM16OLqRAF++fhKHM0aW02eaYlSVchEci/ooaMgIPolF3U5f45WwL4QJWSqaNmtGICWEj0uBkTqkJyDflIIYyWXJ6Ped63XwgcPPD+37D3IvMWtuB44lE4qBTPvTL95NyKdmWefd5h1JqJR10lit3s8vom0stwRFEapzdH5KuOzCs6bVrlXVXKPcT0sypIRkC/1dxGchdplTLjtyHu8m0XRdjRIGI2HQdCt86gGJqyPUgjENwdpfiptLYq/8wTIn16WS1ZkSVECa79ivZy8Rzsm8Xlm9EXfE0bLXvljDXbODD
-X-MS-Exchange-AntiSpam-MessageData: oSXkmGUITrnB1r4HHwXk6D0PGVZcNM0GgTjBM4YWsdhv0fqEuxZyfvoYYd+HAzAjlWNp8qzr5er+S8mLYB4hmUk+L4ye/+K7W2KXngX9tVHPshJ49abD8Inb2steFmDsjh8m8TFdm6yVEQXOolks0yfwbbVBusORnCbr5M4FOQMsZl5LHEu9Dvu8/0iGl0ph
-X-MS-Exchange-CrossTenant-Network-Message-Id: 65692cf8-29f0-4525-c0d2-08d7e7cb2882
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Apr 2020 21:13:24.1169
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 652vau3v39xmOXdTU/zn4P4oZIByBHDEjQ+U2MgLK0gCncojWVIJ8HHd/22JLhst
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR15MB2309
-X-OriginatorOrg: fb.com
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-04-23_16:2020-04-23,2020-04-23 signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 mlxlogscore=999
- malwarescore=0 priorityscore=1501 bulkscore=0 phishscore=0 mlxscore=0
- lowpriorityscore=0 adultscore=0 suspectscore=1 spamscore=0 clxscore=1015
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2004230152
-X-FB-Internal: deliver
+In-Reply-To: <20200422005735.GW1809@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 23, 2020 at 04:33:23PM +0100, Chris Down wrote:
-> Hi Yafang,
+On Tue, Apr 21, 2020 at 08:57:35PM -0400, Sasha Levin wrote:
+> On Wed, Apr 15, 2020 at 09:40:32PM +0200, Rikard Falkeborn wrote:
+> > On Wed, Apr 15, 2020 at 07:44:09AM -0400, Sasha Levin wrote:
+> > > From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+> > > 
+> > > [ Upstream commit 295bcca84916cb5079140a89fccb472bb8d1f6e2 ]
+> > > 
+> > > GENMASK() and GENMASK_ULL() are supposed to be called with the high bit as
+> > > the first argument and the low bit as the second argument.  Mixing them
+> > > will return a mask with zero bits set.
+> > > 
+> > > Recent commits show getting this wrong is not uncommon, see e.g.  commit
+> > > aa4c0c9091b0 ("net: stmmac: Fix misuses of GENMASK macro") and commit
+> > > 9bdd7bb3a844 ("clocksource/drivers/npcm: Fix misuse of GENMASK macro").
+> > > 
+> > > To prevent such mistakes from appearing again, add compile time sanity
+> > > checking to the arguments of GENMASK() and GENMASK_ULL().  If both
+> > > arguments are known at compile time, and the low bit is higher than the
+> > > high bit, break the build to detect the mistake immediately.
+> > > 
+> > > Since GENMASK() is used in declarations, BUILD_BUG_ON_ZERO() must be used
+> > > instead of BUILD_BUG_ON().
+> > > 
+> > > __builtin_constant_p does not evaluate is argument, it only checks if it
+> > > is a constant or not at compile time, and __builtin_choose_expr does not
+> > > evaluate the expression that is not chosen.  Therefore, GENMASK(x++, 0)
+> > > does only evaluate x++ once.
+> > > 
+> > > Commit 95b980d62d52 ("linux/bits.h: make BIT(), GENMASK(), and friends
+> > > available in assembly") made the macros in linux/bits.h available in
+> > > assembly.  Since BUILD_BUG_OR_ZERO() is not asm compatible, disable the
+> > > checks if the file is included in an asm file.
+> > > 
+> > > Due to bugs in GCC versions before 4.9 [0], disable the check if building
+> > > with a too old GCC compiler.
+> > > 
+> > > [0]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=19449
+> > > 
+> > > Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+> > > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> > > Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> > > Reviewed-by: Kees Cook <keescook@chromium.org>
+> > > Cc: Borislav Petkov <bp@alien8.de>
+> > > Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> > > Cc: Haren Myneni <haren@us.ibm.com>
+> > > Cc: Joe Perches <joe@perches.com>
+> > > Cc: Johannes Berg <johannes@sipsolutions.net>
+> > > Cc: lkml <linux-kernel@vger.kernel.org>
+> > > Cc: Ingo Molnar <mingo@redhat.com>
+> > > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > > Link: http://lkml.kernel.org/r/20200308193954.2372399-1-rikard.falkeborn@gmail.com
+> > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > ---
+> > >  include/linux/bits.h | 22 ++++++++++++++++++++--
+> > >  1 file changed, 20 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/include/linux/bits.h b/include/linux/bits.h
+> > > index 669d69441a625..f108302a3121c 100644
+> > > --- a/include/linux/bits.h
+> > > +++ b/include/linux/bits.h
+> > > @@ -18,12 +18,30 @@
+> > >   * position @h. For example
+> > >   * GENMASK_ULL(39, 21) gives us the 64bit vector 0x000000ffffe00000.
+> > >   */
+> > > -#define GENMASK(h, l) \
+> > > +#if !defined(__ASSEMBLY__) && \
+> > > +	(!defined(CONFIG_CC_IS_GCC) || CONFIG_GCC_VERSION >= 49000)
+> > > +#include <linux/build_bug.h>
+> > > +#define GENMASK_INPUT_CHECK(h, l) \
+> > > +	(BUILD_BUG_ON_ZERO(__builtin_choose_expr( \
+> > > +		__builtin_constant_p((l) > (h)), (l) > (h), 0)))
+> > > +#else
+> > > +/*
+> > > + * BUILD_BUG_ON_ZERO is not available in h files included from asm files,
+> > > + * disable the input check if that is the case.
+> > > + */
+> > > +#define GENMASK_INPUT_CHECK(h, l) 0
+> > > +#endif
+> > > +
+> > > +#define __GENMASK(h, l) \
+> > >  	(((~UL(0)) - (UL(1) << (l)) + 1) & \
+> > >  	 (~UL(0) >> (BITS_PER_LONG - 1 - (h))))
+> > > +#define GENMASK(h, l) \
+> > > +	(GENMASK_INPUT_CHECK(h, l) + __GENMASK(h, l))
+> > > 
+> > > -#define GENMASK_ULL(h, l) \
+> > > +#define __GENMASK_ULL(h, l) \
+> > >  	(((~ULL(0)) - (ULL(1) << (l)) + 1) & \
+> > >  	 (~ULL(0) >> (BITS_PER_LONG_LONG - 1 - (h))))
+> > > +#define GENMASK_ULL(h, l) \
+> > > +	(GENMASK_INPUT_CHECK(h, l) + __GENMASK_ULL(h, l))
+> > > 
+> > >  #endif	/* __LINUX_BITS_H */
+> > > --
+> > > 2.20.1
+> > > 
+> > 
+> > This does not really fix anything, it's compile time prevention, so I
+> > don't know how appropriate this is for stable (it was also picked for
+> > 5.5 and 5.6, but I'm just replying here now, I can ping the other
+> > selections if necessary if the patch should be dropped)?
+> > 
+> > Also, for 5.4, it does somewhat depend on commit 8788994376d8
+> > ("linux/build_bug.h: change type to int"). Without it, there may be a
+> > subtle integer promotion issue if sizeof(size_t) > sizeof(unsigned long)
+> > (I don't *think* such platform exists, but I don't have a warm a fuzzy
+> > feeling about it).
 > 
-> I'm afraid I'm just as confused as Michal was about the intent of this patch.
+> I'll drop it from this selection, but ideally I'd like to have it in.
 > 
-> Can you please be more concise and clear about the practical ramifications
-> and demonstrate some pathological behaviour? I really can't visualise what's
-> wrong here from your explanation, and if I can't understand it as the person
-> who wrote this code, I am not surprised others are also confused :-)
+> The codebase is different between Linus's tree and the stable trees, and
+> I'm worried that some of these GENMASK issues were fixed upstream and
+> not in the stable trees. Getting this patch back would help us fix those
+> with minimal risk.
 > 
-> Or maybe Roman can try to explain, since he acked the previous patch? At
-> least to me, the emin/elow behaviour seems fairly non-trivial to reason
-> about right now.
+> -- 
+> Thanks,
+> Sasha
 
-Hi Chris!
+Ok, I see. If you think it's good to backport it to the stable trees,
+I'm all for it. I've been thinking a bit about commit 8788994376d8 
+("linux/build_bug.h: change type to int"), I *think* it is probably fine
+without it, but I'd rather be safe than sorry, but it's your call
+really.
 
-So the thing is that emin/elow cached values are shared between global and
-targeted (caused by memory.max) reclaim. It's racy by design, but in general
-it should work ok, because in the end we'll reclaim or not approximately
-the same amount of memory.
+Rikard
 
-In the case which Yafang described, the emin value calculated in the process
-of the global reclaim leads to a slowdown of the targeted reclaim. It's not
-a tragedy, but not perfect too. It seems that the proposed patch makes it better,
-and as now I don't see any bad consequences.
-
-Thanks!
+Rikard
