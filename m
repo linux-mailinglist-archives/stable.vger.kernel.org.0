@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 543671B67E1
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C215F1B67D5
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:11:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729161AbgDWXKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:10:34 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50404 "EHLO
+        id S1728354AbgDWXKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:10:09 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50464 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728601AbgDWXGx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:53 -0400
+        by vger.kernel.org with ESMTP id S1728017AbgDWXGy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:54 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvf-0004tM-TR; Fri, 24 Apr 2020 00:06:48 +0100
+        id 1jRkvg-0004tp-9K; Fri, 24 Apr 2020 00:06:48 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvb-00E716-B4; Fri, 24 Apr 2020 00:06:43 +0100
+        id 1jRkvb-00E71I-Ta; Fri, 24 Apr 2020 00:06:43 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Jann Horn" <jannh@google.com>,
-        "Suren Baghdasaryan" <surenb@google.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Todd Kjos" <tkjos@google.com>
-Date:   Fri, 24 Apr 2020 00:07:22 +0100
-Message-ID: <lsq.1587683028.379768933@decadent.org.uk>
+        "Xiumei Mu" <xmu@redhat.com>,
+        "Sabrina Dubroca" <sd@queasysnail.net>,
+        "David S. Miller" <davem@davemloft.net>
+Date:   Fri, 24 Apr 2020 00:07:23 +0100
+Message-ID: <lsq.1587683028.441134062@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 215/245] staging: android: ashmem: Disallow ashmem
- memory from being remapped
+Subject: [PATCH 3.16 216/245] net: ipv6_stub: use ip6_dst_lookup_flow
+ instead of ip6_dst_lookup
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,71 +48,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Suren Baghdasaryan <surenb@google.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-commit 6d67b0290b4b84c477e6a2fc6e005e174d3c7786 upstream.
+commit 6c8991f41546c3c472503dff1ea9daaddf9331c2 upstream.
 
-When ashmem file is mmapped, the resulting vma->vm_file points to the
-backing shmem file with the generic fops that do not check ashmem
-permissions like fops of ashmem do. If an mremap is done on the ashmem
-region, then the permission checks will be skipped. Fix that by disallowing
-mapping operation on the backing shmem file.
+ipv6_stub uses the ip6_dst_lookup function to allow other modules to
+perform IPv6 lookups. However, this function skips the XFRM layer
+entirely.
 
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Link: https://lore.kernel.org/r/20200127235616.48920-1-tkjos@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+All users of ipv6_stub->ip6_dst_lookup use ip_route_output_flow (via the
+ip_route_output_key and ip_route_output helpers) for their IPv4 lookups,
+which calls xfrm_lookup_route(). This patch fixes this inconsistent
+behavior by switching the stub to ip6_dst_lookup_flow, which also calls
+xfrm_lookup_route().
+
+This requires some changes in all the callers, as these two functions
+take different arguments and have different return types.
+
+Fixes: 5f81bd2e5d80 ("ipv6: export a stub for IPv6 symbols used by vxlan")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 3.16:
+ - Only vxlan uses this operation
+ - Neither ip6_dst_lookup() nor ip6_dst_lookup_flow() takes a struct net
+   pointer argument here
+ - Adjust filename, context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/staging/android/ashmem.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
-
---- a/drivers/staging/android/ashmem.c
-+++ b/drivers/staging/android/ashmem.c
-@@ -351,8 +351,23 @@ static inline vm_flags_t calc_vm_may_fla
- 	       _calc_vm_trans(prot, PROT_EXEC,  VM_MAYEXEC);
- }
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -1929,7 +1929,8 @@ static void vxlan_xmit_one(struct sk_buf
+ 		fl6.saddr = vxlan->saddr.sin6.sin6_addr;
+ 		fl6.flowi6_proto = IPPROTO_UDP;
  
-+static int ashmem_vmfile_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	/* do not allow to mmap ashmem backing shmem file directly */
-+	return -EPERM;
-+}
-+
-+static unsigned long
-+ashmem_vmfile_get_unmapped_area(struct file *file, unsigned long addr,
-+				unsigned long len, unsigned long pgoff,
-+				unsigned long flags)
-+{
-+	return current->mm->get_unmapped_area(file, addr, len, pgoff, flags);
-+}
-+
- static int ashmem_mmap(struct file *file, struct vm_area_struct *vma)
- {
-+	static struct file_operations vmfile_fops;
- 	struct ashmem_area *asma = file->private_data;
- 	int ret = 0;
- 
-@@ -386,6 +401,19 @@ static int ashmem_mmap(struct file *file
- 			goto out;
- 		}
- 		asma->file = vmfile;
-+		/*
-+		 * override mmap operation of the vmfile so that it can't be
-+		 * remapped which would lead to creation of a new vma with no
-+		 * asma permission checks. Have to override get_unmapped_area
-+		 * as well to prevent VM_BUG_ON check for f_ops modification.
-+		 */
-+		if (!vmfile_fops.mmap) {
-+			vmfile_fops = *vmfile->f_op;
-+			vmfile_fops.mmap = ashmem_vmfile_mmap;
-+			vmfile_fops.get_unmapped_area =
-+					ashmem_vmfile_get_unmapped_area;
-+		}
-+		vmfile->f_op = &vmfile_fops;
- 	}
- 	get_file(asma->file);
- 
+-		if (ipv6_stub->ipv6_dst_lookup(sk, &ndst, &fl6)) {
++		ndst = ipv6_stub->ipv6_dst_lookup_flow(sk, &fl6, NULL);
++		if (unlikely(IS_ERR(ndst))) {
+ 			netdev_dbg(dev, "no route to %pI6\n",
+ 				   &dst->sin6.sin6_addr);
+ 			dev->stats.tx_carrier_errors++;
+--- a/include/net/addrconf.h
++++ b/include/net/addrconf.h
+@@ -156,8 +156,9 @@ struct ipv6_stub {
+ 				 const struct in6_addr *addr);
+ 	int (*ipv6_sock_mc_drop)(struct sock *sk, int ifindex,
+ 				 const struct in6_addr *addr);
+-	int (*ipv6_dst_lookup)(struct sock *sk, struct dst_entry **dst,
+-				struct flowi6 *fl6);
++	struct dst_entry *(*ipv6_dst_lookup_flow)(struct sock *sk,
++						  struct flowi6 *fl6,
++						  const struct in6_addr *final_dst);
+ 	void (*udpv6_encap_enable)(void);
+ 	void (*ndisc_send_na)(struct net_device *dev, struct neighbour *neigh,
+ 			      const struct in6_addr *daddr,
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -820,7 +820,7 @@ static struct pernet_operations inet6_ne
+ static const struct ipv6_stub ipv6_stub_impl = {
+ 	.ipv6_sock_mc_join = ipv6_sock_mc_join,
+ 	.ipv6_sock_mc_drop = ipv6_sock_mc_drop,
+-	.ipv6_dst_lookup = ip6_dst_lookup,
++	.ipv6_dst_lookup_flow = ip6_dst_lookup_flow,
+ 	.udpv6_encap_enable = udpv6_encap_enable,
+ 	.ndisc_send_na = ndisc_send_na,
+ 	.nd_tbl	= &nd_tbl,
 
