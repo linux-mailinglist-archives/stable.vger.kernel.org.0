@@ -2,62 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D590F1B56CF
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 09:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7BF1B56E0
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 10:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726349AbgDWH7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 03:59:18 -0400
-Received: from s3.sipsolutions.net ([144.76.43.62]:47310 "EHLO
-        sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725854AbgDWH7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 03:59:18 -0400
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.93)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1jRWlM-00EkpM-0v; Thu, 23 Apr 2020 09:59:12 +0200
-Message-ID: <885ae3bffad315445be3fc70cccade9067ee6937.camel@sipsolutions.net>
-Subject: Re: Commit "mac80211: fix race in ieee80211_register_hw()" breaks
- mac80211 debugfs
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Sumit Garg <sumit.garg@linaro.org>,
-        Hauke Mehrtens <hauke@hauke-m.de>
-Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, stable <stable@vger.kernel.org>
-Date:   Thu, 23 Apr 2020 09:59:10 +0200
-In-Reply-To: <CAFA6WYN3FbqTivGJTfXtHsMjXNPXW+P4MZWiCL14utF2sHkeYg@mail.gmail.com> (sfid-20200423_093447_121680_FAE877E7)
-References: <c304ad9c-f404-d22e-de74-9398da3ebfc3@hauke-m.de>
-         <CAFA6WYN3FbqTivGJTfXtHsMjXNPXW+P4MZWiCL14utF2sHkeYg@mail.gmail.com>
-         (sfid-20200423_093447_121680_FAE877E7)
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+        id S1726027AbgDWIDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 04:03:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45926 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725913AbgDWIDC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 04:03:02 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 789EF20736;
+        Thu, 23 Apr 2020 08:03:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587628981;
+        bh=daVYNLoXjV6Qx3R2HWmCURtriBqiRDMrFpb/gzDtGgw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ZqNvGyOdI0PeZvB4h6oUCxyP4I+dxVuhHSlhZu+tKWoc3ZjXrlM0+uzOarb4NG9Sq
+         O+V0lbnl4jUVv92vBEXP3/rEIFG5IChXkQTHW4Eo4Yj/hILaEu6Qowo2CYMLcCyinF
+         PQVgLx1j7M3ZU61yCNYEeV1fxathWJDT0qdUaQWA=
+Date:   Thu, 23 Apr 2020 10:02:58 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.9 000/125] 4.9.220-rc1 review
+Message-ID: <20200423080258.GA3496846@kroah.com>
+References: <20200422095032.909124119@linuxfoundation.org>
+ <20200422203430.GA52250@roeck-us.net>
+ <20200422205402.GA135017@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200422205402.GA135017@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Hauke, Sumit,
-
-> > Felix reported that the file /sys/kernel/debug/ieee80211/phy0/rc is now
-> > located at /sys/kernel/debug/rc.
-
-Yeah, we noticed this the other day too.
-
-> +++ b/net/wireless/core.c
-> @@ -473,6 +473,10 @@ struct wiphy *wiphy_new_nm(const struct
-> cfg80211_ops *ops, int sizeof_priv,
->                 }
->         }
+On Wed, Apr 22, 2020 at 01:54:02PM -0700, Guenter Roeck wrote:
+> On Wed, Apr 22, 2020 at 01:34:30PM -0700, Guenter Roeck wrote:
+> > On Wed, Apr 22, 2020 at 11:55:17AM +0200, Greg Kroah-Hartman wrote:
+> > > This is the start of the stable review cycle for the 4.9.220 release.
+> > > There are 125 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > > 
+> > > Responses should be made by Fri, 24 Apr 2020 09:48:23 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > 
+> > I see a number of unit test crashes in ppc images. Looks like UAF.
+> > This affects 4.4.y, 4.9.y, and 4.14.y. I'll bisect.
+> > 
 > 
-> +       /* add to debugfs */
-> +       rdev->wiphy.debugfsdir = debugfs_create_dir(wiphy_name(&rdev->wiphy),
-> +                                                   ieee80211_debugfs_dir);
+> Bisect log attached. I suspect the real culprit is commit a4f91f0de905
+> ("of: unittest: clean up changeset test"), or at least it changes the
+> code enough for the offending patch not to work in v4.14.y and older.
+> Either case, reverting upstream commit b3fb36ed694b ("of: unittest:
+> kmemleak on changeset destroy") fixes the problem and thus needs to
+> be dropped from v4.4.y, v4.9.y, and v4.14.y.
 
-This cannot work, we haven't committed to the name of the wiphy yet at
-this point.
+Thanks for letting me know, I've now dropped it from all of those trees.
 
-I have some fixes, I'll send them out asap.
-
-johannes
-
+greg k-h
