@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1B21B5C81
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:23:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 019CB1B5C82
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726926AbgDWNXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 09:23:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53088 "EHLO mail.kernel.org"
+        id S1727051AbgDWNXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 09:23:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726224AbgDWNXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 09:23:34 -0400
+        id S1726224AbgDWNXn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 09:23:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0DEE20704;
-        Thu, 23 Apr 2020 13:23:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0691320704;
+        Thu, 23 Apr 2020 13:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587648214;
-        bh=8RdMfHDr3CjNsAQ4XtPG07sXr/qyMQu1lN4QqXiQ9/Y=;
+        s=default; t=1587648222;
+        bh=58WxZnyN146G14EIL4CiEjjbEyjkAA56b86ocSNv+oI=;
         h=Subject:To:From:Date:From;
-        b=erjjwJhUpfr0nbCdzSkYzz91dZRagQWqcykbp2HFH8ZpCpzBU4tsJVS2eDW3MUDob
-         5FKmZweKQJu7bomj99y4bDTQxpqkWoDr/RTw6vUfytGmygc+ZNpTjyB/KSjQbszQxN
-         1YGvJ6SFmH0AFe4HoB4WgQajMts/lSM51PbO37cQ=
-Subject: patch "USB: hub: Fix handling of connect changes during sleep" added to usb-linus
+        b=G6cM6I1XBWuSlTFOWY5NE6eqDAJQvLPcLueT0FHPY8uVmfas3KIAi0pc7iWq451yj
+         z7qXWvLZ4rVwEkY6puf7xG1JPH/GwBtn53WSdPXRZ4wEKmIPdrNbKcEPyb4HFaZApi
+         CkuBb0AWdVF3rejoBxqN0iUJQep3HGNEplC1MtcI=
+Subject: patch "usb-storage: Add unusual_devs entry for JMicron JMS566" added to usb-linus
 To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
-        pauldzim@gmail.com, peter.chen@nxp.com, stable@vger.kernel.org
+        stable@vger.kernel.org, tipecaml@gmail.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 Apr 2020 15:23:31 +0200
-Message-ID: <158764821114578@kroah.com>
+Date:   Thu, 23 Apr 2020 15:23:32 +0200
+Message-ID: <1587648212254153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: hub: Fix handling of connect changes during sleep
+    usb-storage: Add unusual_devs entry for JMicron JMS566
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,82 +55,51 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 9f952e26295d977dbfc6fedeaf8c4f112c818d37 Mon Sep 17 00:00:00 2001
+From 94f9c8c3c404ee1f7aaff81ad4f24aec4e34a78b Mon Sep 17 00:00:00 2001
 From: Alan Stern <stern@rowland.harvard.edu>
-Date: Wed, 22 Apr 2020 16:09:51 -0400
-Subject: USB: hub: Fix handling of connect changes during sleep
+Date: Wed, 22 Apr 2020 16:14:57 -0400
+Subject: usb-storage: Add unusual_devs entry for JMicron JMS566
 
-Commit 8099f58f1ecd ("USB: hub: Don't record a connect-change event
-during reset-resume") wasn't very well conceived.  The problem it
-tried to fix was that if a connect-change event occurred while the
-system was asleep (such as a device disconnecting itself from the bus
-when it is suspended and then reconnecting when it resumes)
-requiring a reset-resume during the system wakeup transition, the hub
-port's change_bit entry would remain set afterward.  This would cause
-the hub driver to believe another connect-change event had occurred
-after the reset-resume, which was wrong and would lead the driver to
-send unnecessary requests to the device (which could interfere with a
-firmware update).
+Cyril Roelandt reports that his JMicron JMS566 USB-SATA bridge fails
+to handle WRITE commands with the FUA bit set, even though it claims
+to support FUA.  (Oddly enough, a later version of the same bridge,
+version 2.03 as opposed to 1.14, doesn't claim to support FUA.  Also
+oddly, the bridge _does_ support FUA when using the UAS transport
+instead of the Bulk-Only transport -- but this device was blacklisted
+for uas in commit bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron
+SATA enclosure") for apparently unrelated reasons.)
 
-The commit tried to fix this by not setting the change_bit during the
-wakeup.  But this was the wrong thing to do; it means that when a
-device is unplugged while the system is asleep, the hub driver doesn't
-realize anything has happened: The change_bit flag which would tell it
-to handle the disconnect event is clear.
+This patch adds a usb-storage unusual_devs entry with the BROKEN_FUA
+flag.  This allows the bridge to work properly with usb-storage.
 
-The commit needs to be reverted and the problem fixed in a different
-way.  Fortunately an alternative solution was noted in the commit's
-Changelog: We can continue to set the change_bit entry in
-hub_activate() but then clear it when a reset-resume occurs.  That way
-the the hub driver will see the change_bit when a device is
-disconnected but won't see it when the device is still present.
-
-That's what this patch does.
-
-Reported-and-tested-by: Peter Chen <peter.chen@nxp.com>
+Reported-and-tested-by: Cyril Roelandt <tipecaml@gmail.com>
 Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Fixes: 8099f58f1ecd ("USB: hub: Don't record a connect-change event during reset-resume")
-Tested-by: Paul Zimmerman <pauldzim@gmail.com>
 CC: <stable@vger.kernel.org>
 
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2004221602480.11262-100000@iolanthe.rowland.org
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2004221613110.11262-100000@iolanthe.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/usb/storage/unusual_devs.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 54cd8ef795ec..83549f009ced 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -1223,6 +1223,11 @@ static void hub_activate(struct usb_hub *hub, enum hub_activation_type type)
- #ifdef CONFIG_PM
- 			udev->reset_resume = 1;
- #endif
-+			/* Don't set the change_bits when the device
-+			 * was powered off.
-+			 */
-+			if (test_bit(port1, hub->power_bits))
-+				set_bit(port1, hub->change_bits);
+diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
+index 1880f3e13f57..f6c3681fa2e9 100644
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2323,6 +2323,13 @@ UNUSUAL_DEV(  0x3340, 0xffff, 0x0000, 0x0000,
+ 		USB_SC_DEVICE,USB_PR_DEVICE,NULL,
+ 		US_FL_MAX_SECTORS_64 ),
  
- 		} else {
- 			/* The power session is gone; tell hub_wq */
-@@ -3088,6 +3093,15 @@ static int check_port_resume_type(struct usb_device *udev,
- 		if (portchange & USB_PORT_STAT_C_ENABLE)
- 			usb_clear_port_feature(hub->hdev, port1,
- 					USB_PORT_FEAT_C_ENABLE);
++/* Reported by Cyril Roelandt <tipecaml@gmail.com> */
++UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x0114,
++		"JMicron",
++		"USB to ATA/ATAPI Bridge",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_BROKEN_FUA ),
 +
-+		/*
-+		 * Whatever made this reset-resume necessary may have
-+		 * turned on the port1 bit in hub->change_bits.  But after
-+		 * a successful reset-resume we want the bit to be clear;
-+		 * if it was on it would indicate that something happened
-+		 * following the reset-resume.
-+		 */
-+		clear_bit(port1, hub->change_bits);
- 	}
- 
- 	return status;
+ /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
+ UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
+ 		"iRiver",
 -- 
 2.26.2
 
