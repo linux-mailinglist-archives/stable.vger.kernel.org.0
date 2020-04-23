@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9141B6820
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:13:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B26081B67FE
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728524AbgDWXMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:12:31 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50180 "EHLO
+        id S1728988AbgDWXL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:11:28 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50246 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728532AbgDWXGv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:51 -0400
+        by vger.kernel.org with ESMTP id S1728561AbgDWXGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:52 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvd-0004ms-5S; Fri, 24 Apr 2020 00:06:45 +0100
+        id 1jRkvd-0004rZ-G2; Fri, 24 Apr 2020 00:06:45 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvZ-00E6zj-E7; Fri, 24 Apr 2020 00:06:41 +0100
+        id 1jRkvZ-00E700-RN; Fri, 24 Apr 2020 00:06:41 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Al Viro" <viro@zeniv.linux.org.uk>
-Date:   Fri, 24 Apr 2020 00:07:16 +0100
-Message-ID: <lsq.1587683028.691828482@decadent.org.uk>
+        "Al Viro" <viro@zeniv.linux.org.uk>,
+        syzbot+190005201ced78a74ad6@syzkaller.appspotmail.com,
+        "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>
+Date:   Fri, 24 Apr 2020 00:07:17 +0100
+Message-ID: <lsq.1587683028.750035357@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 209/245] do_last(): fetch directory ->i_mode and
- ->i_uid before it's too late
+Subject: [PATCH 3.16 210/245] vfs: fix do_last() regression
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,70 +50,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit d0cb50185ae942b03c4327be322055d622dc79f6 upstream.
+commit 6404674acd596de41fd3ad5f267b4525494a891a upstream.
 
-may_create_in_sticky() call is done when we already have dropped the
-reference to dir.
+Brown paperbag time: fetching ->i_uid/->i_mode really should've been
+done from nd->inode.  I even suggested that, but the reason for that has
+slipped through the cracks and I went for dir->d_inode instead - made
+for more "obvious" patch.
 
-Fixes: 30aba6656f61e (namei: allow restricted O_CREAT of FIFOs and regular files)
+Analysis:
+
+ - at the entry into do_last() and all the way to step_into(): dir (aka
+   nd->path.dentry) is known not to have been freed; so's nd->inode and
+   it's equal to dir->d_inode unless we are already doomed to -ECHILD.
+   inode of the file to get opened is not known.
+
+ - after step_into(): inode of the file to get opened is known; dir
+   might be pointing to freed memory/be negative/etc.
+
+ - at the call of may_create_in_sticky(): guaranteed to be out of RCU
+   mode; inode of the file to get opened is known and pinned; dir might
+   be garbage.
+
+The last was the reason for the original patch.  Except that at the
+do_last() entry we can be in RCU mode and it is possible that
+nd->path.dentry->d_inode has already changed under us.
+
+In that case we are going to fail with -ECHILD, but we need to be
+careful; nd->inode is pointing to valid struct inode and it's the same
+as nd->path.dentry->d_inode in "won't fail with -ECHILD" case, so we
+should use that.
+
+Reported-by: "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+Reported-by: syzbot+190005201ced78a74ad6@syzkaller.appspotmail.com
+Wearing-brown-paperbag: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: d0cb50185ae9 ("do_last(): fetch directory ->i_mode and ->i_uid before it's too late")
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/namei.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ fs/namei.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/fs/namei.c
 +++ b/fs/namei.c
-@@ -843,7 +843,8 @@ static int may_linkat(struct path *link)
-  * may_create_in_sticky - Check whether an O_CREAT open in a sticky directory
-  *			  should be allowed, or not, on files that already
-  *			  exist.
-- * @dir: the sticky parent directory
-+ * @dir_mode: mode bits of directory
-+ * @dir_uid: owner of directory
-  * @inode: the inode of the file to open
-  *
-  * Block an O_CREAT open of a FIFO (or a regular file) when:
-@@ -859,18 +860,18 @@ static int may_linkat(struct path *link)
-  *
-  * Returns 0 if the open is allowed, -ve on error.
-  */
--static int may_create_in_sticky(struct dentry * const dir,
-+static int may_create_in_sticky(umode_t dir_mode, kuid_t dir_uid,
- 				struct inode * const inode)
- {
- 	if ((!sysctl_protected_fifos && S_ISFIFO(inode->i_mode)) ||
- 	    (!sysctl_protected_regular && S_ISREG(inode->i_mode)) ||
--	    likely(!(dir->d_inode->i_mode & S_ISVTX)) ||
--	    uid_eq(inode->i_uid, dir->d_inode->i_uid) ||
-+	    likely(!(dir_mode & S_ISVTX)) ||
-+	    uid_eq(inode->i_uid, dir_uid) ||
- 	    uid_eq(current_fsuid(), inode->i_uid))
- 		return 0;
- 
--	if (likely(dir->d_inode->i_mode & 0002) ||
--	    (dir->d_inode->i_mode & 0020 &&
-+	if (likely(dir_mode & 0002) ||
-+	    (dir_mode & 0020 &&
- 	     ((sysctl_protected_fifos >= 2 && S_ISFIFO(inode->i_mode)) ||
- 	      (sysctl_protected_regular >= 2 && S_ISREG(inode->i_mode))))) {
- 		return -EACCES;
-@@ -2944,6 +2945,8 @@ static int do_last(struct nameidata *nd,
+@@ -2945,8 +2945,8 @@ static int do_last(struct nameidata *nd,
  		   int *opened, struct filename *name)
  {
  	struct dentry *dir = nd->path.dentry;
-+	kuid_t dir_uid = dir->d_inode->i_uid;
-+	umode_t dir_mode = dir->d_inode->i_mode;
+-	kuid_t dir_uid = dir->d_inode->i_uid;
+-	umode_t dir_mode = dir->d_inode->i_mode;
++	kuid_t dir_uid = nd->inode->i_uid;
++	umode_t dir_mode = nd->inode->i_mode;
  	int open_flag = op->open_flag;
  	bool will_truncate = (open_flag & O_TRUNC) != 0;
  	bool got_write = false;
-@@ -3102,7 +3105,7 @@ finish_open:
- 		error = -EISDIR;
- 		if (d_is_dir(nd->path.dentry))
- 			goto out;
--		error = may_create_in_sticky(dir,
-+		error = may_create_in_sticky(dir_mode, dir_uid,
- 					     d_backing_inode(nd->path.dentry));
- 		if (unlikely(error))
- 			goto out;
 
