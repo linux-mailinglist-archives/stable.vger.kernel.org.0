@@ -2,83 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E7511B5959
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 12:37:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67DBA1B59D9
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727067AbgDWKhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 06:37:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60284 "EHLO mail.kernel.org"
+        id S1727945AbgDWLA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 07:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725863AbgDWKhX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 06:37:23 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727895AbgDWLA7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 07:00:59 -0400
+Received: from localhost.localdomain (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E813E2076C;
-        Thu, 23 Apr 2020 10:37:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 581D120704;
+        Thu, 23 Apr 2020 11:00:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587638242;
-        bh=xhJR5aH/f7qdTrdiw1br0HJ2h6Qmi1BvSbpvMrPn+qU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JSOXLM8QtpEKj8IYaDyMnAVMToc+H98zE+8vcUFa2lD7z7ExuU+zjo0aoCJ9C2cdr
-         0ZyzNcA97eSIG/DDe8ZJNKF6+vuF2txwjXQ+ePffT2yClS4i4LbbxZVvXGIYxmzBbO
-         X2/1FjjC25msOc1NO47MAYDFZ+iXxO+lrHiFPXjY=
-Date:   Thu, 23 Apr 2020 12:37:20 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.6 000/166] 5.6.7-rc1 review
-Message-ID: <20200423103720.GB3730645@kroah.com>
-References: <20200422095047.669225321@linuxfoundation.org>
- <c2447ca7-0a90-fa71-5611-8d3d7349eb2b@nvidia.com>
+        s=default; t=1587639658;
+        bh=lTkMi/ZNt6OC2GMlHpavILsFBilbXzr9Sq3gYRp/Quo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=U295c3Sfnwm6J1C5y+rOiboR8YTzaw1H5LHIcFwxCp1EiP3Suh2lURr6OEpb2cF6O
+         AT0hfCR147Y+9WzUU/Mkk7t+A58rayXb4gqwHn4f7lRCgOA1cWp7Neg18MrwiFxrh6
+         G1Pzbq2o4iz6czYtAv012q85JtWvgHpRBqunWiIM=
+From:   Masami Hiramatsu <mhiramat@kernel.org>
+To:     Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH 0/3] perf-probe: Fix __init function and blacklist checking
+Date:   Thu, 23 Apr 2020 20:00:54 +0900
+Message-Id: <158763965400.30755.14484569071233923742.stgit@devnote2>
+X-Mailer: git-send-email 2.20.1
+User-Agent: StGit/0.17.1-dirty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c2447ca7-0a90-fa71-5611-8d3d7349eb2b@nvidia.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 23, 2020 at 11:23:09AM +0100, Jon Hunter wrote:
-> 
-> On 22/04/2020 10:55, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.6.7 release.
-> > There are 166 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 24 Apr 2020 09:48:23 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.7-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h 
-> 
-> All tests are passing for Tegra
-> 
-> Test results for stable-v5.6:
->     13 builds:	13 pass, 0 fail
->     24 boots:	24 pass, 0 fail
->     40 tests:	40 pass, 0 fail
-> 
-> Linux version:	5.6.7-rc1-g8614562dd305
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
+Hi,
 
-Great, thanks for testing all of these and letting me know.
+Here is a series of fixes related to __init function and
+blacklist checking routines. Arnaldo noticed me some cases
+which don't check the __init function checking. I found that
+the blacklist checking is also not working with KASLR, and
+also skipped probes are shown in result list unexpectedly.
 
-greg k-h
+Thank you,
+
+---
+
+Masami Hiramatsu (3):
+      perf-probe: Fix to check blacklist address correctly
+      perf-probe: Check address correctness by map instead of _etext
+      perf-probe: Do not show the skipped events
+
+
+ tools/perf/builtin-probe.c    |    3 +++
+ tools/perf/util/probe-event.c |   46 +++++++++++++++++++++++++----------------
+ 2 files changed, 31 insertions(+), 18 deletions(-)
+
+--
+Masami Hiramatsu (Linaro) <mhiramat@kernel.org>
