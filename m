@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0591B59DE
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:01:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 477151B59E2
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbgDWLBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 07:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50638 "EHLO mail.kernel.org"
+        id S1727975AbgDWLB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 07:01:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727975AbgDWLBR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 07:01:17 -0400
+        id S1727891AbgDWLB1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 07:01:27 -0400
 Received: from localhost.localdomain (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C07CC20704;
-        Thu, 23 Apr 2020 11:01:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB3CB20704;
+        Thu, 23 Apr 2020 11:01:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587639677;
-        bh=fOJxF/ls2VSw+2hhqPNsxveGbkSp3Nbou1jMHx7y9xY=;
+        s=default; t=1587639686;
+        bh=LPUFDnaEZF2l1RkEHwVDFsiBQqERKmfkjf3KsmGh1FE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DODjxxNlXNnv7BugKoEkz3w5C1Uym8i4zuUUm4CzGm+L+jnaTa3sE0MWXogNEBOE5
-         xbptPNqmWNxUCgisMde8thxcJph/JoWIytrtjUo7qTfOUmKLp6bLDoYi2JTx6PFmix
-         fjf7u2CfV6wGbWH3ZlfqiGDzcTvAl0hIYzsJKaJo=
+        b=LXYQ5a6iAfaU2fBIed8HcEl+jU25cEE2u9V2J2eUOs/XFnQGqLH2RH2OrxDdHkSna
+         StIliHYwhfSzA/INtZuTq13Yqb8/3F5BOqqlp40JSEvq8YmAt9kjJybpfpArKcl3Yi
+         LrKrRleI2XVUsHgiqPMlGdh75TAfllPVgWDwGkU8=
 From:   Masami Hiramatsu <mhiramat@kernel.org>
 To:     Arnaldo Carvalho de Melo <acme@kernel.org>
 Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
@@ -30,9 +30,9 @@ Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
         Namhyung Kim <namhyung@kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         stable@vger.kernel.org
-Subject: [PATCH 2/3] perf-probe: Check address correctness by map instead of _etext
-Date:   Thu, 23 Apr 2020 20:01:13 +0900
-Message-Id: <158763967332.30755.4922496724365529088.stgit@devnote2>
+Subject: [PATCH 3/3] perf-probe: Do not show the skipped events
+Date:   Thu, 23 Apr 2020 20:01:22 +0900
+Message-Id: <158763968263.30755.12800484151476026340.stgit@devnote2>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <158763965400.30755.14484569071233923742.stgit@devnote2>
 References: <158763965400.30755.14484569071233923742.stgit@devnote2>
@@ -45,47 +45,13 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 03db8b583d1c ("perf tools: Fix maps__find_symbol_by_name()")
-introduced map address range check in maps__find_symbol_by_name(),
-we can not get "_etext" from kernel map because _etext is placed
-on the edge of the kernel .text section (= kernel map in perf.)
+When a probe point is expanded to several places (like inlined) and
+if some of them are skipped because of blacklisted or __init function,
+those trace_events has no event name. It must be skipped while showing
+results.
 
-To fix this issue, this checks the address correctness
-by map address range information (map->start and map->end)
-instead of using _etext address.
-
-This can cause an error if the target inlined function is
-embedded in both __init function and normal function.
-
-For exaample, request_resource() is a normal function but also
-embedded in __init reserve_setup(). In this case, the probe point
-in reserve_setup() must be skipped. However, without this fix,
-it failes to setup all probe points.
-================
-  # ./perf probe -v request_resource
-  probe-definition(0): request_resource
-  symbol:request_resource file:(null) line:0 offset:0 return:0 lazy:(null)
-  0 arguments
-  Looking at the vmlinux_path (8 entries long)
-  Using /usr/lib/debug/lib/modules/5.5.17-200.fc31.x86_64/vmlinux for symbols
-  Open Debuginfo file: /usr/lib/debug/lib/modules/5.5.17-200.fc31.x86_64/vmlinux
-  Try to find probe point from debuginfo.
-  Matched function: request_resource [15e29ad]
-  found inline addr: 0xffffffff82fbf892
-  Probe point found: reserve_setup+204
-  found inline addr: 0xffffffff810e9790
-  Probe point found: request_resource+0
-  Found 2 probe_trace_events.
-  Opening /sys/kernel/debug/tracing//kprobe_events write=1
-  Opening /sys/kernel/debug/tracing//README write=0
-  Writing event: p:probe/request_resource _text+33290386
-  Failed to write event: Invalid argument
-    Error: Failed to add events. Reason: Invalid argument (Code: -22)
-================
-
-With this fix,
-
-================
+Without this fix, you can see "(null):(null)" on the list,
+===========
   # ./perf probe request_resource
   reserve_setup is out of .text, skip it.
   Added new events:
@@ -96,53 +62,40 @@ With this fix,
 
   	perf record -e probe:request_resource -aR sleep 1
 
-================
+===========
 
-Fixes: 03db8b583d1c ("perf tools: Fix maps__find_symbol_by_name()")
-Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
+With this fix, it is ignored.
+===========
+  # ./perf probe request_resource
+  reserve_setup is out of .text, skip it.
+  Added new events:
+    probe:request_resource (on request_resource)
+
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe:request_resource -aR sleep 1
+
+===========
+
+Fixes: 5a51fcd1f30c ("perf probe: Skip kernel symbols which is out of .text")
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Cc: stable@vger.kernel.org
 ---
- tools/perf/util/probe-event.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ tools/perf/builtin-probe.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
-index f75df63309be..a5387e03e365 100644
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -236,21 +236,22 @@ static void clear_probe_trace_events(struct probe_trace_event *tevs, int ntevs)
- static bool kprobe_blacklist__listed(unsigned long address);
- static bool kprobe_warn_out_range(const char *symbol, unsigned long address)
- {
--	u64 etext_addr = 0;
--	int ret;
--
--	/* Get the address of _etext for checking non-probable text symbol */
--	ret = kernel_get_symbol_address_by_name("_etext", &etext_addr,
--						false, false);
-+	struct map *map;
-+	bool ret = false;
+diff --git a/tools/perf/builtin-probe.c b/tools/perf/builtin-probe.c
+index 70548df2abb9..6b1507566770 100644
+--- a/tools/perf/builtin-probe.c
++++ b/tools/perf/builtin-probe.c
+@@ -364,6 +364,9 @@ static int perf_add_probe_events(struct perf_probe_event *pevs, int npevs)
  
--	if (ret == 0 && etext_addr < address)
--		pr_warning("%s is out of .text, skip it.\n", symbol);
--	else if (kprobe_blacklist__listed(address))
-+	map = kernel_get_module_map(NULL);
-+	if (map) {
-+		ret = address <= map->start || map->end < address;
-+		if (ret)
-+			pr_warning("%s is out of .text, skip it.\n", symbol);
-+		map__put(map);
-+	}
-+	if (!ret && kprobe_blacklist__listed(address)) {
- 		pr_warning("%s is blacklisted function, skip it.\n", symbol);
--	else
--		return false;
-+		ret = true;
-+	}
+ 		for (k = 0; k < pev->ntevs; k++) {
+ 			struct probe_trace_event *tev = &pev->tevs[k];
++			/* Skipped events have no event name */
++			if (!tev->event)
++				continue;
  
--	return true;
-+	return ret;
- }
- 
- /*
+ 			/* We use tev's name for showing new events */
+ 			show_perf_probe_event(tev->group, tev->event, pev,
 
