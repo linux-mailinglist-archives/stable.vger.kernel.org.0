@@ -2,81 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A43FD1B64D9
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 21:52:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B88641B6590
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 22:39:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728176AbgDWTwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 15:52:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55868 "EHLO mail.kernel.org"
+        id S1726725AbgDWUjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 16:39:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726671AbgDWTwD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 15:52:03 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        id S1725884AbgDWUjE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 16:39:04 -0400
+Received: from gmail.com (unknown [104.132.1.76])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B5FC20728;
-        Thu, 23 Apr 2020 19:52:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAB8320781;
+        Thu, 23 Apr 2020 20:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587671522;
-        bh=nT1Q9b4Dgyu4j+2afF+llngj8ZH5eLTlMwhjGW0yEuM=;
-        h=Date:From:To:Subject:From;
-        b=cym3h7d9jbtkvxd/Vfsta4QeKJIudgQDTfTjpFabagV0pZRWOqD2VWUXvpIl6o0Fp
-         ZPgyTWKmMGRZYPgFFCAxIk0Q1IQu45omP+pwgamyypH/TCwQWSzSSJf73OQg2LtbZK
-         9xLfvhdXXQ7+3pWXagVa5lOVmgWGslqXiusoGQV0=
-Date:   Thu, 23 Apr 2020 12:52:02 -0700
-From:   akpm@linux-foundation.org
-To:     l.stach@pengutronix.de, martin@martingkelly.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  [merged] tools-vm-fix-cross-compile-build.patch removed
- from -mm tree
-Message-ID: <20200423195202.eb2XQdOc8%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        s=default; t=1587674344;
+        bh=jE7SsWlKBqk/30mPotAmzWK2sf+p/KaDsfUqeXnE3Do=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dRXb+68p7mQAR864QnlDZTq69BIIXvXnaVmsgLieLCY+j4B6bjQhz5eYPiubUyUOc
+         0a8iU1t63C7jbtmxMs94/kQu6Ab/SFXKyxJN83I1AHzuMlp15ucGjeZ4jnAVhFDrbI
+         oDBd+GqiW2KatasCiARUXzKwR3CtT/t+o+lzPeB4=
+Date:   Thu, 23 Apr 2020 13:39:02 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     herbert@gondor.apana.org.au, linux-crypto@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rt-users@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH crypto-stable v3 2/2] crypto: arch/nhpoly1305 - process
+ in explicit 4k chunks
+Message-ID: <20200423203902.GB2796@gmail.com>
+References: <20200422200344.239462-1-Jason@zx2c4.com>
+ <20200422231854.675965-1-Jason@zx2c4.com>
+ <20200422231854.675965-2-Jason@zx2c4.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200422231854.675965-2-Jason@zx2c4.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Apr 22, 2020 at 05:18:54PM -0600, Jason A. Donenfeld wrote:
+> Rather than chunking via PAGE_SIZE, this commit changes the arch
+> implementations to chunk in explicit 4k parts, so that calculations on
+> maximum acceptable latency don't suddenly become invalid on platforms
+> where PAGE_SIZE isn't 4k, such as arm64.
+> 
+> Fixes: 0f961f9f670e ("crypto: x86/nhpoly1305 - add AVX2 accelerated NHPoly1305")
+> Fixes: 012c82388c03 ("crypto: x86/nhpoly1305 - add SSE2 accelerated NHPoly1305")
+> Fixes: a00fa0c88774 ("crypto: arm64/nhpoly1305 - add NEON-accelerated NHPoly1305")
+> Fixes: 16aae3595a9d ("crypto: arm/nhpoly1305 - add NEON-accelerated NHPoly1305")
+> Cc: Eric Biggers <ebiggers@google.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
-The patch titled
-     Subject: tools/vm: fix cross-compile build
-has been removed from the -mm tree.  Its filename was
-     tools-vm-fix-cross-compile-build.patch
+arm64 normally uses PAGE_SIZE == 4k, so this commit message is a little
+misleading.  Anyway, I agree with using 4k, so:
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 
-------------------------------------------------------
-From: Lucas Stach <l.stach@pengutronix.de>
-Subject: tools/vm: fix cross-compile build
-
-7ed1c1901fe5 (tools: fix cross-compile var clobbering) moved the setup of
-the CC variable to tools/scripts/Makefile.include to make the behavior
-consistent across all the tools Makefiles.  As the vm tools missed the
-include we end up with the wrong CC in a cross-compiling evironment.
-
-Link: http://lkml.kernel.org/r/20200416104748.25243-1-l.stach@pengutronix.de
-Fixes: 7ed1c1901fe5 (tools: fix cross-compile var clobbering)
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Cc: Martin Kelly <martin@martingkelly.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- tools/vm/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
-
---- a/tools/vm/Makefile~tools-vm-fix-cross-compile-build
-+++ a/tools/vm/Makefile
-@@ -1,6 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for vm tools
- #
-+include ../scripts/Makefile.include
-+
- TARGETS=page-types slabinfo page_owner_sort
- 
- LIB_DIR = ../lib/api
-_
-
-Patches currently in -mm which might be from l.stach@pengutronix.de are
-
-
+- Eric
