@@ -2,138 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D2CC1B5A44
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC381B5A7C
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:28:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727967AbgDWLR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 07:17:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42066 "EHLO
+        id S1728077AbgDWL2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 07:28:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726805AbgDWLRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 07:17:25 -0400
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57506C035494
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 04:17:25 -0700 (PDT)
-Received: by mail-lj1-x234.google.com with SMTP id n6so5751470ljg.12
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 04:17:25 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1727903AbgDWL2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 07:28:19 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAC66C035494
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 04:28:18 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id g10so4415244lfj.13
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 04:28:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=oAZ3axSS566ERI69yTRudA5pk37T198UyezMCJFyqg0=;
-        b=KSgfMoObN3NHkidu9iYPdBnmPp3engyij0Ehfav1N/WhjTgeC0WAEqV4PiK/2se+vh
-         02HoWakOzVncGdusZNQ8ZY+F4fGiQeQp11DgqhFA6LRJS/KpLsNb/rZLlt7C9BbjD2TH
-         yoXItbqJBSgTggjo6BLsrgNnlCAbD96MbZpV9SlalV5NLuUMbH7QF8llxpE4PTExVmbw
-         d5LdA6pZenEYzRWH599sjZKGNxJ9Yx61SR1VALDpJCDfcBh55QcXhxJE1GvV7OKHQjyy
-         aghumRr0w+KpFu9by9ZQSRdUYR2Hxj4B30onoIvzgWmUdZgQn0CuWqW0NiJ9Mre70Wyh
-         JqXQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=4RXkqyEdVnf06F7mDWuAUymH6Dg037/S6JjirDYzTK8=;
+        b=vysh96ozdvaPVfnRDhYy3fR7gUOBbe22xiJukVacT//kwYlmsx4nG6Kj4BhC/f50ey
+         brZKRgW+ZSSs63D5dLRLtukvNIXOwENaTAB1lDOs9la3PZSKwQ9ovr2lhkqSYGggvn0A
+         yKSK8yRiKqezPEW91qhTTgx2wOfuJWTr4ebYxZyZoCnq0WSxTzTdWONpalkuM3Gfo8Ro
+         2THOQNTm2DHMC58NEj50gIhnzI4uHksRWoLH3o3K7UhgaD5w97U5H2VUF7hqwrVTbo4P
+         odA66eZciq43PJ+4/hTHNhnMiRoqjdyEUu/hNZHM329uDCxxzW95tujWZzwwcDg3DuxI
+         pmlw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=oAZ3axSS566ERI69yTRudA5pk37T198UyezMCJFyqg0=;
-        b=hsnCHEy3JeL/aIQM2Sios1HaD5DZOV21jCsSCE1jauyu2/kuZFTetKL96SWbsCx2oD
-         dzIuVf4t7rcOin6GBuPKEyrGxr9pM5FJzSGeFBGOYoj5cTZbcwhCtjE5sSjemXYpZhAP
-         0XeQkeVXqGVnXvFLz0HcxMKhTktZtkZkDK+R8fKimDrynJhKXfaJsM7PvQddLTMlwTlG
-         SqvMi/sLyQz6z8JqYPd2yy6xQduw6112ZraR2GslNZE0Xx0avluW0RHKTcIe+sO0uxLx
-         0Uq1Mvhuv2OEPRe3j1KNpVox5UQy4zrFxGwYYl9Hjfp8iCt5dUJrmGHok9zzVwrXEi1x
-         vKhg==
-X-Gm-Message-State: AGi0PuZANNEe8Tc7yZuaI+gfq5dBAUqBs7ZjA/d8hJp7E3UR2uZwSDre
-        vrlqg03RuPL02oy6JYNFNmZ85XZGj2NGVpevkRqQFi8FXe2nmA==
-X-Google-Smtp-Source: APiQypK0Re1sUKs5qj9tLUP4qPP1QkFHT2aHcKdugHwEJw1KaZvbC8SiMNOvF4Qprdlmol4eRp7pXa/xXuHF+2LAOi8=
-X-Received: by 2002:a2e:9496:: with SMTP id c22mr1938373ljh.165.1587640642860;
- Thu, 23 Apr 2020 04:17:22 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=4RXkqyEdVnf06F7mDWuAUymH6Dg037/S6JjirDYzTK8=;
+        b=TFL57XdgdnmY7tTZvYQolGsSshI6TzVFjGCPBuuXa2T8g47u1IGhzpOlpyooIqQ5IY
+         4LMl+2oS9mljMxbFeRxH1nQS0Q7VYwffiQQespRqPSxu+8vIVeRc5lWbqzHy/IlNmB1y
+         oOzuC6cfUME69kFEGsJhufGubjTj8U1JhfRzJzYtM4Cx2Zr5df3tfkItSai0Sjm98NKH
+         zYDsSV+kLqKsOBa8pZSV0eQCyEKE372uOkmrM5BzjAVx1saN/jpHXdxBn5a25RhoQSI9
+         RkT8BDsx6OnizcgnBTTbhW6dzXxy4FXfT/G67LwPD434qT1y2CN9rfVzzXq3DwkwBv3O
+         5wRw==
+X-Gm-Message-State: AGi0PuY++aOzNmCf9MzEyyqHoBPjQyPeW6/uCR+b9e4e9JiZlp4tRwMh
+        D9TfyFk7tuymJK0lFLqWoNUJNnlnthiwpQASkY60VNrI3dvggQ==
+X-Google-Smtp-Source: APiQypL9sh5T/y2+3giCj5f0XNXe9/5/Y2cLM6gvJuQuDBaFo17ExOMevue3DPHU49eT1QkW3HXz7ZfXzrey9235Xyc=
+X-Received: by 2002:a19:c64b:: with SMTP id w72mr2131795lff.82.1587641296515;
+ Thu, 23 Apr 2020 04:28:16 -0700 (PDT)
 MIME-Version: 1.0
+References: <20200422095057.806111593@linuxfoundation.org>
+In-Reply-To: <20200422095057.806111593@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 23 Apr 2020 16:47:11 +0530
-Message-ID: <CA+G9fYtoYzRbrUVhboUgOOqEC2xt_i4ZmYb9yq33fRmf653_pQ@mail.gmail.com>
-Subject: stable-rc 4.14: Internal error: Oops: 96000004 - pc : __pi_strcmp+0x18/0x154
-To:     linux- stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     lkft-triage@lists.linaro.org, colin.king@canonical.com,
-        open list <linux-kernel@vger.kernel.org>,
-        "rafael.j.wysocki" <rafael.j.wysocki@intel.com>,
-        freedreno@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        Hans Verkuil <hans.verkuil@cisco.com>,
+Date:   Thu, 23 Apr 2020 16:58:04 +0530
+Message-ID: <CA+G9fYv5ofZJfrKFNbj6kaGJfLsvS7gOvVAEq_q9cMq9f9cM6w@mail.gmail.com>
+Subject: Re: [PATCH 4.14 000/199] 4.14.177-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Arnd Bergmann <arnd@arndb.de>,
         John Stultz <john.stultz@linaro.org>,
-        David Airlie <airlied@linux.ie>,
-        Brian Masney <masneyb@onstation.org>,
-        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        robdclark@gmail.com, linux-arm-msm@vger.kernel.org
+        Rob Clark <robdclark@chromium.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We still notice kernel warnings while booting stable rc 4.14.177-rc1 kernel
-on qualcomm dragonboard 410c development board.
+On Wed, 22 Apr 2020 at 15:42, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.177 release.
+> There are 199 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 24 Apr 2020 09:48:23 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.177-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-[    7.760140] msm_dsi_host_set_src_pll: can't set parent to
-byte_clk_src. ret=-22
-[    7.763963] msm_dsi_manager_register: failed to register mipi dsi
-host for DSI 0
-[    7.772434]   EA = 0, S1PTW = 0
-[    7.774344] msm 1a00000.mdss: failed to bind 1a98000.dsi (ops
-dsi_ops [msm]): -22
-[    7.779241] Data abort info:
-[    7.789056] msm 1a00000.mdss: master bind failed: -22
-[    7.792091] msm_dsi: probe of 1a98000.dsi failed with error -22
-[    7.794132]   ISV = 0, ISS = 0x00000004
-[    7.802783]   CM = 0, WnR = 0
-[    7.809436] user pgtable: 4k pages, 48-bit VAs, pgd = ffff80003b1d7000
-[    7.809660] [0000000000000000] *pgd=0000000000000000
-[    7.825466] Internal error: Oops: 96000004 [#1] PREEMPT SMP
-[    7.825498] Modules linked in: rfkill crc32_ce adv7511 msm(+)
-msm_rng mdt_loader drm_kms_helper rng_core drm fuse
-[    7.829847] Process systemd-udevd (pid: 2635, stack limit =
-0xffff00000f3c0000)
-[    7.840261] CPU: 1 PID: 2635 Comm: systemd-udevd Not tainted 4.14.177-rc1 #1
-[    7.847391] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
-[    7.847397] task: ffff80003b279780 task.stack: ffff00000f3c0000
-[    7.847410] pc : __pi_strcmp+0x18/0x154
-[    7.866993] lr : platform_match+0xc8/0xe8
-[    7.870809] sp : ffff00000f3c3b10 pstate : 40000145
-[    7.874975] x29: ffff00000f3c3b10 x28: ffff80003a56a000
-[    7.879663] x27: ffff0000081a0578 x26: ffff000000ef98d0
-[    7.885219] x25: ffff00000f3c3e50 x24: ffff00000f515000
-[    7.890514] x23: ffff0000095c8000 x22: 0000000000000000
-[    7.895809] x21: 0000000000000000 x20: ffff000000ef8648
-[    7.901104] x19: ffff80003d1998d0 x18: 0000ffff9a0bf0b0
-[    7.906398] x17: 0000ffff9a06b6d0 x16: ffff000008160330
-[    7.911694] x15: 000000002810bf43 x14: 0000000000000043
-[    7.916990] x13: 3a6c6c7030697364 x12: 00000000bcc77e12
-[    7.922283] x11: ffff80003b279fb8 x10: 0101010101010101
-[    7.927581] x9 : 8efefeff06fefeff x8 : 0000000000000000
-[    7.932874] x7 : 0000000000000000 x6 : 0000000000000000
-[    7.938172] x5 : 0000000000000100 x4 : 0000000000000000
-[    7.943466] x3 : 0000000000000000 x2 : ffff0000087be348
-[    7.948761] x1 : ffff000000eed688 x0 : 0000000000000000
-[    7.954056] Call trace:
-[    7.959354]  __pi_strcmp+0x18/0x154
-[    7.970033]  bus_for_each_dev+0x5c/0xa8
-[    7.970056]  driver_attach+0x30/0x
-[    7.972665]  bus_add_driver+0x1d0/0x240
-[    7.976484]  driver_register+0x6c/0x118
-[    7.980044]  __platform_driver_register+0x54/0x60
-[    7.984103]  msm_drm_register+0x48/0x80 [msm]
-[    7.988728]  do_one_initcall+0x44/0x138
-[    7.993065]  do_init_module+0x64/0x1d0
-[    7.996710]  load_module+0x1d48/0x2518
-[    8.000530]  SyS_finit_module+0xb0/0xc8
-[    8.004263]  __sys_trace_return+0x0/0x4
-[    8.007998] Code: f24008ff 540002e1 f2400807 54000141 (f8408402)
-[    8.011820] ---[ end trace 7d6fc616cc3d45e7 ]---
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-full test log,
-https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.176-200-gcebd79de8787/testrun/1389032/log
-https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.176-200-gcebd79de8787/testrun/1389032/
-https://lkft.validation.linaro.org/scheduler/job/1389032#L3519
+NOTE:
+The platform specific issue on arm64 qualcomm dragonboard 410c and
+hi6220-hikey have been reported.
 
-Kernel config:
-http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/dragonboard-410c/lkft/linux-stable-rc-4.14/817/config
+stable-rc 4.14: Internal error: Oops: 96000004 - pc : __pi_strcmp+0x18/0x15=
+4
+https://lore.kernel.org/stable/CA+G9fYtoYzRbrUVhboUgOOqEC2xt_i4ZmYb9yq33fRm=
+f653_pQ@mail.gmail.com/T/#u
 
--- 
+WARNING: drivers/gpu/drm/msm/mdp/mdp5/mdp5_kms.h:178 mdp5_bind
+https://lore.kernel.org/stable/CA+G9fYtcjK8MrygHu686rV4i+bYO2CR=3D=3DOFNrXN=
+SM_HzWEhNFA@mail.gmail.com/T/#t
+
+WARNING: net/sched/sch_generic.c:320 dev_watchdog on arm64 hi6220-hikey
+https://lore.kernel.org/stable/CA+G9fYtR4cvY9N0NLYDOByHsDyQJwpaYuV8qss6s-D+=
+_DS9x_A@mail.gmail.com/T/#u
+
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.14.177-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: cebd79de87875c1f054d7e674a496868b78e637f
+git describe: v4.14.176-200-gcebd79de8787
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
+ild/v4.14.176-200-gcebd79de8787
+
+
+No regressions (compared to build v4.14.176)
+
+No fixes (compared to build v4.14.176)
+
+Ran 44120 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* kselftest/networking
+* libhugetlbfs
+* linux-log-parser
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-dio-tests
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* spectre-meltdown-checker-test
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-native/networking
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+* kselftest-vsyscall-mode-none/networking
+
+--=20
 Linaro LKFT
 https://lkft.linaro.org
