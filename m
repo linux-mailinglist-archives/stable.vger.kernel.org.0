@@ -2,108 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B901B584A
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 11:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78DC01B5856
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 11:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726386AbgDWJgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 05:36:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54634 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725863AbgDWJgW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 05:36:22 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1869CC03C1AF
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 02:36:22 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id u6so5480139ljl.6
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 02:36:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TfAeV8yk12RMyli5C0sf/nIamgsKLONTz3cbB7A848o=;
-        b=eGGSkmwhU+ebYBteOxzPOclVJrKdkqgJcauqpPsi2F/beFLysiDdBYnktVDqYtJalt
-         y40LcRmW/b1KlIaJVjjEPkdfNYfaAIfpOrpaBzTUCqcX6zvSkvpXnU1LUimv2mBcyWF/
-         Gc0qvKSRJOHyPXJvpToCB5MOzyepdXuAYPYytBoIsoblH/u27KTa2MRserAmwqhbJgC8
-         f05bKuVsK9oXrPjnQh91RApu278u+Zkl9Wcyj688BQ4M93f45fuD1zMWjQi8xmExTOCC
-         ISsMrVkaHpn42PUwltinv+X6MclCZ9fbk6GUh0n2SH6R+vqRwvozT0Ejn4HkfgDajxlp
-         EqMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TfAeV8yk12RMyli5C0sf/nIamgsKLONTz3cbB7A848o=;
-        b=cvUxJ7SzNWnR6Q1gvSMXrbzcJqt6SLxYYRoKIxbob91mrTDy6SUFGxYLNBCujG6rUT
-         u8foSvE+Rq9/sqeoYxQ6uUW2ScDPy9ZYS38wU0rYfo94OJoCTQMbeJ81so0a8XSYAgAh
-         MTcZIZfaUPhjuBi2UO7RIEh9+yGYuknIwsk3TMKUV0qpG48suW6zlnTjgvqRPMYnd1/x
-         xAINroSLiqffGVxBHWNNnYXxcJ5LTcUWeZFez7ABRH5YpATjXfPp2BOt/EQVBCqfkCz3
-         jQbPko51aDM1/mg5By5NiSMbBm9B6wg6RwU6a8xXiwn+wIR+QF8on4EY4YYoxPXmZc3p
-         ZcBQ==
-X-Gm-Message-State: AGi0PuaABtfyo9D5sk/LKYUMxGsAlUzP96z3vjo2d0je1RrdKpxFP0TD
-        bFhYoNobjK8qKA5aPJz1g079OAbiUjQ4teH0vXm4xFHb
-X-Google-Smtp-Source: APiQypL2jGwxZR8TODe2Lsg0dkEG09wMhVYxOpiLJA0Xbc+xIxHa3AGUeXqT1n2ctcdpSboClAGZWk6CtrVrlQmtQr8=
-X-Received: by 2002:a05:651c:2002:: with SMTP id s2mr1672967ljo.285.1587634580596;
- Thu, 23 Apr 2020 02:36:20 -0700 (PDT)
+        id S1726903AbgDWJjn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 05:39:43 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2086 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726410AbgDWJjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 05:39:43 -0400
+Received: from lhreml735-chm.china.huawei.com (unknown [172.18.7.106])
+        by Forcepoint Email with ESMTP id 5A0927DFEBE864243B4C;
+        Thu, 23 Apr 2020 10:39:41 +0100 (IST)
+Received: from fraeml705-chm.china.huawei.com (10.206.15.54) by
+ lhreml735-chm.china.huawei.com (10.201.108.86) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.1913.5; Thu, 23 Apr 2020 10:39:41 +0100
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ fraeml705-chm.china.huawei.com (10.206.15.54) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1913.5; Thu, 23 Apr 2020 11:39:40 +0200
+Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
+ fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.1913.007;
+ Thu, 23 Apr 2020 11:39:40 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>
+CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] ima: Fix return value of ima_write_policy()
+Thread-Topic: [PATCH] ima: Fix return value of ima_write_policy()
+Thread-Index: AQHWF7xRx28EQ9GMrU2OdYcTlO4YtaiF3mkAgACWcpA=
+Date:   Thu, 23 Apr 2020 09:39:40 +0000
+Message-ID: <baf2fd326f5043538390254304b85e41@huawei.com>
+References: <20200421090442.22693-1-roberto.sassu@huawei.com>
+ <1587609266.5165.58.camel@linux.ibm.com>
+In-Reply-To: <1587609266.5165.58.camel@linux.ibm.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.47.15.0]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <c304ad9c-f404-d22e-de74-9398da3ebfc3@hauke-m.de>
- <CAFA6WYN3FbqTivGJTfXtHsMjXNPXW+P4MZWiCL14utF2sHkeYg@mail.gmail.com>
- <885ae3bffad315445be3fc70cccade9067ee6937.camel@sipsolutions.net>
- <CAFA6WYMYQAnW0vKm4fxNn+nA6dYXvqaungBEYDpd-wrzaavr8A@mail.gmail.com> <42e9ac2651c677e9143b019393d60c3254893ae0.camel@sipsolutions.net>
-In-Reply-To: <42e9ac2651c677e9143b019393d60c3254893ae0.camel@sipsolutions.net>
-From:   Sumit Garg <sumit.garg@linaro.org>
-Date:   Thu, 23 Apr 2020 15:06:09 +0530
-Message-ID: <CAFA6WYN5STtNPK+TJF_SwqSfO6sj8mwaJZ2zSno=pmSv2bbmdw@mail.gmail.com>
-Subject: Re: Commit "mac80211: fix race in ieee80211_register_hw()" breaks
- mac80211 debugfs
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     Hauke Mehrtens <hauke@hauke-m.de>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 23 Apr 2020 at 14:29, Johannes Berg <johannes@sipsolutions.net> wrote:
->
-> On Thu, 2020-04-23 at 14:27 +0530, Sumit Garg wrote:
->
-> > > > +++ b/net/wireless/core.c
-> > > > @@ -473,6 +473,10 @@ struct wiphy *wiphy_new_nm(const struct
-> > > > cfg80211_ops *ops, int sizeof_priv,
-> > > >                 }
-> > > >         }
-> > > >
-> > > > +       /* add to debugfs */
-> > > > +       rdev->wiphy.debugfsdir = debugfs_create_dir(wiphy_name(&rdev->wiphy),
-> > > > +                                                   ieee80211_debugfs_dir);
-> > >
-> > > This cannot work, we haven't committed to the name of the wiphy yet at
-> > > this point.
-> >
-> > Maybe I am missing something, can you please elaborate here?
-> >
-> > Looking at the code, the default or requested wiphy name is configured
-> > just above this and the rename API "cfg80211_dev_rename()" takes care
-> > of renaming wiphy debugfs directory too.
->
-> Yes, but I think wiphy_register() can still fail at this point, due to
-> name clashes or so?
->
-> In any case, it'd be very strange to have a debugfs entry around when
-> the wiphy doesn't exist yet, and could possibly cause the same issue
-> that you fixed again, just through debugfs accesses?
->
-
-Now I understood your point. Yeah it's definitely better to expose
-debugfs after the wiphy device is registered.
-
-> Can you take a look at the patch I sent?
-
-Sure I will take a look.
-
--Sumit
-
->
-> johannes
->
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBvd25lci1saW51eC1zZWN1cml0
+eS1tb2R1bGVAdmdlci5rZXJuZWwub3JnIFttYWlsdG86b3duZXItbGludXgtDQo+IHNlY3VyaXR5
+LW1vZHVsZUB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBNaW1pIFpvaGFyDQo+IFNlbnQ6
+IFRodXJzZGF5LCBBcHJpbCAyMywgMjAyMCA0OjM0IEFNDQo+IFRvOiBSb2JlcnRvIFNhc3N1IDxy
+b2JlcnRvLnNhc3N1QGh1YXdlaS5jb20+DQo+IENjOiBsaW51eC1pbnRlZ3JpdHlAdmdlci5rZXJu
+ZWwub3JnOyBsaW51eC1zZWN1cml0eS1tb2R1bGVAdmdlci5rZXJuZWwub3JnOw0KPiBsaW51eC1r
+ZXJuZWxAdmdlci5rZXJuZWwub3JnOyBTaWx2aXUgVmxhc2NlYW51DQo+IDxTaWx2aXUuVmxhc2Nl
+YW51QGh1YXdlaS5jb20+OyBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBb
+UEFUQ0hdIGltYTogRml4IHJldHVybiB2YWx1ZSBvZiBpbWFfd3JpdGVfcG9saWN5KCkNCj4gDQo+
+IE9uIFR1ZSwgMjAyMC0wNC0yMSBhdCAxMTowNCArMDIwMCwgUm9iZXJ0byBTYXNzdSB3cm90ZToN
+Cj4gPiBSZXR1cm4gZGF0YWxlbiBpbnN0ZWFkIG9mIHplcm8gaWYgdGhlcmUgaXMgYSBydWxlIHRv
+IGFwcHJhaXNlIHRoZSBwb2xpY3kNCj4gPiBidXQgdGhhdCBydWxlIGlzIG5vdCBlbmZvcmNlZC4N
+Cj4gPg0KPiA+IENjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+ID4gRml4ZXM6IDE5ZjhhODQ3
+MTNlZGMgKCJpbWE6IG1lYXN1cmUgYW5kIGFwcHJhaXNlIHRoZSBJTUEgcG9saWN5IGl0c2VsZiIp
+DQo+ID4gU2lnbmVkLW9mZi1ieTogUm9iZXJ0byBTYXNzdSA8cm9iZXJ0by5zYXNzdUBodWF3ZWku
+Y29tPg0KPiA+IC0tLQ0KPiA+ICBzZWN1cml0eS9pbnRlZ3JpdHkvaW1hL2ltYV9mcy5jIHwgMiAr
+Kw0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspDQo+ID4NCj4gPiBkaWZmIC0t
+Z2l0IGEvc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFfZnMuYw0KPiBiL3NlY3VyaXR5L2ludGVn
+cml0eS9pbWEvaW1hX2ZzLmMNCj4gPiBpbmRleCBhNzFlODIyYTZlOTIuLjJjMmVhODE0Yjk1NCAx
+MDA2NDQNCj4gPiAtLS0gYS9zZWN1cml0eS9pbnRlZ3JpdHkvaW1hL2ltYV9mcy5jDQo+ID4gKysr
+IGIvc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFfZnMuYw0KPiA+IEBAIC0zNDAsNiArMzQwLDgg
+QEAgc3RhdGljIHNzaXplX3QgaW1hX3dyaXRlX3BvbGljeShzdHJ1Y3QgZmlsZSAqZmlsZSwNCj4g
+Y29uc3QgY2hhciBfX3VzZXIgKmJ1ZiwNCj4gPiAgCQkJCSAgICAxLCAwKTsNCj4gPiAgCQlpZiAo
+aW1hX2FwcHJhaXNlICYgSU1BX0FQUFJBSVNFX0VORk9SQ0UpDQo+ID4gIAkJCXJlc3VsdCA9IC1F
+QUNDRVM7DQo+ID4gKwkJZWxzZQ0KPiA+ICsJCQlyZXN1bHQgPSBkYXRhbGVuOw0KPiANCj4gSW4g
+YWxsIG90aGVyIGNhc2VzLCB3aGVyZSB0aGUgSU1BX0FQUFJBSVNFX0VORk9SQ0UgaXMgbm90IGVu
+YWJsZWQgd2UNCj4gYWxsb3cgdGhlIGFjdGlvbi4gwqBIZXJlIHdlIHByZXZlbnQgbG9hZGluZyB0
+aGUgcG9saWN5LCBidXQgZG9uJ3QNCj4gcmV0dXJuIGFuIGVycm9yLiDCoE9uZSBvcHRpb24sIGFz
+IHlvdSBkaWQsIGlzIHJldHVybiBzb21lIGluZGljYXRpb24NCj4gdGhhdCB0aGUgcG9saWN5IHdh
+cyBub3QgbG9hZGVkLiDCoEFub3RoZXIgb3B0aW9uIHdvdWxkIGJlIHRvIGFsbG93DQo+IGxvYWRp
+bmcgdGhlIHBvbGljeSBpbiBMT0cgb3IgRklYIG1vZGUsIGJ1dCBJIGRvbid0IHRoaW5rIHRoYXQg
+d291bGQgYmUNCj4gcHJvZHVjdGl2ZS4gwqBQZXJoYXBzIGRpZmZlcmVudGlhdGUgYmV0d2VlbiB0
+aGUgTE9HIGFuZCBGSVggbW9kZXMgZnJvbQ0KPiB0aGUgT0ZGIG1vZGUuIMKgRm9yIHRoZSBMT0cg
+YW5kIEZJWCBtb2RlcywgcGVyaGFwcyByZXR1cm4gLUVBQ0NFUyBhcw0KPiB3ZWxsLiDCoEZvciB0
+aGUgT0ZGIGNhc2UsIGxvYWRpbmcgYSBwb2xpY3kgd2l0aCBhcHByYWlzZSBydWxlcyBzaG91bGQN
+Cj4gbm90IGJlIHBlcm1pdHRlZC4NCg0KSW4gTE9HIG9yIEZJWCBtb2RlLCBsb2FkaW5nIGEgcG9s
+aWN5IHdpdGggYWJzb2x1dGUgcGF0aCB3aWxsIHN1Y2NlZWQuDQpNYXliZSB3ZSBzaG91bGQganVz
+dCBrZWVwIHRoZSBzYW1lIGJlaGF2aW9yIGFsc28gd2hlbiB0aGUgcG9saWN5DQppcyBkaXJlY3Rs
+eSB3cml0dGVuIHRvIHNlY3VyaXR5ZnMuDQoNCk9rIGZvciB0aGUgT0ZGIG1vZGUsIGJ1dCBwcm9i
+YWJseSB0aGlzIHNob3VsZCBiZSBhIHNlcGFyYXRlIHBhdGNoLg0KDQpSb2JlcnRvDQoNCkhVQVdF
+SSBURUNITk9MT0dJRVMgRHVlc3NlbGRvcmYgR21iSCwgSFJCIDU2MDYzDQpNYW5hZ2luZyBEaXJl
+Y3RvcjogTGkgUGVuZywgTGkgSmlhbiwgU2hpIFlhbmxpDQoNCg0KPiA+ICAJfSBlbHNlIHsNCj4g
+PiAgCQlyZXN1bHQgPSBpbWFfcGFyc2VfYWRkX3J1bGUoZGF0YSk7DQo+ID4gIAl9DQoNCg==
