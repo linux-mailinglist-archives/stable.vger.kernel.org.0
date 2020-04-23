@@ -2,183 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 656201B60B3
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 18:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 176D11B6156
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 18:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729573AbgDWQW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 12:22:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33358 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729527AbgDWQW5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 12:22:57 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B73C09B042
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 09:22:56 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id a21so6834960ljb.9
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 09:22:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=w34dDWOvXQm5HMAoUFj55JSLOl65xl3iabYd8dS63XM=;
-        b=DAd3NejFDEiIu0cJl/NJ8/ym1tbwrrbkTgHRXeQO2k4fZQCSYafE4f6D2iHTtUb+2F
-         /mmGB2A92Djo8rpbcyFh6nE6FRTpKVuwCANh/G03qYT6HT4hwF1fkkY11tglys65bvgY
-         1ycVlHmKCAvsTbPF7QB3Gl0ssK0JDVTgIJvaiw1wnmetBEZPliL1tAqwfTECJ2DjZ6Pn
-         /UBOEUC1z1h6n5D5+mqoPEW5K83E+nWKxoKByZEJoLo3h+/CNIEZlvsgml79/7/KlSH3
-         DwP3VlWKjq9FQL8145qGCXEKqgiZ5LOFcYSBaHpTp2saPhKe5RmyN33CCFqE+J6gGzFh
-         cfHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=w34dDWOvXQm5HMAoUFj55JSLOl65xl3iabYd8dS63XM=;
-        b=irjgmjDvMByYrghiyLObIdUMQ6xVvo7gcyBMbTGIY4Ox9/m/iSmkjbIJ/5h7Y5HlzO
-         GqOwXcGSFqDHil/yN4aTsxMeBMv2b0r6Cj6J6dH3d7qyFUAbYxjkGS+6RBbDeKx7osYl
-         5KerBy/SEQxUzwexq2E/M4+zn92qhfBc7XZ9TpGrxkK6kPkzAF5VGagUfgqq7QJ3g4Wo
-         QKEJJBUTOjzaPzD+pdiIKZYy3dNqiG54zBuykCJsuRj3Oek9QxS/9NBwIwaFW4JgIg+1
-         VcFXa8Zvr00+LjnzTNjkDYtfD5BAzy82q6tz2Kclgrat19CoNbcEzqHSparIWbaJAMYF
-         90kw==
-X-Gm-Message-State: AGi0PubyD3kN8WeY66Doy2I4AhdXjXmPp11CHZrII68OSE2gvFoi1UOY
-        j3x21zSaeam8qbdP5EbzYRDmy3MQGxopQhN3KXhxdw==
-X-Google-Smtp-Source: APiQypJE+zCpr7eDkKlUDwHR751ytOTh3cjA4+7Lr1ufzP6qhxRyb/S1gJpux81PY/M4rlOEPk3K6UrN+z1CTHUMtZY=
-X-Received: by 2002:a2e:9018:: with SMTP id h24mr2778258ljg.217.1587658975058;
- Thu, 23 Apr 2020 09:22:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200423103335.768056640@linuxfoundation.org>
-In-Reply-To: <20200423103335.768056640@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 23 Apr 2020 21:52:43 +0530
-Message-ID: <CA+G9fYvR8eLJt_PYePC0xY7yWeubCqt2Y-wimX9JWE9VtujnAQ@mail.gmail.com>
-Subject: Re: [PATCH 4.14 000/198] 4.14.177-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+        id S1729673AbgDWQxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 12:53:14 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26228 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729715AbgDWQxJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 12:53:09 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03NGXSUt136183
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 12:53:09 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30k09wu9j0-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 12:53:08 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Thu, 23 Apr 2020 17:52:29 +0100
+Received: from b06avi18626390.portsmouth.uk.ibm.com (9.149.26.192)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 23 Apr 2020 17:52:26 +0100
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 03NGptFe53805508
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 23 Apr 2020 16:51:55 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 754D2A4065;
+        Thu, 23 Apr 2020 16:53:02 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B2AA4A405B;
+        Thu, 23 Apr 2020 16:53:01 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.85.178.107])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 23 Apr 2020 16:53:01 +0000 (GMT)
+Subject: Re: [PATCH 3/5] ima: Fix ima digest hash table key calculation
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>
+Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Date:   Thu, 23 Apr 2020 12:53:01 -0400
+In-Reply-To: <11984a05a5624f64aed1ec6b0d0b75ff@huawei.com>
+References: <20200325161116.7082-1-roberto.sassu@huawei.com>
+         <20200325161116.7082-3-roberto.sassu@huawei.com>
+         <1587588987.5165.20.camel@linux.ibm.com>
+         <11984a05a5624f64aed1ec6b0d0b75ff@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 20042316-0008-0000-0000-000003762A0D
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 20042316-0009-0000-0000-00004A97F7F0
+Message-Id: <1587660781.5610.15.camel@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-04-23_12:2020-04-23,2020-04-23 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 phishscore=0 clxscore=1015 adultscore=0 mlxlogscore=999
+ bulkscore=0 impostorscore=0 spamscore=0 mlxscore=0 priorityscore=1501
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2004230128
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 23 Apr 2020 at 16:05, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.177 release.
-> There are 198 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 25 Apr 2020 10:31:20 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.177-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+On Thu, 2020-04-23 at 10:21 +0000, Roberto Sassu wrote:
+> > Hi Roberto, Krsysztof,
+> > 
+> > On Wed, 2020-03-25 at 17:11 +0100, Roberto Sassu wrote:
+> > > From: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+> > >
+> > > Function hash_long() accepts unsigned long, while currently only one byte
+> > > is passed from ima_hash_key(), which calculates a key for ima_htable.
+> > Use
+> > > more bytes to avoid frequent collisions.
+> > >
+> > > Length of the buffer is not explicitly passed as a function parameter,
+> > > because this function expects a digest whose length is greater than the
+> > > size of unsigned long.
+> > 
+> > Somehow I missed the original report of this problem https://lore.kern
+> > el.org/patchwork/patch/674684/.  This patch is definitely better, but
+> > how many unique keys are actually being used?  Is it anywhere near
+> > IMA_MEASURE_HTABLE_SIZE(512)?
+> 
+> I did a small test (with 1043 measurements):
+> 
+> slots: 250, max depth: 9 (without the patch)
+> slots: 448, max depth: 7 (with the patch)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+448 out of 512 slots are used.
 
-Summary
-------------------------------------------------------------------------
+> 
+> Then, I increased the number of bits to 10:
+> 
+> slots: 251, max depth: 9 (without the patch)
+> slots: 660, max depth: 4 (with the patch)
 
-kernel: 4.14.177-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: a7097ef0ff8203c8e25ad7d3b996e030c083a81a
-git describe: v4.14.176-199-ga7097ef0ff82
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.176-199-ga7097ef0ff82
+660 out of 1024 slots are used.
 
-No regressions (compared to build v4.14.176)
+I wonder if there is any benefit to hashing a digest, instead of just
+using the first bits. 
 
-No fixes (compared to build v4.14.176)
+> 
+> > Do we need a new securityfs entry to display the number used?
+> 
+> Probably it is useful only if the administrator can decide the number of slots.
 
-Ran 38632 total tests in the following environments and test suites.
+The securityfs suggestion was just a means for triggering the above
+debugging info you provided.  Could you provide another patch with the
+debugging info?
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
+thanks,
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* kselftest/networking
-* libhugetlbfs
-* linux-log-parser
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-sched-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* network-basic-tests
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-math-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* spectre-meltdown-checker-test
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-native/networking
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-* kselftest-vsyscall-mode-none/networking
+Mimi
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
