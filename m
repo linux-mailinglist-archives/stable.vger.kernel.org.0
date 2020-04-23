@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E1BE1B67CC
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:10:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E38A01B67DE
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:11:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728633AbgDWXG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:06:56 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50448 "EHLO
+        id S1728897AbgDWXKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:10:34 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50388 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728603AbgDWXGy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:54 -0400
+        by vger.kernel.org with ESMTP id S1728600AbgDWXGx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:53 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvf-0004tC-UC; Fri, 24 Apr 2020 00:06:48 +0100
+        id 1jRkvf-0004sZ-9R; Fri, 24 Apr 2020 00:06:47 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkva-00E70g-PO; Fri, 24 Apr 2020 00:06:42 +0100
+        id 1jRkvb-00E70v-1M; Fri, 24 Apr 2020 00:06:43 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Cengiz Can" <cengiz@kernel.wtf>, "Bob Liu" <bob.liu@oracle.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Ming Lei" <ming.lei@redhat.com>, "Jens Axboe" <axboe@kernel.dk>
-Date:   Fri, 24 Apr 2020 00:07:20 +0100
-Message-ID: <lsq.1587683028.504333663@decadent.org.uk>
+        syzbot+c769968809f9359b07aa@syzkaller.appspotmail.com,
+        syzbot+76f3a30e88d256644c78@syzkaller.appspotmail.com,
+        "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Date:   Fri, 24 Apr 2020 00:07:21 +0100
+Message-ID: <lsq.1587683028.915720247@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 213/245] blktrace: fix dereference after null check
+Subject: [PATCH 3.16 214/245] Input: add safety guards to input_set_keycode()
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,63 +47,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Cengiz Can <cengiz@kernel.wtf>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit 153031a301bb07194e9c37466cfce8eacb977621 upstream.
+commit cb222aed03d798fc074be55e59d9a112338ee784 upstream.
 
-There was a recent change in blktrace.c that added a RCU protection to
-`q->blk_trace` in order to fix a use-after-free issue during access.
+If we happen to have a garbage in input device's keycode table with values
+too big we'll end up doing clear_bit() with offset way outside of our
+bitmaps, damaging other objects within an input device or even outside of
+it. Let's add sanity checks to the returned old keycodes.
 
-However the change missed an edge case that can lead to dereferencing of
-`bt` pointer even when it's NULL:
-
-Coverity static analyzer marked this as a FORWARD_NULL issue with CID
-1460458.
-
-```
-/kernel/trace/blktrace.c: 1904 in sysfs_blk_trace_attr_store()
-1898            ret = 0;
-1899            if (bt == NULL)
-1900                    ret = blk_trace_setup_queue(q, bdev);
-1901
-1902            if (ret == 0) {
-1903                    if (attr == &dev_attr_act_mask)
->>>     CID 1460458:  Null pointer dereferences  (FORWARD_NULL)
->>>     Dereferencing null pointer "bt".
-1904                            bt->act_mask = value;
-1905                    else if (attr == &dev_attr_pid)
-1906                            bt->pid = value;
-1907                    else if (attr == &dev_attr_start_lba)
-1908                            bt->start_lba = value;
-1909                    else if (attr == &dev_attr_end_lba)
-```
-
-Added a reassignment with RCU annotation to fix the issue.
-
-Fixes: c780e86dd48 ("blktrace: Protect q->blk_trace with RCU")
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Cengiz Can <cengiz@kernel.wtf>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: syzbot+c769968809f9359b07aa@syzkaller.appspotmail.com
+Reported-by: syzbot+76f3a30e88d256644c78@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20191207212757.GA245964@dtor-ws
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/trace/blktrace.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/input/input.c | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -1834,8 +1834,11 @@ static ssize_t sysfs_blk_trace_attr_stor
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -841,16 +841,18 @@ static int input_default_setkeycode(stru
+ 		}
  	}
  
- 	ret = 0;
--	if (bt == NULL)
-+	if (bt == NULL) {
- 		ret = blk_trace_setup_queue(q, bdev);
-+		bt = rcu_dereference_protected(q->blk_trace,
-+				lockdep_is_held(&q->blk_trace_mutex));
-+	}
+-	__clear_bit(*old_keycode, dev->keybit);
+-	__set_bit(ke->keycode, dev->keybit);
+-
+-	for (i = 0; i < dev->keycodemax; i++) {
+-		if (input_fetch_keycode(dev, i) == *old_keycode) {
+-			__set_bit(*old_keycode, dev->keybit);
+-			break; /* Setting the bit twice is useless, so break */
++	if (*old_keycode <= KEY_MAX) {
++		__clear_bit(*old_keycode, dev->keybit);
++		for (i = 0; i < dev->keycodemax; i++) {
++			if (input_fetch_keycode(dev, i) == *old_keycode) {
++				__set_bit(*old_keycode, dev->keybit);
++				/* Setting the bit twice is useless, so break */
++				break;
++			}
+ 		}
+ 	}
  
- 	if (ret == 0) {
- 		if (attr == &dev_attr_act_mask)
++	__set_bit(ke->keycode, dev->keybit);
+ 	return 0;
+ }
+ 
+@@ -906,9 +908,13 @@ int input_set_keycode(struct input_dev *
+ 	 * Simulate keyup event if keycode is not present
+ 	 * in the keymap anymore
+ 	 */
+-	if (test_bit(EV_KEY, dev->evbit) &&
+-	    !is_event_supported(old_keycode, dev->keybit, KEY_MAX) &&
+-	    __test_and_clear_bit(old_keycode, dev->key)) {
++	if (old_keycode > KEY_MAX) {
++		dev_warn(dev->dev.parent ?: &dev->dev,
++			 "%s: got too big old keycode %#x\n",
++			 __func__, old_keycode);
++	} else if (test_bit(EV_KEY, dev->evbit) &&
++		   !is_event_supported(old_keycode, dev->keybit, KEY_MAX) &&
++		   __test_and_clear_bit(old_keycode, dev->key)) {
+ 		struct input_value vals[] =  {
+ 			{ EV_KEY, old_keycode, 0 },
+ 			input_value_sync
 
