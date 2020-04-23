@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B8CB1B682D
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:13:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FCB31B680D
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:12:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729065AbgDWXND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:13:03 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50084 "EHLO
+        id S1728661AbgDWXMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:12:01 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50044 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728510AbgDWXGv (ORCPT
+        by vger.kernel.org with ESMTP id S1728507AbgDWXGv (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:51 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkva-0004ms-J5; Fri, 24 Apr 2020 00:06:42 +0100
+        id 1jRkvZ-0004lh-1C; Fri, 24 Apr 2020 00:06:41 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvX-00E6xM-8e; Fri, 24 Apr 2020 00:06:39 +0100
+        id 1jRkvX-00E6xQ-Br; Fri, 24 Apr 2020 00:06:39 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -28,12 +28,12 @@ To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Johan Hovold" <johan@kernel.org>,
         "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Fri, 24 Apr 2020 00:07:00 +0100
-Message-ID: <lsq.1587683028.797327125@decadent.org.uk>
+Date:   Fri, 24 Apr 2020 00:07:01 +0100
+Message-ID: <lsq.1587683028.950875048@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 193/245] USB: serial: ch341: handle unbound port at
- reset_resume
+Subject: [PATCH 3.16 194/245] USB: serial: io_edgeport: handle unbound
+ ports on URB completion
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,35 +49,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 4d5ef53f75c22d28f490bcc5c771fcc610a9afa4 upstream.
+commit e37d1aeda737a20b1846a91a3da3f8b0f00cf690 upstream.
 
-Check for NULL port data in reset_resume() to avoid dereferencing a NULL
-pointer in case the port device isn't bound to a driver (e.g. after a
-failed control request at port probe).
+Check for NULL port data in the shared interrupt and bulk completion
+callbacks to avoid dereferencing a NULL pointer in case a device sends
+data for a port device which isn't bound to a driver (e.g. due to a
+malicious device having unexpected endpoints or after an allocation
+failure on port probe).
 
-Fixes: 1ded7ea47b88 ("USB: ch341 serial: fix port number changed after resume")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/serial/ch341.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/serial/io_edgeport.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -571,9 +571,13 @@ static int ch341_tiocmget(struct tty_str
- static int ch341_reset_resume(struct usb_serial *serial)
- {
- 	struct usb_serial_port *port = serial->port[0];
--	struct ch341_private *priv = usb_get_serial_port_data(port);
-+	struct ch341_private *priv;
- 	int ret;
- 
-+	priv = usb_get_serial_port_data(port);
-+	if (!priv)
-+		return 0;
-+
- 	/* reconfigure ch341 serial port after bus-reset */
- 	ch341_configure(serial->dev, priv);
- 
+--- a/drivers/usb/serial/io_edgeport.c
++++ b/drivers/usb/serial/io_edgeport.c
+@@ -638,7 +638,7 @@ static void edge_interrupt_callback(stru
+ 			if (txCredits) {
+ 				port = edge_serial->serial->port[portNumber];
+ 				edge_port = usb_get_serial_port_data(port);
+-				if (edge_port->open) {
++				if (edge_port && edge_port->open) {
+ 					spin_lock(&edge_port->ep_lock);
+ 					edge_port->txCredits += txCredits;
+ 					spin_unlock(&edge_port->ep_lock);
+@@ -1775,7 +1775,7 @@ static void process_rcvd_data(struct edg
+ 				port = edge_serial->serial->port[
+ 							edge_serial->rxPort];
+ 				edge_port = usb_get_serial_port_data(port);
+-				if (edge_port->open) {
++				if (edge_port && edge_port->open) {
+ 					dev_dbg(dev, "%s - Sending %d bytes to TTY for port %d\n",
+ 						__func__, rxLen,
+ 						edge_serial->rxPort);
 
