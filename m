@@ -2,59 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5DCB1B659D
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 22:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD1BB1B659E
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 22:40:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726200AbgDWUka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726840AbgDWUka (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Apr 2020 16:40:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45600 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726183AbgDWUk3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 16:40:29 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50875C09B042
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:29 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id v4so8377692wme.1
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:29 -0700 (PDT)
+        with ESMTP id S1726183AbgDWUka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 16:40:30 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ADB6C09B042
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:30 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id x17so7492628wrt.5
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=3YC6pyybi6G5bn9vYupqc8C2qtwqHiQkVZLXEFbQNI4=;
-        b=PjaL3uYMp2rgHl3IlJnLKwude0XXqK1ZPywoi1daPCpvqJg0vdEY6i7UUpvGeFpIYV
-         rXnVzuwiCHF2LMmuunru6D3iwOSDrA55JN33rksvGmn5r1mJkysFDKxvFKuBEvZZfjmp
-         Z/2NzBytexNQbsmrTpVf7wRdmnq42kjF4ws6gX7C1Z1kJVtQbOMzhVbtWTXWTatNlqWc
-         EAEyqHR0YUcobZMXP+v9pONjfumgbwNIDJNhzq9CgxsScBfn7GfzRW1O1+q8b1ZCL9rA
-         lXbY99hpuaKXvg/0ar+dshUh5pQmYq/b6TvqIO/ds7BcZdh1kC2IF0qE7lfWSYmSlABp
-         j5RA==
+        bh=2pZHt+hAsIb+Y7qJYHv626ADWtS8jmmdGfuI//hKgVk=;
+        b=qzoOo3I8cRfX6MkdFJqq6RfvQNTBNZpPZezGm0Z9Q48HYA5S8TgKbjZ72D7+H7HZ0B
+         HbomgluFtve7s8MNbFZnVLMzUlZaSfWN8N9KP7CPtvmxNpvER3cRN72pab2BTmSzSgp9
+         l3uULjj0sYtZZgDcyYIW8CI3hJwPkooYNI7P64SKzPqtgishpp7gxHR596IU6zuuj8YZ
+         Rj/C0OEwDHxdXbkxb/ElCVE3MgcEPNuufDS7XbFRPfm8tpOmVhsGVhyySyXS2+lAQjQh
+         F+jv0bEOI5DgrLGwrsaeeOq1UXWZbj1mSaZfb5wDgm4RRpznz6XOTr72Vj+FUwIu9kPe
+         Ot3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=3YC6pyybi6G5bn9vYupqc8C2qtwqHiQkVZLXEFbQNI4=;
-        b=QHsgwpIN8hnugbFgE4n4VwQXYIhNNAJzt6jvxVFUvupYUJFANKEf5quwbGSKTMvUIC
-         /QaW6s+9THFp6uF9MAXzZgJGoQ1QRuWyzPeaBkTNJ/DGTqCRIGzQExX4cvWi2wbRyVjQ
-         uliXNO0u8CCsnWfn/ZpcdVdcpisCg3KXRseovh9E2yBE3q1DiaNEHGxoqk6NRAnGyiPk
-         qknoP8XVs/wNkn5aO/yFf4PXicx2cBj+yO7nb3QZRG27DUIFFvtgWDPi61iGGXQwG8Rz
-         pqq9d+weHNHOx8lvh8RcsfIRCALuERMUFrOBh0tX5DEEAcJdVzRC9AJDrn+TP23QxB2+
-         bv6A==
-X-Gm-Message-State: AGi0PubWWNCMwsIUgVyfnyYcbrd8hm8m7j1fothjKPrseqCmxTDvoqhY
-        hXPiByKT/8ywyj3TdDiH7ZwmgqpX0ds=
-X-Google-Smtp-Source: APiQypKEySmKDgddqpo4st9A9JILHRulL1ihwRQ0sskgoAHeqfp2ei39wp/1UL0bvrzABAgEjSKEKQ==
-X-Received: by 2002:a1c:5f46:: with SMTP id t67mr6474028wmb.156.1587674427776;
-        Thu, 23 Apr 2020 13:40:27 -0700 (PDT)
+        bh=2pZHt+hAsIb+Y7qJYHv626ADWtS8jmmdGfuI//hKgVk=;
+        b=k2QFj9OQu7S/T1Y7zbS7+vgqNQ5PdEwE0NzD6yUrXLESkQoT5htG9orE0tpsTLiDrT
+         CthbZBDhEineIuxcKrjp3D3s1Edas07JFKT3Bk/5t24MWS5AtJrBMGss0dNPfqcs/tQ2
+         uGSVq2BVUU7nPNAIuZcerGof13Gy/GMR3V6lN7GnsHyUDON42jiMh6scYw6MgcALLAUr
+         loplcJcbcLM940LAPVePdbopIu4SMkV6++U8MX8oAyBQ4xslrFveUum2DTe47ey5bB9y
+         7GaosIIqFxPhklGqfTjxa91z6LQwVZywMXgrVPERRm0oJXJCDU4uozbjQqaWzeMzGxK4
+         NLGg==
+X-Gm-Message-State: AGi0PuYkgOzqffcNHC0NL2EhlOfli+gMVOjcJNbUzvwY1fvkvk+K0rro
+        Y/NW1ZAuSUw4tzaWRHfa0EjbOvvCBHg=
+X-Google-Smtp-Source: APiQypIDRhLgw4MqKyYW9y98lRjr3X48PX1AA28NrNsAN/Hw0p0TJpPP7LZ9Ls6tGiVyxGbKRKfTSQ==
+X-Received: by 2002:adf:e986:: with SMTP id h6mr6915217wrm.256.1587674428816;
+        Thu, 23 Apr 2020 13:40:28 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id u17sm5933726wra.63.2020.04.23.13.40.26
+        by smtp.gmail.com with ESMTPSA id u17sm5933726wra.63.2020.04.23.13.40.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2020 13:40:26 -0700 (PDT)
+        Thu, 23 Apr 2020 13:40:28 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     Yangtao Li <tiny.windzz@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Hamad Kadmany <hkadmany@codeaurora.org>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 08/16] serial/sunsu: add missing of_node_put()
-Date:   Thu, 23 Apr 2020 21:40:06 +0100
-Message-Id: <20200423204014.784944-9-lee.jones@linaro.org>
+Subject: [PATCH 4.4 09/16] wil6210: increase firmware ready timeout
+Date:   Thu, 23 Apr 2020 21:40:07 +0100
+Message-Id: <20200423204014.784944-10-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200423204014.784944-1-lee.jones@linaro.org>
 References: <20200423204014.784944-1-lee.jones@linaro.org>
@@ -65,63 +66,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <tiny.windzz@gmail.com>
+From: Hamad Kadmany <hkadmany@codeaurora.org>
 
-[ Upstream commit 20d8e8611eb0596047fd4389be7a7203a883b9bf ]
+[ Upstream commit 6ccae584014ef7074359eb4151086beef66ecfa9 ]
 
-of_find_node_by_path() acquires a reference to the node
-returned by it and that reference needs to be dropped by its caller.
-This place is not doing this, so fix it.
+Firmware ready event may take longer than
+current timeout in some scenarios, for example
+with multiple RFs connected where each
+requires an initial calibration.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Increase the timeout to support these scenarios.
+
+Signed-off-by: Hamad Kadmany <hkadmany@codeaurora.org>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/tty/serial/sunsu.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/wil6210/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/sunsu.c b/drivers/tty/serial/sunsu.c
-index e124d2e88996f..8db64282260fb 100644
---- a/drivers/tty/serial/sunsu.c
-+++ b/drivers/tty/serial/sunsu.c
-@@ -1393,22 +1393,32 @@ static inline struct console *SUNSU_CONSOLE(void)
- static enum su_type su_get_type(struct device_node *dp)
+diff --git a/drivers/net/wireless/ath/wil6210/main.c b/drivers/net/wireless/ath/wil6210/main.c
+index f09fafaaaf1a3..c377937aae1c4 100644
+--- a/drivers/net/wireless/ath/wil6210/main.c
++++ b/drivers/net/wireless/ath/wil6210/main.c
+@@ -741,7 +741,7 @@ static void wil_bl_crash_info(struct wil6210_priv *wil, bool is_err)
+ 
+ static int wil_wait_for_fw_ready(struct wil6210_priv *wil)
  {
- 	struct device_node *ap = of_find_node_by_path("/aliases");
-+	enum su_type rc = SU_PORT_PORT;
+-	ulong to = msecs_to_jiffies(1000);
++	ulong to = msecs_to_jiffies(2000);
+ 	ulong left = wait_for_completion_timeout(&wil->wmi_ready, to);
  
- 	if (ap) {
-+		struct device_node *tmp;
- 		const char *keyb = of_get_property(ap, "keyboard", NULL);
- 		const char *ms = of_get_property(ap, "mouse", NULL);
- 
- 		if (keyb) {
--			if (dp == of_find_node_by_path(keyb))
--				return SU_PORT_KBD;
-+			tmp = of_find_node_by_path(keyb);
-+			if (tmp && dp == tmp){
-+				rc = SU_PORT_KBD;
-+				goto out;
-+			}
- 		}
- 		if (ms) {
--			if (dp == of_find_node_by_path(ms))
--				return SU_PORT_MS;
-+			tmp = of_find_node_by_path(ms);
-+			if (tmp && dp == tmp){
-+				rc = SU_PORT_MS;
-+				goto out;
-+			}
- 		}
- 	}
- 
--	return SU_PORT_PORT;
-+out:
-+	of_node_put(ap);
-+	return rc;
- }
- 
- static int su_probe(struct platform_device *op)
+ 	if (0 == left) {
 -- 
 2.25.1
 
