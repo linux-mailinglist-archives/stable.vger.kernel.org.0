@@ -2,132 +2,226 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6C351B6076
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 18:12:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AD3A1B6085
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 18:17:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729484AbgDWQMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 12:12:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
+        id S1729458AbgDWQRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 12:17:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729072AbgDWQMj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 12:12:39 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F0FCC09B041;
-        Thu, 23 Apr 2020 09:12:39 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id d24so2527858pll.8;
-        Thu, 23 Apr 2020 09:12:39 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1729456AbgDWQRC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 12:17:02 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79425C09B042
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 09:17:02 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id y4so6832641ljn.7
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 09:17:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=w5BnnDhmgZcwje4pfB+GDNEYgWcf7/W0k8zctX+tCrc=;
-        b=YXhSSVEXIz+nSBz5QOinrHGJF6zVhd8q+tdw99nW8nIOa0Dkzklt5r/3YlfeOVfX7F
-         4pWLw7z3HZJHWKKjgpcuMRKKmbDZXisxx2o38bOiLy5Y6Ty04iR5Kmf42JeK6SH7w1IB
-         iaLezI3foErFMD4n4/hjI1fmnWWx79sETFE/HH7dtNp6MUXxLQJdfnnL7744uXJdozff
-         +IZZcblCI0oq525cNnLt9v+91fdHgfzCMYlmrKMzBP8hQPULJynHartA9QBJZZRHjc1g
-         Oi97sqCWzSTmm/XJ0+wIhhPZ2roYs5nQXbCefYPeZP88RX9yLHrqLdiad8fXMDe0XMMM
-         NtbA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ijdMMcHPH4n9eA8V/gf4wWgLkrDvsP5TIce3A7fesiQ=;
+        b=fMUlAg+qtZ6dX+Y7V6T45czdEPdEGPmMSmY28fuEEUVckkLLuNibGnDgO+dzFDVV6+
+         FgWKFGSei0MQlkX/W2PTf6QBBpLSOHZVOStT+DunErONz2dXeQRka8Z/0Qto5RUr0W6a
+         3LTJEGZ6LkdRvcyR0iqlQnMJuVVpaIuH498BX6bZDgUcGq+sQ1AXXoZU8njOyh4r5wNn
+         fZwMoD7b2DdlktE/8nKhmDX/aQwFbNF0dUDltXSRY80+OQar4xQQQ6WyP0y2Pn+Hw4N9
+         FFdgIXU63pgwC6ylGpbfIxC691BBK3/rrQPmCbdHChS7rua4hOLalpUTOFaBS4VEEUcZ
+         9Yqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=w5BnnDhmgZcwje4pfB+GDNEYgWcf7/W0k8zctX+tCrc=;
-        b=J+kHvbNwF8uh3VIDqfkA+dsKTxIWktoP+jVZTUn8rZqcdE9PQ5mEnG+Hv2Xm8ZnZQV
-         q4J+2Kw/kOy79np0VCTNiwQZpHd8Jpysu5qJSR69D6pha0LyLg3ubXunkxSoAioQe+LL
-         VEEy3X1byY3c+eqjU6wtTJutjQLinYkry/XQCA4R0jeJNP6JmPH5POS8mr1OsgZvTMCm
-         dlbxn1KnHbidnS5472uwNZfHvPUsAe1fGSfoQ8PNZbANnxZuj9fxEsOW/X88+2Wz0ldt
-         UsgruwgOQZORTGYAveJ/89CKzIxXj6BYij2M4cvNG4K4toT2r1vw2ifPIbnYMee+Um1m
-         J65Q==
-X-Gm-Message-State: AGi0PuaDy04sua3kRKEHu6Fi0l0N3LJww6EvQTbxJQCGJ/D0y/CX2GDy
-        ADi2SWhkl1t1hfNsDwNui+SKsljs
-X-Google-Smtp-Source: APiQypKJN2Fil5ZXxrI9tW+aZ5WOG1rYzZcDRmjeMFtG9CLMahG5VENeP/J6+jqbn08ppZWPZ679Jg==
-X-Received: by 2002:a17:902:8b82:: with SMTP id ay2mr4570923plb.285.1587658354879;
-        Thu, 23 Apr 2020 09:12:34 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id o68sm2984536pfb.206.2020.04.23.09.12.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 23 Apr 2020 09:12:34 -0700 (PDT)
-Subject: Re: [PATCH 4.14 000/198] 4.14.177-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200423103335.768056640@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <3e47e4df-91e1-cc2d-12ba-729715a1361e@roeck-us.net>
-Date:   Thu, 23 Apr 2020 09:12:33 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ijdMMcHPH4n9eA8V/gf4wWgLkrDvsP5TIce3A7fesiQ=;
+        b=PaxNbHN0o+7U9cnTaUZfvMge5gqR/9SgW2opa63JCRetQxRQvtw/txamInMKyzusg7
+         9gPZeOsRTyLbbdKxfFb0ofPeHfjqqFt+AIXmK5Uu5HB4vQ9uHBVoJpKQnq1CJ4/3eXTK
+         GSdp9GTK/9rFw3+w8w/fhspY8Lyn/cWWoLofyjpa0KgYAX64fSbzcGOpR4CrIXLKpB4f
+         6IoBj72Uid0m8U1yqkbl7c/FAe/WuTTETML8A8ANfVG13PkuN0ueY3KMrronxziDDqYT
+         p6mNRk0fH953pkUKpSxaaRsapzegVrMRKpIhA6CoTb6PogpL52Gl7UcUEUfh0vG+fNfc
+         Wdig==
+X-Gm-Message-State: AGi0PuaLUmeioj5NgNxlb6LJZoZX7wC9jqt+ja8GOJndHgbKWkq37HF5
+        lp1c8U2INeFhq9+W+n2dtzrx1kF2sUuH47kkZ4/CgVhs6d+0qQ==
+X-Google-Smtp-Source: APiQypIpnUzSguFj/Ur2JF6UTX7TBHAiOEbSz2jo1tBf9L4BT22dZ70fZ5krajNFS2Q0sjOzBV9WvEaYTjH5OWHPc94=
+X-Received: by 2002:a2e:9455:: with SMTP id o21mr2871939ljh.245.1587658620689;
+ Thu, 23 Apr 2020 09:17:00 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200423103335.768056640@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200423103313.886224224@linuxfoundation.org>
+In-Reply-To: <20200423103313.886224224@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 23 Apr 2020 21:46:49 +0530
+Message-ID: <CA+G9fYu5Onq3iULgsuzBWmWtkkauSxvLR3Ms2EewyNwqp7vOxA@mail.gmail.com>
+Subject: Re: [PATCH 4.4 00/99] 4.4.220-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/23/20 3:35 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.177 release.
-> There are 198 patches in this series, all will be posted as a response
+On Thu, 23 Apr 2020 at 16:04, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.4.220 release.
+> There are 99 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Sat, 25 Apr 2020 10:31:20 +0000.
 > Anything received after that time might be too late.
-> 
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.4.220-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Build results:
-	total: 171 pass: 171 fail: 0
-Qemu test results:
-	total: 405 pass: 405 fail: 0
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Guenter
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.220-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.4.y
+git commit: b7353bd580c08b4aef6e29998477a8c6c44e0e4b
+git describe: v4.4.219-100-gb7353bd580c0
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
+ld/v4.4.219-100-gb7353bd580c0
+
+No regressions (compared to build v4.4.219)
+
+No fixes (compared to build v4.4.219)
+
+Ran 21536 total tests in the following environments and test suites.
+
+Environments
+--------------
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* perf
+* v4l2-compliance
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* spectre-meltdown-checker-test
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kvm-unit-tests
+
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.220-rc2
+git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
+git branch: 4.4.220-rc2-hikey-20200423-702
+git commit: fbc771dad6485f27aa5ae4cbaf83d47cd02a943e
+git describe: 4.4.220-rc2-hikey-20200423-702
+Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
+-oe/build/4.4.220-rc2-hikey-20200423-702
+
+
+No regressions (compared to build 4.4.220-rc1-hikey-20200422-701)
+
+No fixes (compared to build 4.4.220-rc1-hikey-20200422-701)
+
+Ran 1814 total tests in the following environments and test suites.
+
+Environments
+--------------
+- hi6220-hikey - arm64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
