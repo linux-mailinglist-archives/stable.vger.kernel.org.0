@@ -2,150 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF07E1B5CC6
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:43:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9E191B5CD6
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:47:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728534AbgDWNnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 09:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36598 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728470AbgDWNng (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 09:43:36 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6F04C08E934
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 06:43:36 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id d24so2353791pll.8
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 06:43:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=IQgxfeBD+UOYTh/BaWvQiTP9T8/HnQ2ttxOhiKmKjY8=;
-        b=qcvN65INF89+giqxCxCYGF26cpgPECLW9YgU7CPoG0UyBr/CF0LTLocN5+wWsiMs+6
-         v0cfWJA2253SagA5fejNDBKr6MDagN592Npv+T3cg2j0gbheYitbsN5omETLMnOC9tG1
-         Pp2MSCM/bME0cyF/lw9Uy5OWhdLozlzcADs3h7kr8Gd7au3pMhztzTaeKDWwGkS/z7Zl
-         syeyHNhem7ttqz/XWSk9xEGQ2Tq2+hgr7W5jxDCONm8MsFTS9sDceJdiqEADi5SPEgvV
-         6cERtM3NT00VFTUYFZBOBWQUwLAzKgPHJyMZTTUEMVxOtdDU/a9eCb0Gw5bZFhKqgWfo
-         v1Ow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=IQgxfeBD+UOYTh/BaWvQiTP9T8/HnQ2ttxOhiKmKjY8=;
-        b=NtiD77WKl15k6at+yJ0MvNQeiNM6zTEpkP/G1FTj2esDf/ZPQuB9aAzPIusXxmHaQQ
-         9Mw2FVayycnQfFXSA0jgiTvOSjVDTj7UYgBtHegVuw+9xBNC6KyaM5Lvmtb+DiCj2pL8
-         tGhaXNyM5ea/RJnauSQIxx7KgXuyJFGFcvA757kPdWjXnYVlDaH3FIV2vgcM6n7/6Is0
-         mNzOtRIA5nnAmBw8PbZT3fnviVVwqKpqRep4nrjUAUpPlLPJgaxC8n8OQcRTgYXW4LuU
-         6LwDY68JVR58RyR5xnZVmdE2fksseyJXtIyo/+4F7Xyd3nkyEUy8+gnzlEDCJvXHa41G
-         VQJg==
-X-Gm-Message-State: AGi0PuYEcwV567A46egh2/dBVONApMmrBWa+UlGTR04LCtD4neQmAiu7
-        HcXl1IiJgaP/F6QyxpMfQo9ocmMmGgQ=
-X-Google-Smtp-Source: APiQypKbbj6d2quPJ0Mu6VwkkUWuqvTQIuG+/LSFlJPeTNd0pbqIgWWce/jxliB2ZiNBNawhheWWKQ==
-X-Received: by 2002:a17:902:7588:: with SMTP id j8mr3515372pll.98.1587649415856;
-        Thu, 23 Apr 2020 06:43:35 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g1sm2379784pjt.25.2020.04.23.06.43.34
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2020 06:43:34 -0700 (PDT)
-Message-ID: <5ea19b86.1c69fb81.dcd89.7467@mx.google.com>
-Date:   Thu, 23 Apr 2020 06:43:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727898AbgDWNrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 09:47:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37952 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726926AbgDWNrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 09:47:07 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C9B820728;
+        Thu, 23 Apr 2020 13:47:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587649626;
+        bh=+Ol6oKIhfcOGN/dAF0VQgCqyczrRph8CyZn9CC1dlcM=;
+        h=Subject:To:From:Date:From;
+        b=KpxROXMWJ6f0iQ1yfbqG+GSm3z6eXfBer6O7duPoSx4DlLVu0Rvu0RFhPNJJrVhrs
+         Fx1UGdocKOSkrXRRRNUKHJOT6kx/lH4m1X6R/6U1qofLF+OPy9rt3WJJcWpRCBg//H
+         3i+wKvbLbHhlne7bwOdDPJZtIiRDi1LzshJLpZ7E=
+Subject: patch "vt: don't use kmalloc() for the unicode screen buffer" added to tty-linus
+To:     nico@fluxnic.net, gregkh@linuxfoundation.org, sam@ravnborg.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 23 Apr 2020 15:47:04 +0200
+Message-ID: <158764962413760@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.219-101-gacb152478366
-Subject: stable-rc/linux-4.4.y boot: 64 boots: 3 failed,
- 53 passed with 6 offline, 2 untried/unknown (v4.4.219-101-gacb152478366)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 64 boots: 3 failed, 53 passed with 6 offline, 2=
- untried/unknown (v4.4.219-101-gacb152478366)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.219-101-gacb152478366/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.219-101-gacb152478366/
+This is a note to let you know that I've just added the patch titled
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.219-101-gacb152478366
-Git Commit: acb1524783663f011864b65a135442403625d4b8
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 41 unique boards, 15 SoC families, 16 builds out of 190
+    vt: don't use kmalloc() for the unicode screen buffer
 
-Boot Regressions Detected:
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
 
-arm:
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: new failure (last pass: v4.4.219-83-g20=
-fbd20eb91a)
-          dm365evm,legacy:
-              lab-baylibre-seattle: new failure (last pass: v4.4.219-83-g20=
-fbd20eb91a)
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 74 days (last pass: v4.4.=
-212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
+If you have any questions about this process, please let me know.
 
-i386:
 
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-collabora: new failure (last pass: v4.4.219-83-g20fbd20eb=
-91a)
+From 9a98e7a80f95378c9ee0c644705e3b5aa54745f1 Mon Sep 17 00:00:00 2001
+From: Nicolas Pitre <nico@fluxnic.net>
+Date: Sat, 28 Mar 2020 22:25:11 -0400
+Subject: vt: don't use kmalloc() for the unicode screen buffer
 
-Boot Failures Detected:
+Even if the actual screen size is bounded in vc_do_resize(), the unicode
+buffer is still a little more than twice the size of the glyph buffer
+and may exceed MAX_ORDER down the kmalloc() path. This can be triggered
+from user space.
 
-arm:
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
+Since there is no point having a physically contiguous buffer here,
+let's avoid the above issue as well as reducing pressure on high order
+allocations by using vmalloc() instead.
 
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-
+Signed-off-by: Nicolas Pitre <nico@fluxnic.net>
+Cc: <stable@vger.kernel.org>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.2003282214210.2671@knanqh.ubzr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/tty/vt/vt.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index 309a39197be0..3272759b1f3c 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -81,6 +81,7 @@
+ #include <linux/errno.h>
+ #include <linux/kd.h>
+ #include <linux/slab.h>
++#include <linux/vmalloc.h>
+ #include <linux/major.h>
+ #include <linux/mm.h>
+ #include <linux/console.h>
+@@ -350,7 +351,7 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
+ 	/* allocate everything in one go */
+ 	memsize = cols * rows * sizeof(char32_t);
+ 	memsize += rows * sizeof(char32_t *);
+-	p = kmalloc(memsize, GFP_KERNEL);
++	p = vmalloc(memsize);
+ 	if (!p)
+ 		return NULL;
+ 
+@@ -366,7 +367,7 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
+ 
+ static void vc_uniscr_set(struct vc_data *vc, struct uni_screen *new_uniscr)
+ {
+-	kfree(vc->vc_uni_screen);
++	vfree(vc->vc_uni_screen);
+ 	vc->vc_uni_screen = new_uniscr;
+ }
+ 
+-- 
+2.26.2
+
+
