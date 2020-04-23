@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0921B6987
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64AA51B69B0
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728118AbgDWXG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:06:28 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48164 "EHLO
+        id S1728204AbgDWXZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:25:40 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48174 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727968AbgDWXG1 (ORCPT
+        by vger.kernel.org with ESMTP id S1728046AbgDWXG1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:27 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvI-0004Zf-Ev; Fri, 24 Apr 2020 00:06:24 +0100
+        id 1jRkvI-0004Zi-GX; Fri, 24 Apr 2020 00:06:24 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvH-00E6fK-Rr; Fri, 24 Apr 2020 00:06:23 +0100
+        id 1jRkvH-00E6fN-TS; Fri, 24 Apr 2020 00:06:23 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -27,12 +27,12 @@ From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
         "Jan Kara" <jack@suse.com>, "Theodore Ts'o" <tytso@mit.edu>
-Date:   Fri, 24 Apr 2020 00:04:02 +0100
-Message-ID: <lsq.1587683028.757479552@decadent.org.uk>
+Date:   Fri, 24 Apr 2020 00:04:03 +0100
+Message-ID: <lsq.1587683028.116815940@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 015/245] ext4: move unlocked dio protection from
- ext4_alloc_file_blocks()
+Subject: [PATCH 3.16 016/245] ext4: fix races between buffered IO and
+ collapse / insert range
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,89 +48,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.com>
 
-commit 17048e8a083fec7ad841d88ef0812707fbc7e39f upstream.
+commit 32ebffd3bbb4162da5ff88f9a35dd32d0a28ea70 upstream.
 
-Currently ext4_alloc_file_blocks() was handling protection against
-unlocked DIO. However we now need to sometimes call it under i_mmap_sem
-and sometimes not and DIO protection ranks above it (although strictly
-speaking this cannot currently create any deadlocks). Also
-ext4_zero_range() was actually getting & releasing unlocked DIO
-protection twice in some cases. Luckily it didn't introduce any real bug
-but it was a land mine waiting to be stepped on.  So move DIO protection
-out from ext4_alloc_file_blocks() into the two callsites.
+Current code implementing FALLOC_FL_COLLAPSE_RANGE and
+FALLOC_FL_INSERT_RANGE is prone to races with buffered writes and page
+faults. If buffered write or write via mmap manages to squeeze between
+filemap_write_and_wait_range() and truncate_pagecache() in the fallocate
+implementations, the written data is simply discarded by
+truncate_pagecache() although it should have been shifted.
+
+Fix the problem by moving filemap_write_and_wait_range() call inside
+i_mutex and i_mmap_sem. That way we are protected against races with
+both buffered writes and page faults.
 
 Signed-off-by: Jan Kara <jack@suse.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+[bwh: Backported to 3.16: drop changes in ext4_insert_range()]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/ext4/extents.c | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
-
 --- a/fs/ext4/extents.c
 +++ b/fs/ext4/extents.c
-@@ -4707,10 +4707,6 @@ static int ext4_alloc_file_blocks(struct
- 	if (len <= EXT_UNWRITTEN_MAX_LEN)
- 		flags |= EXT4_GET_BLOCKS_NO_NORMALIZE;
+@@ -5453,21 +5453,7 @@ int ext4_collapse_range(struct inode *in
+ 			return ret;
+ 	}
  
--	/* Wait all existing dio workers, newcomers will block on i_mutex */
--	ext4_inode_block_unlocked_dio(inode);
--	inode_dio_wait(inode);
+-	/*
+-	 * Need to round down offset to be aligned with page size boundary
+-	 * for page size > block size.
+-	 */
+-	ioffset = round_down(offset, PAGE_SIZE);
+-
+-	/* Write out all dirty pages */
+-	ret = filemap_write_and_wait_range(inode->i_mapping, ioffset,
+-					   LLONG_MAX);
+-	if (ret)
+-		return ret;
+-
+-	/* Take mutex lock */
+ 	mutex_lock(&inode->i_mutex);
 -
  	/*
- 	 * credits to insert 1 extent into extent tree
+ 	 * There is no need to overlap collapse range with EOF, in which case
+ 	 * it is effectively a truncate operation
+@@ -5492,6 +5478,27 @@ int ext4_collapse_range(struct inode *in
+ 	 * page cache.
  	 */
-@@ -4760,8 +4756,6 @@ retry:
- 		goto retry;
- 	}
+ 	down_write(&EXT4_I(inode)->i_mmap_sem);
++	/*
++	 * Need to round down offset to be aligned with page size boundary
++	 * for page size > block size.
++	 */
++	ioffset = round_down(offset, PAGE_SIZE);
++	/*
++	 * Write tail of the last page before removed range since it will get
++	 * removed from the page cache below.
++	 */
++	ret = filemap_write_and_wait_range(inode->i_mapping, ioffset, offset);
++	if (ret)
++		goto out_mmap;
++	/*
++	 * Write data that will be shifted to preserve them when discarding
++	 * page cache below. We are also protected from pages becoming dirty
++	 * by i_mmap_sem.
++	 */
++	ret = filemap_write_and_wait_range(inode->i_mapping, offset + len,
++					   LLONG_MAX);
++	if (ret)
++		goto out_mmap;
+ 	truncate_pagecache(inode, ioffset);
  
--	ext4_inode_resume_unlocked_dio(inode);
--
- 	return ret > 0 ? ret2 : ret;
- }
- 
-@@ -4836,6 +4830,10 @@ static long ext4_zero_range(struct file
- 	if (mode & FALLOC_FL_KEEP_SIZE)
- 		flags |= EXT4_GET_BLOCKS_KEEP_SIZE;
- 
-+	/* Wait all existing dio workers, newcomers will block on i_mutex */
-+	ext4_inode_block_unlocked_dio(inode);
-+	inode_dio_wait(inode);
-+
- 	/* Preallocate the range including the unaligned edges */
- 	if (partial_begin || partial_end) {
- 		ret = ext4_alloc_file_blocks(file,
-@@ -4844,7 +4842,7 @@ static long ext4_zero_range(struct file
- 				 round_down(offset, 1 << blkbits)) >> blkbits,
- 				new_size, flags, mode);
- 		if (ret)
--			goto out_mutex;
-+			goto out_dio;
- 
- 	}
- 
-@@ -4853,10 +4851,6 @@ static long ext4_zero_range(struct file
- 		flags |= (EXT4_GET_BLOCKS_CONVERT_UNWRITTEN |
- 			  EXT4_EX_NOCACHE);
- 
--		/* Wait all existing dio workers, newcomers will block on i_mutex */
--		ext4_inode_block_unlocked_dio(inode);
--		inode_dio_wait(inode);
--
- 		/*
- 		 * Prevent page faults from reinstantiating pages we have
- 		 * released from page cache.
-@@ -4985,8 +4979,13 @@ long ext4_fallocate(struct file *file, i
- 			goto out;
- 	}
- 
-+	/* Wait all existing dio workers, newcomers will block on i_mutex */
-+	ext4_inode_block_unlocked_dio(inode);
-+	inode_dio_wait(inode);
-+
- 	ret = ext4_alloc_file_blocks(file, lblk, max_blocks, new_size,
- 				     flags, mode);
-+	ext4_inode_resume_unlocked_dio(inode);
- 	if (ret)
- 		goto out;
- 
+ 	credits = ext4_writepage_trans_blocks(inode);
 
