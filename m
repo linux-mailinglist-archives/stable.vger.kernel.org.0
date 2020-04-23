@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EBEF1B6599
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 22:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C891B659A
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 22:40:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726637AbgDWUkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 16:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45576 "EHLO
+        id S1726363AbgDWUk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 16:40:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726183AbgDWUkY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 16:40:24 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CCCEC09B042
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:23 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id b11so8233110wrs.6
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:23 -0700 (PDT)
+        with ESMTP id S1726183AbgDWUkZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 16:40:25 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ACFBC09B042
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:25 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id g13so8229606wrb.8
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=/hkstutUKkzAeVkb8A6CMmZCBPtBnLhhXsPrhwYxTuA=;
-        b=RP13O6RyAg51iKwhAiHK9NBWC6OAiagMGTL0dHdzMSZMasf6D8uKatMb1p3TgTw5+9
-         hu69D6G8GS8aO4zoNg2jrOANVAaINkxPwzpufAXwKUxit77hykhSqMtB6snpfm0F81hd
-         UmmzrCJuZ0S7w3lC9XM4vWvWUpwWLSA4qBmdUUKFuNAF6md66FZSn4lelg0Z+RvTGyQv
-         JXuLDV+W4OYYzs72yt0EgGSZkbB1dxu8smW0BEWcfF7XhEThos8mE1JHJc/pkLyLLyR8
-         j1orLJzNept+xjBQNR5GMY+RHpSoUoinF/HDHfP9BCQLthN6tH1g9vnprCdmPP+LcYJi
-         9hwQ==
+        bh=Ew2Jpv/icPL2fFBz/NSetkxvuqhRbbQqlWSu01ZZe7k=;
+        b=gP3/LICIST+uyZSXUIWtRp76JpME4XsSbcRzo2YA+RpJnJhXiVLbKxlJIBnSQ+wHNM
+         QvsoE5yPiNJgPFMahU1V+HtjQlshcD2dxYXDmePfCAXQxhjnsbYlYa2RuM0yAIFmVtkL
+         b0fDwJREk9StpiLFYHm2tPMmwLtazP5cfKIid7HvANCawPlHOBD6xgWt+ARRzfdWrx9x
+         pKp/tOJRLnqxY8T1H6an6/3DzhlTby8EeoMRYovxS4Jg9dM+LV8K4hcoPxmr4ufFHDAW
+         osdUTDbXK/dHRehou//4f0xywlVQGhfzh2vTMiPEQArmqMj4IEuGMH1kCnalSHNhVk48
+         U+Zg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/hkstutUKkzAeVkb8A6CMmZCBPtBnLhhXsPrhwYxTuA=;
-        b=bA5zEL0VplLm06SPcQ4mAqdV3GiFx1+Bw8y0+dJI0nIDzRg1Fh4sOjmBCMwLYhoEBG
-         xYHEs5pwLJs5hOW/8yxcJBJLBq7SrkaOHUNVBVFJ+7WUzJDUYh5k/BRzQC56K9LhDh8z
-         DCI3DdNdMafrx4g3TsFQJE3MREFXpUAyVEBzhQcRkd1vUafeP2uxO62jfaBto63APqG+
-         St906KrRTc9dtWYk3slPxdeetrkt3wDFr1rbFuszDqWM6BGnSwuQuf37U8BYCjAvzh30
-         QrOy0YpK96rPsnynNlxcPbaeqUGlaKMoFq6K0ipehknt/fxaO3NN4ufnGn2X8+1SMG2X
-         iZMw==
-X-Gm-Message-State: AGi0PuY3blAz/+DN1DI7aMK3Hplh6reNtU6cg7gDKHJZcVFjj8qUvt51
-        ardMZYryLP+WmENdRDCZj3vd7QSbYN4=
-X-Google-Smtp-Source: APiQypKBN71lAXe1lmBGeAW3QmJygSRproa4ywleUYk72xrQFS47TFCTuFtI9CzCJjSeH9xTiUF1iQ==
-X-Received: by 2002:adf:82b1:: with SMTP id 46mr6465870wrc.44.1587674421980;
-        Thu, 23 Apr 2020 13:40:21 -0700 (PDT)
+        bh=Ew2Jpv/icPL2fFBz/NSetkxvuqhRbbQqlWSu01ZZe7k=;
+        b=UGeN1zepLjNdZuV58nat4m//uEPTtVAjurwHH+mD6SS2wNlpIg24nDbEJQizhOz6dM
+         Ax7PI3F63Q2Yst2+4TN4rDYqwH/Mc+NSBYVs9NlJSeLLW4Vhd1JLwzxjCOiHRKhZsG83
+         WJFAJSTtvj3PtKoq+ucVukmSS4gy1PXdPb4q74Je0wHZj9eyIfsgMstBULHpgrFqbhc8
+         VfbSHB0HgmxBxNe/dD79BwE7x9WaaUqQ07dH44isgGQ8krm0dWe13Ab2dy8gkBEsHpTi
+         QXnB6853nUUjtdp960llATje9nWGrFI1IVvIZ0uI/kV/e1AizVkRoc1lt0ZbI9cgvNQL
+         peJQ==
+X-Gm-Message-State: AGi0PuYTgOveicUMMYdP1hqPEdSvtUVLlNwkv32YmYwlMQZ2qpny0Tr7
+        12r4yHb9K1WhSKq4OmZrF3i2abkV6OA=
+X-Google-Smtp-Source: APiQypLzTUOypQ2yuVImV2sNpTdc2VAuClxn9BmdVyromIMQQ+fxm1Gz5aOheFx3O3KYZkekfvwH0w==
+X-Received: by 2002:adf:dbce:: with SMTP id e14mr6432260wrj.337.1587674423909;
+        Thu, 23 Apr 2020 13:40:23 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id u17sm5933726wra.63.2020.04.23.13.40.21
+        by smtp.gmail.com with ESMTPSA id u17sm5933726wra.63.2020.04.23.13.40.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2020 13:40:21 -0700 (PDT)
+        Thu, 23 Apr 2020 13:40:22 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     Markus Elfring <elfring@users.sourceforge.net>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+Cc:     Joe Moriarty <joe.moriarty@oracle.com>,
+        Steven Sistare <steven.sistare@oracle.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 04/16] crypto: talitos - Delete an error message for a failed memory allocation in talitos_edesc_alloc()
-Date:   Thu, 23 Apr 2020 21:40:02 +0100
-Message-Id: <20200423204014.784944-5-lee.jones@linaro.org>
+Subject: [PATCH 4.4 05/16] drm: NULL pointer dereference [null-pointer-deref] (CWE 476) problem
+Date:   Thu, 23 Apr 2020 21:40:03 +0100
+Message-Id: <20200423204014.784944-6-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200423204014.784944-1-lee.jones@linaro.org>
 References: <20200423204014.784944-1-lee.jones@linaro.org>
@@ -66,34 +66,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
+From: Joe Moriarty <joe.moriarty@oracle.com>
 
-[ Upstream commit 0108aab1161532c9b62a0d05b8115f4d0b529831 ]
+[ Upstream commit 22a07038c0eaf4d1315a493ce66dcd255accba19 ]
 
-Omit an extra message for a memory allocation failure in this function.
+The Parfait (version 2.1.0) static code analysis tool found the
+following NULL pointer derefernce problem.
 
-This issue was detected by using the Coccinelle software.
+- drivers/gpu/drm/drm_dp_mst_topology.c
+The call to drm_dp_calculate_rad() in function drm_dp_port_setup_pdt()
+could result in a NULL pointer being returned to port->mstb due to a
+failure to allocate memory for port->mstb.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Joe Moriarty <joe.moriarty@oracle.com>
+Reviewed-by: Steven Sistare <steven.sistare@oracle.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20180212195144.98323-3-joe.moriarty@oracle.com
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/crypto/talitos.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index 1c8857e7db894..f3d0a33f4ddb4 100644
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -1287,7 +1287,6 @@ static struct talitos_edesc *talitos_edesc_alloc(struct device *dev,
- 		if (iv_dma)
- 			dma_unmap_single(dev, iv_dma, ivsize, DMA_TO_DEVICE);
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index f5229b083f8ea..abf5bd09de33b 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -1036,10 +1036,12 @@ static bool drm_dp_port_setup_pdt(struct drm_dp_mst_port *port)
+ 		lct = drm_dp_calculate_rad(port, rad);
  
--		dev_err(dev, "could not allocate edescriptor\n");
- 		return ERR_PTR(-ENOMEM);
+ 		port->mstb = drm_dp_add_mst_branch_device(lct, rad);
+-		port->mstb->mgr = port->mgr;
+-		port->mstb->port_parent = port;
++		if (port->mstb) {
++			port->mstb->mgr = port->mgr;
++			port->mstb->port_parent = port;
+ 
+-		send_link = true;
++			send_link = true;
++		}
+ 		break;
  	}
- 
+ 	return send_link;
 -- 
 2.25.1
 
