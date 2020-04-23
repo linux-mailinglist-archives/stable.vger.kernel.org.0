@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1B71B690A
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:20:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DE481B6927
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729104AbgDWXT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:19:58 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48668 "EHLO
+        id S1728821AbgDWXUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:20:48 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48622 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728228AbgDWXGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:34 -0400
+        by vger.kernel.org with ESMTP id S1728214AbgDWXGd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:33 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvM-0004bf-0S; Fri, 24 Apr 2020 00:06:28 +0100
+        id 1jRkvM-0004bi-3G; Fri, 24 Apr 2020 00:06:28 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvL-00E6kH-DZ; Fri, 24 Apr 2020 00:06:27 +0100
+        id 1jRkvL-00E6kO-EU; Fri, 24 Apr 2020 00:06:27 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Marcel Holtmann" <marcel@holtmann.org>,
-        "Jiri Kosina" <jkosina@suse.cz>
-Date:   Fri, 24 Apr 2020 00:05:01 +0100
-Message-ID: <lsq.1587683028.704630172@decadent.org.uk>
+        "Geert Uytterhoeven" <geert+renesas@glider.be>,
+        "Linus Walleij" <linus.walleij@linaro.org>
+Date:   Fri, 24 Apr 2020 00:05:02 +0100
+Message-ID: <lsq.1587683028.586409928@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 074/245] HID: uhid: Fix returning EPOLLOUT from
- uhid_char_poll
+Subject: [PATCH 3.16 075/245] gpio: Fix error message on out-of-range GPIO
+ in lookup table
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,31 +47,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Marcel Holtmann <marcel@holtmann.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit be54e7461ffdc5809b67d2aeefc1ddc9a91470c7 upstream.
+commit d935bd50dd14a7714cbdba9a76435dbb56edb1ae upstream.
 
-Always return EPOLLOUT from uhid_char_poll to allow polling /dev/uhid
-for writable state.
+When a GPIO offset in a lookup table is out-of-range, the printed error
+message (1) does not include the actual out-of-range value, and (2)
+contains an off-by-one error in the upper bound.
 
-Fixes: 1f9dec1e0164 ("HID: uhid: allow poll()'ing on uhid devices")
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-[bwh: Backported to 3.16: s/EPOLL/POLL/g]
+Avoid user confusion by also printing the actual GPIO offset, and
+correcting the upper bound of the range.
+While at it, use "%u" for unsigned int.
+
+Sample impact:
+
+    -requested GPIO 0 is out of range [0..32] for chip e6052000.gpio
+    +requested GPIO 0 (45) is out of range [0..31] for chip e6052000.gpio
+
+Fixes: 2a3cf6a3599e9015 ("gpiolib: return -ENOENT if no GPIO mapping exists")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191127095919.4214-1-geert+renesas@glider.be
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/hid/uhid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpiolib.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -726,7 +726,7 @@ static unsigned int uhid_char_poll(struc
- 	if (uhid->head != uhid->tail)
- 		return POLLIN | POLLRDNORM;
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -2743,8 +2743,9 @@ static struct gpio_desc *gpiod_find(stru
  
--	return 0;
-+	return POLLOUT | POLLWRNORM;
- }
+ 		if (chip->ngpio <= p->chip_hwnum) {
+ 			dev_err(dev,
+-				"requested GPIO %d is out of range [0..%d] for chip %s\n",
+-				idx, chip->ngpio, chip->label);
++				"requested GPIO %u (%u) is out of range [0..%u] for chip %s\n",
++				idx, p->chip_hwnum, chip->ngpio - 1,
++				chip->label);
+ 			return ERR_PTR(-EINVAL);
+ 		}
  
- static const struct file_operations uhid_fops = {
 
