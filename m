@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23F561B67C0
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:09:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D0491B67C2
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbgDWXJX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:09:23 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50852 "EHLO
+        id S1729065AbgDWXJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:09:34 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50854 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728646AbgDWXG6 (ORCPT
+        by vger.kernel.org with ESMTP id S1728647AbgDWXG6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:58 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvk-0004xG-6j; Fri, 24 Apr 2020 00:06:52 +0100
+        id 1jRkvk-0004xX-C2; Fri, 24 Apr 2020 00:06:52 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvf-00E72K-Eh; Fri, 24 Apr 2020 00:06:47 +0100
+        id 1jRkvf-00E72P-P3; Fri, 24 Apr 2020 00:06:47 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Dan Carpenter" <dan.carpenter@oracle.com>,
-        "Willy Tarreau" <w@1wt.eu>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Jordy Zomer" <jordy@simplyhacker.com>
-Date:   Fri, 24 Apr 2020 00:07:31 +0100
-Message-ID: <lsq.1587683028.161841510@decadent.org.uk>
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        "=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>,
+        syzbot+f2a62d07a5198c819c7b@syzkaller.appspotmail.com,
+        "David S. Miller" <davem@davemloft.net>
+Date:   Fri, 24 Apr 2020 00:07:32 +0100
+Message-ID: <lsq.1587683028.378990711@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 224/245] floppy: check FDC index for errors before
- assigning it
+Subject: [PATCH 3.16 225/245] vhost: Check docket sk_family instead of
+ call getname
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,63 +49,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Eugenio Pérez <eperezma@redhat.com>
 
-commit 2e90ca68b0d2f5548804f22f0dd61145516171e3 upstream.
+commit 42d84c8490f9f0931786f1623191fcab397c3d64 upstream.
 
-Jordy Zomer reported a KASAN out-of-bounds read in the floppy driver in
-wait_til_ready().
+Doing so, we save one call to get data we already have in the struct.
 
-Which on the face of it can't happen, since as Willy Tarreau points out,
-the function does no particular memory access.  Except through the FDCS
-macro, which just indexes a static allocation through teh current fdc,
-which is always checked against N_FDC.
+Also, since there is no guarantee that getname use sockaddr_ll
+parameter beyond its size, we add a little bit of security here.
+It should do not do beyond MAX_ADDR_LEN, but syzbot found that
+ax25_getname writes more (72 bytes, the size of full_sockaddr_ax25,
+versus 20 + 32 bytes of sockaddr_ll + MAX_ADDR_LEN in syzbot repro).
 
-Except the checking happens after we've already assigned the value.
-
-The floppy driver is a disgrace (a lot of it going back to my original
-horrd "design"), and has no real maintainer.  Nobody has the hardware,
-and nobody really cares.  But it still gets used in virtual environment
-because it's one of those things that everybody supports.
-
-The whole thing should be re-written, or at least parts of it should be
-seriously cleaned up.  The 'current fdc' index, which is used by the
-FDCS macro, and which is often shadowed by a local 'fdc' variable, is a
-prime example of how not to write code.
-
-But because nobody has the hardware or the motivation, let's just fix up
-the immediate problem with a nasty band-aid: test the fdc index before
-actually assigning it to the static 'fdc' variable.
-
-Reported-by: Jordy Zomer <jordy@simplyhacker.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
+Reported-by: syzbot+f2a62d07a5198c819c7b@syzkaller.appspotmail.com
+Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 3.16: Also delete "uaddr_len" variable]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/block/floppy.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -847,14 +847,17 @@ static void reset_fdc_info(int mode)
- /* selects the fdc and drive, and enables the fdc's input/dma. */
- static void set_fdc(int drive)
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -843,11 +843,7 @@ static int vhost_net_release(struct inod
+ 
+ static struct socket *get_raw_socket(int fd)
  {
-+	unsigned int new_fdc = fdc;
-+
- 	if (drive >= 0 && drive < N_DRIVE) {
--		fdc = FDC(drive);
-+		new_fdc = FDC(drive);
- 		current_drive = drive;
+-	struct {
+-		struct sockaddr_ll sa;
+-		char  buf[MAX_ADDR_LEN];
+-	} uaddr;
+-	int uaddr_len = sizeof uaddr, r;
++	int r;
+ 	struct socket *sock = sockfd_lookup(fd, &r);
+ 
+ 	if (!sock)
+@@ -859,12 +855,7 @@ static struct socket *get_raw_socket(int
+ 		goto err;
  	}
--	if (fdc != 1 && fdc != 0) {
-+	if (new_fdc >= N_FDC) {
- 		pr_info("bad fdc value\n");
- 		return;
+ 
+-	r = sock->ops->getname(sock, (struct sockaddr *)&uaddr.sa,
+-			       &uaddr_len, 0);
+-	if (r)
+-		goto err;
+-
+-	if (uaddr.sa.sll_family != AF_PACKET) {
++	if (sock->sk->sk_family != AF_PACKET) {
+ 		r = -EPFNOSUPPORT;
+ 		goto err;
  	}
-+	fdc = new_fdc;
- 	set_dor(fdc, ~0, 8);
- #if N_FDC > 1
- 	set_dor(1 - fdc, ~8, 0);
 
