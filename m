@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD1BB1B659E
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 22:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A291B659F
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 22:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726840AbgDWUka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 16:40:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
+        id S1726849AbgDWUkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 16:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726183AbgDWUka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 16:40:30 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ADB6C09B042
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:30 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id x17so7492628wrt.5
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:30 -0700 (PDT)
+        with ESMTP id S1726183AbgDWUkc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 16:40:32 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B86FEC09B042
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:31 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id g13so8229951wrb.8
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 13:40:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=2pZHt+hAsIb+Y7qJYHv626ADWtS8jmmdGfuI//hKgVk=;
-        b=qzoOo3I8cRfX6MkdFJqq6RfvQNTBNZpPZezGm0Z9Q48HYA5S8TgKbjZ72D7+H7HZ0B
-         HbomgluFtve7s8MNbFZnVLMzUlZaSfWN8N9KP7CPtvmxNpvER3cRN72pab2BTmSzSgp9
-         l3uULjj0sYtZZgDcyYIW8CI3hJwPkooYNI7P64SKzPqtgishpp7gxHR596IU6zuuj8YZ
-         Rj/C0OEwDHxdXbkxb/ElCVE3MgcEPNuufDS7XbFRPfm8tpOmVhsGVhyySyXS2+lAQjQh
-         F+jv0bEOI5DgrLGwrsaeeOq1UXWZbj1mSaZfb5wDgm4RRpznz6XOTr72Vj+FUwIu9kPe
-         Ot3A==
+        bh=delpOehTXvAM9GwDPbw2EyVrij8m0ovO9xyQACi08O8=;
+        b=aLmDxN/hXIV7G6SvHXKQCDrGwfTuKVxvNoH1VMxkQNTS8pcjkaCbCvL6FImSJcaoeF
+         t2Hyw2boNoyBwEurpoZbAn+zeawcooaUZulbBxAiXtr4a0GnZZWE1iIAZpK0eehjma1+
+         vnwttLuB+Te+Tyjh4SzBL6KbrSI53H315KzD1/3q+jzbmy8gWNeP3C8LilyoV9dPS232
+         E47Ue0Dw/mq5Agg13ABZoXSbrihB2EmYduuAUtugCBtjd3WJE01eftpJP3elLjaejPtK
+         gXIv63hl66zYf8E5gMtqCfAyB/GJ14qjtqUH+K8Mrkxq96zuxoRs7HdPzZuZFcxhg7I5
+         Lfuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2pZHt+hAsIb+Y7qJYHv626ADWtS8jmmdGfuI//hKgVk=;
-        b=k2QFj9OQu7S/T1Y7zbS7+vgqNQ5PdEwE0NzD6yUrXLESkQoT5htG9orE0tpsTLiDrT
-         CthbZBDhEineIuxcKrjp3D3s1Edas07JFKT3Bk/5t24MWS5AtJrBMGss0dNPfqcs/tQ2
-         uGSVq2BVUU7nPNAIuZcerGof13Gy/GMR3V6lN7GnsHyUDON42jiMh6scYw6MgcALLAUr
-         loplcJcbcLM940LAPVePdbopIu4SMkV6++U8MX8oAyBQ4xslrFveUum2DTe47ey5bB9y
-         7GaosIIqFxPhklGqfTjxa91z6LQwVZywMXgrVPERRm0oJXJCDU4uozbjQqaWzeMzGxK4
-         NLGg==
-X-Gm-Message-State: AGi0PuYkgOzqffcNHC0NL2EhlOfli+gMVOjcJNbUzvwY1fvkvk+K0rro
-        Y/NW1ZAuSUw4tzaWRHfa0EjbOvvCBHg=
-X-Google-Smtp-Source: APiQypIDRhLgw4MqKyYW9y98lRjr3X48PX1AA28NrNsAN/Hw0p0TJpPP7LZ9Ls6tGiVyxGbKRKfTSQ==
-X-Received: by 2002:adf:e986:: with SMTP id h6mr6915217wrm.256.1587674428816;
-        Thu, 23 Apr 2020 13:40:28 -0700 (PDT)
+        bh=delpOehTXvAM9GwDPbw2EyVrij8m0ovO9xyQACi08O8=;
+        b=DLUhIOAZny595lRTiUI3OMOjzuc44GddABMH0yDHmB8JrBBuDNVlOEaz+rPJiL4Czd
+         VtPONMDtSs9s4gpSXEkVAhQLCXdR59+KOB+qkS8feSAnrVT4SPjpz7TVPhrVvG9WPpKy
+         SP2mnQkcVPU1BTq1ILS9+L7g+UnPIBlKlujYsaLTg+fB8M1jDmvcn6EPZscyzXBi4U8V
+         2gFHeiq+pUhhGzByeq3DQUhb7S7ECBzHYoK2VWN/+p9tDt81k1XDcMUcE3jBrnLrscsl
+         ICf6ajvwj7WhRXNP51qizZALzoITuxWm0BHEODResofXmgilfuuQ3k6zBkK7LQrvsfXM
+         sLUQ==
+X-Gm-Message-State: AGi0PuYxPG3nR1Vd8XlMlCs+80084pX/PDitrGD7Sl48v3ETfIKGECST
+        Whcd+zZV1S5gEOWJwfbxeba0JDkekX8=
+X-Google-Smtp-Source: APiQypJBhErUReI2kdjqh9f0wR+CgEI+6t9O043HdAN2FTwzPHcwz30dEWYMeAybIbZAAtb3ktsVxA==
+X-Received: by 2002:adf:fecd:: with SMTP id q13mr7376811wrs.12.1587674430156;
+        Thu, 23 Apr 2020 13:40:30 -0700 (PDT)
 Received: from localhost.localdomain ([2.31.163.63])
-        by smtp.gmail.com with ESMTPSA id u17sm5933726wra.63.2020.04.23.13.40.27
+        by smtp.gmail.com with ESMTPSA id u17sm5933726wra.63.2020.04.23.13.40.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2020 13:40:28 -0700 (PDT)
+        Thu, 23 Apr 2020 13:40:29 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Cc:     Hamad Kadmany <hkadmany@codeaurora.org>,
+Cc:     Dedy Lansky <dlansky@codeaurora.org>,
         Maya Erez <merez@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 09/16] wil6210: increase firmware ready timeout
-Date:   Thu, 23 Apr 2020 21:40:07 +0100
-Message-Id: <20200423204014.784944-10-lee.jones@linaro.org>
+Subject: [PATCH 4.4 10/16] wil6210: fix temperature debugfs
+Date:   Thu, 23 Apr 2020 21:40:08 +0100
+Message-Id: <20200423204014.784944-11-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200423204014.784944-1-lee.jones@linaro.org>
 References: <20200423204014.784944-1-lee.jones@linaro.org>
@@ -66,38 +66,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hamad Kadmany <hkadmany@codeaurora.org>
+From: Dedy Lansky <dlansky@codeaurora.org>
 
-[ Upstream commit 6ccae584014ef7074359eb4151086beef66ecfa9 ]
+[ Upstream commit 6d9eb7ebae3d7e951bc0999235ae7028eb4cae4f ]
 
-Firmware ready event may take longer than
-current timeout in some scenarios, for example
-with multiple RFs connected where each
-requires an initial calibration.
+For negative temperatures, "temp" debugfs is showing wrong values.
+Use signed types so proper calculations is done for sub zero
+temperatures.
 
-Increase the timeout to support these scenarios.
-
-Signed-off-by: Hamad Kadmany <hkadmany@codeaurora.org>
+Signed-off-by: Dedy Lansky <dlansky@codeaurora.org>
 Signed-off-by: Maya Erez <merez@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/wireless/ath/wil6210/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/wil6210/debugfs.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wil6210/main.c b/drivers/net/wireless/ath/wil6210/main.c
-index f09fafaaaf1a3..c377937aae1c4 100644
---- a/drivers/net/wireless/ath/wil6210/main.c
-+++ b/drivers/net/wireless/ath/wil6210/main.c
-@@ -741,7 +741,7 @@ static void wil_bl_crash_info(struct wil6210_priv *wil, bool is_err)
+diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
+index 97bc186f97282..2da03d69ed42e 100644
+--- a/drivers/net/wireless/ath/wil6210/debugfs.c
++++ b/drivers/net/wireless/ath/wil6210/debugfs.c
+@@ -1088,7 +1088,7 @@ static const struct file_operations fops_ssid = {
+ };
  
- static int wil_wait_for_fw_ready(struct wil6210_priv *wil)
+ /*---------temp------------*/
+-static void print_temp(struct seq_file *s, const char *prefix, u32 t)
++static void print_temp(struct seq_file *s, const char *prefix, s32 t)
  {
--	ulong to = msecs_to_jiffies(1000);
-+	ulong to = msecs_to_jiffies(2000);
- 	ulong left = wait_for_completion_timeout(&wil->wmi_ready, to);
+ 	switch (t) {
+ 	case 0:
+@@ -1096,7 +1096,8 @@ static void print_temp(struct seq_file *s, const char *prefix, u32 t)
+ 		seq_printf(s, "%s N/A\n", prefix);
+ 	break;
+ 	default:
+-		seq_printf(s, "%s %d.%03d\n", prefix, t / 1000, t % 1000);
++		seq_printf(s, "%s %s%d.%03d\n", prefix, (t < 0 ? "-" : ""),
++			   abs(t / 1000), abs(t % 1000));
+ 		break;
+ 	}
+ }
+@@ -1104,7 +1105,7 @@ static void print_temp(struct seq_file *s, const char *prefix, u32 t)
+ static int wil_temp_debugfs_show(struct seq_file *s, void *data)
+ {
+ 	struct wil6210_priv *wil = s->private;
+-	u32 t_m, t_r;
++	s32 t_m, t_r;
+ 	int rc = wmi_get_temperature(wil, &t_m, &t_r);
  
- 	if (0 == left) {
+ 	if (rc) {
 -- 
 2.25.1
 
