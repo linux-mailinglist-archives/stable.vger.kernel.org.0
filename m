@@ -2,124 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0563F1B69DE
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BC601B6A2E
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 02:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726310AbgDWXdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:33:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37364 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726060AbgDWXdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 19:33:09 -0400
-Received: from devnote2 (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF58120736;
-        Thu, 23 Apr 2020 23:33:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587684789;
-        bh=eOH8otZNBa35EahXHMyUuKwMSkdWrQwp8Sr98YxOspw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=qlb/v6AnJJnQsYbkp4vlbhpaoOVQfoei+UqBfVMMSmK8ugUvdfKzoycXG+Jfn7A74
-         hE3e4s2653BuRPYTyRkWMydupaiKX7tzOAHGb6pmRPQXxEcTyTeZclLq3Y62WBsT8U
-         HpxMgrP8h8ynCzxAMUVoVtykjUd5VoOLQOMKW0MQ=
-Date:   Fri, 24 Apr 2020 08:33:05 +0900
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-To:     Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 3/3] perf-probe: Do not show the skipped events
-Message-Id: <20200424083305.6bff9456650308ab7a4ab750@kernel.org>
-In-Reply-To: <20200423140139.GG19437@kernel.org>
-References: <158763965400.30755.14484569071233923742.stgit@devnote2>
-        <158763968263.30755.12800484151476026340.stgit@devnote2>
-        <20200423140139.GG19437@kernel.org>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S1726310AbgDXAAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 20:00:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48386 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727877AbgDXAAP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 20:00:15 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BBAC09B042
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 17:00:15 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id e25so8117405ljg.5
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 17:00:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3AO2zDYw2OTrVTsEOf9qOCAlkKJ6vVvcI1aCDMu2ZHI=;
+        b=HS3L0RvS4J2AHu7yfa/WS299UPIfdIbz/WFwgftGS6ioGesdU8JDJpiCx8KTLRhzpA
+         Sfr0mHYtsT0QNWyBvlx8aWk4NH51uEI07Sr1zkBRpg2pGcz3a3lRSpCoqLAgwInRrt2P
+         J2Jv3rZreCwePGwxg5ozt4xBt6eUBnW1Am+tGXtZBNVX8gRgNeIyGZE6gjHpmMmjMR7a
+         OqPZfZcjampppdtDZ8OBwmW1hsnnK++hHZHP2GyH0qVPUsaBj5DiTrxhcwv6AWkYBiO8
+         FSfcdCtwihfWI8gehyCoCkUNA6Y7H9x6+q9r5a3ae6cNP056qNWkhKgJrrrI2dzM2wch
+         SRZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3AO2zDYw2OTrVTsEOf9qOCAlkKJ6vVvcI1aCDMu2ZHI=;
+        b=DKFkK5K9jGQwdyJ8k1PTof9He6zMMGsHswGKQ1nJTZlJBfaDNOQBffaDbbs5J8dA17
+         p2SftAD+9JYZDAkucdnljm0qUFYaMRUaP9uMGnWkVPMpyAuYOpenjMpPV9c5ApgvWwR3
+         uGZqbgyGcel+OfsKW9wClkSIHHAFQ4Z00HAviOZWU27xCwvNnwE+LbEE1seIVMiuSm6Z
+         oAbyBgrNWLczgSbBrQPdJOlU4/ZBfgqS1Hn3zgMhuIh7OzNGwk0FdleBy5Ryjug8zrIJ
+         fNJ/+v75EDSXQecLSPQqkWLQV45VW4n4u21J4MtF0Tg3R1ce4vChAInpVlq8EvSiVKgO
+         gHrg==
+X-Gm-Message-State: AGi0PuaoMzr+ViDqLgZc1RRiE99sVv4Wlrvuf2j9QxBs+tACoPdOFBVJ
+        wbVR9wxtihggSDOZvtS8mRC/Ko1tT7tOLcoIRshIPA==
+X-Google-Smtp-Source: APiQypK+4462/UiJw2zVslTXnFJSdEZhNkC9wnzz+Q8zSaEjmCsx8aWyreNA0I93TTjbrrEaBN7JVQiJAfn44Wb6CKA=
+X-Received: by 2002:a2e:87d3:: with SMTP id v19mr3762634ljj.176.1587686413751;
+ Thu, 23 Apr 2020 17:00:13 -0700 (PDT)
+MIME-Version: 1.0
+References: <lsq.1587683027.831233700@decadent.org.uk>
+In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
+From:   Jann Horn <jannh@google.com>
+Date:   Fri, 24 Apr 2020 01:59:47 +0200
+Message-ID: <CAG48ez0nyLsyAeLJXEnCnhkh26EnZGnam1cyd84a5LoFcEyMiw@mail.gmail.com>
+Subject: Re: [PATCH 3.16 000/245] 3.16.83-rc1 review
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     kernel list <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Denis Kirjanov <kda@linux-powerpc.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 23 Apr 2020 11:01:39 -0300
-Arnaldo Carvalho de Melo <acme@kernel.org> wrote:
+On Fri, Apr 24, 2020 at 1:03 AM Ben Hutchings <ben@decadent.org.uk> wrote:
+> This is the start of the stable review cycle for the 3.16.83 release.
+> There are 245 patches in this series, which will be posted as responses
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Tue Apr 28 18:00:00 UTC 2020.
+> Anything received after that time might be too late.
 
-> Em Thu, Apr 23, 2020 at 08:01:22PM +0900, Masami Hiramatsu escreveu:
-> > When a probe point is expanded to several places (like inlined) and
-> > if some of them are skipped because of blacklisted or __init function,
-> > those trace_events has no event name. It must be skipped while showing
-> > results.
-> > 
-> > Without this fix, you can see "(null):(null)" on the list,
-> > ===========
-> 
-> Ok, you broke the patch in two, I think its better to combine both, ok?
+Can you please add backports of the following patches? I asked for
+that in <https://lore.kernel.org/stable/CAG48ez29d-JJOw8XMp1Z=7sDj8Kvmt+9KXC9-ux-0OBhUP02Xg@mail.gmail.com/>,
+but I guess that fell through the cracks somehow.
 
-No, if an inlined function is embedded in blacklisted areas, it also
-shows same "(null):(null)" without [2/3].
+8019ad13ef7f64be44d4f892af9c840179009254 "futex: Fix inode life-time issue"
+8d67743653dce5a0e7aa500fcccb237cde7ad88e "futex: Unbreak futex hashing"
 
-Reordering the patches is OK, but this is still an independent fix.
-
-Thank you,
-
-> 
-> - Arnaldo
-> 
-> >   # ./perf probe request_resource
-> >   reserve_setup is out of .text, skip it.
-> >   Added new events:
-> >     (null):(null)        (on request_resource)
-> >     probe:request_resource (on request_resource)
-> > 
-> >   You can now use it in all perf tools, such as:
-> > 
-> >   	perf record -e probe:request_resource -aR sleep 1
-> > 
-> > ===========
-> > 
-> > With this fix, it is ignored.
-> > ===========
-> >   # ./perf probe request_resource
-> >   reserve_setup is out of .text, skip it.
-> >   Added new events:
-> >     probe:request_resource (on request_resource)
-> > 
-> >   You can now use it in all perf tools, such as:
-> > 
-> >   	perf record -e probe:request_resource -aR sleep 1
-> > 
-> > ===========
-> > 
-> > Fixes: 5a51fcd1f30c ("perf probe: Skip kernel symbols which is out of .text")
-> > Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  tools/perf/builtin-probe.c |    3 +++
-> >  1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/tools/perf/builtin-probe.c b/tools/perf/builtin-probe.c
-> > index 70548df2abb9..6b1507566770 100644
-> > --- a/tools/perf/builtin-probe.c
-> > +++ b/tools/perf/builtin-probe.c
-> > @@ -364,6 +364,9 @@ static int perf_add_probe_events(struct perf_probe_event *pevs, int npevs)
-> >  
-> >  		for (k = 0; k < pev->ntevs; k++) {
-> >  			struct probe_trace_event *tev = &pev->tevs[k];
-> > +			/* Skipped events have no event name */
-> > +			if (!tev->event)
-> > +				continue;
-> >  
-> >  			/* We use tev's name for showing new events */
-> >  			show_perf_probe_event(tev->group, tev->event, pev,
-> > 
-> 
-> -- 
-> 
-> - Arnaldo
-
-
--- 
-Masami Hiramatsu <mhiramat@kernel.org>
+Can those still go into 3.16.83, or is it too late for that now?
