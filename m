@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 587781B68EF
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6CD1B68EE
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:19:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728689AbgDWXTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728048AbgDWXTE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Apr 2020 19:19:04 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48882 "EHLO
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48862 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728257AbgDWXGg (ORCPT
+        by vger.kernel.org with ESMTP id S1728250AbgDWXGg (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:36 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvO-0004fB-Uz; Fri, 24 Apr 2020 00:06:31 +0100
+        id 1jRkvP-0004f3-4P; Fri, 24 Apr 2020 00:06:31 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvM-00E6lX-E2; Fri, 24 Apr 2020 00:06:28 +0100
+        id 1jRkvM-00E6lc-GL; Fri, 24 Apr 2020 00:06:28 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        syzbot+35b1c403a14f5c89eba7@syzkaller.appspotmail.com,
-        "Johan Hovold" <johan@kernel.org>,
-        "Hansjoerg Lipp" <hjlipp@web.de>,
         "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Tilman Schmidt" <tilman@imap.cc>
-Date:   Fri, 24 Apr 2020 00:05:08 +0100
-Message-ID: <lsq.1587683028.89242587@decadent.org.uk>
+        "Tilman Schmidt" <tilman@imap.cc>,
+        "Johan Hovold" <johan@kernel.org>
+Date:   Fri, 24 Apr 2020 00:05:09 +0100
+Message-ID: <lsq.1587683028.102497951@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 081/245] staging: gigaset: fix general protection
- fault on probe
+Subject: [PATCH 3.16 082/245] staging: gigaset: fix illegal free on probe
+ errors
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -52,37 +50,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 53f35a39c3860baac1e5ca80bf052751cfb24a99 upstream.
+commit 84f60ca7b326ed8c08582417493982fe2573a9ad upstream.
 
-Fix a general protection fault when accessing the endpoint descriptors
-which could be triggered by a malicious device due to missing sanity
-checks on the number of endpoints.
+The driver failed to initialise its receive-buffer pointer, something
+which could lead to an illegal free on late probe errors.
 
-Reported-by: syzbot+35b1c403a14f5c89eba7@syzkaller.appspotmail.com
-Fixes: 07dc1f9f2f80 ("[PATCH] isdn4linux: Siemens Gigaset drivers - M105 USB DECT adapter")
-Cc: Hansjoerg Lipp <hjlipp@web.de>
+Fix this by making sure to clear all driver data at allocation.
+
+Fixes: 2032e2c2309d ("usb_gigaset: code cleanup")
 Cc: Tilman Schmidt <tilman@imap.cc>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191202085610.12719-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20191202085610.12719-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 [bwh: Backported to 3.16: adjust filename]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/isdn/gigaset/usb-gigaset.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/isdn/gigaset/usb-gigaset.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
 --- a/drivers/isdn/gigaset/usb-gigaset.c
 +++ b/drivers/isdn/gigaset/usb-gigaset.c
-@@ -693,6 +693,11 @@ static int gigaset_probe(struct usb_inte
- 		return -ENODEV;
- 	}
+@@ -578,8 +578,7 @@ static int gigaset_initcshw(struct cards
+ {
+ 	struct usb_cardstate *ucs;
  
-+	if (hostif->desc.bNumEndpoints < 2) {
-+		dev_err(&interface->dev, "missing endpoints\n");
-+		return -ENODEV;
-+	}
-+
- 	dev_info(&udev->dev, "%s: Device matched ... !\n", __func__);
+-	cs->hw.usb = ucs =
+-		kmalloc(sizeof(struct usb_cardstate), GFP_KERNEL);
++	cs->hw.usb = ucs = kzalloc(sizeof(struct usb_cardstate), GFP_KERNEL);
+ 	if (!ucs) {
+ 		pr_err("out of memory\n");
+ 		return -ENOMEM;
+@@ -591,9 +590,6 @@ static int gigaset_initcshw(struct cards
+ 	ucs->bchars[3] = 0;
+ 	ucs->bchars[4] = 0x11;
+ 	ucs->bchars[5] = 0x13;
+-	ucs->bulk_out_buffer = NULL;
+-	ucs->bulk_out_urb = NULL;
+-	ucs->read_urb = NULL;
+ 	tasklet_init(&cs->write_tasklet,
+ 		     gigaset_modem_fill, (unsigned long) cs);
  
- 	/* allocate memory for our device state and initialize it */
 
