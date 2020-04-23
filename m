@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 933891B690F
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C64B1B6910
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729226AbgDWXUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:20:09 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48678 "EHLO
+        id S1729319AbgDWXUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:20:10 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48652 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728229AbgDWXGe (ORCPT
+        by vger.kernel.org with ESMTP id S1728226AbgDWXGe (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:34 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvM-0004c0-1C; Fri, 24 Apr 2020 00:06:28 +0100
+        id 1jRkvM-0004c4-1k; Fri, 24 Apr 2020 00:06:28 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvK-00E6jB-Dg; Fri, 24 Apr 2020 00:06:26 +0100
+        id 1jRkvK-00E6jG-EQ; Fri, 24 Apr 2020 00:06:26 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Dmitry Vyukov" <dvyukov@google.com>,
-        "Will Deacon" <will@kernel.org>,
-        "Christian Brauner" <christian.brauner@ubuntu.com>,
-        "Andrea Parri" <parri.andrea@gmail.com>,
-        syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com,
-        "Marco Elver" <elver@google.com>
-Date:   Fri, 24 Apr 2020 00:04:50 +0100
-Message-ID: <lsq.1587683028.124448678@decadent.org.uk>
+        "Joe Thornber" <ejt@redhat.com>,
+        "Mike Snitzer" <snitzer@redhat.com>, "Hou Tao" <houtao1@huawei.com>
+Date:   Fri, 24 Apr 2020 00:04:51 +0100
+Message-ID: <lsq.1587683028.323647383@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 063/245] taskstats: fix data-race
+Subject: [PATCH 3.16 064/245] dm btree: increase rebalance threshold in
+ __rebalance2()
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,98 +47,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit 0b8d616fb5a8ffa307b1d3af37f55c15dae14f28 upstream.
+commit 474e559567fa631dea8fb8407ab1b6090c903755 upstream.
 
-When assiging and testing taskstats in taskstats_exit() there's a race
-when setting up and reading sig->stats when a thread-group with more
-than one thread exits:
+We got the following warnings from thin_check during thin-pool setup:
 
-write to 0xffff8881157bbe10 of 8 bytes by task 7951 on cpu 0:
- taskstats_tgid_alloc kernel/taskstats.c:567 [inline]
- taskstats_exit+0x6b7/0x717 kernel/taskstats.c:596
- do_exit+0x2c2/0x18e0 kernel/exit.c:864
- do_group_exit+0xb4/0x1c0 kernel/exit.c:983
- get_signal+0x2a2/0x1320 kernel/signal.c:2734
- do_signal+0x3b/0xc00 arch/x86/kernel/signal.c:815
- exit_to_usermode_loop+0x250/0x2c0 arch/x86/entry/common.c:159
- prepare_exit_to_usermode arch/x86/entry/common.c:194 [inline]
- syscall_return_slowpath arch/x86/entry/common.c:274 [inline]
- do_syscall_64+0x2d7/0x2f0 arch/x86/entry/common.c:299
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  $ thin_check /dev/vdb
+  examining superblock
+  examining devices tree
+    missing devices: [1, 84]
+      too few entries in btree_node: 41, expected at least 42 (block 138, max_entries = 126)
+  examining mapping tree
 
-read to 0xffff8881157bbe10 of 8 bytes by task 7949 on cpu 1:
- taskstats_tgid_alloc kernel/taskstats.c:559 [inline]
- taskstats_exit+0xb2/0x717 kernel/taskstats.c:596
- do_exit+0x2c2/0x18e0 kernel/exit.c:864
- do_group_exit+0xb4/0x1c0 kernel/exit.c:983
- __do_sys_exit_group kernel/exit.c:994 [inline]
- __se_sys_exit_group kernel/exit.c:992 [inline]
- __x64_sys_exit_group+0x2e/0x30 kernel/exit.c:992
- do_syscall_64+0xcf/0x2f0 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+The phenomenon is the number of entries in one node of details_info tree is
+less than (max_entries / 3). And it can be easily reproduced by the following
+procedures:
 
-Fix this by using smp_load_acquire() and smp_store_release().
+  $ new a thin pool
+  $ presume the max entries of details_info tree is 126
+  $ new 127 thin devices (e.g. 1~127) to make the root node being full
+    and then split
+  $ remove the first 43 (e.g. 1~43) thin devices to make the children
+    reblance repeatedly
+  $ stop the thin pool
+  $ thin_check
 
-Reported-by: syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com
-Fixes: 34ec12349c8a ("taskstats: cleanup ->signal->stats allocation")
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Marco Elver <elver@google.com>
-Reviewed-by: Will Deacon <will@kernel.org>
-Reviewed-by: Andrea Parri <parri.andrea@gmail.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Link: https://lore.kernel.org/r/20191009114809.8643-1-christian.brauner@ubuntu.com
+The root cause is that the B-tree removal procedure in __rebalance2()
+doesn't guarantee the invariance: the minimal number of entries in
+non-root node should be >= (max_entries / 3).
+
+Simply fix the problem by increasing the rebalance threshold to
+make sure the number of entries in each child will be greater
+than or equal to (max_entries / 3 + 1), so no matter which
+child is used for removal, the number will still be valid.
+
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Acked-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/taskstats.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ drivers/md/persistent-data/dm-btree-remove.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/kernel/taskstats.c
-+++ b/kernel/taskstats.c
-@@ -591,25 +591,33 @@ static int taskstats_user_cmd(struct sk_
- static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
- {
- 	struct signal_struct *sig = tsk->signal;
--	struct taskstats *stats;
-+	struct taskstats *stats_new, *stats;
+--- a/drivers/md/persistent-data/dm-btree-remove.c
++++ b/drivers/md/persistent-data/dm-btree-remove.c
+@@ -203,7 +203,13 @@ static void __rebalance2(struct dm_btree
+ 	struct btree_node *right = r->n;
+ 	uint32_t nr_left = le32_to_cpu(left->header.nr_entries);
+ 	uint32_t nr_right = le32_to_cpu(right->header.nr_entries);
+-	unsigned threshold = 2 * merge_threshold(left) + 1;
++	/*
++	 * Ensure the number of entries in each child will be greater
++	 * than or equal to (max_entries / 3 + 1), so no matter which
++	 * child is used for removal, the number will still be not
++	 * less than (max_entries / 3).
++	 */
++	unsigned int threshold = 2 * (merge_threshold(left) + 1);
  
--	if (sig->stats || thread_group_empty(tsk))
--		goto ret;
-+	/* Pairs with smp_store_release() below. */
-+	stats = smp_load_acquire(&sig->stats);
-+	if (stats || thread_group_empty(tsk))
-+		return stats;
- 
- 	/* No problem if kmem_cache_zalloc() fails */
--	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
-+	stats_new = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
- 
- 	spin_lock_irq(&tsk->sighand->siglock);
--	if (!sig->stats) {
--		sig->stats = stats;
--		stats = NULL;
-+	stats = sig->stats;
-+	if (!stats) {
-+		/*
-+		 * Pairs with smp_store_release() above and order the
-+		 * kmem_cache_zalloc().
-+		 */
-+		smp_store_release(&sig->stats, stats_new);
-+		stats = stats_new;
-+		stats_new = NULL;
- 	}
- 	spin_unlock_irq(&tsk->sighand->siglock);
- 
--	if (stats)
--		kmem_cache_free(taskstats_cache, stats);
--ret:
--	return sig->stats;
-+	if (stats_new)
-+		kmem_cache_free(taskstats_cache, stats_new);
-+
-+	return stats;
- }
- 
- /* Send pid data out on exit */
+ 	if (nr_left + nr_right < threshold) {
+ 		/*
 
