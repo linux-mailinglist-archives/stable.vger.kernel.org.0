@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F641B6868
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47FCF1B689E
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728839AbgDWXOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:14:41 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:49822 "EHLO
+        id S1728671AbgDWXQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:16:33 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:49564 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728443AbgDWXGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:48 -0400
+        by vger.kernel.org with ESMTP id S1728389AbgDWXGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:46 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvV-0004hq-CD; Fri, 24 Apr 2020 00:06:37 +0100
+        id 1jRkvU-0004iP-Cb; Fri, 24 Apr 2020 00:06:36 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvR-00E6pF-CI; Fri, 24 Apr 2020 00:06:33 +0100
+        id 1jRkvR-00E6pK-Dx; Fri, 24 Apr 2020 00:06:33 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,12 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Lionel Koenig" <lionel.koenig@gmail.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
         "Takashi Iwai" <tiwai@suse.de>
-Date:   Fri, 24 Apr 2020 00:05:54 +0100
-Message-ID: <lsq.1587683028.443437380@decadent.org.uk>
+Date:   Fri, 24 Apr 2020 00:05:55 +0100
+Message-ID: <lsq.1587683028.294829156@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 127/245] ALSA: pcm: Avoid possible info leaks from
- PCM stream buffers
+Subject: [PATCH 3.16 128/245] ALSA: hda/ca0132 - Avoid endless loop
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,39 +47,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit add9d56d7b3781532208afbff5509d7382fb6efe upstream.
+commit cb04fc3b6b076f67d228a0b7d096c69ad486c09c upstream.
 
-The current PCM code doesn't initialize explicitly the buffers
-allocated for PCM streams, hence it might leak some uninitialized
-kernel data or previous stream contents by mmapping or reading the
-buffer before actually starting the stream.
+Introduce a timeout to dspio_clear_response_queue() so that it won't
+be caught in an endless loop even if the hardware doesn't respond
+properly.
 
-Since this is a common problem, this patch simply adds the clearance
-of the buffer data at hw_params callback.  Although this does only
-zero-clear no matter which format is used, which doesn't mean the
-silence for some formats, but it should be OK because the intention is
-just to clear the previous data on the buffer.
-
-Reported-by: Lionel Koenig <lionel.koenig@gmail.com>
-Link: https://lore.kernel.org/r/20191211155742.3213-1-tiwai@suse.de
+Fixes: a73d511c4867 ("ALSA: hda/ca0132: Add unsol handler for DSP and jack detection")
+Link: https://lore.kernel.org/r/20191213085111.22855-3-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- sound/core/pcm_native.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/hda/patch_ca0132.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -459,6 +459,10 @@ static int snd_pcm_hw_params(struct snd_
- 	while (runtime->boundary * 2 <= LONG_MAX - runtime->buffer_size)
- 		runtime->boundary *= 2;
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -1271,13 +1271,14 @@ struct scp_msg {
  
-+	/* clear the buffer for avoiding possible kernel info leaks */
-+	if (runtime->dma_area)
-+		memset(runtime->dma_area, 0, runtime->dma_bytes);
-+
- 	snd_pcm_timer_resolution_change(substream);
- 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
+ static void dspio_clear_response_queue(struct hda_codec *codec)
+ {
++	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+ 	unsigned int dummy = 0;
+-	int status = -1;
++	int status;
  
+ 	/* clear all from the response queue */
+ 	do {
+ 		status = dspio_read(codec, &dummy);
+-	} while (status == 0);
++	} while (status == 0 && time_before(jiffies, timeout));
+ }
+ 
+ static int dspio_get_response_data(struct hda_codec *codec)
 
