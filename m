@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 582AA1B67EA
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:11:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 649201B67A5
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728900AbgDWXKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:10:53 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50286 "EHLO
+        id S1728951AbgDWXIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:08:24 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50980 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728585AbgDWXGw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:52 -0400
+        by vger.kernel.org with ESMTP id S1728666AbgDWXG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:59 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkva-0004lP-CL; Fri, 24 Apr 2020 00:06:42 +0100
+        id 1jRkvc-0004n0-LE; Fri, 24 Apr 2020 00:06:44 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvY-00E6xt-3U; Fri, 24 Apr 2020 00:06:40 +0100
+        id 1jRkvY-00E6y9-63; Fri, 24 Apr 2020 00:06:40 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,19 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "=?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?=" <mirq-linux@rere.qmqm.pl>,
-        "Ulf Hansson" <ulf.hansson@linaro.org>,
-        "Adrian Hunter" <adrian.hunter@intel.com>
-Date:   Fri, 24 Apr 2020 00:07:07 +0100
-Message-ID: <lsq.1587683028.708872706@decadent.org.uk>
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        "Marc Kleine-Budde" <mkl@pengutronix.de>,
+        "Richard Palethorpe" <rpalethorpe@suse.com>,
+        "Wolfgang Grandegger" <wg@grandegger.com>,
+        syzkaller@googlegroups.com, linux-can@vger.kernel.org,
+        syzbot+017e491ae13c0068598a@syzkaller.appspotmail.com,
+        "Tyler Hall" <tylerwhall@gmail.com>
+Date:   Fri, 24 Apr 2020 00:07:08 +0100
+Message-ID: <lsq.1587683028.166259533@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 200/245] mmc: sdhci: fix minimum clock rate for v3
- controller
+Subject: [PATCH 3.16 201/245] can, slip: Protect tty->disc_data in
+ write_wakeup and close with RCU
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,49 +52,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Richard Palethorpe <rpalethorpe@suse.com>
 
-commit 2a187d03352086e300daa2044051db00044cd171 upstream.
+commit 0ace17d56824165c7f4c68785d6b58971db954dd upstream.
 
-For SDHCIv3+ with programmable clock mode, minimal clock frequency is
-still base clock / max(divider). Minimal programmable clock frequency is
-always greater than minimal divided clock frequency. Without this patch,
-SDHCI uses out-of-spec initial frequency when multiplier is big enough:
+write_wakeup can happen in parallel with close/hangup where tty->disc_data
+is set to NULL and the netdevice is freed thus also freeing
+disc_data. write_wakeup accesses disc_data so we must prevent close from
+freeing the netdev while write_wakeup has a non-NULL view of
+tty->disc_data.
 
-mmc1: mmc_rescan_try_freq: trying to init card at 468750 Hz
-[for 480 MHz source clock divided by 1024]
+We also need to make sure that accesses to disc_data are atomic. Which can
+all be done with RCU.
 
-The code in sdhci_calc_clk() already chooses a correct SDCLK clock mode.
+This problem was found by Syzkaller on SLCAN, but the same issue is
+reproducible with the SLIP line discipline using an LTP test based on the
+Syzkaller reproducer.
 
-Fixes: c3ed3877625f ("mmc: sdhci: add support for programmable clock mode")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/ffb489519a446caffe7a0a05c4b9372bd52397bb.1579082031.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-[bwh: Backported to 3.16: adjust context]
+A fix which didn't use RCU was posted by Hillf Danton.
+
+Fixes: 661f7fda21b1 ("slip: Fix deadlock in write_wakeup")
+Fixes: a8e83b17536a ("slcan: Port write_wakeup deadlock fix from slip")
+Reported-by: syzbot+017e491ae13c0068598a@syzkaller.appspotmail.com
+Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
+Cc: Wolfgang Grandegger <wg@grandegger.com>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Tyler Hall <tylerwhall@gmail.com>
+Cc: linux-can@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: syzkaller@googlegroups.com
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/mmc/host/sdhci.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/can/slcan.c | 12 ++++++++++--
+ drivers/net/slip/slip.c | 12 ++++++++++--
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -2945,11 +2945,13 @@ int sdhci_add_host(struct sdhci_host *ho
- 	if (host->ops->get_min_clock)
- 		mmc->f_min = host->ops->get_min_clock(host);
- 	else if (host->version >= SDHCI_SPEC_300) {
--		if (host->clk_mul) {
--			mmc->f_min = (host->max_clk * host->clk_mul) / 1024;
-+		if (host->clk_mul)
- 			mmc->f_max = host->max_clk * host->clk_mul;
--		} else
--			mmc->f_min = host->max_clk / SDHCI_MAX_DIV_SPEC_300;
-+		/*
-+		 * Divided Clock Mode minimum clock rate is always less than
-+		 * Programmable Clock Mode minimum clock rate.
-+		 */
-+		mmc->f_min = host->max_clk / SDHCI_MAX_DIV_SPEC_300;
- 	} else
- 		mmc->f_min = host->max_clk / SDHCI_MAX_DIV_SPEC_200;
+--- a/drivers/net/can/slcan.c
++++ b/drivers/net/can/slcan.c
+@@ -346,9 +346,16 @@ static void slcan_transmit(struct work_s
+  */
+ static void slcan_write_wakeup(struct tty_struct *tty)
+ {
+-	struct slcan *sl = tty->disc_data;
++	struct slcan *sl;
++
++	rcu_read_lock();
++	sl = rcu_dereference(tty->disc_data);
++	if (!sl)
++		goto out;
  
+ 	schedule_work(&sl->tx_work);
++out:
++	rcu_read_unlock();
+ }
+ 
+ /* Send a can_frame to a TTY queue. */
+@@ -640,10 +647,11 @@ static void slcan_close(struct tty_struc
+ 		return;
+ 
+ 	spin_lock_bh(&sl->lock);
+-	tty->disc_data = NULL;
++	rcu_assign_pointer(tty->disc_data, NULL);
+ 	sl->tty = NULL;
+ 	spin_unlock_bh(&sl->lock);
+ 
++	synchronize_rcu();
+ 	flush_work(&sl->tx_work);
+ 
+ 	/* Flush network side */
+--- a/drivers/net/slip/slip.c
++++ b/drivers/net/slip/slip.c
+@@ -452,9 +452,16 @@ static void slip_transmit(struct work_st
+  */
+ static void slip_write_wakeup(struct tty_struct *tty)
+ {
+-	struct slip *sl = tty->disc_data;
++	struct slip *sl;
++
++	rcu_read_lock();
++	sl = rcu_dereference(tty->disc_data);
++	if (!sl)
++		goto out;
+ 
+ 	schedule_work(&sl->tx_work);
++out:
++	rcu_read_unlock();
+ }
+ 
+ static void sl_tx_timeout(struct net_device *dev)
+@@ -885,10 +892,11 @@ static void slip_close(struct tty_struct
+ 		return;
+ 
+ 	spin_lock_bh(&sl->lock);
+-	tty->disc_data = NULL;
++	rcu_assign_pointer(tty->disc_data, NULL);
+ 	sl->tty = NULL;
+ 	spin_unlock_bh(&sl->lock);
+ 
++	synchronize_rcu();
+ 	flush_work(&sl->tx_work);
+ 
+ 	/* VSV = very important to remove timers */
 
