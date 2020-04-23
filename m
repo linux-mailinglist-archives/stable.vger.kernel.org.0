@@ -2,115 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8612A1B66A4
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 00:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DA321B66F5
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 00:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726056AbgDWWIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 18:08:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59380 "EHLO
+        id S1726970AbgDWWmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 18:42:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727021AbgDWWIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 18:08:54 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07883C09B042
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 15:08:53 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id t11so3592882pgg.2
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 15:08:53 -0700 (PDT)
+        with ESMTP id S1726079AbgDWWmx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 18:42:53 -0400
+Received: from mail-ua1-x944.google.com (mail-ua1-x944.google.com [IPv6:2607:f8b0:4864:20::944])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC2D5C09B044
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 15:42:51 -0700 (PDT)
+Received: by mail-ua1-x944.google.com with SMTP id c24so7551840uap.13
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 15:42:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=K+G1+PwcxmC0bvv5uLFnP0XXhpkYqmxl+rnFEl1fK8A=;
-        b=WeOsBTlnQVcOYjpFrAaEbz1epw7feyrZ0p5/Sa6bxXiY8ldrYM9ZkzONoQya4gEFs1
-         Q4Us8hURFg1+V3oKL+NWnt/Md/Thi5B7Ofo3O94kbqIQwXIAI4W+EeLWptzA+hMC4N78
-         7Nzbp9NgFGvENhouCup125LTWM1eq9tki9C6YIV6eHcDHYVHwqEZu9nb3kEQaVX8Xc20
-         8doajEHxdZHjw49cDGCdad4vd/B+c6OWcXD9ndsM5SMTjyajQS06X3OEUAPx3VH7nTzN
-         iy7UJKWlr2Pv1c7Lsdx8y7nWgP5osu9nJAoxITmnagIx8LKoBDjMdcddJb3r1fCukAUc
-         HxUw==
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=LJ6/10OQi+IjRoROw1bmmwZkTPHiPo4CeITaSJNBJxE=;
+        b=lUYiU6CeDZLAwgfkrnPClfL9mW4Mccm3WgHBgOyJm3Ce+xg7lS02F8RLKC12vsJ7kl
+         VaUzf3INAB4d7QhmeUNBWEZKfokkpuhEy9WQMrxDINFnlAD4RmaDOCx2fpGw5h+Ro1AT
+         Xpnf7jZMZa1SZfYaLwydYhfmGM70QXxDKJwJg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=K+G1+PwcxmC0bvv5uLFnP0XXhpkYqmxl+rnFEl1fK8A=;
-        b=h5Wnqv3oX42AMgL9xuoFMtxf8DE9wJTupY1TGU5k8Sc6D9OW12FYHvX0C5hEVO0jiY
-         4Po+nzUrPdYPUzsdJBLb6i+3rHnGHUpR4wvk05YL8JaxU4r5jo/7tIvpQnHWWMj1yizr
-         hl7ep8zsZ1pix1JMeyQhViMsbggXk85vmWfYj6Dcy9zZGKoL0KBWdM/iqp3DiAFpSycE
-         lBurfHrfN/hHJwM67DrugRYu+xps0PT9JZ0A4wXLg80qKEhdnX7MkdqNWcHvAlHrIqDg
-         iX8zhrUIbxS1lBPOJLYwnx6/x+w0/oYmp6wpwIzo9g2nNr+Nx30d8UL5gVk5/16ij872
-         sY7w==
-X-Gm-Message-State: AGi0PubmtODHQia1/EFsqneDyprSgKqcd+zI8qu+DHfKpldFj+AaNZgF
-        b4BY/rnWCPJuQSBG81lF1ekadA==
-X-Google-Smtp-Source: APiQypKkBkWpwqblD+K39cLu1g6jy24+PyuNlzBZwjmaGnW8igHIOEUeQ2x5RitUQ/Re3M0rwrBxow==
-X-Received: by 2002:a63:1d4c:: with SMTP id d12mr6033739pgm.247.1587679732448;
-        Thu, 23 Apr 2020 15:08:52 -0700 (PDT)
-Received: from localhost.localdomain ([2601:1c2:680:1319:692:26ff:feda:3a81])
-        by smtp.gmail.com with ESMTPSA id t6sm3540270pfh.98.2020.04.23.15.08.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2020 15:08:51 -0700 (PDT)
-From:   John Stultz <john.stultz@linaro.org>
-To:     lkml <linux-kernel@vger.kernel.org>
-Cc:     John Stultz <john.stultz@linaro.org>,
-        YongQin Liu <yongqin.liu@linaro.org>,
-        Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
-        Yang Fei <fei.yang@intel.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Tejas Joglekar <tejas.joglekar@synopsys.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Jack Pham <jackp@codeaurora.org>, Josh Gao <jmgao@google.com>,
-        Todd Kjos <tkjos@google.com>, Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] dwc3: Remove check for HWO flag in dwc3_gadget_ep_reclaim_trb_sg()
-Date:   Thu, 23 Apr 2020 22:08:49 +0000
-Message-Id: <20200423220849.30280-1-john.stultz@linaro.org>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LJ6/10OQi+IjRoROw1bmmwZkTPHiPo4CeITaSJNBJxE=;
+        b=SRllHvaaIdKFBHYpR0AumJtX/63ScN3BzOhEcgiVloxdLMW23mJaR+d9T2lrA9pYK7
+         ifFWmzYU3ifKkJr7VlOGD5lEmxyNGJkrIPhhpRcxpdA4IeAOLjlmNVgrMEqLggmG1y4Y
+         GbGCPfL92QZlHud2ZkZANIXdOuC5xj3igthHcK5yUN/0hcWGGGCab4+tpGW7q2ndOkzz
+         EEvPWy+olwfUBRaagunZvYXniAWTb+AllmF3zRubza6uDbC6FmU9AxN/S59N3WAKxcn+
+         bqbCAy+cZlfVCt56War3qfJ7GGLLtW9I79sCS/SbVW1z389kQ+UPuCEeTJb3QlJ/jQPI
+         aMRA==
+X-Gm-Message-State: AGi0PuYk+M1FTLTU0s3ccOMvjB6d4/XSsgSJ8vsJtwcN5+Bix/unkb1j
+        Sk7f4iABhYLZ9jAbIrdrRT9RucGdSgQ=
+X-Google-Smtp-Source: APiQypK9emOUCLxsk5eX/t21ZdiAzecRJ2oVb762ZLrtCY/CKAQtcl+3eGO0D+pcbTjy7KaVv/Yc/A==
+X-Received: by 2002:a05:6102:409:: with SMTP id d9mr5368809vsq.220.1587681770278;
+        Thu, 23 Apr 2020 15:42:50 -0700 (PDT)
+Received: from mail-ua1-f43.google.com (mail-ua1-f43.google.com. [209.85.222.43])
+        by smtp.gmail.com with ESMTPSA id r137sm1090000vke.49.2020.04.23.15.42.48
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Apr 2020 15:42:49 -0700 (PDT)
+Received: by mail-ua1-f43.google.com with SMTP id g10so7585737uae.5
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 15:42:48 -0700 (PDT)
+X-Received: by 2002:a05:6102:4d:: with SMTP id k13mr5446791vsp.198.1587681768455;
+ Thu, 23 Apr 2020 15:42:48 -0700 (PDT)
+MIME-Version: 1.0
+References: <1587035931-125028-1-git-send-email-john.garry@huawei.com>
+ <e5416179-2ba0-c9a8-1b86-d52eae29e146@acm.org> <663d472a-5bde-4b89-3137-c7bfdf4d7b97@huawei.com>
+In-Reply-To: <663d472a-5bde-4b89-3137-c7bfdf4d7b97@huawei.com>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Thu, 23 Apr 2020 15:42:37 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=XBrKgng+vYzJx+qsOEZ-cZ10A0t+pRh=FcbQMop2ht4Q@mail.gmail.com>
+Message-ID: <CAD=FV=XBrKgng+vYzJx+qsOEZ-cZ10A0t+pRh=FcbQMop2ht4Q@mail.gmail.com>
+Subject: Re: [PATCH] blk-mq: Put driver tag in blk_mq_dispatch_rq_list() when
+ no budget
+To:     John Garry <john.garry@huawei.com>
+Cc:     Bart Van Assche <bvanassche@acm.org>, Jens Axboe <axboe@kernel.dk>,
+        linux-block <linux-block@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Guenter Roeck <groeck@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The check for the HWO flag in dwc3_gadget_ep_reclaim_trb_sg()
-causes us to break out of the loop before we call
-dwc3_gadget_ep_reclaim_completed_trb(), which is what likely
-should be clearing the HWO flag.
+Hi,
 
-This can cause odd behavior where we never reclaim all the trbs
-in the sg list, so we never call giveback on a usb req, and that
-will causes transfer stalls.
+On Mon, Apr 20, 2020 at 1:23 AM John Garry <john.garry@huawei.com> wrote:
+>
+> On 18/04/2020 03:43, Bart Van Assche wrote:
+> > On 2020-04-16 04:18, John Garry wrote:
+> >> If in blk_mq_dispatch_rq_list() we find no budget, then we break of the
+> >> dispatch loop, but the request may keep the driver tag, evaulated
+> >> in 'nxt' in the previous loop iteration.
+> >>
+> >> Fix by putting the driver tag for that request.
+> >>
+> >> Signed-off-by: John Garry <john.garry@huawei.com>
+> >>
+> >> diff --git a/block/blk-mq.c b/block/blk-mq.c
+> >> index 8e56884fd2e9..a7785df2c944 100644
+> >> --- a/block/blk-mq.c
+> >> +++ b/block/blk-mq.c
+> >> @@ -1222,8 +1222,10 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
+> >>              rq = list_first_entry(list, struct request, queuelist);
+> >>
+> >>              hctx = rq->mq_hctx;
+> >> -            if (!got_budget && !blk_mq_get_dispatch_budget(hctx))
+> >> +            if (!got_budget && !blk_mq_get_dispatch_budget(hctx)) {
+> >> +                    blk_mq_put_driver_tag(rq);
+> >>                      break;
+> >> +            }
+> >>
+> >>              if (!blk_mq_get_driver_tag(rq)) {
+> >>                      /*
+> >
+> > Is this something that can only happen if q->mq_ops->queue_rq(hctx, &bd)
+> > returns another value than BLK_STS_OK, BLK_STS_RESOURCE and
+> > BLK_STS_DEV_RESOURCE?
+>
+> Right, as that case is handled in blk_mq_handle_dev_resource()
+>
+> If so, please add a comment in the source code
+> > that explains this.
+>
+> So important that we should now do this in an extra patch?
+>
+> >
+> > Is this perhaps a bug fix for 0bca799b9280 ("blk-mq: order getting
+> > budget and driver tag")? If so, please mention this and add Cc tags for
+> > the people who were Cc-ed on that patch.
+>
+> So it looks like 0bca799b9280 had a flaw, but I am not sure if anything
+> got broken there and worthy of stable backport.
+>
+> I found this issue while debugging Ming's blk-mq cpu hotplug patchset,
+> which I feel is ready to merge.
+>
+> Having said that, this nasty issue did take > 1 day for me to debug...
+> so let me know.
 
-This effectively resovles the adb stalls seen on HiKey960
-after userland changes started only using AIO in adbd.
+As per the above conversation, presumably this should go to stable
+then for any kernel that has commit 0bca799b9280 ("blk-mq: order
+getting budget and driver tag")?  For instance, I think 4.19 would be
+affected?  When I picked it there I got a conflict due to not having
+commit ea4f995ee8b8 ("blk-mq: cache request hardware queue mapping")
+but I think it's just a context collision and easy to resolve.
 
-Cc: YongQin Liu <yongqin.liu@linaro.org>
-Cc: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-Cc: Yang Fei <fei.yang@intel.com>
-Cc: Thinh Nguyen <thinhn@synopsys.com>
-Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Cc: Jack Pham <jackp@codeaurora.org>
-Cc: Josh Gao <jmgao@google.com>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
-Cc: stable@vger.kernel.org #4.20+
-Signed-off-by: John Stultz <john.stultz@linaro.org>
----
- drivers/usb/dwc3/gadget.c | 3 ---
- 1 file changed, 3 deletions(-)
+I'm no expert in the block code, but I posted my backport to 4.19 at
+<https://crrev.com/c/2163313>.  I'm happy to send an email as a patch
+to the list too or double-check that someone else's conflict
+resolution matches mine.
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 4d3c79d90a6e..2a26d33520ce 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2457,9 +2457,6 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
- 	for_each_sg(sg, s, pending, i) {
- 		trb = &dep->trb_pool[dep->trb_dequeue];
- 
--		if (trb->ctrl & DWC3_TRB_CTRL_HWO)
--			break;
--
- 		req->sg = sg_next(s);
- 		req->num_pending_sgs--;
- 
--- 
-2.17.1
-
+-Doug
