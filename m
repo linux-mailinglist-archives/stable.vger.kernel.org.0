@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3AC61B689F
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:17:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87AB31B6889
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:16:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728747AbgDWXQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:16:33 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:49540 "EHLO
+        id S1728379AbgDWXGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:06:44 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:49410 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728377AbgDWXGp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:45 -0400
+        by vger.kernel.org with ESMTP id S1728354AbgDWXGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:44 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvT-0004hN-Kk; Fri, 24 Apr 2020 00:06:35 +0100
+        id 1jRkvT-0004hJ-E2; Fri, 24 Apr 2020 00:06:35 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvS-00E6qm-52; Fri, 24 Apr 2020 00:06:34 +0100
+        id 1jRkvS-00E6qr-6X; Fri, 24 Apr 2020 00:06:34 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "edes" <edes@gmx.net>, "Johan Hovold" <johan@kernel.org>
-Date:   Fri, 24 Apr 2020 00:06:13 +0100
-Message-ID: <lsq.1587683028.712935328@decadent.org.uk>
+        "Johan Hovold" <johan@kernel.org>, "edes" <edes@gmx.net>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+Date:   Fri, 24 Apr 2020 00:06:14 +0100
+Message-ID: <lsq.1587683028.780444147@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 146/245] USB: core: add endpoint-blacklist quirk
+Subject: [PATCH 3.16 147/245] USB: quirks: blacklist duplicate ep on Sound
+ Devices USBPre2
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,119 +49,142 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 73f8bda9b5dc1c69df2bc55c0cbb24461a6391a9 upstream.
+commit bdd1b147b8026df0e4260b387026b251d888ed01 upstream.
 
-Add a new device quirk that can be used to blacklist endpoints.
+This device has a broken vendor-specific altsetting for interface 1,
+where endpoint 0x85 is declared as an isochronous endpoint despite being
+used by interface 2 for audio capture.
+
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass          239 Miscellaneous Device
+  bDeviceSubClass         2
+  bDeviceProtocol         1 Interface Association
+  bMaxPacketSize0        64
+  idVendor           0x0926
+  idProduct          0x0202
+  bcdDevice            1.00
+  iManufacturer           1 Sound Devices
+  iProduct                2 USBPre2
+  iSerial                 3 [...]
+  bNumConfigurations      1
+
+[...]
+
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       3
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      0
+      bInterfaceProtocol      0
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x85  EP 5 IN
+        bmAttributes            5
+          Transfer Type            Isochronous
+          Synch Type               Asynchronous
+          Usage Type               Data
+        wMaxPacketSize     0x0126  1x 294 bytes
+        bInterval               1
+
+[...]
+
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        2
+      bAlternateSetting       1
+      bNumEndpoints           1
+      bInterfaceClass         1 Audio
+      bInterfaceSubClass      2 Streaming
+      bInterfaceProtocol      0
+      iInterface              0
+      AudioStreaming Interface Descriptor:
+        bLength                 7
+        bDescriptorType        36
+        bDescriptorSubtype      1 (AS_GENERAL)
+        bTerminalLink           4
+        bDelay                  1 frames
+        wFormatTag         0x0001 PCM
+      AudioStreaming Interface Descriptor:
+        bLength                26
+        bDescriptorType        36
+        bDescriptorSubtype      2 (FORMAT_TYPE)
+        bFormatType             1 (FORMAT_TYPE_I)
+        bNrChannels             2
+        bSubframeSize           2
+        bBitResolution         16
+        bSamFreqType            6 Discrete
+        tSamFreq[ 0]         8000
+        tSamFreq[ 1]        16000
+        tSamFreq[ 2]        24000
+        tSamFreq[ 3]        32000
+        tSamFreq[ 4]        44100
+        tSamFreq[ 5]        48000
+      Endpoint Descriptor:
+        bLength                 9
+        bDescriptorType         5
+        bEndpointAddress     0x85  EP 5 IN
+        bmAttributes            5
+          Transfer Type            Isochronous
+          Synch Type               Asynchronous
+          Usage Type               Data
+        wMaxPacketSize     0x0126  1x 294 bytes
+        bInterval               4
+        bRefresh                0
+        bSynchAddress           0
+        AudioStreaming Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType        37
+          bDescriptorSubtype      1 (EP_GENERAL)
+          bmAttributes         0x01
+            Sampling Frequency
+          bLockDelayUnits         2 Decoded PCM samples
+          wLockDelay         0x0000
 
 Since commit 3e4f8e21c4f2 ("USB: core: fix check for duplicate
 endpoints") USB core ignores any duplicate endpoints found during
-descriptor parsing.
+descriptor parsing, but in this case we need to ignore the first
+instance in order to avoid breaking the audio capture interface.
 
-In order to handle devices where the first interfaces with duplicate
-endpoints are the ones that should have their endpoints ignored, we need
-to add a blacklist.
-
+Fixes: 3e4f8e21c4f2 ("USB: core: fix check for duplicate endpoints")
+Reported-by: edes <edes@gmx.net>
 Tested-by: edes <edes@gmx.net>
+Link: https://lore.kernel.org/r/20200201105829.5682c887@acme7.acmenet
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200203153830.26394-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20200203153830.26394-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/core/config.c  | 11 +++++++++++
- drivers/usb/core/quirks.c  | 32 ++++++++++++++++++++++++++++++++
- drivers/usb/core/usb.h     |  3 +++
- include/linux/usb/quirks.h |  3 +++
- 4 files changed, 49 insertions(+)
+ drivers/usb/core/quirks.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -222,6 +222,7 @@ static int usb_parse_endpoint(struct dev
- 		struct usb_host_interface *ifp, int num_ep,
- 		unsigned char *buffer, int size)
- {
-+	struct usb_device *udev = to_usb_device(ddev);
- 	unsigned char *buffer0 = buffer;
- 	struct usb_endpoint_descriptor *d;
- 	struct usb_host_endpoint *endpoint;
-@@ -263,6 +264,16 @@ static int usb_parse_endpoint(struct dev
- 		goto skip_to_next_endpoint_or_interface_descriptor;
- 	}
- 
-+	/* Ignore blacklisted endpoints */
-+	if (udev->quirks & USB_QUIRK_ENDPOINT_BLACKLIST) {
-+		if (usb_endpoint_is_blacklisted(udev, ifp, d)) {
-+			dev_warn(ddev, "config %d interface %d altsetting %d has a blacklisted endpoint with address 0x%X, skipping\n",
-+					cfgno, inum, asnum,
-+					d->bEndpointAddress);
-+			goto skip_to_next_endpoint_or_interface_descriptor;
-+		}
-+	}
-+
- 	endpoint = &ifp->endpoint[ifp->desc.bNumEndpoints];
- 	++ifp->desc.bNumEndpoints;
- 
 --- a/drivers/usb/core/quirks.c
 +++ b/drivers/usb/core/quirks.c
-@@ -318,6 +318,38 @@ static const struct usb_device_id usb_am
- 	{ }  /* terminating entry must be last */
+@@ -206,6 +206,10 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x0904, 0x6103), .driver_info =
+ 			USB_QUIRK_LINEAR_FRAME_INTR_BINTERVAL },
+ 
++	/* Sound Devices USBPre2 */
++	{ USB_DEVICE(0x0926, 0x0202), .driver_info =
++			USB_QUIRK_ENDPOINT_BLACKLIST },
++
+ 	/* Keytouch QWERTY Panel keyboard */
+ 	{ USB_DEVICE(0x0926, 0x3333), .driver_info =
+ 			USB_QUIRK_CONFIG_INTF_STRINGS },
+@@ -325,6 +329,7 @@ static const struct usb_device_id usb_am
+  * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
+  */
+ static const struct usb_device_id usb_endpoint_blacklist[] = {
++	{ USB_DEVICE_INTERFACE_NUMBER(0x0926, 0x0202, 1), .driver_info = 0x85 },
+ 	{ }
  };
  
-+/*
-+ * Entries for blacklisted endpoints that should be ignored when parsing
-+ * configuration descriptors.
-+ *
-+ * Matched for devices with USB_QUIRK_ENDPOINT_BLACKLIST.
-+ */
-+static const struct usb_device_id usb_endpoint_blacklist[] = {
-+	{ }
-+};
-+
-+bool usb_endpoint_is_blacklisted(struct usb_device *udev,
-+		struct usb_host_interface *intf,
-+		struct usb_endpoint_descriptor *epd)
-+{
-+	const struct usb_device_id *id;
-+	unsigned int address;
-+
-+	for (id = usb_endpoint_blacklist; id->match_flags; ++id) {
-+		if (!usb_match_device(udev, id))
-+			continue;
-+
-+		if (!usb_match_one_id_intf(udev, intf, id))
-+			continue;
-+
-+		address = id->driver_info;
-+		if (address == epd->bEndpointAddress)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
- static bool usb_match_any_interface(struct usb_device *udev,
- 				    const struct usb_device_id *id)
- {
---- a/drivers/usb/core/usb.h
-+++ b/drivers/usb/core/usb.h
-@@ -29,6 +29,9 @@ extern int usb_deauthorize_device(struct
- extern int usb_authorize_device(struct usb_device *);
- extern void usb_detect_quirks(struct usb_device *udev);
- extern void usb_detect_interface_quirks(struct usb_device *udev);
-+extern bool usb_endpoint_is_blacklisted(struct usb_device *udev,
-+		struct usb_host_interface *intf,
-+		struct usb_endpoint_descriptor *epd);
- extern int usb_remove_device(struct usb_device *udev);
- 
- extern int usb_get_device_descriptor(struct usb_device *dev,
---- a/include/linux/usb/quirks.h
-+++ b/include/linux/usb/quirks.h
-@@ -62,4 +62,7 @@
- /* Hub needs extra delay after resetting its port. */
- #define USB_QUIRK_HUB_SLOW_RESET		BIT(14)
- 
-+/* device has blacklisted endpoints */
-+#define USB_QUIRK_ENDPOINT_BLACKLIST		BIT(15)
-+
- #endif /* __LINUX_USB_QUIRKS_H */
 
