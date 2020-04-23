@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F01581B6992
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 495E21B697B
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729867AbgDWXYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:24:47 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48288 "EHLO
+        id S1727936AbgDWXYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:24:06 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:48336 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728137AbgDWXG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:29 -0400
+        by vger.kernel.org with ESMTP id S1728158AbgDWXGa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:30 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvJ-0004aU-Mc; Fri, 24 Apr 2020 00:06:25 +0100
+        id 1jRkvJ-0004aY-MG; Fri, 24 Apr 2020 00:06:25 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvI-00E6gv-Ny; Fri, 24 Apr 2020 00:06:24 +0100
+        id 1jRkvI-00E6h0-Om; Fri, 24 Apr 2020 00:06:24 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        "Liu Bo" <bo.li.liu@oracle.com>,
         "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "David Sterba" <dsterba@suse.com>, "Liu Bo" <bo.li.liu@oracle.com>,
-        "Ben Hutchings" <ben.hutchings@codethink.co.uk>
-Date:   Fri, 24 Apr 2020 00:04:22 +0100
-Message-ID: <lsq.1587683028.381048962@decadent.org.uk>
+        "Ben Hutchings" <ben.hutchings@codethink.co.uk>,
+        "Filipe Manana" <fdmanana@suse.com>
+Date:   Fri, 24 Apr 2020 00:04:23 +0100
+Message-ID: <lsq.1587683028.658516569@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 035/245] Btrfs: memset to avoid stale content in
- btree leaf
+Subject: [PATCH 3.16 036/245] Btrfs: fix emptiness check for dirtied
+ extent buffers at check_leaf()
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,114 +49,117 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Liu Bo <bo.li.liu@oracle.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 851cd173f06045816528176001cf82948282029c upstream.
+commit f177d73949bf758542ca15a1c1945bd2e802cc65 upstream.
 
-This is an additional patch to
-"Btrfs: memset to avoid stale content in btree node block".
+We can not simply use the owner field from an extent buffer's header to
+get the id of the respective tree when the extent buffer is from a
+relocation tree. When we create the root for a relocation tree we leave
+(on purpose) the owner field with the same value as the subvolume's tree
+root (we do this at ctree.c:btrfs_copy_root()). So we must ignore extent
+buffers from relocation trees, which have the BTRFS_HEADER_FLAG_RELOC
+flag set, because otherwise we will always consider the extent buffer
+as not being the root of the tree (the root of original subvolume tree
+is always different from the root of the respective relocation tree).
 
-This uses memset to initialize the unused space in a leaf to avoid
-potential stale content, which may be incurred by pushing items
-between sibling leaves.
+This lead to assertion failures when running with the integrity checker
+enabled (CONFIG_BTRFS_FS_CHECK_INTEGRITY=y) such as the following:
 
-Signed-off-by: Liu Bo <bo.li.liu@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+[  643.393409] BTRFS critical (device sdg): corrupt leaf, non-root leaf's nritems is 0: block=38506496, root=260, slot=0
+[  643.397609] BTRFS info (device sdg): leaf 38506496 total ptrs 0 free space 3995
+[  643.407075] assertion failed: 0, file: fs/btrfs/disk-io.c, line: 4078
+[  643.408425] ------------[ cut here ]------------
+[  643.409112] kernel BUG at fs/btrfs/ctree.h:3419!
+[  643.409773] invalid opcode: 0000 [#1] PREEMPT SMP
+[  643.410447] Modules linked in: dm_flakey dm_mod crc32c_generic btrfs xor raid6_pq ppdev psmouse acpi_cpufreq parport_pc evdev parport tpm_tis tpm_tis_core pcspkr serio_raw i2c_piix4 sg tpm i2c_core button processor loop autofs4 ext4 crc16 jbd2 mbcache sr_mod cdrom sd_mod ata_generic virtio_scsi ata_piix libata virtio_pci virtio_ring scsi_mod virtio e1000 floppy
+[  643.414356] CPU: 11 PID: 32726 Comm: btrfs Not tainted 4.8.0-rc8-btrfs-next-35+ #1
+[  643.414356] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.1-0-gb3ef39f-prebuilt.qemu-project.org 04/01/2014
+[  643.414356] task: ffff880145e95b00 task.stack: ffff88014826c000
+[  643.414356] RIP: 0010:[<ffffffffa0352759>]  [<ffffffffa0352759>] assfail.constprop.41+0x1c/0x1e [btrfs]
+[  643.414356] RSP: 0018:ffff88014826fa28  EFLAGS: 00010292
+[  643.414356] RAX: 0000000000000039 RBX: ffff88014e2d7c38 RCX: 0000000000000001
+[  643.414356] RDX: ffff88023f4d2f58 RSI: ffffffff81806c63 RDI: 00000000ffffffff
+[  643.414356] RBP: ffff88014826fa28 R08: 0000000000000001 R09: 0000000000000000
+[  643.414356] R10: ffff88014826f918 R11: ffffffff82f3c5ed R12: ffff880172910000
+[  643.414356] R13: ffff880233992230 R14: ffff8801a68a3310 R15: fffffffffffffff8
+[  643.414356] FS:  00007f9ca305e8c0(0000) GS:ffff88023f4c0000(0000) knlGS:0000000000000000
+[  643.414356] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  643.414356] CR2: 00007f9ca3071000 CR3: 000000015d01b000 CR4: 00000000000006e0
+[  643.414356] Stack:
+[  643.414356]  ffff88014826fa50 ffffffffa02d655a 000000000000000a ffff88014e2d7c38
+[  643.414356]  0000000000000000 ffff88014826faa8 ffffffffa02b72f3 ffff88014826fab8
+[  643.414356]  00ffffffa03228e4 0000000000000000 0000000000000000 ffff8801bbd4e000
+[  643.414356] Call Trace:
+[  643.414356]  [<ffffffffa02d655a>] btrfs_mark_buffer_dirty+0xdf/0xe5 [btrfs]
+[  643.414356]  [<ffffffffa02b72f3>] btrfs_copy_root+0x18a/0x1d1 [btrfs]
+[  643.414356]  [<ffffffffa0322921>] create_reloc_root+0x72/0x1ba [btrfs]
+[  643.414356]  [<ffffffffa03267c2>] btrfs_init_reloc_root+0x7b/0xa7 [btrfs]
+[  643.414356]  [<ffffffffa02d9e44>] record_root_in_trans+0xdf/0xed [btrfs]
+[  643.414356]  [<ffffffffa02db04e>] btrfs_record_root_in_trans+0x50/0x6a [btrfs]
+[  643.414356]  [<ffffffffa030ad2b>] create_subvol+0x472/0x773 [btrfs]
+[  643.414356]  [<ffffffffa030b406>] btrfs_mksubvol+0x3da/0x463 [btrfs]
+[  643.414356]  [<ffffffffa030b406>] ? btrfs_mksubvol+0x3da/0x463 [btrfs]
+[  643.414356]  [<ffffffff810781ac>] ? preempt_count_add+0x65/0x68
+[  643.414356]  [<ffffffff811a6e97>] ? __mnt_want_write+0x62/0x77
+[  643.414356]  [<ffffffffa030b55d>] btrfs_ioctl_snap_create_transid+0xce/0x187 [btrfs]
+[  643.414356]  [<ffffffffa030b67d>] btrfs_ioctl_snap_create+0x67/0x81 [btrfs]
+[  643.414356]  [<ffffffffa030ecfd>] btrfs_ioctl+0x508/0x20dd [btrfs]
+[  643.414356]  [<ffffffff81293e39>] ? __this_cpu_preempt_check+0x13/0x15
+[  643.414356]  [<ffffffff81155eca>] ? handle_mm_fault+0x976/0x9ab
+[  643.414356]  [<ffffffff81091300>] ? arch_local_irq_save+0x9/0xc
+[  643.414356]  [<ffffffff8119a2b0>] vfs_ioctl+0x18/0x34
+[  643.414356]  [<ffffffff8119a8e8>] do_vfs_ioctl+0x581/0x600
+[  643.414356]  [<ffffffff814b9552>] ? entry_SYSCALL_64_fastpath+0x5/0xa8
+[  643.414356]  [<ffffffff81093fe9>] ? trace_hardirqs_on_caller+0x17b/0x197
+[  643.414356]  [<ffffffff8119a9be>] SyS_ioctl+0x57/0x79
+[  643.414356]  [<ffffffff814b9565>] entry_SYSCALL_64_fastpath+0x18/0xa8
+[  643.414356]  [<ffffffff81091b08>] ? trace_hardirqs_off_caller+0x3f/0xaa
+[  643.414356] Code: 89 83 88 00 00 00 31 c0 5b 41 5c 41 5d 5d c3 55 89 f1 48 c7 c2 98 bc 35 a0 48 89 fe 48 c7 c7 05 be 35 a0 48 89 e5 e8 13 46 dd e0 <0f> 0b 55 89 f1 48 c7 c2 9f d3 35 a0 48 89 fe 48 c7 c7 7a d5 35
+[  643.414356] RIP  [<ffffffffa0352759>] assfail.constprop.41+0x1c/0x1e [btrfs]
+[  643.414356]  RSP <ffff88014826fa28>
+[  643.468267] ---[ end trace 6a1b3fb1a9d7d6e3 ]---
+
+This can be easily reproduced by running xfstests with the integrity
+checker enabled.
+
+Fixes: 1ba98d086fe3 (Btrfs: detect corruption when non-root leaf has zero item)
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Liu Bo <bo.li.liu@oracle.com>
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/btrfs/ctree.c     | 14 --------------
- fs/btrfs/ctree.h     | 15 +++++++++++++++
- fs/btrfs/extent_io.c | 18 +++++++++++++-----
- 3 files changed, 28 insertions(+), 19 deletions(-)
+ fs/btrfs/disk-io.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1721,20 +1721,6 @@ int btrfs_realloc_node(struct btrfs_tran
- 	return err;
- }
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -521,7 +521,15 @@ static noinline int check_leaf(struct bt
+ 	u32 nritems = btrfs_header_nritems(leaf);
+ 	int slot;
  
--/*
-- * The leaf data grows from end-to-front in the node.
-- * this returns the address of the start of the last item,
-- * which is the stop of the leaf data stack
-- */
--static inline unsigned int leaf_data_end(struct btrfs_root *root,
--					 struct extent_buffer *leaf)
--{
--	u32 nr = btrfs_header_nritems(leaf);
--	if (nr == 0)
--		return BTRFS_LEAF_DATA_SIZE(root);
--	return btrfs_item_offset_nr(leaf, nr - 1);
--}
--
+-	if (nritems == 0) {
++	/*
++	 * Extent buffers from a relocation tree have a owner field that
++	 * corresponds to the subvolume tree they are based on. So just from an
++	 * extent buffer alone we can not find out what is the id of the
++	 * corresponding subvolume tree, so we can not figure out if the extent
++	 * buffer corresponds to the root of the relocation tree or not. So skip
++	 * this check for relocation trees.
++	 */
++	if (nritems == 0 && !btrfs_header_flag(leaf, BTRFS_HEADER_FLAG_RELOC)) {
+ 		struct btrfs_root *check_root;
  
- /*
-  * search for key in the extent_buffer.  The items start at offset p,
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -3036,6 +3036,21 @@ static inline unsigned long btrfs_leaf_d
- 	return offsetof(struct btrfs_leaf, items);
- }
- 
-+/*
-+ * The leaf data grows from end-to-front in the node.
-+ * this returns the address of the start of the last item,
-+ * which is the stop of the leaf data stack
-+ */
-+static inline unsigned int leaf_data_end(struct btrfs_root *root,
-+					 struct extent_buffer *leaf)
-+{
-+	u32 nr = btrfs_header_nritems(leaf);
-+
-+	if (nr == 0)
-+		return BTRFS_LEAF_DATA_SIZE(root);
-+	return btrfs_item_offset_nr(leaf, nr - 1);
-+}
-+
- /* struct btrfs_file_extent_item */
- BTRFS_SETGET_FUNCS(file_extent_type, struct btrfs_file_extent_item, type, 8);
- BTRFS_SETGET_STACK_FUNCS(stack_file_extent_disk_bytenr,
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -3617,8 +3617,10 @@ static noinline_for_stack int write_one_
- 	struct block_device *bdev = fs_info->fs_devices->latest_bdev;
- 	struct extent_io_tree *tree = &BTRFS_I(fs_info->btree_inode)->io_tree;
- 	u64 offset = eb->start;
-+	u32 nritems;
- 	unsigned long i, num_pages;
- 	unsigned long bio_flags = 0;
-+	unsigned long start, end;
- 	int rw = (epd->sync_io ? WRITE_SYNC : WRITE) | REQ_META;
- 	int ret = 0;
- 
-@@ -3628,15 +3630,21 @@ static noinline_for_stack int write_one_
- 	if (btrfs_header_owner(eb) == BTRFS_TREE_LOG_OBJECTID)
- 		bio_flags = EXTENT_BIO_TREE_LOG;
- 
--	/* set btree node beyond nritems with 0 to avoid stale content */
-+	/* set btree blocks beyond nritems with 0 to avoid stale content. */
-+	nritems = btrfs_header_nritems(eb);
- 	if (btrfs_header_level(eb) > 0) {
--		u32 nritems;
--		unsigned long end;
--
--		nritems = btrfs_header_nritems(eb);
- 		end = btrfs_node_key_ptr_offset(nritems);
- 
- 		memset_extent_buffer(eb, 0, end, eb->len - end);
-+	} else {
-+		/*
-+		 * leaf:
-+		 * header 0 1 2 .. N ... data_N .. data_2 data_1 data_0
-+		 */
-+		start = btrfs_item_nr_offset(nritems);
-+		end = btrfs_leaf_data(eb) +
-+		      leaf_data_end(fs_info->tree_root, eb);
-+		memset_extent_buffer(eb, 0, start, end - start);
+ 		key.objectid = btrfs_header_owner(leaf);
+@@ -549,6 +557,9 @@ static noinline int check_leaf(struct bt
+ 		return 0;
  	}
  
- 	for (i = 0; i < num_pages; i++) {
++	if (nritems == 0)
++		return 0;
++
+ 	/* Check the 0 item */
+ 	if (btrfs_item_offset_nr(leaf, 0) + btrfs_item_size_nr(leaf, 0) !=
+ 	    BTRFS_LEAF_DATA_SIZE(root)) {
 
