@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED9A1B6791
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 995E11B6842
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728718AbgDWXHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:07:04 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:51234 "EHLO
+        id S1728470AbgDWXGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:06:49 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:49658 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728709AbgDWXHE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:07:04 -0400
+        by vger.kernel.org with ESMTP id S1728413AbgDWXGr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:47 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvU-0004hm-BW; Fri, 24 Apr 2020 00:06:36 +0100
+        id 1jRkvT-0004i3-VG; Fri, 24 Apr 2020 00:06:36 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvR-00E6qI-Tl; Fri, 24 Apr 2020 00:06:33 +0100
+        id 1jRkvR-00E6qN-VO; Fri, 24 Apr 2020 00:06:33 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,19 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Arvind Sankar" <nivedita@alum.mit.edu>,
-        "Ingo Molnar" <mingo@kernel.org>,
-        "Ard Biesheuvel" <ardb@kernel.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Hans de Goede" <hdegoede@redhat.com>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        linux-efi@vger.kernel.org
-Date:   Fri, 24 Apr 2020 00:06:07 +0100
-Message-ID: <lsq.1587683028.856459089@decadent.org.uk>
+        "Jia-Ju Bai" <baijiaju1990@gmail.com>,
+        "Takashi Iwai" <tiwai@suse.de>
+Date:   Fri, 24 Apr 2020 00:06:08 +0100
+Message-ID: <lsq.1587683028.203073685@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 140/245] x86/efistub: Disable paging at mixed mode entry
+Subject: [PATCH 3.16 141/245] ALSA: ice1724: Fix sleep-in-atomic in
+ Infrasonic Quartet support code
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -52,43 +47,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 4911ee401b7ceff8f38e0ac597cbf503d71e690c upstream.
+commit 0aec96f5897ac16ad9945f531b4bef9a2edd2ebd upstream.
 
-The EFI mixed mode entry code goes through the ordinary startup_32()
-routine before jumping into the kernel's EFI boot code in 64-bit
-mode. The 32-bit startup code must be entered with paging disabled,
-but this is not documented as a requirement for the EFI handover
-protocol, and so we should disable paging explicitly when entering
-the kernel from 32-bit EFI firmware.
+Jia-Ju Bai reported a possible sleep-in-atomic scenario in the ice1724
+driver with Infrasonic Quartet support code: namely, ice->set_rate
+callback gets called inside ice->reg_lock spinlock, while the callback
+in quartet.c holds ice->gpio_mutex.
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Arvind Sankar <nivedita@alum.mit.edu>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-efi@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191224132909.102540-4-ardb@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+This patch fixes the invalid call: it simply moves the calls of
+ice->set_rate and ice->set_mclk callbacks outside the spinlock.
+
+Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Link: https://lore.kernel.org/r/5d43135e-73b9-a46a-2155-9e91d0dcdf83@gmail.com
+Link: https://lore.kernel.org/r/20191218192606.12866-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/boot/compressed/head_64.S | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/ice1712/ice1724.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -216,6 +216,11 @@ ENTRY(efi32_stub_entry)
- 	leal	efi32_config(%ebp), %eax
- 	movl	%eax, efi_config(%ebp)
+--- a/sound/pci/ice1712/ice1724.c
++++ b/sound/pci/ice1712/ice1724.c
+@@ -663,6 +663,7 @@ static int snd_vt1724_set_pro_rate(struc
+ 	unsigned long flags;
+ 	unsigned char mclk_change;
+ 	unsigned int i, old_rate;
++	bool call_set_rate = false;
  
-+	/* Disable paging */
-+	movl	%cr0, %eax
-+	btrl	$X86_CR0_PG_BIT, %eax
-+	movl	%eax, %cr0
+ 	if (rate > ice->hw_rates->list[ice->hw_rates->count - 1])
+ 		return -EINVAL;
+@@ -686,7 +687,7 @@ static int snd_vt1724_set_pro_rate(struc
+ 		 * setting clock rate for internal clock mode */
+ 		old_rate = ice->get_rate(ice);
+ 		if (force || (old_rate != rate))
+-			ice->set_rate(ice, rate);
++			call_set_rate = true;
+ 		else if (rate == ice->cur_rate) {
+ 			spin_unlock_irqrestore(&ice->reg_lock, flags);
+ 			return 0;
+@@ -694,12 +695,14 @@ static int snd_vt1724_set_pro_rate(struc
+ 	}
+ 
+ 	ice->cur_rate = rate;
++	spin_unlock_irqrestore(&ice->reg_lock, flags);
 +
- 	jmp	startup_32
- ENDPROC(efi32_stub_entry)
- #endif
++	if (call_set_rate)
++		ice->set_rate(ice, rate);
+ 
+ 	/* setting master clock */
+ 	mclk_change = ice->set_mclk(ice, rate);
+ 
+-	spin_unlock_irqrestore(&ice->reg_lock, flags);
+-
+ 	if (mclk_change && ice->gpio.i2s_mclk_changed)
+ 		ice->gpio.i2s_mclk_changed(ice);
+ 	if (ice->gpio.set_pro_rate)
 
