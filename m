@@ -2,138 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F031B55BC
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 09:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5151B5653
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 09:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726479AbgDWHek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 03:34:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35518 "EHLO
+        id S1726822AbgDWHqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 03:46:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726032AbgDWHek (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 03:34:40 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A382DC03C1AF
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 00:34:39 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id b2so5136427ljp.4
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 00:34:39 -0700 (PDT)
+        with ESMTP id S1726692AbgDWHqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 03:46:36 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEEC7C03C1AB
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 00:46:35 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id j3so5157124ljg.8
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 00:46:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=nH+zYjlvWP3Qo5orh796NHnCHvpiRUmXtBzvtTbcFcE=;
-        b=LVsNLptl4nB4LOLOaiGrH4RSyUJn61OIsD0obcDL/JRHZooBbLgar/q7RrUBhZUjzK
-         ugGBfY3wsdiTy/UQpgcNMEHuchurnffz3Y48rEVDcJyzh07ypmD61oQ1HxAAKnQXqZUz
-         cRUd8UTc8mjl9uq+v0HnWmXYAgOdUEdT5FQYKBdM/4vLD4d/9h9VaZkDa7GhO6eIHazi
-         rsWYIhV4dQxLofUUYW/BewkevImnHnKe0qD+fCvqio8e7XAjlrnxpoSjnIkioOeZAuPp
-         IM6YMOrYkvx1gxh28IIt2m/XkjuA8sOwimPRjl3J2ncpG/gRKo8uxUFhgQ8/x/K3JUEO
-         TNMw==
+         :cc:content-transfer-encoding;
+        bh=j4NxmKsBHTz6gYyauKIZjiC6fMYuhV3vv9EHXAmn6hY=;
+        b=tv1q4y4FdeEKCuJ9FuDTHqWJ9x0mqHvVo3pFNBPrkAls04wqqrv2i/UTy+FKxcvhyj
+         T1Qt2MYG8VO94JQyKsrPxh73IhYtk4zkp4LoJ41un5o6gSC/0oJrefSvaq78Czo/hbN0
+         GR4W+7JrmK7e6jLTDi/ArGq146l3bju22RAdR7dWBK9S4NV1lNfzDVGDWsMvyX/CoMV1
+         lZxskYPYSq535yAjL+8WuqNqSOvphOcjvaYGSr/OeV9XFYSzO6/5pVBJlp4IQpEBhfN4
+         Xbr8nZpyCwj+NdwHNUJ624dVuSUCJtJW+t06ig8QZ2PlN5iT1eoIo1mHsfdFX0+nef/y
+         ZS4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nH+zYjlvWP3Qo5orh796NHnCHvpiRUmXtBzvtTbcFcE=;
-        b=DjWClmNIQZuhCCy4U7/3wYx/YYMq/2IGLJTZd4U8Amnk9PZtfyMt4FZO6Lf9XeruBJ
-         pssRteTUl77lsXRAlNn9oa+mxd7pieKxJ7w/py/Ct5ewK4cR9xpUd+6GLfanzp9Zw45h
-         YsiK5wREsujEFH0661wkgNlPnY/7UAbkoqsKQVUiObkstwWiOeDjSqfKlkvkLF8xk66l
-         kHPgxp67gIELSVnMtXmApqf6qJtbJJCCp+XH1ZmnTMJ5NzIi7kBIleompdYypyv61YHS
-         IcBKwu/lEEX5nHjkOEubymTVPz59QANR3fOxU8M++phxKhdd+afhFeGEhOHDNUz1o/Rg
-         VexA==
-X-Gm-Message-State: AGi0PubUyHWV+lbQtfFCdLlpCZEyWJWQDffkQXV+RZVWJ+Bs2h9wfOge
-        VqYxl+oXOb2TqI88N5FWNNzJlQN8V61ZrB7f0FMxlQ==
-X-Google-Smtp-Source: APiQypIdrR8UY3vfI2VgyhmAUWxs0CgrmVtuB+bsGJNcjLN3F+T2pObZ8r+NNF/YOBjeU6Oqz5SKi/rk9DKxGPPrv3c=
-X-Received: by 2002:a05:651c:230:: with SMTP id z16mr1545818ljn.185.1587627277913;
- Thu, 23 Apr 2020 00:34:37 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=j4NxmKsBHTz6gYyauKIZjiC6fMYuhV3vv9EHXAmn6hY=;
+        b=mLlQxMxvVSIIjb2hB6xdYOXJeGRHdBPPs+91HPozWXmIBuo3yTVOBzhCTR8qySN/qj
+         QkiudJ4dqp2PcphwMJvHBnK/VX2YdcpatUNdEbtgtL63dMRkMxw8IyLtV3/YNFPQ6yEs
+         srvTO+iGldG6VyqURpWyl2RhseR8elKs0j9C/w5hEC5Y/Ma5ACX/2pRjSPAzPomCjSPy
+         +tmK59e158YPdEcjek4rAjbNdJWMTPR3hz5Ncc0E+VniGxKYxl2msE1Ezc+s9Qlcb7vh
+         KPaF/XKJuC/RbzjD3Jyuqr0wlOJdc74wSB/nyE5cP+1O5G0p5y9dqmUE7NBBQLOKvy7y
+         e2Dw==
+X-Gm-Message-State: AGi0PuYK9Xtl4tafFcpJB26c4kFr2q1TFjkmCGmTIXQhQF6rG/CWwwgx
+        C30wJb27sJfNw+mVAe9NXq/Qa4CXkDD/aFqE4+4e6w==
+X-Google-Smtp-Source: APiQypInqUm6r2HKtqH7wmzEyhd8ssB9/VrFtHcQxoRwylbQ4mdJYQBN5ls4FKP3EwVU0VcOBIQa63T7KPwlXx1XX24=
+X-Received: by 2002:a2e:9018:: with SMTP id h24mr1537378ljg.217.1587627994170;
+ Thu, 23 Apr 2020 00:46:34 -0700 (PDT)
 MIME-Version: 1.0
-References: <c304ad9c-f404-d22e-de74-9398da3ebfc3@hauke-m.de>
-In-Reply-To: <c304ad9c-f404-d22e-de74-9398da3ebfc3@hauke-m.de>
-From:   Sumit Garg <sumit.garg@linaro.org>
-Date:   Thu, 23 Apr 2020 13:04:26 +0530
-Message-ID: <CAFA6WYN3FbqTivGJTfXtHsMjXNPXW+P4MZWiCL14utF2sHkeYg@mail.gmail.com>
-Subject: Re: Commit "mac80211: fix race in ieee80211_register_hw()" breaks
- mac80211 debugfs
-To:     Hauke Mehrtens <hauke@hauke-m.de>
-Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, stable <stable@vger.kernel.org>,
-        Johannes Berg <johannes.berg@intel.com>
+References: <20200422095047.669225321@linuxfoundation.org>
+In-Reply-To: <20200422095047.669225321@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 23 Apr 2020 13:16:22 +0530
+Message-ID: <CA+G9fYt+DmKn-h_XoG1TseqP7J5BxgrwQPNqyaL+htn40qLo9w@mail.gmail.com>
+Subject: Re: [PATCH 5.6 000/166] 5.6.7-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 23 Apr 2020 at 02:29, Hauke Mehrtens <hauke@hauke-m.de> wrote:
+On Wed, 22 Apr 2020 at 15:55, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> Hi,
+> This is the start of the stable review cycle for the 5.6.7 release.
+> There are 166 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Since commit 52e04b4ce5d0 ("mac80211: fix race in
-> ieee80211_register_hw()") the debugfs entries for mac80211 drivers are
-> broken.
-> https://git.kernel.org/linus/52e04b4ce5d03775b6a78f3ed1097480faacc9fd
+> Responses should be made by Fri, 24 Apr 2020 09:48:23 +0000.
+> Anything received after that time might be too late.
 >
-> Felix reported that the file /sys/kernel/debug/ieee80211/phy0/rc is now
-> located at /sys/kernel/debug/rc.
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.6.7-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.6.y
+> and the diffstat can be found below.
 >
-> Before this commit we had the following flow:
-> 1. wiphy_register()
->   -> creates /sys/kernel/debug/ieee80211/phy0/
->   -> fill rdev->wiphy.debugfsdir pointer
-> 2. ieee80211_init_rate_ctrl_alg()
->   -> call rate_control_alloc()
->     -> use rdev->wiphy.debugfsdir pointer to
->        create /sys/kernel/debug/ieee80211/phy0/rc/
+> thanks,
 >
-> This works like expected.
->
->
-> With the commit the flow in ieee80211_register_hw() is the other way around:
-> 2. ieee80211_init_rate_ctrl_alg()
->   -> call rate_control_alloc()
->     -> use rdev->wiphy.debugfsdir pointer (now NULL) to
->        create /sys/kernel/debug/rc/
-> 2. wiphy_register()
->   -> creates /sys/kernel/debug/ieee80211/phy0/
->   -> fill rdev->wiphy.debugfsdir pointer
->
+> greg k-h
 
-Thanks for the detailed report. I missed to notice this hidden debugfs
-dependency on "wiphy_register()". To address this issue, I think it's
-reasonable to move creation of wiphy debugfs directory during
-allocation of wiphy device as per following change (untested though):
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-diff --git a/net/wireless/core.c b/net/wireless/core.c
-index 341402b..239e9ff 100644
---- a/net/wireless/core.c
-+++ b/net/wireless/core.c
-@@ -473,6 +473,10 @@ struct wiphy *wiphy_new_nm(const struct
-cfg80211_ops *ops, int sizeof_priv,
-                }
-        }
+Summary
+------------------------------------------------------------------------
 
-+       /* add to debugfs */
-+       rdev->wiphy.debugfsdir = debugfs_create_dir(wiphy_name(&rdev->wiphy),
-+                                                   ieee80211_debugfs_dir);
-+
-        INIT_LIST_HEAD(&rdev->wiphy.wdev_list);
-        INIT_LIST_HEAD(&rdev->beacon_registrations);
-        spin_lock_init(&rdev->beacon_registrations_lock);
-@@ -903,10 +907,6 @@ int wiphy_register(struct wiphy *wiphy)
-        list_add_rcu(&rdev->list, &cfg80211_rdev_list);
-        cfg80211_rdev_list_generation++;
+kernel: 5.6.7-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.6.y
+git commit: 0c5e841761a8a86b28a132964a4418cc9970cc82
+git describe: v5.6.6-168-g0c5e841761a8
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.6-oe/bui=
+ld/v5.6.6-168-g0c5e841761a8
 
--       /* add to debugfs */
--       rdev->wiphy.debugfsdir = debugfs_create_dir(wiphy_name(&rdev->wiphy),
--                                                   ieee80211_debugfs_dir);
--
-        cfg80211_debugfs_rdev_add(rdev);
-        nl80211_notify_wiphy(rdev, NL80211_CMD_NEW_WIPHY);
+No regressions (compared to build v5.6.6)
 
-With this change we can remove this hidden debugfs dependency. Please
-give it a try and let me know if it works for you.
+No fixes (compared to build v5.6.6)
 
--Sumit
+Ran 36818 total tests in the following environments and test suites.
 
->
-> This patch was backported to multiple stable kernel versions:
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.4.y&id=a8ce3412e8a22279e1bdc81c3c2bacd3785c1577
->
-> Hauke
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* libgpiod
+* linux-log-parser
+* ltp-containers-tests
+* ltp-ipc-tests
+* ltp-sched-tests
+* perf
+* libhugetlbfs
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-mm-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* kselftest/net
+* kselftest/networking
+* kvm-unit-tests
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* v4l2-compliance
+* spectre-meltdown-checker-test
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-native/networking
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+* kselftest-vsyscall-mode-none/networking
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
