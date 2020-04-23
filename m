@@ -2,100 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 677971B5785
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 10:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DD41B578D
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 10:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726386AbgDWI5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 04:57:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48550 "EHLO
+        id S1726364AbgDWI7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 04:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725884AbgDWI5u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 04:57:50 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C08DEC03C1AF
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 01:57:49 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id y4so5390359ljn.7
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 01:57:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=6fxS0sRpVzeKpCQ9DZnK+D9PrkbIMQB8wAa4rtLJMqE=;
-        b=lXNwYcxSWOrjXhcUeHFZcVlJZq8SpERhMm4ytefHKx+nnKvdqFjIvzm+rBilHJXWp2
-         Tk1wX3ZuyWvaqpyZoWhpekIvt/xq1e1DkUaybqHXx4pcAb0HFqgkwmEUeoKgSFieYXdd
-         CbYbFpoQ7KtPXjKvVXFFXULBd7BJJzSTM6X5D+bY6SkcfGetjPkdlONG7JnsJs65yD9T
-         EtQ2C2hfg7atxbRVbIHNxzx70P43AnMkYAHP9AxGE8DUmYsOz/q4auqeUSIT3mnIDuit
-         268kEZdcWCAnLwkb2K7SjdmiC9fcGPCfgA9beulLNMRcIzwhIiWjMwvhpNRT7US4BrAR
-         9gNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6fxS0sRpVzeKpCQ9DZnK+D9PrkbIMQB8wAa4rtLJMqE=;
-        b=fE6/zwePKSRlns1qfcXf9C4z/Zeb4gu6ZfknjT65k4lQ4qPGacY5gdQ3udcMl4N0XB
-         bO4LoBPOD1GROyI9M1iKEkPkxqiwQjUx+xUncNXp5CB+dPnfaWP7uKLCNX7Lt8y6o/pt
-         PzrqmhL/xvxgWBZY+xONIyo12y18PSQzLWY2S799Zz32hR4tibuzhIm5RkdKxlyNTXb7
-         d1p3DKwz3dt9ha57gZfWN65fYYn7n7meybUPogFN12QWwZakzShB7w716gPlsV+sUhKD
-         p8S0mssZwW3zg0htZeLkDbK5XGnRg2O4cc3lDQRPVa/nq66pQLhw9vvNBsLDRfeb0Sjj
-         Mj1g==
-X-Gm-Message-State: AGi0PuapptDfugDbAr1tBUUm5Pz1RjTNEitzwVDv8A4eeHHiAlBQseE7
-        fLuRbvuy1MEzTaXyCw3sRVDsQXUhrnkZMANiKbjyMw==
-X-Google-Smtp-Source: APiQypKmaGX7+yfayz9GQsxXt/2GmavWcwMEmE24QGk3lpItVwd9FbGc+Svq9iOTM7V2svlBgsTeoDQXWWRvMdPBBao=
-X-Received: by 2002:a2e:b8c1:: with SMTP id s1mr1880474ljp.0.1587632268278;
- Thu, 23 Apr 2020 01:57:48 -0700 (PDT)
-MIME-Version: 1.0
-References: <c304ad9c-f404-d22e-de74-9398da3ebfc3@hauke-m.de>
- <CAFA6WYN3FbqTivGJTfXtHsMjXNPXW+P4MZWiCL14utF2sHkeYg@mail.gmail.com> <885ae3bffad315445be3fc70cccade9067ee6937.camel@sipsolutions.net>
-In-Reply-To: <885ae3bffad315445be3fc70cccade9067ee6937.camel@sipsolutions.net>
-From:   Sumit Garg <sumit.garg@linaro.org>
-Date:   Thu, 23 Apr 2020 14:27:36 +0530
-Message-ID: <CAFA6WYMYQAnW0vKm4fxNn+nA6dYXvqaungBEYDpd-wrzaavr8A@mail.gmail.com>
+        with ESMTP id S1725854AbgDWI7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 04:59:14 -0400
+X-Greylist: delayed 3598 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 23 Apr 2020 01:59:14 PDT
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72554C03C1AF;
+        Thu, 23 Apr 2020 01:59:14 -0700 (PDT)
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.93)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1jRXhP-00EmKj-Ey; Thu, 23 Apr 2020 10:59:11 +0200
+Message-ID: <42e9ac2651c677e9143b019393d60c3254893ae0.camel@sipsolutions.net>
 Subject: Re: Commit "mac80211: fix race in ieee80211_register_hw()" breaks
  mac80211 debugfs
-To:     Johannes Berg <johannes@sipsolutions.net>
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     Sumit Garg <sumit.garg@linaro.org>
 Cc:     Hauke Mehrtens <hauke@hauke-m.de>,
         linux-wireless <linux-wireless@vger.kernel.org>,
         Felix Fietkau <nbd@nbd.name>, stable <stable@vger.kernel.org>
+Date:   Thu, 23 Apr 2020 10:59:09 +0200
+In-Reply-To: <CAFA6WYMYQAnW0vKm4fxNn+nA6dYXvqaungBEYDpd-wrzaavr8A@mail.gmail.com> (sfid-20200423_105749_472578_D47E3801)
+References: <c304ad9c-f404-d22e-de74-9398da3ebfc3@hauke-m.de>
+         <CAFA6WYN3FbqTivGJTfXtHsMjXNPXW+P4MZWiCL14utF2sHkeYg@mail.gmail.com>
+         <885ae3bffad315445be3fc70cccade9067ee6937.camel@sipsolutions.net>
+         <CAFA6WYMYQAnW0vKm4fxNn+nA6dYXvqaungBEYDpd-wrzaavr8A@mail.gmail.com>
+         (sfid-20200423_105749_472578_D47E3801)
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Johannes,
+On Thu, 2020-04-23 at 14:27 +0530, Sumit Garg wrote:
 
-On Thu, 23 Apr 2020 at 13:29, Johannes Berg <johannes@sipsolutions.net> wrote:
->
-> Hi Hauke, Sumit,
->
-> > > Felix reported that the file /sys/kernel/debug/ieee80211/phy0/rc is now
-> > > located at /sys/kernel/debug/rc.
->
-> Yeah, we noticed this the other day too.
->
-> > +++ b/net/wireless/core.c
-> > @@ -473,6 +473,10 @@ struct wiphy *wiphy_new_nm(const struct
-> > cfg80211_ops *ops, int sizeof_priv,
-> >                 }
-> >         }
-> >
-> > +       /* add to debugfs */
-> > +       rdev->wiphy.debugfsdir = debugfs_create_dir(wiphy_name(&rdev->wiphy),
-> > +                                                   ieee80211_debugfs_dir);
->
-> This cannot work, we haven't committed to the name of the wiphy yet at
-> this point.
+> > > +++ b/net/wireless/core.c
+> > > @@ -473,6 +473,10 @@ struct wiphy *wiphy_new_nm(const struct
+> > > cfg80211_ops *ops, int sizeof_priv,
+> > >                 }
+> > >         }
+> > > 
+> > > +       /* add to debugfs */
+> > > +       rdev->wiphy.debugfsdir = debugfs_create_dir(wiphy_name(&rdev->wiphy),
+> > > +                                                   ieee80211_debugfs_dir);
+> > 
+> > This cannot work, we haven't committed to the name of the wiphy yet at
+> > this point.
+> 
+> Maybe I am missing something, can you please elaborate here?
+> 
+> Looking at the code, the default or requested wiphy name is configured
+> just above this and the rename API "cfg80211_dev_rename()" takes care
+> of renaming wiphy debugfs directory too.
 
-Maybe I am missing something, can you please elaborate here?
+Yes, but I think wiphy_register() can still fail at this point, due to
+name clashes or so?
 
-Looking at the code, the default or requested wiphy name is configured
-just above this and the rename API "cfg80211_dev_rename()" takes care
-of renaming wiphy debugfs directory too.
+In any case, it'd be very strange to have a debugfs entry around when
+the wiphy doesn't exist yet, and could possibly cause the same issue
+that you fixed again, just through debugfs accesses?
 
--Sumit
+Can you take a look at the patch I sent?
 
->
-> I have some fixes, I'll send them out asap.
->
-> johannes
->
+johannes
+
