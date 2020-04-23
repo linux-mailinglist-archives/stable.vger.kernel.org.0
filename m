@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F02D1B6823
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:13:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B2DE1B682E
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 01:13:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729059AbgDWXMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 19:12:42 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50050 "EHLO
+        id S1729374AbgDWXNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 19:13:04 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50072 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728509AbgDWXGv (ORCPT
+        by vger.kernel.org with ESMTP id S1728506AbgDWXGv (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 19:06:51 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvY-0004mS-Gf; Fri, 24 Apr 2020 00:06:40 +0100
+        id 1jRkvY-0004mp-RF; Fri, 24 Apr 2020 00:06:40 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jRkvU-00E6uq-8p; Fri, 24 Apr 2020 00:06:36 +0100
+        id 1jRkvU-00E6v2-Cr; Fri, 24 Apr 2020 00:06:36 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        "Luo Jiaxing" <luojiaxing@huawei.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Xiang Chen" <chenxiang66@hisilicon.com>
-Date:   Fri, 24 Apr 2020 00:06:34 +0100
-Message-ID: <lsq.1587683028.702346965@decadent.org.uk>
+        "James Bottomley" <James.Bottomley@HansenPartnership.com>,
+        "John Garry" <john.garry@huawei.com>
+Date:   Fri, 24 Apr 2020 00:06:35 +0100
+Message-ID: <lsq.1587683028.993324332@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 167/245] scsi: sd: Clear sdkp->protection_type if
- disk is reformatted without PI
+Subject: [PATCH 3.16 168/245] scsi: enclosure: Fix stale device oops with
+ hot replug
 In-Reply-To: <lsq.1587683027.831233700@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,40 +49,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 
-commit 465f4edaecc6c37f81349233e84d46246bcac11a upstream.
+commit 529244bd1afc102ab164429d338d310d5d65e60d upstream.
 
-If an attached disk with protection information enabled is reformatted
-to Type 0 the revalidation code does not clear the original protection
-type and subsequent accesses will keep setting RDPROTECT/WRPROTECT.
+Doing an add/remove/add on a SCSI device in an enclosure leads to an oops
+caused by poisoned values in the enclosure device list pointers.  The
+reason is because we are keeping the enclosure device across the enclosed
+device add/remove/add but the current code is doing a
+device_add/device_del/device_add on it.  This is the wrong thing to do in
+sysfs, so fix it by not doing a device_del on the enclosure device simply
+because of a hot remove of the drive in the slot.
 
-Set the protection type to 0 if the disk reports PROT_EN=0 in READ
-CAPACITY(16).
+[mkp: added missing email addresses]
 
-[mkp: commit desc]
-
-Fixes: fe542396da73 ("[SCSI] sd: Ensure we correctly disable devices with unknown protection type")
-Link: https://lore.kernel.org/r/1578532344-101668-1-git-send-email-chenxiang66@hisilicon.com
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Fixes: 43d8eb9cfd0a ("[SCSI] ses: add support for enclosure component hot removal")
+Link: https://lore.kernel.org/r/1578532892.3852.10.camel@HansenPartnership.com
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Reported-by: Luo Jiaxing <luojiaxing@huawei.com>
+Tested-by: John Garry <john.garry@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/scsi/sd.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/misc/enclosure.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -1910,8 +1910,10 @@ static int sd_read_protection_type(struc
- 	u8 type;
- 	int ret = 0;
- 
--	if (scsi_device_protection(sdp) == 0 || (buffer[12] & 1) == 0)
-+	if (scsi_device_protection(sdp) == 0 || (buffer[12] & 1) == 0) {
-+		sdkp->protection_type = 0;
- 		return ret;
-+	}
- 
- 	type = ((buffer[12] >> 1) & 7) + 1; /* P_TYPE 0 = Type 1 */
- 
+--- a/drivers/misc/enclosure.c
++++ b/drivers/misc/enclosure.c
+@@ -364,10 +364,9 @@ int enclosure_remove_device(struct enclo
+ 		cdev = &edev->component[i];
+ 		if (cdev->dev == dev) {
+ 			enclosure_remove_links(cdev);
+-			device_del(&cdev->cdev);
+ 			put_device(dev);
+ 			cdev->dev = NULL;
+-			return device_add(&cdev->cdev);
++			return 0;
+ 		}
+ 	}
+ 	return -ENODEV;
 
