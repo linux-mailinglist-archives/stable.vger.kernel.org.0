@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D01731B59DB
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A0591B59DE
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727895AbgDWLBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 07:01:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50338 "EHLO mail.kernel.org"
+        id S1727901AbgDWLBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 07:01:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727791AbgDWLBI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 07:01:08 -0400
+        id S1727975AbgDWLBR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 07:01:17 -0400
 Received: from localhost.localdomain (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 598EF20704;
-        Thu, 23 Apr 2020 11:01:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C07CC20704;
+        Thu, 23 Apr 2020 11:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587639668;
-        bh=HgsNj2H2CWk1JhxVQWo3f0C7WZ/gAljvF34fqPbNRsM=;
+        s=default; t=1587639677;
+        bh=fOJxF/ls2VSw+2hhqPNsxveGbkSp3Nbou1jMHx7y9xY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkhSnUwIAj2E7S1YEXB5tTMiRGYyIOj5LAGrDlJ8/IsdLDlodS28KowfaoXQUc6pH
-         2T/4E+r9KFbSn5zJzWJl6RfaIVimaHxuXcP8pvnSeDGNXTGsTCnYNWKv5JRAvHmUW2
-         Gor8SrQIJPGPvfdxogJIMhDYtgIyYRQB1twIMPxQ=
+        b=DODjxxNlXNnv7BugKoEkz3w5C1Uym8i4zuUUm4CzGm+L+jnaTa3sE0MWXogNEBOE5
+         xbptPNqmWNxUCgisMde8thxcJph/JoWIytrtjUo7qTfOUmKLp6bLDoYi2JTx6PFmix
+         fjf7u2CfV6wGbWH3ZlfqiGDzcTvAl0hIYzsJKaJo=
 From:   Masami Hiramatsu <mhiramat@kernel.org>
 To:     Arnaldo Carvalho de Melo <acme@kernel.org>
 Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
@@ -30,9 +30,9 @@ Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
         Namhyung Kim <namhyung@kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         stable@vger.kernel.org
-Subject: [PATCH 1/3] perf-probe: Fix to check blacklist address correctly
-Date:   Thu, 23 Apr 2020 20:01:04 +0900
-Message-Id: <158763966411.30755.5882376357738273695.stgit@devnote2>
+Subject: [PATCH 2/3] perf-probe: Check address correctness by map instead of _etext
+Date:   Thu, 23 Apr 2020 20:01:13 +0900
+Message-Id: <158763967332.30755.4922496724365529088.stgit@devnote2>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <158763965400.30755.14484569071233923742.stgit@devnote2>
 References: <158763965400.30755.14484569071233923742.stgit@devnote2>
@@ -45,112 +45,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix to check kprobe blacklist address correctly with
-relocated address by adjusting debuginfo address.
+Since commit 03db8b583d1c ("perf tools: Fix maps__find_symbol_by_name()")
+introduced map address range check in maps__find_symbol_by_name(),
+we can not get "_etext" from kernel map because _etext is placed
+on the edge of the kernel .text section (= kernel map in perf.)
 
-Since the address in the debuginfo is same as objdump,
-it is different from relocated kernel address with KASLR.
-Thus, the perf-probe always misses to catch the
-blacklisted addresses.
+To fix this issue, this checks the address correctness
+by map address range information (map->start and map->end)
+instead of using _etext address.
 
-Without this patch, perf probe can not detect the blacklist
-addresses on KASLR enabled kernel.
+This can cause an error if the target inlined function is
+embedded in both __init function and normal function.
 
-=========
-  # perf probe kprobe_dispatcher
+For exaample, request_resource() is a normal function but also
+embedded in __init reserve_setup(). In this case, the probe point
+in reserve_setup() must be skipped. However, without this fix,
+it failes to setup all probe points.
+================
+  # ./perf probe -v request_resource
+  probe-definition(0): request_resource
+  symbol:request_resource file:(null) line:0 offset:0 return:0 lazy:(null)
+  0 arguments
+  Looking at the vmlinux_path (8 entries long)
+  Using /usr/lib/debug/lib/modules/5.5.17-200.fc31.x86_64/vmlinux for symbols
+  Open Debuginfo file: /usr/lib/debug/lib/modules/5.5.17-200.fc31.x86_64/vmlinux
+  Try to find probe point from debuginfo.
+  Matched function: request_resource [15e29ad]
+  found inline addr: 0xffffffff82fbf892
+  Probe point found: reserve_setup+204
+  found inline addr: 0xffffffff810e9790
+  Probe point found: request_resource+0
+  Found 2 probe_trace_events.
+  Opening /sys/kernel/debug/tracing//kprobe_events write=1
+  Opening /sys/kernel/debug/tracing//README write=0
+  Writing event: p:probe/request_resource _text+33290386
   Failed to write event: Invalid argument
-    Error: Failed to add events.
-=========
+    Error: Failed to add events. Reason: Invalid argument (Code: -22)
+================
 
-With this patch, it correctly shows the error message.
+With this fix,
 
-=========
-  # perf probe kprobe_dispatcher
-  kprobe_dispatcher is blacklisted function, skip it.
-  Probe point 'kprobe_dispatcher' not found.
-    Error: Failed to add events.
-=========
+================
+  # ./perf probe request_resource
+  reserve_setup is out of .text, skip it.
+  Added new events:
+    (null):(null)        (on request_resource)
+    probe:request_resource (on request_resource)
 
-Fixes: 9aaf5a5f479b ("perf probe: Check kprobes blacklist when adding new events")
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe:request_resource -aR sleep 1
+
+================
+
+Fixes: 03db8b583d1c ("perf tools: Fix maps__find_symbol_by_name()")
+Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Cc: stable@vger.kernel.org
 ---
- tools/perf/util/probe-event.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ tools/perf/util/probe-event.c |   25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
 diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
-index eea132f512b0..f75df63309be 100644
+index f75df63309be..a5387e03e365 100644
 --- a/tools/perf/util/probe-event.c
 +++ b/tools/perf/util/probe-event.c
-@@ -102,7 +102,7 @@ void exit_probe_symbol_maps(void)
- 	symbol__exit();
- }
- 
--static struct ref_reloc_sym *kernel_get_ref_reloc_sym(void)
-+static struct ref_reloc_sym *kernel_get_ref_reloc_sym(struct map **pmap)
+@@ -236,21 +236,22 @@ static void clear_probe_trace_events(struct probe_trace_event *tevs, int ntevs)
+ static bool kprobe_blacklist__listed(unsigned long address);
+ static bool kprobe_warn_out_range(const char *symbol, unsigned long address)
  {
- 	/* kmap->ref_reloc_sym should be set if host_machine is initialized */
- 	struct kmap *kmap;
-@@ -114,6 +114,10 @@ static struct ref_reloc_sym *kernel_get_ref_reloc_sym(void)
- 	kmap = map__kmap(map);
- 	if (!kmap)
- 		return NULL;
-+
-+	if (pmap)
-+		*pmap = map;
-+
- 	return kmap->ref_reloc_sym;
- }
- 
-@@ -125,7 +129,7 @@ static int kernel_get_symbol_address_by_name(const char *name, u64 *addr,
- 	struct map *map;
- 
- 	/* ref_reloc_sym is just a label. Need a special fix*/
--	reloc_sym = kernel_get_ref_reloc_sym();
-+	reloc_sym = kernel_get_ref_reloc_sym(NULL);
- 	if (reloc_sym && strcmp(name, reloc_sym->name) == 0)
- 		*addr = (reloc) ? reloc_sym->addr : reloc_sym->unrelocated_addr;
- 	else {
-@@ -745,6 +749,7 @@ post_process_kernel_probe_trace_events(struct probe_trace_event *tevs,
- 				       int ntevs)
- {
- 	struct ref_reloc_sym *reloc_sym;
+-	u64 etext_addr = 0;
+-	int ret;
+-
+-	/* Get the address of _etext for checking non-probable text symbol */
+-	ret = kernel_get_symbol_address_by_name("_etext", &etext_addr,
+-						false, false);
 +	struct map *map;
- 	char *tmp;
- 	int i, skipped = 0;
++	bool ret = false;
  
-@@ -753,7 +758,7 @@ post_process_kernel_probe_trace_events(struct probe_trace_event *tevs,
- 		return post_process_offline_probe_trace_events(tevs, ntevs,
- 						symbol_conf.vmlinux_name);
+-	if (ret == 0 && etext_addr < address)
+-		pr_warning("%s is out of .text, skip it.\n", symbol);
+-	else if (kprobe_blacklist__listed(address))
++	map = kernel_get_module_map(NULL);
++	if (map) {
++		ret = address <= map->start || map->end < address;
++		if (ret)
++			pr_warning("%s is out of .text, skip it.\n", symbol);
++		map__put(map);
++	}
++	if (!ret && kprobe_blacklist__listed(address)) {
+ 		pr_warning("%s is blacklisted function, skip it.\n", symbol);
+-	else
+-		return false;
++		ret = true;
++	}
  
--	reloc_sym = kernel_get_ref_reloc_sym();
-+	reloc_sym = kernel_get_ref_reloc_sym(&map);
- 	if (!reloc_sym) {
- 		pr_warning("Relocated base symbol is not found!\n");
- 		return -EINVAL;
-@@ -764,9 +769,13 @@ post_process_kernel_probe_trace_events(struct probe_trace_event *tevs,
- 			continue;
- 		if (tevs[i].point.retprobe && !kretprobe_offset_is_supported())
- 			continue;
--		/* If we found a wrong one, mark it by NULL symbol */
-+		/*
-+		 * If we found a wrong one, mark it by NULL symbol.
-+		 * Since addresses in debuginfo is same as objdump, we need
-+		 * to convert it to addresses on memory.
-+		 */
- 		if (kprobe_warn_out_range(tevs[i].point.symbol,
--					  tevs[i].point.address)) {
-+			map__objdump_2mem(map, tevs[i].point.address))) {
- 			tmp = NULL;
- 			skipped++;
- 		} else {
-@@ -2936,7 +2945,7 @@ static int find_probe_trace_events_from_map(struct perf_probe_event *pev,
- 	/* Note that the symbols in the kmodule are not relocated */
- 	if (!pev->uprobes && !pev->target &&
- 			(!pp->retprobe || kretprobe_offset_is_supported())) {
--		reloc_sym = kernel_get_ref_reloc_sym();
-+		reloc_sym = kernel_get_ref_reloc_sym(NULL);
- 		if (!reloc_sym) {
- 			pr_warning("Relocated base symbol is not found!\n");
- 			ret = -EINVAL;
+-	return true;
++	return ret;
+ }
+ 
+ /*
 
