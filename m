@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 019CB1B5C82
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:23:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39D641B5C83
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 15:23:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727051AbgDWNXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 09:23:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
+        id S1727075AbgDWNXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 09:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726224AbgDWNXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 09:23:43 -0400
+        id S1726224AbgDWNXp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 09:23:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0691320704;
-        Thu, 23 Apr 2020 13:23:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 741D420704;
+        Thu, 23 Apr 2020 13:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587648222;
-        bh=58WxZnyN146G14EIL4CiEjjbEyjkAA56b86ocSNv+oI=;
+        s=default; t=1587648224;
+        bh=cjvCkM/Nc45Zm23x15GPDP+WanBipeduPoKGFz8bYYs=;
         h=Subject:To:From:Date:From;
-        b=G6cM6I1XBWuSlTFOWY5NE6eqDAJQvLPcLueT0FHPY8uVmfas3KIAi0pc7iWq451yj
-         z7qXWvLZ4rVwEkY6puf7xG1JPH/GwBtn53WSdPXRZ4wEKmIPdrNbKcEPyb4HFaZApi
-         CkuBb0AWdVF3rejoBxqN0iUJQep3HGNEplC1MtcI=
-Subject: patch "usb-storage: Add unusual_devs entry for JMicron JMS566" added to usb-linus
+        b=dryH8l+BNhLC6XnOyrhQrbk8ASBPfZGJn8yaWi4TJ+EFl5F82uMK2aOgeGlCn1OkP
+         u3EB4mYKpYCrN9OLTLS7KfFE8AYgHRdyUrzLhzzps1OgdUrHZiqR4pbmAtcYfmwvkC
+         KiFN3dpDyka/S3NeowVq/RH0N3AViJgf7RRVw7ss=
+Subject: patch "USB: hub: Revert commit bd0e6c9614b9 ("usb: hub: try old enumeration" added to usb-linus
 To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, tipecaml@gmail.com
+        prime.zeng@hisilicon.com, stable@vger.kernel.org,
+        williambader@hotmail.com
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 23 Apr 2020 15:23:32 +0200
-Message-ID: <1587648212254153@kroah.com>
+Message-ID: <1587648212174235@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb-storage: Add unusual_devs entry for JMicron JMS566
+    USB: hub: Revert commit bd0e6c9614b9 ("usb: hub: try old enumeration
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,51 +56,78 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 94f9c8c3c404ee1f7aaff81ad4f24aec4e34a78b Mon Sep 17 00:00:00 2001
+From 3155f4f40811c5d7e3c686215051acf504e05565 Mon Sep 17 00:00:00 2001
 From: Alan Stern <stern@rowland.harvard.edu>
-Date: Wed, 22 Apr 2020 16:14:57 -0400
-Subject: usb-storage: Add unusual_devs entry for JMicron JMS566
+Date: Wed, 22 Apr 2020 16:13:08 -0400
+Subject: USB: hub: Revert commit bd0e6c9614b9 ("usb: hub: try old enumeration
+ scheme first for high speed devices")
 
-Cyril Roelandt reports that his JMicron JMS566 USB-SATA bridge fails
-to handle WRITE commands with the FUA bit set, even though it claims
-to support FUA.  (Oddly enough, a later version of the same bridge,
-version 2.03 as opposed to 1.14, doesn't claim to support FUA.  Also
-oddly, the bridge _does_ support FUA when using the UAS transport
-instead of the Bulk-Only transport -- but this device was blacklisted
-for uas in commit bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron
-SATA enclosure") for apparently unrelated reasons.)
+Commit bd0e6c9614b9 ("usb: hub: try old enumeration scheme first for
+high speed devices") changed the way the hub driver enumerates
+high-speed devices.  Instead of using the "new" enumeration scheme
+first and switching to the "old" scheme if that doesn't work, we start
+with the "old" scheme.  In theory this is better because the "old"
+scheme is slightly faster -- it involves resetting the device only
+once instead of twice.
 
-This patch adds a usb-storage unusual_devs entry with the BROKEN_FUA
-flag.  This allows the bridge to work properly with usb-storage.
+However, for a long time Windows used only the "new" scheme.  Zeng Tao
+said that Windows 8 and later use the "old" scheme for high-speed
+devices, but apparently there are some devices that don't like it.
+William Bader reports that the Ricoh webcam built into his Sony Vaio
+laptop not only doesn't enumerate under the "old" scheme, it gets hung
+up so badly that it won't then enumerate under the "new" scheme!  Only
+a cold reset will fix it.
 
-Reported-and-tested-by: Cyril Roelandt <tipecaml@gmail.com>
+Therefore we will revert the commit and go back to trying the "new"
+scheme first for high-speed devices.
+
+Reported-and-tested-by: William Bader <williambader@hotmail.com>
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=207219
 Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Fixes: bd0e6c9614b9 ("usb: hub: try old enumeration scheme first for high speed devices")
+CC: Zeng Tao <prime.zeng@hisilicon.com>
 CC: <stable@vger.kernel.org>
 
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2004221613110.11262-100000@iolanthe.rowland.org
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2004221611230.11262-100000@iolanthe.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_devs.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ Documentation/admin-guide/kernel-parameters.txt | 3 +--
+ drivers/usb/core/hub.c                          | 4 +---
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
-index 1880f3e13f57..f6c3681fa2e9 100644
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2323,6 +2323,13 @@ UNUSUAL_DEV(  0x3340, 0xffff, 0x0000, 0x0000,
- 		USB_SC_DEVICE,USB_PR_DEVICE,NULL,
- 		US_FL_MAX_SECTORS_64 ),
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index f2a93c8679e8..7bc83f3d9bdf 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5187,8 +5187,7 @@
  
-+/* Reported by Cyril Roelandt <tipecaml@gmail.com> */
-+UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x0114,
-+		"JMicron",
-+		"USB to ATA/ATAPI Bridge",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_BROKEN_FUA ),
-+
- /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
- UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
- 		"iRiver",
+ 	usbcore.old_scheme_first=
+ 			[USB] Start with the old device initialization
+-			scheme,  applies only to low and full-speed devices
+-			 (default 0 = off).
++			scheme (default 0 = off).
+ 
+ 	usbcore.usbfs_memory_mb=
+ 			[USB] Memory limit (in MB) for buffers allocated by
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 83549f009ced..2b6565c06c23 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -2728,13 +2728,11 @@ static bool use_new_scheme(struct usb_device *udev, int retry,
+ {
+ 	int old_scheme_first_port =
+ 		port_dev->quirks & USB_PORT_QUIRK_OLD_SCHEME;
+-	int quick_enumeration = (udev->speed == USB_SPEED_HIGH);
+ 
+ 	if (udev->speed >= USB_SPEED_SUPER)
+ 		return false;
+ 
+-	return USE_NEW_SCHEME(retry, old_scheme_first_port || old_scheme_first
+-			      || quick_enumeration);
++	return USE_NEW_SCHEME(retry, old_scheme_first_port || old_scheme_first);
+ }
+ 
+ /* Is a USB 3.0 port in the Inactive or Compliance Mode state?
 -- 
 2.26.2
 
