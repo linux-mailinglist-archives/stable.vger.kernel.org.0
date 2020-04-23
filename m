@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 456D11B5AAD
-	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 369A71B5AAE
+	for <lists+stable@lfdr.de>; Thu, 23 Apr 2020 13:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbgDWLoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 07:44:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53862 "EHLO mail.kernel.org"
+        id S1727089AbgDWLoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 07:44:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727088AbgDWLoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 07:44:09 -0400
+        id S1727088AbgDWLoS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Apr 2020 07:44:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FB5520736;
-        Thu, 23 Apr 2020 11:44:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C63AE2077D;
+        Thu, 23 Apr 2020 11:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587642248;
-        bh=V8FfTxCt+g78S0p9ZNXhomzZMav+BuUFXiy0c+Lhnm0=;
+        s=default; t=1587642257;
+        bh=40EkvDqL1BVVe0/49vmF7/Cok7tzzopXHFucHnknE5o=;
         h=Subject:To:From:Date:From;
-        b=11+uG9CgXGwkGaemfTlrfPVo8+NF3OlEvgZwkBwOJpmMsACXpWbgKwZKU7HIgtFc1
-         Hk5JFN9JsotSnSdut7SAX3SFb1GLpD1o29tI5hC/AbSxzotllDjaclIMhAMI5bW4i2
-         qCZpFQa5vqwjOXwePHBR6QCO6w43r0PZjnl70H2Y=
-Subject: patch "staging: vt6656: Don't set RCR_MULTICAST or RCR_BROADCAST by default." added to staging-linus
+        b=sxZKx1VKqH3cG/TuaMUgo3WffI3l9fGH61sRuGmoWKspVS3BaNI2bGMzg0UUacKX1
+         Z1TqZsmOVX13MEXq3a5hK2qFejYUZBah7rhlUCpm/ZjDazYBaU7p8wWvVlqpZdkJmy
+         /45JB+s23EI3lYrmyp4CXbPQBhz0wKnJx98eTiA0=
+Subject: patch "staging: vt6656: Fix drivers TBTT timing counter." added to staging-linus
 To:     tvboxspy@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 Apr 2020 13:44:06 +0200
-Message-ID: <158764224617338@kroah.com>
+Date:   Thu, 23 Apr 2020 13:44:07 +0200
+Message-ID: <158764224721548@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: vt6656: Don't set RCR_MULTICAST or RCR_BROADCAST by default.
+    staging: vt6656: Fix drivers TBTT timing counter.
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,46 +55,47 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 0f8240bfc070033a4823b19883efd3d38c7735cc Mon Sep 17 00:00:00 2001
+From 09057742af98a39ebffa27fac4f889dc873132de Mon Sep 17 00:00:00 2001
 From: Malcolm Priestley <tvboxspy@gmail.com>
-Date: Sat, 18 Apr 2020 17:24:50 +0100
-Subject: staging: vt6656: Don't set RCR_MULTICAST or RCR_BROADCAST by default.
+Date: Sat, 18 Apr 2020 17:43:24 +0100
+Subject: staging: vt6656: Fix drivers TBTT timing counter.
 
-mac80211/users control whether multicast is on or off don't enable it by default.
+The drivers TBTT counter is not synchronized with mac80211 timestamp.
 
-Fixes an issue when multicast/broadcast is always on allowing other beacons through
-in power save.
+Reorder the functions and use vnt_update_next_tbtt to do the final
+synchronize.
 
-Fixes: db8f37fa3355 ("staging: vt6656: mac80211 conversion: main_usb add functions...")
+Fixes: c15158797df6 ("staging: vt6656: implement TSF counter")
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/2c24c33d-68c4-f343-bd62-105422418eac@gmail.com
+Link: https://lore.kernel.org/r/375d0b25-e8bc-c8f7-9b10-6cc705d486ee@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/vt6656/main_usb.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/staging/vt6656/main_usb.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/staging/vt6656/main_usb.c b/drivers/staging/vt6656/main_usb.c
-index 8e7269c87ea9..c9c9adf48115 100644
+index c9c9adf48115..752bb2e95321 100644
 --- a/drivers/staging/vt6656/main_usb.c
 +++ b/drivers/staging/vt6656/main_usb.c
-@@ -809,15 +809,11 @@ static void vnt_configure(struct ieee80211_hw *hw,
- {
- 	struct vnt_private *priv = hw->priv;
- 	u8 rx_mode = 0;
--	int rc;
+@@ -770,12 +770,15 @@ static void vnt_bss_info_changed(struct ieee80211_hw *hw,
+ 			vnt_mac_reg_bits_on(priv, MAC_REG_TFTCTL,
+ 					    TFTCTL_TSFCNTREN);
  
- 	*total_flags &= FIF_ALLMULTI | FIF_OTHER_BSS | FIF_BCN_PRBRESP_PROMISC;
- 
--	rc = vnt_control_in(priv, MESSAGE_TYPE_READ, MAC_REG_RCR,
--			    MESSAGE_REQUEST_MACREG, sizeof(u8), &rx_mode);
+-			vnt_adjust_tsf(priv, conf->beacon_rate->hw_value,
+-				       conf->sync_tsf, priv->current_tsf);
 -
--	if (!rc)
--		rx_mode = RCR_MULTICAST | RCR_BROADCAST;
-+	vnt_control_in(priv, MESSAGE_TYPE_READ, MAC_REG_RCR,
-+		       MESSAGE_REQUEST_MACREG, sizeof(u8), &rx_mode);
+ 			vnt_mac_set_beacon_interval(priv, conf->beacon_int);
  
- 	dev_dbg(&priv->usb->dev, "rx mode in = %x\n", rx_mode);
+ 			vnt_reset_next_tbtt(priv, conf->beacon_int);
++
++			vnt_adjust_tsf(priv, conf->beacon_rate->hw_value,
++				       conf->sync_tsf, priv->current_tsf);
++
++			vnt_update_next_tbtt(priv,
++					     conf->sync_tsf, conf->beacon_int);
+ 		} else {
+ 			vnt_clear_current_tsf(priv);
  
 -- 
 2.26.2
