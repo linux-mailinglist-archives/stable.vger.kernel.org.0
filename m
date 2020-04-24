@@ -2,137 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22BDD1B7749
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 15:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A8E91B77B0
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 15:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726717AbgDXNol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 09:44:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35398 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726698AbgDXNok (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 09:44:40 -0400
-Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7C4BC09B045
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 06:44:40 -0700 (PDT)
-Received: by mail-qv1-xf41.google.com with SMTP id ep1so4655631qvb.0
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 06:44:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cmpxchg-org.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=GrqwkdFthEBqmV0EtTHQbF1VPg6uCI8XEJMKDMyh0as=;
-        b=reMptdcUfkhPGshqy/6RnWXmeBSTBbug+imnrttfwdK9Hn4aguqliKLxiDTGrHrDQM
-         cQjXw8N9UR8VQ/kwgXPM0DIoQlqb4sE3ECXBCSxfa2MpQEvK2HiAAHhxf3c8Jg135rS3
-         QyGI2hkWzBs8j7O9dy05RtAJjT3wkbVICBrT5vI+s9c1Yb0gDtmCeVgzfzwBSsu9uvfd
-         qGGeWWNI920Qki5//bbxBkz8Zk3JUkBbHvOSzXlyl3CD18KpC7bSaGGoBgmZKXFoCwBw
-         tNMzDsZxAsXbiZarNX6PBIyjdXdcRYiE/y87nnzXTpqeN11g2ZsHufdtgYK7tAIhKJoL
-         1yIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=GrqwkdFthEBqmV0EtTHQbF1VPg6uCI8XEJMKDMyh0as=;
-        b=EyQqt25JJQu1jA3bWbuSqYaPPNIcZ4HWZqceQCrnAgyxBL4fBOUpjFpWKjQkNOwW5r
-         rhfzvB7Ayexhz2A+Q5XgKtA9npJ3w5R0NsbkfzX/U90aHyq7Uaz6cD4NG71DYP9Rk2sD
-         YaLbR4/rUkwWl3w5yKpi9y9NOxBiEic6AGorDJWLcRUZbk2PNJT/D0mPyd0Hze/1jkDE
-         urjJPqhnGytsLuNooZqLRLYEN4zVmXIYJKfiBuQ7w4hNAPRKP/32tff0F1fTh+uDVoim
-         p76VVnmhvdziD6m2JM8GbeZOLPziCHDGXlt/tiynVfnhqokZm53hf5iEbEXJPz4ijMkQ
-         A5vw==
-X-Gm-Message-State: AGi0PuaQ1pOZi7hYmx8a6YEihl7Ws3Gs3GEZrQVURJzjFeVw5b+j9gc6
-        4+GorsiOfhc+spJS6U7pSYU97g==
-X-Google-Smtp-Source: APiQypKcW62pt2L+mTN64ooWKizwU3N66xR0k/5MwAc1zgIPdIIOeJm2tvohmfg5gQrYhvktYABVxA==
-X-Received: by 2002:a0c:a68a:: with SMTP id t10mr9031292qva.133.1587735879325;
-        Fri, 24 Apr 2020 06:44:39 -0700 (PDT)
-Received: from localhost ([2620:10d:c091:480::921])
-        by smtp.gmail.com with ESMTPSA id k2sm4142562qta.39.2020.04.24.06.44.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2020 06:44:38 -0700 (PDT)
-Date:   Fri, 24 Apr 2020 09:44:38 -0400
-From:   Johannes Weiner <hannes@cmpxchg.org>
-To:     Yafang Shao <laoar.shao@gmail.com>
-Cc:     akpm@linux-foundation.org, mhocko@kernel.org,
-        vdavydov.dev@gmail.com, linux-mm@kvack.org,
-        Chris Down <chris@chrisdown.name>,
-        Roman Gushchin <guro@fb.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
-Message-ID: <20200424134438.GA496852@cmpxchg.org>
-References: <20200423061629.24185-1-laoar.shao@gmail.com>
- <20200424131450.GA495720@cmpxchg.org>
-MIME-Version: 1.0
+        id S1726667AbgDXN66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 09:58:58 -0400
+Received: from mother.openwall.net ([195.42.179.200]:37297 "HELO
+        mother.openwall.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1727064AbgDXN65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 09:58:57 -0400
+Received: (qmail 32561 invoked from network); 24 Apr 2020 13:52:14 -0000
+Received: from localhost (HELO pvt.openwall.com) (127.0.0.1)
+  by localhost with SMTP; 24 Apr 2020 13:52:14 -0000
+Received: by pvt.openwall.com (Postfix, from userid 503)
+        id 5E3FBAB5C7; Fri, 24 Apr 2020 15:52:05 +0200 (CEST)
+Date:   Fri, 24 Apr 2020 15:52:05 +0200
+From:   Solar Designer <solar@openwall.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Kees Cook <keescook@chromium.org>,
+        Salvatore Mesoraca <s.mesoraca16@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 3.16 208/245] namei: allow restricted O_CREAT of FIFOs and regular files
+Message-ID: <20200424135205.GA27204@openwall.com>
+References: <lsq.1587683027.831233700@decadent.org.uk> <lsq.1587683028.722200761@decadent.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200424131450.GA495720@cmpxchg.org>
+In-Reply-To: <lsq.1587683028.722200761@decadent.org.uk>
+User-Agent: Mutt/1.4.2.3i
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 24, 2020 at 09:14:52AM -0400, Johannes Weiner wrote:
-> However, mem_cgroup_protected() never expected anybody to look at the
-> effective protection values when it indicated that the cgroup is above
-> its protection. As a result, a query during limit reclaim may return
-> stale protection values that were calculated by a previous reclaim
-> cycle in which the cgroup did have siblings.
+On Fri, Apr 24, 2020 at 12:07:15AM +0100, Ben Hutchings wrote:
+> 3.16.83-rc1 review patch.  If anyone has any objections, please let me know.
 
-Btw, I think there is opportunity to make this a bit less error prone.
+I do.  This patch is currently known-buggy, see this thread:
 
-We have a mem_cgroup_protected() that returns yes or no, essentially,
-but protection isn't a binary state anymore.
+https://www.openwall.com/lists/oss-security/2020/01/28/2
 
-It's also been a bit iffy that it looks like a simple predicate
-function, but it indeed needs to run procedurally for each cgroup in
-order for the calculations throughout the tree to be correct.
+It is (partially) fixed with these newer commits in 5.5 and 5.5.2:
 
-It might be better to have a
+commit d0cb50185ae942b03c4327be322055d622dc79f6
+Author: Al Viro <viro@zeniv.linux.org.uk>
+Date:   Sun Jan 26 09:29:34 2020 -0500
 
-	mem_cgroup_calculate_protection()
+    do_last(): fetch directory ->i_mode and ->i_uid before it's too late
+    
+    may_create_in_sticky() call is done when we already have dropped the
+    reference to dir.
+    
+    Fixes: 30aba6656f61e (namei: allow restricted O_CREAT of FIFOs and regular files)
+    Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-that runs for every cgroup we visit and sets up the internal state;
-then have more self-explanatory query functions on top of that:
+commit d76341d93dedbcf6ed5a08dfc8bce82d3e9a772b
+Author: Al Viro <viro@zeniv.linux.org.uk>
+Date:   Sat Feb 1 16:26:45 2020 +0000
 
-	mem_cgroup_below_min()
-	mem_cgroup_below_low()
-	mem_cgroup_protection()
+    vfs: fix do_last() regression
+    
+    commit 6404674acd596de41fd3ad5f267b4525494a891a upstream.
+    
+    Brown paperbag time: fetching ->i_uid/->i_mode really should've been
+    done from nd->inode.  I even suggested that, but the reason for that has
+    slipped through the cracks and I went for dir->d_inode instead - made
+    for more "obvious" patch.
+    
+    Analysis:
+    
+     - at the entry into do_last() and all the way to step_into(): dir (aka
+       nd->path.dentry) is known not to have been freed; so's nd->inode and
+       it's equal to dir->d_inode unless we are already doomed to -ECHILD.
+       inode of the file to get opened is not known.
+    
+     - after step_into(): inode of the file to get opened is known; dir
+       might be pointing to freed memory/be negative/etc.
+    
+     - at the call of may_create_in_sticky(): guaranteed to be out of RCU
+       mode; inode of the file to get opened is known and pinned; dir might
+       be garbage.
+    
+    The last was the reason for the original patch.  Except that at the
+    do_last() entry we can be in RCU mode and it is possible that
+    nd->path.dentry->d_inode has already changed under us.
+    
+    In that case we are going to fail with -ECHILD, but we need to be
+    careful; nd->inode is pointing to valid struct inode and it's the same
+    as nd->path.dentry->d_inode in "won't fail with -ECHILD" case, so we
+    should use that.
+    
+    Reported-by: "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+    Reported-by: syzbot+190005201ced78a74ad6@syzkaller.appspotmail.com
+    Wearing-brown-paperbag: Al Viro <viro@zeniv.linux.org.uk>
+    Cc: stable@kernel.org
+    Fixes: d0cb50185ae9 ("do_last(): fetch directory ->i_mode and ->i_uid before it's too late")
+    Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-What do you guys think?
+At least inclusion of the above fixes is mandatory for any backports.
 
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index e0f502b5fca6..dbd3f75d39b9 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2615,14 +2615,15 @@ static void shrink_node_memcgs(pg_data_t *pgdat, struct scan_control *sc)
- 		unsigned long reclaimed;
- 		unsigned long scanned;
- 
--		switch (mem_cgroup_protected(target_memcg, memcg)) {
--		case MEMCG_PROT_MIN:
-+		mem_cgroup_calculate_protection(target_memcg, memcg);
-+
-+		if (mem_cgroup_below_min(memcg)) {
- 			/*
- 			 * Hard protection.
- 			 * If there is no reclaimable memory, OOM.
- 			 */
- 			continue;
--		case MEMCG_PROT_LOW:
-+		} else if (mem_cgroup_below_low(memcg)) {
- 			/*
- 			 * Soft protection.
- 			 * Respect the protection only as long as
-@@ -2634,16 +2635,6 @@ static void shrink_node_memcgs(pg_data_t *pgdat, struct scan_control *sc)
- 				continue;
- 			}
- 			memcg_memory_event(memcg, MEMCG_LOW);
--			break;
--		case MEMCG_PROT_NONE:
--			/*
--			 * All protection thresholds breached. We may
--			 * still choose to vary the scan pressure
--			 * applied based on by how much the cgroup in
--			 * question has exceeded its protection
--			 * thresholds (see get_scan_count).
--			 */
--			break;
- 		}
- 
- 		reclaimed = sc->nr_reclaimed;
+Also, I think no one has fixed the logic of may_create_in_sticky() so
+that it wouldn't unintentionally apply the "protection" when the file
+is neither a FIFO nor a regular file (something I found and mentioned in
+the oss-security posting above).
+
+> +/**
+> + * may_create_in_sticky - Check whether an O_CREAT open in a sticky directory
+> + *			  should be allowed, or not, on files that already
+> + *			  exist.
+> + * @dir: the sticky parent directory
+> + * @inode: the inode of the file to open
+> + *
+> + * Block an O_CREAT open of a FIFO (or a regular file) when:
+> + *   - sysctl_protected_fifos (or sysctl_protected_regular) is enabled
+> + *   - the file already exists
+> + *   - we are in a sticky directory
+> + *   - we don't own the file
+> + *   - the owner of the directory doesn't own the file
+> + *   - the directory is world writable
+> + * If the sysctl_protected_fifos (or sysctl_protected_regular) is set to 2
+> + * the directory doesn't have to be world writable: being group writable will
+> + * be enough.
+> + *
+> + * Returns 0 if the open is allowed, -ve on error.
+> + */
+> +static int may_create_in_sticky(struct dentry * const dir,
+> +				struct inode * const inode)
+> +{
+> +	if ((!sysctl_protected_fifos && S_ISFIFO(inode->i_mode)) ||
+> +	    (!sysctl_protected_regular && S_ISREG(inode->i_mode)) ||
+> +	    likely(!(dir->d_inode->i_mode & S_ISVTX)) ||
+> +	    uid_eq(inode->i_uid, dir->d_inode->i_uid) ||
+> +	    uid_eq(current_fsuid(), inode->i_uid))
+> +		return 0;
+> +
+> +	if (likely(dir->d_inode->i_mode & 0002) ||
+> +	    (dir->d_inode->i_mode & 0020 &&
+> +	     ((sysctl_protected_fifos >= 2 && S_ISFIFO(inode->i_mode)) ||
+> +	      (sysctl_protected_regular >= 2 && S_ISREG(inode->i_mode))))) {
+> +		return -EACCES;
+> +	}
+> +	return 0;
+> +}
+
+I think the implementation of may_create_in_sticky() should be rewritten
+such that it'd directly correspond to the textual description in the
+comment above.  As we've seen, trying to write the code "more optimally"
+resulted in its logic actually being different from the description.
+
+Meanwhile, I think backporting known-so-buggy code is a bad idea.
+
+Alexander
