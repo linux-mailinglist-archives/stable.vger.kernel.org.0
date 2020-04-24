@@ -2,101 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E7E51B77BE
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 16:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3F371B7851
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 16:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726753AbgDXOCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 10:02:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38154 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726717AbgDXOCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 10:02:23 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28CECC09B045
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 07:02:23 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id h12so2668174pjz.1
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 07:02:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=b9CJVAaQ8Remu0Fc8083hcvt8X3b+MnqQ+pBCtxllPI=;
-        b=bKZ3ADa36RH6UM9pB+qL7PEy2mlGEm8dIbR8A4fRwXBY1bFybdbZd0UOj8Uh+xGZ7V
-         ALOKGtYvfR3pdqn/6+IvvD2PeXCPwOYxJ/RScHUM5cmhBESpslBN2JgYZGWLzyjJC35c
-         mCerIkE66YD9uh/5XVj5RV8iqkfU4O9ih7anq6n0ucs+Doj5/GlyYLkXAB+nSQNZOx7B
-         OB9wEi8Hy1mVSJQ7jZ9BsOsvSoJiYTLU2Nz+sKsFrwIQgEv4YWuLf56B3GXPJ8R4gFmu
-         MKW8Ney2T7Li+1r/L6MJfcGLENocZIfgnPSupuoWH3gNTqdKfacTHpTpjHe5wKspmEeJ
-         WaaA==
+        id S1726959AbgDXOaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 10:30:03 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:45266 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726848AbgDXOaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 10:30:03 -0400
+Received: by mail-wr1-f68.google.com with SMTP id t14so11071710wrw.12
+        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 07:30:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=b9CJVAaQ8Remu0Fc8083hcvt8X3b+MnqQ+pBCtxllPI=;
-        b=DlvAddLVdeHNXff15Yd+I4J3ALOFgdfYsuqwX1NolfXH2XBOkWRI9dBp/2vChaXStN
-         90dKHfrRGtdMSf0nIR5Yi43a0yehjNMWjZgWVBAGCnMEbA2o7JJ8srBtdjlmuowrVhWj
-         ROF0j515/9OQ1YGIQCRoP9mb88hzGGS8udkbVEsapJYRzBX8/d95VxME3BpMKY7PoFUF
-         PnsmmhP6yJ7Lwq/7yc6lVZ8bCGXuQUQDmWan/AgjYym4PMgYqsIkvpVpqv6wV2SgMFCG
-         YNCC7QflVL/ksMBijs/NgwAXQ7tEgxC8L3yxrXwNfpTYUEu6FV9CsjS6kInVC1MfTWft
-         H2Cg==
-X-Gm-Message-State: AGi0PuYH4sbD+VfQFeAIR4uaEX7AK5qvczhexghYq+uExQHfCBLo9CGP
-        6QKvIJiN/J1P/LL5Aoev9TQJpJJw
-X-Google-Smtp-Source: APiQypLz9tqUKpzCh+Aggls5PqKsESmWpKJAsTD4cxgbWqezIWbmbyGWvgFaD/1fmFRwFh97jP5B5g==
-X-Received: by 2002:a17:90a:f2c6:: with SMTP id gt6mr6534501pjb.61.1587736942513;
-        Fri, 24 Apr 2020 07:02:22 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id s44sm4862083pjc.28.2020.04.24.07.02.19
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 24 Apr 2020 07:02:20 -0700 (PDT)
-Date:   Fri, 24 Apr 2020 07:02:18 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: Re: List of patches to apply to stable releases
-Message-ID: <20200424140218.GA136135@roeck-us.net>
-References: <20200422194306.GA103402@roeck-us.net>
- <20200424101118.GC381429@kroah.com>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ntRosrtUKhnfwwIu0YTV0WuFJr742CEVYmDb3JkguhE=;
+        b=mN6/NQ/CRLZ7gepiuVuMjUmZzCH1nzZi6BmWUH1ldxEgFRKgd3F695tR0ZXue4rHFZ
+         nKye7CC1TIHO43H1TKBLPxx+J207QovOBjE0vb/9SS2UJH25skZBOKJYD/ZSg669qR1J
+         o7aw+dQ1CATifUs2PXUfdbKuASyWSSwTTUSg2fgLqZHtxQXWtT8UEHPw3FYjj0uZQsBu
+         qDzjCmMha5CQclus9961oBvtfGKUb77eLQi7X3p5OZcNxAmZ6R8BVER4HwXOkXz3PyYe
+         HAXgpH/CdSNSV4CBgyAje7n7JQ5pXveMA2p8kYGlHnCmDVB6qJHZjYeArnwHzeULWpUR
+         GUcQ==
+X-Gm-Message-State: AGi0PuYDuHU9Ab7nxpp6VrrRcKM0Vvr5cHCJKKRNl4ZsMxa+YLS9rVmc
+        STdPvgx4+YxTENbjofTFuwk=
+X-Google-Smtp-Source: APiQypJ3pqDVjIF8e+Mn3n8/qqL5ElDYO9BH3pM78N8PJvM/S6XJVgoTNryAh6vTE8AAdAtPlkeIDw==
+X-Received: by 2002:adf:f604:: with SMTP id t4mr11588389wrp.399.1587738601165;
+        Fri, 24 Apr 2020 07:30:01 -0700 (PDT)
+Received: from localhost (ip-37-188-130-62.eurotel.cz. [37.188.130.62])
+        by smtp.gmail.com with ESMTPSA id f23sm3061719wml.4.2020.04.24.07.29.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Apr 2020 07:30:00 -0700 (PDT)
+Date:   Fri, 24 Apr 2020 16:29:58 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Johannes Weiner <hannes@cmpxchg.org>
+Cc:     Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org,
+        vdavydov.dev@gmail.com, linux-mm@kvack.org,
+        Chris Down <chris@chrisdown.name>,
+        Roman Gushchin <guro@fb.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
+Message-ID: <20200424142958.GF11591@dhcp22.suse.cz>
+References: <20200423061629.24185-1-laoar.shao@gmail.com>
+ <20200424131450.GA495720@cmpxchg.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200424101118.GC381429@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200424131450.GA495720@cmpxchg.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 24, 2020 at 12:11:18PM +0200, Greg Kroah-Hartman wrote:
-> On Wed, Apr 22, 2020 at 12:43:06PM -0700, Guenter Roeck wrote:
+On Fri 24-04-20 09:14:50, Johannes Weiner wrote:
+> On Thu, Apr 23, 2020 at 02:16:29AM -0400, Yafang Shao wrote:
+> > This patch is an improvement of a previous version[1], as the previous
+> > version is not easy to understand.
+> > This issue persists in the newest kernel, I have to resend the fix. As
+> > the implementation is changed, I drop Roman's ack from the previous
+> > version.
 > 
-[ ... ]
-> > 
-> > Upstream commit ce4e45842de3 ("crypto: mxs-dcp - make symbols 'sha1_null_hash' and 'sha256_null_hash' static")
-> >   upstream: v4.20-rc1
-> >     Fixes: c709eebaf5c5 ("crypto: mxs-dcp - Fix SHA null hashes and output length")
-> >       in linux-4.4.y: 33378afbd12b
-> >       in linux-4.9.y: df1ef6f3c9ad
-> >       in linux-4.14.y: c0933fa586b4
-> >       in linux-4.19.y: 70ecd0459d03
-> >       upstream: v4.20-rc1
-> >     Affected branches:
-> >       linux-4.4.y
-> >       linux-4.9.y
-> >       linux-4.14.y
-> >       linux-4.19.y
+> Now that I understand the problem, I much prefer the previous version.
 > 
-> That's really not a "bug", but I'll take it to keep your scripts happy.
-> 
-No need to do that - if it happens please let me know and feel free to
-drop. The script finds lots of irrelevant patches which are (often
-unnecessarily) marked as Fixes: (maybe we should have a rule stating that
-comment changes or documentation changes don't count as "fix"). I already
-drop a lot of them, and feedback like this helps me decide what to drop
-in the future.
+> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> index 745697906ce3..2bf91ae1e640 100644
+> --- a/mm/memcontrol.c
+> +++ b/mm/memcontrol.c
+> @@ -6332,8 +6332,19 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
+>  
+>  	if (!root)
+>  		root = root_mem_cgroup;
+> -	if (memcg == root)
+> +	if (memcg == root) {
+> +		/*
+> +		 * The cgroup is the reclaim root in this reclaim
+> +		 * cycle, and therefore not protected. But it may have
+> +		 * stale effective protection values from previous
+> +		 * cycles in which it was not the reclaim root - for
+> +		 * example, global reclaim followed by limit reclaim.
+> +		 * Reset these values for mem_cgroup_protection().
+> +		 */
+> +		memcg->memory.emin = 0;
+> +		memcg->memory.elow = 0;
+>  		return MEMCG_PROT_NONE;
+> +	}
 
-In this case I kept the patch in the list not for the happiness of the
-script but for the happiness of static analyzers. While it doesn't fix
-a bug per se, it reduces the noise produced by those, which I think does
-help because less noise improves focus on real bugs.
+Could you be more specific why you prefer this over the
+mem_cgroup_protection which doesn't change the effective value?
+Isn't it easier to simply ignore effective value for the reclaim roots?
 
-Thanks,
-Guenter
+[...]
+
+> As others have noted, it's fairly hard to understand the problem from
+> the above changelog. How about the following:
+> 
+> A cgroup can have both memory protection and a memory limit to isolate
+> it from its siblings in both directions - for example, to prevent it
+> from being shrunk below 2G under high pressure from outside, but also
+> from growing beyond 4G under low pressure.
+> 
+> 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
+> implemented proportional scan pressure so that multiple siblings in
+> excess of their protection settings don't get reclaimed equally but
+> instead in accordance to their unprotected portion.
+> 
+> During limit reclaim, this proportionality shouldn't apply of course:
+> there is no competition, all pressure is from within the cgroup and
+> should be applied as such. Reclaim should operate at full efficiency.
+> 
+> However, mem_cgroup_protected() never expected anybody to look at the
+> effective protection values when it indicated that the cgroup is above
+> its protection. As a result, a query during limit reclaim may return
+> stale protection values that were calculated by a previous reclaim
+> cycle in which the cgroup did have siblings.
+
+This is better. Thanks!
+
+> When this happens, reclaim is unnecessarily hesitant and potentially
+> slow to meet the desired limit. In theory this could lead to premature
+> OOM kills, although it's not obvious this has occurred in practice.
+
+I do not see how this would lead all the way to OOM killer but it
+certainly can lead to unnecessary increase of the reclaim priority. The
+smaller the difference between the reclaim target and protection the
+more visible the effect would be. But if there are reclaimable pages
+then the reclaim should see them sooner or later
+-- 
+Michal Hocko
+SUSE Labs
