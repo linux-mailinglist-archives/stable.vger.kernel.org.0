@@ -2,140 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9813F1B75B2
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A37F01B75B6
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:45:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726888AbgDXMpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:45:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54326 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726707AbgDXMpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 08:45:03 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 373DFC09B045
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 05:45:03 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id i3so10138889ioo.13
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 05:45:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=C9eaDvvJ77XZj4T792zYETZIjpst74RXf8cetFIYTV0=;
-        b=IPtI4KQHxwUwaaA8eOqyqVqQPA+KsITCVvkSTir8OP6/4c4rXQELT0ZEIzfsLYliYO
-         pyr69zy7+lTXHBIxL+LPnQClEPDnfyS7uuDVUjsuARqB+IsdlVW9Cx1pijGKawS6UXNO
-         trNHaCuch69bbRxLkZHDmnjudOlu+iSeFsX+OWp4Ix+aMmmdWQh129dODnP5xph0dBNW
-         gGel7/TsdFG8AEAb7MyQo11a43rR4OLRlP4cAOPbtjaUu1zJFOQERh9Yz2IQnPfTPROb
-         WMUE5pGZ2ee4WMem+hGjie8dj1DS1ViNXe8Eou7m3q8wsRdVczlUKvigFeBFZT5Dt02U
-         Jhcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=C9eaDvvJ77XZj4T792zYETZIjpst74RXf8cetFIYTV0=;
-        b=SPms71o6UtIWx8RA1m37mr10Shq4pCSyT0HZ1cLrrO4nbSBmjwyhxPvGwNPvcvqYAc
-         LSiFFeJGkBR01Hw8YNRIJiUe2+A+K6KF7frlXkvkG27iemLc+jw0N0d06dK9eMiN8eId
-         oKjM/yJ/98ogh0z6BB0q6t720XfFkSCgnNG87Rq9f2nc/R9wPPBK8dO/EU7dkjZisR9m
-         VDRwYv/+Fjzsb/ZL87m9NU9ZOwhBg0SWDbzVqhAiHqR+bl3sn1OUVFYUw2BVfIzO5lRa
-         53N+I0VdzZVzF1AA0HGGqmh/uZDXqzguHsYdMnF06C77CEl9i3tfHbBq4HV4D56scn5Z
-         Um2w==
-X-Gm-Message-State: AGi0PubH7JX9/9lBP+22+LT8gZ2sw7ylsn27jff83FVhatBlpRty/00Z
-        KZ05cs8XCd+cPHjOVhlYBM0fdQ0l1CUzpr8Zgzg=
-X-Google-Smtp-Source: APiQypIGw+Uo04vrJIk/6ymlihcuQUMRs9FYS8HnwngrnrOwSaCM2SxMHpHnlobzxTtBAnMoIROEaEtYr7npH+7/PvQ=
-X-Received: by 2002:a05:6602:199:: with SMTP id m25mr8464280ioo.13.1587732302623;
- Fri, 24 Apr 2020 05:45:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200423061629.24185-1-laoar.shao@gmail.com> <20200423153323.GA1318256@chrisdown.name>
- <CALOAHbDpvRZWcaoKBs2ywJFSY0MXT-WEe6wZTR=ed4-85Ovcgg@mail.gmail.com> <20200424121836.GA1379200@chrisdown.name>
-In-Reply-To: <20200424121836.GA1379200@chrisdown.name>
-From:   Yafang Shao <laoar.shao@gmail.com>
-Date:   Fri, 24 Apr 2020 20:44:26 +0800
-Message-ID: <CALOAHbAPkB4ryfQ1Lof+5REyC6KAD+WCz+sZqPb9tK3iZs+xnQ@mail.gmail.com>
-Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
-To:     Chris Down <chris@chrisdown.name>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Linux MM <linux-mm@kvack.org>, Roman Gushchin <guro@fb.com>,
-        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726753AbgDXMp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:45:57 -0400
+Received: from mx2.suse.de ([195.135.220.15]:57676 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726667AbgDXMp5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:45:57 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id DFABAAD5F;
+        Fri, 24 Apr 2020 12:45:54 +0000 (UTC)
+Date:   Fri, 24 Apr 2020 14:45:55 +0200
+Message-ID: <s5hh7x9rr0c.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Roy Spliet <nouveau@spliet.org>, alsa-devel@alsa-project.org
+Subject: Re: [PATCH AUTOSEL 4.9 03/13] ALSA: hda: Keep the controller initialization even if no codecs found
+In-Reply-To: <20200424122447.10882-3-sashal@kernel.org>
+References: <20200424122447.10882-1-sashal@kernel.org>
+        <20200424122447.10882-3-sashal@kernel.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 24, 2020 at 8:18 PM Chris Down <chris@chrisdown.name> wrote:
->
-> Yafang Shao writes:
-> >If the author can't understand deeply in the code worte by
-> >himself/herself, I think the author should do more test on his/her
-> >patches.
-> >Regarding the issue in this case, my understanding is you know the
-> >benefit of proportional reclaim, but I'm wondering that do you know
-> >the loss if the proportional is not correct ?
-> >I don't mean to affend you, while I just try to explain how the
-> >community should cooperate.
->
-> I'm pretty sure that since multiple people on mm list have already expressed
-> confusion at this patch, this isn't a question of testing, but of lack of
-> clarity in usage :-)
->
-> Promoting "testing" as a panacea for this issue misses a significant part of
-> the real problem: that the intended semantics and room for allowed races is
-> currently unclear, which is why there is a general sense of confusion around
-> your proposed patch and what it solves. If more testing would help, then the
-> benefit of your patch should be patently obvious -- but it isn't.
+On Fri, 24 Apr 2020 14:24:36 +0200,
+Sasha Levin wrote:
+> 
+> From: Takashi Iwai <tiwai@suse.de>
+> 
+> [ Upstream commit 9479e75fca370a5220784f7596bf598c4dad0b9b ]
+> 
+> Currently, when the HD-audio controller driver doesn't detect any
+> codecs, it tries to abort the probe.  But this abort happens at the
+> delayed probe, i.e. the primary probe call already returned success,
+> hence the driver is never unbound until user does so explicitly.
+> As a result, it may leave the HD-audio device in the running state
+> without the runtime PM.  More badly, if the device is a HD-audio bus
+> that is tied with a GPU, GPU cannot reach to the full power down and
+> consumes unnecessarily much power.
+> 
+> This patch changes the logic after no-codec situation; it continues
+> probing without the further codec initialization but keep the
+> controller driver running normally.
+> 
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
+> Tested-by: Roy Spliet <nouveau@spliet.org>
+> Link: https://lore.kernel.org/r/20200413082034.25166-5-tiwai@suse.de
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-I have shown a testcase in my commit log.
-Bellow is the result without my patch,
-
-[  601.811428] vmscan: protection 1048576 memcg /foo target memcg /foo
-[  601.811429] vmscan:
-[  601.811429] vmscan: protection 1048576 memcg /foo target memcg /foo
-[  601.811430] vmscan:
-[  601.811430] vmscan: protection 1048576 memcg /foo target memcg /foo
-[  601.811431] vmscan:
-[  602.452791] vmscan: protection 1048576 memcg /foo target memcg /foo
-[  602.452795] vmscan:
-[  602.452796] vmscan: protection 1048576 memcg /foo target memcg /foo
-[  602.452805] vmscan:
-[  602.452805] vmscan: protection 1048576 memcg /foo target memcg /foo
-[  602.452806] vmscan:
-[  602.452807] vmscan: protection 1048576 memcg /foo target memcg /foo
-[  602.452808] vmscan:
+Applying this without other commits isn't recommended, especially for
+the older branches.  Maybe OK up from 4.19, but I'd avoid applying for
+the older.
 
 
-Here's patch to print the above info.
+thanks,
 
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index b06868fc4926..7525665d7cec 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2344,10 +2344,18 @@ static void get_scan_count(struct lruvec
-*lruvec, struct scan_control *sc,
-                unsigned long lruvec_size;
-                unsigned long scan;
-                unsigned long protection;
-+               struct mem_cgroup *target = sc->target_mem_cgroup;
-
-                lruvec_size = lruvec_lru_size(lruvec, lru, sc->reclaim_idx);
-                protection = mem_cgroup_protection(memcg,
-                                                   sc->memcg_low_reclaim);
-+               if (memcg && memcg != root_mem_cgroup && target) {
-+                       pr_info("protection %lu memcg ", protection);
-+                       pr_cont_cgroup_path(memcg->css.cgroup);
-+                       pr_cont(" target memcg ");
-+                       pr_cont_cgroup_path(target->css.cgroup);
-+                       pr_info("\n");
-+               }
-
-                if (protection) {
+Takashi
 
 
-So my question is that do you think the protection in these log is okay ?
-Can you answer me ?
 
-Hint: what should protection be if memcg is the target memcg ?
-
--- 
-Thanks
-Yafang
+> ---
+>  sound/pci/hda/hda_intel.c | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
+> 
+> diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+> index 5a578ebca1055..8b9d1c6574e43 100644
+> --- a/sound/pci/hda/hda_intel.c
+> +++ b/sound/pci/hda/hda_intel.c
+> @@ -1806,7 +1806,7 @@ static int azx_first_init(struct azx *chip)
+>  	/* codec detection */
+>  	if (!azx_bus(chip)->codec_mask) {
+>  		dev_err(card->dev, "no codecs found!\n");
+> -		return -ENODEV;
+> +		/* keep running the rest for the runtime PM */
+>  	}
+>  
+>  	if (azx_acquire_irq(chip, 0) < 0)
+> @@ -2129,9 +2129,11 @@ static int azx_probe_continue(struct azx *chip)
+>  #endif
+>  
+>  	/* create codec instances */
+> -	err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
+> -	if (err < 0)
+> -		goto out_free;
+> +	if (bus->codec_mask) {
+> +		err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
+> +		if (err < 0)
+> +			goto out_free;
+> +	}
+>  
+>  #ifdef CONFIG_SND_HDA_PATCH_LOADER
+>  	if (chip->fw) {
+> @@ -2145,7 +2147,7 @@ static int azx_probe_continue(struct azx *chip)
+>  #endif
+>  	}
+>  #endif
+> -	if ((probe_only[dev] & 1) == 0) {
+> +	if (bus->codec_mask && !(probe_only[dev] & 1)) {
+>  		err = azx_codec_configure(chip);
+>  		if (err < 0)
+>  			goto out_free;
+> -- 
+> 2.20.1
+> 
