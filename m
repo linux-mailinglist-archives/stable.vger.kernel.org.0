@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D9A1B74B0
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:28:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F167D1B7422
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:24:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728414AbgDXM2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:28:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54858 "EHLO mail.kernel.org"
+        id S1728396AbgDXMYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:24:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728381AbgDXMYW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:24:22 -0400
+        id S1728336AbgDXMYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:24:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E22D2176D;
-        Fri, 24 Apr 2020 12:24:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EE7B2166E;
+        Fri, 24 Apr 2020 12:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731062;
-        bh=JZcSxVs6Vogo/4ImjganqkXWmCApOZMcFXYZyCiTFXY=;
+        s=default; t=1587731063;
+        bh=Td21rX/o3YOY3BoOc3hcVsuA0sd4+0zGTVdxUbS7K9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SMjlhXovtYQQ7eEMKc+0kWdBThkPq6dshc3J3nSZmurGQD3FglrzDw/3t1CpD6E1s
-         bLzZ+NXD0fn4lH6yjPXrpVhJYojB2YAznp86IYzPx6Gbo+t237A4qB7RIGeqq8lAOx
-         2Rv6E5kX/9fOfilBJGTNZrR1/GoYJ7pk4O/Xm2Mg=
+        b=sYOQZigTOpQoYW9L+2zqKVXJcyz23VtNBDb2u90K/nWR3+89o5rlrKpSrr/RZkcRj
+         KiSCWMZ5A3QTDib+0/SjweXxHyGva9XtvKwUpx1EBDMK57j9IivEMt3Wqw+UQa3V8c
+         drASkk25H8j1MyapDqKdpr5guai4bN2zMXvykiYo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Brian Foster <bfoster@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/21] xfs: fix partially uninitialized structure in xfs_reflink_remap_extent
-Date:   Fri, 24 Apr 2020 08:24:00 -0400
-Message-Id: <20200424122419.10648-2-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 03/21] ALSA: hda: Don't release card at firmware loading error
+Date:   Fri, 24 Apr 2020 08:24:01 -0400
+Message-Id: <20200424122419.10648-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122419.10648-1-sashal@kernel.org>
 References: <20200424122419.10648-1-sashal@kernel.org>
@@ -43,36 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c142932c29e533ee892f87b44d8abc5719edceec ]
+[ Upstream commit 25faa4bd37c10f19e4b848b9032a17a3d44c6f09 ]
 
-In the reflink extent remap function, it turns out that uirec (the block
-mapping corresponding only to the part of the passed-in mapping that got
-unmapped) was not fully initialized.  Specifically, br_state was not
-being copied from the passed-in struct to the uirec.  This could lead to
-unpredictable results such as the reflinked mapping being marked
-unwritten in the destination file.
+At the error path of the firmware loading error, the driver tries to
+release the card object and set NULL to drvdata.  This may be referred
+badly at the possible PM action, as the driver itself is still bound
+and the PM callbacks read the card object.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
+Instead, we continue the probing as if it were no option set.  This is
+often a better choice than the forced abort, too.
+
+Fixes: 5cb543dba986 ("ALSA: hda - Deferred probing with request_firmware_nowait()")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
+Link: https://lore.kernel.org/r/20200413082034.25166-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_reflink.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/hda_intel.c | 19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
 
-diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
-index 37e603bf15913..db7f9fdd20a30 100644
---- a/fs/xfs/xfs_reflink.c
-+++ b/fs/xfs/xfs_reflink.c
-@@ -1125,6 +1125,7 @@ xfs_reflink_remap_extent(
- 		uirec.br_startblock = irec->br_startblock + rlen;
- 		uirec.br_startoff = irec->br_startoff + rlen;
- 		uirec.br_blockcount = unmap_len - rlen;
-+		uirec.br_state = irec->br_state;
- 		unmap_len = rlen;
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 890793ad85ca1..a868a88bc2897 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2034,24 +2034,15 @@ static void azx_firmware_cb(const struct firmware *fw, void *context)
+ {
+ 	struct snd_card *card = context;
+ 	struct azx *chip = card->private_data;
+-	struct pci_dev *pci = chip->pci;
+-
+-	if (!fw) {
+-		dev_err(card->dev, "Cannot load firmware, aborting\n");
+-		goto error;
+-	}
  
- 		/* If this isn't a real mapping, we're done. */
+-	chip->fw = fw;
++	if (fw)
++		chip->fw = fw;
++	else
++		dev_err(card->dev, "Cannot load firmware, continue without patching\n");
+ 	if (!chip->disabled) {
+ 		/* continue probing */
+-		if (azx_probe_continue(chip))
+-			goto error;
++		azx_probe_continue(chip);
+ 	}
+-	return; /* OK */
+-
+- error:
+-	snd_card_free(card);
+-	pci_set_drvdata(pci, NULL);
+ }
+ #endif
+ 
 -- 
 2.20.1
 
