@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA28A1B74F1
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:30:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 771CF1B74EE
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727034AbgDXM3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:29:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54016 "EHLO mail.kernel.org"
+        id S1726717AbgDXM3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:29:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728110AbgDXMXv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:23:51 -0400
+        id S1728184AbgDXMXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:23:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D648F2166E;
-        Fri, 24 Apr 2020 12:23:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAF712168B;
+        Fri, 24 Apr 2020 12:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731031;
-        bh=0u6wEzb76ncdT0z6fHVNlCKNH9+f7uchnCCQjeDtbPU=;
+        s=default; t=1587731032;
+        bh=FNO5HnRA8S9+d8oyUQAZzI9nV37VP+FJrNUT5nn94nw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rU5isO9FFPf4r1qRRZOFe77pNXkDWx8HVynslSS4YRG5aQAIi/tbDlwseGF3DeLwk
-         CctrzpuO2brEFgE/RvJC1t5rZn+kShca+FvxoLNKXEfQnfdYQQtUTloV0elQXzqsDJ
-         YvbSXcmOkXq0YPgksBITRaLItplHd/86azxGIfyc=
+        b=KTG41VHIpNJ0mBIKdiKWfQO8oZJBGRxzZCh2uFeUt5XdjsgGIeZEO3trEtm8rpHIX
+         3OF0lW8ypUOd/ok+Z1a7rTIkgkzxsbAoJSc2XotRE312rUYHjowQhMn1hwa4UAvGjb
+         QrkkuIN3xyOCsnj+nvIKEalGcugaIi3A/bTqANzM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 24/26] ext4: convert BUG_ON's to WARN_ON's in mballoc.c
-Date:   Fri, 24 Apr 2020 08:23:21 -0400
-Message-Id: <20200424122323.10194-24-sashal@kernel.org>
+Cc:     John Garry <john.garry@huawei.com>, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 25/26] blk-mq: Put driver tag in blk_mq_dispatch_rq_list() when no budget
+Date:   Fri, 24 Apr 2020 08:23:22 -0400
+Message-Id: <20200424122323.10194-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122323.10194-1-sashal@kernel.org>
 References: <20200424122323.10194-1-sashal@kernel.org>
@@ -42,50 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 907ea529fc4c3296701d2bfc8b831dd2a8121a34 ]
+[ Upstream commit 5fe56de799ad03e92d794c7936bf363922b571df ]
 
-If the in-core buddy bitmap gets corrupted (or out of sync with the
-block bitmap), issue a WARN_ON and try to recover.  In most cases this
-involves skipping trying to allocate out of a particular block group.
-We can end up declaring the file system corrupted, which is fair,
-since the file system probably should be checked before we proceed any
-further.
+If in blk_mq_dispatch_rq_list() we find no budget, then we break of the
+dispatch loop, but the request may keep the driver tag, evaulated
+in 'nxt' in the previous loop iteration.
 
-Link: https://lore.kernel.org/r/20200414035649.293164-1-tytso@mit.edu
-Google-Bug-Id: 34811296
-Google-Bug-Id: 34639169
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fix by putting the driver tag for that request.
+
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/mballoc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ block/blk-mq.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index c76ffc259d197..e1782b2e2e2dd 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -1936,7 +1936,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
- 	int free;
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index a8c1a45cedde0..757c0fd9f0cc2 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1232,8 +1232,10 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
+ 		rq = list_first_entry(list, struct request, queuelist);
  
- 	free = e4b->bd_info->bb_free;
--	BUG_ON(free <= 0);
-+	if (WARN_ON(free <= 0))
-+		return;
+ 		hctx = rq->mq_hctx;
+-		if (!got_budget && !blk_mq_get_dispatch_budget(hctx))
++		if (!got_budget && !blk_mq_get_dispatch_budget(hctx)) {
++			blk_mq_put_driver_tag(rq);
+ 			break;
++		}
  
- 	i = e4b->bd_info->bb_first_free;
- 
-@@ -1959,7 +1960,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
- 		}
- 
- 		mb_find_extent(e4b, i, ac->ac_g_ex.fe_len, &ex);
--		BUG_ON(ex.fe_len <= 0);
-+		if (WARN_ON(ex.fe_len <= 0))
-+			break;
- 		if (free < ex.fe_len) {
- 			ext4_grp_locked_error(sb, e4b->bd_group, 0, 0,
- 					"%d free clusters as per "
+ 		if (!blk_mq_get_driver_tag(rq)) {
+ 			/*
 -- 
 2.20.1
 
