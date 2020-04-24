@@ -2,114 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF3731B817A
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 23:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EAB01B8252
+	for <lists+stable@lfdr.de>; Sat, 25 Apr 2020 01:05:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726062AbgDXVEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 17:04:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49084 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726038AbgDXVEK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 17:04:10 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACD83C09B048;
-        Fri, 24 Apr 2020 14:04:10 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id e6so4383234pjt.4;
-        Fri, 24 Apr 2020 14:04:10 -0700 (PDT)
+        id S1726027AbgDXXF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 19:05:58 -0400
+Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:42023 "EHLO
+        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725946AbgDXXF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 19:05:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=my9WIJzbfGPiw3LcnJ3GOWfoHKAi2Ht/L1aHQMYhTVQ=;
-        b=ZpXaYcAnolhAEdYwKx/a52J9rtRV2kT9qlf2WOTgwviD+9ZWAO5A/UMByhZTA49JxR
-         OPCWsL4bhMWOJRx9XhR3NE19UrobFVTmv0Y4Roce+0s+BBaTr61HXpiCFJ0ueSdjX2Qw
-         ddAvrBVQF1kp0e6/9jMMq0+JEM6LcFOlK33UMR4ZllJV1z0ScCFu8a36BSFKCXHRfxiq
-         L6yaefwFx6n+9VPsTTTEZ1O+fLulyD+fDVKG17D/BxZeCkFJ9Dlu76RRYAY68/IbsHmV
-         mkahJrKidKG7k0BPywL3oDJ9ysriUUzUEF0IQ8OP4OVsSSjDtlDFdMxyITufzKcyXYDx
-         QKkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=my9WIJzbfGPiw3LcnJ3GOWfoHKAi2Ht/L1aHQMYhTVQ=;
-        b=q34zy7kIK39E/nxpSorfxZeX5hRPBShHQtgPVMyQ+uH844QzrHnM/SAjZ9fqH1SnTl
-         WeGsQJPBtFN+Z5JtwNFNbJ1DBlpCsrw22PkC33vkDkSHZ17haTHqLZT9n6LJRga/7SqM
-         1g8T5MJR/8pfhsMTmiZWVccU/sNRvSq+R0vS3vXyKrOjbEmeu/kzM+C8LtwLfNfog5E9
-         9dYXLIiOleqr8dl5WO/6505BTEpW9jlHEA8yxdLajvaSrUvkcrwofuTa7zdesET/eZZI
-         F0c0JXzYWv+bUF5hAGbME2Jx0ptYnyv+rCDRhGYz/FH9QJ/nolg2mu7r0OsZ3h4n94Pf
-         Pq7w==
-X-Gm-Message-State: AGi0PuaLSzWtiFdNAlarywTirget0jpdIq2o0JkugZe9KyuN8sFuVbyB
-        4MJ9N8KEWJswRa/PczBS/1+mwqobBgo=
-X-Google-Smtp-Source: APiQypLoWzf1Wq6kuLkuOfcFIYxYdpTEFCKwpyX2xl55kx6r1U0QuHo8rdKCg4F7lpEHOuP4YG4aHQ==
-X-Received: by 2002:a17:90a:2709:: with SMTP id o9mr8477830pje.168.1587762249973;
-        Fri, 24 Apr 2020 14:04:09 -0700 (PDT)
-Received: from horus.lan (75-164-176-226.ptld.qwest.net. [75.164.176.226])
-        by smtp.gmail.com with ESMTPSA id m4sm6506870pfm.26.2020.04.24.14.04.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2020 14:04:09 -0700 (PDT)
-From:   Jason Gerecke <killertofu@gmail.com>
-X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
-To:     linux-input@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>
-Cc:     Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
-Subject: [PATCH] HID: wacom: Report 2nd-gen Intuos Pro S center button status over BT
-Date:   Fri, 24 Apr 2020 14:04:00 -0700
-Message-Id: <20200424210400.220712-1-jason.gerecke@wacom.com>
-X-Mailer: git-send-email 2.26.2
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1587769558; x=1619305558;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=rWJ3FYSUDBhtgg2HwAWLYSU0m92N3Fm0EkeAxiCPd8U=;
+  b=U755vYzxSiMWPSo+6HFGrJcimtmLmkCA0+6JSK0mw+Ere80eKZnw4xFJ
+   UvGP8JfTm70Bv+1I+q0/mnexnlOS4928rZDynl8QTklD+xNUWzXo17OeJ
+   B7gZb4HwTT/VzBJpkNFSq8N39RR5AAMrlbsRH9MnAmHmkwbBizPXLbnhz
+   o=;
+IronPort-SDR: mfTedI26INg96UQ0DLqe5Mo6R3kgG5IPNsWEq3lktJodG3l4+3L1KY1OMs0pD54A8NTtlwx8I5
+ XJFo0LPaCNeQ==
+X-IronPort-AV: E=Sophos;i="5.73,313,1583193600"; 
+   d="scan'208";a="27301188"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-2c-397e131e.us-west-2.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-4101.iad4.amazon.com with ESMTP; 24 Apr 2020 23:05:45 +0000
+Received: from EX13MTAUWC001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
+        by email-inbound-relay-2c-397e131e.us-west-2.amazon.com (Postfix) with ESMTPS id D27CBA271E;
+        Fri, 24 Apr 2020 23:05:43 +0000 (UTC)
+Received: from EX13D30UWC001.ant.amazon.com (10.43.162.128) by
+ EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Fri, 24 Apr 2020 23:05:43 +0000
+Received: from u3c3f5cfe23135f.ant.amazon.com (10.43.162.70) by
+ EX13D30UWC001.ant.amazon.com (10.43.162.128) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Fri, 24 Apr 2020 23:05:43 +0000
+From:   Suraj Jitindar Singh <surajjs@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     <sjitindarsingh@gmail.com>, <linux-xfs@vger.kernel.org>,
+        "Suraj Jitindar Singh" <surajjs@amazon.com>
+Subject: [PATCH STABLE v4.14.y 0/2] xfs: Backport two fixes
+Date:   Fri, 24 Apr 2020 16:05:30 -0700
+Message-ID: <20200424230532.2852-1-surajjs@amazon.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.43.162.70]
+X-ClientProxiedBy: EX13D43UWC004.ant.amazon.com (10.43.162.42) To
+ EX13D30UWC001.ant.amazon.com (10.43.162.128)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The state of the center button was not reported to userspace for the
-2nd-gen Intuos Pro S when used over Bluetooth due to the pad handling
-code not being updated to support its reduced number of buttons. This
-patch uses the actual number of buttons present on the tablet to
-assemble a button state bitmap.
+This series backports two patches which fix known bugs in the xfs
+filesystem code to the v4.14.y stable tree.
 
-Link: https://github.com/linuxwacom/xf86-input-wacom/issues/112
-Fixes: cd47de45b855 ("HID: wacom: Add 2nd gen Intuos Pro Small support")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Cc: stable@vger.kernel.org # v5.3+
----
- drivers/hid/wacom_wac.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+They are each verified by the xfs tests xfs/439 and generic/585
+respectively.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 96d00eba99c0..1c96809b51c9 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1427,11 +1427,13 @@ static void wacom_intuos_pro2_bt_pad(struct wacom_wac *wacom)
- {
- 	struct input_dev *pad_input = wacom->pad_input;
- 	unsigned char *data = wacom->data;
-+	int nbuttons = wacom->features.numbered_buttons;
- 
--	int buttons = data[282] | ((data[281] & 0x40) << 2);
-+	int expresskeys = data[282];
-+	int center = (data[281] & 0x40) >> 6;
- 	int ring = data[285] & 0x7F;
- 	bool ringstatus = data[285] & 0x80;
--	bool prox = buttons || ringstatus;
-+	bool prox = expresskeys || center || ringstatus;
- 
- 	/* Fix touchring data: userspace expects 0 at left and increasing clockwise */
- 	ring = 71 - ring;
-@@ -1439,7 +1441,8 @@ static void wacom_intuos_pro2_bt_pad(struct wacom_wac *wacom)
- 	if (ring > 71)
- 		ring -= 72;
- 
--	wacom_report_numbered_buttons(pad_input, 9, buttons);
-+	wacom_report_numbered_buttons(pad_input, nbuttons,
-+                                      expresskeys | (center << (nbuttons - 1)));
- 
- 	input_report_abs(pad_input, ABS_WHEEL, ringstatus ? ring : 0);
- 
+The first patch applies cleanly.
+
+The second patch required slight massage due to the last code block
+being removed having changed slightly upstream due to rework. I think
+the backport is functionally equivalent.
+Only thing is I request comment that it is correct to use the following
+error path:
+
+	ASSERT(VFS_I(wip)->i_nlink == 0);
+	error = xfs_iunlink_remove(tp, wip);
+	if (error)
+>	       goto out_trans_cancel;
+
+The old error patch out_bmap_cancel still exists here. However as
+nothing can have modified the deferred ops struct at this point I
+believe it is sufficient to go to the "out_trans_cancel" error label.
+
+Darrick J. Wong (1):
+  xfs: validate sb_logsunit is a multiple of the fs blocksize
+
+kaixuxia (1):
+  xfs: Fix deadlock between AGI and AGF with RENAME_WHITEOUT
+
+ fs/xfs/xfs_inode.c | 85 +++++++++++++++++++++++-----------------------
+ fs/xfs/xfs_log.c   | 14 +++++++-
+ 2 files changed, 55 insertions(+), 44 deletions(-)
+
 -- 
-2.26.2
+2.17.1
 
