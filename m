@@ -2,188 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 607531B7B54
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 18:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 038221B7B6C
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 18:22:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727123AbgDXQVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 12:21:09 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:35541 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727031AbgDXQVJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 12:21:09 -0400
-Received: by mail-wr1-f68.google.com with SMTP id x18so11571968wrq.2
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 09:21:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=q0pJPiNahulzXjepW4Fsah9pOIeUNBqbsHnVMKibHTw=;
-        b=FIxP63nANrrlqlvuduBTbJtIn/jDM8qtlDXjz26NhGuNw35+PA2LzNEZkyd6HwH3HA
-         r3mMjOavh7KxNAh5NSSHQV9B4CRkNCf3syIQVgNVUQ5IeARJ/htS93YANUTVn1U8MNRl
-         h18rhOVfixGZ15tew9bh5uhpGFRhrHSCXvbGZrePwEXSAVY9MZ8ec+HNTUUAS0nsFlTE
-         1ZUm6XfInCSQjYNnx0T+9W6SXYq8DCD0kAbUF79UxOaaPMy3JzULUHpDO5xN4OifFnSs
-         bZ4tXTpGPBtC3Cgq2Qlibmf0AmHdq7z6wDARCG9BeJXHtZzswrcHSqYre7lWcxY8Yf5l
-         Ol7g==
-X-Gm-Message-State: AGi0Pub3QtDrdwCafvGcJwHakqbVasDnr14mVZCIpHlJF8Iyt1A9uHnT
-        JyZXJAJ/JbRTPZYOjdW9wGk=
-X-Google-Smtp-Source: APiQypJ27Vk63KNaOL2/qa5F5TtZbSWQUXj0MofRfX8qGY/2+/C3iSSnS4Z0g2l7Zh6htzuVY4e3cQ==
-X-Received: by 2002:adf:db4d:: with SMTP id f13mr11434693wrj.289.1587745265085;
-        Fri, 24 Apr 2020 09:21:05 -0700 (PDT)
-Received: from localhost (ip-37-188-130-62.eurotel.cz. [37.188.130.62])
-        by smtp.gmail.com with ESMTPSA id z76sm4035330wmc.9.2020.04.24.09.21.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2020 09:21:04 -0700 (PDT)
-Date:   Fri, 24 Apr 2020 18:21:03 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Johannes Weiner <hannes@cmpxchg.org>
-Cc:     Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org,
-        vdavydov.dev@gmail.com, linux-mm@kvack.org,
-        Chris Down <chris@chrisdown.name>,
-        Roman Gushchin <guro@fb.com>, stable@vger.kernel.org
+        id S1728263AbgDXQWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 12:22:12 -0400
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:64058 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728414AbgDXQWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 12:22:12 -0400
+Received: from pps.filterd (m0148461.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03OGJj8e008101;
+        Fri, 24 Apr 2020 09:22:02 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=facebook; bh=U+jURu/ME4WibFg2YveaZlKwGlJ+z6u9FrSKBpzlEMw=;
+ b=HvGwRzzXjPNUZDCXwGn+197VeaqpyEvlnD84GIlIDEfKy/JsRg7vhl4vGQed8igOORsX
+ dArDXMv6LdcYNmTYarbAJc8zwfwsGFsM2CAujlBH39KaQn7qWS7RFq+7BoJ1AzcdAjC+
+ Zzue+3PijbYY1FeL4XqK8dSbWRYwcvZntZ8= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com with ESMTP id 30jwf0vv5b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+        Fri, 24 Apr 2020 09:22:02 -0700
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (100.104.31.183)
+ by o365-in.thefacebook.com (100.104.35.172) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1847.3; Fri, 24 Apr 2020 09:22:00 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=AF0XtpTC4jMPpAlEClDBQimOm4L5pGlmdJ+2ZGZ230jyXn1jtzgxIdH29r9lorVDj8UahKUIW/zbpMK1J7ZJRTIqBnc4T69JIoLnhHU7F5dmOH8HQsU5r/PfEVlCKHFYJqZd33aW+K1/VsLrrRBdffpF67iImfO/ZpoE89rLCbBJ5pZzoSf8zuzzTjIGwA+Xz41LRYpQL6zK7AQGqvhgWiEE1LgZh42xMU79hOUI43C92GPvzbOyTnVv1A+UHha2S1ZqPUWzMeajB1MuNZrnTameNuBfHRAI8pOgGJL7oTCRNG4dyIHg6qdwfeGda1o2yRZjEIIQh87RUCJ/EZRRng==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=U+jURu/ME4WibFg2YveaZlKwGlJ+z6u9FrSKBpzlEMw=;
+ b=kEhqbQXRvRtlQJsr8XE8M887iU6hOn8NI6W1CZt4zpKDfQQakMoSXf/iI3zLo8aj0bQoLd0Ek9hP4E5Y0AsUmHfKh5BSvGO9PvtyIcw0RQX2eDKHzP57dTYZMV5H5sx+N3GVwAvTMVFuUHWh6OeGP1NLVvfT87qqBWGVd5nmnJfbeSM2fMboC81WRXdkO4Cb2uYDPvvA4C+n8+YGCzpJGP0FPISwkK6pReWYf2FC9MD6iFNuwIveBJ+6jMHuw5MGUHNzU0Uudt8GtoZUg5Q1iNIkVZ1DbhnttMkbB7Gix0DKAfgOVK8b7ucJGox8W7IJOgBJZfkJ7N4Iyn0TMXlK4Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
+ header.d=fb.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
+ s=selector2-fb-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=U+jURu/ME4WibFg2YveaZlKwGlJ+z6u9FrSKBpzlEMw=;
+ b=FraxOTTPTMs+eYwoQ7PFR7x4ASDo4gN49XpL5Xv3qYKjxM+lI+BmzkVhqv2OApYQbPCNFSLvxDP6Wd9TGiC4jXRZqNnjsEZmyxGa3lJLhHi0iG44uLn/c1YNcHlDKGMD+DdkLCea7UFPzA5Y3C0irFm6OAqxUiGtzbRstaMWEOU=
+Received: from BYAPR15MB4136.namprd15.prod.outlook.com (2603:10b6:a03:96::24)
+ by BYAPR15MB2519.namprd15.prod.outlook.com (2603:10b6:a03:14f::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2921.29; Fri, 24 Apr
+ 2020 16:21:53 +0000
+Received: from BYAPR15MB4136.namprd15.prod.outlook.com
+ ([fe80::bdf9:6577:1d2a:a275]) by BYAPR15MB4136.namprd15.prod.outlook.com
+ ([fe80::bdf9:6577:1d2a:a275%7]) with mapi id 15.20.2937.012; Fri, 24 Apr 2020
+ 16:21:53 +0000
+Date:   Fri, 24 Apr 2020 09:21:48 -0700
+From:   Roman Gushchin <guro@fb.com>
+To:     Michal Hocko <mhocko@kernel.org>
+CC:     Johannes Weiner <hannes@cmpxchg.org>,
+        Yafang Shao <laoar.shao@gmail.com>,
+        <akpm@linux-foundation.org>, <vdavydov.dev@gmail.com>,
+        <linux-mm@kvack.org>, Chris Down <chris@chrisdown.name>,
+        <stable@vger.kernel.org>
 Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
-Message-ID: <20200424162103.GK11591@dhcp22.suse.cz>
+Message-ID: <20200424162148.GA99424@carbon.lan>
 References: <20200423061629.24185-1-laoar.shao@gmail.com>
  <20200424131450.GA495720@cmpxchg.org>
  <20200424142958.GF11591@dhcp22.suse.cz>
- <20200424151013.GA525165@cmpxchg.org>
-MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200424151013.GA525165@cmpxchg.org>
+In-Reply-To: <20200424142958.GF11591@dhcp22.suse.cz>
+X-ClientProxiedBy: CO2PR04CA0069.namprd04.prod.outlook.com
+ (2603:10b6:102:1::37) To BYAPR15MB4136.namprd15.prod.outlook.com
+ (2603:10b6:a03:96::24)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from carbon.lan (2620:10d:c090:400::5:1ddb) by CO2PR04CA0069.namprd04.prod.outlook.com (2603:10b6:102:1::37) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2937.13 via Frontend Transport; Fri, 24 Apr 2020 16:21:52 +0000
+X-Originating-IP: [2620:10d:c090:400::5:1ddb]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c9b0682f-14c9-4012-9199-08d7e86b998d
+X-MS-TrafficTypeDiagnostic: BYAPR15MB2519:
+X-Microsoft-Antispam-PRVS: <BYAPR15MB2519BE87C8252B30E975851DBED00@BYAPR15MB2519.namprd15.prod.outlook.com>
+X-FB-Source: Internal
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-Forefront-PRVS: 03838E948C
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR15MB4136.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10019020)(366004)(376002)(346002)(396003)(39860400002)(136003)(4326008)(6916009)(8676002)(7696005)(66556008)(6666004)(66946007)(478600001)(54906003)(55016002)(81156014)(9686003)(5660300002)(33656002)(66476007)(86362001)(52116002)(1076003)(6506007)(186003)(36756003)(8936002)(2906002)(16526019)(316002)(8886007);DIR:OUT;SFP:1102;
+Received-SPF: None (protection.outlook.com: fb.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: b/u94YVQ31yy/owv8efuvuDKzDXvAwrbwnSXhP0PBYvTXrNnbGEYK+AnmIDiv3/xl1RWWZVgQB/oL4A45j6gF3Jd639KRQ7VPsgkI0QS21gwDbYSEbEH5vQU8nHJAU6WcTSGpTthquLush1qZfXsMTqVLee/PEaqvx7sRlrOMg3QUzrcTnmF1A4Kgy/hVfKspw9vmq0eESHLDHCSLs1OWrvZgHdfo3uDdwQXVn0nvd8BtVgtdaE0qyF7iFIO0m5lOTkDomdS+cMng5CFZkuN8JRrnvTGf/NcFwrbwXowZGYKAuGLSFgMJhx7/tNlgDY1ltQy7carYb9hGI+UfV9bK/H0JJwRKIaSjqoALnb3nCUtiPr71u7rXetQnxCKp3ob7rUYWFu/RJK+f+ftcZwqVgeGgInJL4S3cUo1v2jao6j8dWMCm8JnShJUZJtEzJEo
+X-MS-Exchange-AntiSpam-MessageData: At+ZDDQr626gbgS2ruvY+Be10gZBJytp8hAm4m1B/kfrFzch/m/3DREa7mtAGGv9pZKjOgQJv62MvrELU6r1TFtZXiDsEws5kSsbN/iNnGzs4prz/h9R5+8oQxho7xkfLzWxPrcITk48qHlgn88+YA7Q+txEaGzGLYkL1DRLM8M+BS2xmbdjLzXbUeM64G1h
+X-MS-Exchange-CrossTenant-Network-Message-Id: c9b0682f-14c9-4012-9199-08d7e86b998d
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Apr 2020 16:21:53.5668
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: jAEerd+uMH2KYT+JJNsdYePOlLHVsBC1LCpNv59ggxofZkkAy1VwzC8LQ5fvB3WI
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR15MB2519
+X-OriginatorOrg: fb.com
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-04-24_08:2020-04-24,2020-04-24 signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
+ bulkscore=0 spamscore=0 clxscore=1015 adultscore=0 phishscore=0
+ mlxlogscore=999 malwarescore=0 lowpriorityscore=0 mlxscore=0
+ impostorscore=0 suspectscore=1 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2003020000 definitions=main-2004240127
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 24-04-20 11:10:13, Johannes Weiner wrote:
-> On Fri, Apr 24, 2020 at 04:29:58PM +0200, Michal Hocko wrote:
-> > On Fri 24-04-20 09:14:50, Johannes Weiner wrote:
-> > > On Thu, Apr 23, 2020 at 02:16:29AM -0400, Yafang Shao wrote:
-> > > > This patch is an improvement of a previous version[1], as the previous
-> > > > version is not easy to understand.
-> > > > This issue persists in the newest kernel, I have to resend the fix. As
-> > > > the implementation is changed, I drop Roman's ack from the previous
-> > > > version.
-> > > 
-> > > Now that I understand the problem, I much prefer the previous version.
-> > > 
-> > > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-> > > index 745697906ce3..2bf91ae1e640 100644
-> > > --- a/mm/memcontrol.c
-> > > +++ b/mm/memcontrol.c
-> > > @@ -6332,8 +6332,19 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
-> > >  
-> > >  	if (!root)
-> > >  		root = root_mem_cgroup;
-> > > -	if (memcg == root)
-> > > +	if (memcg == root) {
-> > > +		/*
-> > > +		 * The cgroup is the reclaim root in this reclaim
-> > > +		 * cycle, and therefore not protected. But it may have
-> > > +		 * stale effective protection values from previous
-> > > +		 * cycles in which it was not the reclaim root - for
-> > > +		 * example, global reclaim followed by limit reclaim.
-> > > +		 * Reset these values for mem_cgroup_protection().
-> > > +		 */
-> > > +		memcg->memory.emin = 0;
-> > > +		memcg->memory.elow = 0;
-> > >  		return MEMCG_PROT_NONE;
-> > > +	}
+On Fri, Apr 24, 2020 at 04:29:58PM +0200, Michal Hocko wrote:
+> On Fri 24-04-20 09:14:50, Johannes Weiner wrote:
+> > On Thu, Apr 23, 2020 at 02:16:29AM -0400, Yafang Shao wrote:
+> > > This patch is an improvement of a previous version[1], as the previous
+> > > version is not easy to understand.
+> > > This issue persists in the newest kernel, I have to resend the fix. As
+> > > the implementation is changed, I drop Roman's ack from the previous
+> > > version.
 > > 
-> > Could you be more specific why you prefer this over the
-> > mem_cgroup_protection which doesn't change the effective value?
-> > Isn't it easier to simply ignore effective value for the reclaim roots?
-> 
-> Because now both mem_cgroup_protection() and mem_cgroup_protected()
-> have to know about the reclaim root semantics, instead of just the one
-> central place.
-
-Yes this is true but it is also potentially overwriting the state with
-a parallel reclaim which can lead to surprising results beacause
-parent's effective protection is used to define protection distribution
-for children. Let's have global and A's reclaim in parallel:
- |
- A (low=2G, usage = 3G, max = 3G, children_low_usage = 1.5G)
- |\
- | C (low = 1G, usage = 2.5G)
- B (low = 1G, usage = 0.5G)
-
-for A reclaim we have
-B.elow = B.low
-C.elow = C.low
-
-For the global reclaim
-A.elow = A.low
-B.elow = min(B.usage, B.low) because children_low_usage <= A.elow
-C.elow = min(C.usage, C.low)
-
-With the effective values reseting we have A reclaim
-A.elow = 0
-B.elow = B.low
-C.elow = C.low
-[...]
-
-and global reclaim could see the above and then
-B.elow = C.elow = 0 because children_low_usage > A.elow
-
-> And the query function has to know additional rules about when the
-> emin/elow values are uptodate or it could silently be looking at stale
-> data, which isn't very robust.
-> 
-> "The effective protection values are uptodate after calling
-> mem_cgroup_protected() inside the reclaim cycle - UNLESS the group
-> you're looking at happens to be..."
-> 
-> It's much easier to make the rule: The values are uptodate after you
-> called mem_cgroup_protected().
-> 
-> Or mem_cgroup_calculate_protection(), if we go with that later.
-> 
-> > > As others have noted, it's fairly hard to understand the problem from
-> > > the above changelog. How about the following:
-> > > 
-> > > A cgroup can have both memory protection and a memory limit to isolate
-> > > it from its siblings in both directions - for example, to prevent it
-> > > from being shrunk below 2G under high pressure from outside, but also
-> > > from growing beyond 4G under low pressure.
-> > > 
-> > > 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
-> > > implemented proportional scan pressure so that multiple siblings in
-> > > excess of their protection settings don't get reclaimed equally but
-> > > instead in accordance to their unprotected portion.
-> > > 
-> > > During limit reclaim, this proportionality shouldn't apply of course:
-> > > there is no competition, all pressure is from within the cgroup and
-> > > should be applied as such. Reclaim should operate at full efficiency.
-> > > 
-> > > However, mem_cgroup_protected() never expected anybody to look at the
-> > > effective protection values when it indicated that the cgroup is above
-> > > its protection. As a result, a query during limit reclaim may return
-> > > stale protection values that were calculated by a previous reclaim
-> > > cycle in which the cgroup did have siblings.
+> > Now that I understand the problem, I much prefer the previous version.
 > > 
-> > This is better. Thanks!
-> > 
-> > > When this happens, reclaim is unnecessarily hesitant and potentially
-> > > slow to meet the desired limit. In theory this could lead to premature
-> > > OOM kills, although it's not obvious this has occurred in practice.
-> > 
-> > I do not see how this would lead all the way to OOM killer but it
-> > certainly can lead to unnecessary increase of the reclaim priority. The
-> > smaller the difference between the reclaim target and protection the
-> > more visible the effect would be. But if there are reclaimable pages
-> > then the reclaim should see them sooner or later
+> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > index 745697906ce3..2bf91ae1e640 100644
+> > --- a/mm/memcontrol.c
+> > +++ b/mm/memcontrol.c
+> > @@ -6332,8 +6332,19 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
+> >  
+> >  	if (!root)
+> >  		root = root_mem_cgroup;
+> > -	if (memcg == root)
+> > +	if (memcg == root) {
+> > +		/*
+> > +		 * The cgroup is the reclaim root in this reclaim
+> > +		 * cycle, and therefore not protected. But it may have
+> > +		 * stale effective protection values from previous
+> > +		 * cycles in which it was not the reclaim root - for
+> > +		 * example, global reclaim followed by limit reclaim.
+> > +		 * Reset these values for mem_cgroup_protection().
+> > +		 */
+> > +		memcg->memory.emin = 0;
+> > +		memcg->memory.elow = 0;
+> >  		return MEMCG_PROT_NONE;
+> > +	}
 > 
-> It would be a pretty extreme case, but not impossible AFAICS, because
-> OOM is just a sampled state, not deterministic.
-> 
-> If memory.max is 64G and memory.low is 64G minus one page, this bug
-> could cause limit reclaim to look at no more than SWAP_CLUSTER_MAX
-> pages at priority 0. It's possible it wouldn't get through the full
-> 64G worth of memory before giving up and declaring OOM.
+> Could you be more specific why you prefer this over the
+> mem_cgroup_protection which doesn't change the effective value?
+> Isn't it easier to simply ignore effective value for the reclaim roots?
 
-Yes, my bad I didn't really realize that there won't be a full scan even
-under priority 0.
--- 
-Michal Hocko
-SUSE Labs
+Hm, I think I like the new version better, because it feels "safer" in terms
+of preserving sane effective protection values for concurrent reclaimers.
+
+> 
+> [...]
+> 
+> > As others have noted, it's fairly hard to understand the problem from
+> > the above changelog. How about the following:
+> > 
+> > A cgroup can have both memory protection and a memory limit to isolate
+> > it from its siblings in both directions - for example, to prevent it
+> > from being shrunk below 2G under high pressure from outside, but also
+> > from growing beyond 4G under low pressure.
+> > 
+> > 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
+> > implemented proportional scan pressure so that multiple siblings in
+> > excess of their protection settings don't get reclaimed equally but
+> > instead in accordance to their unprotected portion.
+> > 
+> > During limit reclaim, this proportionality shouldn't apply of course:
+> > there is no competition, all pressure is from within the cgroup and
+> > should be applied as such. Reclaim should operate at full efficiency.
+> > 
+> > However, mem_cgroup_protected() never expected anybody to look at the
+> > effective protection values when it indicated that the cgroup is above
+> > its protection. As a result, a query during limit reclaim may return
+> > stale protection values that were calculated by a previous reclaim
+> > cycle in which the cgroup did have siblings.
+> 
+> This is better. Thanks!
+
++1
+
+and I like the proposed renaming/cleanup. Thanks, Johannes!
+
+> 
+> > When this happens, reclaim is unnecessarily hesitant and potentially
+> > slow to meet the desired limit. In theory this could lead to premature
+> > OOM kills, although it's not obvious this has occurred in practice.
+> 
+> I do not see how this would lead all the way to OOM killer but it
+> certainly can lead to unnecessary increase of the reclaim priority. The
+> smaller the difference between the reclaim target and protection the
+> more visible the effect would be. But if there are reclaimable pages
+> then the reclaim should see them sooner or later
+
+I guess if all memory is protected by emin and the targeted reclaim
+will be unable to reclaim anything, OOM can be triggered.
+
+Btw, I wonder if this case can be covered by a new memcg kselftest?
+I'm not sure it can be easily reproducible, but if it can, it would be
+the best demonstration of a problem and the fix.
+Yafang, don't you want to try?
+
+Thanks!
