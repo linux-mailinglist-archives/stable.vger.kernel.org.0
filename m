@@ -2,114 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CB0C1B6E86
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 08:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E979B1B6ECC
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 09:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725898AbgDXGxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 02:53:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56142 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725868AbgDXGxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 02:53:53 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04A0C09B045
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 23:53:52 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id y25so4363355pfn.5
-        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 23:53:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=mscg9w9Q6itD+GPR+DR3xE4GaX5O4CZs6FtB2tgOHU0=;
-        b=w9+o6MQHSAzpmeSX3b4EqNUPqDquWZ5MGgKAhHY77dmVKbMc0PF9aeFmC3hyQLmTLm
-         EM+V9ShS6A5PZEmeQTQG+G+Nw9VRxEIDdfRsm8YvrMWcD1vakxXFWu0WxW4v0zw739Vs
-         WOjsJkLhyRbvXwvD6ni18/3y86AfA9fL+x21Rnp7gljaKoXXln7k6v076aPxiBe442Xu
-         5lUyKaffewgp6OQQG+j+/Txw2Jjn7lwpikdpvg8xmYgp06tmeZfbz6QY3J+ge/O1BKhK
-         15SB9zAQD4Tn8XtAUoqTvEmymq92PWbJlFprreFeRVtBNlgaB/jh9T63Xuq6sWJnUI6u
-         Yo7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=mscg9w9Q6itD+GPR+DR3xE4GaX5O4CZs6FtB2tgOHU0=;
-        b=CgcOo/CCmnJCkDY99GErynK1DwjbffC954RwOnZaRYnLTyAkEBhF0TaSyNhKxpLwFe
-         hxLemLRqHIf7nt17kVYcDp+HxwFD+acssxLFDiUqTrpK9rwjRr+PyLQWjoBo3Q1/g4A9
-         Ohhs4+JwhYIl5Bpazbzxo5gknmNs7ZHSXGXH7hsq6kehz1vWNJYgwuU7tZEUYLbB07tA
-         ylbPvtO0UVIwTchxCe9drRzxOJf8SXY7XQfl936mWYkn2OpplAVXq6qQpyqZGbfxuwnb
-         uB1ZsoS6QgYeg/SbaVowqtKTs1SFkRS1gxdDRkkJqnPV/40Dw6WQ8kaDZitUyR4w/jhP
-         Mmjg==
-X-Gm-Message-State: AGi0PubBWPSJE8R1Ty0tTzfs6/OkgTRj+PbJJ+n+DMf47PoeyySUNuVm
-        K3CysKmjPwgkiGfORjmaHOF3aZh2ZQ0=
-X-Google-Smtp-Source: APiQypI+YMNm0qlXdTzf2pGqksOdOR19CGcdxZH7SoyfhvgMR8d4Q/hxSjyWedGoh0myselOOXOc1g==
-X-Received: by 2002:a63:e4a:: with SMTP id 10mr7613412pgo.90.1587711232078;
-        Thu, 23 Apr 2020 23:53:52 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h9sm4617950pfo.129.2020.04.23.23.53.50
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2020 23:53:50 -0700 (PDT)
-Message-ID: <5ea28cfe.1c69fb81.15c02.015d@mx.google.com>
-Date:   Thu, 23 Apr 2020 23:53:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726347AbgDXHTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 03:19:04 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2092 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726051AbgDXHTD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 03:19:03 -0400
+Received: from lhreml724-chm.china.huawei.com (unknown [172.18.7.106])
+        by Forcepoint Email with ESMTP id DC1392CAC0741D5FB70B;
+        Fri, 24 Apr 2020 08:19:01 +0100 (IST)
+Received: from [127.0.0.1] (10.47.6.64) by lhreml724-chm.china.huawei.com
+ (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Fri, 24 Apr
+ 2020 08:19:00 +0100
+Subject: Re: [PATCH] blk-mq: Put driver tag in blk_mq_dispatch_rq_list() when
+ no budget
+To:     Ming Lei <ming.lei@redhat.com>,
+        Doug Anderson <dianders@chromium.org>
+CC:     Bart Van Assche <bvanassche@acm.org>, Jens Axboe <axboe@kernel.dk>,
+        linux-block <linux-block@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Guenter Roeck <groeck@chromium.org>
+References: <1587035931-125028-1-git-send-email-john.garry@huawei.com>
+ <e5416179-2ba0-c9a8-1b86-d52eae29e146@acm.org>
+ <663d472a-5bde-4b89-3137-c7bfdf4d7b97@huawei.com>
+ <CAD=FV=XBrKgng+vYzJx+qsOEZ-cZ10A0t+pRh=FcbQMop2ht4Q@mail.gmail.com>
+ <20200424013519.GA355437@T590>
+From:   John Garry <john.garry@huawei.com>
+Message-ID: <3b91a730-0923-c049-bbe4-68fc5a7ae793@huawei.com>
+Date:   Fri, 24 Apr 2020 08:18:25 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.6.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.6.7
-Subject: stable/linux-5.6.y boot: 27 boots: 1 failed,
- 25 passed with 1 untried/unknown (v5.6.7)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20200424013519.GA355437@T590>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.47.6.64]
+X-ClientProxiedBy: lhreml722-chm.china.huawei.com (10.201.108.73) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.6.y boot: 27 boots: 1 failed, 25 passed with 1 untried/unkno=
-wn (v5.6.7)
+On 24/04/2020 02:35, Ming Lei wrote:
+> On Thu, Apr 23, 2020 at 03:42:37PM -0700, Doug Anderson wrote:
+>> Hi,
+>>
+>> On Mon, Apr 20, 2020 at 1:23 AM John Garry <john.garry@huawei.com> wrote:
+>>>
+>>> On 18/04/2020 03:43, Bart Van Assche wrote:
+>>>> On 2020-04-16 04:18, John Garry wrote:
+>>>>> If in blk_mq_dispatch_rq_list() we find no budget, then we break of the
+>>>>> dispatch loop, but the request may keep the driver tag, evaulated
+>>>>> in 'nxt' in the previous loop iteration.
+>>>>>
+>>>>> Fix by putting the driver tag for that request.
+>>>>>
+>>>>> Signed-off-by: John Garry <john.garry@huawei.com>
+>>>>>
+>>>>> diff --git a/block/blk-mq.c b/block/blk-mq.c
+>>>>> index 8e56884fd2e9..a7785df2c944 100644
+>>>>> --- a/block/blk-mq.c
+>>>>> +++ b/block/blk-mq.c
+>>>>> @@ -1222,8 +1222,10 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
+>>>>>               rq = list_first_entry(list, struct request, queuelist);
+>>>>>
+>>>>>               hctx = rq->mq_hctx;
+>>>>> -            if (!got_budget && !blk_mq_get_dispatch_budget(hctx))
+>>>>> +            if (!got_budget && !blk_mq_get_dispatch_budget(hctx)) {
+>>>>> +                    blk_mq_put_driver_tag(rq);
+>>>>>                       break;
+>>>>> +            }
+>>>>>
+>>>>>               if (!blk_mq_get_driver_tag(rq)) {
+>>>>>                       /*
+>>>>
+>>>> Is this something that can only happen if q->mq_ops->queue_rq(hctx, &bd)
+>>>> returns another value than BLK_STS_OK, BLK_STS_RESOURCE and
+>>>> BLK_STS_DEV_RESOURCE?
+>>>
+>>> Right, as that case is handled in blk_mq_handle_dev_resource()
+>>>
+>>> If so, please add a comment in the source code
+>>>> that explains this.
+>>>
+>>> So important that we should now do this in an extra patch?
+>>>
+>>>>
+>>>> Is this perhaps a bug fix for 0bca799b9280 ("blk-mq: order getting
+>>>> budget and driver tag")? If so, please mention this and add Cc tags for
+>>>> the people who were Cc-ed on that patch.
+>>>
+>>> So it looks like 0bca799b9280 had a flaw, but I am not sure if anything
+>>> got broken there and worthy of stable backport.
+>>>
+>>> I found this issue while debugging Ming's blk-mq cpu hotplug patchset,
+>>> which I feel is ready to merge.
+>>>
+>>> Having said that, this nasty issue did take > 1 day for me to debug...
+>>> so let me know.
+>>
+>> As per the above conversation, presumably this should go to stable
+>> then for any kernel that has commit 0bca799b9280 ("blk-mq: order
+>> getting budget and driver tag")?  For instance, I think 4.19 would be
+>> affected?  When I picked it there I got a conflict due to not having
+>> commit ea4f995ee8b8 ("blk-mq: cache request hardware queue mapping")
+>> but I think it's just a context collision and easy to resolve.
+>>
+>> I'm no expert in the block code, but I posted my backport to 4.19 at
+>> <https://crrev.com/c/2163313>.  I'm happy to send an email as a patch
+>> to the list too or double-check that someone else's conflict
+>> resolution matches mine.
+> 
+> The thing is that there may not user visible effect by this issue,
+> when one tag isn't freed, this request will be re-dispatched soon.
+> That said it just makes the tag lifetime longer.
+> 
+> It could only be an issue in case of request dependency, meantime
+> the tag space is quite limited. However, not sure if there is such
+> case in reality.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-6.y/kernel/v5.6.7/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.6.y/ke=
-rnel/v5.6.7/
+FWIW, this was pretty nasty to debug, and if it's not going to cause 
+harm, then I'd be more inclined to add to stable. In addition, some 
+distro may backport patches on a stable baseline where it is visible 
+separately, and miss this one.
 
-Tree: stable
-Branch: linux-5.6.y
-Git Describe: v5.6.7
-Git Commit: 55b2af1c23eb12663015998079992f79fdfa56c8
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 20 unique boards, 5 SoC families, 7 builds out of 200
-
-Boot Regressions Detected:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          sun7i-a20-cubieboard2:
-              lab-clabbe: new failure (last pass: v5.6.6)
-
-    sunxi_defconfig:
-        gcc-8:
-          sun8i-a83t-bananapi-m3:
-              lab-clabbe: new failure (last pass: v5.6.6)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          apq8096-db820c:
-              lab-bjorn: failing since 2 days (last pass: v5.6.5 - first fa=
-il: v5.6.6)
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            apq8096-db820c: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+Thanks,
+John
