@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D47631B751D
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDFB1B750E
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727868AbgDXMbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:31:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53098 "EHLO mail.kernel.org"
+        id S1727977AbgDXMX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:23:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727944AbgDXMXV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:23:21 -0400
+        id S1727972AbgDXMX0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:23:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 881852087E;
-        Fri, 24 Apr 2020 12:23:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E508A20776;
+        Fri, 24 Apr 2020 12:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731001;
-        bh=PtDDryNXCt/9ihdYD2ZXT+uVLrhInNakO1Houm02HMs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=15hz3TXrSVCI1xdp6a43GdWQjJ2F+dww1c3LxXd7OFtlhm31mchGBny6EaqkT4J3j
-         swFUcOj8k78h/ysIOCEXJ4dWZTbhDFCpjEh6N2DurS0VpNT2CsezANMG+eYzKF1yyx
-         vnvveCpqvz7ETj4RFA+KubeiIx7G4H5mrS5RINcA=
+        s=default; t=1587731005;
+        bh=JEfPVeCIXS2ihp4wiKoaxqcfVeN9Aopia2uXZyuMbzs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=1qHOqCMSq1ywoYVvbwMuKBB/Bc/buIYS9oC344cyI8+ZzwH8qFxgEeHq13GZijqw2
+         VD2zfZjIChMjsMghVFiRAfh3B3LTPy1sxKSkRD5vlt++uOiHNN8hN2jywa47CkKCA5
+         TMnzJLAtN6Zu8JBtyXNqNr/YMeQKYk3ynfO4KIfo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 38/38] hwmon: (jc42) Fix name to have no illegal characters
-Date:   Fri, 24 Apr 2020 08:22:36 -0400
-Message-Id: <20200424122237.9831-38-sashal@kernel.org>
+Cc:     Jeremy Cline <jcline@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/26] libbpf: Initialize *nl_pid so gcc 10 is happy
+Date:   Fri, 24 Apr 2020 08:22:58 -0400
+Message-Id: <20200424122323.10194-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200424122237.9831-1-sashal@kernel.org>
-References: <20200424122237.9831-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,41 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Jeremy Cline <jcline@redhat.com>
 
-[ Upstream commit c843b382e61b5f28a3d917712c69a344f632387c ]
+[ Upstream commit 4734b0fefbbf98f8c119eb8344efa19dac82cd2c ]
 
-The jc42 driver passes I2C client's name as hwmon device name. In case
-of device tree probed devices this ends up being part of the compatible
-string, "jc-42.4-temp". This name contains hyphens and the hwmon core
-doesn't like this:
+Builds of Fedora's kernel-tools package started to fail with "may be
+used uninitialized" warnings for nl_pid in bpf_set_link_xdp_fd() and
+bpf_get_link_xdp_info() on the s390 architecture.
 
-jc42 2-0018: hwmon: 'jc-42.4-temp' is not a valid name attribute, please fix
+Although libbpf_netlink_open() always returns a negative number when it
+does not set *nl_pid, the compiler does not determine this and thus
+believes the variable might be used uninitialized. Assuage gcc's fears
+by explicitly initializing nl_pid.
 
-This changes the name to "jc42" which doesn't have any illegal
-characters.
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1807781
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20200417092853.31206-1-s.hauer@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Jeremy Cline <jcline@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200404051430.698058-1-jcline@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/jc42.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/netlink.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
-index f2d81b0558e56..e3f1ebee71306 100644
---- a/drivers/hwmon/jc42.c
-+++ b/drivers/hwmon/jc42.c
-@@ -506,7 +506,7 @@ static int jc42_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	}
- 	data->config = config;
+diff --git a/tools/lib/bpf/netlink.c b/tools/lib/bpf/netlink.c
+index ce3ec81b71c01..88416be2bf994 100644
+--- a/tools/lib/bpf/netlink.c
++++ b/tools/lib/bpf/netlink.c
+@@ -137,7 +137,7 @@ int bpf_set_link_xdp_fd(int ifindex, int fd, __u32 flags)
+ 		struct ifinfomsg ifinfo;
+ 		char             attrbuf[64];
+ 	} req;
+-	__u32 nl_pid;
++	__u32 nl_pid = 0;
  
--	hwmon_dev = devm_hwmon_device_register_with_info(dev, client->name,
-+	hwmon_dev = devm_hwmon_device_register_with_info(dev, "jc42",
- 							 data, &jc42_chip_info,
- 							 NULL);
- 	return PTR_ERR_OR_ZERO(hwmon_dev);
+ 	sock = libbpf_netlink_open(&nl_pid);
+ 	if (sock < 0)
+@@ -254,7 +254,7 @@ int bpf_get_link_xdp_id(int ifindex, __u32 *prog_id, __u32 flags)
+ {
+ 	struct xdp_id_md xdp_id = {};
+ 	int sock, ret;
+-	__u32 nl_pid;
++	__u32 nl_pid = 0;
+ 	__u32 mask;
+ 
+ 	if (flags & ~XDP_FLAGS_MASK)
 -- 
 2.20.1
 
