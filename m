@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2647E1B7542
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:32:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A33A91B7541
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbgDXMcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:32:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52448 "EHLO mail.kernel.org"
+        id S1727815AbgDXMcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:32:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727796AbgDXMXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:23:02 -0400
+        id S1727802AbgDXMXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:23:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52F7A2087E;
-        Fri, 24 Apr 2020 12:23:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DBB021582;
+        Fri, 24 Apr 2020 12:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587730982;
-        bh=IUCErDYU5+chUFB9+LblbUcLmt79a5CAIndVF79zzyc=;
+        s=default; t=1587730983;
+        bh=nprC1j+z7yCrfd7kywGe0BwtCDzgQONM+DigRXbQ1G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVikgC0657Ql78XqcS/AYFOJZmBrwAdGlK9pf3f3BHClWX+4b3ksLDUN6Tvaevbj6
-         T8o4J5/kGWcxgmmNbOTBq0XFJQmIqL9+d4aT4Mn9AAnRCtphBMuKV8IR7mkzhYbX81
-         fvTnKRf9z+1rtskeh5bmsdIhyMVmzs3oMS//9SuI=
+        b=YkYoexPTPt/n9Xim1ROwHPUEbIV8ME3uI8vPX0sXdqB40M9dkL0Jzqah5wLWl/Vs6
+         odTUMGn2S74AXG08FqM9913i+abfC2mluvvQ2NA80NDvx0Utr31s6R4Qs/lQQJHIM9
+         t9XPTBZkmUow+T5jUE5TKSDPNPkaV+a3qlkLHShs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Wei Liu <wl@xen.org>,
-        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.6 21/38] xen/xenbus: ensure xenbus_map_ring_valloc() returns proper grant status
-Date:   Fri, 24 Apr 2020 08:22:19 -0400
-Message-Id: <20200424122237.9831-21-sashal@kernel.org>
+Cc:     Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.6 22/38] ALSA: hda: call runtime_allow() for all hda controllers
+Date:   Fri, 24 Apr 2020 08:22:20 -0400
+Message-Id: <20200424122237.9831-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122237.9831-1-sashal@kernel.org>
 References: <20200424122237.9831-1-sashal@kernel.org>
@@ -42,52 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit 6b51fd3f65a22e3d1471b18a1d56247e246edd46 ]
+[ Upstream commit 9a6418487b566503c772cb6e7d3d44e652b019b0 ]
 
-xenbus_map_ring_valloc() maps a ring page and returns the status of the
-used grant (0 meaning success).
+Before the pci_driver->probe() is called, the pci subsystem calls
+runtime_forbid() and runtime_get_sync() on this pci dev, so only call
+runtime_put_autosuspend() is not enough to enable the runtime_pm on
+this device.
 
-There are Xen hypervisors which might return the value 1 for the status
-of a failed grant mapping due to a bug. Some callers of
-xenbus_map_ring_valloc() test for errors by testing the returned status
-to be less than zero, resulting in no error detected and crashing later
-due to a not available ring page.
+For controllers with vgaswitcheroo feature, the pci/quirks.c will call
+runtime_allow() for this dev, then the controllers could enter
+rt_idle/suspend/resume, but for non-vgaswitcheroo controllers like
+Intel hda controllers, the runtime_pm is not enabled because the
+runtime_allow() is not called.
 
-Set the return value of xenbus_map_ring_valloc() to GNTST_general_error
-in case the grant status reported by Xen is greater than zero.
+Since it is no harm calling runtime_allow() twice, here let hda
+driver call runtime_allow() for all controllers. Then the runtime_pm
+is enabled on all controllers after the put_autosuspend() is called.
 
-This is part of XSA-316.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Wei Liu <wl@xen.org>
-Link: https://lore.kernel.org/r/20200326080358.1018-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20200414142725.6020-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xenbus/xenbus_client.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
-index e17ca81561713..a38292ef79f6d 100644
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -448,7 +448,14 @@ EXPORT_SYMBOL_GPL(xenbus_free_evtchn);
- int xenbus_map_ring_valloc(struct xenbus_device *dev, grant_ref_t *gnt_refs,
- 			   unsigned int nr_grefs, void **vaddr)
- {
--	return ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
-+	int err;
-+
-+	err = ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
-+	/* Some hypervisors are buggy and can return 1. */
-+	if (err > 0)
-+		err = GNTST_general_error;
-+
-+	return err;
- }
- EXPORT_SYMBOL_GPL(xenbus_map_ring_valloc);
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 8519051a426e7..a5fab12defde2 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2356,6 +2356,7 @@ static int azx_probe_continue(struct azx *chip)
+ 
+ 	if (azx_has_pm_runtime(chip)) {
+ 		pm_runtime_use_autosuspend(&pci->dev);
++		pm_runtime_allow(&pci->dev);
+ 		pm_runtime_put_autosuspend(&pci->dev);
+ 	}
  
 -- 
 2.20.1
