@@ -2,125 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 623881B728B
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 12:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6381B72A1
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 13:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726582AbgDXK5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 06:57:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37596 "EHLO
+        id S1726813AbgDXLGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 07:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726289AbgDXK5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 06:57:49 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0929C09B045
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 03:57:48 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id k6so9896265iob.3
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 03:57:48 -0700 (PDT)
+        with ESMTP id S1726289AbgDXLGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 07:06:48 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6866C09B045;
+        Fri, 24 Apr 2020 04:06:47 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id v2so3606079plp.9;
+        Fri, 24 Apr 2020 04:06:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=W14NOQNLgCCF+107wQXaNZVar3MGasMy5WRrpNRQT4U=;
-        b=SHw/vTc1MxAyac2wBzilgn8X3tBU6XIE+102l6O4e7B7BIfTusHPr9hBScjrGtLub2
-         cJOMUQwIakcIQc5Q8CTiOu3AlC5eUYOil4W9m7WmkDVGZgnp/lf4rxaOfFm/HqZk4F4K
-         97xruXO4OYg7uRRL3+d6RL5X20Shmy/BUhoKwUatl3636sKODjgpenkZ1BafjdqmveOX
-         v7mk0FMXqh1PL/ImuC2MADjDRO9AhNoQ4b4Bgto4iPXO53jU/m+IWtDpFSeEShRb+ZNS
-         mRFuWT1dJq7POK29Uje1KEm8+xtBUYG6V7AvwuL/srEKkgFk1hL5oA+VZNfSgymahKh6
-         wYrw==
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=PbRSEAf2iP4s0AdgPIwTBI8UU6TRpGo2RmWTv12T7ho=;
+        b=tI7YDPXrk0NS/QGz2+TanWURFuX4q+QSV6t/XrOp2ZC2U9/QeUh/S37qIZB5rnRPjb
+         EDOUQrMldyMGZmpEvRZAtRdBcfXkuWvFwQaQ47ZhC38vly6rGgU24tXvUxcwVBL3fVhD
+         jgKoM5yKiK7AxXYfhCynTlqMrReVId3Hd3CkLTudAJnsqkHi123QRU41/P8Og1OYVRZP
+         DOq0wVZs+qN1GhkAf8wsZKztwnFz/nZdHg17OoVFAnOi3e5a7v6ZuFl6v82WEMy+7edE
+         symx6Qj6IBlV00vGtJ/1sfFIVZH2BxpW4NRYQ0IRFWcny7bNXEq/piEmVY9rqhtAh7dc
+         r7ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=W14NOQNLgCCF+107wQXaNZVar3MGasMy5WRrpNRQT4U=;
-        b=YBLF8ckKeY1udseNQ43ppVQNvZHXLEYEunwBZbWySwPjJ6R4NCIStQFvRs4mjLNMfp
-         /XaNPi6XlcEl1MfLde2XV0Vm1ooZNcbdL1xXRyktjptgjV2PuzWSdFDLfiyizt8HpE67
-         EYYEy2+5RvoXbIgb3Fzj8XjAhj6eu5rdvS4XcBBpNDcrQCCZp3mmx1lUHRrHXkQrVR4j
-         uz0saYXgV46q4zLLodaLvCGrVYgQZPRbn9RRW4G6VwpUa1icWTj7N1uNJcvCRe2QXq46
-         1NmdzqIBvlY8IO8BtYu14Pr7r58Nh0CJzShClKw8ou9q7gzwtZVR0jeps7Vnx+m0aWJU
-         3Vew==
-X-Gm-Message-State: AGi0PubIYqAJeKH93ciC7VI5iYbjhymKGHOwW7Wu2nij0AOXc1ZA2uV1
-        TN1UoDFLecRlDsZC69o/RtmBcQO08LK+1DgVcfA=
-X-Google-Smtp-Source: APiQypLXca/a7phxEASsLYORG01eI9t1phsfw0DunZu0lpR8EHvRoISCb3tenDi3OsgWKQFQE/+Kj/MBHgwsREWxEEw=
-X-Received: by 2002:a02:ccad:: with SMTP id t13mr7861102jap.64.1587725868245;
- Fri, 24 Apr 2020 03:57:48 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200423061629.24185-1-laoar.shao@gmail.com> <20200423153323.GA1318256@chrisdown.name>
- <20200423211319.GC83398@carbon.DHCP.thefacebook.com> <20200424104041.GE11591@dhcp22.suse.cz>
-In-Reply-To: <20200424104041.GE11591@dhcp22.suse.cz>
-From:   Yafang Shao <laoar.shao@gmail.com>
-Date:   Fri, 24 Apr 2020 18:57:10 +0800
-Message-ID: <CALOAHbC8U+SyauQPraUbEf2=Wx1bBtKZKU4N9iscUV+distEkA@mail.gmail.com>
-Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
-To:     Michal Hocko <mhocko@kernel.org>
-Cc:     Roman Gushchin <guro@fb.com>, Chris Down <chris@chrisdown.name>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Linux MM <linux-mm@kvack.org>, stable@vger.kernel.org,
-        Johannes Weiner <hannes@cmpxchg.org>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references;
+        bh=PbRSEAf2iP4s0AdgPIwTBI8UU6TRpGo2RmWTv12T7ho=;
+        b=joM7wF+gab8IyuzMD069Vp/wBCGqdCZPc0buVp8JeLJf8+H5gdwISRd5GAPhrdC4WP
+         AqmhBzLlN7Qqhdd5T06lVtg/i5lD+PSGl6nl6JHlXJEEboKYZpeb0akstE0LqwUymMKV
+         o/uKzdyTwGH7d4LrFp2MqqpqOhztzzjX1LapFxJUH+8WW8ySKg92QRNP7AmM0pzrInrS
+         MiFAXEytjbYDhjzK8rhgH7kiYvR3w/NdKviGsFcBh7Ggvt9Q0o0bDzQ9lej1DdgHPQuA
+         XET+ufZLIoh4QwjU0x548nEhAbUVOk320jlJpoieX5XRtpvw+CKEdZ+5FC6TliVMRJeN
+         v2FQ==
+X-Gm-Message-State: AGi0PuZQ+eFik7zn+z157J55BxXHVRDXUuhy8yMfHVUNnqUdZj9fmPj/
+        Svbus/1PIBEIfWe4oPlD2hUrncuzmAo=
+X-Google-Smtp-Source: APiQypIeKfPUIaMdSUZT4R8efpeU1guWS/zOvrO3qTYIBnTd+jwlffLhauGQ3JW+CjQgTc5B1I6nSQ==
+X-Received: by 2002:a17:90a:270d:: with SMTP id o13mr5612686pje.34.1587726407471;
+        Fri, 24 Apr 2020 04:06:47 -0700 (PDT)
+Received: from software.domain.org (28.144.92.34.bc.googleusercontent.com. [34.92.144.28])
+        by smtp.gmail.com with ESMTPSA id y10sm5470110pfb.53.2020.04.24.04.06.44
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 24 Apr 2020 04:06:46 -0700 (PDT)
+From:   Huacai Chen <chenhc@lemote.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     kvm@vger.kernel.org, linux-mips@vger.kernel.org,
+        Fuxin Zhang <zhangfx@lemote.com>,
+        Huacai Chen <chenhuacai@gmail.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Xing Li <lixing@loongson.cn>, stable@vger.kernel.org,
+        Huacai Chen <chenhc@lemote.com>
+Subject: [PATCH V2 01/14] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
+Date:   Fri, 24 Apr 2020 19:15:20 +0800
+Message-Id: <1587726933-31757-2-git-send-email-chenhc@lemote.com>
+X-Mailer: git-send-email 2.7.0
+In-Reply-To: <1587726933-31757-1-git-send-email-chenhc@lemote.com>
+References: <1587726933-31757-1-git-send-email-chenhc@lemote.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 24, 2020 at 6:40 PM Michal Hocko <mhocko@kernel.org> wrote:
->
-> On Thu 23-04-20 14:13:19, Roman Gushchin wrote:
-> > On Thu, Apr 23, 2020 at 04:33:23PM +0100, Chris Down wrote:
-> > > Hi Yafang,
-> > >
-> > > I'm afraid I'm just as confused as Michal was about the intent of this patch.
-> > >
-> > > Can you please be more concise and clear about the practical ramifications
-> > > and demonstrate some pathological behaviour? I really can't visualise what's
-> > > wrong here from your explanation, and if I can't understand it as the person
-> > > who wrote this code, I am not surprised others are also confused :-)
-> > >
-> > > Or maybe Roman can try to explain, since he acked the previous patch? At
-> > > least to me, the emin/elow behaviour seems fairly non-trivial to reason
-> > > about right now.
-> >
-> > Hi Chris!
-> >
-> > So the thing is that emin/elow cached values are shared between global and
-> > targeted (caused by memory.max) reclaim. It's racy by design, but in general
-> > it should work ok, because in the end we'll reclaim or not approximately
-> > the same amount of memory.
-> >
-> > In the case which Yafang described, the emin value calculated in the process
-> > of the global reclaim leads to a slowdown of the targeted reclaim. It's not
-> > a tragedy, but not perfect too. It seems that the proposed patch makes it better,
-> > and as now I don't see any bad consequences.
->
-> Do we have any means to quantify the effect?
->
-> I do understand the racy nature of the effective protection values. We
-> do update them in mem_cgroup_protected and that handles the
-> reclaim_target == memcg case already. So why do we care later on in
-> mem_cgroup_protection? And why don't we care about any other concurrent
-> reclaimers which have a different reclaim memcg target? This just
-> doesn't make any sense.
->
+From: Xing Li <lixing@loongson.cn>
 
-No, you missed the point.
-The issue pointed by me isn't related with racy.  Roman also explained
-that the racy is not the point.
+The code in decode_config4() of arch/mips/kernel/cpu-probe.c
 
-> Either we do care about races because they are harmful and then we care
-> for all possible case or we don't and this patch doesn't really any big
-> value. Or I still miss the point.
->
+        asid_mask = MIPS_ENTRYHI_ASID;
+        if (config4 & MIPS_CONF4_AE)
+                asid_mask |= MIPS_ENTRYHI_ASIDX;
+        set_cpu_asid_mask(c, asid_mask);
 
-The real point is memcg relcaim will get a wrong value from
-mem_cgroup_protection() after memory.emin is set.
-Suppose target memcg has memory.current is 2G and memory.min is 2G, in
-memcg reclaim, the scan count will be
-(SWAP_CLUSTER_MAX>>sc->priority), rather than (lruvec_size >>
-sc->priority). That's a slowdown, and that's explained by Roman as
-well.
+set asid_mask to cpuinfo->asid_mask.
 
+So in order to support variable ASID_MASK, KVM_ENTRYHI_ASID should also
+be changed to cpu_asid_mask(&boot_cpu_data).
 
+Cc: stable@vger.kernel.org
+Signed-off-by: Xing Li <lixing@loongson.cn>
+[Huacai: Change current_cpu_data to boot_cpu_data for optimization]
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+---
+ arch/mips/include/asm/kvm_host.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
+index 2c343c3..a01cee9 100644
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -275,7 +275,7 @@ enum emulation_result {
+ #define MIPS3_PG_FRAME		0x3fffffc0
+ 
+ #define VPN2_MASK		0xffffe000
+-#define KVM_ENTRYHI_ASID	MIPS_ENTRYHI_ASID
++#define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
+ #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
+ #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
+ #define TLB_ASID(x)		((x).tlb_hi & KVM_ENTRYHI_ASID)
 -- 
-Thanks
-Yafang
+2.7.0
+
