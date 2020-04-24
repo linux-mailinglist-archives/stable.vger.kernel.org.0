@@ -2,67 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1C171B7BCE
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 18:39:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 623DA1B7BD2
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 18:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728160AbgDXQjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 12:39:21 -0400
-Received: from foss.arm.com ([217.140.110.172]:39550 "EHLO foss.arm.com"
+        id S1727123AbgDXQjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 12:39:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726793AbgDXQjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 12:39:21 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id ADA21C14;
-        Fri, 24 Apr 2020 09:39:20 -0700 (PDT)
-Received: from melchizedek.cambridge.arm.com (melchizedek.cambridge.arm.com [10.1.196.50])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3FB533F68F;
-        Fri, 24 Apr 2020 09:39:20 -0700 (PDT)
-From:   James Morse <james.morse@arm.com>
-To:     stable@vger.kernel.org
-Cc:     linux-arm-kernel@lists.infradead.org
-Subject: [stable:PATCH 5/5 v4.19] arm64: Silence clang warning on mismatched value/register sizes
-Date:   Fri, 24 Apr 2020 17:38:45 +0100
-Message-Id: <20200424163845.4141-6-james.morse@arm.com>
-X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20200424163845.4141-1-james.morse@arm.com>
-References: <20200424163845.4141-1-james.morse@arm.com>
+        id S1726849AbgDXQjc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 12:39:32 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAEDC206D7;
+        Fri, 24 Apr 2020 16:39:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587746372;
+        bh=Zm7dE+egm6mY1mef4VDy/g3oTfP8PcrMnqQJ+X3oefI=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=gV/mlfDyPJ2grOqLXzl3sRXK34i4OLnHwiclZroAiuklBH2Uo+fvzQJ9C/a6xJeN+
+         b2qINdmHEkIb+qRaLj5SFCq/6MM9T0C3tyOxYNKkw+kB0ALRUNwU/hyx+TJX+6Q2pb
+         +jeWDBwkr8kDa6d6Eqz6HkjOwyv0yej12Ywc3PGs=
+Subject: Re: [PATCH 4.19 00/64] 4.19.118-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200422095008.799686511@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <05d9558b-622b-930b-72d3-1b14e88d80ec@kernel.org>
+Date:   Fri, 24 Apr 2020 10:39:31 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200422095008.799686511@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+On 4/22/20 3:56 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.118 release.
+> There are 64 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 24 Apr 2020 09:48:23 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.118-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-[ Upstream commit: 27a22fbdeedd6c5c451cf5f830d51782bf50c3a2 ]
+Compiled and booted on my test system. No dmesg regressions.
 
-Clang reports a warning on the __tlbi(aside1is, 0) macro expansion since
-the value size does not match the register size specified in the inline
-asm. Construct the ASID value using the __TLBI_VADDR() macro.
-
-Fixes: 222fc0c8503d ("arm64: compat: Workaround Neoverse-N1 #1542419 for compat user-space")
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: James Morse <james.morse@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
----
- arch/arm64/kernel/sys_compat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm64/kernel/sys_compat.c b/arch/arm64/kernel/sys_compat.c
-index 5a9b220aef6c..3ef9d0a3ac1d 100644
---- a/arch/arm64/kernel/sys_compat.c
-+++ b/arch/arm64/kernel/sys_compat.c
-@@ -48,7 +48,7 @@ __do_compat_cache_op(unsigned long start, unsigned long end)
- 			 * The workaround requires an inner-shareable tlbi.
- 			 * We pick the reserved-ASID to minimise the impact.
- 			 */
--			__tlbi(aside1is, 0);
-+			__tlbi(aside1is, __TLBI_VADDR(0, 0));
- 			dsb(ish);
- 		}
- 
--- 
-2.26.1
+thanks,
+-- Shuah
 
