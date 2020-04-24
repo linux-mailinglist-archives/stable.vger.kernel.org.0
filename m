@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61D5A1B74F4
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 876941B7401
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728122AbgDXM35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:29:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53926 "EHLO mail.kernel.org"
+        id S1728157AbgDXMXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728138AbgDXMXr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:23:47 -0400
+        id S1728153AbgDXMXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:23:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A04121707;
-        Fri, 24 Apr 2020 12:23:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F6F220706;
+        Fri, 24 Apr 2020 12:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731027;
-        bh=t6QrlUuqm7H12f/LEkP2lMqOz6UI8P+PkX2WkGbdVLQ=;
+        s=default; t=1587731028;
+        bh=Hs8s9eHC6FrR8kVw+W14GPnW2VfpOKl6QsOnOLWjeE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdOFQzMTy4FHrXKiiqVN29MZ1KijNz87++Y4O795DOCgKKErcwdXvRUQLEdi41dsC
-         hGOE+MiDKOwh9uPkIq+7zyRg8sfRnmqgiSrHBcOp+tUh5asV+Pm/B0je1YEfMlyhyG
-         X96i6ShgGOeDfjSI8Y8xBq9jmZW1Qae7K0/dpYn4=
+        b=m/YrB3Rl3V+wlQUT5tRJ8NpTtOgSLqL3bjFa+hrtwERiK7mniW8o5G8rWDGMNSC9A
+         4eLNaWqtVhobB4Mz4LUhkfwXi1LQu6kBZHWRpbglgCS6tJi1BPtdypRwI+MuN0LbBW
+         TJ8tmqC9q55S4A1MPdv5dxKNLy09NVBmY7NtOwN8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tamizh chelvam <tamizhr@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+Cc:     Fangrui Song <maskray@google.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 20/26] mac80211: fix channel switch trigger from unknown mesh peer
-Date:   Fri, 24 Apr 2020 08:23:17 -0400
-Message-Id: <20200424122323.10194-20-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.4 21/26] arm64: Delete the space separator in __emit_inst
+Date:   Fri, 24 Apr 2020 08:23:18 -0400
+Message-Id: <20200424122323.10194-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122323.10194-1-sashal@kernel.org>
 References: <20200424122323.10194-1-sashal@kernel.org>
@@ -44,59 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tamizh chelvam <tamizhr@codeaurora.org>
+From: Fangrui Song <maskray@google.com>
 
-[ Upstream commit 93e2d04a1888668183f3fb48666e90b9b31d29e6 ]
+[ Upstream commit c9a4ef66450145a356a626c833d3d7b1668b3ded ]
 
-Previously mesh channel switch happens if beacon contains
-CSA IE without checking the mesh peer info. Due to that
-channel switch happens even if the beacon is not from
-its own mesh peer. Fixing that by checking if the CSA
-originated from the same mesh network before proceeding
-for channel switch.
+In assembly, many instances of __emit_inst(x) expand to a directive. In
+a few places __emit_inst(x) is used as an assembler macro argument. For
+example, in arch/arm64/kvm/hyp/entry.S
 
-Signed-off-by: Tamizh chelvam <tamizhr@codeaurora.org>
-Link: https://lore.kernel.org/r/1585403604-29274-1-git-send-email-tamizhr@codeaurora.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+  ALTERNATIVE(nop, SET_PSTATE_PAN(1), ARM64_HAS_PAN, CONFIG_ARM64_PAN)
+
+expands to the following by the C preprocessor:
+
+  alternative_insn nop, .inst (0xd500401f | ((0) << 16 | (4) << 5) | ((!!1) << 8)), 4, 1
+
+Both comma and space are separators, with an exception that content
+inside a pair of parentheses/quotes is not split, so the clang
+integrated assembler splits the arguments to:
+
+   nop, .inst, (0xd500401f | ((0) << 16 | (4) << 5) | ((!!1) << 8)), 4, 1
+
+GNU as preprocesses the input with do_scrub_chars(). Its arm64 backend
+(along with many other non-x86 backends) sees:
+
+  alternative_insn nop,.inst(0xd500401f|((0)<<16|(4)<<5)|((!!1)<<8)),4,1
+  # .inst(...) is parsed as one argument
+
+while its x86 backend sees:
+
+  alternative_insn nop,.inst (0xd500401f|((0)<<16|(4)<<5)|((!!1)<<8)),4,1
+  # The extra space before '(' makes the whole .inst (...) parsed as two arguments
+
+The non-x86 backend's behavior is considered unintentional
+(https://sourceware.org/bugzilla/show_bug.cgi?id=25750).
+So drop the space separator inside `.inst (...)` to make the clang
+integrated assembler work.
+
+Suggested-by: Ilie Halip <ilie.halip@gmail.com>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/939
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/sysreg.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/mesh.c b/net/mac80211/mesh.c
-index d09b3c789314d..36978a0e50001 100644
---- a/net/mac80211/mesh.c
-+++ b/net/mac80211/mesh.c
-@@ -1257,15 +1257,15 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
- 		    sdata->u.mesh.mshcfg.rssi_threshold < rx_status->signal)
- 			mesh_neighbour_update(sdata, mgmt->sa, &elems,
- 					      rx_status);
-+
-+		if (ifmsh->csa_role != IEEE80211_MESH_CSA_ROLE_INIT &&
-+		    !sdata->vif.csa_active)
-+			ieee80211_mesh_process_chnswitch(sdata, &elems, true);
- 	}
+diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+index 6e919fafb43dd..9b68f1b3915ec 100644
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -49,7 +49,9 @@
+ #ifndef CONFIG_BROKEN_GAS_INST
  
- 	if (ifmsh->sync_ops)
- 		ifmsh->sync_ops->rx_bcn_presp(sdata,
- 			stype, mgmt, &elems, rx_status);
--
--	if (ifmsh->csa_role != IEEE80211_MESH_CSA_ROLE_INIT &&
--	    !sdata->vif.csa_active)
--		ieee80211_mesh_process_chnswitch(sdata, &elems, true);
- }
- 
- int ieee80211_mesh_finish_csa(struct ieee80211_sub_if_data *sdata)
-@@ -1373,6 +1373,9 @@ static void mesh_rx_csa_frame(struct ieee80211_sub_if_data *sdata,
- 	ieee802_11_parse_elems(pos, len - baselen, true, &elems,
- 			       mgmt->bssid, NULL);
- 
-+	if (!mesh_matches_local(sdata, &elems))
-+		return;
-+
- 	ifmsh->chsw_ttl = elems.mesh_chansw_params_ie->mesh_ttl;
- 	if (!--ifmsh->chsw_ttl)
- 		fwd_csa = false;
+ #ifdef __ASSEMBLY__
+-#define __emit_inst(x)			.inst (x)
++// The space separator is omitted so that __emit_inst(x) can be parsed as
++// either an assembler directive or an assembler macro argument.
++#define __emit_inst(x)			.inst(x)
+ #else
+ #define __emit_inst(x)			".inst " __stringify((x)) "\n\t"
+ #endif
 -- 
 2.20.1
 
