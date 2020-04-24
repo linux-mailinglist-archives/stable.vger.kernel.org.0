@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6695D1B74AB
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:28:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7851B74A5
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727891AbgDXM2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:28:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
+        id S1728420AbgDXMY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:24:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728397AbgDXMYY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:24:24 -0400
+        id S1728411AbgDXMY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:24:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 821C720767;
-        Fri, 24 Apr 2020 12:24:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91BD72168B;
+        Fri, 24 Apr 2020 12:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731064;
-        bh=lxhfnXgYcVRlg5qg2dJlQ3P4jRcUUBgKbYQnuRpQ6iE=;
+        s=default; t=1587731066;
+        bh=O2TyYFxh3MUYpgMEMCMs5+7mz4YEVwlq/xM/fCquLs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqnFgkRF5BRhHnekQYcawfVe2SqS9IxVV2d2J/F5nM5uN8qszkKyU6CN79XUHvyRf
-         7CdTQ5vhX441O/8ZqLV3+RVD+kzr79rKcuWpZpePJ4UOGUOXZ1vAVSGoLClZjSHeuc
-         LTLxIjI3cCaOnN2SoOAdwuhNueKa7dW39sXA2j98=
+        b=RuQoynFwHbNXdDkR7N63Gmtgt6RuoYa7cinfg4iIimC6gqIwlnN7BMCB5aVin9VVv
+         0ISqU8HOlhDBa37t45SXMZYfVnZ2NSMvmjhWf1MtsyHEAXVQPviNU2nlap1tFLGSd3
+         XlVf3fH3h/nPOED55B8ikM2tCWJFdExKBDnfwHyw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Roy Spliet <nouveau@spliet.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 04/21] ALSA: hda: Keep the controller initialization even if no codecs found
-Date:   Fri, 24 Apr 2020 08:24:02 -0400
-Message-Id: <20200424122419.10648-4-sashal@kernel.org>
+Cc:     Bodo Stroesser <bstroesser@ts.fujitsu.com>,
+        Mike Christie <mchristi@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 05/21] scsi: target: fix PR IN / READ FULL STATUS for FC
+Date:   Fri, 24 Apr 2020 08:24:03 -0400
+Message-Id: <20200424122419.10648-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122419.10648-1-sashal@kernel.org>
 References: <20200424122419.10648-1-sashal@kernel.org>
@@ -42,69 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
 
-[ Upstream commit 9479e75fca370a5220784f7596bf598c4dad0b9b ]
+[ Upstream commit 8fed04eb79a74cbf471dfaa755900a51b37273ab ]
 
-Currently, when the HD-audio controller driver doesn't detect any
-codecs, it tries to abort the probe.  But this abort happens at the
-delayed probe, i.e. the primary probe call already returned success,
-hence the driver is never unbound until user does so explicitly.
-As a result, it may leave the HD-audio device in the running state
-without the runtime PM.  More badly, if the device is a HD-audio bus
-that is tied with a GPU, GPU cannot reach to the full power down and
-consumes unnecessarily much power.
+Creation of the response to READ FULL STATUS fails for FC based
+reservations. Reason is the too high loop limit (< 24) in
+fc_get_pr_transport_id(). The string representation of FC WWPN is 23 chars
+long only ("11:22:33:44:55:66:77:88"). So when i is 23, the loop body is
+executed a last time for the ending '\0' of the string and thus hex2bin()
+reports an error.
 
-This patch changes the logic after no-codec situation; it continues
-probing without the further codec initialization but keep the
-controller driver running normally.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
-Tested-by: Roy Spliet <nouveau@spliet.org>
-Link: https://lore.kernel.org/r/20200413082034.25166-5-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20200408132610.14623-3-bstroesser@ts.fujitsu.com
+Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+Reviewed-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/target/target_core_fabric_lib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index a868a88bc2897..9a8f5164d88e5 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2012,7 +2012,7 @@ static int azx_first_init(struct azx *chip)
- 	/* codec detection */
- 	if (!azx_bus(chip)->codec_mask) {
- 		dev_err(card->dev, "no codecs found!\n");
--		return -ENODEV;
-+		/* keep running the rest for the runtime PM */
- 	}
- 
- 	if (azx_acquire_irq(chip, 0) < 0)
-@@ -2340,9 +2340,11 @@ static int azx_probe_continue(struct azx *chip)
- #endif
- 
- 	/* create codec instances */
--	err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
--	if (err < 0)
--		goto out_free;
-+	if (bus->codec_mask) {
-+		err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
-+		if (err < 0)
-+			goto out_free;
-+	}
- 
- #ifdef CONFIG_SND_HDA_PATCH_LOADER
- 	if (chip->fw) {
-@@ -2356,7 +2358,7 @@ static int azx_probe_continue(struct azx *chip)
- #endif
- 	}
- #endif
--	if ((probe_only[dev] & 1) == 0) {
-+	if (bus->codec_mask && !(probe_only[dev] & 1)) {
- 		err = azx_codec_configure(chip);
- 		if (err < 0)
- 			goto out_free;
+diff --git a/drivers/target/target_core_fabric_lib.c b/drivers/target/target_core_fabric_lib.c
+index 95aa47ac4dcd2..f8621fe673767 100644
+--- a/drivers/target/target_core_fabric_lib.c
++++ b/drivers/target/target_core_fabric_lib.c
+@@ -76,7 +76,7 @@ static int fc_get_pr_transport_id(
+ 	 * encoded TransportID.
+ 	 */
+ 	ptr = &se_nacl->initiatorname[0];
+-	for (i = 0; i < 24; ) {
++	for (i = 0; i < 23; ) {
+ 		if (!strncmp(&ptr[i], ":", 1)) {
+ 			i++;
+ 			continue;
 -- 
 2.20.1
 
