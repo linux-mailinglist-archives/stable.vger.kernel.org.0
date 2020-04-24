@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 771CF1B74EE
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA6BF1B740F
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:24:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726717AbgDXM3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:29:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54082 "EHLO mail.kernel.org"
+        id S1728206AbgDXMXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:23:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728184AbgDXMXw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:23:52 -0400
+        id S1728190AbgDXMXy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:23:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAF712168B;
-        Fri, 24 Apr 2020 12:23:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E760820706;
+        Fri, 24 Apr 2020 12:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731032;
-        bh=FNO5HnRA8S9+d8oyUQAZzI9nV37VP+FJrNUT5nn94nw=;
+        s=default; t=1587731033;
+        bh=PtDDryNXCt/9ihdYD2ZXT+uVLrhInNakO1Houm02HMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KTG41VHIpNJ0mBIKdiKWfQO8oZJBGRxzZCh2uFeUt5XdjsgGIeZEO3trEtm8rpHIX
-         3OF0lW8ypUOd/ok+Z1a7rTIkgkzxsbAoJSc2XotRE312rUYHjowQhMn1hwa4UAvGjb
-         QrkkuIN3xyOCsnj+nvIKEalGcugaIi3A/bTqANzM=
+        b=ze+jnc3sIU0XgPHPoBdXPizwyYz67A1Fz1jz/d5DGaGqVXD6ZYlytEicbuH93Dvl2
+         w8+w5/XgW9ZDVJtBSX3NhJ4qs/+l7HHrqvKD5FBbAIhNhEaMfCVV+P/og2VMGMVjfl
+         MPZ4blyeQuy9VA3J2znI9IM9F+nSmV4ALomlb74E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 25/26] blk-mq: Put driver tag in blk_mq_dispatch_rq_list() when no budget
-Date:   Fri, 24 Apr 2020 08:23:22 -0400
-Message-Id: <20200424122323.10194-25-sashal@kernel.org>
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 26/26] hwmon: (jc42) Fix name to have no illegal characters
+Date:   Fri, 24 Apr 2020 08:23:23 -0400
+Message-Id: <20200424122323.10194-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122323.10194-1-sashal@kernel.org>
 References: <20200424122323.10194-1-sashal@kernel.org>
@@ -43,40 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 5fe56de799ad03e92d794c7936bf363922b571df ]
+[ Upstream commit c843b382e61b5f28a3d917712c69a344f632387c ]
 
-If in blk_mq_dispatch_rq_list() we find no budget, then we break of the
-dispatch loop, but the request may keep the driver tag, evaulated
-in 'nxt' in the previous loop iteration.
+The jc42 driver passes I2C client's name as hwmon device name. In case
+of device tree probed devices this ends up being part of the compatible
+string, "jc-42.4-temp". This name contains hyphens and the hwmon core
+doesn't like this:
 
-Fix by putting the driver tag for that request.
+jc42 2-0018: hwmon: 'jc-42.4-temp' is not a valid name attribute, please fix
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This changes the name to "jc42" which doesn't have any illegal
+characters.
+
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Link: https://lore.kernel.org/r/20200417092853.31206-1-s.hauer@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/hwmon/jc42.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index a8c1a45cedde0..757c0fd9f0cc2 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1232,8 +1232,10 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
- 		rq = list_first_entry(list, struct request, queuelist);
+diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
+index f2d81b0558e56..e3f1ebee71306 100644
+--- a/drivers/hwmon/jc42.c
++++ b/drivers/hwmon/jc42.c
+@@ -506,7 +506,7 @@ static int jc42_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	}
+ 	data->config = config;
  
- 		hctx = rq->mq_hctx;
--		if (!got_budget && !blk_mq_get_dispatch_budget(hctx))
-+		if (!got_budget && !blk_mq_get_dispatch_budget(hctx)) {
-+			blk_mq_put_driver_tag(rq);
- 			break;
-+		}
- 
- 		if (!blk_mq_get_driver_tag(rq)) {
- 			/*
+-	hwmon_dev = devm_hwmon_device_register_with_info(dev, client->name,
++	hwmon_dev = devm_hwmon_device_register_with_info(dev, "jc42",
+ 							 data, &jc42_chip_info,
+ 							 NULL);
+ 	return PTR_ERR_OR_ZERO(hwmon_dev);
 -- 
 2.20.1
 
