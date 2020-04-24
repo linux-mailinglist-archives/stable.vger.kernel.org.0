@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6FAB1B745D
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:26:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1007B1B7460
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:26:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728583AbgDXMY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:24:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55936 "EHLO mail.kernel.org"
+        id S1728589AbgDXMY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:24:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727056AbgDXMY4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:24:56 -0400
+        id S1728584AbgDXMY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:24:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0629620776;
-        Fri, 24 Apr 2020 12:24:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4864E216FD;
+        Fri, 24 Apr 2020 12:24:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731095;
-        bh=qEu0WFBLwwFGr/j4YzQwcJbCKPVRRW4ytCD4XaDu31s=;
+        s=default; t=1587731097;
+        bh=P6COJXlg+XrogRLwKkmQLM6lAh9swg2P6Cnpjkt0cPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCmT4qsVBxkSWei6tTRMpSAbJo6PcXAAcz3SJxLwFvjnst0z2Wxd4GG1n4SasXXLz
-         Wpr43a7boDZRtwTzuYNf6noxejy6Bt8/aM3BR5hvAM8rohOyv/H2AZowod4MXIQ1FB
-         PcRBTPwjUttmU15/ik+7VzYjD5DfbSz0PTJ4q5nA=
+        b=oNmURlFZVYhhprVeLVe7MRd4GgnBjVdCR8p9aO5dK4cuGVyQN1cOJii2JbrFlNrK6
+         P+1wIEuJ0rwxfiObkuhXl5CYlqbDznahmQRZKHDMyGIJrEN2pusf2BRHwooIyWeimJ
+         o+vjPy+9oD7IVbZw1M24fy/T4vq2kY9t7ltheob4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@suse.de>,
         Miroslav Benes <mbenes@suse.cz>,
         Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.9 07/13] objtool: Support Clang non-section symbols in ORC dump
-Date:   Fri, 24 Apr 2020 08:24:40 -0400
-Message-Id: <20200424122447.10882-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 08/13] objtool: Fix switch table detection in .text.unlikely
+Date:   Fri, 24 Apr 2020 08:24:41 -0400
+Message-Id: <20200424122447.10882-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122447.10882-1-sashal@kernel.org>
 References: <20200424122447.10882-1-sashal@kernel.org>
@@ -47,107 +46,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 8782e7cab51b6bf01a5a86471dd82228af1ac185 ]
+[ Upstream commit b401efc120a399dfda1f4d2858a4de365c9b08ef ]
 
-Historically, the relocation symbols for ORC entries have only been
-section symbols:
+If a switch jump table's indirect branch is in a ".cold" subfunction in
+.text.unlikely, objtool doesn't detect it, and instead prints a false
+warning:
 
-  .text+0: sp:sp+8 bp:(und) type:call end:0
+  drivers/media/v4l2-core/v4l2-ioctl.o: warning: objtool: v4l_print_format.cold()+0xd6: sibling call from callable instruction with modified stack frame
+  drivers/hwmon/max6650.o: warning: objtool: max6650_probe.cold()+0xa5: sibling call from callable instruction with modified stack frame
+  drivers/media/dvb-frontends/drxk_hard.o: warning: objtool: init_drxk.cold()+0x16f: sibling call from callable instruction with modified stack frame
 
-However, the Clang assembler is aggressive about stripping section
-symbols.  In that case we will need to use function symbols:
+Fix it by comparing the function, instead of the section and offset.
 
-  freezing_slow_path+0: sp:sp+8 bp:(und) type:call end:0
-
-In preparation for the generation of such entries in "objtool orc
-generate", add support for reading them in "objtool orc dump".
-
+Fixes: 13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Miroslav Benes <mbenes@suse.cz>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/b811b5eb1a42602c3b523576dc5efab9ad1c174d.1585761021.git.jpoimboe@redhat.com
+Link: https://lkml.kernel.org/r/157c35d42ca9b6354bbb1604fe9ad7d1153ccb21.1585761021.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/orc_dump.c | 44 ++++++++++++++++++++++++----------------
- 1 file changed, 27 insertions(+), 17 deletions(-)
+ tools/objtool/check.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/tools/objtool/orc_dump.c b/tools/objtool/orc_dump.c
-index c3343820916a6..7cbbbdd932f1d 100644
---- a/tools/objtool/orc_dump.c
-+++ b/tools/objtool/orc_dump.c
-@@ -78,7 +78,7 @@ int orc_dump(const char *_objname)
- 	char *name;
- 	size_t nr_sections;
- 	Elf64_Addr orc_ip_addr = 0;
--	size_t shstrtab_idx;
-+	size_t shstrtab_idx, strtab_idx = 0;
- 	Elf *elf;
- 	Elf_Scn *scn;
- 	GElf_Shdr sh;
-@@ -139,6 +139,8 @@ int orc_dump(const char *_objname)
- 
- 		if (!strcmp(name, ".symtab")) {
- 			symtab = data;
-+		} else if (!strcmp(name, ".strtab")) {
-+			strtab_idx = i;
- 		} else if (!strcmp(name, ".orc_unwind")) {
- 			orc = data->d_buf;
- 			orc_size = sh.sh_size;
-@@ -150,7 +152,7 @@ int orc_dump(const char *_objname)
- 		}
- 	}
- 
--	if (!symtab || !orc || !orc_ip)
-+	if (!symtab || !strtab_idx || !orc || !orc_ip)
- 		return 0;
- 
- 	if (orc_size % sizeof(*orc) != 0) {
-@@ -171,21 +173,29 @@ int orc_dump(const char *_objname)
- 				return -1;
- 			}
- 
--			scn = elf_getscn(elf, sym.st_shndx);
--			if (!scn) {
--				WARN_ELF("elf_getscn");
--				return -1;
--			}
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index a4b157dc1c45e..360845926f665 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -914,10 +914,7 @@ static struct rela *find_switch_table(struct objtool_file *file,
+ 	 * it.
+ 	 */
+ 	for (;
+-	     &insn->list != &file->insn_list &&
+-	     insn->sec == func->sec &&
+-	     insn->offset >= func->offset;
 -
--			if (!gelf_getshdr(scn, &sh)) {
--				WARN_ELF("gelf_getshdr");
--				return -1;
--			}
--
--			name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
--			if (!name || !*name) {
--				WARN_ELF("elf_strptr");
--				return -1;
-+			if (GELF_ST_TYPE(sym.st_info) == STT_SECTION) {
-+				scn = elf_getscn(elf, sym.st_shndx);
-+				if (!scn) {
-+					WARN_ELF("elf_getscn");
-+					return -1;
-+				}
-+
-+				if (!gelf_getshdr(scn, &sh)) {
-+					WARN_ELF("gelf_getshdr");
-+					return -1;
-+				}
-+
-+				name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
-+			} else {
-+				name = elf_strptr(elf, strtab_idx, sym.st_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
- 			}
++	     &insn->list != &file->insn_list && insn->func && insn->func->pfunc == func;
+ 	     insn = insn->first_jump_src ?: list_prev_entry(insn, list)) {
  
- 			printf("%s+%llx:", name, (unsigned long long)rela.r_addend);
+ 		if (insn != orig_insn && insn->type == INSN_JUMP_DYNAMIC)
 -- 
 2.20.1
 
