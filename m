@@ -2,158 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D8831B7B1F
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 18:09:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 607531B7B54
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 18:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727123AbgDXQJT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 12:09:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58236 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727049AbgDXQJS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 12:09:18 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFDECC09B046
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 09:09:18 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id r2so9760788ilo.6
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 09:09:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=UsWMYKkrDkOQbtsHGozhmdLBVJ2HR7o3td5AsSj8Ooo=;
-        b=hVx5ME2cl3wqVtYwDU7hc9fb8HnT8Ghl1gSJgIavqHYnGV4dJT88CW3TOv9rANUe82
-         9/nZ3fVzXM8fZMBa735q+1TJfoQSSmBg+ozuN8B03UUHShVK/Q/VgJNG1vN+0MgPR76a
-         h1fSAFukJXC0QgNe1iTWqO+WXc4Rmx/ichTjHUJqJFX0vvrn17hu7KQgwgdkSuBlCki7
-         tAPfHxzZDx5ILTEfpwXFNXMhOb8bUC3Hm40vTvWOIip/8h9oeKHjQOwvt6Gs9O4no+yg
-         xq/MGoKIQZmkW/VkU1n3RAM/kkE6H+SHE9lnwXTjw7JCd5uBh+s5wKuHCupUF2xUQYLF
-         rhtA==
+        id S1727123AbgDXQVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 12:21:09 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:35541 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727031AbgDXQVJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 12:21:09 -0400
+Received: by mail-wr1-f68.google.com with SMTP id x18so11571968wrq.2
+        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 09:21:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=UsWMYKkrDkOQbtsHGozhmdLBVJ2HR7o3td5AsSj8Ooo=;
-        b=S4TxBloP48tZiU+05h2Yp77Xi5XAK9s4VL+l6ZbNXJcttSnXIneC/Z6Fdw1IKSJvmY
-         te6wDN0xH1FvcQhvgc6+lLT6Yfhyx4coBWvTgp3HAzIQolFPLKPNSMu2E7mMAGKR7KMg
-         fc9Xz9c3HqvEFgrBiVN5rJ8nmA9hDAkFOJvZ1Fehp+6bXjsDSnXuU3dyrH6oGse3N0ki
-         DmEofY2KJa0aylrVgq5b0vCmBp5Lof6EzQlQa4VhlTAZ0u56lbN4XHisnaY4yZixcg1a
-         EA2yZ7ghWHvqtwb84D7E1UOPTlssiMRpnWDK9IjbHvqeL70SxiAUvJyBl9NO5cQisvZe
-         hLQQ==
-X-Gm-Message-State: AGi0PuZHn/zCTJ02+aWhbiZJXvE0Jz+TXNKHGdOvrsMvmVpuThrpcrlD
-        Ss52EzAcFviM2MFZeQnm2HSm5PVEeJAB2+QOkPI=
-X-Google-Smtp-Source: APiQypIeTxVmg6JO2iVMzmoVMcLH7YmiNH/ZlHttKBpbcrvkFqm1c7j+GsdDnw3m+h7ip3zo8h3tc/71AB81cjK0yDw=
-X-Received: by 2002:a92:5c57:: with SMTP id q84mr9568753ilb.203.1587744557899;
- Fri, 24 Apr 2020 09:09:17 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200423061629.24185-1-laoar.shao@gmail.com> <20200424131450.GA495720@cmpxchg.org>
- <20200424134438.GA496852@cmpxchg.org>
-In-Reply-To: <20200424134438.GA496852@cmpxchg.org>
-From:   Yafang Shao <laoar.shao@gmail.com>
-Date:   Sat, 25 Apr 2020 00:08:41 +0800
-Message-ID: <CALOAHbCAH4ZPziC72zZgokZKiz4GWd+6XcZt4tjyLCJm0DvPNQ@mail.gmail.com>
-Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=q0pJPiNahulzXjepW4Fsah9pOIeUNBqbsHnVMKibHTw=;
+        b=FIxP63nANrrlqlvuduBTbJtIn/jDM8qtlDXjz26NhGuNw35+PA2LzNEZkyd6HwH3HA
+         r3mMjOavh7KxNAh5NSSHQV9B4CRkNCf3syIQVgNVUQ5IeARJ/htS93YANUTVn1U8MNRl
+         h18rhOVfixGZ15tew9bh5uhpGFRhrHSCXvbGZrePwEXSAVY9MZ8ec+HNTUUAS0nsFlTE
+         1ZUm6XfInCSQjYNnx0T+9W6SXYq8DCD0kAbUF79UxOaaPMy3JzULUHpDO5xN4OifFnSs
+         bZ4tXTpGPBtC3Cgq2Qlibmf0AmHdq7z6wDARCG9BeJXHtZzswrcHSqYre7lWcxY8Yf5l
+         Ol7g==
+X-Gm-Message-State: AGi0Pub3QtDrdwCafvGcJwHakqbVasDnr14mVZCIpHlJF8Iyt1A9uHnT
+        JyZXJAJ/JbRTPZYOjdW9wGk=
+X-Google-Smtp-Source: APiQypJ27Vk63KNaOL2/qa5F5TtZbSWQUXj0MofRfX8qGY/2+/C3iSSnS4Z0g2l7Zh6htzuVY4e3cQ==
+X-Received: by 2002:adf:db4d:: with SMTP id f13mr11434693wrj.289.1587745265085;
+        Fri, 24 Apr 2020 09:21:05 -0700 (PDT)
+Received: from localhost (ip-37-188-130-62.eurotel.cz. [37.188.130.62])
+        by smtp.gmail.com with ESMTPSA id z76sm4035330wmc.9.2020.04.24.09.21.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Apr 2020 09:21:04 -0700 (PDT)
+Date:   Fri, 24 Apr 2020 18:21:03 +0200
+From:   Michal Hocko <mhocko@kernel.org>
 To:     Johannes Weiner <hannes@cmpxchg.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Linux MM <linux-mm@kvack.org>,
+Cc:     Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org,
+        vdavydov.dev@gmail.com, linux-mm@kvack.org,
         Chris Down <chris@chrisdown.name>,
         Roman Gushchin <guro@fb.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
+Message-ID: <20200424162103.GK11591@dhcp22.suse.cz>
+References: <20200423061629.24185-1-laoar.shao@gmail.com>
+ <20200424131450.GA495720@cmpxchg.org>
+ <20200424142958.GF11591@dhcp22.suse.cz>
+ <20200424151013.GA525165@cmpxchg.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200424151013.GA525165@cmpxchg.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 24, 2020 at 9:44 PM Johannes Weiner <hannes@cmpxchg.org> wrote:
->
-> On Fri, Apr 24, 2020 at 09:14:52AM -0400, Johannes Weiner wrote:
-> > However, mem_cgroup_protected() never expected anybody to look at the
-> > effective protection values when it indicated that the cgroup is above
-> > its protection. As a result, a query during limit reclaim may return
-> > stale protection values that were calculated by a previous reclaim
-> > cycle in which the cgroup did have siblings.
->
-> Btw, I think there is opportunity to make this a bit less error prone.
->
-> We have a mem_cgroup_protected() that returns yes or no, essentially,
-> but protection isn't a binary state anymore.
->
-> It's also been a bit iffy that it looks like a simple predicate
-> function, but it indeed needs to run procedurally for each cgroup in
-> order for the calculations throughout the tree to be correct.
->
-> It might be better to have a
->
->         mem_cgroup_calculate_protection()
->
-> that runs for every cgroup we visit and sets up the internal state;
-> then have more self-explanatory query functions on top of that:
->
->         mem_cgroup_below_min()
->         mem_cgroup_below_low()
->         mem_cgroup_protection()
->
-> What do you guys think?
->
-> diff --git a/mm/vmscan.c b/mm/vmscan.c
-> index e0f502b5fca6..dbd3f75d39b9 100644
-> --- a/mm/vmscan.c
-> +++ b/mm/vmscan.c
-> @@ -2615,14 +2615,15 @@ static void shrink_node_memcgs(pg_data_t *pgdat, struct scan_control *sc)
->                 unsigned long reclaimed;
->                 unsigned long scanned;
->
-> -               switch (mem_cgroup_protected(target_memcg, memcg)) {
-> -               case MEMCG_PROT_MIN:
-> +               mem_cgroup_calculate_protection(target_memcg, memcg);
-> +
-> +               if (mem_cgroup_below_min(memcg)) {
->                         /*
->                          * Hard protection.
->                          * If there is no reclaimable memory, OOM.
->                          */
->                         continue;
-> -               case MEMCG_PROT_LOW:
-> +               } else if (mem_cgroup_below_low(memcg)) {
->                         /*
->                          * Soft protection.
->                          * Respect the protection only as long as
-> @@ -2634,16 +2635,6 @@ static void shrink_node_memcgs(pg_data_t *pgdat, struct scan_control *sc)
->                                 continue;
->                         }
->                         memcg_memory_event(memcg, MEMCG_LOW);
-> -                       break;
-> -               case MEMCG_PROT_NONE:
-> -                       /*
-> -                        * All protection thresholds breached. We may
-> -                        * still choose to vary the scan pressure
-> -                        * applied based on by how much the cgroup in
-> -                        * question has exceeded its protection
-> -                        * thresholds (see get_scan_count).
-> -                        */
-> -                       break;
->                 }
->
->                 reclaimed = sc->nr_reclaimed;
+On Fri 24-04-20 11:10:13, Johannes Weiner wrote:
+> On Fri, Apr 24, 2020 at 04:29:58PM +0200, Michal Hocko wrote:
+> > On Fri 24-04-20 09:14:50, Johannes Weiner wrote:
+> > > On Thu, Apr 23, 2020 at 02:16:29AM -0400, Yafang Shao wrote:
+> > > > This patch is an improvement of a previous version[1], as the previous
+> > > > version is not easy to understand.
+> > > > This issue persists in the newest kernel, I have to resend the fix. As
+> > > > the implementation is changed, I drop Roman's ack from the previous
+> > > > version.
+> > > 
+> > > Now that I understand the problem, I much prefer the previous version.
+> > > 
+> > > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > > index 745697906ce3..2bf91ae1e640 100644
+> > > --- a/mm/memcontrol.c
+> > > +++ b/mm/memcontrol.c
+> > > @@ -6332,8 +6332,19 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
+> > >  
+> > >  	if (!root)
+> > >  		root = root_mem_cgroup;
+> > > -	if (memcg == root)
+> > > +	if (memcg == root) {
+> > > +		/*
+> > > +		 * The cgroup is the reclaim root in this reclaim
+> > > +		 * cycle, and therefore not protected. But it may have
+> > > +		 * stale effective protection values from previous
+> > > +		 * cycles in which it was not the reclaim root - for
+> > > +		 * example, global reclaim followed by limit reclaim.
+> > > +		 * Reset these values for mem_cgroup_protection().
+> > > +		 */
+> > > +		memcg->memory.emin = 0;
+> > > +		memcg->memory.elow = 0;
+> > >  		return MEMCG_PROT_NONE;
+> > > +	}
+> > 
+> > Could you be more specific why you prefer this over the
+> > mem_cgroup_protection which doesn't change the effective value?
+> > Isn't it easier to simply ignore effective value for the reclaim roots?
+> 
+> Because now both mem_cgroup_protection() and mem_cgroup_protected()
+> have to know about the reclaim root semantics, instead of just the one
+> central place.
 
+Yes this is true but it is also potentially overwriting the state with
+a parallel reclaim which can lead to surprising results beacause
+parent's effective protection is used to define protection distribution
+for children. Let's have global and A's reclaim in parallel:
+ |
+ A (low=2G, usage = 3G, max = 3G, children_low_usage = 1.5G)
+ |\
+ | C (low = 1G, usage = 2.5G)
+ B (low = 1G, usage = 0.5G)
 
-After my revist of the memcg protection. I have another idea.
+for A reclaim we have
+B.elow = B.low
+C.elow = C.low
 
-The emin and elow is not decided by the memcg(struct mem_cgroup), but
-they are really decided by the reclaim context(struct srhink_control).
-So they should not be bound into struct  mem_cgroup, while they are
-really should be bound into struct srhink_control.
-IOW, we should move emin and elow from struct mem_cgroup into struct
-srhink_control.
-And they two members in shrink_control will be updated when a new
-memcg is to be shrinked.
-I haven't thought it deeply, but I think this should be the right thing to do.
+For the global reclaim
+A.elow = A.low
+B.elow = min(B.usage, B.low) because children_low_usage <= A.elow
+C.elow = min(C.usage, C.low)
 
-Thanks
-Yafang
+With the effective values reseting we have A reclaim
+A.elow = 0
+B.elow = B.low
+C.elow = C.low
+[...]
 
+and global reclaim could see the above and then
+B.elow = C.elow = 0 because children_low_usage > A.elow
 
+> And the query function has to know additional rules about when the
+> emin/elow values are uptodate or it could silently be looking at stale
+> data, which isn't very robust.
+> 
+> "The effective protection values are uptodate after calling
+> mem_cgroup_protected() inside the reclaim cycle - UNLESS the group
+> you're looking at happens to be..."
+> 
+> It's much easier to make the rule: The values are uptodate after you
+> called mem_cgroup_protected().
+> 
+> Or mem_cgroup_calculate_protection(), if we go with that later.
+> 
+> > > As others have noted, it's fairly hard to understand the problem from
+> > > the above changelog. How about the following:
+> > > 
+> > > A cgroup can have both memory protection and a memory limit to isolate
+> > > it from its siblings in both directions - for example, to prevent it
+> > > from being shrunk below 2G under high pressure from outside, but also
+> > > from growing beyond 4G under low pressure.
+> > > 
+> > > 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
+> > > implemented proportional scan pressure so that multiple siblings in
+> > > excess of their protection settings don't get reclaimed equally but
+> > > instead in accordance to their unprotected portion.
+> > > 
+> > > During limit reclaim, this proportionality shouldn't apply of course:
+> > > there is no competition, all pressure is from within the cgroup and
+> > > should be applied as such. Reclaim should operate at full efficiency.
+> > > 
+> > > However, mem_cgroup_protected() never expected anybody to look at the
+> > > effective protection values when it indicated that the cgroup is above
+> > > its protection. As a result, a query during limit reclaim may return
+> > > stale protection values that were calculated by a previous reclaim
+> > > cycle in which the cgroup did have siblings.
+> > 
+> > This is better. Thanks!
+> > 
+> > > When this happens, reclaim is unnecessarily hesitant and potentially
+> > > slow to meet the desired limit. In theory this could lead to premature
+> > > OOM kills, although it's not obvious this has occurred in practice.
+> > 
+> > I do not see how this would lead all the way to OOM killer but it
+> > certainly can lead to unnecessary increase of the reclaim priority. The
+> > smaller the difference between the reclaim target and protection the
+> > more visible the effect would be. But if there are reclaimable pages
+> > then the reclaim should see them sooner or later
+> 
+> It would be a pretty extreme case, but not impossible AFAICS, because
+> OOM is just a sampled state, not deterministic.
+> 
+> If memory.max is 64G and memory.low is 64G minus one page, this bug
+> could cause limit reclaim to look at no more than SWAP_CLUSTER_MAX
+> pages at priority 0. It's possible it wouldn't get through the full
+> 64G worth of memory before giving up and declaring OOM.
 
+Yes, my bad I didn't really realize that there won't be a full scan even
+under priority 0.
 -- 
-Thanks
-Yafang
+Michal Hocko
+SUSE Labs
