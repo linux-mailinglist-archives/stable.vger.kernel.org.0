@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E2931B74A0
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 987531B749E
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727882AbgDXM1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:27:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55168 "EHLO mail.kernel.org"
+        id S1727075AbgDXM1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:27:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728447AbgDXMYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:24:31 -0400
+        id S1728411AbgDXMYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:24:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B5DB20776;
-        Fri, 24 Apr 2020 12:24:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C02322166E;
+        Fri, 24 Apr 2020 12:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731071;
-        bh=DdCZTrUqnf7MZk9AylUU42r70E9vPDBHdTRjezsqosk=;
+        s=default; t=1587731072;
+        bh=IN3dBcosvKC2QUoeyRI6B2svCXNsLO997YBPPyyQJAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kn7GzgENSWaw3fyD+L8R/Zc81nzG5zptnIP8LxfZI3mnJTyaCEYXbFTkH6UlkT03W
-         4eUJ6oIuq4Mf6MeKO7gZXZHbpyQ96DWfoF/ZxGpSqRTtoyyS1sdyXmdiuKYGmdftpO
-         PR7ootziyLAjh+gfq94luiTHyWp2/jjylxmZWrLs=
+        b=boDjgKHNPrOCKY4hZ31D0V/BMpC11F8UKhhc84mBfCZ4K6odBf0QzPLoLloFGKEsE
+         ZuqOF24wyFs7nLuAxe6O++mw+6mdtzz7oLV0HgDlDy0mcTIwu8ceiMkLTyPhdshnDO
+         lFU8itCh2wxl59JM9GyjJNXXYaSJI4lx8lOb3Y48=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>, Borislav Petkov <bp@suse.de>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 09/21] objtool: Fix switch table detection in .text.unlikely
-Date:   Fri, 24 Apr 2020 08:24:07 -0400
-Message-Id: <20200424122419.10648-9-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>, Wei Liu <wl@xen.org>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 4.14 10/21] xen/xenbus: ensure xenbus_map_ring_valloc() returns proper grant status
+Date:   Fri, 24 Apr 2020 08:24:08 -0400
+Message-Id: <20200424122419.10648-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122419.10648-1-sashal@kernel.org>
 References: <20200424122419.10648-1-sashal@kernel.org>
@@ -44,47 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit b401efc120a399dfda1f4d2858a4de365c9b08ef ]
+[ Upstream commit 6b51fd3f65a22e3d1471b18a1d56247e246edd46 ]
 
-If a switch jump table's indirect branch is in a ".cold" subfunction in
-.text.unlikely, objtool doesn't detect it, and instead prints a false
-warning:
+xenbus_map_ring_valloc() maps a ring page and returns the status of the
+used grant (0 meaning success).
 
-  drivers/media/v4l2-core/v4l2-ioctl.o: warning: objtool: v4l_print_format.cold()+0xd6: sibling call from callable instruction with modified stack frame
-  drivers/hwmon/max6650.o: warning: objtool: max6650_probe.cold()+0xa5: sibling call from callable instruction with modified stack frame
-  drivers/media/dvb-frontends/drxk_hard.o: warning: objtool: init_drxk.cold()+0x16f: sibling call from callable instruction with modified stack frame
+There are Xen hypervisors which might return the value 1 for the status
+of a failed grant mapping due to a bug. Some callers of
+xenbus_map_ring_valloc() test for errors by testing the returned status
+to be less than zero, resulting in no error detected and crashing later
+due to a not available ring page.
 
-Fix it by comparing the function, instead of the section and offset.
+Set the return value of xenbus_map_ring_valloc() to GNTST_general_error
+in case the grant status reported by Xen is greater than zero.
 
-Fixes: 13810435b9a7 ("objtool: Support GCC 8's cold subfunctions")
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/157c35d42ca9b6354bbb1604fe9ad7d1153ccb21.1585761021.git.jpoimboe@redhat.com
+This is part of XSA-316.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Wei Liu <wl@xen.org>
+Link: https://lore.kernel.org/r/20200326080358.1018-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/xen/xenbus/xenbus_client.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index b8ee6ee9b8947..04fc04b4ab67e 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -915,10 +915,7 @@ static struct rela *find_switch_table(struct objtool_file *file,
- 	 * it.
- 	 */
- 	for (;
--	     &insn->list != &file->insn_list &&
--	     insn->sec == func->sec &&
--	     insn->offset >= func->offset;
--
-+	     &insn->list != &file->insn_list && insn->func && insn->func->pfunc == func;
- 	     insn = insn->first_jump_src ?: list_prev_entry(insn, list)) {
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index a1c17000129ba..e94a61eaeceb0 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -450,7 +450,14 @@ EXPORT_SYMBOL_GPL(xenbus_free_evtchn);
+ int xenbus_map_ring_valloc(struct xenbus_device *dev, grant_ref_t *gnt_refs,
+ 			   unsigned int nr_grefs, void **vaddr)
+ {
+-	return ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
++	int err;
++
++	err = ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
++	/* Some hypervisors are buggy and can return 1. */
++	if (err > 0)
++		err = GNTST_general_error;
++
++	return err;
+ }
+ EXPORT_SYMBOL_GPL(xenbus_map_ring_valloc);
  
- 		if (insn != orig_insn && insn->type == INSN_JUMP_DYNAMIC)
 -- 
 2.20.1
 
