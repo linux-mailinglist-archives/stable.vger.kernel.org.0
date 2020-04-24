@@ -2,117 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB0E11B6BF8
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 05:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3D531B6C03
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 05:38:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725922AbgDXDcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Apr 2020 23:32:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41826 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725888AbgDXDcO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Apr 2020 23:32:14 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B04A320715;
-        Fri, 24 Apr 2020 03:32:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587699134;
-        bh=heYBxyRSj6OCmDC8ifkTZrTjLvYjcxlqxGx3/mMEEfM=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=ltAJ2OTIhE3L6u1YdG/qUhtRaT9KYhoxi55ErXlp9wTMEeMJXTy3Dq1yD20kkzF/Y
-         gOV0uuInsAcG2d3RY31fzfJ+gGOyS3oQoANKOWAJIoF8abV8j/JRgEPP90JXpZmuur
-         fw1gC5wpVQ8jWFbcwiSn+uGerYmkjKbeIzk6KtPU=
-Date:   Thu, 23 Apr 2020 20:32:13 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     jbaron@akamai.com, khazhy@google.com, mm-commits@vger.kernel.org,
-        r@hev.cc, rpenyaev@suse.de, stable@vger.kernel.org,
-        viro@zeniv.linux.org.uk
-Subject:  +
- eventpoll-fix-missing-wakeup-for-ovflist-in-ep_poll_callback.patch added to
- -mm tree
-Message-ID: <20200424033213.WRxjDVHj1%akpm@linux-foundation.org>
-In-Reply-To: <20200420181310.c18b3c0aa4dc5b3e5ec1be10@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1725982AbgDXDio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Apr 2020 23:38:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54010 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725884AbgDXDin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Apr 2020 23:38:43 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A13DDC09B044
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 20:38:43 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id y6so3400234pjc.4
+        for <stable@vger.kernel.org>; Thu, 23 Apr 2020 20:38:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=r3ERBKCNVAmx6G9e83r5GkMyaJE+DV6A8u8GLQKvPrE=;
+        b=gQ8u3/X3D+HvYVmFffgwMfewOjNQguoXbFFvCyK2LjElcpTToXRDdYWqQ8VFihR1LG
+         Yd+3v7xLflBK1+wEIPV9CqY6FsqXthG6XgNC9NtzL+l6vFec63+znhh5jdOlGZIaPo+R
+         pdks18goS48vN6Fd8CfgpNIsz+BSlauukdU/YeI/Mgh3S54WLVJ0OrBys5vntKMEy9dt
+         y6bqFqhu5c8HgZy1fr9e+UeObQjerjodY+x9pdSau6xgABexQ4nbFZqrysUy0/EVq6oL
+         ZJXtwAJSfkIwx3fGagfK9wdHOz4orDfAuomO21alO4/a3z2+fw4Od1Y0ymp2agi6pgjW
+         x6Iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=r3ERBKCNVAmx6G9e83r5GkMyaJE+DV6A8u8GLQKvPrE=;
+        b=NdXBO0N5FKRqgACM5N+xkE7WYTBkwKNiGAmKml4rzT2OSIAw//7NzSL9d0vWn79TMp
+         1hlg3kjP6dVUcydo+80FGa6OWBNSZJEWUOu3vsY7yad2A8aN0ZV5HpPGGY5jZS2dAZ0N
+         DEdLiVkJibBqjWM22Nb4BUZEbKJ4iUk0oGOWon6Ae1fs4bXzVFon90MENWhWrll0UtGd
+         oJa8phk/92BQpNUfaFlvmbTEhAKBWxf8O6qosL3xoZz+Y6O0wZSgi5w62j6P7Uma33bQ
+         r69iJuWtKQvCOQp7i+FuiG7MM7deMywLtuekh/m9amWl2neJuaLyGP9+F/syLldy6Ep/
+         eeJQ==
+X-Gm-Message-State: AGi0PuYF1AW58XQ0NuJqZq4k/dgjLeVPUxu29G2WdCRTThsytXa3KlIE
+        CM+bs+5Qk+vkOzPHdDcxZPamkiuMSZY=
+X-Google-Smtp-Source: APiQypJSMjw8S2N+T8PDnl7Q+/JIIwqp08L1N15awedQRauGUE93P8TQdtT9IYPFMYHQa9Blep/1Aw==
+X-Received: by 2002:a17:902:361:: with SMTP id 88mr2294910pld.279.1587699522820;
+        Thu, 23 Apr 2020 20:38:42 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w66sm4138168pfw.50.2020.04.23.20.38.41
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Apr 2020 20:38:42 -0700 (PDT)
+Message-ID: <5ea25f42.1c69fb81.83aca.fb19@mx.google.com>
+Date:   Thu, 23 Apr 2020 20:38:42 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v5.4.35
+Subject: stable/linux-5.4.y boot: 27 boots: 0 failed, 27 passed (v5.4.35)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-5.4.y boot: 27 boots: 0 failed, 27 passed (v5.4.35)
 
-The patch titled
-     Subject: eventpoll: fix missing wakeup for ovflist in ep_poll_callback
-has been added to the -mm tree.  Its filename is
-     eventpoll-fix-missing-wakeup-for-ovflist-in-ep_poll_callback.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+4.y/kernel/v5.4.35/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
+rnel/v5.4.35/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/eventpoll-fix-missing-wakeup-for-ovflist-in-ep_poll_callback.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/eventpoll-fix-missing-wakeup-for-ovflist-in-ep_poll_callback.patch
+Tree: stable
+Branch: linux-5.4.y
+Git Describe: v5.4.35
+Git Commit: 0c418786cb3aa175823f0172d939679df9ab9a54
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 20 unique boards, 5 SoC families, 7 builds out of 200
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Boot Regressions Detected:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+arm64:
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+    defconfig:
+        gcc-8:
+          sun50i-h6-orangepi-3:
+              lab-clabbe: new failure (last pass: v5.4.34)
 
-------------------------------------------------------
-From: Khazhismel Kumykov <khazhy@google.com>
-Subject: eventpoll: fix missing wakeup for ovflist in ep_poll_callback
-
-In the event that we add to ovflist, before 339ddb53d373 we would be woken
-up by ep_scan_ready_list, and did no wakeup in ep_poll_callback.  With
-that wakeup removed, if we add to ovflist here, we may never wake up. 
-Rather than adding back the ep_scan_ready_list wakeup - which was
-resulting un uncessary wakeups, trigger a wake-up in ep_poll_callback.
-
-We noticed that one of our workloads was missing wakeups starting with
-339ddb53d373 and upon manual inspection, this wakeup seemed missing to me.
-With this patch added, we no longer see missing wakeups.  I haven't yet
-tried to make a small reproducer, but the existing kselftests in
-filesystem/epoll passed for me with this patch.
-
-Link: http://lkml.kernel.org/r/20200424025057.118641-1-khazhy@google.com
-Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Roman Penyaev <rpenyaev@suse.de>
-Cc: Heiher <r@hev.cc>
-Cc: Jason Baron <jbaron@akamai.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-
- fs/eventpoll.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- a/fs/eventpoll.c~eventpoll-fix-missing-wakeup-for-ovflist-in-ep_poll_callback
-+++ a/fs/eventpoll.c
-@@ -1240,7 +1240,7 @@ static int ep_poll_callback(wait_queue_e
- 		if (epi->next == EP_UNACTIVE_PTR &&
- 		    chain_epi_lockless(epi))
- 			ep_pm_stay_awake_rcu(epi);
--		goto out_unlock;
-+		goto out_wakeup_unlock;
- 	}
- 
- 	/* If this file is already in the ready list we exit soon */
-@@ -1249,6 +1249,7 @@ static int ep_poll_callback(wait_queue_e
- 		ep_pm_stay_awake_rcu(epi);
- 	}
- 
-+out_wakeup_unlock:
- 	/*
- 	 * Wake up ( if active ) both the eventpoll wait list and the ->poll()
- 	 * wait list.
-_
-
-Patches currently in -mm which might be from khazhy@google.com are
-
-eventpoll-fix-missing-wakeup-for-ovflist-in-ep_poll_callback.patch
-
+For more info write to <info@kernelci.org>
