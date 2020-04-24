@@ -2,180 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6071B76B5
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 15:14:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5863C1B7710
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 15:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726872AbgDXNOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 09:14:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58994 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726806AbgDXNOx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 09:14:53 -0400
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 577FEC09B045
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 06:14:53 -0700 (PDT)
-Received: by mail-qv1-xf42.google.com with SMTP id ep1so4606837qvb.0
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 06:14:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cmpxchg-org.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Mp6P7EuowXgf1Z05AVHM5X9/T2fvGq2V0AUIWl56Bfc=;
-        b=sI9lU2rwmoOgQb4sOWPMx6/2JwNm8o6yusvDcM5jFn65xHqx1AVtLstARmFCCi785q
-         ciie5Q/3FVP5a09qc6LjdzXeBx/h0JcAfwN5KrN0uDBY7IJ9T7PadA7MtakDn/ptURUG
-         e1JRgF3OothN+HKLtVW4vFtbaJSbsApMBao/AgMgdc+vLUsIFAS8m2k6p5F6r8yQcFQD
-         tfcA2GoN+PIjquTuPyUPMswEr/JdvQdoAvnWYEVMV0Bwo1uW17IqXdAivknRTGabND9/
-         Tjc+nE7V6fX9Rc1DuUbsAUjWQbaS4O5kYbiIbqkL/2+T7eBCT/KieV94Z0Hsjp6qLQ9f
-         Apqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Mp6P7EuowXgf1Z05AVHM5X9/T2fvGq2V0AUIWl56Bfc=;
-        b=TcPEUPGe+KdDn4cs6QQr1mHYoLygR6cA4uC0+D6Vo+7IB8YajSKpXoTzDKmOSJYdb1
-         6AZwaF0rcxprzvIywCSaI+vInxTeQ9uRdXqtMnkwnhnVSkMZmATjBJIaPhqMBFM0vNVT
-         PJtLn1mIM5X7uIU3NTGYg2vzy28gZX1mt+YBOP9ZFCB81pkUcv+dlp/4AK1U7CChzCEn
-         iV1gv1xWXP9j2GNJkt/cUdieBFt7R5ADjQr4lXVxQewc9RSJ77ywlw4S6NJd99gGPJum
-         ILcjEZzEzY2Sp0EtifHJY4GNRi3UJT4PqFahW27c6eK2FECBg1+RSIgqSOkyvIkU/5cA
-         V35Q==
-X-Gm-Message-State: AGi0PuYeBo8ZrSOJjRSfLPL/ILi/+nglS5WxVYTooMKiQK9MTuSZ+DvZ
-        OQ1RAjld9o8T0MlWdOvbnMorMw==
-X-Google-Smtp-Source: APiQypK8s2Ta3EVuQQRTzavHi6y2BDX8/R3BppjjGl+RVv9oXfLDBkmlpV0kzCcV9rFLr/QZdupKOQ==
-X-Received: by 2002:a0c:e8c2:: with SMTP id m2mr8747891qvo.24.1587734092456;
-        Fri, 24 Apr 2020 06:14:52 -0700 (PDT)
-Received: from localhost ([2620:10d:c091:480::921])
-        by smtp.gmail.com with ESMTPSA id u126sm3666208qkh.66.2020.04.24.06.14.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2020 06:14:51 -0700 (PDT)
-Date:   Fri, 24 Apr 2020 09:14:50 -0400
-From:   Johannes Weiner <hannes@cmpxchg.org>
-To:     Yafang Shao <laoar.shao@gmail.com>
-Cc:     akpm@linux-foundation.org, mhocko@kernel.org,
-        vdavydov.dev@gmail.com, linux-mm@kvack.org,
-        Chris Down <chris@chrisdown.name>,
-        Roman Gushchin <guro@fb.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
-Message-ID: <20200424131450.GA495720@cmpxchg.org>
-References: <20200423061629.24185-1-laoar.shao@gmail.com>
+        id S1726753AbgDXNgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 09:36:39 -0400
+Received: from sauhun.de ([88.99.104.3]:47884 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726489AbgDXNgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 09:36:39 -0400
+Received: from localhost (p5486CE62.dip0.t-ipconnect.de [84.134.206.98])
+        by pokefinder.org (Postfix) with ESMTPSA id 05ECF2C1FE8;
+        Fri, 24 Apr 2020 15:36:36 +0200 (CEST)
+Date:   Fri, 24 Apr 2020 15:36:35 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.6 28/38] i2c: remove i2c_new_probed_device API
+Message-ID: <20200424133635.GB4070@kunai>
+References: <20200424122237.9831-1-sashal@kernel.org>
+ <20200424122237.9831-28-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="XOIedfhf+7KOe/yw"
 Content-Disposition: inline
-In-Reply-To: <20200423061629.24185-1-laoar.shao@gmail.com>
+In-Reply-To: <20200424122237.9831-28-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 23, 2020 at 02:16:29AM -0400, Yafang Shao wrote:
-> This patch is an improvement of a previous version[1], as the previous
-> version is not easy to understand.
-> This issue persists in the newest kernel, I have to resend the fix. As
-> the implementation is changed, I drop Roman's ack from the previous
-> version.
 
-Now that I understand the problem, I much prefer the previous version.
+--XOIedfhf+7KOe/yw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 745697906ce3..2bf91ae1e640 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -6332,8 +6332,19 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
- 
- 	if (!root)
- 		root = root_mem_cgroup;
--	if (memcg == root)
-+	if (memcg == root) {
-+		/*
-+		 * The cgroup is the reclaim root in this reclaim
-+		 * cycle, and therefore not protected. But it may have
-+		 * stale effective protection values from previous
-+		 * cycles in which it was not the reclaim root - for
-+		 * example, global reclaim followed by limit reclaim.
-+		 * Reset these values for mem_cgroup_protection().
-+		 */
-+		memcg->memory.emin = 0;
-+		memcg->memory.elow = 0;
- 		return MEMCG_PROT_NONE;
-+	}
- 
- 	usage = page_counter_read(&memcg->memory);
- 	if (!usage)
+On Fri, Apr 24, 2020 at 08:22:26AM -0400, Sasha Levin wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>=20
+> [ Upstream commit 3c1d1613be80c2e17f1ddf672df1d8a8caebfd0d ]
+>=20
+> All in-tree users have been converted to the new i2c_new_scanned_device
+> function, so remove this deprecated one.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-> Here's the explanation of this issue.
-> memory.{low,min} won't take effect if the to-be-reclaimed memcg is the
-> sc->target_mem_cgroup, that can also be proved by the implementation in
-> mem_cgroup_protected(), see bellow,
-> 	mem_cgroup_protected
-> 		if (memcg == root) [2]
-> 			return MEMCG_PROT_NONE;
-> 
-> But this rule is ignored in mem_cgroup_protection(), which will read
-> memory.{emin, elow} as the protection whatever the memcg is.
-> 
-> How would this issue happen?
-> Because in mem_cgroup_protected() we forget to clear the
-> memory.{emin, elow} if the memcg is target_mem_cgroup [2].
-> 
-> An example to illustrate this issue.
->    root_mem_cgroup
->          /
->         A   memory.max: 1024M
->             memory.min: 512M
->             memory.current: 800M ('current' must be greater than 'min')
-> Once kswapd starts to reclaim memcg A, it assigns 512M to memory.emin of A.
-> Then kswapd stops.
-> As a result of it, the memory values of A will be,
->    root_mem_cgroup
->          /
->         A   memory.max: 1024M
->             memory.min: 512M
->             memory.current: 512M (approximately)
->             memory.emin: 512M
-> 
-> Then a new workload starts to run in memcg A, and it will trigger memcg
-> relcaim in A soon. As memcg A is the target_mem_cgroup of this
-> reclaimer, so it return directly without touching memory.{emin, elow}.[2]
-> The memory values of A will be,
->    root_mem_cgroup
->          /
->         A   memory.max: 1024M
->             memory.min: 512M
->             memory.current: 1024M (approximately)
->             memory.emin: 512M
-> Then this memory.emin will be used in mem_cgroup_protection() to get the
-> scan count, which is obvoiusly a wrong scan count.
-> 
-> [1]. https://lore.kernel.org/linux-mm/20200216145249.6900-1-laoar.shao@gmail.com/
-> 
-> Fixes: 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
-> Cc: Chris Down <chris@chrisdown.name>
-> Cc: Roman Gushchin <guro@fb.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+This should not be backported. It is only since this merge window that
+all in-tree users are converted!
 
-As others have noted, it's fairly hard to understand the problem from
-the above changelog. How about the following:
 
-A cgroup can have both memory protection and a memory limit to isolate
-it from its siblings in both directions - for example, to prevent it
-from being shrunk below 2G under high pressure from outside, but also
-from growing beyond 4G under low pressure.
+--XOIedfhf+7KOe/yw
+Content-Type: application/pgp-signature; name="signature.asc"
 
-9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
-implemented proportional scan pressure so that multiple siblings in
-excess of their protection settings don't get reclaimed equally but
-instead in accordance to their unprotected portion.
+-----BEGIN PGP SIGNATURE-----
 
-During limit reclaim, this proportionality shouldn't apply of course:
-there is no competition, all pressure is from within the cgroup and
-should be applied as such. Reclaim should operate at full efficiency.
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl6i62MACgkQFA3kzBSg
+KbbQNBAAtJhXZl6VUNZIu7Dk8NGhFEOvsMgmA1GVLzGWYh0Ev/ipJIN9OX2r26Yc
+9M6M1qc2FBJW9n1fTdGK+FrbO/+BCFkrMUOECIyImlSmZ1W+sNyZYhmg1ZQxo2g3
+eSobZIV8JzjDhDDV55GdwerVjq0fOmckdD/MjFVtpmcYNsL4P1J//6cVtifn6W5a
+eVhj4k9WURYjWQ8I0q6CLn4ys1BjPZ40/HOBAdZU6sG3u3Jqlvavdtoo71LNLYz9
+/KEk8fWcYRu8F9FF18PPhJg/C4T8vba2FdQz4rmKzEAdLkckwrsFtIxhFWhA1tZl
+SaR2OLNJGO9kUI+vYLOXhNC6LK+XY9SuqLF9z6oVyuICqoVH4Z4ARBi4yl5dT+rZ
+sC3pjL7NlJBOomyzt5S0rflnNFE4xDmtoQ0uxeEBLfu+4nyMpSUxdoexH4fp22xF
+G50cRTK2rfmV0iawMgnR8JmXi13QVrDX7gp8FvckorSheJ39I8g1jIjU4b8EhQyI
+yuWvxIqlp6aw8q2C7J9fIEFogHdsEOIRUvMHNPEbbeTU3v64lj5VW+wPz3la4KFP
+JMaU7QnPdoW5kkCjSMxbnosaFx9X/wXXvYMd3r2Fh3ltzmAhyoPa5h30TP2JtCCy
+2JlkanjPialjwrH4FBazHSlLImTjdCK5FFfdbBsTYDkTgXXhT8w=
+=Skfi
+-----END PGP SIGNATURE-----
 
-However, mem_cgroup_protected() never expected anybody to look at the
-effective protection values when it indicated that the cgroup is above
-its protection. As a result, a query during limit reclaim may return
-stale protection values that were calculated by a previous reclaim
-cycle in which the cgroup did have siblings.
-
-When this happens, reclaim is unnecessarily hesitant and potentially
-slow to meet the desired limit. In theory this could lead to premature
-OOM kills, although it's not obvious this has occurred in practice.
+--XOIedfhf+7KOe/yw--
