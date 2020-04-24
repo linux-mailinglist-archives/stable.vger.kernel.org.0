@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B04D1B7481
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:27:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F60E1B747D
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:27:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728521AbgDXMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728526AbgDXMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 24 Apr 2020 08:24:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55528 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728510AbgDXMYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:24:42 -0400
+        id S1728518AbgDXMYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:24:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5744920700;
-        Fri, 24 Apr 2020 12:24:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8627520776;
+        Fri, 24 Apr 2020 12:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731082;
-        bh=YSLtKtKAH6VjJBxl+1YUZMR+fDeXxDz81VkSEwqDjpg=;
+        s=default; t=1587731083;
+        bh=TygesCzghEkRvZdNuf5/krX4BSlw8CWFiMSdm0suEcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKOLc+Qt60kHbO8MdP2Ll84hJ6r4qjVcCNBksnTXWUMIcFqMVOhYA6e9Q0z/UlRJ7
-         7s2+dKZ6XeiJEoFM6ua2OIpLhfyy4vWXZfZRpCW3zFGJ6/6WpEu8t/INC25LAw0yJM
-         wrfvVxS+EigAmxE/lM54qlJp36DAdragydXa4r2s=
+        b=YMX0VN2MPQ4HkKIZyQdvJxPGDRST80BYrmBomSW5n4tnnvDLcZe6w5NaG+8Nh/d8n
+         wcOL+jSqGZHqDcr6tcmj7m29Y8M3oztAQMEo1VBGG6NpBnGbOVsg4hZ11HACOwNjgq
+         +UHNTX3w/L+KJlfnk0c9sUh2/WvpATbDwM80oETo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 18/21] amd-xgbe: Use __napi_schedule() in BH context
-Date:   Fri, 24 Apr 2020 08:24:16 -0400
-Message-Id: <20200424122419.10648-18-sashal@kernel.org>
+Cc:     Zenghui Yu <yuzenghui@huawei.com>, Marc Zyngier <maz@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 19/21] irqchip/mbigen: Free msi_desc on device teardown
+Date:   Fri, 24 Apr 2020 08:24:17 -0400
+Message-Id: <20200424122419.10648-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122419.10648-1-sashal@kernel.org>
 References: <20200424122419.10648-1-sashal@kernel.org>
@@ -44,41 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-[ Upstream commit d518691cbd3be3dae218e05cca3f3fc9b2f1aa77 ]
+[ Upstream commit edfc23f6f9fdbd7825d50ac1f380243cde19b679 ]
 
-The driver uses __napi_schedule_irqoff() which is fine as long as it is
-invoked with disabled interrupts by everybody. Since the commit
-mentioned below the driver may invoke xgbe_isr_task() in tasklet/softirq
-context. This may lead to list corruption if another driver uses
-__napi_schedule_irqoff() in IRQ context.
+Using irq_domain_free_irqs_common() on the irqdomain free path will
+leave the MSI descriptor unfreed when platform devices get removed.
+Properly free it by MSI domain free function.
 
-Use __napi_schedule() which safe to use from IRQ and softirq context.
-
-Fixes: 85b85c853401d ("amd-xgbe: Re-issue interrupt if interrupt status not cleared")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9650c60ebfec0 ("irqchip/mbigen: Create irq domain for each mbigen device")
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200408114352.1604-1-yuzenghui@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-mbigen.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-index c65d2cdcc7cfb..8556962e68244 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -515,7 +515,7 @@ static void xgbe_isr_task(unsigned long data)
- 				xgbe_disable_rx_tx_ints(pdata);
+diff --git a/drivers/irqchip/irq-mbigen.c b/drivers/irqchip/irq-mbigen.c
+index f7fdbf5d183b9..c98358be0bc8b 100644
+--- a/drivers/irqchip/irq-mbigen.c
++++ b/drivers/irqchip/irq-mbigen.c
+@@ -231,10 +231,16 @@ static int mbigen_irq_domain_alloc(struct irq_domain *domain,
+ 	return 0;
+ }
  
- 				/* Turn on polling */
--				__napi_schedule_irqoff(&pdata->napi);
-+				__napi_schedule(&pdata->napi);
- 			}
- 		} else {
- 			/* Don't clear Rx/Tx status if doing per channel DMA
++static void mbigen_irq_domain_free(struct irq_domain *domain, unsigned int virq,
++				   unsigned int nr_irqs)
++{
++	platform_msi_domain_free(domain, virq, nr_irqs);
++}
++
+ static const struct irq_domain_ops mbigen_domain_ops = {
+ 	.translate	= mbigen_domain_translate,
+ 	.alloc		= mbigen_irq_domain_alloc,
+-	.free		= irq_domain_free_irqs_common,
++	.free		= mbigen_irq_domain_free,
+ };
+ 
+ static int mbigen_of_create_domain(struct platform_device *pdev,
 -- 
 2.20.1
 
