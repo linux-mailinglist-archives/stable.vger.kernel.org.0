@@ -2,103 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9BC41B72A9
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 13:07:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C85E21B73B7
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:18:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726707AbgDXLHf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 07:07:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39102 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726489AbgDXLHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 07:07:34 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B022C09B045;
-        Fri, 24 Apr 2020 04:07:33 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id a5so3755783pjh.2;
-        Fri, 24 Apr 2020 04:07:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=8nxdgRcKM19fcM+rPWLhG14M7DWM4NBsZlKsa3VM4rQ=;
-        b=qLdeBWkd6Pc5i/uk3JQIq6ymXWgJOxswGpIawRevnZbqrDqDtbbZJEnmwDlCjSAnmy
-         OLMffj2QZ/DgpUrLj5J6SslTYDhn4B4QgAL/BSwhxO3GHfN6SLaO4lQT7jIjD6qdRb2U
-         rK8w12k41vdd+OaVzmAbu05Yy3cU0055FOjyZ/mNNsRGLdLXeHCM0h+2AmfstuvkM2vb
-         AcQuDouxK6E+/ci4jVIjhKZpAgHLKmIhw/TKGCKixMrtdExUigGEbli3cLaktj4Gh6i+
-         VkSAK/eICcFu03i2wPdmJohTWLVWxOWeDW0sLWIhiAFG0HtlpT4PCHugQ7JWIxwiP5nl
-         nJrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=8nxdgRcKM19fcM+rPWLhG14M7DWM4NBsZlKsa3VM4rQ=;
-        b=P1rqEJwaM1WBfDoU72Bgctq9tpk0VPSz2mbm4iDljsNm91v7Mmy1ijuCaYfTQsCv2I
-         AVA2Kc7Ou2882Gwn7tDNE80MsRgOrwLaX9WGql014yFh9vzqh6c0UZmfODmViJaI1cSM
-         JQL/pVJ9guJrjmwpul4DiVf2KDZgTQ6AdmyRSK73AXNc989thlsR/WIJse1ZeTlImA4t
-         pLX799EEx5Ej8InYKw/3mnPks1pp1MNHxlhH9EJNWTTU3aDUg5UwRPzrfwTeXigrkMVl
-         toOd2DIZh3BMYr5Oko3bdk1lQn9kmDNDZf/BELDLOALkl9afS7kWZf+Pu/jXvjZmxGtw
-         CtLA==
-X-Gm-Message-State: AGi0PuZ0ReeiDVc7bdeaUEYb1xdL28bRzPXNoD41ejA5bUbo04N16SDJ
-        FZvI5N3xbY6KzNtp2OXr9RE=
-X-Google-Smtp-Source: APiQypK5LOjONOgtSN7Kfyb6ZyzKPGT5cA7i5DMXu2tJahGLcetZuoftyFFTY62K/oFF+nq9PMYl/Q==
-X-Received: by 2002:a17:90a:101:: with SMTP id b1mr5662598pjb.154.1587726452837;
-        Fri, 24 Apr 2020 04:07:32 -0700 (PDT)
-Received: from software.domain.org (28.144.92.34.bc.googleusercontent.com. [34.92.144.28])
-        by smtp.gmail.com with ESMTPSA id y10sm5470110pfb.53.2020.04.24.04.07.30
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 24 Apr 2020 04:07:32 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc:     kvm@vger.kernel.org, linux-mips@vger.kernel.org,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Xing Li <lixing@loongson.cn>, stable@vger.kernel.org,
-        Huacai Chen <chenhc@lemote.com>
-Subject: [PATCH V2 02/14] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
-Date:   Fri, 24 Apr 2020 19:15:21 +0800
-Message-Id: <1587726933-31757-3-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
-In-Reply-To: <1587726933-31757-1-git-send-email-chenhc@lemote.com>
-References: <1587726933-31757-1-git-send-email-chenhc@lemote.com>
+        id S1726707AbgDXMSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:18:14 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2096 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726698AbgDXMSO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:18:14 -0400
+Received: from lhreml740-chm.china.huawei.com (unknown [172.18.7.107])
+        by Forcepoint Email with ESMTP id 3F53095920E6AD0816A0;
+        Fri, 24 Apr 2020 13:18:12 +0100 (IST)
+Received: from fraeml706-chm.china.huawei.com (10.206.15.55) by
+ lhreml740-chm.china.huawei.com (10.201.108.190) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.1913.5; Fri, 24 Apr 2020 13:18:12 +0100
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ fraeml706-chm.china.huawei.com (10.206.15.55) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1913.5; Fri, 24 Apr 2020 14:18:11 +0200
+Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
+ fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.1913.007;
+ Fri, 24 Apr 2020 14:18:11 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>
+CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 3/5] ima: Fix ima digest hash table key calculation
+Thread-Topic: [PATCH 3/5] ima: Fix ima digest hash table key calculation
+Thread-Index: AQHWAsCL0WxU1zQQXUO+TcKy4wW9saiFqfKAgAD8PeCAAFIUgIABYaXQ
+Date:   Fri, 24 Apr 2020 12:18:11 +0000
+Message-ID: <59a280b928db4c478f660d14c33cdd87@huawei.com>
+References: <20200325161116.7082-1-roberto.sassu@huawei.com>
+         <20200325161116.7082-3-roberto.sassu@huawei.com>
+         <1587588987.5165.20.camel@linux.ibm.com>
+         <11984a05a5624f64aed1ec6b0d0b75ff@huawei.com>
+ <1587660781.5610.15.camel@linux.ibm.com>
+In-Reply-To: <1587660781.5610.15.camel@linux.ibm.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.47.14.239]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xing Li <lixing@loongson.cn>
-
-If a CPU support more than 32bit vmbits (which is true for 64bit CPUs),
-VPN2_MASK set to fixed 0xffffe000 will lead to a wrong EntryHi in some
-functions such as _kvm_mips_host_tlb_inv().
-
-The cpu_vmbits definition of 32bit CPU in cpu-features.h is 31, so we
-still use the old definition.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Xing Li <lixing@loongson.cn>
-[Huacai: Improve commit messages]
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- arch/mips/include/asm/kvm_host.h | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
-index a01cee9..caa2b936 100644
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -274,7 +274,11 @@ enum emulation_result {
- #define MIPS3_PG_SHIFT		6
- #define MIPS3_PG_FRAME		0x3fffffc0
- 
-+#if defined(CONFIG_64BIT)
-+#define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
-+#else
- #define VPN2_MASK		0xffffe000
-+#endif
- #define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
- #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
- #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
--- 
-2.7.0
-
+DQoNCkhVQVdFSSBURUNITk9MT0dJRVMgRHVlc3NlbGRvcmYgR21iSCwgSFJCIDU2MDYzDQpNYW5h
+Z2luZyBEaXJlY3RvcjogTGkgUGVuZywgTGkgSmlhbiwgU2hpIFlhbmxpDQoNCg0KPiAtLS0tLU9y
+aWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBNaW1pIFpvaGFyIFttYWlsdG86em9oYXJAbGlu
+dXguaWJtLmNvbV0NCj4gU2VudDogVGh1cnNkYXksIEFwcmlsIDIzLCAyMDIwIDY6NTMgUE0NCj4g
+VG86IFJvYmVydG8gU2Fzc3UgPHJvYmVydG8uc2Fzc3VAaHVhd2VpLmNvbT4NCj4gQ2M6IGxpbnV4
+LWludGVncml0eUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LXNlY3VyaXR5LW1vZHVsZUB2Z2VyLmtl
+cm5lbC5vcmc7DQo+IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IEtyenlzenRvZiBTdHJ1
+Y3p5bnNraQ0KPiA8a3J6eXN6dG9mLnN0cnVjenluc2tpQGh1YXdlaS5jb20+OyBTaWx2aXUgVmxh
+c2NlYW51DQo+IDxTaWx2aXUuVmxhc2NlYW51QGh1YXdlaS5jb20+OyBzdGFibGVAdmdlci5rZXJu
+ZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMy81XSBpbWE6IEZpeCBpbWEgZGlnZXN0IGhh
+c2ggdGFibGUga2V5IGNhbGN1bGF0aW9uDQo+IA0KPiBPbiBUaHUsIDIwMjAtMDQtMjMgYXQgMTA6
+MjEgKzAwMDAsIFJvYmVydG8gU2Fzc3Ugd3JvdGU6DQo+ID4gPiBIaSBSb2JlcnRvLCBLcnN5c3p0
+b2YsDQo+ID4gPg0KPiA+ID4gT24gV2VkLCAyMDIwLTAzLTI1IGF0IDE3OjExICswMTAwLCBSb2Jl
+cnRvIFNhc3N1IHdyb3RlOg0KPiA+ID4gPiBGcm9tOiBLcnp5c3p0b2YgU3RydWN6eW5za2kgPGty
+enlzenRvZi5zdHJ1Y3p5bnNraUBodWF3ZWkuY29tPg0KPiA+ID4gPg0KPiA+ID4gPiBGdW5jdGlv
+biBoYXNoX2xvbmcoKSBhY2NlcHRzIHVuc2lnbmVkIGxvbmcsIHdoaWxlIGN1cnJlbnRseSBvbmx5
+IG9uZQ0KPiBieXRlDQo+ID4gPiA+IGlzIHBhc3NlZCBmcm9tIGltYV9oYXNoX2tleSgpLCB3aGlj
+aCBjYWxjdWxhdGVzIGEga2V5IGZvciBpbWFfaHRhYmxlLg0KPiA+ID4gVXNlDQo+ID4gPiA+IG1v
+cmUgYnl0ZXMgdG8gYXZvaWQgZnJlcXVlbnQgY29sbGlzaW9ucy4NCj4gPiA+ID4NCj4gPiA+ID4g
+TGVuZ3RoIG9mIHRoZSBidWZmZXIgaXMgbm90IGV4cGxpY2l0bHkgcGFzc2VkIGFzIGEgZnVuY3Rp
+b24gcGFyYW1ldGVyLA0KPiA+ID4gPiBiZWNhdXNlIHRoaXMgZnVuY3Rpb24gZXhwZWN0cyBhIGRp
+Z2VzdCB3aG9zZSBsZW5ndGggaXMgZ3JlYXRlciB0aGFuDQo+IHRoZQ0KPiA+ID4gPiBzaXplIG9m
+IHVuc2lnbmVkIGxvbmcuDQo+ID4gPg0KPiA+ID4gU29tZWhvdyBJIG1pc3NlZCB0aGUgb3JpZ2lu
+YWwgcmVwb3J0IG9mIHRoaXMgcHJvYmxlbcKgaHR0cHM6Ly9sb3JlLmtlcm4NCj4gPiA+IGVsLm9y
+Zy9wYXRjaHdvcmsvcGF0Y2gvNjc0Njg0Ly4gwqBUaGlzIHBhdGNoIGlzIGRlZmluaXRlbHkgYmV0
+dGVyLCBidXQNCj4gPiA+IGhvdyBtYW55IHVuaXF1ZSBrZXlzIGFyZSBhY3R1YWxseSBiZWluZyB1
+c2VkPyDCoElzIGl0IGFueXdoZXJlIG5lYXINCj4gPiA+IElNQV9NRUFTVVJFX0hUQUJMRV9TSVpF
+KDUxMik/DQo+ID4NCj4gPiBJIGRpZCBhIHNtYWxsIHRlc3QgKHdpdGggMTA0MyBtZWFzdXJlbWVu
+dHMpOg0KPiA+DQo+ID4gc2xvdHM6IDI1MCwgbWF4IGRlcHRoOiA5ICh3aXRob3V0IHRoZSBwYXRj
+aCkNCj4gPiBzbG90czogNDQ4LCBtYXggZGVwdGg6IDcgKHdpdGggdGhlIHBhdGNoKQ0KPiANCj4g
+NDQ4IG91dCBvZiA1MTIgc2xvdHMgYXJlIHVzZWQuDQo+IA0KPiA+DQo+ID4gVGhlbiwgSSBpbmNy
+ZWFzZWQgdGhlIG51bWJlciBvZiBiaXRzIHRvIDEwOg0KPiA+DQo+ID4gc2xvdHM6IDI1MSwgbWF4
+IGRlcHRoOiA5ICh3aXRob3V0IHRoZSBwYXRjaCkNCj4gPiBzbG90czogNjYwLCBtYXggZGVwdGg6
+IDQgKHdpdGggdGhlIHBhdGNoKQ0KPiANCj4gNjYwIG91dCBvZiAxMDI0IHNsb3RzIGFyZSB1c2Vk
+Lg0KPiANCj4gSSB3b25kZXIgaWYgdGhlcmUgaXMgYW55IGJlbmVmaXQgdG8gaGFzaGluZyBhIGRp
+Z2VzdCwgaW5zdGVhZCBvZiBqdXN0DQo+IHVzaW5nIHRoZSBmaXJzdCBiaXRzLg0KDQpCZWZvcmUg
+SSBjYWxjdWxhdGVkIG1heCBkZXB0aCB1bnRpbCB0aGVyZSBpcyBhIG1hdGNoLCBub3QgdGhlIGZ1
+bGwgZGVwdGguDQoNCiMxDQpyZXR1cm4gaGFzaF9sb25nKCooKHVuc2lnbmVkIGxvbmcgKilkaWdl
+c3QpLCBJTUFfSEFTSF9CSVRTKTsNCiNkZWZpbmUgSU1BX0hBU0hfQklUUyA5DQoNClJ1bnRpbWUg
+bWVhc3VyZW1lbnRzOiAxNDg4DQpWaW9sYXRpb25zOiAwDQpTbG90cyAodXNlZC9hdmFpbGFibGUp
+OiA0ODQvNTEyDQpNYXggZGVwdGggaGFzaCB0YWJsZTogMTANCg0KIzINCnJldHVybiAqKHVuc2ln
+bmVkIGxvbmcgKilkaWdlc3QgJSBJTUFfTUVBU1VSRV9IVEFCTEVfU0laRTsNCiNkZWZpbmUgSU1B
+X0hBU0hfQklUUyA5DQoNClJ1bnRpbWUgbWVhc3VyZW1lbnRzOiAxNDkxDQpWaW9sYXRpb25zOiAy
+DQpTbG90cyAodXNlZC9hdmFpbGFibGUpOiA0ODkvNTEyDQpNYXggZGVwdGggaGFzaCB0YWJsZTog
+MTANCg0KIzMNCnJldHVybiBoYXNoX2xvbmcoKigodW5zaWduZWQgbG9uZyAqKWRpZ2VzdCksIElN
+QV9IQVNIX0JJVFMpOw0KI2RlZmluZSBJTUFfSEFTSF9CSVRTIDEwDQoNClJ1bnRpbWUgbWVhc3Vy
+ZW1lbnRzOiAxNDg5DQpWaW9sYXRpb25zOiAwDQpTbG90cyAodXNlZC9hdmFpbGFibGUpOiA3ODAv
+MTAyNA0KTWF4IGRlcHRoIGhhc2ggdGFibGU6IDYNCg0KIzQNCnJldHVybiAqKHVuc2lnbmVkIGxv
+bmcgKilkaWdlc3QgJSBJTUFfTUVBU1VSRV9IVEFCTEVfU0laRTsNCiNkZWZpbmUgSU1BX0hBU0hf
+QklUUyAxMA0KDQpSdW50aW1lIG1lYXN1cmVtZW50czogMTQ4OQ0KVmlvbGF0aW9uczogMA0KU2xv
+dHMgKHVzZWQvYXZhaWxhYmxlKTogNzkzLzEwMjQNCk1heCBkZXB0aCBoYXNoIHRhYmxlOiA2DQoN
+ClJvYmVydG8NCg0KSFVBV0VJIFRFQ0hOT0xPR0lFUyBEdWVzc2VsZG9yZiBHbWJILCBIUkIgNTYw
+NjMNCk1hbmFnaW5nIERpcmVjdG9yOiBMaSBQZW5nLCBMaSBKaWFuLCBTaGkgWWFubGkNCg0KDQo+
+ID4gPiBEbyB3ZSBuZWVkIGEgbmV3IHNlY3VyaXR5ZnMgZW50cnkgdG8gZGlzcGxheSB0aGUgbnVt
+YmVyIHVzZWQ/DQo+ID4NCj4gPiBQcm9iYWJseSBpdCBpcyB1c2VmdWwgb25seSBpZiB0aGUgYWRt
+aW5pc3RyYXRvciBjYW4gZGVjaWRlIHRoZSBudW1iZXIgb2YNCj4gc2xvdHMuDQo+IA0KPiBUaGUg
+c2VjdXJpdHlmcyBzdWdnZXN0aW9uIHdhcyBqdXN0IGEgbWVhbnMgZm9yIHRyaWdnZXJpbmcgdGhl
+IGFib3ZlDQo+IGRlYnVnZ2luZyBpbmZvIHlvdSBwcm92aWRlZC4gwqBDb3VsZCB5b3UgcHJvdmlk
+ZSBhbm90aGVyIHBhdGNoIHdpdGggdGhlDQo+IGRlYnVnZ2luZyBpbmZvPw0KPiANCj4gdGhhbmtz
+LA0KPiANCj4gTWltaQ0KDQo=
