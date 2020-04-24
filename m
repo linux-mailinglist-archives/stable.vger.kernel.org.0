@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C823E1B7562
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B491B73CF
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727082AbgDXMcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:32:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51962 "EHLO mail.kernel.org"
+        id S1727079AbgDXMWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:22:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727067AbgDXMWr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:22:47 -0400
+        id S1727073AbgDXMWs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:22:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1F1120767;
-        Fri, 24 Apr 2020 12:22:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E141215A4;
+        Fri, 24 Apr 2020 12:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587730966;
-        bh=hpb5Dlgj/A1AFNx7ZyVBlCM4ijqWSGiYBG2UZcu/z1E=;
+        s=default; t=1587730968;
+        bh=D/WkIwVgvEMD3xO8gDUh7kVDLW+mEo/bNDyZXVnhDOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yX1HqBiVNs+SqB/zuBJF66zliN8l9Do+ApTawuSoKLhEcg2AN/5VDGqRBXENtbmcM
-         EnheEZDL2HXdO2q92eXEDBzSf9usaTsfDCh1Hi+eJ7O6IfYQhkxrmnWNT1+ciP4HZd
-         JiImzBFov8/U7lzPgAkY+tfzDlzVpRdVo9sdPG8A=
+        b=P6Uw/fDFjIAlFUeGmRpiIkhpMV7nOzajY3LG1D8iDp9/rMxh7rLJt1c7TGmV3heXT
+         mk1cI2mz4o3hkriVHG6O7DiTeZ+AladZLPJmjip4JYri2Keqpvg2Leniytmnm74WN8
+         mxj1or9vkvx5GKTnd4y3rhcADkmcitm4v7Bk03QA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Foster <bfoster@redhat.com>,
-        Paul Furtado <paulfurtado91@gmail.com>,
-        Chandan Rajendra <chandanrlinux@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Allison Collins <allison.henderson@oracle.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 08/38] xfs: acquire superblock freeze protection on eofblocks scans
-Date:   Fri, 24 Apr 2020 08:22:06 -0400
-Message-Id: <20200424122237.9831-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 09/38] xfs: fix partially uninitialized structure in xfs_reflink_remap_extent
+Date:   Fri, 24 Apr 2020 08:22:07 -0400
+Message-Id: <20200424122237.9831-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122237.9831-1-sashal@kernel.org>
 References: <20200424122237.9831-1-sashal@kernel.org>
@@ -47,83 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit 4b674b9ac852937af1f8c62f730c325fb6eadcdb ]
+[ Upstream commit c142932c29e533ee892f87b44d8abc5719edceec ]
 
-The filesystem freeze sequence in XFS waits on any background
-eofblocks or cowblocks scans to complete before the filesystem is
-quiesced. At this point, the freezer has already stopped the
-transaction subsystem, however, which means a truncate or cowblock
-cancellation in progress is likely blocked in transaction
-allocation. This results in a deadlock between freeze and the
-associated scanner.
+In the reflink extent remap function, it turns out that uirec (the block
+mapping corresponding only to the part of the passed-in mapping that got
+unmapped) was not fully initialized.  Specifically, br_state was not
+being copied from the passed-in struct to the uirec.  This could lead to
+unpredictable results such as the reflinked mapping being marked
+unwritten in the destination file.
 
-Fix this problem by holding superblock write protection across calls
-into the block reapers. Since protection for background scans is
-acquired from the workqueue task context, trylock to avoid a similar
-deadlock between freeze and blocking on the write lock.
-
-Fixes: d6b636ebb1c9f ("xfs: halt auto-reclamation activities while rebuilding rmap")
-Reported-by: Paul Furtado <paulfurtado91@gmail.com>
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Chandan Rajendra <chandanrlinux@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Allison Collins <allison.henderson@oracle.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_icache.c | 10 ++++++++++
- fs/xfs/xfs_ioctl.c  |  5 ++++-
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_reflink.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/xfs/xfs_icache.c b/fs/xfs/xfs_icache.c
-index 8dc2e54142768..00932d2b503b6 100644
---- a/fs/xfs/xfs_icache.c
-+++ b/fs/xfs/xfs_icache.c
-@@ -907,7 +907,12 @@ xfs_eofblocks_worker(
- {
- 	struct xfs_mount *mp = container_of(to_delayed_work(work),
- 				struct xfs_mount, m_eofblocks_work);
-+
-+	if (!sb_start_write_trylock(mp->m_super))
-+		return;
- 	xfs_icache_free_eofblocks(mp, NULL);
-+	sb_end_write(mp->m_super);
-+
- 	xfs_queue_eofblocks(mp);
- }
+diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
+index b0ce04ffd3cd2..107bf2a2f3448 100644
+--- a/fs/xfs/xfs_reflink.c
++++ b/fs/xfs/xfs_reflink.c
+@@ -1051,6 +1051,7 @@ xfs_reflink_remap_extent(
+ 		uirec.br_startblock = irec->br_startblock + rlen;
+ 		uirec.br_startoff = irec->br_startoff + rlen;
+ 		uirec.br_blockcount = unmap_len - rlen;
++		uirec.br_state = irec->br_state;
+ 		unmap_len = rlen;
  
-@@ -934,7 +939,12 @@ xfs_cowblocks_worker(
- {
- 	struct xfs_mount *mp = container_of(to_delayed_work(work),
- 				struct xfs_mount, m_cowblocks_work);
-+
-+	if (!sb_start_write_trylock(mp->m_super))
-+		return;
- 	xfs_icache_free_cowblocks(mp, NULL);
-+	sb_end_write(mp->m_super);
-+
- 	xfs_queue_cowblocks(mp);
- }
- 
-diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
-index d42de92cb2833..4a99e0b0f3333 100644
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -2264,7 +2264,10 @@ xfs_file_ioctl(
- 		if (error)
- 			return error;
- 
--		return xfs_icache_free_eofblocks(mp, &keofb);
-+		sb_start_write(mp->m_super);
-+		error = xfs_icache_free_eofblocks(mp, &keofb);
-+		sb_end_write(mp->m_super);
-+		return error;
- 	}
- 
- 	default:
+ 		/* If this isn't a real mapping, we're done. */
 -- 
 2.20.1
 
