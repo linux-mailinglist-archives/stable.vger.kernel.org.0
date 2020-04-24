@@ -2,157 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DAA21B78F0
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF241B78F1
 	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 17:10:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727017AbgDXPJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 11:09:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48792 "EHLO
+        id S1726848AbgDXPKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 11:10:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726950AbgDXPJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 11:09:58 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34A13C09B045
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 08:09:58 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id n16so4747320pgb.7
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 08:09:58 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726806AbgDXPKS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 11:10:18 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D49D7C09B045
+        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 08:10:17 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id h26so7839602qtu.8
+        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 08:10:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=pBP/Zs60D+w1BXGvu6+cZEga3bfTSRUGw8RK1l65QZs=;
-        b=AU/hKAk/aKWP81xUrS7pGqoGOy0YPrWpp6b0ECOOfGXZOwneJAfhmyuFl7g5xuxjZm
-         v3EQvKZz1jcjzVSAAE6aDOOLSZhtKDiQ19BZXSIxca5epOiOUloOHlTNsADZoEgqKMi2
-         GCmQHntkBzFjA0DXEUlCgZ2o6uGlqyOW2FirDtS1D01m+s+T9RZ5buEEJaxqJ6VBT4Ra
-         /M4F3z4WvFDDrmBqJXAkHdHkNGJXlMbTF3YM8W6sosejwvS5jbhZgFbRoSeei6ck+mbn
-         siFCDa1RPGn4gsRjpMJKFYjyEz+WrrhMMocIx/qN8uZsrmthEZWTRO9wOIEODP3GTWDS
-         2Pfg==
+        d=cmpxchg-org.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=B9LE4V62b+cl1uM2lXnBQgFoXmc3f50PCV4zSuqYtEw=;
+        b=w3NpaQ4lXPGVQ3dv+rlCgbup7I62krVchcohKzSTijMkXIsxdKsTj0gfgJQimpfjLv
+         mSBtIgvQCGMPBIGFrJCQ1eQxWbHFuJG+LWsFK2a7GfTDHXwH9QGZ+rTZid3JBw0s/rz1
+         fzkqA3uk8+Dwd7FzNHT2i+qiWAbb1Vex+jnUUdC4BUHVB4OvW2XyvkppKaU+yl+OQK++
+         p8nJb8FmTX8pnG8AV9UgSXCEp4MCBpZliJu26Bq50rNaESfzHmp29Zq4kbAncTWCRIda
+         z3fPX0RdaiLnvTYL72A8CQlRjuzLu/ERQCUIF/l+lerJ69SlhuobDLX7svcq0Jmfc0Bh
+         sPvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=pBP/Zs60D+w1BXGvu6+cZEga3bfTSRUGw8RK1l65QZs=;
-        b=oveqEfWmFGkBIrQM7tyhSJSmOyYDAuj4ae3HA5eQBxmV2v4hrJDzohQa4fjNpSr9UB
-         q91G7CMM8kx6N3WO8ehVVtyaMmxKIEomQwW1fX9w204EL5kU7jbNzMhZqbcKzLCEkMkG
-         LiSkZhqUPXaf8YDpmw5oA+dkazH1eZSdx3YAEn/LGQW8beqGx3Ko3WFkMmnooLntdw8z
-         p+axIbpm9N9IQUWfQkEuju6mZCbih1GaJjQKybHY3xUhKKvQckiMDCBdw//qUjdZQbdG
-         6adl7Ma3tgl/erBwFr31RTFyRLi3rwkigPT0Ei2BJY03XMcnqUpIxIDSSfZKRtTR/Jjm
-         5NFg==
-X-Gm-Message-State: AGi0PubVMiY2qvBrnNpHlHuaEVTEcCfCdHfy6fpaVTANoUsq7vXRttER
-        qJUudujL6x/nClnesKJLHv8=
-X-Google-Smtp-Source: APiQypJm/s6oW9e7Q/MQnxu8TRhQulj1YC7YL/X6ORGa+sUzk5LYXf4cRKI5Q3bdLpPz6wHVSQaynQ==
-X-Received: by 2002:a63:f70e:: with SMTP id x14mr9104605pgh.394.1587740997665;
-        Fri, 24 Apr 2020 08:09:57 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j14sm5139738pjm.27.2020.04.24.08.09.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Apr 2020 08:09:56 -0700 (PDT)
-Subject: Re: List of patches to apply to stable releases
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-References: <20200422194306.GA103402@roeck-us.net>
- <20200424101118.GC381429@kroah.com> <20200424140218.GA136135@roeck-us.net>
- <20200424150232.GC607082@kroah.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <56951059-beec-be4c-86e0-3a221d9b386a@roeck-us.net>
-Date:   Fri, 24 Apr 2020 08:09:55 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=B9LE4V62b+cl1uM2lXnBQgFoXmc3f50PCV4zSuqYtEw=;
+        b=TztkZatI/LGkNMYPnDaEp8lg6Y0tVFBOFE2mJmTRmAv3CUJfN8pfVWqw2qV2RUqICT
+         cqIrDQuMhvhmTwASrnm5OYcGSp54k3zUn7edOZ61WnK20iCiZgtjwGYd7Pv/oTl0N8Z2
+         7JjFs0zez93sJtN9jg2scIjpCkyB03NBL6W46Kcgad3qMM5LE2aZdXzzg45pVdxh3DhC
+         5ATIPOWH/aZk+/h5Y4HRzzDj/VYQ061laSe87aUnX3Ftyjl7+E9tfEhcTJSqoLcapQxl
+         Nasso38M/2KSGDEProp8xJ0lYedB/BU0FHHOFBiHUuO1Iqua11AvERNSSF4zmnVJC40M
+         sPmQ==
+X-Gm-Message-State: AGi0PuYFrjTNfOH8S0Bpi2pQthXl7CybAEBZcqr0BZvhBMc33a0EP+Mi
+        oJqNqIxA3kGafnVTuu/6Kdo16EEhkJo=
+X-Google-Smtp-Source: APiQypKhsllylConDKMnH0wr4qa/70n99l9H7GgK2dnOIJMqwO/P5QWRP0AX55zY5EnDz0x36Z+crQ==
+X-Received: by 2002:ac8:4e81:: with SMTP id 1mr9766772qtp.58.1587741016960;
+        Fri, 24 Apr 2020 08:10:16 -0700 (PDT)
+Received: from localhost ([2620:10d:c091:480::921])
+        by smtp.gmail.com with ESMTPSA id t15sm4222036qtc.64.2020.04.24.08.10.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Apr 2020 08:10:14 -0700 (PDT)
+Date:   Fri, 24 Apr 2020 11:10:13 -0400
+From:   Johannes Weiner <hannes@cmpxchg.org>
+To:     Michal Hocko <mhocko@kernel.org>
+Cc:     Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org,
+        vdavydov.dev@gmail.com, linux-mm@kvack.org,
+        Chris Down <chris@chrisdown.name>,
+        Roman Gushchin <guro@fb.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
+Message-ID: <20200424151013.GA525165@cmpxchg.org>
+References: <20200423061629.24185-1-laoar.shao@gmail.com>
+ <20200424131450.GA495720@cmpxchg.org>
+ <20200424142958.GF11591@dhcp22.suse.cz>
 MIME-Version: 1.0
-In-Reply-To: <20200424150232.GC607082@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200424142958.GF11591@dhcp22.suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/24/20 8:02 AM, Greg Kroah-Hartman wrote:
-> On Fri, Apr 24, 2020 at 07:02:18AM -0700, Guenter Roeck wrote:
->> On Fri, Apr 24, 2020 at 12:11:18PM +0200, Greg Kroah-Hartman wrote:
->>> On Wed, Apr 22, 2020 at 12:43:06PM -0700, Guenter Roeck wrote:
->>>
->> [ ... ]
->>>>
->>>> Upstream commit ce4e45842de3 ("crypto: mxs-dcp - make symbols 'sha1_null_hash' and 'sha256_null_hash' static")
->>>>   upstream: v4.20-rc1
->>>>     Fixes: c709eebaf5c5 ("crypto: mxs-dcp - Fix SHA null hashes and output length")
->>>>       in linux-4.4.y: 33378afbd12b
->>>>       in linux-4.9.y: df1ef6f3c9ad
->>>>       in linux-4.14.y: c0933fa586b4
->>>>       in linux-4.19.y: 70ecd0459d03
->>>>       upstream: v4.20-rc1
->>>>     Affected branches:
->>>>       linux-4.4.y
->>>>       linux-4.9.y
->>>>       linux-4.14.y
->>>>       linux-4.19.y
->>>
->>> That's really not a "bug", but I'll take it to keep your scripts happy.
->>>
->> No need to do that - if it happens please let me know and feel free to
->> drop. The script finds lots of irrelevant patches which are (often
->> unnecessarily) marked as Fixes: (maybe we should have a rule stating that
->> comment changes or documentation changes don't count as "fix"). I already
->> drop a lot of them, and feedback like this helps me decide what to drop
->> in the future.
->>
->> In this case I kept the patch in the list not for the happiness of the
->> script but for the happiness of static analyzers. While it doesn't fix
->> a bug per se, it reduces the noise produced by those, which I think does
->> help because less noise improves focus on real bugs.
+On Fri, Apr 24, 2020 at 04:29:58PM +0200, Michal Hocko wrote:
+> On Fri 24-04-20 09:14:50, Johannes Weiner wrote:
+> > On Thu, Apr 23, 2020 at 02:16:29AM -0400, Yafang Shao wrote:
+> > > This patch is an improvement of a previous version[1], as the previous
+> > > version is not easy to understand.
+> > > This issue persists in the newest kernel, I have to resend the fix. As
+> > > the implementation is changed, I drop Roman's ack from the previous
+> > > version.
+> > 
+> > Now that I understand the problem, I much prefer the previous version.
+> > 
+> > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > index 745697906ce3..2bf91ae1e640 100644
+> > --- a/mm/memcontrol.c
+> > +++ b/mm/memcontrol.c
+> > @@ -6332,8 +6332,19 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
+> >  
+> >  	if (!root)
+> >  		root = root_mem_cgroup;
+> > -	if (memcg == root)
+> > +	if (memcg == root) {
+> > +		/*
+> > +		 * The cgroup is the reclaim root in this reclaim
+> > +		 * cycle, and therefore not protected. But it may have
+> > +		 * stale effective protection values from previous
+> > +		 * cycles in which it was not the reclaim root - for
+> > +		 * example, global reclaim followed by limit reclaim.
+> > +		 * Reset these values for mem_cgroup_protection().
+> > +		 */
+> > +		memcg->memory.emin = 0;
+> > +		memcg->memory.elow = 0;
+> >  		return MEMCG_PROT_NONE;
+> > +	}
 > 
-> Yes it does, good point, but I don't want to start backporting all
-> sparse warning fixes to stable kernels just yet :)
+> Could you be more specific why you prefer this over the
+> mem_cgroup_protection which doesn't change the effective value?
+> Isn't it easier to simply ignore effective value for the reclaim roots?
+
+Because now both mem_cgroup_protection() and mem_cgroup_protected()
+have to know about the reclaim root semantics, instead of just the one
+central place.
+
+And the query function has to know additional rules about when the
+emin/elow values are uptodate or it could silently be looking at stale
+data, which isn't very robust.
+
+"The effective protection values are uptodate after calling
+mem_cgroup_protected() inside the reclaim cycle - UNLESS the group
+you're looking at happens to be..."
+
+It's much easier to make the rule: The values are uptodate after you
+called mem_cgroup_protected().
+
+Or mem_cgroup_calculate_protection(), if we go with that later.
+
+> > As others have noted, it's fairly hard to understand the problem from
+> > the above changelog. How about the following:
+> > 
+> > A cgroup can have both memory protection and a memory limit to isolate
+> > it from its siblings in both directions - for example, to prevent it
+> > from being shrunk below 2G under high pressure from outside, but also
+> > from growing beyond 4G under low pressure.
+> > 
+> > 9783aa9917f8 ("mm, memcg: proportional memory.{low,min} reclaim")
+> > implemented proportional scan pressure so that multiple siblings in
+> > excess of their protection settings don't get reclaimed equally but
+> > instead in accordance to their unprotected portion.
+> > 
+> > During limit reclaim, this proportionality shouldn't apply of course:
+> > there is no competition, all pressure is from within the cgroup and
+> > should be applied as such. Reclaim should operate at full efficiency.
+> > 
+> > However, mem_cgroup_protected() never expected anybody to look at the
+> > effective protection values when it indicated that the cgroup is above
+> > its protection. As a result, a query during limit reclaim may return
+> > stale protection values that were calculated by a previous reclaim
+> > cycle in which the cgroup did have siblings.
 > 
+> This is better. Thanks!
+> 
+> > When this happens, reclaim is unnecessarily hesitant and potentially
+> > slow to meet the desired limit. In theory this could lead to premature
+> > OOM kills, although it's not obvious this has occurred in practice.
+> 
+> I do not see how this would lead all the way to OOM killer but it
+> certainly can lead to unnecessary increase of the reclaim priority. The
+> smaller the difference between the reclaim target and protection the
+> more visible the effect would be. But if there are reclaimable pages
+> then the reclaim should see them sooner or later
 
-NP, I'll drop those in the future.
+It would be a pretty extreme case, but not impossible AFAICS, because
+OOM is just a sampled state, not deterministic.
 
-Thanks,
-Guenter
+If memory.max is 64G and memory.low is 64G minus one page, this bug
+could cause limit reclaim to look at no more than SWAP_CLUSTER_MAX
+pages at priority 0. It's possible it wouldn't get through the full
+64G worth of memory before giving up and declaring OOM.
+
+Not that that would be a sensical configuration... My point is that
+OOM is defined as "I've looked at X pages and found nothing" and this
+bug can significantly lower X.
