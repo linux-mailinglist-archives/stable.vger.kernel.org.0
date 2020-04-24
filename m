@@ -2,71 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1911D1B7C32
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 18:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 421E11B7D0F
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 19:38:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727063AbgDXQv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 12:51:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49820 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727031AbgDXQv2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 12:51:28 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50D6F20728;
-        Fri, 24 Apr 2020 16:51:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587747087;
-        bh=v47mgOKAClzASxcV2Mt75OgxIokGkWQHNoCwnSJqPWA=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=QJSZlg2jczNQ0oqxMs1FnlaRM5IhqNa1apITy8fV4t+qOxnXQKjTliYnLGpV+QR5D
-         LZ3FJYfxSmpbVmy7ZDCbuOGp3Jc+dM2GQ74RzOfpRRZvKTTytdsJOxcvtYEaBB+GGF
-         tTzcN1AhWiuFbKYfyxokAWz2OEDKKM5uRmeMkTUg=
-Subject: Re: [PATCH 4.4 00/99] 4.4.220-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20200423103313.886224224@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <499f3bd9-b8cb-1858-0f5e-e19b4340faeb@kernel.org>
-Date:   Fri, 24 Apr 2020 10:51:26 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
-MIME-Version: 1.0
-In-Reply-To: <20200423103313.886224224@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1726813AbgDXRil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 13:38:41 -0400
+Received: from mother.openwall.net ([195.42.179.200]:54078 "HELO
+        mother.openwall.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1726908AbgDXRik (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 13:38:40 -0400
+Received: (qmail 12213 invoked from network); 24 Apr 2020 17:38:38 -0000
+Received: from localhost (HELO pvt.openwall.com) (127.0.0.1)
+  by localhost with SMTP; 24 Apr 2020 17:38:38 -0000
+Received: by pvt.openwall.com (Postfix, from userid 503)
+        id CF163AB5C7; Fri, 24 Apr 2020 19:38:28 +0200 (CEST)
+Date:   Fri, 24 Apr 2020 19:38:28 +0200
+From:   Solar Designer <solar@openwall.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Kees Cook <keescook@chromium.org>,
+        Salvatore Mesoraca <s.mesoraca16@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 3.16 208/245] namei: allow restricted O_CREAT of FIFOs and regular files
+Message-ID: <20200424173828.GA27528@openwall.com>
+References: <lsq.1587683027.831233700@decadent.org.uk> <lsq.1587683028.722200761@decadent.org.uk> <20200424135205.GA27204@openwall.com> <8783c94cb802ade8a45cdf4233fe3b7341cca5c9.camel@decadent.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8783c94cb802ade8a45cdf4233fe3b7341cca5c9.camel@decadent.org.uk>
+User-Agent: Mutt/1.4.2.3i
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/23/20 4:34 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.220 release.
-> There are 99 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Fri, Apr 24, 2020 at 04:13:22PM +0100, Ben Hutchings wrote:
+> On Fri, 2020-04-24 at 15:52 +0200, Solar Designer wrote:
+> > On Fri, Apr 24, 2020 at 12:07:15AM +0100, Ben Hutchings wrote:
+> > > 3.16.83-rc1 review patch.  If anyone has any objections, please let me know.
+> > 
+> > I do.  This patch is currently known-buggy, see this thread:
+> > 
+> > https://www.openwall.com/lists/oss-security/2020/01/28/2
+> > 
+> > It is (partially) fixed with these newer commits in 5.5 and 5.5.2:
+> > 
+> > commit d0cb50185ae942b03c4327be322055d622dc79f6
+> > Author: Al Viro <viro@zeniv.linux.org.uk>
+> > Date:   Sun Jan 26 09:29:34 2020 -0500
+> > 
+> >     do_last(): fetch directory ->i_mode and ->i_uid before it's too late
+> >     
+> >     may_create_in_sticky() call is done when we already have dropped the
+> >     reference to dir.
+> >     
+> >     Fixes: 30aba6656f61e (namei: allow restricted O_CREAT of FIFOs and regular files)
+> >     Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> > 
+> > commit d76341d93dedbcf6ed5a08dfc8bce82d3e9a772b
+> > Author: Al Viro <viro@zeniv.linux.org.uk>
+> > Date:   Sat Feb 1 16:26:45 2020 +0000
+> > 
+> >     vfs: fix do_last() regression
+> >     
+> >     commit 6404674acd596de41fd3ad5f267b4525494a891a upstream.
+> [...]
+> > At least inclusion of the above fixes is mandatory for any backports.
 > 
-> Responses should be made by Sat, 25 Apr 2020 10:31:20 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.220-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> I know, and those are the next 2 patches in the series.
 
-Compiled and booted on my test system. No dmesg regressions.
+Ah, then no objections from me.
 
-thanks,
--- Shuah
+> > Also, I think no one has fixed the logic of may_create_in_sticky() so
+> > that it wouldn't unintentionally apply the "protection" when the file
+> > is neither a FIFO nor a regular file (something I found and mentioned in
+> > the oss-security posting above).
+> [...]
+> > I think the implementation of may_create_in_sticky() should be rewritten
+> > such that it'd directly correspond to the textual description in the
+> > comment above.  As we've seen, trying to write the code "more optimally"
+> > resulted in its logic actually being different from the description.
+> > 
+> > Meanwhile, I think backporting known-so-buggy code is a bad idea.
+> 
+> I can see that it's not quite right, but does it matter in practice? 
+> Directories and symlinks are handled separately; sockets can't be
+> opened anyway; block and character devices wonn't normally appear in a
+> sticky directory.
+
+Clearly, it doesn't matter all that much in practice - I'm not aware of
+anyone having complained about it causing issues on their system.
+
+I think it primarily mattered as an attack vector on the issue fixed
+with Al's commits above.
+
+I think we should nevertheless fix the code to match its intent and the
+comment, but meanwhile this isn't a blocker for the backport.
+
+Alexander
