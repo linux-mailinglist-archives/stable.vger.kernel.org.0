@@ -2,120 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C85E21B73B7
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:18:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 920151B73BB
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726707AbgDXMSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:18:14 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2096 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726698AbgDXMSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:18:14 -0400
-Received: from lhreml740-chm.china.huawei.com (unknown [172.18.7.107])
-        by Forcepoint Email with ESMTP id 3F53095920E6AD0816A0;
-        Fri, 24 Apr 2020 13:18:12 +0100 (IST)
-Received: from fraeml706-chm.china.huawei.com (10.206.15.55) by
- lhreml740-chm.china.huawei.com (10.201.108.190) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.1913.5; Fri, 24 Apr 2020 13:18:12 +0100
-Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
- fraeml706-chm.china.huawei.com (10.206.15.55) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.1913.5; Fri, 24 Apr 2020 14:18:11 +0200
-Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
- fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.1913.007;
- Fri, 24 Apr 2020 14:18:11 +0200
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
-        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH 3/5] ima: Fix ima digest hash table key calculation
-Thread-Topic: [PATCH 3/5] ima: Fix ima digest hash table key calculation
-Thread-Index: AQHWAsCL0WxU1zQQXUO+TcKy4wW9saiFqfKAgAD8PeCAAFIUgIABYaXQ
-Date:   Fri, 24 Apr 2020 12:18:11 +0000
-Message-ID: <59a280b928db4c478f660d14c33cdd87@huawei.com>
-References: <20200325161116.7082-1-roberto.sassu@huawei.com>
-         <20200325161116.7082-3-roberto.sassu@huawei.com>
-         <1587588987.5165.20.camel@linux.ibm.com>
-         <11984a05a5624f64aed1ec6b0d0b75ff@huawei.com>
- <1587660781.5610.15.camel@linux.ibm.com>
-In-Reply-To: <1587660781.5610.15.camel@linux.ibm.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.47.14.239]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726698AbgDXMSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:18:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726667AbgDXMSk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 08:18:40 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61618C09B045
+        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 05:18:39 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id f13so10481009wrm.13
+        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 05:18:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chrisdown.name; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ipnrAc+3cHuR7HETpLSOZ/5pb3ou/GVUIiWBM3QfP6g=;
+        b=oXb1uRcV2TeRQZCyd2HB+GxacyKPmMxcmjkLte3Sr9bBviXfK0IoR739gYNHZ9Yxf7
+         DNr0j345PtdEonwsua9UDFDZjp8vGhGAMP/PzLxaAzB0lnkjTqv1AjS+21a7nGBYTxGk
+         o8SfE+AnlTC4o0q52FcxEkOFUFrlirhzEY4rs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ipnrAc+3cHuR7HETpLSOZ/5pb3ou/GVUIiWBM3QfP6g=;
+        b=oycLVfVAHSpf5PIJqCPF2MUfXfj+AIppMAFVdc8iOI/cG5GT5bS7TQ4tnFoHL3KBss
+         CQVWfO61oWgvFMGs0Xj+kbwyh/vm0wDa6dAssm/WUgl6OIDDXSRZHMqpKhQmXVJp64J0
+         sf7KmnUZ2yIgnnY3hwN8APnDdrSS0BjsnEeE5X6bWAbOTR2Tr8vXg7tDTNcvTYcA3g61
+         /3/0ShYCO0pEyKSunPdwxhnlT0VkgnkIz+f/KeexbDtBWHEcTGAUQZsFqq7xR45j6uWk
+         uRmJ1Eo/DD+vWfF60ROml205JQaCV4buWE+umtQMQtFpLY/KUpP84/g6kf1aCxBsKfyU
+         RVuw==
+X-Gm-Message-State: AGi0Pubrw1UmH4EQjNpspBEsxPMVqWt/9abXP9FNM5skRxNKAiXj9Awh
+        G7k4cFfn0mUl0iNLXOJAgT+KhQ==
+X-Google-Smtp-Source: APiQypK3jlRPBnbzBDYDGr5uzrtczZ4y7sMSF3ZqM2froUtG5ZL3FCYUnhBNyfri73DaJTjbZ/jiHQ==
+X-Received: by 2002:adf:e5c7:: with SMTP id a7mr11138306wrn.241.1587730718065;
+        Fri, 24 Apr 2020 05:18:38 -0700 (PDT)
+Received: from localhost ([2a01:4b00:8432:8a00:56e1:adff:fe3f:49ed])
+        by smtp.gmail.com with ESMTPSA id p6sm8083667wrt.3.2020.04.24.05.18.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Apr 2020 05:18:37 -0700 (PDT)
+Date:   Fri, 24 Apr 2020 13:18:36 +0100
+From:   Chris Down <chris@chrisdown.name>
+To:     Yafang Shao <laoar.shao@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Linux MM <linux-mm@kvack.org>, Roman Gushchin <guro@fb.com>,
+        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>
+Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
+Message-ID: <20200424121836.GA1379200@chrisdown.name>
+References: <20200423061629.24185-1-laoar.shao@gmail.com>
+ <20200423153323.GA1318256@chrisdown.name>
+ <CALOAHbDpvRZWcaoKBs2ywJFSY0MXT-WEe6wZTR=ed4-85Ovcgg@mail.gmail.com>
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CALOAHbDpvRZWcaoKBs2ywJFSY0MXT-WEe6wZTR=ed4-85Ovcgg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCkhVQVdFSSBURUNITk9MT0dJRVMgRHVlc3NlbGRvcmYgR21iSCwgSFJCIDU2MDYzDQpNYW5h
-Z2luZyBEaXJlY3RvcjogTGkgUGVuZywgTGkgSmlhbiwgU2hpIFlhbmxpDQoNCg0KPiAtLS0tLU9y
-aWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBNaW1pIFpvaGFyIFttYWlsdG86em9oYXJAbGlu
-dXguaWJtLmNvbV0NCj4gU2VudDogVGh1cnNkYXksIEFwcmlsIDIzLCAyMDIwIDY6NTMgUE0NCj4g
-VG86IFJvYmVydG8gU2Fzc3UgPHJvYmVydG8uc2Fzc3VAaHVhd2VpLmNvbT4NCj4gQ2M6IGxpbnV4
-LWludGVncml0eUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LXNlY3VyaXR5LW1vZHVsZUB2Z2VyLmtl
-cm5lbC5vcmc7DQo+IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IEtyenlzenRvZiBTdHJ1
-Y3p5bnNraQ0KPiA8a3J6eXN6dG9mLnN0cnVjenluc2tpQGh1YXdlaS5jb20+OyBTaWx2aXUgVmxh
-c2NlYW51DQo+IDxTaWx2aXUuVmxhc2NlYW51QGh1YXdlaS5jb20+OyBzdGFibGVAdmdlci5rZXJu
-ZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMy81XSBpbWE6IEZpeCBpbWEgZGlnZXN0IGhh
-c2ggdGFibGUga2V5IGNhbGN1bGF0aW9uDQo+IA0KPiBPbiBUaHUsIDIwMjAtMDQtMjMgYXQgMTA6
-MjEgKzAwMDAsIFJvYmVydG8gU2Fzc3Ugd3JvdGU6DQo+ID4gPiBIaSBSb2JlcnRvLCBLcnN5c3p0
-b2YsDQo+ID4gPg0KPiA+ID4gT24gV2VkLCAyMDIwLTAzLTI1IGF0IDE3OjExICswMTAwLCBSb2Jl
-cnRvIFNhc3N1IHdyb3RlOg0KPiA+ID4gPiBGcm9tOiBLcnp5c3p0b2YgU3RydWN6eW5za2kgPGty
-enlzenRvZi5zdHJ1Y3p5bnNraUBodWF3ZWkuY29tPg0KPiA+ID4gPg0KPiA+ID4gPiBGdW5jdGlv
-biBoYXNoX2xvbmcoKSBhY2NlcHRzIHVuc2lnbmVkIGxvbmcsIHdoaWxlIGN1cnJlbnRseSBvbmx5
-IG9uZQ0KPiBieXRlDQo+ID4gPiA+IGlzIHBhc3NlZCBmcm9tIGltYV9oYXNoX2tleSgpLCB3aGlj
-aCBjYWxjdWxhdGVzIGEga2V5IGZvciBpbWFfaHRhYmxlLg0KPiA+ID4gVXNlDQo+ID4gPiA+IG1v
-cmUgYnl0ZXMgdG8gYXZvaWQgZnJlcXVlbnQgY29sbGlzaW9ucy4NCj4gPiA+ID4NCj4gPiA+ID4g
-TGVuZ3RoIG9mIHRoZSBidWZmZXIgaXMgbm90IGV4cGxpY2l0bHkgcGFzc2VkIGFzIGEgZnVuY3Rp
-b24gcGFyYW1ldGVyLA0KPiA+ID4gPiBiZWNhdXNlIHRoaXMgZnVuY3Rpb24gZXhwZWN0cyBhIGRp
-Z2VzdCB3aG9zZSBsZW5ndGggaXMgZ3JlYXRlciB0aGFuDQo+IHRoZQ0KPiA+ID4gPiBzaXplIG9m
-IHVuc2lnbmVkIGxvbmcuDQo+ID4gPg0KPiA+ID4gU29tZWhvdyBJIG1pc3NlZCB0aGUgb3JpZ2lu
-YWwgcmVwb3J0IG9mIHRoaXMgcHJvYmxlbcKgaHR0cHM6Ly9sb3JlLmtlcm4NCj4gPiA+IGVsLm9y
-Zy9wYXRjaHdvcmsvcGF0Y2gvNjc0Njg0Ly4gwqBUaGlzIHBhdGNoIGlzIGRlZmluaXRlbHkgYmV0
-dGVyLCBidXQNCj4gPiA+IGhvdyBtYW55IHVuaXF1ZSBrZXlzIGFyZSBhY3R1YWxseSBiZWluZyB1
-c2VkPyDCoElzIGl0IGFueXdoZXJlIG5lYXINCj4gPiA+IElNQV9NRUFTVVJFX0hUQUJMRV9TSVpF
-KDUxMik/DQo+ID4NCj4gPiBJIGRpZCBhIHNtYWxsIHRlc3QgKHdpdGggMTA0MyBtZWFzdXJlbWVu
-dHMpOg0KPiA+DQo+ID4gc2xvdHM6IDI1MCwgbWF4IGRlcHRoOiA5ICh3aXRob3V0IHRoZSBwYXRj
-aCkNCj4gPiBzbG90czogNDQ4LCBtYXggZGVwdGg6IDcgKHdpdGggdGhlIHBhdGNoKQ0KPiANCj4g
-NDQ4IG91dCBvZiA1MTIgc2xvdHMgYXJlIHVzZWQuDQo+IA0KPiA+DQo+ID4gVGhlbiwgSSBpbmNy
-ZWFzZWQgdGhlIG51bWJlciBvZiBiaXRzIHRvIDEwOg0KPiA+DQo+ID4gc2xvdHM6IDI1MSwgbWF4
-IGRlcHRoOiA5ICh3aXRob3V0IHRoZSBwYXRjaCkNCj4gPiBzbG90czogNjYwLCBtYXggZGVwdGg6
-IDQgKHdpdGggdGhlIHBhdGNoKQ0KPiANCj4gNjYwIG91dCBvZiAxMDI0IHNsb3RzIGFyZSB1c2Vk
-Lg0KPiANCj4gSSB3b25kZXIgaWYgdGhlcmUgaXMgYW55IGJlbmVmaXQgdG8gaGFzaGluZyBhIGRp
-Z2VzdCwgaW5zdGVhZCBvZiBqdXN0DQo+IHVzaW5nIHRoZSBmaXJzdCBiaXRzLg0KDQpCZWZvcmUg
-SSBjYWxjdWxhdGVkIG1heCBkZXB0aCB1bnRpbCB0aGVyZSBpcyBhIG1hdGNoLCBub3QgdGhlIGZ1
-bGwgZGVwdGguDQoNCiMxDQpyZXR1cm4gaGFzaF9sb25nKCooKHVuc2lnbmVkIGxvbmcgKilkaWdl
-c3QpLCBJTUFfSEFTSF9CSVRTKTsNCiNkZWZpbmUgSU1BX0hBU0hfQklUUyA5DQoNClJ1bnRpbWUg
-bWVhc3VyZW1lbnRzOiAxNDg4DQpWaW9sYXRpb25zOiAwDQpTbG90cyAodXNlZC9hdmFpbGFibGUp
-OiA0ODQvNTEyDQpNYXggZGVwdGggaGFzaCB0YWJsZTogMTANCg0KIzINCnJldHVybiAqKHVuc2ln
-bmVkIGxvbmcgKilkaWdlc3QgJSBJTUFfTUVBU1VSRV9IVEFCTEVfU0laRTsNCiNkZWZpbmUgSU1B
-X0hBU0hfQklUUyA5DQoNClJ1bnRpbWUgbWVhc3VyZW1lbnRzOiAxNDkxDQpWaW9sYXRpb25zOiAy
-DQpTbG90cyAodXNlZC9hdmFpbGFibGUpOiA0ODkvNTEyDQpNYXggZGVwdGggaGFzaCB0YWJsZTog
-MTANCg0KIzMNCnJldHVybiBoYXNoX2xvbmcoKigodW5zaWduZWQgbG9uZyAqKWRpZ2VzdCksIElN
-QV9IQVNIX0JJVFMpOw0KI2RlZmluZSBJTUFfSEFTSF9CSVRTIDEwDQoNClJ1bnRpbWUgbWVhc3Vy
-ZW1lbnRzOiAxNDg5DQpWaW9sYXRpb25zOiAwDQpTbG90cyAodXNlZC9hdmFpbGFibGUpOiA3ODAv
-MTAyNA0KTWF4IGRlcHRoIGhhc2ggdGFibGU6IDYNCg0KIzQNCnJldHVybiAqKHVuc2lnbmVkIGxv
-bmcgKilkaWdlc3QgJSBJTUFfTUVBU1VSRV9IVEFCTEVfU0laRTsNCiNkZWZpbmUgSU1BX0hBU0hf
-QklUUyAxMA0KDQpSdW50aW1lIG1lYXN1cmVtZW50czogMTQ4OQ0KVmlvbGF0aW9uczogMA0KU2xv
-dHMgKHVzZWQvYXZhaWxhYmxlKTogNzkzLzEwMjQNCk1heCBkZXB0aCBoYXNoIHRhYmxlOiA2DQoN
-ClJvYmVydG8NCg0KSFVBV0VJIFRFQ0hOT0xPR0lFUyBEdWVzc2VsZG9yZiBHbWJILCBIUkIgNTYw
-NjMNCk1hbmFnaW5nIERpcmVjdG9yOiBMaSBQZW5nLCBMaSBKaWFuLCBTaGkgWWFubGkNCg0KDQo+
-ID4gPiBEbyB3ZSBuZWVkIGEgbmV3IHNlY3VyaXR5ZnMgZW50cnkgdG8gZGlzcGxheSB0aGUgbnVt
-YmVyIHVzZWQ/DQo+ID4NCj4gPiBQcm9iYWJseSBpdCBpcyB1c2VmdWwgb25seSBpZiB0aGUgYWRt
-aW5pc3RyYXRvciBjYW4gZGVjaWRlIHRoZSBudW1iZXIgb2YNCj4gc2xvdHMuDQo+IA0KPiBUaGUg
-c2VjdXJpdHlmcyBzdWdnZXN0aW9uIHdhcyBqdXN0IGEgbWVhbnMgZm9yIHRyaWdnZXJpbmcgdGhl
-IGFib3ZlDQo+IGRlYnVnZ2luZyBpbmZvIHlvdSBwcm92aWRlZC4gwqBDb3VsZCB5b3UgcHJvdmlk
-ZSBhbm90aGVyIHBhdGNoIHdpdGggdGhlDQo+IGRlYnVnZ2luZyBpbmZvPw0KPiANCj4gdGhhbmtz
-LA0KPiANCj4gTWltaQ0KDQo=
+Yafang Shao writes:
+>If the author can't understand deeply in the code worte by
+>himself/herself, I think the author should do more test on his/her
+>patches.
+>Regarding the issue in this case, my understanding is you know the
+>benefit of proportional reclaim, but I'm wondering that do you know
+>the loss if the proportional is not correct ?
+>I don't mean to affend you, while I just try to explain how the
+>community should cooperate.
+
+I'm pretty sure that since multiple people on mm list have already expressed 
+confusion at this patch, this isn't a question of testing, but of lack of 
+clarity in usage :-)
+
+Promoting "testing" as a panacea for this issue misses a significant part of 
+the real problem: that the intended semantics and room for allowed races is 
+currently unclear, which is why there is a general sense of confusion around 
+your proposed patch and what it solves. If more testing would help, then the 
+benefit of your patch should be patently obvious -- but it isn't.
