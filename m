@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DFD11B750A
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B5321B7507
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728036AbgDXMak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 08:30:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53430 "EHLO mail.kernel.org"
+        id S1728057AbgDXMXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 08:23:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728012AbgDXMXc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:23:32 -0400
+        id S1728037AbgDXMXe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:23:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF49220706;
-        Fri, 24 Apr 2020 12:23:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4E8721775;
+        Fri, 24 Apr 2020 12:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587731012;
-        bh=nGZDO/K9lYYZW94wZtWdHPaukQfIVFd3XwttEgm9WfA=;
+        s=default; t=1587731013;
+        bh=GIXh259zkAV973E6JlrJai6TvZR6jjhBMMdVrHzuVcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9xsYzkNcJ0fLRBUJjXG0Wl0l7MUMNTJYSEzF44nFRsfxRQyF8khxy9WiQILszutT
-         Jlw8HQirE8s7jP9Jvv0ATLfHxqP6/4chNfPi3pP9/C0Nq7xFh5gsVgDTEmDOYQGWym
-         ZV4uywZDOxdCKrSr6+GNtHTb0nHLZr8tTGXuKZLc=
+        b=tPayMWdEte/R/vOBKMUqld2SSbbxEAtctb2IuRKkvgjE2a10vqhrzTp/zV4Y/UlLa
+         uHUp3LI0T09BQIz6+hTR0JyubEhji5v34NDDCjM8dPTtw17AjxkdFoOTTdb5yklaeN
+         Z64U21GgIpz64D6nLMullSwloKTuCZYtlvNc8e9k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Brian Foster <bfoster@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 07/26] xfs: fix partially uninitialized structure in xfs_reflink_remap_extent
-Date:   Fri, 24 Apr 2020 08:23:04 -0400
-Message-Id: <20200424122323.10194-7-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 08/26] ALSA: hda: Release resources at error in delayed probe
+Date:   Fri, 24 Apr 2020 08:23:05 -0400
+Message-Id: <20200424122323.10194-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122323.10194-1-sashal@kernel.org>
 References: <20200424122323.10194-1-sashal@kernel.org>
@@ -43,36 +42,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c142932c29e533ee892f87b44d8abc5719edceec ]
+[ Upstream commit 2393e7555b531a534152ffe7bfd1862cacedaacb ]
 
-In the reflink extent remap function, it turns out that uirec (the block
-mapping corresponding only to the part of the passed-in mapping that got
-unmapped) was not fully initialized.  Specifically, br_state was not
-being copied from the passed-in struct to the uirec.  This could lead to
-unpredictable results such as the reflinked mapping being marked
-unwritten in the destination file.
+snd-hda-intel driver handles the most of its probe task in the delayed
+work (either via workqueue or via firmware loader).  When an error
+happens in the later delayed probe, we can't deregister the device
+itself because the probe callback already returned success and the
+device was bound.  So, for now, we set hda->init_failed flag and make
+the rest untouched until the device gets really unbound.
+However, this leaves the device up running, keeping the resources
+without any use that prevents other operations.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
+In this patch, we release the resources at first when a probe error
+happens in the delayed probe stage, but keeps the top-level object, so
+that the PM and other ops can still refer to the object itself.
+
+Also for simplicity, snd_hda_intel object is allocated via devm, so
+that we can get rid of the explicit kfree calls.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
+Link: https://lore.kernel.org/r/20200413082034.25166-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_reflink.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/hda_intel.c | 29 ++++++++++++++++-------------
+ sound/pci/hda/hda_intel.h |  1 +
+ 2 files changed, 17 insertions(+), 13 deletions(-)
 
-diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
-index 0f08153b49941..6a4fd1738b086 100644
---- a/fs/xfs/xfs_reflink.c
-+++ b/fs/xfs/xfs_reflink.c
-@@ -1053,6 +1053,7 @@ xfs_reflink_remap_extent(
- 		uirec.br_startblock = irec->br_startblock + rlen;
- 		uirec.br_startoff = irec->br_startoff + rlen;
- 		uirec.br_blockcount = unmap_len - rlen;
-+		uirec.br_state = irec->br_state;
- 		unmap_len = rlen;
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 72bbfeddea24a..2b288c523dce0 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1200,10 +1200,8 @@ static void azx_vs_set_state(struct pci_dev *pci,
+ 		if (!disabled) {
+ 			dev_info(chip->card->dev,
+ 				 "Start delayed initialization\n");
+-			if (azx_probe_continue(chip) < 0) {
++			if (azx_probe_continue(chip) < 0)
+ 				dev_err(chip->card->dev, "initialization error\n");
+-				hda->init_failed = true;
+-			}
+ 		}
+ 	} else {
+ 		dev_info(chip->card->dev, "%s via vga_switcheroo\n",
+@@ -1336,12 +1334,15 @@ static int register_vga_switcheroo(struct azx *chip)
+ /*
+  * destructor
+  */
+-static int azx_free(struct azx *chip)
++static void azx_free(struct azx *chip)
+ {
+ 	struct pci_dev *pci = chip->pci;
+ 	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
+ 	struct hdac_bus *bus = azx_bus(chip);
  
- 		/* If this isn't a real mapping, we're done. */
++	if (hda->freed)
++		return;
++
+ 	if (azx_has_pm_runtime(chip) && chip->running)
+ 		pm_runtime_get_noresume(&pci->dev);
+ 	chip->running = 0;
+@@ -1385,9 +1386,8 @@ static int azx_free(struct azx *chip)
+ 
+ 	if (chip->driver_caps & AZX_DCAPS_I915_COMPONENT)
+ 		snd_hdac_i915_exit(bus);
+-	kfree(hda);
+ 
+-	return 0;
++	hda->freed = 1;
+ }
+ 
+ static int azx_dev_disconnect(struct snd_device *device)
+@@ -1403,7 +1403,8 @@ static int azx_dev_disconnect(struct snd_device *device)
+ 
+ static int azx_dev_free(struct snd_device *device)
+ {
+-	return azx_free(device->device_data);
++	azx_free(device->device_data);
++	return 0;
+ }
+ 
+ #ifdef SUPPORT_VGA_SWITCHEROO
+@@ -1717,7 +1718,7 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
+ 	if (err < 0)
+ 		return err;
+ 
+-	hda = kzalloc(sizeof(*hda), GFP_KERNEL);
++	hda = devm_kzalloc(&pci->dev, sizeof(*hda), GFP_KERNEL);
+ 	if (!hda) {
+ 		pci_disable_device(pci);
+ 		return -ENOMEM;
+@@ -1758,7 +1759,6 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
+ 
+ 	err = azx_bus_init(chip, model[dev]);
+ 	if (err < 0) {
+-		kfree(hda);
+ 		pci_disable_device(pci);
+ 		return err;
+ 	}
+@@ -2306,13 +2306,16 @@ static int azx_probe_continue(struct azx *chip)
+ 		pm_runtime_put_autosuspend(&pci->dev);
+ 
+ out_free:
+-	if (err < 0 || !hda->need_i915_power)
++	if (err < 0) {
++		azx_free(chip);
++		return err;
++	}
++
++	if (!hda->need_i915_power)
+ 		display_power(chip, false);
+-	if (err < 0)
+-		hda->init_failed = 1;
+ 	complete_all(&hda->probe_wait);
+ 	to_hda_bus(bus)->bus_probing = 0;
+-	return err;
++	return 0;
+ }
+ 
+ static void azx_remove(struct pci_dev *pci)
+diff --git a/sound/pci/hda/hda_intel.h b/sound/pci/hda/hda_intel.h
+index 2acfff3da1a04..3fb119f090408 100644
+--- a/sound/pci/hda/hda_intel.h
++++ b/sound/pci/hda/hda_intel.h
+@@ -27,6 +27,7 @@ struct hda_intel {
+ 	unsigned int use_vga_switcheroo:1;
+ 	unsigned int vga_switcheroo_registered:1;
+ 	unsigned int init_failed:1; /* delayed init failed */
++	unsigned int freed:1; /* resources already released */
+ 
+ 	bool need_i915_power:1; /* the hda controller needs i915 power */
+ };
 -- 
 2.20.1
 
