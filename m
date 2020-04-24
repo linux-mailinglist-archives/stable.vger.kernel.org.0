@@ -2,90 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 253161B7859
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 16:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD83B1B7880
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 16:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726900AbgDXOdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Apr 2020 10:33:52 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:35846 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726890AbgDXOdw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 10:33:52 -0400
-Received: by mail-wm1-f66.google.com with SMTP id u127so11022826wmg.1
-        for <stable@vger.kernel.org>; Fri, 24 Apr 2020 07:33:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=1dmTq9GYPFXiIasqQmCsmDhwPpqRF+E4SKqVryAxjAs=;
-        b=jJkcaCiMxj2SaMQtok8ALFUqdNhypLq5EB1X2g5rN/qYODMEk8DHiYr0jOFtjoBieV
-         C9e2elYqsPi2K1Td1HcFF6X7T9flu+zjnOcJVcyk35RxpnEAi7DUk9lQxOm8slsAunno
-         ACZcretQOx5/Uq9eg0uldF1ACpgJaaTw1A7ReTr0CR8IuPhFMVrtNpA7k/v3CmU/NV5z
-         omiaqfnTN2W+CsKt9uJsaPkIC9HnUEASUyM3Q/VJtdKmY1ZJ9uoOQggRYuUuc0UIXZYb
-         9EbyV+Rl0mVNQQqiPHEOb9NPWVDUGlasepIfUcqXBV5QHI9n0g2Xq6SsU7bKj3Hh7qNx
-         QR5w==
-X-Gm-Message-State: AGi0PuZI4CUGO4BYmUcxk+hWCwMY2fsbNbvrP0oFuiQm7krNOyUrNO7I
-        LQhAjSfPEcfQrjIQzkEDOp4=
-X-Google-Smtp-Source: APiQypKxPPwhck2+CtPILFT0UzPpuF4y1M2wxk9KzL2S44daGsMJL+fRSi9kEDyC1i4kwgqcAPfQuw==
-X-Received: by 2002:a1c:3dd6:: with SMTP id k205mr10495213wma.138.1587738829017;
-        Fri, 24 Apr 2020 07:33:49 -0700 (PDT)
-Received: from localhost (ip-37-188-130-62.eurotel.cz. [37.188.130.62])
-        by smtp.gmail.com with ESMTPSA id h1sm3247165wme.42.2020.04.24.07.33.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2020 07:33:48 -0700 (PDT)
-Date:   Fri, 24 Apr 2020 16:33:46 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Johannes Weiner <hannes@cmpxchg.org>
-Cc:     Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org,
-        vdavydov.dev@gmail.com, linux-mm@kvack.org,
-        Chris Down <chris@chrisdown.name>,
-        Roman Gushchin <guro@fb.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
-Message-ID: <20200424143346.GG11591@dhcp22.suse.cz>
-References: <20200423061629.24185-1-laoar.shao@gmail.com>
- <20200424131450.GA495720@cmpxchg.org>
- <20200424134438.GA496852@cmpxchg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200424134438.GA496852@cmpxchg.org>
+        id S1727882AbgDXOqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Apr 2020 10:46:01 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58570 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726900AbgDXOqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Apr 2020 10:46:00 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03OEXs8s090025;
+        Fri, 24 Apr 2020 10:45:51 -0400
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30jtk3xcwf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Apr 2020 10:45:51 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 03OEjc79018177;
+        Fri, 24 Apr 2020 14:45:49 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma02fra.de.ibm.com with ESMTP id 30fs65h4yc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 24 Apr 2020 14:45:49 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 03OEjl9u58589366
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 24 Apr 2020 14:45:47 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 012A6A4051;
+        Fri, 24 Apr 2020 14:45:47 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A7903A4040;
+        Fri, 24 Apr 2020 14:45:45 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.80.204.171])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 24 Apr 2020 14:45:45 +0000 (GMT)
+Message-ID: <1587739544.5190.14.camel@linux.ibm.com>
+Subject: Re: [PATCH 3/5] ima: Fix ima digest hash table key calculation
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>
+Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Date:   Fri, 24 Apr 2020 10:45:44 -0400
+In-Reply-To: <59a280b928db4c478f660d14c33cdd87@huawei.com>
+References: <20200325161116.7082-1-roberto.sassu@huawei.com>
+         <20200325161116.7082-3-roberto.sassu@huawei.com>
+         <1587588987.5165.20.camel@linux.ibm.com>
+         <11984a05a5624f64aed1ec6b0d0b75ff@huawei.com>
+         <1587660781.5610.15.camel@linux.ibm.com>
+         <59a280b928db4c478f660d14c33cdd87@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-04-24_07:2020-04-24,2020-04-24 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ spamscore=0 mlxlogscore=999 bulkscore=0 clxscore=1011 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 impostorscore=0 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2004240117
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 24-04-20 09:44:38, Johannes Weiner wrote:
-> On Fri, Apr 24, 2020 at 09:14:52AM -0400, Johannes Weiner wrote:
-> > However, mem_cgroup_protected() never expected anybody to look at the
-> > effective protection values when it indicated that the cgroup is above
-> > its protection. As a result, a query during limit reclaim may return
-> > stale protection values that were calculated by a previous reclaim
-> > cycle in which the cgroup did have siblings.
-> 
-> Btw, I think there is opportunity to make this a bit less error prone.
-> 
-> We have a mem_cgroup_protected() that returns yes or no, essentially,
-> but protection isn't a binary state anymore.
-> 
-> It's also been a bit iffy that it looks like a simple predicate
-> function, but it indeed needs to run procedurally for each cgroup in
-> order for the calculations throughout the tree to be correct.
-> 
-> It might be better to have a
-> 
-> 	mem_cgroup_calculate_protection()
-> 
-> that runs for every cgroup we visit and sets up the internal state;
-> then have more self-explanatory query functions on top of that:
-> 
-> 	mem_cgroup_below_min()
-> 	mem_cgroup_below_low()
-> 	mem_cgroup_protection()
-> 
-> What do you guys think?
+On Fri, 2020-04-24 at 12:18 +0000, Roberto Sassu wrote:
 
-Fully agreed. I have to say that I have considered the predicate with
-side effects really confusing.
--- 
-Michal Hocko
-SUSE Labs
+> > On Thu, 2020-04-23 at 10:21 +0000, Roberto Sassu wrote:
+> > > > Hi Roberto, Krsysztof,
+> > > >
+> > > > On Wed, 2020-03-25 at 17:11 +0100, Roberto Sassu wrote:
+> > > > > From: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+> > > > >
+> > > > > Function hash_long() accepts unsigned long, while currently only one
+> > byte
+> > > > > is passed from ima_hash_key(), which calculates a key for ima_htable.
+> > > > Use
+> > > > > more bytes to avoid frequent collisions.
+> > > > >
+> > > > > Length of the buffer is not explicitly passed as a function parameter,
+> > > > > because this function expects a digest whose length is greater than
+> > the
+> > > > > size of unsigned long.
+> > > >
+> > > > Somehow I missed the original report of this problem https://lore.kern
+> > > > el.org/patchwork/patch/674684/.  This patch is definitely better, but
+> > > > how many unique keys are actually being used?  Is it anywhere near
+> > > > IMA_MEASURE_HTABLE_SIZE(512)?
+> > >
+> > > I did a small test (with 1043 measurements):
+> > >
+> > > slots: 250, max depth: 9 (without the patch)
+> > > slots: 448, max depth: 7 (with the patch)
+> > 
+> > 448 out of 512 slots are used.
+> > 
+> > >
+> > > Then, I increased the number of bits to 10:
+> > >
+> > > slots: 251, max depth: 9 (without the patch)
+> > > slots: 660, max depth: 4 (with the patch)
+> > 
+> > 660 out of 1024 slots are used.
+> > 
+> > I wonder if there is any benefit to hashing a digest, instead of just
+> > using the first bits.
+> 
+> Before I calculated max depth until there is a match, not the full depth.
+> 
+> #1
+> return hash_long(*((unsigned long *)digest), IMA_HASH_BITS);
+> #define IMA_HASH_BITS 9
+> 
+> Runtime measurements: 1488
+> Violations: 0
+> Slots (used/available): 484/512
+> Max depth hash table: 10
+> 
+> #2
+> return *(unsigned long *)digest % IMA_MEASURE_HTABLE_SIZE;
+> #define IMA_HASH_BITS 9
+> 
+> Runtime measurements: 1491
+> Violations: 2
+> Slots (used/available): 489/512
+> Max depth hash table: 10
+> 
+> #3
+> return hash_long(*((unsigned long *)digest), IMA_HASH_BITS);
+> #define IMA_HASH_BITS 10
+> 
+> Runtime measurements: 1489
+> Violations: 0
+> Slots (used/available): 780/1024
+> Max depth hash table: 6
+> 
+> #4
+> return *(unsigned long *)digest % IMA_MEASURE_HTABLE_SIZE;
+> #define IMA_HASH_BITS 10
+> 
+> Runtime measurements: 1489
+> Violations: 0
+> Slots (used/available): 793/1024
+> Max depth hash table: 6
+
+At least for this measurement list sample, there doesn't seem to be
+any benefit to hashing the digest.  In terms of increasing the number
+of slots, the additional memory is minimal and shouldn't negatively
+affect small embedded devices.  Please make sure checkpatch doesn't
+flag it.
+
+thanks,
+
+Mimi
