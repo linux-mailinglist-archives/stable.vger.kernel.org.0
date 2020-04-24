@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90EB81B7440
-	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:25:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814441B7442
+	for <lists+stable@lfdr.de>; Fri, 24 Apr 2020 14:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728660AbgDXMZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728664AbgDXMZM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 24 Apr 2020 08:25:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56288 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728603AbgDXMZL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 Apr 2020 08:25:11 -0400
+        id S1727891AbgDXMZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 Apr 2020 08:25:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C32C20700;
-        Fri, 24 Apr 2020 12:25:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AB5E21655;
+        Fri, 24 Apr 2020 12:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1587731111;
-        bh=DIUqlRt2GPwiMpqI5n1Wo3bCFMZvXFvltUWYGy6QHR4=;
+        bh=9Q2IOMdHquNMhWFmuNNMTvTXMfG9dO1N8X6bkgWoKM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TzaMWdlmbGs8eZmKLOKcw3nyzVWWZ0IuQdBPbKeUj/aXWEGmvdVo5C2oRSq0DhIGg
-         qgGNP+dEi7mlijUARRvUz3NibO0M1DzbY9hCRFysImbUVuNnHIhhVE0EcnUNZMWUoi
-         BDcGaryOUU5ff+gyLlWwMykl9ymhjm0w/fev5X7k=
+        b=lFcREYVtlJb0zAcjhvWeoGHrJodhZQcvIK2xhKgxMREb9hWJ2dRagOkC5fHuztj1D
+         M8NLqBm19ABmFaHnri+kqaNcn3hAneMg7OVorlqbvZqE/QNHf7y/LOTEOErteR6QHF
+         awlaRe6Wo9ZsDK2ceP+3ZxM+bHgOfVE2DSItLq68=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Gunthorpe <jgg@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 6/8] net/cxgb4: Check the return from t4_query_params properly
-Date:   Fri, 24 Apr 2020 08:25:01 -0400
-Message-Id: <20200424122503.11046-6-sashal@kernel.org>
+Cc:     Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 7/8] ext4: convert BUG_ON's to WARN_ON's in mballoc.c
+Date:   Fri, 24 Apr 2020 08:25:02 -0400
+Message-Id: <20200424122503.11046-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200424122503.11046-1-sashal@kernel.org>
 References: <20200424122503.11046-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,38 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit c799fca8baf18d1bbbbad6c3b736eefbde8bdb90 ]
+[ Upstream commit 907ea529fc4c3296701d2bfc8b831dd2a8121a34 ]
 
-Positive return values are also failures that don't set val,
-although this probably can't happen. Fixes gcc 10 warning:
+If the in-core buddy bitmap gets corrupted (or out of sync with the
+block bitmap), issue a WARN_ON and try to recover.  In most cases this
+involves skipping trying to allocate out of a particular block group.
+We can end up declaring the file system corrupted, which is fair,
+since the file system probably should be checked before we proceed any
+further.
 
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c: In function ‘t4_phy_fw_ver’:
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:3747:14: warning: ‘val’ may be used uninitialized in this function [-Wmaybe-uninitialized]
- 3747 |  *phy_fw_ver = val;
-
-Fixes: 01b6961410b7 ("cxgb4: Add PHY firmware support for T420-BT cards")
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20200414035649.293164-1-tytso@mit.edu
+Google-Bug-Id: 34811296
+Google-Bug-Id: 34639169
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/t4_hw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/mballoc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-index 832ad1bd1f29b..fd6492fd3dc07 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-@@ -3341,7 +3341,7 @@ int t4_phy_fw_ver(struct adapter *adap, int *phy_fw_ver)
- 		 FW_PARAMS_PARAM_Z_V(FW_PARAMS_PARAM_DEV_PHYFW_VERSION));
- 	ret = t4_query_params(adap, adap->mbox, adap->pf, 0, 1,
- 			      &param, &val);
--	if (ret < 0)
-+	if (ret)
- 		return ret;
- 	*phy_fw_ver = val;
- 	return 0;
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index fda49f4c5a8eb..04fab14e630c1 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -1944,7 +1944,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
+ 	int free;
+ 
+ 	free = e4b->bd_info->bb_free;
+-	BUG_ON(free <= 0);
++	if (WARN_ON(free <= 0))
++		return;
+ 
+ 	i = e4b->bd_info->bb_first_free;
+ 
+@@ -1965,7 +1966,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
+ 		}
+ 
+ 		mb_find_extent(e4b, i, ac->ac_g_ex.fe_len, &ex);
+-		BUG_ON(ex.fe_len <= 0);
++		if (WARN_ON(ex.fe_len <= 0))
++			break;
+ 		if (free < ex.fe_len) {
+ 			ext4_grp_locked_error(sb, e4b->bd_group, 0, 0,
+ 					"%d free clusters as per "
 -- 
 2.20.1
 
