@@ -2,83 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E521B841C
-	for <lists+stable@lfdr.de>; Sat, 25 Apr 2020 09:04:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49251B84FB
+	for <lists+stable@lfdr.de>; Sat, 25 Apr 2020 10:58:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726116AbgDYHEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Apr 2020 03:04:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50442 "EHLO mail.kernel.org"
+        id S1726097AbgDYI6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Apr 2020 04:58:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726110AbgDYHEN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 Apr 2020 03:04:13 -0400
+        id S1726035AbgDYI6l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 25 Apr 2020 04:58:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C30E520767;
-        Sat, 25 Apr 2020 07:04:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA06F20700;
+        Sat, 25 Apr 2020 08:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587798252;
-        bh=F2+6MvmGS8dTiCwdyXanmLMCmyfcjoCvYSppu0gTqLc=;
+        s=default; t=1587805121;
+        bh=cH4m0D2ZoZm/Y5xn9XGDqkem/KWhRgE9RnlhLe6jTZE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=s6yckjif2iVIYCwieYc6XK/kXtDa4ms7wVsnXpovmikGg041ItC2RRRfCt+lhzq7t
-         eYy3b1CcB+dcu0SZCsrxXGkOBAt9uGqZ272pWzkhnaNOA8jmI+k5R9HpQq3BxhMcfz
-         UBr8gvNAcAIcFCdZ/g9aUA4qVPnX2bwF6nKSPFgY=
-Date:   Sat, 25 Apr 2020 09:04:08 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc:     Sasha Levin <sashal@kernel.org>, adrian.hunter@intel.com,
-        ulf.hansson@linaro.org, baolin.wang@linaro.org,
-        kstewart@linuxfoundation.org, tglx@linutronix.de,
-        bradleybolen@gmail.com, thierry.reding@gmail.com,
-        jonathanh@nvidia.com, anrao@nvidia.com,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mmc@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.4.33 0/2] Fix for long operation cmds busy detection
-Message-ID: <20200425070408.GB2042217@kroah.com>
-References: <1587758766-3274-1-git-send-email-skomatineni@nvidia.com>
- <20200425014556.GD13035@sasha-vm>
- <81be9ca0-5c61-6e94-8398-85354764b429@nvidia.com>
+        b=rEYJxwMWLS1I0kYasgNsgOkSmX0ZaBZH/7dsBMsB+JHTbM89MhG5rqaP0IYJ6R42b
+         BFvi+sOmzuDDqtWOyAk3EmF8zQ4xI9AQU/T/oWgk8ihAtOfwSRD2WCNo0tlQM4bP44
+         4KLybxnLBuFJdR2BTgCK5eyX5VGrApLqs14t9nTM=
+Date:   Sat, 25 Apr 2020 10:58:38 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.6 000/166] 5.6.7-rc1 review
+Message-ID: <20200425085838.GA2052830@kroah.com>
+References: <20200422095047.669225321@linuxfoundation.org>
+ <4e438765-b045-4201-8a6a-4ab0b986b753@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <81be9ca0-5c61-6e94-8398-85354764b429@nvidia.com>
+In-Reply-To: <4e438765-b045-4201-8a6a-4ab0b986b753@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 24, 2020 at 07:42:16PM -0700, Sowjanya Komatineni wrote:
+On Fri, Apr 24, 2020 at 10:24:25AM -0600, shuah wrote:
+> On 4/22/20 3:55 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.6.7 release.
+> > There are 166 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri, 24 Apr 2020 09:48:23 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.7-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> On 4/24/20 6:45 PM, Sasha Levin wrote:
-> > External email: Use caution opening links or attachments
-> > 
-> > 
-> > On Fri, Apr 24, 2020 at 01:06:04PM -0700, Sowjanya Komatineni wrote:
-> > > This series is to backport the upstream patches that fixes busy
-> > > detection
-> > > for long operation mmc commands by implementing Tegra specific timeout
-> > > callback to switch between finite and infinite HW busy detection wait
-> > > modes.
-> > > 
-> > > 
-> > > Sowjanya Komatineni (2):
-> > >  sdhci: tegra: Implement Tegra specific set_timeout callback
-> > >  sdhci: tegra: Enable MMC_CAP_WAIT_WHILE_BUSY host capability
-> > 
-> > What regression do these patches fix?
-> > 
-> This isn't a regression as we don't have any known failures as of today with
-> the specific mmc devices we are using on our platforms.
+> Compiled and booted on my test system. No dmesg regressions.
 
-Have you read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-?
+Thanks for testing all of these and letting me know.
 
-> But this patch fixes a long outstanding bug for sdhci-tegra to handle long
-> busy wait for mmc command operations that may take longer than host max busy
-> timeout. So, this is something that's missing from the beginning and good to
-> have.
-
-So it's a new feature?
-
+greg k-h
