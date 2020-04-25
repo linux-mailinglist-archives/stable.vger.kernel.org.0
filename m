@@ -2,158 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C99A1B87BC
-	for <lists+stable@lfdr.de>; Sat, 25 Apr 2020 18:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5577A1B87B0
+	for <lists+stable@lfdr.de>; Sat, 25 Apr 2020 18:23:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726145AbgDYQmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Apr 2020 12:42:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33066 "EHLO
+        id S1726156AbgDYQX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Apr 2020 12:23:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726076AbgDYQmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Apr 2020 12:42:00 -0400
-X-Greylist: delayed 1483 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 25 Apr 2020 09:41:59 PDT
-Received: from mx0b-00190b01.pphosted.com (mx0b-00190b01.pphosted.com [IPv6:2620:100:9005:57f::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C23A1C09B04D;
-        Sat, 25 Apr 2020 09:41:59 -0700 (PDT)
-Received: from pps.filterd (m0122330.ppops.net [127.0.0.1])
-        by mx0b-00190b01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03PG83dA012540;
-        Sat, 25 Apr 2020 17:17:10 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=jan2016.eng;
- bh=yE8gezMKqzZQGT969c6mIeMNFgyLsfU3BI5rtoH1gdg=;
- b=flkRGpoLVF3+DftY4HJkXeHNf6R5nGNh6teD2pR5RgqAQr49oiCkvuhwxFrthmogUsX+
- W+bw5V+RnH8vcmwhK53o38F7M+cmwRVelsO/TG/lHJwNHQafmTrbF9L6zt576sty4anC
- gIPpi+5Det7LFhR2OWpj1NHpeSnw8q+pzSSYf33/bDa8qDtydVe9VQKakL1eiAsdfNca
- e75/pnxi48Hl4GzuCaMRHpLdI3F72XG5eJ6SEGBr1a/hjFasRzfNHG4fis0mbdJpmvue
- /sS+RBkeW4/K8rkI3yfCgGXkiNNqEopIJeD5VkRPT1FnWk6zqXDV42mZdz0/nKOFPdCf /A== 
-Received: from prod-mail-ppoint5 (prod-mail-ppoint5.akamai.com [184.51.33.60] (may be forged))
-        by mx0b-00190b01.pphosted.com with ESMTP id 30mcuwhuyr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sat, 25 Apr 2020 17:17:09 +0100
-Received: from pps.filterd (prod-mail-ppoint5.akamai.com [127.0.0.1])
-        by prod-mail-ppoint5.akamai.com (8.16.0.27/8.16.0.27) with SMTP id 03PGH90J030057;
-        Sat, 25 Apr 2020 09:17:09 -0700
-Received: from prod-mail-relay10.akamai.com ([172.27.118.251])
-        by prod-mail-ppoint5.akamai.com with ESMTP id 30mk688p7b-1;
-        Sat, 25 Apr 2020 09:17:09 -0700
-Received: from [0.0.0.0] (prod-ssh-gw01.bos01.corp.akamai.com [172.27.119.138])
-        by prod-mail-relay10.akamai.com (Postfix) with ESMTP id C10DC347F8;
-        Sat, 25 Apr 2020 16:17:08 +0000 (GMT)
-Subject: Re: [PATCH v2] eventpoll: fix missing wakeup for ovflist in
- ep_poll_callback
-To:     Khazhismel Kumykov <khazhy@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Roman Penyaev <rpenyaev@suse.de>,
-        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
-        stable@vger.kernel.org
-References: <20200424025057.118641-1-khazhy@google.com>
- <20200424190039.192373-1-khazhy@google.com>
-From:   Jason Baron <jbaron@akamai.com>
-Message-ID: <66f26e74-6c7b-28c2-8b3f-faf8ea5229d4@akamai.com>
-Date:   Sat, 25 Apr 2020 12:17:08 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        with ESMTP id S1726155AbgDYQX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Apr 2020 12:23:56 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BF76C09B04D
+        for <stable@vger.kernel.org>; Sat, 25 Apr 2020 09:23:56 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id a5so5209544pjh.2
+        for <stable@vger.kernel.org>; Sat, 25 Apr 2020 09:23:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=AZGqElrQ8f9p8FmjY7z8snRL50XLy5yPOmroe9vS1t8=;
+        b=peZNv2bTxqk3/XLwusjFcbJ7wU1gzPWOY5DUEK6zrSRHc3b9631XFuV16WVBkngczv
+         ikGSy0SXtlON4zITPHnhpfY4272ckjhuxw7wsVnNhgbVbw4sbaGUmHkaEXxoarMwAnvj
+         FD0eqd2xf6UVRH+zP0ZuHOrgTRSCqLdcuoHp4y9wZG+o0VmKHwtT71FdJU/k3uJZczgQ
+         ASYmBoqaf3lHK7Sjj+Ouar8KIQ2UH1MdtU2fr4U0vAkHWGaCp/IsJ1BvbfSbBY2zH8xL
+         dZ5tdqXF/rapBHJO1dImwRq8vGLdWW29qLv+vY+1W8imouUKZLjnayaPfdw0sSU+Tsqq
+         XP/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=AZGqElrQ8f9p8FmjY7z8snRL50XLy5yPOmroe9vS1t8=;
+        b=FIVNvo2z1Sq5g4gJlcbphvBwbHzf0f8qFC4+jIPz0KWkdr6PaPxZAX+8nlNGLAsG9t
+         Cr16lFgCMh5n/yvQn3NXIB6dHWfR0zo1jGtiLkjbTEghpGHXMBlxwY6BTMiXp3vSbMbD
+         izXTq6Prrq44lVDQ9k7WE9uu775rRCmqa2lrbmojbnQxJHVsK5zWVM/imOon2dLE5KCX
+         0SJqK55yZTU1Sns/bDcqPqN6N94ph/0AIx8o1AGoUQ9/g44vUQ7luXGYyxj70sFXpi0p
+         yKPgPsUKGKKfMDEPYZWD+9E+ykYRlTcYFUx7gqo2qWcMNEimovOnXdwI63X3/ULiMQpc
+         zR8w==
+X-Gm-Message-State: AGi0Pub9qXdP2G4HRtJz5JjQVKfg7SujnTVwQczI2HBj06PgZlfLm7cX
+        XSWXF+Wf0O8X2lXuyPTVmmgzs+d4G9Q=
+X-Google-Smtp-Source: APiQypIDC+QjuexEZxhFyfIqYRutVJ6QVuC5xDL/n3CzYPLeD8P4HbSIrHaJtEAhNyJsMAtXMOzilg==
+X-Received: by 2002:a17:90b:1104:: with SMTP id gi4mr13702525pjb.115.1587831835239;
+        Sat, 25 Apr 2020 09:23:55 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l1sm7416495pjr.17.2020.04.25.09.23.53
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 25 Apr 2020 09:23:54 -0700 (PDT)
+Message-ID: <5ea4641a.1c69fb81.3fa7a.8924@mx.google.com>
+Date:   Sat, 25 Apr 2020 09:23:54 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200424190039.192373-1-khazhy@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-04-25_08:2020-04-24,2020-04-25 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-2002250000 definitions=main-2004250143
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-04-25_08:2020-04-24,2020-04-25 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 lowpriorityscore=0
- malwarescore=0 suspectscore=0 adultscore=0 clxscore=1011 mlxlogscore=999
- spamscore=0 impostorscore=0 priorityscore=1501 phishscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2004250141
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.220
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 91 boots: 3 failed,
+ 77 passed with 6 offline, 4 untried/unknown, 1 conflict (v4.4.220)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 91 boots: 3 failed, 77 passed with 6 offline, 4=
+ untried/unknown, 1 conflict (v4.4.220)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.220/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.220/
 
-On 4/24/20 3:00 PM, Khazhismel Kumykov wrote:
-> In the event that we add to ovflist, before 339ddb53d373 we would be
-> woken up by ep_scan_ready_list, and did no wakeup in ep_poll_callback.
-> With that wakeup removed, if we add to ovflist here, we may never wake
-> up. Rather than adding back the ep_scan_ready_list wakeup - which was
-> resulting in unnecessary wakeups, trigger a wake-up in ep_poll_callback.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.220
+Git Commit: 5efe91c00c98c72cbe8475caa6e72c520199e32b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 49 unique boards, 18 SoC families, 17 builds out of 190
 
-I'm just curious which 'wakeup' we are talking about here? There is:
-wake_up(&ep->wq) for the 'ep' and then there is the nested one via:
-ep_poll_safewake(ep, epi). It seems to me that its only about the later
-one being missing not both? Is your workload using nested epoll?
+Boot Regressions Detected:
 
-If so, it might make sense to just do the later, since the point of
-the original patch was to minimize unnecessary wakeups.
+arm:
 
-Thanks,
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: failing since 2 days (last pass: v4.4.2=
+19-83-g20fbd20eb91a - first fail: v4.4.219-101-gacb152478366)
+          dm365evm,legacy:
+              lab-baylibre-seattle: failing since 2 days (last pass: v4.4.2=
+19-83-g20fbd20eb91a - first fail: v4.4.219-101-gacb152478366)
 
--Jason
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 77 days (last pass: v4.4.=
+212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
 
-> 
-> We noticed that one of our workloads was missing wakeups starting with
-> 339ddb53d373 and upon manual inspection, this wakeup seemed missing to
-> me. With this patch added, we no longer see missing wakeups. I haven't
-> yet tried to make a small reproducer, but the existing kselftests in
-> filesystem/epoll passed for me with this patch.
-> 
-> Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
-> 
-> Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-> Reviewed-by: Roman Penyaev <rpenyaev@suse.de>
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: Heiher <r@hev.cc>
-> Cc: Jason Baron <jbaron@akamai.com>
-> Cc: <stable@vger.kernel.org>
-> ---
-> v2: use if/elif instead of goto + cleanup suggested by Roman
->  fs/eventpoll.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
-> 
-> diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-> index 8c596641a72b..d6ba0e52439b 100644
-> --- a/fs/eventpoll.c
-> +++ b/fs/eventpoll.c
-> @@ -1171,6 +1171,10 @@ static inline bool chain_epi_lockless(struct epitem *epi)
->  {
->  	struct eventpoll *ep = epi->ep;
->  
-> +	/* Fast preliminary check */
-> +	if (epi->next != EP_UNACTIVE_PTR)
-> +		return false;
-> +
->  	/* Check that the same epi has not been just chained from another CPU */
->  	if (cmpxchg(&epi->next, EP_UNACTIVE_PTR, NULL) != EP_UNACTIVE_PTR)
->  		return false;
-> @@ -1237,16 +1241,12 @@ static int ep_poll_callback(wait_queue_entry_t *wait, unsigned mode, int sync, v
->  	 * chained in ep->ovflist and requeued later on.
->  	 */
->  	if (READ_ONCE(ep->ovflist) != EP_UNACTIVE_PTR) {
-> -		if (epi->next == EP_UNACTIVE_PTR &&
-> -		    chain_epi_lockless(epi))
-> +		if (chain_epi_lockless(epi))
-> +			ep_pm_stay_awake_rcu(epi);
-> +	} else if (!ep_is_linked(epi)) {
-> +		/* In the usual case, add event to ready list. */
-> +		if (list_add_tail_lockless(&epi->rdllink, &ep->rdllist))
->  			ep_pm_stay_awake_rcu(epi);
-> -		goto out_unlock;
-> -	}
-> -
-> -	/* If this file is already in the ready list we exit soon */
-> -	if (!ep_is_linked(epi) &&
-> -	    list_add_tail_lockless(&epi->rdllink, &ep->rdllist)) {
-> -		ep_pm_stay_awake_rcu(epi);
->  	}
->  
->  	/*
-> 
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 30 days (last pass: v4.4.216-127-=
+g955137020949 - first fail: v4.4.217)
+
+x86_64:
+
+    x86_64_defconfig:
+        gcc-8:
+          qemu_x86_64:
+              lab-baylibre: new failure (last pass: v4.4.219-101-gacb152478=
+366)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
