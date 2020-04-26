@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1B91B910D
-	for <lists+stable@lfdr.de>; Sun, 26 Apr 2020 17:03:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 186FA1B9110
+	for <lists+stable@lfdr.de>; Sun, 26 Apr 2020 17:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726196AbgDZPDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726200AbgDZPDo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 26 Apr 2020 11:03:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54972 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725876AbgDZPDl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Apr 2020 11:03:41 -0400
+        id S1726189AbgDZPDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Apr 2020 11:03:42 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AF472074F;
-        Sun, 26 Apr 2020 15:03:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44DD22078E;
+        Sun, 26 Apr 2020 15:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587913421;
-        bh=dzN9sUVYHG0xYRX0gNXUrDvVxu+SEf8im7Oy0LK9d3c=;
+        s=default; t=1587913422;
+        bh=SsoQogQnfS7x5qGNmSxYMuDAeo56TJgAWbuWD1a6jOQ=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=INQ+yqEbBlihurvSbJu3KXw/sVCLX0Eu5nkKmFIYaRsybme5RFXpKfZ9Rz0ETo76a
-         weIELWiM7me8jsLN3S3KIGRB7uwQR8vc8CVpfhO++1fiRllxFLBR08T6Agc2bU3B3k
-         5QTGsyqRGii6bG5uOunzIgtI3WY1GXnQPicjTiDE=
-Date:   Sun, 26 Apr 2020 15:03:40 +0000
+        b=aMR2V5t6Xalm1jMWq8cI7IjxntLcPSIcMRwOfvSk/AeC3BlTmP3i/Iapsntutdf8q
+         tQvRlYEqIAstTxJMrcbCsHCsodoTlEH/qkVzlm0WY/V9hp9SChkTN8gkKA6zCqUfyF
+         kMcWUh/bc2i7Loxx4/vkS5BejPa/hP49149knro8=
+Date:   Sun, 26 Apr 2020 15:03:41 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Masami Hiramatsu <mhiramat@kernel.org>
-To:     Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc:     Masami Hiramatsu <mhiramat@kernel.org>
+To:     Olga Kornievskaia <olga.kornievskaia@gmail.com>
+To:     trond.myklebust@hammerspace.com, anna.schumaker@netapp.com
+Cc:     linux-nfs@vger.kernel.org
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] perf-probe: Fix to check blacklist address correctly
-In-Reply-To: <158763966411.30755.5882376357738273695.stgit@devnote2>
-References: <158763966411.30755.5882376357738273695.stgit@devnote2>
-Message-Id: <20200426150341.2AF472074F@mail.kernel.org>
+Subject: Re: [PATCH v2 1/1] NFSv4.1: fix handling of backchannel binding in BIND_CONN_TO_SESSION
+In-Reply-To: <20200424214550.30462-1-olga.kornievskaia@gmail.com>
+References: <20200424214550.30462-1-olga.kornievskaia@gmail.com>
+Message-Id: <20200426150342.44DD22078E@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,42 +44,64 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 9aaf5a5f479b ("perf probe: Check kprobes blacklist when adding new events").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
 The bot has tested the following trees: v5.6.7, v5.4.35, v4.19.118, v4.14.177, v4.9.220, v4.4.220.
 
 v5.6.7: Build OK!
-v5.4.35: Build OK!
-v4.19.118: Build OK!
-v4.14.177: Failed to apply! Possible dependencies:
+v5.4.35: Failed to apply! Possible dependencies:
     Unable to calculate
 
+v4.19.118: Failed to apply! Possible dependencies:
+    07d02a67b7fa ("SUNRPC: Simplify lookup code")
+    3453d5708b33 ("NFSv4.1: Avoid false retries when RPC calls are interrupted")
+    5c441544f045 ("NFSv4.x: Handle bad/dead sessions correctly in nfs41_sequence_process()")
+    79b181810285 ("SUNRPC: Convert auth creds to use refcount_t")
+    8276c902bbe9 ("SUNRPC: remove uid and gid from struct auth_cred")
+    95cd623250ad ("SUNRPC: Clean up the AUTH cache code")
+    97f68c6b02e0 ("SUNRPC: add 'struct cred *' to auth_cred and rpc_cred")
+    a52458b48af1 ("NFS/NFSD/SUNRPC: replace generic creds with 'struct cred'.")
+    fc0664fd9bcc ("SUNRPC: remove groupinfo from struct auth_cred.")
+
+v4.14.177: Failed to apply! Possible dependencies:
+    07d02a67b7fa ("SUNRPC: Simplify lookup code")
+    12f275cdd163 ("NFSv4: Retry CLOSE and DELEGRETURN on NFS4ERR_OLD_STATEID.")
+    1eb5d98f16f6 ("nfs: convert to new i_version API")
+    3453d5708b33 ("NFSv4.1: Avoid false retries when RPC calls are interrupted")
+    35156bfff3c0 ("NFSv4: Fix the nfs_inode_set_delegation() arguments")
+    5c441544f045 ("NFSv4.x: Handle bad/dead sessions correctly in nfs41_sequence_process()")
+    79b181810285 ("SUNRPC: Convert auth creds to use refcount_t")
+    95cd623250ad ("SUNRPC: Clean up the AUTH cache code")
+    97f68c6b02e0 ("SUNRPC: add 'struct cred *' to auth_cred and rpc_cred")
+    a52458b48af1 ("NFS/NFSD/SUNRPC: replace generic creds with 'struct cred'.")
+    b3dce6a2f060 ("pnfs/blocklayout: handle transient devices")
+    fc0664fd9bcc ("SUNRPC: remove groupinfo from struct auth_cred.")
+
 v4.9.220: Failed to apply! Possible dependencies:
-    3da3ea7a8e20 ("perf probe: Factor out the ftrace README scanning")
-    7ab31d94bff9 ("perf kretprobes: Offset from reloc_sym if kernel supports it")
-    e491bc2f0dd9 ("perf probe: Generalize probe event file open routine")
+    172d9de15a0d ("NFS: Change nfs4_get_session() to take an nfs_client structure")
+    3453d5708b33 ("NFSv4.1: Avoid false retries when RPC calls are interrupted")
+    3be0f80b5fe9 ("NFSv4.1: Fix up replays of interrupted requests")
+    42e1cca7e91e ("NFS: Change nfs4_setup_sequence() to take an nfs_client structure")
+    5c441544f045 ("NFSv4.x: Handle bad/dead sessions correctly in nfs41_sequence_process()")
+    6de7e12f53a1 ("NFS: Use nfs4_setup_sequence() everywhere")
+    7981c8a65914 ("NFS: Create a single nfs4_setup_sequence() function")
+    efc6f4aa742d ("NFS: Move nfs4_get_session() into nfs4_session.h")
 
 v4.4.220: Failed to apply! Possible dependencies:
-    053a3989e12f ("perf report/top: Add --raw-trace option")
-    1c20b1d15473 ("perf probe: Show trace event definition")
-    2d8f0f18a5c3 ("perf tools: Add stat round user level event")
-    361459f163fa ("perf tools: Skip dynamic fields not defined for current event")
-    374fb9e362f6 ("perf tools: Add stat config user level event")
-    3938bad44ed2 ("perf tools: Remove needless 'extern' from function prototypes")
-    428aff82e92a ("perf probe: Ignore vmlinux buildid if offline kernel is given")
-    54430101d2af ("perf hists: Introduce hist_entry__filter()")
-    5f3339d2e83c ("perf thread_map: Add thread_map user level event")
-    60517d28fbd9 ("perf tools: Try to show pretty printed output for dynamic sort keys")
-    6640b6c227fc ("perf cpu_map: Add cpu_map user level event")
-    723928340c9d ("perf hist: Save raw_data/size for tracepoint events")
-    a34bb6a08d60 ("perf tools: Add 'trace' sort key")
-    b8f8eb84f483 ("perf tools: Remove misplaced __maybe_unused")
-    c7c2a5e40f17 ("perf tools: Add dynamic sort key for tracepoint events")
-    d7b617f51be4 ("perf tools: Pass perf_hpp_list all the way through setup_sort_list")
-    d80518c90bb2 ("perf tools: Add stat user level event")
-    fd36f3dd7933 ("perf hist: Pass struct sample to __hists__add_entry()")
-    ffe777254cce ("perf tools: Add event_update user level event")
+    172d9de15a0d ("NFS: Change nfs4_get_session() to take an nfs_client structure")
+    3453d5708b33 ("NFSv4.1: Avoid false retries when RPC calls are interrupted")
+    3be0f80b5fe9 ("NFSv4.1: Fix up replays of interrupted requests")
+    42e1cca7e91e ("NFS: Change nfs4_setup_sequence() to take an nfs_client structure")
+    5c441544f045 ("NFSv4.x: Handle bad/dead sessions correctly in nfs41_sequence_process()")
+    5f83d86cf531 ("NFSv4.x: Fix wraparound issues when validing the callback sequence id")
+    68d264cf02b0 ("NFS42: handle layoutstats stateid error")
+    6de7e12f53a1 ("NFS: Use nfs4_setup_sequence() everywhere")
+    80f9642724af ("NFSv4.x: Enforce the ca_maxresponsesize_cached on the back channel")
+    810d82e68301 ("NFSv4.x: Allow multiple callbacks in flight")
+    9a0fe86745b8 ("pNFS: Handle NFS4ERR_OLD_STATEID correctly in LAYOUTSTAT calls")
+    efc6f4aa742d ("NFS: Move nfs4_get_session() into nfs4_session.h")
+    f74a834a0e1b ("NFSv4.x: CB_SEQUENCE should return NFS4ERR_DELAY if still executing")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
