@@ -2,177 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD821B8DE6
-	for <lists+stable@lfdr.de>; Sun, 26 Apr 2020 10:28:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 450A01B9106
+	for <lists+stable@lfdr.de>; Sun, 26 Apr 2020 17:03:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726116AbgDZI23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Apr 2020 04:28:29 -0400
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:60548 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726108AbgDZI22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Apr 2020 04:28:28 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R991e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=tuquanhuang@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Twfm6jD_1587889684;
-Received: from localhost(mailfrom:tuquanhuang@linux.alibaba.com fp:SMTPD_---0Twfm6jD_1587889684)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sun, 26 Apr 2020 16:28:25 +0800
-From:   TuQuan <tuquanhuang@linux.alibaba.com>
-To:     Liangyan <liangyan.peng@linux.alibaba.com>
-Cc:     TuQuan <tuquanhuang@linux.alibaba.com>, stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH] propogate_mnt: Handle the first propogated copy being a slave
-Date:   Sun, 26 Apr 2020 16:28:01 +0800
-Message-Id: <20200426082801.10275-1-tuquanhuang@linux.alibaba.com>
-X-Mailer: git-send-email 2.14.4.44.g2045bb6
+        id S1725974AbgDZPDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Apr 2020 11:03:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54894 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725876AbgDZPDj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 26 Apr 2020 11:03:39 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B769E206D4;
+        Sun, 26 Apr 2020 15:03:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587913418;
+        bh=i7CuN56YMVao2EEHlvF/iwomtHEgWLVGaff+VKRVhD4=;
+        h=Date:From:To:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=N+wn6M3cH1m9myySmDhvzQBgRXj5vAwl8TK4F30F8jzlDyBhLHoZkFnmZaFaMbNH5
+         cgXfKSnEWcrUx4b5tNUAMNAYOwhhobYM4zJPEx10aMYZbHAmuSp0J3bEnINyCcgvWD
+         I9zLJw5u5L+jm3v2qBbDZMGUTBwHos8WoTxHiM2g=
+Date:   Sun, 26 Apr 2020 15:03:37 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Luca Coelho <luca@coelho.fi>
+To:     Luca Coelho <luciano.coelho@intel.com>
+To:     kvalo@codeaurora.org
+Cc:     linux-wireless@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v5.7] iwlwifi: pcie: handle QuZ configs with killer NICs as well
+In-Reply-To: <iwlwifi.20200424121518.b715acfbe211.I273a098064a22577e4fca767910fd9cf0013f5cb@changeid>
+References: <iwlwifi.20200424121518.b715acfbe211.I273a098064a22577e4fca767910fd9cf0013f5cb@changeid>
+Message-Id: <20200426150338.B769E206D4@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 5ec0811d30378ae104f250bfc9b3640242d81e3f upstream
+Hi
 
-When the first propgated copy was a slave the following oops would
-result:
-> BUG: unable to handle kernel NULL pointer dereference at
-> 0000000000000010
-> IP: [<ffffffff811fba4e>] propagate_one+0xbe/0x1c0
-> PGD bacd4067 PUD bac66067 PMD 0
-> Oops: 0000 [#1] SMP
-> Modules linked in:
-> CPU: 1 PID: 824 Comm: mount Not tainted 4.6.0-rc5userns+ #1523
-> Hardware name: Bochs Bochs, BIOS Bochs 01/01/2007
-> task: ffff8800bb0a8000 ti: ffff8800bac3c000 task.ti: ffff8800bac3c000
-> RIP: 0010:[<ffffffff811fba4e>]  [<ffffffff811fba4e>]
-> propagate_one+0xbe/0x1c0
-> RSP: 0018:ffff8800bac3fd38  EFLAGS: 00010283
-> RAX: 0000000000000000 RBX: ffff8800bb77ec00 RCX: 0000000000000010
-> RDX: 0000000000000000 RSI: ffff8800bb58c000 RDI: ffff8800bb58c480
-> RBP: ffff8800bac3fd48 R08: 0000000000000001 R09: 0000000000000000
-> R10: 0000000000001ca1 R11: 0000000000001c9d R12: 0000000000000000
-> R13: ffff8800ba713800 R14: ffff8800bac3fda0 R15: ffff8800bb77ec00
-> FS:  00007f3c0cd9b7e0(0000) GS:ffff8800bfb00000(0000)
-> knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 0000000000000010 CR3: 00000000bb79d000 CR4: 00000000000006e0
-> Stack:
->  ffff8800bb77ec00 0000000000000000 ffff8800bac3fd88 ffffffff811fbf85
->  ffff8800bac3fd98 ffff8800bb77f080 ffff8800ba713800 ffff8800bb262b40
->  0000000000000000 0000000000000000 ffff8800bac3fdd8 ffffffff811f1da0
-> Call Trace:
->  [<ffffffff811fbf85>] propagate_mnt+0x105/0x140
->  [<ffffffff811f1da0>] attach_recursive_mnt+0x120/0x1e0
->  [<ffffffff811f1ec3>] graft_tree+0x63/0x70
->  [<ffffffff811f1f6b>] do_add_mount+0x9b/0x100
->  [<ffffffff811f2c1a>] do_mount+0x2aa/0xdf0
->  [<ffffffff8117efbe>] ? strndup_user+0x4e/0x70
->  [<ffffffff811f3a45>] SyS_mount+0x75/0xc0
->  [<ffffffff8100242b>] do_syscall_64+0x4b/0xa0
->  [<ffffffff81988f3c>] entry_SYSCALL64_slow_path+0x25/0x25
-> Code: 00 00 75 ec 48 89 0d 02 22 22 01 8b 89 10 01 00 00 48 89 05 fd
-> 21 22 01 39 8e 10 01 00 00 0f 84 e0 00 00 00 48 8b 80 d8 00 00 00 <48>
-> 8b 50 10 48 89 05 df 21 22 01 48 89 15 d0 21 22 01 8b 53 30
-> RIP  [<ffffffff811fba4e>] propagate_one+0xbe/0x1c0
->  RSP <ffff8800bac3fd38>
-> CR2: 0000000000000010
-> ---[ end trace 2725ecd95164f217 ]---
+[This is an automated email]
 
-This oops happens with the namespace_sem held and can be triggered by
-non-root users.  An all around not pleasant experience.
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 5a8c31aa6357 ("iwlwifi: pcie: fix recognition of QuZ devices").
 
-To avoid this scenario when finding the appropriate source mount to
-copy stop the walk up the mnt_master chain when the first source mount
-is encountered.
+The bot has tested the following trees: v5.6.7, v5.4.35.
 
-Further rewrite the walk up the last_source mnt_master chain so that
-it is clear what is going on.
+v5.6.7: Failed to apply! Possible dependencies:
+    32ed101aa140 ("iwlwifi: convert all Qu with Jf devices to the new config table")
+    56ba371a5288 ("iwlwifi: move the remaining 0x2526 configs to the new table")
+    5e003982b07a ("iwlwifi: move AX200 devices to the new table")
+    67eb556da609 ("iwlwifi: combine 9260 cfgs that only change names")
+    95939551e28c ("iwlwifi: add GNSS differentiation to the device tables")
+    d6f2134a3831 ("iwlwifi: add mac/rf types and 160MHz to the device tables")
+    fe25b1518f72 ("iwlwifi: move TH1 devices to the new table")
 
-The reason why the first source mount is special is that it it's
-mnt_parent is not a mount in the dest_mnt propagation tree, and as
-such termination conditions based up on the dest_mnt mount propgation
-tree do not make sense.
+v5.4.35: Failed to apply! Possible dependencies:
+    32ed101aa140 ("iwlwifi: convert all Qu with Jf devices to the new config table")
+    3681021fc6af ("iwlwifi: remove IWL_DEVICE_22560/IWL_DEVICE_FAMILY_22560")
+    3b589d5624ce ("iwlwifi: dbg_ini: use new trigger TLV in dump flow")
+    593fae3e5e90 ("iwlwifi: dbg_ini: add monitor dumping support")
+    69f0e5059b09 ("iwlwifi: dbg: remove multi buffers infra")
+    bfc3e9fdbfb8 ("iwlwifi: 22000: fix some indentation")
+    c042f0c77f3d ("iwlwifi: allocate more receive buffers for HE devices")
+    c9fe75e9f347 ("iwlwifi: dbg_ini: use new region TLV in dump flow")
 
-To avoid other kinds of confusion last_dest is not changed when
-computing last_source.  last_dest is only used once in propagate_one
-and that is above the point of the code being modified, so changing
-the global variable is meaningless and confusing.
 
-Cc: stable@vger.kernel.org
-fixes: f2ebb3a921c1ca1e2ddd9242e95a1989a50c4c68 ("smarter
-propagate_mnt()")
-Reported-by: Tycho Andersen <tycho.andersen@canonical.com>
-Reviewed-by: Seth Forshee <seth.forshee@canonical.com>
-Tested-by: Seth Forshee <seth.forshee@canonical.com>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
----
- 7u/fs/pnode.c | 32 ++++++++++++++++++++------------
- 1 file changed, 20 insertions(+), 12 deletions(-)
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
-diff --git a/7u/fs/pnode.c b/7u/fs/pnode.c
-index 30d9a548d..52c262e71 100644
---- a/7u/fs/pnode.c
-+++ b/7u/fs/pnode.c
-@@ -198,10 +198,15 @@ static struct mount *next_group(struct mount *m, struct mount *origin)
- 
- /* all accesses are serialized by namespace_sem */
- static struct user_namespace *user_ns;
--static struct mount *last_dest, *last_source, *dest_master;
-+static struct mount *last_dest, *first_source, *last_source, *dest_master;
- static struct mountpoint *mp;
- static struct list_head *list;
- 
-+static inline bool peers(struct mount *m1, struct mount *m2)
-+{
-+	return m1->mnt_group_id == m2->mnt_group_id && m1->mnt_group_id;
-+}
-+
- static int propagate_one(struct mount *m)
- {
- 	struct mount *child;
-@@ -212,24 +217,26 @@ static int propagate_one(struct mount *m)
- 	/* skip if mountpoint isn't covered by it */
- 	if (!is_subdir(mp->m_dentry, m->mnt.mnt_root))
- 		return 0;
--	if (m->mnt_group_id == last_dest->mnt_group_id) {
-+	if (peers(m, last_dest)) {
- 		type = CL_MAKE_SHARED;
- 	} else {
- 		struct mount *n, *p;
-+		bool done;
- 		for (n = m; ; n = p) {
- 			p = n->mnt_master;
--			if (p == dest_master || IS_MNT_MARKED(p)) {
--				while (last_dest->mnt_master != p) {
--					last_source = last_source->mnt_master;
--					last_dest = last_source->mnt_parent;
--				}
--				if (n->mnt_group_id != last_dest->mnt_group_id) {
--					last_source = last_source->mnt_master;
--					last_dest = last_source->mnt_parent;
--				}
-+			if (p == dest_master || IS_MNT_MARKED(p))
- 				break;
--			}
- 		}
-+		do {
-+			struct mount *parent = last_source->mnt_parent;
-+			if (last_source == first_source)
-+				break;
-+			done = parent->mnt_master == p;
-+			if (done && peers(n, parent))
-+				break;
-+			last_source = last_source->mnt_master;
-+		} while (!done);
-+
- 		type = CL_SLAVE;
- 		/* beginning of peer group among the slaves? */
- 		if (IS_MNT_SHARED(m))
-@@ -280,6 +287,7 @@ int propagate_mnt(struct mount *dest_mnt, struct mountpoint *dest_mp,
- 	 */
- 	user_ns = current->nsproxy->mnt_ns->user_ns;
- 	last_dest = dest_mnt;
-+	first_source = source_mnt;
- 	last_source = source_mnt;
- 	mp = dest_mp;
- 	list = tree_list;
+How should we proceed with this patch?
+
 -- 
-2.14.4.44.g2045bb6
-
+Thanks
+Sasha
