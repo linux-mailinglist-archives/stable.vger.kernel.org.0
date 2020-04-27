@@ -2,226 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 405DF1BAF9B
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 22:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB421BAFFE
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 23:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726230AbgD0UiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 16:38:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726205AbgD0UiJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 16:38:09 -0400
-Received: from mx0b-00190b01.pphosted.com (mx0b-00190b01.pphosted.com [IPv6:2620:100:9005:57f::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E4D5C0610D5;
-        Mon, 27 Apr 2020 13:38:09 -0700 (PDT)
-Received: from pps.filterd (m0050096.ppops.net [127.0.0.1])
-        by m0050096.ppops.net-00190b01. (8.16.0.42/8.16.0.42) with SMTP id 03RKUOYG027508;
-        Mon, 27 Apr 2020 21:38:04 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=jan2016.eng;
- bh=Xk6H3qlPs8/T+MwYn7e+lTfgfR06gunAjHmC1efrlFs=;
- b=NWGr6wbtj/iYC0XKPgUu9Js14hkTLXe2cMaFbA4vjpO+wH2k+znzefbvTqXMkRn1KNcm
- ca5BuWhVVhdLgjvkxl0yH15agPjxNm9Z4+itvHZajKRzYLApyaAyrKcqVbC4osPaj867
- EuwfHEQZxWQbSAD8KQQ088Bco9Bu7n1UouBdyC6ywTbW0wAaGBxCxH4TcVx+DzS8S3o5
- XpIXdDoQbIDjFLFoWrSw7+ji0tDK85Pui+BndZirKS1Ab9E7N6Cf3nHB+Vi2eJHY+E0o
- hx56/TzSA9gaeKppEakkWMxCKfcrFqo7m+F5o6hAUVaQg6U9vWUL0q3SG7drfKcPfQkQ Sw== 
-Received: from prod-mail-ppoint6 (prod-mail-ppoint6.akamai.com [184.51.33.61] (may be forged))
-        by m0050096.ppops.net-00190b01. with ESMTP id 30mdm9hw6q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 27 Apr 2020 21:38:04 +0100
-Received: from pps.filterd (prod-mail-ppoint6.akamai.com [127.0.0.1])
-        by prod-mail-ppoint6.akamai.com (8.16.0.27/8.16.0.27) with SMTP id 03RKXvNq004182;
-        Mon, 27 Apr 2020 16:38:03 -0400
-Received: from prod-mail-relay14.akamai.com ([172.27.17.39])
-        by prod-mail-ppoint6.akamai.com with ESMTP id 30mghv92f2-1;
-        Mon, 27 Apr 2020 16:38:03 -0400
-Received: from [0.0.0.0] (prod-ssh-gw01.bos01.corp.akamai.com [172.27.119.138])
-        by prod-mail-relay14.akamai.com (Postfix) with ESMTP id 6C51485B92;
-        Mon, 27 Apr 2020 20:38:02 +0000 (GMT)
-Subject: Re: [PATCH v2] eventpoll: fix missing wakeup for ovflist in
- ep_poll_callback
-To:     Khazhismel Kumykov <khazhy@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Roman Penyaev <rpenyaev@suse.de>,
-        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
+        id S1726609AbgD0VKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 17:10:13 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:53636 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726285AbgD0VKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 17:10:13 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21040344-1500050 
+        for multiple; Mon, 27 Apr 2020 22:10:09 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
         stable@vger.kernel.org
-References: <20200424025057.118641-1-khazhy@google.com>
- <20200424190039.192373-1-khazhy@google.com>
- <66f26e74-6c7b-28c2-8b3f-faf8ea5229d4@akamai.com>
- <CACGdZYLD9ZqJNVktHUVe6N4t28VKy-Z76ZcCdsAOJHZRXaYGSA@mail.gmail.com>
-From:   Jason Baron <jbaron@akamai.com>
-Message-ID: <a2f22c3c-c25a-4bda-8339-a7bdaf17849e@akamai.com>
-Date:   Mon, 27 Apr 2020 16:38:02 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+Subject: [PATCH 1/2] drm/i915/execlists: Avoid reusing the same logical CCID
+Date:   Mon, 27 Apr 2020 22:10:05 +0100
+Message-Id: <20200427211006.29138-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <CACGdZYLD9ZqJNVktHUVe6N4t28VKy-Z76ZcCdsAOJHZRXaYGSA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-04-27_16:2020-04-27,2020-04-27 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=940
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-2002250000 definitions=main-2004270167
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-04-27_15:2020-04-27,2020-04-27 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 suspectscore=0
- mlxlogscore=944 impostorscore=0 malwarescore=0 mlxscore=0 adultscore=0
- phishscore=0 spamscore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2004270167
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The bspec is confusing on the nature of the upper 32bits of the LRC
+descriptor. Once upon a time, it said that it uses the upper 32b to
+decide if it should perform a lite-restore, and so we must ensure that
+each unique context submitted to HW is given a unique CCID [for the
+duration of it being on the HW]. Currently, this was thought to be
+achieved by using a small circular tag, and assigning every context
+submitted to HW a new id. However, due to preemption replacing an
+inflight context, it would be possible to assign an id to a new context
+that matched the currently in flight context -- a situation we sought to
+avoid.
 
+Rather than use a simple circular counter, switch over to a small bitmap
+of inflight ids so we can avoid reusing one that is still potentially
+active.
 
-On 4/25/20 4:59 PM, Khazhismel Kumykov wrote:
-> On Sat, Apr 25, 2020 at 9:17 AM Jason Baron <jbaron@akamai.com> wrote:
->>
->>
->>
->> On 4/24/20 3:00 PM, Khazhismel Kumykov wrote:
->>> In the event that we add to ovflist, before 339ddb53d373 we would be
->>> woken up by ep_scan_ready_list, and did no wakeup in ep_poll_callback.
->>> With that wakeup removed, if we add to ovflist here, we may never wake
->>> up. Rather than adding back the ep_scan_ready_list wakeup - which was
->>> resulting in unnecessary wakeups, trigger a wake-up in ep_poll_callback.
->>
->> I'm just curious which 'wakeup' we are talking about here? There is:
->> wake_up(&ep->wq) for the 'ep' and then there is the nested one via:
->> ep_poll_safewake(ep, epi). It seems to me that its only about the later
->> one being missing not both? Is your workload using nested epoll?
->>
->> If so, it might make sense to just do the later, since the point of
->> the original patch was to minimize unnecessary wakeups.
-> 
-> The missing wake-ups were when we added to ovflist instead of rdllist.
-> Both are "the ready list" together - so I'd think we'd want the same
-> wakeups regardless of which specific list we added to.
-> ep_poll_callback isn't nested specific?
->
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1796
+Fixes: 2935ed5339c4 ("drm/i915: Remove logical HW ID")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.5+
+---
+ drivers/gpu/drm/i915/gt/intel_engine_types.h |  3 +-
+ drivers/gpu/drm/i915/gt/intel_lrc.c          | 31 ++++++++++++++------
+ drivers/gpu/drm/i915/i915_perf.c             |  3 +-
+ drivers/gpu/drm/i915/selftests/i915_vma.c    |  2 +-
+ 4 files changed, 25 insertions(+), 14 deletions(-)
 
-So I was thinking that ep_poll() would see these events on the
-ovflist without an explicit wakeup, b/c the overflow list being active
-implies that the ep_poll() path would add them to the rdllist in
-ep_scan_read_list(). Thus, it will see the events either in the
-current ep_poll() context or via a subsequent syscall to epoll_wait().
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+index bf395227c99f..a9fc3fbbe482 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+@@ -304,8 +304,7 @@ struct intel_engine_cs {
+ 	u32 context_size;
+ 	u32 mmio_base;
+ 
+-	unsigned int context_tag;
+-#define NUM_CONTEXT_TAG roundup_pow_of_two(2 * EXECLIST_MAX_PORTS)
++	unsigned long context_tag;
+ 
+ 	struct rb_node uabi_node;
+ 
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 93a1b73ad96b..e84d277d1f02 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1404,13 +1404,17 @@ __execlists_schedule_in(struct i915_request *rq)
+ 	ce->lrc_desc &= ~GENMASK_ULL(47, 37);
+ 	if (ce->tag) {
+ 		/* Use a fixed tag for OA and friends */
++		GEM_BUG_ON(ce->tag <= BITS_PER_TYPE(engine->context_tag));
+ 		ce->lrc_desc |= (u64)ce->tag << 32;
+ 	} else {
+ 		/* We don't need a strict matching tag, just different values */
+-		ce->lrc_desc |=
+-			(u64)(++engine->context_tag % NUM_CONTEXT_TAG) <<
+-			GEN11_SW_CTX_ID_SHIFT;
+-		BUILD_BUG_ON(NUM_CONTEXT_TAG > GEN12_MAX_CONTEXT_HW_ID);
++		unsigned int tag = ffs(engine->context_tag);
++
++		GEM_BUG_ON(tag == 0 || tag >= BITS_PER_LONG);
++		clear_bit(tag - 1, &engine->context_tag);
++		ce->lrc_desc |= (u64)tag << GEN11_SW_CTX_ID_SHIFT;
++
++		BUILD_BUG_ON(BITS_PER_TYPE(engine->context_tag) > GEN12_MAX_CONTEXT_HW_ID);
+ 	}
+ 
+ 	__intel_gt_pm_get(engine->gt);
+@@ -1452,7 +1456,8 @@ static void kick_siblings(struct i915_request *rq, struct intel_context *ce)
+ 
+ static inline void
+ __execlists_schedule_out(struct i915_request *rq,
+-			 struct intel_engine_cs * const engine)
++			 struct intel_engine_cs * const engine,
++			 unsigned int ccid)
+ {
+ 	struct intel_context * const ce = rq->context;
+ 
+@@ -1470,6 +1475,10 @@ __execlists_schedule_out(struct i915_request *rq,
+ 	    i915_request_completed(rq))
+ 		intel_engine_add_retire(engine, ce->timeline);
+ 
++	ccid >>= GEN11_SW_CTX_ID_SHIFT - 32;
++	if (ccid < BITS_PER_TYPE(engine->context_tag))
++		set_bit(ccid - 1, &engine->context_tag);
++
+ 	intel_context_update_runtime(ce);
+ 	intel_engine_context_out(engine);
+ 	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_OUT);
+@@ -1495,15 +1504,17 @@ execlists_schedule_out(struct i915_request *rq)
+ {
+ 	struct intel_context * const ce = rq->context;
+ 	struct intel_engine_cs *cur, *old;
++	unsigned int ccid;
+ 
+ 	trace_i915_request_out(rq);
+ 
++	ccid = upper_32_bits(rq->context->lrc_desc);
+ 	old = READ_ONCE(ce->inflight);
+ 	do
+ 		cur = ptr_unmask_bits(old, 2) ? ptr_dec(old) : NULL;
+ 	while (!try_cmpxchg(&ce->inflight, &old, cur));
+ 	if (!cur)
+-		__execlists_schedule_out(rq, old);
++		__execlists_schedule_out(rq, old, ccid);
+ 
+ 	i915_request_put(rq);
+ }
+@@ -1571,8 +1582,9 @@ dump_port(char *buf, int buflen, const char *prefix, struct i915_request *rq)
+ 	if (!rq)
+ 		return "";
+ 
+-	snprintf(buf, buflen, "%s%llx:%lld%s prio %d",
++	snprintf(buf, buflen, "%sccid:%x %llx:%lld%s prio %d",
+ 		 prefix,
++		 upper_32_bits(rq->context->lrc_desc),
+ 		 rq->fence.context, rq->fence.seqno,
+ 		 i915_request_completed(rq) ? "!" :
+ 		 i915_request_started(rq) ? "*" :
+@@ -3444,7 +3456,8 @@ __execlists_context_pin(struct intel_context *ce,
+ 	if (IS_ERR(vaddr))
+ 		return PTR_ERR(vaddr);
+ 
+-	ce->lrc_desc = lrc_descriptor(ce, engine) | CTX_DESC_FORCE_RESTORE;
++	ce->lrc_desc &= ~GENMASK_ULL(31, 0);
++	ce->lrc_desc |= lrc_descriptor(ce, engine) | CTX_DESC_FORCE_RESTORE;
+ 	ce->lrc_reg_state = vaddr + LRC_STATE_OFFSET;
+ 	__execlists_update_reg_state(ce, engine, ce->ring->tail);
+ 
+@@ -4002,7 +4015,7 @@ static void enable_execlists(struct intel_engine_cs *engine)
+ 
+ 	enable_error_interrupt(engine);
+ 
+-	engine->context_tag = 0;
++	engine->context_tag = GENMASK(BITS_PER_LONG - 2, 0);
+ }
+ 
+ static bool unexpected_starting_state(struct intel_engine_cs *engine)
+diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
+index dec1b33e4da8..1863a5c4778d 100644
+--- a/drivers/gpu/drm/i915/i915_perf.c
++++ b/drivers/gpu/drm/i915/i915_perf.c
+@@ -1281,11 +1281,10 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
+ 			((1U << GEN11_SW_CTX_ID_WIDTH) - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+ 		/*
+ 		 * Pick an unused context id
+-		 * 0 - (NUM_CONTEXT_TAG - 1) are used by other contexts
++		 * 0 - BITS_PER_LONG are used by other contexts
+ 		 * GEN12_MAX_CONTEXT_HW_ID (0x7ff) is used by idle context
+ 		 */
+ 		stream->specific_ctx_id = (GEN12_MAX_CONTEXT_HW_ID - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+-		BUILD_BUG_ON((GEN12_MAX_CONTEXT_HW_ID - 1) < NUM_CONTEXT_TAG);
+ 		break;
+ 	}
+ 
+diff --git a/drivers/gpu/drm/i915/selftests/i915_vma.c b/drivers/gpu/drm/i915/selftests/i915_vma.c
+index 58b5f40a07dd..af89c7fc8f59 100644
+--- a/drivers/gpu/drm/i915/selftests/i915_vma.c
++++ b/drivers/gpu/drm/i915/selftests/i915_vma.c
+@@ -173,7 +173,7 @@ static int igt_vma_create(void *arg)
+ 		}
+ 
+ 		nc = 0;
+-		for_each_prime_number(num_ctx, 2 * NUM_CONTEXT_TAG) {
++		for_each_prime_number(num_ctx, 2 * BITS_PER_LONG) {
+ 			for (; nc < num_ctx; nc++) {
+ 				ctx = mock_context(i915, "mock");
+ 				if (!ctx)
+-- 
+2.20.1
 
-However, there are other paths that can call ep_scan_ready_list() thus
-I agree with you that both wakeups here are necessary.
-
-I do think are are still (smaller) potential races in ep_scan_ready_list()
-where we have:
-
-        write_lock_irq(&ep->lock);
-        list_splice_init(&ep->rdllist, &txlist);
-        WRITE_ONCE(ep->ovflist, NULL);
-        write_unlock_irq(&ep->lock);
-
-And in the ep_poll path we have:
-
-static inline int ep_events_available(struct eventpoll *ep)
-{
-        return !list_empty_careful(&ep->rdllist) ||
-                READ_ONCE(ep->ovflist) != EP_UNACTIVE_PTR;
-}
-
-
-Seems to me that first bit needs to be the following, since
-ep_events_available() is now checked in a lockless way:
-
-
-        write_lock_irq(&ep->lock);
-	WRITE_ONCE(ep->ovflist, NULL);
-	smp_wmb();
-        list_splice_init(&ep->rdllist, &txlist);
-        write_unlock_irq(&ep->lock);
-
-
-And also this bit:
-
-        WRITE_ONCE(ep->ovflist, EP_UNACTIVE_PTR);
-
-        /*
-         * Quickly re-inject items left on "txlist".
-         */
-        list_splice(&txlist, &ep->rdllist);
-
-Should I think better be reversed as well to:
-
-list_splice(&txlist, &ep->rdllist);
-smp_wmb();
-WRITE_ONCE(ep->ovflist, EP_UNACTIVE_PTR);
-
-
-I can send those as a separate patch followup.
-
-Thanks,
-
--Jason
-
-
->>> We noticed that one of our workloads was missing wakeups starting with
->>> 339ddb53d373 and upon manual inspection, this wakeup seemed missing to
->>> me. With this patch added, we no longer see missing wakeups. I haven't
->>> yet tried to make a small reproducer, but the existing kselftests in
->>> filesystem/epoll passed for me with this patch.
->>>
->>> Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
->>>
->>> Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
->>> Reviewed-by: Roman Penyaev <rpenyaev@suse.de>
->>> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
->>> Cc: Heiher <r@hev.cc>
->>> Cc: Jason Baron <jbaron@akamai.com>
->>> Cc: <stable@vger.kernel.org>
->>> ---
->>> v2: use if/elif instead of goto + cleanup suggested by Roman
->>>  fs/eventpoll.c | 18 +++++++++---------
->>>  1 file changed, 9 insertions(+), 9 deletions(-)
->>>
->>> diff --git a/fs/eventpoll.c b/fs/eventpoll.c
->>> index 8c596641a72b..d6ba0e52439b 100644
->>> --- a/fs/eventpoll.c
->>> +++ b/fs/eventpoll.c
->>> @@ -1171,6 +1171,10 @@ static inline bool chain_epi_lockless(struct epitem *epi)
->>>  {
->>>       struct eventpoll *ep = epi->ep;
->>>
->>> +     /* Fast preliminary check */
->>> +     if (epi->next != EP_UNACTIVE_PTR)
->>> +             return false;
->>> +
->>>       /* Check that the same epi has not been just chained from another CPU */
->>>       if (cmpxchg(&epi->next, EP_UNACTIVE_PTR, NULL) != EP_UNACTIVE_PTR)
->>>               return false;
->>> @@ -1237,16 +1241,12 @@ static int ep_poll_callback(wait_queue_entry_t *wait, unsigned mode, int sync, v
->>>        * chained in ep->ovflist and requeued later on.
->>>        */
->>>       if (READ_ONCE(ep->ovflist) != EP_UNACTIVE_PTR) {
->>> -             if (epi->next == EP_UNACTIVE_PTR &&
->>> -                 chain_epi_lockless(epi))
->>> +             if (chain_epi_lockless(epi))
->>> +                     ep_pm_stay_awake_rcu(epi);
->>> +     } else if (!ep_is_linked(epi)) {
->>> +             /* In the usual case, add event to ready list. */
->>> +             if (list_add_tail_lockless(&epi->rdllink, &ep->rdllist))
->>>                       ep_pm_stay_awake_rcu(epi);
->>> -             goto out_unlock;
->>> -     }
->>> -
->>> -     /* If this file is already in the ready list we exit soon */
->>> -     if (!ep_is_linked(epi) &&
->>> -         list_add_tail_lockless(&epi->rdllink, &ep->rdllist)) {
->>> -             ep_pm_stay_awake_rcu(epi);
->>>       }
->>>
->>>       /*
->>>
