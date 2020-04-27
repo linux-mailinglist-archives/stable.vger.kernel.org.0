@@ -2,100 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 092771B9FEC
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 11:31:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D50CD1BA13B
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 12:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726858AbgD0Ja4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 05:30:56 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:50925 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726855AbgD0Jaz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 05:30:55 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21032780-1500050 
-        for multiple; Mon, 27 Apr 2020 10:30:39 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/i915/gt: Check cacheline is valid before acquiring
-Date:   Mon, 27 Apr 2020 10:30:38 +0100
-Message-Id: <20200427093038.29219-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200427092931.29097-1-chris@chris-wilson.co.uk>
-References: <20200427092931.29097-1-chris@chris-wilson.co.uk>
+        id S1726973AbgD0Kbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 06:31:42 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2105 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726537AbgD0Kbl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Apr 2020 06:31:41 -0400
+Received: from lhreml724-chm.china.huawei.com (unknown [172.18.7.108])
+        by Forcepoint Email with ESMTP id E1F57895E276EE888944;
+        Mon, 27 Apr 2020 11:31:39 +0100 (IST)
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ lhreml724-chm.china.huawei.com (10.201.108.75) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1913.5; Mon, 27 Apr 2020 11:31:39 +0100
+Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.160)
+ by fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1913.5; Mon, 27 Apr 2020 12:31:38 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <rgoldwyn@suse.de>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
+        <krzysztof.struczynski@huawei.com>,
+        "Roberto Sassu" <roberto.sassu@huawei.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2 1/6] ima: Set file->f_mode instead of file->f_flags in ima_calc_file_hash()
+Date:   Mon, 27 Apr 2020 12:28:55 +0200
+Message-ID: <20200427102900.18887-1-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.204.65.160]
+X-ClientProxiedBy: lhreml710-chm.china.huawei.com (10.201.108.61) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The hwsp_cacheline pointer from i915_request is very, very flimsy. The
-i915_request.timeline (and the hwsp_cacheline) are lost upon retiring
-(after an RCU grace). Therefore we need to confirm that once we have the
-right pointer for the cacheline, it is not in the process of being
-retired and disposed of before we attempt to acquire a reference to the
-cacheline.
+Commit a408e4a86b36 ("ima: open a new file instance if no read
+permissions") tries to create a new file descriptor to calculate a file
+digest if the file has not been opened with O_RDONLY flag. However, if a
+new file descriptor cannot be obtained, it sets the FMODE_READ flag to
+file->f_flags instead of file->f_mode.
 
-<3>[  547.208237] BUG: KASAN: use-after-free in active_debug_hint+0x6a/0x70 [i915]
-<3>[  547.208366] Read of size 8 at addr ffff88822a0d2710 by task gem_exec_parall/2536
+This patch fixes this issue by replacing f_flags with f_mode as it was
+before that commit.
 
-<4>[  547.208547] CPU: 3 PID: 2536 Comm: gem_exec_parall Tainted: G     U            5.7.0-rc2-ged7a286b5d02d-kasan_117+ #1
-<4>[  547.208556] Hardware name: Dell Inc. XPS 13 9350/, BIOS 1.4.12 11/30/2016
-<4>[  547.208564] Call Trace:
-<4>[  547.208579]  dump_stack+0x96/0xdb
-<4>[  547.208707]  ? active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.208719]  print_address_description.constprop.6+0x16/0x310
-<4>[  547.208841]  ? active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.208963]  ? active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.208975]  __kasan_report+0x137/0x190
-<4>[  547.209106]  ? active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.209127]  kasan_report+0x32/0x50
-<4>[  547.209257]  ? i915_gemfs_fini+0x40/0x40 [i915]
-<4>[  547.209376]  active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.209389]  debug_print_object+0xa7/0x220
-<4>[  547.209405]  ? lockdep_hardirqs_on+0x348/0x5f0
-<4>[  547.209426]  debug_object_assert_init+0x297/0x430
-<4>[  547.209449]  ? debug_object_free+0x360/0x360
-<4>[  547.209472]  ? lock_acquire+0x1ac/0x8a0
-<4>[  547.209592]  ? intel_timeline_read_hwsp+0x4f/0x840 [i915]
-<4>[  547.209737]  ? i915_active_acquire_if_busy+0x66/0x120 [i915]
-<4>[  547.209861]  i915_active_acquire_if_busy+0x66/0x120 [i915]
-<4>[  547.209990]  ? __live_alloc.isra.15+0xc0/0xc0 [i915]
-<4>[  547.210005]  ? rcu_read_lock_sched_held+0xd0/0xd0
-<4>[  547.210017]  ? print_usage_bug+0x580/0x580
-<4>[  547.210153]  intel_timeline_read_hwsp+0xbc/0x840 [i915]
-<4>[  547.210284]  __emit_semaphore_wait+0xd5/0x480 [i915]
-<4>[  547.210415]  ? i915_fence_get_timeline_name+0x110/0x110 [i915]
-<4>[  547.210428]  ? lockdep_hardirqs_on+0x348/0x5f0
-<4>[  547.210442]  ? _raw_spin_unlock_irq+0x2a/0x40
-<4>[  547.210567]  ? __await_execution.constprop.51+0x2e0/0x570 [i915]
-<4>[  547.210706]  i915_request_await_dma_fence+0x8f7/0xc70 [i915]
+Changelog
 
-Fixes: 85bedbf191e8 ("drm/i915/gt: Eliminate the trylock for reading a timeline's hwsp")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
+v1:
+- fix comment for f_mode change (suggested by Mimi)
+- rename modified_flags variable to modified_mode (suggested by Mimi)
+
+Cc: stable@vger.kernel.org # 4.20.x
+Fixes: a408e4a86b36 ("ima: open a new file instance if no read permissions")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 ---
- drivers/gpu/drm/i915/gt/intel_timeline.c | 2 ++
- 1 file changed, 2 insertions(+)
+ security/integrity/ima/ima_crypto.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_timeline.c b/drivers/gpu/drm/i915/gt/intel_timeline.c
-index 29a39e44fa36..e1fac1b38f27 100644
---- a/drivers/gpu/drm/i915/gt/intel_timeline.c
-+++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
-@@ -544,6 +544,8 @@ int intel_timeline_read_hwsp(struct i915_request *from,
+diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
+index 5201f5ec2ce4..f3a7f4eb1fc1 100644
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -537,7 +537,7 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ 	loff_t i_size;
+ 	int rc;
+ 	struct file *f = file;
+-	bool new_file_instance = false, modified_flags = false;
++	bool new_file_instance = false, modified_mode = false;
  
- 	rcu_read_lock();
- 	cl = rcu_dereference(from->hwsp_cacheline);
-+	if (i915_request_completed(from)) /* confirm cacheline is valid */
-+		goto unlock;
- 	if (unlikely(!i915_active_acquire_if_busy(&cl->active)))
- 		goto unlock; /* seqno wrapped and completed! */
- 	if (unlikely(i915_request_completed(from)))
+ 	/*
+ 	 * For consistency, fail file's opened with the O_DIRECT flag on
+@@ -557,13 +557,13 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ 		f = dentry_open(&file->f_path, flags, file->f_cred);
+ 		if (IS_ERR(f)) {
+ 			/*
+-			 * Cannot open the file again, lets modify f_flags
++			 * Cannot open the file again, lets modify f_mode
+ 			 * of original and continue
+ 			 */
+ 			pr_info_ratelimited("Unable to reopen file for reading.\n");
+ 			f = file;
+-			f->f_flags |= FMODE_READ;
+-			modified_flags = true;
++			f->f_mode |= FMODE_READ;
++			modified_mode = true;
+ 		} else {
+ 			new_file_instance = true;
+ 		}
+@@ -581,8 +581,8 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ out:
+ 	if (new_file_instance)
+ 		fput(f);
+-	else if (modified_flags)
+-		f->f_flags &= ~FMODE_READ;
++	else if (modified_mode)
++		f->f_mode &= ~FMODE_READ;
+ 	return rc;
+ }
+ 
 -- 
-2.20.1
+2.17.1
 
