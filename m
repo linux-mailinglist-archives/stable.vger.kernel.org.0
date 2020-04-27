@@ -2,113 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B6FE1B9A8E
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 10:44:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DBB81B9A99
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 10:45:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726700AbgD0IoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 04:44:13 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:36263 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726539AbgD0IoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 04:44:13 -0400
-Received: by mail-ot1-f67.google.com with SMTP id b13so24885555oti.3;
-        Mon, 27 Apr 2020 01:44:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=e7PZSKjhCNlOl1JE2fl7JKkNcGODFwULz8sVcRzeFak=;
-        b=isQmk7i6vBykZ+bqqp925veBDzWRs80XKqXKibKrTwuCtssGSwI7PZgaD4zGHmmngn
-         TneDF83sUtmGHAb+wawf4mSbEias8vRLTDY1KOXX1JDQ6aTYz7xkGnvR2v3faFTepNE5
-         Oz6B778zMLjwr2TbRSjLXmRtFtDTExJQJ3RvQDxwuPCaQRv1bn6HwTSOPjdncqtDFXpL
-         s+LqvjV7b3BnmHNfY2PWRQdEyRUF1blfh2Hrgp04aRUQUq4H0pRMCOAE71TUV04f4RUv
-         WxGSgQ72H4JJyHMuCQunJeKDpNZZU11bZr+C6EEcDAYzo6AXfbxsD13vCh/5tOyr79Xi
-         BiNA==
-X-Gm-Message-State: AGi0PuYWElwM4j2Vc0i2CeNSxmSvkUi31JhHlK9oQu02lBuGXMqsv1Yi
-        S3LQ7jclN/z9SdMziN/TA+FuSkOXzYMnTZEhHo0=
-X-Google-Smtp-Source: APiQypJUnWb3Dmq9g+U8cpYpdlem+kOYdhiTvns0Do1UHHo2sTY/VEP8OZ49UAjfixE3UKDsd1Qrgg/z0ro5DEZDEz0=
-X-Received: by 2002:a9d:6ac8:: with SMTP id m8mr17542881otq.262.1587977050743;
- Mon, 27 Apr 2020 01:44:10 -0700 (PDT)
+        id S1726243AbgD0Ipi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 04:45:38 -0400
+Received: from mx2.suse.de ([195.135.220.15]:39446 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725899AbgD0Iph (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Apr 2020 04:45:37 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id CA287ABCC;
+        Mon, 27 Apr 2020 08:45:34 +0000 (UTC)
+Subject: Re: [PATCH 4.14] mm, slub: restore the original intention of
+ prefetch_freepointer()
+To:     Sven Eckelmann <sven@narfation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Daniel Micay <danielmicay@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Matthias Schiffer <mschiffer@universe-factory.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+References: <20200426070617.14575-1-sven@narfation.org>
+ <20200426231426.GM13035@sasha-vm> <11030934.sCltEm0ppq@bentobox>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <5500acc3-e691-ffae-1a59-6331de07f606@suse.cz>
+Date:   Mon, 27 Apr 2020 10:45:33 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <20200424034016.42046-1-decui@microsoft.com> <2420808.aENraY2TMt@kreacher>
- <08f28683-4978-3e3c-e85a-303f6e46ef55@acm.org>
-In-Reply-To: <08f28683-4978-3e3c-e85a-303f6e46ef55@acm.org>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Mon, 27 Apr 2020 10:43:58 +0200
-Message-ID: <CAJZ5v0gXHRWyoY29LNCMqYnkHcMN7jmFhvpO30c43Gte8Kmp=Q@mail.gmail.com>
-Subject: Re: [PATCH] PM: hibernate: Freeze kernel threads in software_resume()
-To:     Bart Van Assche <bvanassche@acm.org>
-Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Dexuan Cui <decui@microsoft.com>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-        Michael Kelley <mikelley@microsoft.com>, longli@microsoft.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Ming Lei <ming.lei@redhat.com>, wei.liu@kernel.org,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        KY Srinivasan <kys@microsoft.com>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <11030934.sCltEm0ppq@bentobox>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 26, 2020 at 8:34 PM Bart Van Assche <bvanassche@acm.org> wrote:
->
-> On 2020-04-26 09:24, Rafael J. Wysocki wrote:
-> > On Friday, April 24, 2020 5:40:16 AM CEST Dexuan Cui wrote:
-> >> Currently the kernel threads are not frozen in software_resume(), so
-> >> between dpm_suspend_start(PMSG_QUIESCE) and resume_target_kernel(),
-> >> system_freezable_power_efficient_wq can still try to submit SCSI
-> >> commands and this can cause a panic since the low level SCSI driver
-> >> (e.g. hv_storvsc) has quiesced the SCSI adapter and can not accept
-> >> any SCSI commands: https://lkml.org/lkml/2020/4/10/47
-> >>
-> >> At first I posted a fix (https://lkml.org/lkml/2020/4/21/1318) trying
-> >> to resolve the issue from hv_storvsc, but with the help of
-> >> Bart Van Assche, I realized it's better to fix software_resume(),
-> >> since this looks like a generic issue, not only pertaining to SCSI.
-> >>
-> >> Cc: Bart Van Assche <bvanassche@acm.org>
-> >> Cc: stable@vger.kernel.org
-> >> Signed-off-by: Dexuan Cui <decui@microsoft.com>
-> >> ---
-> >>  kernel/power/hibernate.c | 7 +++++++
-> >>  1 file changed, 7 insertions(+)
-> >>
-> >> diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-> >> index 86aba8706b16..30bd28d1d418 100644
-> >> --- a/kernel/power/hibernate.c
-> >> +++ b/kernel/power/hibernate.c
-> >> @@ -898,6 +898,13 @@ static int software_resume(void)
-> >>      error = freeze_processes();
-> >>      if (error)
-> >>              goto Close_Finish;
-> >> +
-> >> +    error = freeze_kernel_threads();
-> >> +    if (error) {
-> >> +            thaw_processes();
-> >> +            goto Close_Finish;
-> >> +    }
-> >> +
-> >>      error = load_image_and_restore();
-> >>      thaw_processes();
-> >>   Finish:
-> >
-> > Applied as a fix for 5.7-rc4, thanks!
->
-> Hi Rafael,
->
-> What is not clear to me is how kernel threads are thawed after
-> load_image_and_restore() has finished? Should a comment perhaps be added
-> above the freeze_kernel_threads() call that explains how
-> thaw_kernel_threads() is invoked after load_image_and_restore() has
-> finished?
+On 4/27/20 9:01 AM, Sven Eckelmann wrote:
+> On Monday, 27 April 2020 01:14:26 CEST Sasha Levin wrote:
+>> On Sun, Apr 26, 2020 at 09:06:17AM +0200, Sven Eckelmann wrote:
+>> >From: Vlastimil Babka <vbabka@suse.cz>
+>> >
+>> >commit 0882ff9190e3bc51e2d78c3aadd7c690eeaa91d5 upstream.
+> [...]
+>> >---
+>> >The original problem is explained in the patch description as
+>> >performance problem. And maybe this could also be one reason why it was
+>> >never submitted for a stable kernel.
+>> >
+>> >But tests on mips ath79 (OpenWrt ar71xx target) showed that it most likely
+>> >related to "random" data bus errors. At least applying this patch seemed to
+>> >have solved it for Matthias Schiffer <mschiffer@universe-factory.net> and
+>> >some other persons who where debugging/testing this problem with him.
+>> >
+>> >More details about it can be found in
+>> >https://github.com/freifunk-gluon/gluon/issues/1982
 
-It isn't, because that is not necessary.
+Hmm, doesn't explain much how the fix was eventually found, but nevermind, good job.
 
-thaw_processes() will thaw them along with the user space.
+>> 
+>> Interesting... I wonder why this issue has started only now.
+> 
+> Unfortunately, I don't know the details. So I (actually we) would love to get 
+> some feedback from the slub experts. Not that there is another problem which 
+> we just don't grasp yet.
 
-Cheers!
+I think the prefetch my go to an address that would cause a real fetch to page
+fault. Under normal circumstances that could be only the NULL pointer that
+terminates a freelist, otherwise the address should be valid.
+
+So that could mean:
+1) prefetch() on mips is implemented/compiled wrong?
+2) the CPU really has issues with prefetch causing a page fault
+3) the prefetch gets reordered between LL/SC and there's some bug similar to
+this one described in arch/mips/include/asm/sync.h:
+
+/*
+ * Some Loongson 3 CPUs have a bug wherein execution of a memory access (load,
+ * store or prefetch) in between an LL & SC can cause the SC instruction to
+ * erroneously succeed, breaking atomicity. Whilst it's unusual to write code
+ * containing such sequences, this bug bites harder than we might otherwise
+ * expect due to reordering & speculation:
+
+
+> Just some background information about the "why" from freifunk-gluon's 
+> perspective:
+> 
+> OpenWrt 19.07 was released (despite its name) at the beginning of 2020. And it 
+> was the first release using kernel 4.14 on the most used target: ar71xx 
+> (ath79). The wireless community network firmware projects (freifunk-gluon in 
+> this example) updated their frameworks to this OpenWrt release in the last 
+> months and just now started to roll it out on their networks.
+> 
+> And while the wireless community networks around here usually don't track the 
+> connected clients, the health of the APs is often tracked on some central 
+> system. And some people then just noticed a sudden spike of reboots on their 
+> APs. Since ar71xx is (often) the most used architecture at the moment, this 
+> could be spotted rather easily if you spend some time looking at graphs.
+> 
+> Kind regards,
+> 	Sven
+> 
+
