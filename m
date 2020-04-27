@@ -2,200 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 213F71B9ADC
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 10:55:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 092771B9FEC
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 11:31:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726349AbgD0Izn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 04:55:43 -0400
-Received: from mga12.intel.com ([192.55.52.136]:50751 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725899AbgD0Izn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Apr 2020 04:55:43 -0400
-IronPort-SDR: iZNWlGChi9ZvhPrTKvP2HWKvzFpSrhA2qF+JxfnMCmSJHwFS8xkJrO1nBk0sYlMNcIMlQGK+p+
- TtJje+OTlBcw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Apr 2020 01:55:42 -0700
-IronPort-SDR: WATT+aCNyJmdUhG3hysGUQpW7YVgozO+81uD3Z2YpV4A9ZeGIKR6CAEA1QkyqSExHrZqG2Vf0P
- ff3S5O/SAfJQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,323,1583222400"; 
-   d="scan'208";a="246059328"
-Received: from rongch2-mobl.ccr.corp.intel.com (HELO [10.255.31.104]) ([10.255.31.104])
-  by orsmga007.jf.intel.com with ESMTP; 27 Apr 2020 01:55:40 -0700
-Subject: Re: [LKP] Re: [KEYS] 4ea62d6823:
- WARNING:at_mm/page_alloc.c:#__alloc_pages_nodemask
-To:     Waiman Long <longman@redhat.com>
-Cc:     lkp@lists.01.org, stable@vger.kernel.org
-References: <20200426104848.GB1247@shao2-debian>
- <5f5e59fd-1ba7-2634-6667-ecaca9c5c8e5@redhat.com>
-From:   "Chen, Rong A" <rong.a.chen@intel.com>
-Message-ID: <7231ea1a-70b2-c156-1724-2357ed10b20a@intel.com>
-Date:   Mon, 27 Apr 2020 16:55:36 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1726858AbgD0Ja4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 05:30:56 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:50925 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726855AbgD0Jaz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 05:30:55 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21032780-1500050 
+        for multiple; Mon, 27 Apr 2020 10:30:39 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gt: Check cacheline is valid before acquiring
+Date:   Mon, 27 Apr 2020 10:30:38 +0100
+Message-Id: <20200427093038.29219-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200427092931.29097-1-chris@chris-wilson.co.uk>
+References: <20200427092931.29097-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-In-Reply-To: <5f5e59fd-1ba7-2634-6667-ecaca9c5c8e5@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The hwsp_cacheline pointer from i915_request is very, very flimsy. The
+i915_request.timeline (and the hwsp_cacheline) are lost upon retiring
+(after an RCU grace). Therefore we need to confirm that once we have the
+right pointer for the cacheline, it is not in the process of being
+retired and disposed of before we attempt to acquire a reference to the
+cacheline.
 
+<3>[  547.208237] BUG: KASAN: use-after-free in active_debug_hint+0x6a/0x70 [i915]
+<3>[  547.208366] Read of size 8 at addr ffff88822a0d2710 by task gem_exec_parall/2536
 
-On 4/27/2020 10:58 AM, Waiman Long wrote:
-> On 4/26/20 6:48 AM, kernel test robot wrote:
->> Greeting,
->>
->> FYI, we noticed the following commit (built with gcc-7):
->>
->> commit: 4ea62d6823c55fb914ba1195349b86a50efe8597 ("KEYS: Don't write 
->> out to userspace while holding key semaphore")
->> https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable-rc.git 
->> queue/5.6
->>
->> in testcase: trinity
->> with following parameters:
->>
->>     runtime: 300s
->>
->> test-description: Trinity is a linux system call fuzz tester.
->> test-url: http://codemonkey.org.uk/projects/trinity/
->>
->>
->> on test machine: qemu-system-x86_64 -enable-kvm -cpu SandyBridge -smp 
->> 2 -m 8G
->>
->> caused below changes (please refer to attached dmesg/kmsg for entire 
->> log/backtrace):
->>
->>
->> +----------------------------------------------------+------------+------------+ 
->>
->> |                                                    | 0f7bd4ba0b | 
->> 4ea62d6823 |
->> +----------------------------------------------------+------------+------------+ 
->>
->> | boot_successes                                     | 5          | 
->> 2          |
->> | boot_failures                                      | 1          | 
->> 9          |
->> | BUG:kernel_hang_in_boot_stage                      | 1          
->> |            |
->> | BUG:kernel_hang_in_early-boot_stage                | 0          | 
->> 1          |
->> | WARNING:at_mm/page_alloc.c:#__alloc_pages_nodemask | 0          | 
->> 8          |
->> | RIP:__alloc_pages_nodemask                         | 0          | 
->> 8          |
->> +----------------------------------------------------+------------+------------+ 
->>
->>
->>
->> If you fix the issue, kindly add following tag
->> Reported-by: kernel test robot <rong.a.chen@intel.com>
->>
->>
->> [  387.389621] WARNING: CPU: 1 PID: 5301 at mm/page_alloc.c:4713 
->> __alloc_pages_nodemask+0x1d1/0x340
->> [  387.392619] Modules linked in: 8021q garp stp mrp llc dlci af_key 
->> ieee802154_socket ieee802154 mpls_router ip_tunnel vsock_loopback 
->> vmw_vsock_virtio_transport_common vmw_vsock_vmci_transport vsock 
->> vmw_vmci hidp cmtp kernelcapi bnep rfcomm bluetooth ecdh_generic ecc 
->> rfkill can_bcm can_raw can pptp gre l2tp_ppp l2tp_netlink l2tp_core 
->> ip6_udp_tunnel udp_tunnel pppoe pppox ppp_generic slhc crypto_user 
->> nfnetlink scsi_transport_iscsi dccp_ipv6 atm sctp libcrc32c dccp_ipv4 
->> dccp sr_mod cdrom ata_generic pata_acpi bochs_drm drm_vram_helper 
->> drm_ttm_helper ttm intel_rapl_msr intel_rapl_common drm_kms_helper 
->> snd_pcm syscopyarea crct10dif_pclmul crc32_pclmul crc32c_intel 
->> ghash_clmulni_intel sysfillrect snd_timer ppdev snd sysimgblt 
->> fb_sys_fops aesni_intel ata_piix soundcore crypto_simd parport_pc 
->> cryptd joydev drm glue_helper serio_raw pcspkr libata i2c_piix4 
->> parport floppy
->> [  387.417621] CPU: 1 PID: 5301 Comm: trinity-c1 Not tainted 
->> 5.6.6-00162-g4ea62d6823c55 #1
->> [  387.420344] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), 
->> BIOS 1.12.0-1 04/01/2014
->> [  387.423093] RIP: 0010:__alloc_pages_nodemask+0x1d1/0x340
->> [  387.425419] Code: ff ff ff 65 48 8b 04 25 c0 8b 01 00 48 05 60 0c 
->> 00 00 41 be 01 00 00 00 48 89 44 24 08 e9 02 ff ff ff 81 e7 00 20 00 
->> 00 75 02 <0f> 0b 45 31 f6 eb 95 44 8b 64 24 18 65 8b 05 fc 9f 39 5e 
->> 89 c0 48
->> [  387.431026] RSP: 0018:ffff9ee900f27e60 EFLAGS: 00010246
->> [  387.433373] RAX: 0000000000000000 RBX: fffffffffffffff4 RCX: 
->> 0000000000000000
->> [  387.435902] RDX: 0000000000000000 RSI: 0000000000000034 RDI: 
->> 0000000000000000
->> [  387.438438] RBP: 0000000000000034 R08: 0000000000000000 R09: 
->> fffffffffffffff9
->> [  387.440946] R10: 0000000000000000 R11: 0000000000000000 R12: 
->> 0000000000000cc0
->> [  387.443369] R13: fffffffffffffffb R14: 0000000000000034 R15: 
->> 0000000000000000
->> [  387.445759] FS:  0000000002a06880(0000) GS:ffff8dfd37d00000(0000) 
->> knlGS:0000000000000000
->> [  387.448352] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->> [  387.450614] CR2: 00007f6be3b0f47c CR3: 000000018f17c000 CR4: 
->> 00000000000406e0
->> [  387.453073] DR0: 00007f6be1da7000 DR1: 0000000000000000 DR2: 
->> 0000000000000000
->> [  387.455531] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 
->> 0000000000030602
->> [  387.457999] Call Trace:
->> [  387.459933]  kmalloc_order+0x18/0x70
->> [  387.461817]  kmalloc_order_trace+0x1d/0xb0
->> [  387.463770]  keyctl_read_key+0xb6/0x140
->> [  387.465697]  do_syscall_64+0x5b/0x1f0
->> [  387.467572]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
->> [  387.469596] RIP: 0033:0x463519
->> [  387.471409] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 
->> 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 
->> 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db 59 00 00 c3 66 2e 0f 1f 84 00 
->> 00 00 00
->> [  387.476350] RSP: 002b:00007ffde88f9338 EFLAGS: 00000246 ORIG_RAX: 
->> 00000000000000fa
->> [  387.479670] RAX: ffffffffffffffda RBX: 00000000000000fa RCX: 
->> 0000000000463519
->> [  387.481811] RDX: fffffffffffffffb RSI: fffffffffffffffd RDI: 
->> 000000000000000b
->> [  387.484045] RBP: 00007f6be26d4000 R08: ffffffffffffffe0 R09: 
->> ffffffffffffb1b1
->> [  387.486279] R10: fffffffffffffff9 R11: 0000000000000246 R12: 
->> 0000000000000002
->> [  387.488396] R13: 00007f6be26d4058 R14: 0000000002a06850 R15: 
->> 00007f6be26d4000
->> [  387.490515] ---[ end trace 3c2d530d0a271c54 ]---
->>
->>
->> To reproduce:
->>
->>          # build kernel
->>     cd linux
->>     cp config-5.6.6-00162-g4ea62d6823c55 .config
->>     make HOSTCC=gcc-7 CC=gcc-7 ARCH=x86_64 olddefconfig prepare 
->> modules_prepare bzImage
->>
->>          git clone https://github.com/intel/lkp-tests.git
->>          cd lkp-tests
->>          bin/lkp qemu -k <bzImage> job-script # job-script is 
->> attached in this email
->>
->>
->>
->> Thanks,
->> Rong Chen (
->>
-> To fix that, we have to backport the commit 4f0882491a14 ("KEYS: Avoid 
-> false positive ENOMEM error on key read") to 5.6-stable as well.
->
-> Cheers,
-> Longman
+<4>[  547.208547] CPU: 3 PID: 2536 Comm: gem_exec_parall Tainted: G     U            5.7.0-rc2-ged7a286b5d02d-kasan_117+ #1
+<4>[  547.208556] Hardware name: Dell Inc. XPS 13 9350/, BIOS 1.4.12 11/30/2016
+<4>[  547.208564] Call Trace:
+<4>[  547.208579]  dump_stack+0x96/0xdb
+<4>[  547.208707]  ? active_debug_hint+0x6a/0x70 [i915]
+<4>[  547.208719]  print_address_description.constprop.6+0x16/0x310
+<4>[  547.208841]  ? active_debug_hint+0x6a/0x70 [i915]
+<4>[  547.208963]  ? active_debug_hint+0x6a/0x70 [i915]
+<4>[  547.208975]  __kasan_report+0x137/0x190
+<4>[  547.209106]  ? active_debug_hint+0x6a/0x70 [i915]
+<4>[  547.209127]  kasan_report+0x32/0x50
+<4>[  547.209257]  ? i915_gemfs_fini+0x40/0x40 [i915]
+<4>[  547.209376]  active_debug_hint+0x6a/0x70 [i915]
+<4>[  547.209389]  debug_print_object+0xa7/0x220
+<4>[  547.209405]  ? lockdep_hardirqs_on+0x348/0x5f0
+<4>[  547.209426]  debug_object_assert_init+0x297/0x430
+<4>[  547.209449]  ? debug_object_free+0x360/0x360
+<4>[  547.209472]  ? lock_acquire+0x1ac/0x8a0
+<4>[  547.209592]  ? intel_timeline_read_hwsp+0x4f/0x840 [i915]
+<4>[  547.209737]  ? i915_active_acquire_if_busy+0x66/0x120 [i915]
+<4>[  547.209861]  i915_active_acquire_if_busy+0x66/0x120 [i915]
+<4>[  547.209990]  ? __live_alloc.isra.15+0xc0/0xc0 [i915]
+<4>[  547.210005]  ? rcu_read_lock_sched_held+0xd0/0xd0
+<4>[  547.210017]  ? print_usage_bug+0x580/0x580
+<4>[  547.210153]  intel_timeline_read_hwsp+0xbc/0x840 [i915]
+<4>[  547.210284]  __emit_semaphore_wait+0xd5/0x480 [i915]
+<4>[  547.210415]  ? i915_fence_get_timeline_name+0x110/0x110 [i915]
+<4>[  547.210428]  ? lockdep_hardirqs_on+0x348/0x5f0
+<4>[  547.210442]  ? _raw_spin_unlock_irq+0x2a/0x40
+<4>[  547.210567]  ? __await_execution.constprop.51+0x2e0/0x570 [i915]
+<4>[  547.210706]  i915_request_await_dma_fence+0x8f7/0xc70 [i915]
 
-Thanks a lot, cc stable@vger.kernel.org
+Fixes: 85bedbf191e8 ("drm/i915/gt: Eliminate the trylock for reading a timeline's hwsp")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.6+
+---
+ drivers/gpu/drm/i915/gt/intel_timeline.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Best Regards,
-Rong Chen
+diff --git a/drivers/gpu/drm/i915/gt/intel_timeline.c b/drivers/gpu/drm/i915/gt/intel_timeline.c
+index 29a39e44fa36..e1fac1b38f27 100644
+--- a/drivers/gpu/drm/i915/gt/intel_timeline.c
++++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
+@@ -544,6 +544,8 @@ int intel_timeline_read_hwsp(struct i915_request *from,
+ 
+ 	rcu_read_lock();
+ 	cl = rcu_dereference(from->hwsp_cacheline);
++	if (i915_request_completed(from)) /* confirm cacheline is valid */
++		goto unlock;
+ 	if (unlikely(!i915_active_acquire_if_busy(&cl->active)))
+ 		goto unlock; /* seqno wrapped and completed! */
+ 	if (unlikely(i915_request_completed(from)))
+-- 
+2.20.1
+
