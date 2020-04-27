@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6516E1BA959
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 17:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DD81BA960
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 17:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727936AbgD0Pzy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 11:55:54 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:58913 "EHLO
+        id S1727905AbgD0P6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 11:58:15 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:39141 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727822AbgD0Pzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 11:55:54 -0400
+        by vger.kernel.org with ESMTP id S1727084AbgD0P6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 11:58:15 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 916B9194060C;
-        Mon, 27 Apr 2020 11:55:53 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 27 Apr 2020 11:55:53 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 26FFC1940303;
+        Mon, 27 Apr 2020 11:58:14 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 27 Apr 2020 11:58:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=nCOIc7
-        KjKRVwdu7DZuWg7YLzg3JvOCVIY8MP1DBnjak=; b=0OKP0xjjQptBm9NJ4tGRQa
-        BDKPdyVmQiKS8q87UVE54zLaB/r3yDydhGhiHNFd7X0oIPV2e4MyI9dHfKAwOYuM
-        jFwqE3DsS7oUVMnVccSCg/6eYBzYr0G3b4Fn/HdBCP7WDaxsXwF2owxA+DuArqNp
-        G/ikxJuteAS8NmMgAnDpjfPo5duw9ZLppQUH+C8vZ7k4M3E8RuwyWOTlmN6tZjh+
-        qvsEhe4AHE7bzHIbmwRQs7viS0eBqMm5iec4bsk8PdPiNY1c3Y855v2/S3q+zfqS
-        Z6o0jegRCdM5drqyQnd4TIQBhpbw58u3+IObOTE3j5qpRDbyL5I0O2/uSf9sBiCw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LjIIGa
+        RvnShQH/PFkSF1Bh8A2mhL1Yc9GQhGVMn3+wo=; b=DSj1fLkhs/5zaFvEWR3X/b
+        IBIvP50B1LyweevbIZpbd70/5ofiD9ZAjk/sOq29gXtN9L4qAyXG4k/f0VdgXU3z
+        esY+vq85sCZ19Zr6BPorifneTOjCrLeF2z+R5gefOHSbdDveN4nWhy/90kZF5KnP
+        B3CAjzKv9NC6VPvFVfDYCcgK7IasQ4pfGDK0oeD4qhgcZHfie2dX5AAbELqcjx1x
+        /af0kK0KTEG1bkC2wbSOIdlZ2lG717Q825u1Yy53OGS/Ce2KxailxFIvJglu6jkK
+        YvhbOEjPi9PlRgpR/GCLk6A8SEdAmanBpLeJkqXm/6cWjFvPu620SaU4pdyQ3ZXw
         ==
-X-ME-Sender: <xms:iQCnXsDQTdd5VIE4TwCmOm0nqlPaeLwfvlGPhssgTLBqbVlWpbKJsA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrheelgdelvdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:FQGnXi4DRx0tt9G-eyU1i0KOWFKa4T63XaHssJmEbUvlB5WGcl_r3g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrheelgdelfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:iQCnXgwO84NCGkZW_HHjejkPkwpyIY7f0TE1JK7V0KIx0ikPBt_Lww>
-    <xmx:iQCnXvrhagapugVdBdfBCRjARpr047pTrUbLRko7SecSoFR3wx3nZQ>
-    <xmx:iQCnXrvZsQ3jSeGU2m4PnapsLccqDZvr60WqRlqJlMJeRelgREV_LA>
-    <xmx:iQCnXsqwY5iXRaKVMgEYsioj8INYZxEODW6j1C6sVmp-OsgCvP8-Mw>
+X-ME-Proxy: <xmx:FQGnXgKkpLcmQ5cBtWCAl7fvoWb179KbBvdxMPhw2eAAL3nO08uHZQ>
+    <xmx:FQGnXseN9ssl1WQSGbvwwnV9uf0cOEYuVC4Fjvz3XBkz7Dprf7oihA>
+    <xmx:FQGnXjcxzq9TgqTEh9f39xrEVfm9OKJZ9mRxON7EHt31pSus4kJZqQ>
+    <xmx:FgGnXmIRQgvE_N6la-dICv1Jjj-dDl6QotBma4yl66FhaxwHqCMHNw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D931F3280064;
-        Mon, 27 Apr 2020 11:55:52 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iwlwifi: mvm: limit maximum queue appropriately" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 701173065E76;
+        Mon, 27 Apr 2020 11:58:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iwlwifi: mvm: limit maximum queue appropriately" failed to apply to 4.19-stable tree
 To:     johannes.berg@intel.com, kvalo@codeaurora.org,
         luciano.coelho@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Apr 2020 17:55:49 +0200
-Message-ID: <158800294920399@kroah.com>
+Date:   Mon, 27 Apr 2020 17:58:12 +0200
+Message-ID: <1588003092239253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
