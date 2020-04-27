@@ -2,79 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9697B1BA665
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 16:30:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1796B1BA6F5
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 16:54:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727794AbgD0OaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 10:30:04 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:22856 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727848AbgD0OaD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 10:30:03 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-23-AKHUs2ulObCffgz2Mb-tuA-1; Mon, 27 Apr 2020 15:28:25 +0100
-X-MC-Unique: AKHUs2ulObCffgz2Mb-tuA-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Mon, 27 Apr 2020 15:28:24 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Mon, 27 Apr 2020 15:28:24 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Roberto Sassu' <roberto.sassu@huawei.com>,
-        "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
-        "rgoldwyn@suse.de" <rgoldwyn@suse.de>
-CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
-        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2 3/6] ima: Fix ima digest hash table key calculation
-Thread-Topic: [PATCH v2 3/6] ima: Fix ima digest hash table key calculation
-Thread-Index: AQHWHH8SDZUC+XMi6UOqF9nBthnXX6iMzGEggAAOugCAACgi8A==
-Date:   Mon, 27 Apr 2020 14:28:24 +0000
-Message-ID: <5786ad88cd184e5791bc285d5cac6ecc@AcuMS.aculab.com>
-References: <20200427102900.18887-1-roberto.sassu@huawei.com>
- <20200427102900.18887-3-roberto.sassu@huawei.com>
- <84ecd8f2576849b29876448df66824fc@AcuMS.aculab.com>
- <90e19242fd8445cf93728c0946c03c19@huawei.com>
-In-Reply-To: <90e19242fd8445cf93728c0946c03c19@huawei.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1727889AbgD0OyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 10:54:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38042 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727840AbgD0OyH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 10:54:07 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE82C0610D5
+        for <stable@vger.kernel.org>; Mon, 27 Apr 2020 07:54:07 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id k8so14340154ejv.3
+        for <stable@vger.kernel.org>; Mon, 27 Apr 2020 07:54:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
+        b=ZeDKL5SICiTLkSYeTee61W1+8PpYe5bz+/ghKWkyxE2Y4lVg+JRgjBB7eFOTOoXX72
+         1cW4lbXDTyN7rrkLpQmSdpaqXd2TtwCUBiXE9lhHwMAbJMPNnAXzIHXt2RANHU1v/JjO
+         4pBVrVqVvNQQOrru85AbPVetO4DkreLiUYyEZyS+4EGBzzuf4LV0loBMazpnuO4yS7fm
+         FXt/zxAPxAGDhIy9Lmo/+mHrJUoZBgtRmWUNdoDqIQJaw08frkVYK6w17ot57Re9WzXR
+         BnSBy2qmgfeZ8WQLPhEbzT0KxcptdmpPvivE7mR1ItAqQ6sxB04eTZSl+ElYbQx9BUoW
+         r8NA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
+        b=LY/E931c9tYXUCjsLXfUlZxiHhJFf+brUYKE5iUBoahC+1fwkwqu3ILOtztiR0f1+h
+         P2Lekt31maRHA3rK1HauXwHIf0BijaVJ5KuruSUy3VY1VFYBcob3A5KgMqwYlgBo6Lh+
+         i3ARxelix45GU6ASf0rVUcKnLHEMAT2fHyIXSgwy8QBnFFi6IY9dvFSoHvwHlP9/X7Q4
+         PpuhKbQkLF8sTNmSl1aCN7ZgWGH2C3+6ttEozWa82Bi3+AEYO6LWuoD7rj0UOImsJ7PO
+         bRPs6qvmnNRjq8HUNkwmbPi0mz2jg3nr1GM1wKmsDwXeVWMbv5TSQIFalmm7OM/E+z+9
+         1nMA==
+X-Gm-Message-State: AGi0PuY1X5jrb2diq5JwG0gYEGtTuBZ03PEDIbOnGKYGlCmB9ufmf43n
+        obQMbHbet6KlGemKml9LHAKdBjLWavJyHxHA3VM=
+X-Google-Smtp-Source: APiQypIXI8+E4K5NkPjCUeKimAUnsjETnSN1i8XzyTTWbnvSI6R/8aCnFkHsuqWPO0C4HwrnWbQGv3kndT8xbzfbQ+E=
+X-Received: by 2002:a17:906:af99:: with SMTP id mj25mr19525508ejb.151.1587999246242;
+ Mon, 27 Apr 2020 07:54:06 -0700 (PDT)
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Received: by 2002:a17:907:728b:0:0:0:0 with HTTP; Mon, 27 Apr 2020 07:54:05
+ -0700 (PDT)
+From:   Mrs Carlsen Monika <carlsen.monika@gmail.com>
+Date:   Mon, 27 Apr 2020 14:54:05 +0000
+X-Google-Sender-Auth: QIT8NLmMJm9-la9-fOwMSsHygVA
+Message-ID: <CACw0mX6W8kvBWynM83AOH5bqeYP-QDsHVbvftJaVw-eHSRoQqg@mail.gmail.com>
+Subject: Greetings My Dear, Please I Need Your Help.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogUm9iZXJ0byBTYXNzdQ0KPiBTZW50OiAyNyBBcHJpbCAyMDIwIDEzOjUxDQouLi4NCj4g
-PiA+IC1zdGF0aWMgaW5saW5lIHVuc2lnbmVkIGxvbmcgaW1hX2hhc2hfa2V5KHU4ICpkaWdlc3Qp
-DQo+ID4gPiArc3RhdGljIGlubGluZSB1bnNpZ25lZCBpbnQgaW1hX2hhc2hfa2V5KHU4ICpkaWdl
-c3QpDQo+ID4gPiAgew0KPiA+ID4gLQlyZXR1cm4gaGFzaF9sb25nKCpkaWdlc3QsIElNQV9IQVNI
-X0JJVFMpOw0KPiA+ID4gKwlyZXR1cm4gKCoodW5zaWduZWQgaW50ICopZGlnZXN0ICUgSU1BX01F
-QVNVUkVfSFRBQkxFX1NJWkUpOw0KPiA+DQo+ID4gVGhhdCBhbG1vc3QgY2VydGFpbmx5IGlzbid0
-IHJpZ2h0Lg0KPiA+IEl0IGZhbGxzIGZvdWwgb2YgdGhlICooaW50ZWdlcl90eXBlICopcHRyIGJl
-aW5nIGFsbW9zdCBhbHdheXMgd3JvbmcuDQo+IA0KPiBJIGRpZG4ndCBmaW5kIHRoZSBwcm9ibGVt
-LiBDYW4geW91IHBsZWFzZSBleHBsYWluPw0KDQpUaGUgZ2VuZXJhbCBwcm9ibGVtIHdpdGggKihp
-bnRfdHlwZSAqKXB0ciBpcyB0aGF0IGl0IGRvZXMgY29tcGxldGVseQ0KdGhlIHdyb25nIHRoaW5n
-IGlmICdwdHInIGlzIHRoZSBhZGRyZXNzIG9mIGEgbGFyZ2VyIGludGVnZXIgdHlwZSBvbg0KYSBi
-aWctZW5kaWFuIHN5c3RlbS4NCllvdSBtYXkgYWxzbyBnZXQgYSBtaXNhbGlnbmVkIGFjY2VzcyB0
-cmFwLg0KDQpJbiB0aGlzIGNhc2UgSSBndWVzcyB0aGF0IGRpZ2VzdCBpcyBhY3R1YWxseSB1OFtT
-SEExX0RJR0VTVF9TSVpFXS4NCk1heWJlIHdoYXQgeW91IHNob3VsZCByZXR1cm4gaXM6DQoJKGRp
-Z2VzdFswXSB8IGRpZ2VzdFsxXSA8PCA4KSAlIElNQV9NRUFTVVJFX0hUQUJMRV9TSVpFOw0KYW5k
-IGNvbW1lbnQgdGhhdCB0aGVyZSBpcyBubyBwb2ludCB0YWtpbmcgYSBoYXNoIG9mIHBhcnQgb2YN
-CmEgU0hBMSBkaWdlc3QuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNp
-ZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsN
-ClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
+Greetings My Dear,
 
+    I sent this mail praying it will found you in a good condition of
+health, since I myself are in a very critical health condition in
+which I  sleep every night without knowing if I may be alive to see
+the next day. I am Mrs. Monika John  Carlsen from Denmark wife of late
+Mr John Carlsen, a widow suffering from long time illness. I have some
+funds I inherited from my late husband, the sum of (eleven million
+dollars) my Doctor told me recently that I have serious sickness which
+is cancer problem. What disturbs me most is my stroke sickness. Having
+known my condition, I decided to donate this fund to a good person
+that will utilize it the way i am going to instruct herein. I need a
+very honest and God fearing person who can claim this money and use it
+for Charity works, for orphanages, widows and also  build schools for
+less privileges that will be named after my late husband if possible
+and to promote the word of God and the effort that the house of God is
+maintained.
+
+I do not want a situation where this money will be used in an ungodly
+manner. That's why I'm taking this decision. I'm not afraid of death
+so I know where I'm going. I accept this decision because I do not
+have any child who will inherit this money after I die. Please I want
+your sincerely and urgent answer to know if you will be able to
+execute this project, and I will give you more information on how the
+fund will be transferred to your bank account. I am waiting for your
+reply.
+
+May God Bless you,
+Mrs. Monika John  Carlsen
