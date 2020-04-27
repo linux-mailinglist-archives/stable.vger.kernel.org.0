@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8BC91BA7BB
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 17:18:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A44E11BA7D7
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 17:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbgD0PSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 11:18:34 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:37727 "EHLO
+        id S1728151AbgD0PVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 11:21:37 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:52137 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726539AbgD0PSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 11:18:34 -0400
+        by vger.kernel.org with ESMTP id S1727833AbgD0PVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 11:21:36 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 810091940664;
-        Mon, 27 Apr 2020 11:18:32 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 8DD9D19406C9;
+        Mon, 27 Apr 2020 11:21:35 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 27 Apr 2020 11:18:32 -0400
+  by compute1.internal (MEProxy); Mon, 27 Apr 2020 11:21:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=OUXk6d
-        YUAPGZYiXSMBPZ2pcNhN3TZkmu+e8t/m8dyMY=; b=xr0sUamwikor051up54uu3
-        Ot0abTSvDAzKZq4Oekd11L3OjIqXUfSuHYsNe8px+g4od1lmU6QAMlPNtwgNGdb6
-        sqs16V3qPOR/mxEXdPBLYpcn8/TZtH6iXSWxdLDXcSsW8XeE/Vy6Iorv0GwExdWN
-        o1BqP3TPve3wZ0aGsiD5Mt6Ue7ViIpjSDdKZsNRtNLzQj8apeeAlqXDMcFyfVDeZ
-        w2P0zzqlxIkgLhNFKisfc7NNmuTiFahH7zHahFioqnu3rKX2YpejXXyOkDGUqDY4
-        Zg23zG71uubU54CQeT5mBCoBQyCH6jZcxMxpTPbB1UPrHh3bG431606aU19DaDDA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GoKz4E
+        1WRZDyO1l83YJkF+8N2G9FwcGqgq9/v7IcGHM=; b=DX3aZdrdkddfhQl2mvzePX
+        YPWV+XyskTkm9LojEunQJs5o3wKsRZyIoI3+m4mirHIJUKp/FC5S1FJWNYvFnkBD
+        ioj5+1MIf11gvP4q2rlD1WI60PCeu/YZQ9z8HLL9tH4Ex7KoS547GTaON2AaZPWQ
+        6l4fUkKVrpcDc51zt3SNrvLTmQIktvnHK8NNAEDcxDiQy0+4YKJIuGGu6tSnLxrR
+        v7PSz2DEVYnYO46kH6mXPzBrWt4nKjAfHWat1XEoSX//ZmDMf0VGhN87GLCpY4BH
+        egGtTKWITBv3yBmgXWyZn7x8lZMyPqegbcJAkn6GtDdN6zO8CCvjK2jTJ30cJ8qw
         ==
-X-ME-Sender: <xms:yPemXnc9Aorgt_gk6wXi71zZH9LE3lbYATApegioC6EmJW3_vKr5vQ>
+X-ME-Sender: <xms:fvimXgb7qbHLFFw1TrbAqLNrOmmuDGIAHKMPP5sBN4cXYFkTEsdREA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrheelgdekhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:yPemXkydEy-ltGC6WjYRbZmIJOFl1V_taG7tdfiTKpcUJ4VEwAfxnw>
-    <xmx:yPemXteZxPuVYbBXKrWVDXKdeRt9P4H89X-Gd3TxxUWOfcQhpDlT2w>
-    <xmx:yPemXm6BbbTMzrcQO2uLxZQcC1Lw9rQ2iJx7gKY5yzX-hoUH99QFcw>
-    <xmx:yPemXm8e006J6xOCYVVQz2OeoN1alC_X91IUg-JPgRSbt4jwfdS_vQ>
+    qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
+    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhf
+    rhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:fvimXqYubK2SGkEF4Otg68oKVpq-N7jm_aUzMPCV7Pl5ZDFHar1mRA>
+    <xmx:fvimXnMhbnKS5bnEdpDOTUzUlg5R4SlcD7jSyekHM9aBZQ1iC0o2Aw>
+    <xmx:fvimXorGsN0IojVO35lvXk7koKIFJOF1UCiR1x4wdlLWxPkpkt7CLA>
+    <xmx:f_imXkdSkjif6zKT7tqEuLrvQOCJ1lfiIUJg0ARz7f2LmLaOSslgmg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 192973065E74;
-        Mon, 27 Apr 2020 11:18:32 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tpm: ibmvtpm: retry on H_CLOSED in tpm_ibmvtpm_send()" failed to apply to 4.9-stable tree
-To:     gcwilson@linux.ibm.com, jarkko.sakkinen@linux.intel.com,
-        phaml@us.ibm.com, stefanb@linux.ibm.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 61C533065E7E;
+        Mon, 27 Apr 2020 11:21:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Update PMINTRMSK holding fw" failed to apply to 5.6-stable tree
+To:     chris@chris-wilson.co.uk, andi.shyti@intel.com,
+        currojerez@riseup.net, mika.kuoppala@linux.intel.com,
+        rodrigo.vivi@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Apr 2020 17:18:21 +0200
-Message-ID: <158800070195168@kroah.com>
+Date:   Mon, 27 Apr 2020 17:21:33 +0200
+Message-ID: <1588000893237103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.6-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,216 +70,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From eba5cf3dcb844c82f54d4a857e124824e252206d Mon Sep 17 00:00:00 2001
-From: George Wilson <gcwilson@linux.ibm.com>
-Date: Thu, 19 Mar 2020 23:27:58 -0400
-Subject: [PATCH] tpm: ibmvtpm: retry on H_CLOSED in tpm_ibmvtpm_send()
+From e1eb075c5051987fbbadbc0fb8211679df657721 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Wed, 15 Apr 2020 18:03:18 +0100
+Subject: [PATCH] drm/i915/gt: Update PMINTRMSK holding fw
 
-tpm_ibmvtpm_send() can fail during PowerVM Live Partition Mobility resume
-with an H_CLOSED return from ibmvtpm_send_crq().  The PAPR says, 'The
-"partner partition suspended" transport event disables the associated CRQ
-such that any H_SEND_CRQ hcall() to the associated CRQ returns H_Closed
-until the CRQ has been explicitly enabled using the H_ENABLE_CRQ hcall.'
-This patch adds a check in tpm_ibmvtpm_send() for an H_CLOSED return from
-ibmvtpm_send_crq() and in that case calls tpm_ibmvtpm_resume() and
-retries the ibmvtpm_send_crq() once.
+If we use a non-forcewaked write to PMINTRMSK, it does not take effect
+until much later, if at all, causing a loss of RPS interrupts and no GPU
+reclocking, leaving the GPU running at the wrong frequency for long
+periods of time.
 
-Cc: stable@vger.kernel.org # 3.7.x
-Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
-Reported-by: Linh Pham <phaml@us.ibm.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Signed-off-by: George Wilson <gcwilson@linux.ibm.com>
-Tested-by: Linh Pham <phaml@us.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Reported-by: Francisco Jerez <currojerez@riseup.net>
+Suggested-by: Francisco Jerez <currojerez@riseup.net>
+Fixes: 35cc7f32c298 ("drm/i915/gt: Use non-forcewake writes for RPS")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Francisco Jerez <currojerez@riseup.net>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Andi Shyti <andi.shyti@intel.com>
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@intel.com>
+Reviewed-by: Francisco Jerez <currojerez@riseup.net>
+Cc: <stable@vger.kernel.org> # v5.6+
+Link: https://patchwork.freedesktop.org/patch/msgid/20200415170318.16771-2-chris@chris-wilson.co.uk
+(cherry picked from commit a080bd994c4023042a2b605c65fa10a25933f636)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
-index 1a49db9e108e..09fe45246b8c 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (C) 2012 IBM Corporation
-+ * Copyright (C) 2012-2020 IBM Corporation
-  *
-  * Author: Ashley Lai <ashleydlai@gmail.com>
-  *
-@@ -134,6 +134,64 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
- 	return len;
+diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
+index cfaf141bac4d..19542fd9e207 100644
+--- a/drivers/gpu/drm/i915/gt/intel_rps.c
++++ b/drivers/gpu/drm/i915/gt/intel_rps.c
+@@ -81,13 +81,14 @@ static void rps_enable_interrupts(struct intel_rps *rps)
+ 		events = (GEN6_PM_RP_UP_THRESHOLD |
+ 			  GEN6_PM_RP_DOWN_THRESHOLD |
+ 			  GEN6_PM_RP_DOWN_TIMEOUT);
+-
+ 	WRITE_ONCE(rps->pm_events, events);
++
+ 	spin_lock_irq(&gt->irq_lock);
+ 	gen6_gt_pm_enable_irq(gt, rps->pm_events);
+ 	spin_unlock_irq(&gt->irq_lock);
+ 
+-	set(gt->uncore, GEN6_PMINTRMSK, rps_pm_mask(rps, rps->cur_freq));
++	intel_uncore_write(gt->uncore,
++			   GEN6_PMINTRMSK, rps_pm_mask(rps, rps->last_freq));
  }
  
-+/**
-+ * ibmvtpm_crq_send_init - Send a CRQ initialize message
-+ * @ibmvtpm:	vtpm device struct
-+ *
-+ * Return:
-+ *	0 on success.
-+ *	Non-zero on failure.
-+ */
-+static int ibmvtpm_crq_send_init(struct ibmvtpm_dev *ibmvtpm)
-+{
-+	int rc;
-+
-+	rc = ibmvtpm_send_crq_word(ibmvtpm->vdev, INIT_CRQ_CMD);
-+	if (rc != H_SUCCESS)
-+		dev_err(ibmvtpm->dev,
-+			"%s failed rc=%d\n", __func__, rc);
-+
-+	return rc;
-+}
-+
-+/**
-+ * tpm_ibmvtpm_resume - Resume from suspend
-+ *
-+ * @dev:	device struct
-+ *
-+ * Return: Always 0.
-+ */
-+static int tpm_ibmvtpm_resume(struct device *dev)
-+{
-+	struct tpm_chip *chip = dev_get_drvdata(dev);
-+	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
-+	int rc = 0;
-+
-+	do {
-+		if (rc)
-+			msleep(100);
-+		rc = plpar_hcall_norets(H_ENABLE_CRQ,
-+					ibmvtpm->vdev->unit_address);
-+	} while (rc == H_IN_PROGRESS || rc == H_BUSY || H_IS_LONG_BUSY(rc));
-+
-+	if (rc) {
-+		dev_err(dev, "Error enabling ibmvtpm rc=%d\n", rc);
-+		return rc;
-+	}
-+
-+	rc = vio_enable_interrupts(ibmvtpm->vdev);
-+	if (rc) {
-+		dev_err(dev, "Error vio_enable_interrupts rc=%d\n", rc);
-+		return rc;
-+	}
-+
-+	rc = ibmvtpm_crq_send_init(ibmvtpm);
-+	if (rc)
-+		dev_err(dev, "Error send_init rc=%d\n", rc);
-+
-+	return rc;
-+}
-+
- /**
-  * tpm_ibmvtpm_send() - Send a TPM command
-  * @chip:	tpm chip struct
-@@ -147,6 +205,7 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
- static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
- {
- 	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
-+	bool retry = true;
- 	int rc, sig;
+ static void gen6_rps_reset_interrupts(struct intel_rps *rps)
+@@ -120,7 +121,9 @@ static void rps_disable_interrupts(struct intel_rps *rps)
+ 	struct intel_gt *gt = rps_to_gt(rps);
  
- 	if (!ibmvtpm->rtce_buf) {
-@@ -180,18 +239,27 @@ static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
- 	 */
- 	ibmvtpm->tpm_processing_cmd = true;
+ 	WRITE_ONCE(rps->pm_events, 0);
+-	set(gt->uncore, GEN6_PMINTRMSK, rps_pm_sanitize_mask(rps, ~0u));
++
++	intel_uncore_write(gt->uncore,
++			   GEN6_PMINTRMSK, rps_pm_sanitize_mask(rps, ~0u));
  
-+again:
- 	rc = ibmvtpm_send_crq(ibmvtpm->vdev,
- 			IBMVTPM_VALID_CMD, VTPM_TPM_COMMAND,
- 			count, ibmvtpm->rtce_dma_handle);
- 	if (rc != H_SUCCESS) {
-+		/*
-+		 * H_CLOSED can be returned after LPM resume.  Call
-+		 * tpm_ibmvtpm_resume() to re-enable the CRQ then retry
-+		 * ibmvtpm_send_crq() once before failing.
-+		 */
-+		if (rc == H_CLOSED && retry) {
-+			tpm_ibmvtpm_resume(ibmvtpm->dev);
-+			retry = false;
-+			goto again;
-+		}
- 		dev_err(ibmvtpm->dev, "tpm_ibmvtpm_send failed rc=%d\n", rc);
--		rc = 0;
- 		ibmvtpm->tpm_processing_cmd = false;
--	} else
--		rc = 0;
-+	}
- 
- 	spin_unlock(&ibmvtpm->rtce_lock);
--	return rc;
-+	return 0;
- }
- 
- static void tpm_ibmvtpm_cancel(struct tpm_chip *chip)
-@@ -269,26 +337,6 @@ static int ibmvtpm_crq_send_init_complete(struct ibmvtpm_dev *ibmvtpm)
- 	return rc;
- }
- 
--/**
-- * ibmvtpm_crq_send_init - Send a CRQ initialize message
-- * @ibmvtpm:	vtpm device struct
-- *
-- * Return:
-- *	0 on success.
-- *	Non-zero on failure.
-- */
--static int ibmvtpm_crq_send_init(struct ibmvtpm_dev *ibmvtpm)
--{
--	int rc;
--
--	rc = ibmvtpm_send_crq_word(ibmvtpm->vdev, INIT_CRQ_CMD);
--	if (rc != H_SUCCESS)
--		dev_err(ibmvtpm->dev,
--			"ibmvtpm_crq_send_init failed rc=%d\n", rc);
--
--	return rc;
--}
--
- /**
-  * tpm_ibmvtpm_remove - ibm vtpm remove entry point
-  * @vdev:	vio device struct
-@@ -401,44 +449,6 @@ static int ibmvtpm_reset_crq(struct ibmvtpm_dev *ibmvtpm)
- 				  ibmvtpm->crq_dma_handle, CRQ_RES_BUF_SIZE);
- }
- 
--/**
-- * tpm_ibmvtpm_resume - Resume from suspend
-- *
-- * @dev:	device struct
-- *
-- * Return: Always 0.
-- */
--static int tpm_ibmvtpm_resume(struct device *dev)
--{
--	struct tpm_chip *chip = dev_get_drvdata(dev);
--	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
--	int rc = 0;
--
--	do {
--		if (rc)
--			msleep(100);
--		rc = plpar_hcall_norets(H_ENABLE_CRQ,
--					ibmvtpm->vdev->unit_address);
--	} while (rc == H_IN_PROGRESS || rc == H_BUSY || H_IS_LONG_BUSY(rc));
--
--	if (rc) {
--		dev_err(dev, "Error enabling ibmvtpm rc=%d\n", rc);
--		return rc;
--	}
--
--	rc = vio_enable_interrupts(ibmvtpm->vdev);
--	if (rc) {
--		dev_err(dev, "Error vio_enable_interrupts rc=%d\n", rc);
--		return rc;
--	}
--
--	rc = ibmvtpm_crq_send_init(ibmvtpm);
--	if (rc)
--		dev_err(dev, "Error send_init rc=%d\n", rc);
--
--	return rc;
--}
--
- static bool tpm_ibmvtpm_req_canceled(struct tpm_chip *chip, u8 status)
- {
- 	return (status == 0);
+ 	spin_lock_irq(&gt->irq_lock);
+ 	gen6_gt_pm_disable_irq(gt, GEN6_PM_RPS_EVENTS);
 
