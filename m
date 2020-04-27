@@ -2,164 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8107B1BAA72
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 18:52:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8D01BAAB2
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 19:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726206AbgD0QwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 12:52:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56628 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726194AbgD0QwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 12:52:25 -0400
-Received: from mail-qv1-xf43.google.com (mail-qv1-xf43.google.com [IPv6:2607:f8b0:4864:20::f43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B400C0610D5
-        for <stable@vger.kernel.org>; Mon, 27 Apr 2020 09:52:25 -0700 (PDT)
-Received: by mail-qv1-xf43.google.com with SMTP id y19so8854229qvv.4
-        for <stable@vger.kernel.org>; Mon, 27 Apr 2020 09:52:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cmpxchg-org.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=uHH5G3ygpt6fz1ZtSnotHqjI9vLZ9l9n/xiOJEspxzY=;
-        b=e6G34f8uAPYUx2k2uaAuy4SLcrPrsnbqi2o0P3Dh+KDsHJE+ILdHRQt/MuYWJj6I9x
-         9HS629s5ypPl0MtGgXwjCGdlAgNAJQRWV1Ci94LeqkhTRdn4Jjl/eNwOHJzSY2DEsCSN
-         1h25RYEyTPWPnfyOJA750nfLCYaGATl6uqqu6k4uJhJqWcmhY+qyr2QpWt3SFyqmHOqq
-         Xgf7teNPnBseBh+PUmkvywabwOzBWELdQNQya15Yvo9Tssuyr3OMrUUD+XENqrEwlaW+
-         XqvzG5eCdMZzoSUdFMuCw7xBFy4WuNclZAY/gYdpI2r2JxR4HlcUqofWZfq/pYl7UrF4
-         RNZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=uHH5G3ygpt6fz1ZtSnotHqjI9vLZ9l9n/xiOJEspxzY=;
-        b=r8fNqlaSQYl3Pj/qFm6gyoh1ydwIOVJlo5AcsCRRbTstgHr5FhJtN6K+CHgqXMyWEV
-         8hjtjyIR1MqxDBcK7Hn6kxgcWVY9fsN6YWxM7IBrrFzByStvXT+lSiTjbTV6o53vmch/
-         6b2mtqHzKNqGz3lPtqFLUFRte6SCB1Ob7S0DSecZ5E//Mc+Ine98qofkeuVf2KDxos97
-         8NRSmkI5AQKP0opp+5lhTI2ErUYNIA4h/94eX7APOu+443B3eQ1+K3hf+q+U+YHUn9lw
-         1waERkK6pvZVIw+vvh0mmYoZhLhrJMQMlnverny48lNjAeGvmdKI5nqz3Abm9RqVsL7q
-         xgxQ==
-X-Gm-Message-State: AGi0PubRuj4XkgclhMPvsnyS1G7NH6M0lt1hWfPKVg7ChPgvu+WZI4Jt
-        pK96EdqDJV1kytvwfT03MyIcVg==
-X-Google-Smtp-Source: APiQypKGzBwVtw111Fx8k0Vex9YZnDP8gqisd4acj6TYO6vBc0sd7275uVf5RW7gJI6oezZlh3xKxA==
-X-Received: by 2002:a0c:e305:: with SMTP id s5mr23797736qvl.234.1588006344115;
-        Mon, 27 Apr 2020 09:52:24 -0700 (PDT)
-Received: from localhost (70.44.39.90.res-cmts.bus.ptd.net. [70.44.39.90])
-        by smtp.gmail.com with ESMTPSA id q27sm11109873qkn.7.2020.04.27.09.52.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2020 09:52:23 -0700 (PDT)
-Date:   Mon, 27 Apr 2020 12:52:12 -0400
-From:   Johannes Weiner <hannes@cmpxchg.org>
-To:     Michal Hocko <mhocko@kernel.org>
-Cc:     Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org,
-        vdavydov.dev@gmail.com, linux-mm@kvack.org,
-        Chris Down <chris@chrisdown.name>,
-        Roman Gushchin <guro@fb.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
-Message-ID: <20200427165212.GA29022@cmpxchg.org>
-References: <20200423061629.24185-1-laoar.shao@gmail.com>
- <20200424131450.GA495720@cmpxchg.org>
- <20200424142958.GF11591@dhcp22.suse.cz>
- <20200424151013.GA525165@cmpxchg.org>
- <20200424162103.GK11591@dhcp22.suse.cz>
- <20200424165103.GA575707@cmpxchg.org>
- <20200427082524.GC28637@dhcp22.suse.cz>
+        id S1726295AbgD0RFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 13:05:21 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:64971 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726285AbgD0RFV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 13:05:21 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21038024-1500050 
+        for multiple; Mon, 27 Apr 2020 18:05:14 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] drm/i915/execlists: Avoid reusing the same logical CC_ID
+Date:   Mon, 27 Apr 2020 18:05:12 +0100
+Message-Id: <20200427170513.24019-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200427082524.GC28637@dhcp22.suse.cz>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 27, 2020 at 10:25:24AM +0200, Michal Hocko wrote:
-> On Fri 24-04-20 12:51:03, Johannes Weiner wrote:
-> > On Fri, Apr 24, 2020 at 06:21:03PM +0200, Michal Hocko wrote:
-> > > On Fri 24-04-20 11:10:13, Johannes Weiner wrote:
-> > > > On Fri, Apr 24, 2020 at 04:29:58PM +0200, Michal Hocko wrote:
-> > > > > On Fri 24-04-20 09:14:50, Johannes Weiner wrote:
-> > > > > > On Thu, Apr 23, 2020 at 02:16:29AM -0400, Yafang Shao wrote:
-> > > > > > > This patch is an improvement of a previous version[1], as the previous
-> > > > > > > version is not easy to understand.
-> > > > > > > This issue persists in the newest kernel, I have to resend the fix. As
-> > > > > > > the implementation is changed, I drop Roman's ack from the previous
-> > > > > > > version.
-> > > > > > 
-> > > > > > Now that I understand the problem, I much prefer the previous version.
-> > > > > > 
-> > > > > > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-> > > > > > index 745697906ce3..2bf91ae1e640 100644
-> > > > > > --- a/mm/memcontrol.c
-> > > > > > +++ b/mm/memcontrol.c
-> > > > > > @@ -6332,8 +6332,19 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
-> > > > > >  
-> > > > > >  	if (!root)
-> > > > > >  		root = root_mem_cgroup;
-> > > > > > -	if (memcg == root)
-> > > > > > +	if (memcg == root) {
-> > > > > > +		/*
-> > > > > > +		 * The cgroup is the reclaim root in this reclaim
-> > > > > > +		 * cycle, and therefore not protected. But it may have
-> > > > > > +		 * stale effective protection values from previous
-> > > > > > +		 * cycles in which it was not the reclaim root - for
-> > > > > > +		 * example, global reclaim followed by limit reclaim.
-> > > > > > +		 * Reset these values for mem_cgroup_protection().
-> > > > > > +		 */
-> > > > > > +		memcg->memory.emin = 0;
-> > > > > > +		memcg->memory.elow = 0;
-> > > > > >  		return MEMCG_PROT_NONE;
-> > > > > > +	}
-> > > > > 
-> > > > > Could you be more specific why you prefer this over the
-> > > > > mem_cgroup_protection which doesn't change the effective value?
-> > > > > Isn't it easier to simply ignore effective value for the reclaim roots?
-> > > > 
-> > > > Because now both mem_cgroup_protection() and mem_cgroup_protected()
-> > > > have to know about the reclaim root semantics, instead of just the one
-> > > > central place.
-> > > 
-> > > Yes this is true but it is also potentially overwriting the state with
-> > > a parallel reclaim which can lead to surprising results
-> > 
-> > Checking in mem_cgroup_protection() doesn't avoid the fundamental race:
-> > 
-> >   root
-> >      `- A (low=2G, elow=2G, max=3G)
-> >         `- A1 (low=2G, elow=2G)
-> > 
-> > If A does limit reclaim while global reclaim races, the memcg == root
-> > check in mem_cgroup_protection() will reliably calculate the "right"
-> > scan value for A, which has no pages, and the wrong scan value for A1
-> > where the memory actually is.
-> 
-> I am sorry but I do not see how A1 would get wrong scan value.
+Fixes: 2935ed5339c4 ("drm/i915: Remove logical HW ID")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.5+
+---
+ drivers/gpu/drm/i915/gt/intel_engine_types.h |  3 +--
+ drivers/gpu/drm/i915/gt/intel_lrc.c          | 23 ++++++++++++++------
+ drivers/gpu/drm/i915/i915_perf.c             |  3 +--
+ drivers/gpu/drm/i915/selftests/i915_vma.c    |  2 +-
+ 4 files changed, 19 insertions(+), 12 deletions(-)
 
-I mistyped the example. If we're in limit reclaim in A, elow should
-look like this:
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+index bf395227c99f..a9fc3fbbe482 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+@@ -304,8 +304,7 @@ struct intel_engine_cs {
+ 	u32 context_size;
+ 	u32 mmio_base;
+ 
+-	unsigned int context_tag;
+-#define NUM_CONTEXT_TAG roundup_pow_of_two(2 * EXECLIST_MAX_PORTS)
++	unsigned long context_tag;
+ 
+ 	struct rb_node uabi_node;
+ 
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 93a1b73ad96b..d68a04f2a9d5 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1404,13 +1404,16 @@ __execlists_schedule_in(struct i915_request *rq)
+ 	ce->lrc_desc &= ~GENMASK_ULL(47, 37);
+ 	if (ce->tag) {
+ 		/* Use a fixed tag for OA and friends */
++		GEM_BUG_ON(ce->tag <= BITS_PER_TYPE(engine->context_tag));
+ 		ce->lrc_desc |= (u64)ce->tag << 32;
+ 	} else {
+ 		/* We don't need a strict matching tag, just different values */
+-		ce->lrc_desc |=
+-			(u64)(++engine->context_tag % NUM_CONTEXT_TAG) <<
+-			GEN11_SW_CTX_ID_SHIFT;
+-		BUILD_BUG_ON(NUM_CONTEXT_TAG > GEN12_MAX_CONTEXT_HW_ID);
++		unsigned int tag = ffs(engine->context_tag);
++
++		clear_bit(tag - 1, &engine->context_tag);
++		ce->lrc_desc |= (u64)tag << GEN11_SW_CTX_ID_SHIFT;
++
++		BUILD_BUG_ON(BITS_PER_TYPE(engine->context_tag) > GEN12_MAX_CONTEXT_HW_ID);
+ 	}
+ 
+ 	__intel_gt_pm_get(engine->gt);
+@@ -1452,7 +1455,8 @@ static void kick_siblings(struct i915_request *rq, struct intel_context *ce)
+ 
+ static inline void
+ __execlists_schedule_out(struct i915_request *rq,
+-			 struct intel_engine_cs * const engine)
++			 struct intel_engine_cs * const engine,
++			 int tag)
+ {
+ 	struct intel_context * const ce = rq->context;
+ 
+@@ -1470,6 +1474,9 @@ __execlists_schedule_out(struct i915_request *rq,
+ 	    i915_request_completed(rq))
+ 		intel_engine_add_retire(engine, ce->timeline);
+ 
++	if (tag <= BITS_PER_TYPE(engine->context_tag))
++		set_bit(tag - 1, &engine->context_tag);
++
+ 	intel_context_update_runtime(ce);
+ 	intel_engine_context_out(engine);
+ 	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_OUT);
+@@ -1495,15 +1502,17 @@ execlists_schedule_out(struct i915_request *rq)
+ {
+ 	struct intel_context * const ce = rq->context;
+ 	struct intel_engine_cs *cur, *old;
++	int tag;
+ 
+ 	trace_i915_request_out(rq);
+ 
++	tag = upper_32_bits(rq->context->lrc_desc);
+ 	old = READ_ONCE(ce->inflight);
+ 	do
+ 		cur = ptr_unmask_bits(old, 2) ? ptr_dec(old) : NULL;
+ 	while (!try_cmpxchg(&ce->inflight, &old, cur));
+ 	if (!cur)
+-		__execlists_schedule_out(rq, old);
++		__execlists_schedule_out(rq, old, tag);
+ 
+ 	i915_request_put(rq);
+ }
+@@ -4002,7 +4011,7 @@ static void enable_execlists(struct intel_engine_cs *engine)
+ 
+ 	enable_error_interrupt(engine);
+ 
+-	engine->context_tag = 0;
++	engine->context_tag = -1u;
+ }
+ 
+ static bool unexpected_starting_state(struct intel_engine_cs *engine)
+diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
+index dec1b33e4da8..1863a5c4778d 100644
+--- a/drivers/gpu/drm/i915/i915_perf.c
++++ b/drivers/gpu/drm/i915/i915_perf.c
+@@ -1281,11 +1281,10 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
+ 			((1U << GEN11_SW_CTX_ID_WIDTH) - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+ 		/*
+ 		 * Pick an unused context id
+-		 * 0 - (NUM_CONTEXT_TAG - 1) are used by other contexts
++		 * 0 - BITS_PER_LONG are used by other contexts
+ 		 * GEN12_MAX_CONTEXT_HW_ID (0x7ff) is used by idle context
+ 		 */
+ 		stream->specific_ctx_id = (GEN12_MAX_CONTEXT_HW_ID - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+-		BUILD_BUG_ON((GEN12_MAX_CONTEXT_HW_ID - 1) < NUM_CONTEXT_TAG);
+ 		break;
+ 	}
+ 
+diff --git a/drivers/gpu/drm/i915/selftests/i915_vma.c b/drivers/gpu/drm/i915/selftests/i915_vma.c
+index 58b5f40a07dd..af89c7fc8f59 100644
+--- a/drivers/gpu/drm/i915/selftests/i915_vma.c
++++ b/drivers/gpu/drm/i915/selftests/i915_vma.c
+@@ -173,7 +173,7 @@ static int igt_vma_create(void *arg)
+ 		}
+ 
+ 		nc = 0;
+-		for_each_prime_number(num_ctx, 2 * NUM_CONTEXT_TAG) {
++		for_each_prime_number(num_ctx, 2 * BITS_PER_LONG) {
+ 			for (; nc < num_ctx; nc++) {
+ 				ctx = mock_context(i915, "mock");
+ 				if (!ctx)
+-- 
+2.20.1
 
-  root
-     `- A (low=2G, max=3G -> elow=0)
-        `- A1 (low=0G -> elow=0)
-
-But if global reclaim were to kick in, it could overwrite elow to
-this:
-
-  root
-     `- A (low=2G, max=3G -> elow=2G)
-        `- A1 (low=0G -> elow=2G)
-
-(This is with the recursive memory.low semantics, of course.)
-
-> > I'm okay with fixing the case where a really old left-over value is
-> > used by target reclaim.
-> > 
-> > I don't see a point in special casing this one instance of a
-> > fundamental race condition at the expense of less robust code.
-> 
-> I am definitely not calling to fragment the code. I do agree that having
-> a special case in mem_cgroup_protection is quite non-intuitive.
-> The existing code is quite hard to reason about in its current form
-> as we can see. If we can fix all that in mem_cgroup_protected then no
-> objections from me at all.
-
-Agreed, sounds reasonable.
