@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C021B94F2
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 03:29:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D4361B9543
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 05:00:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726476AbgD0B3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Apr 2020 21:29:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50894 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726475AbgD0B3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 26 Apr 2020 21:29:09 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A54912080C;
-        Mon, 27 Apr 2020 01:29:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587950948;
-        bh=mxEwlmlNCncbkRyrNi7hx14grVUAmfAQXU/UWRTYlZ8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zu3JIjzTSa5jmyp2ynPude/p+2B6f6+BBTL97uMdLL5AWGZPly9896CaRmkpKScJA
-         uSWJubGXwuJw0Tnf0k18z1Qfy+TJKTQMWhAQvwWNELbGnTgb95FEwtUBUAgE/jrFZJ
-         lImTuMk9QY3eVfM93R50fnQ9FKDlXVMIf8rXOfVg=
-Date:   Sun, 26 Apr 2020 21:29:07 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <Alexander.Levin@microsoft.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [4.19-stable] Security fixes for KVM
-Message-ID: <20200427012907.GO13035@sasha-vm>
-References: <dd9bbb3b4eefec476db8b28ad3044e9abd8450f9.camel@codethink.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <dd9bbb3b4eefec476db8b28ad3044e9abd8450f9.camel@codethink.co.uk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726516AbgD0DAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Apr 2020 23:00:54 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:36300 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726316AbgD0DAy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Apr 2020 23:00:54 -0400
+Received: from [111.196.67.54] (helo=localhost.localdomain)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <hui.wang@canonical.com>)
+        id 1jSu0o-0005qw-Ut; Mon, 27 Apr 2020 03:00:51 +0000
+From:   Hui Wang <hui.wang@canonical.com>
+To:     alsa-devel@alsa-project.org, tiwai@suse.de
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] ALSA: hda/realtek - Two front mics on a Lenovo ThinkCenter
+Date:   Mon, 27 Apr 2020 11:00:39 +0800
+Message-Id: <20200427030039.10121-1-hui.wang@canonical.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 27, 2020 at 12:52:14AM +0100, Ben Hutchings wrote:
->Here are some fixes that required backporting for 4.19, this time all
->in KVM.  All of them are already present in later stable branches.
+This new Lenovo ThinkCenter has two front mics which can't be handled
+by PA so far, so apply the fixup ALC283_FIXUP_HEADSET_MIC to change
+the location for one of the mics.
 
-Queued up, thanks Ben!
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+---
+ sound/pci/hda/patch_realtek.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index c1a85c8f7b69..c16f63957c5a 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7420,6 +7420,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1558, 0x8560, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8561, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x1036, "Lenovo P520", ALC233_FIXUP_LENOVO_MULTI_CODECS),
++	SND_PCI_QUIRK(0x17aa, 0x1048, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x20f2, "Thinkpad SL410/510", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x215e, "Thinkpad L512", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x21b8, "Thinkpad Edge 14", ALC269_FIXUP_SKU_IGNORE),
 -- 
-Thanks,
-Sasha
+2.17.1
+
