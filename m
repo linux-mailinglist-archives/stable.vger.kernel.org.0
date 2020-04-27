@@ -2,245 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAFC1BA993
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 18:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8107B1BAA72
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 18:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728575AbgD0QAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 12:00:48 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:56585 "EHLO
-        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728498AbgD0QA2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 12:00:28 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id CB4EF194065F;
-        Mon, 27 Apr 2020 12:00:25 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 27 Apr 2020 12:00:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=R/XpE6
-        dKsDzMWGk5GNU2ySu0hGMremrtML682TkdmTQ=; b=nQ//EhARyVf3FHvUc2WsfT
-        pCoyqAJ/9hS2ARFOY3D/OWuVST/aXhccimkVEjEDbSmPmEGAYNkY90bsOzAfAbLh
-        Tr3QH2mLPtPA5FJmrjv9LXHv2ZW41qsrp6nqL2kEisz9pBFyD6no/Q32hWBMn2NC
-        MuaMTd1qXun132PPq0Twradb+EPWGUpqK8khpEzFnOI3CIlGp1Y+x90Tv8xHRv1d
-        WagZJpijTI+dhIzIt3UjP4IzQX3UkizSopvGaBFA6HGMBvUv9KePfhETDBkB9ykL
-        wuJm2E0CIR/os9If95YtfX8YRxJZeSB+w5L+QP/ddt7isgI85BJJ1fEXdQmibzKQ
-        ==
-X-ME-Sender: <xms:mQGnXv6VoQrBBYKGBeUf0ONi0jBRqkOGb0P4RdsyJSbdKJMX8CU8ZQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrheelgdelfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
-    rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:mQGnXn0vuE1UFJ7LohYxIoePnlQw3UmpBG-ksKw8VK3qQio4opWthA>
-    <xmx:mQGnXuraGhyh7sYFa7d_a2iJGa-QuTgh3-oLyQcF9miIZBjQePA5Mw>
-    <xmx:mQGnXu8Vz3B6W7obJYwpgOIT1R0R2cCkhTrGsYnVxka8ygsVgVGQew>
-    <xmx:mQGnXqam31mHwANO8h8-bpek_ZZrl8pmMaxCKUOUXqTyLa21vtMRig>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 575C0328005A;
-        Mon, 27 Apr 2020 12:00:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] signal: Avoid corrupting si_pid and si_uid in" failed to apply to 4.19-stable tree
-To:     ebiederm@xmission.com, christian.brauner@ubuntu.com,
-        cmeerw@cmeerw.org, oleg@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Apr 2020 18:00:21 +0200
-Message-ID: <158800322124912@kroah.com>
+        id S1726206AbgD0QwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 12:52:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56628 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726194AbgD0QwZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 12:52:25 -0400
+Received: from mail-qv1-xf43.google.com (mail-qv1-xf43.google.com [IPv6:2607:f8b0:4864:20::f43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B400C0610D5
+        for <stable@vger.kernel.org>; Mon, 27 Apr 2020 09:52:25 -0700 (PDT)
+Received: by mail-qv1-xf43.google.com with SMTP id y19so8854229qvv.4
+        for <stable@vger.kernel.org>; Mon, 27 Apr 2020 09:52:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cmpxchg-org.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=uHH5G3ygpt6fz1ZtSnotHqjI9vLZ9l9n/xiOJEspxzY=;
+        b=e6G34f8uAPYUx2k2uaAuy4SLcrPrsnbqi2o0P3Dh+KDsHJE+ILdHRQt/MuYWJj6I9x
+         9HS629s5ypPl0MtGgXwjCGdlAgNAJQRWV1Ci94LeqkhTRdn4Jjl/eNwOHJzSY2DEsCSN
+         1h25RYEyTPWPnfyOJA750nfLCYaGATl6uqqu6k4uJhJqWcmhY+qyr2QpWt3SFyqmHOqq
+         Xgf7teNPnBseBh+PUmkvywabwOzBWELdQNQya15Yvo9Tssuyr3OMrUUD+XENqrEwlaW+
+         XqvzG5eCdMZzoSUdFMuCw7xBFy4WuNclZAY/gYdpI2r2JxR4HlcUqofWZfq/pYl7UrF4
+         RNZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=uHH5G3ygpt6fz1ZtSnotHqjI9vLZ9l9n/xiOJEspxzY=;
+        b=r8fNqlaSQYl3Pj/qFm6gyoh1ydwIOVJlo5AcsCRRbTstgHr5FhJtN6K+CHgqXMyWEV
+         8hjtjyIR1MqxDBcK7Hn6kxgcWVY9fsN6YWxM7IBrrFzByStvXT+lSiTjbTV6o53vmch/
+         6b2mtqHzKNqGz3lPtqFLUFRte6SCB1Ob7S0DSecZ5E//Mc+Ine98qofkeuVf2KDxos97
+         8NRSmkI5AQKP0opp+5lhTI2ErUYNIA4h/94eX7APOu+443B3eQ1+K3hf+q+U+YHUn9lw
+         1waERkK6pvZVIw+vvh0mmYoZhLhrJMQMlnverny48lNjAeGvmdKI5nqz3Abm9RqVsL7q
+         xgxQ==
+X-Gm-Message-State: AGi0PubRuj4XkgclhMPvsnyS1G7NH6M0lt1hWfPKVg7ChPgvu+WZI4Jt
+        pK96EdqDJV1kytvwfT03MyIcVg==
+X-Google-Smtp-Source: APiQypKGzBwVtw111Fx8k0Vex9YZnDP8gqisd4acj6TYO6vBc0sd7275uVf5RW7gJI6oezZlh3xKxA==
+X-Received: by 2002:a0c:e305:: with SMTP id s5mr23797736qvl.234.1588006344115;
+        Mon, 27 Apr 2020 09:52:24 -0700 (PDT)
+Received: from localhost (70.44.39.90.res-cmts.bus.ptd.net. [70.44.39.90])
+        by smtp.gmail.com with ESMTPSA id q27sm11109873qkn.7.2020.04.27.09.52.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Apr 2020 09:52:23 -0700 (PDT)
+Date:   Mon, 27 Apr 2020 12:52:12 -0400
+From:   Johannes Weiner <hannes@cmpxchg.org>
+To:     Michal Hocko <mhocko@kernel.org>
+Cc:     Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org,
+        vdavydov.dev@gmail.com, linux-mm@kvack.org,
+        Chris Down <chris@chrisdown.name>,
+        Roman Gushchin <guro@fb.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] mm, memcg: fix wrong mem cgroup protection
+Message-ID: <20200427165212.GA29022@cmpxchg.org>
+References: <20200423061629.24185-1-laoar.shao@gmail.com>
+ <20200424131450.GA495720@cmpxchg.org>
+ <20200424142958.GF11591@dhcp22.suse.cz>
+ <20200424151013.GA525165@cmpxchg.org>
+ <20200424162103.GK11591@dhcp22.suse.cz>
+ <20200424165103.GA575707@cmpxchg.org>
+ <20200427082524.GC28637@dhcp22.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200427082524.GC28637@dhcp22.suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Apr 27, 2020 at 10:25:24AM +0200, Michal Hocko wrote:
+> On Fri 24-04-20 12:51:03, Johannes Weiner wrote:
+> > On Fri, Apr 24, 2020 at 06:21:03PM +0200, Michal Hocko wrote:
+> > > On Fri 24-04-20 11:10:13, Johannes Weiner wrote:
+> > > > On Fri, Apr 24, 2020 at 04:29:58PM +0200, Michal Hocko wrote:
+> > > > > On Fri 24-04-20 09:14:50, Johannes Weiner wrote:
+> > > > > > On Thu, Apr 23, 2020 at 02:16:29AM -0400, Yafang Shao wrote:
+> > > > > > > This patch is an improvement of a previous version[1], as the previous
+> > > > > > > version is not easy to understand.
+> > > > > > > This issue persists in the newest kernel, I have to resend the fix. As
+> > > > > > > the implementation is changed, I drop Roman's ack from the previous
+> > > > > > > version.
+> > > > > > 
+> > > > > > Now that I understand the problem, I much prefer the previous version.
+> > > > > > 
+> > > > > > diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> > > > > > index 745697906ce3..2bf91ae1e640 100644
+> > > > > > --- a/mm/memcontrol.c
+> > > > > > +++ b/mm/memcontrol.c
+> > > > > > @@ -6332,8 +6332,19 @@ enum mem_cgroup_protection mem_cgroup_protected(struct mem_cgroup *root,
+> > > > > >  
+> > > > > >  	if (!root)
+> > > > > >  		root = root_mem_cgroup;
+> > > > > > -	if (memcg == root)
+> > > > > > +	if (memcg == root) {
+> > > > > > +		/*
+> > > > > > +		 * The cgroup is the reclaim root in this reclaim
+> > > > > > +		 * cycle, and therefore not protected. But it may have
+> > > > > > +		 * stale effective protection values from previous
+> > > > > > +		 * cycles in which it was not the reclaim root - for
+> > > > > > +		 * example, global reclaim followed by limit reclaim.
+> > > > > > +		 * Reset these values for mem_cgroup_protection().
+> > > > > > +		 */
+> > > > > > +		memcg->memory.emin = 0;
+> > > > > > +		memcg->memory.elow = 0;
+> > > > > >  		return MEMCG_PROT_NONE;
+> > > > > > +	}
+> > > > > 
+> > > > > Could you be more specific why you prefer this over the
+> > > > > mem_cgroup_protection which doesn't change the effective value?
+> > > > > Isn't it easier to simply ignore effective value for the reclaim roots?
+> > > > 
+> > > > Because now both mem_cgroup_protection() and mem_cgroup_protected()
+> > > > have to know about the reclaim root semantics, instead of just the one
+> > > > central place.
+> > > 
+> > > Yes this is true but it is also potentially overwriting the state with
+> > > a parallel reclaim which can lead to surprising results
+> > 
+> > Checking in mem_cgroup_protection() doesn't avoid the fundamental race:
+> > 
+> >   root
+> >      `- A (low=2G, elow=2G, max=3G)
+> >         `- A1 (low=2G, elow=2G)
+> > 
+> > If A does limit reclaim while global reclaim races, the memcg == root
+> > check in mem_cgroup_protection() will reliably calculate the "right"
+> > scan value for A, which has no pages, and the wrong scan value for A1
+> > where the memory actually is.
+> 
+> I am sorry but I do not see how A1 would get wrong scan value.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I mistyped the example. If we're in limit reclaim in A, elow should
+look like this:
 
-thanks,
+  root
+     `- A (low=2G, max=3G -> elow=0)
+        `- A1 (low=0G -> elow=0)
 
-greg k-h
+But if global reclaim were to kick in, it could overwrite elow to
+this:
 
------------------- original commit in Linus's tree ------------------
+  root
+     `- A (low=2G, max=3G -> elow=2G)
+        `- A1 (low=0G -> elow=2G)
 
-From 61e713bdca3678e84815f2427f7a063fc353a1fc Mon Sep 17 00:00:00 2001
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Mon, 20 Apr 2020 11:41:50 -0500
-Subject: [PATCH] signal: Avoid corrupting si_pid and si_uid in
- do_notify_parent
+(This is with the recursive memory.low semantics, of course.)
 
-Christof Meerwald <cmeerw@cmeerw.org> writes:
-> Hi,
->
-> this is probably related to commit
-> 7a0cf094944e2540758b7f957eb6846d5126f535 (signal: Correct namespace
-> fixups of si_pid and si_uid).
->
-> With a 5.6.5 kernel I am seeing SIGCHLD signals that don't include a
-> properly set si_pid field - this seems to happen for multi-threaded
-> child processes.
->
-> A simple test program (based on the sample from the signalfd man page):
->
-> #include <sys/signalfd.h>
-> #include <signal.h>
-> #include <unistd.h>
-> #include <spawn.h>
-> #include <stdlib.h>
-> #include <stdio.h>
->
-> #define handle_error(msg) \
->     do { perror(msg); exit(EXIT_FAILURE); } while (0)
->
-> int main(int argc, char *argv[])
-> {
->   sigset_t mask;
->   int sfd;
->   struct signalfd_siginfo fdsi;
->   ssize_t s;
->
->   sigemptyset(&mask);
->   sigaddset(&mask, SIGCHLD);
->
->   if (sigprocmask(SIG_BLOCK, &mask, NULL) == -1)
->     handle_error("sigprocmask");
->
->   pid_t chldpid;
->   char *chldargv[] = { "./sfdclient", NULL };
->   posix_spawn(&chldpid, "./sfdclient", NULL, NULL, chldargv, NULL);
->
->   sfd = signalfd(-1, &mask, 0);
->   if (sfd == -1)
->     handle_error("signalfd");
->
->   for (;;) {
->     s = read(sfd, &fdsi, sizeof(struct signalfd_siginfo));
->     if (s != sizeof(struct signalfd_siginfo))
->       handle_error("read");
->
->     if (fdsi.ssi_signo == SIGCHLD) {
->       printf("Got SIGCHLD %d %d %d %d\n",
->           fdsi.ssi_status, fdsi.ssi_code,
->           fdsi.ssi_uid, fdsi.ssi_pid);
->       return 0;
->     } else {
->       printf("Read unexpected signal\n");
->     }
->   }
-> }
->
->
-> and a multi-threaded client to test with:
->
-> #include <unistd.h>
-> #include <pthread.h>
->
-> void *f(void *arg)
-> {
->   sleep(100);
-> }
->
-> int main()
-> {
->   pthread_t t[8];
->
->   for (int i = 0; i != 8; ++i)
->   {
->     pthread_create(&t[i], NULL, f, NULL);
->   }
-> }
->
-> I tried to do a bit of debugging and what seems to be happening is
-> that
->
->   /* From an ancestor pid namespace? */
->   if (!task_pid_nr_ns(current, task_active_pid_ns(t))) {
->
-> fails inside task_pid_nr_ns because the check for "pid_alive" fails.
->
-> This code seems to be called from do_notify_parent and there we
-> actually have "tsk != current" (I am assuming both are threads of the
-> current process?)
+> > I'm okay with fixing the case where a really old left-over value is
+> > used by target reclaim.
+> > 
+> > I don't see a point in special casing this one instance of a
+> > fundamental race condition at the expense of less robust code.
+> 
+> I am definitely not calling to fragment the code. I do agree that having
+> a special case in mem_cgroup_protection is quite non-intuitive.
+> The existing code is quite hard to reason about in its current form
+> as we can see. If we can fix all that in mem_cgroup_protected then no
+> objections from me at all.
 
-I instrumented the code with a warning and received the following backtrace:
-> WARNING: CPU: 0 PID: 777 at kernel/pid.c:501 __task_pid_nr_ns.cold.6+0xc/0x15
-> Modules linked in:
-> CPU: 0 PID: 777 Comm: sfdclient Not tainted 5.7.0-rc1userns+ #2924
-> Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-> RIP: 0010:__task_pid_nr_ns.cold.6+0xc/0x15
-> Code: ff 66 90 48 83 ec 08 89 7c 24 04 48 8d 7e 08 48 8d 74 24 04 e8 9a b6 44 00 48 83 c4 08 c3 48 c7 c7 59 9f ac 82 e8 c2 c4 04 00 <0f> 0b e9 3fd
-> RSP: 0018:ffffc9000042fbf8 EFLAGS: 00010046
-> RAX: 000000000000000c RBX: 0000000000000000 RCX: ffffc9000042faf4
-> RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff81193d29
-> RBP: ffffc9000042fc18 R08: 0000000000000000 R09: 0000000000000001
-> R10: 000000100f938416 R11: 0000000000000309 R12: ffff8880b941c140
-> R13: 0000000000000000 R14: 0000000000000000 R15: ffff8880b941c140
-> FS:  0000000000000000(0000) GS:ffff8880bca00000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 00007f2e8c0a32e0 CR3: 0000000002e10000 CR4: 00000000000006f0
-> Call Trace:
->  send_signal+0x1c8/0x310
->  do_notify_parent+0x50f/0x550
->  release_task.part.21+0x4fd/0x620
->  do_exit+0x6f6/0xaf0
->  do_group_exit+0x42/0xb0
->  get_signal+0x13b/0xbb0
->  do_signal+0x2b/0x670
->  ? __audit_syscall_exit+0x24d/0x2b0
->  ? rcu_read_lock_sched_held+0x4d/0x60
->  ? kfree+0x24c/0x2b0
->  do_syscall_64+0x176/0x640
->  ? trace_hardirqs_off_thunk+0x1a/0x1c
->  entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-The immediate problem is as Christof noticed that "pid_alive(current) == false".
-This happens because do_notify_parent is called from the last thread to exit
-in a process after that thread has been reaped.
-
-The bigger issue is that do_notify_parent can be called from any
-process that manages to wait on a thread of a multi-threaded process
-from wait_task_zombie.  So any logic based upon current for
-do_notify_parent is just nonsense, as current can be pretty much
-anything.
-
-So change do_notify_parent to call __send_signal directly.
-
-Inspecting the code it appears this problem has existed since the pid
-namespace support started handling this case in 2.6.30.  This fix only
-backports to 7a0cf094944e ("signal: Correct namespace fixups of si_pid and si_uid")
-where the problem logic was moved out of __send_signal and into send_signal.
-
-Cc: stable@vger.kernel.org
-Fixes: 6588c1e3ff01 ("signals: SI_USER: Masquerade si_pid when crossing pid ns boundary")
-Ref: 921cf9f63089 ("signals: protect cinit from unblocked SIG_DFL signals")
-Link: https://lore.kernel.org/lkml/20200419201336.GI22017@edge.cmeerw.net/
-Reported-by: Christof Meerwald <cmeerw@cmeerw.org>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-
-diff --git a/kernel/signal.c b/kernel/signal.c
-index e58a6c619824..7938c60e11dd 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1993,8 +1993,12 @@ bool do_notify_parent(struct task_struct *tsk, int sig)
- 		if (psig->action[SIGCHLD-1].sa.sa_handler == SIG_IGN)
- 			sig = 0;
- 	}
-+	/*
-+	 * Send with __send_signal as si_pid and si_uid are in the
-+	 * parent's namespaces.
-+	 */
- 	if (valid_signal(sig) && sig)
--		__group_send_sig_info(sig, &info, tsk->parent);
-+		__send_signal(sig, &info, tsk->parent, PIDTYPE_TGID, false);
- 	__wake_up_parent(tsk, tsk->parent);
- 	spin_unlock_irqrestore(&psig->siglock, flags);
- 
-
+Agreed, sounds reasonable.
