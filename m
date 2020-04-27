@@ -2,130 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFEA61B9863
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 09:22:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6199A1B9892
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 09:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726566AbgD0HWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 03:22:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52106 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726496AbgD0HWi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 03:22:38 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE972C061A0F;
-        Mon, 27 Apr 2020 00:22:37 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id 188so18324098wmc.2;
-        Mon, 27 Apr 2020 00:22:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=dDUA58woNMYWtq/WZ0FMwKygFL3GgcsV4f9N5IHf/Kc=;
-        b=pHe59qy5ojU6cXub8km6XzQVj3gmdsbjcUTPw9PASyzhnUSdUb052LDVBpgrNWUs0i
-         zISLDBmMwFLKQgRz+gKkOu1liH2Zuxcfefyh4OilISy+xE+s+PNhofIuFIaWIXl8LSeS
-         XeLoLFJ7PmUfky+fAYZddD77jknp+sivABw+B1iqG+LuGWVMamYbsSJlQv2cuC1Af6v7
-         9Cl1GpCFitSOuXoG/GD+NRiotp0sYnvm0NJFaodXyW3TJ5hflQcu1nZbwaZmyO/l1sqs
-         0CLK3Ado448yW4b+r2Tf20VswTWfH1L8vEGFyejJylOa7INrpxmu+z9kl44wVLmSjHnm
-         GeVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=dDUA58woNMYWtq/WZ0FMwKygFL3GgcsV4f9N5IHf/Kc=;
-        b=gJnbtWkBeJoDPimPOJDDVTkRN1yJwyq1WXh2JC7Ep7kjjpy7Nrcqp3DOvQuU+9+Zo9
-         e56ycgXwGm7SibeDR13AG4AYFZXlRNmT7nndqWB0Vr8vS6qCSc3CJXIlS2UnhuTkX68G
-         cXLlhq6Twpl+dn7Q9AEx7nVL/gq0FAM5wbpg2CSkLp+4PdHyfF8/6Gy8/zgHP3cvzCCp
-         rvIk1Qt6S5EC7UkoocTBI2dzFB2DL+kGgNimIcc4Wt3hIu60ksbZdWkrLT26tIH7kYvf
-         +bZ2HZ67GO5K9+2pv1FmVxT52IPoOdaJpoNI/7jCW1bkfLKezmgSPXvd88Gs9RyrlgZo
-         UgBg==
-X-Gm-Message-State: AGi0PubzeTSDL4mfjovZjtlo5G3IQy2TZwMBpAMZu8LnklNVyT74IOY5
-        FibwwofO5U0NUz/MCYF9AqI=
-X-Google-Smtp-Source: APiQypLeNiAFTrmjOqdYRGfgbEQ1703B0wGhHNZ1ghOBSl+jWG953+jr7f60BIokHkPrqhnPf4esqg==
-X-Received: by 2002:a1c:49:: with SMTP id 70mr23417501wma.184.1587972156630;
-        Mon, 27 Apr 2020 00:22:36 -0700 (PDT)
-Received: from localhost (p2E5BEDBA.dip0.t-ipconnect.de. [46.91.237.186])
-        by smtp.gmail.com with ESMTPSA id i74sm2222631wri.49.2020.04.27.00.22.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2020 00:22:35 -0700 (PDT)
-Date:   Mon, 27 Apr 2020 09:22:33 +0200
-From:   Thierry Reding <thierry.reding@gmail.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Jon Hunter <jonathanh@nvidia.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.6 30/38] i2c: tegra: Better handle case where
- CPU0 is busy for a long time
-Message-ID: <20200427072233.GB3451400@ulmo>
-References: <20200424122237.9831-1-sashal@kernel.org>
- <20200424122237.9831-30-sashal@kernel.org>
+        id S1726407AbgD0H2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 03:28:32 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2101 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726349AbgD0H2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 Apr 2020 03:28:32 -0400
+Received: from lhreml724-chm.china.huawei.com (unknown [172.18.7.107])
+        by Forcepoint Email with ESMTP id B17F92C1F12FA90CB4CA;
+        Mon, 27 Apr 2020 08:28:30 +0100 (IST)
+Received: from [127.0.0.1] (10.210.170.137) by lhreml724-chm.china.huawei.com
+ (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Mon, 27 Apr
+ 2020 08:28:29 +0100
+Subject: Re: [PATCH] mtd: spi-nor: Fixup page size and map selection for
+ S25FS-S
+To:     <Tudor.Ambarus@microchip.com>
+CC:     <alexander.sverdlin@nokia.com>, <chenxiang66@hisilicon.com>,
+        <linux-mtd@lists.infradead.org>, <richard@nod.at>,
+        <stable@vger.kernel.org>, <marek.vasut@gmail.com>,
+        <computersforpeace@gmail.com>, <dwmw2@infradead.org>,
+        <bbrezillon@kernel.org>, Yicong Yang <yangyicong@hisilicon.com>
+References: <20200227123657.26030-1-alexander.sverdlin@nokia.com>
+ <60b272c1-ab6a-7a7a-6f56-03d7c7daf8bc@nokia.com>
+ <43ae2554-06c8-59f9-153e-094a326166c2@huawei.com>
+ <2955278.kW1ZWP0GTs@192.168.0.120>
+From:   John Garry <john.garry@huawei.com>
+Message-ID: <d42386c8-9c31-ed9c-d8e7-8d09e43b46fb@huawei.com>
+Date:   Mon, 27 Apr 2020 08:27:52 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
-Content-Disposition: inline
-In-Reply-To: <20200424122237.9831-30-sashal@kernel.org>
-User-Agent: Mutt/1.13.1 (2019-12-14)
+In-Reply-To: <2955278.kW1ZWP0GTs@192.168.0.120>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.210.170.137]
+X-ClientProxiedBy: lhreml722-chm.china.huawei.com (10.201.108.73) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
++ Yicong Yang
 
---A6N2fC+uXW/VQSAv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Tudor,
 
-On Fri, Apr 24, 2020 at 08:22:28AM -0400, Sasha Levin wrote:
-> From: Dmitry Osipenko <digetx@gmail.com>
->=20
-> [ Upstream commit a900aeac253729411cf33c6cb598c152e9e4137f ]
->=20
-> Boot CPU0 always handle I2C interrupt and under some rare circumstances
-> (like running KASAN + NFS root) it may stuck in uninterruptible state for
-> a significant time. In this case we will get timeout if I2C transfer is
-> running on a sibling CPU, despite of IRQ being raised. In order to handle
-> this rare condition, the IRQ status needs to be checked after completion
-> timeout.
->=20
-> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 27 +++++++++++++++------------
->  1 file changed, 15 insertions(+), 12 deletions(-)
+> 
+> On Monday, March 2, 2020 8:25:48 PM EEST John Garry wrote:
+>> So do you know how we can tell if the part is s25fl129p1 or S25FS128S?
+>> Is it based on family id? For the part of my board, it has the same id
+>> according to "s25fl129p1" entry in the spi-nor driver, yet the SFDP
+>> signature is not present (signature reads as 0x4d182001 vs expected
+> 
+>   0x4d182001 looks like the flash id, but in reversed order.
+> 
+>> 0x50444653). I printed the family id, and it is 81h, which seems to
+>> align with S25FS (which should support SFDP). Confused.
+>>
+> 
+> We can differentiate between flashes by the family id:  80h for FL-S and 81h
+> for FS-S. If I understood correctly your flash id is 0x01, 0x20, 0x18, 0x4d,
+> 0x01, 0x81. According to the spansion datasheets, this should identify with a
+> s25fs128s1 entry. Please check the patch from below, let me know if it's ok.
+> 
+>> What's more, the spi-nor probe is failing for this part since I enabled
+>> quad spi. So I am interested to know if there is some differences
+>> between these part families for that.
+> 
+> In which conditions is it failing? Please open a separate thread.
 
-Hi Sasha,
+So my colleague Yicon debugged this, and it seems to be an issue with 
+our controller. The background is that we can blacklist certain commands 
+in firmware, and some relevant commands were blacklisted such that quad 
+enable failed.
 
-can you drop this from the v5.6 stable queue please? Jon discovered that
-this patch introduces a regression in v5.7, and since we don't have a
-good understanding of why this is breaking things I think it'd be best
-if we reverted it for v5.7 until we come up with a good fix.
+But we have it working now, I think. Yicon can confirm (or start a 
+thread please for outstanding issues).
 
-I think the same applies for the other i2c/tegra patch that's 31/38 of
-this series.
+> 
+> Cheers,
+> ta
 
 Thanks,
-Thierry
+John
 
---A6N2fC+uXW/VQSAv
-Content-Type: application/pgp-signature; name="signature.asc"
+> 
+> Author: Tudor Ambarus <tudor.ambarus@microchip.com>
+> Date:   Sun Apr 26 17:59:23 2020 +0300
+> 
+>      mtd: spi-nor: spansion: Add support for s25fs128s1
+>      
+>      The old s25fl129p1 flash uses just five bytes for manufacturer and
+>      device identification, while newer spansion flashes use six bytes.
+>      s25fs128s1 was incorrectly identified as s25fl129p1. Use INFO6
+>      to differentiate between them.
+>      
+>      Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+> 
+> diff --git a/drivers/mtd/spi-nor/spansion.c b/drivers/mtd/spi-nor/spansion.c
+> index 88183eba8ac1..ea72f0e5be73 100644
+> --- a/drivers/mtd/spi-nor/spansion.c
+> +++ b/drivers/mtd/spi-nor/spansion.c
+> @@ -22,6 +22,9 @@ static const struct flash_info spansion_parts[] = {
+>          { "s25fl128s1", INFO6(0x012018, 0x4d0180, 64 * 1024, 256,
+>                                SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+>                                USE_CLSR) },
+> +       { "s25fs128s1", INFO6(0x012018, 0x4d0181,  64 * 1024, 256,
+> +                             SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+> +                             USE_CLSR) },
 
------BEGIN PGP SIGNATURE-----
+I wasn't sure if you wanted to add a separate entry if it has same 
+properties as other part, due to extra maintenance. It is nice to know 
+the exact part, though.
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl6miDkACgkQ3SOs138+
-s6HFbhAAkw4kw0wOkZzY/9qlB+gSAit5MKAPOvPoPQ+f4LjUlhNdKDu3XysVK0dS
-sKAk/f2CHLCm7SMgEATxuVw5agM5I33ufzlr8Jc5zUPpmlIuoOKkV3R433s9O9lC
-9sUMHWDn34zJagJKLZ9KIMMpwf4cWD4wp29u/TrZgqhfC2JQSIi72uyk3CzKJxtI
-3y0383+ju7JYQ+1iyaJPSsZ5F/Dbmk2cViZC+X2oxe9LozVIM2PAP9GkSx6HXgU7
-WJhn92GDamvh1AuOD+K7XRHY+7QqVaK2vAPjPAof3DH0Tn3MH3kStt1P9AuO+IyO
-5kdFaJXrbrspmmViYpC/QHdW6IxRlpYnjYDOJJ0ZCrqSDgUH2UfI4zCX0bkBilpZ
-qVGqXnnPWhtOAK2hpMxJnZ2T7DCcyldLQKhgaQs+sYRrgS0pDXWsQyiInCUMEgsh
-W9dM9rHcWkVNaEJyYlpXb5SAvv5tA0ctcidaCr/LXBfBiwWbDjSxHMBbUxLnfGmD
-5EZNx49+q7M4y6E8YO3+iUY83aHx60zUivwElPx2kg7Y8nAeUWVy7QRUGaH1Uk6o
-e96D8cHiswWsUV1C2xDakAMdFCLw3w/XXRDuVsZGpq/Y2XYOpQG/2NiBtLJMFqCb
-ywW3eBGTPuKlnB7CF9yF/0+3UuyEA69wkUfMvFPSv2A9furafpc=
-=W6uU
------END PGP SIGNATURE-----
+>          { "s25fl256s0", INFO(0x010219, 0x4d00, 256 * 1024, 128,
+>                               SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ |
+>                               USE_CLSR) },
+> 
+> 
+> .
+> 
 
---A6N2fC+uXW/VQSAv--
