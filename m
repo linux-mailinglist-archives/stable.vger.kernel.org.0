@@ -2,112 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 897C91BAB7C
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 19:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6ED61BAB7D
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 19:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726217AbgD0Rk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 13:40:58 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:51355 "EHLO
-        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726189AbgD0Rk5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 13:40:57 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A1E7D1940E55;
-        Mon, 27 Apr 2020 13:40:56 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 27 Apr 2020 13:40:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=naKwge
-        SJYkm37Gmgy/GWWRk2Iangk2+y8+sz6t8xmbg=; b=KpQ5/f1hNVblTEdGGGRy44
-        ZFlPp4iYSgHUbecV9Y31wBBj1pePDisqFZVyKrU7RI5yhXw0Hh7E7fBETn0owMG6
-        zsJKdHZnDq3bCvhoTQ6gMakuq+jDKc8ihbl+HLlm2ZlsFWNDDV+0Mm9bq6DSsBx8
-        OayarV6PFwxbhOOSA5HGfgtBKLuf3osJpqm2G5g6XbjPWdGjpE1TDhiru8jr5/pD
-        iezX7RpQnOsBe7oFvjW+rAA9eewOVFUO1BdfmVQb+SSYlf50rQyxX5owVqDViNUQ
-        5c8tZPU2DtXk+154tNHaR9BoV0Eu9c6+mw1BYRppRyn2RflEs+MdsBP+JVBZzhkA
-        ==
-X-ME-Sender: <xms:JxmnXgtfR5ewASxxjrGnx--OPlGlXKAN87biHwu95oTwjjNsugL7rg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrheelgdduudefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
-    ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:JxmnXptaNiAmAAQ_JeuvnMykm-8CgfmO2PJtuCRPeg9M9VLB5tg61w>
-    <xmx:JxmnXlZeWJnWKxm0zj2LYi_xuDbd21z9Vw0FNitMfUF4xrxVtaWSNA>
-    <xmx:JxmnXjigyK2hCsOXQcwPBXA0-mObKWn_MFPUHpJiSFSA6Uf2BpiByg>
-    <xmx:KBmnXvF2WYf6CjAkWlNSDaWRa8iy4q3AlwxG73CZJpUEzhx9fPDuVg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5588D3065E77;
-        Mon, 27 Apr 2020 13:40:55 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/8xx: Fix STRICT_KERNEL_RWX startup test failure" failed to apply to 5.4-stable tree
-To:     christophe.leroy@c-s.fr, mpe@ellerman.id.au
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Apr 2020 19:40:49 +0200
-Message-ID: <158800924923469@kroah.com>
+        id S1726228AbgD0Rla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 13:41:30 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:49478 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726226AbgD0Rla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 13:41:30 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21038359-1500050 
+        for multiple; Mon, 27 Apr 2020 18:41:23 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/execlists: Avoid reusing the same logical CC_ID
+Date:   Mon, 27 Apr 2020 18:41:22 +0100
+Message-Id: <20200427174122.13415-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200427170513.24019-1-chris@chris-wilson.co.uk>
+References: <20200427170513.24019-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Fixes: 2935ed5339c4 ("drm/i915: Remove logical HW ID")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.5+
+---
+ drivers/gpu/drm/i915/gt/intel_engine_types.h |  3 +--
+ drivers/gpu/drm/i915/gt/intel_lrc.c          | 25 ++++++++++++++------
+ drivers/gpu/drm/i915/i915_perf.c             |  3 +--
+ drivers/gpu/drm/i915/selftests/i915_vma.c    |  2 +-
+ 4 files changed, 21 insertions(+), 12 deletions(-)
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From b61c38baa98056d4802ff5be5cfb979efc2d0f7a Mon Sep 17 00:00:00 2001
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Date: Mon, 20 Apr 2020 05:37:42 +0000
-Subject: [PATCH] powerpc/8xx: Fix STRICT_KERNEL_RWX startup test failure
-
-WRITE_RO lkdtm test works.
-
-But when selecting CONFIG_DEBUG_RODATA_TEST, the kernel reports
-	rodata_test: test data was not read only
-
-This is because when rodata test runs, there are still old entries
-in TLB.
-
-Flush TLB after setting kernel pages RO or NX.
-
-Fixes: d5f17ee96447 ("powerpc/8xx: don't disable large TLBs with CONFIG_STRICT_KERNEL_RWX")
-Cc: stable@vger.kernel.org # v5.1+
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/485caac75f195f18c11eb077b0031fdd2bb7fb9e.1587361039.git.christophe.leroy@c-s.fr
-
-diff --git a/arch/powerpc/mm/nohash/8xx.c b/arch/powerpc/mm/nohash/8xx.c
-index 3189308dece4..d83a12c5bc7f 100644
---- a/arch/powerpc/mm/nohash/8xx.c
-+++ b/arch/powerpc/mm/nohash/8xx.c
-@@ -185,6 +185,7 @@ void mmu_mark_initmem_nx(void)
- 			mmu_mapin_ram_chunk(etext8, einittext8, PAGE_KERNEL);
- 		}
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+index bf395227c99f..a9fc3fbbe482 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+@@ -304,8 +304,7 @@ struct intel_engine_cs {
+ 	u32 context_size;
+ 	u32 mmio_base;
+ 
+-	unsigned int context_tag;
+-#define NUM_CONTEXT_TAG roundup_pow_of_two(2 * EXECLIST_MAX_PORTS)
++	unsigned long context_tag;
+ 
+ 	struct rb_node uabi_node;
+ 
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 93a1b73ad96b..3a9d3ebf3e5b 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1404,13 +1404,17 @@ __execlists_schedule_in(struct i915_request *rq)
+ 	ce->lrc_desc &= ~GENMASK_ULL(47, 37);
+ 	if (ce->tag) {
+ 		/* Use a fixed tag for OA and friends */
++		GEM_BUG_ON(ce->tag <= BITS_PER_TYPE(engine->context_tag));
+ 		ce->lrc_desc |= (u64)ce->tag << 32;
+ 	} else {
+ 		/* We don't need a strict matching tag, just different values */
+-		ce->lrc_desc |=
+-			(u64)(++engine->context_tag % NUM_CONTEXT_TAG) <<
+-			GEN11_SW_CTX_ID_SHIFT;
+-		BUILD_BUG_ON(NUM_CONTEXT_TAG > GEN12_MAX_CONTEXT_HW_ID);
++		unsigned int tag = ffs(engine->context_tag);
++
++		GEM_BUG_ON(tag >= BITS_PER_LONG);
++		clear_bit(tag - 1, &engine->context_tag);
++		ce->lrc_desc |= (u64)tag << GEN11_SW_CTX_ID_SHIFT;
++
++		BUILD_BUG_ON(BITS_PER_TYPE(engine->context_tag) > GEN12_MAX_CONTEXT_HW_ID);
  	}
-+	_tlbil_all();
+ 
+ 	__intel_gt_pm_get(engine->gt);
+@@ -1452,7 +1456,8 @@ static void kick_siblings(struct i915_request *rq, struct intel_context *ce)
+ 
+ static inline void
+ __execlists_schedule_out(struct i915_request *rq,
+-			 struct intel_engine_cs * const engine)
++			 struct intel_engine_cs * const engine,
++			 unsigned int ccid)
+ {
+ 	struct intel_context * const ce = rq->context;
+ 
+@@ -1470,6 +1475,10 @@ __execlists_schedule_out(struct i915_request *rq,
+ 	    i915_request_completed(rq))
+ 		intel_engine_add_retire(engine, ce->timeline);
+ 
++	ccid >>= (GEN11_SW_CTX_ID_SHIFT - 32);
++	if (ccid < BITS_PER_TYPE(engine->context_tag))
++		set_bit(ccid - 1, &engine->context_tag);
++
+ 	intel_context_update_runtime(ce);
+ 	intel_engine_context_out(engine);
+ 	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_OUT);
+@@ -1495,15 +1504,17 @@ execlists_schedule_out(struct i915_request *rq)
+ {
+ 	struct intel_context * const ce = rq->context;
+ 	struct intel_engine_cs *cur, *old;
++	unsigned int ccid;
+ 
+ 	trace_i915_request_out(rq);
+ 
++	ccid = upper_32_bits(rq->context->lrc_desc);
+ 	old = READ_ONCE(ce->inflight);
+ 	do
+ 		cur = ptr_unmask_bits(old, 2) ? ptr_dec(old) : NULL;
+ 	while (!try_cmpxchg(&ce->inflight, &old, cur));
+ 	if (!cur)
+-		__execlists_schedule_out(rq, old);
++		__execlists_schedule_out(rq, old, ccid);
+ 
+ 	i915_request_put(rq);
+ }
+@@ -4002,7 +4013,7 @@ static void enable_execlists(struct intel_engine_cs *engine)
+ 
+ 	enable_error_interrupt(engine);
+ 
+-	engine->context_tag = 0;
++	engine->context_tag = GENMASK(BITS_PER_LONG - 2, 0);
  }
  
- #ifdef CONFIG_STRICT_KERNEL_RWX
-@@ -199,6 +200,8 @@ void mmu_mark_rodata_ro(void)
- 				      ~(LARGE_PAGE_SIZE_8M - 1)));
- 	mmu_patch_addis(&patch__dtlbmiss_romem_top, -__pa(_sinittext));
+ static bool unexpected_starting_state(struct intel_engine_cs *engine)
+diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
+index dec1b33e4da8..1863a5c4778d 100644
+--- a/drivers/gpu/drm/i915/i915_perf.c
++++ b/drivers/gpu/drm/i915/i915_perf.c
+@@ -1281,11 +1281,10 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
+ 			((1U << GEN11_SW_CTX_ID_WIDTH) - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+ 		/*
+ 		 * Pick an unused context id
+-		 * 0 - (NUM_CONTEXT_TAG - 1) are used by other contexts
++		 * 0 - BITS_PER_LONG are used by other contexts
+ 		 * GEN12_MAX_CONTEXT_HW_ID (0x7ff) is used by idle context
+ 		 */
+ 		stream->specific_ctx_id = (GEN12_MAX_CONTEXT_HW_ID - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+-		BUILD_BUG_ON((GEN12_MAX_CONTEXT_HW_ID - 1) < NUM_CONTEXT_TAG);
+ 		break;
+ 	}
  
-+	_tlbil_all();
-+
- 	/* Update page tables for PTDUMP and BDI */
- 	mmu_mapin_ram_chunk(0, sinittext, __pgprot(0));
- 	mmu_mapin_ram_chunk(0, etext, PAGE_KERNEL_ROX);
+diff --git a/drivers/gpu/drm/i915/selftests/i915_vma.c b/drivers/gpu/drm/i915/selftests/i915_vma.c
+index 58b5f40a07dd..af89c7fc8f59 100644
+--- a/drivers/gpu/drm/i915/selftests/i915_vma.c
++++ b/drivers/gpu/drm/i915/selftests/i915_vma.c
+@@ -173,7 +173,7 @@ static int igt_vma_create(void *arg)
+ 		}
+ 
+ 		nc = 0;
+-		for_each_prime_number(num_ctx, 2 * NUM_CONTEXT_TAG) {
++		for_each_prime_number(num_ctx, 2 * BITS_PER_LONG) {
+ 			for (; nc < num_ctx; nc++) {
+ 				ctx = mock_context(i915, "mock");
+ 				if (!ctx)
+-- 
+2.20.1
 
