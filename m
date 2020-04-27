@@ -2,88 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E11DC1B9580
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 05:35:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6295E1B95C2
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 06:19:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726378AbgD0De7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Apr 2020 23:34:59 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:33102 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726341AbgD0De6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Apr 2020 23:34:58 -0400
-Received: by mail-io1-f67.google.com with SMTP id o127so17344361iof.0;
-        Sun, 26 Apr 2020 20:34:58 -0700 (PDT)
+        id S1726172AbgD0ETp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 00:19:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52138 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726064AbgD0ETp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 00:19:45 -0400
+Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44BA5C061A0F
+        for <stable@vger.kernel.org>; Sun, 26 Apr 2020 21:19:45 -0700 (PDT)
+Received: by mail-io1-xd44.google.com with SMTP id o127so17409449iof.0
+        for <stable@vger.kernel.org>; Sun, 26 Apr 2020 21:19:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=bLspSYpHKIimJS6Zp/uEGn7y8GrbBdjIhm9L26EtwFg=;
+        b=hob/F8HZ89Os9udTIo//ahYBg7l4fNzMjMXtI3fNqF46dQo4mn/C7WZkq767H9Ifd8
+         u0rK3xlUC1ixVPdkTL98vmEbxQh1dyd9zzZrtKDs5KjA7vfcsYT/Xu14RctJLpd1rFX3
+         0a9rMUj0YWBqDAjvswYjDEOG7QosjmKJ13iZ0EUS4oDUQce4mB1AIaJQRsiJz0z0r1F0
+         qfsQKR5vmoav0vwuvwu+XR0aZGT9d9fEa1s3dpwyTT6bhQEfrErO7oZ1rQnfFH013f1k
+         ehqRbOD+GuaWkvr3kfsDA528F9+zM18jDH70xMHZcJxDEdh+w62IL19tgVAguLuJe9pe
+         Nu7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bQd3lXTqblCEkvmd58RFuaaBCMl9c3wU/f2GfDs7JmE=;
-        b=PfExsySdpr5AqNHORy1X1prIeUVQRL967+1rUqcvhe4tQ4lSma2Va+t0AEDP3YYVzM
-         Hg07fO3TPHAWlaMV254l/ZzknyFnKpC4cYtHpL5cTeZLAPgq/9eXmojmskTYp3oOH4Yd
-         g5YUv1QBioubDEmvACgohn4irB3qKPXJ0sdoA+ZRseH+gXDbqA4cI8B85gcH0ImKF1qj
-         Yihv5mYmamzFWI2kyeGCQreFRSSQpmhFkwiY3Kr5bhL9xmtqE1ophRIebZfaT5ZHHfU3
-         osb2wfyFovXbKqS269byvmfF3Tfcowb1ONKBe1UqA+/HqAhqsZQ2rqGgy3hAKAAcGdQ7
-         s5Tw==
-X-Gm-Message-State: AGi0PuYUkfPJMUYCjrTtION/HLN27hoCZ+jcIPDlNnEL9sNubzuLFO/N
-        wWBCwLry5ztYLrbk1g11ZFltvBfHS49wmwEKS6PvMZzU
-X-Google-Smtp-Source: APiQypIqE+Y64fdtg5YbsWIbJ47vBWy9vxBZ64Sf5ebWBPKWB2Imr5Vekd1+Swivs+6HTxFREUiyxblizAZYQPDXEbM=
-X-Received: by 2002:a5e:8613:: with SMTP id z19mr18642912ioj.84.1587958498049;
- Sun, 26 Apr 2020 20:34:58 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=bLspSYpHKIimJS6Zp/uEGn7y8GrbBdjIhm9L26EtwFg=;
+        b=cV5Zqk+/yg7aPa8ctkFtw7aIH9raUMpKoD/2gM3ZWvlb6GNLVnwsEte45dE/mg8/wk
+         5byiUVi9fTP5mU7xijN4VokM2QSJKA8wAvPpG8kHm+eKjlNm1WpCzcj4+n8zSwfUVvvO
+         fh7c4/zsvUnDSI9ZO+In9cF0NDNsk+A4V6qh98lpXZrK4BTNKKa1/Wa3stIupBKwRaz8
+         +hhw7R1gI7kOuKFAcD56FYW35W2b2Vm3sQkIThRmADD5nW5c1sIiaH9UJLZ7oRebKF5/
+         bMPUCf4BHCWAavLpTtP9/YvGOx7ZrWZ+klpZR3NggKrC4lp2yCwb0+G0oIzCLpmCYC/G
+         0qYw==
+X-Gm-Message-State: AGi0PuYcvaKktLoaUU9jYhX7IGw/Zgqhu4FuCipaZWgoRMrv5RI4oQrk
+        og+w+zUJU6jRkL9RXIYwJLpe1g/BZe4ak3KKpNs=
+X-Google-Smtp-Source: APiQypKjnw/s5rAL//I72sOK31Cj6Xr369U6xg7LiO73v+GX1PvlW9kpb6MzjwXQr9ns0WAGSSGlbUsVWB97JmL/zgw=
+X-Received: by 2002:a6b:6e08:: with SMTP id d8mr14366481ioh.167.1587961184525;
+ Sun, 26 Apr 2020 21:19:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <1587726933-31757-2-git-send-email-chenhc@lemote.com> <20200426150343.62F0120A8B@mail.kernel.org>
-In-Reply-To: <20200426150343.62F0120A8B@mail.kernel.org>
-From:   Huacai Chen <chenhc@lemote.com>
-Date:   Mon, 27 Apr 2020 11:42:25 +0800
-Message-ID: <CAAhV-H6EcD8b-NB_toH3yiiNthMfPLCJu8aXbX=+4t3Se8mqaw@mail.gmail.com>
-Subject: Re: [PATCH V2 01/14] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Xing Li <lixing@loongson.cn>, Paolo Bonzini <pbonzini@redhat.com>,
-        kvm@vger.kernel.org, "open list:MIPS" <linux-mips@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
+Received: by 2002:a92:a185:0:0:0:0:0 with HTTP; Sun, 26 Apr 2020 21:19:44
+ -0700 (PDT)
+Reply-To: ps.a.ecowasnepad@gmail.com
+From:   Mark Boa <suwabamorg@gmail.com>
+Date:   Sun, 26 Apr 2020 21:19:44 -0700
+Message-ID: <CAC7Sc8tswY0F4zdp5FcDGW6B-f20nKqXJXJjVwuKzJ+7f9ekVA@mail.gmail.com>
+Subject: Good Day
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Sasha,
+Soliciting Your Consent,
 
-On Sun, Apr 26, 2020 at 11:04 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->
-> The bot has tested the following trees: v5.6.7, v5.4.35, v4.19.118, v4.14.177, v4.9.220, v4.4.220.
->
-> v5.6.7: Build OK!
-> v5.4.35: Build OK!
-> v4.19.118: Build OK!
-> v4.14.177: Build OK!
-> v4.9.220: Build OK!
-> v4.4.220: Failed to apply! Possible dependencies:
->     029499b47738 ("KVM: x86: MMU: Make mmu_set_spte() return emulate value")
->     19d194c62b25 ("MIPS: KVM: Simplify TLB_* macros")
->     403015b323a2 ("MIPS: KVM: Move non-TLB handling code out of tlb.c")
->     7ee0e5b29d27 ("KVM: x86: MMU: Remove unused parameter of __direct_map()")
->     9fbfb06a4065 ("MIPS: KVM: Arrayify struct kvm_mips_tlb::tlb_lo*")
->     ba049e93aef7 ("kvm: rename pfn_t to kvm_pfn_t")
->     bdb7ed8608f8 ("MIPS: KVM: Convert headers to kernel sized types")
->     ca64c2beecd4 ("MIPS: KVM: Abstract guest ASID mask")
->     caa1faa7aba6 ("MIPS: KVM: Trivial whitespace and style fixes")
->     e6207bbea16c ("MIPS: KVM: Use MIPS_ENTRYLO_* defs from mipsregs.h")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
-Please ignore this patch in linux-4.4 branch, thanks.
-
-Huacai
->
-> --
-> Thanks
-> Sasha
+I am confirming if you received my previous email regarding you having
+the same Surname with my late client. Who, leaving in
+your name in his last will of testament a huge sum of money. Please
+email me for more information.
+Regards,
+Attorney Mark Boa.
+Contact Email: ps.a.ecowasnepad@gmail.com
