@@ -2,87 +2,282 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1796B1BA6F5
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 16:54:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5AA1BA7BA
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 17:18:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727889AbgD0OyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 10:54:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38042 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727840AbgD0OyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 10:54:07 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE82C0610D5
-        for <stable@vger.kernel.org>; Mon, 27 Apr 2020 07:54:07 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id k8so14340154ejv.3
-        for <stable@vger.kernel.org>; Mon, 27 Apr 2020 07:54:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
-        b=ZeDKL5SICiTLkSYeTee61W1+8PpYe5bz+/ghKWkyxE2Y4lVg+JRgjBB7eFOTOoXX72
-         1cW4lbXDTyN7rrkLpQmSdpaqXd2TtwCUBiXE9lhHwMAbJMPNnAXzIHXt2RANHU1v/JjO
-         4pBVrVqVvNQQOrru85AbPVetO4DkreLiUYyEZyS+4EGBzzuf4LV0loBMazpnuO4yS7fm
-         FXt/zxAPxAGDhIy9Lmo/+mHrJUoZBgtRmWUNdoDqIQJaw08frkVYK6w17ot57Re9WzXR
-         BnSBy2qmgfeZ8WQLPhEbzT0KxcptdmpPvivE7mR1ItAqQ6sxB04eTZSl+ElYbQx9BUoW
-         r8NA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
-        b=LY/E931c9tYXUCjsLXfUlZxiHhJFf+brUYKE5iUBoahC+1fwkwqu3ILOtztiR0f1+h
-         P2Lekt31maRHA3rK1HauXwHIf0BijaVJ5KuruSUy3VY1VFYBcob3A5KgMqwYlgBo6Lh+
-         i3ARxelix45GU6ASf0rVUcKnLHEMAT2fHyIXSgwy8QBnFFi6IY9dvFSoHvwHlP9/X7Q4
-         PpuhKbQkLF8sTNmSl1aCN7ZgWGH2C3+6ttEozWa82Bi3+AEYO6LWuoD7rj0UOImsJ7PO
-         bRPs6qvmnNRjq8HUNkwmbPi0mz2jg3nr1GM1wKmsDwXeVWMbv5TSQIFalmm7OM/E+z+9
-         1nMA==
-X-Gm-Message-State: AGi0PuY1X5jrb2diq5JwG0gYEGtTuBZ03PEDIbOnGKYGlCmB9ufmf43n
-        obQMbHbet6KlGemKml9LHAKdBjLWavJyHxHA3VM=
-X-Google-Smtp-Source: APiQypIXI8+E4K5NkPjCUeKimAUnsjETnSN1i8XzyTTWbnvSI6R/8aCnFkHsuqWPO0C4HwrnWbQGv3kndT8xbzfbQ+E=
-X-Received: by 2002:a17:906:af99:: with SMTP id mj25mr19525508ejb.151.1587999246242;
- Mon, 27 Apr 2020 07:54:06 -0700 (PDT)
+        id S1727794AbgD0PSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 11:18:25 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:39965 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726539AbgD0PSY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 11:18:24 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 21025194022C;
+        Mon, 27 Apr 2020 11:18:23 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 27 Apr 2020 11:18:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=jJlhqs
+        U7F+B4MrTy0dIa8L1RyEYSMHYpqvZoPrTcRak=; b=qUqnnv4wEChbLR/9TRofHK
+        LZmgjS9nWQCL/4benhfAsMzXQWhrWgYokAHgdTz5htMHqWRdaKVHT3wZkRjqSE/p
+        dXTHzetWuExX+bjbR2krEfqcft840w8ssHO/6X7zAx+afb6y3tsuv9/e44n6onr3
+        ky6AjuJlDVkFN0IhH65K/iNFdKRjhANsH745J258eMGzS7iUuAyf2GqRYL7TjX0K
+        18mLtOWygmDPZdwmqCSaxrxmW/9DdRr7sfiV/WmH/cuoDbvO4CoPjLzLq7DCXfQq
+        wIP5Fj4KJne/0lqNQ5YnwZThyAPnK0HsOfBx0hBaPUMLIVq3bzcaIMhAj8XvZ1jA
+        ==
+X-ME-Sender: <xms:vvemXjxuBUVuClLB9FMazRAp9eBFA9DfCrpQ0M5aHJTQuNTn_AQqBA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrheelgdekhecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:vvemXpvoGj6ByCWue92hSZwE3aAIg4hNKE6m6riTUkQZDH6hcOOp7w>
+    <xmx:vvemXkfTwHalHklIz1YKI6EaOI3yug05eKnqpVeJgm7D8AaUlEEVJA>
+    <xmx:vvemXhF0mte8FiQKQhptKLuaVJaNPoErVE-eAKa2M70Nyh2HiNQRTg>
+    <xmx:v_emXghTRINFtcJ7ENoAvUMXoaJBiFc_JTlbsGIKG_VAv4b3l2ut8g>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 675A43280063;
+        Mon, 27 Apr 2020 11:18:22 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tpm: ibmvtpm: retry on H_CLOSED in tpm_ibmvtpm_send()" failed to apply to 4.4-stable tree
+To:     gcwilson@linux.ibm.com, jarkko.sakkinen@linux.intel.com,
+        phaml@us.ibm.com, stefanb@linux.ibm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 27 Apr 2020 17:18:20 +0200
+Message-ID: <1588000700181236@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a17:907:728b:0:0:0:0 with HTTP; Mon, 27 Apr 2020 07:54:05
- -0700 (PDT)
-From:   Mrs Carlsen Monika <carlsen.monika@gmail.com>
-Date:   Mon, 27 Apr 2020 14:54:05 +0000
-X-Google-Sender-Auth: QIT8NLmMJm9-la9-fOwMSsHygVA
-Message-ID: <CACw0mX6W8kvBWynM83AOH5bqeYP-QDsHVbvftJaVw-eHSRoQqg@mail.gmail.com>
-Subject: Greetings My Dear, Please I Need Your Help.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings My Dear,
 
-    I sent this mail praying it will found you in a good condition of
-health, since I myself are in a very critical health condition in
-which I  sleep every night without knowing if I may be alive to see
-the next day. I am Mrs. Monika John  Carlsen from Denmark wife of late
-Mr John Carlsen, a widow suffering from long time illness. I have some
-funds I inherited from my late husband, the sum of (eleven million
-dollars) my Doctor told me recently that I have serious sickness which
-is cancer problem. What disturbs me most is my stroke sickness. Having
-known my condition, I decided to donate this fund to a good person
-that will utilize it the way i am going to instruct herein. I need a
-very honest and God fearing person who can claim this money and use it
-for Charity works, for orphanages, widows and also  build schools for
-less privileges that will be named after my late husband if possible
-and to promote the word of God and the effort that the house of God is
-maintained.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I do not want a situation where this money will be used in an ungodly
-manner. That's why I'm taking this decision. I'm not afraid of death
-so I know where I'm going. I accept this decision because I do not
-have any child who will inherit this money after I die. Please I want
-your sincerely and urgent answer to know if you will be able to
-execute this project, and I will give you more information on how the
-fund will be transferred to your bank account. I am waiting for your
-reply.
+thanks,
 
-May God Bless you,
-Mrs. Monika John  Carlsen
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From eba5cf3dcb844c82f54d4a857e124824e252206d Mon Sep 17 00:00:00 2001
+From: George Wilson <gcwilson@linux.ibm.com>
+Date: Thu, 19 Mar 2020 23:27:58 -0400
+Subject: [PATCH] tpm: ibmvtpm: retry on H_CLOSED in tpm_ibmvtpm_send()
+
+tpm_ibmvtpm_send() can fail during PowerVM Live Partition Mobility resume
+with an H_CLOSED return from ibmvtpm_send_crq().  The PAPR says, 'The
+"partner partition suspended" transport event disables the associated CRQ
+such that any H_SEND_CRQ hcall() to the associated CRQ returns H_Closed
+until the CRQ has been explicitly enabled using the H_ENABLE_CRQ hcall.'
+This patch adds a check in tpm_ibmvtpm_send() for an H_CLOSED return from
+ibmvtpm_send_crq() and in that case calls tpm_ibmvtpm_resume() and
+retries the ibmvtpm_send_crq() once.
+
+Cc: stable@vger.kernel.org # 3.7.x
+Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
+Reported-by: Linh Pham <phaml@us.ibm.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: George Wilson <gcwilson@linux.ibm.com>
+Tested-by: Linh Pham <phaml@us.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
+index 1a49db9e108e..09fe45246b8c 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.c
++++ b/drivers/char/tpm/tpm_ibmvtpm.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (C) 2012 IBM Corporation
++ * Copyright (C) 2012-2020 IBM Corporation
+  *
+  * Author: Ashley Lai <ashleydlai@gmail.com>
+  *
+@@ -134,6 +134,64 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
+ 	return len;
+ }
+ 
++/**
++ * ibmvtpm_crq_send_init - Send a CRQ initialize message
++ * @ibmvtpm:	vtpm device struct
++ *
++ * Return:
++ *	0 on success.
++ *	Non-zero on failure.
++ */
++static int ibmvtpm_crq_send_init(struct ibmvtpm_dev *ibmvtpm)
++{
++	int rc;
++
++	rc = ibmvtpm_send_crq_word(ibmvtpm->vdev, INIT_CRQ_CMD);
++	if (rc != H_SUCCESS)
++		dev_err(ibmvtpm->dev,
++			"%s failed rc=%d\n", __func__, rc);
++
++	return rc;
++}
++
++/**
++ * tpm_ibmvtpm_resume - Resume from suspend
++ *
++ * @dev:	device struct
++ *
++ * Return: Always 0.
++ */
++static int tpm_ibmvtpm_resume(struct device *dev)
++{
++	struct tpm_chip *chip = dev_get_drvdata(dev);
++	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
++	int rc = 0;
++
++	do {
++		if (rc)
++			msleep(100);
++		rc = plpar_hcall_norets(H_ENABLE_CRQ,
++					ibmvtpm->vdev->unit_address);
++	} while (rc == H_IN_PROGRESS || rc == H_BUSY || H_IS_LONG_BUSY(rc));
++
++	if (rc) {
++		dev_err(dev, "Error enabling ibmvtpm rc=%d\n", rc);
++		return rc;
++	}
++
++	rc = vio_enable_interrupts(ibmvtpm->vdev);
++	if (rc) {
++		dev_err(dev, "Error vio_enable_interrupts rc=%d\n", rc);
++		return rc;
++	}
++
++	rc = ibmvtpm_crq_send_init(ibmvtpm);
++	if (rc)
++		dev_err(dev, "Error send_init rc=%d\n", rc);
++
++	return rc;
++}
++
+ /**
+  * tpm_ibmvtpm_send() - Send a TPM command
+  * @chip:	tpm chip struct
+@@ -147,6 +205,7 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
+ static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
+ {
+ 	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
++	bool retry = true;
+ 	int rc, sig;
+ 
+ 	if (!ibmvtpm->rtce_buf) {
+@@ -180,18 +239,27 @@ static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
+ 	 */
+ 	ibmvtpm->tpm_processing_cmd = true;
+ 
++again:
+ 	rc = ibmvtpm_send_crq(ibmvtpm->vdev,
+ 			IBMVTPM_VALID_CMD, VTPM_TPM_COMMAND,
+ 			count, ibmvtpm->rtce_dma_handle);
+ 	if (rc != H_SUCCESS) {
++		/*
++		 * H_CLOSED can be returned after LPM resume.  Call
++		 * tpm_ibmvtpm_resume() to re-enable the CRQ then retry
++		 * ibmvtpm_send_crq() once before failing.
++		 */
++		if (rc == H_CLOSED && retry) {
++			tpm_ibmvtpm_resume(ibmvtpm->dev);
++			retry = false;
++			goto again;
++		}
+ 		dev_err(ibmvtpm->dev, "tpm_ibmvtpm_send failed rc=%d\n", rc);
+-		rc = 0;
+ 		ibmvtpm->tpm_processing_cmd = false;
+-	} else
+-		rc = 0;
++	}
+ 
+ 	spin_unlock(&ibmvtpm->rtce_lock);
+-	return rc;
++	return 0;
+ }
+ 
+ static void tpm_ibmvtpm_cancel(struct tpm_chip *chip)
+@@ -269,26 +337,6 @@ static int ibmvtpm_crq_send_init_complete(struct ibmvtpm_dev *ibmvtpm)
+ 	return rc;
+ }
+ 
+-/**
+- * ibmvtpm_crq_send_init - Send a CRQ initialize message
+- * @ibmvtpm:	vtpm device struct
+- *
+- * Return:
+- *	0 on success.
+- *	Non-zero on failure.
+- */
+-static int ibmvtpm_crq_send_init(struct ibmvtpm_dev *ibmvtpm)
+-{
+-	int rc;
+-
+-	rc = ibmvtpm_send_crq_word(ibmvtpm->vdev, INIT_CRQ_CMD);
+-	if (rc != H_SUCCESS)
+-		dev_err(ibmvtpm->dev,
+-			"ibmvtpm_crq_send_init failed rc=%d\n", rc);
+-
+-	return rc;
+-}
+-
+ /**
+  * tpm_ibmvtpm_remove - ibm vtpm remove entry point
+  * @vdev:	vio device struct
+@@ -401,44 +449,6 @@ static int ibmvtpm_reset_crq(struct ibmvtpm_dev *ibmvtpm)
+ 				  ibmvtpm->crq_dma_handle, CRQ_RES_BUF_SIZE);
+ }
+ 
+-/**
+- * tpm_ibmvtpm_resume - Resume from suspend
+- *
+- * @dev:	device struct
+- *
+- * Return: Always 0.
+- */
+-static int tpm_ibmvtpm_resume(struct device *dev)
+-{
+-	struct tpm_chip *chip = dev_get_drvdata(dev);
+-	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
+-	int rc = 0;
+-
+-	do {
+-		if (rc)
+-			msleep(100);
+-		rc = plpar_hcall_norets(H_ENABLE_CRQ,
+-					ibmvtpm->vdev->unit_address);
+-	} while (rc == H_IN_PROGRESS || rc == H_BUSY || H_IS_LONG_BUSY(rc));
+-
+-	if (rc) {
+-		dev_err(dev, "Error enabling ibmvtpm rc=%d\n", rc);
+-		return rc;
+-	}
+-
+-	rc = vio_enable_interrupts(ibmvtpm->vdev);
+-	if (rc) {
+-		dev_err(dev, "Error vio_enable_interrupts rc=%d\n", rc);
+-		return rc;
+-	}
+-
+-	rc = ibmvtpm_crq_send_init(ibmvtpm);
+-	if (rc)
+-		dev_err(dev, "Error send_init rc=%d\n", rc);
+-
+-	return rc;
+-}
+-
+ static bool tpm_ibmvtpm_req_canceled(struct tpm_chip *chip, u8 status)
+ {
+ 	return (status == 0);
+
