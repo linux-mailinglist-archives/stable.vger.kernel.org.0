@@ -2,243 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC2A11BA5AC
-	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 16:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9697B1BA665
+	for <lists+stable@lfdr.de>; Mon, 27 Apr 2020 16:30:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727824AbgD0OFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Apr 2020 10:05:20 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:34315 "EHLO
-        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727010AbgD0OFU (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 27 Apr 2020 10:05:20 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id CE26E1940371;
-        Mon, 27 Apr 2020 10:05:18 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 27 Apr 2020 10:05:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RbxJfZ
-        Aq2YjjOuLX1/DZkwQ/Y7Qx2e6xudm4RnRze0s=; b=oFkbK7s5CG1YhdxWIcdhbp
-        /i46OxW0EXsPALF/i8atoY1MiMQ9mV/FKTTfB2sGxFJtOGpM+esjIqLEXCkViuMq
-        MVYyMRziycwCXvhh4wW0iEo14gh6x0qxSXu+KLFhKaaj+85wqkpkG7jarq8CBi3Z
-        Dtb/TY3w4YiyWDB78PQFGOPFsaOxaeuGbbGM/jACjFgpPsjGjHNdV1wTRcmOhKBo
-        Uouovjbluw4ZkEwruhFtuFOKWgvGl8v9a2kkKxUlmAomqTGr5TjZYi76dj8VNMLt
-        O/cp7VaRiNy6naML1o+imQdJYEhDm0GqnFlGbJriAnrNYczBXUTDP8qGIJWWNZ+Q
-        ==
-X-ME-Sender: <xms:nuamXgUFdpZGvOxVP0dMrhqrMH2ijTkUDCnVsOlLAn_on07ifFy0Bw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrheelgdejtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepvdenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:nuamXpQaP1j7KOz3Hxwsj3Xb4qlxknwgCeTQePs_yMB6Fydp__vwLw>
-    <xmx:nuamXhNlH-nxPzeSNmLzqM6xtqCF-Y92jxxELRBBSbzIfcqiUdog4g>
-    <xmx:nuamXsOOK1xocW_QXHSlE2YrWWJ4XQdz6sWTnPrSs-AG0ZeIPT33Dg>
-    <xmx:nuamXp_RUeQS2mTCTI94cEMzKTMqq5LEVSgJ57us6oDzvF6W68owkw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 674B63065E72;
-        Mon, 27 Apr 2020 10:05:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio: xilinx-xadc: Make sure not exceed maximum samplerate" failed to apply to 4.4-stable tree
-To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Apr 2020 16:05:08 +0200
-Message-ID: <158799630816092@kroah.com>
+        id S1727794AbgD0OaE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Apr 2020 10:30:04 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:22856 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727848AbgD0OaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Apr 2020 10:30:03 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-23-AKHUs2ulObCffgz2Mb-tuA-1; Mon, 27 Apr 2020 15:28:25 +0100
+X-MC-Unique: AKHUs2ulObCffgz2Mb-tuA-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Mon, 27 Apr 2020 15:28:24 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Mon, 27 Apr 2020 15:28:24 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Roberto Sassu' <roberto.sassu@huawei.com>,
+        "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
+        "rgoldwyn@suse.de" <rgoldwyn@suse.de>
+CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v2 3/6] ima: Fix ima digest hash table key calculation
+Thread-Topic: [PATCH v2 3/6] ima: Fix ima digest hash table key calculation
+Thread-Index: AQHWHH8SDZUC+XMi6UOqF9nBthnXX6iMzGEggAAOugCAACgi8A==
+Date:   Mon, 27 Apr 2020 14:28:24 +0000
+Message-ID: <5786ad88cd184e5791bc285d5cac6ecc@AcuMS.aculab.com>
+References: <20200427102900.18887-1-roberto.sassu@huawei.com>
+ <20200427102900.18887-3-roberto.sassu@huawei.com>
+ <84ecd8f2576849b29876448df66824fc@AcuMS.aculab.com>
+ <90e19242fd8445cf93728c0946c03c19@huawei.com>
+In-Reply-To: <90e19242fd8445cf93728c0946c03c19@huawei.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 3b7f9dbb827ce8680b98490215e698b6079a9ec5 Mon Sep 17 00:00:00 2001
-From: Lars-Peter Clausen <lars@metafoo.de>
-Date: Fri, 3 Apr 2020 15:27:16 +0200
-Subject: [PATCH] iio: xilinx-xadc: Make sure not exceed maximum samplerate
-
-The XADC supports a samplerate of up to 1MSPS. Unfortunately the hardware
-does not have a FIFO, which means it generates an interrupt for each
-conversion sequence. At one 1MSPS this creates an interrupt storm that
-causes the system to soft-lock.
-
-For this reason the driver limits the maximum samplerate to 150kSPS.
-Currently this check is only done when setting a new samplerate. But it is
-also possible that the initial samplerate configured in the FPGA bitstream
-exceeds the limit.
-
-In this case when starting to capture data without first changing the
-samplerate the system can overload.
-
-To prevent this check the currently configured samplerate in the probe
-function and reduce it to the maximum if necessary.
-
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-
-diff --git a/drivers/iio/adc/xilinx-xadc-core.c b/drivers/iio/adc/xilinx-xadc-core.c
-index 1aeaeafce589..6fd06e4eff73 100644
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -102,6 +102,16 @@ static const unsigned int XADC_ZYNQ_UNMASK_TIMEOUT = 500;
- 
- #define XADC_FLAGS_BUFFERED BIT(0)
- 
-+/*
-+ * The XADC hardware supports a samplerate of up to 1MSPS. Unfortunately it does
-+ * not have a hardware FIFO. Which means an interrupt is generated for each
-+ * conversion sequence. At 1MSPS sample rate the CPU in ZYNQ7000 is completely
-+ * overloaded by the interrupts that it soft-lockups. For this reason the driver
-+ * limits the maximum samplerate 150kSPS. At this rate the CPU is fairly busy,
-+ * but still responsive.
-+ */
-+#define XADC_MAX_SAMPLERATE 150000
-+
- static void xadc_write_reg(struct xadc *xadc, unsigned int reg,
- 	uint32_t val)
- {
-@@ -834,11 +844,27 @@ static const struct iio_buffer_setup_ops xadc_buffer_ops = {
- 	.postdisable = &xadc_postdisable,
- };
- 
-+static int xadc_read_samplerate(struct xadc *xadc)
-+{
-+	unsigned int div;
-+	uint16_t val16;
-+	int ret;
-+
-+	ret = xadc_read_adc_reg(xadc, XADC_REG_CONF2, &val16);
-+	if (ret)
-+		return ret;
-+
-+	div = (val16 & XADC_CONF2_DIV_MASK) >> XADC_CONF2_DIV_OFFSET;
-+	if (div < 2)
-+		div = 2;
-+
-+	return xadc_get_dclk_rate(xadc) / div / 26;
-+}
-+
- static int xadc_read_raw(struct iio_dev *indio_dev,
- 	struct iio_chan_spec const *chan, int *val, int *val2, long info)
- {
- 	struct xadc *xadc = iio_priv(indio_dev);
--	unsigned int div;
- 	uint16_t val16;
- 	int ret;
- 
-@@ -891,41 +917,31 @@ static int xadc_read_raw(struct iio_dev *indio_dev,
- 		*val = -((273150 << 12) / 503975);
- 		return IIO_VAL_INT;
- 	case IIO_CHAN_INFO_SAMP_FREQ:
--		ret = xadc_read_adc_reg(xadc, XADC_REG_CONF2, &val16);
--		if (ret)
-+		ret = xadc_read_samplerate(xadc);
-+		if (ret < 0)
- 			return ret;
- 
--		div = (val16 & XADC_CONF2_DIV_MASK) >> XADC_CONF2_DIV_OFFSET;
--		if (div < 2)
--			div = 2;
--
--		*val = xadc_get_dclk_rate(xadc) / div / 26;
--
-+		*val = ret;
- 		return IIO_VAL_INT;
- 	default:
- 		return -EINVAL;
- 	}
- }
- 
--static int xadc_write_raw(struct iio_dev *indio_dev,
--	struct iio_chan_spec const *chan, int val, int val2, long info)
-+static int xadc_write_samplerate(struct xadc *xadc, int val)
- {
--	struct xadc *xadc = iio_priv(indio_dev);
- 	unsigned long clk_rate = xadc_get_dclk_rate(xadc);
- 	unsigned int div;
- 
- 	if (!clk_rate)
- 		return -EINVAL;
- 
--	if (info != IIO_CHAN_INFO_SAMP_FREQ)
--		return -EINVAL;
--
- 	if (val <= 0)
- 		return -EINVAL;
- 
- 	/* Max. 150 kSPS */
--	if (val > 150000)
--		val = 150000;
-+	if (val > XADC_MAX_SAMPLERATE)
-+		val = XADC_MAX_SAMPLERATE;
- 
- 	val *= 26;
- 
-@@ -938,7 +954,7 @@ static int xadc_write_raw(struct iio_dev *indio_dev,
- 	 * limit.
- 	 */
- 	div = clk_rate / val;
--	if (clk_rate / div / 26 > 150000)
-+	if (clk_rate / div / 26 > XADC_MAX_SAMPLERATE)
- 		div++;
- 	if (div < 2)
- 		div = 2;
-@@ -949,6 +965,17 @@ static int xadc_write_raw(struct iio_dev *indio_dev,
- 		div << XADC_CONF2_DIV_OFFSET);
- }
- 
-+static int xadc_write_raw(struct iio_dev *indio_dev,
-+	struct iio_chan_spec const *chan, int val, int val2, long info)
-+{
-+	struct xadc *xadc = iio_priv(indio_dev);
-+
-+	if (info != IIO_CHAN_INFO_SAMP_FREQ)
-+		return -EINVAL;
-+
-+	return xadc_write_samplerate(xadc, val);
-+}
-+
- static const struct iio_event_spec xadc_temp_events[] = {
- 	{
- 		.type = IIO_EV_TYPE_THRESH,
-@@ -1234,6 +1261,21 @@ static int xadc_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_free_samplerate_trigger;
- 
-+	/*
-+	 * Make sure not to exceed the maximum samplerate since otherwise the
-+	 * resulting interrupt storm will soft-lock the system.
-+	 */
-+	if (xadc->ops->flags & XADC_FLAGS_BUFFERED) {
-+		ret = xadc_read_samplerate(xadc);
-+		if (ret < 0)
-+			goto err_free_samplerate_trigger;
-+		if (ret > XADC_MAX_SAMPLERATE) {
-+			ret = xadc_write_samplerate(xadc, XADC_MAX_SAMPLERATE);
-+			if (ret < 0)
-+				goto err_free_samplerate_trigger;
-+		}
-+	}
-+
- 	ret = request_irq(xadc->irq, xadc->ops->interrupt_handler, 0,
- 			dev_name(&pdev->dev), indio_dev);
- 	if (ret)
+RnJvbTogUm9iZXJ0byBTYXNzdQ0KPiBTZW50OiAyNyBBcHJpbCAyMDIwIDEzOjUxDQouLi4NCj4g
+PiA+IC1zdGF0aWMgaW5saW5lIHVuc2lnbmVkIGxvbmcgaW1hX2hhc2hfa2V5KHU4ICpkaWdlc3Qp
+DQo+ID4gPiArc3RhdGljIGlubGluZSB1bnNpZ25lZCBpbnQgaW1hX2hhc2hfa2V5KHU4ICpkaWdl
+c3QpDQo+ID4gPiAgew0KPiA+ID4gLQlyZXR1cm4gaGFzaF9sb25nKCpkaWdlc3QsIElNQV9IQVNI
+X0JJVFMpOw0KPiA+ID4gKwlyZXR1cm4gKCoodW5zaWduZWQgaW50ICopZGlnZXN0ICUgSU1BX01F
+QVNVUkVfSFRBQkxFX1NJWkUpOw0KPiA+DQo+ID4gVGhhdCBhbG1vc3QgY2VydGFpbmx5IGlzbid0
+IHJpZ2h0Lg0KPiA+IEl0IGZhbGxzIGZvdWwgb2YgdGhlICooaW50ZWdlcl90eXBlICopcHRyIGJl
+aW5nIGFsbW9zdCBhbHdheXMgd3JvbmcuDQo+IA0KPiBJIGRpZG4ndCBmaW5kIHRoZSBwcm9ibGVt
+LiBDYW4geW91IHBsZWFzZSBleHBsYWluPw0KDQpUaGUgZ2VuZXJhbCBwcm9ibGVtIHdpdGggKihp
+bnRfdHlwZSAqKXB0ciBpcyB0aGF0IGl0IGRvZXMgY29tcGxldGVseQ0KdGhlIHdyb25nIHRoaW5n
+IGlmICdwdHInIGlzIHRoZSBhZGRyZXNzIG9mIGEgbGFyZ2VyIGludGVnZXIgdHlwZSBvbg0KYSBi
+aWctZW5kaWFuIHN5c3RlbS4NCllvdSBtYXkgYWxzbyBnZXQgYSBtaXNhbGlnbmVkIGFjY2VzcyB0
+cmFwLg0KDQpJbiB0aGlzIGNhc2UgSSBndWVzcyB0aGF0IGRpZ2VzdCBpcyBhY3R1YWxseSB1OFtT
+SEExX0RJR0VTVF9TSVpFXS4NCk1heWJlIHdoYXQgeW91IHNob3VsZCByZXR1cm4gaXM6DQoJKGRp
+Z2VzdFswXSB8IGRpZ2VzdFsxXSA8PCA4KSAlIElNQV9NRUFTVVJFX0hUQUJMRV9TSVpFOw0KYW5k
+IGNvbW1lbnQgdGhhdCB0aGVyZSBpcyBubyBwb2ludCB0YWtpbmcgYSBoYXNoIG9mIHBhcnQgb2YN
+CmEgU0hBMSBkaWdlc3QuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNp
+ZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQVCwgVUsN
+ClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 
