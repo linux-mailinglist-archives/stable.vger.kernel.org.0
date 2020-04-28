@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC23E1BC90D
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:39:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7C91BCA72
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730608AbgD1SiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56574 "EHLO mail.kernel.org"
+        id S1730076AbgD1Skb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:40:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730605AbgD1SiM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:38:12 -0400
+        id S1730935AbgD1Ska (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:40:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB28F208E0;
-        Tue, 28 Apr 2020 18:38:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 107AB20575;
+        Tue, 28 Apr 2020 18:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099092;
-        bh=TeaS1cHqlCEkbfMEujQm1NjPPa5FBQpNl0nQJJvqyCU=;
+        s=default; t=1588099229;
+        bh=/VeN2kseMO/vJvvp+SL1s1O6roY4rfv52qyfjitNZjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNpkI/OY9kWlvZ8K0+OB0Le8OUAwzMfbk28zupLagcCEpBsGsKWywYjWaI6gwOtrI
-         E00rn6Doj8NFVsP1alTj+Y2/EVZ507iukfU4y2dk9X3jv0e9W88bNnlZRfiGANHmUT
-         nhBbH9KUUGGAMjVSCQhQOyssCV8jAGCRwLKLovV4=
+        b=aEMg1Ehbybj2xwRnEihaVOYGV4YDvZeUsbvKzZRCmKLlrRykYLi5KxSi6AhTWgzlm
+         Ref750pprdMeP4KZRstvGMm4B+6xTam0FHKlj8Lf/5M67mwzb9miDITjDi2DaGxrSn
+         IjfVcK8wxUXT1zyXZGfjOgTSCY19YIC596njl2Vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.6 154/167] xhci: prevent bus suspend if a roothub port detected a over-current condition
+        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
+Subject: [PATCH 4.19 118/131] staging: vt6656: Fix calling conditions of vnt_set_bss_mode
 Date:   Tue, 28 Apr 2020 20:25:30 +0200
-Message-Id: <20200428182245.044598334@linuxfoundation.org>
+Message-Id: <20200428182240.071527366@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Malcolm Priestley <tvboxspy@gmail.com>
 
-commit e9fb08d617bfae5471d902112667d0eeb9dee3c4 upstream.
+commit 664ba5180234593b4b8517530e8198bf2f7359e2 upstream.
 
-Suspending the bus and host controller while a port is in a over-current
-condition may halt the host.
-Also keep the roothub running if over-current is active.
+vnt_set_bss_mode needs to be called on all changes to BSS_CHANGED_BASIC_RATES,
+BSS_CHANGED_ERP_PREAMBLE and BSS_CHANGED_ERP_SLOT
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200421140822.28233-3-mathias.nyman@linux.intel.com
+Remove all other calls and vnt_update_ifs which is called in vnt_set_bss_mode.
+
+Fixes an issue that preamble mode is not being updated correctly.
+
+Fixes: c12603576e06 ("staging: vt6656: Only call vnt_set_bss_mode on basic rates change.")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/44110801-6234-50d8-c583-9388f04b486c@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-hub.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/staging/vt6656/main_usb.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1569,6 +1569,8 @@ int xhci_hub_status_data(struct usb_hcd
- 		}
- 		if ((temp & PORT_RC))
- 			reset_change = true;
-+		if (temp & PORT_OC)
-+			status = 1;
+--- a/drivers/staging/vt6656/main_usb.c
++++ b/drivers/staging/vt6656/main_usb.c
+@@ -595,8 +595,6 @@ static int vnt_add_interface(struct ieee
+ 
+ 	priv->op_mode = vif->type;
+ 
+-	vnt_set_bss_mode(priv);
+-
+ 	/* LED blink on TX */
+ 	vnt_mac_set_led(priv, LEDSTS_STS, LEDSTS_INTER);
+ 
+@@ -683,7 +681,6 @@ static void vnt_bss_info_changed(struct
+ 		priv->basic_rates = conf->basic_rates;
+ 
+ 		vnt_update_top_rates(priv);
+-		vnt_set_bss_mode(priv);
+ 
+ 		dev_dbg(&priv->usb->dev, "basic rates %x\n", conf->basic_rates);
  	}
- 	if (!status && !reset_change) {
- 		xhci_dbg(xhci, "%s: stopping port polling.\n", __func__);
-@@ -1634,6 +1636,13 @@ retry:
- 				 port_index);
- 			goto retry;
- 		}
-+		/* bail out if port detected a over-current condition */
-+		if (t1 & PORT_OC) {
-+			bus_state->bus_suspended = 0;
-+			spin_unlock_irqrestore(&xhci->lock, flags);
-+			xhci_dbg(xhci, "Bus suspend bailout, port over-current detected\n");
-+			return -EBUSY;
-+		}
- 		/* suspend ports in U0, or bail out for new connect changes */
- 		if ((t1 & PORT_PE) && (t1 & PORT_PLS_MASK) == XDEV_U0) {
- 			if ((t1 & PORT_CSC) && wake_enabled) {
+@@ -712,11 +709,14 @@ static void vnt_bss_info_changed(struct
+ 			priv->short_slot_time = false;
+ 
+ 		vnt_set_short_slot_time(priv);
+-		vnt_update_ifs(priv);
+ 		vnt_set_vga_gain_offset(priv, priv->bb_vga[0]);
+ 		vnt_update_pre_ed_threshold(priv, false);
+ 	}
+ 
++	if (changed & (BSS_CHANGED_BASIC_RATES | BSS_CHANGED_ERP_PREAMBLE |
++		       BSS_CHANGED_ERP_SLOT))
++		vnt_set_bss_mode(priv);
++
+ 	if (changed & BSS_CHANGED_TXPOWER)
+ 		vnt_rf_setpower(priv, priv->current_rate,
+ 				conf->chandef.chan->hw_value);
 
 
