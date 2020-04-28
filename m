@@ -2,119 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF191BC3F7
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 17:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 576581BC426
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 17:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728038AbgD1PpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 11:45:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49278 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727995AbgD1PpB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 11:45:01 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40C3F205C9;
-        Tue, 28 Apr 2020 15:45:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588088700;
-        bh=E8Z4m5rS69g2xjnG8CzDGCImBYkP2DmxFRPBgCYw91c=;
-        h=Subject:To:From:Date:From;
-        b=bDRDnFibyzbmdCbRtFUlr2R73VYVnQHDMphEO981bwwEG1TeMnxblI1HyvS2xEwjG
-         OSir640aok6dSpPiWTPs0Fr4qG9LSTTWvmW5Cc3XWRmM5kSPzLX9KTOIjKp+4KUOl3
-         GBpteyBTNHdSAQ33V1fl8/ABxfP0LaZRy9twoq9c=
-Subject: patch "amba: Initialize dma_parms for amba devices" added to driver-core-linus
-To:     ulf.hansson@linaro.org, arnd@arndb.de, gregkh@linuxfoundation.org,
-        haibo.chen@nxp.com, hch@lst.de, linux@armlinux.org.uk,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 28 Apr 2020 17:44:50 +0200
-Message-ID: <1588088690169240@kroah.com>
+        id S1728377AbgD1Pxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 11:53:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47486 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728107AbgD1Pxz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Apr 2020 11:53:55 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1E88C03C1AC
+        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 08:53:54 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id w145so17334002lff.3
+        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 08:53:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=q096cfWzKfhRoQY6yVeooYdgz5eJpNiXcAOLwCb6KyU=;
+        b=Yzx06nnuUmM+GAk8GeeXeouPCL1sKYw7yWl0m9ix8MeW/DAQk5QAxJcrFdPYvhNNJk
+         JP7NUXrtNV4ES4rhsEUYPBzKTwX+0hr+GlHPsvLa2HdpK8y6zH60c8lB+yzg5Pjyv9uq
+         /bQD3sV6hCA4ZIyegnMj/vADCwCM3KxYGReYw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=q096cfWzKfhRoQY6yVeooYdgz5eJpNiXcAOLwCb6KyU=;
+        b=atOQZBFqxla65Ka8MS+W04pFZTDIgUz/L7BueGtP0ZwgShi/OgrWd0OWJscutYmHMU
+         358WEfzrd1R3dBM43d1SuEa2oVkMI/DV58UR3LX3VH9g+KHRq9ytLPtEu+99vLhpltUe
+         xKxgHrJYuUZdrsB/xR7RMOZXma/epSEKXgSUme4fLf9mUqa57APTvxndXSBJL4MfqgIf
+         pRyJEsKfdCDqYqgO21O+N5UaQltYN5NhBKqX80wf8SIa75Y6PRm7BEEktvb8v6fg8Jet
+         bv1HkBzzUQ0dST8Vbhzk1t8FE+f9xF3J9tajksUwqFL0bWwMya6c9Ube1JuFeExzW/sR
+         Ki0A==
+X-Gm-Message-State: AGi0PuZKpwvkFVtVfdFdURVLsbZO9/70oHUaf4DQf54p57A/TMquA2eA
+        ZuCJUcZETekndtkIHOtN5ZbM1TAo9Kw=
+X-Google-Smtp-Source: APiQypJdjC6YPymunHdqdo4IDmsGWcaoEIAG8gGN3/c4J2q1bgZ6Dcav5S2UHPaT0eJwD7dPbdjzfg==
+X-Received: by 2002:a19:c385:: with SMTP id t127mr19511570lff.117.1588089232875;
+        Tue, 28 Apr 2020 08:53:52 -0700 (PDT)
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com. [209.85.208.173])
+        by smtp.gmail.com with ESMTPSA id g22sm11889997ljl.17.2020.04.28.08.53.51
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Apr 2020 08:53:51 -0700 (PDT)
+Received: by mail-lj1-f173.google.com with SMTP id y4so22043592ljn.7
+        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 08:53:51 -0700 (PDT)
+X-Received: by 2002:a2e:b0f5:: with SMTP id h21mr18195660ljl.3.1588089230946;
+ Tue, 28 Apr 2020 08:53:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20200427145537.1.Ic8f898e0147beeee2c005ee7b20f1aebdef1e7eb@changeid>
+ <20200428011134.GV125362@dtor-ws>
+In-Reply-To: <20200428011134.GV125362@dtor-ws>
+From:   Evan Green <evgreen@chromium.org>
+Date:   Tue, 28 Apr 2020 08:53:14 -0700
+X-Gmail-Original-Message-ID: <CAE=gft7k4Ps=UXONw=usOmN8anfcvNgpkNmeKwVc1Uh6bDR-YQ@mail.gmail.com>
+Message-ID: <CAE=gft7k4Ps=UXONw=usOmN8anfcvNgpkNmeKwVc1Uh6bDR-YQ@mail.gmail.com>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - Really fix attn_data use-after-free
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     stable@vger.kernel.org,
+        Nick Desaulniers <nick.desaulniers@gmail.com>,
+        Allison Randal <allison@lohutok.net>,
+        Andrew Duggan <aduggan@synaptics.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Enrico Weigelt <info@metux.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Apr 27, 2020 at 6:11 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> On Mon, Apr 27, 2020 at 02:55:48PM -0700, Evan Green wrote:
+> > Fix a use-after-free noticed by running with KASAN enabled. If
+> > rmi_irq_fn() is run twice in a row, then rmi_f11_attention() (among
+> > others) will end up reading from drvdata->attn_data.data, which was
+> > freed and left dangling in rmi_irq_fn().
+> >
+> > Commit 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by
+> > KASAN") correctly identified and analyzed this bug. However the attempted
+> > fix only NULLed out a local variable, missing the fact that
+> > drvdata->attn_data is a struct, not a pointer.
+> >
+> > NULL out the correct pointer in the driver data to prevent the attention
+> > functions from copying from it.
+> >
+> > Fixes: 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by KASAN")
+> > Fixes: b908d3cd812a ("Input: synaptics-rmi4 - allow to add attention data")
+> >
+> > Signed-off-by: Evan Green <evgreen@chromium.org>
+> >
+> > Cc: stable@vger.kernel.org
+> > Cc: Nick Desaulniers <nick.desaulniers@gmail.com>
+>
+> Ugh, this is all kind of ugly, but I guess that's what we have now.
+> Applied, thank you.
 
-This is a note to let you know that I've just added the patch titled
+Thanks Dmitry. There are other bits that sketch me out in here as
+well, but I didn't get a chance to really figure out if they're a
+problem. We call rmi_process_interrupt_requests(), which results in
+reads from that same attn_data.data pointer, in a few different
+places. Some of those calls are outside the irq handling path, like
+the in rmi_enable_irq() and rmi_enable_sensor(). Can they race with
+the irq handling path? (Meaning they'd be doing those attn_data.data
+reads as rmi_irq_fn() is kfreeing the data?) There are a smattering of
+mutexes around, but I'm not sure if they're trying to protect this.
 
-    amba: Initialize dma_parms for amba devices
-
-to my driver-core git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-in the driver-core-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From f458488425f1cc9a396aa1d09bb00c48783936da Mon Sep 17 00:00:00 2001
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Date: Wed, 22 Apr 2020 12:10:13 +0200
-Subject: amba: Initialize dma_parms for amba devices
-
-It's currently the amba driver's responsibility to initialize the pointer,
-dma_parms, for its corresponding struct device. The benefit with this
-approach allows us to avoid the initialization and to not waste memory for
-the struct device_dma_parameters, as this can be decided on a case by case
-basis.
-
-However, it has turned out that this approach is not very practical. Not
-only does it lead to open coding, but also to real errors. In principle
-callers of dma_set_max_seg_size() doesn't check the error code, but just
-assumes it succeeds.
-
-For these reasons, let's do the initialization from the common amba bus at
-the device registration point. This also follows the way the PCI devices
-are being managed, see pci_device_add().
-
-Suggested-by: Christoph Hellwig <hch@lst.de>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: <stable@vger.kernel.org>
-Tested-by: Haibo Chen <haibo.chen@nxp.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20200422101013.31267-1-ulf.hansson@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/amba/bus.c       | 1 +
- include/linux/amba/bus.h | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
-index fe1523664816..8558b629880b 100644
---- a/drivers/amba/bus.c
-+++ b/drivers/amba/bus.c
-@@ -645,6 +645,7 @@ static void amba_device_initialize(struct amba_device *dev, const char *name)
- 	dev->dev.release = amba_device_release;
- 	dev->dev.bus = &amba_bustype;
- 	dev->dev.dma_mask = &dev->dev.coherent_dma_mask;
-+	dev->dev.dma_parms = &dev->dma_parms;
- 	dev->res.name = dev_name(&dev->dev);
- }
- 
-diff --git a/include/linux/amba/bus.h b/include/linux/amba/bus.h
-index 26f0ecf401ea..0bbfd647f5c6 100644
---- a/include/linux/amba/bus.h
-+++ b/include/linux/amba/bus.h
-@@ -65,6 +65,7 @@ struct amba_device {
- 	struct device		dev;
- 	struct resource		res;
- 	struct clk		*pclk;
-+	struct device_dma_parameters dma_parms;
- 	unsigned int		periphid;
- 	unsigned int		cid;
- 	struct amba_cs_uci_id	uci;
--- 
-2.26.2
-
-
+If I can find some time I'll try to submit a patch. Anyone is welcome
+to beat me to it though.
+-Evan
