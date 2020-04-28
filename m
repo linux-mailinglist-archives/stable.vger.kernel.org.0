@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1333D1BCA39
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF831BC82A
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730431AbgD1SsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:48:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60878 "EHLO mail.kernel.org"
+        id S1729432AbgD1SaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:30:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730975AbgD1SlR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:41:17 -0400
+        id S1729459AbgD1SaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAB0A2076A;
-        Tue, 28 Apr 2020 18:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E675720B80;
+        Tue, 28 Apr 2020 18:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099276;
-        bh=CvpKfVNoNGZuvjB+NGSjHIPsc6WNenusENripEY++zs=;
+        s=default; t=1588098607;
+        bh=YL6nTEoKaObranvHZ0CHYwaKUbCoDoNoOlaCNDWQbdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kcv9FKt4R5dID8kmXZgo9u8NqOtkld4HLFx1kCgscNR/3P2wtJ/pKQjNNaGaEvvdj
-         4GbliLg/6k+48VzA+Bc8hHII2W3yc0/Tqgbi/IuiT2M9vw0/WaEDqwoFUnR9aWKGv4
-         aFkyt0bm9RzNAvUpX/zU+Y9W0UKcoG53qblPdVik=
+        b=aa/wYpgB2ngZd3jKNQjl5tc9ZoC1Tn23VjGuR0Cvqf3zn2h/OPyQWx30OcQRGbF9m
+         G9DvR4bivMCz5Rwo7C1zY7KwjRwsbdqjZrvEfDG5jxagAvkxnanWnitn08uCUhbegE
+         sUxya1EpApC1IsRrgY1dBoU32Sr+nQcVFxOR3em0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 086/168] ALSA: usb-audio: Add connector notifier delegation
+        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
+        Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.6 084/167] iio: adc: stm32-adc: fix sleep in atomic context
 Date:   Tue, 28 Apr 2020 20:24:20 +0200
-Message-Id: <20200428182243.154415320@linuxfoundation.org>
+Message-Id: <20200428182235.606738542@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,170 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Olivier Moysan <olivier.moysan@st.com>
 
-[ Upstream commit fef66ae73a611e84c8b4b74ff6f805ec5f113477 ]
+commit e2042d2936dfc84e9c600fe9b9d0039ca0e54b7d upstream.
 
-It turned out that ALC1220-VB USB-audio device gives the interrupt
-event to some PCM terminals while those don't allow the connector
-state request but only the actual I/O terminals return the request.
-The recent commit 7dc3c5a0172e ("ALSA: usb-audio: Don't create jack
-controls for PCM terminals") excluded those phantom terminals, so
-those events are ignored, too.
+This commit fixes the following error:
+"BUG: sleeping function called from invalid context at kernel/irq/chip.c"
 
-My first thought was that this could be easily deduced from the
-associated terminals, but some of them have even no associate terminal
-ID, hence it's not too trivial to figure out.
+In DMA mode suppress the trigger irq handler, and make the buffer
+transfers directly in DMA callback, instead.
 
-Since the number of such terminals are small and limited, this patch
-implements another quirk table for the simple mapping of the
-connectors.  It's not really scalable, but let's hope that there will
-be not many such funky devices in future.
+Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 7dc3c5a0172e ("ALSA: usb-audio: Don't create jack controls for PCM terminals")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206873
-Link: https://lore.kernel.org/r/20200422113320.26664-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c      | 25 +++++++++++++++++++++++++
- sound/usb/mixer.h      | 10 ++++++++++
- sound/usb/mixer_maps.c | 13 +++++++++++++
- 3 files changed, 48 insertions(+)
+ drivers/iio/adc/stm32-adc.c |   31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index f9586a6ea05b6..583edacc9fe8e 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -3096,6 +3096,7 @@ static int snd_usb_mixer_controls(struct usb_mixer_interface *mixer)
- 		if (map->id == state.chip->usb_id) {
- 			state.map = map->map;
- 			state.selector_map = map->selector_map;
-+			mixer->connector_map = map->connector_map;
- 			mixer->ignore_ctl_error |= map->ignore_ctl_error;
- 			break;
- 		}
-@@ -3177,10 +3178,32 @@ static int snd_usb_mixer_controls(struct usb_mixer_interface *mixer)
- 	return 0;
+--- a/drivers/iio/adc/stm32-adc.c
++++ b/drivers/iio/adc/stm32-adc.c
+@@ -1418,8 +1418,30 @@ static unsigned int stm32_adc_dma_residu
+ static void stm32_adc_dma_buffer_done(void *data)
+ {
+ 	struct iio_dev *indio_dev = data;
++	struct stm32_adc *adc = iio_priv(indio_dev);
++	int residue = stm32_adc_dma_residue(adc);
++
++	/*
++	 * In DMA mode the trigger services of IIO are not used
++	 * (e.g. no call to iio_trigger_poll).
++	 * Calling irq handler associated to the hardware trigger is not
++	 * relevant as the conversions have already been done. Data
++	 * transfers are performed directly in DMA callback instead.
++	 * This implementation avoids to call trigger irq handler that
++	 * may sleep, in an atomic context (DMA irq handler context).
++	 */
++	dev_dbg(&indio_dev->dev, "%s bufi=%d\n", __func__, adc->bufi);
++
++	while (residue >= indio_dev->scan_bytes) {
++		u16 *buffer = (u16 *)&adc->rx_buf[adc->bufi];
+ 
+-	iio_trigger_poll_chained(indio_dev->trig);
++		iio_push_to_buffers(indio_dev, buffer);
++
++		residue -= indio_dev->scan_bytes;
++		adc->bufi += indio_dev->scan_bytes;
++		if (adc->bufi >= adc->rx_buf_sz)
++			adc->bufi = 0;
++	}
  }
  
-+static int delegate_notify(struct usb_mixer_interface *mixer, int unitid,
-+			   u8 *control, u8 *channel)
-+{
-+	const struct usbmix_connector_map *map = mixer->connector_map;
-+
-+	if (!map)
-+		return unitid;
-+
-+	for (; map->id; map++) {
-+		if (map->id == unitid) {
-+			if (control && map->control)
-+				*control = map->control;
-+			if (channel && map->channel)
-+				*channel = map->channel;
-+			return map->delegated_id;
-+		}
-+	}
-+	return unitid;
-+}
-+
- void snd_usb_mixer_notify_id(struct usb_mixer_interface *mixer, int unitid)
+ static int stm32_adc_dma_start(struct iio_dev *indio_dev)
+@@ -1845,6 +1867,7 @@ static int stm32_adc_probe(struct platfo
  {
- 	struct usb_mixer_elem_list *list;
+ 	struct iio_dev *indio_dev;
+ 	struct device *dev = &pdev->dev;
++	irqreturn_t (*handler)(int irq, void *p) = NULL;
+ 	struct stm32_adc *adc;
+ 	int ret;
  
-+	unitid = delegate_notify(mixer, unitid, NULL, NULL);
+@@ -1911,9 +1934,11 @@ static int stm32_adc_probe(struct platfo
+ 	if (ret < 0)
+ 		return ret;
+ 
++	if (!adc->dma_chan)
++		handler = &stm32_adc_trigger_handler;
 +
- 	for_each_mixer_elem(list, mixer, unitid) {
- 		struct usb_mixer_elem_info *info =
- 			mixer_elem_list_to_info(list);
-@@ -3250,6 +3273,8 @@ static void snd_usb_mixer_interrupt_v2(struct usb_mixer_interface *mixer,
- 		return;
- 	}
- 
-+	unitid = delegate_notify(mixer, unitid, &control, &channel);
-+
- 	for_each_mixer_elem(list, mixer, unitid)
- 		count++;
- 
-diff --git a/sound/usb/mixer.h b/sound/usb/mixer.h
-index 37e1b234c802f..8e0fb7fdf1a00 100644
---- a/sound/usb/mixer.h
-+++ b/sound/usb/mixer.h
-@@ -6,6 +6,13 @@
- 
- struct media_mixer_ctl;
- 
-+struct usbmix_connector_map {
-+	u8 id;
-+	u8 delegated_id;
-+	u8 control;
-+	u8 channel;
-+};
-+
- struct usb_mixer_interface {
- 	struct snd_usb_audio *chip;
- 	struct usb_host_interface *hostif;
-@@ -18,6 +25,9 @@ struct usb_mixer_interface {
- 	/* the usb audio specification version this interface complies to */
- 	int protocol;
- 
-+	/* optional connector delegation map */
-+	const struct usbmix_connector_map *connector_map;
-+
- 	/* Sound Blaster remote control stuff */
- 	const struct rc_config *rc_cfg;
- 	u32 rc_code;
-diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
-index 28eec0e0aa5e4..39d6c6fa5e337 100644
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -27,6 +27,7 @@ struct usbmix_ctl_map {
- 	u32 id;
- 	const struct usbmix_name_map *map;
- 	const struct usbmix_selector_map *selector_map;
-+	const struct usbmix_connector_map *connector_map;
- 	int ignore_ctl_error;
- };
- 
-@@ -377,6 +378,15 @@ static const struct usbmix_name_map trx40_mobo_map[] = {
- 	{}
- };
- 
-+static const struct usbmix_connector_map trx40_mobo_connector_map[] = {
-+	{ 10, 16 },	/* (Back) Speaker */
-+	{ 11, 17 },	/* Front Headphone */
-+	{ 13, 7 },	/* Line */
-+	{ 14, 8 },	/* Mic */
-+	{ 15, 9 },	/* Front Mic */
-+	{}
-+};
-+
- /*
-  * Control map entries
-  */
-@@ -499,6 +509,7 @@ static struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 	{	/* Gigabyte TRX40 Aorus Pro WiFi */
- 		.id = USB_ID(0x0414, 0xa002),
- 		.map = trx40_mobo_map,
-+		.connector_map = trx40_mobo_connector_map,
- 	},
- 	{	/* ASUS ROG Zenith II */
- 		.id = USB_ID(0x0b05, 0x1916),
-@@ -511,10 +522,12 @@ static struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 	{	/* MSI TRX40 Creator */
- 		.id = USB_ID(0x0db0, 0x0d64),
- 		.map = trx40_mobo_map,
-+		.connector_map = trx40_mobo_connector_map,
- 	},
- 	{	/* MSI TRX40 */
- 		.id = USB_ID(0x0db0, 0x543d),
- 		.map = trx40_mobo_map,
-+		.connector_map = trx40_mobo_connector_map,
- 	},
- 	{ 0 } /* terminator */
- };
--- 
-2.20.1
-
+ 	ret = iio_triggered_buffer_setup(indio_dev,
+-					 &iio_pollfunc_store_time,
+-					 &stm32_adc_trigger_handler,
++					 &iio_pollfunc_store_time, handler,
+ 					 &stm32_adc_buffer_setup_ops);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "buffer setup failed\n");
 
 
