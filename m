@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CA81BCB99
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 653891BCBCA
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728926AbgD1S60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:58:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42898 "EHLO mail.kernel.org"
+        id S1728728AbgD1S7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:59:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729319AbgD1S3Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:29:16 -0400
+        id S1728671AbgD1S2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:28:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A10B20757;
-        Tue, 28 Apr 2020 18:29:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7966F208E0;
+        Tue, 28 Apr 2020 18:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098555;
-        bh=hVGd1XVXIQixtTCRrA9xVPLTqm8xr2yA0JSWE2QJe5Y=;
+        s=default; t=1588098511;
+        bh=P6jXdtiM2P12sUoZgceri2ClraTQWPxOWn+nWO+mJ5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=drcie2hbmZIcWRTUMNSOsflp1+hUEi2B421VqIcjIRDXAibelHXyJyvQTYktekFPe
-         3yPauGxGETBzEHl912mzC/TsvAQxExlyvmsJD+2s7FxXaX9LoxECoCzIGRum1pKkDG
-         757cnUnruW1c6ElW2ghic4WaLuIKE/2uFG9jOkCs=
+        b=KbVa0UbZMjFj8IVRznvnmeYsTXnKHuj4QJfmwg6syeJwOHbx8xCcbpdRYrPyhj5sR
+         R5pFwvw4qdJIaczAG+VKsck3lP23dYLFmwI0xWoIhCHyCTZGjU9PXnsak+Fc6XWt9X
+         yJQL3m9eCXVLrGNXRyE/w/zjAyFx10P+vZBcXj10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 041/167] xhci: Ensure link state is U3 after setting USB_SS_PORT_LS_U3
+        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 005/131] vti4: removed duplicate log message.
 Date:   Tue, 28 Apr 2020 20:23:37 +0200
-Message-Id: <20200428182230.310682627@linuxfoundation.org>
+Message-Id: <20200428182226.007648856@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit eb002726fac7cefb98ff39ddb89e150a1c24fe85 ]
+commit 01ce31c57b3f07c91c9d45bbaf126124cce83a5d upstream.
 
-The xHCI spec doesn't specify the upper bound of U3 transition time. For
-some devices 20ms is not enough, so we need to make sure the link state
-is in U3 before further actions.
+Removed info log-message if ipip tunnel registration fails during
+module-initialization: it adds nothing to the error message that is
+written on all failures.
 
-I've tried to use U3 Entry Capability by setting U3 Entry Enable in
-config register, however the port change event for U3 transition
-interrupts the system suspend process.
-
-For now let's use the less ideal method by polling PLS.
-
-[use usleep_range(), and shorten the delay time while polling -Mathias]
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200312144517.1593-7-mathias.nyman@linux.intel.com
+Fixes: dd9ee3444014e ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/host/xhci-hub.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ net/ipv4/ip_vti.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
-index af92b2576fe91..712cd44f05ace 100644
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1322,7 +1322,16 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 			xhci_set_link_state(xhci, ports[wIndex], link_state);
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -677,10 +677,8 @@ static int __init vti_init(void)
  
- 			spin_unlock_irqrestore(&xhci->lock, flags);
--			msleep(20); /* wait device to enter */
-+			if (link_state == USB_SS_PORT_LS_U3) {
-+				int retries = 16;
-+
-+				while (retries--) {
-+					usleep_range(4000, 8000);
-+					temp = readl(ports[wIndex]->addr);
-+					if ((temp & PORT_PLS_MASK) == XDEV_U3)
-+						break;
-+				}
-+			}
- 			spin_lock_irqsave(&xhci->lock, flags);
+ 	msg = "ipip tunnel";
+ 	err = xfrm4_tunnel_register(&ipip_handler, AF_INET);
+-	if (err < 0) {
+-		pr_info("%s: cant't register tunnel\n",__func__);
++	if (err < 0)
+ 		goto xfrm_tunnel_failed;
+-	}
  
- 			temp = readl(ports[wIndex]->addr);
--- 
-2.20.1
-
+ 	msg = "netlink interface";
+ 	err = rtnl_link_register(&vti_link_ops);
 
 
