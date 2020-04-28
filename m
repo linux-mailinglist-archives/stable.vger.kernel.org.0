@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ABC21BCB0C
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE941BCBF1
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:02:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730003AbgD1Sdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:33:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50526 "EHLO mail.kernel.org"
+        id S1728705AbgD1S00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:26:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729244AbgD1Sdz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:33:55 -0400
+        id S1728733AbgD1S00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:26:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CF2D21835;
-        Tue, 28 Apr 2020 18:33:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4471420B1F;
+        Tue, 28 Apr 2020 18:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098834;
-        bh=/wjEcidzZHShNwnxxS64gx2IXXTX7QTd31cbCKTc5lE=;
+        s=default; t=1588098385;
+        bh=ktOL1ydxzqjwgC18kkjSNwKIWzjyXW14+koKA7uZfqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PpKfX6BOmFerVQ9MfEPI85t70FJSgCLBlmkhQjeoF/h15Rdpuvuj+1OH/C4nkFAMx
-         FE83PaxLgIt//O4RTlBq0JHtEhaUUDMoC8NA8kS4vy4+KHolZRwIFyw4sbENvsQBjd
-         yhgDv1oO4U6iu7TapsapFe0mVYzdeIIetfzhx/gY=
+        b=A7af8DqXM1v2gRUVx92esYo62gUwEFupJ1R6czpLL5lxrB9KKhapFzgpEdaa0zWZO
+         fWI9D4M+5rAtcDs3awBZslvTJaVw2rHH1Mv3nfl4UwCFKi9lsjhcnH0RPA7l2Oi/ZA
+         Vj36XNKhQNU4m/X8+jwMfAe3ay6zPfEwK4piDWM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
-        Keith Busch <kbusch@kernel.org>,
-        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org, Isabel Zhang <isabel.zhang@amd.com>,
+        Alvin Lee <Alvin.Lee2@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/168] nvme: fix deadlock caused by ANA update wrong locking
+Subject: [PATCH 5.6 019/167] drm/amd/display: Update stream adjust in dc_stream_adjust_vmin_vmax
 Date:   Tue, 28 Apr 2020 20:23:15 +0200
-Message-Id: <20200428182234.379628339@linuxfoundation.org>
+Message-Id: <20200428182227.607773612@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Isabel Zhang <isabel.zhang@amd.com>
 
-[ Upstream commit 657f1975e9d9c880fa13030e88ba6cc84964f1db ]
+[ Upstream commit 346d8a0a3c91888a412c2735d69daa09c00f0203 ]
 
-The deadlock combines 4 flows in parallel:
-- ns scanning (triggered from reconnect)
-- request timeout
-- ANA update (triggered from reconnect)
-- I/O coming into the mpath device
+[Why]
+After v_total_min and max are updated in vrr structure, the changes are
+not reflected in stream adjust. When these values are read from stream
+adjust it does not reflect the actual state of the system.
 
-(1) ns scanning triggers disk revalidation -> update disk info ->
-    freeze queue -> but blocked, due to (2)
+[How]
+Set stream adjust values equal to vrr adjust values after vrr adjust
+values are updated.
 
-(2) timeout handler reference the g_usage_counter - > but blocks in
-    the transport .timeout() handler, due to (3)
-
-(3) the transport timeout handler (indirectly) calls nvme_stop_queue() ->
-    which takes the (down_read) namespaces_rwsem - > but blocks, due to (4)
-
-(4) ANA update takes the (down_write) namespaces_rwsem -> calls
-    nvme_mpath_set_live() -> which synchronize the ns_head srcu
-    (see commit 504db087aacc) -> but blocks, due to (5)
-
-(5) I/O came into nvme_mpath_make_request -> took srcu_read_lock ->
-    direct_make_request > blk_queue_enter -> but blocked, due to (1)
-
-==> the request queue is under freeze -> deadlock.
-
-The fix is making ANA update take a read lock as the namespaces list
-is not manipulated, it is just the ns and ns->head that are being
-updated (which is protected with the ns->head lock).
-
-Fixes: 0d0b660f214dc ("nvme: add ANA support")
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Isabel Zhang <isabel.zhang@amd.com>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index aed6354cb2717..56caddeabb5e5 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -510,7 +510,7 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
- 	if (!nr_nsids)
- 		return 0;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 04441dbcba76f..fc25600107050 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -283,6 +283,8 @@ bool dc_stream_adjust_vmin_vmax(struct dc *dc,
+ 	int i = 0;
+ 	bool ret = false;
  
--	down_write(&ctrl->namespaces_rwsem);
-+	down_read(&ctrl->namespaces_rwsem);
- 	list_for_each_entry(ns, &ctrl->namespaces, list) {
- 		unsigned nsid = le32_to_cpu(desc->nsids[n]);
- 
-@@ -521,7 +521,7 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
- 		if (++n == nr_nsids)
- 			break;
- 	}
--	up_write(&ctrl->namespaces_rwsem);
-+	up_read(&ctrl->namespaces_rwsem);
- 	return 0;
- }
++	stream->adjust = *adjust;
++
+ 	for (i = 0; i < MAX_PIPES; i++) {
+ 		struct pipe_ctx *pipe = &dc->current_state->res_ctx.pipe_ctx[i];
  
 -- 
 2.20.1
