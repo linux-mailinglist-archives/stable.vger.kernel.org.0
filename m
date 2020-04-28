@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02AC91BCA97
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D94D1BCA55
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728899AbgD1SvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55944 "EHLO mail.kernel.org"
+        id S1730539AbgD1Sh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:37:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730530AbgD1Shp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:37:45 -0400
+        id S1730554AbgD1Shz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:37:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB82E2085B;
-        Tue, 28 Apr 2020 18:37:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92DAA20B1F;
+        Tue, 28 Apr 2020 18:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099065;
-        bh=aBiKRtEwJSJ8EawSUmhre+WjRJEOrBukB4zaQ//1MYU=;
+        s=default; t=1588099075;
+        bh=yQ6aID271zdK9xX3B67e6G0sAZgVThLB4LeaZjRwPu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gE006a8pb3n0c4C81V3f2u0ablGIYLi1fvsxqonhJLw2H81dtJpS14z23rdoOgiqh
-         FDqeP2qlX46O9WFQ4GDAnsF4feeDwGXKKAvvpAEfzHuUwrh4j1xNJV2QrmxcJjRHqY
-         2Jjzww3fqN3Zf8hr69+5FahVO75/9wqtFaYDs7i0=
+        b=fWnFgFmNC9NcJ3tPwjFKbT5PHFYoKylluaOCcnZUA5cucN/gGUB9bbF0k+aahbLwl
+         c0m7+m3aOaHrQ3e8Zuycv7LWzPgNBKPMR36zf1hjKNmhUeGDSeglXYc8BjTXXb4G1I
+         u8J6Eipzp+Cl2jQ4abvOePskNavVMdP+k8UVIgNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Scott Benesh <scott.benesh@microsemi.com>,
         Scott Teel <scott.teel@microsemi.com>,
         Kevin Barnett <kevin.barnett@microsemi.com>,
-        Murthy Bhat <Murthy.Bhat@microsemi.com>,
         Don Brace <don.brace@microsemi.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/168] scsi: smartpqi: fix call trace in device discovery
-Date:   Tue, 28 Apr 2020 20:23:46 +0200
-Message-Id: <20200428182238.474840377@linuxfoundation.org>
+Subject: [PATCH 5.4 053/168] scsi: smartpqi: fix problem with unique ID for physical device
+Date:   Tue, 28 Apr 2020 20:23:47 +0200
+Message-Id: <20200428182238.611507226@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
 References: <20200428182231.704304409@linuxfoundation.org>
@@ -48,41 +47,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Murthy Bhat <Murthy.Bhat@microsemi.com>
+From: Kevin Barnett <kevin.barnett@microsemi.com>
 
-[ Upstream commit b969261134c1b990b96ea98fe5e0fcf8ec937c04 ]
+[ Upstream commit 5b083b305b49f65269b888885455b8c0cf1a52e4 ]
 
-Use sas_phy_delete rather than sas_phy_free which, according to
-comments, should not be called for PHYs that have been set up
-successfully.
+Obtain the unique IDs from the RLL and RPL instead of VPD page 83h.
 
-Link: https://lore.kernel.org/r/157048748876.11757.17773443136670011786.stgit@brunhilda
+Link: https://lore.kernel.org/r/157048751833.11757.11996314786914610803.stgit@brunhilda
 Reviewed-by: Scott Benesh <scott.benesh@microsemi.com>
 Reviewed-by: Scott Teel <scott.teel@microsemi.com>
-Reviewed-by: Kevin Barnett <kevin.barnett@microsemi.com>
-Signed-off-by: Murthy Bhat <Murthy.Bhat@microsemi.com>
+Signed-off-by: Kevin Barnett <kevin.barnett@microsemi.com>
 Signed-off-by: Don Brace <don.brace@microsemi.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_sas_transport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/smartpqi/smartpqi.h      |  1 -
+ drivers/scsi/smartpqi/smartpqi_init.c | 99 ++++-----------------------
+ 2 files changed, 12 insertions(+), 88 deletions(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_sas_transport.c b/drivers/scsi/smartpqi/smartpqi_sas_transport.c
-index 6776dfc1d317c..b7e28b9f8589f 100644
---- a/drivers/scsi/smartpqi/smartpqi_sas_transport.c
-+++ b/drivers/scsi/smartpqi/smartpqi_sas_transport.c
-@@ -45,9 +45,9 @@ static void pqi_free_sas_phy(struct pqi_sas_phy *pqi_sas_phy)
- 	struct sas_phy *phy = pqi_sas_phy->phy;
- 
- 	sas_port_delete_phy(pqi_sas_phy->parent_port->port, phy);
--	sas_phy_free(phy);
- 	if (pqi_sas_phy->added_to_port)
- 		list_del(&pqi_sas_phy->phy_list_entry);
-+	sas_phy_delete(phy);
- 	kfree(pqi_sas_phy);
+diff --git a/drivers/scsi/smartpqi/smartpqi.h b/drivers/scsi/smartpqi/smartpqi.h
+index 2aa81b22f2695..7a3a942b40df0 100644
+--- a/drivers/scsi/smartpqi/smartpqi.h
++++ b/drivers/scsi/smartpqi/smartpqi.h
+@@ -907,7 +907,6 @@ struct pqi_scsi_dev {
+ 	u8	scsi3addr[8];
+ 	__be64	wwid;
+ 	u8	volume_id[16];
+-	u8	unique_id[16];
+ 	u8	is_physical_device : 1;
+ 	u8	is_external_raid_device : 1;
+ 	u8	is_expander_smp_device : 1;
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index 793793343950e..5ae074505386a 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -648,79 +648,6 @@ static inline int pqi_scsi_inquiry(struct pqi_ctrl_info *ctrl_info,
+ 		buffer, buffer_length, vpd_page, NULL, NO_TIMEOUT);
  }
  
+-static bool pqi_vpd_page_supported(struct pqi_ctrl_info *ctrl_info,
+-	u8 *scsi3addr, u16 vpd_page)
+-{
+-	int rc;
+-	int i;
+-	int pages;
+-	unsigned char *buf, bufsize;
+-
+-	buf = kzalloc(256, GFP_KERNEL);
+-	if (!buf)
+-		return false;
+-
+-	/* Get the size of the page list first */
+-	rc = pqi_scsi_inquiry(ctrl_info, scsi3addr,
+-				VPD_PAGE | SCSI_VPD_SUPPORTED_PAGES,
+-				buf, SCSI_VPD_HEADER_SZ);
+-	if (rc != 0)
+-		goto exit_unsupported;
+-
+-	pages = buf[3];
+-	if ((pages + SCSI_VPD_HEADER_SZ) <= 255)
+-		bufsize = pages + SCSI_VPD_HEADER_SZ;
+-	else
+-		bufsize = 255;
+-
+-	/* Get the whole VPD page list */
+-	rc = pqi_scsi_inquiry(ctrl_info, scsi3addr,
+-				VPD_PAGE | SCSI_VPD_SUPPORTED_PAGES,
+-				buf, bufsize);
+-	if (rc != 0)
+-		goto exit_unsupported;
+-
+-	pages = buf[3];
+-	for (i = 1; i <= pages; i++)
+-		if (buf[3 + i] == vpd_page)
+-			goto exit_supported;
+-
+-exit_unsupported:
+-	kfree(buf);
+-	return false;
+-
+-exit_supported:
+-	kfree(buf);
+-	return true;
+-}
+-
+-static int pqi_get_device_id(struct pqi_ctrl_info *ctrl_info,
+-	u8 *scsi3addr, u8 *device_id, int buflen)
+-{
+-	int rc;
+-	unsigned char *buf;
+-
+-	if (!pqi_vpd_page_supported(ctrl_info, scsi3addr, SCSI_VPD_DEVICE_ID))
+-		return 1; /* function not supported */
+-
+-	buf = kzalloc(64, GFP_KERNEL);
+-	if (!buf)
+-		return -ENOMEM;
+-
+-	rc = pqi_scsi_inquiry(ctrl_info, scsi3addr,
+-				VPD_PAGE | SCSI_VPD_DEVICE_ID,
+-				buf, 64);
+-	if (rc == 0) {
+-		if (buflen > 16)
+-			buflen = 16;
+-		memcpy(device_id, &buf[SCSI_VPD_DEVICE_ID_IDX], buflen);
+-	}
+-
+-	kfree(buf);
+-
+-	return rc;
+-}
+-
+ static int pqi_identify_physical_device(struct pqi_ctrl_info *ctrl_info,
+ 	struct pqi_scsi_dev *device,
+ 	struct bmic_identify_physical_device *buffer,
+@@ -1405,14 +1332,6 @@ static int pqi_get_device_info(struct pqi_ctrl_info *ctrl_info,
+ 		}
+ 	}
+ 
+-	if (pqi_get_device_id(ctrl_info, device->scsi3addr,
+-		device->unique_id, sizeof(device->unique_id)) < 0)
+-		dev_warn(&ctrl_info->pci_dev->dev,
+-			"Can't get device id for scsi %d:%d:%d:%d\n",
+-			ctrl_info->scsi_host->host_no,
+-			device->bus, device->target,
+-			device->lun);
+-
+ out:
+ 	kfree(buffer);
+ 
+@@ -6319,7 +6238,7 @@ static ssize_t pqi_unique_id_show(struct device *dev,
+ 	struct scsi_device *sdev;
+ 	struct pqi_scsi_dev *device;
+ 	unsigned long flags;
+-	unsigned char uid[16];
++	u8 unique_id[16];
+ 
+ 	sdev = to_scsi_device(dev);
+ 	ctrl_info = shost_to_hba(sdev->host);
+@@ -6332,16 +6251,22 @@ static ssize_t pqi_unique_id_show(struct device *dev,
+ 			flags);
+ 		return -ENODEV;
+ 	}
+-	memcpy(uid, device->unique_id, sizeof(uid));
++
++	if (device->is_physical_device) {
++		memset(unique_id, 0, 8);
++		memcpy(unique_id + 8, &device->wwid, sizeof(device->wwid));
++	} else {
++		memcpy(unique_id, device->volume_id, sizeof(device->volume_id));
++	}
+ 
+ 	spin_unlock_irqrestore(&ctrl_info->scsi_device_list_lock, flags);
+ 
+ 	return snprintf(buffer, PAGE_SIZE,
+ 		"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",
+-		uid[0], uid[1], uid[2], uid[3],
+-		uid[4], uid[5], uid[6], uid[7],
+-		uid[8], uid[9], uid[10], uid[11],
+-		uid[12], uid[13], uid[14], uid[15]);
++		unique_id[0], unique_id[1], unique_id[2], unique_id[3],
++		unique_id[4], unique_id[5], unique_id[6], unique_id[7],
++		unique_id[8], unique_id[9], unique_id[10], unique_id[11],
++		unique_id[12], unique_id[13], unique_id[14], unique_id[15]);
+ }
+ 
+ static ssize_t pqi_lunid_show(struct device *dev,
 -- 
 2.20.1
 
