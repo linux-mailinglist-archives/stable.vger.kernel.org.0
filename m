@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C579F1BCAFE
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9C911BC864
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:33:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729445AbgD1Sxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51604 "EHLO mail.kernel.org"
+        id S1729780AbgD1ScM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:32:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728816AbgD1Sel (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:34:41 -0400
+        id S1729785AbgD1ScM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:32:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB16621707;
-        Tue, 28 Apr 2020 18:34:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D9A52076A;
+        Tue, 28 Apr 2020 18:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098881;
-        bh=leqdRVOUg1UiSkVJ8q09egW8VjOUf914HixMZ5V/QF8=;
+        s=default; t=1588098731;
+        bh=ntRI2d4t5d8LgNQWaIoeisCkG2w01XL6Yg21Sgy5huY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rq+Sk7S8hrpGO6LHM89pAH01evzlpZ5oGDWu9AYWqVXcFUxUFWFjPqo/tnWBcMugp
-         akixSHwTZoLwNxukLgDMZjvlC1KSFwg3DQwVCPxTYuti1tG0der24+cjvtO7ffFfeu
-         gEFNeL/dpat6/ZqlKaahSUxtTJ5erixos6ClfeQk=
+        b=NVrMz3PRiU9C8SF4iwEJtdBovd1Uhhy0WmyGoNV+eOMwnea18/kD3pyX5FON1FTXE
+         S8018meIhKRafDrZagrVHVFQc5YOcxVU4DxHMalNwCRT3rHw8ADAjXF4mcYBmFnquA
+         0OtWPYIBjv5U4hIfMI0NAhLjj78ZqtZ+k9wMeNP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 068/131] net: dsa: b53: Rework ARL bin logic
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 104/167] ALSA: hda/realtek - Fix unexpected init_amp override
 Date:   Tue, 28 Apr 2020 20:24:40 +0200
-Message-Id: <20200428182233.494231699@linuxfoundation.org>
+Message-Id: <20200428182238.321518380@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,115 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6344dbde6a27d10d16246d734b968f84887841e2 ]
+commit 67791202c5e069cf2ba51db0718d56c634709e78 upstream.
 
-When asking the ARL to read a MAC address, we will get a number of bins
-returned in a single read. Out of those bins, there can essentially be 3
-states:
+The commit 1c76aa5fb48d ("ALSA: hda/realtek - Allow skipping
+spec->init_amp detection") changed the way to assign spec->init_amp
+field that specifies the way to initialize the amp.  Along with the
+change, the commit also replaced a few fixups that set spec->init_amp
+in HDA_FIXUP_ACT_PROBE with HDA_FIXUP_ACT_PRE_PROBE.  This was rather
+aligning to the other fixups, and not supposed to change the actual
+behavior.
 
-- all bins are full, we have no space left, and we can either replace an
-  existing address or return that full condition
+However, this change turned out to cause a regression on FSC S7020,
+which hit exactly the above.  The reason was that there is still one
+place that overrides spec->init_amp after HDA_FIXUP_ACT_PRE_PROBE
+call, namely in alc_ssid_check().
 
-- the MAC address was found, then we need to return its bin index and
-  modify that one, and only that one
+This patch fixes the regression by adding the proper spec->init_amp
+override check, i.e. verifying whether it's still ALC_INIT_UNDEFINED.
 
-- the MAC address was not found and we have a least one bin free, we use
-  that bin index location then
-
-The code would unfortunately fail on all counts.
-
-Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1c76aa5fb48d ("ALSA: hda/realtek - Allow skipping spec->init_amp detection")
+Cc: <stable@vger.kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207329
+Link: https://lore.kernel.org/r/20200418190639.10082-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/dsa/b53/b53_common.c |   30 ++++++++++++++++++++++++++----
- drivers/net/dsa/b53/b53_regs.h   |    3 +++
- 2 files changed, 29 insertions(+), 4 deletions(-)
 
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -1262,6 +1262,7 @@ static int b53_arl_read(struct b53_devic
- 			u16 vid, struct b53_arl_entry *ent, u8 *idx,
- 			bool is_valid)
+---
+ sound/pci/hda/patch_realtek.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -789,9 +789,11 @@ static void alc_ssid_check(struct hda_co
  {
-+	DECLARE_BITMAP(free_bins, B53_ARLTBL_MAX_BIN_ENTRIES);
- 	unsigned int i;
- 	int ret;
- 
-@@ -1269,6 +1270,8 @@ static int b53_arl_read(struct b53_devic
- 	if (ret)
- 		return ret;
- 
-+	bitmap_zero(free_bins, dev->num_arl_entries);
-+
- 	/* Read the bins */
- 	for (i = 0; i < dev->num_arl_entries; i++) {
- 		u64 mac_vid;
-@@ -1280,16 +1283,24 @@ static int b53_arl_read(struct b53_devic
- 			   B53_ARLTBL_DATA_ENTRY(i), &fwd_entry);
- 		b53_arl_to_entry(ent, mac_vid, fwd_entry);
- 
--		if (!(fwd_entry & ARLTBL_VALID))
-+		if (!(fwd_entry & ARLTBL_VALID)) {
-+			set_bit(i, free_bins);
- 			continue;
+ 	if (!alc_subsystem_id(codec, ports)) {
+ 		struct alc_spec *spec = codec->spec;
+-		codec_dbg(codec,
+-			  "realtek: Enable default setup for auto mode as fallback\n");
+-		spec->init_amp = ALC_INIT_DEFAULT;
++		if (spec->init_amp == ALC_INIT_UNDEFINED) {
++			codec_dbg(codec,
++				  "realtek: Enable default setup for auto mode as fallback\n");
++			spec->init_amp = ALC_INIT_DEFAULT;
 +		}
- 		if ((mac_vid & ARLTBL_MAC_MASK) != mac)
- 			continue;
- 		if (dev->vlan_enabled &&
- 		    ((mac_vid >> ARLTBL_VID_S) & ARLTBL_VID_MASK) != vid)
- 			continue;
- 		*idx = i;
-+		return 0;
  	}
- 
-+	if (bitmap_weight(free_bins, dev->num_arl_entries) == 0)
-+		return -ENOSPC;
-+
-+	*idx = find_first_bit(free_bins, dev->num_arl_entries);
-+
- 	return -ENOENT;
  }
  
-@@ -1319,10 +1330,21 @@ static int b53_arl_op(struct b53_device
- 	if (op)
- 		return ret;
- 
--	/* We could not find a matching MAC, so reset to a new entry */
--	if (ret) {
-+	switch (ret) {
-+	case -ENOSPC:
-+		dev_dbg(dev->dev, "{%pM,%.4d} no space left in ARL\n",
-+			addr, vid);
-+		return is_valid ? ret : 0;
-+	case -ENOENT:
-+		/* We could not find a matching MAC, so reset to a new entry */
-+		dev_dbg(dev->dev, "{%pM,%.4d} not found, using idx: %d\n",
-+			addr, vid, idx);
- 		fwd_entry = 0;
--		idx = 1;
-+		break;
-+	default:
-+		dev_dbg(dev->dev, "{%pM,%.4d} found, using idx: %d\n",
-+			addr, vid, idx);
-+		break;
- 	}
- 
- 	memset(&ent, 0, sizeof(ent));
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -323,6 +323,9 @@
- #define   ARLTBL_STATIC			BIT(15)
- #define   ARLTBL_VALID			BIT(16)
- 
-+/* Maximum number of bin entries in the ARL for all switches */
-+#define B53_ARLTBL_MAX_BIN_ENTRIES	4
-+
- /* ARL Search Control Register (8 bit) */
- #define B53_ARL_SRCH_CTL		0x50
- #define B53_ARL_SRCH_CTL_25		0x20
 
 
