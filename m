@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 920DE1BC7C9
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BDC41BCAF3
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728620AbgD1S0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38460 "EHLO mail.kernel.org"
+        id S1730172AbgD1Sez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:34:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728813AbgD1S0p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:26:45 -0400
+        id S1729395AbgD1Sey (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:34:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B657208E0;
-        Tue, 28 Apr 2020 18:26:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAB4A2186A;
+        Tue, 28 Apr 2020 18:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098404;
-        bh=Yb0dT5Mf5FCK4nJCMD4GNxe6Lfw8RlG4lpvc3T+67PM=;
+        s=default; t=1588098893;
+        bh=hKu1vyMhVps1OAxX7R7Qf9/Zz7vCtRx4wUv23ATE3PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlgnK7ggbDW/6WxDThMjoyCxtNvHxQKel5QPI1RUWUOz9jd3CJMkNEgow9LlTGpUC
-         fD3sNZcFeoMoSU7qU3FafYLUuL/f47xfR6MG6MBwVNc8CPK4yr1DvGQScHNlI0DWEh
-         +ewPvKL1q9DlL9WxgD4swJnAM5W+aqy0xKJ/4Rp4=
+        b=gVQ0mK5tn8o+4jhSglE4rkjkWeycZPSE59ymF3X7J3QgYEP0ogFD0zH0ZeFnVKPvk
+         00LZ9oXYIzHvKzPSjpaDWfYI2hG8+atFbcAPIbJ0AoDeQ0YRh6QQKyg+0jVAhCH9Uc
+         +r/R26sCZrPnCXSalFEru0MrswJ5FWpMteP6TLzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 026/167] block: fix busy device checking in blk_drop_partitions
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        "H. Peter Anvin (Intel)" <hpa@zytor.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 028/168] lib/raid6/test: fix build on distros whose /bin/sh is not bash
 Date:   Tue, 28 Apr 2020 20:23:22 +0200
-Message-Id: <20200428182228.490342408@linuxfoundation.org>
+Message-Id: <20200428182235.284683055@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit d3ef5536274faf89e626276b833be122a16bdb81 ]
+[ Upstream commit 06bd48b6cd97ef3889b68c8e09014d81dbc463f1 ]
 
-bd_super is only set by get_tree_bdev and mount_bdev, and thus not by
-other openers like btrfs or the XFS realtime and log devices, as well as
-block devices directly opened from user space.  Check bd_openers
-instead.
+You can build a user-space test program for the raid6 library code,
+like this:
 
-Fixes: 77032ca66f86 ("Return EBUSY from BLKRRPART for mounted whole-dev fs")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  $ cd lib/raid6/test
+  $ make
+
+The command in $(shell ...) function is evaluated by /bin/sh by default.
+(or, you can specify the shell by passing SHELL=<shell> from command line)
+
+Currently '>&/dev/null' is used to sink both stdout and stderr. Because
+this code is bash-ism, it only works when /bin/sh is a symbolic link to
+bash (this is the case on RHEL etc.)
+
+This does not work on Ubuntu where /bin/sh is a symbolic link to dash.
+
+I see lots of
+
+  /bin/sh: 1: Syntax error: Bad fd number
+
+and
+
+  warning "your version of binutils lacks ... support"
+
+Replace it with portable '>/dev/null 2>&1'.
+
+Fixes: 4f8c55c5ad49 ("lib/raid6: build proper files on corresponding arch")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Acked-by: H. Peter Anvin (Intel) <hpa@zytor.com>
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Acked-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/partition-generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/raid6/test/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/block/partition-generic.c b/block/partition-generic.c
-index 564fae77711df..5f3b2a959aa51 100644
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -468,7 +468,7 @@ int blk_drop_partitions(struct gendisk *disk, struct block_device *bdev)
- 
- 	if (!disk_part_scan_enabled(disk))
- 		return 0;
--	if (bdev->bd_part_count || bdev->bd_super)
-+	if (bdev->bd_part_count || bdev->bd_openers)
- 		return -EBUSY;
- 	res = invalidate_partition(disk, 0);
- 	if (res)
+diff --git a/lib/raid6/test/Makefile b/lib/raid6/test/Makefile
+index 3ab8720aa2f84..b9e6c3648be1a 100644
+--- a/lib/raid6/test/Makefile
++++ b/lib/raid6/test/Makefile
+@@ -35,13 +35,13 @@ endif
+ ifeq ($(IS_X86),yes)
+         OBJS   += mmx.o sse1.o sse2.o avx2.o recov_ssse3.o recov_avx2.o avx512.o recov_avx512.o
+         CFLAGS += $(shell echo "pshufb %xmm0, %xmm0" |		\
+-                    gcc -c -x assembler - >&/dev/null &&	\
++                    gcc -c -x assembler - >/dev/null 2>&1 &&	\
+                     rm ./-.o && echo -DCONFIG_AS_SSSE3=1)
+         CFLAGS += $(shell echo "vpbroadcastb %xmm0, %ymm1" |	\
+-                    gcc -c -x assembler - >&/dev/null &&	\
++                    gcc -c -x assembler - >/dev/null 2>&1 &&	\
+                     rm ./-.o && echo -DCONFIG_AS_AVX2=1)
+ 	CFLAGS += $(shell echo "vpmovm2b %k1, %zmm5" |          \
+-		    gcc -c -x assembler - >&/dev/null &&        \
++		    gcc -c -x assembler - >/dev/null 2>&1 &&	\
+ 		    rm ./-.o && echo -DCONFIG_AS_AVX512=1)
+ else ifeq ($(HAS_NEON),yes)
+         OBJS   += neon.o neon1.o neon2.o neon4.o neon8.o recov_neon.o recov_neon_inner.o
 -- 
 2.20.1
 
