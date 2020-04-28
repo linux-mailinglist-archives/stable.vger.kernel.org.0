@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E5B61BC982
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 008431BCB07
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731094AbgD1SmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:42:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
+        id S1729116AbgD1SdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:33:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731098AbgD1SmW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:42:22 -0400
+        id S1729874AbgD1SdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:33:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EC7420575;
-        Tue, 28 Apr 2020 18:42:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B221221841;
+        Tue, 28 Apr 2020 18:33:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099341;
-        bh=yy+L2TaQ1fzV8FxZkoyYt4yIaFb/9edhiehY4/YtF6I=;
+        s=default; t=1588098783;
+        bh=JhjZvLtCuEhKf7j0w0JV88r/hMeS3e+qy+8EgEb0JE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cgs2CCRW8gxaK0bA00xxIWGho7YdzpWvakiBhDqaOrplbHcZUGL7N026b0RRfyOx2
-         aaa5HvrJAltTyVPqSXhMoRDDZaqLxCGgd0lvYXk6GYYC6XnKPmF/qowSInZ6Bg/gwP
-         jBtGEgpYP7xiBHJhufRqKtECsSkP4u4njqQgo2HA=
+        b=rgaAUzgfm9rvc9UwKIs9g2hUiSmtZ06Uy3wsjiitpVuXv3R4xB+MzCqPQYo/vghPN
+         C8zSHjDTM5py2z8lYQrE70hqVDajA7rRQJs+S32YrrlNWAQoNtmA3d7m2iC9fa3qQj
+         B33Gqu3TRp+Koh4JVFURiLXPzhmJmlYqwiZibkZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 094/168] iio: xilinx-xadc: Make sure not exceed maximum samplerate
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 056/131] macsec: avoid to set wrong mtu
 Date:   Tue, 28 Apr 2020 20:24:28 +0200
-Message-Id: <20200428182244.202435826@linuxfoundation.org>
+Message-Id: <20200428182232.008105283@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,180 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit 3b7f9dbb827ce8680b98490215e698b6079a9ec5 upstream.
+[ Upstream commit 7f327080364abccf923fa5a5b24e038eb0ba1407 ]
 
-The XADC supports a samplerate of up to 1MSPS. Unfortunately the hardware
-does not have a FIFO, which means it generates an interrupt for each
-conversion sequence. At one 1MSPS this creates an interrupt storm that
-causes the system to soft-lock.
+When a macsec interface is created, the mtu is calculated with the lower
+interface's mtu value.
+If the mtu of lower interface is lower than the length, which is needed
+by macsec interface, macsec's mtu value will be overflowed.
+So, if the lower interface's mtu is too low, macsec interface's mtu
+should be set to 0.
 
-For this reason the driver limits the maximum samplerate to 150kSPS.
-Currently this check is only done when setting a new samplerate. But it is
-also possible that the initial samplerate configured in the FPGA bitstream
-exceeds the limit.
+Test commands:
+    ip link add dummy0 mtu 10 type dummy
+    ip link add macsec0 link dummy0 type macsec
+    ip link show macsec0
 
-In this case when starting to capture data without first changing the
-samplerate the system can overload.
+Before:
+    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 4294967274
+After:
+    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 0
 
-To prevent this check the currently configured samplerate in the probe
-function and reduce it to the maximum if necessary.
-
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iio/adc/xilinx-xadc-core.c |   78 ++++++++++++++++++++++++++++---------
- 1 file changed, 60 insertions(+), 18 deletions(-)
+ drivers/net/macsec.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -102,6 +102,16 @@ static const unsigned int XADC_ZYNQ_UNMA
- 
- #define XADC_FLAGS_BUFFERED BIT(0)
- 
-+/*
-+ * The XADC hardware supports a samplerate of up to 1MSPS. Unfortunately it does
-+ * not have a hardware FIFO. Which means an interrupt is generated for each
-+ * conversion sequence. At 1MSPS sample rate the CPU in ZYNQ7000 is completely
-+ * overloaded by the interrupts that it soft-lockups. For this reason the driver
-+ * limits the maximum samplerate 150kSPS. At this rate the CPU is fairly busy,
-+ * but still responsive.
-+ */
-+#define XADC_MAX_SAMPLERATE 150000
-+
- static void xadc_write_reg(struct xadc *xadc, unsigned int reg,
- 	uint32_t val)
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -3238,11 +3238,11 @@ static int macsec_newlink(struct net *ne
+ 			  struct netlink_ext_ack *extack)
  {
-@@ -834,11 +844,27 @@ static const struct iio_buffer_setup_ops
- 	.postdisable = &xadc_postdisable,
- };
+ 	struct macsec_dev *macsec = macsec_priv(dev);
++	rx_handler_func_t *rx_handler;
++	u8 icv_len = DEFAULT_ICV_LEN;
+ 	struct net_device *real_dev;
+-	int err;
++	int err, mtu;
+ 	sci_t sci;
+-	u8 icv_len = DEFAULT_ICV_LEN;
+-	rx_handler_func_t *rx_handler;
  
-+static int xadc_read_samplerate(struct xadc *xadc)
-+{
-+	unsigned int div;
-+	uint16_t val16;
-+	int ret;
-+
-+	ret = xadc_read_adc_reg(xadc, XADC_REG_CONF2, &val16);
-+	if (ret)
-+		return ret;
-+
-+	div = (val16 & XADC_CONF2_DIV_MASK) >> XADC_CONF2_DIV_OFFSET;
-+	if (div < 2)
-+		div = 2;
-+
-+	return xadc_get_dclk_rate(xadc) / div / 26;
-+}
-+
- static int xadc_read_raw(struct iio_dev *indio_dev,
- 	struct iio_chan_spec const *chan, int *val, int *val2, long info)
- {
- 	struct xadc *xadc = iio_priv(indio_dev);
--	unsigned int div;
- 	uint16_t val16;
- 	int ret;
- 
-@@ -891,41 +917,31 @@ static int xadc_read_raw(struct iio_dev
- 		*val = -((273150 << 12) / 503975);
- 		return IIO_VAL_INT;
- 	case IIO_CHAN_INFO_SAMP_FREQ:
--		ret = xadc_read_adc_reg(xadc, XADC_REG_CONF2, &val16);
--		if (ret)
-+		ret = xadc_read_samplerate(xadc);
-+		if (ret < 0)
- 			return ret;
- 
--		div = (val16 & XADC_CONF2_DIV_MASK) >> XADC_CONF2_DIV_OFFSET;
--		if (div < 2)
--			div = 2;
--
--		*val = xadc_get_dclk_rate(xadc) / div / 26;
--
-+		*val = ret;
- 		return IIO_VAL_INT;
- 	default:
+ 	if (!tb[IFLA_LINK])
  		return -EINVAL;
- 	}
- }
+@@ -3258,7 +3258,11 @@ static int macsec_newlink(struct net *ne
  
--static int xadc_write_raw(struct iio_dev *indio_dev,
--	struct iio_chan_spec const *chan, int val, int val2, long info)
-+static int xadc_write_samplerate(struct xadc *xadc, int val)
- {
--	struct xadc *xadc = iio_priv(indio_dev);
- 	unsigned long clk_rate = xadc_get_dclk_rate(xadc);
- 	unsigned int div;
+ 	if (data && data[IFLA_MACSEC_ICV_LEN])
+ 		icv_len = nla_get_u8(data[IFLA_MACSEC_ICV_LEN]);
+-	dev->mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
++	mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
++	if (mtu < 0)
++		dev->mtu = 0;
++	else
++		dev->mtu = mtu;
  
- 	if (!clk_rate)
- 		return -EINVAL;
- 
--	if (info != IIO_CHAN_INFO_SAMP_FREQ)
--		return -EINVAL;
--
- 	if (val <= 0)
- 		return -EINVAL;
- 
- 	/* Max. 150 kSPS */
--	if (val > 150000)
--		val = 150000;
-+	if (val > XADC_MAX_SAMPLERATE)
-+		val = XADC_MAX_SAMPLERATE;
- 
- 	val *= 26;
- 
-@@ -938,7 +954,7 @@ static int xadc_write_raw(struct iio_dev
- 	 * limit.
- 	 */
- 	div = clk_rate / val;
--	if (clk_rate / div / 26 > 150000)
-+	if (clk_rate / div / 26 > XADC_MAX_SAMPLERATE)
- 		div++;
- 	if (div < 2)
- 		div = 2;
-@@ -949,6 +965,17 @@ static int xadc_write_raw(struct iio_dev
- 		div << XADC_CONF2_DIV_OFFSET);
- }
- 
-+static int xadc_write_raw(struct iio_dev *indio_dev,
-+	struct iio_chan_spec const *chan, int val, int val2, long info)
-+{
-+	struct xadc *xadc = iio_priv(indio_dev);
-+
-+	if (info != IIO_CHAN_INFO_SAMP_FREQ)
-+		return -EINVAL;
-+
-+	return xadc_write_samplerate(xadc, val);
-+}
-+
- static const struct iio_event_spec xadc_temp_events[] = {
- 	{
- 		.type = IIO_EV_TYPE_THRESH,
-@@ -1236,6 +1263,21 @@ static int xadc_probe(struct platform_de
- 	if (ret)
- 		goto err_free_samplerate_trigger;
- 
-+	/*
-+	 * Make sure not to exceed the maximum samplerate since otherwise the
-+	 * resulting interrupt storm will soft-lock the system.
-+	 */
-+	if (xadc->ops->flags & XADC_FLAGS_BUFFERED) {
-+		ret = xadc_read_samplerate(xadc);
-+		if (ret < 0)
-+			goto err_free_samplerate_trigger;
-+		if (ret > XADC_MAX_SAMPLERATE) {
-+			ret = xadc_write_samplerate(xadc, XADC_MAX_SAMPLERATE);
-+			if (ret < 0)
-+				goto err_free_samplerate_trigger;
-+		}
-+	}
-+
- 	ret = request_irq(xadc->irq, xadc->ops->interrupt_handler, 0,
- 			dev_name(&pdev->dev), indio_dev);
- 	if (ret)
+ 	rx_handler = rtnl_dereference(real_dev->rx_handler);
+ 	if (rx_handler && rx_handler != macsec_handle_frame)
 
 
