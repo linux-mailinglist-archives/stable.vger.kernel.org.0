@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 878FD1BC828
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ACE31BC7F9
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:29:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729449AbgD1SaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:30:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44216 "EHLO mail.kernel.org"
+        id S1729171AbgD1S2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:28:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729432AbgD1SaA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:30:00 -0400
+        id S1729168AbgD1S2S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:28:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98E262137B;
-        Tue, 28 Apr 2020 18:29:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B333208E0;
+        Tue, 28 Apr 2020 18:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098600;
-        bh=3AjzAH6sCRBBQIALkZlA3mWNYY6eXAlOgczOsfvavPY=;
+        s=default; t=1588098497;
+        bh=stN9rP4HgKIFrPN1xz/O73Hsp6NVHW7nqXAQ5WzJH24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wyzmHccbIzHrgF62wuLi20hYOU1ixxfqG3Lt4Y3VzL52USZc0tPKqxGDf9ebbQUod
-         fh6HtVwYfJJbr3HjLugrEaksv5pjTdINYHn3udEKzEWZHYyu+gzUiasACFV6V5rp6Z
-         YHUnrJ8HoBptLgmpxDViGwwWSdgmdRS/rGBfae+E=
+        b=IffqjOixVhoQUTgh+xIRJ7gqe+wmv0QDeR9hMHH0n//R8ut2tao8vo0FdkgL8VqfA
+         mMOql52R5/1BCbtQLkXN1KHIMVrk045eBqoTUKRzMooG0ImlUobdfdObVGyjH1bVN1
+         z0GochMtu/uU+j9TS78ndMlgvOVK1Pu4kemOsZ7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
-        Gwendal Grignou <gwendal@chromium.org>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 025/131] loop: Better discard support for block devices
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 061/167] team: fix hang in team_mode_get()
 Date:   Tue, 28 Apr 2020 20:23:57 +0200
-Message-Id: <20200428182228.298249436@linuxfoundation.org>
+Message-Id: <20200428182232.675467511@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,117 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit c52abf563049e787c1341cdf15c7dbe1bfbc951b ]
+[ Upstream commit 1c30fbc76b8f0c07c92a8ca4cd7c456612e17eb5 ]
 
-If the backing device for a loop device is itself a block device,
-then mirror the "write zeroes" capabilities of the underlying
-block device into the loop device. Copy this capability into both
-max_write_zeroes_sectors and max_discard_sectors of the loop device.
+When team mode is changed or set, the team_mode_get() is called to check
+whether the mode module is inserted or not. If the mode module is not
+inserted, it calls the request_module().
+In the request_module(), it creates a child process, which is
+the "modprobe" process and waits for the done of the child process.
+At this point, the following locks were used.
+down_read(&cb_lock()); by genl_rcv()
+    genl_lock(); by genl_rcv_msc()
+        rtnl_lock(); by team_nl_cmd_options_set()
+            mutex_lock(&team->lock); by team_nl_team_get()
 
-The reason for this is that REQ_OP_DISCARD on a loop device translates
-into blkdev_issue_zeroout(), rather than blkdev_issue_discard(). This
-presents a consistent interface for loop devices (that discarded data
-is zeroed), regardless of the backing device type of the loop device.
-There should be no behavior change for loop devices backed by regular
-files.
+Concurrently, the team module could be removed by rmmod or "modprobe -r"
+The __exit function of team module is team_module_exit(), which calls
+team_nl_fini() and it tries to acquire following locks.
+down_write(&cb_lock);
+    genl_lock();
+Because of the genl_lock() and cb_lock, this process can't be finished
+earlier than request_module() routine.
 
-This change fixes blktest block/003, and removes an extraneous
-error print in block/013 when testing on a loop device backed
-by a block device that does not support discard.
+The problem secenario.
+CPU0                                     CPU1
+team_mode_get
+    request_module()
+                                         modprobe -r team_mode_roundrobin
+                                                     team <--(B)
+        modprobe team <--(A)
+            team_mode_roundrobin
 
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Reviewed-by: Gwendal Grignou <gwendal@chromium.org>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-[used updated version of Evan's comment in loop_config_discard()]
-[moved backingq to local scope, removed redundant braces]
-Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+By request_module(), the "modprobe team_mode_roundrobin" command
+will be executed. At this point, the modprobe process will decide
+that the team module should be inserted before team_mode_roundrobin.
+Because the team module is being removed.
+
+By the module infrastructure, the same module insert/remove operations
+can't be executed concurrently.
+So, (A) waits for (B) but (B) also waits for (A) because of locks.
+So that the hang occurs at this point.
+
+Test commands:
+    while :
+    do
+        teamd -d &
+	killall teamd &
+	modprobe -rv team_mode_roundrobin &
+    done
+
+The approach of this patch is to hold the reference count of the team
+module if the team module is compiled as a module. If the reference count
+of the team module is not zero while request_module() is being called,
+the team module will not be removed at that moment.
+So that the above scenario could not occur.
+
+Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/loop.c | 42 +++++++++++++++++++++++++++++++-----------
- 1 file changed, 31 insertions(+), 11 deletions(-)
+ drivers/net/team/team.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 9cd231a27328e..c1341c86bcded 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -426,11 +426,12 @@ static int lo_fallocate(struct loop_device *lo, struct request *rq, loff_t pos,
- 	 * information.
- 	 */
- 	struct file *file = lo->lo_backing_file;
-+	struct request_queue *q = lo->lo_queue;
- 	int ret;
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -468,6 +468,9 @@ static const struct team_mode *team_mode
+ 	struct team_mode_item *mitem;
+ 	const struct team_mode *mode = NULL;
  
- 	mode |= FALLOC_FL_KEEP_SIZE;
- 
--	if ((!file->f_op->fallocate) || lo->lo_encrypt_key_size) {
-+	if (!blk_queue_discard(q)) {
- 		ret = -EOPNOTSUPP;
- 		goto out;
++	if (!try_module_get(THIS_MODULE))
++		return NULL;
++
+ 	spin_lock(&mode_list_lock);
+ 	mitem = __find_mode(kind);
+ 	if (!mitem) {
+@@ -483,6 +486,7 @@ static const struct team_mode *team_mode
  	}
-@@ -864,28 +865,47 @@ static void loop_config_discard(struct loop_device *lo)
- 	struct inode *inode = file->f_mapping->host;
- 	struct request_queue *q = lo->lo_queue;
  
-+	/*
-+	 * If the backing device is a block device, mirror its zeroing
-+	 * capability. Set the discard sectors to the block device's zeroing
-+	 * capabilities because loop discards result in blkdev_issue_zeroout(),
-+	 * not blkdev_issue_discard(). This maintains consistent behavior with
-+	 * file-backed loop devices: discarded regions read back as zero.
-+	 */
-+	if (S_ISBLK(inode->i_mode) && !lo->lo_encrypt_key_size) {
-+		struct request_queue *backingq;
-+
-+		backingq = bdev_get_queue(inode->i_bdev);
-+		blk_queue_max_discard_sectors(q,
-+			backingq->limits.max_write_zeroes_sectors);
-+
-+		blk_queue_max_write_zeroes_sectors(q,
-+			backingq->limits.max_write_zeroes_sectors);
-+
- 	/*
- 	 * We use punch hole to reclaim the free space used by the
- 	 * image a.k.a. discard. However we do not support discard if
- 	 * encryption is enabled, because it may give an attacker
- 	 * useful information.
- 	 */
--	if ((!file->f_op->fallocate) ||
--	    lo->lo_encrypt_key_size) {
-+	} else if (!file->f_op->fallocate || lo->lo_encrypt_key_size) {
- 		q->limits.discard_granularity = 0;
- 		q->limits.discard_alignment = 0;
- 		blk_queue_max_discard_sectors(q, 0);
- 		blk_queue_max_write_zeroes_sectors(q, 0);
--		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, q);
--		return;
--	}
- 
--	q->limits.discard_granularity = inode->i_sb->s_blocksize;
--	q->limits.discard_alignment = 0;
-+	} else {
-+		q->limits.discard_granularity = inode->i_sb->s_blocksize;
-+		q->limits.discard_alignment = 0;
- 
--	blk_queue_max_discard_sectors(q, UINT_MAX >> 9);
--	blk_queue_max_write_zeroes_sectors(q, UINT_MAX >> 9);
--	blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
-+		blk_queue_max_discard_sectors(q, UINT_MAX >> 9);
-+		blk_queue_max_write_zeroes_sectors(q, UINT_MAX >> 9);
-+	}
-+
-+	if (q->limits.max_write_zeroes_sectors)
-+		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
-+	else
-+		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, q);
+ 	spin_unlock(&mode_list_lock);
++	module_put(THIS_MODULE);
+ 	return mode;
  }
  
- static void loop_unprepare_queue(struct loop_device *lo)
--- 
-2.20.1
-
 
 
