@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE141BCBC4
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 471761BC823
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728606AbgD1S1w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:27:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40204 "EHLO mail.kernel.org"
+        id S1729433AbgD1S35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:29:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729043AbgD1S1v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:27:51 -0400
+        id S1729423AbgD1S3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:29:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99FC920730;
-        Tue, 28 Apr 2020 18:27:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A4A7208E0;
+        Tue, 28 Apr 2020 18:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098471;
-        bh=N/8ImIDdPOEXmtj/+HjjuFy7WgAl9RTHoLobDrIcL0s=;
+        s=default; t=1588098592;
+        bh=j6iGxe6hgIhvhNhibRWCBc45s0hch/cUkLVkSENAXGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9jltwizaaQ9dqgjYnSBa3l6RhMRiLu8VZqKFcRgled4L+f5BMUYDwaEC3+aWMiMf
-         WKc0RJw/FhpL3PwAljHVBAH+ONlSx4EenTecVaHkoCABun4c2WDMz5uBYRUg96V2gw
-         L4sYaJL8HSJoXeq8c7TD0ruFSDtSGbRxzlBpxC8I=
+        b=YoID4WshrGVsTaD9BZTNFr2MkueKfOqxxNC7slsdbym8qf8e9I9SXgZTtZpjNwbZd
+         BE/mTjg70KSU3nK4GIeLMKZuOF2sH+J5XXoZe0McvPUqs52eJzAU+Gzf5UkmC4nONW
+         LPulPFRDUZ19qjR6QAVtKP7wIzx26TxyjSKHDaE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 054/167] net: netrom: Fix potential nr_neigh refcnt leak in nr_add_node
-Date:   Tue, 28 Apr 2020 20:23:50 +0200
-Message-Id: <20200428182231.824760923@linuxfoundation.org>
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Keith Busch <kbusch@kernel.org>,
+        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 019/131] nvme: fix deadlock caused by ANA update wrong locking
+Date:   Tue, 28 Apr 2020 20:23:51 +0200
+Message-Id: <20200428182227.537620564@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit d03f228470a8c0a22b774d1f8d47071e0de4f6dd ]
+[ Upstream commit 657f1975e9d9c880fa13030e88ba6cc84964f1db ]
 
-nr_add_node() invokes nr_neigh_get_dev(), which returns a local
-reference of the nr_neigh object to "nr_neigh" with increased refcnt.
+The deadlock combines 4 flows in parallel:
+- ns scanning (triggered from reconnect)
+- request timeout
+- ANA update (triggered from reconnect)
+- I/O coming into the mpath device
 
-When nr_add_node() returns, "nr_neigh" becomes invalid, so the refcount
-should be decreased to keep refcount balanced.
+(1) ns scanning triggers disk revalidation -> update disk info ->
+    freeze queue -> but blocked, due to (2)
 
-The issue happens in one normal path of nr_add_node(), which forgets to
-decrease the refcnt increased by nr_neigh_get_dev() and causes a refcnt
-leak. It should decrease the refcnt before the function returns like
-other normal paths do.
+(2) timeout handler reference the g_usage_counter - > but blocks in
+    the transport .timeout() handler, due to (3)
 
-Fix this issue by calling nr_neigh_put() before the nr_add_node()
-returns.
+(3) the transport timeout handler (indirectly) calls nvme_stop_queue() ->
+    which takes the (down_read) namespaces_rwsem - > but blocks, due to (4)
 
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+(4) ANA update takes the (down_write) namespaces_rwsem -> calls
+    nvme_mpath_set_live() -> which synchronize the ns_head srcu
+    (see commit 504db087aacc) -> but blocks, due to (5)
+
+(5) I/O came into nvme_mpath_make_request -> took srcu_read_lock ->
+    direct_make_request > blk_queue_enter -> but blocked, due to (1)
+
+==> the request queue is under freeze -> deadlock.
+
+The fix is making ANA update take a read lock as the namespaces list
+is not manipulated, it is just the ns and ns->head that are being
+updated (which is protected with the ns->head lock).
+
+Fixes: 0d0b660f214dc ("nvme: add ANA support")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netrom/nr_route.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvme/host/multipath.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/netrom/nr_route.c
-+++ b/net/netrom/nr_route.c
-@@ -208,6 +208,7 @@ static int __must_check nr_add_node(ax25
- 		/* refcount initialized at 1 */
- 		spin_unlock_bh(&nr_node_list_lock);
- 
-+		nr_neigh_put(nr_neigh);
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index e8bc25aed44ca..588864beabd80 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -402,7 +402,7 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
+ 	if (!nr_nsids)
  		return 0;
+ 
+-	down_write(&ctrl->namespaces_rwsem);
++	down_read(&ctrl->namespaces_rwsem);
+ 	list_for_each_entry(ns, &ctrl->namespaces, list) {
+ 		unsigned nsid = le32_to_cpu(desc->nsids[n]);
+ 
+@@ -413,7 +413,7 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
+ 		if (++n == nr_nsids)
+ 			break;
  	}
- 	nr_node_lock(nr_node);
+-	up_write(&ctrl->namespaces_rwsem);
++	up_read(&ctrl->namespaces_rwsem);
+ 	return 0;
+ }
+ 
+-- 
+2.20.1
+
 
 
