@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B354F1BCAA8
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C4EF1BCA84
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730323AbgD1Svc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:51:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55224 "EHLO mail.kernel.org"
+        id S1731298AbgD1Stk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:49:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730460AbgD1ShQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:37:16 -0400
+        id S1730415AbgD1Sjx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:39:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B73D20730;
-        Tue, 28 Apr 2020 18:37:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D18D20575;
+        Tue, 28 Apr 2020 18:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099035;
-        bh=Kq+XreifIIpU4w3KQ2tNMKSCfMK31xcm0GCcXe8Zs2g=;
+        s=default; t=1588099192;
+        bh=xEfiGp962UeN7kUvT6zNM7UWw343DFk0w0KZsgijnW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ttMh+WAdtIOo5qtjoYe15AdxwsdQCItF5ki7iUsX1ChmeHX05YOSXVQn9/5xykS3
-         ALItpeHonlcBBhAN//BPubSCDtcYCgK95xinHZcWLiuUUzQNqTVirQ0p4gspCDMwlU
-         Fa3Rt3OO7NPF6xXfWhKOLXMLbUiXVEVZBDmsy+y8=
+        b=mC/77zjBZOdU0x1lLiL+JeCftynrT2ibUUFtPuLadbFzzls7Ji+QEMckQDpYMYC0D
+         n47JJ7eKHnjTfQgDh5Gnqb1f6tGE++U56cnbLOeqIC1hbeU9ILLgJpAzXmzO+xAkdR
+         hBrmJ/3Svu2s9SXSTPogkc0pEIvKzE37dimWxMM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.6 147/167] UAS: fix deadlock in error handling and PM flushing work
+        stable@vger.kernel.org,
+        Clemens Gruber <clemens.gruber@pqgruber.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Roland Hieber <rhi@pengutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.19 111/131] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y
 Date:   Tue, 28 Apr 2020 20:25:23 +0200
-Message-Id: <20200428182244.173122696@linuxfoundation.org>
+Message-Id: <20200428182239.183816463@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,99 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit f6cc6093a729ede1ff5658b493237c42b82ba107 upstream.
+commit f1baca8896ae18e12c45552a4c4ae2086aa7e02c upstream.
 
-A SCSI error handler and block runtime PM must not allocate
-memory with GFP_KERNEL. Furthermore they must not wait for
-tasks allocating memory with GFP_KERNEL.
-That means that they cannot share a workqueue with arbitrary tasks.
+512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+introduced an unintended linker error for i.MX6 configurations that have
+ARM_CPU_SUSPEND=n which can happen if neither CONFIG_PM, CONFIG_CPU_IDLE,
+nor ARM_PSCI_FW are selected.
 
-Fix this for UAS using a private workqueue.
+Fix this by having v7_cpu_resume() compiled only when cpu_resume() it
+calls is available as well.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Fixes: f9dc024a2da1f ("uas: pre_reset and suspend: Fix a few races")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200415141750.811-2-oneukum@suse.com
+The C declaration for the function remains unguarded to avoid future code
+inadvertently using a stub and introducing a regression to the bug the
+original commit fixed.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Tested-by: Roland Hieber <rhi@pengutronix.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/uas.c |   43 ++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 40 insertions(+), 3 deletions(-)
+ arch/arm/mach-imx/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -81,6 +81,19 @@ static void uas_free_streams(struct uas_
- static void uas_log_cmd_state(struct scsi_cmnd *cmnd, const char *prefix,
- 				int status);
+--- a/arch/arm/mach-imx/Makefile
++++ b/arch/arm/mach-imx/Makefile
+@@ -89,8 +89,10 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7
+ obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
+ obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
+ endif
++ifeq ($(CONFIG_ARM_CPU_SUSPEND),y)
+ AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
+ obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
++endif
+ obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
  
-+/*
-+ * This driver needs its own workqueue, as we need to control memory allocation.
-+ *
-+ * In the course of error handling and power management uas_wait_for_pending_cmnds()
-+ * needs to flush pending work items. In these contexts we cannot allocate memory
-+ * by doing block IO as we would deadlock. For the same reason we cannot wait
-+ * for anything allocating memory not heeding these constraints.
-+ *
-+ * So we have to control all work items that can be on the workqueue we flush.
-+ * Hence we cannot share a queue and need our own.
-+ */
-+static struct workqueue_struct *workqueue;
-+
- static void uas_do_work(struct work_struct *work)
- {
- 	struct uas_dev_info *devinfo =
-@@ -109,7 +122,7 @@ static void uas_do_work(struct work_stru
- 		if (!err)
- 			cmdinfo->state &= ~IS_IN_WORK_LIST;
- 		else
--			schedule_work(&devinfo->work);
-+			queue_work(workqueue, &devinfo->work);
- 	}
- out:
- 	spin_unlock_irqrestore(&devinfo->lock, flags);
-@@ -134,7 +147,7 @@ static void uas_add_work(struct uas_cmd_
- 
- 	lockdep_assert_held(&devinfo->lock);
- 	cmdinfo->state |= IS_IN_WORK_LIST;
--	schedule_work(&devinfo->work);
-+	queue_work(workqueue, &devinfo->work);
- }
- 
- static void uas_zap_pending(struct uas_dev_info *devinfo, int result)
-@@ -1229,7 +1242,31 @@ static struct usb_driver uas_driver = {
- 	.id_table = uas_usb_ids,
- };
- 
--module_usb_driver(uas_driver);
-+static int __init uas_init(void)
-+{
-+	int rv;
-+
-+	workqueue = alloc_workqueue("uas", WQ_MEM_RECLAIM, 0);
-+	if (!workqueue)
-+		return -ENOMEM;
-+
-+	rv = usb_register(&uas_driver);
-+	if (rv) {
-+		destroy_workqueue(workqueue);
-+		return -ENOMEM;
-+	}
-+
-+	return 0;
-+}
-+
-+static void __exit uas_exit(void)
-+{
-+	usb_deregister(&uas_driver);
-+	destroy_workqueue(workqueue);
-+}
-+
-+module_init(uas_init);
-+module_exit(uas_exit);
- 
- MODULE_LICENSE("GPL");
- MODULE_IMPORT_NS(USB_STORAGE);
+ obj-$(CONFIG_SOC_IMX1) += mach-imx1.o
 
 
