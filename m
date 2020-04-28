@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C4EF1BCA84
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E0C11BC9AD
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731298AbgD1Stk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:49:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58834 "EHLO mail.kernel.org"
+        id S1731312AbgD1Sny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:43:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730415AbgD1Sjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:39:53 -0400
+        id S1731308AbgD1Snx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:43:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D18D20575;
-        Tue, 28 Apr 2020 18:39:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E14120730;
+        Tue, 28 Apr 2020 18:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099192;
-        bh=xEfiGp962UeN7kUvT6zNM7UWw343DFk0w0KZsgijnW0=;
+        s=default; t=1588099432;
+        bh=JHaBNosCj1zG89vJZojwMlcYslKrzJGKsmuORnY+RAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mC/77zjBZOdU0x1lLiL+JeCftynrT2ibUUFtPuLadbFzzls7Ji+QEMckQDpYMYC0D
-         n47JJ7eKHnjTfQgDh5Gnqb1f6tGE++U56cnbLOeqIC1hbeU9ILLgJpAzXmzO+xAkdR
-         hBrmJ/3Svu2s9SXSTPogkc0pEIvKzE37dimWxMM8=
+        b=C/MOFL4/lAVvBdjEywzdXLLUanhXKF+pEF/OF92iCwFOXxdSU7XRa5SpVTkd4HUvO
+         Irzkx+tHfJu930vdVLKovZ9QVkpCgHopb17FkAIW66Hlzb1aVCB5/kSTjT5zSx9hhO
+         OTuffFecoOf+sQwQOc/cVGWKRtWgc3ElSbyINMZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Clemens Gruber <clemens.gruber@pqgruber.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Roland Hieber <rhi@pengutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.19 111/131] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y
+        stable@vger.kernel.org, Xu Yilun <yilun.xu@intel.com>,
+        Wu Hao <hao.wu@intel.com>, Moritz Fischer <mdf@kernel.org>
+Subject: [PATCH 5.4 149/168] fpga: dfl: pci: fix return value of cci_pci_sriov_configure
 Date:   Tue, 28 Apr 2020 20:25:23 +0200
-Message-Id: <20200428182239.183816463@linuxfoundation.org>
+Message-Id: <20200428182250.362259288@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Xu Yilun <yilun.xu@intel.com>
 
-commit f1baca8896ae18e12c45552a4c4ae2086aa7e02c upstream.
+commit 3c2760b78f90db874401d97e3c17829e2e36f400 upstream.
 
-512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
-introduced an unintended linker error for i.MX6 configurations that have
-ARM_CPU_SUSPEND=n which can happen if neither CONFIG_PM, CONFIG_CPU_IDLE,
-nor ARM_PSCI_FW are selected.
+pci_driver.sriov_configure should return negative value on error and
+number of enabled VFs on success. But now the driver returns 0 on
+success. The sriov configure still works but will cause a warning
+message:
 
-Fix this by having v7_cpu_resume() compiled only when cpu_resume() it
-calls is available as well.
+  XX VFs requested; only 0 enabled
 
-The C declaration for the function remains unguarded to avoid future code
-inadvertently using a stub and introducing a regression to the bug the
-original commit fixed.
+This patch changes the return value accordingly.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
-Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Tested-by: Roland Hieber <rhi@pengutronix.de>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Xu Yilun <yilun.xu@intel.com>
+Signed-off-by: Wu Hao <hao.wu@intel.com>
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-imx/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/fpga/dfl-pci.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/arm/mach-imx/Makefile
-+++ b/arch/arm/mach-imx/Makefile
-@@ -89,8 +89,10 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7
- obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
- obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
- endif
-+ifeq ($(CONFIG_ARM_CPU_SUSPEND),y)
- AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
- obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
-+endif
- obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
+--- a/drivers/fpga/dfl-pci.c
++++ b/drivers/fpga/dfl-pci.c
+@@ -248,11 +248,13 @@ static int cci_pci_sriov_configure(struc
+ 			return ret;
  
- obj-$(CONFIG_SOC_IMX1) += mach-imx1.o
+ 		ret = pci_enable_sriov(pcidev, num_vfs);
+-		if (ret)
++		if (ret) {
+ 			dfl_fpga_cdev_config_ports_pf(cdev);
++			return ret;
++		}
+ 	}
+ 
+-	return ret;
++	return num_vfs;
+ }
+ 
+ static void cci_pci_remove(struct pci_dev *pcidev)
 
 
