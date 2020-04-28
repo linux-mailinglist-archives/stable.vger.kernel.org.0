@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FF2B1BCBBF
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E197D1BCB9F
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729016AbgD1S1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39784 "EHLO mail.kernel.org"
+        id S1728814AbgD1S6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:58:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729008AbgD1S1e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:27:34 -0400
+        id S1729294AbgD1S3E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:29:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B85D20B80;
-        Tue, 28 Apr 2020 18:27:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DFAB20730;
+        Tue, 28 Apr 2020 18:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098454;
-        bh=WtFFg+xfv3yp5OaGOzyTKsh0HWEpbRKf3J6sc3YgcPQ=;
+        s=default; t=1588098543;
+        bh=e3Ix0CKQnO2vFrhw8s5qjaLhbJuDinvzEZLMlqEOCsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lla+8z9jlM+rXSmen4lyXWjyIQ3CTLyLk/nB0RCcDmJUzW/UCFscKy7/pzaWGP3OK
-         wopUrfIs3xwkSVA4v1hAxM82rRiuxZQp3iplzHD+xsgyFUWmT8JR9TXmpz+ZGVlI8V
-         GGQX2Q2r6bbb772erSEH7/b6iF/1D99qqBC6bK7E=
+        b=ak4nOytHKWYQyUfIygc+xSZ5r+RTxULAW7Tv1zRjktzLiii9qKvhmFNGXo9/K85VQ
+         2kThyHmNhh0pprbZcj0OyjxY6c98dKsQr8SuXm4628wYOi8rBdu/p2m03QrKpU8BnZ
+         9L83P1CF3oB8dTdWeVO8W5DYrmUMSAw051fD8MAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 047/167] ipv4: Update fib_select_default to handle nexthop objects
+        stable@vger.kernel.org, Tero Kristo <t-kristo@ti.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 011/131] watchdog: reset last_hw_keepalive time at start
 Date:   Tue, 28 Apr 2020 20:23:43 +0200
-Message-Id: <20200428182231.025238316@linuxfoundation.org>
+Message-Id: <20200428182226.602808871@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,105 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit 7c74b0bec918c1e0ca0b4208038c156eacf8f13f ]
+[ Upstream commit 982bb70517aef2225bad1d802887b733db492cc0 ]
 
-A user reported [0] hitting the WARN_ON in fib_info_nh:
+Currently the watchdog core does not initialize the last_hw_keepalive
+time during watchdog startup. This will cause the watchdog to be pinged
+immediately if enough time has passed from the system boot-up time, and
+some types of watchdogs like K3 RTI does not like this.
 
-    [ 8633.839816] ------------[ cut here ]------------
-    [ 8633.839819] WARNING: CPU: 0 PID: 1719 at include/net/nexthop.h:251 fib_select_path+0x303/0x381
-    ...
-    [ 8633.839846] RIP: 0010:fib_select_path+0x303/0x381
-    ...
-    [ 8633.839848] RSP: 0018:ffffb04d407f7d00 EFLAGS: 00010286
-    [ 8633.839850] RAX: 0000000000000000 RBX: ffff9460b9897ee8 RCX: 00000000000000fe
-    [ 8633.839851] RDX: 0000000000000000 RSI: 00000000ffffffff RDI: 0000000000000000
-    [ 8633.839852] RBP: ffff946076049850 R08: 0000000059263a83 R09: ffff9460840e4000
-    [ 8633.839853] R10: 0000000000000014 R11: 0000000000000000 R12: ffffb04d407f7dc0
-    [ 8633.839854] R13: ffffffffa4ce3240 R14: 0000000000000000 R15: ffff9460b7681f60
-    [ 8633.839857] FS:  00007fcac2e02700(0000) GS:ffff9460bdc00000(0000) knlGS:0000000000000000
-    [ 8633.839858] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    [ 8633.839859] CR2: 00007f27beb77e28 CR3: 0000000077734000 CR4: 00000000000006f0
-    [ 8633.839867] Call Trace:
-    [ 8633.839871]  ip_route_output_key_hash_rcu+0x421/0x890
-    [ 8633.839873]  ip_route_output_key_hash+0x5e/0x80
-    [ 8633.839876]  ip_route_output_flow+0x1a/0x50
-    [ 8633.839878]  __ip4_datagram_connect+0x154/0x310
-    [ 8633.839880]  ip4_datagram_connect+0x28/0x40
-    [ 8633.839882]  __sys_connect+0xd6/0x100
-    ...
+To avoid the issue, setup the last_hw_keepalive time during watchdog
+startup.
 
-The WARN_ON is triggered in fib_select_default which is invoked when
-there are multiple default routes. Update the function to use
-fib_info_nhc and convert the nexthop checks to use fib_nh_common.
-
-Add test case that covers the affected code path.
-
-[0] https://github.com/FRRouting/frr/issues/6089
-
-Fixes: 493ced1ac47c ("ipv4: Allow routes to use nexthop objects")
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200302200426.6492-3-t-kristo@ti.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_semantics.c                    |    6 +++---
- tools/testing/selftests/net/fib_nexthops.sh |   23 +++++++++++++++++++++++
- 2 files changed, 26 insertions(+), 3 deletions(-)
+ drivers/watchdog/watchdog_dev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -2012,7 +2012,7 @@ static void fib_select_default(const str
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index e64aa88e99dab..10b2090f3e5e7 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -264,6 +264,7 @@ static int watchdog_start(struct watchdog_device *wdd)
+ 	if (err == 0) {
+ 		set_bit(WDOG_ACTIVE, &wdd->status);
+ 		wd_data->last_keepalive = started_at;
++		wd_data->last_hw_keepalive = started_at;
+ 		watchdog_update_worker(wdd);
+ 	}
  
- 	hlist_for_each_entry_rcu(fa, fa_head, fa_list) {
- 		struct fib_info *next_fi = fa->fa_info;
--		struct fib_nh *nh;
-+		struct fib_nh_common *nhc;
- 
- 		if (fa->fa_slen != slen)
- 			continue;
-@@ -2035,8 +2035,8 @@ static void fib_select_default(const str
- 		    fa->fa_type != RTN_UNICAST)
- 			continue;
- 
--		nh = fib_info_nh(next_fi, 0);
--		if (!nh->fib_nh_gw4 || nh->fib_nh_scope != RT_SCOPE_LINK)
-+		nhc = fib_info_nhc(next_fi, 0);
-+		if (!nhc->nhc_gw_family || nhc->nhc_scope != RT_SCOPE_LINK)
- 			continue;
- 
- 		fib_alias_accessed(fa);
---- a/tools/testing/selftests/net/fib_nexthops.sh
-+++ b/tools/testing/selftests/net/fib_nexthops.sh
-@@ -749,6 +749,29 @@ ipv4_fcnal_runtime()
- 	run_cmd "ip netns exec me ping -c1 -w1 172.16.101.1"
- 	log_test $? 0 "Ping - multipath"
- 
-+	run_cmd "$IP ro delete 172.16.101.1/32 nhid 122"
-+
-+	#
-+	# multiple default routes
-+	# - tests fib_select_default
-+	run_cmd "$IP nexthop add id 501 via 172.16.1.2 dev veth1"
-+	run_cmd "$IP ro add default nhid 501"
-+	run_cmd "$IP ro add default via 172.16.1.3 dev veth1 metric 20"
-+	run_cmd "ip netns exec me ping -c1 -w1 172.16.101.1"
-+	log_test $? 0 "Ping - multiple default routes, nh first"
-+
-+	# flip the order
-+	run_cmd "$IP ro del default nhid 501"
-+	run_cmd "$IP ro del default via 172.16.1.3 dev veth1 metric 20"
-+	run_cmd "$IP ro add default via 172.16.1.2 dev veth1 metric 20"
-+	run_cmd "$IP nexthop replace id 501 via 172.16.1.3 dev veth1"
-+	run_cmd "$IP ro add default nhid 501 metric 20"
-+	run_cmd "ip netns exec me ping -c1 -w1 172.16.101.1"
-+	log_test $? 0 "Ping - multiple default routes, nh second"
-+
-+	run_cmd "$IP nexthop delete nhid 501"
-+	run_cmd "$IP ro del default"
-+
- 	#
- 	# IPv4 with blackhole nexthops
- 	#
+-- 
+2.20.1
+
 
 
