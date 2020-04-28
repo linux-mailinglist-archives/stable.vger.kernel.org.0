@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D39B01BCA4C
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2DCF1BC9F4
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730500AbgD1Sks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:40:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60084 "EHLO mail.kernel.org"
+        id S1731507AbgD1SoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:44:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728948AbgD1Skr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:40:47 -0400
+        id S1731372AbgD1SoU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:44:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59A3720B80;
-        Tue, 28 Apr 2020 18:40:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2972720575;
+        Tue, 28 Apr 2020 18:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099246;
-        bh=xUBrIa9s6qjyrUqQUlPyqQ8PfAecf3yiWxZwq//pzhw=;
+        s=default; t=1588099459;
+        bh=SYcstaTmz5kLRXaXsVYOwtRBxzojpc98XB8EkQONjts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJLWK+Czl2+vlFg6n76mvHU3oInqwQObsCGF7+tRWbe7j3Rt80u/t8Q/SthJy4Ry7
-         ozWvPh5rS81HUxo3tzyJAzJy/6hSWhUSaj5WtnZSOZ3vokg7kAdbAm8ZIvrl7CTti7
-         x1oOPgYsUbkg99FF4SYMi5CosAnHrA5qE13x6vtc=
+        b=i2yXxYtO5sh4g/S0zny8yPDO67WrwlgWoyHiL4Cc0v66NANwGBjLLQbel1rBpiWdE
+         0vxpv2KSvi344DhhI0Nv/9Ge6m+YebW4mu0LDBk3CS4JF4VMsqQM7MVf9OyP+mkfX/
+         oDr88E7oDSNXH950dXLvaERmhwTr8jgK+OnVK6zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 4.19 121/131] staging: vt6656: Power save stop wake_up_count wrap around.
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH 5.4 159/168] Revert "serial: uartps: Use the same dynamic major number for all ports"
 Date:   Tue, 28 Apr 2020 20:25:33 +0200
-Message-Id: <20200428182240.413244161@linuxfoundation.org>
+Message-Id: <20200428182251.173351093@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malcolm Priestley <tvboxspy@gmail.com>
+From: Michal Simek <michal.simek@xilinx.com>
 
-commit ea81c3486442f4643fc9825a2bb1b430b829bccd upstream.
+commit 8da1a3940da4b0e82848ec29b835486890bc9232 upstream.
 
-conf.listen_interval can sometimes be zero causing wake_up_count
-to wrap around up to many beacons too late causing
-CTRL-EVENT-BEACON-LOSS as in.
+This reverts commit ab262666018de6f4e206b021386b93ed0c164316.
 
-wpa_supplicant[795]: message repeated 45 times: [..CTRL-EVENT-BEACON-LOSS ]
+As Johan says, this driver needs a lot more work and these changes are
+only going in the wrong direction:
+  https://lkml.kernel.org/r/20190523091839.GC568@localhost
 
-Fixes: 43c93d9bf5e2 ("staging: vt6656: implement power saving code.")
+Reported-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/fce47bb5-7ca6-7671-5094-5c6107302f2b@gmail.com
+Link: https://lore.kernel.org/r/14a565fc1e14a5ec6cc6a6710deb878ae8305f22.1585905873.git.michal.simek@xilinx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6656/int.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serial/xilinx_uartps.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/vt6656/int.c
-+++ b/drivers/staging/vt6656/int.c
-@@ -143,7 +143,8 @@ void vnt_int_process_data(struct vnt_pri
- 				priv->wake_up_count =
- 					priv->hw->conf.listen_interval;
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -30,13 +30,13 @@
  
--			--priv->wake_up_count;
-+			if (priv->wake_up_count)
-+				--priv->wake_up_count;
+ #define CDNS_UART_TTY_NAME	"ttyPS"
+ #define CDNS_UART_NAME		"xuartps"
++#define CDNS_UART_MAJOR		0	/* use dynamic node allocation */
+ #define CDNS_UART_FIFO_SIZE	64	/* FIFO size */
+ #define CDNS_UART_REGISTER_SPACE	0x1000
+ #define TX_TIMEOUT		500000
  
- 			/* Turn on wake up to listen next beacon */
- 			if (priv->wake_up_count == 1)
+ /* Rx Trigger level */
+ static int rx_trigger_level = 56;
+-static int uartps_major;
+ module_param(rx_trigger_level, uint, 0444);
+ MODULE_PARM_DESC(rx_trigger_level, "Rx trigger level, 1-63 bytes");
+ 
+@@ -1521,7 +1521,7 @@ static int cdns_uart_probe(struct platfo
+ 	cdns_uart_uart_driver->owner = THIS_MODULE;
+ 	cdns_uart_uart_driver->driver_name = driver_name;
+ 	cdns_uart_uart_driver->dev_name	= CDNS_UART_TTY_NAME;
+-	cdns_uart_uart_driver->major = uartps_major;
++	cdns_uart_uart_driver->major = CDNS_UART_MAJOR;
+ 	cdns_uart_uart_driver->minor = cdns_uart_data->id;
+ 	cdns_uart_uart_driver->nr = 1;
+ 
+@@ -1550,7 +1550,6 @@ static int cdns_uart_probe(struct platfo
+ 		goto err_out_id;
+ 	}
+ 
+-	uartps_major = cdns_uart_uart_driver->tty_driver->major;
+ 	cdns_uart_data->cdns_uart_driver = cdns_uart_uart_driver;
+ 
+ 	/*
 
 
