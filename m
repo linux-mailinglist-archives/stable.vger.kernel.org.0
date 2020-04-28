@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B27CE1BCA6E
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 693161BC844
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730493AbgD1SkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:40:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59260 "EHLO mail.kernel.org"
+        id S1729596AbgD1SbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:31:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730899AbgD1SkM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:40:12 -0400
+        id S1729588AbgD1Sa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D48C120575;
-        Tue, 28 Apr 2020 18:40:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3054A20B80;
+        Tue, 28 Apr 2020 18:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099212;
-        bh=+ih6MphER0J1zqqkZ6A8BsDxyML4CcO5wlpDOSwsHwk=;
+        s=default; t=1588098658;
+        bh=mdH9Iw+tpsIVT6b8XCff/ERcE3qWDEk3zy2/+emkh6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gt3v5TcnorVpsGtM342W1kKnSGm63dIBYGcmXnVLSc5pzcQwenW/RzZNWChvOWtkj
-         u2rlb3agpX2tpQcPSB3A4xTHkjCkledkbjjk5uYudgUR19kRAOCe7G2iGWRwloBQdr
-         JppixJCHjp9dxFy2kWRO2omwjsLHQr2Q/PMU4Uco=
+        b=gkfT2QG9JD7pfmwFyT3DKF3we5Hphay0ZXNWOIa/6GS+EXMp/1xhalCzw3v+bhG68
+         E+GNV1UJQ3g+y4wM1xyHgSqF2/9UcIoMITkICfQ5tnrhW1EkdQ7xx88dMBXjnB9dhe
+         mRtETCxXgjPIWexazi6r5LRzjFnsf+FHatUqytMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 074/168] net: dsa: b53: Lookup VID in ARL searches when VLAN is enabled
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 036/131] PCI/ASPM: Allow re-enabling Clock PM
 Date:   Tue, 28 Apr 2020 20:24:08 +0200
-Message-Id: <20200428182241.449034633@linuxfoundation.org>
+Message-Id: <20200428182229.618808952@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 2e97b0cd1651a270f3a3fcf42115c51f3284c049 ]
+[ Upstream commit 35efea32b26f9aacc99bf07e0d2cdfba2028b099 ]
 
-When VLAN is enabled, and an ARL search is issued, we also need to
-compare the full {MAC,VID} tuple before returning a successful search
-result.
+Previously Clock PM could not be re-enabled after being disabled by
+pci_disable_link_state() because clkpm_capable was reset.  Change this by
+adding a clkpm_disable field similar to aspm_disable.
 
-Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/4e8a66db-7d53-4a66-c26c-f0037ffaa705@gmail.com
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/b53/b53_common.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pci/pcie/aspm.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -1472,6 +1472,9 @@ static int b53_arl_read(struct b53_devic
- 			continue;
- 		if ((mac_vid & ARLTBL_MAC_MASK) != mac)
- 			continue;
-+		if (dev->vlan_enabled &&
-+		    ((mac_vid >> ARLTBL_VID_S) & ARLTBL_VID_MASK) != vid)
-+			continue;
- 		*idx = i;
- 	}
+diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
+index af79a7168677d..db2efa219028c 100644
+--- a/drivers/pci/pcie/aspm.c
++++ b/drivers/pci/pcie/aspm.c
+@@ -67,6 +67,7 @@ struct pcie_link_state {
+ 	u32 clkpm_capable:1;		/* Clock PM capable? */
+ 	u32 clkpm_enabled:1;		/* Current Clock PM state */
+ 	u32 clkpm_default:1;		/* Default Clock PM state by BIOS */
++	u32 clkpm_disable:1;		/* Clock PM disabled */
  
+ 	/* Exit latencies */
+ 	struct aspm_latency latency_up;	/* Upstream direction exit latency */
+@@ -164,8 +165,11 @@ static void pcie_set_clkpm_nocheck(struct pcie_link_state *link, int enable)
+ 
+ static void pcie_set_clkpm(struct pcie_link_state *link, int enable)
+ {
+-	/* Don't enable Clock PM if the link is not Clock PM capable */
+-	if (!link->clkpm_capable)
++	/*
++	 * Don't enable Clock PM if the link is not Clock PM capable
++	 * or Clock PM is disabled
++	 */
++	if (!link->clkpm_capable || link->clkpm_disable)
+ 		enable = 0;
+ 	/* Need nothing if the specified equals to current state */
+ 	if (link->clkpm_enabled == enable)
+@@ -195,7 +199,8 @@ static void pcie_clkpm_cap_init(struct pcie_link_state *link, int blacklist)
+ 	}
+ 	link->clkpm_enabled = enabled;
+ 	link->clkpm_default = enabled;
+-	link->clkpm_capable = (blacklist) ? 0 : capable;
++	link->clkpm_capable = capable;
++	link->clkpm_disable = blacklist ? 1 : 0;
+ }
+ 
+ static bool pcie_retrain_link(struct pcie_link_state *link)
+@@ -1106,10 +1111,9 @@ static void __pci_disable_link_state(struct pci_dev *pdev, int state, bool sem)
+ 		link->aspm_disable |= ASPM_STATE_L1;
+ 	pcie_config_aspm_link(link, policy_to_aspm_state(link));
+ 
+-	if (state & PCIE_LINK_STATE_CLKPM) {
+-		link->clkpm_capable = 0;
+-		pcie_set_clkpm(link, 0);
+-	}
++	if (state & PCIE_LINK_STATE_CLKPM)
++		link->clkpm_disable = 1;
++	pcie_set_clkpm(link, policy_to_clkpm_state(link));
+ 	mutex_unlock(&aspm_lock);
+ 	if (sem)
+ 		up_read(&pci_bus_sem);
+-- 
+2.20.1
+
 
 
