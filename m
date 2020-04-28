@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 109231BCA30
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4512B1BCA86
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730462AbgD1Srq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:47:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33270 "EHLO mail.kernel.org"
+        id S1729396AbgD1Sts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:49:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729775AbgD1Slk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:41:40 -0400
+        id S1730862AbgD1Sjs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:39:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 283FC2076A;
-        Tue, 28 Apr 2020 18:41:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B8AF20730;
+        Tue, 28 Apr 2020 18:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099300;
-        bh=hR2xFyMklUsgvm7Lpdse90FWVnFI6b1YvMiQ4fPId0I=;
+        s=default; t=1588099187;
+        bh=p1mEFL7GZrCu3Wlff4cQ8A8VxqTd/adu9gpNmAseRug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ey96uNbDjqQiT0hiTJ2u3EGR3S1ghY8TH4nv4McCTvP2MyoLKVGr66kyqOqxDPn/A
-         ekDqL1kCoqmLtbkSUX9E1nxVUitlZHUl5VXpsHnKJvF9qoNcQO06pub5qorx0vNcUY
-         gbHP/cC/M5J4L/t43XtJiOReekUv618zHUrwLuWc=
+        b=VPOtuzL8w2VafAu7VR9JcFYjKChQuTizUFUD6O0u7SiEMi/Tjv2VPk+Cik9EjWX68
+         3/V2Sc86CVqQlaXVHLVHRB9QBILHy1b/DADhASz4Ye0wZ4oZVKAfUY95/ov8AiDVdr
+         /AjqReed7M9RkDAq7CXHDrrNKWYLyPZAACqqcgFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Gerald Schaefer <gerald.schaefer@de.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4.19 131/131] s390/mm: fix page table upgrade vs 2ndary address mode accesses
+Subject: [PATCH 5.6 167/167] s390/mm: fix page table upgrade vs 2ndary address mode accesses
 Date:   Tue, 28 Apr 2020 20:25:43 +0200
-Message-Id: <20200428182241.844668589@linuxfoundation.org>
+Message-Id: <20200428182246.762029529@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -144,7 +144,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  EXPORT_SYMBOL(enable_sacf_uaccess);
 --- a/arch/s390/mm/pgalloc.c
 +++ b/arch/s390/mm/pgalloc.c
-@@ -72,8 +72,20 @@ static void __crst_table_upgrade(void *a
+@@ -70,8 +70,20 @@ static void __crst_table_upgrade(void *a
  {
  	struct mm_struct *mm = arg;
  
