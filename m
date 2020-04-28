@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B50C1BCA61
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4CE61BCADB
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730667AbgD1Sip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:38:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57328 "EHLO mail.kernel.org"
+        id S1728361AbgD1Swg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:52:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730296AbgD1Sio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:38:44 -0400
+        id S1729261AbgD1SgF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:36:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E1912076A;
-        Tue, 28 Apr 2020 18:38:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C12FB2085B;
+        Tue, 28 Apr 2020 18:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099124;
-        bh=I5JzWu+lXm0BEl0LHR3wzviUjpFcxKuDsFKGE+8czS8=;
+        s=default; t=1588098964;
+        bh=D7yI5jf0N7AIEwKlsJJUMm+DUQddQ9Hx2yGufvoqEMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCecL0eJTSiKD/dkOtci3VQzbhwirfX3VxRvnojN1kI/xdwI2ufujZJC1yM7f/XBH
-         1DQiTS/a+P8M8GQKkzIaIHjHRH4BKHZM9t1mdh75N6iPY5VZtmgqUDUG6aZmpfZI/w
-         VC+9BKbWZr22Gj6i8UJYN+T1iO2UPO7huaRsqsUM=
+        b=lOFAFWhAmoKshksV8porf9TP8szp3KoSTVDPKtFEsumh1OG2/hd3d6mWT2HC0B5h8
+         YeAaxInjgaehGgAl13XS/oDGGuBBglOFYpZT7sTqbKvK5ed66yud8zzsQRskfvCOmZ
+         RbJLe5K39d6iQIZOaolvHXhBKOTyveVzerRphEVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lary Gibaud <yarl-baudig@mailoo.org>,
+        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
+        Fabrice Gasnier <fabrice.gasnier@st.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 078/131] iio: st_sensors: rely on odr mask to know if odr can be set
-Date:   Tue, 28 Apr 2020 20:24:50 +0200
-Message-Id: <20200428182234.729618613@linuxfoundation.org>
+Subject: [PATCH 4.19 079/131] iio: adc: stm32-adc: fix sleep in atomic context
+Date:   Tue, 28 Apr 2020 20:24:51 +0200
+Message-Id: <20200428182234.861197663@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
 References: <20200428182224.822179290@linuxfoundation.org>
@@ -44,36 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lary Gibaud <yarl-baudig@mailoo.org>
+From: Olivier Moysan <olivier.moysan@st.com>
 
-commit e450e07c14abae563ad13b064cbce9fdccc6bc8d upstream.
+commit e2042d2936dfc84e9c600fe9b9d0039ca0e54b7d upstream.
 
-Indeed, relying on addr being not 0 cannot work because some device have
-their register to set odr at address 0. As a matter of fact, if the odr
-can be set, then there is a mask.
+This commit fixes the following error:
+"BUG: sleeping function called from invalid context at kernel/irq/chip.c"
 
-Sensors with ODR register at address 0 are: lsm303dlh, lsm303dlhc, lsm303dlm
+In DMA mode suppress the trigger irq handler, and make the buffer
+transfers directly in DMA callback, instead.
 
-Fixes: 7d245172675a ("iio: common: st_sensors: check odr address value in st_sensors_set_odr()")
-Signed-off-by: Lary Gibaud <yarl-baudig@mailoo.org>
+Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/common/st_sensors/st_sensors_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/stm32-adc.c |   31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/common/st_sensors/st_sensors_core.c
-+++ b/drivers/iio/common/st_sensors/st_sensors_core.c
-@@ -93,7 +93,7 @@ int st_sensors_set_odr(struct iio_dev *i
- 	struct st_sensor_odr_avl odr_out = {0, 0};
- 	struct st_sensor_data *sdata = iio_priv(indio_dev);
+--- a/drivers/iio/adc/stm32-adc.c
++++ b/drivers/iio/adc/stm32-adc.c
+@@ -1308,8 +1308,30 @@ static unsigned int stm32_adc_dma_residu
+ static void stm32_adc_dma_buffer_done(void *data)
+ {
+ 	struct iio_dev *indio_dev = data;
++	struct stm32_adc *adc = iio_priv(indio_dev);
++	int residue = stm32_adc_dma_residue(adc);
++
++	/*
++	 * In DMA mode the trigger services of IIO are not used
++	 * (e.g. no call to iio_trigger_poll).
++	 * Calling irq handler associated to the hardware trigger is not
++	 * relevant as the conversions have already been done. Data
++	 * transfers are performed directly in DMA callback instead.
++	 * This implementation avoids to call trigger irq handler that
++	 * may sleep, in an atomic context (DMA irq handler context).
++	 */
++	dev_dbg(&indio_dev->dev, "%s bufi=%d\n", __func__, adc->bufi);
++
++	while (residue >= indio_dev->scan_bytes) {
++		u16 *buffer = (u16 *)&adc->rx_buf[adc->bufi];
  
--	if (!sdata->sensor_settings->odr.addr)
-+	if (!sdata->sensor_settings->odr.mask)
- 		return 0;
+-	iio_trigger_poll_chained(indio_dev->trig);
++		iio_push_to_buffers(indio_dev, buffer);
++
++		residue -= indio_dev->scan_bytes;
++		adc->bufi += indio_dev->scan_bytes;
++		if (adc->bufi >= adc->rx_buf_sz)
++			adc->bufi = 0;
++	}
+ }
  
- 	err = st_sensors_match_odr(sdata->sensor_settings, odr, &odr_out);
+ static int stm32_adc_dma_start(struct iio_dev *indio_dev)
+@@ -1703,6 +1725,7 @@ static int stm32_adc_probe(struct platfo
+ {
+ 	struct iio_dev *indio_dev;
+ 	struct device *dev = &pdev->dev;
++	irqreturn_t (*handler)(int irq, void *p) = NULL;
+ 	struct stm32_adc *adc;
+ 	int ret;
+ 
+@@ -1785,9 +1808,11 @@ static int stm32_adc_probe(struct platfo
+ 	if (ret < 0)
+ 		goto err_clk_disable;
+ 
++	if (!adc->dma_chan)
++		handler = &stm32_adc_trigger_handler;
++
+ 	ret = iio_triggered_buffer_setup(indio_dev,
+-					 &iio_pollfunc_store_time,
+-					 &stm32_adc_trigger_handler,
++					 &iio_pollfunc_store_time, handler,
+ 					 &stm32_adc_buffer_setup_ops);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "buffer setup failed\n");
 
 
