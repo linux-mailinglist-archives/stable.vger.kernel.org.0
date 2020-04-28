@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B177E1BC7C3
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF7DD1BCB0F
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728766AbgD1S0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:26:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38174 "EHLO mail.kernel.org"
+        id S1729289AbgD1SeX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:34:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728772AbgD1S0f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:26:35 -0400
+        id S1728773AbgD1SeW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:34:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B589C208E0;
-        Tue, 28 Apr 2020 18:26:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 587F620B80;
+        Tue, 28 Apr 2020 18:34:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098395;
-        bh=tJx2Pw8jARz8g4y2ONxmN/CJIrowA+R2SLrDY7KpChs=;
+        s=default; t=1588098861;
+        bh=no3knKj15K/kqw5BYs/rcA1+Ow+Jsr8lPJT0094hSSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVezjO2sA8zWK+vPGzJQP4trfj61PdRApDupbkv2R613s2PRnPUP8LuPfoq32L34M
-         FnO5s4Q74NRp9O/JEmKBn2EVnpHhBAwDqPUZGw0fL2cCNJ0xD/YpFImjL9SvoJ4FBf
-         MGC6+fdGOMSMRV5s3Jz/89eEOCVVnmcUisW0X4Q0=
+        b=eVwnma7udfIIoMsYuqFX7HoOkEExMeH/EZnGUEQvg3Vo/c0PR+C4qanritqoy0JTx
+         /5kSCK4tCvQHxjgSFwg2GFRZIrY6Ah2IEsUKCzf+rhewcslU5I4wVygY3eK8S18H+d
+         T4UKiXa+ThGL2n4RCrB1crr8yAaX+wrR36w/ouDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Jessica Yu <jeyu@kernel.org>,
-        Kees Cook <keescook@chromium.org>, NeilBrown <neilb@suse.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Ingo Molnar <mingo@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        NeilBrown <neilb@suse.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Waiman Long <longman@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 022/167] selftests: kmod: fix handling test numbers above 9
+Subject: [PATCH 5.4 024/168] kernel/gcov/fs.c: gcov_seq_next() should increase position index
 Date:   Tue, 28 Apr 2020 20:23:18 +0200
-Message-Id: <20200428182227.963762880@linuxfoundation.org>
+Message-Id: <20200428182234.767115767@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,62 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 6d573a07528308eb77ec072c010819c359bebf6e ]
+[ Upstream commit f4d74ef6220c1eda0875da30457bef5c7111ab06 ]
 
-get_test_count() and get_test_enabled() were broken for test numbers
-above 9 due to awk interpreting a field specification like '$0010' as
-octal rather than decimal.  Fix it by stripping the leading zeroes.
+If seq_file .next function does not change position index, read after
+some lseek can generate unexpected output.
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jeff Vander Stoep <jeffv@google.com>
-Cc: Jessica Yu <jeyu@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
+Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>
 Cc: NeilBrown <neilb@suse.com>
-Link: http://lkml.kernel.org/r/20200318230515.171692-5-ebiggers@kernel.org
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Waiman Long <longman@redhat.com>
+Link: http://lkml.kernel.org/r/f65c6ee7-bd00-f910-2f8a-37cc67e4ff88@virtuozzo.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kmod/kmod.sh | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ kernel/gcov/fs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kmod/kmod.sh b/tools/testing/selftests/kmod/kmod.sh
-index 8b944cf042f6c..315a43111e046 100755
---- a/tools/testing/selftests/kmod/kmod.sh
-+++ b/tools/testing/selftests/kmod/kmod.sh
-@@ -505,18 +505,23 @@ function test_num()
- 	fi
- }
- 
--function get_test_count()
-+function get_test_data()
+diff --git a/kernel/gcov/fs.c b/kernel/gcov/fs.c
+index e5eb5ea7ea598..cc4ee482d3fba 100644
+--- a/kernel/gcov/fs.c
++++ b/kernel/gcov/fs.c
+@@ -108,9 +108,9 @@ static void *gcov_seq_next(struct seq_file *seq, void *data, loff_t *pos)
  {
- 	test_num $1
--	TEST_DATA=$(echo $ALL_TESTS | awk '{print $'$1'}')
-+	local field_num=$(echo $1 | sed 's/^0*//')
-+	echo $ALL_TESTS | awk '{print $'$field_num'}'
-+}
-+
-+function get_test_count()
-+{
-+	TEST_DATA=$(get_test_data $1)
- 	LAST_TWO=${TEST_DATA#*:*}
- 	echo ${LAST_TWO%:*}
- }
+ 	struct gcov_iterator *iter = data;
  
- function get_test_enabled()
- {
--	test_num $1
--	TEST_DATA=$(echo $ALL_TESTS | awk '{print $'$1'}')
-+	TEST_DATA=$(get_test_data $1)
- 	echo ${TEST_DATA#*:*:}
- }
++	(*pos)++;
+ 	if (gcov_iter_next(iter))
+ 		return NULL;
+-	(*pos)++;
  
+ 	return iter;
+ }
 -- 
 2.20.1
 
