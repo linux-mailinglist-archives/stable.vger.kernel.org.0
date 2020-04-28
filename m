@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC6DD1BCBC0
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 192341BCB9B
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729031AbgD1S1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:27:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39930 "EHLO mail.kernel.org"
+        id S1729223AbgD1S6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:58:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729026AbgD1S1j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:27:39 -0400
+        id S1728557AbgD1S3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:29:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77596214AF;
-        Tue, 28 Apr 2020 18:27:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 053AC20BED;
+        Tue, 28 Apr 2020 18:29:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098458;
-        bh=/7QBwKfyFaGo2/A27oj+RtU0qplo/5qvvtiZVFK3pMA=;
+        s=default; t=1588098553;
+        bh=ywCuuZVchHuljK5/XJ7hU6cICroLR7jkduQE/GKG5GM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBxVapo+/6mSwnE9IT+hqAOSf6D/swB/IwgwwqsfCSF9SEpdzlL9kSGIYMGpmcXbk
-         JFYB8+Hh/DZuXZjrhMNAw3jGtVcKwY3XAyGuh2BJsxtIuRGHO8h7D4vs1E/LIMnpLJ
-         k2tv+caPsF8Fre6+LX29PIPA02Ni5xSbdZbbBOQE=
+        b=mKklbHEJvSgWe21/XWzThaveYZQozxk5f/D+5IHlzF+ryR2yCnJ7wx8w41+o/pvCy
+         OVOX/+FNqZrIPsVb90ofwN9IEF3QXywhYTta6Hqfbu+qZC24t1DqFRMLXR6oeWQlvh
+         qYxbC6qhZfiMBO1v08HCxKaONV8w0HmbWkAIOtsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 049/167] macsec: avoid to set wrong mtu
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 013/131] scsi: lpfc: Fix crash in target side cable pulls hitting WAIT_FOR_UNREG
 Date:   Tue, 28 Apr 2020 20:23:45 +0200
-Message-Id: <20200428182231.256018680@linuxfoundation.org>
+Message-Id: <20200428182226.838996617@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 7f327080364abccf923fa5a5b24e038eb0ba1407 ]
+[ Upstream commit 807e7353d8a7105ce884d22b0dbc034993c6679c ]
 
-When a macsec interface is created, the mtu is calculated with the lower
-interface's mtu value.
-If the mtu of lower interface is lower than the length, which is needed
-by macsec interface, macsec's mtu value will be overflowed.
-So, if the lower interface's mtu is too low, macsec interface's mtu
-should be set to 0.
+Kernel is crashing with the following stacktrace:
 
-Test commands:
-    ip link add dummy0 mtu 10 type dummy
-    ip link add macsec0 link dummy0 type macsec
-    ip link show macsec0
+  BUG: unable to handle kernel NULL pointer dereference at
+    00000000000005bc
+  IP: lpfc_nvme_register_port+0x1a8/0x3a0 [lpfc]
+  ...
+  Call Trace:
+  lpfc_nlp_state_cleanup+0x2b2/0x500 [lpfc]
+  lpfc_nlp_set_state+0xd7/0x1a0 [lpfc]
+  lpfc_cmpl_prli_prli_issue+0x1f7/0x450 [lpfc]
+  lpfc_disc_state_machine+0x7a/0x1e0 [lpfc]
+  lpfc_cmpl_els_prli+0x16f/0x1e0 [lpfc]
+  lpfc_sli_sp_handle_rspiocb+0x5b2/0x690 [lpfc]
+  lpfc_sli_handle_slow_ring_event_s4+0x182/0x230 [lpfc]
+  lpfc_do_work+0x87f/0x1570 [lpfc]
+  kthread+0x10d/0x130
+  ret_from_fork+0x35/0x40
 
-Before:
-    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 4294967274
-After:
-    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 0
+During target side fault injections, it is possible to hit the
+NLP_WAIT_FOR_UNREG case in lpfc_nvme_remoteport_delete. A prior commit
+fixed a rebind and delete race condition, but called lpfc_nlp_put
+unconditionally. This triggered a deletion and the crash.
 
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix by movng nlp_put to inside the NLP_WAIT_FOR_UNREG case, where the nlp
+will be being unregistered/removed. Leave the reference if the flag isn't
+set.
+
+Link: https://lore.kernel.org/r/20200322181304.37655-8-jsmart2021@gmail.com
+Fixes: b15bd3e6212e ("scsi: lpfc: Fix nvme remoteport registration race conditions")
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/scsi/lpfc/lpfc_nvme.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -3658,11 +3658,11 @@ static int macsec_newlink(struct net *ne
- 			  struct netlink_ext_ack *extack)
- {
- 	struct macsec_dev *macsec = macsec_priv(dev);
-+	rx_handler_func_t *rx_handler;
-+	u8 icv_len = DEFAULT_ICV_LEN;
- 	struct net_device *real_dev;
--	int err;
-+	int err, mtu;
- 	sci_t sci;
--	u8 icv_len = DEFAULT_ICV_LEN;
--	rx_handler_func_t *rx_handler;
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index f73726e55e44d..e3013858937b7 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -342,13 +342,15 @@ lpfc_nvme_remoteport_delete(struct nvme_fc_remote_port *remoteport)
+ 	if (ndlp->upcall_flags & NLP_WAIT_FOR_UNREG) {
+ 		ndlp->nrport = NULL;
+ 		ndlp->upcall_flags &= ~NLP_WAIT_FOR_UNREG;
+-	}
+-	spin_unlock_irq(&vport->phba->hbalock);
++		spin_unlock_irq(&vport->phba->hbalock);
  
- 	if (!tb[IFLA_LINK])
- 		return -EINVAL;
-@@ -3681,7 +3681,11 @@ static int macsec_newlink(struct net *ne
+-	/* Remove original register reference. The host transport
+-	 * won't reference this rport/remoteport any further.
+-	 */
+-	lpfc_nlp_put(ndlp);
++		/* Remove original register reference. The host transport
++		 * won't reference this rport/remoteport any further.
++		 */
++		lpfc_nlp_put(ndlp);
++	} else {
++		spin_unlock_irq(&vport->phba->hbalock);
++	}
  
- 	if (data && data[IFLA_MACSEC_ICV_LEN])
- 		icv_len = nla_get_u8(data[IFLA_MACSEC_ICV_LEN]);
--	dev->mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
-+	mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
-+	if (mtu < 0)
-+		dev->mtu = 0;
-+	else
-+		dev->mtu = mtu;
- 
- 	rx_handler = rtnl_dereference(real_dev->rx_handler);
- 	if (rx_handler && rx_handler != macsec_handle_frame)
+  rport_err:
+ 	return;
+-- 
+2.20.1
+
 
 
