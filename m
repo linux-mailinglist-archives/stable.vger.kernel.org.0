@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1D21BCB36
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C74FD1BCB32
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729798AbgD1ScU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48422 "EHLO mail.kernel.org"
+        id S1728998AbgD1Szd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:55:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729797AbgD1ScT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:32:19 -0400
+        id S1729324AbgD1Sc0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:32:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EC9321775;
-        Tue, 28 Apr 2020 18:32:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A559321744;
+        Tue, 28 Apr 2020 18:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098738;
-        bh=/jrAPI4wNWGF4M34LSkLZCDiQzxw+bs9kZbI0SIKvp0=;
+        s=default; t=1588098746;
+        bh=cz1vgpRm5YCqvx3UdUnNBTpYLfd4rEWDwTC1kBDrYpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNiihdIp/S73ZfU1cINb912Jz8h2vXTXy+m8vTINfAPB7YBDP4blbu+9ZGCYXE/OK
-         IyDDSXLPCQiMr2F3xts5swlNL0u53rHCtpIGwlx+rhkfMTS1icjQ3hJ1Z2VREsJS1/
-         j/ROCv5uE93BqwtttLE2YiFmxkqY7WByIST6jQm0=
+        b=p26Sf6Bb1IzOIkO0dC9X7XX1x+NbIfKkvP4BQa2mWc3x3J6/npl4M+oaI7i7Zkt3y
+         71P4YnjQtUs4DHRL1FsFE+RySGyYYG9UF3J+8xqb1X42FcjXeHI2ABw3UAlF/vFJ7m
+         +vtv9i7m9BFClChLCcQyxmZxV1FQbZtDcYecNTGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.6 105/167] ALSA: hda/realtek - Add new codec supported for ALC245
-Date:   Tue, 28 Apr 2020 20:24:41 +0200
-Message-Id: <20200428182238.435565977@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 106/167] ALSA: hda/hdmi: Add module option to disable audio component binding
+Date:   Tue, 28 Apr 2020 20:24:42 +0200
+Message-Id: <20200428182238.565943595@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
 References: <20200428182225.451225420@linuxfoundation.org>
@@ -43,47 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 7fbdcd8301a84c09cebfa64f1317a6dafeec9188 upstream.
+commit b392350ec3f229ad9603d3816f753479e441d99a upstream.
 
-Enable new codec supported for ALC245.
+As the recent regression showed, we want sometimes to turn off the
+audio component binding just for debugging.  This patch adds the
+module option to control it easily without compilation.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
+Fixes: ade49db337a9 ("ALSA: hda/hdmi - Allow audio component for AMD/ATI and Nvidia HDMI")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207223
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/8c0804738b2c42439f59c39c8437817f@realtek.com
+Link: https://lore.kernel.org/r/20200415162523.27499-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/patch_hdmi.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -369,6 +369,7 @@ static void alc_fill_eapd_coef(struct hd
- 	case 0x10ec0233:
- 	case 0x10ec0235:
- 	case 0x10ec0236:
-+	case 0x10ec0245:
- 	case 0x10ec0255:
- 	case 0x10ec0256:
- 	case 0x10ec0257:
-@@ -8073,6 +8074,7 @@ static int patch_alc269(struct hda_codec
- 		spec->gen.mixer_nid = 0;
- 		break;
- 	case 0x10ec0215:
-+	case 0x10ec0245:
- 	case 0x10ec0285:
- 	case 0x10ec0289:
- 		spec->codec_variant = ALC269_TYPE_ALC215;
-@@ -9334,6 +9336,7 @@ static const struct hda_device_id snd_hd
- 	HDA_CODEC_ENTRY(0x10ec0234, "ALC234", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0235, "ALC233", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0236, "ALC236", patch_alc269),
-+	HDA_CODEC_ENTRY(0x10ec0245, "ALC245", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0255, "ALC255", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0256, "ALC256", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0257, "ALC257", patch_alc269),
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -38,6 +38,10 @@ static bool static_hdmi_pcm;
+ module_param(static_hdmi_pcm, bool, 0644);
+ MODULE_PARM_DESC(static_hdmi_pcm, "Don't restrict PCM parameters per ELD info");
+ 
++static bool enable_acomp = true;
++module_param(enable_acomp, bool, 0444);
++MODULE_PARM_DESC(enable_acomp, "Enable audio component binding (default=yes)");
++
+ struct hdmi_spec_per_cvt {
+ 	hda_nid_t cvt_nid;
+ 	int assigned;
+@@ -2638,6 +2642,11 @@ static void generic_acomp_init(struct hd
+ {
+ 	struct hdmi_spec *spec = codec->spec;
+ 
++	if (!enable_acomp) {
++		codec_info(codec, "audio component disabled by module option\n");
++		return;
++	}
++
+ 	spec->port2pin = port2pin;
+ 	setup_drm_audio_ops(codec, ops);
+ 	if (!snd_hdac_acomp_init(&codec->bus->core, &spec->drm_audio_ops,
 
 
