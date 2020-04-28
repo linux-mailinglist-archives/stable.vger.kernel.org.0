@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83A8B1BCB2B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF9471BCA92
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729833AbgD1SzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:55:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48962 "EHLO mail.kernel.org"
+        id S1730818AbgD1Sub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:50:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729827AbgD1Scn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:32:43 -0400
+        id S1730614AbgD1SiU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:38:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D583C20B80;
-        Tue, 28 Apr 2020 18:32:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42BE92076A;
+        Tue, 28 Apr 2020 18:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098763;
-        bh=A/6YDqxK5agMEDP6yVjo4Y1Ip9uYZrhxtIVZS9rsPdc=;
+        s=default; t=1588099099;
+        bh=K0uB/Cb13jH+GxhvPq7paXYCJd1UU1gY2wHuRVZW+o8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nasp00CkjIAKk7GnYWp+U9IpAoUYeZNeakyqGN4AsCL3oMD1tnRNRDW6E+O8UujEI
-         ED/RSYRfH6Ip11POEeVzRwb2460cTuG831iGUZymbIaLaSYsuoHBMfsWc4nvVTZsyN
-         +xibewAWhk2LsLaS3e0IWVT3z3w4NmDuQEP0iDKg=
+        b=OeibD5VQPQqevLNjRSiwDtqbTYuYcSEwCDMcxGBkTCWdmm4Sl4sl0zmR1h37/cf4O
+         o/4d15cPsq3SbDCrKqUmjT0GRgp9zoUsQFkavRViM0ehvx/c+M4tkpdaw29yMsclAU
+         Gn9pA6i8SLNLjb2FpvFU450JSKWxozRySddSnHb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 018/131] ASoC: Intel: atom: Take the drv->lock mutex before calling sst_send_slot_map()
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Vishal Kulkarni <vishal@chelsio.com>
+Subject: [PATCH 5.4 056/168] cxgb4: fix adapter crash due to wrong MC size
 Date:   Tue, 28 Apr 2020 20:23:50 +0200
-Message-Id: <20200428182227.436205359@linuxfoundation.org>
+Message-Id: <20200428182238.982167716@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Vishal Kulkarni <vishal@chelsio.com>
 
-[ Upstream commit 81630dc042af998b9f58cd8e2c29dab9777ea176 ]
+[ Upstream commit ce222748078592afb51b810dc154531aeba4f512 ]
 
-sst_send_slot_map() uses sst_fill_and_send_cmd_unlocked() because in some
-places it is called with the drv->lock mutex already held.
+In the absence of MC1, the size calculation function
+cudbg_mem_region_size() was returing wrong MC size and
+resulted in adapter crash. This patch adds new argument
+to cudbg_mem_region_size() which will have actual size
+and returns error to caller in the absence of MC1.
 
-So it must always be called with the mutex locked. This commit adds missing
-locking in the sst_set_be_modules() code-path.
-
-Fixes: 24c8d14192cc ("ASoC: Intel: mrfld: add DSP core controls")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200402185359.3424-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a1c69520f785 ("cxgb4: collect MC memory dump")
+Signed-off-by: Vishal Kulkarni <vishal@chelsio.com>"
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/atom/sst-atom-controls.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c |   27 ++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/intel/atom/sst-atom-controls.c b/sound/soc/intel/atom/sst-atom-controls.c
-index 737f5d5533139..a1d7f93a08059 100644
---- a/sound/soc/intel/atom/sst-atom-controls.c
-+++ b/sound/soc/intel/atom/sst-atom-controls.c
-@@ -974,7 +974,9 @@ static int sst_set_be_modules(struct snd_soc_dapm_widget *w,
- 	dev_dbg(c->dev, "Enter: widget=%s\n", w->name);
+--- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+@@ -1054,9 +1054,9 @@ static void cudbg_t4_fwcache(struct cudb
+ 	}
+ }
  
- 	if (SND_SOC_DAPM_EVENT_ON(event)) {
-+		mutex_lock(&drv->lock);
- 		ret = sst_send_slot_map(drv);
-+		mutex_unlock(&drv->lock);
- 		if (ret)
- 			return ret;
- 		ret = sst_send_pipe_module_params(w, k);
--- 
-2.20.1
-
+-static unsigned long cudbg_mem_region_size(struct cudbg_init *pdbg_init,
+-					   struct cudbg_error *cudbg_err,
+-					   u8 mem_type)
++static int cudbg_mem_region_size(struct cudbg_init *pdbg_init,
++				 struct cudbg_error *cudbg_err,
++				 u8 mem_type, unsigned long *region_size)
+ {
+ 	struct adapter *padap = pdbg_init->adap;
+ 	struct cudbg_meminfo mem_info;
+@@ -1065,15 +1065,23 @@ static unsigned long cudbg_mem_region_si
+ 
+ 	memset(&mem_info, 0, sizeof(struct cudbg_meminfo));
+ 	rc = cudbg_fill_meminfo(padap, &mem_info);
+-	if (rc)
++	if (rc) {
++		cudbg_err->sys_err = rc;
+ 		return rc;
++	}
+ 
+ 	cudbg_t4_fwcache(pdbg_init, cudbg_err);
+ 	rc = cudbg_meminfo_get_mem_index(padap, &mem_info, mem_type, &mc_idx);
+-	if (rc)
++	if (rc) {
++		cudbg_err->sys_err = rc;
+ 		return rc;
++	}
++
++	if (region_size)
++		*region_size = mem_info.avail[mc_idx].limit -
++			       mem_info.avail[mc_idx].base;
+ 
+-	return mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
++	return 0;
+ }
+ 
+ static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
+@@ -1081,7 +1089,12 @@ static int cudbg_collect_mem_region(stru
+ 				    struct cudbg_error *cudbg_err,
+ 				    u8 mem_type)
+ {
+-	unsigned long size = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type);
++	unsigned long size = 0;
++	int rc;
++
++	rc = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type, &size);
++	if (rc)
++		return rc;
+ 
+ 	return cudbg_read_fw_mem(pdbg_init, dbg_buff, mem_type, size,
+ 				 cudbg_err);
 
 
