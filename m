@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFDA41BCBA3
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22AAF1BCB6A
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:57:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728920AbgD1S6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:58:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42258 "EHLO mail.kernel.org"
+        id S1729526AbgD1Sah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729271AbgD1S24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:28:56 -0400
+        id S1728702AbgD1Sah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D122A208E0;
-        Tue, 28 Apr 2020 18:28:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FA1A217D8;
+        Tue, 28 Apr 2020 18:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098536;
-        bh=XOTjo0i8DbOr9GRbY+k+F3BY0aAQvmrwYJwPgt2C8sc=;
+        s=default; t=1588098636;
+        bh=Nc7RsPd8Y5ByX3ptQZ5fohyeTqewNhMV0zhtHF5N9OI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jEqDqycZgQVaecB0aSovhlcVGmgvF63Y8Z/gi44vYd5VqRw6AOUmVKqr7UOVx5DeV
-         8WrunfsN0voXWsiCtGQyG2M5l3sUM0gbMTkVewv2NCTaXKYzUE2iiODvW13tUHUUEv
-         FQby30vaFEQyRDbHoK2QzQYVsAYmG4RX8LQGgzFY=
+        b=pf/zihKXiKhU0kAcpoe0yP5TJkyBd7pTZ62CxwN8yFxZdiWb8mnYD64C5amlAm2Th
+         iYlG0yEVIKNm8rlkf0HWkukMMG0hFFTsIzIUotWmGyz9V6c9OV8bWYGluhup+XUImX
+         p1Pr0OO+g9y5fLJs3CAjcXjUHEEklGRvF3xkIQbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 068/167] net: dsa: b53: Rework ARL bin logic
+        stable@vger.kernel.org, Yongqiang Sun <yongqiang.sun@amd.com>,
+        Tony Cheng <Tony.Cheng@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 032/131] drm/amd/display: Not doing optimize bandwidth if flip pending.
 Date:   Tue, 28 Apr 2020 20:24:04 +0200
-Message-Id: <20200428182233.572934793@linuxfoundation.org>
+Message-Id: <20200428182229.176565753@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,115 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Yongqiang Sun <yongqiang.sun@amd.com>
 
-[ Upstream commit 6344dbde6a27d10d16246d734b968f84887841e2 ]
+[ Upstream commit 9941b8129030c9202aaf39114477a0e58c0d6ffc ]
 
-When asking the ARL to read a MAC address, we will get a number of bins
-returned in a single read. Out of those bins, there can essentially be 3
-states:
+[Why]
+In some scenario like 1366x768 VSR enabled connected with a 4K monitor
+and playing 4K video in clone mode, underflow will be observed due to
+decrease dppclk when previouse surface scan isn't finished
 
-- all bins are full, we have no space left, and we can either replace an
-  existing address or return that full condition
+[How]
+In this use case, surface flip is switching between 4K and 1366x768,
+1366x768 needs smaller dppclk, and when decrease the clk and previous
+surface scan is for 4K and scan isn't done, underflow will happen.  Not
+doing optimize bandwidth in case of flip pending.
 
-- the MAC address was found, then we need to return its bin index and
-  modify that one, and only that one
-
-- the MAC address was not found and we have a least one bin free, we use
-  that bin index location then
-
-The code would unfortunately fail on all counts.
-
-Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/b53/b53_common.c |   30 ++++++++++++++++++++++++++----
- drivers/net/dsa/b53/b53_regs.h   |    3 +++
- 2 files changed, 29 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -1463,6 +1463,7 @@ static int b53_arl_read(struct b53_devic
- 			u16 vid, struct b53_arl_entry *ent, u8 *idx,
- 			bool is_valid)
- {
-+	DECLARE_BITMAP(free_bins, B53_ARLTBL_MAX_BIN_ENTRIES);
- 	unsigned int i;
- 	int ret;
- 
-@@ -1470,6 +1471,8 @@ static int b53_arl_read(struct b53_devic
- 	if (ret)
- 		return ret;
- 
-+	bitmap_zero(free_bins, dev->num_arl_entries);
-+
- 	/* Read the bins */
- 	for (i = 0; i < dev->num_arl_entries; i++) {
- 		u64 mac_vid;
-@@ -1481,16 +1484,24 @@ static int b53_arl_read(struct b53_devic
- 			   B53_ARLTBL_DATA_ENTRY(i), &fwd_entry);
- 		b53_arl_to_entry(ent, mac_vid, fwd_entry);
- 
--		if (!(fwd_entry & ARLTBL_VALID))
-+		if (!(fwd_entry & ARLTBL_VALID)) {
-+			set_bit(i, free_bins);
- 			continue;
-+		}
- 		if ((mac_vid & ARLTBL_MAC_MASK) != mac)
- 			continue;
- 		if (dev->vlan_enabled &&
- 		    ((mac_vid >> ARLTBL_VID_S) & ARLTBL_VID_MASK) != vid)
- 			continue;
- 		*idx = i;
-+		return 0;
- 	}
- 
-+	if (bitmap_weight(free_bins, dev->num_arl_entries) == 0)
-+		return -ENOSPC;
-+
-+	*idx = find_first_bit(free_bins, dev->num_arl_entries);
-+
- 	return -ENOENT;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 2b2efe443c36d..b64ad9e1f0c38 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -996,6 +996,26 @@ bool dc_commit_state(struct dc *dc, struct dc_state *context)
+ 	return (result == DC_OK);
  }
  
-@@ -1520,10 +1531,21 @@ static int b53_arl_op(struct b53_device
- 	if (op)
- 		return ret;
- 
--	/* We could not find a matching MAC, so reset to a new entry */
--	if (ret) {
-+	switch (ret) {
-+	case -ENOSPC:
-+		dev_dbg(dev->dev, "{%pM,%.4d} no space left in ARL\n",
-+			addr, vid);
-+		return is_valid ? ret : 0;
-+	case -ENOENT:
-+		/* We could not find a matching MAC, so reset to a new entry */
-+		dev_dbg(dev->dev, "{%pM,%.4d} not found, using idx: %d\n",
-+			addr, vid, idx);
- 		fwd_entry = 0;
--		idx = 1;
-+		break;
-+	default:
-+		dev_dbg(dev->dev, "{%pM,%.4d} found, using idx: %d\n",
-+			addr, vid, idx);
-+		break;
- 	}
- 
- 	/* For multicast address, the port is a bitmask and the validity
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -323,6 +323,9 @@
- #define   ARLTBL_STATIC			BIT(15)
- #define   ARLTBL_VALID			BIT(16)
- 
-+/* Maximum number of bin entries in the ARL for all switches */
-+#define B53_ARLTBL_MAX_BIN_ENTRIES	4
++static bool is_flip_pending_in_pipes(struct dc *dc, struct dc_state *context)
++{
++	int i;
++	struct pipe_ctx *pipe;
 +
- /* ARL Search Control Register (8 bit) */
- #define B53_ARL_SRCH_CTL		0x50
- #define B53_ARL_SRCH_CTL_25		0x20
++	for (i = 0; i < MAX_PIPES; i++) {
++		pipe = &context->res_ctx.pipe_ctx[i];
++
++		if (!pipe->plane_state)
++			continue;
++
++		/* Must set to false to start with, due to OR in update function */
++		pipe->plane_state->status.is_flip_pending = false;
++		dc->hwss.update_pending_status(pipe);
++		if (pipe->plane_state->status.is_flip_pending)
++			return true;
++	}
++	return false;
++}
++
+ bool dc_post_update_surfaces_to_stream(struct dc *dc)
+ {
+ 	int i;
+@@ -1003,6 +1023,9 @@ bool dc_post_update_surfaces_to_stream(struct dc *dc)
+ 
+ 	post_surface_trace(dc);
+ 
++	if (is_flip_pending_in_pipes(dc, context))
++		return true;
++
+ 	for (i = 0; i < dc->res_pool->pipe_count; i++)
+ 		if (context->res_ctx.pipe_ctx[i].stream == NULL ||
+ 		    context->res_ctx.pipe_ctx[i].plane_state == NULL) {
+-- 
+2.20.1
+
 
 
