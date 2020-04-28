@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E8DC1BC977
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B07D1BC9F9
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730424AbgD1Sly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:41:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33532 "EHLO mail.kernel.org"
+        id S1731449AbgD1Sok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:44:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731040AbgD1Slx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:41:53 -0400
+        id S1731450AbgD1Soj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:44:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 617982076A;
-        Tue, 28 Apr 2020 18:41:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A034D20575;
+        Tue, 28 Apr 2020 18:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099312;
-        bh=aahOHx1HrhOd24QqWXHAvskGU7qNA+4pMhwXGZq56e4=;
+        s=default; t=1588099479;
+        bh=ExIeKVIBCllYZPlgW/gNTszh5U04l/ufvIf5CDobjKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kr7/8BmVTqHAbADqQ02BZAm8Qv3/Z5QYPma023dYi+OJNYFrlEeHoFb6ZvPFEz1A5
-         gcX8Y0ITyhLQAU3MBzkwEZwF+fFiJnorQSVqzCTnSaPRAjXm5seu6pgPJ0w/7LSc7i
-         r0NDQbk6P5Z98HEWKdVjHiPeXwVp3m2T2/ovwDzQ=
+        b=qejpZDH7wDt/BFdFEIo1ilTU3iFfw0yhwfN3y63JcsNTaowsYESAkY12hxf9RBwHM
+         Lgw/VePrqgJV+SC1DRuiPrScMeOuU9Eg8u0xS6HBPCiU8mViEW83SQbWFtxFBOIvor
+         s3FDzJ8w4CT8N1nfJzAmlTqkp6uf5SeFiHLUF7R0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d889b59b2bb87d4047a2@syzkaller.appspotmail.com,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 102/131] KVM: Check validity of resolved slot when searching memslots
+        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
+Subject: [PATCH 5.4 140/168] staging: vt6656: Dont set RCR_MULTICAST or RCR_BROADCAST by default.
 Date:   Tue, 28 Apr 2020 20:25:14 +0200
-Message-Id: <20200428182237.965367121@linuxfoundation.org>
+Message-Id: <20200428182249.480721869@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Malcolm Priestley <tvboxspy@gmail.com>
 
-commit b6467ab142b708dd076f6186ca274f14af379c72 upstream.
+commit 0f8240bfc070033a4823b19883efd3d38c7735cc upstream.
 
-Check that the resolved slot (somewhat confusingly named 'start') is a
-valid/allocated slot before doing the final comparison to see if the
-specified gfn resides in the associated slot.  The resolved slot can be
-invalid if the binary search loop terminated because the search index
-was incremented beyond the number of used slots.
+mac80211/users control whether multicast is on or off don't enable it by default.
 
-This bug has existed since the binary search algorithm was introduced,
-but went unnoticed because KVM statically allocated memory for the max
-number of slots, i.e. the access would only be truly out-of-bounds if
-all possible slots were allocated and the specified gfn was less than
-the base of the lowest memslot.  Commit 36947254e5f98 ("KVM: Dynamically
-size memslot array based on number of used slots") eliminated the "all
-possible slots allocated" condition and made the bug embarrasingly easy
-to hit.
+Fixes an issue when multicast/broadcast is always on allowing other beacons through
+in power save.
 
-Fixes: 9c1a5d38780e6 ("kvm: optimize GFN to memslot lookup with large slots amount")
-Reported-by: syzbot+d889b59b2bb87d4047a2@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200408064059.8957-2-sean.j.christopherson@intel.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: db8f37fa3355 ("staging: vt6656: mac80211 conversion: main_usb add functions...")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/2c24c33d-68c4-f343-bd62-105422418eac@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/kvm_host.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/vt6656/main_usb.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -999,7 +999,7 @@ search_memslots(struct kvm_memslots *slo
- 			start = slot + 1;
- 	}
+--- a/drivers/staging/vt6656/main_usb.c
++++ b/drivers/staging/vt6656/main_usb.c
+@@ -818,15 +818,11 @@ static void vnt_configure(struct ieee802
+ {
+ 	struct vnt_private *priv = hw->priv;
+ 	u8 rx_mode = 0;
+-	int rc;
  
--	if (gfn >= memslots[start].base_gfn &&
-+	if (start < slots->used_slots && gfn >= memslots[start].base_gfn &&
- 	    gfn < memslots[start].base_gfn + memslots[start].npages) {
- 		atomic_set(&slots->lru_slot, start);
- 		return &memslots[start];
+ 	*total_flags &= FIF_ALLMULTI | FIF_OTHER_BSS | FIF_BCN_PRBRESP_PROMISC;
+ 
+-	rc = vnt_control_in(priv, MESSAGE_TYPE_READ, MAC_REG_RCR,
+-			    MESSAGE_REQUEST_MACREG, sizeof(u8), &rx_mode);
+-
+-	if (!rc)
+-		rx_mode = RCR_MULTICAST | RCR_BROADCAST;
++	vnt_control_in(priv, MESSAGE_TYPE_READ, MAC_REG_RCR,
++		       MESSAGE_REQUEST_MACREG, sizeof(u8), &rx_mode);
+ 
+ 	dev_dbg(&priv->usb->dev, "rx mode in = %x\n", rx_mode);
+ 
 
 
