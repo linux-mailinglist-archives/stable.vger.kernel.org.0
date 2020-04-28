@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC6B1BCA20
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B52B51BC8EF
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729786AbgD1Sqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:46:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35246 "EHLO mail.kernel.org"
+        id S1729728AbgD1ShO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:37:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731174AbgD1Sm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:42:59 -0400
+        id S1730433AbgD1ShJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:37:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 388212076A;
-        Tue, 28 Apr 2020 18:42:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1833D20730;
+        Tue, 28 Apr 2020 18:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099378;
-        bh=VtS+X6WEymlTP8Z6qFuMXCpIcfSJoMeZrYnzp/pdOZ0=;
+        s=default; t=1588099028;
+        bh=eEtZ7W7wVKHqk5qlbSjviH1h2AEOGxlMDLl2PkRvsDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fD/NfX6uHwdocwpp8KY0QbGXRi4szHEKhFY7viS4fSXe0TEH2ShO8f0eGyVzTbDiz
-         gqVctsvWMh0FZXwVnf8rYrjLvHBJo8zMVoHUZ99oJF4FTb0Hjcy7dvTedyEspCJ/xT
-         vNOx+4OLCjWrs0Wc9igbzLSjeMOplfRWKrdGUtZc=
+        b=BNbTkN7N2HVOg9wVnepjoVOoPQ73Mii8qYcCFg0en58Kci3jp1zTRyIiAy9GNkEdC
+         Tedx9a1cnWspq7HrNSQHitmBP+u/6ULamJX3paBoe8xqKK29j7oEIU8SD7/ekn7tuB
+         RbK/m7fhwsPJEJhjrFkTVr/zf7vov12E2LcpSzso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 125/168] ASoC: dapm: fixup dapm kcontrol widget
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>
+Subject: [PATCH 4.19 087/131] USB: early: Handle AMDs spec-compliant identifiers, too
 Date:   Tue, 28 Apr 2020 20:24:59 +0200
-Message-Id: <20200428182248.113911781@linuxfoundation.org>
+Message-Id: <20200428182235.884487722@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +42,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gyeongtaek Lee <gt82.lee@samsung.com>
+From: Jann Horn <jannh@google.com>
 
-commit ebf1474745b4373fdde0fcf32d9d1f369b50b212 upstream.
+commit 7dbdb53d72a51cea9b921d9dbba54be00752212a upstream.
 
-snd_soc_dapm_kcontrol widget which is created by autodisable control
-should contain correct on_val, mask and shift because it is set when the
-widget is powered and changed value is applied on registers by following
-code in dapm_seq_run_coalesced().
+This fixes a bug that causes the USB3 early console to freeze after
+printing a single line on AMD machines because it can't parse the
+Transfer TRB properly.
 
-		mask |= w->mask << w->shift;
-		if (w->power)
-			value |= w->on_val << w->shift;
-		else
-			value |= w->off_val << w->shift;
+The spec at
+https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf
+says in section "4.5.1 Device Context Index" that the Context Index,
+also known as Endpoint ID according to
+section "1.6 Terms and Abbreviations", is normally computed as
+`DCI = (Endpoint Number * 2) + Direction`, which matches the current
+definitions of XDBC_EPID_OUT and XDBC_EPID_IN.
 
-Shift on the mask in dapm_kcontrol_data_alloc() is removed to prevent
-double shift.
-And, on_val in dapm_kcontrol_set_value() is modified to get correct
-value in the dapm_seq_run_coalesced().
+However, the numbering in a Debug Capability Context data structure is
+supposed to be different:
+Section "7.6.3.2 Endpoint Contexts and Transfer Rings" explains that a
+Debug Capability Context data structure has the endpoints mapped to indices
+0 and 1.
 
-Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
+Change XDBC_EPID_OUT/XDBC_EPID_IN to the spec-compliant values, add
+XDBC_EPID_OUT_INTEL/XDBC_EPID_IN_INTEL with Intel's incorrect values, and
+let xdbc_handle_tx_event() handle both.
+
+I have verified that with this patch applied, the USB3 early console works
+on both an Intel and an AMD machine.
+
+Fixes: aeb9dd1de98c ("usb/early: Add driver for xhci debug capability")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/000001d61537$b212f620$1638e260$@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/r/20200401074619.8024-1-jannh@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-dapm.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/usb/early/xhci-dbc.c |    8 ++++----
+ drivers/usb/early/xhci-dbc.h |   18 ++++++++++++++++--
+ 2 files changed, 20 insertions(+), 6 deletions(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -423,7 +423,7 @@ static int dapm_kcontrol_data_alloc(stru
+--- a/drivers/usb/early/xhci-dbc.c
++++ b/drivers/usb/early/xhci-dbc.c
+@@ -735,19 +735,19 @@ static void xdbc_handle_tx_event(struct
+ 	case COMP_USB_TRANSACTION_ERROR:
+ 	case COMP_STALL_ERROR:
+ 	default:
+-		if (ep_id == XDBC_EPID_OUT)
++		if (ep_id == XDBC_EPID_OUT || ep_id == XDBC_EPID_OUT_INTEL)
+ 			xdbc.flags |= XDBC_FLAGS_OUT_STALL;
+-		if (ep_id == XDBC_EPID_IN)
++		if (ep_id == XDBC_EPID_IN || ep_id == XDBC_EPID_IN_INTEL)
+ 			xdbc.flags |= XDBC_FLAGS_IN_STALL;
  
- 			memset(&template, 0, sizeof(template));
- 			template.reg = e->reg;
--			template.mask = e->mask << e->shift_l;
-+			template.mask = e->mask;
- 			template.shift = e->shift_l;
- 			template.off_val = snd_soc_enum_item_to_val(e, 0);
- 			template.on_val = template.off_val;
-@@ -546,8 +546,22 @@ static bool dapm_kcontrol_set_value(cons
- 	if (data->value == value)
- 		return false;
+ 		xdbc_trace("endpoint %d stalled\n", ep_id);
+ 		break;
+ 	}
  
--	if (data->widget)
--		data->widget->on_val = value;
-+	if (data->widget) {
-+		switch (dapm_kcontrol_get_wlist(kcontrol)->widgets[0]->id) {
-+		case snd_soc_dapm_switch:
-+		case snd_soc_dapm_mixer:
-+		case snd_soc_dapm_mixer_named_ctl:
-+			data->widget->on_val = value & data->widget->mask;
-+			break;
-+		case snd_soc_dapm_demux:
-+		case snd_soc_dapm_mux:
-+			data->widget->on_val = value >> data->widget->shift;
-+			break;
-+		default:
-+			data->widget->on_val = value;
-+			break;
-+		}
-+	}
+-	if (ep_id == XDBC_EPID_IN) {
++	if (ep_id == XDBC_EPID_IN || ep_id == XDBC_EPID_IN_INTEL) {
+ 		xdbc.flags &= ~XDBC_FLAGS_IN_PROCESS;
+ 		xdbc_bulk_transfer(NULL, XDBC_MAX_PACKET, true);
+-	} else if (ep_id == XDBC_EPID_OUT) {
++	} else if (ep_id == XDBC_EPID_OUT || ep_id == XDBC_EPID_OUT_INTEL) {
+ 		xdbc.flags &= ~XDBC_FLAGS_OUT_PROCESS;
+ 	} else {
+ 		xdbc_trace("invalid endpoint id %d\n", ep_id);
+--- a/drivers/usb/early/xhci-dbc.h
++++ b/drivers/usb/early/xhci-dbc.h
+@@ -120,8 +120,22 @@ struct xdbc_ring {
+ 	u32			cycle_state;
+ };
  
- 	data->value = value;
+-#define XDBC_EPID_OUT		2
+-#define XDBC_EPID_IN		3
++/*
++ * These are the "Endpoint ID" (also known as "Context Index") values for the
++ * OUT Transfer Ring and the IN Transfer Ring of a Debug Capability Context data
++ * structure.
++ * According to the "eXtensible Host Controller Interface for Universal Serial
++ * Bus (xHCI)" specification, section "7.6.3.2 Endpoint Contexts and Transfer
++ * Rings", these should be 0 and 1, and those are the values AMD machines give
++ * you; but Intel machines seem to use the formula from section "4.5.1 Device
++ * Context Index", which is supposed to be used for the Device Context only.
++ * Luckily the values from Intel don't overlap with those from AMD, so we can
++ * just test for both.
++ */
++#define XDBC_EPID_OUT		0
++#define XDBC_EPID_IN		1
++#define XDBC_EPID_OUT_INTEL	2
++#define XDBC_EPID_IN_INTEL	3
  
+ struct xdbc_state {
+ 	u16			vendor;
 
 
