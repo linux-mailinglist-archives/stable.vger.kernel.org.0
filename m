@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 551E61BCB24
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 219281BCBEC
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730366AbgD1SzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:55:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49406 "EHLO mail.kernel.org"
+        id S1727827AbgD1S0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:26:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729894AbgD1SdF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:33:05 -0400
+        id S1728557AbgD1S0L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:26:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26B21217D8;
-        Tue, 28 Apr 2020 18:33:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C1B120730;
+        Tue, 28 Apr 2020 18:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098785;
-        bh=8guGU9y+ILvrWFEO3RhZZta5otVc4xMe8XB8SCTkjCc=;
+        s=default; t=1588098371;
+        bh=emCtJ33z/m5pfLdFAGdxdHQ4439wBNBlCSZF5CWCU9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MafLwsseu5ebtdKzatlKCJAM1PNMR9Nff8YB/+4btekXQMKRjYusEF2A1wWRjqSzk
-         /54cFepM5xW2MUbgesU5404zs0CpkzqOUcUqN5bq3wNkoQPmGR46OBparqUaoBUb3Z
-         dBn97ppzA3vq13/72yI7MmhXwvo9FUEHa4/k9lSw=
+        b=LU53cfAKUfYoyEanCE+x523E2JscBwXJMz4XZoVumm21jHY6ZncPVS9h5sSox7X+9
+         +g0SKVW20cfBiFta49BSDnYjWhvmXXvoKlH9V/CDN/0whfx2vROp4ZqQjpCW7N+vcj
+         9qSahaH7Do8/7J1AUo/vRPwDSNVrGHcdeh81AMyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 015/168] ceph: dont skip updating wanted caps when cap is stale
+        stable@vger.kernel.org, Tony Asleson <tasleson@redhat.com>,
+        Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 013/167] nvme-tcp: fix possible crash in write_zeroes processing
 Date:   Tue, 28 Apr 2020 20:23:09 +0200
-Message-Id: <20200428182233.626844888@linuxfoundation.org>
+Message-Id: <20200428182226.878452183@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan, Zheng <zyan@redhat.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 0aa971b6fd3f92afef6afe24ef78d9bb14471519 ]
+[ Upstream commit 25e5cb780e62bde432b401f312bb847edc78b432 ]
 
-1. try_get_cap_refs() fails to get caps and finds that mds_wanted
-   does not include what it wants. It returns -ESTALE.
-2. ceph_get_caps() calls ceph_renew_caps(). ceph_renew_caps() finds
-   that inode has cap, so it calls ceph_check_caps().
-3. ceph_check_caps() finds that issued caps (without checking if it's
-   stale) already includes caps wanted by open file, so it skips
-   updating wanted caps.
+We cannot look at blk_rq_payload_bytes without first checking
+that the request has a mappable physical segments first (e.g.
+blk_rq_nr_phys_segments(rq) != 0) and only then to take the
+request payload bytes. This caused us to send a wrong sgl to
+the target or even dereference a non-existing buffer in case
+we actually got to the data send sequence (if it was in-capsule).
 
-Above events can cause an infinite loop inside ceph_get_caps().
-
-Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reported-by: Tony Asleson <tasleson@redhat.com>
+Suggested-by: Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/nvme/host/tcp.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index f5a38910a82bf..703945cce0e5d 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1976,8 +1976,12 @@ retry_locked:
- 		}
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 49d4373b84eb3..00e6aa59954d4 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -164,16 +164,14 @@ static inline bool nvme_tcp_async_req(struct nvme_tcp_request *req)
+ static inline bool nvme_tcp_has_inline_data(struct nvme_tcp_request *req)
+ {
+ 	struct request *rq;
+-	unsigned int bytes;
  
- 		/* want more caps from mds? */
--		if (want & ~(cap->mds_wanted | cap->issued))
--			goto ack;
-+		if (want & ~cap->mds_wanted) {
-+			if (want & ~(cap->mds_wanted | cap->issued))
-+				goto ack;
-+			if (!__cap_is_valid(cap))
-+				goto ack;
-+		}
+ 	if (unlikely(nvme_tcp_async_req(req)))
+ 		return false; /* async events don't have a request */
  
- 		/* things we might delay */
- 		if ((cap->issued & ~retain) == 0)
+ 	rq = blk_mq_rq_from_pdu(req);
+-	bytes = blk_rq_payload_bytes(rq);
+ 
+-	return rq_data_dir(rq) == WRITE && bytes &&
+-		bytes <= nvme_tcp_inline_data_size(req->queue);
++	return rq_data_dir(rq) == WRITE && req->data_len &&
++		req->data_len <= nvme_tcp_inline_data_size(req->queue);
+ }
+ 
+ static inline struct page *nvme_tcp_req_cur_page(struct nvme_tcp_request *req)
+@@ -2090,7 +2088,9 @@ static blk_status_t nvme_tcp_map_data(struct nvme_tcp_queue *queue,
+ 
+ 	c->common.flags |= NVME_CMD_SGL_METABUF;
+ 
+-	if (rq_data_dir(rq) == WRITE && req->data_len &&
++	if (!blk_rq_nr_phys_segments(rq))
++		nvme_tcp_set_sg_null(c);
++	else if (rq_data_dir(rq) == WRITE &&
+ 	    req->data_len <= nvme_tcp_inline_data_size(queue))
+ 		nvme_tcp_set_sg_inline(queue, c, req->data_len);
+ 	else
+@@ -2117,7 +2117,8 @@ static blk_status_t nvme_tcp_setup_cmd_pdu(struct nvme_ns *ns,
+ 	req->data_sent = 0;
+ 	req->pdu_len = 0;
+ 	req->pdu_sent = 0;
+-	req->data_len = blk_rq_payload_bytes(rq);
++	req->data_len = blk_rq_nr_phys_segments(rq) ?
++				blk_rq_payload_bytes(rq) : 0;
+ 	req->curr_bio = rq->bio;
+ 
+ 	if (rq_data_dir(rq) == WRITE &&
 -- 
 2.20.1
 
