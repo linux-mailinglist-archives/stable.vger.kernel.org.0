@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E18171BCA6A
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3B761BCB9D
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730871AbgD1Sj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:39:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58896 "EHLO mail.kernel.org"
+        id S1730028AbgD1S6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:58:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730125AbgD1Sjz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:39:55 -0400
+        id S1728768AbgD1S3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:29:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF2A92085B;
-        Tue, 28 Apr 2020 18:39:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC1FB208E0;
+        Tue, 28 Apr 2020 18:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099195;
-        bh=a7WLY2vyVTy/LLORuijc1xT8Cr1/9sL3V1qrgS6OCfc=;
+        s=default; t=1588098546;
+        bh=C4T+9qNnW8xUkfV4aUIrKOLkJ/rwfdF2rXxGPscAWbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sV5x0Vb3v0Ee3S0o9XMSAgJVKpuqVJhzGngxUbuvaq6mK4MT/hdkJCipFTQ2dpzJE
-         BQlRm7t/3dkSzrjrTpUasSgMqgcw1YktAqC2YB+ni0T0sQLkvzDEAZxtX3xDpP2Cln
-         sYKbSAqwdLpzS2J5xGPlS57L6AX7C4/T3XjQ93Ic=
+        b=fkM9LzlIttUCCytXvHUaFMzq73uxN8OqrWuKewza2eBVcykTkwQSVcQJihb7vHqQ1
+         s6iPT5VuSRfSXmEyZOlsddAA0BC11Vh1Ni3sB/H7uNv3iPXro/NWbw1SlMjIWjwKcR
+         qaL7GhDLDW2iTKP1TGogzH2Dzqv7JSbvj+rqRuas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 071/168] tcp: cache line align MAX_TCP_HEADER
-Date:   Tue, 28 Apr 2020 20:24:05 +0200
-Message-Id: <20200428182240.965775655@linuxfoundation.org>
+Subject: [PATCH 5.6 070/167] vxlan: use the correct nlattr array in NL_SET_ERR_MSG_ATTR
+Date:   Tue, 28 Apr 2020 20:24:06 +0200
+Message-Id: <20200428182233.814364231@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 9bacd256f1354883d3c1402655153367982bba49 ]
+[ Upstream commit cc8e7c69db4dcc565ed3020f97ddd6debab6cbe8 ]
 
-TCP stack is dumb in how it cooks its output packets.
+IFLA_VXLAN_* attributes are in the data array, which is correctly
+used when fetching the value, but not when setting the extended
+ack. Because IFLA_VXLAN_MAX < IFLA_MAX, we avoid out of bounds
+array accesses, but we don't provide a pointer to the invalid
+attribute to userspace.
 
-Depending on MAX_HEADER value, we might chose a bad ending point
-for the headers.
-
-If we align the end of TCP headers to cache line boundary, we
-make sure to always use the smallest number of cache lines,
-which always help.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Fixes: 653ef6a3e4af ("vxlan: change vxlan_[config_]validate() to use netlink_ext_ack for error reporting")
+Fixes: b4d3069783bc ("vxlan: Allow configuration of DF behaviour")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tcp.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/vxlan.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -50,7 +50,7 @@ extern struct inet_hashinfo tcp_hashinfo
- extern struct percpu_counter tcp_orphan_count;
- void tcp_time_wait(struct sock *sk, int state, int timeo);
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -3144,7 +3144,7 @@ static int vxlan_validate(struct nlattr
+ 		u32 id = nla_get_u32(data[IFLA_VXLAN_ID]);
  
--#define MAX_TCP_HEADER	(128 + MAX_HEADER)
-+#define MAX_TCP_HEADER	L1_CACHE_ALIGN(128 + MAX_HEADER)
- #define MAX_TCP_OPTION_SPACE 40
- #define TCP_MIN_SND_MSS		48
- #define TCP_MIN_GSO_SIZE	(TCP_MIN_SND_MSS - MAX_TCP_OPTION_SPACE)
+ 		if (id >= VXLAN_N_VID) {
+-			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_ID],
++			NL_SET_ERR_MSG_ATTR(extack, data[IFLA_VXLAN_ID],
+ 					    "VXLAN ID must be lower than 16777216");
+ 			return -ERANGE;
+ 		}
+@@ -3155,7 +3155,7 @@ static int vxlan_validate(struct nlattr
+ 			= nla_data(data[IFLA_VXLAN_PORT_RANGE]);
+ 
+ 		if (ntohs(p->high) < ntohs(p->low)) {
+-			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_PORT_RANGE],
++			NL_SET_ERR_MSG_ATTR(extack, data[IFLA_VXLAN_PORT_RANGE],
+ 					    "Invalid source port range");
+ 			return -EINVAL;
+ 		}
+@@ -3165,7 +3165,7 @@ static int vxlan_validate(struct nlattr
+ 		enum ifla_vxlan_df df = nla_get_u8(data[IFLA_VXLAN_DF]);
+ 
+ 		if (df < 0 || df > VXLAN_DF_MAX) {
+-			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_VXLAN_DF],
++			NL_SET_ERR_MSG_ATTR(extack, data[IFLA_VXLAN_DF],
+ 					    "Invalid DF attribute");
+ 			return -EINVAL;
+ 		}
 
 
