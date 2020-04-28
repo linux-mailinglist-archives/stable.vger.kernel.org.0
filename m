@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED341BCBE5
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B96DA1BC8BE
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729056AbgD1TBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 15:01:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38686 "EHLO mail.kernel.org"
+        id S1729442AbgD1SfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:35:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728840AbgD1S0w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:26:52 -0400
+        id S1730230AbgD1SfS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:35:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E48920730;
-        Tue, 28 Apr 2020 18:26:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 709BD20575;
+        Tue, 28 Apr 2020 18:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098412;
-        bh=Ivk+dFE3vBDfPp2V+SICdUuKd5Bd1SZYW4iiGwIWm9I=;
+        s=default; t=1588098917;
+        bh=38NxofAiyb8p6dCyu/kgO+Z94MPWWVwNSISyDYxxWwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oibexXFvFYXUPBveNQ2DUZJmCjgzsVA6JDjd0hwslz+F3o1KRU3BofHdIMCIaZ9Bv
-         6YJn2EJKEvKrX574HYlcC/qfnhKaBIzgFjOevdGA9a7Z9ta8sFiaUr+HXFdpx5Pszw
-         niZjxdIDshAiRPvt95R1ZCeXFU19WQOYHY/aTd8Q=
+        b=VRUVJpegpHqIYlgUwuoyKT5Sjr2QoGy+Zti1tEtbOG6XkIMRQhbkt3yjQ8FFs6Nx0
+         p80Y9xEE3M5TW0GaqJ7cfrhsJU8gBie06jJ0eLHXrRZEQiEIY67qTh9EFRYkLDLHgq
+         qPiXfkOIV8vomU3AKPZ4bmOb1kMFdVbuWhK/wvZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
         Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 029/167] loop: Better discard support for block devices
+Subject: [PATCH 5.4 031/168] loop: Better discard support for block devices
 Date:   Tue, 28 Apr 2020 20:23:25 +0200
-Message-Id: <20200428182228.906846015@linuxfoundation.org>
+Message-Id: <20200428182235.668410989@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -81,7 +81,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 31 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 739b372a51128..d943e713d5e34 100644
+index ef6e251857c8c..57ed6b70d2950 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -427,11 +427,12 @@ static int lo_fallocate(struct loop_device *lo, struct request *rq, loff_t pos,
@@ -98,7 +98,7 @@ index 739b372a51128..d943e713d5e34 100644
  		ret = -EOPNOTSUPP;
  		goto out;
  	}
-@@ -865,28 +866,47 @@ static void loop_config_discard(struct loop_device *lo)
+@@ -863,28 +864,47 @@ static void loop_config_discard(struct loop_device *lo)
  	struct inode *inode = file->f_mapping->host;
  	struct request_queue *q = lo->lo_queue;
  
