@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C199F1BCB74
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:57:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE4B51BC836
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729439AbgD1S5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:57:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45042 "EHLO mail.kernel.org"
+        id S1729511AbgD1Sab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:30:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729491AbgD1SaW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:30:22 -0400
+        id S1729032AbgD1Sa1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DE9F2076A;
-        Tue, 28 Apr 2020 18:30:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5394C2076A;
+        Tue, 28 Apr 2020 18:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098621;
-        bh=LJPNTG9+CksbqGWw/Lw0H/aPHnvQKgLfs3lHpxgohkI=;
+        s=default; t=1588098626;
+        bh=xWkh+wgmkv2dtOUT5TheKqZ9bLvgmKP42sLP6G2pLhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ofhWtR5qzdFtMnB0haR+s6JV0dzbfnNPPERlBXm3vMl82OXucIfZczWw24YbBps2k
-         nUF/C866P+0z8HrUlqHoA2m6wuKRRUcZ27sYrZh+axr7Zi64LN6pwgksOHNBFdUASr
-         WTjU0uBS4Hp9BGg6X9KS/ECeDRtiJHvzOCiWRu7w=
+        b=YC/FZvWCbxWnennB12WrdesT5ciLtUeEnEbsynK75TPr1JWF2WSQQrpIgh2V3OCSb
+         sJCiebGc/s7QPRJdKCznFZnZttRlL1bIY64Uz7ACF/gDZ/NW+UvjMAl1jc8v/iuvea
+         JQt1LgNV0ypCnFCCXrYDqL1+0OaQApq7pP3EeCS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 029/131] perf/core: Disable page faults when getting phys address
-Date:   Tue, 28 Apr 2020 20:24:01 +0200
-Message-Id: <20200428182228.805413119@linuxfoundation.org>
+Subject: [PATCH 4.19 030/131] ASoC: Intel: bytcr_rt5640: Add quirk for MPMAN MPWIN895CL tablet
+Date:   Tue, 28 Apr 2020 20:24:02 +0200
+Message-Id: <20200428182228.931256877@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
 References: <20200428182224.822179290@linuxfoundation.org>
@@ -44,69 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d3296fb372bf7497b0e5d0478c4e7a677ec6f6e9 ]
+[ Upstream commit c8b78f24c1247b7bd0882885c672d9dec5800bc6 ]
 
-We hit following warning when running tests on kernel
-compiled with CONFIG_DEBUG_ATOMIC_SLEEP=y:
+The MPMAN MPWIN895CL tablet almost fully works with out default settings.
+The only problem is that it has only 1 speaker so any sounds only playing
+on the right channel get lost.
 
- WARNING: CPU: 19 PID: 4472 at mm/gup.c:2381 __get_user_pages_fast+0x1a4/0x200
- CPU: 19 PID: 4472 Comm: dummy Not tainted 5.6.0-rc6+ #3
- RIP: 0010:__get_user_pages_fast+0x1a4/0x200
- ...
- Call Trace:
-  perf_prepare_sample+0xff1/0x1d90
-  perf_event_output_forward+0xe8/0x210
-  __perf_event_overflow+0x11a/0x310
-  __intel_pmu_pebs_event+0x657/0x850
-  intel_pmu_drain_pebs_nhm+0x7de/0x11d0
-  handle_pmi_common+0x1b2/0x650
-  intel_pmu_handle_irq+0x17b/0x370
-  perf_event_nmi_handler+0x40/0x60
-  nmi_handle+0x192/0x590
-  default_do_nmi+0x6d/0x150
-  do_nmi+0x2f9/0x3c0
-  nmi+0x8e/0xd7
+Add a quirk for this model using the default settings + MONO_SPEAKER.
 
-While __get_user_pages_fast() is IRQ-safe, it calls access_ok(),
-which warns on:
-
-  WARN_ON_ONCE(!in_task() && !pagefault_disabled())
-
-Peter suggested disabling page faults around __get_user_pages_fast(),
-which gets rid of the warning in access_ok() call.
-
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20200407141427.3184722-1-jolsa@kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200405133726.24154-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 8c70ee23fbe91..00fb2fe92c4d6 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -6411,9 +6411,12 @@ static u64 perf_virt_to_phys(u64 virt)
- 		 * Try IRQ-safe __get_user_pages_fast first.
- 		 * If failed, leave phys_addr as 0.
- 		 */
--		if ((current->mm != NULL) &&
--		    (__get_user_pages_fast(virt, 1, 0, &p) == 1))
--			phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
-+		if (current->mm != NULL) {
-+			pagefault_disable();
-+			if (__get_user_pages_fast(virt, 1, 0, &p) == 1)
-+				phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
-+			pagefault_enable();
-+		}
- 
- 		if (p)
- 			put_page(p);
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index e58240e18b301..f29014a7d6723 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -588,6 +588,17 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_SSP0_AIF1 |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{
++		/* MPMAN MPWIN895CL */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MPMAN"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MPWIN8900CL"),
++		},
++		.driver_data = (void *)(BYTCR_INPUT_DEFAULTS |
++					BYT_RT5640_MONO_SPEAKER |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{	/* MSI S100 tablet */
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Micro-Star International Co., Ltd."),
 -- 
 2.20.1
 
