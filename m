@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0DE11BC80E
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:29:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F901BC80F
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729313AbgD1S3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:29:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42752 "EHLO mail.kernel.org"
+        id S1729332AbgD1S3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:29:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728712AbgD1S3L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:29:11 -0400
+        id S1729331AbgD1S3S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:29:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 898BD208E0;
-        Tue, 28 Apr 2020 18:29:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED36D20B80;
+        Tue, 28 Apr 2020 18:29:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098551;
-        bh=j9sdgf05W3pEdBzaJjyGLMM/zKtfpyU1LqRL9WdZ+3s=;
+        s=default; t=1588098558;
+        bh=VCDnRq6KNn8pBZy4kFj3bnJQnDEccmaJeGcDMIiba5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJnwlIzPyfAw6jT8EYm+VdZ+tGhZeywYEQyhVyKhZds1BIvsX0bM/T2JEzL3FoWv+
-         oUrUV32csHD1ydUswIOFf7aiBjWED5FMGAG75eLf8Ol9sQuxb2GY+JrtZihJhQmcU+
-         gnoUS11uczj5MsxdznT5rO6LnAPiR5ptpupBMpws=
+        b=DGkelCfxd5ZXDgOnIIhOh2isyVDeyyqPwhH7VnbEonqXECrWuQCaQg3Fd2n/LGudL
+         nrLRP9FRyAhkZhr9sGOvqiRctG0MlikPR0o4zOOVM8uDyvuIrR3dSMS6HXPw7J9MS5
+         LrgunHFzwOwayd4dool5d4ksH2QzSOQym9kb8+FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 071/167] geneve: use the correct nlattr array in NL_SET_ERR_MSG_ATTR
-Date:   Tue, 28 Apr 2020 20:24:07 +0200
-Message-Id: <20200428182233.921860950@linuxfoundation.org>
+Subject: [PATCH 5.6 072/167] xfrm: Always set XFRM_TRANSFORMED in xfrm{4,6}_output_finish
+Date:   Tue, 28 Apr 2020 20:24:08 +0200
+Message-Id: <20200428182234.043027809@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
 References: <20200428182225.451225420@linuxfoundation.org>
@@ -43,34 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: David Ahern <dsahern@gmail.com>
 
-[ Upstream commit 9a7b5b50de8a764671ba1800fe4c52d3b7013901 ]
+[ Upstream commit 0c922a4850eba2e668f73a3f1153196e09abb251 ]
 
-IFLA_GENEVE_* attributes are in the data array, which is correctly
-used when fetching the value, but not when setting the extended
-ack. Because IFLA_GENEVE_MAX < IFLA_MAX, we avoid out of bounds
-array accesses, but we don't provide a pointer to the invalid
-attribute to userspace.
+IPSKB_XFRM_TRANSFORMED and IP6SKB_XFRM_TRANSFORMED are skb flags set by
+xfrm code to tell other skb handlers that the packet has been passed
+through the xfrm output functions. Simplify the code and just always
+set them rather than conditionally based on netfilter enabled thus
+making the flag available for other users.
 
-Fixes: a025fb5f49ad ("geneve: Allow configuration of DF behaviour")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/xfrm4_output.c |    2 --
+ net/ipv6/xfrm6_output.c |    2 --
+ 2 files changed, 4 deletions(-)
 
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -1207,7 +1207,7 @@ static int geneve_validate(struct nlattr
- 		enum ifla_geneve_df df = nla_get_u8(data[IFLA_GENEVE_DF]);
+--- a/net/ipv4/xfrm4_output.c
++++ b/net/ipv4/xfrm4_output.c
+@@ -58,9 +58,7 @@ int xfrm4_output_finish(struct sock *sk,
+ {
+ 	memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
  
- 		if (df < 0 || df > GENEVE_DF_MAX) {
--			NL_SET_ERR_MSG_ATTR(extack, tb[IFLA_GENEVE_DF],
-+			NL_SET_ERR_MSG_ATTR(extack, data[IFLA_GENEVE_DF],
- 					    "Invalid DF attribute");
- 			return -EINVAL;
- 		}
+-#ifdef CONFIG_NETFILTER
+ 	IPCB(skb)->flags |= IPSKB_XFRM_TRANSFORMED;
+-#endif
+ 
+ 	return xfrm_output(sk, skb);
+ }
+--- a/net/ipv6/xfrm6_output.c
++++ b/net/ipv6/xfrm6_output.c
+@@ -111,9 +111,7 @@ int xfrm6_output_finish(struct sock *sk,
+ {
+ 	memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
+ 
+-#ifdef CONFIG_NETFILTER
+ 	IP6CB(skb)->flags |= IP6SKB_XFRM_TRANSFORMED;
+-#endif
+ 
+ 	return xfrm_output(sk, skb);
+ }
 
 
