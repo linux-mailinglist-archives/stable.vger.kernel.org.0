@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F4B1BC8C8
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:37:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9331BC908
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:39:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730273AbgD1Sfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52730 "EHLO mail.kernel.org"
+        id S1730151AbgD1SiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:38:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730268AbgD1Sfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:35:32 -0400
+        id S1730573AbgD1SiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:38:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 115DE20B1F;
-        Tue, 28 Apr 2020 18:35:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 702A32076A;
+        Tue, 28 Apr 2020 18:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098932;
-        bh=rBjYhz4tebMF76RZq8sdFFmdhFBtKxzNe4YRzXvRD2U=;
+        s=default; t=1588099079;
+        bh=XxISZYI385Ve0ULnt0OBLJbYSHNcZOEQ8W2uuaUP7S0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/Mxz28oLnzds1CTciHS/RycVW1akD2SGMJRJ7HEx5YvJUXTR348ltNlcalrY5HbM
-         r3wOHtffptd58k7KAaHjgR9K8v+NSuEwRHEnJduJQ3eGUJULFpDM9E77QPfQg9RzWj
-         2hpkkx0KnvNjS3UNrmjny9aykacwc/LbvxEzXDZ0=
+        b=llBBRC/wmc1ELBEthPgNnDM3Ev8rPnvebh57nO2ObLs0Ln0FLWmDxeRRNfL5LTHUv
+         ZHDPLa8P1iV6qSr8W71g8HvDRNxGK9vkJcrxpjLep6DetCX8MqEGGW2j5VPEZyTp2e
+         XRfY2Z34ykilqOp/+kkrQR37cRVwo8kSGEkqeCxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Aurelien Aptel <aaptel@suse.com>
-Subject: [PATCH 5.6 130/167] cifs: fix uninitialised lease_key in open_shroot()
+        stable@vger.kernel.org, Lin Yi <teroincn@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 094/131] ALSA: usx2y: Fix potential NULL dereference
 Date:   Tue, 28 Apr 2020 20:25:06 +0200
-Message-Id: <20200428182241.828129804@linuxfoundation.org>
+Message-Id: <20200428182236.795276533@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 0fe0781f29dd8ab618999e6bda33c782ebbdb109 upstream.
+commit 7686e3485253635c529cdd5f416fc640abaf076f upstream.
 
-SMB2_open_init() expects a pre-initialised lease_key when opening a
-file with a lease, so set pfid->lease_key prior to calling it in
-open_shroot().
+The error handling code in usX2Y_rate_set() may hit a potential NULL
+dereference when an error occurs before allocating all us->urb[].
+Add a proper NULL check for fixing the corner case.
 
-This issue was observed when performing some DFS failover tests and
-the lease key was never randomly generated.
-
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-CC: Stable <stable@vger.kernel.org>
+Reported-by: Lin Yi <teroincn@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200420075529.27203-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2ops.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ sound/usb/usx2y/usbusx2yaudio.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -693,6 +693,11 @@ int open_shroot(unsigned int xid, struct
- 	if (smb3_encryption_required(tcon))
- 		flags |= CIFS_TRANSFORM_REQ;
- 
-+	if (!server->ops->new_lease_key)
-+		return -EIO;
-+
-+	server->ops->new_lease_key(pfid);
-+
- 	memset(rqst, 0, sizeof(rqst));
- 	resp_buftype[0] = resp_buftype[1] = CIFS_NO_BUFFER;
- 	memset(rsp_iov, 0, sizeof(rsp_iov));
+--- a/sound/usb/usx2y/usbusx2yaudio.c
++++ b/sound/usb/usx2y/usbusx2yaudio.c
+@@ -695,6 +695,8 @@ static int usX2Y_rate_set(struct usX2Yde
+ 			us->submitted =	2*NOOF_SETRATE_URBS;
+ 			for (i = 0; i < NOOF_SETRATE_URBS; ++i) {
+ 				struct urb *urb = us->urb[i];
++				if (!urb)
++					continue;
+ 				if (urb->status) {
+ 					if (!err)
+ 						err = -ENODEV;
 
 
