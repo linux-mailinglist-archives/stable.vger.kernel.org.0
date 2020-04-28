@@ -2,152 +2,304 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5AD51BC75B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C731BC791
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:10:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728469AbgD1SA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39088 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728023AbgD1SA4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Apr 2020 14:00:56 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1769C03C1AB
-        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 11:00:56 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id n24so8692193plp.13
-        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 11:00:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=nZZ3iPyQeyku5zOIFSENmQ20EcsdsOSEm4HTVgED6nY=;
-        b=XDTXcTWCh+tlScF01xw+ZMulE+XjCOlnPDDFQoBu6367QGv+n889vhCj4iocRc6eJ5
-         snAnfv/Ae8I9DTWxcJqwOnQVyknPLqblQtC76+3migkLWAXA2sdmkFGEMzKTAOIj03iv
-         yq9Hty2vu5DmNsBnPTln/P3N2iJI3vNp4rD/9qXVJNH8NXNQL0SLWKDV3MjyjbXH0K5Z
-         y8Gz/JtOGplCXJZjMnw1jJvDmDvJDJFRkgrcI0Yqpr23G+BaLGbXheVoE9yewkpdBR72
-         Z6rE3q4lj5JfkkRdS69JdeesMKlHGvyx4CT1Ez84B0eJmvPpmhXeRRQDF9JNT7O52tDC
-         cKmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=nZZ3iPyQeyku5zOIFSENmQ20EcsdsOSEm4HTVgED6nY=;
-        b=KgUMex2jEwoHfYXjrSLrbwWQRwwzh1hJaSBj+SMcGl8Sb21qjmUzLvpdrJz9RroExf
-         zUexX4y8Ludv3tKGhhp2gSlVIGsG2nFYZivcbiCajKja3IsPV+gmcCLgWK7nfX+6BhZ4
-         XIZV2pInGPKWL8JsYdI4hO6Nv3CxwtnLJRYupRLw0nafYDcfuwaG07tKGDH45gFhZpJr
-         X7rv95ebmzbOIK4hTJ1E5ocOnj05N/T1mKG1Lq114J8b0xvE/n1Z5fIPKCTyFRWn24ia
-         Pq/C2bUqT8ndcxERcDHnJV1HAVJ1/EvHU3lAxpjadEhON3StjZ5DYiGbeZw2CFZ5TEiC
-         LRIg==
-X-Gm-Message-State: AGi0PuZ6A/dcQVnayYjcMND8Kfs3npgcHOpj7U+lIYdy6pILip2oc5Ea
-        PVIemGLJuMNAXi67N7ftWWCTx6w6LBg=
-X-Google-Smtp-Source: APiQypK/Y1PQlVAIwj83eoIrBeVnd3S62j0q4l4ZADHjg/EVk588rWxGaB99/Xggh/wr+z3lbw7IgA==
-X-Received: by 2002:a17:90a:7349:: with SMTP id j9mr6545118pjs.196.1588096853998;
-        Tue, 28 Apr 2020 11:00:53 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id go21sm2778115pjb.45.2020.04.28.11.00.52
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Apr 2020 11:00:53 -0700 (PDT)
-Message-ID: <5ea86f55.1c69fb81.36946.9466@mx.google.com>
-Date:   Tue, 28 Apr 2020 11:00:53 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728688AbgD1SKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:10:31 -0400
+Received: from mx2.suse.de ([195.135.220.15]:50714 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728672AbgD1SKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:10:31 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 1368FAED8;
+        Tue, 28 Apr 2020 18:10:28 +0000 (UTC)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.220-54-g00dcb2acee8d
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 43 boots: 3 failed,
- 31 passed with 4 offline, 4 untried/unknown,
- 1 conflict (v4.4.220-54-g00dcb2acee8d)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Tue, 28 Apr 2020 20:10:28 +0200
+From:   Roman Penyaev <rpenyaev@suse.de>
+To:     Jason Baron <jbaron@akamai.com>
+Cc:     Khazhismel Kumykov <khazhy@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] eventpoll: fix missing wakeup for ovflist in
+ ep_poll_callback
+In-Reply-To: <a2f22c3c-c25a-4bda-8339-a7bdaf17849e@akamai.com>
+References: <20200424025057.118641-1-khazhy@google.com>
+ <20200424190039.192373-1-khazhy@google.com>
+ <66f26e74-6c7b-28c2-8b3f-faf8ea5229d4@akamai.com>
+ <CACGdZYLD9ZqJNVktHUVe6N4t28VKy-Z76ZcCdsAOJHZRXaYGSA@mail.gmail.com>
+ <a2f22c3c-c25a-4bda-8339-a7bdaf17849e@akamai.com>
+Message-ID: <c365a245574d4a4ed8a922018bcf4f45@suse.de>
+X-Sender: rpenyaev@suse.de
+User-Agent: Roundcube Webmail
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 43 boots: 3 failed, 31 passed with 4 offline, 4=
- untried/unknown, 1 conflict (v4.4.220-54-g00dcb2acee8d)
+On 2020-04-27 22:38, Jason Baron wrote:
+> On 4/25/20 4:59 PM, Khazhismel Kumykov wrote:
+>> On Sat, Apr 25, 2020 at 9:17 AM Jason Baron <jbaron@akamai.com> wrote:
+>>> 
+>>> 
+>>> 
+>>> On 4/24/20 3:00 PM, Khazhismel Kumykov wrote:
+>>>> In the event that we add to ovflist, before 339ddb53d373 we would be
+>>>> woken up by ep_scan_ready_list, and did no wakeup in 
+>>>> ep_poll_callback.
+>>>> With that wakeup removed, if we add to ovflist here, we may never 
+>>>> wake
+>>>> up. Rather than adding back the ep_scan_ready_list wakeup - which 
+>>>> was
+>>>> resulting in unnecessary wakeups, trigger a wake-up in 
+>>>> ep_poll_callback.
+>>> 
+>>> I'm just curious which 'wakeup' we are talking about here? There is:
+>>> wake_up(&ep->wq) for the 'ep' and then there is the nested one via:
+>>> ep_poll_safewake(ep, epi). It seems to me that its only about the 
+>>> later
+>>> one being missing not both? Is your workload using nested epoll?
+>>> 
+>>> If so, it might make sense to just do the later, since the point of
+>>> the original patch was to minimize unnecessary wakeups.
+>> 
+>> The missing wake-ups were when we added to ovflist instead of rdllist.
+>> Both are "the ready list" together - so I'd think we'd want the same
+>> wakeups regardless of which specific list we added to.
+>> ep_poll_callback isn't nested specific?
+>> 
+> 
+> So I was thinking that ep_poll() would see these events on the
+> ovflist without an explicit wakeup, b/c the overflow list being active
+> implies that the ep_poll() path would add them to the rdllist in
+> ep_scan_read_list(). Thus, it will see the events either in the
+> current ep_poll() context or via a subsequent syscall to epoll_wait().
+> 
+> However, there are other paths that can call ep_scan_ready_list() thus
+> I agree with you that both wakeups here are necessary.
+> 
+> I do think are are still (smaller) potential races in 
+> ep_scan_ready_list()
+> where we have:
+> 
+>         write_lock_irq(&ep->lock);
+>         list_splice_init(&ep->rdllist, &txlist);
+>         WRITE_ONCE(ep->ovflist, NULL);
+>         write_unlock_irq(&ep->lock);
+> 
+> And in the ep_poll path we have:
+> 
+> static inline int ep_events_available(struct eventpoll *ep)
+> {
+>         return !list_empty_careful(&ep->rdllist) ||
+>                 READ_ONCE(ep->ovflist) != EP_UNACTIVE_PTR;
+> }
+> 
+> 
+> Seems to me that first bit needs to be the following, since
+> ep_events_available() is now checked in a lockless way:
+> 
+> 
+>         write_lock_irq(&ep->lock);
+> 	WRITE_ONCE(ep->ovflist, NULL);
+> 	smp_wmb();
+>         list_splice_init(&ep->rdllist, &txlist);
+>         write_unlock_irq(&ep->lock);
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.220-54-g00dcb2acee8d/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.220-54-g00dcb2acee8d/
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.220-54-g00dcb2acee8d
-Git Commit: 00dcb2acee8d389b18592b943f6cb0a7453530f7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 32 unique boards, 11 SoC families, 15 builds out of 174
+Hi Jason,
 
-Boot Regressions Detected:
+For the first chunk you refer the order seems irrelevant.
+Either you see something not empty, you go take the lock
+and then check lists under the lock, either you see all
+lists are empty.
 
-arm:
+> 
+> And also this bit:
+> 
+>         WRITE_ONCE(ep->ovflist, EP_UNACTIVE_PTR);
+> 
+>         /*
+>          * Quickly re-inject items left on "txlist".
+>          */
+>         list_splice(&txlist, &ep->rdllist);
+> 
+> Should I think better be reversed as well to:
+> 
+> list_splice(&txlist, &ep->rdllist);
+> smp_wmb();
+> WRITE_ONCE(ep->ovflist, EP_UNACTIVE_PTR);
 
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: failing since 5 days (last pass: v4.4.2=
-19-83-g20fbd20eb91a - first fail: v4.4.219-101-gacb152478366)
-          dm365evm,legacy:
-              lab-baylibre-seattle: failing since 5 days (last pass: v4.4.2=
-19-83-g20fbd20eb91a - first fail: v4.4.219-101-gacb152478366)
+But this one is much more interesting.  I understand what you
+are trying to achieve: we can't leave both lists empty for the
+short period of time, if there is something left the caller
+of ep_events_available() should be able to see one of the lists
+is not empty, otherwise it can be too late.
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 80 days (last pass: v4.4.=
-212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
+But the problem you've spotted is much worse. Some remains
+can be in the txlist (this can happen if caller of epoll_wait
+wants to harvest only 1 event, but there are more in the ->rdlist).
+And we again get the lost wakeup.
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 33 days (last pass: v4.4.216-127-=
-g955137020949 - first fail: v4.4.217)
+Problem is reproduced by the test below.  The idea is simple:
+we have 10 threads and 10 event fds. Each thread can harvest
+only 1 event. 1 producer fires all 10 events at once and waits
+that all 10 events will be observed by 10 threads.
 
-Boot Failures Detected:
+The fix is basically a revert of 339ddb53d373 with 1 major
+exception: we do wakeups from ep_scan_ready_list() but
+if txlist is not empty && if ep_scan_ready_list() is called
+from the routine, which sends events, not reads it
+(thus we protect ourselves from repeated wake ups)
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+I will send the code a bit later.
 
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
+--
+Roman
 
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
+---- test -------
 
-Offline Platforms:
+enum {
+	EPOLL60_EVENTS_NR = 10,
+};
 
-arm:
+struct epoll60_ctx {
+	volatile int stopped;
+	int ready;
+	int waiters;
+	int epfd;
+	int evfd[EPOLL60_EVENTS_NR];
+};
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
+static inline int count_waiters(struct epoll60_ctx *ctx)
+{
+	return __atomic_load_n(&ctx->waiters, __ATOMIC_ACQUIRE);
+}
 
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
+static void *epoll60_wait_thread(void *ctx_)
+{
+	struct epoll60_ctx *ctx = ctx_;
+	struct epoll_event e;
+	uint64_t v;
+	int ret;
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
+	while (!ctx->stopped) {
+		/* Mark we are ready */
+		__atomic_fetch_add(&ctx->ready, 1, __ATOMIC_ACQUIRE);
 
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
+		/* Start when all are ready */
+		while (__atomic_load_n(&ctx->ready, __ATOMIC_ACQUIRE) &&
+		       !ctx->stopped);
 
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-baylibre: PASS (gcc-8)
-            lab-collabora: FAIL (gcc-8)
+		/* Account this waiter */
+		__atomic_fetch_add(&ctx->waiters, 1, __ATOMIC_ACQUIRE);
+again_wait:
+		ret = epoll_wait(ctx->epfd, &e, 1, 1000);
+		if (ret != 1) {
+			/* Should be stopped, otherwise we lost wakeup */
+			assert(ctx->stopped);
+			return NULL;
+		}
 
----
-For more info write to <info@kernelci.org>
+		ret = read(e.data.fd, &v, sizeof(v));
+		if (ret != sizeof(v)) {
+			/* Event was stollen by other thread */
+			goto again_wait;
+		}
+		__atomic_fetch_sub(&ctx->waiters, 1, __ATOMIC_RELEASE);
+	}
+
+	return NULL;
+}
+
+static inline unsigned long long msecs(void)
+{
+	struct timespec ts;
+	unsigned long long msecs;
+
+	clock_gettime(CLOCK_REALTIME, &ts);
+	msecs = ts.tv_sec * 1000ull;
+	msecs += ts.tv_nsec / 1000000ull;
+
+	return msecs;
+}
+
+TEST(epoll60)
+{
+	struct epoll60_ctx ctx = { 0 };
+	pthread_t waiters[ARRAY_SIZE(ctx.evfd)];
+	struct epoll_event e;
+	int i, n, ret;
+
+	signal(SIGUSR1, signal_handler);
+
+	ctx.epfd = epoll_create1(0);
+	ASSERT_GE(ctx.epfd, 0);
+
+	/* Create event fds */
+	for (i = 0; i < ARRAY_SIZE(ctx.evfd); i++) {
+		ctx.evfd[i] = eventfd(0, EFD_NONBLOCK);
+		ASSERT_GE(ctx.evfd[i], 0);
+
+		e.events = EPOLLIN | EPOLLERR;
+		e.data.fd = ctx.evfd[i];
+		ASSERT_EQ(epoll_ctl(ctx.epfd, EPOLL_CTL_ADD, ctx.evfd[i], &e), 0);
+	}
+
+	/* Create waiter threads */
+	for (i = 0; i < ARRAY_SIZE(waiters); i++)
+		ASSERT_EQ(pthread_create(&waiters[i], NULL,
+					 epoll60_wait_thread, &ctx), 0);
+
+	for (i = 0; i < 300; i++) {
+		uint64_t v = 1, ms;
+
+		/* Wait for all to be ready */
+		while (__atomic_load_n(&ctx.ready, __ATOMIC_ACQUIRE) !=
+		       ARRAY_SIZE(ctx.evfd))
+			;
+
+		/* Steady, go */
+		__atomic_fetch_sub(&ctx.ready, ARRAY_SIZE(ctx.evfd),
+				   __ATOMIC_ACQUIRE);
+
+		/* Wait all have gone to kernel */
+		while (count_waiters(&ctx) != ARRAY_SIZE(ctx.evfd))
+			;
+
+		/* 1ms should be enough to schedule out */
+		usleep(1000);
+
+		/* Quickly signal all handles at once */
+		for (n = 0; n < ARRAY_SIZE(ctx.evfd); n++) {
+			ret = write(ctx.evfd[n], &v, sizeof(v));
+			ASSERT_EQ(ret, sizeof(v));
+		}
+
+		/* Busy loop for 1s and wait for all waiters to wake up */
+		ms = msecs();
+		while (count_waiters(&ctx) && msecs() < ms + 3000)
+			;
+
+		ASSERT_EQ(count_waiters(&ctx), 0);
+	}
+	ctx.stopped = 1;
+	/* Stop waiters */
+	for (i = 0; i < ARRAY_SIZE(waiters); i++) {
+		pthread_kill(waiters[i], SIGUSR1);
+		pthread_join(waiters[i], NULL);
+	}
+
+	for (i = 0; i < ARRAY_SIZE(waiters); i++)
+		close(ctx.evfd[i]);
+	close(ctx.epfd);
+}
+
+
