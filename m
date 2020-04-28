@@ -2,363 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2121BBBED
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 13:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B55611BBCAA
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 13:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726579AbgD1LH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 07:07:27 -0400
-Received: from mga09.intel.com ([134.134.136.24]:7566 "EHLO mga09.intel.com"
+        id S1726264AbgD1LnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 07:43:15 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40266 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726345AbgD1LH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 07:07:27 -0400
-IronPort-SDR: dMghCMOcwO/xwijN+gqAceRiS8MD2mMFVnthg93Yqs0NYynz01vJq/8zPrQLaugs/0p3TXvGV8
- X5LdlyCImn+A==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Apr 2020 04:07:26 -0700
-IronPort-SDR: qQSPXary+uIE9z9Q6z/rydXFG9M8IEOMkLzGPV+Nvo+kqEhNGPvMCM1+ZAFEYsiAPTVDP8AgmT
- d7ZIH3TWDHwQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,327,1583222400"; 
-   d="scan'208";a="432144458"
-Received: from gaia.fi.intel.com ([10.237.72.192])
-  by orsmga005.jf.intel.com with ESMTP; 28 Apr 2020 04:07:24 -0700
-Received: by gaia.fi.intel.com (Postfix, from userid 1000)
-        id A4A725C1F98; Tue, 28 Apr 2020 14:05:24 +0300 (EEST)
-From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] drm/i915/execlists: Avoid reusing the same logical CCID
-In-Reply-To: <20200428090814.19352-1-chris@chris-wilson.co.uk>
-References: <20200428090814.19352-1-chris@chris-wilson.co.uk>
-Date:   Tue, 28 Apr 2020 14:05:24 +0300
-Message-ID: <87y2qfkgzv.fsf@gaia.fi.intel.com>
+        id S1726510AbgD1LnP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 07:43:15 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id CBDE1ADCE;
+        Tue, 28 Apr 2020 11:43:11 +0000 (UTC)
+Subject: Re: [PATCH 4.14] mm, slub: restore the original intention of
+ prefetch_freepointer()
+To:     Matthias Schiffer <mschiffer@universe-factory.net>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Daniel Micay <danielmicay@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+References: <20200426070617.14575-1-sven@narfation.org>
+ <20200426231426.GM13035@sasha-vm> <11030934.sCltEm0ppq@bentobox>
+ <5500acc3-e691-ffae-1a59-6331de07f606@suse.cz>
+ <44815f1e-6fcd-6e03-79dc-423898dfe162@universe-factory.net>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <65dba4d8-62b8-7818-3d9f-d4288f1cf65d@suse.cz>
+Date:   Tue, 28 Apr 2020 13:43:10 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <44815f1e-6fcd-6e03-79dc-423898dfe162@universe-factory.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Chris Wilson <chris@chris-wilson.co.uk> writes:
+On 4/27/20 9:08 PM, Matthias Schiffer wrote:
+> On 4/27/20 10:45 AM, Vlastimil Babka wrote:
+>> On 4/27/20 9:01 AM, Sven Eckelmann wrote:
+>>>>> More details about it can be found in
+>>>>> https://github.com/freifunk-gluon/gluon/issues/1982
+>> 
+>> Hmm, doesn't explain much how the fix was eventually found, but nevermind, good job.
+> 
+> The fact that the location of the data bus error was so imprecise made me
+> suspect that no regular load could be the cause - therefore I looked at
+> that prefetch in detail and eventually found your patch.
 
-> The bspec is confusing on the nature of the upper 32bits of the LRC
-> descriptor. Once upon a time, it said that it uses the upper 32b to
-> decide if it should perform a lite-restore, and so we must ensure that
-> each unique context submitted to HW is given a unique CCID [for the
-> duration of it being on the HW]. Currently, this is achieved by using
-> a small circular tag, and assigning every context submitted to HW a
-> new id. However, this tag is being cleared on repinning an inflight
-> context such that we end up re-using the 0 tag for multiple contexts.
->
-> To avoid accidentally clearing the CCID in the upper 32bits of the LRC
-> descriptor, split the descriptor into two dwords so we can update the
-> GGTT address separately from the CCID.
->
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1796
-> Fixes: 2935ed5339c4 ("drm/i915: Remove logical HW ID")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-> Cc: <stable@vger.kernel.org> # v5.5+
-> ---
->  drivers/gpu/drm/i915/gt/intel_context_types.h |  8 ++-
->  drivers/gpu/drm/i915/gt/intel_engine_cs.c     |  4 +-
->  drivers/gpu/drm/i915/gt/intel_engine_types.h  |  5 ++
->  drivers/gpu/drm/i915/gt/intel_lrc.c           | 57 ++++++++-----------
->  .../gpu/drm/i915/gt/uc/intel_guc_submission.c |  2 +-
->  drivers/gpu/drm/i915/gvt/scheduler.c          |  4 +-
->  drivers/gpu/drm/i915/i915_perf.c              |  3 +-
->  7 files changed, 43 insertions(+), 40 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/gt/intel_context_types.h b/drivers/gpu/drm/i915/gt/intel_context_types.h
-> index e0da7bdcbf01..4954b0df4864 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_context_types.h
-> +++ b/drivers/gpu/drm/i915/gt/intel_context_types.h
-> @@ -69,7 +69,13 @@ struct intel_context {
->  #define CONTEXT_NOPREEMPT		7
->  
->  	u32 *lrc_reg_state;
-> -	u64 lrc_desc;
-> +	union {
-> +		struct {
-> +			u32 lrca;
-> +			u32 ccid;
-> +		};
-> +		u64 desc;
-> +	} lrc;
+Ah, great, thanks.
 
-I remember having something similar at some point.
-Some unwanted shifting then on setup but the bspec
-seems to be even more torn than we are.
+>> 
+>> 
+>> I think the prefetch my go to an address that would cause a real fetch to page
+>> fault. Under normal circumstances that could be only the NULL pointer that
+>> terminates a freelist, otherwise the address should be valid.
+> 
+> For further analysis, I just replaced the prefetch as implemented in 4.14
+> (i.e. before applying the patch in question) with a regular load (excluding
+> NULL, which would lead to an immediate fault on boot). With the test
+> program, I quickly hit a fault, at an address that looks completely bogus
+> (i.e. neither NULL nor an address looking like it might be mapped to
+> anything). Is this expected with the incorrect prefetch_freepointer()
+> implementation of 4.14? Is it possible that prefetch_freepointer() of 4.14
+> is even more broken than suspected before? Note that we hit this issue with
+> the "names_cache" slab, which has page-sized objects, if that might provide
+> any clue...
 
-But the net result is what counts.
+Thanks for the test and it might indeed be worthwile to chase it down as it's 
+really unclear to me what's going on and there might be a worse underlying issue 
+that we just mask.
+One question, is CONFIG_SLAB_FREELIST_HARDENED enabled in your config? That 
+could play a role in seeing addresses that look completely bogus.
 
-Atleast it is easier now to see that we don't
-trample on the reserved/mbz. But I would not complain
-about asserting that.
+Looking closer at prefetch_freepointer() usage from slab_alloc_node() we start with
 
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+object = c->freelist;
 
->  	u32 tag; /* cookie passed to HW to track this context on submission */
->  
->  	/* Time on GPU as tracked by the hw. */
-> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> index b1f8527f02c8..7c3cb5aedfdf 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> @@ -1425,7 +1425,7 @@ static void intel_engine_print_registers(struct intel_engine_cs *engine,
->  			len = scnprintf(hdr, sizeof(hdr),
->  					"\t\tActive[%d]:  ccid:%08x, ",
->  					(int)(port - execlists->active),
-> -					upper_32_bits(rq->context->lrc_desc));
-> +					rq->context->lrc.ccid);
->  			len += print_ring(hdr + len, sizeof(hdr) - len, rq);
->  			scnprintf(hdr + len, sizeof(hdr) - len, "rq: ");
->  			print_request(m, rq, hdr);
-> @@ -1437,7 +1437,7 @@ static void intel_engine_print_registers(struct intel_engine_cs *engine,
->  			len = scnprintf(hdr, sizeof(hdr),
->  					"\t\tPending[%d]: ccid:%08x, ",
->  					(int)(port - execlists->pending),
-> -					upper_32_bits(rq->context->lrc_desc));
-> +					rq->context->lrc.ccid);
->  			len += print_ring(hdr + len, sizeof(hdr) - len, rq);
->  			scnprintf(hdr + len, sizeof(hdr) - len, "rq: ");
->  			print_request(m, rq, hdr);
-> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-> index bf395227c99f..470bdc73220a 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
-> +++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-> @@ -156,6 +156,11 @@ struct intel_engine_execlists {
->  	 */
->  	struct i915_priolist default_priolist;
->  
-> +	/**
-> +	 * @ccid: identifier for contexts submitted to this engine
-> +	 */
-> +	u32 ccid;
-> +
->  	/**
->  	 * @yield: CCID at the time of the last semaphore-wait interrupt.
->  	 *
-> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-> index 93a1b73ad96b..7d56207276d5 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-> @@ -573,10 +573,10 @@ assert_priority_queue(const struct i915_request *prev,
->   * engine info, SW context ID and SW counter need to form a unique number
->   * (Context ID) per lrc.
->   */
-> -static u64
-> +static u32
->  lrc_descriptor(struct intel_context *ce, struct intel_engine_cs *engine)
->  {
-> -	u64 desc;
-> +	u32 desc;
->  
->  	desc = INTEL_LEGACY_32B_CONTEXT;
->  	if (i915_vm_is_4lvl(ce->vm))
-> @@ -587,21 +587,7 @@ lrc_descriptor(struct intel_context *ce, struct intel_engine_cs *engine)
->  	if (IS_GEN(engine->i915, 8))
->  		desc |= GEN8_CTX_L3LLC_COHERENT;
->  
-> -	desc |= i915_ggtt_offset(ce->state); /* bits 12-31 */
-> -	/*
-> -	 * The following 32bits are copied into the OA reports (dword 2).
-> -	 * Consider updating oa_get_render_ctx_id in i915_perf.c when changing
-> -	 * anything below.
-> -	 */
-> -	if (INTEL_GEN(engine->i915) >= 11) {
-> -		desc |= (u64)engine->instance << GEN11_ENGINE_INSTANCE_SHIFT;
-> -								/* bits 48-53 */
-> -
-> -		desc |= (u64)engine->class << GEN11_ENGINE_CLASS_SHIFT;
-> -								/* bits 61-63 */
-> -	}
-> -
-> -	return desc;
-> +	return i915_ggtt_offset(ce->state) | desc;
->  }
->  
->  static inline unsigned int dword_in_page(void *addr)
-> @@ -1353,7 +1339,7 @@ static void reset_active(struct i915_request *rq,
->  	__execlists_update_reg_state(ce, engine, head);
->  
->  	/* We've switched away, so this should be a no-op, but intent matters */
-> -	ce->lrc_desc |= CTX_DESC_FORCE_RESTORE;
-> +	ce->lrc.desc |= CTX_DESC_FORCE_RESTORE;
->  }
->  
->  static void st_update_runtime_underflow(struct intel_context *ce, s32 dt)
-> @@ -1401,18 +1387,19 @@ __execlists_schedule_in(struct i915_request *rq)
->  	if (IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM))
->  		execlists_check_context(ce, engine);
->  
-> -	ce->lrc_desc &= ~GENMASK_ULL(47, 37);
->  	if (ce->tag) {
->  		/* Use a fixed tag for OA and friends */
-> -		ce->lrc_desc |= (u64)ce->tag << 32;
-> +		ce->lrc.ccid = ce->tag;
->  	} else {
->  		/* We don't need a strict matching tag, just different values */
-> -		ce->lrc_desc |=
-> -			(u64)(++engine->context_tag % NUM_CONTEXT_TAG) <<
-> -			GEN11_SW_CTX_ID_SHIFT;
-> +		ce->lrc.ccid =
-> +			(++engine->context_tag % NUM_CONTEXT_TAG) <<
-> +			(GEN11_SW_CTX_ID_SHIFT - 32);
->  		BUILD_BUG_ON(NUM_CONTEXT_TAG > GEN12_MAX_CONTEXT_HW_ID);
->  	}
->  
-> +	ce->lrc.ccid |= engine->execlists.ccid;
-> +
->  	__intel_gt_pm_get(engine->gt);
->  	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_IN);
->  	intel_engine_context_in(engine);
-> @@ -1511,7 +1498,7 @@ execlists_schedule_out(struct i915_request *rq)
->  static u64 execlists_update_context(struct i915_request *rq)
->  {
->  	struct intel_context *ce = rq->context;
-> -	u64 desc = ce->lrc_desc;
-> +	u64 desc = ce->lrc.desc;
->  	u32 tail, prev;
->  
->  	/*
-> @@ -1550,7 +1537,7 @@ static u64 execlists_update_context(struct i915_request *rq)
->  	 */
->  	wmb();
->  
-> -	ce->lrc_desc &= ~CTX_DESC_FORCE_RESTORE;
-> +	ce->lrc.desc &= ~CTX_DESC_FORCE_RESTORE;
->  	return desc;
->  }
->  
-> @@ -1571,8 +1558,9 @@ dump_port(char *buf, int buflen, const char *prefix, struct i915_request *rq)
->  	if (!rq)
->  		return "";
->  
-> -	snprintf(buf, buflen, "%s%llx:%lld%s prio %d",
-> +	snprintf(buf, buflen, "%sccid:%x %llx:%lld%s prio %d",
->  		 prefix,
-> +		 rq->context->lrc.ccid,
->  		 rq->fence.context, rq->fence.seqno,
->  		 i915_request_completed(rq) ? "!" :
->  		 i915_request_started(rq) ? "*" :
-> @@ -1948,7 +1936,7 @@ timeslice_yield(const struct intel_engine_execlists *el,
->  	 * safe, yield if it might be stuck -- it will be given a fresh
->  	 * timeslice in the near future.
->  	 */
-> -	return upper_32_bits(rq->context->lrc_desc) == READ_ONCE(el->yield);
-> +	return rq->context->lrc.ccid == READ_ONCE(el->yield);
->  }
->  
->  static bool
-> @@ -2975,7 +2963,7 @@ active_context(struct intel_engine_cs *engine, u32 ccid)
->  	 */
->  
->  	for (port = el->active; (rq = *port); port++) {
-> -		if (upper_32_bits(rq->context->lrc_desc) == ccid) {
-> +		if (rq->context->lrc.ccid == ccid) {
->  			ENGINE_TRACE(engine,
->  				     "ccid found at active:%zd\n",
->  				     port - el->active);
-> @@ -2984,7 +2972,7 @@ active_context(struct intel_engine_cs *engine, u32 ccid)
->  	}
->  
->  	for (port = el->pending; (rq = *port); port++) {
-> -		if (upper_32_bits(rq->context->lrc_desc) == ccid) {
-> +		if (rq->context->lrc.ccid == ccid) {
->  			ENGINE_TRACE(engine,
->  				     "ccid found at pending:%zd\n",
->  				     port - el->pending);
-> @@ -3444,7 +3432,7 @@ __execlists_context_pin(struct intel_context *ce,
->  	if (IS_ERR(vaddr))
->  		return PTR_ERR(vaddr);
->  
-> -	ce->lrc_desc = lrc_descriptor(ce, engine) | CTX_DESC_FORCE_RESTORE;
-> +	ce->lrc.lrca = lrc_descriptor(ce, engine) | CTX_DESC_FORCE_RESTORE;
->  	ce->lrc_reg_state = vaddr + LRC_STATE_OFFSET;
->  	__execlists_update_reg_state(ce, engine, ce->ring->tail);
->  
-> @@ -3473,7 +3461,7 @@ static void execlists_context_reset(struct intel_context *ce)
->  				 ce, ce->engine, ce->ring, true);
->  	__execlists_update_reg_state(ce, ce->engine, ce->ring->tail);
->  
-> -	ce->lrc_desc |= CTX_DESC_FORCE_RESTORE;
-> +	ce->lrc.desc |= CTX_DESC_FORCE_RESTORE;
->  }
->  
->  static const struct intel_context_ops execlists_context_ops = {
-> @@ -4184,7 +4172,7 @@ static void __execlists_reset(struct intel_engine_cs *engine, bool stalled)
->  		     head, ce->ring->tail);
->  	__execlists_reset_reg_state(ce, engine);
->  	__execlists_update_reg_state(ce, engine, head);
-> -	ce->lrc_desc |= CTX_DESC_FORCE_RESTORE; /* paranoid: GPU was reset! */
-> +	ce->lrc.desc |= CTX_DESC_FORCE_RESTORE; /* paranoid: GPU was reset! */
->  
->  unwind:
->  	/* Push back any incomplete requests for replay after the reset. */
-> @@ -4950,6 +4938,11 @@ int intel_execlists_submission_setup(struct intel_engine_cs *engine)
->  	else
->  		execlists->csb_size = GEN11_CSB_ENTRIES;
->  
-> +	if (INTEL_GEN(engine->i915) >= 11) {
-> +		execlists->ccid |= engine->instance << (GEN11_ENGINE_INSTANCE_SHIFT - 32);
-> +		execlists->ccid |= engine->class << (GEN11_ENGINE_CLASS_SHIFT - 32);
-> +	}
-> +
->  	/* Finally, take ownership and responsibility for cleanup! */
->  	engine->sanitize = execlists_sanitize;
->  	engine->release = execlists_release;
-> diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-> index fe7778c28d2d..aa6d56e25a10 100644
-> --- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-> +++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-> @@ -217,7 +217,7 @@ static void guc_wq_item_append(struct intel_guc *guc,
->  static void guc_add_request(struct intel_guc *guc, struct i915_request *rq)
->  {
->  	struct intel_engine_cs *engine = rq->engine;
-> -	u32 ctx_desc = lower_32_bits(rq->context->lrc_desc);
-> +	u32 ctx_desc = rq->context->lrc.ccid;
->  	u32 ring_tail = intel_ring_set_tail(rq->ring, rq->tail) / sizeof(u64);
->  
->  	guc_wq_item_append(guc, engine->guc_id, ctx_desc,
-> diff --git a/drivers/gpu/drm/i915/gvt/scheduler.c b/drivers/gpu/drm/i915/gvt/scheduler.c
-> index 2f5c59111821..38234073e0fc 100644
-> --- a/drivers/gpu/drm/i915/gvt/scheduler.c
-> +++ b/drivers/gpu/drm/i915/gvt/scheduler.c
-> @@ -290,7 +290,7 @@ static void
->  shadow_context_descriptor_update(struct intel_context *ce,
->  				 struct intel_vgpu_workload *workload)
->  {
-> -	u64 desc = ce->lrc_desc;
-> +	u64 desc = ce->lrc.desc;
->  
->  	/*
->  	 * Update bits 0-11 of the context descriptor which includes flags
-> @@ -300,7 +300,7 @@ shadow_context_descriptor_update(struct intel_context *ce,
->  	desc |= (u64)workload->ctx_desc.addressing_mode <<
->  		GEN8_CTX_ADDRESSING_MODE_SHIFT;
->  
-> -	ce->lrc_desc = desc;
-> +	ce->lrc.desc = desc;
->  }
->  
->  static int copy_workload_to_ring_buffer(struct intel_vgpu_workload *workload)
-> diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
-> index dec1b33e4da8..04ad21960688 100644
-> --- a/drivers/gpu/drm/i915/i915_perf.c
-> +++ b/drivers/gpu/drm/i915/i915_perf.c
-> @@ -1263,8 +1263,7 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
->  			 * dropped by GuC. They won't be part of the context
->  			 * ID in the OA reports, so squash those lower bits.
->  			 */
-> -			stream->specific_ctx_id =
-> -				lower_32_bits(ce->lrc_desc) >> 12;
-> +			stream->specific_ctx_id = ce->lrc.lrca >> 12;
->  
->  			/*
->  			 * GuC uses the top bit to signal proxy submission, so
-> -- 
-> 2.20.1
+if that's not NULL, we do
+
+void *next_object = get_freepointer_safe(s, object);
+
+then there's the tricky this_cpu_cmpxchg_double() operation. We can assume that 
+if that succeeds, c->freelist == next_object
+So, if next_object was already a broken pointer, the next allocation should 
+crash, even if we don't crash due to the prefetch.
+
+It's possible next_object is NULL. But then the 4.14 implementation should be 
+actually fine, prefetch_freepointer() has "if (object)" condition so it won't 
+access (not just prefetch) that NULL. On the contrary, my patch removes that 
+condition, as it also didn't exist before commit 2482ddec670fb. So AFAICS it's 
+possible to trigger a NULL prefetch after my backport, and apparently the CPU 
+doesn't mind that?
+
+What if next_object is not NULL? Then it should be a valid pointer, as stated 
+above. With my patch, then it's just prefetched and that's it. 4.14 
+implementation will read (not prefetch) the next free pointer in the chain, 
+which AFAICT should also be either valid or NULL, and then prefetch that. So 
+both implementation. should be prefetching either a valid value, or NULL?
+Aha! But we have already put next_object to c->freelist by the 
+this_cpu_cmpxchg_double(), so we could have been then interrupted, and the 
+interrupt handler or another thread scheduled instead of us on the same CPU have 
+now allocated next_object from c->freelist and filled it with its own data, 
+overwriting the free pointer. Then we resume execution and indeed can read bogus 
+value as a free pointer and try to prefetch it... so that might be the reason.
+
+> In any case, it seems like the "pref" instruction should not be used on
+> bogus addresses on the ath79 platform... The exact behaviour is also
+> hardware-dependent: On some SoCs, the error would be visible as a data bus
+> error, while others just reset without any way to find out what was going
+> wrong.
+
+If I knew that, and realized the scenario above is possible, I would have marked 
+the patch stable myself. Sorry.
+
+> Matthias
+> 
