@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5561B1BCAB0
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C824C1BCA0A
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729462AbgD1Sg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:36:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54666 "EHLO mail.kernel.org"
+        id S1730542AbgD1SpC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:45:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730423AbgD1Sg4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:36:56 -0400
+        id S1730788AbgD1SpB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:45:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE30E2176D;
-        Tue, 28 Apr 2020 18:36:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA7BF206D6;
+        Tue, 28 Apr 2020 18:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099016;
+        s=default; t=1588099501;
         bh=SuW/bMeNfeTOi8oPIOlRFwzT/BVrAzPDe9cMItAubWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZuP23WEG2PcbIcagYB1DtvgfNR3sAmFp/ZNBVZ5U3oo18JcwG5bgaWbFdwrgwUmHo
-         7DZtdHN+wUJg5PY0tTpHvJ3rhs+fftFbM1dzUnoBoGZfQXmzHo/8RsfPedoNDqlHcl
-         Vb029EO0ulByXFHq/EQRBj0bJ+S/3t/E1NMLebkY=
+        b=18KlJNNyF30/B9rtD4+3J82Xiw1i107tiiFGuKxZBfqMLBhFH/f8bNRmmnm2XO6Q4
+         ej2etiCCOOhmuAer8sArzv1nvOwbiyOPZ2FS0CDgYeetql9+bbg8rLrnt6+E2NOi+X
+         tWp5eOfUzrSo1tP9JNbmrhaMdYjrPYgSwoGCTsKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
         Xin Tan <tanxin.ctf@gmail.com>, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.6 135/167] staging: comedi: Fix comedi_device refcnt leak in comedi_open
+Subject: [PATCH 5.4 137/168] staging: comedi: Fix comedi_device refcnt leak in comedi_open
 Date:   Tue, 28 Apr 2020 20:25:11 +0200
-Message-Id: <20200428182242.522272905@linuxfoundation.org>
+Message-Id: <20200428182249.191390018@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
