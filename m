@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03C9F1BCA81
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 508081BCB64
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:57:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730904AbgD1St3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:49:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59130 "EHLO mail.kernel.org"
+        id S1729577AbgD1Say (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:30:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730762AbgD1SkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:40:08 -0400
+        id S1729576AbgD1Say (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F02E620575;
-        Tue, 28 Apr 2020 18:40:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6057220B80;
+        Tue, 28 Apr 2020 18:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099207;
-        bh=Ue9oNTy9Oq40zi5GBiH7Z4hIpfAqI/nfYyVazPMhCy0=;
+        s=default; t=1588098653;
+        bh=vU+2AAZL6lc+EETr5u0F7lT9UJ/xX/iksxwZJPHuOmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZNWitJl4nnVaOf2EPWz4EvTrMKmF4Ck6EDMP7JP9U3EgJQptBQ7KF09+nVPYQcrc
-         9p+uY0lcJ8oDaOCyA+kXuczcn0Bpz87E5zwprqU7KZyqq7SBHqZuDPxxYZDBrd+/1I
-         TeUz6xDBjEoxApzgatez8YpSj1o9ICiB/XCIg7yI=
+        b=UciISi3S8JOaICcBhQ/Ne/MmkIy/grvkUl+9kKpOAwf/2V1WGS40pX8vyr640Nt5W
+         wn9RtdN7tRCpQfVBL6robv/bnfeM1rfrQKpNjHg+ZL3Bn2R0SscIQb4Wn0vsLm3URZ
+         oOAmFp4E1L2IOJd5KDBhOFx3jayXZJhQOXgispUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 073/168] vrf: Fix IPv6 with qdisc and xfrm
+        stable@vger.kernel.org, Scott Benesh <scott.benesh@microsemi.com>,
+        Scott Teel <scott.teel@microsemi.com>,
+        Kevin Barnett <kevin.barnett@microsemi.com>,
+        Murthy Bhat <Murthy.Bhat@microsemi.com>,
+        Don Brace <don.brace@microsemi.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 035/131] scsi: smartpqi: fix call trace in device discovery
 Date:   Tue, 28 Apr 2020 20:24:07 +0200
-Message-Id: <20200428182241.291061422@linuxfoundation.org>
+Message-Id: <20200428182229.510235336@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: Murthy Bhat <Murthy.Bhat@microsemi.com>
 
-[ Upstream commit a53c102872ad6e34e1518e25899dc9498c27f8b1 ]
+[ Upstream commit b969261134c1b990b96ea98fe5e0fcf8ec937c04 ]
 
-When a qdisc is attached to the VRF device, the packet goes down the ndo
-xmit function which is setup to send the packet back to the VRF driver
-which does a lookup to send the packet out. The lookup in the VRF driver
-is not considering xfrm policies. Change it to use ip6_dst_lookup_flow
-rather than ip6_route_output.
+Use sas_phy_delete rather than sas_phy_free which, according to
+comments, should not be called for PHYs that have been set up
+successfully.
 
-Fixes: 35402e313663 ("net: Add IPv6 support to VRF device")
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/157048748876.11757.17773443136670011786.stgit@brunhilda
+Reviewed-by: Scott Benesh <scott.benesh@microsemi.com>
+Reviewed-by: Scott Teel <scott.teel@microsemi.com>
+Reviewed-by: Kevin Barnett <kevin.barnett@microsemi.com>
+Signed-off-by: Murthy Bhat <Murthy.Bhat@microsemi.com>
+Signed-off-by: Don Brace <don.brace@microsemi.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vrf.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/smartpqi/smartpqi_sas_transport.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -188,8 +188,8 @@ static netdev_tx_t vrf_process_v6_outbou
- 	fl6.flowi6_proto = iph->nexthdr;
- 	fl6.flowi6_flags = FLOWI_FLAG_SKIP_NH_OIF;
+diff --git a/drivers/scsi/smartpqi/smartpqi_sas_transport.c b/drivers/scsi/smartpqi/smartpqi_sas_transport.c
+index b209a35e482ef..01dfb97b07786 100644
+--- a/drivers/scsi/smartpqi/smartpqi_sas_transport.c
++++ b/drivers/scsi/smartpqi/smartpqi_sas_transport.c
+@@ -50,9 +50,9 @@ static void pqi_free_sas_phy(struct pqi_sas_phy *pqi_sas_phy)
+ 	struct sas_phy *phy = pqi_sas_phy->phy;
  
--	dst = ip6_route_output(net, NULL, &fl6);
--	if (dst == dst_null)
-+	dst = ip6_dst_lookup_flow(net, NULL, &fl6, NULL);
-+	if (IS_ERR(dst) || dst == dst_null)
- 		goto err;
+ 	sas_port_delete_phy(pqi_sas_phy->parent_port->port, phy);
+-	sas_phy_free(phy);
+ 	if (pqi_sas_phy->added_to_port)
+ 		list_del(&pqi_sas_phy->phy_list_entry);
++	sas_phy_delete(phy);
+ 	kfree(pqi_sas_phy);
+ }
  
- 	skb_dst_drop(skb);
+-- 
+2.20.1
+
 
 
