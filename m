@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7495B1BCBAA
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD7F1BC933
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729092AbgD1S7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:59:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41894 "EHLO mail.kernel.org"
+        id S1730740AbgD1Sje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:39:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729233AbgD1S2o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:28:44 -0400
+        id S1730870AbgD1Sjd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:39:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9B37214AF;
-        Tue, 28 Apr 2020 18:28:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 489A62085B;
+        Tue, 28 Apr 2020 18:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098524;
-        bh=eO8J7hh6A8rBgI/YiovNcnO/X1TvlHJT9v+oUP1nFq4=;
+        s=default; t=1588099172;
+        bh=PDn7z5TjoQE7tSSAS//QLkvjBMmkHUo1fAqHroZxP34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQVMIKhFqyhesbjoHZTTIKfgv8XVAYZxuICh6VTgCL67XlO1/jIhkEHrWFbXtVpFj
-         re8UwpMd3UB0XHXIM7qA3oa7Vij/sE2+4X3MLsjzxu5DNIVR6HhzXIP0093MLeLkG9
-         BYwvna6yDzMsJTg+iqfP0XjJkMpNsRbnpJDFsO+I=
+        b=BwYCF2tSlzcr9YfYkG+h5IAiCqqpH79QJ+zdSh7jVCQAF1LL6l21COd5luJ2iJOaK
+         LbCsAIeKAhDKVVqfFvL0If+ufr8ag4HYXXTh7qylSasY+wShSoSjYjaQYTpkvwOFYD
+         rt977W2+aKsKqbJY17Mw9SeoHnDgd+/kyoHvBRVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 066/167] net: dsa: b53: Fix valid setting for MDB entries
+Subject: [PATCH 5.4 068/168] net/x25: Fix x25_neigh refcnt leak when receiving frame
 Date:   Tue, 28 Apr 2020 20:24:02 +0200
-Message-Id: <20200428182233.315245775@linuxfoundation.org>
+Message-Id: <20200428182240.523297736@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit eab167f4851a19c514469dfa81147f77e17b5b20 ]
+[ Upstream commit f35d12971b4d814cdb2f659d76b42f0c545270b6 ]
 
-When support for the MDB entries was added, the valid bit was correctly
-changed to be assigned depending on the remaining port bitmask, that is,
-if there were no more ports added to the entry's port bitmask, the entry
-now becomes invalid. There was another assignment a few lines below that
-would override this which would invalidate entries even when there were
-still multiple ports left in the MDB entry.
+x25_lapb_receive_frame() invokes x25_get_neigh(), which returns a
+reference of the specified x25_neigh object to "nb" with increased
+refcnt.
 
-Fixes: 5d65b64a3d97 ("net: dsa: b53: Add support for MDB")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+When x25_lapb_receive_frame() returns, local variable "nb" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
+
+The reference counting issue happens in one path of
+x25_lapb_receive_frame(). When pskb_may_pull() returns false, the
+function forgets to decrease the refcnt increased by x25_get_neigh(),
+causing a refcnt leak.
+
+Fix this issue by calling x25_neigh_put() when pskb_may_pull() returns
+false.
+
+Fixes: cb101ed2c3c7 ("x25: Handle undersized/fragmented skbs")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/b53/b53_common.c |    1 -
- 1 file changed, 1 deletion(-)
+ net/x25/x25_dev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -1541,7 +1541,6 @@ static int b53_arl_op(struct b53_device
- 		ent.is_valid = !!(ent.port);
+--- a/net/x25/x25_dev.c
++++ b/net/x25/x25_dev.c
+@@ -115,8 +115,10 @@ int x25_lapb_receive_frame(struct sk_buf
+ 		goto drop;
  	}
  
--	ent.is_valid = is_valid;
- 	ent.vid = vid;
- 	ent.is_static = true;
- 	ent.is_age = false;
+-	if (!pskb_may_pull(skb, 1))
++	if (!pskb_may_pull(skb, 1)) {
++		x25_neigh_put(nb);
+ 		return 0;
++	}
+ 
+ 	switch (skb->data[0]) {
+ 
 
 
