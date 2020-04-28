@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 196711BCA95
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C38ED1BCBC2
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730856AbgD1Sus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:50:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56344 "EHLO mail.kernel.org"
+        id S1729085AbgD1S1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729061AbgD1SiC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:38:02 -0400
+        id S1729064AbgD1S1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E99E62076A;
-        Tue, 28 Apr 2020 18:38:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0DF220B80;
+        Tue, 28 Apr 2020 18:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099082;
-        bh=oTAIAjyk+RanQ8x47eQMRi2YenORNeIepWTAu6pzS3g=;
+        s=default; t=1588098466;
+        bh=DNcOpV0szsSX9D/2oFZXTbFZXuuiDI8hhGvLaGfA/B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XwUd6h9KmUf8MfYRVSSWghD1vn5roXGUdPZfBclJn0UULoz+ofYFFKBVc9IKjRp/S
-         Y+b8WN3QWH6fCc9fZv39CcTjQlXKmDjmD8olDmRiwwIXDmGJMpT9WVzBroVyP/NLyI
-         oXa24yCSE6h7MbJNSEjklP62Rh0HQ0tHhZJCIQ8o=
+        b=KYj6RS+Ug2SU+H6JXZndqp9v+zoV0Nkxg5x3jo7CzzYi1K7oxm4EsRib3Hc9Tloz0
+         +qTH7nSNq9TaT9YmcrEa9FfyuYDXhuYfDTaEZR+7xooHr7Qzx2ASpVex7qRJrYT29h
+         o9opzHW4yxiTtUApqie9+ewkfm4PT1NNEUj9QgRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/168] PCI/ASPM: Allow re-enabling Clock PM
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 052/167] net: bcmgenet: correct per TX/RX ring statistics
 Date:   Tue, 28 Apr 2020 20:23:48 +0200
-Message-Id: <20200428182238.747987829@linuxfoundation.org>
+Message-Id: <20200428182231.597256260@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit 35efea32b26f9aacc99bf07e0d2cdfba2028b099 ]
+[ Upstream commit a6d0b83f25073bdf08b8547aeff961a62c6ab229 ]
 
-Previously Clock PM could not be re-enabled after being disabled by
-pci_disable_link_state() because clkpm_capable was reset.  Change this by
-adding a clkpm_disable field similar to aspm_disable.
+The change to track net_device_stats per ring to better support SMP
+missed updating the rx_dropped member.
 
-Link: https://lore.kernel.org/r/4e8a66db-7d53-4a66-c26c-f0037ffaa705@gmail.com
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The ndo_get_stats method is also needed to combine the results for
+ethtool statistics (-S) before filling in the ethtool structure.
+
+Fixes: 37a30b435b92 ("net: bcmgenet: Track per TX/RX rings statistics")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pcie/aspm.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
-index 32c34330e5a67..5a1bbf2cb7e98 100644
---- a/drivers/pci/pcie/aspm.c
-+++ b/drivers/pci/pcie/aspm.c
-@@ -64,6 +64,7 @@ struct pcie_link_state {
- 	u32 clkpm_capable:1;		/* Clock PM capable? */
- 	u32 clkpm_enabled:1;		/* Current Clock PM state */
- 	u32 clkpm_default:1;		/* Default Clock PM state by BIOS */
-+	u32 clkpm_disable:1;		/* Clock PM disabled */
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -938,6 +938,8 @@ static void bcmgenet_get_ethtool_stats(s
+ 	if (netif_running(dev))
+ 		bcmgenet_update_mib_counters(priv);
  
- 	/* Exit latencies */
- 	struct aspm_latency latency_up;	/* Upstream direction exit latency */
-@@ -161,8 +162,11 @@ static void pcie_set_clkpm_nocheck(struct pcie_link_state *link, int enable)
- 
- static void pcie_set_clkpm(struct pcie_link_state *link, int enable)
- {
--	/* Don't enable Clock PM if the link is not Clock PM capable */
--	if (!link->clkpm_capable)
-+	/*
-+	 * Don't enable Clock PM if the link is not Clock PM capable
-+	 * or Clock PM is disabled
-+	 */
-+	if (!link->clkpm_capable || link->clkpm_disable)
- 		enable = 0;
- 	/* Need nothing if the specified equals to current state */
- 	if (link->clkpm_enabled == enable)
-@@ -192,7 +196,8 @@ static void pcie_clkpm_cap_init(struct pcie_link_state *link, int blacklist)
- 	}
- 	link->clkpm_enabled = enabled;
- 	link->clkpm_default = enabled;
--	link->clkpm_capable = (blacklist) ? 0 : capable;
-+	link->clkpm_capable = capable;
-+	link->clkpm_disable = blacklist ? 1 : 0;
++	dev->netdev_ops->ndo_get_stats(dev);
++
+ 	for (i = 0; i < BCMGENET_STATS_LEN; i++) {
+ 		const struct bcmgenet_stats *s;
+ 		char *p;
+@@ -3142,6 +3144,7 @@ static struct net_device_stats *bcmgenet
+ 	dev->stats.rx_packets = rx_packets;
+ 	dev->stats.rx_errors = rx_errors;
+ 	dev->stats.rx_missed_errors = rx_errors;
++	dev->stats.rx_dropped = rx_dropped;
+ 	return &dev->stats;
  }
  
- static bool pcie_retrain_link(struct pcie_link_state *link)
-@@ -1097,10 +1102,9 @@ static int __pci_disable_link_state(struct pci_dev *pdev, int state, bool sem)
- 		link->aspm_disable |= ASPM_STATE_L1;
- 	pcie_config_aspm_link(link, policy_to_aspm_state(link));
- 
--	if (state & PCIE_LINK_STATE_CLKPM) {
--		link->clkpm_capable = 0;
--		pcie_set_clkpm(link, 0);
--	}
-+	if (state & PCIE_LINK_STATE_CLKPM)
-+		link->clkpm_disable = 1;
-+	pcie_set_clkpm(link, policy_to_clkpm_state(link));
- 	mutex_unlock(&aspm_lock);
- 	if (sem)
- 		up_read(&pci_bus_sem);
--- 
-2.20.1
-
 
 
