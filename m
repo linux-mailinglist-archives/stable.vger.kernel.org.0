@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EEAD1BC8F0
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:37:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 883701BCBBD
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730458AbgD1ShP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:37:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55182 "EHLO mail.kernel.org"
+        id S1729020AbgD1S1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730456AbgD1ShO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:37:14 -0400
+        id S1729004AbgD1S1c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0046720730;
-        Tue, 28 Apr 2020 18:37:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 386F2208E0;
+        Tue, 28 Apr 2020 18:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099033;
-        bh=uIn2G7kOEb2huzpJZoDazjAU0elALl1jCoxLFvDPrx8=;
+        s=default; t=1588098451;
+        bh=/AT+BPEtbgPhVXoYP8gxORxx9FEIM787m91UbGqpI24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwn4q29Sg58kfTyVJ5LBaOsG7UzNoM8fifn4iXWsC/31ogfFeJeZ8GowYD9TxuSvc
-         gcr9VO3nQn1GvPb7bOO4E65/WWJJYh4SNOSzBB3sC/trkDXmOtSDposZNvgcrwYB1O
-         jV4k7JF3mr+7lR2lktb5vOKy9Aq/4e8KCSGDxB84=
+        b=yf3fobAAQPdSuyI2jB6c8/oW6LbjDsL9ajGiiA4ezhNMon4fSY/2pXQyYyTIV/Kbi
+         UB9CmxU1VakV/MZ34C6qgTOFNSNFHAPKvFfZKJ3cITNYyWVwhSw1PSDssIJDGALK5Z
+         SwbGtuF+ILlzZooEVH/JGOa3l3Ot294e8UayuyDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 048/168] ASoC: SOF: trace: fix unconditional free in trace release
+        stable@vger.kernel.org, Manoj Malviya <manojmalviya@chelsio.com>,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 046/167] cxgb4: fix large delays in PTP synchronization
 Date:   Tue, 28 Apr 2020 20:23:42 +0200
-Message-Id: <20200428182237.956072572@linuxfoundation.org>
+Message-Id: <20200428182230.896691289@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,100 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit e6110114d18d330c05fd6de9f31283fd086a5a3a ]
+[ Upstream commit bd019427bf3623ee3c7d2845cf921bbf4c14846c ]
 
-Check if DMA pages were successfully allocated in initialization
-before calling free. For many types of memory (like sgbufs)
-the extra free is harmless, but not all backends track allocation
-state, so add an explicit check.
+Fetching PTP sync information from mailbox is slow and can take
+up to 10 milliseconds. Reduce this unnecessary delay by directly
+reading the information from the corresponding registers.
 
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200124213625.30186-5-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- sound/soc/sof/trace.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/sound/soc/sof/trace.c b/sound/soc/sof/trace.c
-index 4c3cff031fd66..fd6f5913782bf 100644
---- a/sound/soc/sof/trace.c
-+++ b/sound/soc/sof/trace.c
-@@ -328,7 +328,10 @@ void snd_sof_free_trace(struct snd_sof_dev *sdev)
- {
- 	snd_sof_release_trace(sdev);
- 
--	snd_dma_free_pages(&sdev->dmatb);
--	snd_dma_free_pages(&sdev->dmatp);
-+	if (sdev->dma_trace_pages) {
-+		snd_dma_free_pages(&sdev->dmatb);
-+		snd_dma_free_pages(&sdev->dmatp);
-+		sdev->dma_trace_pages = 0;
-+	}
- }
- EXPORT_SYMBOL(snd_sof_free_trace);
--- 
-2.20.1
-
-
-
-ansport.c:937
-
-This bug occurs when cancellation of the S-G transfer races with
-transfer completion.  When that happens, usb_sg_cancel() may continue
-to access the transfer's URBs after usb_sg_wait() has freed them.
-
-The bug is caused by the fact that usb_sg_cancel() does not take any
-sort of reference to the transfer, and so there is nothing to prevent
-the URBs from being deallocated while the routine is trying to use
-them.  The fix is to take such a reference by incrementing the
-transfer's io->count field while the cancellation is in progres and
-decrementing it afterward.  The transfer's URBs are not deallocated
-until io->complete is triggered, which happens when io->count reaches
-zero.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2003281615140.14837-100000@netrider.rowland.org
+Fixes: 9c33e4208bce ("cxgb4: Add PTP Hardware Clock (PHC) support")
+Signed-off-by: Manoj Malviya <manojmalviya@chelsio.com>
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/core/message.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_ptp.c |   27 +++++--------------------
+ drivers/net/ethernet/chelsio/cxgb4/t4_regs.h   |    3 ++
+ 2 files changed, 9 insertions(+), 21 deletions(-)
 
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -588,12 +588,13 @@ void usb_sg_cancel(struct usb_sg_request
- 	int i, retval;
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ptp.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ptp.c
+@@ -311,32 +311,17 @@ static int cxgb4_ptp_adjtime(struct ptp_
+  */
+ static int cxgb4_ptp_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
+ {
+-	struct adapter *adapter = (struct adapter *)container_of(ptp,
+-				   struct adapter, ptp_clock_info);
+-	struct fw_ptp_cmd c;
++	struct adapter *adapter = container_of(ptp, struct adapter,
++					       ptp_clock_info);
+ 	u64 ns;
+-	int err;
  
- 	spin_lock_irqsave(&io->lock, flags);
--	if (io->status) {
-+	if (io->status || io->count == 0) {
- 		spin_unlock_irqrestore(&io->lock, flags);
- 		return;
- 	}
- 	/* shut everything down */
- 	io->status = -ECONNRESET;
-+	io->count++;		/* Keep the request alive until we're done */
- 	spin_unlock_irqrestore(&io->lock, flags);
+-	memset(&c, 0, sizeof(c));
+-	c.op_to_portid = cpu_to_be32(FW_CMD_OP_V(FW_PTP_CMD) |
+-				     FW_CMD_REQUEST_F |
+-				     FW_CMD_READ_F |
+-				     FW_PTP_CMD_PORTID_V(0));
+-	c.retval_len16 = cpu_to_be32(FW_CMD_LEN16_V(sizeof(c) / 16));
+-	c.u.ts.sc = FW_PTP_SC_GET_TIME;
+-
+-	err = t4_wr_mbox(adapter, adapter->mbox, &c, sizeof(c), &c);
+-	if (err < 0) {
+-		dev_err(adapter->pdev_dev,
+-			"PTP: %s error %d\n", __func__, -err);
+-		return err;
+-	}
++	ns = t4_read_reg(adapter, T5_PORT_REG(0, MAC_PORT_PTP_SUM_LO_A));
++	ns |= (u64)t4_read_reg(adapter,
++			       T5_PORT_REG(0, MAC_PORT_PTP_SUM_HI_A)) << 32;
  
- 	for (i = io->entries - 1; i >= 0; --i) {
-@@ -607,6 +608,12 @@ void usb_sg_cancel(struct usb_sg_request
- 			dev_warn(&io->dev->dev, "%s, unlink --> %d\n",
- 				 __func__, retval);
- 	}
-+
-+	spin_lock_irqsave(&io->lock, flags);
-+	io->count--;
-+	if (!io->count)
-+		complete(&io->complete);
-+	spin_unlock_irqrestore(&io->lock, flags);
+ 	/* convert to timespec*/
+-	ns = be64_to_cpu(c.u.ts.tm);
+ 	*ts = ns_to_timespec64(ns);
+-
+-	return err;
++	return 0;
  }
- EXPORT_SYMBOL_GPL(usb_sg_cancel);
  
+ /**
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_regs.h
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_regs.h
+@@ -1900,6 +1900,9 @@
+ 
+ #define MAC_PORT_CFG2_A 0x818
+ 
++#define MAC_PORT_PTP_SUM_LO_A 0x990
++#define MAC_PORT_PTP_SUM_HI_A 0x994
++
+ #define MPS_CMN_CTL_A	0x9000
+ 
+ #define COUNTPAUSEMCRX_S    5
 
 
