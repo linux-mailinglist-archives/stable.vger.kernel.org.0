@@ -2,101 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF5E1BB78D
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 09:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D441BB83A
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 09:56:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726285AbgD1Hco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 03:32:44 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2117 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726274AbgD1Hcn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 03:32:43 -0400
-Received: from lhreml743-chm.china.huawei.com (unknown [172.18.7.106])
-        by Forcepoint Email with ESMTP id BA2CFD6E8C5E08530288;
-        Tue, 28 Apr 2020 08:32:41 +0100 (IST)
-Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
- lhreml743-chm.china.huawei.com (10.201.108.193) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1913.5; Tue, 28 Apr 2020 08:32:41 +0100
-Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.160)
- by fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1913.5; Tue, 28 Apr 2020 09:32:40 +0200
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     <zohar@linux.ibm.com>, <rgoldwyn@suse.de>,
-        <David.Laight@ACULAB.COM>
-CC:     <linux-integrity@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
-        <krzysztof.struczynski@huawei.com>, <stable@vger.kernel.org>,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Subject: [RESEND][PATCH v2 3/6] ima: Fix ima digest hash table key calculation
-Date:   Tue, 28 Apr 2020 09:30:10 +0200
-Message-ID: <20200428073010.25631-1-roberto.sassu@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200427102900.18887-3-roberto.sassu@huawei.com>
-References: <20200427102900.18887-3-roberto.sassu@huawei.com>
+        id S1726396AbgD1H4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 03:56:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57268 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726386AbgD1H4d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Apr 2020 03:56:33 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F290C03C1A9
+        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 00:56:33 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id a5so782450pjh.2
+        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 00:56:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=gD6lJCZ5KM9GJrgSOdYTt+BB4AicS74NtxW4/UGv5q4=;
+        b=zMUhrl5uyB2YaCu7J6flGiF3xbjztsb9ov3XbGWrZliFtbhCNeuKF/DUySNYLJiY+2
+         oIabSlBht/4j9Xu1Lw08hEKCSSDjPrJf1O232XUKa+Yiv5QpKPGyY4M8uv82TeQwSDWY
+         Vrgm5x9Vwu9RGrXV2LdSek9WVgPy/ZIYMgGTI1ga/oJAjhPcvaeXFFkRIClZiTTxBEBt
+         68xqofs6j4SDVWa5wD47iI6XdlMZvSbphTq+e9CVQWo0Y9eQBVnBT8QD3v4TkU2UmYIS
+         Sd5zpxkiM0ftnNHWpEe0jLpcaFTT64ul8Xe51DT4f2OxvX0PxxlmcV++C6e4UXRQfRIn
+         hpJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=gD6lJCZ5KM9GJrgSOdYTt+BB4AicS74NtxW4/UGv5q4=;
+        b=mDyXQwpvEM1hfIFfIOnhOC+Ad9V0NJXWQtgjemhfrhaaybqAKs/QedEdxM/SQDbb9p
+         FEHhxqhBHL9L3QzGbPc9JAMmn0IbJY1Is9B+8sgeGvcosB5mnaZDiDvrnCK4wsTeVpkk
+         Lp8Lv9G0IE/jTA2ifk4AxQebh+VZ0aJRh1Z/7a0jRfV1p48+5i2EwMLk3/trMtkha2pa
+         lQDwWHRm+yk1CMdjz9ljnqfOOdHQ5axyIz2cnWnlJKHZAaECdGIa9miSX4LFdJSrhMt0
+         8qoRz3H69c68GD3a5UjIIMO0RzfSsRWDJKVPLyACOL7xeIHj/6YFcFerhvfy8xEo8n4x
+         trwg==
+X-Gm-Message-State: AGi0PuY3IzhAm/op6MZJUGIUpM9f2Q8zjEcAGw964Pm0BaYZPoIHksl8
+        fVXsxxW4MuRWg3ygGq+BHu/sKtHnAuc=
+X-Google-Smtp-Source: APiQypJg+sKD6f5hHObj3gQ6hm9NGp3Bn6OfGmxcY+tYAujXT/61jqnBTia/0gFuycbO7MDFWygCSw==
+X-Received: by 2002:a17:90a:28e5:: with SMTP id f92mr3543018pjd.38.1588060592475;
+        Tue, 28 Apr 2020 00:56:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g79sm6816169pfb.60.2020.04.28.00.56.30
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Apr 2020 00:56:31 -0700 (PDT)
+Message-ID: <5ea7e1af.1c69fb81.f92e5.dc3f@mx.google.com>
+Date:   Tue, 28 Apr 2020 00:56:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.204.65.160]
-X-ClientProxiedBy: lhreml736-chm.china.huawei.com (10.201.108.87) To
- fraeml714-chm.china.huawei.com (10.206.15.33)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.6.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.6.7-164-g86cfba65ced0
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.6.y boot: 143 boots: 3 failed,
+ 132 passed with 4 offline, 4 untried/unknown (v5.6.7-164-g86cfba65ced0)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+stable-rc/linux-5.6.y boot: 143 boots: 3 failed, 132 passed with 4 offline,=
+ 4 untried/unknown (v5.6.7-164-g86cfba65ced0)
 
-Function hash_long() accepts unsigned long, while currently only one byte
-is passed from ima_hash_key(), which calculates a key for ima_htable.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.6.y/kernel/v5.6.7-164-g86cfba65ced0/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
+/kernel/v5.6.7-164-g86cfba65ced0/
 
-Given that hashing the digest does not give clear benefits compared to
-using the digest itself, remove hash_long() and return the modulus
-calculated on the first two bytes of the digest with the number of slots.
-Also reduce the depth of the hash table by doubling the number of slots.
+Tree: stable-rc
+Branch: linux-5.6.y
+Git Describe: v5.6.7-164-g86cfba65ced0
+Git Commit: 86cfba65ced0c2c8bdc2fc919361cc85f1c3ff67
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 96 unique boards, 24 SoC families, 22 builds out of 200
 
-Changelog
+Boot Regressions Detected:
 
-v2: directly access the first two bytes of the digest to avoid memory
-    access issues on big endian systems (suggested by David Laight)
+arm:
 
-Cc: stable@vger.kernel.org
-Fixes: 3323eec921ef ("integrity: IMA as an integrity service provider")
-Co-developed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v5.6.7)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-axg-s400:
+              lab-baylibre-seattle: new failure (last pass: v5.6.7)
+          sun50i-a64-pine64-plus:
+              lab-baylibre: new failure (last pass: v5.6.7)
+
+i386:
+
+    i386_defconfig:
+        gcc-8:
+          qemu_i386:
+              lab-baylibre: new failure (last pass: v5.6.7)
+
+Boot Failures Detected:
+
+i386:
+    i386_defconfig:
+        gcc-8:
+            qemu_i386: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            sun50i-a64-pine64-plus: 1 failed lab
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
 ---
- security/integrity/ima/ima.h | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index 467dfdbea25c..02796473238b 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -36,7 +36,7 @@ enum tpm_pcrs { TPM_PCR0 = 0, TPM_PCR8 = 8 };
- #define IMA_DIGEST_SIZE		SHA1_DIGEST_SIZE
- #define IMA_EVENT_NAME_LEN_MAX	255
- 
--#define IMA_HASH_BITS 9
-+#define IMA_HASH_BITS 10
- #define IMA_MEASURE_HTABLE_SIZE (1 << IMA_HASH_BITS)
- 
- #define IMA_TEMPLATE_FIELD_ID_MAX_LEN	16
-@@ -179,9 +179,10 @@ struct ima_h_table {
- };
- extern struct ima_h_table ima_htable;
- 
--static inline unsigned long ima_hash_key(u8 *digest)
-+static inline unsigned int ima_hash_key(u8 *digest)
- {
--	return hash_long(*digest, IMA_HASH_BITS);
-+	/* there is no point in taking a hash of part of a digest */
-+	return (digest[0] | digest[1] << 8) % IMA_MEASURE_HTABLE_SIZE;
- }
- 
- #define __ima_hooks(hook)		\
--- 
-2.17.1
-
+For more info write to <info@kernelci.org>
