@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4F91BC7D2
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B72A81BCABA
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728878AbgD1S1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:27:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38866 "EHLO mail.kernel.org"
+        id S1729761AbgD1Sfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:35:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728872AbgD1S1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:27:00 -0400
+        id S1728983AbgD1Sff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:35:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E81BF20BED;
-        Tue, 28 Apr 2020 18:26:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 791B7208E0;
+        Tue, 28 Apr 2020 18:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098419;
-        bh=0PJdmnhUCsTCwdTxrc85iviAyXqH9RK8DKfgmt6eieQ=;
+        s=default; t=1588098934;
+        bh=2M5vHab+njp3Ao4dy6+B1X01krlwjCcGCpWvxZxw13Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aLSvQuI4COuavxZAL6ZcSQxBQEFHw50AZ7r6ZrYOtbxV7bQOJKBdBV01Chpkj9wkd
-         rEtH8YjVeM02bqbvNsiY9l25l1LPJt9M2yXtIEY40PPneo9xLPrkeWo4R6WXWU1LcQ
-         NpuBUk/7VxLtyF+TdMA3pUtX4RIK1fgSx8iDg8aw=
+        b=bq8QVkbtlZxpvSzaBRcNz1OrbDb7A4WR7bpvVxTYeHT6UGz+10TJIQ6mFoac7iKKQ
+         UR7kexDbV4iWKObGeSwpzoHtAhvZVdc8MPUe8XB80Rz5MKKknqnFcYPZe3Jkvwzxg1
+         OhdEPtj6d+DFM0Y2mrvmZ1Dym/Hg4MY+X20l5JWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ganesh Goudar <ganeshgr@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 031/167] powerpc/pseries: Fix MCE handling on pseries
+Subject: [PATCH 5.4 033/168] powerpc/pseries: Fix MCE handling on pseries
 Date:   Tue, 28 Apr 2020 20:23:27 +0200
-Message-Id: <20200428182229.156032790@linuxfoundation.org>
+Message-Id: <20200428182235.911446416@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -105,7 +105,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 11 insertions(+)
 
 diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platforms/pseries/ras.c
-index 1d7f973c647b3..43710b69e09eb 100644
+index 3acdcc3bb908c..753adeb624f23 100644
 --- a/arch/powerpc/platforms/pseries/ras.c
 +++ b/arch/powerpc/platforms/pseries/ras.c
 @@ -683,6 +683,17 @@ static int mce_handle_error(struct pt_regs *regs, struct rtas_error_log *errp)
