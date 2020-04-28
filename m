@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC5CC1BC813
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:29:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC0E31BCBD8
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729352AbgD1S31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:29:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43146 "EHLO mail.kernel.org"
+        id S1728605AbgD1TAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 15:00:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729349AbgD1S30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:29:26 -0400
+        id S1729053AbgD1S1o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BA4220757;
-        Tue, 28 Apr 2020 18:29:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41F61208E0;
+        Tue, 28 Apr 2020 18:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098565;
-        bh=z4FfbJVqIQ3XfLGNVthI2GuGQucH+qehLXgQcD9x1zc=;
+        s=default; t=1588098463;
+        bh=/n+aw/AIgsVNLvpZZefwZf1O71uQadggFN+UnXZb02c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CUu8OrGcVBmhAClJQ+8tVUHlin3Ane9gjH1QIiP53NrS973rilLlZz3pxU+BZO7na
-         1K+o0F2TXBCELi1xO9UoBiK4SSpbNZhlO5s+n+2pxix1v3FmD4xinrucg73AyvQbf4
-         BAJm6m+msP9/jCcwqXOrS0TC5bdyiaGtOmV8Y/tw=
+        b=I5H8yvU3XLN5ALVZpbV3oljUs43uqSnzTkOuZtlLDcaqFL+SYzlim2nbCCjPvapUg
+         cT3D2Cqv/lcPNXJ71kfOyzPMk21qnqRdE2gCpGvybhTUvUpdHjwPZf90HobF3dZDPV
+         brq/SSTr3DHXa/NkqqKUHFrstMU1l8Eoa8wlwW3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 015/131] ceph: dont skip updating wanted caps when cap is stale
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 051/167] mlxsw: Fix some IS_ERR() vs NULL bugs
 Date:   Tue, 28 Apr 2020 20:23:47 +0200
-Message-Id: <20200428182227.091731205@linuxfoundation.org>
+Message-Id: <20200428182231.481512904@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan, Zheng <zyan@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 0aa971b6fd3f92afef6afe24ef78d9bb14471519 ]
+[ Upstream commit c391eb8366ae052d571bb2841f1ccb4d39f3ceb8 ]
 
-1. try_get_cap_refs() fails to get caps and finds that mds_wanted
-   does not include what it wants. It returns -ESTALE.
-2. ceph_get_caps() calls ceph_renew_caps(). ceph_renew_caps() finds
-   that inode has cap, so it calls ceph_check_caps().
-3. ceph_check_caps() finds that issued caps (without checking if it's
-   stale) already includes caps wanted by open file, so it skips
-   updating wanted caps.
+The mlxsw_sp_acl_rulei_create() function is supposed to return an error
+pointer from mlxsw_afa_block_create().  The problem is that these
+functions both return NULL instead of error pointers.  Half the callers
+expect NULL and half expect error pointers so it could lead to a NULL
+dereference on failure.
 
-Above events can cause an infinite loop inside ceph_get_caps().
+This patch changes both of them to return error pointers and changes all
+the callers which checked for NULL to check for IS_ERR() instead.
 
-Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4cda7d8d7098 ("mlxsw: core: Introduce flexible actions support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/caps.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_actions.c |    4 ++--
+ drivers/net/ethernet/mellanox/mlxsw/spectrum2_acl_tcam.c    |    4 ++--
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c          |    2 +-
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_mr_tcam.c      |    4 ++--
+ 4 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 4c0b220e20bab..5241102b81a82 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1972,8 +1972,12 @@ retry_locked:
- 		}
+--- a/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_actions.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_actions.c
+@@ -316,7 +316,7 @@ struct mlxsw_afa_block *mlxsw_afa_block_
  
- 		/* want more caps from mds? */
--		if (want & ~(cap->mds_wanted | cap->issued))
--			goto ack;
-+		if (want & ~cap->mds_wanted) {
-+			if (want & ~(cap->mds_wanted | cap->issued))
-+				goto ack;
-+			if (!__cap_is_valid(cap))
-+				goto ack;
-+		}
+ 	block = kzalloc(sizeof(*block), GFP_KERNEL);
+ 	if (!block)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 	INIT_LIST_HEAD(&block->resource_list);
+ 	block->afa = mlxsw_afa;
  
- 		/* things we might delay */
- 		if ((cap->issued & ~retain) == 0 &&
--- 
-2.20.1
-
+@@ -344,7 +344,7 @@ err_second_set_create:
+ 	mlxsw_afa_set_destroy(block->first_set);
+ err_first_set_create:
+ 	kfree(block);
+-	return NULL;
++	return ERR_PTR(-ENOMEM);
+ }
+ EXPORT_SYMBOL(mlxsw_afa_block_create);
+ 
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum2_acl_tcam.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum2_acl_tcam.c
+@@ -88,8 +88,8 @@ static int mlxsw_sp2_acl_tcam_init(struc
+ 	 * to be written using PEFA register to all indexes for all regions.
+ 	 */
+ 	afa_block = mlxsw_afa_block_create(mlxsw_sp->afa);
+-	if (!afa_block) {
+-		err = -ENOMEM;
++	if (IS_ERR(afa_block)) {
++		err = PTR_ERR(afa_block);
+ 		goto err_afa_block;
+ 	}
+ 	err = mlxsw_afa_block_continue(afa_block);
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c
+@@ -444,7 +444,7 @@ mlxsw_sp_acl_rulei_create(struct mlxsw_s
+ 
+ 	rulei = kzalloc(sizeof(*rulei), GFP_KERNEL);
+ 	if (!rulei)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	if (afa_block) {
+ 		rulei->act_block = afa_block;
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr_tcam.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr_tcam.c
+@@ -199,8 +199,8 @@ mlxsw_sp_mr_tcam_afa_block_create(struct
+ 	int err;
+ 
+ 	afa_block = mlxsw_afa_block_create(mlxsw_sp->afa);
+-	if (!afa_block)
+-		return ERR_PTR(-ENOMEM);
++	if (IS_ERR(afa_block))
++		return afa_block;
+ 
+ 	err = mlxsw_afa_block_append_allocated_counter(afa_block,
+ 						       counter_index);
 
 
