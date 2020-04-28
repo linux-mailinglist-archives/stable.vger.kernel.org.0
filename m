@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15F5C1BCB2A
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 806C71BCBBB
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728610AbgD1Scr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:32:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49040 "EHLO mail.kernel.org"
+        id S1728962AbgD1S1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729847AbgD1Scq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:32:46 -0400
+        id S1728949AbgD1S1T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95AE221707;
-        Tue, 28 Apr 2020 18:32:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4F85208E0;
+        Tue, 28 Apr 2020 18:27:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098766;
-        bh=mNN3goFAdj6cbIOVlz0S+XGlyz6dKS6SjydtWTzaTLw=;
+        s=default; t=1588098439;
+        bh=ZiUdqKospF+UNT9RUZ6+tHc5LkH7Gx4VOkmKVEXiG4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=so8idE6I28Sjdt5EeFXqXc348NyBcvbn0OhCSl19Y2Cd5MgGzGoAWjhyiYRpKgP//
-         voNT7UtsHEvCO4qiKb9UnAZV7grqY3Pv6Bm0giYP2a7o2j/ZTLPN3NFz6+wcM2zz6j
-         I0aR1RMtOnH1hJIWMNKAUQHYRzGnT+m8hsB6gqZY=
+        b=bmOiyJegdX/t3ss0NlRmbqzhtdIMQQRhgSdIU5/jBy5la1TmrhiSVr4LdUMmhUDSp
+         Mcnn72qEUQamvl9KQP7tij67cynJfSnVqL1NIYmXJCcQjdQIvjKRDq5adf43LnVTeM
+         HM/0ZFVb9Ui8fyCJZClWNco0f49ObuIcpoGZYKtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tero Kristo <t-kristo@ti.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 009/168] watchdog: reset last_hw_keepalive time at start
+Subject: [PATCH 5.6 007/167] scsi: lpfc: Fix crash in target side cable pulls hitting WAIT_FOR_UNREG
 Date:   Tue, 28 Apr 2020 20:23:03 +0200
-Message-Id: <20200428182232.852576017@linuxfoundation.org>
+Message-Id: <20200428182226.179126653@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 982bb70517aef2225bad1d802887b733db492cc0 ]
+[ Upstream commit 807e7353d8a7105ce884d22b0dbc034993c6679c ]
 
-Currently the watchdog core does not initialize the last_hw_keepalive
-time during watchdog startup. This will cause the watchdog to be pinged
-immediately if enough time has passed from the system boot-up time, and
-some types of watchdogs like K3 RTI does not like this.
+Kernel is crashing with the following stacktrace:
 
-To avoid the issue, setup the last_hw_keepalive time during watchdog
-startup.
+  BUG: unable to handle kernel NULL pointer dereference at
+    00000000000005bc
+  IP: lpfc_nvme_register_port+0x1a8/0x3a0 [lpfc]
+  ...
+  Call Trace:
+  lpfc_nlp_state_cleanup+0x2b2/0x500 [lpfc]
+  lpfc_nlp_set_state+0xd7/0x1a0 [lpfc]
+  lpfc_cmpl_prli_prli_issue+0x1f7/0x450 [lpfc]
+  lpfc_disc_state_machine+0x7a/0x1e0 [lpfc]
+  lpfc_cmpl_els_prli+0x16f/0x1e0 [lpfc]
+  lpfc_sli_sp_handle_rspiocb+0x5b2/0x690 [lpfc]
+  lpfc_sli_handle_slow_ring_event_s4+0x182/0x230 [lpfc]
+  lpfc_do_work+0x87f/0x1570 [lpfc]
+  kthread+0x10d/0x130
+  ret_from_fork+0x35/0x40
 
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200302200426.6492-3-t-kristo@ti.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+During target side fault injections, it is possible to hit the
+NLP_WAIT_FOR_UNREG case in lpfc_nvme_remoteport_delete. A prior commit
+fixed a rebind and delete race condition, but called lpfc_nlp_put
+unconditionally. This triggered a deletion and the crash.
+
+Fix by movng nlp_put to inside the NLP_WAIT_FOR_UNREG case, where the nlp
+will be being unregistered/removed. Leave the reference if the flag isn't
+set.
+
+Link: https://lore.kernel.org/r/20200322181304.37655-8-jsmart2021@gmail.com
+Fixes: b15bd3e6212e ("scsi: lpfc: Fix nvme remoteport registration race conditions")
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/watchdog_dev.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/lpfc/lpfc_nvme.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index ce04edc69e5f0..c4147e93aa7d4 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -282,6 +282,7 @@ static int watchdog_start(struct watchdog_device *wdd)
- 	if (err == 0) {
- 		set_bit(WDOG_ACTIVE, &wdd->status);
- 		wd_data->last_keepalive = started_at;
-+		wd_data->last_hw_keepalive = started_at;
- 		watchdog_update_worker(wdd);
- 	}
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index db4a04a207ece..cb40217d5cc14 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -382,13 +382,15 @@ lpfc_nvme_remoteport_delete(struct nvme_fc_remote_port *remoteport)
+ 	if (ndlp->upcall_flags & NLP_WAIT_FOR_UNREG) {
+ 		ndlp->nrport = NULL;
+ 		ndlp->upcall_flags &= ~NLP_WAIT_FOR_UNREG;
+-	}
+-	spin_unlock_irq(&vport->phba->hbalock);
++		spin_unlock_irq(&vport->phba->hbalock);
  
+-	/* Remove original register reference. The host transport
+-	 * won't reference this rport/remoteport any further.
+-	 */
+-	lpfc_nlp_put(ndlp);
++		/* Remove original register reference. The host transport
++		 * won't reference this rport/remoteport any further.
++		 */
++		lpfc_nlp_put(ndlp);
++	} else {
++		spin_unlock_irq(&vport->phba->hbalock);
++	}
+ 
+  rport_err:
+ 	return;
 -- 
 2.20.1
 
