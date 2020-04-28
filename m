@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 610851BCB3A
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:56:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC2111BCB86
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729645AbgD1SbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:31:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46664 "EHLO mail.kernel.org"
+        id S1729374AbgD1S3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:29:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729615AbgD1SbR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:31:17 -0400
+        id S1729369AbgD1S3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:29:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ADAE20B80;
-        Tue, 28 Apr 2020 18:31:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95D3C20BED;
+        Tue, 28 Apr 2020 18:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098675;
-        bh=XfHm/2xhLiAGWAZq4q1a9VfV1bOxrwIVvidvFSSUI30=;
+        s=default; t=1588098573;
+        bh=7BTCKefDT84d2/S2Tue3QMduXeDM7kTMjbqZL7HrA/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h04/rV1hYVbIpzMYdl7msmwp8loodG2P5b8LI/PtSwIrG/FKC9CeKx+Lp6YX27k51
-         D18NNtO0CpU5knqLh9rIYT4UVj8jDGlP+gN+6QXPhadFjN6ThfcDChjBVqyGEONMnS
-         c7x08TJuFAsJSmb+UTWRHlf+7/qOJXSEZpQmcaYM=
+        b=G850iyVJeX3hCRJS83fo1BayE5Mi/fFlKRNYkskpqB5Xm691jCuyk7nQQig+84tjV
+         IpOZb5X6niuXAqdCNntLFSDB6CYl62R7T3d2EJt28EZDsUEUWrNp0FPAZa3EgLNjGX
+         mlPZKl0My496yhLmLtl+Eoj7yv1gQTEIY0JeUnV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Tristan Madani <tristmd@gmail.com>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 039/131] blktrace: Protect q->blk_trace with RCU
+Subject: [PATCH 5.6 075/167] KEYS: Avoid false positive ENOMEM error on key read
 Date:   Tue, 28 Apr 2020 20:24:11 +0200
-Message-Id: <20200428182229.995265555@linuxfoundation.org>
+Message-Id: <20200428182234.441830864@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,432 +44,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Waiman Long <longman@redhat.com>
 
-commit c780e86dd48ef6467a1146cf7d0fe1e05a635039 upstream.
+[ Upstream commit 4f0882491a148059a52480e753b7f07fc550e188 ]
 
-KASAN is reporting that __blk_add_trace() has a use-after-free issue
-when accessing q->blk_trace. Indeed the switching of block tracing (and
-thus eventual freeing of q->blk_trace) is completely unsynchronized with
-the currently running tracing and thus it can happen that the blk_trace
-structure is being freed just while __blk_add_trace() works on it.
-Protect accesses to q->blk_trace by RCU during tracing and make sure we
-wait for the end of RCU grace period when shutting down tracing. Luckily
-that is rare enough event that we can afford that. Note that postponing
-the freeing of blk_trace to an RCU callback should better be avoided as
-it could have unexpected user visible side-effects as debugfs files
-would be still existing for a short while block tracing has been shut
-down.
+By allocating a kernel buffer with a user-supplied buffer length, it
+is possible that a false positive ENOMEM error may be returned because
+the user-supplied length is just too large even if the system do have
+enough memory to hold the actual key data.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205711
-CC: stable@vger.kernel.org
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Tested-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reported-by: Tristan Madani <tristmd@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[bwh: Backported to 4.19: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Moreover, if the buffer length is larger than the maximum amount of
+memory that can be returned by kmalloc() (2^(MAX_ORDER-1) number of
+pages), a warning message will also be printed.
+
+To reduce this possibility, we set a threshold (PAGE_SIZE) over which we
+do check the actual key length first before allocating a buffer of the
+right size to hold it. The threshold is arbitrary, it is just used to
+trigger a buffer length check. It does not limit the actual key length
+as long as there is enough memory to satisfy the memory request.
+
+To further avoid large buffer allocation failure due to page
+fragmentation, kvmalloc() is used to allocate the buffer so that vmapped
+pages can be used when there is not a large enough contiguous set of
+pages available for allocation.
+
+In the extremely unlikely scenario that the key keeps on being changed
+and made longer (still <= buflen) in between 2 __keyctl_read_key()
+calls, the __keyctl_read_key() calling loop in keyctl_read_key() may
+have to be iterated a large number of times, but definitely not infinite.
+
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/blkdev.h       |   2 +-
- include/linux/blktrace_api.h |  18 ++++--
- kernel/trace/blktrace.c      | 114 +++++++++++++++++++++++++----------
- 3 files changed, 97 insertions(+), 37 deletions(-)
+ security/keys/internal.h | 12 +++++++++
+ security/keys/keyctl.c   | 58 +++++++++++++++++++++++++++++-----------
+ 2 files changed, 55 insertions(+), 15 deletions(-)
 
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 6e67aeb56928b..745b2d0dcf78c 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -624,7 +624,7 @@ struct request_queue {
- 	unsigned int		sg_reserved_size;
- 	int			node;
- #ifdef CONFIG_BLK_DEV_IO_TRACE
--	struct blk_trace	*blk_trace;
-+	struct blk_trace __rcu	*blk_trace;
- 	struct mutex		blk_trace_mutex;
+diff --git a/security/keys/internal.h b/security/keys/internal.h
+index ba3e2da14ceff..6d0ca48ae9a50 100644
+--- a/security/keys/internal.h
++++ b/security/keys/internal.h
+@@ -16,6 +16,8 @@
+ #include <linux/keyctl.h>
+ #include <linux/refcount.h>
+ #include <linux/compat.h>
++#include <linux/mm.h>
++#include <linux/vmalloc.h>
+ 
+ struct iovec;
+ 
+@@ -349,4 +351,14 @@ static inline void key_check(const struct key *key)
+ 
  #endif
- 	/*
-diff --git a/include/linux/blktrace_api.h b/include/linux/blktrace_api.h
-index 7bb2d8de9f308..3b6ff5902edce 100644
---- a/include/linux/blktrace_api.h
-+++ b/include/linux/blktrace_api.h
-@@ -51,9 +51,13 @@ void __trace_note_message(struct blk_trace *, struct blkcg *blkcg, const char *f
-  **/
- #define blk_add_cgroup_trace_msg(q, cg, fmt, ...)			\
- 	do {								\
--		struct blk_trace *bt = (q)->blk_trace;			\
-+		struct blk_trace *bt;					\
-+									\
-+		rcu_read_lock();					\
-+		bt = rcu_dereference((q)->blk_trace);			\
- 		if (unlikely(bt))					\
- 			__trace_note_message(bt, cg, fmt, ##__VA_ARGS__);\
-+		rcu_read_unlock();					\
- 	} while (0)
- #define blk_add_trace_msg(q, fmt, ...)					\
- 	blk_add_cgroup_trace_msg(q, NULL, fmt, ##__VA_ARGS__)
-@@ -61,10 +65,14 @@ void __trace_note_message(struct blk_trace *, struct blkcg *blkcg, const char *f
  
- static inline bool blk_trace_note_message_enabled(struct request_queue *q)
- {
--	struct blk_trace *bt = q->blk_trace;
--	if (likely(!bt))
--		return false;
--	return bt->act_mask & BLK_TC_NOTIFY;
-+	struct blk_trace *bt;
-+	bool ret;
++/*
++ * Helper function to clear and free a kvmalloc'ed memory object.
++ */
++static inline void __kvzfree(const void *addr, size_t len)
++{
++	if (addr) {
++		memset((void *)addr, 0, len);
++		kvfree(addr);
++	}
++}
+ #endif /* _INTERNAL_H */
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index 106e16f9006b4..5e01192e222a0 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -339,7 +339,7 @@ long keyctl_update_key(key_serial_t id,
+ 	payload = NULL;
+ 	if (plen) {
+ 		ret = -ENOMEM;
+-		payload = kmalloc(plen, GFP_KERNEL);
++		payload = kvmalloc(plen, GFP_KERNEL);
+ 		if (!payload)
+ 			goto error;
+ 
+@@ -360,7 +360,7 @@ long keyctl_update_key(key_serial_t id,
+ 
+ 	key_ref_put(key_ref);
+ error2:
+-	kzfree(payload);
++	__kvzfree(payload, plen);
+ error:
+ 	return ret;
+ }
+@@ -827,7 +827,8 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
+ 	struct key *key;
+ 	key_ref_t key_ref;
+ 	long ret;
+-	char *key_data;
++	char *key_data = NULL;
++	size_t key_data_len;
+ 
+ 	/* find the key first */
+ 	key_ref = lookup_user_key(keyid, 0, 0);
+@@ -878,24 +879,51 @@ can_read_key:
+ 	 * Allocating a temporary buffer to hold the keys before
+ 	 * transferring them to user buffer to avoid potential
+ 	 * deadlock involving page fault and mmap_sem.
++	 *
++	 * key_data_len = (buflen <= PAGE_SIZE)
++	 *		? buflen : actual length of key data
++	 *
++	 * This prevents allocating arbitrary large buffer which can
++	 * be much larger than the actual key length. In the latter case,
++	 * at least 2 passes of this loop is required.
+ 	 */
+-	key_data = kmalloc(buflen, GFP_KERNEL);
++	key_data_len = (buflen <= PAGE_SIZE) ? buflen : 0;
++	for (;;) {
++		if (key_data_len) {
++			key_data = kvmalloc(key_data_len, GFP_KERNEL);
++			if (!key_data) {
++				ret = -ENOMEM;
++				goto key_put_out;
++			}
++		}
+ 
+-	if (!key_data) {
+-		ret = -ENOMEM;
+-		goto key_put_out;
+-	}
+-	ret = __keyctl_read_key(key, key_data, buflen);
++		ret = __keyctl_read_key(key, key_data, key_data_len);
 +
-+	rcu_read_lock();
-+	bt = rcu_dereference(q->blk_trace);
-+	ret = bt && (bt->act_mask & BLK_TC_NOTIFY);
-+	rcu_read_unlock();
-+	return ret;
- }
++		/*
++		 * Read methods will just return the required length without
++		 * any copying if the provided length isn't large enough.
++		 */
++		if (ret <= 0 || ret > buflen)
++			break;
++
++		/*
++		 * The key may change (unlikely) in between 2 consecutive
++		 * __keyctl_read_key() calls. In this case, we reallocate
++		 * a larger buffer and redo the key read when
++		 * key_data_len < ret <= buflen.
++		 */
++		if (ret > key_data_len) {
++			if (unlikely(key_data))
++				__kvzfree(key_data, key_data_len);
++			key_data_len = ret;
++			continue;	/* Allocate buffer */
++		}
  
- extern void blk_add_driver_data(struct request_queue *q, struct request *rq,
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 2868d85f1fb1d..99f6cdbf2f540 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -336,6 +336,7 @@ static void put_probe_ref(void)
- 
- static void blk_trace_cleanup(struct blk_trace *bt)
- {
-+	synchronize_rcu();
- 	blk_trace_free(bt);
- 	put_probe_ref();
- }
-@@ -636,8 +637,10 @@ static int compat_blk_trace_setup(struct request_queue *q, char *name,
- static int __blk_trace_startstop(struct request_queue *q, int start)
- {
- 	int ret;
--	struct blk_trace *bt = q->blk_trace;
-+	struct blk_trace *bt;
- 
-+	bt = rcu_dereference_protected(q->blk_trace,
-+				       lockdep_is_held(&q->blk_trace_mutex));
- 	if (bt == NULL)
- 		return -EINVAL;
- 
-@@ -746,8 +749,8 @@ int blk_trace_ioctl(struct block_device *bdev, unsigned cmd, char __user *arg)
- void blk_trace_shutdown(struct request_queue *q)
- {
- 	mutex_lock(&q->blk_trace_mutex);
--
--	if (q->blk_trace) {
-+	if (rcu_dereference_protected(q->blk_trace,
-+				      lockdep_is_held(&q->blk_trace_mutex))) {
- 		__blk_trace_startstop(q, 0);
- 		__blk_trace_remove(q);
+-	/*
+-	 * Read methods will just return the required length without
+-	 * any copying if the provided length isn't large enough.
+-	 */
+-	if (ret > 0 && ret <= buflen) {
+ 		if (copy_to_user(buffer, key_data, ret))
+ 			ret = -EFAULT;
++		break;
  	}
-@@ -759,8 +762,10 @@ void blk_trace_shutdown(struct request_queue *q)
- static union kernfs_node_id *
- blk_trace_bio_get_cgid(struct request_queue *q, struct bio *bio)
- {
--	struct blk_trace *bt = q->blk_trace;
-+	struct blk_trace *bt;
+-	kzfree(key_data);
++	__kvzfree(key_data, key_data_len);
  
-+	/* We don't use the 'bt' value here except as an optimization... */
-+	bt = rcu_dereference_protected(q->blk_trace, 1);
- 	if (!bt || !(blk_tracer_flags.val & TRACE_BLK_OPT_CGROUP))
- 		return NULL;
- 
-@@ -805,10 +810,14 @@ static void blk_add_trace_rq(struct request *rq, int error,
- 			     unsigned int nr_bytes, u32 what,
- 			     union kernfs_node_id *cgid)
- {
--	struct blk_trace *bt = rq->q->blk_trace;
-+	struct blk_trace *bt;
- 
--	if (likely(!bt))
-+	rcu_read_lock();
-+	bt = rcu_dereference(rq->q->blk_trace);
-+	if (likely(!bt)) {
-+		rcu_read_unlock();
- 		return;
-+	}
- 
- 	if (blk_rq_is_passthrough(rq))
- 		what |= BLK_TC_ACT(BLK_TC_PC);
-@@ -817,6 +826,7 @@ static void blk_add_trace_rq(struct request *rq, int error,
- 
- 	__blk_add_trace(bt, blk_rq_trace_sector(rq), nr_bytes, req_op(rq),
- 			rq->cmd_flags, what, error, 0, NULL, cgid);
-+	rcu_read_unlock();
- }
- 
- static void blk_add_trace_rq_insert(void *ignore,
-@@ -862,14 +872,19 @@ static void blk_add_trace_rq_complete(void *ignore, struct request *rq,
- static void blk_add_trace_bio(struct request_queue *q, struct bio *bio,
- 			      u32 what, int error)
- {
--	struct blk_trace *bt = q->blk_trace;
-+	struct blk_trace *bt;
- 
--	if (likely(!bt))
-+	rcu_read_lock();
-+	bt = rcu_dereference(q->blk_trace);
-+	if (likely(!bt)) {
-+		rcu_read_unlock();
- 		return;
-+	}
- 
- 	__blk_add_trace(bt, bio->bi_iter.bi_sector, bio->bi_iter.bi_size,
- 			bio_op(bio), bio->bi_opf, what, error, 0, NULL,
- 			blk_trace_bio_get_cgid(q, bio));
-+	rcu_read_unlock();
- }
- 
- static void blk_add_trace_bio_bounce(void *ignore,
-@@ -914,11 +929,14 @@ static void blk_add_trace_getrq(void *ignore,
- 	if (bio)
- 		blk_add_trace_bio(q, bio, BLK_TA_GETRQ, 0);
- 	else {
--		struct blk_trace *bt = q->blk_trace;
-+		struct blk_trace *bt;
- 
-+		rcu_read_lock();
-+		bt = rcu_dereference(q->blk_trace);
- 		if (bt)
- 			__blk_add_trace(bt, 0, 0, rw, 0, BLK_TA_GETRQ, 0, 0,
- 					NULL, NULL);
-+		rcu_read_unlock();
- 	}
- }
- 
-@@ -930,27 +948,35 @@ static void blk_add_trace_sleeprq(void *ignore,
- 	if (bio)
- 		blk_add_trace_bio(q, bio, BLK_TA_SLEEPRQ, 0);
- 	else {
--		struct blk_trace *bt = q->blk_trace;
-+		struct blk_trace *bt;
- 
-+		rcu_read_lock();
-+		bt = rcu_dereference(q->blk_trace);
- 		if (bt)
- 			__blk_add_trace(bt, 0, 0, rw, 0, BLK_TA_SLEEPRQ,
- 					0, 0, NULL, NULL);
-+		rcu_read_unlock();
- 	}
- }
- 
- static void blk_add_trace_plug(void *ignore, struct request_queue *q)
- {
--	struct blk_trace *bt = q->blk_trace;
-+	struct blk_trace *bt;
- 
-+	rcu_read_lock();
-+	bt = rcu_dereference(q->blk_trace);
- 	if (bt)
- 		__blk_add_trace(bt, 0, 0, 0, 0, BLK_TA_PLUG, 0, 0, NULL, NULL);
-+	rcu_read_unlock();
- }
- 
- static void blk_add_trace_unplug(void *ignore, struct request_queue *q,
- 				    unsigned int depth, bool explicit)
- {
--	struct blk_trace *bt = q->blk_trace;
-+	struct blk_trace *bt;
- 
-+	rcu_read_lock();
-+	bt = rcu_dereference(q->blk_trace);
- 	if (bt) {
- 		__be64 rpdu = cpu_to_be64(depth);
- 		u32 what;
-@@ -962,14 +988,17 @@ static void blk_add_trace_unplug(void *ignore, struct request_queue *q,
- 
- 		__blk_add_trace(bt, 0, 0, 0, 0, what, 0, sizeof(rpdu), &rpdu, NULL);
- 	}
-+	rcu_read_unlock();
- }
- 
- static void blk_add_trace_split(void *ignore,
- 				struct request_queue *q, struct bio *bio,
- 				unsigned int pdu)
- {
--	struct blk_trace *bt = q->blk_trace;
-+	struct blk_trace *bt;
- 
-+	rcu_read_lock();
-+	bt = rcu_dereference(q->blk_trace);
- 	if (bt) {
- 		__be64 rpdu = cpu_to_be64(pdu);
- 
-@@ -978,6 +1007,7 @@ static void blk_add_trace_split(void *ignore,
- 				BLK_TA_SPLIT, bio->bi_status, sizeof(rpdu),
- 				&rpdu, blk_trace_bio_get_cgid(q, bio));
- 	}
-+	rcu_read_unlock();
- }
- 
- /**
-@@ -997,11 +1027,15 @@ static void blk_add_trace_bio_remap(void *ignore,
- 				    struct request_queue *q, struct bio *bio,
- 				    dev_t dev, sector_t from)
- {
--	struct blk_trace *bt = q->blk_trace;
-+	struct blk_trace *bt;
- 	struct blk_io_trace_remap r;
- 
--	if (likely(!bt))
-+	rcu_read_lock();
-+	bt = rcu_dereference(q->blk_trace);
-+	if (likely(!bt)) {
-+		rcu_read_unlock();
- 		return;
-+	}
- 
- 	r.device_from = cpu_to_be32(dev);
- 	r.device_to   = cpu_to_be32(bio_dev(bio));
-@@ -1010,6 +1044,7 @@ static void blk_add_trace_bio_remap(void *ignore,
- 	__blk_add_trace(bt, bio->bi_iter.bi_sector, bio->bi_iter.bi_size,
- 			bio_op(bio), bio->bi_opf, BLK_TA_REMAP, bio->bi_status,
- 			sizeof(r), &r, blk_trace_bio_get_cgid(q, bio));
-+	rcu_read_unlock();
- }
- 
- /**
-@@ -1030,11 +1065,15 @@ static void blk_add_trace_rq_remap(void *ignore,
- 				   struct request *rq, dev_t dev,
- 				   sector_t from)
- {
--	struct blk_trace *bt = q->blk_trace;
-+	struct blk_trace *bt;
- 	struct blk_io_trace_remap r;
- 
--	if (likely(!bt))
-+	rcu_read_lock();
-+	bt = rcu_dereference(q->blk_trace);
-+	if (likely(!bt)) {
-+		rcu_read_unlock();
- 		return;
-+	}
- 
- 	r.device_from = cpu_to_be32(dev);
- 	r.device_to   = cpu_to_be32(disk_devt(rq->rq_disk));
-@@ -1043,6 +1082,7 @@ static void blk_add_trace_rq_remap(void *ignore,
- 	__blk_add_trace(bt, blk_rq_pos(rq), blk_rq_bytes(rq),
- 			rq_data_dir(rq), 0, BLK_TA_REMAP, 0,
- 			sizeof(r), &r, blk_trace_request_get_cgid(q, rq));
-+	rcu_read_unlock();
- }
- 
- /**
-@@ -1060,14 +1100,19 @@ void blk_add_driver_data(struct request_queue *q,
- 			 struct request *rq,
- 			 void *data, size_t len)
- {
--	struct blk_trace *bt = q->blk_trace;
-+	struct blk_trace *bt;
- 
--	if (likely(!bt))
-+	rcu_read_lock();
-+	bt = rcu_dereference(q->blk_trace);
-+	if (likely(!bt)) {
-+		rcu_read_unlock();
- 		return;
-+	}
- 
- 	__blk_add_trace(bt, blk_rq_trace_sector(rq), blk_rq_bytes(rq), 0, 0,
- 				BLK_TA_DRV_DATA, 0, len, data,
- 				blk_trace_request_get_cgid(q, rq));
-+	rcu_read_unlock();
- }
- EXPORT_SYMBOL_GPL(blk_add_driver_data);
- 
-@@ -1594,6 +1639,7 @@ static int blk_trace_remove_queue(struct request_queue *q)
- 		return -EINVAL;
- 
- 	put_probe_ref();
-+	synchronize_rcu();
- 	blk_trace_free(bt);
- 	return 0;
- }
-@@ -1755,6 +1801,7 @@ static ssize_t sysfs_blk_trace_attr_show(struct device *dev,
- 	struct hd_struct *p = dev_to_part(dev);
- 	struct request_queue *q;
- 	struct block_device *bdev;
-+	struct blk_trace *bt;
- 	ssize_t ret = -ENXIO;
- 
- 	bdev = bdget(part_devt(p));
-@@ -1767,21 +1814,23 @@ static ssize_t sysfs_blk_trace_attr_show(struct device *dev,
- 
- 	mutex_lock(&q->blk_trace_mutex);
- 
-+	bt = rcu_dereference_protected(q->blk_trace,
-+				       lockdep_is_held(&q->blk_trace_mutex));
- 	if (attr == &dev_attr_enable) {
--		ret = sprintf(buf, "%u\n", !!q->blk_trace);
-+		ret = sprintf(buf, "%u\n", !!bt);
- 		goto out_unlock_bdev;
- 	}
- 
--	if (q->blk_trace == NULL)
-+	if (bt == NULL)
- 		ret = sprintf(buf, "disabled\n");
- 	else if (attr == &dev_attr_act_mask)
--		ret = blk_trace_mask2str(buf, q->blk_trace->act_mask);
-+		ret = blk_trace_mask2str(buf, bt->act_mask);
- 	else if (attr == &dev_attr_pid)
--		ret = sprintf(buf, "%u\n", q->blk_trace->pid);
-+		ret = sprintf(buf, "%u\n", bt->pid);
- 	else if (attr == &dev_attr_start_lba)
--		ret = sprintf(buf, "%llu\n", q->blk_trace->start_lba);
-+		ret = sprintf(buf, "%llu\n", bt->start_lba);
- 	else if (attr == &dev_attr_end_lba)
--		ret = sprintf(buf, "%llu\n", q->blk_trace->end_lba);
-+		ret = sprintf(buf, "%llu\n", bt->end_lba);
- 
- out_unlock_bdev:
- 	mutex_unlock(&q->blk_trace_mutex);
-@@ -1798,6 +1847,7 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
- 	struct block_device *bdev;
- 	struct request_queue *q;
- 	struct hd_struct *p;
-+	struct blk_trace *bt;
- 	u64 value;
- 	ssize_t ret = -EINVAL;
- 
-@@ -1828,8 +1878,10 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
- 
- 	mutex_lock(&q->blk_trace_mutex);
- 
-+	bt = rcu_dereference_protected(q->blk_trace,
-+				       lockdep_is_held(&q->blk_trace_mutex));
- 	if (attr == &dev_attr_enable) {
--		if (!!value == !!q->blk_trace) {
-+		if (!!value == !!bt) {
- 			ret = 0;
- 			goto out_unlock_bdev;
- 		}
-@@ -1841,18 +1893,18 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
- 	}
- 
- 	ret = 0;
--	if (q->blk_trace == NULL)
-+	if (bt == NULL)
- 		ret = blk_trace_setup_queue(q, bdev);
- 
- 	if (ret == 0) {
- 		if (attr == &dev_attr_act_mask)
--			q->blk_trace->act_mask = value;
-+			bt->act_mask = value;
- 		else if (attr == &dev_attr_pid)
--			q->blk_trace->pid = value;
-+			bt->pid = value;
- 		else if (attr == &dev_attr_start_lba)
--			q->blk_trace->start_lba = value;
-+			bt->start_lba = value;
- 		else if (attr == &dev_attr_end_lba)
--			q->blk_trace->end_lba = value;
-+			bt->end_lba = value;
- 	}
- 
- out_unlock_bdev:
+ key_put_out:
+ 	key_put(key);
 -- 
 2.20.1
 
