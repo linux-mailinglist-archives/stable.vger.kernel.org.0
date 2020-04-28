@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 434E31BCB3E
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ED621BCB6B
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:57:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729685AbgD1Sbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:31:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47152 "EHLO mail.kernel.org"
+        id S1729554AbgD1Sar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:30:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728658AbgD1Sbd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:31:33 -0400
+        id S1729535AbgD1Saq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 491BE20BED;
-        Tue, 28 Apr 2020 18:31:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18C2A20B80;
+        Tue, 28 Apr 2020 18:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098692;
-        bh=/X1Thn25F5eOx7AvzYW79Uz65g8fKtvmXvUVWcUGf44=;
+        s=default; t=1588098646;
+        bh=CBhCMpziAppXItF9FpbPkmAKYIWo0j2lUiz36AW80zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LqY7+1QaIlvIBHREDfUrqA7vVqHGhqS3yt6o1HY3PhHr05nPkk1aqPMvnZROT36U4
-         FR5FbDSicGOtWQbRWxBLVH/EdFH0IxoN23QDRJ0mEtER3UYyb+SeScJ93JgG95UiP5
-         bBx8BHHNjiCldaiNTHZsuDTvJNNJlfUDWzBdWbrM=
+        b=zXhLYJtCIzBdiyFAs8E3SuJxBH8CMogS+FkstXxXJOonUTUWJ6tocEhzsFsq5BNlj
+         g/IKzwd0nKcGU2ybYCk30bMEfL+ndMUpJT4fpaxIXn1MeYF9TiE78sUUMl6ROV4rdE
+         BoMtSfEAWpqXWQt7BTJeT9lv7tpoSXdHZtbmXStI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/131] KVM: VMX: Zero out *all* general purpose registers after VM-Exit
+Subject: [PATCH 5.6 078/167] ALSA: usb-audio: Add connector notifier delegation
 Date:   Tue, 28 Apr 2020 20:24:14 +0200
-Message-Id: <20200428182230.356721332@linuxfoundation.org>
+Message-Id: <20200428182234.826106188@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +43,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 0e0ab73c9a0243736bcd779b30b717e23ba9a56d upstream.
+[ Upstream commit fef66ae73a611e84c8b4b74ff6f805ec5f113477 ]
 
-...except RSP, which is restored by hardware as part of VM-Exit.
+It turned out that ALC1220-VB USB-audio device gives the interrupt
+event to some PCM terminals while those don't allow the connector
+state request but only the actual I/O terminals return the request.
+The recent commit 7dc3c5a0172e ("ALSA: usb-audio: Don't create jack
+controls for PCM terminals") excluded those phantom terminals, so
+those events are ignored, too.
 
-Paolo theorized that restoring registers from the stack after a VM-Exit
-in lieu of zeroing them could lead to speculative execution with the
-guest's values, e.g. if the stack accesses miss the L1 cache[1].
-Zeroing XORs are dirt cheap, so just be ultra-paranoid.
+My first thought was that this could be easily deduced from the
+associated terminals, but some of them have even no associate terminal
+ID, hence it's not too trivial to figure out.
 
-Note that the scratch register (currently RCX) used to save/restore the
-guest state is also zeroed as its host-defined value is loaded via the
-stack, just with a MOV instead of a POP.
+Since the number of such terminals are small and limited, this patch
+implements another quirk table for the simple mapping of the
+connectors.  It's not really scalable, but let's hope that there will
+be not many such funky devices in future.
 
-[1] https://patchwork.kernel.org/patch/10771539/#22441255
-
-Fixes: 0cb5b30698fd ("kvm: vmx: Scrub hardware GPRs at VM-exit")
-Cc: Jim Mattson <jmattson@google.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[bwh: Backported to 4.19: adjust filename, context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Fixes: 7dc3c5a0172e ("ALSA: usb-audio: Don't create jack controls for PCM terminals")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206873
+Link: https://lore.kernel.org/r/20200422113320.26664-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/usb/mixer.c      | 25 +++++++++++++++++++++++++
+ sound/usb/mixer.h      | 10 ++++++++++
+ sound/usb/mixer_maps.c | 13 +++++++++++++
+ 3 files changed, 48 insertions(+)
 
-diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-index d37b48173e9cf..e4d0ad06790e1 100644
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -10841,6 +10841,15 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
- 		"mov %%r13, %c[r13](%0) \n\t"
- 		"mov %%r14, %c[r14](%0) \n\t"
- 		"mov %%r15, %c[r15](%0) \n\t"
-+
-+		/*
-+		 * Clear all general purpose registers (except RSP, which is loaded by
-+		 * the CPU during VM-Exit) to prevent speculative use of the guest's
-+		 * values, even those that are saved/loaded via the stack.  In theory,
-+		 * an L1 cache miss when restoring registers could lead to speculative
-+		 * execution with the guest's values.  Zeroing XORs are dirt cheap,
-+		 * i.e. the extra paranoia is essentially free.
-+		 */
- 		"xor %%r8d,  %%r8d \n\t"
- 		"xor %%r9d,  %%r9d \n\t"
- 		"xor %%r10d, %%r10d \n\t"
-@@ -10855,8 +10864,11 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
+diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
+index 05f64fe0b0bbe..7a2961ad60de0 100644
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -3096,6 +3096,7 @@ static int snd_usb_mixer_controls(struct usb_mixer_interface *mixer)
+ 		if (map->id == state.chip->usb_id) {
+ 			state.map = map->map;
+ 			state.selector_map = map->selector_map;
++			mixer->connector_map = map->connector_map;
+ 			mixer->ignore_ctl_error |= map->ignore_ctl_error;
+ 			break;
+ 		}
+@@ -3177,10 +3178,32 @@ static int snd_usb_mixer_controls(struct usb_mixer_interface *mixer)
+ 	return 0;
+ }
  
- 		"xor %%eax, %%eax \n\t"
- 		"xor %%ebx, %%ebx \n\t"
-+		"xor %%ecx, %%ecx \n\t"
-+		"xor %%edx, %%edx \n\t"
- 		"xor %%esi, %%esi \n\t"
- 		"xor %%edi, %%edi \n\t"
-+		"xor %%ebp, %%ebp \n\t"
- 		"pop  %%" _ASM_BP "; pop  %%" _ASM_DX " \n\t"
- 		".pushsection .rodata \n\t"
- 		".global vmx_return \n\t"
++static int delegate_notify(struct usb_mixer_interface *mixer, int unitid,
++			   u8 *control, u8 *channel)
++{
++	const struct usbmix_connector_map *map = mixer->connector_map;
++
++	if (!map)
++		return unitid;
++
++	for (; map->id; map++) {
++		if (map->id == unitid) {
++			if (control && map->control)
++				*control = map->control;
++			if (channel && map->channel)
++				*channel = map->channel;
++			return map->delegated_id;
++		}
++	}
++	return unitid;
++}
++
+ void snd_usb_mixer_notify_id(struct usb_mixer_interface *mixer, int unitid)
+ {
+ 	struct usb_mixer_elem_list *list;
+ 
++	unitid = delegate_notify(mixer, unitid, NULL, NULL);
++
+ 	for_each_mixer_elem(list, mixer, unitid) {
+ 		struct usb_mixer_elem_info *info =
+ 			mixer_elem_list_to_info(list);
+@@ -3250,6 +3273,8 @@ static void snd_usb_mixer_interrupt_v2(struct usb_mixer_interface *mixer,
+ 		return;
+ 	}
+ 
++	unitid = delegate_notify(mixer, unitid, &control, &channel);
++
+ 	for_each_mixer_elem(list, mixer, unitid)
+ 		count++;
+ 
+diff --git a/sound/usb/mixer.h b/sound/usb/mixer.h
+index 65d6d08c96f53..41ec9dc4139bb 100644
+--- a/sound/usb/mixer.h
++++ b/sound/usb/mixer.h
+@@ -6,6 +6,13 @@
+ 
+ struct media_mixer_ctl;
+ 
++struct usbmix_connector_map {
++	u8 id;
++	u8 delegated_id;
++	u8 control;
++	u8 channel;
++};
++
+ struct usb_mixer_interface {
+ 	struct snd_usb_audio *chip;
+ 	struct usb_host_interface *hostif;
+@@ -18,6 +25,9 @@ struct usb_mixer_interface {
+ 	/* the usb audio specification version this interface complies to */
+ 	int protocol;
+ 
++	/* optional connector delegation map */
++	const struct usbmix_connector_map *connector_map;
++
+ 	/* Sound Blaster remote control stuff */
+ 	const struct rc_config *rc_cfg;
+ 	u32 rc_code;
+diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
+index fb2c4a992951b..0260c750e1569 100644
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -27,6 +27,7 @@ struct usbmix_ctl_map {
+ 	u32 id;
+ 	const struct usbmix_name_map *map;
+ 	const struct usbmix_selector_map *selector_map;
++	const struct usbmix_connector_map *connector_map;
+ 	int ignore_ctl_error;
+ };
+ 
+@@ -387,6 +388,15 @@ static const struct usbmix_name_map trx40_mobo_map[] = {
+ 	{}
+ };
+ 
++static const struct usbmix_connector_map trx40_mobo_connector_map[] = {
++	{ 10, 16 },	/* (Back) Speaker */
++	{ 11, 17 },	/* Front Headphone */
++	{ 13, 7 },	/* Line */
++	{ 14, 8 },	/* Mic */
++	{ 15, 9 },	/* Front Mic */
++	{}
++};
++
+ /*
+  * Control map entries
+  */
+@@ -519,6 +529,7 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
+ 	{	/* Gigabyte TRX40 Aorus Pro WiFi */
+ 		.id = USB_ID(0x0414, 0xa002),
+ 		.map = trx40_mobo_map,
++		.connector_map = trx40_mobo_connector_map,
+ 	},
+ 	{	/* ASUS ROG Zenith II */
+ 		.id = USB_ID(0x0b05, 0x1916),
+@@ -531,10 +542,12 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
+ 	{	/* MSI TRX40 Creator */
+ 		.id = USB_ID(0x0db0, 0x0d64),
+ 		.map = trx40_mobo_map,
++		.connector_map = trx40_mobo_connector_map,
+ 	},
+ 	{	/* MSI TRX40 */
+ 		.id = USB_ID(0x0db0, 0x543d),
+ 		.map = trx40_mobo_map,
++		.connector_map = trx40_mobo_connector_map,
+ 	},
+ 	{ 0 } /* terminator */
+ };
 -- 
 2.20.1
 
