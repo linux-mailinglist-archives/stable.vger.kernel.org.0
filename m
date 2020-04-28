@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 944BE1BCADF
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1B51BCBE2
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730348AbgD1Sww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:52:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52952 "EHLO mail.kernel.org"
+        id S1729601AbgD1TAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 15:00:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728662AbgD1Sfn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:35:43 -0400
+        id S1728891AbgD1S1F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFAC2217D8;
-        Tue, 28 Apr 2020 18:35:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E77DD20B1F;
+        Tue, 28 Apr 2020 18:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098942;
-        bh=00ddRN8yKxFktcawj18Tti3yNrlFwEtVI74FidDtGrE=;
+        s=default; t=1588098424;
+        bh=PMTvBFQ0x9YqKY+5Qb8S07kDaFrBmGmU4R7NP/CG0k4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQefQJZG5HWWD/9VzFBT/UNP9OT8YGXaipIBC5fpY3KuNpPCERYNegajcCbXqU2f8
-         /sZS1KPRYrUYgnaRGt1OGimjmeMu6lLtTm+k6SHvNypK8OdxMkT+ffZoZQHkJbFSKw
-         pAgvnKD3g8kuCVqu/bAxGV0SvI9+oVEnBjkYNhCo=
+        b=HPh8vrbCo88AvQlWqMhjYuhznH8uHOIrESKUeWz1ZcmKkE7n6jMmEgmvmh4h1K5dg
+         1PXZYcgZoMv+QwS2IPK2Hok55nLLjss++8i6zTxiAHouyyoZeMBZ4mXOMGH9KFopZd
+         gD3M8lEL+N0Z22IZthEpemKCqBZceevqzuCjfdyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Bowler <nbowler@draconx.ca>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 034/168] nvme: fix compat address handling in several ioctls
-Date:   Tue, 28 Apr 2020 20:23:28 +0200
-Message-Id: <20200428182236.043979962@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 033/167] pwm: renesas-tpu: Fix late Runtime PM enablement
+Date:   Tue, 28 Apr 2020 20:23:29 +0200
+Message-Id: <20200428182229.386164354@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,114 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Bowler <nbowler@draconx.ca>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit c95b708d5fa65b4e51f088ee077d127fd5a57b70 ]
+[ Upstream commit d5a3c7a4536e1329a758e14340efd0e65252bd3d ]
 
-On a 32-bit kernel, the upper bits of userspace addresses passed via
-various ioctls are silently ignored by the nvme driver.
+Runtime PM should be enabled before calling pwmchip_add(), as PWM users
+can appear immediately after the PWM chip has been added.
+Likewise, Runtime PM should always be disabled after the removal of the
+PWM chip, even if the latter failed.
 
-However on a 64-bit kernel running a compat task, these upper bits are
-not ignored and are in fact required to be zero for the ioctls to work.
-
-Unfortunately, this difference matters.  32-bit smartctl submits the
-NVME_IOCTL_ADMIN_CMD ioctl with garbage in these upper bits because it
-seems the pointer value it puts into the nvme_passthru_cmd structure is
-sign extended.  This works fine on 32-bit kernels but fails on a 64-bit
-one because (at least on my setup) the addresses smartctl uses are
-consistently above 2G.  For example:
-
-  # smartctl -x /dev/nvme0n1
-  smartctl 7.1 2019-12-30 r5022 [x86_64-linux-5.5.11] (local build)
-  Copyright (C) 2002-19, Bruce Allen, Christian Franke, www.smartmontools.org
-
-  Read NVMe Identify Controller failed: NVME_IOCTL_ADMIN_CMD: Bad address
-
-Since changing 32-bit kernels to actually check all of the submitted
-address bits now would break existing userspace, this patch fixes the
-compat problem by explicitly zeroing the upper bits in the compat case.
-This enables 32-bit smartctl to work on a 64-bit kernel.
-
-Signed-off-by: Nick Bowler <nbowler@draconx.ca>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 99b82abb0a35b073 ("pwm: Add Renesas TPU PWM driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ drivers/pwm/pwm-renesas-tpu.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index b8fe42f4b3c5b..f97c48fd3edae 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -6,6 +6,7 @@
+diff --git a/drivers/pwm/pwm-renesas-tpu.c b/drivers/pwm/pwm-renesas-tpu.c
+index 4a855a21b782d..8032acc84161a 100644
+--- a/drivers/pwm/pwm-renesas-tpu.c
++++ b/drivers/pwm/pwm-renesas-tpu.c
+@@ -415,16 +415,17 @@ static int tpu_probe(struct platform_device *pdev)
+ 	tpu->chip.base = -1;
+ 	tpu->chip.npwm = TPU_CHANNEL_MAX;
  
- #include <linux/blkdev.h>
- #include <linux/blk-mq.h>
-+#include <linux/compat.h>
- #include <linux/delay.h>
- #include <linux/errno.h>
- #include <linux/hdreg.h>
-@@ -1244,6 +1245,18 @@ static void nvme_enable_aen(struct nvme_ctrl *ctrl)
- 	queue_work(nvme_wq, &ctrl->async_event_work);
- }
- 
-+/*
-+ * Convert integer values from ioctl structures to user pointers, silently
-+ * ignoring the upper bits in the compat case to match behaviour of 32-bit
-+ * kernels.
-+ */
-+static void __user *nvme_to_user_ptr(uintptr_t ptrval)
-+{
-+	if (in_compat_syscall())
-+		ptrval = (compat_uptr_t)ptrval;
-+	return (void __user *)ptrval;
-+}
++	pm_runtime_enable(&pdev->dev);
 +
- static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
- {
- 	struct nvme_user_io io;
-@@ -1267,7 +1280,7 @@ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
+ 	ret = pwmchip_add(&tpu->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register PWM chip\n");
++		pm_runtime_disable(&pdev->dev);
+ 		return ret;
+ 	}
  
- 	length = (io.nblocks + 1) << ns->lba_shift;
- 	meta_len = (io.nblocks + 1) * ns->ms;
--	metadata = (void __user *)(uintptr_t)io.metadata;
-+	metadata = nvme_to_user_ptr(io.metadata);
+ 	dev_info(&pdev->dev, "TPU PWM %d registered\n", tpu->pdev->id);
  
- 	if (ns->ext) {
- 		length += meta_len;
-@@ -1290,7 +1303,7 @@ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
- 	c.rw.appmask = cpu_to_le16(io.appmask);
- 
- 	return nvme_submit_user_cmd(ns->queue, &c,
--			(void __user *)(uintptr_t)io.addr, length,
-+			nvme_to_user_ptr(io.addr), length,
- 			metadata, meta_len, lower_32_bits(io.slba), NULL, 0);
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	return 0;
  }
  
-@@ -1410,9 +1423,9 @@ static int nvme_user_cmd(struct nvme_ctrl *ctrl, struct nvme_ns *ns,
+@@ -434,12 +435,10 @@ static int tpu_remove(struct platform_device *pdev)
+ 	int ret;
  
- 	effects = nvme_passthru_start(ctrl, ns, cmd.opcode);
- 	status = nvme_submit_user_cmd(ns ? ns->queue : ctrl->admin_q, &c,
--			(void __user *)(uintptr_t)cmd.addr, cmd.data_len,
--			(void __user *)(uintptr_t)cmd.metadata,
--			cmd.metadata_len, 0, &result, timeout);
-+			nvme_to_user_ptr(cmd.addr), cmd.data_len,
-+			nvme_to_user_ptr(cmd.metadata), cmd.metadata_len,
-+			0, &result, timeout);
- 	nvme_passthru_end(ctrl, effects);
+ 	ret = pwmchip_remove(&tpu->chip);
+-	if (ret)
+-		return ret;
  
- 	if (status >= 0) {
-@@ -1457,8 +1470,8 @@ static int nvme_user_cmd64(struct nvme_ctrl *ctrl, struct nvme_ns *ns,
+ 	pm_runtime_disable(&pdev->dev);
  
- 	effects = nvme_passthru_start(ctrl, ns, cmd.opcode);
- 	status = nvme_submit_user_cmd(ns ? ns->queue : ctrl->admin_q, &c,
--			(void __user *)(uintptr_t)cmd.addr, cmd.data_len,
--			(void __user *)(uintptr_t)cmd.metadata, cmd.metadata_len,
-+			nvme_to_user_ptr(cmd.addr), cmd.data_len,
-+			nvme_to_user_ptr(cmd.metadata), cmd.metadata_len,
- 			0, &cmd.result, timeout);
- 	nvme_passthru_end(ctrl, effects);
+-	return 0;
++	return ret;
+ }
  
+ #ifdef CONFIG_OF
 -- 
 2.20.1
 
