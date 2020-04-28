@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00ABE1BC939
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C18E71BC9ED
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730840AbgD1Sjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:39:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58648 "EHLO mail.kernel.org"
+        id S1731278AbgD1Snw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:43:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730415AbgD1Sjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:39:45 -0400
+        id S1730422AbgD1Snv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:43:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D903620730;
-        Tue, 28 Apr 2020 18:39:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFC6F206D6;
+        Tue, 28 Apr 2020 18:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099185;
-        bh=jTkbz6y8N+xHaIkPwxT3Swbov8LWwYRkjGnhFasGZuc=;
+        s=default; t=1588099430;
+        bh=jLN3gc09KR9JE+RXghtKPahgbHRR4SNpBz9MkVb6Rpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGRwaFgchut9kj4Lz80PVo6Fl6q6nEEegUxKQlVkKa9Gshl9u/Ulz3FVBZzEztXxi
-         D17G8xpBAZhafdxf4tzAzwlr99DZuxhr6GagpYR2LegsSoTBufu90W9mRGB8+aReq9
-         ELM0XdGVlivnBOTLVUA+5LgXdenHzxa+wpgsOA7w=
+        b=bUuwpxtIlIPNFIggqeu+vu73P1iHMixsBrd/c1kLPTJ+NJjhMqJpMoXmQswmx5SLh
+         2+1yWlR/aeosQQL7HQEWl9Kj2/Lrqwme7amRZhjjKqap4g4d1hjWrlhJG8dAFgVAFL
+         r3K+Uvw2QRvSYNa2VY7D2xqCShyZ9DbZ5x0se4Oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 110/131] iwlwifi: mvm: beacon statistics shouldnt go backwards
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.4 148/168] UAS: fix deadlock in error handling and PM flushing work
 Date:   Tue, 28 Apr 2020 20:25:22 +0200
-Message-Id: <20200428182239.053291784@linuxfoundation.org>
+Message-Id: <20200428182250.266743430@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +42,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 290d5e4951832e39d10f4184610dbf09038f8483 upstream.
+commit f6cc6093a729ede1ff5658b493237c42b82ba107 upstream.
 
-We reset statistics also in case that we didn't reassoc so in
-this cases keep last beacon counter.
+A SCSI error handler and block runtime PM must not allocate
+memory with GFP_KERNEL. Furthermore they must not wait for
+tasks allocating memory with GFP_KERNEL.
+That means that they cannot share a workqueue with arbitrary tasks.
 
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20200417100405.1f9142751fbc.Ifbfd0f928a0a761110b8f4f2ca5483a61fb21131@changeid
+Fix this for UAS using a private workqueue.
+
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Fixes: f9dc024a2da1f ("uas: pre_reset and suspend: Fix a few races")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200415141750.811-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/rx.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/usb/storage/uas.c |   43 ++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 40 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rx.c
-@@ -587,6 +587,7 @@ void iwl_mvm_rx_rx_mpdu(struct iwl_mvm *
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -81,6 +81,19 @@ static void uas_free_streams(struct uas_
+ static void uas_log_cmd_state(struct scsi_cmnd *cmnd, const char *prefix,
+ 				int status);
  
- struct iwl_mvm_stat_data {
- 	struct iwl_mvm *mvm;
-+	__le32 flags;
- 	__le32 mac_id;
- 	u8 beacon_filter_average_energy;
- 	void *general;
-@@ -630,6 +631,13 @@ static void iwl_mvm_stat_iterator(void *
- 		}
- 	}
- 
-+	/* make sure that beacon statistics don't go backwards with TCM
-+	 * request to clear statistics
-+	 */
-+	if (le32_to_cpu(data->flags) & IWL_STATISTICS_REPLY_FLG_CLEAR)
-+		mvmvif->beacon_stats.accu_num_beacons +=
-+			mvmvif->beacon_stats.num_beacons;
++/*
++ * This driver needs its own workqueue, as we need to control memory allocation.
++ *
++ * In the course of error handling and power management uas_wait_for_pending_cmnds()
++ * needs to flush pending work items. In these contexts we cannot allocate memory
++ * by doing block IO as we would deadlock. For the same reason we cannot wait
++ * for anything allocating memory not heeding these constraints.
++ *
++ * So we have to control all work items that can be on the workqueue we flush.
++ * Hence we cannot share a queue and need our own.
++ */
++static struct workqueue_struct *workqueue;
 +
- 	if (mvmvif->id != id)
- 		return;
- 
-@@ -790,6 +798,7 @@ void iwl_mvm_handle_rx_statistics(struct
- 
- 		flags = stats->flag;
+ static void uas_do_work(struct work_struct *work)
+ {
+ 	struct uas_dev_info *devinfo =
+@@ -109,7 +122,7 @@ static void uas_do_work(struct work_stru
+ 		if (!err)
+ 			cmdinfo->state &= ~IS_IN_WORK_LIST;
+ 		else
+-			schedule_work(&devinfo->work);
++			queue_work(workqueue, &devinfo->work);
  	}
-+	data.flags = flags;
+ out:
+ 	spin_unlock_irqrestore(&devinfo->lock, flags);
+@@ -134,7 +147,7 @@ static void uas_add_work(struct uas_cmd_
  
- 	iwl_mvm_rx_stats_check_trigger(mvm, pkt);
+ 	lockdep_assert_held(&devinfo->lock);
+ 	cmdinfo->state |= IS_IN_WORK_LIST;
+-	schedule_work(&devinfo->work);
++	queue_work(workqueue, &devinfo->work);
+ }
  
+ static void uas_zap_pending(struct uas_dev_info *devinfo, int result)
+@@ -1230,7 +1243,31 @@ static struct usb_driver uas_driver = {
+ 	.id_table = uas_usb_ids,
+ };
+ 
+-module_usb_driver(uas_driver);
++static int __init uas_init(void)
++{
++	int rv;
++
++	workqueue = alloc_workqueue("uas", WQ_MEM_RECLAIM, 0);
++	if (!workqueue)
++		return -ENOMEM;
++
++	rv = usb_register(&uas_driver);
++	if (rv) {
++		destroy_workqueue(workqueue);
++		return -ENOMEM;
++	}
++
++	return 0;
++}
++
++static void __exit uas_exit(void)
++{
++	usb_deregister(&uas_driver);
++	destroy_workqueue(workqueue);
++}
++
++module_init(uas_init);
++module_exit(uas_exit);
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_IMPORT_NS(USB_STORAGE);
 
 
