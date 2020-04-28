@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBBC51BC90F
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40A401BC99F
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730133AbgD1SiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:38:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56634 "EHLO mail.kernel.org"
+        id S1730701AbgD1Sn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:43:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729691AbgD1SiP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:38:15 -0400
+        id S1731226AbgD1SnX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:43:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 631822076A;
-        Tue, 28 Apr 2020 18:38:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B28B020730;
+        Tue, 28 Apr 2020 18:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099094;
-        bh=H90Nsv+wVP4/LXJzxuG2raP4TI0h0wB2gXft8jWlVFI=;
+        s=default; t=1588099403;
+        bh=Wne1lGHm5fLp7dteREIRd/Gq4Hp6cnYH6GeIBgaZwjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDcxW9R5bmt15V4mx1Go+EbRgLjun1r5o6e0CAWYR07iur0nQ0C99fuaK79RRw09v
-         rAKydZiDg29/JDKbrYpJ5SNup7Yh8/zb0VzjH8SdwRlMFMzYbdSTH57WJuRQ5yQbTg
-         +C27u4Ni37jKeDxnjVv1Cl2mmEHYuKbQJRBV9qvk=
+        b=u72AgKm0H8mxJAyPNHG5YkDcO0KGIxal9mC3ADFXSlj72nxNlHdtR/KPcTMTFF8aP
+         DJWlbF6Lbkn88P9suGozHezCVyS7cUrXAk7tzqlaLdq0bPYM2EtIbkltWuUh9IaVWE
+         RQe7uJ38k0KaO/tIkPjNdGAv1flrarIrhE0/SQVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 096/131] ALSA: hda/realtek - Add new codec supported for ALC245
+        stable@vger.kernel.org,
+        Clemens Gruber <clemens.gruber@pqgruber.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Roland Hieber <rhi@pengutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.4 134/168] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y
 Date:   Tue, 28 Apr 2020 20:25:08 +0200
-Message-Id: <20200428182237.142509361@linuxfoundation.org>
+Message-Id: <20200428182248.914159854@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit 7fbdcd8301a84c09cebfa64f1317a6dafeec9188 upstream.
+commit f1baca8896ae18e12c45552a4c4ae2086aa7e02c upstream.
 
-Enable new codec supported for ALC245.
+512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+introduced an unintended linker error for i.MX6 configurations that have
+ARM_CPU_SUSPEND=n which can happen if neither CONFIG_PM, CONFIG_CPU_IDLE,
+nor ARM_PSCI_FW are selected.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
+Fix this by having v7_cpu_resume() compiled only when cpu_resume() it
+calls is available as well.
+
+The C declaration for the function remains unguarded to avoid future code
+inadvertently using a stub and introducing a regression to the bug the
+original commit fixed.
+
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/8c0804738b2c42439f59c39c8437817f@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Tested-by: Roland Hieber <rhi@pengutronix.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/mach-imx/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -380,6 +380,7 @@ static void alc_fill_eapd_coef(struct hd
- 	case 0x10ec0233:
- 	case 0x10ec0235:
- 	case 0x10ec0236:
-+	case 0x10ec0245:
- 	case 0x10ec0255:
- 	case 0x10ec0256:
- 	case 0x10ec0257:
-@@ -7792,6 +7793,7 @@ static int patch_alc269(struct hda_codec
- 		spec->gen.mixer_nid = 0;
- 		break;
- 	case 0x10ec0215:
-+	case 0x10ec0245:
- 	case 0x10ec0285:
- 	case 0x10ec0289:
- 		spec->codec_variant = ALC269_TYPE_ALC215;
-@@ -8913,6 +8915,7 @@ static const struct hda_device_id snd_hd
- 	HDA_CODEC_ENTRY(0x10ec0234, "ALC234", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0235, "ALC233", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0236, "ALC236", patch_alc269),
-+	HDA_CODEC_ENTRY(0x10ec0245, "ALC245", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0255, "ALC255", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0256, "ALC256", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0257, "ALC257", patch_alc269),
+--- a/arch/arm/mach-imx/Makefile
++++ b/arch/arm/mach-imx/Makefile
+@@ -91,8 +91,10 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7
+ obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
+ obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
+ endif
++ifeq ($(CONFIG_ARM_CPU_SUSPEND),y)
+ AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
+ obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
++endif
+ obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
+ 
+ obj-$(CONFIG_SOC_IMX1) += mach-imx1.o
 
 
