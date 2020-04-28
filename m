@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 008431BCB07
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FDE81BC9DA
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:47:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729116AbgD1SdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:33:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49360 "EHLO mail.kernel.org"
+        id S1730585AbgD1Smw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:42:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729874AbgD1SdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:33:04 -0400
+        id S1731152AbgD1Smt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:42:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B221221841;
-        Tue, 28 Apr 2020 18:33:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8379420575;
+        Tue, 28 Apr 2020 18:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098783;
-        bh=JhjZvLtCuEhKf7j0w0JV88r/hMeS3e+qy+8EgEb0JE4=;
+        s=default; t=1588099369;
+        bh=gYpCN2E60RoWYWQQNwY8vf9911kUG5TcfdItDCLSNYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rgaAUzgfm9rvc9UwKIs9g2hUiSmtZ06Uy3wsjiitpVuXv3R4xB+MzCqPQYo/vghPN
-         C8zSHjDTM5py2z8lYQrE70hqVDajA7rRQJs+S32YrrlNWAQoNtmA3d7m2iC9fa3qQj
-         B33Gqu3TRp+Koh4JVFURiLXPzhmJmlYqwiZibkZQ=
+        b=pjtsHJUfyKuGN+4Og5OFwWSv3OwaaBbQoGUxcsOE3YKaqEPGVS9l07FGC/VssvwII
+         hQbiHlkavvYPjOlcArU6xCh4Wt/sEzCctYo9ysTtxWU6sEFCA8OhHY/yfMdZjBjz+w
+         KlG0ej4loy4UnDWbkKjxnUnrrwgm63xDQTkcfuIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 056/131] macsec: avoid to set wrong mtu
-Date:   Tue, 28 Apr 2020 20:24:28 +0200
-Message-Id: <20200428182232.008105283@linuxfoundation.org>
+        stable@vger.kernel.org, Changming Liu <liu.changm@northeastern.edu>
+Subject: [PATCH 5.4 095/168] USB: sisusbvga: Change port variable from signed to unsigned
+Date:   Tue, 28 Apr 2020 20:24:29 +0200
+Message-Id: <20200428182244.335896795@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +42,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Changming Liu <liu.changm@northeastern.edu>
 
-[ Upstream commit 7f327080364abccf923fa5a5b24e038eb0ba1407 ]
+commit 2df7405f79ce1674d73c2786fe1a8727c905d65b upstream.
 
-When a macsec interface is created, the mtu is calculated with the lower
-interface's mtu value.
-If the mtu of lower interface is lower than the length, which is needed
-by macsec interface, macsec's mtu value will be overflowed.
-So, if the lower interface's mtu is too low, macsec interface's mtu
-should be set to 0.
+Change a bunch of arguments of wrapper functions which pass signed
+integer to an unsigned integer which might cause undefined behaviors
+when sign integer overflow.
 
-Test commands:
-    ip link add dummy0 mtu 10 type dummy
-    ip link add macsec0 link dummy0 type macsec
-    ip link show macsec0
-
-Before:
-    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 4294967274
-After:
-    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 0
-
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Changming Liu <liu.changm@northeastern.edu>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/BL0PR06MB45482D71EA822D75A0E60A2EE5D50@BL0PR06MB4548.namprd06.prod.outlook.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/macsec.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -3238,11 +3238,11 @@ static int macsec_newlink(struct net *ne
- 			  struct netlink_ext_ack *extack)
+---
+ drivers/usb/misc/sisusbvga/sisusb.c      |   20 ++++++++++----------
+ drivers/usb/misc/sisusbvga/sisusb_init.h |   14 +++++++-------
+ 2 files changed, 17 insertions(+), 17 deletions(-)
+
+--- a/drivers/usb/misc/sisusbvga/sisusb.c
++++ b/drivers/usb/misc/sisusbvga/sisusb.c
+@@ -1199,18 +1199,18 @@ static int sisusb_read_mem_bulk(struct s
+ /* High level: Gfx (indexed) register access */
+ 
+ #ifdef CONFIG_USB_SISUSBVGA_CON
+-int sisusb_setreg(struct sisusb_usb_data *sisusb, int port, u8 data)
++int sisusb_setreg(struct sisusb_usb_data *sisusb, u32 port, u8 data)
  {
- 	struct macsec_dev *macsec = macsec_priv(dev);
-+	rx_handler_func_t *rx_handler;
-+	u8 icv_len = DEFAULT_ICV_LEN;
- 	struct net_device *real_dev;
--	int err;
-+	int err, mtu;
- 	sci_t sci;
--	u8 icv_len = DEFAULT_ICV_LEN;
--	rx_handler_func_t *rx_handler;
+ 	return sisusb_write_memio_byte(sisusb, SISUSB_TYPE_IO, port, data);
+ }
  
- 	if (!tb[IFLA_LINK])
- 		return -EINVAL;
-@@ -3258,7 +3258,11 @@ static int macsec_newlink(struct net *ne
+-int sisusb_getreg(struct sisusb_usb_data *sisusb, int port, u8 *data)
++int sisusb_getreg(struct sisusb_usb_data *sisusb, u32 port, u8 *data)
+ {
+ 	return sisusb_read_memio_byte(sisusb, SISUSB_TYPE_IO, port, data);
+ }
+ #endif
  
- 	if (data && data[IFLA_MACSEC_ICV_LEN])
- 		icv_len = nla_get_u8(data[IFLA_MACSEC_ICV_LEN]);
--	dev->mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
-+	mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
-+	if (mtu < 0)
-+		dev->mtu = 0;
-+	else
-+		dev->mtu = mtu;
+-int sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port,
++int sisusb_setidxreg(struct sisusb_usb_data *sisusb, u32 port,
+ 		u8 index, u8 data)
+ {
+ 	int ret;
+@@ -1220,7 +1220,7 @@ int sisusb_setidxreg(struct sisusb_usb_d
+ 	return ret;
+ }
  
- 	rx_handler = rtnl_dereference(real_dev->rx_handler);
- 	if (rx_handler && rx_handler != macsec_handle_frame)
+-int sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port,
++int sisusb_getidxreg(struct sisusb_usb_data *sisusb, u32 port,
+ 		u8 index, u8 *data)
+ {
+ 	int ret;
+@@ -1230,7 +1230,7 @@ int sisusb_getidxreg(struct sisusb_usb_d
+ 	return ret;
+ }
+ 
+-int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port, u8 idx,
++int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, u32 port, u8 idx,
+ 		u8 myand, u8 myor)
+ {
+ 	int ret;
+@@ -1245,7 +1245,7 @@ int sisusb_setidxregandor(struct sisusb_
+ }
+ 
+ static int sisusb_setidxregmask(struct sisusb_usb_data *sisusb,
+-		int port, u8 idx, u8 data, u8 mask)
++		u32 port, u8 idx, u8 data, u8 mask)
+ {
+ 	int ret;
+ 	u8 tmp;
+@@ -1258,13 +1258,13 @@ static int sisusb_setidxregmask(struct s
+ 	return ret;
+ }
+ 
+-int sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port,
++int sisusb_setidxregor(struct sisusb_usb_data *sisusb, u32 port,
+ 		u8 index, u8 myor)
+ {
+ 	return sisusb_setidxregandor(sisusb, port, index, 0xff, myor);
+ }
+ 
+-int sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port,
++int sisusb_setidxregand(struct sisusb_usb_data *sisusb, u32 port,
+ 		u8 idx, u8 myand)
+ {
+ 	return sisusb_setidxregandor(sisusb, port, idx, myand, 0x00);
+@@ -2785,8 +2785,8 @@ static loff_t sisusb_lseek(struct file *
+ static int sisusb_handle_command(struct sisusb_usb_data *sisusb,
+ 		struct sisusb_command *y, unsigned long arg)
+ {
+-	int	retval, port, length;
+-	u32	address;
++	int	retval, length;
++	u32	port, address;
+ 
+ 	/* All our commands require the device
+ 	 * to be initialized.
+--- a/drivers/usb/misc/sisusbvga/sisusb_init.h
++++ b/drivers/usb/misc/sisusbvga/sisusb_init.h
+@@ -812,17 +812,17 @@ static const struct SiS_VCLKData SiSUSB_
+ int SiSUSBSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo);
+ int SiSUSBSetVESAMode(struct SiS_Private *SiS_Pr, unsigned short VModeNo);
+ 
+-extern int sisusb_setreg(struct sisusb_usb_data *sisusb, int port, u8 data);
+-extern int sisusb_getreg(struct sisusb_usb_data *sisusb, int port, u8 * data);
+-extern int sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_setreg(struct sisusb_usb_data *sisusb, u32 port, u8 data);
++extern int sisusb_getreg(struct sisusb_usb_data *sisusb, u32 port, u8 * data);
++extern int sisusb_setidxreg(struct sisusb_usb_data *sisusb, u32 port,
+ 			    u8 index, u8 data);
+-extern int sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_getidxreg(struct sisusb_usb_data *sisusb, u32 port,
+ 			    u8 index, u8 * data);
+-extern int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, u32 port,
+ 				 u8 idx, u8 myand, u8 myor);
+-extern int sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_setidxregor(struct sisusb_usb_data *sisusb, u32 port,
+ 			      u8 index, u8 myor);
+-extern int sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port,
++extern int sisusb_setidxregand(struct sisusb_usb_data *sisusb, u32 port,
+ 			       u8 idx, u8 myand);
+ 
+ void sisusb_delete(struct kref *kref);
 
 
