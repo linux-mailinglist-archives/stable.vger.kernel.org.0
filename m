@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D54DF1BCA3D
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE2C11BC925
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730828AbgD1SlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60586 "EHLO mail.kernel.org"
+        id S1729088AbgD1SjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:39:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730736AbgD1SlE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:41:04 -0400
+        id S1730706AbgD1SjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:39:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74D312085B;
-        Tue, 28 Apr 2020 18:41:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C042A20575;
+        Tue, 28 Apr 2020 18:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099263;
-        bh=aA6z5Im+fckIqDKy07hv31qtqVKsbkx6P9lhSktTShc=;
+        s=default; t=1588099141;
+        bh=70en2y8im9i9iX0DhYhp+taRYiWl+DOFa6w+T0EF4Fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lnw3tP1RhzFKDolaB8+/vSdZgb1gVvykZYAY4pe+eaZjWzkCpbEU8/DJL3nvKQjQo
-         4+IF0YDrTxb5KDOzPSABS71dln17P99/2mWjOm9h2+l3AFy6pLuIx04AzMGVYt3wgc
-         ClDlkupf+OGJHOBjdwss8awQudNo74CnjQvNp5P4=
+        b=swUtieol8CW3igpXn2eOqsvHVaSv7xkE12QjVMZqdhcV2TUTvugeFTsJe46L7JvPU
+         eNUnyuONfjxl+lyFIc0FTCg7yOdIUJTrR6G5o+V12r26HA09qLLix15H+QDtizSAob
+         u4ilBs2uEEg6UfglyikVRf7R/LRFj6pcf63H0Li4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.19 124/131] UAS: no use logging any details in case of ENODEV
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH 5.6 160/167] Revert "serial: uartps: Do not allow use aliases >= MAX_UART_INSTANCES"
 Date:   Tue, 28 Apr 2020 20:25:36 +0200
-Message-Id: <20200428182240.848679067@linuxfoundation.org>
+Message-Id: <20200428182245.820415415@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Michal Simek <michal.simek@xilinx.com>
 
-commit 5963dec98dc52d52476390485f07a29c30c6a582 upstream.
+commit 91c9dfa25c7f95b543c280e0edf1fd8de6e90985 upstream.
 
-Once a device is gone, the internal state does not matter anymore.
-There is no need to spam the logs.
+This reverts commit 2088cfd882d0403609bdf426e9b24372fe1b8337.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
+As Johan says, this driver needs a lot more work and these changes are
+only going in the wrong direction:
+  https://lkml.kernel.org/r/20190523091839.GC568@localhost
+
+Reported-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Cc: stable <stable@vger.kernel.org>
-Fixes: 326349f824619 ("uas: add dead request list")
-Link: https://lore.kernel.org/r/20200415141750.811-1-oneukum@suse.com
+Link: https://lore.kernel.org/r/dac3898e3e32d963f357fb436ac9a7ac3cbcf933.1585905873.git.michal.simek@xilinx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/storage/uas.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -190,6 +190,9 @@ static void uas_log_cmd_state(struct scs
- 	struct uas_cmd_info *ci = (void *)&cmnd->SCp;
- 	struct uas_cmd_info *cmdinfo = (void *)&cmnd->SCp;
- 
-+	if (status == -ENODEV) /* too late */
-+		return;
-+
- 	scmd_printk(KERN_INFO, cmnd,
- 		    "%s %d uas-tag %d inflight:%s%s%s%s%s%s%s%s%s%s%s%s ",
- 		    prefix, status, cmdinfo->uas_tag,
+---
+ drivers/tty/serial/xilinx_uartps.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -1724,8 +1724,7 @@ err_out_unregister_driver:
+ 	uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
+ err_out_id:
+ 	mutex_lock(&bitmap_lock);
+-	if (cdns_uart_data->id < MAX_UART_INSTANCES)
+-		clear_bit(cdns_uart_data->id, bitmap);
++	clear_bit(cdns_uart_data->id, bitmap);
+ 	mutex_unlock(&bitmap_lock);
+ 	return rc;
+ }
+@@ -1750,8 +1749,7 @@ static int cdns_uart_remove(struct platf
+ 	rc = uart_remove_one_port(cdns_uart_data->cdns_uart_driver, port);
+ 	port->mapbase = 0;
+ 	mutex_lock(&bitmap_lock);
+-	if (cdns_uart_data->id < MAX_UART_INSTANCES)
+-		clear_bit(cdns_uart_data->id, bitmap);
++	clear_bit(cdns_uart_data->id, bitmap);
+ 	mutex_unlock(&bitmap_lock);
+ 	clk_disable_unprepare(cdns_uart_data->uartclk);
+ 	clk_disable_unprepare(cdns_uart_data->pclk);
 
 
