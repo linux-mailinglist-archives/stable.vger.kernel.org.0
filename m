@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 340631BCA63
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37A141BC7F3
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730685AbgD1Siw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:38:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57500 "EHLO mail.kernel.org"
+        id S1729144AbgD1S2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:28:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730681AbgD1Siv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:38:51 -0400
+        id S1729139AbgD1S2I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:28:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E827B208E0;
-        Tue, 28 Apr 2020 18:38:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74C0920730;
+        Tue, 28 Apr 2020 18:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099131;
-        bh=YqMhhaim/jzNbsVKd4Bfn1CEZ7m28Z+4VfMAyZgXLZ8=;
+        s=default; t=1588098487;
+        bh=bfMmx3fYjly39Pex01XfPoaA0tBtUA1c8xYcYUBstT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DA0ScyKcG8GZcsWu57rC4dUR4QLhUWfSOdlHGVldn1FhR7L967VeiQ4lJRan7Llvo
-         6AtRc1iKjJMu2gxwIcq2bH5NmC9NljtR6VmxV6UKndCPr2x3FtAgWkVywmJfyM+8Aw
-         xGsrStFFLxfcD/p9pNt+dfo66dApFh/7sByJHCGY=
+        b=jUNZqvPU3nrcrPTuqX+eo7byfNGjOSbIHqWBWL3ByuevYjLDXsM9fm0XXN0muHjNA
+         C1gA7xJ884Jn+L4VPFWLOq4OHq/Tee49t5IodbSxtJlSzAi/E1KTfky3zm7c4zrdTb
+         lk5bR4hSEhgLtasPc3VsFgoNkREWyhJSlxoZ+db4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 060/168] macsec: avoid to set wrong mtu
-Date:   Tue, 28 Apr 2020 20:23:54 +0200
-Message-Id: <20200428182239.519146479@linuxfoundation.org>
+Subject: [PATCH 5.6 059/167] selftests: Fix suppress test in fib_tests.sh
+Date:   Tue, 28 Apr 2020 20:23:55 +0200
+Message-Id: <20200428182232.435862777@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: David Ahern <dsahern@gmail.com>
 
-[ Upstream commit 7f327080364abccf923fa5a5b24e038eb0ba1407 ]
+[ Upstream commit 2c1dd4c110627c2a4f006643f074119205cfcff4 ]
 
-When a macsec interface is created, the mtu is calculated with the lower
-interface's mtu value.
-If the mtu of lower interface is lower than the length, which is needed
-by macsec interface, macsec's mtu value will be overflowed.
-So, if the lower interface's mtu is too low, macsec interface's mtu
-should be set to 0.
+fib_tests is spewing errors:
+    ...
+    Cannot open network namespace "ns1": No such file or directory
+    Cannot open network namespace "ns1": No such file or directory
+    Cannot open network namespace "ns1": No such file or directory
+    Cannot open network namespace "ns1": No such file or directory
+    ping: connect: Network is unreachable
+    Cannot open network namespace "ns1": No such file or directory
+    Cannot open network namespace "ns1": No such file or directory
+    ...
 
-Test commands:
-    ip link add dummy0 mtu 10 type dummy
-    ip link add macsec0 link dummy0 type macsec
-    ip link show macsec0
+Each test entry in fib_tests is supposed to do its own setup and
+cleanup. Right now the $IP commands in fib_suppress_test are
+failing because there is no ns1. Add the setup/cleanup and logging
+expected for each test.
 
-Before:
-    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 4294967274
-After:
-    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 0
-
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Fixes: ca7a03c41753 ("ipv6: do not free rt if FIB_LOOKUP_NOREF is set on suppress rule")
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macsec.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ tools/testing/selftests/net/fib_tests.sh |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -3226,11 +3226,11 @@ static int macsec_newlink(struct net *ne
- 			  struct netlink_ext_ack *extack)
+--- a/tools/testing/selftests/net/fib_tests.sh
++++ b/tools/testing/selftests/net/fib_tests.sh
+@@ -618,16 +618,22 @@ fib_nexthop_test()
+ 
+ fib_suppress_test()
  {
- 	struct macsec_dev *macsec = macsec_priv(dev);
-+	rx_handler_func_t *rx_handler;
-+	u8 icv_len = DEFAULT_ICV_LEN;
- 	struct net_device *real_dev;
--	int err;
-+	int err, mtu;
- 	sci_t sci;
--	u8 icv_len = DEFAULT_ICV_LEN;
--	rx_handler_func_t *rx_handler;
++	echo
++	echo "FIB rule with suppress_prefixlength"
++	setup
++
+ 	$IP link add dummy1 type dummy
+ 	$IP link set dummy1 up
+ 	$IP -6 route add default dev dummy1
+ 	$IP -6 rule add table main suppress_prefixlength 0
+-	ping -f -c 1000 -W 1 1234::1 || true
++	ping -f -c 1000 -W 1 1234::1 >/dev/null 2>&1
+ 	$IP -6 rule del table main suppress_prefixlength 0
+ 	$IP link del dummy1
  
- 	if (!tb[IFLA_LINK])
- 		return -EINVAL;
-@@ -3246,7 +3246,11 @@ static int macsec_newlink(struct net *ne
+ 	# If we got here without crashing, we're good.
+-	return 0
++	log_test 0 0 "FIB rule suppress test"
++
++	cleanup
+ }
  
- 	if (data && data[IFLA_MACSEC_ICV_LEN])
- 		icv_len = nla_get_u8(data[IFLA_MACSEC_ICV_LEN]);
--	dev->mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
-+	mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
-+	if (mtu < 0)
-+		dev->mtu = 0;
-+	else
-+		dev->mtu = mtu;
- 
- 	rx_handler = rtnl_dereference(real_dev->rx_handler);
- 	if (rx_handler && rx_handler != macsec_handle_frame)
+ ################################################################################
 
 
