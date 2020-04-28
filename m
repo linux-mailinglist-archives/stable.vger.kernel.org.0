@@ -2,115 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 576581BC426
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 17:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9AF1BC42B
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 17:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728377AbgD1Pxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 11:53:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47486 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728107AbgD1Pxz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Apr 2020 11:53:55 -0400
-Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1E88C03C1AC
-        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 08:53:54 -0700 (PDT)
-Received: by mail-lf1-x141.google.com with SMTP id w145so17334002lff.3
-        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 08:53:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=q096cfWzKfhRoQY6yVeooYdgz5eJpNiXcAOLwCb6KyU=;
-        b=Yzx06nnuUmM+GAk8GeeXeouPCL1sKYw7yWl0m9ix8MeW/DAQk5QAxJcrFdPYvhNNJk
-         JP7NUXrtNV4ES4rhsEUYPBzKTwX+0hr+GlHPsvLa2HdpK8y6zH60c8lB+yzg5Pjyv9uq
-         /bQD3sV6hCA4ZIyegnMj/vADCwCM3KxYGReYw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=q096cfWzKfhRoQY6yVeooYdgz5eJpNiXcAOLwCb6KyU=;
-        b=atOQZBFqxla65Ka8MS+W04pFZTDIgUz/L7BueGtP0ZwgShi/OgrWd0OWJscutYmHMU
-         358WEfzrd1R3dBM43d1SuEa2oVkMI/DV58UR3LX3VH9g+KHRq9ytLPtEu+99vLhpltUe
-         xKxgHrJYuUZdrsB/xR7RMOZXma/epSEKXgSUme4fLf9mUqa57APTvxndXSBJL4MfqgIf
-         pRyJEsKfdCDqYqgO21O+N5UaQltYN5NhBKqX80wf8SIa75Y6PRm7BEEktvb8v6fg8Jet
-         bv1HkBzzUQ0dST8Vbhzk1t8FE+f9xF3J9tajksUwqFL0bWwMya6c9Ube1JuFeExzW/sR
-         Ki0A==
-X-Gm-Message-State: AGi0PuZKpwvkFVtVfdFdURVLsbZO9/70oHUaf4DQf54p57A/TMquA2eA
-        ZuCJUcZETekndtkIHOtN5ZbM1TAo9Kw=
-X-Google-Smtp-Source: APiQypJdjC6YPymunHdqdo4IDmsGWcaoEIAG8gGN3/c4J2q1bgZ6Dcav5S2UHPaT0eJwD7dPbdjzfg==
-X-Received: by 2002:a19:c385:: with SMTP id t127mr19511570lff.117.1588089232875;
-        Tue, 28 Apr 2020 08:53:52 -0700 (PDT)
-Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com. [209.85.208.173])
-        by smtp.gmail.com with ESMTPSA id g22sm11889997ljl.17.2020.04.28.08.53.51
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Apr 2020 08:53:51 -0700 (PDT)
-Received: by mail-lj1-f173.google.com with SMTP id y4so22043592ljn.7
-        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 08:53:51 -0700 (PDT)
-X-Received: by 2002:a2e:b0f5:: with SMTP id h21mr18195660ljl.3.1588089230946;
- Tue, 28 Apr 2020 08:53:50 -0700 (PDT)
+        id S1727875AbgD1Pyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 11:54:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53102 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727865AbgD1Pya (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 11:54:30 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2949D20661;
+        Tue, 28 Apr 2020 15:54:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588089269;
+        bh=CLYw1pyofo2QkqcNMLoLXSjEjuXj+cg+3zpnEKeZLtc=;
+        h=Subject:To:From:Date:From;
+        b=VjJaLlCmFJlS9cWZJPJQzRZlrT2kaMNVIYfIhQtm3vAI/ykeEqZk8Mmh9aWdARxDx
+         udAI0FbIO+KN5j44Bfiu21eml3GibvD0Dis+nacooyr87QHLxEr6G5LsR+ebt1daRu
+         qkMiAsUkI/2MmoSo9ehBhsl96fEM2xWqA+gQnqRo=
+Subject: patch "coredump: fix crash when umh is disabled" added to driver-core-linus
+To:     mcgrof@kernel.org, chainsaw@gentoo.org, gregkh@linuxfoundation.org,
+        ravenexp@gmail.com, slyfox@gentoo.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 28 Apr 2020 17:54:27 +0200
+Message-ID: <1588089267204117@kroah.com>
 MIME-Version: 1.0
-References: <20200427145537.1.Ic8f898e0147beeee2c005ee7b20f1aebdef1e7eb@changeid>
- <20200428011134.GV125362@dtor-ws>
-In-Reply-To: <20200428011134.GV125362@dtor-ws>
-From:   Evan Green <evgreen@chromium.org>
-Date:   Tue, 28 Apr 2020 08:53:14 -0700
-X-Gmail-Original-Message-ID: <CAE=gft7k4Ps=UXONw=usOmN8anfcvNgpkNmeKwVc1Uh6bDR-YQ@mail.gmail.com>
-Message-ID: <CAE=gft7k4Ps=UXONw=usOmN8anfcvNgpkNmeKwVc1Uh6bDR-YQ@mail.gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Really fix attn_data use-after-free
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     stable@vger.kernel.org,
-        Nick Desaulniers <nick.desaulniers@gmail.com>,
-        Allison Randal <allison@lohutok.net>,
-        Andrew Duggan <aduggan@synaptics.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Enrico Weigelt <info@metux.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 27, 2020 at 6:11 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> On Mon, Apr 27, 2020 at 02:55:48PM -0700, Evan Green wrote:
-> > Fix a use-after-free noticed by running with KASAN enabled. If
-> > rmi_irq_fn() is run twice in a row, then rmi_f11_attention() (among
-> > others) will end up reading from drvdata->attn_data.data, which was
-> > freed and left dangling in rmi_irq_fn().
-> >
-> > Commit 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by
-> > KASAN") correctly identified and analyzed this bug. However the attempted
-> > fix only NULLed out a local variable, missing the fact that
-> > drvdata->attn_data is a struct, not a pointer.
-> >
-> > NULL out the correct pointer in the driver data to prevent the attention
-> > functions from copying from it.
-> >
-> > Fixes: 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by KASAN")
-> > Fixes: b908d3cd812a ("Input: synaptics-rmi4 - allow to add attention data")
-> >
-> > Signed-off-by: Evan Green <evgreen@chromium.org>
-> >
-> > Cc: stable@vger.kernel.org
-> > Cc: Nick Desaulniers <nick.desaulniers@gmail.com>
->
-> Ugh, this is all kind of ugly, but I guess that's what we have now.
-> Applied, thank you.
 
-Thanks Dmitry. There are other bits that sketch me out in here as
-well, but I didn't get a chance to really figure out if they're a
-problem. We call rmi_process_interrupt_requests(), which results in
-reads from that same attn_data.data pointer, in a few different
-places. Some of those calls are outside the irq handling path, like
-the in rmi_enable_irq() and rmi_enable_sensor(). Can they race with
-the irq handling path? (Meaning they'd be doing those attn_data.data
-reads as rmi_irq_fn() is kfreeing the data?) There are a smattering of
-mutexes around, but I'm not sure if they're trying to protect this.
+This is a note to let you know that I've just added the patch titled
 
-If I can find some time I'll try to submit a patch. Anyone is welcome
-to beat me to it though.
--Evan
+    coredump: fix crash when umh is disabled
+
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 3740d93e37902b31159a82da2d5c8812ed825404 Mon Sep 17 00:00:00 2001
+From: Luis Chamberlain <mcgrof@kernel.org>
+Date: Thu, 16 Apr 2020 16:28:59 +0000
+Subject: coredump: fix crash when umh is disabled
+
+Commit 64e90a8acb859 ("Introduce STATIC_USERMODEHELPER to mediate
+call_usermodehelper()") added the optiont to disable all
+call_usermodehelper() calls by setting STATIC_USERMODEHELPER_PATH to
+an empty string. When this is done, and crashdump is triggered, it
+will crash on null pointer dereference, since we make assumptions
+over what call_usermodehelper_exec() did.
+
+This has been reported by Sergey when one triggers a a coredump
+with the following configuration:
+
+```
+CONFIG_STATIC_USERMODEHELPER=y
+CONFIG_STATIC_USERMODEHELPER_PATH=""
+kernel.core_pattern = |/usr/lib/systemd/systemd-coredump %P %u %g %s %t %c %h %e
+```
+
+The way disabling the umh was designed was that call_usermodehelper_exec()
+would just return early, without an error. But coredump assumes
+certain variables are set up for us when this happens, and calls
+ile_start_write(cprm.file) with a NULL file.
+
+[    2.819676] BUG: kernel NULL pointer dereference, address: 0000000000000020
+[    2.819859] #PF: supervisor read access in kernel mode
+[    2.820035] #PF: error_code(0x0000) - not-present page
+[    2.820188] PGD 0 P4D 0
+[    2.820305] Oops: 0000 [#1] SMP PTI
+[    2.820436] CPU: 2 PID: 89 Comm: a Not tainted 5.7.0-rc1+ #7
+[    2.820680] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190711_202441-buildvm-armv7-10.arm.fedoraproject.org-2.fc31 04/01/2014
+[    2.821150] RIP: 0010:do_coredump+0xd80/0x1060
+[    2.821385] Code: e8 95 11 ed ff 48 c7 c6 cc a7 b4 81 48 8d bd 28 ff
+ff ff 89 c2 e8 70 f1 ff ff 41 89 c2 85 c0 0f 84 72 f7 ff ff e9 b4 fe ff
+ff <48> 8b 57 20 0f b7 02 66 25 00 f0 66 3d 00 8
+0 0f 84 9c 01 00 00 44
+[    2.822014] RSP: 0000:ffffc9000029bcb8 EFLAGS: 00010246
+[    2.822339] RAX: 0000000000000000 RBX: ffff88803f860000 RCX: 000000000000000a
+[    2.822746] RDX: 0000000000000009 RSI: 0000000000000282 RDI: 0000000000000000
+[    2.823141] RBP: ffffc9000029bde8 R08: 0000000000000000 R09: ffffc9000029bc00
+[    2.823508] R10: 0000000000000001 R11: ffff88803dec90be R12: ffffffff81c39da0
+[    2.823902] R13: ffff88803de84400 R14: 0000000000000000 R15: 0000000000000000
+[    2.824285] FS:  00007fee08183540(0000) GS:ffff88803e480000(0000) knlGS:0000000000000000
+[    2.824767] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    2.825111] CR2: 0000000000000020 CR3: 000000003f856005 CR4: 0000000000060ea0
+[    2.825479] Call Trace:
+[    2.825790]  get_signal+0x11e/0x720
+[    2.826087]  do_signal+0x1d/0x670
+[    2.826361]  ? force_sig_info_to_task+0xc1/0xf0
+[    2.826691]  ? force_sig_fault+0x3c/0x40
+[    2.826996]  ? do_trap+0xc9/0x100
+[    2.827179]  exit_to_usermode_loop+0x49/0x90
+[    2.827359]  prepare_exit_to_usermode+0x77/0xb0
+[    2.827559]  ? invalid_op+0xa/0x30
+[    2.827747]  ret_from_intr+0x20/0x20
+[    2.827921] RIP: 0033:0x55e2c76d2129
+[    2.828107] Code: 2d ff ff ff e8 68 ff ff ff 5d c6 05 18 2f 00 00 01
+c3 0f 1f 80 00 00 00 00 c3 0f 1f 80 00 00 00 00 e9 7b ff ff ff 55 48 89
+e5 <0f> 0b b8 00 00 00 00 5d c3 66 2e 0f 1f 84 0
+0 00 00 00 00 0f 1f 40
+[    2.828603] RSP: 002b:00007fffeba5e080 EFLAGS: 00010246
+[    2.828801] RAX: 000055e2c76d2125 RBX: 0000000000000000 RCX: 00007fee0817c718
+[    2.829034] RDX: 00007fffeba5e188 RSI: 00007fffeba5e178 RDI: 0000000000000001
+[    2.829257] RBP: 00007fffeba5e080 R08: 0000000000000000 R09: 00007fee08193c00
+[    2.829482] R10: 0000000000000009 R11: 0000000000000000 R12: 000055e2c76d2040
+[    2.829727] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[    2.829964] CR2: 0000000000000020
+[    2.830149] ---[ end trace ceed83d8c68a1bf1 ]---
+```
+
+Cc: <stable@vger.kernel.org> # v4.11+
+Fixes: 64e90a8acb85 ("Introduce STATIC_USERMODEHELPER to mediate call_usermodehelper()")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=199795
+Reported-by: Tony Vroon <chainsaw@gentoo.org>
+Reported-by: Sergey Kvachonok <ravenexp@gmail.com>
+Tested-by: Sergei Trofimovich <slyfox@gentoo.org>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20200416162859.26518-1-mcgrof@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ fs/coredump.c | 8 ++++++++
+ kernel/umh.c  | 5 +++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/fs/coredump.c b/fs/coredump.c
+index 408418e6aa13..478a0d810136 100644
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -788,6 +788,14 @@ void do_coredump(const kernel_siginfo_t *siginfo)
+ 	if (displaced)
+ 		put_files_struct(displaced);
+ 	if (!dump_interrupted()) {
++		/*
++		 * umh disabled with CONFIG_STATIC_USERMODEHELPER_PATH="" would
++		 * have this set to NULL.
++		 */
++		if (!cprm.file) {
++			pr_info("Core dump to |%s disabled\n", cn.corename);
++			goto close_fail;
++		}
+ 		file_start_write(cprm.file);
+ 		core_dumped = binfmt->core_dump(&cprm);
+ 		file_end_write(cprm.file);
+diff --git a/kernel/umh.c b/kernel/umh.c
+index 7f255b5a8845..11bf5eea474c 100644
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -544,6 +544,11 @@ EXPORT_SYMBOL_GPL(fork_usermode_blob);
+  * Runs a user-space application.  The application is started
+  * asynchronously if wait is not set, and runs as a child of system workqueues.
+  * (ie. it runs with full root capabilities and optimized affinity).
++ *
++ * Note: successful return value does not guarantee the helper was called at
++ * all. You can't rely on sub_info->{init,cleanup} being called even for
++ * UMH_WAIT_* wait modes as STATIC_USERMODEHELPER_PATH="" turns all helpers
++ * into a successful no-op.
+  */
+ int call_usermodehelper_exec(struct subprocess_info *sub_info, int wait)
+ {
+-- 
+2.26.2
+
+
