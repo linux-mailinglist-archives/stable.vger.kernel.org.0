@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 070DB1BCBA9
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5ED91BCB8A
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729188AbgD1S7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:59:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41992 "EHLO mail.kernel.org"
+        id S1729413AbgD1S3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:29:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729242AbgD1S2r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:28:47 -0400
+        id S1729410AbgD1S3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:29:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ED7620730;
-        Tue, 28 Apr 2020 18:28:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56CA320730;
+        Tue, 28 Apr 2020 18:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098526;
-        bh=G4ZuIOwjKAloRkZZYprDJTrZZXU9WcE+SXGs2WTjMkI=;
+        s=default; t=1588098587;
+        bh=Pe1L8dVLg6dmSyWSMeTXLXMbj9DUZKD2yKCpIrM+C3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bxB3RLwAA0DV4fkhqY5UlfnIbxrEJb1Nq8QUYjElBwujyzEpJ6ceJoia7U7RA4od7
-         RTo5mjtZObvff41WydLrvRuwy/mzTnn14dAMspK7ZrjnVI7lc8OPv1zzop236liyv8
-         Qb3iggrAkln9MhMw+2gGg37Ufi+cunQLzqssXYyo=
+        b=FcYkrD21zUK2toNTCOG1rZsSuTiKuH8SkrRlE0nCUl2jgUmlmIQQQNpljkqXDpNDc
+         +whYlpOyL9Nh8Db5yZDccJr87qpjCAygDVy4Y2brHacLj0L7HpUpYeTtX+SRFPa4H/
+         1gRGQZjrtxrLEYRUpgbuzHRepNjkDP2vBJner4j0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 008/131] arm64: Fake the IminLine size on systems affected by Neoverse-N1 #1542419
-Date:   Tue, 28 Apr 2020 20:23:40 +0200
-Message-Id: <20200428182226.263357630@linuxfoundation.org>
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Vishal Kulkarni <vishal@chelsio.com>
+Subject: [PATCH 5.6 045/167] cxgb4: fix adapter crash due to wrong MC size
+Date:   Tue, 28 Apr 2020 20:23:41 +0200
+Message-Id: <20200428182230.753937826@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Vishal Kulkarni <vishal@chelsio.com>
 
-[ Upstream commit ee9d90be9ddace01b7fb126567e4b539fbe1f82f ]
+[ Upstream commit ce222748078592afb51b810dc154531aeba4f512 ]
 
-Systems affected by Neoverse-N1 #1542419 support DIC so do not need to
-perform icache maintenance once new instructions are cleaned to the PoU.
-For the errata workaround, the kernel hides DIC from user-space, so that
-the unnecessary cache maintenance can be trapped by firmware.
+In the absence of MC1, the size calculation function
+cudbg_mem_region_size() was returing wrong MC size and
+resulted in adapter crash. This patch adds new argument
+to cudbg_mem_region_size() which will have actual size
+and returns error to caller in the absence of MC1.
 
-To reduce the number of traps, produce a fake IminLine value based on
-PAGE_SIZE.
-
-Signed-off-by: James Morse <james.morse@arm.com>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a1c69520f785 ("cxgb4: collect MC memory dump")
+Signed-off-by: Vishal Kulkarni <vishal@chelsio.com>"
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cache.h | 3 ++-
- arch/arm64/kernel/traps.c      | 8 +++++++-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c |   27 ++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/include/asm/cache.h b/arch/arm64/include/asm/cache.h
-index 5ee5bca8c24b1..baa684782358c 100644
---- a/arch/arm64/include/asm/cache.h
-+++ b/arch/arm64/include/asm/cache.h
-@@ -22,6 +22,7 @@
- #define CTR_L1IP_MASK		3
- #define CTR_DMINLINE_SHIFT	16
- #define CTR_IMINLINE_SHIFT	0
-+#define CTR_IMINLINE_MASK	0xf
- #define CTR_ERG_SHIFT		20
- #define CTR_CWG_SHIFT		24
- #define CTR_CWG_MASK		15
-@@ -29,7 +30,7 @@
- #define CTR_DIC_SHIFT		29
+--- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
+@@ -1049,9 +1049,9 @@ static void cudbg_t4_fwcache(struct cudb
+ 	}
+ }
  
- #define CTR_CACHE_MINLINE_MASK	\
--	(0xf << CTR_DMINLINE_SHIFT | 0xf << CTR_IMINLINE_SHIFT)
-+	(0xf << CTR_DMINLINE_SHIFT | CTR_IMINLINE_MASK << CTR_IMINLINE_SHIFT)
+-static unsigned long cudbg_mem_region_size(struct cudbg_init *pdbg_init,
+-					   struct cudbg_error *cudbg_err,
+-					   u8 mem_type)
++static int cudbg_mem_region_size(struct cudbg_init *pdbg_init,
++				 struct cudbg_error *cudbg_err,
++				 u8 mem_type, unsigned long *region_size)
+ {
+ 	struct adapter *padap = pdbg_init->adap;
+ 	struct cudbg_meminfo mem_info;
+@@ -1060,15 +1060,23 @@ static unsigned long cudbg_mem_region_si
  
- #define CTR_L1IP(ctr)		(((ctr) >> CTR_L1IP_SHIFT) & CTR_L1IP_MASK)
+ 	memset(&mem_info, 0, sizeof(struct cudbg_meminfo));
+ 	rc = cudbg_fill_meminfo(padap, &mem_info);
+-	if (rc)
++	if (rc) {
++		cudbg_err->sys_err = rc;
+ 		return rc;
++	}
  
-diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
-index 253b7f84a5a0d..965595fe68045 100644
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -481,9 +481,15 @@ static void ctr_read_handler(unsigned int esr, struct pt_regs *regs)
- 	int rt = (esr & ESR_ELx_SYS64_ISS_RT_MASK) >> ESR_ELx_SYS64_ISS_RT_SHIFT;
- 	unsigned long val = arm64_ftr_reg_user_value(&arm64_ftr_reg_ctrel0);
- 
--	if (cpus_have_const_cap(ARM64_WORKAROUND_1542419))
-+	if (cpus_have_const_cap(ARM64_WORKAROUND_1542419)) {
-+		/* Hide DIC so that we can trap the unnecessary maintenance...*/
- 		val &= ~BIT(CTR_DIC_SHIFT);
- 
-+		/* ... and fake IminLine to reduce the number of traps. */
-+		val &= ~CTR_IMINLINE_MASK;
-+		val |= (PAGE_SHIFT - 2) & CTR_IMINLINE_MASK;
+ 	cudbg_t4_fwcache(pdbg_init, cudbg_err);
+ 	rc = cudbg_meminfo_get_mem_index(padap, &mem_info, mem_type, &mc_idx);
+-	if (rc)
++	if (rc) {
++		cudbg_err->sys_err = rc;
+ 		return rc;
 +	}
 +
- 	pt_regs_write_reg(regs, rt, val);
++	if (region_size)
++		*region_size = mem_info.avail[mc_idx].limit -
++			       mem_info.avail[mc_idx].base;
  
- 	arm64_skip_faulting_instruction(regs, AARCH64_INSN_SIZE);
--- 
-2.20.1
-
+-	return mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
++	return 0;
+ }
+ 
+ static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
+@@ -1076,7 +1084,12 @@ static int cudbg_collect_mem_region(stru
+ 				    struct cudbg_error *cudbg_err,
+ 				    u8 mem_type)
+ {
+-	unsigned long size = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type);
++	unsigned long size = 0;
++	int rc;
++
++	rc = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type, &size);
++	if (rc)
++		return rc;
+ 
+ 	return cudbg_read_fw_mem(pdbg_init, dbg_buff, mem_type, size,
+ 				 cudbg_err);
 
 
