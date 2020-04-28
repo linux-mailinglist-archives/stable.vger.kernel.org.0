@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E011BCBE1
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 944BE1BCADF
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728884AbgD1S1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:27:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38946 "EHLO mail.kernel.org"
+        id S1730348AbgD1Sww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:52:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728881AbgD1S1D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:27:03 -0400
+        id S1728662AbgD1Sfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:35:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A3942085B;
-        Tue, 28 Apr 2020 18:27:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFAC2217D8;
+        Tue, 28 Apr 2020 18:35:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098421;
-        bh=xkAnrLZvTNvKX1L+pvH4etEqx+qyIWsoBOD+apAeDKw=;
+        s=default; t=1588098942;
+        bh=00ddRN8yKxFktcawj18Tti3yNrlFwEtVI74FidDtGrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJR+ZZ9axCMFH2SHGBantlgWMb/7TlbO8/LgXGjtFI0Fp24YPj6moMK/Lbe0F0/zM
-         DYQxO8PEpU+UgB097W/aKrApAQ/feYBj3Rhzw4kIq3x9EScNVaNI63aTIwZBYiJaWJ
-         pzl4xb2UO33KG38/dUpFMW/tJdA6RhRw40fJnnSg=
+        b=BQefQJZG5HWWD/9VzFBT/UNP9OT8YGXaipIBC5fpY3KuNpPCERYNegajcCbXqU2f8
+         /sZS1KPRYrUYgnaRGt1OGimjmeMu6lLtTm+k6SHvNypK8OdxMkT+ffZoZQHkJbFSKw
+         pAgvnKD3g8kuCVqu/bAxGV0SvI9+oVEnBjkYNhCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nick Bowler <nbowler@draconx.ca>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 032/167] nvme: fix compat address handling in several ioctls
+Subject: [PATCH 5.4 034/168] nvme: fix compat address handling in several ioctls
 Date:   Tue, 28 Apr 2020 20:23:28 +0200
-Message-Id: <20200428182229.267979210@linuxfoundation.org>
+Message-Id: <20200428182236.043979962@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -79,7 +79,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 20 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index a4d8c90ee7cc4..652ca87dac949 100644
+index b8fe42f4b3c5b..f97c48fd3edae 100644
 --- a/drivers/nvme/host/core.c
 +++ b/drivers/nvme/host/core.c
 @@ -6,6 +6,7 @@
@@ -90,7 +90,7 @@ index a4d8c90ee7cc4..652ca87dac949 100644
  #include <linux/delay.h>
  #include <linux/errno.h>
  #include <linux/hdreg.h>
-@@ -1248,6 +1249,18 @@ static void nvme_enable_aen(struct nvme_ctrl *ctrl)
+@@ -1244,6 +1245,18 @@ static void nvme_enable_aen(struct nvme_ctrl *ctrl)
  	queue_work(nvme_wq, &ctrl->async_event_work);
  }
  
@@ -109,7 +109,7 @@ index a4d8c90ee7cc4..652ca87dac949 100644
  static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
  {
  	struct nvme_user_io io;
-@@ -1271,7 +1284,7 @@ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
+@@ -1267,7 +1280,7 @@ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
  
  	length = (io.nblocks + 1) << ns->lba_shift;
  	meta_len = (io.nblocks + 1) * ns->ms;
@@ -118,7 +118,7 @@ index a4d8c90ee7cc4..652ca87dac949 100644
  
  	if (ns->ext) {
  		length += meta_len;
-@@ -1294,7 +1307,7 @@ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
+@@ -1290,7 +1303,7 @@ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
  	c.rw.appmask = cpu_to_le16(io.appmask);
  
  	return nvme_submit_user_cmd(ns->queue, &c,
@@ -127,7 +127,7 @@ index a4d8c90ee7cc4..652ca87dac949 100644
  			metadata, meta_len, lower_32_bits(io.slba), NULL, 0);
  }
  
-@@ -1414,9 +1427,9 @@ static int nvme_user_cmd(struct nvme_ctrl *ctrl, struct nvme_ns *ns,
+@@ -1410,9 +1423,9 @@ static int nvme_user_cmd(struct nvme_ctrl *ctrl, struct nvme_ns *ns,
  
  	effects = nvme_passthru_start(ctrl, ns, cmd.opcode);
  	status = nvme_submit_user_cmd(ns ? ns->queue : ctrl->admin_q, &c,
@@ -140,7 +140,7 @@ index a4d8c90ee7cc4..652ca87dac949 100644
  	nvme_passthru_end(ctrl, effects);
  
  	if (status >= 0) {
-@@ -1461,8 +1474,8 @@ static int nvme_user_cmd64(struct nvme_ctrl *ctrl, struct nvme_ns *ns,
+@@ -1457,8 +1470,8 @@ static int nvme_user_cmd64(struct nvme_ctrl *ctrl, struct nvme_ns *ns,
  
  	effects = nvme_passthru_start(ctrl, ns, cmd.opcode);
  	status = nvme_submit_user_cmd(ns ? ns->queue : ctrl->admin_q, &c,
