@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDFB11BC93F
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 992C51BCA9F
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730125AbgD1Sj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:39:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58958 "EHLO mail.kernel.org"
+        id S1730488AbgD1Sh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:37:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730881AbgD1Sj5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:39:57 -0400
+        id S1730483AbgD1Sh0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:37:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F7AF20575;
-        Tue, 28 Apr 2020 18:39:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41F2520575;
+        Tue, 28 Apr 2020 18:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099197;
-        bh=mqM1Symd1VmDK+hvDs5OwnRrcB9aFa1eQTsDz4xQ208=;
+        s=default; t=1588099045;
+        bh=JHaBNosCj1zG89vJZojwMlcYslKrzJGKsmuORnY+RAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+3KlZLjkdm51D4ZgHp4V8nFZIz9Ib++FksxxEtE+8IIrFvDAu9U1Aic02XRXTp2n
-         jX4htaiz/Qx48QdD3we7i1kNkTQophA7OYpn0YxxPYb4RL/HWaqNBAAUnyVYQWNmNu
-         WM7uB3gVYazZngQ5/Po21pZwWAGBQH2PpE+/6Wzg=
+        b=dqoJplVVfYvsO9zTY2X/BMAzTST2Szpuymo0Z8BRfbL+wjcCO/y9Wo7lS4tgiTI9L
+         NxFWXdzHac6++B2tnMpS4/ltDg6p7aiMs+wKW2HDylRDjfSie7LxEafNMVWNw5YkbX
+         5jqocjxKmZZHj0sCfgc1SDgyK/zVAb5rUATD3xTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Qian Cai <cai@lca.pw>, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 112/131] powerpc/setup_64: Set cache-line-size based on cache-block-size
+        stable@vger.kernel.org, Xu Yilun <yilun.xu@intel.com>,
+        Wu Hao <hao.wu@intel.com>, Moritz Fischer <mdf@kernel.org>
+Subject: [PATCH 5.6 148/167] fpga: dfl: pci: fix return value of cci_pci_sriov_configure
 Date:   Tue, 28 Apr 2020 20:25:24 +0200
-Message-Id: <20200428182239.302297315@linuxfoundation.org>
+Message-Id: <20200428182244.291758805@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Xu Yilun <yilun.xu@intel.com>
 
-commit 94c0b013c98583614e1ad911e8795ca36da34a85 upstream.
+commit 3c2760b78f90db874401d97e3c17829e2e36f400 upstream.
 
-If {i,d}-cache-block-size is set and {i,d}-cache-line-size is not, use
-the block-size value for both. Per the devicetree spec cache-line-size
-is only needed if it differs from the block size.
+pci_driver.sriov_configure should return negative value on error and
+number of enabled VFs on success. But now the driver returns 0 on
+success. The sriov configure still works but will cause a warning
+message:
 
-Originally the code would fallback from block size to line size. An
-error message was printed if both properties were missing.
+  XX VFs requested; only 0 enabled
 
-Later the code was refactored to use clearer names and logic but it
-inadvertently made line size a required property, meaning on systems
-without a line size property we fall back to the default from the
-cputable.
+This patch changes the return value accordingly.
 
-On powernv (OPAL) platforms, since the introduction of device tree CPU
-features (5a61ef74f269 ("powerpc/64s: Support new device tree binding
-for discovering CPU features")), that has led to the wrong value being
-used, as the fallback value is incorrect for Power8/Power9 CPUs.
-
-The incorrect values flow through to the VDSO and also to the sysconf
-values, SC_LEVEL1_ICACHE_LINESIZE etc.
-
-Fixes: bd067f83b084 ("powerpc/64: Fix naming of cache block vs. cache line")
-Cc: stable@vger.kernel.org # v4.11+
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Reported-by: Qian Cai <cai@lca.pw>
-[mpe: Add even more detail to change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200416221908.7886-1-chris.packham@alliedtelesis.co.nz
+Cc: stable@vger.kernel.org
+Signed-off-by: Xu Yilun <yilun.xu@intel.com>
+Signed-off-by: Wu Hao <hao.wu@intel.com>
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/setup_64.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/fpga/dfl-pci.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -518,6 +518,8 @@ static bool __init parse_cache_info(stru
- 	lsizep = of_get_property(np, propnames[3], NULL);
- 	if (bsizep == NULL)
- 		bsizep = lsizep;
-+	if (lsizep == NULL)
-+		lsizep = bsizep;
- 	if (lsizep != NULL)
- 		lsize = be32_to_cpu(*lsizep);
- 	if (bsizep != NULL)
+--- a/drivers/fpga/dfl-pci.c
++++ b/drivers/fpga/dfl-pci.c
+@@ -248,11 +248,13 @@ static int cci_pci_sriov_configure(struc
+ 			return ret;
+ 
+ 		ret = pci_enable_sriov(pcidev, num_vfs);
+-		if (ret)
++		if (ret) {
+ 			dfl_fpga_cdev_config_ports_pf(cdev);
++			return ret;
++		}
+ 	}
+ 
+-	return ret;
++	return num_vfs;
+ }
+ 
+ static void cci_pci_remove(struct pci_dev *pcidev)
 
 
