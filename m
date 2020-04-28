@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 454841BC878
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:33:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 278271BC9D4
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729072AbgD1Scz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:32:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49166 "EHLO mail.kernel.org"
+        id S1731105AbgD1SmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:42:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729861AbgD1Scx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:32:53 -0400
+        id S1731102AbgD1SmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:42:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD5992076A;
-        Tue, 28 Apr 2020 18:32:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB93220B1F;
+        Tue, 28 Apr 2020 18:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098773;
-        bh=Au1q+YxF5wXpGR9tG9DyL2Nn00oGiow5jjlqbZMVauA=;
+        s=default; t=1588099344;
+        bh=UcH5qtw59qTuXTBw6ECJdi8TpzL+afl6G6oGjx9V0XA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSGCaMJXb2E5e3/XxKG6oCIGft6ZhIzkiS12w8zvCdI27h3/zSqPNKctrfuAx0TFg
-         zwgOP9ydyigVZF+An+LXCs9jr6x/kOU6tXpLO6oLPvRqdkn6knihKGSBTnfxbTrxON
-         ab93zFO2p52CVXbhmlLVLKY+fmgDfOe65H4Tn07A=
+        b=VcdsAQTadtWktnmjVyOjdUwFTBew5KB/+SWB+i1HzIYicXM6SMEEVvV98rUi8/Ioh
+         NG92KC8LC0ihKviCue+Coxkl8GeQuvLTnJ6ihWVqyPT/xA8e6xU7B3Z2Gqd8uBwq8b
+         WMF44Qo427L2sT7BWKP09hZZ9xC5IQj3bygz8ZJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.6 110/167] tpm: fix wrong return value in tpm_pcr_extend
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 112/168] ALSA: usb-audio: Fix usb audio refcnt leak when getting spdif
 Date:   Tue, 28 Apr 2020 20:24:46 +0200
-Message-Id: <20200428182239.092034139@linuxfoundation.org>
+Message-Id: <20200428182246.689747900@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 29cb79795e324a8b65e7891d76f8f6ca911ba440 upstream.
+commit 59e1947ca09ebd1cae147c08c7c41f3141233c84 upstream.
 
-For the algorithm that does not match the bank, a positive
-value EINVAL is returned here. I think this is a typo error.
-It is necessary to return an error value.
+snd_microii_spdif_default_get() invokes snd_usb_lock_shutdown(), which
+increases the refcount of the snd_usb_audio object "chip".
 
-Cc: stable@vger.kernel.org # 5.4.x
-Fixes: 9f75c8224631 ("KEYS: trusted: correctly initialize digests and fix locking issue")
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+When snd_microii_spdif_default_get() returns, local variable "chip"
+becomes invalid, so the refcount should be decreased to keep refcount
+balanced.
+
+The reference counting issue happens in several exception handling paths
+of snd_microii_spdif_default_get(). When those error scenarios occur
+such as usb_ifnum_to_if() returns NULL, the function forgets to decrease
+the refcnt increased by snd_usb_lock_shutdown(), causing a refcnt leak.
+
+Fix this issue by jumping to "end" label when those error scenarios
+occur.
+
+Fixes: 447d6275f0c2 ("ALSA: usb-audio: Add sanity checks for endpoint accesses")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1587617711-13200-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm-interface.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/mixer_quirks.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/char/tpm/tpm-interface.c
-+++ b/drivers/char/tpm/tpm-interface.c
-@@ -323,7 +323,7 @@ int tpm_pcr_extend(struct tpm_chip *chip
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -1508,11 +1508,15 @@ static int snd_microii_spdif_default_get
  
- 	for (i = 0; i < chip->nr_allocated_banks; i++) {
- 		if (digests[i].alg_id != chip->allocated_banks[i].alg_id) {
--			rc = EINVAL;
-+			rc = -EINVAL;
- 			goto out;
- 		}
- 	}
+ 	/* use known values for that card: interface#1 altsetting#1 */
+ 	iface = usb_ifnum_to_if(chip->dev, 1);
+-	if (!iface || iface->num_altsetting < 2)
+-		return -EINVAL;
++	if (!iface || iface->num_altsetting < 2) {
++		err = -EINVAL;
++		goto end;
++	}
+ 	alts = &iface->altsetting[1];
+-	if (get_iface_desc(alts)->bNumEndpoints < 1)
+-		return -EINVAL;
++	if (get_iface_desc(alts)->bNumEndpoints < 1) {
++		err = -EINVAL;
++		goto end;
++	}
+ 	ep = get_endpoint(alts, 0)->bEndpointAddress;
+ 
+ 	err = snd_usb_ctl_msg(chip->dev,
 
 
