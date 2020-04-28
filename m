@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF9471BCA92
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE141BCBC4
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730818AbgD1Sub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:50:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56800 "EHLO mail.kernel.org"
+        id S1728606AbgD1S1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730614AbgD1SiU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:38:20 -0400
+        id S1729043AbgD1S1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42BE92076A;
-        Tue, 28 Apr 2020 18:38:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99FC920730;
+        Tue, 28 Apr 2020 18:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099099;
-        bh=K0uB/Cb13jH+GxhvPq7paXYCJd1UU1gY2wHuRVZW+o8=;
+        s=default; t=1588098471;
+        bh=N/8ImIDdPOEXmtj/+HjjuFy7WgAl9RTHoLobDrIcL0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OeibD5VQPQqevLNjRSiwDtqbTYuYcSEwCDMcxGBkTCWdmm4Sl4sl0zmR1h37/cf4O
-         o/4d15cPsq3SbDCrKqUmjT0GRgp9zoUsQFkavRViM0ehvx/c+M4tkpdaw29yMsclAU
-         Gn9pA6i8SLNLjb2FpvFU450JSKWxozRySddSnHb4=
+        b=i9jltwizaaQ9dqgjYnSBa3l6RhMRiLu8VZqKFcRgled4L+f5BMUYDwaEC3+aWMiMf
+         WKc0RJw/FhpL3PwAljHVBAH+ONlSx4EenTecVaHkoCABun4c2WDMz5uBYRUg96V2gw
+         L4sYaJL8HSJoXeq8c7TD0ruFSDtSGbRxzlBpxC8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Vishal Kulkarni <vishal@chelsio.com>
-Subject: [PATCH 5.4 056/168] cxgb4: fix adapter crash due to wrong MC size
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 054/167] net: netrom: Fix potential nr_neigh refcnt leak in nr_add_node
 Date:   Tue, 28 Apr 2020 20:23:50 +0200
-Message-Id: <20200428182238.982167716@linuxfoundation.org>
+Message-Id: <20200428182231.824760923@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Kulkarni <vishal@chelsio.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit ce222748078592afb51b810dc154531aeba4f512 ]
+[ Upstream commit d03f228470a8c0a22b774d1f8d47071e0de4f6dd ]
 
-In the absence of MC1, the size calculation function
-cudbg_mem_region_size() was returing wrong MC size and
-resulted in adapter crash. This patch adds new argument
-to cudbg_mem_region_size() which will have actual size
-and returns error to caller in the absence of MC1.
+nr_add_node() invokes nr_neigh_get_dev(), which returns a local
+reference of the nr_neigh object to "nr_neigh" with increased refcnt.
 
-Fixes: a1c69520f785 ("cxgb4: collect MC memory dump")
-Signed-off-by: Vishal Kulkarni <vishal@chelsio.com>"
+When nr_add_node() returns, "nr_neigh" becomes invalid, so the refcount
+should be decreased to keep refcount balanced.
+
+The issue happens in one normal path of nr_add_node(), which forgets to
+decrease the refcnt increased by nr_neigh_get_dev() and causes a refcnt
+leak. It should decrease the refcnt before the function returns like
+other normal paths do.
+
+Fix this issue by calling nr_neigh_put() before the nr_add_node()
+returns.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c |   27 ++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ net/netrom/nr_route.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-@@ -1054,9 +1054,9 @@ static void cudbg_t4_fwcache(struct cudb
+--- a/net/netrom/nr_route.c
++++ b/net/netrom/nr_route.c
+@@ -208,6 +208,7 @@ static int __must_check nr_add_node(ax25
+ 		/* refcount initialized at 1 */
+ 		spin_unlock_bh(&nr_node_list_lock);
+ 
++		nr_neigh_put(nr_neigh);
+ 		return 0;
  	}
- }
- 
--static unsigned long cudbg_mem_region_size(struct cudbg_init *pdbg_init,
--					   struct cudbg_error *cudbg_err,
--					   u8 mem_type)
-+static int cudbg_mem_region_size(struct cudbg_init *pdbg_init,
-+				 struct cudbg_error *cudbg_err,
-+				 u8 mem_type, unsigned long *region_size)
- {
- 	struct adapter *padap = pdbg_init->adap;
- 	struct cudbg_meminfo mem_info;
-@@ -1065,15 +1065,23 @@ static unsigned long cudbg_mem_region_si
- 
- 	memset(&mem_info, 0, sizeof(struct cudbg_meminfo));
- 	rc = cudbg_fill_meminfo(padap, &mem_info);
--	if (rc)
-+	if (rc) {
-+		cudbg_err->sys_err = rc;
- 		return rc;
-+	}
- 
- 	cudbg_t4_fwcache(pdbg_init, cudbg_err);
- 	rc = cudbg_meminfo_get_mem_index(padap, &mem_info, mem_type, &mc_idx);
--	if (rc)
-+	if (rc) {
-+		cudbg_err->sys_err = rc;
- 		return rc;
-+	}
-+
-+	if (region_size)
-+		*region_size = mem_info.avail[mc_idx].limit -
-+			       mem_info.avail[mc_idx].base;
- 
--	return mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
-+	return 0;
- }
- 
- static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
-@@ -1081,7 +1089,12 @@ static int cudbg_collect_mem_region(stru
- 				    struct cudbg_error *cudbg_err,
- 				    u8 mem_type)
- {
--	unsigned long size = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type);
-+	unsigned long size = 0;
-+	int rc;
-+
-+	rc = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type, &size);
-+	if (rc)
-+		return rc;
- 
- 	return cudbg_read_fw_mem(pdbg_init, dbg_buff, mem_type, size,
- 				 cudbg_err);
+ 	nr_node_lock(nr_node);
 
 
