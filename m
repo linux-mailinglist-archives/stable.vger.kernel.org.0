@@ -2,170 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4512B1BCA86
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A89E81BC902
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:39:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729396AbgD1Sts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:49:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58712 "EHLO mail.kernel.org"
+        id S1730538AbgD1Shr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:37:47 -0400
+Received: from mga03.intel.com ([134.134.136.65]:48057 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730862AbgD1Sjs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:39:48 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B8AF20730;
-        Tue, 28 Apr 2020 18:39:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099187;
-        bh=p1mEFL7GZrCu3Wlff4cQ8A8VxqTd/adu9gpNmAseRug=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VPOtuzL8w2VafAu7VR9JcFYjKChQuTizUFUD6O0u7SiEMi/Tjv2VPk+Cik9EjWX68
-         3/V2Sc86CVqQlaXVHLVHRB9QBILHy1b/DADhASz4Ye0wZ4oZVKAfUY95/ov8AiDVdr
-         /AjqReed7M9RkDAq7CXHDrrNKWYLyPZAACqqcgFM=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5.6 167/167] s390/mm: fix page table upgrade vs 2ndary address mode accesses
-Date:   Tue, 28 Apr 2020 20:25:43 +0200
-Message-Id: <20200428182246.762029529@linuxfoundation.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1729057AbgD1Shq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:37:46 -0400
+IronPort-SDR: EOtSJdUCZgnKDlT5sKPf24yuySE5oO0BMnqxB/JbmJ+eTtS5ezxKn99E0yHE7l0BFY7QgDrRnu
+ 6hJ7rIabDOKQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Apr 2020 11:37:46 -0700
+IronPort-SDR: QOHbqyWSixKb5k1Jls4Z61awRacMyuujsW4FcijZQaBFsWC6FX1gjdN2oi0VGD3MIhQ+QD0EJ7
+ z1QR0UOXPZaQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,328,1583222400"; 
+   d="scan'208";a="249243952"
+Received: from gaia.fi.intel.com ([10.237.72.192])
+  by fmsmga008.fm.intel.com with ESMTP; 28 Apr 2020 11:37:44 -0700
+Received: by gaia.fi.intel.com (Postfix, from userid 1000)
+        id 2CAF85C1F98; Tue, 28 Apr 2020 21:35:44 +0300 (EEST)
+From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/3] drm/i915/execlists: Track inflight CCID
+In-Reply-To: <20200428090814.19352-2-chris@chris-wilson.co.uk>
+References: <20200428090814.19352-1-chris@chris-wilson.co.uk> <20200428090814.19352-2-chris@chris-wilson.co.uk>
+Date:   Tue, 28 Apr 2020 21:35:44 +0300
+Message-ID: <87sggnjw5b.fsf@gaia.fi.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+Chris Wilson <chris@chris-wilson.co.uk> writes:
 
-commit 316ec154810960052d4586b634156c54d0778f74 upstream.
+> The presumption is that by using a circular counter that is twice as
+> large as the maximum ELSP submission, we would never reuse the same CCID
+> for two inflight contexts.
+>
+> However, if we continually preempt an active context such that it always
+> remains inflight, it can be resubmitted with an arbitrary number of
+> paired contexts. As each of its paired contexts will use a new CCID,
+> eventually it will wrap and submit two ELSP with the same CCID.
+>
+> Rather than use a simple circular counter, switch over to a small bitmap
+> of inflight ids so we can avoid reusing one that is still potentially
+> active.
+>
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1796
+> Fixes: 2935ed5339c4 ("drm/i915: Remove logical HW ID")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+> Cc: <stable@vger.kernel.org> # v5.5+
+> ---
+>  drivers/gpu/drm/i915/gt/intel_engine_types.h |  3 +--
+>  drivers/gpu/drm/i915/gt/intel_lrc.c          | 26 ++++++++++++++------
+>  drivers/gpu/drm/i915/i915_perf.c             |  3 +--
+>  drivers/gpu/drm/i915/selftests/i915_vma.c    |  2 +-
+>  4 files changed, 22 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+> index 470bdc73220a..cfe4feaee982 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
+> +++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+> @@ -309,8 +309,7 @@ struct intel_engine_cs {
+>  	u32 context_size;
+>  	u32 mmio_base;
+>  
+> -	unsigned int context_tag;
+> -#define NUM_CONTEXT_TAG roundup_pow_of_two(2 * EXECLIST_MAX_PORTS)
+> +	unsigned long context_tag;
+>  
+>  	struct rb_node uabi_node;
+>  
+> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> index 7d56207276d5..24daacb52411 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> @@ -1389,13 +1389,17 @@ __execlists_schedule_in(struct i915_request *rq)
+>  
+>  	if (ce->tag) {
+>  		/* Use a fixed tag for OA and friends */
+> +		GEM_BUG_ON(ce->tag <= BITS_PER_TYPE(engine->context_tag));
+>  		ce->lrc.ccid = ce->tag;
+>  	} else {
+>  		/* We don't need a strict matching tag, just different values */
+> -		ce->lrc.ccid =
+> -			(++engine->context_tag % NUM_CONTEXT_TAG) <<
+> -			(GEN11_SW_CTX_ID_SHIFT - 32);
+> -		BUILD_BUG_ON(NUM_CONTEXT_TAG > GEN12_MAX_CONTEXT_HW_ID);
+> +		unsigned int tag = ffs(engine->context_tag);
+> +
+> +		GEM_BUG_ON(tag == 0 || tag >= BITS_PER_LONG);
 
-A page table upgrade in a kernel section that uses secondary address
-mode will mess up the kernel instructions as follows:
+Ensure sanity, yes.
 
-Consider the following scenario: two threads are sharing memory.
-On CPU1 thread 1 does e.g. strnlen_user().  That gets to
-        old_fs = enable_sacf_uaccess();
-        len = strnlen_user_srst(src, size);
-and
-                "   la    %2,0(%1)\n"
-                "   la    %3,0(%0,%1)\n"
-                "   slgr  %0,%0\n"
-                "   sacf  256\n"
-                "0: srst  %3,%2\n"
-in strnlen_user_srst().  At that point we are in secondary space mode,
-control register 1 points to kernel page table and instruction fetching
-happens via c1, rather than usual c13.  Interrupts are not disabled, for
-obvious reasons.
+> +		clear_bit(tag - 1, &engine->context_tag);
+> +		ce->lrc.ccid = tag << (GEN11_SW_CTX_ID_SHIFT - 32);
+> +
+> +		BUILD_BUG_ON(BITS_PER_TYPE(engine->context_tag) > GEN12_MAX_CONTEXT_HW_ID);
+>  	}
+>  
+>  	ce->lrc.ccid |= engine->execlists.ccid;
+> @@ -1439,7 +1443,8 @@ static void kick_siblings(struct i915_request *rq, struct intel_context *ce)
+>  
+>  static inline void
+>  __execlists_schedule_out(struct i915_request *rq,
+> -			 struct intel_engine_cs * const engine)
+> +			 struct intel_engine_cs * const engine,
+> +			 unsigned int ccid)
+>  {
+>  	struct intel_context * const ce = rq->context;
+>  
+> @@ -1457,6 +1462,11 @@ __execlists_schedule_out(struct i915_request *rq,
+>  	    i915_request_completed(rq))
+>  		intel_engine_add_retire(engine, ce->timeline);
+>  
+> +	ccid >>= GEN11_SW_CTX_ID_SHIFT - 32;
+> +	ccid &= GEN12_MAX_CONTEXT_HW_ID;
+> +	if (ccid < BITS_PER_TYPE(engine->context_tag))
+> +		set_bit(ccid - 1, &engine->context_tag);
+> +
 
-On CPU2 thread 2 does MAP_FIXED mmap(), forcing the upgrade of page table
-from 3-level to e.g. 4-level one.  We'd allocated new top-level table,
-set it up and now we hit this:
-                notify = 1;
-                spin_unlock_bh(&mm->page_table_lock);
-        }
-        if (notify)
-                on_each_cpu(__crst_table_upgrade, mm, 0);
-OK, we need to actually change over to use of new page table and we
-need that to happen in all threads that are currently running.  Which
-happens to include the thread 1.  IPI is delivered and we have
-static void __crst_table_upgrade(void *arg)
-{
-        struct mm_struct *mm = arg;
+A somewhat mixed usage of BITS_PER_TYPE and BITS_PER_LONG.
 
-        if (current->active_mm == mm)
-                set_user_asce(mm);
-        __tlb_flush_local();
-}
-run on CPU1.  That does
-static inline void set_user_asce(struct mm_struct *mm)
-{
-        S390_lowcore.user_asce = mm->context.asce;
-OK, user page table address updated...
-        __ctl_load(S390_lowcore.user_asce, 1, 1);
-... and control register 1 set to it.
-        clear_cpu_flag(CIF_ASCE_PRIMARY);
-}
+We will sleep a bit better with the assert and this in
+place.
 
-IPI is run in home space mode, so it's fine - insns are fetched
-using c13, which always points to kernel page table.  But as soon
-as we return from the interrupt, previous PSW is restored, putting
-CPU1 back into secondary space mode, at which point we no longer
-get the kernel instructions from the kernel mapping.
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
 
-The fix is to only fixup the control registers that are currently in use
-for user processes during the page table update.  We must also disable
-interrupts in enable_sacf_uaccess to synchronize the cr and
-thread.mm_segment updates against the on_each-cpu.
-
-Fixes: 0aaba41b58bc ("s390: remove all code using the access register mode")
-Cc: stable@vger.kernel.org # 4.15+
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- arch/s390/lib/uaccess.c |    4 ++++
- arch/s390/mm/pgalloc.c  |   16 ++++++++++++++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
-
---- a/arch/s390/lib/uaccess.c
-+++ b/arch/s390/lib/uaccess.c
-@@ -64,10 +64,13 @@ mm_segment_t enable_sacf_uaccess(void)
- {
- 	mm_segment_t old_fs;
- 	unsigned long asce, cr;
-+	unsigned long flags;
- 
- 	old_fs = current->thread.mm_segment;
- 	if (old_fs & 1)
- 		return old_fs;
-+	/* protect against a concurrent page table upgrade */
-+	local_irq_save(flags);
- 	current->thread.mm_segment |= 1;
- 	asce = S390_lowcore.kernel_asce;
- 	if (likely(old_fs == USER_DS)) {
-@@ -83,6 +86,7 @@ mm_segment_t enable_sacf_uaccess(void)
- 		__ctl_load(asce, 7, 7);
- 		set_cpu_flag(CIF_ASCE_SECONDARY);
- 	}
-+	local_irq_restore(flags);
- 	return old_fs;
- }
- EXPORT_SYMBOL(enable_sacf_uaccess);
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -70,8 +70,20 @@ static void __crst_table_upgrade(void *a
- {
- 	struct mm_struct *mm = arg;
- 
--	if (current->active_mm == mm)
--		set_user_asce(mm);
-+	/* we must change all active ASCEs to avoid the creation of new TLBs */
-+	if (current->active_mm == mm) {
-+		S390_lowcore.user_asce = mm->context.asce;
-+		if (current->thread.mm_segment == USER_DS) {
-+			__ctl_load(S390_lowcore.user_asce, 1, 1);
-+			/* Mark user-ASCE present in CR1 */
-+			clear_cpu_flag(CIF_ASCE_PRIMARY);
-+		}
-+		if (current->thread.mm_segment == USER_DS_SACF) {
-+			__ctl_load(S390_lowcore.user_asce, 7, 7);
-+			/* enable_sacf_uaccess does all or nothing */
-+			WARN_ON(!test_cpu_flag(CIF_ASCE_SECONDARY));
-+		}
-+	}
- 	__tlb_flush_local();
- }
- 
-
-
+>  	intel_context_update_runtime(ce);
+>  	intel_engine_context_out(engine);
+>  	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_OUT);
+> @@ -1482,15 +1492,17 @@ execlists_schedule_out(struct i915_request *rq)
+>  {
+>  	struct intel_context * const ce = rq->context;
+>  	struct intel_engine_cs *cur, *old;
+> +	u32 ccid;
+>  
+>  	trace_i915_request_out(rq);
+>  
+> +	ccid = rq->context->lrc.ccid;
+>  	old = READ_ONCE(ce->inflight);
+>  	do
+>  		cur = ptr_unmask_bits(old, 2) ? ptr_dec(old) : NULL;
+>  	while (!try_cmpxchg(&ce->inflight, &old, cur));
+>  	if (!cur)
+> -		__execlists_schedule_out(rq, old);
+> +		__execlists_schedule_out(rq, old, ccid);
+>  
+>  	i915_request_put(rq);
+>  }
+> @@ -3990,7 +4002,7 @@ static void enable_execlists(struct intel_engine_cs *engine)
+>  
+>  	enable_error_interrupt(engine);
+>  
+> -	engine->context_tag = 0;
+> +	engine->context_tag = GENMASK(BITS_PER_LONG - 2, 0);
+>  }
+>  
+>  static bool unexpected_starting_state(struct intel_engine_cs *engine)
+> diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
+> index 04ad21960688..c533f569dd42 100644
+> --- a/drivers/gpu/drm/i915/i915_perf.c
+> +++ b/drivers/gpu/drm/i915/i915_perf.c
+> @@ -1280,11 +1280,10 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
+>  			((1U << GEN11_SW_CTX_ID_WIDTH) - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+>  		/*
+>  		 * Pick an unused context id
+> -		 * 0 - (NUM_CONTEXT_TAG - 1) are used by other contexts
+> +		 * 0 - BITS_PER_LONG are used by other contexts
+>  		 * GEN12_MAX_CONTEXT_HW_ID (0x7ff) is used by idle context
+>  		 */
+>  		stream->specific_ctx_id = (GEN12_MAX_CONTEXT_HW_ID - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+> -		BUILD_BUG_ON((GEN12_MAX_CONTEXT_HW_ID - 1) < NUM_CONTEXT_TAG);
+>  		break;
+>  	}
+>  
+> diff --git a/drivers/gpu/drm/i915/selftests/i915_vma.c b/drivers/gpu/drm/i915/selftests/i915_vma.c
+> index 58b5f40a07dd..af89c7fc8f59 100644
+> --- a/drivers/gpu/drm/i915/selftests/i915_vma.c
+> +++ b/drivers/gpu/drm/i915/selftests/i915_vma.c
+> @@ -173,7 +173,7 @@ static int igt_vma_create(void *arg)
+>  		}
+>  
+>  		nc = 0;
+> -		for_each_prime_number(num_ctx, 2 * NUM_CONTEXT_TAG) {
+> +		for_each_prime_number(num_ctx, 2 * BITS_PER_LONG) {
+>  			for (; nc < num_ctx; nc++) {
+>  				ctx = mock_context(i915, "mock");
+>  				if (!ctx)
+> -- 
+> 2.20.1
