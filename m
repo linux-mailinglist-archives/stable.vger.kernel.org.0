@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDFE41BC946
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21D411BC942
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728392AbgD1SjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:39:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57970 "EHLO mail.kernel.org"
+        id S1730764AbgD1SkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:40:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730717AbgD1SjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:39:11 -0400
+        id S1730759AbgD1SkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:40:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C6D020575;
-        Tue, 28 Apr 2020 18:39:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77A1920575;
+        Tue, 28 Apr 2020 18:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099150;
-        bh=/n+aw/AIgsVNLvpZZefwZf1O71uQadggFN+UnXZb02c=;
+        s=default; t=1588099204;
+        bh=oQzH92Nu3rnEIWIs/DPXqzVb2aXpghGfFLFQYUmobTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqcFlhogccwOq3ax0kRWF6FB05j+a9fnRjKptn4hn/Ya6+zi14IvPe+UkjkkzwEWi
-         BD6YWlm3uKkjHrX7lmT9g83Wu0QfpbuIXQryABe1UJNUbaiVH7yaHgraql9v1mJWY8
-         obhp5+D7nJJg1Muk67ZOAgEPu3iMKw7+EEX9Q/OI=
+        b=lw6Kx6JgFMgrP9HCIciZu89Sz4ZrL95//fU7jmy+dgzCotq4cioiWjY6v6Sdkb6Tl
+         TuNsmZioYpr091gfMzXBJZ/xmtQ4cs8JbuzITNtXFF2Iey1DQln/3GvLQsHNcH6v5X
+         nyE34t08tEZYnp7ignXWsOz4XQy4I94NBNVQZ6Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Ido Schimmel <idosch@mellanox.com>,
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 062/168] mlxsw: Fix some IS_ERR() vs NULL bugs
-Date:   Tue, 28 Apr 2020 20:23:56 +0200
-Message-Id: <20200428182239.779341135@linuxfoundation.org>
+Subject: [PATCH 5.4 063/168] net: bcmgenet: correct per TX/RX ring statistics
+Date:   Tue, 28 Apr 2020 20:23:57 +0200
+Message-Id: <20200428182239.895987908@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
 References: <20200428182231.704304409@linuxfoundation.org>
@@ -44,87 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit c391eb8366ae052d571bb2841f1ccb4d39f3ceb8 ]
+[ Upstream commit a6d0b83f25073bdf08b8547aeff961a62c6ab229 ]
 
-The mlxsw_sp_acl_rulei_create() function is supposed to return an error
-pointer from mlxsw_afa_block_create().  The problem is that these
-functions both return NULL instead of error pointers.  Half the callers
-expect NULL and half expect error pointers so it could lead to a NULL
-dereference on failure.
+The change to track net_device_stats per ring to better support SMP
+missed updating the rx_dropped member.
 
-This patch changes both of them to return error pointers and changes all
-the callers which checked for NULL to check for IS_ERR() instead.
+The ndo_get_stats method is also needed to combine the results for
+ethtool statistics (-S) before filling in the ethtool structure.
 
-Fixes: 4cda7d8d7098 ("mlxsw: core: Introduce flexible actions support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Ido Schimmel <idosch@mellanox.com>
+Fixes: 37a30b435b92 ("net: bcmgenet: Track per TX/RX rings statistics")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_actions.c |    4 ++--
- drivers/net/ethernet/mellanox/mlxsw/spectrum2_acl_tcam.c    |    4 ++--
- drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c          |    2 +-
- drivers/net/ethernet/mellanox/mlxsw/spectrum_mr_tcam.c      |    4 ++--
- 4 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_actions.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_actions.c
-@@ -316,7 +316,7 @@ struct mlxsw_afa_block *mlxsw_afa_block_
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -995,6 +995,8 @@ static void bcmgenet_get_ethtool_stats(s
+ 	if (netif_running(dev))
+ 		bcmgenet_update_mib_counters(priv);
  
- 	block = kzalloc(sizeof(*block), GFP_KERNEL);
- 	if (!block)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 	INIT_LIST_HEAD(&block->resource_list);
- 	block->afa = mlxsw_afa;
- 
-@@ -344,7 +344,7 @@ err_second_set_create:
- 	mlxsw_afa_set_destroy(block->first_set);
- err_first_set_create:
- 	kfree(block);
--	return NULL;
-+	return ERR_PTR(-ENOMEM);
++	dev->netdev_ops->ndo_get_stats(dev);
++
+ 	for (i = 0; i < BCMGENET_STATS_LEN; i++) {
+ 		const struct bcmgenet_stats *s;
+ 		char *p;
+@@ -3204,6 +3206,7 @@ static struct net_device_stats *bcmgenet
+ 	dev->stats.rx_packets = rx_packets;
+ 	dev->stats.rx_errors = rx_errors;
+ 	dev->stats.rx_missed_errors = rx_errors;
++	dev->stats.rx_dropped = rx_dropped;
+ 	return &dev->stats;
  }
- EXPORT_SYMBOL(mlxsw_afa_block_create);
  
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum2_acl_tcam.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum2_acl_tcam.c
-@@ -88,8 +88,8 @@ static int mlxsw_sp2_acl_tcam_init(struc
- 	 * to be written using PEFA register to all indexes for all regions.
- 	 */
- 	afa_block = mlxsw_afa_block_create(mlxsw_sp->afa);
--	if (!afa_block) {
--		err = -ENOMEM;
-+	if (IS_ERR(afa_block)) {
-+		err = PTR_ERR(afa_block);
- 		goto err_afa_block;
- 	}
- 	err = mlxsw_afa_block_continue(afa_block);
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl.c
-@@ -444,7 +444,7 @@ mlxsw_sp_acl_rulei_create(struct mlxsw_s
- 
- 	rulei = kzalloc(sizeof(*rulei), GFP_KERNEL);
- 	if (!rulei)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 
- 	if (afa_block) {
- 		rulei->act_block = afa_block;
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr_tcam.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr_tcam.c
-@@ -199,8 +199,8 @@ mlxsw_sp_mr_tcam_afa_block_create(struct
- 	int err;
- 
- 	afa_block = mlxsw_afa_block_create(mlxsw_sp->afa);
--	if (!afa_block)
--		return ERR_PTR(-ENOMEM);
-+	if (IS_ERR(afa_block))
-+		return afa_block;
- 
- 	err = mlxsw_afa_block_append_allocated_counter(afa_block,
- 						       counter_index);
 
 
