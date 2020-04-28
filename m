@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86CF41BC9E7
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA271BC9E9
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731226AbgD1Snc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:43:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35938 "EHLO mail.kernel.org"
+        id S1730919AbgD1Sne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:43:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730284AbgD1Snb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:43:31 -0400
+        id S1731250AbgD1Snd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:43:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29C8E20730;
-        Tue, 28 Apr 2020 18:43:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91370206D6;
+        Tue, 28 Apr 2020 18:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099410;
-        bh=c9H+qpd47HYJ1J9D3GTa+VjseQBJ8oDJHKlKlFAPWDc=;
+        s=default; t=1588099413;
+        bh=btMmoRmbm0aFeh7V8QPWVWglOxt22/y9OzCifBjnb+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TmAOsZZubuC+FUTpLa3CsxpKeBPaWqrhFXP+HMD2HFDiVAQbQzu3c2eBsEfDL8L6f
-         oNZ9mqxyEKjBe2rsgD0Zv2dEQV86ZYtxUPxLi4lfI2VaLRksvrwGsj4up70x9vPxe+
-         iXPx6fGJ70S1I/3nUpEr1nNtdBWzNEgMV+aTchAM=
+        b=AOctV5R6rnpzMMnvQuNMuKxNshaZTr3HvncHnQ5dULXDfaY1FSlCNnFdRBnjjyNqA
+         2mxAXmMI14LP3oxGDnBSQTBUlQYc0WnKELkTMZfXk6aess1IwmHNQRlBYQ5saWj0Mz
+         ULdsQxesyvvRrBwq3tgj/WvZCRs+/ofRjjlgvE34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>
-Subject: [PATCH 5.4 097/168] USB: early: Handle AMDs spec-compliant identifiers, too
-Date:   Tue, 28 Apr 2020 20:24:31 +0200
-Message-Id: <20200428182244.617311979@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Kyungtae Kim <kt0755@gmail.com>
+Subject: [PATCH 5.4 098/168] USB: core: Fix free-while-in-use bug in the USB S-Glibrary
+Date:   Tue, 28 Apr 2020 20:24:32 +0200
+Message-Id: <20200428182244.742339543@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
 References: <20200428182231.704304409@linuxfoundation.org>
@@ -42,98 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 7dbdb53d72a51cea9b921d9dbba54be00752212a upstream.
+commit 056ad39ee9253873522f6469c3364964a322912b upstream.
 
-This fixes a bug that causes the USB3 early console to freeze after
-printing a single line on AMD machines because it can't parse the
-Transfer TRB properly.
+FuzzUSB (a variant of syzkaller) found a free-while-still-in-use bug
+in the USB scatter-gather library:
 
-The spec at
-https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf
-says in section "4.5.1 Device Context Index" that the Context Index,
-also known as Endpoint ID according to
-section "1.6 Terms and Abbreviations", is normally computed as
-`DCI = (Endpoint Number * 2) + Direction`, which matches the current
-definitions of XDBC_EPID_OUT and XDBC_EPID_IN.
+BUG: KASAN: use-after-free in atomic_read
+include/asm-generic/atomic-instrumented.h:26 [inline]
+BUG: KASAN: use-after-free in usb_hcd_unlink_urb+0x5f/0x170
+drivers/usb/core/hcd.c:1607
+Read of size 4 at addr ffff888065379610 by task kworker/u4:1/27
 
-However, the numbering in a Debug Capability Context data structure is
-supposed to be different:
-Section "7.6.3.2 Endpoint Contexts and Transfer Rings" explains that a
-Debug Capability Context data structure has the endpoints mapped to indices
-0 and 1.
+CPU: 1 PID: 27 Comm: kworker/u4:1 Not tainted 5.5.11 #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.10.2-1ubuntu1 04/01/2014
+Workqueue: scsi_tmf_2 scmd_eh_abort_handler
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
+ __kasan_report+0x153/0x1cb mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:639
+ check_memory_region_inline mm/kasan/generic.c:185 [inline]
+ check_memory_region+0x152/0x1b0 mm/kasan/generic.c:192
+ __kasan_check_read+0x11/0x20 mm/kasan/common.c:95
+ atomic_read include/asm-generic/atomic-instrumented.h:26 [inline]
+ usb_hcd_unlink_urb+0x5f/0x170 drivers/usb/core/hcd.c:1607
+ usb_unlink_urb+0x72/0xb0 drivers/usb/core/urb.c:657
+ usb_sg_cancel+0x14e/0x290 drivers/usb/core/message.c:602
+ usb_stor_stop_transport+0x5e/0xa0 drivers/usb/storage/transport.c:937
 
-Change XDBC_EPID_OUT/XDBC_EPID_IN to the spec-compliant values, add
-XDBC_EPID_OUT_INTEL/XDBC_EPID_IN_INTEL with Intel's incorrect values, and
-let xdbc_handle_tx_event() handle both.
+This bug occurs when cancellation of the S-G transfer races with
+transfer completion.  When that happens, usb_sg_cancel() may continue
+to access the transfer's URBs after usb_sg_wait() has freed them.
 
-I have verified that with this patch applied, the USB3 early console works
-on both an Intel and an AMD machine.
+The bug is caused by the fact that usb_sg_cancel() does not take any
+sort of reference to the transfer, and so there is nothing to prevent
+the URBs from being deallocated while the routine is trying to use
+them.  The fix is to take such a reference by incrementing the
+transfer's io->count field while the cancellation is in progres and
+decrementing it afterward.  The transfer's URBs are not deallocated
+until io->complete is triggered, which happens when io->count reaches
+zero.
 
-Fixes: aeb9dd1de98c ("usb/early: Add driver for xhci debug capability")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jann Horn <jannh@google.com>
-Link: https://lore.kernel.org/r/20200401074619.8024-1-jannh@google.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2003281615140.14837-100000@netrider.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/early/xhci-dbc.c |    8 ++++----
- drivers/usb/early/xhci-dbc.h |   18 ++++++++++++++++--
- 2 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/usb/core/message.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/early/xhci-dbc.c
-+++ b/drivers/usb/early/xhci-dbc.c
-@@ -728,19 +728,19 @@ static void xdbc_handle_tx_event(struct
- 	case COMP_USB_TRANSACTION_ERROR:
- 	case COMP_STALL_ERROR:
- 	default:
--		if (ep_id == XDBC_EPID_OUT)
-+		if (ep_id == XDBC_EPID_OUT || ep_id == XDBC_EPID_OUT_INTEL)
- 			xdbc.flags |= XDBC_FLAGS_OUT_STALL;
--		if (ep_id == XDBC_EPID_IN)
-+		if (ep_id == XDBC_EPID_IN || ep_id == XDBC_EPID_IN_INTEL)
- 			xdbc.flags |= XDBC_FLAGS_IN_STALL;
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -588,12 +588,13 @@ void usb_sg_cancel(struct usb_sg_request
+ 	int i, retval;
  
- 		xdbc_trace("endpoint %d stalled\n", ep_id);
- 		break;
+ 	spin_lock_irqsave(&io->lock, flags);
+-	if (io->status) {
++	if (io->status || io->count == 0) {
+ 		spin_unlock_irqrestore(&io->lock, flags);
+ 		return;
  	}
+ 	/* shut everything down */
+ 	io->status = -ECONNRESET;
++	io->count++;		/* Keep the request alive until we're done */
+ 	spin_unlock_irqrestore(&io->lock, flags);
  
--	if (ep_id == XDBC_EPID_IN) {
-+	if (ep_id == XDBC_EPID_IN || ep_id == XDBC_EPID_IN_INTEL) {
- 		xdbc.flags &= ~XDBC_FLAGS_IN_PROCESS;
- 		xdbc_bulk_transfer(NULL, XDBC_MAX_PACKET, true);
--	} else if (ep_id == XDBC_EPID_OUT) {
-+	} else if (ep_id == XDBC_EPID_OUT || ep_id == XDBC_EPID_OUT_INTEL) {
- 		xdbc.flags &= ~XDBC_FLAGS_OUT_PROCESS;
- 	} else {
- 		xdbc_trace("invalid endpoint id %d\n", ep_id);
---- a/drivers/usb/early/xhci-dbc.h
-+++ b/drivers/usb/early/xhci-dbc.h
-@@ -120,8 +120,22 @@ struct xdbc_ring {
- 	u32			cycle_state;
- };
+ 	for (i = io->entries - 1; i >= 0; --i) {
+@@ -607,6 +608,12 @@ void usb_sg_cancel(struct usb_sg_request
+ 			dev_warn(&io->dev->dev, "%s, unlink --> %d\n",
+ 				 __func__, retval);
+ 	}
++
++	spin_lock_irqsave(&io->lock, flags);
++	io->count--;
++	if (!io->count)
++		complete(&io->complete);
++	spin_unlock_irqrestore(&io->lock, flags);
+ }
+ EXPORT_SYMBOL_GPL(usb_sg_cancel);
  
--#define XDBC_EPID_OUT		2
--#define XDBC_EPID_IN		3
-+/*
-+ * These are the "Endpoint ID" (also known as "Context Index") values for the
-+ * OUT Transfer Ring and the IN Transfer Ring of a Debug Capability Context data
-+ * structure.
-+ * According to the "eXtensible Host Controller Interface for Universal Serial
-+ * Bus (xHCI)" specification, section "7.6.3.2 Endpoint Contexts and Transfer
-+ * Rings", these should be 0 and 1, and those are the values AMD machines give
-+ * you; but Intel machines seem to use the formula from section "4.5.1 Device
-+ * Context Index", which is supposed to be used for the Device Context only.
-+ * Luckily the values from Intel don't overlap with those from AMD, so we can
-+ * just test for both.
-+ */
-+#define XDBC_EPID_OUT		0
-+#define XDBC_EPID_IN		1
-+#define XDBC_EPID_OUT_INTEL	2
-+#define XDBC_EPID_IN_INTEL	3
- 
- struct xdbc_state {
- 	u16			vendor;
 
 
