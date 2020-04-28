@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E1051BC8A2
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:36:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 476A41BC8E5
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730045AbgD1SeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:34:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50876 "EHLO mail.kernel.org"
+        id S1729448AbgD1Sgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:36:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729269AbgD1SeM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:34:12 -0400
+        id S1730394AbgD1Sgn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:36:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D80E20B80;
-        Tue, 28 Apr 2020 18:34:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF8032085B;
+        Tue, 28 Apr 2020 18:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098851;
-        bh=VgkjHnQqDZCRXFMl2MkI/WnEv6n7OOoH66nseVDHmXw=;
+        s=default; t=1588099003;
+        bh=V/z9nYtkNN3czXQhqwf7MYTQj/NZF5QlMLIlsp40KV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DYKTxWQvL17q+u/qjlc9uLDnpjLdCRJmgtwVpQZKBegMZ3Qa7+Dhqy/f5uX8bOv+C
-         0Yq9Rd2m1wrQnSt0z6XQZTgp/c6f5EIWjd14XsQVqJyWqUlrCTG26LJfIn0wxasUDe
-         M27wYc9G2zP+msSR8VSAl8xBPXHVZHL27SNqAtvk=
+        b=nMqxtI7q6laBNLkdNCjv9uDfBT/hb6lEfXdTGrpwOTCSZGBluNe7OvEI6dhuJNZky
+         P8/tNw9J8fE6LlHWThxemnKRv+9PSLBcQpv3cxuc5BwSvT126hlGcUBFb89VHssSBy
+         dgobOFHUB25gzIjqoUIzO9y9UnDjLVY1GXBxxdM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, greg@kroah.com
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+49e69b4d71a420ceda3e@syzkaller.appspotmail.com,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.6 120/167] audit: check the length of userspace generated audit records
+        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.19 084/131] fs/namespace.c: fix mountpoint reference counter race
 Date:   Tue, 28 Apr 2020 20:24:56 +0200
-Message-Id: <20200428182240.405262148@linuxfoundation.org>
+Message-Id: <20200428182235.475417804@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
 
-commit 763dafc520add02a1f4639b500c509acc0ea8e5b upstream.
+From: Piotr Krysiuk <piotras@gmail.com>
 
-Commit 756125289285 ("audit: always check the netlink payload length
-in audit_receive_msg()") fixed a number of missing message length
-checks, but forgot to check the length of userspace generated audit
-records.  The good news is that you need CAP_AUDIT_WRITE to submit
-userspace audit records, which is generally only given to trusted
-processes, so the impact should be limited.
+A race condition between threads updating mountpoint reference counter
+affects longterm releases 4.4.220, 4.9.220, 4.14.177 and 4.19.118.
 
-Cc: stable@vger.kernel.org
-Fixes: 756125289285 ("audit: always check the netlink payload length in audit_receive_msg()")
-Reported-by: syzbot+49e69b4d71a420ceda3e@syzkaller.appspotmail.com
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+The mountpoint reference counter corruption may occur when:
+* one thread increments m_count member of struct mountpoint
+  [under namespace_sem, but not holding mount_lock]
+    pivot_root()
+* another thread simultaneously decrements the same m_count
+  [under mount_lock, but not holding namespace_sem]
+    put_mountpoint()
+      unhash_mnt()
+        umount_mnt()
+          mntput_no_expire()
+
+To fix this race condition, grab mount_lock before updating m_count in
+pivot_root().
+
+Reference: CVE-2020-12114
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/audit.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/namespace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -1326,6 +1326,9 @@ static int audit_receive_msg(struct sk_b
- 	case AUDIT_FIRST_USER_MSG2 ... AUDIT_LAST_USER_MSG2:
- 		if (!audit_enabled && msg_type != AUDIT_USER_AVC)
- 			return 0;
-+		/* exit early if there isn't at least one character to print */
-+		if (data_len < 2)
-+			return -EINVAL;
- 
- 		err = audit_filter(msg_type, AUDIT_FILTER_USER);
- 		if (err == 1) { /* match or error */
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -3142,8 +3142,8 @@ SYSCALL_DEFINE2(pivot_root, const char _
+ 	/* make certain new is below the root */
+ 	if (!is_path_reachable(new_mnt, new.dentry, &root))
+ 		goto out4;
+-	root_mp->m_count++; /* pin it so it won't go away */
+ 	lock_mount_hash();
++	root_mp->m_count++; /* pin it so it won't go away */
+ 	detach_mnt(new_mnt, &parent_path);
+ 	detach_mnt(root_mnt, &root_parent);
+ 	if (root_mnt->mnt.mnt_flags & MNT_LOCKED) {
 
 
