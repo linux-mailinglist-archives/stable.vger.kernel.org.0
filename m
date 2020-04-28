@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CFC01BCA0B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 135F91BCA8A
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731158AbgD1SpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38134 "EHLO mail.kernel.org"
+        id S1730718AbgD1SuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:50:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731554AbgD1So7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:44:59 -0400
+        id S1729425AbgD1Sj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:39:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50FBA2137B;
-        Tue, 28 Apr 2020 18:44:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B57220730;
+        Tue, 28 Apr 2020 18:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099498;
-        bh=vPgXxGI66rLRdoSQpuNxxGXdIZQViP/JDAYkzmrJUQ4=;
+        s=default; t=1588099167;
+        bh=//zB9eqmKRDD9KoFjetW5pHJ9mI7Z88mNkGSqKAfTK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wss7R5nc71MsuK1tU39i1lQOAiFfIJHdJNHuNqWpJgfrrqjqVR3n0LAtDYIzJd+WW
-         E3g/5APLSMpVWv01IclWjaalmq+klmdsNqfca01KdWP/R3+OoKXmoWBgKmzg+aBYJr
-         3CV5HJexq9uDthM7o1UrQnMrUNUDwW0ovwy94GNo=
+        b=jeaBgQ5BMHsT0j0dIG112Pk5wmU+ZhY0uDcmLwDYQPS3gH82HBGYow5jr1qR4AGHm
+         PTZx9Q56zxTQKpwe39ViI5c+02eYTCUSOMHbW8n0RG9Mzlef1SC+uFvBFLxxV6wXKK
+         IGNhVRmNZ8A0vAelzLn5Zb20AH54dRPgi5GhqVH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Jonas Karlsson <jonas.karlsson@actia.se>
-Subject: [PATCH 5.4 146/168] cdc-acm: introduce a cool down
+        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 108/131] ASoC: dapm: fixup dapm kcontrol widget
 Date:   Tue, 28 Apr 2020 20:25:20 +0200
-Message-Id: <20200428182250.071744485@linuxfoundation.org>
+Message-Id: <20200428182238.752484549@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,137 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Gyeongtaek Lee <gt82.lee@samsung.com>
 
-commit a4e7279cd1d19f48f0af2a10ed020febaa9ac092 upstream.
+commit ebf1474745b4373fdde0fcf32d9d1f369b50b212 upstream.
 
-Immediate submission in case of a babbling device can lead
-to a busy loop. Introducing a delayed work.
+snd_soc_dapm_kcontrol widget which is created by autodisable control
+should contain correct on_val, mask and shift because it is set when the
+widget is powered and changed value is applied on registers by following
+code in dapm_seq_run_coalesced().
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Jonas Karlsson <jonas.karlsson@actia.se>
-Link: https://lore.kernel.org/r/20200415151358.32664-2-oneukum@suse.com
+		mask |= w->mask << w->shift;
+		if (w->power)
+			value |= w->on_val << w->shift;
+		else
+			value |= w->off_val << w->shift;
+
+Shift on the mask in dapm_kcontrol_data_alloc() is removed to prevent
+double shift.
+And, on_val in dapm_kcontrol_set_value() is modified to get correct
+value in the dapm_seq_run_coalesced().
+
+Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/000001d61537$b212f620$1638e260$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-acm.c |   30 ++++++++++++++++++++++++++++--
- drivers/usb/class/cdc-acm.h |    5 ++++-
- 2 files changed, 32 insertions(+), 3 deletions(-)
+ sound/soc/soc-dapm.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -412,9 +412,12 @@ static void acm_ctrl_irq(struct urb *urb
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -410,7 +410,7 @@ static int dapm_kcontrol_data_alloc(stru
  
- exit:
- 	retval = usb_submit_urb(urb, GFP_ATOMIC);
--	if (retval && retval != -EPERM)
-+	if (retval && retval != -EPERM && retval != -ENODEV)
- 		dev_err(&acm->control->dev,
- 			"%s - usb_submit_urb failed: %d\n", __func__, retval);
-+	else
-+		dev_vdbg(&acm->control->dev,
-+			"control resubmission terminated %d\n", retval);
- }
+ 			memset(&template, 0, sizeof(template));
+ 			template.reg = e->reg;
+-			template.mask = e->mask << e->shift_l;
++			template.mask = e->mask;
+ 			template.shift = e->shift_l;
+ 			template.off_val = snd_soc_enum_item_to_val(e, 0);
+ 			template.on_val = template.off_val;
+@@ -536,8 +536,22 @@ static bool dapm_kcontrol_set_value(cons
+ 	if (data->value == value)
+ 		return false;
  
- static int acm_submit_read_urb(struct acm *acm, int index, gfp_t mem_flags)
-@@ -430,6 +433,8 @@ static int acm_submit_read_urb(struct ac
- 			dev_err(&acm->data->dev,
- 				"urb %d failed submission with %d\n",
- 				index, res);
-+		} else {
-+			dev_vdbg(&acm->data->dev, "intended failure %d\n", res);
- 		}
- 		set_bit(index, &acm->read_urbs_free);
- 		return res;
-@@ -471,6 +476,7 @@ static void acm_read_bulk_callback(struc
- 	int status = urb->status;
- 	bool stopped = false;
- 	bool stalled = false;
-+	bool cooldown = false;
- 
- 	dev_vdbg(&acm->data->dev, "got urb %d, len %d, status %d\n",
- 		rb->index, urb->actual_length, status);
-@@ -497,6 +503,14 @@ static void acm_read_bulk_callback(struc
- 			__func__, status);
- 		stopped = true;
- 		break;
-+	case -EOVERFLOW:
-+	case -EPROTO:
-+		dev_dbg(&acm->data->dev,
-+			"%s - cooling babbling device\n", __func__);
-+		usb_mark_last_busy(acm->dev);
-+		set_bit(rb->index, &acm->urbs_in_error_delay);
-+		cooldown = true;
-+		break;
- 	default:
- 		dev_dbg(&acm->data->dev,
- 			"%s - nonzero urb status received: %d\n",
-@@ -518,9 +532,11 @@ static void acm_read_bulk_callback(struc
- 	 */
- 	smp_mb__after_atomic();
- 
--	if (stopped || stalled) {
-+	if (stopped || stalled || cooldown) {
- 		if (stalled)
- 			schedule_work(&acm->work);
-+		else if (cooldown)
-+			schedule_delayed_work(&acm->dwork, HZ / 2);
- 		return;
- 	}
- 
-@@ -567,6 +583,12 @@ static void acm_softint(struct work_stru
- 		}
- 	}
- 
-+	if (test_and_clear_bit(ACM_ERROR_DELAY, &acm->flags)) {
-+		for (i = 0; i < ACM_NR; i++)
-+			if (test_and_clear_bit(i, &acm->urbs_in_error_delay))
-+					acm_submit_read_urb(acm, i, GFP_NOIO);
+-	if (data->widget)
+-		data->widget->on_val = value;
++	if (data->widget) {
++		switch (dapm_kcontrol_get_wlist(kcontrol)->widgets[0]->id) {
++		case snd_soc_dapm_switch:
++		case snd_soc_dapm_mixer:
++		case snd_soc_dapm_mixer_named_ctl:
++			data->widget->on_val = value & data->widget->mask;
++			break;
++		case snd_soc_dapm_demux:
++		case snd_soc_dapm_mux:
++			data->widget->on_val = value >> data->widget->shift;
++			break;
++		default:
++			data->widget->on_val = value;
++			break;
++		}
 +	}
-+
- 	if (test_and_clear_bit(EVENT_TTY_WAKEUP, &acm->flags))
- 		tty_port_tty_wakeup(&acm->port);
- }
-@@ -1333,6 +1355,7 @@ made_compressed_probe:
- 	acm->readsize = readsize;
- 	acm->rx_buflimit = num_rx_buf;
- 	INIT_WORK(&acm->work, acm_softint);
-+	INIT_DELAYED_WORK(&acm->dwork, acm_softint);
- 	init_waitqueue_head(&acm->wioctl);
- 	spin_lock_init(&acm->write_lock);
- 	spin_lock_init(&acm->read_lock);
-@@ -1542,6 +1565,7 @@ static void acm_disconnect(struct usb_in
  
- 	acm_kill_urbs(acm);
- 	cancel_work_sync(&acm->work);
-+	cancel_delayed_work_sync(&acm->dwork);
+ 	data->value = value;
  
- 	tty_unregister_device(acm_tty_driver, acm->minor);
- 
-@@ -1584,6 +1608,8 @@ static int acm_suspend(struct usb_interf
- 
- 	acm_kill_urbs(acm);
- 	cancel_work_sync(&acm->work);
-+	cancel_delayed_work_sync(&acm->dwork);
-+	acm->urbs_in_error_delay = 0;
- 
- 	return 0;
- }
---- a/drivers/usb/class/cdc-acm.h
-+++ b/drivers/usb/class/cdc-acm.h
-@@ -109,8 +109,11 @@ struct acm {
- #		define EVENT_TTY_WAKEUP	0
- #		define EVENT_RX_STALL	1
- #		define ACM_THROTTLED	2
-+#		define ACM_ERROR_DELAY	3
-+	unsigned long urbs_in_error_delay;		/* these need to be restarted after a delay */
- 	struct usb_cdc_line_coding line;		/* bits, stop, parity */
--	struct work_struct work;			/* work queue entry for line discipline waking up */
-+	struct work_struct work;			/* work queue entry for various purposes*/
-+	struct delayed_work dwork;			/* for cool downs needed in error recovery */
- 	unsigned int ctrlin;				/* input control lines (DCD, DSR, RI, break, overruns) */
- 	unsigned int ctrlout;				/* output control lines (DTR, RTS) */
- 	struct async_icount iocount;			/* counters for control line changes */
 
 
