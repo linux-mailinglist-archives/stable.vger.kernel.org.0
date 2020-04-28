@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 584B71BCAC4
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 423461BCAC6
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730354AbgD1SgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:36:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53568 "EHLO mail.kernel.org"
+        id S1730373AbgD1SgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:36:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730350AbgD1SgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:36:09 -0400
+        id S1730369AbgD1SgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:36:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 983A920575;
-        Tue, 28 Apr 2020 18:36:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CA5B20730;
+        Tue, 28 Apr 2020 18:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098969;
-        bh=SC/vqzeMx1k3k9AAbtjSE5BmU6VVJ9MANDBe3abuSXk=;
+        s=default; t=1588098978;
+        bh=hVGd1XVXIQixtTCRrA9xVPLTqm8xr2yA0JSWE2QJe5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWiYW7P+Zq4yYi+6aJut2wVori1DfiPwspEBsSTOvfoJUqU+d7p01oGHBtry2mk2A
-         0Hk7MimYoYfTZhP9vg10EeilxFYuj+E/zY5kRJ3HQKVkvBoUJynFDe+3gUECs5GmjU
-         xGHiovHAHMfP3h/3aEqgWEYZp5RfFtv2yIxeq8y8=
+        b=YdmLdoNbH5rGjLvIzjirr4YUeSpd6lkRncOzyGACKtvKzRywEgPHYn46FFKvAv77h
+         1APf155bI3qzDp4Wl8VR6k84zG20YTC2ImtiC+M5mVGyUTOSSRbJG1mz/pC4SWsYYO
+         bhC2NjAwatk7pAToacCNaymwsDM66qavgwIK1bKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Franti=C5=A1ek=20Ku=C4=8Dera?= <franta-linux@frantovo.cz>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 040/168] ALSA: usb-audio: Add Pioneer DJ DJM-250MK2 quirk
-Date:   Tue, 28 Apr 2020 20:23:34 +0200
-Message-Id: <20200428182236.822436730@linuxfoundation.org>
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 041/168] xhci: Ensure link state is U3 after setting USB_SS_PORT_LS_U3
+Date:   Tue, 28 Apr 2020 20:23:35 +0200
+Message-Id: <20200428182237.018243861@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
 References: <20200428182231.704304409@linuxfoundation.org>
@@ -44,75 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: František Kučera <franta-linux@frantovo.cz>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 73d8c94084341e2895169a0462dbc18167f01683 ]
+[ Upstream commit eb002726fac7cefb98ff39ddb89e150a1c24fe85 ]
 
-Pioneer DJ DJM-250MK2 is a mixer that acts like a USB sound card.
-The MIDI controller part is standard but the PCM part is "vendor specific".
-Output is enabled by this quirk: 8 channels, 48 000 Hz, S24_3LE.
-Input is not working.
+The xHCI spec doesn't specify the upper bound of U3 transition time. For
+some devices 20ms is not enough, so we need to make sure the link state
+is in U3 before further actions.
 
-Signed-off-by: František Kučera <franta-linux@frantovo.cz>
-Link: https://lore.kernel.org/r/20200401095907.3387-1-konference@frantovo.cz
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+I've tried to use U3 Entry Capability by setting U3 Entry Enable in
+config register, however the port change event for U3 transition
+interrupts the system suspend process.
+
+For now let's use the less ideal method by polling PLS.
+
+[use usleep_range(), and shorten the delay time while polling -Mathias]
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200312144517.1593-7-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks-table.h | 42 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ drivers/usb/host/xhci-hub.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index d187aa6d50db0..dcaf9eed9a415 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3592,5 +3592,47 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
- 		}
- 	}
- },
-+{
-+	/*
-+	 * Pioneer DJ DJM-250MK2
-+	 * PCM is 8 channels out @ 48 fixed (endpoints 0x01).
-+	 * The output from computer to the mixer is usable.
-+	 *
-+	 * The input (phono or line to computer) is not working.
-+	 * It should be at endpoint 0x82 and probably also 8 channels,
-+	 * but it seems that it works only with Pioneer proprietary software.
-+	 * Even on officially supported OS, the Audacity was unable to record
-+	 * and Mixxx to recognize the control vinyls.
-+	 */
-+	USB_DEVICE_VENDOR_SPEC(0x2b73, 0x0017),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = (const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 8, // outputs
-+					.iface = 0,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x01,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC|
-+						USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 48000 }
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index af92b2576fe91..712cd44f05ace 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1322,7 +1322,16 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 			xhci_set_link_state(xhci, ports[wIndex], link_state);
  
- #undef USB_DEVICE_VENDOR_SPEC
+ 			spin_unlock_irqrestore(&xhci->lock, flags);
+-			msleep(20); /* wait device to enter */
++			if (link_state == USB_SS_PORT_LS_U3) {
++				int retries = 16;
++
++				while (retries--) {
++					usleep_range(4000, 8000);
++					temp = readl(ports[wIndex]->addr);
++					if ((temp & PORT_PLS_MASK) == XDEV_U3)
++						break;
++				}
++			}
+ 			spin_lock_irqsave(&xhci->lock, flags);
+ 
+ 			temp = readl(ports[wIndex]->addr);
 -- 
 2.20.1
 
