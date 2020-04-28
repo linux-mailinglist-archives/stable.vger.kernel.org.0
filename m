@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C1FF1BCB97
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D8A1BC84E
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729510AbgD1S6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43446 "EHLO mail.kernel.org"
+        id S1728634AbgD1Sb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:31:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729382AbgD1S3i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:29:38 -0400
+        id S1729104AbgD1SbZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:31:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73E0820757;
-        Tue, 28 Apr 2020 18:29:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D91F121775;
+        Tue, 28 Apr 2020 18:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098577;
-        bh=MPhBk2aXHqgv91j67B1ChdciQB186ig6fgBa5Q4UlzU=;
+        s=default; t=1588098685;
+        bh=GAiPwIVVBydPgilToYpHU2FaUBilWjF37l3+JT7AkEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lwef6vvDpfADJh/DMgSuEefIW3VjJ7TreX633MBcv+lg04B3xYr95TiiAO4zqtaPT
-         kNpnVLmknUknPeZ90/5L2JvyILLLzv4mPOAGrwxraSwRjnX+UFp+Ekg+itcugyo+5b
-         jyGxatvzbJ3Fp4JaCwBMv2+ycbawkPRd2WJ/SGZo=
+        b=ima9zCME9gbvodkFu2/tz4IyQwZNzYgH2QRp9k4EYTyXYn/WcSHvKIr40hGOCnMyv
+         RszfZ3rrpcl4l2OcFlOUF74yPdzKGXYaIkMadyJPAvmCI6jhFR4DJHO+Ob8tg704a5
+         UuD3/o0v+w2fUaeuTJUYi7qGJ8ytFJ/6aq7ybeYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johnathan Smithinovic <johnathan.smithinovic@gmx.at>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 076/167] ALSA: hda: Remove ASUS ROG Zenith from the blacklist
-Date:   Tue, 28 Apr 2020 20:24:12 +0200
-Message-Id: <20200428182234.567917963@linuxfoundation.org>
+        stable@vger.kernel.org, Randall Huang <huangrandall@google.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 041/131] f2fs: fix to avoid memory leakage in f2fs_listxattr
+Date:   Tue, 28 Apr 2020 20:24:13 +0200
+Message-Id: <20200428182230.231555676@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Randall Huang <huangrandall@google.com>
 
-[ Upstream commit a8cf44f085ac12c0b5b8750ebb3b436c7f455419 ]
+commit 688078e7f36c293dae25b338ddc9e0a2790f6e06 upstream.
 
-The commit 3c6fd1f07ed0 ("ALSA: hda: Add driver blacklist") added a
-new blacklist for the devices that are known to have empty codecs, and
-one of the entries was ASUS ROG Zenith II (PCI SSID 1043:874f).
-However, it turned out that the very same PCI SSID is used for the
-previous model that does have the valid HD-audio codecs and the change
-broke the sound on it.
+In f2fs_listxattr, there is no boundary check before
+memcpy e_name to buffer.
+If the e_name_len is corrupted,
+unexpected memory contents may be returned to the buffer.
 
-This patch reverts the corresponding entry as a temporary solution.
-Although Zenith II and co will see get the empty HD-audio bus again,
-it'd be merely resource wastes and won't affect the functionality,
-so it's no end of the world.  We'll need to address this later,
-e.g. by either switching to DMI string matching or using PCI ID &
-SSID pairs.
-
-Fixes: 3c6fd1f07ed0 ("ALSA: hda: Add driver blacklist")
-Reported-by: Johnathan Smithinovic <johnathan.smithinovic@gmx.at>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200419071926.22683-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Randall Huang <huangrandall@google.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+[bwh: Backported to 4.19: Use f2fs_msg() instead of f2fs_err()]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/f2fs/xattr.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index f41d8b7864c1e..af21e9583c0d3 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2076,7 +2076,6 @@ static void pcm_mmap_prepare(struct snd_pcm_substream *substream,
-  * should be ignored from the beginning.
-  */
- static const struct snd_pci_quirk driver_blacklist[] = {
--	SND_PCI_QUIRK(0x1043, 0x874f, "ASUS ROG Zenith II / Strix", 0),
- 	SND_PCI_QUIRK(0x1462, 0xcb59, "MSI TRX40 Creator", 0),
- 	SND_PCI_QUIRK(0x1462, 0xcb60, "MSI TRX40", 0),
- 	{}
+diff --git a/fs/f2fs/xattr.c b/fs/f2fs/xattr.c
+index 1dae74f7cccac..201e9da1692a4 100644
+--- a/fs/f2fs/xattr.c
++++ b/fs/f2fs/xattr.c
+@@ -538,8 +538,9 @@ out:
+ ssize_t f2fs_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size)
+ {
+ 	struct inode *inode = d_inode(dentry);
++	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
+ 	struct f2fs_xattr_entry *entry;
+-	void *base_addr;
++	void *base_addr, *last_base_addr;
+ 	int error = 0;
+ 	size_t rest = buffer_size;
+ 
+@@ -549,6 +550,8 @@ ssize_t f2fs_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size)
+ 	if (error)
+ 		return error;
+ 
++	last_base_addr = (void *)base_addr + XATTR_SIZE(xnid, inode);
++
+ 	list_for_each_xattr(entry, base_addr) {
+ 		const struct xattr_handler *handler =
+ 			f2fs_xattr_handler(entry->e_name_index);
+@@ -556,6 +559,16 @@ ssize_t f2fs_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size)
+ 		size_t prefix_len;
+ 		size_t size;
+ 
++		if ((void *)(entry) + sizeof(__u32) > last_base_addr ||
++			(void *)XATTR_NEXT_ENTRY(entry) > last_base_addr) {
++			f2fs_msg(dentry->d_sb, KERN_ERR,
++				 "inode (%lu) has corrupted xattr",
++				 inode->i_ino);
++			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
++			error = -EFSCORRUPTED;
++			goto cleanup;
++		}
++
+ 		if (!handler || (handler->list && !handler->list(dentry)))
+ 			continue;
+ 
 -- 
 2.20.1
 
