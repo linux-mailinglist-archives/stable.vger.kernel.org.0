@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E90D1BC8FD
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8F7B1BCA6C
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728802AbgD1Shf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:37:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55642 "EHLO mail.kernel.org"
+        id S1730169AbgD1SkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:40:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730483AbgD1She (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:37:34 -0400
+        id S1730177AbgD1SkD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:40:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4B3720B1F;
-        Tue, 28 Apr 2020 18:37:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08F9320575;
+        Tue, 28 Apr 2020 18:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099053;
-        bh=cx53Q1txw0OXP9jC5QKoWUgPkLNbKKpXi65526FejRo=;
+        s=default; t=1588099202;
+        bh=Jq+43dOowewCe+eyDo+Q0xe3EHHPuoR53eIrtwTUFs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LbolyCEYc2QKGN40zfz4qG/mER2K8vFIX9QhcIhrRum3CCvGCf+uqcJC5yLh3prAg
-         sAjlb92NheinsR19Kbga4vBx3Y3r49MeSBUDSwvw8Rj2V4kpIi/Vp9sP1VSnRLPOVi
-         uRS3BmK9vQPosK2Y9UTFbUBRkQ2w3qtUN6LzEQFQ=
+        b=EOzD4KZnvhqqGUMtmbSgjLk87TwZjfcVHhPxrHZupzlQmo5IFX/SiQkQupUjp1wF6
+         U0+FMD3o65ON8DmP/Bpw7+GWH47DlNj7nhCT2WOAbxaMteful9EBbusanijhM4y1T+
+         pWMhTalp7bK7nQZZ9ZXV7ErGw4jU8tWmfEHFbjso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.6 149/167] usb: dwc3: gadget: Fix request completion check
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.19 113/131] staging: comedi: dt2815: fix writing hi byte of analog output
 Date:   Tue, 28 Apr 2020 20:25:25 +0200
-Message-Id: <20200428182244.412333708@linuxfoundation.org>
+Message-Id: <20200428182239.408300451@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 49e0590e3a60e75b493e5df879e216e5073c7663 upstream.
+commit ed87d33ddbcd9a1c3b5ae87995da34e6f51a862c upstream.
 
-A request may not be completed because not all the TRBs are prepared for
-it. This happens when we run out of available TRBs. When some TRBs are
-completed, the driver needs to prepare the rest of the TRBs for the
-request. The check dwc3_gadget_ep_request_completed() shouldn't be
-checking the amount of data received but rather the number of pending
-TRBs. Revise this request completion check.
+The DT2815 analog output command is 16 bits wide, consisting of the
+12-bit sample value in bits 15 to 4, the channel number in bits 3 to 1,
+and a voltage or current selector in bit 0.  Both bytes of the 16-bit
+command need to be written in turn to a single 8-bit data register.
+However, the driver currently only writes the low 8-bits.  It is broken
+and appears to have always been broken.
 
-Cc: stable@vger.kernel.org
-Fixes: e0c42ce590fe ("usb: dwc3: gadget: simplify IOC handling")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Electronic copies of the DT2815 User's Manual seem impossible to find
+online, but looking at the source code, a best guess for the sequence
+the driver intended to use to write the analog output command is as
+follows:
+
+1. Wait for the status register to read 0x00.
+2. Write the low byte of the command to the data register.
+3. Wait for the status register to read 0x80.
+4. Write the high byte of the command to the data register.
+
+Step 4 is missing from the driver.  Add step 4 to (hopefully) fix the
+driver.
+
+Also add a "FIXME" comment about setting bit 0 of the low byte of the
+command.  Supposedly, it is used to choose between voltage output and
+current output, but the current driver always sets it to 1.
+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200406142015.126982-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |   12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/staging/comedi/drivers/dt2815.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2484,14 +2484,7 @@ static int dwc3_gadget_ep_reclaim_trb_li
+--- a/drivers/staging/comedi/drivers/dt2815.c
++++ b/drivers/staging/comedi/drivers/dt2815.c
+@@ -92,6 +92,7 @@ static int dt2815_ao_insn(struct comedi_
+ 	int ret;
  
- static bool dwc3_gadget_ep_request_completed(struct dwc3_request *req)
- {
--	/*
--	 * For OUT direction, host may send less than the setup
--	 * length. Return true for all OUT requests.
--	 */
--	if (!req->direction)
--		return true;
--
--	return req->request.actual == req->request.length;
-+	return req->num_pending_sgs == 0;
- }
+ 	for (i = 0; i < insn->n; i++) {
++		/* FIXME: lo bit 0 chooses voltage output or current output */
+ 		lo = ((data[i] & 0x0f) << 4) | (chan << 1) | 0x01;
+ 		hi = (data[i] & 0xff0) >> 4;
  
- static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
-@@ -2515,8 +2508,7 @@ static int dwc3_gadget_ep_cleanup_comple
+@@ -105,6 +106,8 @@ static int dt2815_ao_insn(struct comedi_
+ 		if (ret)
+ 			return ret;
  
- 	req->request.actual = req->request.length - req->remaining;
- 
--	if (!dwc3_gadget_ep_request_completed(req) ||
--			req->num_pending_sgs) {
-+	if (!dwc3_gadget_ep_request_completed(req)) {
- 		__dwc3_gadget_kick_transfer(dep);
- 		goto out;
++		outb(hi, dev->iobase + DT2815_DATA);
++
+ 		devpriv->ao_readback[chan] = data[i];
  	}
+ 	return i;
 
 
