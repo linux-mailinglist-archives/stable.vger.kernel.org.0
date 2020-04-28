@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 363C41BC8A4
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:36:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD751BC8AA
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730120AbgD1SeV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:34:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50998 "EHLO mail.kernel.org"
+        id S1730141AbgD1Seb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:34:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729298AbgD1SeR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:34:17 -0400
+        id S1730124AbgD1SeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:34:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F24220575;
-        Tue, 28 Apr 2020 18:34:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C686B20575;
+        Tue, 28 Apr 2020 18:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098857;
-        bh=C53nPrAhLjddGgLwTWfN4W4rJcmbPsWy9maRs+Hd8pc=;
+        s=default; t=1588098864;
+        bh=IIHuiSG62cTjBNaOc+hdNDInlDXsuKMm0wNQmaLg8KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNNglB/Iptt6G3bc+q7KODs437gFAL/tJwNzLTbG+OF+3rJHhyyiyLNTEep3vR0RK
-         wajbpUzb8hMKZEmnIMwaUSAdxX3SgoZrdVZszl+2geZavXmYtun1Ekyxd/+ETpq6/F
-         awQxaaEzc3ku27x6naPHc6U/pC+HKDWF0FUtgOoY=
+        b=RHCbNs3bfAxz+ND0w8EytayCxLNMrGn7E+hfyQjbyPDhKj5hCBHJ0oIUOJ3jJKMPv
+         WXkLIYdsRz6FXIRnAZn3iQCtdO/tgLYyk+M2xMS2yjnLQQ62O2fVW/tfbDDi+jZQji
+         WA6WAtgCpJAkC/T1Nu+FwARRB67n+0N9COgv9C8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 065/131] vrf: Fix IPv6 with qdisc and xfrm
-Date:   Tue, 28 Apr 2020 20:24:37 +0200
-Message-Id: <20200428182233.130547569@linuxfoundation.org>
+Subject: [PATCH 4.19 066/131] net: dsa: b53: Lookup VID in ARL searches when VLAN is enabled
+Date:   Tue, 28 Apr 2020 20:24:38 +0200
+Message-Id: <20200428182233.240764787@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
 References: <20200428182224.822179290@linuxfoundation.org>
@@ -43,36 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit a53c102872ad6e34e1518e25899dc9498c27f8b1 ]
+[ Upstream commit 2e97b0cd1651a270f3a3fcf42115c51f3284c049 ]
 
-When a qdisc is attached to the VRF device, the packet goes down the ndo
-xmit function which is setup to send the packet back to the VRF driver
-which does a lookup to send the packet out. The lookup in the VRF driver
-is not considering xfrm policies. Change it to use ip6_dst_lookup_flow
-rather than ip6_route_output.
+When VLAN is enabled, and an ARL search is issued, we also need to
+compare the full {MAC,VID} tuple before returning a successful search
+result.
 
-Fixes: 35402e313663 ("net: Add IPv6 support to VRF device")
-Signed-off-by: David Ahern <dsahern@gmail.com>
+Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vrf.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/dsa/b53/b53_common.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -192,8 +192,8 @@ static netdev_tx_t vrf_process_v6_outbou
- 	fl6.flowi6_proto = iph->nexthdr;
- 	fl6.flowi6_flags = FLOWI_FLAG_SKIP_NH_OIF;
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1284,6 +1284,9 @@ static int b53_arl_read(struct b53_devic
+ 			continue;
+ 		if ((mac_vid & ARLTBL_MAC_MASK) != mac)
+ 			continue;
++		if (dev->vlan_enabled &&
++		    ((mac_vid >> ARLTBL_VID_S) & ARLTBL_VID_MASK) != vid)
++			continue;
+ 		*idx = i;
+ 	}
  
--	dst = ip6_route_output(net, NULL, &fl6);
--	if (dst == dst_null)
-+	dst = ip6_dst_lookup_flow(net, NULL, &fl6, NULL);
-+	if (IS_ERR(dst) || dst == dst_null)
- 		goto err;
- 
- 	skb_dst_drop(skb);
 
 
