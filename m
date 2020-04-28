@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 981621BC904
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:39:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8635F1BCA80
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730059AbgD1Sht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:37:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56032 "EHLO mail.kernel.org"
+        id S1730654AbgD1St2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:49:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729641AbgD1Shs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:37:48 -0400
+        id S1730479AbgD1SkP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:40:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46344208E0;
-        Tue, 28 Apr 2020 18:37:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4084920575;
+        Tue, 28 Apr 2020 18:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099067;
-        bh=ooaSjJknCQQ798oLV8ZEWEF7fsDuWT8x7spDUMvvVDg=;
+        s=default; t=1588099214;
+        bh=RatZWJj2molmVc4U4IIdVkhkfYTHFDUQlZN6Amy12T0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YsM7LIbHHWsjgARUYKNFAGeBRjYr6TucHeIRfckY5fYHB2pZ8r8N2POVk/lQ02rHw
-         OsR7M4BUb6xobdi7vNjfxAxE5EaISvTXp/lMKLr9eJsuEaGGw0f+H35f4cJOOX/urC
-         zvx2vYpNIwUaZBzqLWjQFSndrgLD4IGKxayQ0OU8=
+        b=StBqV7xzLX6pRiI/OFc4uasOEaSifzzzhGjg51qaiwZJQ9F9IaFn7cNWOyUFD5EhA
+         C1AMTZARSQi+kdHiyoStVSWco9/fDXftmSGHxNX8Y7WwYa3dSzpIm8XuSqVvu/EPP9
+         wOv7koMPH0qprkc8lhSOxp0IlyNCRrErDckBy5Es=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Badhri Jagan Sridharan <badhri@google.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.6 151/167] usb: typec: tcpm: Ignore CC and vbus changes in PORT_RESET change
+        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>
+Subject: [PATCH 4.19 115/131] vt: dont hardcode the mem allocation upper bound
 Date:   Tue, 28 Apr 2020 20:25:27 +0200
-Message-Id: <20200428182244.657279548@linuxfoundation.org>
+Message-Id: <20200428182239.702907674@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Badhri Jagan Sridharan <badhri@google.com>
+From: Nicolas Pitre <nico@fluxnic.net>
 
-commit 901789745a053286e0ced37960d44fa60267b940 upstream.
+commit 2717769e204e83e65b8819c5e2ef3e5b6639b270 upstream.
 
-After PORT_RESET, the port is set to the appropriate
-default_state. Ignore processing CC changes here as this
-could cause the port to be switched into sink states
-by default.
+The code in vc_do_resize() bounds the memory allocation size to avoid
+exceeding MAX_ORDER down the kzalloc() call chain and generating a
+runtime warning triggerable from user space. However, not only is it
+unwise to use a literal value here, but MAX_ORDER may also be
+configurable based on CONFIG_FORCE_MAX_ZONEORDER.
+Let's use KMALLOC_MAX_SIZE instead.
 
-echo source > /sys/class/typec/port0/port_type
+Note that prior commit bb1107f7c605 ("mm, slab: make sure that
+KMALLOC_MAX_SIZE will fit into MAX_ORDER") the KMALLOC_MAX_SIZE value
+could not be relied upon.
 
-Before:
-[  154.528547] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms
-[  154.528560] CC1: 0 -> 0, CC2: 3 -> 0 [state PORT_RESET, polarity 0, disconnected]
-[  154.528564] state change PORT_RESET -> SNK_UNATTACHED
-
-After:
-[  151.068814] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev3 NONE_AMS]
-[  151.072440] CC1: 3 -> 0, CC2: 0 -> 0 [state PORT_RESET, polarity 0, disconnected]
-[  151.172117] state change PORT_RESET -> PORT_RESET_WAIT_OFF [delayed 100 ms]
-[  151.172136] pending state change PORT_RESET_WAIT_OFF -> SRC_UNATTACHED @ 870 ms [rev3 NONE_AMS]
-[  152.060106] state change PORT_RESET_WAIT_OFF -> SRC_UNATTACHED [delayed 870 ms]
-[  152.060118] Start toggling
-
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200402215947.176577-1-badhri@google.com
+Signed-off-by: Nicolas Pitre <nico@fluxnic.net>
+Cc: <stable@vger.kernel.org> # v4.10+
+Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.2003281702410.2671@knanqh.ubzr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/typec/tcpm/tcpm.c |   26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/tty/vt/vt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -3759,6 +3759,14 @@ static void _tcpm_cc_change(struct tcpm_
- 		 */
- 		break;
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1209,7 +1209,7 @@ static int vc_do_resize(struct tty_struc
+ 	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows)
+ 		return 0;
  
-+	case PORT_RESET:
-+	case PORT_RESET_WAIT_OFF:
-+		/*
-+		 * State set back to default mode once the timer completes.
-+		 * Ignore CC changes here.
-+		 */
-+		break;
-+
- 	default:
- 		if (tcpm_port_is_disconnected(port))
- 			tcpm_set_state(port, unattached_state(port), 0);
-@@ -3820,6 +3828,15 @@ static void _tcpm_pd_vbus_on(struct tcpm
- 	case SRC_TRY_DEBOUNCE:
- 		/* Do nothing, waiting for sink detection */
- 		break;
-+
-+	case PORT_RESET:
-+	case PORT_RESET_WAIT_OFF:
-+		/*
-+		 * State set back to default mode once the timer completes.
-+		 * Ignore vbus changes here.
-+		 */
-+		break;
-+
- 	default:
- 		break;
- 	}
-@@ -3873,10 +3890,19 @@ static void _tcpm_pd_vbus_off(struct tcp
- 	case PORT_RESET_WAIT_OFF:
- 		tcpm_set_state(port, tcpm_default_state(port), 0);
- 		break;
-+
- 	case SRC_TRY_WAIT:
- 	case SRC_TRY_DEBOUNCE:
- 		/* Do nothing, waiting for sink detection */
- 		break;
-+
-+	case PORT_RESET:
-+		/*
-+		 * State set back to default mode once the timer completes.
-+		 * Ignore vbus changes here.
-+		 */
-+		break;
-+
- 	default:
- 		if (port->pwr_role == TYPEC_SINK &&
- 		    port->attached)
+-	if (new_screen_size > (4 << 20))
++	if (new_screen_size > KMALLOC_MAX_SIZE)
+ 		return -EINVAL;
+ 	newscreen = kzalloc(new_screen_size, GFP_USER);
+ 	if (!newscreen)
 
 
