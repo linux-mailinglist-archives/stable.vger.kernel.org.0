@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 739BD1BCA8D
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C9D1BCBC6
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730363AbgD1SuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:50:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57240 "EHLO mail.kernel.org"
+        id S1729115AbgD1S2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:28:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730641AbgD1Sim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:38:42 -0400
+        id S1729111AbgD1S2B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:28:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 342AB208E0;
-        Tue, 28 Apr 2020 18:38:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37DCF20730;
+        Tue, 28 Apr 2020 18:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099121;
-        bh=v3GYUqtp8+sowplhCo6rzwKJjhSa08ts/N40sdhUJTM=;
+        s=default; t=1588098480;
+        bh=PDn7z5TjoQE7tSSAS//QLkvjBMmkHUo1fAqHroZxP34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZeWrCR/ki3l1jBUJLI6DnkEQb/9sL/dL890yCdYv5cLXP7PDlyyGlaHzk3hnmu/W
-         zkqeyTXgkPsO0XWMFfkcf3efBGE8UZ0Qqtv8USr8WwjsXMs+UjTl1oHcp/PXUDo5j7
-         q8yvq8xH+gW8sYOOPT9NVJ59p8C97LlbNw5928ZY=
+        b=fl5neKqG2hCPuwXtD+DguT+0EAViexcFMc4fbabTeweWTdfnmXqS44ZSV5dWQ+Qru
+         zbJeX/l01UYSpQ6D2xXOwjREdbwmEfihW8wC6HrDkKd6Wt+b1aT8LIx6KmwUAsiF4F
+         5vTK7VZ8h+S/VRZxiIO8hnp6RvOS93PaOVH4IZAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Haxby <john.haxby@oracle.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 059/168] ipv6: fix restrict IPV6_ADDRFORM operation
+Subject: [PATCH 5.6 057/167] net/x25: Fix x25_neigh refcnt leak when receiving frame
 Date:   Tue, 28 Apr 2020 20:23:53 +0200
-Message-Id: <20200428182239.370140226@linuxfoundation.org>
+Message-Id: <20200428182232.201265461@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Haxby <john.haxby@oracle.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 82c9ae440857840c56e05d4fb1427ee032531346 ]
+[ Upstream commit f35d12971b4d814cdb2f659d76b42f0c545270b6 ]
 
-Commit b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation") fixed a
-problem found by syzbot an unfortunate logic error meant that it
-also broke IPV6_ADDRFORM.
+x25_lapb_receive_frame() invokes x25_get_neigh(), which returns a
+reference of the specified x25_neigh object to "nb" with increased
+refcnt.
 
-Rearrange the checks so that the earlier test is just one of the series
-of checks made before moving the socket from IPv6 to IPv4.
+When x25_lapb_receive_frame() returns, local variable "nb" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
 
-Fixes: b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation")
-Signed-off-by: John Haxby <john.haxby@oracle.com>
-Cc: stable@vger.kernel.org
+The reference counting issue happens in one path of
+x25_lapb_receive_frame(). When pskb_may_pull() returns false, the
+function forgets to decrease the refcnt increased by x25_get_neigh(),
+causing a refcnt leak.
+
+Fix this issue by calling x25_neigh_put() when pskb_may_pull() returns
+false.
+
+Fixes: cb101ed2c3c7 ("x25: Handle undersized/fragmented skbs")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ipv6_sockglue.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ net/x25/x25_dev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -183,15 +183,14 @@ static int do_ipv6_setsockopt(struct soc
- 					retv = -EBUSY;
- 					break;
- 				}
--			} else if (sk->sk_protocol == IPPROTO_TCP) {
--				if (sk->sk_prot != &tcpv6_prot) {
--					retv = -EBUSY;
--					break;
--				}
--				break;
--			} else {
-+			}
-+			if (sk->sk_protocol == IPPROTO_TCP &&
-+			    sk->sk_prot != &tcpv6_prot) {
-+				retv = -EBUSY;
- 				break;
- 			}
-+			if (sk->sk_protocol != IPPROTO_TCP)
-+				break;
- 			if (sk->sk_state != TCP_ESTABLISHED) {
- 				retv = -ENOTCONN;
- 				break;
+--- a/net/x25/x25_dev.c
++++ b/net/x25/x25_dev.c
+@@ -115,8 +115,10 @@ int x25_lapb_receive_frame(struct sk_buf
+ 		goto drop;
+ 	}
+ 
+-	if (!pskb_may_pull(skb, 1))
++	if (!pskb_may_pull(skb, 1)) {
++		x25_neigh_put(nb);
+ 		return 0;
++	}
+ 
+ 	switch (skb->data[0]) {
+ 
 
 
