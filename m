@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A587F1BCA0E
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B701BCA35
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729456AbgD1SpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:45:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37814 "EHLO mail.kernel.org"
+        id S1729691AbgD1SsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731472AbgD1Soo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:44:44 -0400
+        id S1731008AbgD1Slg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:41:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C1D3206D6;
-        Tue, 28 Apr 2020 18:44:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4951020B80;
+        Tue, 28 Apr 2020 18:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099483;
-        bh=p1mEFL7GZrCu3Wlff4cQ8A8VxqTd/adu9gpNmAseRug=;
+        s=default; t=1588099295;
+        bh=PBa8/sAUJ1kaH7h+CieQcrHixtRkOD8ZqlXUDuc/O9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AFDi/IQhF3k2tCPq3RyXJS+tMLFgTJhQzVXGFaX4wSE5RoLrIRbS9RPX1Y7TDyPAU
-         U6CXD7TeUYTdKSAa2cRU0JJeLVbvQDfHxoG3J8Ku+jAW2uWsMxtAGVomIYNzzYohD+
-         jC6dtUqkDxDr6Y4ZVfglqMcxRMerS/dL1A9m6Mms=
+        b=xFTiriSilKZH++i8x1w9RZ90FQS3W/mRrr+Xts25Ec3QgF58XAGMbj3q/WjbeXwk9
+         MfZVEhcmxE3sQ3cREyTqRjR8R93esKGdjEOKHr7FKAa//nZ47MJyNjIo2+gQ0LYy1Y
+         MJv0QkSpSugU1J5NoXh+M6lIgGvMWqykHqT7az34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5.4 168/168] s390/mm: fix page table upgrade vs 2ndary address mode accesses
+        stable@vger.kernel.org, kaixuxia <kaixuxia@tencent.com>,
+        Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Suraj Jitindar Singh <surajjs@amazon.com>
+Subject: [PATCH 4.19 130/131] xfs: Fix deadlock between AGI and AGF with RENAME_WHITEOUT
 Date:   Tue, 28 Apr 2020 20:25:42 +0200
-Message-Id: <20200428182251.805577126@linuxfoundation.org>
+Message-Id: <20200428182241.693131606@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,128 +45,210 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: kaixuxia <xiakaixu1987@gmail.com>
 
-commit 316ec154810960052d4586b634156c54d0778f74 upstream.
+commit bc56ad8c74b8588685c2875de0df8ab6974828ef upstream.
 
-A page table upgrade in a kernel section that uses secondary address
-mode will mess up the kernel instructions as follows:
+When performing rename operation with RENAME_WHITEOUT flag, we will
+hold AGF lock to allocate or free extents in manipulating the dirents
+firstly, and then doing the xfs_iunlink_remove() call last to hold
+AGI lock to modify the tmpfile info, so we the lock order AGI->AGF.
 
-Consider the following scenario: two threads are sharing memory.
-On CPU1 thread 1 does e.g. strnlen_user().  That gets to
-        old_fs = enable_sacf_uaccess();
-        len = strnlen_user_srst(src, size);
-and
-                "   la    %2,0(%1)\n"
-                "   la    %3,0(%0,%1)\n"
-                "   slgr  %0,%0\n"
-                "   sacf  256\n"
-                "0: srst  %3,%2\n"
-in strnlen_user_srst().  At that point we are in secondary space mode,
-control register 1 points to kernel page table and instruction fetching
-happens via c1, rather than usual c13.  Interrupts are not disabled, for
-obvious reasons.
+The big problem here is that we have an ordering constraint on AGF
+and AGI locking - inode allocation locks the AGI, then can allocate
+a new extent for new inodes, locking the AGF after the AGI. Hence
+the ordering that is imposed by other parts of the code is AGI before
+AGF. So we get an ABBA deadlock between the AGI and AGF here.
 
-On CPU2 thread 2 does MAP_FIXED mmap(), forcing the upgrade of page table
-from 3-level to e.g. 4-level one.  We'd allocated new top-level table,
-set it up and now we hit this:
-                notify = 1;
-                spin_unlock_bh(&mm->page_table_lock);
-        }
-        if (notify)
-                on_each_cpu(__crst_table_upgrade, mm, 0);
-OK, we need to actually change over to use of new page table and we
-need that to happen in all threads that are currently running.  Which
-happens to include the thread 1.  IPI is delivered and we have
-static void __crst_table_upgrade(void *arg)
-{
-        struct mm_struct *mm = arg;
+Process A:
+Call trace:
+ ? __schedule+0x2bd/0x620
+ schedule+0x33/0x90
+ schedule_timeout+0x17d/0x290
+ __down_common+0xef/0x125
+ ? xfs_buf_find+0x215/0x6c0 [xfs]
+ down+0x3b/0x50
+ xfs_buf_lock+0x34/0xf0 [xfs]
+ xfs_buf_find+0x215/0x6c0 [xfs]
+ xfs_buf_get_map+0x37/0x230 [xfs]
+ xfs_buf_read_map+0x29/0x190 [xfs]
+ xfs_trans_read_buf_map+0x13d/0x520 [xfs]
+ xfs_read_agf+0xa6/0x180 [xfs]
+ ? schedule_timeout+0x17d/0x290
+ xfs_alloc_read_agf+0x52/0x1f0 [xfs]
+ xfs_alloc_fix_freelist+0x432/0x590 [xfs]
+ ? down+0x3b/0x50
+ ? xfs_buf_lock+0x34/0xf0 [xfs]
+ ? xfs_buf_find+0x215/0x6c0 [xfs]
+ xfs_alloc_vextent+0x301/0x6c0 [xfs]
+ xfs_ialloc_ag_alloc+0x182/0x700 [xfs]
+ ? _xfs_trans_bjoin+0x72/0xf0 [xfs]
+ xfs_dialloc+0x116/0x290 [xfs]
+ xfs_ialloc+0x6d/0x5e0 [xfs]
+ ? xfs_log_reserve+0x165/0x280 [xfs]
+ xfs_dir_ialloc+0x8c/0x240 [xfs]
+ xfs_create+0x35a/0x610 [xfs]
+ xfs_generic_create+0x1f1/0x2f0 [xfs]
+ ...
 
-        if (current->active_mm == mm)
-                set_user_asce(mm);
-        __tlb_flush_local();
-}
-run on CPU1.  That does
-static inline void set_user_asce(struct mm_struct *mm)
-{
-        S390_lowcore.user_asce = mm->context.asce;
-OK, user page table address updated...
-        __ctl_load(S390_lowcore.user_asce, 1, 1);
-... and control register 1 set to it.
-        clear_cpu_flag(CIF_ASCE_PRIMARY);
-}
+Process B:
+Call trace:
+ ? __schedule+0x2bd/0x620
+ ? xfs_bmapi_allocate+0x245/0x380 [xfs]
+ schedule+0x33/0x90
+ schedule_timeout+0x17d/0x290
+ ? xfs_buf_find+0x1fd/0x6c0 [xfs]
+ __down_common+0xef/0x125
+ ? xfs_buf_get_map+0x37/0x230 [xfs]
+ ? xfs_buf_find+0x215/0x6c0 [xfs]
+ down+0x3b/0x50
+ xfs_buf_lock+0x34/0xf0 [xfs]
+ xfs_buf_find+0x215/0x6c0 [xfs]
+ xfs_buf_get_map+0x37/0x230 [xfs]
+ xfs_buf_read_map+0x29/0x190 [xfs]
+ xfs_trans_read_buf_map+0x13d/0x520 [xfs]
+ xfs_read_agi+0xa8/0x160 [xfs]
+ xfs_iunlink_remove+0x6f/0x2a0 [xfs]
+ ? current_time+0x46/0x80
+ ? xfs_trans_ichgtime+0x39/0xb0 [xfs]
+ xfs_rename+0x57a/0xae0 [xfs]
+ xfs_vn_rename+0xe4/0x150 [xfs]
+ ...
 
-IPI is run in home space mode, so it's fine - insns are fetched
-using c13, which always points to kernel page table.  But as soon
-as we return from the interrupt, previous PSW is restored, putting
-CPU1 back into secondary space mode, at which point we no longer
-get the kernel instructions from the kernel mapping.
+In this patch we move the xfs_iunlink_remove() call to
+before acquiring the AGF lock to preserve correct AGI/AGF locking
+order.
 
-The fix is to only fixup the control registers that are currently in use
-for user processes during the page table update.  We must also disable
-interrupts in enable_sacf_uaccess to synchronize the cr and
-thread.mm_segment updates against the on_each-cpu.
+[Minor massage required due to upstream change making xfs_bumplink() a
+void function where as in the 4.19.y tree the return value is checked,
+even though it is always zero. Only change was to the last code block
+removed by the patch. Functionally equivalent to upstream.]
 
-Fixes: 0aaba41b58bc ("s390: remove all code using the access register mode")
-Cc: stable@vger.kernel.org # 4.15+
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: kaixuxia <kaixuxia@tencent.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/lib/uaccess.c |    4 ++++
- arch/s390/mm/pgalloc.c  |   16 ++++++++++++++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ fs/xfs/xfs_inode.c |   85 ++++++++++++++++++++++++++---------------------------
+ 1 file changed, 42 insertions(+), 43 deletions(-)
 
---- a/arch/s390/lib/uaccess.c
-+++ b/arch/s390/lib/uaccess.c
-@@ -64,10 +64,13 @@ mm_segment_t enable_sacf_uaccess(void)
- {
- 	mm_segment_t old_fs;
- 	unsigned long asce, cr;
-+	unsigned long flags;
+--- a/fs/xfs/xfs_inode.c
++++ b/fs/xfs/xfs_inode.c
+@@ -2949,7 +2949,8 @@ xfs_rename(
+ 					spaceres);
  
- 	old_fs = current->thread.mm_segment;
- 	if (old_fs & 1)
- 		return old_fs;
-+	/* protect against a concurrent page table upgrade */
-+	local_irq_save(flags);
- 	current->thread.mm_segment |= 1;
- 	asce = S390_lowcore.kernel_asce;
- 	if (likely(old_fs == USER_DS)) {
-@@ -83,6 +86,7 @@ mm_segment_t enable_sacf_uaccess(void)
- 		__ctl_load(asce, 7, 7);
- 		set_cpu_flag(CIF_ASCE_SECONDARY);
- 	}
-+	local_irq_restore(flags);
- 	return old_fs;
- }
- EXPORT_SYMBOL(enable_sacf_uaccess);
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -70,8 +70,20 @@ static void __crst_table_upgrade(void *a
- {
- 	struct mm_struct *mm = arg;
- 
--	if (current->active_mm == mm)
--		set_user_asce(mm);
-+	/* we must change all active ASCEs to avoid the creation of new TLBs */
-+	if (current->active_mm == mm) {
-+		S390_lowcore.user_asce = mm->context.asce;
-+		if (current->thread.mm_segment == USER_DS) {
-+			__ctl_load(S390_lowcore.user_asce, 1, 1);
-+			/* Mark user-ASCE present in CR1 */
-+			clear_cpu_flag(CIF_ASCE_PRIMARY);
-+		}
-+		if (current->thread.mm_segment == USER_DS_SACF) {
-+			__ctl_load(S390_lowcore.user_asce, 7, 7);
-+			/* enable_sacf_uaccess does all or nothing */
-+			WARN_ON(!test_cpu_flag(CIF_ASCE_SECONDARY));
+ 	/*
+-	 * Set up the target.
++	 * Check for expected errors before we dirty the transaction
++	 * so we can return an error without a transaction abort.
+ 	 */
+ 	if (target_ip == NULL) {
+ 		/*
+@@ -2961,6 +2962,46 @@ xfs_rename(
+ 			if (error)
+ 				goto out_trans_cancel;
+ 		}
++	} else {
++		/*
++		 * If target exists and it's a directory, check that whether
++		 * it can be destroyed.
++		 */
++		if (S_ISDIR(VFS_I(target_ip)->i_mode) &&
++		    (!xfs_dir_isempty(target_ip) ||
++		     (VFS_I(target_ip)->i_nlink > 2))) {
++			error = -EEXIST;
++			goto out_trans_cancel;
 +		}
 +	}
- 	__tlb_flush_local();
- }
++
++	/*
++	 * Directory entry creation below may acquire the AGF. Remove
++	 * the whiteout from the unlinked list first to preserve correct
++	 * AGI/AGF locking order. This dirties the transaction so failures
++	 * after this point will abort and log recovery will clean up the
++	 * mess.
++	 *
++	 * For whiteouts, we need to bump the link count on the whiteout
++	 * inode. After this point, we have a real link, clear the tmpfile
++	 * state flag from the inode so it doesn't accidentally get misused
++	 * in future.
++	 */
++	if (wip) {
++		ASSERT(VFS_I(wip)->i_nlink == 0);
++		error = xfs_iunlink_remove(tp, wip);
++		if (error)
++			goto out_trans_cancel;
++
++		xfs_bumplink(tp, wip);
++		xfs_trans_log_inode(tp, wip, XFS_ILOG_CORE);
++		VFS_I(wip)->i_state &= ~I_LINKABLE;
++	}
++
++	/*
++	 * Set up the target.
++	 */
++	if (target_ip == NULL) {
+ 		/*
+ 		 * If target does not exist and the rename crosses
+ 		 * directories, adjust the target directory link count
+@@ -2981,22 +3022,6 @@ xfs_rename(
+ 		}
+ 	} else { /* target_ip != NULL */
+ 		/*
+-		 * If target exists and it's a directory, check that both
+-		 * target and source are directories and that target can be
+-		 * destroyed, or that neither is a directory.
+-		 */
+-		if (S_ISDIR(VFS_I(target_ip)->i_mode)) {
+-			/*
+-			 * Make sure target dir is empty.
+-			 */
+-			if (!(xfs_dir_isempty(target_ip)) ||
+-			    (VFS_I(target_ip)->i_nlink > 2)) {
+-				error = -EEXIST;
+-				goto out_trans_cancel;
+-			}
+-		}
+-
+-		/*
+ 		 * Link the source inode under the target name.
+ 		 * If the source inode is a directory and we are moving
+ 		 * it across directories, its ".." entry will be
+@@ -3086,32 +3111,6 @@ xfs_rename(
+ 	if (error)
+ 		goto out_trans_cancel;
  
+-	/*
+-	 * For whiteouts, we need to bump the link count on the whiteout inode.
+-	 * This means that failures all the way up to this point leave the inode
+-	 * on the unlinked list and so cleanup is a simple matter of dropping
+-	 * the remaining reference to it. If we fail here after bumping the link
+-	 * count, we're shutting down the filesystem so we'll never see the
+-	 * intermediate state on disk.
+-	 */
+-	if (wip) {
+-		ASSERT(VFS_I(wip)->i_nlink == 0);
+-		error = xfs_bumplink(tp, wip);
+-		if (error)
+-			goto out_trans_cancel;
+-		error = xfs_iunlink_remove(tp, wip);
+-		if (error)
+-			goto out_trans_cancel;
+-		xfs_trans_log_inode(tp, wip, XFS_ILOG_CORE);
+-
+-		/*
+-		 * Now we have a real link, clear the "I'm a tmpfile" state
+-		 * flag from the inode so it doesn't accidentally get misused in
+-		 * future.
+-		 */
+-		VFS_I(wip)->i_state &= ~I_LINKABLE;
+-	}
+-
+ 	xfs_trans_ichgtime(tp, src_dp, XFS_ICHGTIME_MOD | XFS_ICHGTIME_CHG);
+ 	xfs_trans_log_inode(tp, src_dp, XFS_ILOG_CORE);
+ 	if (new_parent)
 
 
