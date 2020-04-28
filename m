@@ -2,47 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8AC71BC7C1
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 690A41BC8D8
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728742AbgD1S0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:26:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38088 "EHLO mail.kernel.org"
+        id S1730367AbgD1SgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728766AbgD1S0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:26:33 -0400
+        id S1729059AbgD1SeO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:34:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7199520B1F;
-        Tue, 28 Apr 2020 18:26:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D89A120B80;
+        Tue, 28 Apr 2020 18:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098392;
-        bh=no3knKj15K/kqw5BYs/rcA1+Ow+Jsr8lPJT0094hSSg=;
+        s=default; t=1588098854;
+        bh=2TFAKaSdT+EMO+YKZ/LNnCEY582EwDyXXk3/bqOThdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCyNrPNGQDUFSXqq8A4ARcX8W4/AuilgHbO4jjlrbtwu247nuNj7qStqcBM4u0kO2
-         EmPGVm5QDMqxlb4swYYEtRNqM4J3naaj7XEZscM1AHX9kTKWqcg7d+3Xh02LlZli6h
-         HW6sK6ARkc/Q1SB1vprW3NYw5EwZWpRjIZDqhUmQ=
+        b=nuS94Hps7oOxRIfaAf5l47nVD6vw73Eu0r/dlLZHm94Xdu7ENwj02g+7MRMqrVLhG
+         Vynv+2mSzf+n1O2yJhqOxjYFLupGomw0uhuFDA+0JHBbvO8LjCoLcvlgItANE0u3TY
+         uEVXBN4200Ef768gfQTzpcQhAB5FrhddnktOhufc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        NeilBrown <neilb@suse.com>, Steven Rostedt <rostedt@goodmis.org>,
-        Waiman Long <longman@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 021/167] kernel/gcov/fs.c: gcov_seq_next() should increase position index
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 023/168] dma-direct: fix data truncation in dma_direct_get_required_mask()
 Date:   Tue, 28 Apr 2020 20:23:17 +0200
-Message-Id: <20200428182227.835883934@linuxfoundation.org>
+Message-Id: <20200428182234.638768073@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit f4d74ef6220c1eda0875da30457bef5c7111ab06 ]
+[ Upstream commit cdcda0d1f8f4ab84efe7cd9921c98364398aefd7 ]
 
-If seq_file .next function does not change position index, read after
-some lseek can generate unexpected output.
+The upper 32-bit physical address gets truncated inadvertently
+when dma_direct_get_required_mask() invokes phys_to_dma_direct().
+This results in dma_addressing_limited() return incorrect value
+when used in platforms with LPAE enabled.
+Fix it here by explicitly type casting 'max_pfn' to phys_addr_t
+in order to prevent overflow of intermediate value while evaluating
+'(max_pfn - 1) << PAGE_SHIFT'.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: NeilBrown <neilb@suse.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Waiman Long <longman@redhat.com>
-Link: http://lkml.kernel.org/r/f65c6ee7-bd00-f910-2f8a-37cc67e4ff88@virtuozzo.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/gcov/fs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/dma/direct.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/gcov/fs.c b/kernel/gcov/fs.c
-index e5eb5ea7ea598..cc4ee482d3fba 100644
---- a/kernel/gcov/fs.c
-+++ b/kernel/gcov/fs.c
-@@ -108,9 +108,9 @@ static void *gcov_seq_next(struct seq_file *seq, void *data, loff_t *pos)
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 867fd72cb2605..0a093a675b632 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -45,7 +45,8 @@ static inline dma_addr_t phys_to_dma_direct(struct device *dev,
+ 
+ u64 dma_direct_get_required_mask(struct device *dev)
  {
- 	struct gcov_iterator *iter = data;
+-	u64 max_dma = phys_to_dma_direct(dev, (max_pfn - 1) << PAGE_SHIFT);
++	phys_addr_t phys = (phys_addr_t)(max_pfn - 1) << PAGE_SHIFT;
++	u64 max_dma = phys_to_dma_direct(dev, phys);
  
-+	(*pos)++;
- 	if (gcov_iter_next(iter))
- 		return NULL;
--	(*pos)++;
- 
- 	return iter;
+ 	return (1ULL << (fls64(max_dma) - 1)) * 2 - 1;
  }
 -- 
 2.20.1
