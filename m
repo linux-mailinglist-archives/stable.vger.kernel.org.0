@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AA041BCB5B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C5031BC861
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729247AbgD1S4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46590 "EHLO mail.kernel.org"
+        id S1728951AbgD1ScI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729629AbgD1SbN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:31:13 -0400
+        id S1729772AbgD1ScH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:32:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9071921835;
-        Tue, 28 Apr 2020 18:31:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 331AB20B80;
+        Tue, 28 Apr 2020 18:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098673;
-        bh=wWcxu4OCfXEK46Bg8kOK4Q6L/CNCdcIft+WVM10h9XI=;
+        s=default; t=1588098726;
+        bh=eVdIKm2kuMC/roZW1kDDMJeJ4ns4NVmx3rwtzKl9sLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02xWl1/LkFb+0EEK3geRcM5BCvxpyAmIBaenG57G4FDhoZFyBzz/P9So9GhRCE6o5
-         S/hrbxBws0gipcT7yuLLmWfJKioIBl1g1L8R2n2bikPOagyK4H50qjFCOy6eOzPgp7
-         IFVpmiioh0H1YuLpPrIN434l08MYi5jtLu/xTFzw=
+        b=BSm2oS/m8hmj5BrgdTZQIq2Ss5cofwWeBWijgG08G4qCCmkS1qQCkUR+dNt8IomZK
+         25b2OB6Q86kXmLvNxitQe/Rj4Iz/owMochRUJSgk8JgE6GejbCovmZ2GSos76mge/u
+         6jSHErqhGfrHqBnGZCIMgx4v6Tw01CUdA+vOAlto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Jessica Yu <jeyu@kernel.org>,
-        Kees Cook <keescook@chromium.org>, NeilBrown <neilb@suse.com>,
+        Waiman Long <longman@redhat.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Ingo Molnar <mingo@redhat.com>, NeilBrown <neilb@suse.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 021/131] selftests: kmod: fix handling test numbers above 9
-Date:   Tue, 28 Apr 2020 20:23:53 +0200
-Message-Id: <20200428182227.772659813@linuxfoundation.org>
+Subject: [PATCH 4.19 022/131] ipc/util.c: sysvipc_find_ipc() should increase position index
+Date:   Tue, 28 Apr 2020 20:23:54 +0200
+Message-Id: <20200428182227.882110386@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
 References: <20200428182224.822179290@linuxfoundation.org>
@@ -50,62 +52,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 6d573a07528308eb77ec072c010819c359bebf6e ]
+[ Upstream commit 89163f93c6f969da5811af5377cc10173583123b ]
 
-get_test_count() and get_test_enabled() were broken for test numbers
-above 9 due to awk interpreting a field specification like '$0010' as
-octal rather than decimal.  Fix it by stripping the leading zeroes.
+If seq_file .next function does not change position index, read after
+some lseek can generate unexpected output.
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jeff Vander Stoep <jeffv@google.com>
-Cc: Jessica Yu <jeyu@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Ingo Molnar <mingo@redhat.com>
 Cc: NeilBrown <neilb@suse.com>
-Link: http://lkml.kernel.org/r/20200318230515.171692-5-ebiggers@kernel.org
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Link: http://lkml.kernel.org/r/b7a20945-e315-8bb0-21e6-3875c14a8494@virtuozzo.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kmod/kmod.sh | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ ipc/util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kmod/kmod.sh b/tools/testing/selftests/kmod/kmod.sh
-index 0a76314b44149..1f118916a83e4 100755
---- a/tools/testing/selftests/kmod/kmod.sh
-+++ b/tools/testing/selftests/kmod/kmod.sh
-@@ -505,18 +505,23 @@ function test_num()
- 	fi
- }
+diff --git a/ipc/util.c b/ipc/util.c
+index 0af05752969f1..b111e792b3125 100644
+--- a/ipc/util.c
++++ b/ipc/util.c
+@@ -735,13 +735,13 @@ static struct kern_ipc_perm *sysvipc_find_ipc(struct ipc_ids *ids, loff_t pos,
+ 			total++;
+ 	}
  
--function get_test_count()
-+function get_test_data()
- {
- 	test_num $1
--	TEST_DATA=$(echo $ALL_TESTS | awk '{print $'$1'}')
-+	local field_num=$(echo $1 | sed 's/^0*//')
-+	echo $ALL_TESTS | awk '{print $'$field_num'}'
-+}
-+
-+function get_test_count()
-+{
-+	TEST_DATA=$(get_test_data $1)
- 	LAST_TWO=${TEST_DATA#*:*}
- 	echo ${LAST_TWO%:*}
- }
++	*new_pos = pos + 1;
+ 	if (total >= ids->in_use)
+ 		return NULL;
  
- function get_test_enabled()
- {
--	test_num $1
--	TEST_DATA=$(echo $ALL_TESTS | awk '{print $'$1'}')
-+	TEST_DATA=$(get_test_data $1)
- 	echo ${TEST_DATA#*:*:}
- }
- 
+ 	for (; pos < IPCMNI; pos++) {
+ 		ipc = idr_find(&ids->ipcs_idr, pos);
+ 		if (ipc != NULL) {
+-			*new_pos = pos + 1;
+ 			rcu_read_lock();
+ 			ipc_lock_object(ipc);
+ 			return ipc;
 -- 
 2.20.1
 
