@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5CCC1BCBAD
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5291BCB94
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729225AbgD1S2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:28:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41630 "EHLO mail.kernel.org"
+        id S1728934AbgD1S6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:58:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728683AbgD1S2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:28:37 -0400
+        id S1728780AbgD1S3l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:29:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55E6720BED;
-        Tue, 28 Apr 2020 18:28:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFA5920730;
+        Tue, 28 Apr 2020 18:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098516;
-        bh=KJZZUMnaScaKKkoBLATWqgCIiHq3IBMc/5/i548oEgY=;
+        s=default; t=1588098580;
+        bh=hu5t5gL/CrEI1D6zO0cR1HzJwCY5MbLX2lDBKqe0jsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ym3raZQgHxOPAFIqUlwFTk0Ne+dgFE22slFgNnGTSGWcluHvA7p1JcUP+kjKVFStb
-         FgeIiImtSY29bWekkkq+Mg+Ufr6zIkJZ6EsJO3XvsLLKCTZSEbd9bNL2j945wMEeTB
-         3+EDtaqqkFNlEFciix0DoaOfi7FF4jn4L9uc/r4E=
+        b=LLrqTyeH12aRLKCL7NJL+tboIdJ+Rk+QRAmokL4t/h+IMre8trajsPtrBLm9vj2/x
+         vnUmCbSRs3lKD/EQod3hFBRKiW7i7OYlV7KAnfPpdM2oViBLSfIcl79NuMMRJi8nFA
+         jNuOv3slBmgV05HZeCIYFcrZFnu+m9kkuiooxR1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        James Morse <james.morse@arm.com>,
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 006/131] arm64: Add part number for Neoverse N1
+Subject: [PATCH 5.6 042/167] xhci: Wait until link state trainsits to U0 after setting USB_SS_PORT_LS_U0
 Date:   Tue, 28 Apr 2020 20:23:38 +0200
-Message-Id: <20200428182226.086088112@linuxfoundation.org>
+Message-Id: <20200428182230.433182473@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 0cf57b86859c49381addb3ce47be70aadf5fd2c0 ]
+[ Upstream commit 0200b9f790b0fc9e9a42f685f5ad54b23fe959f4 ]
 
-New CPU, new part number. You know the drill.
+Like U3 case, xHCI spec doesn't specify the upper bound of U0 transition
+time. The 20ms is not enough for some devices.
 
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Intead of polling PLS or PLC, we can facilitate the port change event to
+know that the link transits to U0 is completed.
+
+While at it, also separate U0 and U3 case to make the code cleaner.
+
+[variable rename to u3exit, and skip completion for usb2 ports -Mathias ]
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200312144517.1593-8-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/cputype.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/host/xhci-hub.c  | 44 +++++++++++++++++++++++++-----------
+ drivers/usb/host/xhci-mem.c  |  1 +
+ drivers/usb/host/xhci-ring.c |  1 +
+ drivers/usb/host/xhci.h      |  1 +
+ 4 files changed, 34 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index fa770c070fddf..3cd936b1c79c1 100644
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -80,6 +80,7 @@
- #define ARM_CPU_PART_CORTEX_A35		0xD04
- #define ARM_CPU_PART_CORTEX_A55		0xD05
- #define ARM_CPU_PART_CORTEX_A76		0xD0B
-+#define ARM_CPU_PART_NEOVERSE_N1	0xD0C
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index 712cd44f05ace..02f52d4f74df8 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1306,7 +1306,33 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 					 wIndex, link_state);
+ 				goto error;
+ 			}
++
++			if (link_state == USB_SS_PORT_LS_U0) {
++				if ((temp & PORT_PLS_MASK) == XDEV_U0)
++					break;
++
++				if (!((temp & PORT_PLS_MASK) == XDEV_U1 ||
++				    (temp & PORT_PLS_MASK) == XDEV_U2 ||
++				    (temp & PORT_PLS_MASK) == XDEV_U3)) {
++					xhci_warn(xhci, "Can only set port %d to U0 from U state\n",
++							wIndex);
++					goto error;
++				}
++				reinit_completion(&bus_state->u3exit_done[wIndex]);
++				xhci_set_link_state(xhci, ports[wIndex],
++						    USB_SS_PORT_LS_U0);
++				spin_unlock_irqrestore(&xhci->lock, flags);
++				if (!wait_for_completion_timeout(&bus_state->u3exit_done[wIndex],
++								 msecs_to_jiffies(100)))
++					xhci_dbg(xhci, "missing U0 port change event for port %d\n",
++						 wIndex);
++				spin_lock_irqsave(&xhci->lock, flags);
++				temp = readl(ports[wIndex]->addr);
++				break;
++			}
++
+ 			if (link_state == USB_SS_PORT_LS_U3) {
++				int retries = 16;
+ 				slot_id = xhci_find_slot_id_by_port(hcd, xhci,
+ 						wIndex + 1);
+ 				if (slot_id) {
+@@ -1317,26 +1343,18 @@ int xhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 					xhci_stop_device(xhci, slot_id, 1);
+ 					spin_lock_irqsave(&xhci->lock, flags);
+ 				}
+-			}
+-
+-			xhci_set_link_state(xhci, ports[wIndex], link_state);
+-
+-			spin_unlock_irqrestore(&xhci->lock, flags);
+-			if (link_state == USB_SS_PORT_LS_U3) {
+-				int retries = 16;
+-
++				xhci_set_link_state(xhci, ports[wIndex], USB_SS_PORT_LS_U3);
++				spin_unlock_irqrestore(&xhci->lock, flags);
+ 				while (retries--) {
+ 					usleep_range(4000, 8000);
+ 					temp = readl(ports[wIndex]->addr);
+ 					if ((temp & PORT_PLS_MASK) == XDEV_U3)
+ 						break;
+ 				}
+-			}
+-			spin_lock_irqsave(&xhci->lock, flags);
+-
+-			temp = readl(ports[wIndex]->addr);
+-			if (link_state == USB_SS_PORT_LS_U3)
++				spin_lock_irqsave(&xhci->lock, flags);
++				temp = readl(ports[wIndex]->addr);
+ 				bus_state->suspended_ports |= 1 << wIndex;
++			}
+ 			break;
+ 		case USB_PORT_FEAT_POWER:
+ 			/*
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index 884c601bfa15f..9764122c9cdf2 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -2552,6 +2552,7 @@ int xhci_mem_init(struct xhci_hcd *xhci, gfp_t flags)
+ 		xhci->usb3_rhub.bus_state.resume_done[i] = 0;
+ 		/* Only the USB 2.0 completions will ever be used. */
+ 		init_completion(&xhci->usb2_rhub.bus_state.rexit_done[i]);
++		init_completion(&xhci->usb3_rhub.bus_state.u3exit_done[i]);
+ 	}
  
- #define APM_CPU_PART_POTENZA		0x000
+ 	if (scratchpad_alloc(xhci, flags))
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index d23f7408c81f1..c1e63af88356c 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -1677,6 +1677,7 @@ static void handle_port_status(struct xhci_hcd *xhci,
+ 	     (portsc & PORT_PLS_MASK) == XDEV_U1 ||
+ 	     (portsc & PORT_PLS_MASK) == XDEV_U2)) {
+ 		xhci_dbg(xhci, "resume SS port %d finished\n", port_id);
++		complete(&bus_state->u3exit_done[hcd_portnum]);
+ 		/* We've just brought the device into U0/1/2 through either the
+ 		 * Resume state after a device remote wakeup, or through the
+ 		 * U3Exit state after a host-initiated resume.  If it's a device
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 3ecee10fdcdc7..fb1ab63b5fe25 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1694,6 +1694,7 @@ struct xhci_bus_state {
+ 	/* Which ports are waiting on RExit to U0 transition. */
+ 	unsigned long		rexit_ports;
+ 	struct completion	rexit_done[USB_MAXCHILDREN];
++	struct completion	u3exit_done[USB_MAXCHILDREN];
+ };
  
-@@ -107,6 +108,7 @@
- #define MIDR_CORTEX_A35 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A35)
- #define MIDR_CORTEX_A55 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
- #define MIDR_CORTEX_A76 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A76)
-+#define MIDR_NEOVERSE_N1 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N1)
- #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
- #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
- #define MIDR_THUNDERX_83XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_83XX)
+ 
 -- 
 2.20.1
 
