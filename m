@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 431B61BCA9C
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4461BC7E8
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730516AbgD1Shk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:37:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55762 "EHLO mail.kernel.org"
+        id S1729056AbgD1S1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730483AbgD1Shj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:37:39 -0400
+        id S1729043AbgD1S1m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6ADE320730;
-        Tue, 28 Apr 2020 18:37:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D72C72085B;
+        Tue, 28 Apr 2020 18:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099057;
-        bh=DBCoHq1pUUXe19Asr0Dm91UNM40bfUwDjA7pO/gFfsw=;
+        s=default; t=1588098461;
+        bh=HipuweWfSWugCv6om7W+84lRfqgDJT3d11sdjLsbwdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dq+T1R09bZ58Ib0gkLDyouxiSuBvzTQzPmDAZMB2My/625l/e/1hu5IYjxDymQI6x
-         Gi6a7uG/E3VGCx/MIsiS0WYOGevXAAlLxhl342XY9rneKYsNyTfErEmWGMb9XOZR1L
-         vkrOM1kBNSG3iex5v2X3C9Z0RWKeTf+sN+8w//xg=
+        b=IKG8PnqFkeQ5wegXOFgVYG5pLlk0dx5DDUT3Vzjcdod1Vd6PsPHlI6vN3+kyJfuJC
+         i6m7Wwupfmrn/t433SDAB2F+1hamdU4qIyAS6CGUgCjAA6WOxnRi5aobcLt/ZuL1jF
+         c2cPJKBy4XqlNfZoAutN7dLdNER+mAi2sMT6bLUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Benesh <scott.benesh@microsemi.com>,
-        Scott Teel <scott.teel@microsemi.com>,
-        Kevin Barnett <kevin.barnett@microsemi.com>,
-        Don Brace <don.brace@microsemi.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 051/168] scsi: smartpqi: fix controller lockup observed during force reboot
-Date:   Tue, 28 Apr 2020 20:23:45 +0200
-Message-Id: <20200428182238.347561649@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+5035b1f9dc7ea4558d5a@syzkaller.appspotmail.com,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 050/167] macvlan: fix null dereference in macvlan_device_event()
+Date:   Tue, 28 Apr 2020 20:23:46 +0200
+Message-Id: <20200428182231.363173350@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,305 +45,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Barnett <kevin.barnett@microsemi.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 0530736e40a0695b1ee2762e2684d00549699da4 ]
+[ Upstream commit 4dee15b4fd0d61ec6bbd179238191e959d34cf7a ]
 
-Link: https://lore.kernel.org/r/157048748297.11757.3872221216800537383.stgit@brunhilda
-Reviewed-by: Scott Benesh <scott.benesh@microsemi.com>
-Reviewed-by: Scott Teel <scott.teel@microsemi.com>
-Signed-off-by: Kevin Barnett <kevin.barnett@microsemi.com>
-Signed-off-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In the macvlan_device_event(), the list_first_entry_or_null() is used.
+This function could return null pointer if there is no node.
+But, the macvlan module doesn't check the null pointer.
+So, null-ptr-deref would occur.
+
+      bond0
+        |
+   +----+-----+
+   |          |
+macvlan0   macvlan1
+   |          |
+ dummy0     dummy1
+
+The problem scenario.
+If dummy1 is removed,
+1. ->dellink() of dummy1 is called.
+2. NETDEV_UNREGISTER of dummy1 notification is sent to macvlan module.
+3. ->dellink() of macvlan1 is called.
+4. NETDEV_UNREGISTER of macvlan1 notification is sent to bond module.
+5. __bond_release_one() is called and it internally calls
+   dev_set_mac_address().
+6. dev_set_mac_address() calls the ->ndo_set_mac_address() of macvlan1,
+   which is macvlan_set_mac_address().
+7. macvlan_set_mac_address() calls the dev_set_mac_address() with dummy1.
+8. NETDEV_CHANGEADDR of dummy1 is sent to macvlan module.
+9. In the macvlan_device_event(), it calls list_first_entry_or_null().
+At this point, dummy1 and macvlan1 were removed.
+So, list_first_entry_or_null() will return NULL.
+
+Test commands:
+    ip netns add nst
+    ip netns exec nst ip link add bond0 type bond
+    for i in {0..10}
+    do
+        ip netns exec nst ip link add dummy$i type dummy
+	ip netns exec nst ip link add macvlan$i link dummy$i \
+		type macvlan mode passthru
+	ip netns exec nst ip link set macvlan$i master bond0
+    done
+    ip netns del nst
+
+Splat looks like:
+[   40.585687][  T146] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] SMP DEI
+[   40.587249][  T146] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+[   40.588342][  T146] CPU: 1 PID: 146 Comm: kworker/u8:2 Not tainted 5.7.0-rc1+ #532
+[   40.589299][  T146] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   40.590469][  T146] Workqueue: netns cleanup_net
+[   40.591045][  T146] RIP: 0010:macvlan_device_event+0x4e2/0x900 [macvlan]
+[   40.591905][  T146] Code: 00 00 00 00 00 fc ff df 80 3c 06 00 0f 85 45 02 00 00 48 89 da 48 b8 00 00 00 00 00 fc ff d2
+[   40.594126][  T146] RSP: 0018:ffff88806116f4a0 EFLAGS: 00010246
+[   40.594783][  T146] RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+[   40.595653][  T146] RDX: 0000000000000000 RSI: ffff88806547ddd8 RDI: ffff8880540f1360
+[   40.596495][  T146] RBP: ffff88804011a808 R08: fffffbfff4fb8421 R09: fffffbfff4fb8421
+[   40.597377][  T146] R10: ffffffffa7dc2107 R11: 0000000000000000 R12: 0000000000000008
+[   40.598186][  T146] R13: ffff88804011a000 R14: ffff8880540f1000 R15: 1ffff1100c22de9a
+[   40.599012][  T146] FS:  0000000000000000(0000) GS:ffff888067800000(0000) knlGS:0000000000000000
+[   40.600004][  T146] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   40.600665][  T146] CR2: 00005572d3a807b8 CR3: 000000005fcf4003 CR4: 00000000000606e0
+[   40.601485][  T146] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   40.602461][  T146] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   40.603443][  T146] Call Trace:
+[   40.603871][  T146]  ? nf_tables_dump_setelem+0xa0/0xa0 [nf_tables]
+[   40.604587][  T146]  ? macvlan_uninit+0x100/0x100 [macvlan]
+[   40.605212][  T146]  ? __module_text_address+0x13/0x140
+[   40.605842][  T146]  notifier_call_chain+0x90/0x160
+[   40.606477][  T146]  dev_set_mac_address+0x28e/0x3f0
+[   40.607117][  T146]  ? netdev_notify_peers+0xc0/0xc0
+[   40.607762][  T146]  ? __module_text_address+0x13/0x140
+[   40.608440][  T146]  ? notifier_call_chain+0x90/0x160
+[   40.609097][  T146]  ? dev_set_mac_address+0x1f0/0x3f0
+[   40.609758][  T146]  dev_set_mac_address+0x1f0/0x3f0
+[   40.610402][  T146]  ? __local_bh_enable_ip+0xe9/0x1b0
+[   40.611071][  T146]  ? bond_hw_addr_flush+0x77/0x100 [bonding]
+[   40.611823][  T146]  ? netdev_notify_peers+0xc0/0xc0
+[   40.612461][  T146]  ? bond_hw_addr_flush+0x77/0x100 [bonding]
+[   40.613213][  T146]  ? bond_hw_addr_flush+0x77/0x100 [bonding]
+[   40.613963][  T146]  ? __local_bh_enable_ip+0xe9/0x1b0
+[   40.614631][  T146]  ? bond_time_in_interval.isra.31+0x90/0x90 [bonding]
+[   40.615484][  T146]  ? __bond_release_one+0x9f0/0x12c0 [bonding]
+[   40.616230][  T146]  __bond_release_one+0x9f0/0x12c0 [bonding]
+[   40.616949][  T146]  ? bond_enslave+0x47c0/0x47c0 [bonding]
+[   40.617642][  T146]  ? lock_downgrade+0x730/0x730
+[   40.618218][  T146]  ? check_flags.part.42+0x450/0x450
+[   40.618850][  T146]  ? __mutex_unlock_slowpath+0xd0/0x670
+[   40.619519][  T146]  ? trace_hardirqs_on+0x30/0x180
+[   40.620117][  T146]  ? wait_for_completion+0x250/0x250
+[   40.620754][  T146]  bond_netdev_event+0x822/0x970 [bonding]
+[   40.621460][  T146]  ? __module_text_address+0x13/0x140
+[   40.622097][  T146]  notifier_call_chain+0x90/0x160
+[   40.622806][  T146]  rollback_registered_many+0x660/0xcf0
+[   40.623522][  T146]  ? netif_set_real_num_tx_queues+0x780/0x780
+[   40.624290][  T146]  ? notifier_call_chain+0x90/0x160
+[   40.624957][  T146]  ? netdev_upper_dev_unlink+0x114/0x180
+[   40.625686][  T146]  ? __netdev_adjacent_dev_unlink_neighbour+0x30/0x30
+[   40.626421][  T146]  ? mutex_is_locked+0x13/0x50
+[   40.627016][  T146]  ? unregister_netdevice_queue+0xf2/0x240
+[   40.627663][  T146]  unregister_netdevice_many.part.134+0x13/0x1b0
+[   40.628362][  T146]  default_device_exit_batch+0x2d9/0x390
+[   40.628987][  T146]  ? unregister_netdevice_many+0x40/0x40
+[   40.629615][  T146]  ? dev_change_net_namespace+0xcb0/0xcb0
+[   40.630279][  T146]  ? prepare_to_wait_exclusive+0x2e0/0x2e0
+[   40.630943][  T146]  ? ops_exit_list.isra.9+0x97/0x140
+[   40.631554][  T146]  cleanup_net+0x441/0x890
+[ ... ]
+
+Fixes: e289fd28176b ("macvlan: fix the problem when mac address changes for passthru mode")
+Reported-by: syzbot+5035b1f9dc7ea4558d5a@syzkaller.appspotmail.com
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/smartpqi/smartpqi.h      |   9 +-
- drivers/scsi/smartpqi/smartpqi_init.c | 126 ++++++++++++++++++++++----
- 2 files changed, 115 insertions(+), 20 deletions(-)
+ drivers/net/macvlan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi.h b/drivers/scsi/smartpqi/smartpqi.h
-index 79d2af36f6552..2aa81b22f2695 100644
---- a/drivers/scsi/smartpqi/smartpqi.h
-+++ b/drivers/scsi/smartpqi/smartpqi.h
-@@ -1130,8 +1130,9 @@ struct pqi_ctrl_info {
- 	struct mutex	ofa_mutex; /* serialize ofa */
- 	bool		controller_online;
- 	bool		block_requests;
--	bool		in_shutdown;
-+	bool		block_device_reset;
- 	bool		in_ofa;
-+	bool		in_shutdown;
- 	u8		inbound_spanning_supported : 1;
- 	u8		outbound_spanning_supported : 1;
- 	u8		pqi_mode_enabled : 1;
-@@ -1173,6 +1174,7 @@ struct pqi_ctrl_info {
- 	struct          pqi_ofa_memory *pqi_ofa_mem_virt_addr;
- 	dma_addr_t      pqi_ofa_mem_dma_handle;
- 	void            **pqi_ofa_chunk_virt_addr;
-+	atomic_t	sync_cmds_outstanding;
- };
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -1704,7 +1704,7 @@ static int macvlan_device_event(struct n
+ 						struct macvlan_dev,
+ 						list);
  
- enum pqi_ctrl_mode {
-@@ -1423,6 +1425,11 @@ static inline bool pqi_ctrl_blocked(struct pqi_ctrl_info *ctrl_info)
- 	return ctrl_info->block_requests;
- }
+-		if (macvlan_sync_address(vlan->dev, dev->dev_addr))
++		if (vlan && macvlan_sync_address(vlan->dev, dev->dev_addr))
+ 			return NOTIFY_BAD;
  
-+static inline bool pqi_device_reset_blocked(struct pqi_ctrl_info *ctrl_info)
-+{
-+	return ctrl_info->block_device_reset;
-+}
-+
- void pqi_sas_smp_handler(struct bsg_job *job, struct Scsi_Host *shost,
- 	struct sas_rphy *rphy);
- 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index ea5409bebf578..793793343950e 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -249,6 +249,11 @@ static inline void pqi_ctrl_unblock_requests(struct pqi_ctrl_info *ctrl_info)
- 	scsi_unblock_requests(ctrl_info->scsi_host);
- }
- 
-+static inline void pqi_ctrl_block_device_reset(struct pqi_ctrl_info *ctrl_info)
-+{
-+	ctrl_info->block_device_reset = true;
-+}
-+
- static unsigned long pqi_wait_if_ctrl_blocked(struct pqi_ctrl_info *ctrl_info,
- 	unsigned long timeout_msecs)
- {
-@@ -331,6 +336,16 @@ static inline bool pqi_device_in_remove(struct pqi_ctrl_info *ctrl_info,
- 	return device->in_remove && !ctrl_info->in_shutdown;
- }
- 
-+static inline void pqi_ctrl_shutdown_start(struct pqi_ctrl_info *ctrl_info)
-+{
-+	ctrl_info->in_shutdown = true;
-+}
-+
-+static inline bool pqi_ctrl_in_shutdown(struct pqi_ctrl_info *ctrl_info)
-+{
-+	return ctrl_info->in_shutdown;
-+}
-+
- static inline void pqi_schedule_rescan_worker_with_delay(
- 	struct pqi_ctrl_info *ctrl_info, unsigned long delay)
- {
-@@ -360,6 +375,11 @@ static inline void pqi_cancel_rescan_worker(struct pqi_ctrl_info *ctrl_info)
- 	cancel_delayed_work_sync(&ctrl_info->rescan_work);
- }
- 
-+static inline void pqi_cancel_event_worker(struct pqi_ctrl_info *ctrl_info)
-+{
-+	cancel_work_sync(&ctrl_info->event_work);
-+}
-+
- static inline u32 pqi_read_heartbeat_counter(struct pqi_ctrl_info *ctrl_info)
- {
- 	if (!ctrl_info->heartbeat_counter)
-@@ -4122,6 +4142,8 @@ static int pqi_submit_raid_request_synchronous(struct pqi_ctrl_info *ctrl_info,
- 		goto out;
- 	}
- 
-+	atomic_inc(&ctrl_info->sync_cmds_outstanding);
-+
- 	io_request = pqi_alloc_io_request(ctrl_info);
- 
- 	put_unaligned_le16(io_request->index,
-@@ -4168,6 +4190,7 @@ static int pqi_submit_raid_request_synchronous(struct pqi_ctrl_info *ctrl_info,
- 
- 	pqi_free_io_request(io_request);
- 
-+	atomic_dec(&ctrl_info->sync_cmds_outstanding);
- out:
- 	up(&ctrl_info->sync_request_sem);
- 
-@@ -5402,7 +5425,7 @@ static int pqi_scsi_queue_command(struct Scsi_Host *shost,
- 
- 	pqi_ctrl_busy(ctrl_info);
- 	if (pqi_ctrl_blocked(ctrl_info) || pqi_device_in_reset(device) ||
--	    pqi_ctrl_in_ofa(ctrl_info)) {
-+	    pqi_ctrl_in_ofa(ctrl_info) || pqi_ctrl_in_shutdown(ctrl_info)) {
- 		rc = SCSI_MLQUEUE_HOST_BUSY;
- 		goto out;
- 	}
-@@ -5650,6 +5673,18 @@ static int pqi_ctrl_wait_for_pending_io(struct pqi_ctrl_info *ctrl_info,
- 	return 0;
- }
- 
-+static int pqi_ctrl_wait_for_pending_sync_cmds(struct pqi_ctrl_info *ctrl_info)
-+{
-+	while (atomic_read(&ctrl_info->sync_cmds_outstanding)) {
-+		pqi_check_ctrl_health(ctrl_info);
-+		if (pqi_ctrl_offline(ctrl_info))
-+			return -ENXIO;
-+		usleep_range(1000, 2000);
-+	}
-+
-+	return 0;
-+}
-+
- static void pqi_lun_reset_complete(struct pqi_io_request *io_request,
- 	void *context)
- {
-@@ -5787,17 +5822,17 @@ static int pqi_eh_device_reset_handler(struct scsi_cmnd *scmd)
- 		shost->host_no, device->bus, device->target, device->lun);
- 
- 	pqi_check_ctrl_health(ctrl_info);
--	if (pqi_ctrl_offline(ctrl_info)) {
--		dev_err(&ctrl_info->pci_dev->dev,
--			"controller %u offlined - cannot send device reset\n",
--			ctrl_info->ctrl_id);
-+	if (pqi_ctrl_offline(ctrl_info) ||
-+		pqi_device_reset_blocked(ctrl_info)) {
- 		rc = FAILED;
- 		goto out;
- 	}
- 
- 	pqi_wait_until_ofa_finished(ctrl_info);
- 
-+	atomic_inc(&ctrl_info->sync_cmds_outstanding);
- 	rc = pqi_device_reset(ctrl_info, device);
-+	atomic_dec(&ctrl_info->sync_cmds_outstanding);
- 
- out:
- 	dev_err(&ctrl_info->pci_dev->dev,
-@@ -6119,7 +6154,8 @@ static int pqi_ioctl(struct scsi_device *sdev, unsigned int cmd,
- 
- 	ctrl_info = shost_to_hba(sdev->host);
- 
--	if (pqi_ctrl_in_ofa(ctrl_info))
-+	if (pqi_ctrl_in_ofa(ctrl_info) ||
-+		pqi_ctrl_in_shutdown(ctrl_info))
- 		return -EBUSY;
- 
- 	switch (cmd) {
-@@ -7074,13 +7110,20 @@ static int pqi_force_sis_mode(struct pqi_ctrl_info *ctrl_info)
- 	return pqi_revert_to_sis_mode(ctrl_info);
- }
- 
-+#define PQI_POST_RESET_DELAY_B4_MSGU_READY	5000
-+
- static int pqi_ctrl_init(struct pqi_ctrl_info *ctrl_info)
- {
- 	int rc;
- 
--	rc = pqi_force_sis_mode(ctrl_info);
--	if (rc)
--		return rc;
-+	if (reset_devices) {
-+		sis_soft_reset(ctrl_info);
-+		msleep(PQI_POST_RESET_DELAY_B4_MSGU_READY);
-+	} else {
-+		rc = pqi_force_sis_mode(ctrl_info);
-+		if (rc)
-+			return rc;
-+	}
- 
- 	/*
- 	 * Wait until the controller is ready to start accepting SIS
-@@ -7514,6 +7557,7 @@ static struct pqi_ctrl_info *pqi_alloc_ctrl_info(int numa_node)
- 
- 	INIT_WORK(&ctrl_info->event_work, pqi_event_worker);
- 	atomic_set(&ctrl_info->num_interrupts, 0);
-+	atomic_set(&ctrl_info->sync_cmds_outstanding, 0);
- 
- 	INIT_DELAYED_WORK(&ctrl_info->rescan_work, pqi_rescan_worker);
- 	INIT_DELAYED_WORK(&ctrl_info->update_time_work, pqi_update_time_worker);
-@@ -7787,8 +7831,6 @@ static int pqi_ofa_host_memory_update(struct pqi_ctrl_info *ctrl_info)
- 		0, NULL, NO_TIMEOUT);
- }
- 
--#define PQI_POST_RESET_DELAY_B4_MSGU_READY	5000
--
- static int pqi_ofa_ctrl_restart(struct pqi_ctrl_info *ctrl_info)
- {
- 	msleep(PQI_POST_RESET_DELAY_B4_MSGU_READY);
-@@ -7956,28 +7998,74 @@ static void pqi_pci_remove(struct pci_dev *pci_dev)
- 	pqi_remove_ctrl(ctrl_info);
- }
- 
-+static void pqi_crash_if_pending_command(struct pqi_ctrl_info *ctrl_info)
-+{
-+	unsigned int i;
-+	struct pqi_io_request *io_request;
-+	struct scsi_cmnd *scmd;
-+
-+	for (i = 0; i < ctrl_info->max_io_slots; i++) {
-+		io_request = &ctrl_info->io_request_pool[i];
-+		if (atomic_read(&io_request->refcount) == 0)
-+			continue;
-+		scmd = io_request->scmd;
-+		WARN_ON(scmd != NULL); /* IO command from SML */
-+		WARN_ON(scmd == NULL); /* Non-IO cmd or driver initiated*/
-+	}
-+}
-+
- static void pqi_shutdown(struct pci_dev *pci_dev)
- {
- 	int rc;
- 	struct pqi_ctrl_info *ctrl_info;
- 
- 	ctrl_info = pci_get_drvdata(pci_dev);
--	if (!ctrl_info)
--		goto error;
-+	if (!ctrl_info) {
-+		dev_err(&pci_dev->dev,
-+			"cache could not be flushed\n");
-+		return;
-+	}
-+
-+	pqi_disable_events(ctrl_info);
-+	pqi_wait_until_ofa_finished(ctrl_info);
-+	pqi_cancel_update_time_worker(ctrl_info);
-+	pqi_cancel_rescan_worker(ctrl_info);
-+	pqi_cancel_event_worker(ctrl_info);
-+
-+	pqi_ctrl_shutdown_start(ctrl_info);
-+	pqi_ctrl_wait_until_quiesced(ctrl_info);
-+
-+	rc = pqi_ctrl_wait_for_pending_io(ctrl_info, NO_TIMEOUT);
-+	if (rc) {
-+		dev_err(&pci_dev->dev,
-+			"wait for pending I/O failed\n");
-+		return;
-+	}
-+
-+	pqi_ctrl_block_device_reset(ctrl_info);
-+	pqi_wait_until_lun_reset_finished(ctrl_info);
- 
- 	/*
- 	 * Write all data in the controller's battery-backed cache to
- 	 * storage.
- 	 */
- 	rc = pqi_flush_cache(ctrl_info, SHUTDOWN);
--	pqi_free_interrupts(ctrl_info);
--	pqi_reset(ctrl_info);
--	if (rc == 0)
-+	if (rc)
-+		dev_err(&pci_dev->dev,
-+			"unable to flush controller cache\n");
-+
-+	pqi_ctrl_block_requests(ctrl_info);
-+
-+	rc = pqi_ctrl_wait_for_pending_sync_cmds(ctrl_info);
-+	if (rc) {
-+		dev_err(&pci_dev->dev,
-+			"wait for pending sync cmds failed\n");
- 		return;
-+	}
-+
-+	pqi_crash_if_pending_command(ctrl_info);
-+	pqi_reset(ctrl_info);
- 
--error:
--	dev_warn(&pci_dev->dev,
--		"unable to flush controller cache\n");
- }
- 
- static void pqi_process_lockup_action_param(void)
--- 
-2.20.1
-
+ 		break;
 
 
