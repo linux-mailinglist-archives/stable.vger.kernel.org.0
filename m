@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6310A1BC87F
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2FA11BC96F
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729913AbgD1SdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:33:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49572 "EHLO mail.kernel.org"
+        id S1730385AbgD1Slf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:41:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729907AbgD1SdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:33:13 -0400
+        id S1731004AbgD1Sle (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:41:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FD1221835;
-        Tue, 28 Apr 2020 18:33:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D35782085B;
+        Tue, 28 Apr 2020 18:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098792;
-        bh=s48c0xA9AWOzYkT8z8qRtALlO98KGhNl0F4y/Xz6oqw=;
+        s=default; t=1588099293;
+        bh=hOYDr3W9wY/JWlZ8DY1wJ2I7TR7v+K/j8Rp2MUsSRnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HocLgYQS5bGdUopXnrmfiNZ0Ab8qIgET6or/iuVp34VoyBzxoLdhi39E3n2gf6Z6L
-         k/OkaDplaLIEWh6pOH5dF9qagCQIOVjxmaxyn/x1M8/RHvTnQzRVYsBjJEEG7AI+nt
-         BvwicFOD+p+w3TUa3OZCsGHlphR6lWoVF2/0ZO30=
+        b=LZQSw8gj9IE0lwp1utX57GFS7KUCbPFi7dD4KYdDtPhGf++pyNEhtE+jpWCnenvrh
+         ipqcnsR/LTwftHAgPrIRIQCZrB52O892VxKMyhFRaETpDApSeN84EgYgZ2u48fbCAB
+         FAUJo96zK4U/elSrmTCzK/dHy3iAiQqoGbKZJmNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 051/131] x86/KVM: Make sure KVM_VCPU_FLUSH_TLB flag is not missed
+        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
+        Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 089/168] iio: adc: stm32-adc: fix sleep in atomic context
 Date:   Tue, 28 Apr 2020 20:24:23 +0200
-Message-Id: <20200428182231.389944621@linuxfoundation.org>
+Message-Id: <20200428182243.588223414@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,131 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+From: Olivier Moysan <olivier.moysan@st.com>
 
-commit b043138246a41064527cf019a3d51d9f015e9796 upstream.
+commit e2042d2936dfc84e9c600fe9b9d0039ca0e54b7d upstream.
 
-There is a potential race in record_steal_time() between setting
-host-local vcpu->arch.st.steal.preempted to zero (i.e. clearing
-KVM_VCPU_PREEMPTED) and propagating this value to the guest with
-kvm_write_guest_cached(). Between those two events the guest may
-still see KVM_VCPU_PREEMPTED in its copy of kvm_steal_time, set
-KVM_VCPU_FLUSH_TLB and assume that hypervisor will do the right
-thing. Which it won't.
+This commit fixes the following error:
+"BUG: sleeping function called from invalid context at kernel/irq/chip.c"
 
-Instad of copying, we should map kvm_steal_time and that will
-guarantee atomicity of accesses to @preempted.
+In DMA mode suppress the trigger irq handler, and make the buffer
+transfers directly in DMA callback, instead.
 
-This is part of CVE-2019-3016.
+Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Reviewed-by: Joao Martins <joao.m.martins@oracle.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[bwh: Backported to 4.19: No tracepoint in record_steal_time().]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 49 +++++++++++++++++++++++++++-------------------
- 1 file changed, 29 insertions(+), 20 deletions(-)
+ drivers/iio/adc/stm32-adc.c |   31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 6916f46909ab0..d77822e03ff6b 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2397,43 +2397,45 @@ static void kvm_vcpu_flush_tlb(struct kvm_vcpu *vcpu, bool invalidate_gpa)
- 
- static void record_steal_time(struct kvm_vcpu *vcpu)
+--- a/drivers/iio/adc/stm32-adc.c
++++ b/drivers/iio/adc/stm32-adc.c
+@@ -1367,8 +1367,30 @@ static unsigned int stm32_adc_dma_residu
+ static void stm32_adc_dma_buffer_done(void *data)
  {
-+	struct kvm_host_map map;
-+	struct kvm_steal_time *st;
+ 	struct iio_dev *indio_dev = data;
++	struct stm32_adc *adc = iio_priv(indio_dev);
++	int residue = stm32_adc_dma_residue(adc);
 +
- 	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
- 		return;
- 
--	if (unlikely(kvm_read_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
--		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time))))
-+	/* -EAGAIN is returned in atomic context so we can just return. */
-+	if (kvm_map_gfn(vcpu, vcpu->arch.st.msr_val >> PAGE_SHIFT,
-+			&map, &vcpu->arch.st.cache, false))
- 		return;
- 
-+	st = map.hva +
-+		offset_in_page(vcpu->arch.st.msr_val & KVM_STEAL_VALID_BITS);
++	/*
++	 * In DMA mode the trigger services of IIO are not used
++	 * (e.g. no call to iio_trigger_poll).
++	 * Calling irq handler associated to the hardware trigger is not
++	 * relevant as the conversions have already been done. Data
++	 * transfers are performed directly in DMA callback instead.
++	 * This implementation avoids to call trigger irq handler that
++	 * may sleep, in an atomic context (DMA irq handler context).
++	 */
++	dev_dbg(&indio_dev->dev, "%s bufi=%d\n", __func__, adc->bufi);
 +
- 	/*
- 	 * Doing a TLB flush here, on the guest's behalf, can avoid
- 	 * expensive IPIs.
- 	 */
--	if (xchg(&vcpu->arch.st.steal.preempted, 0) & KVM_VCPU_FLUSH_TLB)
-+	if (xchg(&st->preempted, 0) & KVM_VCPU_FLUSH_TLB)
- 		kvm_vcpu_flush_tlb(vcpu, false);
++	while (residue >= indio_dev->scan_bytes) {
++		u16 *buffer = (u16 *)&adc->rx_buf[adc->bufi];
  
--	if (vcpu->arch.st.steal.version & 1)
--		vcpu->arch.st.steal.version += 1;  /* first time write, random junk */
-+	vcpu->arch.st.steal.preempted = 0;
- 
--	vcpu->arch.st.steal.version += 1;
-+	if (st->version & 1)
-+		st->version += 1;  /* first time write, random junk */
- 
--	kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
--		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time));
-+	st->version += 1;
- 
- 	smp_wmb();
- 
--	vcpu->arch.st.steal.steal += current->sched_info.run_delay -
-+	st->steal += current->sched_info.run_delay -
- 		vcpu->arch.st.last_steal;
- 	vcpu->arch.st.last_steal = current->sched_info.run_delay;
- 
--	kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
--		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time));
--
- 	smp_wmb();
- 
--	vcpu->arch.st.steal.version += 1;
-+	st->version += 1;
- 
--	kvm_write_guest_cached(vcpu->kvm, &vcpu->arch.st.stime,
--		&vcpu->arch.st.steal, sizeof(struct kvm_steal_time));
-+	kvm_unmap_gfn(vcpu, &map, &vcpu->arch.st.cache, true, false);
+-	iio_trigger_poll_chained(indio_dev->trig);
++		iio_push_to_buffers(indio_dev, buffer);
++
++		residue -= indio_dev->scan_bytes;
++		adc->bufi += indio_dev->scan_bytes;
++		if (adc->bufi >= adc->rx_buf_sz)
++			adc->bufi = 0;
++	}
  }
  
- int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
-@@ -3272,18 +3274,25 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
- 
- static void kvm_steal_time_set_preempted(struct kvm_vcpu *vcpu)
+ static int stm32_adc_dma_start(struct iio_dev *indio_dev)
+@@ -1778,6 +1800,7 @@ static int stm32_adc_probe(struct platfo
  {
-+	struct kvm_host_map map;
-+	struct kvm_steal_time *st;
+ 	struct iio_dev *indio_dev;
+ 	struct device *dev = &pdev->dev;
++	irqreturn_t (*handler)(int irq, void *p) = NULL;
+ 	struct stm32_adc *adc;
+ 	int ret;
+ 
+@@ -1843,9 +1866,11 @@ static int stm32_adc_probe(struct platfo
+ 	if (ret < 0)
+ 		return ret;
+ 
++	if (!adc->dma_chan)
++		handler = &stm32_adc_trigger_handler;
 +
- 	if (!(vcpu->arch.st.msr_val & KVM_MSR_ENABLED))
- 		return;
- 
- 	if (vcpu->arch.st.steal.preempted)
- 		return;
- 
--	vcpu->arch.st.steal.preempted = KVM_VCPU_PREEMPTED;
-+	if (kvm_map_gfn(vcpu, vcpu->arch.st.msr_val >> PAGE_SHIFT, &map,
-+			&vcpu->arch.st.cache, true))
-+		return;
-+
-+	st = map.hva +
-+		offset_in_page(vcpu->arch.st.msr_val & KVM_STEAL_VALID_BITS);
-+
-+	st->preempted = vcpu->arch.st.steal.preempted = KVM_VCPU_PREEMPTED;
- 
--	kvm_write_guest_offset_cached(vcpu->kvm, &vcpu->arch.st.stime,
--			&vcpu->arch.st.steal.preempted,
--			offsetof(struct kvm_steal_time, preempted),
--			sizeof(vcpu->arch.st.steal.preempted));
-+	kvm_unmap_gfn(vcpu, &map, &vcpu->arch.st.cache, true, true);
- }
- 
- void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
--- 
-2.20.1
-
+ 	ret = iio_triggered_buffer_setup(indio_dev,
+-					 &iio_pollfunc_store_time,
+-					 &stm32_adc_trigger_handler,
++					 &iio_pollfunc_store_time, handler,
+ 					 &stm32_adc_buffer_setup_ops);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "buffer setup failed\n");
 
 
