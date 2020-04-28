@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C6D1BC929
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C13E1BC9E3
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730716AbgD1SjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:39:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57914 "EHLO mail.kernel.org"
+        id S1731230AbgD1Sn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:43:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730262AbgD1SjJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:39:09 -0400
+        id S1730977AbgD1Sn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:43:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 042DA20B1F;
-        Tue, 28 Apr 2020 18:39:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3358A2076A;
+        Tue, 28 Apr 2020 18:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099148;
-        bh=DssGh3cFfTGPk2oqSA/BtLjd5L3+hLW+cPnbRN+og6U=;
+        s=default; t=1588099405;
+        bh=aIqj5blt3YU3OyUrxguvMvJPhrjWHMfgcQxf3TQ6lPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhplbMIK98odAK45PqhgEKI13hukQ+Xie8+em5A1Nnt/K8BR/PmK7MZrSVoK+LvAh
-         iJqB9KNoLaarDuAtMlHlhWrHZqF/ldFGAnB3VhU5oopcQvfAy19QEYVizHYOJBNDav
-         E585nYxhQZJMt53hkscVbEuYUKfoWBjjJxIuC3Q4=
+        b=Z46NhfxXFlt0AXdwz0E3x9guAzErL/24xVL4KQF7xOEyuzQK9nUC1kkvUMv9luO6i
+         kbGcAZ3PnuhtjtP9X/eI7A/SynghHLu8ou4UMGpCdvbFCPSPyvIMhjBPGRPGkvah7N
+         tFHeshscY82JAlpxLdQgLvGXK15Uvr+/kQ1ySafE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Chris Packham <chris.packham@alliedtelesis.co.nz>,
         Qian Cai <cai@lca.pw>, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 133/167] powerpc/setup_64: Set cache-line-size based on cache-block-size
+Subject: [PATCH 5.4 135/168] powerpc/setup_64: Set cache-line-size based on cache-block-size
 Date:   Tue, 28 Apr 2020 20:25:09 +0200
-Message-Id: <20200428182242.259609463@linuxfoundation.org>
+Message-Id: <20200428182249.013948869@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -83,7 +83,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/powerpc/kernel/setup_64.c
 +++ b/arch/powerpc/kernel/setup_64.c
-@@ -534,6 +534,8 @@ static bool __init parse_cache_info(stru
+@@ -541,6 +541,8 @@ static bool __init parse_cache_info(stru
  	lsizep = of_get_property(np, propnames[3], NULL);
  	if (bsizep == NULL)
  		bsizep = lsizep;
