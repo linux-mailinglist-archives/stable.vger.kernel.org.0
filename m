@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 672FD1BCA4B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 064EB1BCA8C
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730583AbgD1Skt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:40:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59922 "EHLO mail.kernel.org"
+        id S1729425AbgD1SuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:50:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730795AbgD1Skm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:40:42 -0400
+        id S1730648AbgD1Sih (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:38:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D67D2085B;
-        Tue, 28 Apr 2020 18:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A5B820575;
+        Tue, 28 Apr 2020 18:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099242;
-        bh=asuF210Uy37hgRVCG3LoTw1mc8OFuu1WE6p94Iui4I0=;
+        s=default; t=1588099116;
+        bh=qb+tFqZAtb67ysg/oJZrMRY528CyQDiR23V3cBnmGUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rUvyYS8kg0vUnR1UY2x2SD8oKzFl3XRA2zzojDfqL8aBpFddRcXAfblZ6k7Zrl6pk
-         wfNyJxRWFn2OI9DbqFZhfmp46EggYlPHVLXCyPh34aLlqOFsG7L9Gw3wgRfd1ZJmCo
-         KuYq0y30jYqSyRKZQwye2R6AEk7IulgIAakES1JM=
+        b=n71KqZDHR5u5fTUscyznokA/loYctbbiSzvGUw0BD27hVWeUULDGT4cf/BYOx+z75
+         O6Ib7/6acrUBG+NuZeuMzOHCJx6EapeTxKDzgvQLlIGEJewHlvlBt3/Ptu3ADNPW1+
+         jfk3RqCxjyQv1IhcO2fjPGsusBinJ3A2xESdE24E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 4.19 120/131] staging: vt6656: Fix pairwise key entry save.
-Date:   Tue, 28 Apr 2020 20:25:32 +0200
-Message-Id: <20200428182240.298196955@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH 5.6 157/167] Revert "serial: uartps: Fix uartps_major handling"
+Date:   Tue, 28 Apr 2020 20:25:33 +0200
+Message-Id: <20200428182245.440171669@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,86 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malcolm Priestley <tvboxspy@gmail.com>
+From: Michal Simek <michal.simek@xilinx.com>
 
-commit 0b59f10b1d8fe8d50944f21f5d403df9303095a8 upstream.
+commit 2e01911b7cf7aa07a304a809eca1b11a4bd35859 upstream.
 
-The problem is that the group key was saved as VNT_KEY_DEFAULTKEY
-was over written by the VNT_KEY_GROUP_ADDRESS index.
+This reverts commit 5e9bd2d70ae7c00a95a22994abf1eef728649e64.
 
-mac80211 could not clear the mac_addr in the default key.
+As Johan says, this driver needs a lot more work and these changes are
+only going in the wrong direction:
+    https://lkml.kernel.org/r/20190523091839.GC568@localhost
 
-The VNT_KEY_DEFAULTKEY is not necesscary so remove it and set as
-VNT_KEY_GROUP_ADDRESS.
-
-mac80211 can clear any key using vnt_mac_disable_keyentry.
-
-Fixes: f9ef05ce13e4 ("staging: vt6656: Fix pairwise key for non station modes")
+Reported-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/da2f7e7f-1658-1320-6eee-0f55770ca391@gmail.com
+Link: https://lore.kernel.org/r/310999ab5342f788a7bc1b0e68294d4f052cad07.1585905873.git.michal.simek@xilinx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6656/key.c      |   14 +++-----------
- drivers/staging/vt6656/main_usb.c |    6 +++++-
- 2 files changed, 8 insertions(+), 12 deletions(-)
+ drivers/tty/serial/xilinx_uartps.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- a/drivers/staging/vt6656/key.c
-+++ b/drivers/staging/vt6656/key.c
-@@ -81,9 +81,6 @@ static int vnt_set_keymode(struct ieee80
- 	case  VNT_KEY_PAIRWISE:
- 		key_mode |= mode;
- 		key_inx = 4;
--		/* Don't save entry for pairwise key for station mode */
--		if (priv->op_mode == NL80211_IFTYPE_STATION)
--			clear_bit(entry, &priv->key_entry_inuse);
- 		break;
- 	default:
- 		return -EINVAL;
-@@ -107,7 +104,6 @@ static int vnt_set_keymode(struct ieee80
- int vnt_set_keys(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
- 		 struct ieee80211_vif *vif, struct ieee80211_key_conf *key)
- {
--	struct ieee80211_bss_conf *conf = &vif->bss_conf;
- 	struct vnt_private *priv = hw->priv;
- 	u8 *mac_addr = NULL;
- 	u8 key_dec_mode = 0;
-@@ -149,16 +145,12 @@ int vnt_set_keys(struct ieee80211_hw *hw
- 		key->flags |= IEEE80211_KEY_FLAG_GENERATE_IV;
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -1576,6 +1576,7 @@ static int cdns_uart_probe(struct platfo
+ 		goto err_out_id;
  	}
  
--	if (key->flags & IEEE80211_KEY_FLAG_PAIRWISE) {
-+	if (key->flags & IEEE80211_KEY_FLAG_PAIRWISE)
- 		vnt_set_keymode(hw, mac_addr, key, VNT_KEY_PAIRWISE,
- 				key_dec_mode, true);
--	} else {
--		vnt_set_keymode(hw, mac_addr, key, VNT_KEY_DEFAULTKEY,
-+	else
-+		vnt_set_keymode(hw, mac_addr, key, VNT_KEY_GROUP_ADDRESS,
- 				key_dec_mode, true);
++	uartps_major = cdns_uart_uart_driver->tty_driver->major;
+ 	cdns_uart_data->cdns_uart_driver = cdns_uart_uart_driver;
  
--		vnt_set_keymode(hw, (u8 *)conf->bssid, key,
--				VNT_KEY_GROUP_ADDRESS, key_dec_mode, true);
--	}
--
+ 	/*
+@@ -1706,7 +1707,6 @@ static int cdns_uart_probe(struct platfo
+ 		console_port = NULL;
+ #endif
+ 
+-	uartps_major = cdns_uart_uart_driver->tty_driver->major;
+ 	cdns_uart_data->cts_override = of_property_read_bool(pdev->dev.of_node,
+ 							     "cts-override");
  	return 0;
+@@ -1768,12 +1768,6 @@ static int cdns_uart_remove(struct platf
+ 		console_port = NULL;
+ #endif
+ 
+-	/* If this is last instance major number should be initialized */
+-	mutex_lock(&bitmap_lock);
+-	if (bitmap_empty(bitmap, MAX_UART_INSTANCES))
+-		uartps_major = 0;
+-	mutex_unlock(&bitmap_lock);
+-
+ 	uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
+ 	return rc;
  }
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -828,8 +828,12 @@ static int vnt_set_key(struct ieee80211_
- 			return -EOPNOTSUPP;
- 		break;
- 	case DISABLE_KEY:
--		if (test_bit(key->hw_key_idx, &priv->key_entry_inuse))
-+		if (test_bit(key->hw_key_idx, &priv->key_entry_inuse)) {
- 			clear_bit(key->hw_key_idx, &priv->key_entry_inuse);
-+
-+			vnt_mac_disable_keyentry(priv, key->hw_key_idx);
-+		}
-+
- 	default:
- 		break;
- 	}
 
 
