@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC82C1BCB88
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2CCB1BCAB1
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729406AbgD1S3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:29:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43680 "EHLO mail.kernel.org"
+        id S1730438AbgD1Svo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:51:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729401AbgD1S3p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:29:45 -0400
+        id S1729392AbgD1Sg7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:36:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D169E20730;
-        Tue, 28 Apr 2020 18:29:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59E2920575;
+        Tue, 28 Apr 2020 18:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098585;
-        bh=zD789dP6I9c4Z+1f02WB1iPpEHekSNenlssybZAeuw0=;
+        s=default; t=1588099018;
+        bh=vfAHXFAy/Y/q0wkxF7wa7tNLX+mcFSUdnGqu55sY0aU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPVGPgtNOR+ZKsmw+WU5r1aveD4vlqav6Sds3xcFTKlUB9bfEfd87yE9vk9bawzgE
-         RMCebL2QLtEQxnJG7EHQxEQAG9OUpyigl6YdfMiZ7O5fKcXMt+rWWJMre+OZ9XDmlL
-         DVneptzOHaIa7DXUF8hlASkgGShME4CCPeW3sHoE=
+        b=khMehWWQElCGPo2Wrc38H4uNj2uB6P7VjgnK9LNa5vCjVZ+bJ2yU2H44JQao0H3t0
+         VYj6yRC8fnNyt3nWZNE9kMmLaIMCodVW1Esyp7eB58vocSI9Xj9/vooWUnjkqwt5YT
+         ISeeOpEB9R3uwwQuZ/zcArpbNtCzw3Wqp2pBCj1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Aurelien Jarno <aurelien@aurel32.net>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 044/167] block: fix busy device checking in blk_drop_partitions again
+Subject: [PATCH 5.4 046/168] libbpf: Fix readelf output parsing on powerpc with recent binutils
 Date:   Tue, 28 Apr 2020 20:23:40 +0200
-Message-Id: <20200428182230.648339986@linuxfoundation.org>
+Message-Id: <20200428182237.685189790@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Aurelien Jarno <aurelien@aurel32.net>
 
-[ Upstream commit cb6b771b05c3026a85ed4817c1b87c5e6f41d136 ]
+[ Upstream commit 3464afdf11f9a1e031e7858a05351ceca1792fea ]
 
-The previous fix had an off by one in the bd_openers checking, counting
-the callers blkdev_get.
+On powerpc with recent versions of binutils, readelf outputs an extra
+field when dumping the symbols of an object file. For example:
 
-Fixes: d3ef5536274f ("block: fix busy device checking in blk_drop_partitions")
-Reported-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+    35: 0000000000000838    96 FUNC    LOCAL  DEFAULT [<localentry>: 8]     1 btf_is_struct
+
+The extra "[<localentry>: 8]" prevents the GLOBAL_SYM_COUNT variable to
+be computed correctly and causes the check_abi target to fail.
+
+Fix that by looking for the symbol name in the last field instead of the
+8th one. This way it should also cope with future extra fields.
+
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/bpf/20191201195728.4161537-1-aurelien@aurel32.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/partition-generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/block/partition-generic.c b/block/partition-generic.c
-index 5f3b2a959aa51..ebe4c2e9834bd 100644
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -468,7 +468,7 @@ int blk_drop_partitions(struct gendisk *disk, struct block_device *bdev)
+diff --git a/tools/lib/bpf/Makefile b/tools/lib/bpf/Makefile
+index 33e2638ef7f0d..122321d549227 100644
+--- a/tools/lib/bpf/Makefile
++++ b/tools/lib/bpf/Makefile
+@@ -145,7 +145,7 @@ PC_FILE		:= $(addprefix $(OUTPUT),$(PC_FILE))
  
- 	if (!disk_part_scan_enabled(disk))
- 		return 0;
--	if (bdev->bd_part_count || bdev->bd_openers)
-+	if (bdev->bd_part_count || bdev->bd_openers > 1)
- 		return -EBUSY;
- 	res = invalidate_partition(disk, 0);
- 	if (res)
+ GLOBAL_SYM_COUNT = $(shell readelf -s --wide $(BPF_IN_SHARED) | \
+ 			   cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' | \
+-			   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$8}' | \
++			   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
+ 			   sort -u | wc -l)
+ VERSIONED_SYM_COUNT = $(shell readelf -s --wide $(OUTPUT)libbpf.so | \
+ 			      grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 | sort -u | wc -l)
+@@ -217,7 +217,7 @@ check_abi: $(OUTPUT)libbpf.so
+ 		     "versioned in $(VERSION_SCRIPT)." >&2;		 \
+ 		readelf -s --wide $(BPF_IN_SHARED) |			 \
+ 		    cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' |	 \
+-		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$8}'|   \
++		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
+ 		    sort -u > $(OUTPUT)libbpf_global_syms.tmp;		 \
+ 		readelf -s --wide $(OUTPUT)libbpf.so |			 \
+ 		    grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 |		 \
 -- 
 2.20.1
 
