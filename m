@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1021BC91B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5561B1BCAB0
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730658AbgD1Sim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:38:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57172 "EHLO mail.kernel.org"
+        id S1729462AbgD1Sg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:36:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729936AbgD1Sij (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:38:39 -0400
+        id S1730423AbgD1Sg4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:36:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB5E920575;
-        Tue, 28 Apr 2020 18:38:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE30E2176D;
+        Tue, 28 Apr 2020 18:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099119;
-        bh=aLkelBpeaUGa3Ws4vfD7/WVsuk/HkvmPey6pJ3eLsJI=;
+        s=default; t=1588099016;
+        bh=SuW/bMeNfeTOi8oPIOlRFwzT/BVrAzPDe9cMItAubWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eAChhUM6utFDBRW3fT9jUOhttJVLCZNV0wc0Uf+6N5T/KjUU+Y/e/YnIRafVLo+vK
-         +Zu+PHT4X3Ozn37ra511qjRJPNLqS3wbLbTYo25lLU1tTq8uQnf+ZdbtaKnOLqUygZ
-         TWfxQzy+pZysq8j15JfnSUCStExVjjUx3XQDC1pA=
+        b=ZuP23WEG2PcbIcagYB1DtvgfNR3sAmFp/ZNBVZ5U3oo18JcwG5bgaWbFdwrgwUmHo
+         7DZtdHN+wUJg5PY0tTpHvJ3rhs+fftFbM1dzUnoBoGZfQXmzHo/8RsfPedoNDqlHcl
+         Vb029EO0ulByXFHq/EQRBj0bJ+S/3t/E1NMLebkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 4.19 099/131] tpm/tpm_tis: Free IRQ if probing fails
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.6 135/167] staging: comedi: Fix comedi_device refcnt leak in comedi_open
 Date:   Tue, 28 Apr 2020 20:25:11 +0200
-Message-Id: <20200428182237.557113757@linuxfoundation.org>
+Message-Id: <20200428182242.522272905@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit b160c94be5d2816b62c8ac338605668304242959 upstream.
+commit 332e0e17ad49e084b7db670ef43b5eb59abd9e34 upstream.
 
-Call disable_interrupts() if we have to revert to polling in order not to
-unnecessarily reserve the IRQ for the life-cycle of the driver.
+comedi_open() invokes comedi_dev_get_from_minor(), which returns a
+reference of the COMEDI device to "dev" with increased refcount.
 
-Cc: stable@vger.kernel.org # 4.5.x
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Fixes: e3837e74a06d ("tpm_tis: Refactor the interrupt setup")
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+When comedi_open() returns, "dev" becomes invalid, so the refcount
+should be decreased to keep refcount balanced.
+
+The reference counting issue happens in one exception handling path of
+comedi_open(). When "cfp" allocation is failed, the refcnt increased by
+comedi_dev_get_from_minor() is not decreased, causing a refcnt leak.
+
+Fix this issue by calling comedi_dev_put() on this error path when "cfp"
+allocation is failed.
+
+Fixes: 20f083c07565 ("staging: comedi: prepare support for per-file read and write subdevices")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/1587361459-83622-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm_tis_core.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/staging/comedi/comedi_fops.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -437,6 +437,9 @@ static void disable_interrupts(struct tp
- 	u32 intmask;
- 	int rc;
+--- a/drivers/staging/comedi/comedi_fops.c
++++ b/drivers/staging/comedi/comedi_fops.c
+@@ -2725,8 +2725,10 @@ static int comedi_open(struct inode *ino
+ 	}
  
-+	if (priv->irq == 0)
-+		return;
-+
- 	rc = tpm_tis_read32(priv, TPM_INT_ENABLE(priv->locality), &intmask);
- 	if (rc < 0)
- 		intmask = 0;
-@@ -984,9 +987,12 @@ int tpm_tis_core_init(struct device *dev
- 		if (irq) {
- 			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
- 						 irq);
--			if (!(chip->flags & TPM_CHIP_FLAG_IRQ))
-+			if (!(chip->flags & TPM_CHIP_FLAG_IRQ)) {
- 				dev_err(&chip->dev, FW_BUG
- 					"TPM interrupt not working, polling instead\n");
-+
-+				disable_interrupts(chip);
-+			}
- 		} else {
- 			tpm_tis_probe_irq(chip, intmask);
- 		}
+ 	cfp = kzalloc(sizeof(*cfp), GFP_KERNEL);
+-	if (!cfp)
++	if (!cfp) {
++		comedi_dev_put(dev);
+ 		return -ENOMEM;
++	}
+ 
+ 	cfp->dev = dev;
+ 
 
 
