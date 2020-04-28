@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D4881BCAE1
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 942161BC9D5
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730556AbgD1Sw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:52:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52860 "EHLO mail.kernel.org"
+        id S1731114AbgD1Smb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:42:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729767AbgD1Sfi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:35:38 -0400
+        id S1731098AbgD1Sm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:42:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0AE021707;
-        Tue, 28 Apr 2020 18:35:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CB342085B;
+        Tue, 28 Apr 2020 18:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098937;
-        bh=wQT0NZEs+27u1LF8elCTQvvAaHB5bW7Z7i0FVy5aQ4Y=;
+        s=default; t=1588099346;
+        bh=jMJhh2+wu78WkYWNTpnb7aQZRNPelMQ0y1U1sNDZL70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikrQaYeUB1begBEy8N/euMSsP8KQaJlQuOcy3A3GZNWpAn1f98sx5Xi6hT3oHO9If
-         5cCZoVIEbRQwNoRCJEH6o7yl0Z+62urtc5v9XfCaHwLjY2WZ0CYlGcokbK1V883MAm
-         7d3DF2TQrZivgy7mH+aNTPbMf+tiNQTHzvoY3BTY=
+        b=uhooyz4smj3cgq0zO+XMtWwul9SJoFLpMUSB3IKPa+W8ANy8HDbv4oS0wCbCcOL8H
+         hApmwgcEZIFaQfFKyflTPhemI0R5XtnmwsWZUrbLAMH99rlkeGsIccAtLbV0dlOahM
+         5JzXOEgLdZEFQ8vYhUbGNnDX9BTWpLKW3dVoFJQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 075/131] ALSA: usb-audio: Add static mapping table for ALC1220-VB-based mobos
+        stable@vger.kernel.org, Alexey Skobkin <skobkin-ru@ya.ru>,
+        Alexander Tsoy <alexander@tsoy.me>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 113/168] ALSA: usb-audio: Filter out unsupported sample rates on Focusrite devices
 Date:   Tue, 28 Apr 2020 20:24:47 +0200
-Message-Id: <20200428182234.365733149@linuxfoundation.org>
+Message-Id: <20200428182246.817724364@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,139 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alexander Tsoy <alexander@tsoy.me>
 
-[ Upstream commit a43c1c41bc5145971d06edc42a6b1e8faa0e2bc3 ]
+commit 1c826792586f526a5a5cd21d55aad388f5bb0b23 upstream.
 
-TRX40 mobos from MSI and others with ALC1220-VB USB-audio device need
-yet more quirks for the proper control names.
+Many Focusrite devices supports a limited set of sample rates per
+altsetting. These includes audio interfaces with ADAT ports:
+ - Scarlett 18i6, 18i8 1st gen, 18i20 1st gen;
+ - Scarlett 18i8 2nd gen, 18i20 2nd gen;
+ - Scarlett 18i8 3rd gen, 18i20 3rd gen;
+ - Clarett 2Pre USB, 4Pre USB, 8Pre USB.
 
-This patch provides the mapping table for those boards, correcting the
-FU names for volume and mute controls as well as the terminal names
-for jack controls.  It also improves build_connector_control() not to
-add the directional suffix blindly if the string is given from the
-mapping table.
+Maximum rate is exposed in the last 4 bytes of Format Type descriptor
+which has a non-standard bLength = 10.
 
-With this patch applied, the new UCM profiles will be effective.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206873
-Link: https://lore.kernel.org/r/20200420062036.28567-1-tiwai@suse.de
+Tested-by: Alexey Skobkin <skobkin-ru@ya.ru>
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200418175815.12211-1-alexander@tsoy.me
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/usb/mixer.c        | 12 +++++++++---
- sound/usb/mixer_maps.c   | 24 +++++++++++++++++++++---
- sound/usb/quirks-table.h | 14 ++++++++++++++
- 3 files changed, 44 insertions(+), 6 deletions(-)
+ sound/usb/format.c |   52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index 257da95a4ea6a..2638bd2e41f31 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1770,8 +1770,10 @@ static void build_connector_control(struct usb_mixer_interface *mixer,
- {
- 	struct snd_kcontrol *kctl;
- 	struct usb_mixer_elem_info *cval;
-+	const struct usbmix_name_map *map;
- 
--	if (check_ignored_ctl(find_map(imap, term->id, 0)))
-+	map = find_map(imap, term->id, 0);
-+	if (check_ignored_ctl(map))
- 		return;
- 
- 	cval = kzalloc(sizeof(*cval), GFP_KERNEL);
-@@ -1803,8 +1805,12 @@ static void build_connector_control(struct usb_mixer_interface *mixer,
- 		usb_mixer_elem_info_free(cval);
- 		return;
- 	}
--	get_connector_control_name(mixer, term, is_input, kctl->id.name,
--				   sizeof(kctl->id.name));
-+
-+	if (check_mapped_name(map, kctl->id.name, sizeof(kctl->id.name)))
-+		strlcat(kctl->id.name, " Jack", sizeof(kctl->id.name));
-+	else
-+		get_connector_control_name(mixer, term, is_input, kctl->id.name,
-+					   sizeof(kctl->id.name));
- 	kctl->private_free = snd_usb_mixer_elem_free;
- 	snd_usb_mixer_add_control(&cval->head, kctl);
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -227,6 +227,52 @@ static int parse_audio_format_rates_v1(s
  }
-diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
-index bf000e54461b1..3c14ef8fd5a2b 100644
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -373,6 +373,24 @@ static const struct usbmix_name_map asus_rog_map[] = {
- 	{}
- };
  
-+/* TRX40 mobos with Realtek ALC1220-VB */
-+static const struct usbmix_name_map trx40_mobo_map[] = {
-+	{ 18, NULL }, /* OT, IEC958 - broken response, disabled */
-+	{ 19, NULL, 12 }, /* FU, Input Gain Pad - broken response, disabled */
-+	{ 16, "Speaker" },		/* OT */
-+	{ 22, "Speaker Playback" },	/* FU */
-+	{ 7, "Line" },			/* IT */
-+	{ 19, "Line Capture" },		/* FU */
-+	{ 17, "Front Headphone" },	/* OT */
-+	{ 23, "Front Headphone Playback" },	/* FU */
-+	{ 8, "Mic" },			/* IT */
-+	{ 20, "Mic Capture" },		/* FU */
-+	{ 9, "Front Mic" },		/* IT */
-+	{ 21, "Front Mic Capture" },	/* FU */
-+	{ 24, "IEC958 Playback" },	/* FU */
-+	{}
-+};
-+
  /*
-  * Control map entries
-  */
-@@ -494,7 +512,7 @@ static struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 	},
- 	{	/* Gigabyte TRX40 Aorus Pro WiFi */
- 		.id = USB_ID(0x0414, 0xa002),
--		.map = asus_rog_map,
-+		.map = trx40_mobo_map,
- 	},
- 	{	/* ASUS ROG Zenith II */
- 		.id = USB_ID(0x0b05, 0x1916),
-@@ -506,11 +524,11 @@ static struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 	},
- 	{	/* MSI TRX40 Creator */
- 		.id = USB_ID(0x0db0, 0x0d64),
--		.map = asus_rog_map,
-+		.map = trx40_mobo_map,
- 	},
- 	{	/* MSI TRX40 */
- 		.id = USB_ID(0x0db0, 0x543d),
--		.map = asus_rog_map,
-+		.map = trx40_mobo_map,
- 	},
- 	{ 0 } /* terminator */
- };
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index 90d4f61cc2308..774aeedde0717 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3400,4 +3400,18 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
- 	}
- },
- 
-+#define ALC1220_VB_DESKTOP(vend, prod) { \
-+	USB_DEVICE(vend, prod),	\
-+	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) { \
-+		.vendor_name = "Realtek", \
-+		.product_name = "ALC1220-VB-DT", \
-+		.profile_name = "Realtek-ALC1220-VB-Desktop", \
-+		.ifnum = QUIRK_NO_INTERFACE \
-+	} \
-+}
-+ALC1220_VB_DESKTOP(0x0414, 0xa002), /* Gigabyte TRX40 Aorus Pro WiFi */
-+ALC1220_VB_DESKTOP(0x0db0, 0x0d64), /* MSI TRX40 Creator */
-+ALC1220_VB_DESKTOP(0x0db0, 0x543d), /* MSI TRX40 */
-+#undef ALC1220_VB_DESKTOP
++ * Many Focusrite devices supports a limited set of sampling rates per
++ * altsetting. Maximum rate is exposed in the last 4 bytes of Format Type
++ * descriptor which has a non-standard bLength = 10.
++ */
++static bool focusrite_valid_sample_rate(struct snd_usb_audio *chip,
++					struct audioformat *fp,
++					unsigned int rate)
++{
++	struct usb_interface *iface;
++	struct usb_host_interface *alts;
++	unsigned char *fmt;
++	unsigned int max_rate;
 +
- #undef USB_DEVICE_VENDOR_SPEC
--- 
-2.20.1
-
++	iface = usb_ifnum_to_if(chip->dev, fp->iface);
++	if (!iface)
++		return true;
++
++	alts = &iface->altsetting[fp->altset_idx];
++	fmt = snd_usb_find_csint_desc(alts->extra, alts->extralen,
++				      NULL, UAC_FORMAT_TYPE);
++	if (!fmt)
++		return true;
++
++	if (fmt[0] == 10) { /* bLength */
++		max_rate = combine_quad(&fmt[6]);
++
++		/* Validate max rate */
++		if (max_rate != 48000 &&
++		    max_rate != 96000 &&
++		    max_rate != 192000 &&
++		    max_rate != 384000) {
++
++			usb_audio_info(chip,
++				"%u:%d : unexpected max rate: %u\n",
++				fp->iface, fp->altsetting, max_rate);
++
++			return true;
++		}
++
++		return rate <= max_rate;
++	}
++
++	return true;
++}
++
++/*
+  * Helper function to walk the array of sample rate triplets reported by
+  * the device. The problem is that we need to parse whole array first to
+  * get to know how many sample rates we have to expect.
+@@ -262,6 +308,11 @@ static int parse_uac2_sample_rate_range(
+ 		}
+ 
+ 		for (rate = min; rate <= max; rate += res) {
++			/* Filter out invalid rates on Focusrite devices */
++			if (USB_ID_VENDOR(chip->usb_id) == 0x1235 &&
++			    !focusrite_valid_sample_rate(chip, fp, rate))
++				goto skip_rate;
++
+ 			if (fp->rate_table)
+ 				fp->rate_table[nr_rates] = rate;
+ 			if (!fp->rate_min || rate < fp->rate_min)
+@@ -276,6 +327,7 @@ static int parse_uac2_sample_rate_range(
+ 				break;
+ 			}
+ 
++skip_rate:
+ 			/* avoid endless loop */
+ 			if (res == 0)
+ 				break;
 
 
