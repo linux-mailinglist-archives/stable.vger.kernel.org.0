@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF831BC82A
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA681BC869
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729432AbgD1SaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:30:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44536 "EHLO mail.kernel.org"
+        id S1729188AbgD1ScW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:32:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729459AbgD1SaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:30:08 -0400
+        id S1729801AbgD1ScV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:32:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E675720B80;
-        Tue, 28 Apr 2020 18:30:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8C31217D8;
+        Tue, 28 Apr 2020 18:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098607;
-        bh=YL6nTEoKaObranvHZ0CHYwaKUbCoDoNoOlaCNDWQbdw=;
+        s=default; t=1588098741;
+        bh=+YyOS4rZ6yyGaR/yktSF9m7AWnmg8UoouChpex/Yoy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aa/wYpgB2ngZd3jKNQjl5tc9ZoC1Tn23VjGuR0Cvqf3zn2h/OPyQWx30OcQRGbF9m
-         G9DvR4bivMCz5Rwo7C1zY7KwjRwsbdqjZrvEfDG5jxagAvkxnanWnitn08uCUhbegE
-         sUxya1EpApC1IsRrgY1dBoU32Sr+nQcVFxOR3em0=
+        b=A+a/yDW45OghjHe3M7ZNp7o9BiwvOiWwto8VPvUsbSf6tgwIqCSiuH5vndT11GDKK
+         /X1+3mfdHvK0V3z5oRHHtpOlMjopZPfaLY9qVPyhIlkbIlLSic6mVaE2drVhaWdhvf
+         2hyC6GOnHaQdfRzUptuzLsYIe3PS0xNoSNwW7yaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
-        Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.6 084/167] iio: adc: stm32-adc: fix sleep in atomic context
+        stable@vger.kernel.org, KarimAllah Ahmed <karahmed@amazon.de>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 048/131] KVM: Properly check if "page" is valid in kvm_vcpu_unmap
 Date:   Tue, 28 Apr 2020 20:24:20 +0200
-Message-Id: <20200428182235.606738542@linuxfoundation.org>
+Message-Id: <20200428182231.061902118@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@st.com>
+From: KarimAllah Ahmed <karahmed@amazon.de>
 
-commit e2042d2936dfc84e9c600fe9b9d0039ca0e54b7d upstream.
+commit b614c6027896ff9ad6757122e84760d938cab15e upstream.
 
-This commit fixes the following error:
-"BUG: sleeping function called from invalid context at kernel/irq/chip.c"
+The field "page" is initialized to KVM_UNMAPPED_PAGE when it is not used
+(i.e. when the memory lives outside kernel control). So this check will
+always end up using kunmap even for memremap regions.
 
-In DMA mode suppress the trigger irq handler, and make the buffer
-transfers directly in DMA callback, instead.
-
-Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
-Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: e45adf665a53 ("KVM: Introduce a new guest mapping API")
+Signed-off-by: KarimAllah Ahmed <karahmed@amazon.de>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/stm32-adc.c |   31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ virt/kvm/kvm_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1418,8 +1418,30 @@ static unsigned int stm32_adc_dma_residu
- static void stm32_adc_dma_buffer_done(void *data)
- {
- 	struct iio_dev *indio_dev = data;
-+	struct stm32_adc *adc = iio_priv(indio_dev);
-+	int residue = stm32_adc_dma_residue(adc);
-+
-+	/*
-+	 * In DMA mode the trigger services of IIO are not used
-+	 * (e.g. no call to iio_trigger_poll).
-+	 * Calling irq handler associated to the hardware trigger is not
-+	 * relevant as the conversions have already been done. Data
-+	 * transfers are performed directly in DMA callback instead.
-+	 * This implementation avoids to call trigger irq handler that
-+	 * may sleep, in an atomic context (DMA irq handler context).
-+	 */
-+	dev_dbg(&indio_dev->dev, "%s bufi=%d\n", __func__, adc->bufi);
-+
-+	while (residue >= indio_dev->scan_bytes) {
-+		u16 *buffer = (u16 *)&adc->rx_buf[adc->bufi];
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 5b949aa273de5..33b288469c70c 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1754,7 +1754,7 @@ void kvm_vcpu_unmap(struct kvm_vcpu *vcpu, struct kvm_host_map *map,
+ 	if (!map->hva)
+ 		return;
  
--	iio_trigger_poll_chained(indio_dev->trig);
-+		iio_push_to_buffers(indio_dev, buffer);
-+
-+		residue -= indio_dev->scan_bytes;
-+		adc->bufi += indio_dev->scan_bytes;
-+		if (adc->bufi >= adc->rx_buf_sz)
-+			adc->bufi = 0;
-+	}
- }
- 
- static int stm32_adc_dma_start(struct iio_dev *indio_dev)
-@@ -1845,6 +1867,7 @@ static int stm32_adc_probe(struct platfo
- {
- 	struct iio_dev *indio_dev;
- 	struct device *dev = &pdev->dev;
-+	irqreturn_t (*handler)(int irq, void *p) = NULL;
- 	struct stm32_adc *adc;
- 	int ret;
- 
-@@ -1911,9 +1934,11 @@ static int stm32_adc_probe(struct platfo
- 	if (ret < 0)
- 		return ret;
- 
-+	if (!adc->dma_chan)
-+		handler = &stm32_adc_trigger_handler;
-+
- 	ret = iio_triggered_buffer_setup(indio_dev,
--					 &iio_pollfunc_store_time,
--					 &stm32_adc_trigger_handler,
-+					 &iio_pollfunc_store_time, handler,
- 					 &stm32_adc_buffer_setup_ops);
- 	if (ret) {
- 		dev_err(&pdev->dev, "buffer setup failed\n");
+-	if (map->page)
++	if (map->page != KVM_UNMAPPED_PAGE)
+ 		kunmap(map->page);
+ #ifdef CONFIG_HAS_IOMEM
+ 	else
+-- 
+2.20.1
+
 
 
