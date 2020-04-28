@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FDE81BC9DA
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:47:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D071BCB63
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730585AbgD1Smw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:42:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34998 "EHLO mail.kernel.org"
+        id S1729592AbgD1SbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:31:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731152AbgD1Smt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:42:49 -0400
+        id S1729579AbgD1Sa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8379420575;
-        Tue, 28 Apr 2020 18:42:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1EE021707;
+        Tue, 28 Apr 2020 18:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099369;
-        bh=gYpCN2E60RoWYWQQNwY8vf9911kUG5TcfdItDCLSNYU=;
+        s=default; t=1588098656;
+        bh=btMmoRmbm0aFeh7V8QPWVWglOxt22/y9OzCifBjnb+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjtsHJUfyKuGN+4Og5OFwWSv3OwaaBbQoGUxcsOE3YKaqEPGVS9l07FGC/VssvwII
-         hQbiHlkavvYPjOlcArU6xCh4Wt/sEzCctYo9ysTtxWU6sEFCA8OhHY/yfMdZjBjz+w
-         KlG0ej4loy4UnDWbkKjxnUnrrwgm63xDQTkcfuIk=
+        b=l3E5yr1vtajT14zdGBpy2ROuRXl7F3d5mAhvbeb+b7FEsBJQzZjOsLqwp7rQACYsl
+         u19Zp4E6qYY0897X01FHmIQ1++EtBPTP39oX9TLv+SZkFtd+vZJYpi9N9rUEDlyQKh
+         eIKDNGa8vbh8kB1y9nYec+r0/AkLiXpa4sxudDJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changming Liu <liu.changm@northeastern.edu>
-Subject: [PATCH 5.4 095/168] USB: sisusbvga: Change port variable from signed to unsigned
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Kyungtae Kim <kt0755@gmail.com>
+Subject: [PATCH 5.6 093/167] USB: core: Fix free-while-in-use bug in the USB S-Glibrary
 Date:   Tue, 28 Apr 2020 20:24:29 +0200
-Message-Id: <20200428182244.335896795@linuxfoundation.org>
+Message-Id: <20200428182236.786952756@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,128 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changming Liu <liu.changm@northeastern.edu>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 2df7405f79ce1674d73c2786fe1a8727c905d65b upstream.
+commit 056ad39ee9253873522f6469c3364964a322912b upstream.
 
-Change a bunch of arguments of wrapper functions which pass signed
-integer to an unsigned integer which might cause undefined behaviors
-when sign integer overflow.
+FuzzUSB (a variant of syzkaller) found a free-while-still-in-use bug
+in the USB scatter-gather library:
 
-Signed-off-by: Changming Liu <liu.changm@northeastern.edu>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/BL0PR06MB45482D71EA822D75A0E60A2EE5D50@BL0PR06MB4548.namprd06.prod.outlook.com
+BUG: KASAN: use-after-free in atomic_read
+include/asm-generic/atomic-instrumented.h:26 [inline]
+BUG: KASAN: use-after-free in usb_hcd_unlink_urb+0x5f/0x170
+drivers/usb/core/hcd.c:1607
+Read of size 4 at addr ffff888065379610 by task kworker/u4:1/27
+
+CPU: 1 PID: 27 Comm: kworker/u4:1 Not tainted 5.5.11 #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.10.2-1ubuntu1 04/01/2014
+Workqueue: scsi_tmf_2 scmd_eh_abort_handler
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
+ __kasan_report+0x153/0x1cb mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:639
+ check_memory_region_inline mm/kasan/generic.c:185 [inline]
+ check_memory_region+0x152/0x1b0 mm/kasan/generic.c:192
+ __kasan_check_read+0x11/0x20 mm/kasan/common.c:95
+ atomic_read include/asm-generic/atomic-instrumented.h:26 [inline]
+ usb_hcd_unlink_urb+0x5f/0x170 drivers/usb/core/hcd.c:1607
+ usb_unlink_urb+0x72/0xb0 drivers/usb/core/urb.c:657
+ usb_sg_cancel+0x14e/0x290 drivers/usb/core/message.c:602
+ usb_stor_stop_transport+0x5e/0xa0 drivers/usb/storage/transport.c:937
+
+This bug occurs when cancellation of the S-G transfer races with
+transfer completion.  When that happens, usb_sg_cancel() may continue
+to access the transfer's URBs after usb_sg_wait() has freed them.
+
+The bug is caused by the fact that usb_sg_cancel() does not take any
+sort of reference to the transfer, and so there is nothing to prevent
+the URBs from being deallocated while the routine is trying to use
+them.  The fix is to take such a reference by incrementing the
+transfer's io->count field while the cancellation is in progres and
+decrementing it afterward.  The transfer's URBs are not deallocated
+until io->complete is triggered, which happens when io->count reaches
+zero.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2003281615140.14837-100000@netrider.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/sisusbvga/sisusb.c      |   20 ++++++++++----------
- drivers/usb/misc/sisusbvga/sisusb_init.h |   14 +++++++-------
- 2 files changed, 17 insertions(+), 17 deletions(-)
+ drivers/usb/core/message.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/sisusbvga/sisusb.c
-+++ b/drivers/usb/misc/sisusbvga/sisusb.c
-@@ -1199,18 +1199,18 @@ static int sisusb_read_mem_bulk(struct s
- /* High level: Gfx (indexed) register access */
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -588,12 +588,13 @@ void usb_sg_cancel(struct usb_sg_request
+ 	int i, retval;
  
- #ifdef CONFIG_USB_SISUSBVGA_CON
--int sisusb_setreg(struct sisusb_usb_data *sisusb, int port, u8 data)
-+int sisusb_setreg(struct sisusb_usb_data *sisusb, u32 port, u8 data)
- {
- 	return sisusb_write_memio_byte(sisusb, SISUSB_TYPE_IO, port, data);
+ 	spin_lock_irqsave(&io->lock, flags);
+-	if (io->status) {
++	if (io->status || io->count == 0) {
+ 		spin_unlock_irqrestore(&io->lock, flags);
+ 		return;
+ 	}
+ 	/* shut everything down */
+ 	io->status = -ECONNRESET;
++	io->count++;		/* Keep the request alive until we're done */
+ 	spin_unlock_irqrestore(&io->lock, flags);
+ 
+ 	for (i = io->entries - 1; i >= 0; --i) {
+@@ -607,6 +608,12 @@ void usb_sg_cancel(struct usb_sg_request
+ 			dev_warn(&io->dev->dev, "%s, unlink --> %d\n",
+ 				 __func__, retval);
+ 	}
++
++	spin_lock_irqsave(&io->lock, flags);
++	io->count--;
++	if (!io->count)
++		complete(&io->complete);
++	spin_unlock_irqrestore(&io->lock, flags);
  }
+ EXPORT_SYMBOL_GPL(usb_sg_cancel);
  
--int sisusb_getreg(struct sisusb_usb_data *sisusb, int port, u8 *data)
-+int sisusb_getreg(struct sisusb_usb_data *sisusb, u32 port, u8 *data)
- {
- 	return sisusb_read_memio_byte(sisusb, SISUSB_TYPE_IO, port, data);
- }
- #endif
- 
--int sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port,
-+int sisusb_setidxreg(struct sisusb_usb_data *sisusb, u32 port,
- 		u8 index, u8 data)
- {
- 	int ret;
-@@ -1220,7 +1220,7 @@ int sisusb_setidxreg(struct sisusb_usb_d
- 	return ret;
- }
- 
--int sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port,
-+int sisusb_getidxreg(struct sisusb_usb_data *sisusb, u32 port,
- 		u8 index, u8 *data)
- {
- 	int ret;
-@@ -1230,7 +1230,7 @@ int sisusb_getidxreg(struct sisusb_usb_d
- 	return ret;
- }
- 
--int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port, u8 idx,
-+int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, u32 port, u8 idx,
- 		u8 myand, u8 myor)
- {
- 	int ret;
-@@ -1245,7 +1245,7 @@ int sisusb_setidxregandor(struct sisusb_
- }
- 
- static int sisusb_setidxregmask(struct sisusb_usb_data *sisusb,
--		int port, u8 idx, u8 data, u8 mask)
-+		u32 port, u8 idx, u8 data, u8 mask)
- {
- 	int ret;
- 	u8 tmp;
-@@ -1258,13 +1258,13 @@ static int sisusb_setidxregmask(struct s
- 	return ret;
- }
- 
--int sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port,
-+int sisusb_setidxregor(struct sisusb_usb_data *sisusb, u32 port,
- 		u8 index, u8 myor)
- {
- 	return sisusb_setidxregandor(sisusb, port, index, 0xff, myor);
- }
- 
--int sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port,
-+int sisusb_setidxregand(struct sisusb_usb_data *sisusb, u32 port,
- 		u8 idx, u8 myand)
- {
- 	return sisusb_setidxregandor(sisusb, port, idx, myand, 0x00);
-@@ -2785,8 +2785,8 @@ static loff_t sisusb_lseek(struct file *
- static int sisusb_handle_command(struct sisusb_usb_data *sisusb,
- 		struct sisusb_command *y, unsigned long arg)
- {
--	int	retval, port, length;
--	u32	address;
-+	int	retval, length;
-+	u32	port, address;
- 
- 	/* All our commands require the device
- 	 * to be initialized.
---- a/drivers/usb/misc/sisusbvga/sisusb_init.h
-+++ b/drivers/usb/misc/sisusbvga/sisusb_init.h
-@@ -812,17 +812,17 @@ static const struct SiS_VCLKData SiSUSB_
- int SiSUSBSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo);
- int SiSUSBSetVESAMode(struct SiS_Private *SiS_Pr, unsigned short VModeNo);
- 
--extern int sisusb_setreg(struct sisusb_usb_data *sisusb, int port, u8 data);
--extern int sisusb_getreg(struct sisusb_usb_data *sisusb, int port, u8 * data);
--extern int sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port,
-+extern int sisusb_setreg(struct sisusb_usb_data *sisusb, u32 port, u8 data);
-+extern int sisusb_getreg(struct sisusb_usb_data *sisusb, u32 port, u8 * data);
-+extern int sisusb_setidxreg(struct sisusb_usb_data *sisusb, u32 port,
- 			    u8 index, u8 data);
--extern int sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port,
-+extern int sisusb_getidxreg(struct sisusb_usb_data *sisusb, u32 port,
- 			    u8 index, u8 * data);
--extern int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port,
-+extern int sisusb_setidxregandor(struct sisusb_usb_data *sisusb, u32 port,
- 				 u8 idx, u8 myand, u8 myor);
--extern int sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port,
-+extern int sisusb_setidxregor(struct sisusb_usb_data *sisusb, u32 port,
- 			      u8 index, u8 myor);
--extern int sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port,
-+extern int sisusb_setidxregand(struct sisusb_usb_data *sisusb, u32 port,
- 			       u8 idx, u8 myand);
- 
- void sisusb_delete(struct kref *kref);
 
 
