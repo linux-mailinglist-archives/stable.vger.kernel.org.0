@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 452191BCA16
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25021BCA52
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730117AbgD1Sp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:45:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36400 "EHLO mail.kernel.org"
+        id S1728985AbgD1Shv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:37:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731286AbgD1Snp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:43:45 -0400
+        id S1730544AbgD1Shu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:37:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD7A9206D6;
-        Tue, 28 Apr 2020 18:43:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFD7620575;
+        Tue, 28 Apr 2020 18:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099425;
+        s=default; t=1588099070;
         bh=nZOTCztkrvm3VQFpmLiXSlzVzJMlPmcb9EM8YgnLKNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MlEP6qukCmabBaIpFrK51+F/SQRszHXzj1fTiGjIMXNYjMuS/XQTI69fhBquEmm1E
-         aBWgg6coBNWvH7MCfZf9NpuISu4vdCZn3SncJD+Lw95Lj8MjhVu3Yye1m4djlTKtYP
-         rYqWezhxACfkZnP5kkJZz9+UI8AiQFjo1AQQjYTI=
+        b=iLibpF3oB31lNDOGQ9+HDkdr3Seck4eVuxyHIFSxZKnfESXab5FK+7yPcwrC12ZGD
+         1tpY82dYkfQfhd3gka6nsVVbQKoXn9FS6SmpPwR/NPSI6Em8dBShZy9cE2Qnb1MYT7
+         ogX+Qtgj0pVqsWYh464dFG6JY5CBJ3p+unYFgwcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>
-Subject: [PATCH 5.4 138/168] vt: dont hardcode the mem allocation upper bound
+Subject: [PATCH 5.6 136/167] vt: dont hardcode the mem allocation upper bound
 Date:   Tue, 28 Apr 2020 20:25:12 +0200
-Message-Id: <20200428182249.274231503@linuxfoundation.org>
+Message-Id: <20200428182242.697621873@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
