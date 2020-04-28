@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58FAF1BCA2A
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B1D21BCB36
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728698AbgD1SrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:47:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33940 "EHLO mail.kernel.org"
+        id S1729798AbgD1ScU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:32:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731063AbgD1SmJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:42:09 -0400
+        id S1729797AbgD1ScT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:32:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C26320575;
-        Tue, 28 Apr 2020 18:42:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EC9321775;
+        Tue, 28 Apr 2020 18:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099329;
-        bh=n9OSzAOIsvEWYv3sAheV6vBFUKxRjlQxE4m3TbbWGOs=;
+        s=default; t=1588098738;
+        bh=/jrAPI4wNWGF4M34LSkLZCDiQzxw+bs9kZbI0SIKvp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoU/YrjRC4i3oAuHYZJphY8MoVkeKHlZ4cGqYay79iLzU7BYOuUAgvru3IrGH3AbY
-         yoy+SCK2anPNkgoHODu2AbBUn+/3tI6c0zaO0rWJhQ8BN6i1t48AMk1SH+kuN8C9v8
-         yqg5cmlwmgcKxONxOpiHlcaVKB280hDEDt0Pw6RI=
+        b=jNiihdIp/S73ZfU1cINb912Jz8h2vXTXy+m8vTINfAPB7YBDP4blbu+9ZGCYXE/OK
+         IyDDSXLPCQiMr2F3xts5swlNL0u53rHCtpIGwlx+rhkfMTS1icjQ3hJ1Z2VREsJS1/
+         j/ROCv5uE93BqwtttLE2YiFmxkqY7WByIST6jQm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Martin Kelly <martin@martingkelly.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 107/168] tools/vm: fix cross-compile build
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 105/167] ALSA: hda/realtek - Add new codec supported for ALC245
 Date:   Tue, 28 Apr 2020 20:24:41 +0200
-Message-Id: <20200428182245.977504170@linuxfoundation.org>
+Message-Id: <20200428182238.435565977@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Kailang Yang <kailang@realtek.com>
 
-commit cf01699ee220c38099eb3e43ce3d10690c8b7060 upstream.
+commit 7fbdcd8301a84c09cebfa64f1317a6dafeec9188 upstream.
 
-Commit 7ed1c1901fe5 ("tools: fix cross-compile var clobbering") moved
-the setup of the CC variable to tools/scripts/Makefile.include to make
-the behavior consistent across all the tools Makefiles.
+Enable new codec supported for ALC245.
 
-As the vm tools missed the include we end up with the wrong CC in a
-cross-compiling evironment.
-
-Fixes: 7ed1c1901fe5 (tools: fix cross-compile var clobbering)
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Martin Kelly <martin@martingkelly.com>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200416104748.25243-1-l.stach@pengutronix.de
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/8c0804738b2c42439f59c39c8437817f@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/vm/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/tools/vm/Makefile
-+++ b/tools/vm/Makefile
-@@ -1,6 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for vm tools
- #
-+include ../scripts/Makefile.include
-+
- TARGETS=page-types slabinfo page_owner_sort
- 
- LIB_DIR = ../lib/api
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -369,6 +369,7 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0233:
+ 	case 0x10ec0235:
+ 	case 0x10ec0236:
++	case 0x10ec0245:
+ 	case 0x10ec0255:
+ 	case 0x10ec0256:
+ 	case 0x10ec0257:
+@@ -8073,6 +8074,7 @@ static int patch_alc269(struct hda_codec
+ 		spec->gen.mixer_nid = 0;
+ 		break;
+ 	case 0x10ec0215:
++	case 0x10ec0245:
+ 	case 0x10ec0285:
+ 	case 0x10ec0289:
+ 		spec->codec_variant = ALC269_TYPE_ALC215;
+@@ -9334,6 +9336,7 @@ static const struct hda_device_id snd_hd
+ 	HDA_CODEC_ENTRY(0x10ec0234, "ALC234", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0235, "ALC233", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0236, "ALC236", patch_alc269),
++	HDA_CODEC_ENTRY(0x10ec0245, "ALC245", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0255, "ALC255", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0256, "ALC256", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0257, "ALC257", patch_alc269),
 
 
