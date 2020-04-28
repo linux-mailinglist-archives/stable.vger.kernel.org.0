@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 983771BCAD4
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B6D1BCA00
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729889AbgD1SwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:52:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53792 "EHLO mail.kernel.org"
+        id S1731474AbgD1Sov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:44:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729579AbgD1SgW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:36:22 -0400
+        id S1731422AbgD1Sot (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:44:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBD24214D8;
-        Tue, 28 Apr 2020 18:36:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5745A20575;
+        Tue, 28 Apr 2020 18:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098981;
-        bh=Z+aGTiu/MMYd7+T5Sgdgb3SXYjm2IMEzxJTGQBgbQDg=;
+        s=default; t=1588099488;
+        bh=Z9GXC0/XLwNjb1iPpdohN1i5r0SvWXCpY+w0cYhMuFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0kGEeltTUeSdPR7ICYJHogwZG8FBe38jlUM+iet3qfqgOQ2CK5DAmlbKGep6rCAw
-         1DNWm8cVlPHJTdd5rpzE58ZnZxKLQSyynaqCltEE5Znk3cdJS6jr+EHQYjntsEXNfq
-         CGeyAfWRMUngc6RfFkXywj8D3FY+cBLzClOyBzkY=
+        b=YRve5BbomtVvpWfjXOC4Y5gwC6pDVp2ZpTX0U1MBc+x7JBHKdoLx3hLhbTjnk8+ww
+         AiUv3EuFNHb3EJ41HS0VOTJ+kQzwDaG3BHlx5zTONFTmYDIz5VK7fENH2w88T/ostn
+         6IKUBZB3QEXcGruKfqgvIiezL1b6LY+yc7LWIZ4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 5.6 140/167] staging: vt6656: Fix drivers TBTT timing counter.
+Subject: [PATCH 5.4 142/168] staging: vt6656: Fix drivers TBTT timing counter.
 Date:   Tue, 28 Apr 2020 20:25:16 +0200
-Message-Id: <20200428182243.325768141@linuxfoundation.org>
+Message-Id: <20200428182249.675555147@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,7 +63,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/staging/vt6656/main_usb.c
 +++ b/drivers/staging/vt6656/main_usb.c
-@@ -777,12 +777,15 @@ static void vnt_bss_info_changed(struct
+@@ -778,12 +778,15 @@ static void vnt_bss_info_changed(struct
  			vnt_mac_reg_bits_on(priv, MAC_REG_TFTCTL,
  					    TFTCTL_TSFCNTREN);
  
