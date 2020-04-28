@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 911441BC7BA
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AB3E1BC881
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbgD1S0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:26:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
+        id S1729441AbgD1SdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:33:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728673AbgD1S0O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:26:14 -0400
+        id S1729916AbgD1SdP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:33:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 005052085B;
-        Tue, 28 Apr 2020 18:26:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0D7220B80;
+        Tue, 28 Apr 2020 18:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098373;
-        bh=bBZ0/WEzQteMoUn5HISEL67Z74iHviswZYjpHt3GYhw=;
+        s=default; t=1588098795;
+        bh=pee3zUleh4ZtCgWyYYLwuFN+JFW53m0iamtGFVqoGCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZ1M0e78wL9xGYV6RGgQw27Lgb4FEZ44jpnITjxW21yNlfFJQMfhkM6bgNc/pxmOm
-         NoBDE9fwQZjxI4IwUxk17JY0kA5ImQK+fF18utbCgIkYc1ddLdUeLdfsV1urlOEcTA
-         5zl2svMEFZO/Gnb66dnb1A0nm/YkhwGIqTWUa+4I=
+        b=DqEtVdl1SEKFw/PEG6SG6nY7M2Rk9qbna2783lv69Cfx5rh0/V/pwLKYdstsWPh8a
+         C59gL2AhUoUrC7a5u+NY8FvrF0JV3BmOUwXOosiY9uS5rV0cnFASWEzFgEbB7cXPm9
+         FqpmHOwzr0P+OHmrp+5ORpgSP7kELcYf/Q1VTYOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 014/167] ASoC: qcom: q6asm-dai: Add SNDRV_PCM_INFO_BATCH flag
+Subject: [PATCH 5.4 016/168] pwm: rcar: Fix late Runtime PM enablement
 Date:   Tue, 28 Apr 2020 20:23:10 +0200
-Message-Id: <20200428182227.021520048@linuxfoundation.org>
+Message-Id: <20200428182233.749983709@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 7f2430cda819a9ecb1df5a0f3ef4f1c20db3f811 ]
+[ Upstream commit 1451a3eed24b5fd6a604683f0b6995e0e7e16c79 ]
 
-At the moment, playing audio with PulseAudio with the qdsp6 driver
-results in distorted sound. It seems like its timer-based scheduling
-does not work properly with qdsp6 since setting tsched=0 in
-the PulseAudio configuration avoids the issue.
+Runtime PM should be enabled before calling pwmchip_add(), as PWM users
+can appear immediately after the PWM chip has been added.
+Likewise, Runtime PM should be disabled after the removal of the PWM
+chip.
 
-Apparently this happens when the pointer() callback is not accurate
-enough. There is a SNDRV_PCM_INFO_BATCH flag that can be used to stop
-PulseAudio from using timer-based scheduling by default.
-
-According to https://www.alsa-project.org/pipermail/alsa-devel/2014-March/073816.html:
-
-    The flag is being used in the sense explained in the previous audio
-    meeting -- the data transfer granularity isn't fine enough but aligned
-    to the period size (or less).
-
-q6asm-dai reports the position as multiple of
-
-    prtd->pcm_count = snd_pcm_lib_period_bytes(substream)
-
-so it indeed just a multiple of the period size.
-
-Therefore adding the flag here seems appropriate and makes audio
-work out of the box.
-
-Fixes: 2a9e92d371db ("ASoC: qdsp6: q6asm: Add q6asm dai driver")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200330175210.47518-1-stephan@gerhold.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ed6c1476bf7f16d5 ("pwm: Add support for R-Car PWM Timer")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/qdsp6/q6asm-dai.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pwm/pwm-rcar.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6asm-dai.c b/sound/soc/qcom/qdsp6/q6asm-dai.c
-index c0d422d0ab94f..d7dc80ede8927 100644
---- a/sound/soc/qcom/qdsp6/q6asm-dai.c
-+++ b/sound/soc/qcom/qdsp6/q6asm-dai.c
-@@ -73,7 +73,7 @@ struct q6asm_dai_data {
- };
+diff --git a/drivers/pwm/pwm-rcar.c b/drivers/pwm/pwm-rcar.c
+index 852eb2347954d..b98ec8847b488 100644
+--- a/drivers/pwm/pwm-rcar.c
++++ b/drivers/pwm/pwm-rcar.c
+@@ -228,24 +228,28 @@ static int rcar_pwm_probe(struct platform_device *pdev)
+ 	rcar_pwm->chip.base = -1;
+ 	rcar_pwm->chip.npwm = 1;
  
- static const struct snd_pcm_hardware q6asm_dai_hardware_capture = {
--	.info =                 (SNDRV_PCM_INFO_MMAP |
-+	.info =                 (SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_BATCH |
- 				SNDRV_PCM_INFO_BLOCK_TRANSFER |
- 				SNDRV_PCM_INFO_MMAP_VALID |
- 				SNDRV_PCM_INFO_INTERLEAVED |
-@@ -95,7 +95,7 @@ static const struct snd_pcm_hardware q6asm_dai_hardware_capture = {
- };
++	pm_runtime_enable(&pdev->dev);
++
+ 	ret = pwmchip_add(&rcar_pwm->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register PWM chip: %d\n", ret);
++		pm_runtime_disable(&pdev->dev);
+ 		return ret;
+ 	}
  
- static struct snd_pcm_hardware q6asm_dai_hardware_playback = {
--	.info =                 (SNDRV_PCM_INFO_MMAP |
-+	.info =                 (SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_BATCH |
- 				SNDRV_PCM_INFO_BLOCK_TRANSFER |
- 				SNDRV_PCM_INFO_MMAP_VALID |
- 				SNDRV_PCM_INFO_INTERLEAVED |
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	return 0;
+ }
+ 
+ static int rcar_pwm_remove(struct platform_device *pdev)
+ {
+ 	struct rcar_pwm_chip *rcar_pwm = platform_get_drvdata(pdev);
++	int ret;
++
++	ret = pwmchip_remove(&rcar_pwm->chip);
+ 
+ 	pm_runtime_disable(&pdev->dev);
+ 
+-	return pwmchip_remove(&rcar_pwm->chip);
++	return ret;
+ }
+ 
+ static const struct of_device_id rcar_pwm_of_table[] = {
 -- 
 2.20.1
 
