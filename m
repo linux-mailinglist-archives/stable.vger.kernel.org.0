@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D32201BC8BC
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:36:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E67901BCBE4
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729719AbgD1SfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:35:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52222 "EHLO mail.kernel.org"
+        id S1728843AbgD1S0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:26:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730215AbgD1SfL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:35:11 -0400
+        id S1728834AbgD1S0u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:26:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31BC520575;
-        Tue, 28 Apr 2020 18:35:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30F4F214AF;
+        Tue, 28 Apr 2020 18:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098910;
+        s=default; t=1588098409;
         bh=59ExLV4e8OBoYTLJp6gv5Rvmogu6A7pDA+M2DHt5blg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OykH0+Ka5IoFONH+kIcDZzjUUvcQuM/tbJrksd2RWTCMjC868v3Stk81ooLHoVIIb
-         rQQt8bmJkgELmW9fbLHXF4Tl+9a4eAtr5PHi4z/pvRwP31KuXlXeRIIrUHNhlHnDKt
-         mnlrJ2onBZfwUqGuofQ9SfoKOfmxY44ZOBS/nDYs=
+        b=JEelMOF3TFbmZDIUqthJNGKHNnjs3Mjf6suC8W2ouwwxYqX7T3PgfwO/wf4VNK2p+
+         /CY2qE83Tm8myfGxDyulD5IzfALTfUg66EmohdtNlSDjko37eMsHjLLRMBYAbUmAmO
+         YeDJhqqrsqKDw9fXxPz8C2SYJMYJBUEdmpmGDUSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Cornelia Huck <cohuck@redhat.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/168] s390/cio: avoid duplicated ADD uevents
+Subject: [PATCH 5.6 028/167] s390/cio: avoid duplicated ADD uevents
 Date:   Tue, 28 Apr 2020 20:23:24 +0200
-Message-Id: <20200428182235.528619245@linuxfoundation.org>
+Message-Id: <20200428182228.771007857@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
