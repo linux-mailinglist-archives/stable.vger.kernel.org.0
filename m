@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECDC61BCBBC
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA7F21BC7DD
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728960AbgD1S1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:27:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39514 "EHLO mail.kernel.org"
+        id S1728934AbgD1S1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728934AbgD1S1W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:27:22 -0400
+        id S1728598AbgD1S1Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AAF920B1F;
-        Tue, 28 Apr 2020 18:27:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5CBE208E0;
+        Tue, 28 Apr 2020 18:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098441;
-        bh=zxMAMCUGege0v8kJLkpgkDzKu7rKYEby4bGm0U/va+I=;
+        s=default; t=1588098444;
+        bh=9sDGtt4AzKAVwBWf89jS6ybRmtp4c5IDIplgFw7is60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8QijU5mp0xBPBWxBZSDNt+S9iYSZo/UyPkKR0ToXylM+jL6Q9DpbYd+S0C53cieg
-         uk9goOngtPNNMtPujOq8QisbNFF4EWDtmXoHlhYvmHJaQlFdL4+/VChPwOywlXxXyc
-         kqtY6r0BKg20m1iby8Wz0lGLV4KpcQkoz8b8IdBs=
+        b=dSM5dA9R1lRePDDu3yTlKg9mzc2GQ5YKsDktE4UVWYidS/eXBCqRjs9eGOZnMasbb
+         ICOlDC/v05EvuC3d3zq/++2RTO64iNz6dMtUM1BWsQdKoxE19KQwtW8SkZh0eE0ST3
+         kqfUkB7v05k0Q1yOuDSBr/FjVAkoJPyBEA6iNwdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Javed Hasan <jhasan@marvell.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 008/167] scsi: libfc: If PRLI rejected, move rport to PLOGI state
-Date:   Tue, 28 Apr 2020 20:23:04 +0200
-Message-Id: <20200428182226.289083165@linuxfoundation.org>
+Subject: [PATCH 5.6 009/167] ceph: return ceph_mdsc_do_request() errors from __get_parent()
+Date:   Tue, 28 Apr 2020 20:23:05 +0200
+Message-Id: <20200428182226.411615774@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
 References: <20200428182225.451225420@linuxfoundation.org>
@@ -45,43 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-[ Upstream commit 45e544bfdab2014d11c7595b8ccc3c4715a09015 ]
+[ Upstream commit c6d50296032f0b97473eb2e274dc7cc5d0173847 ]
 
-If PRLI reject code indicates "rejected status", move rport state machine
-back to PLOGI state.
+Return the error returned by ceph_mdsc_do_request(). Otherwise,
+r_target_inode ends up being NULL this ends up returning ENOENT
+regardless of the error.
 
-Link: https://lore.kernel.org/r/20200327060208.17104-2-skashyap@marvell.com
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libfc/fc_rport.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/ceph/export.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/libfc/fc_rport.c b/drivers/scsi/libfc/fc_rport.c
-index da6e97d8dc3bb..6bb8917b99a19 100644
---- a/drivers/scsi/libfc/fc_rport.c
-+++ b/drivers/scsi/libfc/fc_rport.c
-@@ -1208,9 +1208,15 @@ static void fc_rport_prli_resp(struct fc_seq *sp, struct fc_frame *fp,
- 		rjt = fc_frame_payload_get(fp, sizeof(*rjt));
- 		if (!rjt)
- 			FC_RPORT_DBG(rdata, "PRLI bad response\n");
--		else
-+		else {
- 			FC_RPORT_DBG(rdata, "PRLI ELS rejected, reason %x expl %x\n",
- 				     rjt->er_reason, rjt->er_explan);
-+			if (rjt->er_reason == ELS_RJT_UNAB &&
-+			    rjt->er_explan == ELS_EXPL_PLOGI_REQD) {
-+				fc_rport_enter_plogi(rdata);
-+				goto out;
-+			}
-+		}
- 		fc_rport_error_retry(rdata, FC_EX_ELS_RJT);
- 	}
+diff --git a/fs/ceph/export.c b/fs/ceph/export.c
+index b6bfa94332c30..79dc06881e78e 100644
+--- a/fs/ceph/export.c
++++ b/fs/ceph/export.c
+@@ -315,6 +315,11 @@ static struct dentry *__get_parent(struct super_block *sb,
  
+ 	req->r_num_caps = 1;
+ 	err = ceph_mdsc_do_request(mdsc, NULL, req);
++	if (err) {
++		ceph_mdsc_put_request(req);
++		return ERR_PTR(err);
++	}
++
+ 	inode = req->r_target_inode;
+ 	if (inode)
+ 		ihold(inode);
 -- 
 2.20.1
 
