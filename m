@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CAD51BCA4D
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E54FB1BCA5E
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730830AbgD1Ssq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:48:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59824 "EHLO mail.kernel.org"
+        id S1729881AbgD1SiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:38:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730749AbgD1Skh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:40:37 -0400
+        id S1730219AbgD1SiX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:38:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87BDF20575;
-        Tue, 28 Apr 2020 18:40:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC4D72085B;
+        Tue, 28 Apr 2020 18:38:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099237;
-        bh=Qyc+upMyRK5hOlTaziOgUPCg9cJpCHKiPXD7yWXZ/XM=;
+        s=default; t=1588099102;
+        bh=wtqI/g9Pa7thEIBev7QK2KGUrwesgzWnQWSAGQ6GSDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaypICs7jIkT+JJc67Ct1srmClvyyZA3P+sbPQ2OSz/3XjodRXseRkrMgHkvtd2Zf
-         b0lQE/GqOy9rmSzQ+wGMRp7VOHM0T/8rOGa5NdBWWSDCMaBtKpdRR4BswaEpav5gQm
-         d6VBkzqDA1JwK/kmNFr8uFgA00cDqn3qppWCUpRc=
+        b=AkXEuJz/2bXivCbI/MAHjiKJzcS4arV6kUxVz4Lzb58Ncw1ZNwPMu5aBV7C8L8mwK
+         Os2+KyoOGxLWvnYuISF2BW91QX37xCEMS5WhUv/k9SyO0QVdLJcD0OZXnUkM4djIjO
+         I3Ptp2tEyoD3YpqIgXYMpGrZeHITYuIu9PCU3YMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 4.19 119/131] staging: vt6656: Fix drivers TBTT timing counter.
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.6 155/167] xhci: Dont clear hub TT buffer on ep0 protocol stall
 Date:   Tue, 28 Apr 2020 20:25:31 +0200
-Message-Id: <20200428182240.182426008@linuxfoundation.org>
+Message-Id: <20200428182245.176380797@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malcolm Priestley <tvboxspy@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 09057742af98a39ebffa27fac4f889dc873132de upstream.
+commit 8f97250c21f0cf36434bf5b7ddf4377406534cd1 upstream.
 
-The drivers TBTT counter is not synchronized with mac80211 timestamp.
+The default control endpoint ep0 can return a STALL indicating the
+device does not support the control transfer requests. This is called
+a protocol stall and does not halt the endpoint.
 
-Reorder the functions and use vnt_update_next_tbtt to do the final
-synchronize.
+xHC behaves a bit different. Its internal endpoint state will always
+be halted on any stall, even if the device side of the endpiont is not
+halted. So we do need to issue the reset endpoint command to clear the
+xHC host intenal endpoint halt state, but should not request the HS hub
+to clear the TT buffer unless device side of endpoint is halted.
 
-Fixes: c15158797df6 ("staging: vt6656: implement TSF counter")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/375d0b25-e8bc-c8f7-9b10-6cc705d486ee@gmail.com
+Clearing the hub TT buffer at protocol stall caused ep0 to become
+unresponsive for some FS/LS devices behind HS hubs, and class drivers
+failed to set the interface due to timeout:
+
+usb 1-2.1: 1:1: usb_set_interface failed (-110)
+
+Fixes: ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer")
+Cc: <stable@vger.kernel.org> # v5.3
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200421140822.28233-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6656/main_usb.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci-ring.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -740,12 +740,15 @@ static void vnt_bss_info_changed(struct
- 			vnt_mac_reg_bits_on(priv, MAC_REG_TFTCTL,
- 					    TFTCTL_TSFCNTREN);
- 
--			vnt_adjust_tsf(priv, conf->beacon_rate->hw_value,
--				       conf->sync_tsf, priv->current_tsf);
--
- 			vnt_mac_set_beacon_interval(priv, conf->beacon_int);
- 
- 			vnt_reset_next_tbtt(priv, conf->beacon_int);
-+
-+			vnt_adjust_tsf(priv, conf->beacon_rate->hw_value,
-+				       conf->sync_tsf, priv->current_tsf);
-+
-+			vnt_update_next_tbtt(priv,
-+					     conf->sync_tsf, conf->beacon_int);
- 		} else {
- 			vnt_clear_current_tsf(priv);
- 
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -1872,7 +1872,6 @@ static void xhci_cleanup_halted_endpoint
+ 		ep->ep_state |= EP_HARD_CLEAR_TOGGLE;
+ 		xhci_cleanup_stalled_ring(xhci, slot_id, ep_index, stream_id,
+ 					  td);
+-		xhci_clear_hub_tt_buffer(xhci, td, ep);
+ 	}
+ 	xhci_ring_cmd_db(xhci);
+ }
+@@ -1993,11 +1992,18 @@ static int finish_td(struct xhci_hcd *xh
+ 	if (trb_comp_code == COMP_STALL_ERROR ||
+ 		xhci_requires_manual_halt_cleanup(xhci, ep_ctx,
+ 						trb_comp_code)) {
+-		/* Issue a reset endpoint command to clear the host side
+-		 * halt, followed by a set dequeue command to move the
+-		 * dequeue pointer past the TD.
+-		 * The class driver clears the device side halt later.
++		/*
++		 * xhci internal endpoint state will go to a "halt" state for
++		 * any stall, including default control pipe protocol stall.
++		 * To clear the host side halt we need to issue a reset endpoint
++		 * command, followed by a set dequeue command to move past the
++		 * TD.
++		 * Class drivers clear the device side halt from a functional
++		 * stall later. Hub TT buffer should only be cleared for FS/LS
++		 * devices behind HS hubs for functional stalls.
+ 		 */
++		if ((ep_index != 0) || (trb_comp_code != COMP_STALL_ERROR))
++			xhci_clear_hub_tt_buffer(xhci, td, ep);
+ 		xhci_cleanup_halted_endpoint(xhci, slot_id, ep_index,
+ 					ep_ring->stream_id, td, EP_HARD_RESET);
+ 	} else {
 
 
