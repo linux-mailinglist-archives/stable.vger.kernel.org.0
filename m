@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC2111BCB86
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BD421BC84C
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729374AbgD1S3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:29:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
+        id S1729663AbgD1SbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:31:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729369AbgD1S3e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:29:34 -0400
+        id S1729661AbgD1SbU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:31:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95D3C20BED;
-        Tue, 28 Apr 2020 18:29:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0E9021744;
+        Tue, 28 Apr 2020 18:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098573;
-        bh=7BTCKefDT84d2/S2Tue3QMduXeDM7kTMjbqZL7HrA/E=;
+        s=default; t=1588098680;
+        bh=zDU983lV9ssarBU6MRZRTDQZ3hKmpKdpJadL0LcKvcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G850iyVJeX3hCRJS83fo1BayE5Mi/fFlKRNYkskpqB5Xm691jCuyk7nQQig+84tjV
-         IpOZb5X6niuXAqdCNntLFSDB6CYl62R7T3d2EJt28EZDsUEUWrNp0FPAZa3EgLNjGX
-         mlPZKl0My496yhLmLtl+Eoj7yv1gQTEIY0JeUnV0=
+        b=Up501uDOD1pwupw5K9IVlm43XNk2vrd6UUU+4Xs18CgQsHuy+hR4r00S8p9hjtOm9
+         eXDf+OQBKdAvdbcMqs6EWiSxjjVXSsyZYhe6lcJBFxjnwPClHwscAbz/O71gUXye0Q
+         yQo1Ip1Wu8j6OfJ3iSZHzK1WpJNkHMrKQGTLC4us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Bob Liu <bob.liu@oracle.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Cengiz Can <cengiz@kernel.wtf>, Jens Axboe <axboe@kernel.dk>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 075/167] KEYS: Avoid false positive ENOMEM error on key read
-Date:   Tue, 28 Apr 2020 20:24:11 +0200
-Message-Id: <20200428182234.441830864@linuxfoundation.org>
+Subject: [PATCH 4.19 040/131] blktrace: fix dereference after null check
+Date:   Tue, 28 Apr 2020 20:24:12 +0200
+Message-Id: <20200428182230.107725743@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,167 +47,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Cengiz Can <cengiz@kernel.wtf>
 
-[ Upstream commit 4f0882491a148059a52480e753b7f07fc550e188 ]
+commit 153031a301bb07194e9c37466cfce8eacb977621 upstream.
 
-By allocating a kernel buffer with a user-supplied buffer length, it
-is possible that a false positive ENOMEM error may be returned because
-the user-supplied length is just too large even if the system do have
-enough memory to hold the actual key data.
+There was a recent change in blktrace.c that added a RCU protection to
+`q->blk_trace` in order to fix a use-after-free issue during access.
 
-Moreover, if the buffer length is larger than the maximum amount of
-memory that can be returned by kmalloc() (2^(MAX_ORDER-1) number of
-pages), a warning message will also be printed.
+However the change missed an edge case that can lead to dereferencing of
+`bt` pointer even when it's NULL:
 
-To reduce this possibility, we set a threshold (PAGE_SIZE) over which we
-do check the actual key length first before allocating a buffer of the
-right size to hold it. The threshold is arbitrary, it is just used to
-trigger a buffer length check. It does not limit the actual key length
-as long as there is enough memory to satisfy the memory request.
+Coverity static analyzer marked this as a FORWARD_NULL issue with CID
+1460458.
 
-To further avoid large buffer allocation failure due to page
-fragmentation, kvmalloc() is used to allocate the buffer so that vmapped
-pages can be used when there is not a large enough contiguous set of
-pages available for allocation.
+```
+/kernel/trace/blktrace.c: 1904 in sysfs_blk_trace_attr_store()
+1898            ret = 0;
+1899            if (bt == NULL)
+1900                    ret = blk_trace_setup_queue(q, bdev);
+1901
+1902            if (ret == 0) {
+1903                    if (attr == &dev_attr_act_mask)
+>>>     CID 1460458:  Null pointer dereferences  (FORWARD_NULL)
+>>>     Dereferencing null pointer "bt".
+1904                            bt->act_mask = value;
+1905                    else if (attr == &dev_attr_pid)
+1906                            bt->pid = value;
+1907                    else if (attr == &dev_attr_start_lba)
+1908                            bt->start_lba = value;
+1909                    else if (attr == &dev_attr_end_lba)
+```
 
-In the extremely unlikely scenario that the key keeps on being changed
-and made longer (still <= buflen) in between 2 __keyctl_read_key()
-calls, the __keyctl_read_key() calling loop in keyctl_read_key() may
-have to be iterated a large number of times, but definitely not infinite.
+Added a reassignment with RCU annotation to fix the issue.
 
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: c780e86dd48 ("blktrace: Protect q->blk_trace with RCU")
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Bob Liu <bob.liu@oracle.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Cengiz Can <cengiz@kernel.wtf>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/keys/internal.h | 12 +++++++++
- security/keys/keyctl.c   | 58 +++++++++++++++++++++++++++++-----------
- 2 files changed, 55 insertions(+), 15 deletions(-)
+ kernel/trace/blktrace.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/security/keys/internal.h b/security/keys/internal.h
-index ba3e2da14ceff..6d0ca48ae9a50 100644
---- a/security/keys/internal.h
-+++ b/security/keys/internal.h
-@@ -16,6 +16,8 @@
- #include <linux/keyctl.h>
- #include <linux/refcount.h>
- #include <linux/compat.h>
-+#include <linux/mm.h>
-+#include <linux/vmalloc.h>
- 
- struct iovec;
- 
-@@ -349,4 +351,14 @@ static inline void key_check(const struct key *key)
- 
- #endif
- 
-+/*
-+ * Helper function to clear and free a kvmalloc'ed memory object.
-+ */
-+static inline void __kvzfree(const void *addr, size_t len)
-+{
-+	if (addr) {
-+		memset((void *)addr, 0, len);
-+		kvfree(addr);
-+	}
-+}
- #endif /* _INTERNAL_H */
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 106e16f9006b4..5e01192e222a0 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -339,7 +339,7 @@ long keyctl_update_key(key_serial_t id,
- 	payload = NULL;
- 	if (plen) {
- 		ret = -ENOMEM;
--		payload = kmalloc(plen, GFP_KERNEL);
-+		payload = kvmalloc(plen, GFP_KERNEL);
- 		if (!payload)
- 			goto error;
- 
-@@ -360,7 +360,7 @@ long keyctl_update_key(key_serial_t id,
- 
- 	key_ref_put(key_ref);
- error2:
--	kzfree(payload);
-+	__kvzfree(payload, plen);
- error:
- 	return ret;
- }
-@@ -827,7 +827,8 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
- 	struct key *key;
- 	key_ref_t key_ref;
- 	long ret;
--	char *key_data;
-+	char *key_data = NULL;
-+	size_t key_data_len;
- 
- 	/* find the key first */
- 	key_ref = lookup_user_key(keyid, 0, 0);
-@@ -878,24 +879,51 @@ can_read_key:
- 	 * Allocating a temporary buffer to hold the keys before
- 	 * transferring them to user buffer to avoid potential
- 	 * deadlock involving page fault and mmap_sem.
-+	 *
-+	 * key_data_len = (buflen <= PAGE_SIZE)
-+	 *		? buflen : actual length of key data
-+	 *
-+	 * This prevents allocating arbitrary large buffer which can
-+	 * be much larger than the actual key length. In the latter case,
-+	 * at least 2 passes of this loop is required.
- 	 */
--	key_data = kmalloc(buflen, GFP_KERNEL);
-+	key_data_len = (buflen <= PAGE_SIZE) ? buflen : 0;
-+	for (;;) {
-+		if (key_data_len) {
-+			key_data = kvmalloc(key_data_len, GFP_KERNEL);
-+			if (!key_data) {
-+				ret = -ENOMEM;
-+				goto key_put_out;
-+			}
-+		}
- 
--	if (!key_data) {
--		ret = -ENOMEM;
--		goto key_put_out;
--	}
--	ret = __keyctl_read_key(key, key_data, buflen);
-+		ret = __keyctl_read_key(key, key_data, key_data_len);
-+
-+		/*
-+		 * Read methods will just return the required length without
-+		 * any copying if the provided length isn't large enough.
-+		 */
-+		if (ret <= 0 || ret > buflen)
-+			break;
-+
-+		/*
-+		 * The key may change (unlikely) in between 2 consecutive
-+		 * __keyctl_read_key() calls. In this case, we reallocate
-+		 * a larger buffer and redo the key read when
-+		 * key_data_len < ret <= buflen.
-+		 */
-+		if (ret > key_data_len) {
-+			if (unlikely(key_data))
-+				__kvzfree(key_data, key_data_len);
-+			key_data_len = ret;
-+			continue;	/* Allocate buffer */
-+		}
- 
--	/*
--	 * Read methods will just return the required length without
--	 * any copying if the provided length isn't large enough.
--	 */
--	if (ret > 0 && ret <= buflen) {
- 		if (copy_to_user(buffer, key_data, ret))
- 			ret = -EFAULT;
-+		break;
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 99f6cdbf2f540..6cea8bbca03cb 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -1893,8 +1893,11 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
  	}
--	kzfree(key_data);
-+	__kvzfree(key_data, key_data_len);
  
- key_put_out:
- 	key_put(key);
+ 	ret = 0;
+-	if (bt == NULL)
++	if (bt == NULL) {
+ 		ret = blk_trace_setup_queue(q, bdev);
++		bt = rcu_dereference_protected(q->blk_trace,
++				lockdep_is_held(&q->blk_trace_mutex));
++	}
+ 
+ 	if (ret == 0) {
+ 		if (attr == &dev_attr_act_mask)
 -- 
 2.20.1
 
