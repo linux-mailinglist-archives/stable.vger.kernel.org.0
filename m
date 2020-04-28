@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 635501BC82C
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E451BC96A
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728955AbgD1SaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:30:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44690 "EHLO mail.kernel.org"
+        id S1730154AbgD1SlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:41:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728945AbgD1SaM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:30:12 -0400
+        id S1730599AbgD1SlV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:41:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC566214D8;
-        Tue, 28 Apr 2020 18:30:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E6D4208E0;
+        Tue, 28 Apr 2020 18:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098612;
-        bh=HVlooMNtiKSy3RQDjckeLqwmZgxF92lbXT5tCZ8rwnc=;
+        s=default; t=1588099281;
+        bh=QxXkUMHVI780GIgldXETM7qyhQBnhJ7oqqVPq9mx3/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNPFfisyyngj3GPdSpAdkBm7OeSRAn6t7B0AxNnVo1e8+bb0yIEa6iGloNe8hzPOw
-         +XdqPu4SgUohbH+RK5FP0c9kzWjoOPGS5U0Am3mXV8J2pUoaQQ3e86JB/Ixsg5v6E3
-         zIOuRVc1H0Xm793BJlauXsitpl4ssBUY8sYm+bKs=
+        b=ciX/Wv+yFnmkuDfJOQxCOtP6cek2vAbnYV+W/9lNmW4T7I79BDc89XjTOtEeykWmh
+         T81vM6G5W1cEy9d0OYq94OylzZ/gzA2pLqwoTLCTLYHufnb0jU+/JrbfACSCtHtHvi
+         aeiHviWfcwyx1wmOJOwPUIYGLSvyheseIwB3kGYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Lars Engebretsen <lars@engebretsen.ch>,
         Stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.6 085/167] iio: adc: ti-ads8344: properly byte swap value
+Subject: [PATCH 5.4 087/168] iio: core: remove extra semi-colon from devm_iio_device_register() macro
 Date:   Tue, 28 Apr 2020 20:24:21 +0200
-Message-Id: <20200428182235.744145699@linuxfoundation.org>
+Message-Id: <20200428182243.321479028@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Lars Engebretsen <lars@engebretsen.ch>
 
-commit dd7de4c0023e7564cabe39d64b2822a522890792 upstream.
+commit a07479147be03d2450376ebaff9ea1a0682f25d6 upstream.
 
-The first received byte is the MSB, followed by the LSB so the value needs
-to be byte swapped.
+This change removes the semi-colon from the devm_iio_device_register()
+macro which seems to have been added by accident.
 
-Also, the ADC actually has a delay of one clock on the SPI bus. Read three
-bytes to get the last bit.
-
-Fixes: 8dd2d7c0fed7 ("iio: adc: Add driver for the TI ADS8344 A/DC chips")
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 63b19547cc3d9 ("iio: Use macro magic to avoid manual assign of driver_module")
+Signed-off-by: Lars Engebretsen <lars@engebretsen.ch>
 Cc: <Stable@vger.kernel.org>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/ti-ads8344.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/iio/iio.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/adc/ti-ads8344.c
-+++ b/drivers/iio/adc/ti-ads8344.c
-@@ -29,7 +29,7 @@ struct ads8344 {
- 	struct mutex lock;
- 
- 	u8 tx_buf ____cacheline_aligned;
--	u16 rx_buf;
-+	u8 rx_buf[3];
- };
- 
- #define ADS8344_VOLTAGE_CHANNEL(chan, si)				\
-@@ -89,11 +89,11 @@ static int ads8344_adc_conversion(struct
- 
- 	udelay(9);
- 
--	ret = spi_read(spi, &adc->rx_buf, 2);
-+	ret = spi_read(spi, adc->rx_buf, sizeof(adc->rx_buf));
- 	if (ret)
- 		return ret;
- 
--	return adc->rx_buf;
-+	return adc->rx_buf[0] << 9 | adc->rx_buf[1] << 1 | adc->rx_buf[2] >> 7;
- }
- 
- static int ads8344_read_raw(struct iio_dev *iio,
+--- a/include/linux/iio/iio.h
++++ b/include/linux/iio/iio.h
+@@ -596,7 +596,7 @@ void iio_device_unregister(struct iio_de
+  * 0 on success, negative error number on failure.
+  */
+ #define devm_iio_device_register(dev, indio_dev) \
+-	__devm_iio_device_register((dev), (indio_dev), THIS_MODULE);
++	__devm_iio_device_register((dev), (indio_dev), THIS_MODULE)
+ int __devm_iio_device_register(struct device *dev, struct iio_dev *indio_dev,
+ 			       struct module *this_mod);
+ void devm_iio_device_unregister(struct device *dev, struct iio_dev *indio_dev);
 
 
