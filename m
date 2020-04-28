@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEB831BCAE4
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D1B81BCB68
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:57:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730601AbgD1SxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:53:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52590 "EHLO mail.kernel.org"
+        id S1729520AbgD1Saf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:30:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730234AbgD1Sf2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:35:28 -0400
+        id S1729514AbgD1Saf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C9C120B1F;
-        Tue, 28 Apr 2020 18:35:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAE4721744;
+        Tue, 28 Apr 2020 18:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098927;
-        bh=oevnvzzVhtIAe0+tk50HMNaYqv+LWDbIkC5nIJcDM04=;
+        s=default; t=1588098634;
+        bh=g1YAP39CqTG42n6Lrt7NMs/G51rc1/7uvT2gc345fpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fb4WMNOkyYLIEvC0gdqixuJ9TzqRRUti5nJwyOIChRY6naS3wgKDfD/dSRSBlGuxD
-         aywTU70Wu1gCGP8ZafiErcWWsc/o/Esu6Uw5wZXeJGp+4nrjKakncMiqToTIZJMufs
-         gNbbWcGqSkr6tCdw9fmBwuWOQsYUprCR48hzbI7E=
+        b=GnOS9ZkSIqZ1o1+9fyjqZQzRXMLvBd9fIAZWs8v8CAKH7G5TxCme9jtBo7lGN2cFJ
+         K3ksEqZtRBvZNguw32ZX/rgB+XJUHGWIjzv0A9viMBy61CeE29k8xk8jzTTBd8xN+U
+         YI9+c5YKsMCYwKjUo4NPtrK/WDcd0jxezdIexoE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Vishal Kulkarni <vishal@chelsio.com>
-Subject: [PATCH 4.19 053/131] cxgb4: fix adapter crash due to wrong MC size
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.6 089/167] iio: xilinx-xadc: Make sure not exceed maximum samplerate
 Date:   Tue, 28 Apr 2020 20:24:25 +0200
-Message-Id: <20200428182231.629366722@linuxfoundation.org>
+Message-Id: <20200428182236.228366958@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +44,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Kulkarni <vishal@chelsio.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit ce222748078592afb51b810dc154531aeba4f512 ]
+commit 3b7f9dbb827ce8680b98490215e698b6079a9ec5 upstream.
 
-In the absence of MC1, the size calculation function
-cudbg_mem_region_size() was returing wrong MC size and
-resulted in adapter crash. This patch adds new argument
-to cudbg_mem_region_size() which will have actual size
-and returns error to caller in the absence of MC1.
+The XADC supports a samplerate of up to 1MSPS. Unfortunately the hardware
+does not have a FIFO, which means it generates an interrupt for each
+conversion sequence. At one 1MSPS this creates an interrupt storm that
+causes the system to soft-lock.
 
-Fixes: a1c69520f785 ("cxgb4: collect MC memory dump")
-Signed-off-by: Vishal Kulkarni <vishal@chelsio.com>"
-Signed-off-by: David S. Miller <davem@davemloft.net>
+For this reason the driver limits the maximum samplerate to 150kSPS.
+Currently this check is only done when setting a new samplerate. But it is
+also possible that the initial samplerate configured in the FPGA bitstream
+exceeds the limit.
+
+In this case when starting to capture data without first changing the
+samplerate the system can overload.
+
+To prevent this check the currently configured samplerate in the probe
+function and reduce it to the maximum if necessary.
+
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c |   27 ++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-@@ -1065,9 +1065,9 @@ static void cudbg_t4_fwcache(struct cudb
+---
+ drivers/iio/adc/xilinx-xadc-core.c |   78 ++++++++++++++++++++++++++++---------
+ 1 file changed, 60 insertions(+), 18 deletions(-)
+
+--- a/drivers/iio/adc/xilinx-xadc-core.c
++++ b/drivers/iio/adc/xilinx-xadc-core.c
+@@ -102,6 +102,16 @@ static const unsigned int XADC_ZYNQ_UNMA
+ 
+ #define XADC_FLAGS_BUFFERED BIT(0)
+ 
++/*
++ * The XADC hardware supports a samplerate of up to 1MSPS. Unfortunately it does
++ * not have a hardware FIFO. Which means an interrupt is generated for each
++ * conversion sequence. At 1MSPS sample rate the CPU in ZYNQ7000 is completely
++ * overloaded by the interrupts that it soft-lockups. For this reason the driver
++ * limits the maximum samplerate 150kSPS. At this rate the CPU is fairly busy,
++ * but still responsive.
++ */
++#define XADC_MAX_SAMPLERATE 150000
++
+ static void xadc_write_reg(struct xadc *xadc, unsigned int reg,
+ 	uint32_t val)
+ {
+@@ -834,11 +844,27 @@ static const struct iio_buffer_setup_ops
+ 	.postdisable = &xadc_postdisable,
+ };
+ 
++static int xadc_read_samplerate(struct xadc *xadc)
++{
++	unsigned int div;
++	uint16_t val16;
++	int ret;
++
++	ret = xadc_read_adc_reg(xadc, XADC_REG_CONF2, &val16);
++	if (ret)
++		return ret;
++
++	div = (val16 & XADC_CONF2_DIV_MASK) >> XADC_CONF2_DIV_OFFSET;
++	if (div < 2)
++		div = 2;
++
++	return xadc_get_dclk_rate(xadc) / div / 26;
++}
++
+ static int xadc_read_raw(struct iio_dev *indio_dev,
+ 	struct iio_chan_spec const *chan, int *val, int *val2, long info)
+ {
+ 	struct xadc *xadc = iio_priv(indio_dev);
+-	unsigned int div;
+ 	uint16_t val16;
+ 	int ret;
+ 
+@@ -891,41 +917,31 @@ static int xadc_read_raw(struct iio_dev
+ 		*val = -((273150 << 12) / 503975);
+ 		return IIO_VAL_INT;
+ 	case IIO_CHAN_INFO_SAMP_FREQ:
+-		ret = xadc_read_adc_reg(xadc, XADC_REG_CONF2, &val16);
+-		if (ret)
++		ret = xadc_read_samplerate(xadc);
++		if (ret < 0)
+ 			return ret;
+ 
+-		div = (val16 & XADC_CONF2_DIV_MASK) >> XADC_CONF2_DIV_OFFSET;
+-		if (div < 2)
+-			div = 2;
+-
+-		*val = xadc_get_dclk_rate(xadc) / div / 26;
+-
++		*val = ret;
+ 		return IIO_VAL_INT;
+ 	default:
+ 		return -EINVAL;
  	}
  }
  
--static unsigned long cudbg_mem_region_size(struct cudbg_init *pdbg_init,
--					   struct cudbg_error *cudbg_err,
--					   u8 mem_type)
-+static int cudbg_mem_region_size(struct cudbg_init *pdbg_init,
-+				 struct cudbg_error *cudbg_err,
-+				 u8 mem_type, unsigned long *region_size)
+-static int xadc_write_raw(struct iio_dev *indio_dev,
+-	struct iio_chan_spec const *chan, int val, int val2, long info)
++static int xadc_write_samplerate(struct xadc *xadc, int val)
  {
- 	struct adapter *padap = pdbg_init->adap;
- 	struct cudbg_meminfo mem_info;
-@@ -1076,15 +1076,23 @@ static unsigned long cudbg_mem_region_si
+-	struct xadc *xadc = iio_priv(indio_dev);
+ 	unsigned long clk_rate = xadc_get_dclk_rate(xadc);
+ 	unsigned int div;
  
- 	memset(&mem_info, 0, sizeof(struct cudbg_meminfo));
- 	rc = cudbg_fill_meminfo(padap, &mem_info);
--	if (rc)
-+	if (rc) {
-+		cudbg_err->sys_err = rc;
- 		return rc;
-+	}
+ 	if (!clk_rate)
+ 		return -EINVAL;
  
- 	cudbg_t4_fwcache(pdbg_init, cudbg_err);
- 	rc = cudbg_meminfo_get_mem_index(padap, &mem_info, mem_type, &mc_idx);
--	if (rc)
-+	if (rc) {
-+		cudbg_err->sys_err = rc;
- 		return rc;
-+	}
-+
-+	if (region_size)
-+		*region_size = mem_info.avail[mc_idx].limit -
-+			       mem_info.avail[mc_idx].base;
+-	if (info != IIO_CHAN_INFO_SAMP_FREQ)
+-		return -EINVAL;
+-
+ 	if (val <= 0)
+ 		return -EINVAL;
  
--	return mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
-+	return 0;
+ 	/* Max. 150 kSPS */
+-	if (val > 150000)
+-		val = 150000;
++	if (val > XADC_MAX_SAMPLERATE)
++		val = XADC_MAX_SAMPLERATE;
+ 
+ 	val *= 26;
+ 
+@@ -938,7 +954,7 @@ static int xadc_write_raw(struct iio_dev
+ 	 * limit.
+ 	 */
+ 	div = clk_rate / val;
+-	if (clk_rate / div / 26 > 150000)
++	if (clk_rate / div / 26 > XADC_MAX_SAMPLERATE)
+ 		div++;
+ 	if (div < 2)
+ 		div = 2;
+@@ -949,6 +965,17 @@ static int xadc_write_raw(struct iio_dev
+ 		div << XADC_CONF2_DIV_OFFSET);
  }
  
- static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
-@@ -1092,7 +1100,12 @@ static int cudbg_collect_mem_region(stru
- 				    struct cudbg_error *cudbg_err,
- 				    u8 mem_type)
- {
--	unsigned long size = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type);
-+	unsigned long size = 0;
-+	int rc;
++static int xadc_write_raw(struct iio_dev *indio_dev,
++	struct iio_chan_spec const *chan, int val, int val2, long info)
++{
++	struct xadc *xadc = iio_priv(indio_dev);
 +
-+	rc = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type, &size);
-+	if (rc)
-+		return rc;
++	if (info != IIO_CHAN_INFO_SAMP_FREQ)
++		return -EINVAL;
++
++	return xadc_write_samplerate(xadc, val);
++}
++
+ static const struct iio_event_spec xadc_temp_events[] = {
+ 	{
+ 		.type = IIO_EV_TYPE_THRESH,
+@@ -1234,6 +1261,21 @@ static int xadc_probe(struct platform_de
+ 	if (ret)
+ 		goto err_free_samplerate_trigger;
  
- 	return cudbg_read_fw_mem(pdbg_init, dbg_buff, mem_type, size,
- 				 cudbg_err);
++	/*
++	 * Make sure not to exceed the maximum samplerate since otherwise the
++	 * resulting interrupt storm will soft-lock the system.
++	 */
++	if (xadc->ops->flags & XADC_FLAGS_BUFFERED) {
++		ret = xadc_read_samplerate(xadc);
++		if (ret < 0)
++			goto err_free_samplerate_trigger;
++		if (ret > XADC_MAX_SAMPLERATE) {
++			ret = xadc_write_samplerate(xadc, XADC_MAX_SAMPLERATE);
++			if (ret < 0)
++				goto err_free_samplerate_trigger;
++		}
++	}
++
+ 	ret = request_irq(xadc->irq, xadc->ops->interrupt_handler, 0,
+ 			dev_name(&pdev->dev), indio_dev);
+ 	if (ret)
 
 
