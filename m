@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 342E31BCAC8
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1C6B1BCBDD
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:01:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729333AbgD1Sg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:36:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53944 "EHLO mail.kernel.org"
+        id S1728935AbgD1TAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 15:00:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730111AbgD1Sg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:36:28 -0400
+        id S1728903AbgD1S1H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 203F620B80;
-        Tue, 28 Apr 2020 18:36:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D1CB20BED;
+        Tue, 28 Apr 2020 18:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098988;
+        s=default; t=1588098426;
         bh=uRKGWEHffTzz+HeEoRdC6kD4Fwtd9WIkFuzd8NRpf9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tSq+nNhzC6vrzD9UDtq4YBBrsdU2x79Nj7pNdPa16We8Q+E+yR9xbfFvDiHv+QET3
-         bClZI9Q4uOW8jOKfH2dDEpZoQ+DSzfgImJipZfsSqLnGSEjSFisBEV+oOe+GyqiMyx
-         Y1Qs3oD94Df5ExxqeyPkWTNAKnVGBn60lLrM+Aq0=
+        b=Woo3JlZA50cKbiPfzetBhjpB21mR7em/isbdnjt6OGqPhWdR/O1featPLutUPEoJg
+         pleFUjB82VdalnvwI0PEmgHDZobkyGikS+qRvTp8UThjNtxxTq5XXrVwL/KTh83ctB
+         I3zQ16PRkof7GcFVApE8mkQeAouIlfh0ONaps5OA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
         Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 036/168] pwm: bcm2835: Dynamically allocate base
+Subject: [PATCH 5.6 034/167] pwm: bcm2835: Dynamically allocate base
 Date:   Tue, 28 Apr 2020 20:23:30 +0200
-Message-Id: <20200428182236.294602204@linuxfoundation.org>
+Message-Id: <20200428182229.486995863@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
