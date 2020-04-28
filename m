@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1071BC97B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F051BCAED
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730768AbgD1SmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34014 "EHLO mail.kernel.org"
+        id S1729411AbgD1SfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:35:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730653AbgD1SmM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:42:12 -0400
+        id S1729424AbgD1SfG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:35:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AC7520B1F;
-        Tue, 28 Apr 2020 18:42:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 500A22085B;
+        Tue, 28 Apr 2020 18:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099332;
-        bh=pPmIFV+1g5lafog4sRGHQB4bxuzsE16raYDXiB2UHXA=;
+        s=default; t=1588098905;
+        bh=L24Z/pnJD8Hs0p2+ekS4GjMizN9gO9MLeOJpLDy3rLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bAVom84g2xMYnCNR8Gnp0TJs9+Pb6cNW0FJT5F3PRAnZEiEXxKuybVAX2kZwA8wYZ
-         j61Zado2dHflYsSQhOo1Tqtlrewd8l2JctUdwCfRM4vgMYwP4t2lHTDmFWTfR10+ij
-         tR7CydxcGOzEZGTAeGbP4RP2mwO0CJy1jTriVhe0=
+        b=yxYpfvg4yNn0WZ+7pqoPvdJfBkQy4AOigvPqCqIAZllGNS4qE23zNcWCE8C4BKnQR
+         BM7y7AvWbG8E18doZskAanleOEyVOHY6L8Mka/5FLcQ5uanhs6IIeQqXxfbjp1eYw6
+         7lWfKfhpusFe3qF5qu22UVcRg8iEB9j36/hwFVDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Yi <teroincn@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 108/168] ALSA: usx2y: Fix potential NULL dereference
-Date:   Tue, 28 Apr 2020 20:24:42 +0200
-Message-Id: <20200428182246.129102508@linuxfoundation.org>
+        stable@vger.kernel.org, Trev Larock <trev@larock.ca>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 071/131] vrf: Check skb for XFRM_TRANSFORMED flag
+Date:   Tue, 28 Apr 2020 20:24:43 +0200
+Message-Id: <20200428182233.851420820@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: David Ahern <dsahern@gmail.com>
 
-commit 7686e3485253635c529cdd5f416fc640abaf076f upstream.
+[ Upstream commit 16b9db1ce34ff00d6c18e82825125cfef0cdfb13 ]
 
-The error handling code in usX2Y_rate_set() may hit a potential NULL
-dereference when an error occurs before allocating all us->urb[].
-Add a proper NULL check for fixing the corner case.
+To avoid a loop with qdiscs and xfrms, check if the skb has already gone
+through the qdisc attached to the VRF device and then to the xfrm layer.
+If so, no need for a second redirect.
 
-Reported-by: Lin Yi <teroincn@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200420075529.27203-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 193125dbd8eb ("net: Introduce VRF device driver")
+Reported-by: Trev Larock <trev@larock.ca>
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/usb/usx2y/usbusx2yaudio.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/vrf.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/sound/usb/usx2y/usbusx2yaudio.c
-+++ b/sound/usb/usx2y/usbusx2yaudio.c
-@@ -681,6 +681,8 @@ static int usX2Y_rate_set(struct usX2Yde
- 			us->submitted =	2*NOOF_SETRATE_URBS;
- 			for (i = 0; i < NOOF_SETRATE_URBS; ++i) {
- 				struct urb *urb = us->urb[i];
-+				if (!urb)
-+					continue;
- 				if (urb->status) {
- 					if (!err)
- 						err = -ENODEV;
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -478,7 +478,8 @@ static struct sk_buff *vrf_ip6_out(struc
+ 	if (rt6_need_strict(&ipv6_hdr(skb)->daddr))
+ 		return skb;
+ 
+-	if (qdisc_tx_is_default(vrf_dev))
++	if (qdisc_tx_is_default(vrf_dev) ||
++	    IP6CB(skb)->flags & IP6SKB_XFRM_TRANSFORMED)
+ 		return vrf_ip6_out_direct(vrf_dev, sk, skb);
+ 
+ 	return vrf_ip6_out_redirect(vrf_dev, skb);
+@@ -692,7 +693,8 @@ static struct sk_buff *vrf_ip_out(struct
+ 	    ipv4_is_lbcast(ip_hdr(skb)->daddr))
+ 		return skb;
+ 
+-	if (qdisc_tx_is_default(vrf_dev))
++	if (qdisc_tx_is_default(vrf_dev) ||
++	    IPCB(skb)->flags & IPSKB_XFRM_TRANSFORMED)
+ 		return vrf_ip_out_direct(vrf_dev, sk, skb);
+ 
+ 	return vrf_ip_out_redirect(vrf_dev, skb);
 
 
