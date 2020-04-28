@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7E41BC9D6
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:47:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 225A31BCABD
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730918AbgD1Smb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:42:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34488 "EHLO mail.kernel.org"
+        id S1729797AbgD1Sfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:35:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730920AbgD1Sm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:42:29 -0400
+        id S1730297AbgD1Sfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:35:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8D20208E0;
-        Tue, 28 Apr 2020 18:42:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 960A620575;
+        Tue, 28 Apr 2020 18:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099349;
-        bh=ORWh+ng3YBmP//sXxpn+8+rv7EIHwrU2GNBrBcPU4SE=;
+        s=default; t=1588098952;
+        bh=0LXRgx9dNY905NXJb+fja+xE68LrXMDyoQaGNGLQ9zA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZhOynaJJGkfhJPH6Ofcn9lUnLRjmN8bCJtpyf5xw7vCiNJ+m7bi+CZcTeQBi5Swa
-         pvWmaoATDFnhzhkCVdan1e8s7DdtQmn9+XRD0NWFFCZMnIj9kp3lcaY3p6VsK+XzHo
-         n5gn17GZbXN3J5589pYtC4y3L6gxTQcVCa274XbU=
+        b=ssANW4MwM5YWo2Ano9pIfzUqgp7B5hv/e+uOxqbCGJ4h4+R0dWyTGM3Ih3HFVWfuj
+         NzKL+87ZSnWj4ZBSPtQ4RQrMdED+8pmKc7Aal+xConeYlrqlcyL5COy7rDUfrCztiv
+         GSAwQ1kOdNSfI18WrSRdIMsLQtVCHBu5Zg0dVuDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.4 114/168] tpm/tpm_tis: Free IRQ if probing fails
-Date:   Tue, 28 Apr 2020 20:24:48 +0200
-Message-Id: <20200428182246.951677289@linuxfoundation.org>
+        stable@vger.kernel.org, Lars Engebretsen <lars@engebretsen.ch>,
+        Stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 077/131] iio: core: remove extra semi-colon from devm_iio_device_register() macro
+Date:   Tue, 28 Apr 2020 20:24:49 +0200
+Message-Id: <20200428182234.608974139@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+From: Lars Engebretsen <lars@engebretsen.ch>
 
-commit b160c94be5d2816b62c8ac338605668304242959 upstream.
+commit a07479147be03d2450376ebaff9ea1a0682f25d6 upstream.
 
-Call disable_interrupts() if we have to revert to polling in order not to
-unnecessarily reserve the IRQ for the life-cycle of the driver.
+This change removes the semi-colon from the devm_iio_device_register()
+macro which seems to have been added by accident.
 
-Cc: stable@vger.kernel.org # 4.5.x
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Fixes: e3837e74a06d ("tpm_tis: Refactor the interrupt setup")
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Fixes: 63b19547cc3d9 ("iio: Use macro magic to avoid manual assign of driver_module")
+Signed-off-by: Lars Engebretsen <lars@engebretsen.ch>
+Cc: <Stable@vger.kernel.org>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm_tis_core.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ include/linux/iio/iio.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -433,6 +433,9 @@ static void disable_interrupts(struct tp
- 	u32 intmask;
- 	int rc;
- 
-+	if (priv->irq == 0)
-+		return;
-+
- 	rc = tpm_tis_read32(priv, TPM_INT_ENABLE(priv->locality), &intmask);
- 	if (rc < 0)
- 		intmask = 0;
-@@ -983,9 +986,12 @@ int tpm_tis_core_init(struct device *dev
- 		if (irq) {
- 			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
- 						 irq);
--			if (!(chip->flags & TPM_CHIP_FLAG_IRQ))
-+			if (!(chip->flags & TPM_CHIP_FLAG_IRQ)) {
- 				dev_err(&chip->dev, FW_BUG
- 					"TPM interrupt not working, polling instead\n");
-+
-+				disable_interrupts(chip);
-+			}
- 		} else {
- 			tpm_tis_probe_irq(chip, intmask);
- 		}
+--- a/include/linux/iio/iio.h
++++ b/include/linux/iio/iio.h
+@@ -599,7 +599,7 @@ void iio_device_unregister(struct iio_de
+  * 0 on success, negative error number on failure.
+  */
+ #define devm_iio_device_register(dev, indio_dev) \
+-	__devm_iio_device_register((dev), (indio_dev), THIS_MODULE);
++	__devm_iio_device_register((dev), (indio_dev), THIS_MODULE)
+ int __devm_iio_device_register(struct device *dev, struct iio_dev *indio_dev,
+ 			       struct module *this_mod);
+ void devm_iio_device_unregister(struct device *dev, struct iio_dev *indio_dev);
 
 
