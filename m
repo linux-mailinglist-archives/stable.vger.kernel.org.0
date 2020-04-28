@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14E621BC8AB
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:36:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDCF1BC9D1
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729633AbgD1Sec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:34:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
+        id S1731077AbgD1SmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:42:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730140AbgD1Seb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:34:31 -0400
+        id S1730375AbgD1SmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:42:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1E6A21707;
-        Tue, 28 Apr 2020 18:34:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CF0E2076A;
+        Tue, 28 Apr 2020 18:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098871;
-        bh=n+/17Ma26qtlsBWNMwijsTBxk4UKAi/EZ1WVUM/oUuk=;
+        s=default; t=1588099324;
+        bh=Da0053hyOO/K1puxquK2wZ9Z/CuFC+ci/8vo4tv5wv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPcGRuQcyXKAJ2BfvsiHCK42B3KHRXM5XVXSN+aQS2cTmfYnlDH0X38KW6h2Thbnw
-         a8Ww17Izhio9x/E/YqGvoqpKmF5Oszsy8Sj99BqdKDZOwkh9XNXIlHCfcobd05LlE5
-         cBHc2bHYrPvHcYMt5wzN3Hs9vD82eFNsaragQ59k=
+        b=SiX0LFqqBf5w6z1DIgUDHsiuLaKnoE84GPqPRp9ZYyHzYYYBn00TJQx0+HXSJt9qE
+         /CypMVakQYCIDGtCCT0O0QFcvvqXh1xhYIXYYCd0AlQKp79sFKe9Fca7tD2z9ePwDl
+         TmVVok/StxBFahelimxcQtcQUKodaH78JOf2pVzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 067/131] net: dsa: b53: Fix ARL register definitions
+        stable@vger.kernel.org, Longpeng <longpeng2@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 105/168] mm/hugetlb: fix a addressing exception caused by huge_pte_offset
 Date:   Tue, 28 Apr 2020 20:24:39 +0200
-Message-Id: <20200428182233.367679256@linuxfoundation.org>
+Message-Id: <20200428182245.677917874@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +48,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Longpeng <longpeng2@huawei.com>
 
-[ Upstream commit c2e77a18a7ed65eb48f6e389b6a59a0fd753646a ]
+commit 3c1d7e6ccb644d517a12f73a7ff200870926f865 upstream.
 
-The ARL {MAC,VID} tuple and the forward entry were off by 0x10 bytes,
-which means that when we read/wrote from/to ARL bin index 0, we were
-actually accessing the ARLA_RWCTRL register.
+Our machine encountered a panic(addressing exception) after run for a
+long time and the calltrace is:
 
-Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    RIP: hugetlb_fault+0x307/0xbe0
+    RSP: 0018:ffff9567fc27f808  EFLAGS: 00010286
+    RAX: e800c03ff1258d48 RBX: ffffd3bb003b69c0 RCX: e800c03ff1258d48
+    RDX: 17ff3fc00eda72b7 RSI: 00003ffffffff000 RDI: e800c03ff1258d48
+    RBP: ffff9567fc27f8c8 R08: e800c03ff1258d48 R09: 0000000000000080
+    R10: ffffaba0704c22a8 R11: 0000000000000001 R12: ffff95c87b4b60d8
+    R13: 00005fff00000000 R14: 0000000000000000 R15: ffff9567face8074
+    FS:  00007fe2d9ffb700(0000) GS:ffff956900e40000(0000) knlGS:0000000000000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    CR2: ffffd3bb003b69c0 CR3: 000000be67374000 CR4: 00000000003627e0
+    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+    Call Trace:
+      follow_hugetlb_page+0x175/0x540
+      __get_user_pages+0x2a0/0x7e0
+      __get_user_pages_unlocked+0x15d/0x210
+      __gfn_to_pfn_memslot+0x3c5/0x460 [kvm]
+      try_async_pf+0x6e/0x2a0 [kvm]
+      tdp_page_fault+0x151/0x2d0 [kvm]
+     ...
+      kvm_arch_vcpu_ioctl_run+0x330/0x490 [kvm]
+      kvm_vcpu_ioctl+0x309/0x6d0 [kvm]
+      do_vfs_ioctl+0x3f0/0x540
+      SyS_ioctl+0xa1/0xc0
+      system_call_fastpath+0x22/0x27
+
+For 1G hugepages, huge_pte_offset() wants to return NULL or pudp, but it
+may return a wrong 'pmdp' if there is a race.  Please look at the
+following code snippet:
+
+    ...
+    pud = pud_offset(p4d, addr);
+    if (sz != PUD_SIZE && pud_none(*pud))
+        return NULL;
+    /* hugepage or swap? */
+    if (pud_huge(*pud) || !pud_present(*pud))
+        return (pte_t *)pud;
+
+    pmd = pmd_offset(pud, addr);
+    if (sz != PMD_SIZE && pmd_none(*pmd))
+        return NULL;
+    /* hugepage or swap? */
+    if (pmd_huge(*pmd) || !pmd_present(*pmd))
+        return (pte_t *)pmd;
+    ...
+
+The following sequence would trigger this bug:
+
+ - CPU0: sz = PUD_SIZE and *pud = 0 , continue
+ - CPU0: "pud_huge(*pud)" is false
+ - CPU1: calling hugetlb_no_page and set *pud to xxxx8e7(PRESENT)
+ - CPU0: "!pud_present(*pud)" is false, continue
+ - CPU0: pmd = pmd_offset(pud, addr) and maybe return a wrong pmdp
+
+However, we want CPU0 to return NULL or pudp in this case.
+
+We must make sure there is exactly one dereference of pud and pmd.
+
+Signed-off-by: Longpeng <longpeng2@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200413010342.771-1-longpeng2@huawei.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/dsa/b53/b53_regs.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -304,7 +304,7 @@
-  *
-  * BCM5325 and BCM5365 share most definitions below
-  */
--#define B53_ARLTBL_MAC_VID_ENTRY(n)	(0x10 * (n))
-+#define B53_ARLTBL_MAC_VID_ENTRY(n)	((0x10 * (n)) + 0x10)
- #define   ARLTBL_MAC_MASK		0xffffffffffffULL
- #define   ARLTBL_VID_S			48
- #define   ARLTBL_VID_MASK_25		0xff
-@@ -316,7 +316,7 @@
- #define   ARLTBL_VALID_25		BIT(63)
+---
+ mm/hugetlb.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5016,8 +5016,8 @@ pte_t *huge_pte_offset(struct mm_struct
+ {
+ 	pgd_t *pgd;
+ 	p4d_t *p4d;
+-	pud_t *pud;
+-	pmd_t *pmd;
++	pud_t *pud, pud_entry;
++	pmd_t *pmd, pmd_entry;
  
- /* ARL Table Data Entry N Registers (32 bit) */
--#define B53_ARLTBL_DATA_ENTRY(n)	((0x10 * (n)) + 0x08)
-+#define B53_ARLTBL_DATA_ENTRY(n)	((0x10 * (n)) + 0x18)
- #define   ARLTBL_DATA_PORT_ID_MASK	0x1ff
- #define   ARLTBL_TC(tc)			((3 & tc) << 11)
- #define   ARLTBL_AGE			BIT(14)
+ 	pgd = pgd_offset(mm, addr);
+ 	if (!pgd_present(*pgd))
+@@ -5027,17 +5027,19 @@ pte_t *huge_pte_offset(struct mm_struct
+ 		return NULL;
+ 
+ 	pud = pud_offset(p4d, addr);
+-	if (sz != PUD_SIZE && pud_none(*pud))
++	pud_entry = READ_ONCE(*pud);
++	if (sz != PUD_SIZE && pud_none(pud_entry))
+ 		return NULL;
+ 	/* hugepage or swap? */
+-	if (pud_huge(*pud) || !pud_present(*pud))
++	if (pud_huge(pud_entry) || !pud_present(pud_entry))
+ 		return (pte_t *)pud;
+ 
+ 	pmd = pmd_offset(pud, addr);
+-	if (sz != PMD_SIZE && pmd_none(*pmd))
++	pmd_entry = READ_ONCE(*pmd);
++	if (sz != PMD_SIZE && pmd_none(pmd_entry))
+ 		return NULL;
+ 	/* hugepage or swap? */
+-	if (pmd_huge(*pmd) || !pmd_present(*pmd))
++	if (pmd_huge(pmd_entry) || !pmd_present(pmd_entry))
+ 		return (pte_t *)pmd;
+ 
+ 	return NULL;
 
 
