@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E197D1BCB9F
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6311F1BC7E4
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:28:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728814AbgD1S6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:58:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
+        id S1729013AbgD1S1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729294AbgD1S3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:29:04 -0400
+        id S1728994AbgD1S1g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DFAB20730;
-        Tue, 28 Apr 2020 18:29:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 134C620BED;
+        Tue, 28 Apr 2020 18:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098543;
-        bh=e3Ix0CKQnO2vFrhw8s5qjaLhbJuDinvzEZLMlqEOCsc=;
+        s=default; t=1588098456;
+        bh=v3GYUqtp8+sowplhCo6rzwKJjhSa08ts/N40sdhUJTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ak4nOytHKWYQyUfIygc+xSZ5r+RTxULAW7Tv1zRjktzLiii9qKvhmFNGXo9/K85VQ
-         2kThyHmNhh0pprbZcj0OyjxY6c98dKsQr8SuXm4628wYOi8rBdu/p2m03QrKpU8BnZ
-         9L83P1CF3oB8dTdWeVO8W5DYrmUMSAw051fD8MAA=
+        b=z6b+MisxYFg43NzJOScCA3y1tQGgGBhTT5j4OPq1LozwMM4VzEse1ow/WOYzOSp4o
+         1ynL3SgW7iUuYzurlmyII71Yi+BtUvbBc/QzKONLPajGhoNHcRnp8ztt0FNKyKpj3N
+         0cu6ZfOHGOAhMR94rJ4VDhNkus1TuYoEW12xUfgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tero Kristo <t-kristo@ti.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 011/131] watchdog: reset last_hw_keepalive time at start
-Date:   Tue, 28 Apr 2020 20:23:43 +0200
-Message-Id: <20200428182226.602808871@linuxfoundation.org>
+        stable@vger.kernel.org, John Haxby <john.haxby@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 048/167] ipv6: fix restrict IPV6_ADDRFORM operation
+Date:   Tue, 28 Apr 2020 20:23:44 +0200
+Message-Id: <20200428182231.137312434@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: John Haxby <john.haxby@oracle.com>
 
-[ Upstream commit 982bb70517aef2225bad1d802887b733db492cc0 ]
+[ Upstream commit 82c9ae440857840c56e05d4fb1427ee032531346 ]
 
-Currently the watchdog core does not initialize the last_hw_keepalive
-time during watchdog startup. This will cause the watchdog to be pinged
-immediately if enough time has passed from the system boot-up time, and
-some types of watchdogs like K3 RTI does not like this.
+Commit b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation") fixed a
+problem found by syzbot an unfortunate logic error meant that it
+also broke IPV6_ADDRFORM.
 
-To avoid the issue, setup the last_hw_keepalive time during watchdog
-startup.
+Rearrange the checks so that the earlier test is just one of the series
+of checks made before moving the socket from IPv6 to IPv4.
 
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200302200426.6492-3-t-kristo@ti.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation")
+Signed-off-by: John Haxby <john.haxby@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/watchdog_dev.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/ipv6_sockglue.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index e64aa88e99dab..10b2090f3e5e7 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -264,6 +264,7 @@ static int watchdog_start(struct watchdog_device *wdd)
- 	if (err == 0) {
- 		set_bit(WDOG_ACTIVE, &wdd->status);
- 		wd_data->last_keepalive = started_at;
-+		wd_data->last_hw_keepalive = started_at;
- 		watchdog_update_worker(wdd);
- 	}
- 
--- 
-2.20.1
-
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -183,15 +183,14 @@ static int do_ipv6_setsockopt(struct soc
+ 					retv = -EBUSY;
+ 					break;
+ 				}
+-			} else if (sk->sk_protocol == IPPROTO_TCP) {
+-				if (sk->sk_prot != &tcpv6_prot) {
+-					retv = -EBUSY;
+-					break;
+-				}
+-				break;
+-			} else {
++			}
++			if (sk->sk_protocol == IPPROTO_TCP &&
++			    sk->sk_prot != &tcpv6_prot) {
++				retv = -EBUSY;
+ 				break;
+ 			}
++			if (sk->sk_protocol != IPPROTO_TCP)
++				break;
+ 			if (sk->sk_state != TCP_ESTABLISHED) {
+ 				retv = -ENOTCONN;
+ 				break;
 
 
