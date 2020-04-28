@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE1C1BCAF7
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1071BC97B
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730191AbgD1Sxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:53:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51908 "EHLO mail.kernel.org"
+        id S1730768AbgD1SmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730174AbgD1Se4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:34:56 -0400
+        id S1730653AbgD1SmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:42:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DDA120B80;
-        Tue, 28 Apr 2020 18:34:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AC7520B1F;
+        Tue, 28 Apr 2020 18:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098895;
-        bh=9Um0vAykLhr43EzMSP1g/LNXoL1Lkg+VbMjwiFsQ5WI=;
+        s=default; t=1588099332;
+        bh=pPmIFV+1g5lafog4sRGHQB4bxuzsE16raYDXiB2UHXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2eWyc2tHMWa1oZ04wRUcejhtDqaxVeS0zLQl7Z1N4Sz/Q1MlcU3oa2Idc/uO/LtuU
-         bdlGWpmv9yfDwZlK+wz++plrmf/1EjegYvXWxUQj4+43jHC4t/xSYUDU8QGI0kya34
-         QLvWLKVvUpe2dy6aQWztJBSBmpimiWccy8MIyCWk=
+        b=bAVom84g2xMYnCNR8Gnp0TJs9+Pb6cNW0FJT5F3PRAnZEiEXxKuybVAX2kZwA8wYZ
+         j61Zado2dHflYsSQhOo1Tqtlrewd8l2JctUdwCfRM4vgMYwP4t2lHTDmFWTfR10+ij
+         tR7CydxcGOzEZGTAeGbP4RP2mwO0CJy1jTriVhe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 070/131] xfrm: Always set XFRM_TRANSFORMED in xfrm{4,6}_output_finish
+        stable@vger.kernel.org, Lin Yi <teroincn@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 108/168] ALSA: usx2y: Fix potential NULL dereference
 Date:   Tue, 28 Apr 2020 20:24:42 +0200
-Message-Id: <20200428182233.732402940@linuxfoundation.org>
+Message-Id: <20200428182246.129102508@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 0c922a4850eba2e668f73a3f1153196e09abb251 ]
+commit 7686e3485253635c529cdd5f416fc640abaf076f upstream.
 
-IPSKB_XFRM_TRANSFORMED and IP6SKB_XFRM_TRANSFORMED are skb flags set by
-xfrm code to tell other skb handlers that the packet has been passed
-through the xfrm output functions. Simplify the code and just always
-set them rather than conditionally based on netfilter enabled thus
-making the flag available for other users.
+The error handling code in usX2Y_rate_set() may hit a potential NULL
+dereference when an error occurs before allocating all us->urb[].
+Add a proper NULL check for fixing the corner case.
 
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Lin Yi <teroincn@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200420075529.27203-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/xfrm4_output.c |    2 --
- net/ipv6/xfrm6_output.c |    2 --
- 2 files changed, 4 deletions(-)
 
---- a/net/ipv4/xfrm4_output.c
-+++ b/net/ipv4/xfrm4_output.c
-@@ -77,9 +77,7 @@ int xfrm4_output_finish(struct sock *sk,
- {
- 	memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
- 
--#ifdef CONFIG_NETFILTER
- 	IPCB(skb)->flags |= IPSKB_XFRM_TRANSFORMED;
--#endif
- 
- 	return xfrm_output(sk, skb);
- }
---- a/net/ipv6/xfrm6_output.c
-+++ b/net/ipv6/xfrm6_output.c
-@@ -130,9 +130,7 @@ int xfrm6_output_finish(struct sock *sk,
- {
- 	memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
- 
--#ifdef CONFIG_NETFILTER
- 	IP6CB(skb)->flags |= IP6SKB_XFRM_TRANSFORMED;
--#endif
- 
- 	return xfrm_output(sk, skb);
- }
+---
+ sound/usb/usx2y/usbusx2yaudio.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/sound/usb/usx2y/usbusx2yaudio.c
++++ b/sound/usb/usx2y/usbusx2yaudio.c
+@@ -681,6 +681,8 @@ static int usX2Y_rate_set(struct usX2Yde
+ 			us->submitted =	2*NOOF_SETRATE_URBS;
+ 			for (i = 0; i < NOOF_SETRATE_URBS; ++i) {
+ 				struct urb *urb = us->urb[i];
++				if (!urb)
++					continue;
+ 				if (urb->status) {
+ 					if (!err)
+ 						err = -ENODEV;
 
 
