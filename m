@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B72A81BCABA
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E011BCBE1
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729761AbgD1Sfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52792 "EHLO mail.kernel.org"
+        id S1728884AbgD1S1F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728983AbgD1Sff (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:35:35 -0400
+        id S1728881AbgD1S1D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 791B7208E0;
-        Tue, 28 Apr 2020 18:35:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A3942085B;
+        Tue, 28 Apr 2020 18:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098934;
-        bh=2M5vHab+njp3Ao4dy6+B1X01krlwjCcGCpWvxZxw13Y=;
+        s=default; t=1588098421;
+        bh=xkAnrLZvTNvKX1L+pvH4etEqx+qyIWsoBOD+apAeDKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bq8QVkbtlZxpvSzaBRcNz1OrbDb7A4WR7bpvVxTYeHT6UGz+10TJIQ6mFoac7iKKQ
-         UR7kexDbV4iWKObGeSwpzoHtAhvZVdc8MPUe8XB80Rz5MKKknqnFcYPZe3Jkvwzxg1
-         OhdEPtj6d+DFM0Y2mrvmZ1Dym/Hg4MY+X20l5JWU=
+        b=kJR+ZZ9axCMFH2SHGBantlgWMb/7TlbO8/LgXGjtFI0Fp24YPj6moMK/Lbe0F0/zM
+         DYQxO8PEpU+UgB097W/aKrApAQ/feYBj3Rhzw4kIq3x9EScNVaNI63aTIwZBYiJaWJ
+         pzl4xb2UO33KG38/dUpFMW/tJdA6RhRw40fJnnSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Ganesh Goudar <ganeshgr@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 033/168] powerpc/pseries: Fix MCE handling on pseries
-Date:   Tue, 28 Apr 2020 20:23:27 +0200
-Message-Id: <20200428182235.911446416@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Bowler <nbowler@draconx.ca>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 032/167] nvme: fix compat address handling in several ioctls
+Date:   Tue, 28 Apr 2020 20:23:28 +0200
+Message-Id: <20200428182229.267979210@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,84 +43,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ganesh Goudar <ganeshgr@linux.ibm.com>
+From: Nick Bowler <nbowler@draconx.ca>
 
-[ Upstream commit a95a0a1654f16366360399574e10efd87e867b39 ]
+[ Upstream commit c95b708d5fa65b4e51f088ee077d127fd5a57b70 ]
 
-MCE handling on pSeries platform fails as recent rework to use common
-code for pSeries and PowerNV in machine check error handling tries to
-access per-cpu variables in realmode. The per-cpu variables may be
-outside the RMO region on pSeries platform and needs translation to be
-enabled for access. Just moving these per-cpu variable into RMO region
-did'nt help because we queue some work to workqueues in real mode, which
-again tries to touch per-cpu variables. Also fwnmi_release_errinfo()
-cannot be called when translation is not enabled.
+On a 32-bit kernel, the upper bits of userspace addresses passed via
+various ioctls are silently ignored by the nvme driver.
 
-This patch fixes this by enabling translation in the exception handler
-when all required real mode handling is done. This change only affects
-the pSeries platform.
+However on a 64-bit kernel running a compat task, these upper bits are
+not ignored and are in fact required to be zero for the ioctls to work.
 
-Without this fix below kernel crash is seen on injecting
-SLB multihit:
+Unfortunately, this difference matters.  32-bit smartctl submits the
+NVME_IOCTL_ADMIN_CMD ioctl with garbage in these upper bits because it
+seems the pointer value it puts into the nvme_passthru_cmd structure is
+sign extended.  This works fine on 32-bit kernels but fails on a 64-bit
+one because (at least on my setup) the addresses smartctl uses are
+consistently above 2G.  For example:
 
-BUG: Unable to handle kernel data access on read at 0xc00000027b205950
-Faulting instruction address: 0xc00000000003b7e0
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in: mcetest_slb(OE+) af_packet(E) xt_tcpudp(E) ip6t_rpfilter(E) ip6t_REJECT(E) ipt_REJECT(E) xt_conntrack(E) ip_set(E) nfnetlink(E) ebtable_nat(E) ebtable_broute(E) ip6table_nat(E) ip6table_mangle(E) ip6table_raw(E) ip6table_security(E) iptable_nat(E) nf_nat(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) iptable_mangle(E) iptable_raw(E) iptable_security(E) ebtable_filter(E) ebtables(E) ip6table_filter(E) ip6_tables(E) iptable_filter(E) ip_tables(E) x_tables(E) xfs(E) ibmveth(E) vmx_crypto(E) gf128mul(E) uio_pdrv_genirq(E) uio(E) crct10dif_vpmsum(E) rtc_generic(E) btrfs(E) libcrc32c(E) xor(E) zstd_decompress(E) zstd_compress(E) raid6_pq(E) sr_mod(E) sd_mod(E) cdrom(E) ibmvscsi(E) scsi_transport_srp(E) crc32c_vpmsum(E) dm_mod(E) sg(E) scsi_mod(E)
-CPU: 34 PID: 8154 Comm: insmod Kdump: loaded Tainted: G OE 5.5.0-mahesh #1
-NIP: c00000000003b7e0 LR: c0000000000f2218 CTR: 0000000000000000
-REGS: c000000007dcb960 TRAP: 0300 Tainted: G OE (5.5.0-mahesh)
-MSR: 8000000000001003 <SF,ME,RI,LE> CR: 28002428 XER: 20040000
-CFAR: c0000000000f2214 DAR: c00000027b205950 DSISR: 40000000 IRQMASK: 0
-GPR00: c0000000000f2218 c000000007dcbbf0 c000000001544800 c000000007dcbd70
-GPR04: 0000000000000001 c000000007dcbc98 c008000000d00258 c0080000011c0000
-GPR08: 0000000000000000 0000000300000003 c000000001035950 0000000003000048
-GPR12: 000000027a1d0000 c000000007f9c000 0000000000000558 0000000000000000
-GPR16: 0000000000000540 c008000001110000 c008000001110540 0000000000000000
-GPR20: c00000000022af10 c00000025480fd70 c008000001280000 c00000004bfbb300
-GPR24: c000000001442330 c00800000800000d c008000008000000 4009287a77000510
-GPR28: 0000000000000000 0000000000000002 c000000001033d30 0000000000000001
-NIP [c00000000003b7e0] save_mce_event+0x30/0x240
-LR [c0000000000f2218] pseries_machine_check_realmode+0x2c8/0x4f0
-Call Trace:
-Instruction dump:
-3c4c0151 38429050 7c0802a6 60000000 fbc1fff0 fbe1fff8 f821ffd1 3d42ffaf
-3fc2ffaf e98d0030 394a1150 3bdef530 <7d6a62aa> 1d2b0048 2f8b0063 380b0001
----[ end trace 46fd63f36bbdd940 ]---
+  # smartctl -x /dev/nvme0n1
+  smartctl 7.1 2019-12-30 r5022 [x86_64-linux-5.5.11] (local build)
+  Copyright (C) 2002-19, Bruce Allen, Christian Franke, www.smartmontools.org
 
-Fixes: 9ca766f9891d ("powerpc/64s/pseries: machine check convert to use common event code")
-Reviewed-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Ganesh Goudar <ganeshgr@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200320110119.10207-1-ganeshgr@linux.ibm.com
+  Read NVMe Identify Controller failed: NVME_IOCTL_ADMIN_CMD: Bad address
+
+Since changing 32-bit kernels to actually check all of the submitted
+address bits now would break existing userspace, this patch fixes the
+compat problem by explicitly zeroing the upper bits in the compat case.
+This enables 32-bit smartctl to work on a 64-bit kernel.
+
+Signed-off-by: Nick Bowler <nbowler@draconx.ca>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/ras.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/nvme/host/core.c | 27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platforms/pseries/ras.c
-index 3acdcc3bb908c..753adeb624f23 100644
---- a/arch/powerpc/platforms/pseries/ras.c
-+++ b/arch/powerpc/platforms/pseries/ras.c
-@@ -683,6 +683,17 @@ static int mce_handle_error(struct pt_regs *regs, struct rtas_error_log *errp)
- #endif
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index a4d8c90ee7cc4..652ca87dac949 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -6,6 +6,7 @@
  
- out:
-+	/*
-+	 * Enable translation as we will be accessing per-cpu variables
-+	 * in save_mce_event() which may fall outside RMO region, also
-+	 * leave it enabled because subsequently we will be queuing work
-+	 * to workqueues where again per-cpu variables accessed, besides
-+	 * fwnmi_release_errinfo() crashes when called in realmode on
-+	 * pseries.
-+	 * Note: All the realmode handling like flushing SLB entries for
-+	 *       SLB multihit is done by now.
-+	 */
-+	mtmsr(mfmsr() | MSR_IR | MSR_DR);
- 	save_mce_event(regs, disposition == RTAS_DISP_FULLY_RECOVERED,
- 			&mce_err, regs->nip, eaddr, paddr);
+ #include <linux/blkdev.h>
+ #include <linux/blk-mq.h>
++#include <linux/compat.h>
+ #include <linux/delay.h>
+ #include <linux/errno.h>
+ #include <linux/hdreg.h>
+@@ -1248,6 +1249,18 @@ static void nvme_enable_aen(struct nvme_ctrl *ctrl)
+ 	queue_work(nvme_wq, &ctrl->async_event_work);
+ }
+ 
++/*
++ * Convert integer values from ioctl structures to user pointers, silently
++ * ignoring the upper bits in the compat case to match behaviour of 32-bit
++ * kernels.
++ */
++static void __user *nvme_to_user_ptr(uintptr_t ptrval)
++{
++	if (in_compat_syscall())
++		ptrval = (compat_uptr_t)ptrval;
++	return (void __user *)ptrval;
++}
++
+ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
+ {
+ 	struct nvme_user_io io;
+@@ -1271,7 +1284,7 @@ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
+ 
+ 	length = (io.nblocks + 1) << ns->lba_shift;
+ 	meta_len = (io.nblocks + 1) * ns->ms;
+-	metadata = (void __user *)(uintptr_t)io.metadata;
++	metadata = nvme_to_user_ptr(io.metadata);
+ 
+ 	if (ns->ext) {
+ 		length += meta_len;
+@@ -1294,7 +1307,7 @@ static int nvme_submit_io(struct nvme_ns *ns, struct nvme_user_io __user *uio)
+ 	c.rw.appmask = cpu_to_le16(io.appmask);
+ 
+ 	return nvme_submit_user_cmd(ns->queue, &c,
+-			(void __user *)(uintptr_t)io.addr, length,
++			nvme_to_user_ptr(io.addr), length,
+ 			metadata, meta_len, lower_32_bits(io.slba), NULL, 0);
+ }
+ 
+@@ -1414,9 +1427,9 @@ static int nvme_user_cmd(struct nvme_ctrl *ctrl, struct nvme_ns *ns,
+ 
+ 	effects = nvme_passthru_start(ctrl, ns, cmd.opcode);
+ 	status = nvme_submit_user_cmd(ns ? ns->queue : ctrl->admin_q, &c,
+-			(void __user *)(uintptr_t)cmd.addr, cmd.data_len,
+-			(void __user *)(uintptr_t)cmd.metadata,
+-			cmd.metadata_len, 0, &result, timeout);
++			nvme_to_user_ptr(cmd.addr), cmd.data_len,
++			nvme_to_user_ptr(cmd.metadata), cmd.metadata_len,
++			0, &result, timeout);
+ 	nvme_passthru_end(ctrl, effects);
+ 
+ 	if (status >= 0) {
+@@ -1461,8 +1474,8 @@ static int nvme_user_cmd64(struct nvme_ctrl *ctrl, struct nvme_ns *ns,
+ 
+ 	effects = nvme_passthru_start(ctrl, ns, cmd.opcode);
+ 	status = nvme_submit_user_cmd(ns ? ns->queue : ctrl->admin_q, &c,
+-			(void __user *)(uintptr_t)cmd.addr, cmd.data_len,
+-			(void __user *)(uintptr_t)cmd.metadata, cmd.metadata_len,
++			nvme_to_user_ptr(cmd.addr), cmd.data_len,
++			nvme_to_user_ptr(cmd.metadata), cmd.metadata_len,
+ 			0, &cmd.result, timeout);
+ 	nvme_passthru_end(ctrl, effects);
  
 -- 
 2.20.1
