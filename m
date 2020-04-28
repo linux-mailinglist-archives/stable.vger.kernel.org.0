@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 348C21BC821
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A888D1BC911
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728894AbgD1S3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:29:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43834 "EHLO mail.kernel.org"
+        id S1730611AbgD1SiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:38:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729417AbgD1S3u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:29:50 -0400
+        id S1729731AbgD1SiS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:38:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C43BC20730;
-        Tue, 28 Apr 2020 18:29:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D03FF20730;
+        Tue, 28 Apr 2020 18:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098590;
-        bh=bNVdSBgTrAiEhSZBP78RjqSO2iW2UM/yNJ3jlJzalm4=;
+        s=default; t=1588099097;
+        bh=7Ui6ieL8UndMe7wdLp5Q7fxB6CMGCFtvQzYTT7O0X9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OqTuc+CDx8WEoRn5G/07BMkNjlmkzlv28N3yuyf6jrP9lMi0srE4ZNlvhNNBTU67q
-         KphkOfGOydhEGloHga//xPXikRPbdE+D15TBd9iACowXicSLA5q8jrxzLRB/5JfyQr
-         gFLc5WEzk/zd/rXk750gwOU60abVUss9HkDNgvUA=
+        b=pWGkkPrWwytuKjYHexzHmTk3y/7UMWqyXt/zUeCOahqApPJPANa2fzVIDtx3CQkA+
+         MRuoT2ceaMge8Np+U+AFwr8a45G3e1Mo7Cn1NwQSgoE5xLvIDg1+V/23vOPDgSBu62
+         FKIUPocMU1LFZhXzlzDh3wAmpn5GDKfWmAGzFFR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 036/167] scsi: lpfc: Fix lockdep error - register non-static key
+Subject: [PATCH 5.4 038/168] drm/amd/display: Calculate scaling ratios on every medium/full update
 Date:   Tue, 28 Apr 2020 20:23:32 +0200
-Message-Id: <20200428182229.706573817@linuxfoundation.org>
+Message-Id: <20200428182236.541152957@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit f861f596714bed06069f1109b89e51f3855c4ddf ]
+[ Upstream commit 3bae20137cae6c03f58f96c0bc9f3d46f0bc17d4 ]
 
-The following lockdep error was reported when unloading the lpfc driver:
+[Why]
+If a plane isn't being actively enabled or disabled then DC won't
+always recalculate scaling rects and ratios for the primary plane.
 
-  INFO: trying to register non-static key.
-  the code is fine but needs lockdep annotation.
-  turning off the locking correctness validator.
-  ...
-  Call Trace:
-  dump_stack+0x96/0xe0
-  register_lock_class+0x8b8/0x8c0
-  ? lockdep_hardirqs_on+0x190/0x280
-  ? is_dynamic_key+0x150/0x150
-  ? wait_for_completion_interruptible+0x2a0/0x2a0
-  ? wake_up_q+0xd0/0xd0
-  __lock_acquire+0xda/0x21a0
-  ? register_lock_class+0x8c0/0x8c0
-  ? synchronize_rcu_expedited+0x500/0x500
-  ? __call_rcu+0x850/0x850
-  lock_acquire+0xf3/0x1f0
-  ? del_timer_sync+0x5/0xb0
-  del_timer_sync+0x3c/0xb0
-  ? del_timer_sync+0x5/0xb0
-  lpfc_pci_remove_one.cold.102+0x8b7/0x935 [lpfc]
-  ...
+This results in only a partial or corrupted rect being displayed on
+the screen instead of scaling to fit the screen.
 
-Unloading the driver resulted in a call to del_timer_sync for the
-cpuhp_poll_timer. However the call to setup the timer had never been made,
-so the timer structures used by lockdep checking were not initialized.
+[How]
+Add back the logic to recalculate the scaling rects into
+dc_commit_updates_for_stream since this is the expected place to
+do it in DC.
 
-Unconditionally call setup_timer for the cpuhp_poll_timer during driver
-initialization. Calls to start the timer remain "as needed".
+This was previously removed a few years ago to fix an underscan issue
+but underscan is still functional now with this change - and it should
+be, since this is only updating to the latest plane state getting passed
+in.
 
-Link: https://lore.kernel.org/r/20200322181304.37655-3-jsmart2021@gmail.com
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_init.c | 5 ++---
- drivers/scsi/lpfc/lpfc_sli.c  | 6 ++----
- 2 files changed, 4 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index d2bbcf8cae4c3..48fde2b1ebbab 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -11203,11 +11203,9 @@ static void lpfc_cpuhp_add(struct lpfc_hba *phba)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 89bd0ba3db1df..71c574d1e8be2 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -2154,7 +2154,7 @@ void dc_commit_updates_for_stream(struct dc *dc,
+ 	enum surface_update_type update_type;
+ 	struct dc_state *context;
+ 	struct dc_context *dc_ctx = dc->ctx;
+-	int i;
++	int i, j;
  
- 	rcu_read_lock();
+ 	stream_status = dc_stream_get_status(stream);
+ 	context = dc->current_state;
+@@ -2192,6 +2192,17 @@ void dc_commit_updates_for_stream(struct dc *dc,
  
--	if (!list_empty(&phba->poll_list)) {
--		timer_setup(&phba->cpuhp_poll_timer, lpfc_sli4_poll_hbtimer, 0);
-+	if (!list_empty(&phba->poll_list))
- 		mod_timer(&phba->cpuhp_poll_timer,
- 			  jiffies + msecs_to_jiffies(LPFC_POLL_HB));
--	}
+ 		copy_surface_update_to_plane(surface, &srf_updates[i]);
  
- 	rcu_read_unlock();
++		if (update_type >= UPDATE_TYPE_MED) {
++			for (j = 0; j < dc->res_pool->pipe_count; j++) {
++				struct pipe_ctx *pipe_ctx =
++					&context->res_ctx.pipe_ctx[j];
++
++				if (pipe_ctx->plane_state != surface)
++					continue;
++
++				resource_build_scaling_params(pipe_ctx);
++			}
++		}
+ 	}
  
-@@ -13173,6 +13171,7 @@ lpfc_pci_probe_one_s4(struct pci_dev *pdev, const struct pci_device_id *pid)
- 	lpfc_sli4_ras_setup(phba);
- 
- 	INIT_LIST_HEAD(&phba->poll_list);
-+	timer_setup(&phba->cpuhp_poll_timer, lpfc_sli4_poll_hbtimer, 0);
- 	cpuhp_state_add_instance_nocalls(lpfc_cpuhp_state, &phba->cpuhp);
- 
- 	return 0;
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index de97727458fc7..396e24764a1b1 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -14457,12 +14457,10 @@ static inline void lpfc_sli4_add_to_poll_list(struct lpfc_queue *eq)
- {
- 	struct lpfc_hba *phba = eq->phba;
- 
--	if (list_empty(&phba->poll_list)) {
--		timer_setup(&phba->cpuhp_poll_timer, lpfc_sli4_poll_hbtimer, 0);
--		/* kickstart slowpath processing for this eq */
-+	/* kickstart slowpath processing if needed */
-+	if (list_empty(&phba->poll_list))
- 		mod_timer(&phba->cpuhp_poll_timer,
- 			  jiffies + msecs_to_jiffies(LPFC_POLL_HB));
--	}
- 
- 	list_add_rcu(&eq->_poll_list, &phba->poll_list);
- 	synchronize_rcu();
+ 	copy_stream_update_to_stream(dc, context, stream, stream_update);
 -- 
 2.20.1
 
