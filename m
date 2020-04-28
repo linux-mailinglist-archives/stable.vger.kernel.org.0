@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 346E51BC8D3
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B1021BC91B
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730326AbgD1SgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:36:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53420 "EHLO mail.kernel.org"
+        id S1730658AbgD1Sim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:38:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730331AbgD1SgC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:36:02 -0400
+        id S1729936AbgD1Sij (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:38:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 583082085B;
-        Tue, 28 Apr 2020 18:36:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB5E920575;
+        Tue, 28 Apr 2020 18:38:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098961;
-        bh=Jq+43dOowewCe+eyDo+Q0xe3EHHPuoR53eIrtwTUFs8=;
+        s=default; t=1588099119;
+        bh=aLkelBpeaUGa3Ws4vfD7/WVsuk/HkvmPey6pJ3eLsJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhs+QBSLD2nooDmG1uwf+U8t5hMsUmr0B+jy1ExHzdeRX+StRXz+bvDbWrRWwCGWc
-         2DwudwEdL1Mgh6cmI293H8IOPZqCiQyOzPmq2bzX3gSu9EaPE8R2vS9LDNuN2VtQk9
-         4c2QoE0vT/xfPXBCW63dQGV/712shKdFxgNFKrao=
+        b=eAChhUM6utFDBRW3fT9jUOhttJVLCZNV0wc0Uf+6N5T/KjUU+Y/e/YnIRafVLo+vK
+         +Zu+PHT4X3Ozn37ra511qjRJPNLqS3wbLbTYo25lLU1tTq8uQnf+ZdbtaKnOLqUygZ
+         TWfxQzy+pZysq8j15JfnSUCStExVjjUx3XQDC1pA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.6 134/167] staging: comedi: dt2815: fix writing hi byte of analog output
-Date:   Tue, 28 Apr 2020 20:25:10 +0200
-Message-Id: <20200428182242.389089986@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: [PATCH 4.19 099/131] tpm/tpm_tis: Free IRQ if probing fails
+Date:   Tue, 28 Apr 2020 20:25:11 +0200
+Message-Id: <20200428182237.557113757@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
-commit ed87d33ddbcd9a1c3b5ae87995da34e6f51a862c upstream.
+commit b160c94be5d2816b62c8ac338605668304242959 upstream.
 
-The DT2815 analog output command is 16 bits wide, consisting of the
-12-bit sample value in bits 15 to 4, the channel number in bits 3 to 1,
-and a voltage or current selector in bit 0.  Both bytes of the 16-bit
-command need to be written in turn to a single 8-bit data register.
-However, the driver currently only writes the low 8-bits.  It is broken
-and appears to have always been broken.
+Call disable_interrupts() if we have to revert to polling in order not to
+unnecessarily reserve the IRQ for the life-cycle of the driver.
 
-Electronic copies of the DT2815 User's Manual seem impossible to find
-online, but looking at the source code, a best guess for the sequence
-the driver intended to use to write the analog output command is as
-follows:
-
-1. Wait for the status register to read 0x00.
-2. Write the low byte of the command to the data register.
-3. Wait for the status register to read 0x80.
-4. Write the high byte of the command to the data register.
-
-Step 4 is missing from the driver.  Add step 4 to (hopefully) fix the
-driver.
-
-Also add a "FIXME" comment about setting bit 0 of the low byte of the
-command.  Supposedly, it is used to choose between voltage output and
-current output, but the current driver always sets it to 1.
-
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200406142015.126982-1-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org # 4.5.x
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: e3837e74a06d ("tpm_tis: Refactor the interrupt setup")
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/dt2815.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/tpm/tpm_tis_core.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/dt2815.c
-+++ b/drivers/staging/comedi/drivers/dt2815.c
-@@ -92,6 +92,7 @@ static int dt2815_ao_insn(struct comedi_
- 	int ret;
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -437,6 +437,9 @@ static void disable_interrupts(struct tp
+ 	u32 intmask;
+ 	int rc;
  
- 	for (i = 0; i < insn->n; i++) {
-+		/* FIXME: lo bit 0 chooses voltage output or current output */
- 		lo = ((data[i] & 0x0f) << 4) | (chan << 1) | 0x01;
- 		hi = (data[i] & 0xff0) >> 4;
- 
-@@ -105,6 +106,8 @@ static int dt2815_ao_insn(struct comedi_
- 		if (ret)
- 			return ret;
- 
-+		outb(hi, dev->iobase + DT2815_DATA);
++	if (priv->irq == 0)
++		return;
 +
- 		devpriv->ao_readback[chan] = data[i];
- 	}
- 	return i;
+ 	rc = tpm_tis_read32(priv, TPM_INT_ENABLE(priv->locality), &intmask);
+ 	if (rc < 0)
+ 		intmask = 0;
+@@ -984,9 +987,12 @@ int tpm_tis_core_init(struct device *dev
+ 		if (irq) {
+ 			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
+ 						 irq);
+-			if (!(chip->flags & TPM_CHIP_FLAG_IRQ))
++			if (!(chip->flags & TPM_CHIP_FLAG_IRQ)) {
+ 				dev_err(&chip->dev, FW_BUG
+ 					"TPM interrupt not working, polling instead\n");
++
++				disable_interrupts(chip);
++			}
+ 		} else {
+ 			tpm_tis_probe_irq(chip, intmask);
+ 		}
 
 
