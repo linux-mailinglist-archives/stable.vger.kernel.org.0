@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFBCA1BCAA2
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B15181BCA9D
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729061AbgD1SvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55558 "EHLO mail.kernel.org"
+        id S1730503AbgD1Shg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:37:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729755AbgD1Sh3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:37:29 -0400
+        id S1730499AbgD1Shg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:37:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DAE120575;
-        Tue, 28 Apr 2020 18:37:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2680E208E0;
+        Tue, 28 Apr 2020 18:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099048;
-        bh=h7nW+O5l1pwXQTTFmtkbQ5u2fi/wZL7r0NDh7IjUv9Q=;
+        s=default; t=1588099055;
+        bh=Sc1tCz+M5pi4yshK9Rgd9hp0+5jeA3ZmPzLyXf1kmEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDoh28ASFVDTfB2uOZL5nfJepfSX6KKQN2B43l23/mef6OgVQy0uQ8ZYnw6wyrUGJ
-         hvfei2CUflKyAHFaGxOVvHV0voeMu2K5V1OZC2h4EMmKkMendlb3xxr8ciPCwIhqH6
-         j49PzMZYNO56T72HgqZ1NdE9yN0/dkX9IDErpcwo=
+        b=pVEyz/TAd4Evoz58fetR8w2yTI5Fcpw+cdFxrZM/ZRqOknP+lu2HK+qjfdvRKDqoY
+         CrlShU9MuEUpDFTCiFAMKRZr8VjFiZ/Qcj8qLAJJLFPO7tYI/CyRM+AWPSupdFD9HL
+         7SuxJxgICP14wXHxwZW0JOe5cFzMhA4FCoA52Q0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org, Longpeng <longpeng2@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 090/131] vmalloc: fix remap_vmalloc_range() bounds checks
-Date:   Tue, 28 Apr 2020 20:25:02 +0200
-Message-Id: <20200428182236.277967928@linuxfoundation.org>
+Subject: [PATCH 4.19 091/131] mm/hugetlb: fix a addressing exception caused by huge_pte_offset
+Date:   Tue, 28 Apr 2020 20:25:03 +0200
+Message-Id: <20200428182236.391692264@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
 References: <20200428182224.822179290@linuxfoundation.org>
@@ -51,165 +48,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Longpeng <longpeng2@huawei.com>
 
-commit bdebd6a2831b6fab69eb85cee74a8ba77f1a1cc2 upstream.
+commit 3c1d7e6ccb644d517a12f73a7ff200870926f865 upstream.
 
-remap_vmalloc_range() has had various issues with the bounds checks it
-promises to perform ("This function checks that addr is a valid
-vmalloc'ed area, and that it is big enough to cover the vma") over time,
-e.g.:
+Our machine encountered a panic(addressing exception) after run for a
+long time and the calltrace is:
 
- - not detecting pgoff<<PAGE_SHIFT overflow
+    RIP: hugetlb_fault+0x307/0xbe0
+    RSP: 0018:ffff9567fc27f808  EFLAGS: 00010286
+    RAX: e800c03ff1258d48 RBX: ffffd3bb003b69c0 RCX: e800c03ff1258d48
+    RDX: 17ff3fc00eda72b7 RSI: 00003ffffffff000 RDI: e800c03ff1258d48
+    RBP: ffff9567fc27f8c8 R08: e800c03ff1258d48 R09: 0000000000000080
+    R10: ffffaba0704c22a8 R11: 0000000000000001 R12: ffff95c87b4b60d8
+    R13: 00005fff00000000 R14: 0000000000000000 R15: ffff9567face8074
+    FS:  00007fe2d9ffb700(0000) GS:ffff956900e40000(0000) knlGS:0000000000000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    CR2: ffffd3bb003b69c0 CR3: 000000be67374000 CR4: 00000000003627e0
+    DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+    DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+    Call Trace:
+      follow_hugetlb_page+0x175/0x540
+      __get_user_pages+0x2a0/0x7e0
+      __get_user_pages_unlocked+0x15d/0x210
+      __gfn_to_pfn_memslot+0x3c5/0x460 [kvm]
+      try_async_pf+0x6e/0x2a0 [kvm]
+      tdp_page_fault+0x151/0x2d0 [kvm]
+     ...
+      kvm_arch_vcpu_ioctl_run+0x330/0x490 [kvm]
+      kvm_vcpu_ioctl+0x309/0x6d0 [kvm]
+      do_vfs_ioctl+0x3f0/0x540
+      SyS_ioctl+0xa1/0xc0
+      system_call_fastpath+0x22/0x27
 
- - not detecting (pgoff<<PAGE_SHIFT)+usize overflow
+For 1G hugepages, huge_pte_offset() wants to return NULL or pudp, but it
+may return a wrong 'pmdp' if there is a race.  Please look at the
+following code snippet:
 
- - not checking whether addr and addr+(pgoff<<PAGE_SHIFT) are the same
-   vmalloc allocation
+    ...
+    pud = pud_offset(p4d, addr);
+    if (sz != PUD_SIZE && pud_none(*pud))
+        return NULL;
+    /* hugepage or swap? */
+    if (pud_huge(*pud) || !pud_present(*pud))
+        return (pte_t *)pud;
 
- - comparing a potentially wildly out-of-bounds pointer with the end of
-   the vmalloc region
+    pmd = pmd_offset(pud, addr);
+    if (sz != PMD_SIZE && pmd_none(*pmd))
+        return NULL;
+    /* hugepage or swap? */
+    if (pmd_huge(*pmd) || !pmd_present(*pmd))
+        return (pte_t *)pmd;
+    ...
 
-In particular, since commit fc9702273e2e ("bpf: Add mmap() support for
-BPF_MAP_TYPE_ARRAY"), unprivileged users can cause kernel null pointer
-dereferences by calling mmap() on a BPF map with a size that is bigger
-than the distance from the start of the BPF map to the end of the
-address space.
+The following sequence would trigger this bug:
 
-This could theoretically be used as a kernel ASLR bypass, by using
-whether mmap() with a given offset oopses or returns an error code to
-perform a binary search over the possible address range.
+ - CPU0: sz = PUD_SIZE and *pud = 0 , continue
+ - CPU0: "pud_huge(*pud)" is false
+ - CPU1: calling hugetlb_no_page and set *pud to xxxx8e7(PRESENT)
+ - CPU0: "!pud_present(*pud)" is false, continue
+ - CPU0: pmd = pmd_offset(pud, addr) and maybe return a wrong pmdp
 
-To allow remap_vmalloc_range_partial() to verify that addr and
-addr+(pgoff<<PAGE_SHIFT) are in the same vmalloc region, pass the offset
-to remap_vmalloc_range_partial() instead of adding it to the pointer in
-remap_vmalloc_range().
+However, we want CPU0 to return NULL or pudp in this case.
 
-In remap_vmalloc_range_partial(), fix the check against
-get_vm_area_size() by using size comparisons instead of pointer
-comparisons, and add checks for pgoff.
+We must make sure there is exactly one dereference of pud and pmd.
 
-Fixes: 833423143c3a ("[PATCH] mm: introduce remap_vmalloc_range()")
-Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Longpeng <longpeng2@huawei.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: stable@vger.kernel.org
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: Andrii Nakryiko <andriin@fb.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@chromium.org>
-Link: http://lkml.kernel.org/r/20200415222312.236431-1-jannh@google.com
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200413010342.771-1-longpeng2@huawei.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/vmcore.c         |    5 +++--
- include/linux/vmalloc.h  |    2 +-
- mm/vmalloc.c             |   16 +++++++++++++---
- samples/vfio-mdev/mdpy.c |    2 +-
- 4 files changed, 18 insertions(+), 7 deletions(-)
+ mm/hugetlb.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/fs/proc/vmcore.c
-+++ b/fs/proc/vmcore.c
-@@ -250,7 +250,8 @@ static int vmcoredd_mmap_dumps(struct vm
- 		if (start < offset + dump->size) {
- 			tsz = min(offset + (u64)dump->size - start, (u64)size);
- 			buf = dump->buf + start - offset;
--			if (remap_vmalloc_range_partial(vma, dst, buf, tsz)) {
-+			if (remap_vmalloc_range_partial(vma, dst, buf, 0,
-+							tsz)) {
- 				ret = -EFAULT;
- 				goto out_unlock;
- 			}
-@@ -607,7 +608,7 @@ static int mmap_vmcore(struct file *file
- 		tsz = min(elfcorebuf_sz + elfnotes_sz - (size_t)start, size);
- 		kaddr = elfnotes_buf + start - elfcorebuf_sz - vmcoredd_orig_sz;
- 		if (remap_vmalloc_range_partial(vma, vma->vm_start + len,
--						kaddr, tsz))
-+						kaddr, 0, tsz))
- 			goto fail;
- 
- 		size -= tsz;
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -103,7 +103,7 @@ extern void vunmap(const void *addr);
- 
- extern int remap_vmalloc_range_partial(struct vm_area_struct *vma,
- 				       unsigned long uaddr, void *kaddr,
--				       unsigned long size);
-+				       unsigned long pgoff, unsigned long size);
- 
- extern int remap_vmalloc_range(struct vm_area_struct *vma, void *addr,
- 							unsigned long pgoff);
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -31,6 +31,7 @@
- #include <linux/compiler.h>
- #include <linux/llist.h>
- #include <linux/bitops.h>
-+#include <linux/overflow.h>
- 
- #include <linux/uaccess.h>
- #include <asm/tlbflush.h>
-@@ -2228,6 +2229,7 @@ finished:
-  *	@vma:		vma to cover
-  *	@uaddr:		target user address to start at
-  *	@kaddr:		virtual address of vmalloc kernel memory
-+ *	@pgoff:		offset from @kaddr to start at
-  *	@size:		size of map area
-  *
-  *	Returns:	0 for success, -Exxx on failure
-@@ -2240,9 +2242,15 @@ finished:
-  *	Similar to remap_pfn_range() (see mm/memory.c)
-  */
- int remap_vmalloc_range_partial(struct vm_area_struct *vma, unsigned long uaddr,
--				void *kaddr, unsigned long size)
-+				void *kaddr, unsigned long pgoff,
-+				unsigned long size)
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4820,8 +4820,8 @@ pte_t *huge_pte_offset(struct mm_struct
  {
- 	struct vm_struct *area;
-+	unsigned long off;
-+	unsigned long end_index;
-+
-+	if (check_shl_overflow(pgoff, PAGE_SHIFT, &off))
-+		return -EINVAL;
+ 	pgd_t *pgd;
+ 	p4d_t *p4d;
+-	pud_t *pud;
+-	pmd_t *pmd;
++	pud_t *pud, pud_entry;
++	pmd_t *pmd, pmd_entry;
  
- 	size = PAGE_ALIGN(size);
+ 	pgd = pgd_offset(mm, addr);
+ 	if (!pgd_present(*pgd))
+@@ -4831,17 +4831,19 @@ pte_t *huge_pte_offset(struct mm_struct
+ 		return NULL;
  
-@@ -2256,8 +2264,10 @@ int remap_vmalloc_range_partial(struct v
- 	if (!(area->flags & VM_USERMAP))
- 		return -EINVAL;
+ 	pud = pud_offset(p4d, addr);
+-	if (sz != PUD_SIZE && pud_none(*pud))
++	pud_entry = READ_ONCE(*pud);
++	if (sz != PUD_SIZE && pud_none(pud_entry))
+ 		return NULL;
+ 	/* hugepage or swap? */
+-	if (pud_huge(*pud) || !pud_present(*pud))
++	if (pud_huge(pud_entry) || !pud_present(pud_entry))
+ 		return (pte_t *)pud;
  
--	if (kaddr + size > area->addr + get_vm_area_size(area))
-+	if (check_add_overflow(size, off, &end_index) ||
-+	    end_index > get_vm_area_size(area))
- 		return -EINVAL;
-+	kaddr += off;
+ 	pmd = pmd_offset(pud, addr);
+-	if (sz != PMD_SIZE && pmd_none(*pmd))
++	pmd_entry = READ_ONCE(*pmd);
++	if (sz != PMD_SIZE && pmd_none(pmd_entry))
+ 		return NULL;
+ 	/* hugepage or swap? */
+-	if (pmd_huge(*pmd) || !pmd_present(*pmd))
++	if (pmd_huge(pmd_entry) || !pmd_present(pmd_entry))
+ 		return (pte_t *)pmd;
  
- 	do {
- 		struct page *page = vmalloc_to_page(kaddr);
-@@ -2296,7 +2306,7 @@ int remap_vmalloc_range(struct vm_area_s
- 						unsigned long pgoff)
- {
- 	return remap_vmalloc_range_partial(vma, vma->vm_start,
--					   addr + (pgoff << PAGE_SHIFT),
-+					   addr, pgoff,
- 					   vma->vm_end - vma->vm_start);
- }
- EXPORT_SYMBOL(remap_vmalloc_range);
---- a/samples/vfio-mdev/mdpy.c
-+++ b/samples/vfio-mdev/mdpy.c
-@@ -418,7 +418,7 @@ static int mdpy_mmap(struct mdev_device
- 		return -EINVAL;
- 
- 	return remap_vmalloc_range_partial(vma, vma->vm_start,
--					   mdev_state->memblk,
-+					   mdev_state->memblk, 0,
- 					   vma->vm_end - vma->vm_start);
- }
- 
+ 	return NULL;
 
 
