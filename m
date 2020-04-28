@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F7B1BCA6C
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C86F31BCA9B
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730169AbgD1SkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:40:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59086 "EHLO mail.kernel.org"
+        id S1730521AbgD1Shl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:37:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730177AbgD1SkD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:40:03 -0400
+        id S1730059AbgD1Shl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:37:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08F9320575;
-        Tue, 28 Apr 2020 18:40:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEE2320575;
+        Tue, 28 Apr 2020 18:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099202;
-        bh=Jq+43dOowewCe+eyDo+Q0xe3EHHPuoR53eIrtwTUFs8=;
+        s=default; t=1588099060;
+        bh=HoZ1jmKaAFJOPrM4P+ug3uY8Rfr2dLp6MGHRka+OT7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EOzD4KZnvhqqGUMtmbSgjLk87TwZjfcVHhPxrHZupzlQmo5IFX/SiQkQupUjp1wF6
-         U0+FMD3o65ON8DmP/Bpw7+GWH47DlNj7nhCT2WOAbxaMteful9EBbusanijhM4y1T+
-         pWMhTalp7bK7nQZZ9ZXV7ErGw4jU8tWmfEHFbjso=
+        b=EdgjTTom0IfPvoBfYUIFm/cJO745p3cDZTPNT8tLB4cJj+el9txpQ28PCmz543BVV
+         Y409toJhntwur5CEbCEC98gtU+7U74/jWnEMVHrvdbVoHKdEPoSH6S425tRDEHqCLp
+         SIGi8vDwB34SQqFHgAClD++h5r8BVqPLDd+btyuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.19 113/131] staging: comedi: dt2815: fix writing hi byte of analog output
-Date:   Tue, 28 Apr 2020 20:25:25 +0200
-Message-Id: <20200428182239.408300451@linuxfoundation.org>
+        stable@vger.kernel.org, Udipto Goswami <ugoswami@codeaurora.org>,
+        Sriharsha Allenki <sallenki@codeaurora.org>,
+        Manu Gautam <mgautam@codeaurora.org>
+Subject: [PATCH 5.6 150/167] usb: f_fs: Clear OS Extended descriptor counts to zero in ffs_data_reset()
+Date:   Tue, 28 Apr 2020 20:25:26 +0200
+Message-Id: <20200428182244.534530387@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Udipto Goswami <ugoswami@codeaurora.org>
 
-commit ed87d33ddbcd9a1c3b5ae87995da34e6f51a862c upstream.
+commit 1c2e54fbf1da5e5445a0ab132c862b02ccd8d230 upstream.
 
-The DT2815 analog output command is 16 bits wide, consisting of the
-12-bit sample value in bits 15 to 4, the channel number in bits 3 to 1,
-and a voltage or current selector in bit 0.  Both bytes of the 16-bit
-command need to be written in turn to a single 8-bit data register.
-However, the driver currently only writes the low 8-bits.  It is broken
-and appears to have always been broken.
+For userspace functions using OS Descriptors, if a function also supplies
+Extended Property descriptors currently the counts and lengths stored in
+the ms_os_descs_ext_prop_{count,name_len,data_len} variables are not
+getting reset to 0 during an unbind or when the epfiles are closed. If
+the same function is re-bound and the descriptors are re-written, this
+results in those count/length variables to monotonically increase
+causing the VLA allocation in _ffs_func_bind() to grow larger and larger
+at each bind/unbind cycle and eventually fail to allocate.
 
-Electronic copies of the DT2815 User's Manual seem impossible to find
-online, but looking at the source code, a best guess for the sequence
-the driver intended to use to write the analog output command is as
-follows:
+Fix this by clearing the ms_os_descs_ext_prop count & lengths to 0 in
+ffs_data_reset().
 
-1. Wait for the status register to read 0x00.
-2. Write the low byte of the command to the data register.
-3. Wait for the status register to read 0x80.
-4. Write the high byte of the command to the data register.
-
-Step 4 is missing from the driver.  Add step 4 to (hopefully) fix the
-driver.
-
-Also add a "FIXME" comment about setting bit 0 of the low byte of the
-command.  Supposedly, it is used to choose between voltage output and
-current output, but the current driver always sets it to 1.
-
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200406142015.126982-1-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f0175ab51993 ("usb: gadget: f_fs: OS descriptors support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Udipto Goswami <ugoswami@codeaurora.org>
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+Reviewed-by: Manu Gautam <mgautam@codeaurora.org>
+Link: https://lore.kernel.org/r/20200402044521.9312-1-sallenki@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/dt2815.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/f_fs.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/staging/comedi/drivers/dt2815.c
-+++ b/drivers/staging/comedi/drivers/dt2815.c
-@@ -92,6 +92,7 @@ static int dt2815_ao_insn(struct comedi_
- 	int ret;
- 
- 	for (i = 0; i < insn->n; i++) {
-+		/* FIXME: lo bit 0 chooses voltage output or current output */
- 		lo = ((data[i] & 0x0f) << 4) | (chan << 1) | 0x01;
- 		hi = (data[i] & 0xff0) >> 4;
- 
-@@ -105,6 +106,8 @@ static int dt2815_ao_insn(struct comedi_
- 		if (ret)
- 			return ret;
- 
-+		outb(hi, dev->iobase + DT2815_DATA);
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1813,6 +1813,10 @@ static void ffs_data_reset(struct ffs_da
+ 	ffs->state = FFS_READ_DESCRIPTORS;
+ 	ffs->setup_state = FFS_NO_SETUP;
+ 	ffs->flags = 0;
 +
- 		devpriv->ao_readback[chan] = data[i];
- 	}
- 	return i;
++	ffs->ms_os_descs_ext_prop_count = 0;
++	ffs->ms_os_descs_ext_prop_name_len = 0;
++	ffs->ms_os_descs_ext_prop_data_len = 0;
+ }
+ 
+ 
 
 
