@@ -2,338 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE75A1BB939
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 10:53:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 332241BB96A
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 11:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726402AbgD1Ixn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 04:53:43 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:54764 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726346AbgD1Ixm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Apr 2020 04:53:42 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21042592-1500050 
-        for multiple; Tue, 28 Apr 2020 09:53:38 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] drm/i915/execlists: Avoid reusing the same logical CCID
-Date:   Tue, 28 Apr 2020 09:53:35 +0100
-Message-Id: <20200428085336.9580-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1726956AbgD1JC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 05:02:57 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:55073 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726271AbgD1JC5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Apr 2020 05:02:57 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id BE45E5C0195;
+        Tue, 28 Apr 2020 05:02:55 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 28 Apr 2020 05:02:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=p8eNY0xnZNFtAr72xYZInG4PLoa
+        Gm0XNLJTzn92LVy0=; b=QWOHAf8q/LDOeUq71TnWybRJl0K/Jfr540x/wM5Owej
+        mgDhPzn5M8Bj+4lWqyVReHD54bx3S4mkj2GeSP+z1uHYyp9gvxvr7JWGfXu+rprC
+        wg9H2KirKQL9U0YerpIIHVgdZ9/ZGWS/L4McFc46iem+tcZgmTeGC9MGk57YtVpt
+        VV5J55HRLh//kc2rhKiKF8NsbaY7rclimQL0zE4RQXtM0hQGLocpH/xshdWrdMjv
+        lvAHcthSCeHDkkhj1wCtD13BVrVyZqBUeeWTec6uctDRpVEUwLdRDB52cg/IuByb
+        WN7Nzb6nLwwM2ja9VTwyu8Q2Ed7tSsA/S4L1wH8PkGw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=p8eNY0
+        xnZNFtAr72xYZInG4PLoaGm0XNLJTzn92LVy0=; b=Edye47JG1WMcFNI10kojbg
+        xQvC2ODZR5WIPa10dLqivksIAunNMq9sO+woS9V+ofw7Y6gA7Zp3n/2gkAVWGV7H
+        iPemtjgwMcQGczaSq2P1tvK/1pTMMtCjEmUB8B0hSyw1ht0IgYJxpebWUj0d6Hrq
+        XYCzAYBOh5YVHp5HHcYoU70eDcLHfq4Zrh4lzCmepT75rnTCVCyz/PJKpmGbyj1/
+        7ygdNb6feVZitQPnjXuKr9xQSO14eS8PFx7Zxcf0srQd/Yzsi8TcsS5Mz7q5Rd//
+        gBH/TfggPwWOKno8q9zFYpC7ngUScSFsl3HIW1CGigvlbQI1PohUAgICuWqMk3LQ
+        ==
+X-ME-Sender: <xms:P_GnXtEUH6EGtRWiBf-u2kQg98o8Utht1svmekSa6lKlozupk8kn_A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedriedugdduudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledruddtje
+    enucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgv
+    gheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:P_GnXqOtRhAcyxqWu9bmcN-LWBlNPY7f5VaZQgIVJDMdMRO5uSYBCg>
+    <xmx:P_GnXui_D44xYwhrQtpeH0Anvyu34-GW2t3KSmtPiRh6nFWhLq-XAA>
+    <xmx:P_GnXq2tUNH3gBVlRt39u1g7_lZK2BjzN0qTQTcHudYEaTUypejhMQ>
+    <xmx:P_GnXrfl0VKErdyagWS7UsQDDsqwhG7VQ2Jd7aG8LN0kHvyfKWTTfA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 38A473065EA1;
+        Tue, 28 Apr 2020 05:02:55 -0400 (EDT)
+Date:   Tue, 28 Apr 2020 11:02:52 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Suraj Jitindar Singh <surajjs@amazon.com>
+Cc:     stable@vger.kernel.org, sjitindarsingh@gmail.com,
+        linux-xfs@vger.kernel.org
+Subject: Re: [PATCH STABLE v4.14.y 0/2] xfs: Backport two fixes
+Message-ID: <20200428090252.GA1001680@kroah.com>
+References: <20200424230532.2852-1-surajjs@amazon.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200424230532.2852-1-surajjs@amazon.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The bspec is confusing on the nature of the upper 32bits of the LRC
-descriptor. Once upon a time, it said that it uses the upper 32b to
-decide if it should perform a lite-restore, and so we must ensure that
-each unique context submitted to HW is given a unique CCID [for the
-duration of it being on the HW]. Currently, this is achieved by using
-a small circular tag, and assigning every context submitted to HW a
-new id. However, this tag is being cleared on repinning an inflight
-context such that we end up re-using the 0 tag for multiple contexts.
+On Fri, Apr 24, 2020 at 04:05:30PM -0700, Suraj Jitindar Singh wrote:
+> This series backports two patches which fix known bugs in the xfs
+> filesystem code to the v4.14.y stable tree.
+> 
+> They are each verified by the xfs tests xfs/439 and generic/585
+> respectively.
+> 
+> The first patch applies cleanly.
+> 
+> The second patch required slight massage due to the last code block
+> being removed having changed slightly upstream due to rework. I think
+> the backport is functionally equivalent.
+> Only thing is I request comment that it is correct to use the following
+> error path:
+> 
+> 	ASSERT(VFS_I(wip)->i_nlink == 0);
+> 	error = xfs_iunlink_remove(tp, wip);
+> 	if (error)
+> >	       goto out_trans_cancel;
+> 
+> The old error patch out_bmap_cancel still exists here. However as
+> nothing can have modified the deferred ops struct at this point I
+> believe it is sufficient to go to the "out_trans_cancel" error label.
+> 
+> Darrick J. Wong (1):
+>   xfs: validate sb_logsunit is a multiple of the fs blocksize
+> 
+> kaixuxia (1):
+>   xfs: Fix deadlock between AGI and AGF with RENAME_WHITEOUT
+> 
+>  fs/xfs/xfs_inode.c | 85 +++++++++++++++++++++++-----------------------
+>  fs/xfs/xfs_log.c   | 14 +++++++-
+>  2 files changed, 55 insertions(+), 44 deletions(-)
 
-To avoid accidentally clearing the CCID in the upper 32bits of the LRC
-descriptor, split the descriptor into two dwords so we can update the
-GGTT address separately from the CCID.
+All (including the 4.19 patch), now queued up, thanks.
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1796
-Fixes: 2935ed5339c4 ("drm/i915: Remove logical HW ID")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.5+
----
- drivers/gpu/drm/i915/gt/intel_context_types.h |  8 ++-
- drivers/gpu/drm/i915/gt/intel_engine_cs.c     |  4 +-
- drivers/gpu/drm/i915/gt/intel_engine_types.h  |  5 ++
- drivers/gpu/drm/i915/gt/intel_lrc.c           | 57 ++++++++-----------
- .../gpu/drm/i915/gt/uc/intel_guc_submission.c |  2 +-
- drivers/gpu/drm/i915/gvt/scheduler.c          |  4 +-
- drivers/gpu/drm/i915/i915_perf.c              |  3 +-
- 7 files changed, 43 insertions(+), 40 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/gt/intel_context_types.h b/drivers/gpu/drm/i915/gt/intel_context_types.h
-index e0da7bdcbf01..4954b0df4864 100644
---- a/drivers/gpu/drm/i915/gt/intel_context_types.h
-+++ b/drivers/gpu/drm/i915/gt/intel_context_types.h
-@@ -69,7 +69,13 @@ struct intel_context {
- #define CONTEXT_NOPREEMPT		7
- 
- 	u32 *lrc_reg_state;
--	u64 lrc_desc;
-+	union {
-+		struct {
-+			u32 lrca;
-+			u32 ccid;
-+		};
-+		u64 desc;
-+	} lrc;
- 	u32 tag; /* cookie passed to HW to track this context on submission */
- 
- 	/* Time on GPU as tracked by the hw. */
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-index b1f8527f02c8..7c3cb5aedfdf 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -1425,7 +1425,7 @@ static void intel_engine_print_registers(struct intel_engine_cs *engine,
- 			len = scnprintf(hdr, sizeof(hdr),
- 					"\t\tActive[%d]:  ccid:%08x, ",
- 					(int)(port - execlists->active),
--					upper_32_bits(rq->context->lrc_desc));
-+					rq->context->lrc.ccid);
- 			len += print_ring(hdr + len, sizeof(hdr) - len, rq);
- 			scnprintf(hdr + len, sizeof(hdr) - len, "rq: ");
- 			print_request(m, rq, hdr);
-@@ -1437,7 +1437,7 @@ static void intel_engine_print_registers(struct intel_engine_cs *engine,
- 			len = scnprintf(hdr, sizeof(hdr),
- 					"\t\tPending[%d]: ccid:%08x, ",
- 					(int)(port - execlists->pending),
--					upper_32_bits(rq->context->lrc_desc));
-+					rq->context->lrc.ccid);
- 			len += print_ring(hdr + len, sizeof(hdr) - len, rq);
- 			scnprintf(hdr + len, sizeof(hdr) - len, "rq: ");
- 			print_request(m, rq, hdr);
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-index bf395227c99f..470bdc73220a 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-@@ -156,6 +156,11 @@ struct intel_engine_execlists {
- 	 */
- 	struct i915_priolist default_priolist;
- 
-+	/**
-+	 * @ccid: identifier for contexts submitted to this engine
-+	 */
-+	u32 ccid;
-+
- 	/**
- 	 * @yield: CCID at the time of the last semaphore-wait interrupt.
- 	 *
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index 93a1b73ad96b..7d56207276d5 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -573,10 +573,10 @@ assert_priority_queue(const struct i915_request *prev,
-  * engine info, SW context ID and SW counter need to form a unique number
-  * (Context ID) per lrc.
-  */
--static u64
-+static u32
- lrc_descriptor(struct intel_context *ce, struct intel_engine_cs *engine)
- {
--	u64 desc;
-+	u32 desc;
- 
- 	desc = INTEL_LEGACY_32B_CONTEXT;
- 	if (i915_vm_is_4lvl(ce->vm))
-@@ -587,21 +587,7 @@ lrc_descriptor(struct intel_context *ce, struct intel_engine_cs *engine)
- 	if (IS_GEN(engine->i915, 8))
- 		desc |= GEN8_CTX_L3LLC_COHERENT;
- 
--	desc |= i915_ggtt_offset(ce->state); /* bits 12-31 */
--	/*
--	 * The following 32bits are copied into the OA reports (dword 2).
--	 * Consider updating oa_get_render_ctx_id in i915_perf.c when changing
--	 * anything below.
--	 */
--	if (INTEL_GEN(engine->i915) >= 11) {
--		desc |= (u64)engine->instance << GEN11_ENGINE_INSTANCE_SHIFT;
--								/* bits 48-53 */
--
--		desc |= (u64)engine->class << GEN11_ENGINE_CLASS_SHIFT;
--								/* bits 61-63 */
--	}
--
--	return desc;
-+	return i915_ggtt_offset(ce->state) | desc;
- }
- 
- static inline unsigned int dword_in_page(void *addr)
-@@ -1353,7 +1339,7 @@ static void reset_active(struct i915_request *rq,
- 	__execlists_update_reg_state(ce, engine, head);
- 
- 	/* We've switched away, so this should be a no-op, but intent matters */
--	ce->lrc_desc |= CTX_DESC_FORCE_RESTORE;
-+	ce->lrc.desc |= CTX_DESC_FORCE_RESTORE;
- }
- 
- static void st_update_runtime_underflow(struct intel_context *ce, s32 dt)
-@@ -1401,18 +1387,19 @@ __execlists_schedule_in(struct i915_request *rq)
- 	if (IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM))
- 		execlists_check_context(ce, engine);
- 
--	ce->lrc_desc &= ~GENMASK_ULL(47, 37);
- 	if (ce->tag) {
- 		/* Use a fixed tag for OA and friends */
--		ce->lrc_desc |= (u64)ce->tag << 32;
-+		ce->lrc.ccid = ce->tag;
- 	} else {
- 		/* We don't need a strict matching tag, just different values */
--		ce->lrc_desc |=
--			(u64)(++engine->context_tag % NUM_CONTEXT_TAG) <<
--			GEN11_SW_CTX_ID_SHIFT;
-+		ce->lrc.ccid =
-+			(++engine->context_tag % NUM_CONTEXT_TAG) <<
-+			(GEN11_SW_CTX_ID_SHIFT - 32);
- 		BUILD_BUG_ON(NUM_CONTEXT_TAG > GEN12_MAX_CONTEXT_HW_ID);
- 	}
- 
-+	ce->lrc.ccid |= engine->execlists.ccid;
-+
- 	__intel_gt_pm_get(engine->gt);
- 	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_IN);
- 	intel_engine_context_in(engine);
-@@ -1511,7 +1498,7 @@ execlists_schedule_out(struct i915_request *rq)
- static u64 execlists_update_context(struct i915_request *rq)
- {
- 	struct intel_context *ce = rq->context;
--	u64 desc = ce->lrc_desc;
-+	u64 desc = ce->lrc.desc;
- 	u32 tail, prev;
- 
- 	/*
-@@ -1550,7 +1537,7 @@ static u64 execlists_update_context(struct i915_request *rq)
- 	 */
- 	wmb();
- 
--	ce->lrc_desc &= ~CTX_DESC_FORCE_RESTORE;
-+	ce->lrc.desc &= ~CTX_DESC_FORCE_RESTORE;
- 	return desc;
- }
- 
-@@ -1571,8 +1558,9 @@ dump_port(char *buf, int buflen, const char *prefix, struct i915_request *rq)
- 	if (!rq)
- 		return "";
- 
--	snprintf(buf, buflen, "%s%llx:%lld%s prio %d",
-+	snprintf(buf, buflen, "%sccid:%x %llx:%lld%s prio %d",
- 		 prefix,
-+		 rq->context->lrc.ccid,
- 		 rq->fence.context, rq->fence.seqno,
- 		 i915_request_completed(rq) ? "!" :
- 		 i915_request_started(rq) ? "*" :
-@@ -1948,7 +1936,7 @@ timeslice_yield(const struct intel_engine_execlists *el,
- 	 * safe, yield if it might be stuck -- it will be given a fresh
- 	 * timeslice in the near future.
- 	 */
--	return upper_32_bits(rq->context->lrc_desc) == READ_ONCE(el->yield);
-+	return rq->context->lrc.ccid == READ_ONCE(el->yield);
- }
- 
- static bool
-@@ -2975,7 +2963,7 @@ active_context(struct intel_engine_cs *engine, u32 ccid)
- 	 */
- 
- 	for (port = el->active; (rq = *port); port++) {
--		if (upper_32_bits(rq->context->lrc_desc) == ccid) {
-+		if (rq->context->lrc.ccid == ccid) {
- 			ENGINE_TRACE(engine,
- 				     "ccid found at active:%zd\n",
- 				     port - el->active);
-@@ -2984,7 +2972,7 @@ active_context(struct intel_engine_cs *engine, u32 ccid)
- 	}
- 
- 	for (port = el->pending; (rq = *port); port++) {
--		if (upper_32_bits(rq->context->lrc_desc) == ccid) {
-+		if (rq->context->lrc.ccid == ccid) {
- 			ENGINE_TRACE(engine,
- 				     "ccid found at pending:%zd\n",
- 				     port - el->pending);
-@@ -3444,7 +3432,7 @@ __execlists_context_pin(struct intel_context *ce,
- 	if (IS_ERR(vaddr))
- 		return PTR_ERR(vaddr);
- 
--	ce->lrc_desc = lrc_descriptor(ce, engine) | CTX_DESC_FORCE_RESTORE;
-+	ce->lrc.lrca = lrc_descriptor(ce, engine) | CTX_DESC_FORCE_RESTORE;
- 	ce->lrc_reg_state = vaddr + LRC_STATE_OFFSET;
- 	__execlists_update_reg_state(ce, engine, ce->ring->tail);
- 
-@@ -3473,7 +3461,7 @@ static void execlists_context_reset(struct intel_context *ce)
- 				 ce, ce->engine, ce->ring, true);
- 	__execlists_update_reg_state(ce, ce->engine, ce->ring->tail);
- 
--	ce->lrc_desc |= CTX_DESC_FORCE_RESTORE;
-+	ce->lrc.desc |= CTX_DESC_FORCE_RESTORE;
- }
- 
- static const struct intel_context_ops execlists_context_ops = {
-@@ -4184,7 +4172,7 @@ static void __execlists_reset(struct intel_engine_cs *engine, bool stalled)
- 		     head, ce->ring->tail);
- 	__execlists_reset_reg_state(ce, engine);
- 	__execlists_update_reg_state(ce, engine, head);
--	ce->lrc_desc |= CTX_DESC_FORCE_RESTORE; /* paranoid: GPU was reset! */
-+	ce->lrc.desc |= CTX_DESC_FORCE_RESTORE; /* paranoid: GPU was reset! */
- 
- unwind:
- 	/* Push back any incomplete requests for replay after the reset. */
-@@ -4950,6 +4938,11 @@ int intel_execlists_submission_setup(struct intel_engine_cs *engine)
- 	else
- 		execlists->csb_size = GEN11_CSB_ENTRIES;
- 
-+	if (INTEL_GEN(engine->i915) >= 11) {
-+		execlists->ccid |= engine->instance << (GEN11_ENGINE_INSTANCE_SHIFT - 32);
-+		execlists->ccid |= engine->class << (GEN11_ENGINE_CLASS_SHIFT - 32);
-+	}
-+
- 	/* Finally, take ownership and responsibility for cleanup! */
- 	engine->sanitize = execlists_sanitize;
- 	engine->release = execlists_release;
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-index fe7778c28d2d..aa6d56e25a10 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-@@ -217,7 +217,7 @@ static void guc_wq_item_append(struct intel_guc *guc,
- static void guc_add_request(struct intel_guc *guc, struct i915_request *rq)
- {
- 	struct intel_engine_cs *engine = rq->engine;
--	u32 ctx_desc = lower_32_bits(rq->context->lrc_desc);
-+	u32 ctx_desc = rq->context->lrc.ccid;
- 	u32 ring_tail = intel_ring_set_tail(rq->ring, rq->tail) / sizeof(u64);
- 
- 	guc_wq_item_append(guc, engine->guc_id, ctx_desc,
-diff --git a/drivers/gpu/drm/i915/gvt/scheduler.c b/drivers/gpu/drm/i915/gvt/scheduler.c
-index 2f5c59111821..38234073e0fc 100644
---- a/drivers/gpu/drm/i915/gvt/scheduler.c
-+++ b/drivers/gpu/drm/i915/gvt/scheduler.c
-@@ -290,7 +290,7 @@ static void
- shadow_context_descriptor_update(struct intel_context *ce,
- 				 struct intel_vgpu_workload *workload)
- {
--	u64 desc = ce->lrc_desc;
-+	u64 desc = ce->lrc.desc;
- 
- 	/*
- 	 * Update bits 0-11 of the context descriptor which includes flags
-@@ -300,7 +300,7 @@ shadow_context_descriptor_update(struct intel_context *ce,
- 	desc |= (u64)workload->ctx_desc.addressing_mode <<
- 		GEN8_CTX_ADDRESSING_MODE_SHIFT;
- 
--	ce->lrc_desc = desc;
-+	ce->lrc.desc = desc;
- }
- 
- static int copy_workload_to_ring_buffer(struct intel_vgpu_workload *workload)
-diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
-index dec1b33e4da8..04ad21960688 100644
---- a/drivers/gpu/drm/i915/i915_perf.c
-+++ b/drivers/gpu/drm/i915/i915_perf.c
-@@ -1263,8 +1263,7 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
- 			 * dropped by GuC. They won't be part of the context
- 			 * ID in the OA reports, so squash those lower bits.
- 			 */
--			stream->specific_ctx_id =
--				lower_32_bits(ce->lrc_desc) >> 12;
-+			stream->specific_ctx_id = ce->lrc.lrca >> 12;
- 
- 			/*
- 			 * GuC uses the top bit to signal proxy submission, so
--- 
-2.20.1
-
+greg k-h
