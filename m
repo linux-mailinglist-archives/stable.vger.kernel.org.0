@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ACE31BC7F9
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41E271BCB8B
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729171AbgD1S2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:28:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41050 "EHLO mail.kernel.org"
+        id S1729024AbgD1S5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:57:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729168AbgD1S2S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:28:18 -0400
+        id S1728935AbgD1SaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B333208E0;
-        Tue, 28 Apr 2020 18:28:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DA072137B;
+        Tue, 28 Apr 2020 18:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098497;
-        bh=stN9rP4HgKIFrPN1xz/O73Hsp6NVHW7nqXAQ5WzJH24=;
+        s=default; t=1588098605;
+        bh=r7W2BMvSVN2n2aUOBFfbrcyTxzO/sjlxfzlONt//hmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IffqjOixVhoQUTgh+xIRJ7gqe+wmv0QDeR9hMHH0n//R8ut2tao8vo0FdkgL8VqfA
-         mMOql52R5/1BCbtQLkXN1KHIMVrk045eBqoTUKRzMooG0ImlUobdfdObVGyjH1bVN1
-         z0GochMtu/uU+j9TS78ndMlgvOVK1Pu4kemOsZ7s=
+        b=DDLKI6U0V06n1j0cOCWWTkM/kA/WSHMTnDixtAiWtFBuChAV4JaSB7IkA9gFo3UbV
+         5iMJpBIorK9OmFhzLip2RSESxU/hF8Wu7qztM5aW42mAgbgScc6FZtWyzNJRqBqAUP
+         P7Wp5VBCnCwW1K0zbOvQroNoepMyYe2HG66Iz/yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 061/167] team: fix hang in team_mode_get()
-Date:   Tue, 28 Apr 2020 20:23:57 +0200
-Message-Id: <20200428182232.675467511@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 026/131] Revert "powerpc/64: irq_work avoid interrupt when called with hardware irqs enabled"
+Date:   Tue, 28 Apr 2020 20:23:58 +0200
+Message-Id: <20200428182228.420966387@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 1c30fbc76b8f0c07c92a8ca4cd7c456612e17eb5 ]
+[ Upstream commit abc3fce76adbdfa8f87272c784b388cd20b46049 ]
 
-When team mode is changed or set, the team_mode_get() is called to check
-whether the mode module is inserted or not. If the mode module is not
-inserted, it calls the request_module().
-In the request_module(), it creates a child process, which is
-the "modprobe" process and waits for the done of the child process.
-At this point, the following locks were used.
-down_read(&cb_lock()); by genl_rcv()
-    genl_lock(); by genl_rcv_msc()
-        rtnl_lock(); by team_nl_cmd_options_set()
-            mutex_lock(&team->lock); by team_nl_team_get()
+This reverts commit ebb37cf3ffd39fdb6ec5b07111f8bb2f11d92c5f.
 
-Concurrently, the team module could be removed by rmmod or "modprobe -r"
-The __exit function of team module is team_module_exit(), which calls
-team_nl_fini() and it tries to acquire following locks.
-down_write(&cb_lock);
-    genl_lock();
-Because of the genl_lock() and cb_lock, this process can't be finished
-earlier than request_module() routine.
+That commit does not play well with soft-masked irq state
+manipulations in idle, interrupt replay, and possibly others due to
+tracing code sometimes using irq_work_queue (e.g., in
+trace_hardirqs_on()). That can cause PACA_IRQ_DEC to become set when
+it is not expected, and be ignored or cleared or cause warnings.
 
-The problem secenario.
-CPU0                                     CPU1
-team_mode_get
-    request_module()
-                                         modprobe -r team_mode_roundrobin
-                                                     team <--(B)
-        modprobe team <--(A)
-            team_mode_roundrobin
+The net result seems to be missing an irq_work until the next timer
+interrupt in the worst case which is usually not going to be noticed,
+however it could be a long time if the tick is disabled, which is
+against the spirit of irq_work and might cause real problems.
 
-By request_module(), the "modprobe team_mode_roundrobin" command
-will be executed. At this point, the modprobe process will decide
-that the team module should be inserted before team_mode_roundrobin.
-Because the team module is being removed.
+The idea is still solid, but it would need more work. It's not really
+clear if it would be worth added complexity, so revert this for
+now (not a straight revert, but replace with a comment explaining why
+we might see interrupts happening, and gives git blame something to
+find).
 
-By the module infrastructure, the same module insert/remove operations
-can't be executed concurrently.
-So, (A) waits for (B) but (B) also waits for (A) because of locks.
-So that the hang occurs at this point.
-
-Test commands:
-    while :
-    do
-        teamd -d &
-	killall teamd &
-	modprobe -rv team_mode_roundrobin &
-    done
-
-The approach of this patch is to hold the reference count of the team
-module if the team module is compiled as a module. If the reference count
-of the team module is not zero while request_module() is being called,
-the team module will not be removed at that moment.
-So that the above scenario could not occur.
-
-Fixes: 3d249d4ca7d0 ("net: introduce ethernet teaming device")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ebb37cf3ffd3 ("powerpc/64: irq_work avoid interrupt when called with hardware irqs enabled")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200402120401.1115883-1-npiggin@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/team/team.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/kernel/time.c | 44 +++++++++++---------------------------
+ 1 file changed, 13 insertions(+), 31 deletions(-)
 
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -468,6 +468,9 @@ static const struct team_mode *team_mode
- 	struct team_mode_item *mitem;
- 	const struct team_mode *mode = NULL;
- 
-+	if (!try_module_get(THIS_MODULE))
-+		return NULL;
-+
- 	spin_lock(&mode_list_lock);
- 	mitem = __find_mode(kind);
- 	if (!mitem) {
-@@ -483,6 +486,7 @@ static const struct team_mode *team_mode
- 	}
- 
- 	spin_unlock(&mode_list_lock);
-+	module_put(THIS_MODULE);
- 	return mode;
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 5449e76cf2dfd..f6c21f6af274e 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -492,35 +492,6 @@ static inline void clear_irq_work_pending(void)
+ 		"i" (offsetof(struct paca_struct, irq_work_pending)));
  }
  
+-void arch_irq_work_raise(void)
+-{
+-	preempt_disable();
+-	set_irq_work_pending_flag();
+-	/*
+-	 * Non-nmi code running with interrupts disabled will replay
+-	 * irq_happened before it re-enables interrupts, so setthe
+-	 * decrementer there instead of causing a hardware exception
+-	 * which would immediately hit the masked interrupt handler
+-	 * and have the net effect of setting the decrementer in
+-	 * irq_happened.
+-	 *
+-	 * NMI interrupts can not check this when they return, so the
+-	 * decrementer hardware exception is raised, which will fire
+-	 * when interrupts are next enabled.
+-	 *
+-	 * BookE does not support this yet, it must audit all NMI
+-	 * interrupt handlers to ensure they call nmi_enter() so this
+-	 * check would be correct.
+-	 */
+-	if (IS_ENABLED(CONFIG_BOOKE) || !irqs_disabled() || in_nmi()) {
+-		set_dec(1);
+-	} else {
+-		hard_irq_disable();
+-		local_paca->irq_happened |= PACA_IRQ_DEC;
+-	}
+-	preempt_enable();
+-}
+-
+ #else /* 32-bit */
+ 
+ DEFINE_PER_CPU(u8, irq_work_pending);
+@@ -529,16 +500,27 @@ DEFINE_PER_CPU(u8, irq_work_pending);
+ #define test_irq_work_pending()		__this_cpu_read(irq_work_pending)
+ #define clear_irq_work_pending()	__this_cpu_write(irq_work_pending, 0)
+ 
++#endif /* 32 vs 64 bit */
++
+ void arch_irq_work_raise(void)
+ {
++	/*
++	 * 64-bit code that uses irq soft-mask can just cause an immediate
++	 * interrupt here that gets soft masked, if this is called under
++	 * local_irq_disable(). It might be possible to prevent that happening
++	 * by noticing interrupts are disabled and setting decrementer pending
++	 * to be replayed when irqs are enabled. The problem there is that
++	 * tracing can call irq_work_raise, including in code that does low
++	 * level manipulations of irq soft-mask state (e.g., trace_hardirqs_on)
++	 * which could get tangled up if we're messing with the same state
++	 * here.
++	 */
+ 	preempt_disable();
+ 	set_irq_work_pending_flag();
+ 	set_dec(1);
+ 	preempt_enable();
+ }
+ 
+-#endif /* 32 vs 64 bit */
+-
+ #else  /* CONFIG_IRQ_WORK */
+ 
+ #define test_irq_work_pending()	0
+-- 
+2.20.1
+
 
 
