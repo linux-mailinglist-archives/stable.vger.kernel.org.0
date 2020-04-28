@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA271BC9E9
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC1241BC88B
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:33:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730919AbgD1Sne (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:43:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36012 "EHLO mail.kernel.org"
+        id S1729198AbgD1Sdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731250AbgD1Snd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:43:33 -0400
+        id S1729191AbgD1Sdf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:33:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91370206D6;
-        Tue, 28 Apr 2020 18:43:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE0EC21841;
+        Tue, 28 Apr 2020 18:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099413;
-        bh=btMmoRmbm0aFeh7V8QPWVWglOxt22/y9OzCifBjnb+c=;
+        s=default; t=1588098815;
+        bh=SdYPtGsz1ShTARY+qX9ivV1aApM0u9ClSZT3PcCCiK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AOctV5R6rnpzMMnvQuNMuKxNshaZTr3HvncHnQ5dULXDfaY1FSlCNnFdRBnjjyNqA
-         2mxAXmMI14LP3oxGDnBSQTBUlQYc0WnKELkTMZfXk6aess1IwmHNQRlBYQ5saWj0Mz
-         ULdsQxesyvvRrBwq3tgj/WvZCRs+/ofRjjlgvE34=
+        b=2Dv+KZ/J3IzntPYNPhH+PNme+TI5HCWCJlZ0RKL7rogbgJ8+L6LDSj1/lUE9YTDre
+         vyB5sDmKmvJYb+YS1Icp2M9x4WM5/hWzFxxjfbdZAwLj582oFgzCuHUPNtek5/kkR/
+         0FRV9ZyUJEXJBcaVT2v29nu5+8M4YCTdQuH9WMc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Kyungtae Kim <kt0755@gmail.com>
-Subject: [PATCH 5.4 098/168] USB: core: Fix free-while-in-use bug in the USB S-Glibrary
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 060/131] net: stmmac: dwmac-meson8b: Add missing boundary to RGMII TX clock array
 Date:   Tue, 28 Apr 2020 20:24:32 +0200
-Message-Id: <20200428182244.742339543@linuxfoundation.org>
+Message-Id: <20200428182232.520434532@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 056ad39ee9253873522f6469c3364964a322912b upstream.
+[ Upstream commit f0212a5ebfa6cd789ab47666b9cc169e6e688732 ]
 
-FuzzUSB (a variant of syzkaller) found a free-while-still-in-use bug
-in the USB scatter-gather library:
+Running with KASAN on a VIM3L systems leads to the following splat
+when probing the Ethernet device:
 
-BUG: KASAN: use-after-free in atomic_read
-include/asm-generic/atomic-instrumented.h:26 [inline]
-BUG: KASAN: use-after-free in usb_hcd_unlink_urb+0x5f/0x170
-drivers/usb/core/hcd.c:1607
-Read of size 4 at addr ffff888065379610 by task kworker/u4:1/27
+==================================================================
+BUG: KASAN: global-out-of-bounds in _get_maxdiv+0x74/0xd8
+Read of size 4 at addr ffffa000090615f4 by task systemd-udevd/139
+CPU: 1 PID: 139 Comm: systemd-udevd Tainted: G            E     5.7.0-rc1-00101-g8624b7577b9c #781
+Hardware name: amlogic w400/w400, BIOS 2020.01-rc5 03/12/2020
+Call trace:
+ dump_backtrace+0x0/0x2a0
+ show_stack+0x20/0x30
+ dump_stack+0xec/0x148
+ print_address_description.isra.12+0x70/0x35c
+ __kasan_report+0xfc/0x1d4
+ kasan_report+0x4c/0x68
+ __asan_load4+0x9c/0xd8
+ _get_maxdiv+0x74/0xd8
+ clk_divider_bestdiv+0x74/0x5e0
+ clk_divider_round_rate+0x80/0x1a8
+ clk_core_determine_round_nolock.part.9+0x9c/0xd0
+ clk_core_round_rate_nolock+0xf0/0x108
+ clk_hw_round_rate+0xac/0xf0
+ clk_factor_round_rate+0xb8/0xd0
+ clk_core_determine_round_nolock.part.9+0x9c/0xd0
+ clk_core_round_rate_nolock+0xf0/0x108
+ clk_core_round_rate_nolock+0xbc/0x108
+ clk_core_set_rate_nolock+0xc4/0x2e8
+ clk_set_rate+0x58/0xe0
+ meson8b_dwmac_probe+0x588/0x72c [dwmac_meson8b]
+ platform_drv_probe+0x78/0xd8
+ really_probe+0x158/0x610
+ driver_probe_device+0x140/0x1b0
+ device_driver_attach+0xa4/0xb0
+ __driver_attach+0xcc/0x1c8
+ bus_for_each_dev+0xf4/0x168
+ driver_attach+0x3c/0x50
+ bus_add_driver+0x238/0x2e8
+ driver_register+0xc8/0x1e8
+ __platform_driver_register+0x88/0x98
+ meson8b_dwmac_driver_init+0x28/0x1000 [dwmac_meson8b]
+ do_one_initcall+0xa8/0x328
+ do_init_module+0xe8/0x368
+ load_module+0x3300/0x36b0
+ __do_sys_finit_module+0x120/0x1a8
+ __arm64_sys_finit_module+0x4c/0x60
+ el0_svc_common.constprop.2+0xe4/0x268
+ do_el0_svc+0x98/0xa8
+ el0_svc+0x24/0x68
+ el0_sync_handler+0x12c/0x318
+ el0_sync+0x158/0x180
 
-CPU: 1 PID: 27 Comm: kworker/u4:1 Not tainted 5.5.11 #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-1.10.2-1ubuntu1 04/01/2014
-Workqueue: scsi_tmf_2 scmd_eh_abort_handler
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xce/0x128 lib/dump_stack.c:118
- print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
- __kasan_report+0x153/0x1cb mm/kasan/report.c:506
- kasan_report+0x12/0x20 mm/kasan/common.c:639
- check_memory_region_inline mm/kasan/generic.c:185 [inline]
- check_memory_region+0x152/0x1b0 mm/kasan/generic.c:192
- __kasan_check_read+0x11/0x20 mm/kasan/common.c:95
- atomic_read include/asm-generic/atomic-instrumented.h:26 [inline]
- usb_hcd_unlink_urb+0x5f/0x170 drivers/usb/core/hcd.c:1607
- usb_unlink_urb+0x72/0xb0 drivers/usb/core/urb.c:657
- usb_sg_cancel+0x14e/0x290 drivers/usb/core/message.c:602
- usb_stor_stop_transport+0x5e/0xa0 drivers/usb/storage/transport.c:937
+The buggy address belongs to the variable:
+ div_table.63646+0x34/0xfffffffffffffa40 [dwmac_meson8b]
 
-This bug occurs when cancellation of the S-G transfer races with
-transfer completion.  When that happens, usb_sg_cancel() may continue
-to access the transfer's URBs after usb_sg_wait() has freed them.
+Memory state around the buggy address:
+ ffffa00009061480: fa fa fa fa 00 00 00 01 fa fa fa fa 00 00 00 00
+ ffffa00009061500: 05 fa fa fa fa fa fa fa 00 04 fa fa fa fa fa fa
+>ffffa00009061580: 00 03 fa fa fa fa fa fa 00 00 00 00 00 00 fa fa
+                                                             ^
+ ffffa00009061600: fa fa fa fa 00 01 fa fa fa fa fa fa 01 fa fa fa
+ ffffa00009061680: fa fa fa fa 00 01 fa fa fa fa fa fa 04 fa fa fa
+==================================================================
 
-The bug is caused by the fact that usb_sg_cancel() does not take any
-sort of reference to the transfer, and so there is nothing to prevent
-the URBs from being deallocated while the routine is trying to use
-them.  The fix is to take such a reference by incrementing the
-transfer's io->count field while the cancellation is in progres and
-decrementing it afterward.  The transfer's URBs are not deallocated
-until io->complete is triggered, which happens when io->count reaches
-zero.
+Digging into this indeed shows that the clock divider array is
+lacking a final fence, and that the clock subsystems goes in the
+weeds. Oh well.
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2003281615140.14837-100000@netrider.rowland.org
+Let's add the empty structure that indicates the end of the array.
+
+Fixes: bd6f48546b9c ("net: stmmac: dwmac-meson8b: Fix the RGMII TX delay on Meson8b/8m2 SoCs")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/core/message.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -588,12 +588,13 @@ void usb_sg_cancel(struct usb_sg_request
- 	int i, retval;
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
+@@ -125,6 +125,7 @@ static int meson8b_init_rgmii_tx_clk(str
+ 		{ .div = 5, .val = 5, },
+ 		{ .div = 6, .val = 6, },
+ 		{ .div = 7, .val = 7, },
++		{ /* end of array */ }
+ 	};
  
- 	spin_lock_irqsave(&io->lock, flags);
--	if (io->status) {
-+	if (io->status || io->count == 0) {
- 		spin_unlock_irqrestore(&io->lock, flags);
- 		return;
- 	}
- 	/* shut everything down */
- 	io->status = -ECONNRESET;
-+	io->count++;		/* Keep the request alive until we're done */
- 	spin_unlock_irqrestore(&io->lock, flags);
- 
- 	for (i = io->entries - 1; i >= 0; --i) {
-@@ -607,6 +608,12 @@ void usb_sg_cancel(struct usb_sg_request
- 			dev_warn(&io->dev->dev, "%s, unlink --> %d\n",
- 				 __func__, retval);
- 	}
-+
-+	spin_lock_irqsave(&io->lock, flags);
-+	io->count--;
-+	if (!io->count)
-+		complete(&io->complete);
-+	spin_unlock_irqrestore(&io->lock, flags);
- }
- EXPORT_SYMBOL_GPL(usb_sg_cancel);
- 
+ 	clk_configs = devm_kzalloc(dev, sizeof(*clk_configs), GFP_KERNEL);
 
 
