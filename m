@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E271BCB8B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C37671BCBCD
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729024AbgD1S5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:57:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44440 "EHLO mail.kernel.org"
+        id S1729100AbgD1S7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:59:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728935AbgD1SaF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:30:05 -0400
+        id S1729189AbgD1S2Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:28:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DA072137B;
-        Tue, 28 Apr 2020 18:30:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DE5220BED;
+        Tue, 28 Apr 2020 18:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098605;
-        bh=r7W2BMvSVN2n2aUOBFfbrcyTxzO/sjlxfzlONt//hmY=;
+        s=default; t=1588098504;
+        bh=cAsobCg9jwmouMkaU0/F+93bEXvxaMeqh2tFcVn6pKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDLKI6U0V06n1j0cOCWWTkM/kA/WSHMTnDixtAiWtFBuChAV4JaSB7IkA9gFo3UbV
-         5iMJpBIorK9OmFhzLip2RSESxU/hF8Wu7qztM5aW42mAgbgScc6FZtWyzNJRqBqAUP
-         P7Wp5VBCnCwW1K0zbOvQroNoepMyYe2HG66Iz/yI=
+        b=k9mrJk6pGq7IPz6VeCI/Rt+kH858nHTOHnP5H93rbMf+NlvmMlkLer9U5IDas3HAE
+         NjbiQ+hAE1IyrRZz6PrW7sk83jAWJ0JS0JaA0fy4mJblKhl54fRQdExlFJdf3R/AxR
+         v3RuVaF+Gx2XOuzv9QcR4HZq7pSRdxcpd+tMMThM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 026/131] Revert "powerpc/64: irq_work avoid interrupt when called with hardware irqs enabled"
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 062/167] tipc: Fix potential tipc_aead refcnt leak in tipc_crypto_rcv
 Date:   Tue, 28 Apr 2020 20:23:58 +0200
-Message-Id: <20200428182228.420966387@linuxfoundation.org>
+Message-Id: <20200428182232.791482602@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit abc3fce76adbdfa8f87272c784b388cd20b46049 ]
+[ Upstream commit 441870ee4240cf67b5d3ab8e16216a9ff42eb5d6 ]
 
-This reverts commit ebb37cf3ffd39fdb6ec5b07111f8bb2f11d92c5f.
+tipc_crypto_rcv() invokes tipc_aead_get(), which returns a reference of
+the tipc_aead object to "aead" with increased refcnt.
 
-That commit does not play well with soft-masked irq state
-manipulations in idle, interrupt replay, and possibly others due to
-tracing code sometimes using irq_work_queue (e.g., in
-trace_hardirqs_on()). That can cause PACA_IRQ_DEC to become set when
-it is not expected, and be ignored or cleared or cause warnings.
+When tipc_crypto_rcv() returns, the original local reference of "aead"
+becomes invalid, so the refcount should be decreased to keep refcount
+balanced.
 
-The net result seems to be missing an irq_work until the next timer
-interrupt in the worst case which is usually not going to be noticed,
-however it could be a long time if the tick is disabled, which is
-against the spirit of irq_work and might cause real problems.
+The issue happens in one error path of tipc_crypto_rcv(). When TIPC
+message decryption status is EINPROGRESS or EBUSY, the function forgets
+to decrease the refcnt increased by tipc_aead_get() and causes a refcnt
+leak.
 
-The idea is still solid, but it would need more work. It's not really
-clear if it would be worth added complexity, so revert this for
-now (not a straight revert, but replace with a comment explaining why
-we might see interrupts happening, and gives git blame something to
-find).
+Fix this issue by calling tipc_aead_put() on the error path when TIPC
+message decryption status is EINPROGRESS or EBUSY.
 
-Fixes: ebb37cf3ffd3 ("powerpc/64: irq_work avoid interrupt when called with hardware irqs enabled")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200402120401.1115883-1-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/time.c | 44 +++++++++++---------------------------
- 1 file changed, 13 insertions(+), 31 deletions(-)
+ net/tipc/crypto.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 5449e76cf2dfd..f6c21f6af274e 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -492,35 +492,6 @@ static inline void clear_irq_work_pending(void)
- 		"i" (offsetof(struct paca_struct, irq_work_pending)));
- }
- 
--void arch_irq_work_raise(void)
--{
--	preempt_disable();
--	set_irq_work_pending_flag();
--	/*
--	 * Non-nmi code running with interrupts disabled will replay
--	 * irq_happened before it re-enables interrupts, so setthe
--	 * decrementer there instead of causing a hardware exception
--	 * which would immediately hit the masked interrupt handler
--	 * and have the net effect of setting the decrementer in
--	 * irq_happened.
--	 *
--	 * NMI interrupts can not check this when they return, so the
--	 * decrementer hardware exception is raised, which will fire
--	 * when interrupts are next enabled.
--	 *
--	 * BookE does not support this yet, it must audit all NMI
--	 * interrupt handlers to ensure they call nmi_enter() so this
--	 * check would be correct.
--	 */
--	if (IS_ENABLED(CONFIG_BOOKE) || !irqs_disabled() || in_nmi()) {
--		set_dec(1);
--	} else {
--		hard_irq_disable();
--		local_paca->irq_happened |= PACA_IRQ_DEC;
--	}
--	preempt_enable();
--}
--
- #else /* 32-bit */
- 
- DEFINE_PER_CPU(u8, irq_work_pending);
-@@ -529,16 +500,27 @@ DEFINE_PER_CPU(u8, irq_work_pending);
- #define test_irq_work_pending()		__this_cpu_read(irq_work_pending)
- #define clear_irq_work_pending()	__this_cpu_write(irq_work_pending, 0)
- 
-+#endif /* 32 vs 64 bit */
-+
- void arch_irq_work_raise(void)
- {
-+	/*
-+	 * 64-bit code that uses irq soft-mask can just cause an immediate
-+	 * interrupt here that gets soft masked, if this is called under
-+	 * local_irq_disable(). It might be possible to prevent that happening
-+	 * by noticing interrupts are disabled and setting decrementer pending
-+	 * to be replayed when irqs are enabled. The problem there is that
-+	 * tracing can call irq_work_raise, including in code that does low
-+	 * level manipulations of irq soft-mask state (e.g., trace_hardirqs_on)
-+	 * which could get tangled up if we're messing with the same state
-+	 * here.
-+	 */
- 	preempt_disable();
- 	set_irq_work_pending_flag();
- 	set_dec(1);
- 	preempt_enable();
- }
- 
--#endif /* 32 vs 64 bit */
--
- #else  /* CONFIG_IRQ_WORK */
- 
- #define test_irq_work_pending()	0
--- 
-2.20.1
-
+--- a/net/tipc/crypto.c
++++ b/net/tipc/crypto.c
+@@ -1712,6 +1712,7 @@ exit:
+ 	case -EBUSY:
+ 		this_cpu_inc(stats->stat[STAT_ASYNC]);
+ 		*skb = NULL;
++		tipc_aead_put(aead);
+ 		return rc;
+ 	default:
+ 		this_cpu_inc(stats->stat[STAT_NOK]);
 
 
