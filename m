@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D33F1BC990
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E1051BC8A2
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:36:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731163AbgD1Sm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35056 "EHLO mail.kernel.org"
+        id S1730045AbgD1SeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:34:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730789AbgD1Smw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:42:52 -0400
+        id S1729269AbgD1SeM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:34:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E64AE2076A;
-        Tue, 28 Apr 2020 18:42:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D80E20B80;
+        Tue, 28 Apr 2020 18:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099371;
-        bh=T0bqKDiD0pEiEkKfmreEht0rqWSSsLOrK+hh34wIOiY=;
+        s=default; t=1588098851;
+        bh=VgkjHnQqDZCRXFMl2MkI/WnEv6n7OOoH66nseVDHmXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rt76/5tgKN2+UJUh9iXOZXDAP+dn+laVAM9hPBGMUXZuwyf8SjCMgnYYFJ1+c+6cZ
-         Q3CzlG2ojahfEbX/9HTZdSw5iqwc4T6lFtJLwvthuRhSmacQYRGu1EAVggSAql90YY
-         47uTXYyRDVOu9SgNuB25NYsHgLtv8rB22lSTbcZ8=
+        b=DYKTxWQvL17q+u/qjlc9uLDnpjLdCRJmgtwVpQZKBegMZ3Qa7+Dhqy/f5uX8bOv+C
+         0Yq9Rd2m1wrQnSt0z6XQZTgp/c6f5EIWjd14XsQVqJyWqUlrCTG26LJfIn0wxasUDe
+         M27wYc9G2zP+msSR8VSAl8xBPXHVZHL27SNqAtvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Cyril Roelandt <tipecaml@gmail.com>
-Subject: [PATCH 5.4 122/168] usb-storage: Add unusual_devs entry for JMicron JMS566
+        stable@vger.kernel.org,
+        syzbot+49e69b4d71a420ceda3e@syzkaller.appspotmail.com,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.6 120/167] audit: check the length of userspace generated audit records
 Date:   Tue, 28 Apr 2020 20:24:56 +0200
-Message-Id: <20200428182247.844466096@linuxfoundation.org>
+Message-Id: <20200428182240.405262148@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Paul Moore <paul@paul-moore.com>
 
-commit 94f9c8c3c404ee1f7aaff81ad4f24aec4e34a78b upstream.
+commit 763dafc520add02a1f4639b500c509acc0ea8e5b upstream.
 
-Cyril Roelandt reports that his JMicron JMS566 USB-SATA bridge fails
-to handle WRITE commands with the FUA bit set, even though it claims
-to support FUA.  (Oddly enough, a later version of the same bridge,
-version 2.03 as opposed to 1.14, doesn't claim to support FUA.  Also
-oddly, the bridge _does_ support FUA when using the UAS transport
-instead of the Bulk-Only transport -- but this device was blacklisted
-for uas in commit bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron
-SATA enclosure") for apparently unrelated reasons.)
+Commit 756125289285 ("audit: always check the netlink payload length
+in audit_receive_msg()") fixed a number of missing message length
+checks, but forgot to check the length of userspace generated audit
+records.  The good news is that you need CAP_AUDIT_WRITE to submit
+userspace audit records, which is generally only given to trusted
+processes, so the impact should be limited.
 
-This patch adds a usb-storage unusual_devs entry with the BROKEN_FUA
-flag.  This allows the bridge to work properly with usb-storage.
-
-Reported-and-tested-by: Cyril Roelandt <tipecaml@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2004221613110.11262-100000@iolanthe.rowland.org
+Cc: stable@vger.kernel.org
+Fixes: 756125289285 ("audit: always check the netlink payload length in audit_receive_msg()")
+Reported-by: syzbot+49e69b4d71a420ceda3e@syzkaller.appspotmail.com
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/unusual_devs.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/audit.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2323,6 +2323,13 @@ UNUSUAL_DEV(  0x3340, 0xffff, 0x0000, 0x
- 		USB_SC_DEVICE,USB_PR_DEVICE,NULL,
- 		US_FL_MAX_SECTORS_64 ),
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -1326,6 +1326,9 @@ static int audit_receive_msg(struct sk_b
+ 	case AUDIT_FIRST_USER_MSG2 ... AUDIT_LAST_USER_MSG2:
+ 		if (!audit_enabled && msg_type != AUDIT_USER_AVC)
+ 			return 0;
++		/* exit early if there isn't at least one character to print */
++		if (data_len < 2)
++			return -EINVAL;
  
-+/* Reported by Cyril Roelandt <tipecaml@gmail.com> */
-+UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x0114,
-+		"JMicron",
-+		"USB to ATA/ATAPI Bridge",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_BROKEN_FUA ),
-+
- /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
- UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
- 		"iRiver",
+ 		err = audit_filter(msg_type, AUDIT_FILTER_USER);
+ 		if (err == 1) { /* match or error */
 
 
