@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5493C1BC9EC
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BA001BCB29
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731281AbgD1Sno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:43:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36326 "EHLO mail.kernel.org"
+        id S1729856AbgD1Scu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:32:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731278AbgD1Snn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:43:43 -0400
+        id S1729853AbgD1Sct (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:32:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56DEE20575;
-        Tue, 28 Apr 2020 18:43:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0199421775;
+        Tue, 28 Apr 2020 18:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099422;
-        bh=WD3yPOcNBz5ao0L7Opx2owCe6PDhH1jhqWizIZim2uw=;
+        s=default; t=1588098768;
+        bh=uwHpq0c4se3+HxWbMzyYSyeGaIC4RLN0iuO/eA7PMvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kO4SYsoI5KS4eTF5Jmfc55dav8rKhHYqcfcCt2o0Aa76GBqeiCi0IwSpW7Kr+J5Ch
-         EXkb68Vl6cNmuvOwJjKpjcBj5vB/56bH7rE5QKyyjkGh4dfvnaL13AeMzrWm+3OPk1
-         5YpfWJISLgzlmflRR8T6+rTyHfMoW0Lc+tUznByU=
+        b=IoyMSh/F5eAgBPcdmTjV3AC0n3ac8Xgzvj2Mc8470/F3XAHxSVDZUqxYGR4SnpNa3
+         /bQQg1F9e6tMwh3covIh0O+7xBUJBc4GRo0xT6ToreIdhDA2UZU6uJBx/Qvb0SjtRz
+         tYZYyYx69IPlU5AzBWmIcKRD75nyp0HO6uxF6Urk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 092/168] iio: xilinx-xadc: Fix clearing interrupt when enabling trigger
+        stable@vger.kernel.org, Manoj Malviya <manojmalviya@chelsio.com>,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 054/131] cxgb4: fix large delays in PTP synchronization
 Date:   Tue, 28 Apr 2020 20:24:26 +0200
-Message-Id: <20200428182243.972506851@linuxfoundation.org>
+Message-Id: <20200428182231.757495996@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-commit f954b098fbac4d183219ce5b42d76d6df2aed50a upstream.
+[ Upstream commit bd019427bf3623ee3c7d2845cf921bbf4c14846c ]
 
-When enabling the trigger and unmasking the end-of-sequence (EOS) interrupt
-the EOS interrupt should be cleared from the status register. Otherwise it
-is possible that it was still set from a previous capture. If that is the
-case the interrupt would fire immediately even though no conversion has
-been done yet and stale data is being read from the device.
+Fetching PTP sync information from mailbox is slow and can take
+up to 10 milliseconds. Reduce this unnecessary delay by directly
+reading the information from the corresponding registers.
 
-The old code only clears the interrupt if the interrupt was previously
-unmasked. Which does not make much sense since the interrupt is always
-masked at this point and in addition masking the interrupt does not clear
-the interrupt from the status register. So the clearing needs to be done
-unconditionally.
-
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 9c33e4208bce ("cxgb4: Add PTP Hardware Clock (PHC) support")
+Signed-off-by: Manoj Malviya <manojmalviya@chelsio.com>
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iio/adc/xilinx-xadc-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_ptp.c |   27 +++++--------------------
+ drivers/net/ethernet/chelsio/cxgb4/t4_regs.h   |    3 ++
+ 2 files changed, 9 insertions(+), 21 deletions(-)
 
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -674,7 +674,7 @@ static int xadc_trigger_set_state(struct
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ptp.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ptp.c
+@@ -311,32 +311,17 @@ static int cxgb4_ptp_adjtime(struct ptp_
+  */
+ static int cxgb4_ptp_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
+ {
+-	struct adapter *adapter = (struct adapter *)container_of(ptp,
+-				   struct adapter, ptp_clock_info);
+-	struct fw_ptp_cmd c;
++	struct adapter *adapter = container_of(ptp, struct adapter,
++					       ptp_clock_info);
+ 	u64 ns;
+-	int err;
  
- 	spin_lock_irqsave(&xadc->lock, flags);
- 	xadc_read_reg(xadc, XADC_AXI_REG_IPIER, &val);
--	xadc_write_reg(xadc, XADC_AXI_REG_IPISR, val & XADC_AXI_INT_EOS);
-+	xadc_write_reg(xadc, XADC_AXI_REG_IPISR, XADC_AXI_INT_EOS);
- 	if (state)
- 		val |= XADC_AXI_INT_EOS;
- 	else
+-	memset(&c, 0, sizeof(c));
+-	c.op_to_portid = cpu_to_be32(FW_CMD_OP_V(FW_PTP_CMD) |
+-				     FW_CMD_REQUEST_F |
+-				     FW_CMD_READ_F |
+-				     FW_PTP_CMD_PORTID_V(0));
+-	c.retval_len16 = cpu_to_be32(FW_CMD_LEN16_V(sizeof(c) / 16));
+-	c.u.ts.sc = FW_PTP_SC_GET_TIME;
+-
+-	err = t4_wr_mbox(adapter, adapter->mbox, &c, sizeof(c), &c);
+-	if (err < 0) {
+-		dev_err(adapter->pdev_dev,
+-			"PTP: %s error %d\n", __func__, -err);
+-		return err;
+-	}
++	ns = t4_read_reg(adapter, T5_PORT_REG(0, MAC_PORT_PTP_SUM_LO_A));
++	ns |= (u64)t4_read_reg(adapter,
++			       T5_PORT_REG(0, MAC_PORT_PTP_SUM_HI_A)) << 32;
+ 
+ 	/* convert to timespec*/
+-	ns = be64_to_cpu(c.u.ts.tm);
+ 	*ts = ns_to_timespec64(ns);
+-
+-	return err;
++	return 0;
+ }
+ 
+ /**
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_regs.h
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_regs.h
+@@ -1896,6 +1896,9 @@
+ 
+ #define MAC_PORT_CFG2_A 0x818
+ 
++#define MAC_PORT_PTP_SUM_LO_A 0x990
++#define MAC_PORT_PTP_SUM_HI_A 0x994
++
+ #define MPS_CMN_CTL_A	0x9000
+ 
+ #define COUNTPAUSEMCRX_S    5
 
 
