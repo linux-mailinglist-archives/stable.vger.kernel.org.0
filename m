@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 278271BC9D4
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 545551BC8C6
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731105AbgD1SmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:42:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34368 "EHLO mail.kernel.org"
+        id S1730254AbgD1Sfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:35:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731102AbgD1SmY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:42:24 -0400
+        id S1728983AbgD1Sfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:35:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB93220B1F;
-        Tue, 28 Apr 2020 18:42:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9849D208E0;
+        Tue, 28 Apr 2020 18:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099344;
-        bh=UcH5qtw59qTuXTBw6ECJdi8TpzL+afl6G6oGjx9V0XA=;
+        s=default; t=1588098930;
+        bh=yb0vZB48lFDFMQjiYV4XwDurl3e7MMpVsrGD2cNBE3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VcdsAQTadtWktnmjVyOjdUwFTBew5KB/+SWB+i1HzIYicXM6SMEEVvV98rUi8/Ioh
-         NG92KC8LC0ihKviCue+Coxkl8GeQuvLTnJ6ihWVqyPT/xA8e6xU7B3Z2Gqd8uBwq8b
-         WMF44Qo427L2sT7BWKP09hZZ9xC5IQj3bygz8ZJ4=
+        b=zk0N1ZcmejxImIEprgRzkEsPrYA2xoEcR+hddOL2mBZ/iDj2NinsdEdxOgfN8ZuUu
+         wzr8RL9y/pTuzcpbeo3Kyn2kZI43y60LQJdpet8tXnyemRlTkKHaiXIi++kdxmdZMe
+         jHN/mb3I6DVbpfQHmU15Vx2cPK+en1ZMrvbCLdJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 112/168] ALSA: usb-audio: Fix usb audio refcnt leak when getting spdif
+        stable@vger.kernel.org,
+        Johnathan Smithinovic <johnathan.smithinovic@gmx.at>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 074/131] ALSA: hda: Remove ASUS ROG Zenith from the blacklist
 Date:   Tue, 28 Apr 2020 20:24:46 +0200
-Message-Id: <20200428182246.689747900@linuxfoundation.org>
+Message-Id: <20200428182234.235748668@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 59e1947ca09ebd1cae147c08c7c41f3141233c84 upstream.
+[ Upstream commit a8cf44f085ac12c0b5b8750ebb3b436c7f455419 ]
 
-snd_microii_spdif_default_get() invokes snd_usb_lock_shutdown(), which
-increases the refcount of the snd_usb_audio object "chip".
+The commit 3c6fd1f07ed0 ("ALSA: hda: Add driver blacklist") added a
+new blacklist for the devices that are known to have empty codecs, and
+one of the entries was ASUS ROG Zenith II (PCI SSID 1043:874f).
+However, it turned out that the very same PCI SSID is used for the
+previous model that does have the valid HD-audio codecs and the change
+broke the sound on it.
 
-When snd_microii_spdif_default_get() returns, local variable "chip"
-becomes invalid, so the refcount should be decreased to keep refcount
-balanced.
+This patch reverts the corresponding entry as a temporary solution.
+Although Zenith II and co will see get the empty HD-audio bus again,
+it'd be merely resource wastes and won't affect the functionality,
+so it's no end of the world.  We'll need to address this later,
+e.g. by either switching to DMI string matching or using PCI ID &
+SSID pairs.
 
-The reference counting issue happens in several exception handling paths
-of snd_microii_spdif_default_get(). When those error scenarios occur
-such as usb_ifnum_to_if() returns NULL, the function forgets to decrease
-the refcnt increased by snd_usb_lock_shutdown(), causing a refcnt leak.
-
-Fix this issue by jumping to "end" label when those error scenarios
-occur.
-
-Fixes: 447d6275f0c2 ("ALSA: usb-audio: Add sanity checks for endpoint accesses")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Fixes: 3c6fd1f07ed0 ("ALSA: hda: Add driver blacklist")
+Reported-by: Johnathan Smithinovic <johnathan.smithinovic@gmx.at>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1587617711-13200-1-git-send-email-xiyuyang19@fudan.edu.cn
+Link: https://lore.kernel.org/r/20200419071926.22683-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer_quirks.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ sound/pci/hda/hda_intel.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -1508,11 +1508,15 @@ static int snd_microii_spdif_default_get
- 
- 	/* use known values for that card: interface#1 altsetting#1 */
- 	iface = usb_ifnum_to_if(chip->dev, 1);
--	if (!iface || iface->num_altsetting < 2)
--		return -EINVAL;
-+	if (!iface || iface->num_altsetting < 2) {
-+		err = -EINVAL;
-+		goto end;
-+	}
- 	alts = &iface->altsetting[1];
--	if (get_iface_desc(alts)->bNumEndpoints < 1)
--		return -EINVAL;
-+	if (get_iface_desc(alts)->bNumEndpoints < 1) {
-+		err = -EINVAL;
-+		goto end;
-+	}
- 	ep = get_endpoint(alts, 0)->bEndpointAddress;
- 
- 	err = snd_usb_ctl_msg(chip->dev,
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 54a9b391ecce0..0502042c16163 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2215,7 +2215,6 @@ static const struct hdac_io_ops pci_hda_io_ops = {
+  * should be ignored from the beginning.
+  */
+ static const struct snd_pci_quirk driver_blacklist[] = {
+-	SND_PCI_QUIRK(0x1043, 0x874f, "ASUS ROG Zenith II / Strix", 0),
+ 	SND_PCI_QUIRK(0x1462, 0xcb59, "MSI TRX40 Creator", 0),
+ 	SND_PCI_QUIRK(0x1462, 0xcb60, "MSI TRX40", 0),
+ 	{}
+-- 
+2.20.1
+
 
 
