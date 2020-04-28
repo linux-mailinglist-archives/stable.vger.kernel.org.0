@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4CB1BC94A
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF791BC8EA
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730412AbgD1SkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:40:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58158 "EHLO mail.kernel.org"
+        id S1729967AbgD1Sgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:36:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730792AbgD1SjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:39:21 -0400
+        id S1730082AbgD1Sgy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:36:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BB0920575;
-        Tue, 28 Apr 2020 18:39:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75DE220575;
+        Tue, 28 Apr 2020 18:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099160;
-        bh=OTy+X93/6mEgX405aLqjp2EVUhch7boNXPNfKUUVmU0=;
+        s=default; t=1588099013;
+        bh=7xVgDV7w9rdftUuK97B4AsTEKTfHRZIusr+xcQnB9cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTIBQHc6D3a9r/cTVcd1+cIyAYYdAqLQH/IU6OjV8ohPiTNiycNIPGhIaXOiMFv62
-         8v193TUvSc6Tbt1GqUBPsrr5RUqliShnqxuqiDC8q1/cFME4RHMz0QFJVxGB/UOsPf
-         frzRpxvVVCnlf8aOZtmY6j9Tgy/yQqklEW5YdvZ8=
+        b=H41eZdM9+dKq8LPUEwm3vqo8HLklFoaii7Sf774AAOMHEUfvmWSOYEGcdNTBByGPw
+         B6kqAxYKLaAJ3ptsyrWMy1hxSj8T0oIP457QISyOVwbV8YCNWe4DWXP8fq6bZmrOzt
+         yzrgmuSJVvEW+cZmAC1fKcxnink4lW1p0oGUX/dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+49e69b4d71a420ceda3e@syzkaller.appspotmail.com,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.19 107/131] audit: check the length of userspace generated audit records
-Date:   Tue, 28 Apr 2020 20:25:19 +0200
-Message-Id: <20200428182238.626181804@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Jonas Karlsson <jonas.karlsson@actia.se>
+Subject: [PATCH 5.6 144/167] cdc-acm: close race betrween suspend() and acm_softint
+Date:   Tue, 28 Apr 2020 20:25:20 +0200
+Message-Id: <20200428182243.834313828@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 763dafc520add02a1f4639b500c509acc0ea8e5b upstream.
+commit 0afccd7601514c4b83d8cc58c740089cc447051d upstream.
 
-Commit 756125289285 ("audit: always check the netlink payload length
-in audit_receive_msg()") fixed a number of missing message length
-checks, but forgot to check the length of userspace generated audit
-records.  The good news is that you need CAP_AUDIT_WRITE to submit
-userspace audit records, which is generally only given to trusted
-processes, so the impact should be limited.
+Suspend increments a counter, then kills the URBs,
+then kills the scheduled work. The scheduled work, however,
+may reschedule the URBs. Fix this by having the work
+check the counter.
 
-Cc: stable@vger.kernel.org
-Fixes: 756125289285 ("audit: always check the netlink payload length in audit_receive_msg()")
-Reported-by: syzbot+49e69b4d71a420ceda3e@syzkaller.appspotmail.com
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Tested-by: Jonas Karlsson <jonas.karlsson@actia.se>
+Link: https://lore.kernel.org/r/20200415151358.32664-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/audit.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/class/cdc-acm.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -1331,6 +1331,9 @@ static int audit_receive_msg(struct sk_b
- 	case AUDIT_FIRST_USER_MSG2 ... AUDIT_LAST_USER_MSG2:
- 		if (!audit_enabled && msg_type != AUDIT_USER_AVC)
- 			return 0;
-+		/* exit early if there isn't at least one character to print */
-+		if (data_len < 2)
-+			return -EINVAL;
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -557,14 +557,14 @@ static void acm_softint(struct work_stru
+ 	struct acm *acm = container_of(work, struct acm, work);
  
- 		err = audit_filter(msg_type, AUDIT_FILTER_USER);
- 		if (err == 1) { /* match or error */
+ 	if (test_bit(EVENT_RX_STALL, &acm->flags)) {
+-		if (!(usb_autopm_get_interface(acm->data))) {
++		smp_mb(); /* against acm_suspend() */
++		if (!acm->susp_count) {
+ 			for (i = 0; i < acm->rx_buflimit; i++)
+ 				usb_kill_urb(acm->read_urbs[i]);
+ 			usb_clear_halt(acm->dev, acm->in);
+ 			acm_submit_read_urbs(acm, GFP_KERNEL);
+-			usb_autopm_put_interface(acm->data);
++			clear_bit(EVENT_RX_STALL, &acm->flags);
+ 		}
+-		clear_bit(EVENT_RX_STALL, &acm->flags);
+ 	}
+ 
+ 	if (test_and_clear_bit(EVENT_TTY_WAKEUP, &acm->flags))
 
 
