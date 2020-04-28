@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4CE61BCADB
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BF7F1BC987
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728361AbgD1Swg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:52:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53458 "EHLO mail.kernel.org"
+        id S1731128AbgD1Smh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:42:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729261AbgD1SgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:36:05 -0400
+        id S1731126AbgD1Smh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:42:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C12FB2085B;
-        Tue, 28 Apr 2020 18:36:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4608F20575;
+        Tue, 28 Apr 2020 18:42:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098964;
-        bh=D7yI5jf0N7AIEwKlsJJUMm+DUQddQ9Hx2yGufvoqEMw=;
+        s=default; t=1588099356;
+        bh=ghupO339lD3K+xHxFoqtrtWMaXlH4At1OwY6QqOhB0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOFAFWhAmoKshksV8porf9TP8szp3KoSTVDPKtFEsumh1OG2/hd3d6mWT2HC0B5h8
-         YeAaxInjgaehGgAl13XS/oDGGuBBglOFYpZT7sTqbKvK5ed66yud8zzsQRskfvCOmZ
-         RbJLe5K39d6iQIZOaolvHXhBKOTyveVzerRphEVY=
+        b=JDLJCdGupxP3gRCNOSgZikjHfcMXj6NBAukmJMvOJsVnC/N/ibu0/EZ4kJlwVIaxB
+         68WFZ02e+eYJ22gXOPcW6uvhOT1Av3tYpJ0ZNmjCwj2fe5nfTyDrhcq93aV/8ol8vz
+         t+1Wk2Ke0k6BT5J09eAFwEKgTGhmKxjT6PRyZmZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
-        Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 079/131] iio: adc: stm32-adc: fix sleep in atomic context
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 117/168] KVM: s390: Return last valid slot if approx index is out-of-bounds
 Date:   Tue, 28 Apr 2020 20:24:51 +0200
-Message-Id: <20200428182234.861197663@linuxfoundation.org>
+Message-Id: <20200428182247.288255691@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@st.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit e2042d2936dfc84e9c600fe9b9d0039ca0e54b7d upstream.
+commit 97daa028f3f621adff2c4f7b15fe0874e5b5bd6c upstream.
 
-This commit fixes the following error:
-"BUG: sleeping function called from invalid context at kernel/irq/chip.c"
+Return the index of the last valid slot from gfn_to_memslot_approx() if
+its binary search loop yielded an out-of-bounds index.  The index can
+be out-of-bounds if the specified gfn is less than the base of the
+lowest memslot (which is also the last valid memslot).
 
-In DMA mode suppress the trigger irq handler, and make the buffer
-transfers directly in DMA callback, instead.
+Note, the sole caller, kvm_s390_get_cmma(), ensures used_slots is
+non-zero.
 
-Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
-Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: afdad61615cc3 ("KVM: s390: Fix storage attributes migration with memory slots")
+Cc: stable@vger.kernel.org # 4.19.x: 0774a964ef56: KVM: Fix out of range accesses to memslots
+Cc: stable@vger.kernel.org # 4.19.x
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200408064059.8957-3-sean.j.christopherson@intel.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/stm32-adc.c |   31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ arch/s390/kvm/kvm-s390.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1308,8 +1308,30 @@ static unsigned int stm32_adc_dma_residu
- static void stm32_adc_dma_buffer_done(void *data)
- {
- 	struct iio_dev *indio_dev = data;
-+	struct stm32_adc *adc = iio_priv(indio_dev);
-+	int residue = stm32_adc_dma_residue(adc);
-+
-+	/*
-+	 * In DMA mode the trigger services of IIO are not used
-+	 * (e.g. no call to iio_trigger_poll).
-+	 * Calling irq handler associated to the hardware trigger is not
-+	 * relevant as the conversions have already been done. Data
-+	 * transfers are performed directly in DMA callback instead.
-+	 * This implementation avoids to call trigger irq handler that
-+	 * may sleep, in an atomic context (DMA irq handler context).
-+	 */
-+	dev_dbg(&indio_dev->dev, "%s bufi=%d\n", __func__, adc->bufi);
-+
-+	while (residue >= indio_dev->scan_bytes) {
-+		u16 *buffer = (u16 *)&adc->rx_buf[adc->bufi];
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -1932,6 +1932,9 @@ static int gfn_to_memslot_approx(struct
+ 			start = slot + 1;
+ 	}
  
--	iio_trigger_poll_chained(indio_dev->trig);
-+		iio_push_to_buffers(indio_dev, buffer);
++	if (start >= slots->used_slots)
++		return slots->used_slots - 1;
 +
-+		residue -= indio_dev->scan_bytes;
-+		adc->bufi += indio_dev->scan_bytes;
-+		if (adc->bufi >= adc->rx_buf_sz)
-+			adc->bufi = 0;
-+	}
- }
- 
- static int stm32_adc_dma_start(struct iio_dev *indio_dev)
-@@ -1703,6 +1725,7 @@ static int stm32_adc_probe(struct platfo
- {
- 	struct iio_dev *indio_dev;
- 	struct device *dev = &pdev->dev;
-+	irqreturn_t (*handler)(int irq, void *p) = NULL;
- 	struct stm32_adc *adc;
- 	int ret;
- 
-@@ -1785,9 +1808,11 @@ static int stm32_adc_probe(struct platfo
- 	if (ret < 0)
- 		goto err_clk_disable;
- 
-+	if (!adc->dma_chan)
-+		handler = &stm32_adc_trigger_handler;
-+
- 	ret = iio_triggered_buffer_setup(indio_dev,
--					 &iio_pollfunc_store_time,
--					 &stm32_adc_trigger_handler,
-+					 &iio_pollfunc_store_time, handler,
- 					 &stm32_adc_buffer_setup_ops);
- 	if (ret) {
- 		dev_err(&pdev->dev, "buffer setup failed\n");
+ 	if (gfn >= memslots[start].base_gfn &&
+ 	    gfn < memslots[start].base_gfn + memslots[start].npages) {
+ 		atomic_set(&slots->lru_slot, start);
 
 
