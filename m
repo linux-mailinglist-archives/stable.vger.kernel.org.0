@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA3DB1BC978
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C97361BCB70
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:57:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730442AbgD1Sl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:41:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33618 "EHLO mail.kernel.org"
+        id S1728923AbgD1S5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731046AbgD1Sl5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:41:57 -0400
+        id S1729546AbgD1Sao (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE45D20B1F;
-        Tue, 28 Apr 2020 18:41:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A492721707;
+        Tue, 28 Apr 2020 18:30:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099315;
-        bh=okFhcd/SyvEwUKm90K1+K90VGZtWh3QimsVJ6c3i+xQ=;
+        s=default; t=1588098644;
+        bh=Xy0Pb3mWqIHhg/PXjixWdwwLdI7XClHMTohy2S+A2Ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4npwtWCBjFzYH6C9eUzymQqwx5pRIrEufLZY/DxTjQkxokT7HzATh9sPVoFmsTtk
-         Oesr46EZUe9XlcNdbdiLvfZd/AZZrSnSIk99LsCU9pbUf063362cM1c+HFavHMDVhp
-         3gbIJYvSa+GzdEE/8PpDLZQFuZsBP+gCB81TVK78=
+        b=ObCVHg/30fDyEM/o63PFJKbqXuF8rLD38xBfXt9Yfg9U+Nv5BFvh00Q3Z9Unapq7m
+         jJZTCoUS0DrOBnTRmd7V2Azn2LT2q7LkZTUF7WCI6cNT3Fns2mooUCjWyWHcrjBfx+
+         usFJNGm+/5zyKq0e6YtOLqsQ6O38kMPkhCnRbd/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 093/168] iio: xilinx-xadc: Fix sequencer configuration for aux channels in simultaneous mode
+        stable@vger.kernel.org, Jonathan Cox <jonathan@jdcox.net>
+Subject: [PATCH 5.6 091/167] USB: Add USB_QUIRK_DELAY_CTRL_MSG and USB_QUIRK_DELAY_INIT for Corsair K70 RGB RAPIDFIRE
 Date:   Tue, 28 Apr 2020 20:24:27 +0200
-Message-Id: <20200428182244.088837946@linuxfoundation.org>
+Message-Id: <20200428182236.493187218@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Jonathan Cox <jonathan@jdcox.net>
 
-commit 8bef455c8b1694547ee59e8b1939205ed9d901a6 upstream.
+commit be34a5854b4606bd7a160ad3cb43415d623596c7 upstream.
 
-The XADC has two internal ADCs. Depending on the mode it is operating in
-either one or both of them are used. The device manual calls this
-continuous (one ADC) and simultaneous (both ADCs) mode.
+The Corsair K70 RGB RAPIDFIRE needs the USB_QUIRK_DELAY_INIT and
+USB_QUIRK_DELAY_CTRL_MSG to function or it will randomly not
+respond on boot, just like other Corsair keyboards
 
-The meaning of the sequencing register for the aux channels changes
-depending on the mode.
-
-In continuous mode each bit corresponds to one of the 16 aux channels. And
-the single ADC will convert them one by one in order.
-
-In simultaneous mode the aux channels are split into two groups the first 8
-channels are assigned to the first ADC and the other 8 channels to the
-second ADC. The upper 8 bits of the sequencing register are unused and the
-lower 8 bits control both ADCs. This means a bit needs to be set if either
-the corresponding channel from the first group or the second group (or
-both) are set.
-
-Currently the driver does not have the special handling required for
-simultaneous mode. Add it.
-
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Jonathan Cox <jonathan@jdcox.net>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200410212427.2886-1-jonathan@jdcox.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/xilinx-xadc-core.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/usb/core/quirks.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -798,6 +798,16 @@ static int xadc_preenable(struct iio_dev
- 	if (ret)
- 		goto err;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -430,6 +430,10 @@ static const struct usb_device_id usb_qu
+ 	/* Corsair K70 LUX */
+ 	{ USB_DEVICE(0x1b1c, 0x1b36), .driver_info = USB_QUIRK_DELAY_INIT },
  
-+	/*
-+	 * In simultaneous mode the upper and lower aux channels are samples at
-+	 * the same time. In this mode the upper 8 bits in the sequencer
-+	 * register are don't care and the lower 8 bits control two channels
-+	 * each. As such we must set the bit if either the channel in the lower
-+	 * group or the upper group is enabled.
-+	 */
-+	if (seq_mode == XADC_CONF1_SEQ_SIMULTANEOUS)
-+		scan_mask = ((scan_mask >> 8) | scan_mask) & 0xff0000;
++	/* Corsair K70 RGB RAPDIFIRE */
++	{ USB_DEVICE(0x1b1c, 0x1b38), .driver_info = USB_QUIRK_DELAY_INIT |
++	  USB_QUIRK_DELAY_CTRL_MSG },
 +
- 	ret = xadc_write_adc_reg(xadc, XADC_REG_SEQ(1), scan_mask >> 16);
- 	if (ret)
- 		goto err;
+ 	/* MIDI keyboard WORLDE MINI */
+ 	{ USB_DEVICE(0x1c75, 0x0204), .driver_info =
+ 			USB_QUIRK_CONFIG_INTF_STRINGS },
 
 
