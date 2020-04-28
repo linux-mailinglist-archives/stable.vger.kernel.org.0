@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09EE21BCB34
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E71F1BCBB8
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729799AbgD1ScZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48562 "EHLO mail.kernel.org"
+        id S1728928AbgD1S1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728972AbgD1ScY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:32:24 -0400
+        id S1728909AbgD1S1O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E91A20B80;
-        Tue, 28 Apr 2020 18:32:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA66020B1F;
+        Tue, 28 Apr 2020 18:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098743;
-        bh=M0xuTTD2h8wYlWdVpKOED62go8ts3J0hXhOYPDJmHsI=;
+        s=default; t=1588098434;
+        bh=eKkMLoWmmxBEA0EEWrqjo0000MnuLIWuCTCdkeZCa5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ee+148I5OHR5NAgvi8hb4U2AGrLrOkMGYbfQU/JHYz0N/LZrg3zdaXQLaBsEVh4qk
-         uyFWRVxyG2d/abKY7mKFcikJTeZcHznvFfNVkIUmNPI5mxSpOviiYHzfZg4Tu+v8SA
-         zYqJsZmIQ+/3on2ni9gerrMJrl5fbymOQikYRVJM=
+        b=aKqnhTmKkwG/qo1chhed66osAceB8M+TWHsbdWlQDUFJ7K+w5ixJgC07qW5nMNCfp
+         /aOTkzQYcwRNzu63q1qndN/b0Re8/IHmWZ8O2/2MkrnISJD+C/Q/0uQHQyCgro6a9b
+         9/o7gDHa90nVcajnqYAZYb/b0GokuaoSXEXrD+SI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Allison Collins <allison.henderson@oracle.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 007/168] arm64: Silence clang warning on mismatched value/register sizes
+Subject: [PATCH 5.6 005/167] xfs: correctly acount for reclaimable slabs
 Date:   Tue, 28 Apr 2020 20:23:01 +0200
-Message-Id: <20200428182232.589612520@linuxfoundation.org>
+Message-Id: <20200428182225.994108964@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit: 27a22fbdeedd6c5c451cf5f830d51782bf50c3a2 ]
+[ Upstream commit d59eadaea2b9945095d4d6d44367ebabd604395c ]
 
-Clang reports a warning on the __tlbi(aside1is, 0) macro expansion since
-the value size does not match the register size specified in the inline
-asm. Construct the ASID value using the __TLBI_VADDR() macro.
+The XFS inode item slab actually reclaimed by inode shrinker
+callbacks from the memory reclaim subsystem. These should be marked
+as reclaimable so the mm subsystem has the full picture of how much
+memory it can actually reclaim from the XFS slab caches.
 
-Fixes: 222fc0c8503d ("arm64: compat: Workaround Neoverse-N1 #1542419 for compat user-space")
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: James Morse <james.morse@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/sys_compat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/xfs_super.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/sys_compat.c b/arch/arm64/kernel/sys_compat.c
-index c9fb02927d3e5..3c18c2454089b 100644
---- a/arch/arm64/kernel/sys_compat.c
-+++ b/arch/arm64/kernel/sys_compat.c
-@@ -37,7 +37,7 @@ __do_compat_cache_op(unsigned long start, unsigned long end)
- 			 * The workaround requires an inner-shareable tlbi.
- 			 * We pick the reserved-ASID to minimise the impact.
- 			 */
--			__tlbi(aside1is, 0);
-+			__tlbi(aside1is, __TLBI_VADDR(0, 0));
- 			dsb(ish);
- 		}
+diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
+index 2094386af8aca..68fea439d9743 100644
+--- a/fs/xfs/xfs_super.c
++++ b/fs/xfs/xfs_super.c
+@@ -1861,7 +1861,8 @@ xfs_init_zones(void)
+ 
+ 	xfs_ili_zone = kmem_cache_create("xfs_ili",
+ 					 sizeof(struct xfs_inode_log_item), 0,
+-					 SLAB_MEM_SPREAD, NULL);
++					 SLAB_RECLAIM_ACCOUNT | SLAB_MEM_SPREAD,
++					 NULL);
+ 	if (!xfs_ili_zone)
+ 		goto out_destroy_inode_zone;
  
 -- 
 2.20.1
