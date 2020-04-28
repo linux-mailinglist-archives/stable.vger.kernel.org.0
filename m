@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D94D1BCA55
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5CC1BC813
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730539AbgD1Sh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:37:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
+        id S1729352AbgD1S31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:29:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730554AbgD1Shz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:37:55 -0400
+        id S1729349AbgD1S30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:29:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92DAA20B1F;
-        Tue, 28 Apr 2020 18:37:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BA4220757;
+        Tue, 28 Apr 2020 18:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099075;
-        bh=yQ6aID271zdK9xX3B67e6G0sAZgVThLB4LeaZjRwPu8=;
+        s=default; t=1588098565;
+        bh=z4FfbJVqIQ3XfLGNVthI2GuGQucH+qehLXgQcD9x1zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fWnFgFmNC9NcJ3tPwjFKbT5PHFYoKylluaOCcnZUA5cucN/gGUB9bbF0k+aahbLwl
-         c0m7+m3aOaHrQ3e8Zuycv7LWzPgNBKPMR36zf1hjKNmhUeGDSeglXYc8BjTXXb4G1I
-         u8J6Eipzp+Cl2jQ4abvOePskNavVMdP+k8UVIgNQ=
+        b=CUu8OrGcVBmhAClJQ+8tVUHlin3Ane9gjH1QIiP53NrS973rilLlZz3pxU+BZO7na
+         1K+o0F2TXBCELi1xO9UoBiK4SSpbNZhlO5s+n+2pxix1v3FmD4xinrucg73AyvQbf4
+         BAJm6m+msP9/jCcwqXOrS0TC5bdyiaGtOmV8Y/tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Benesh <scott.benesh@microsemi.com>,
-        Scott Teel <scott.teel@microsemi.com>,
-        Kevin Barnett <kevin.barnett@microsemi.com>,
-        Don Brace <don.brace@microsemi.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 053/168] scsi: smartpqi: fix problem with unique ID for physical device
+Subject: [PATCH 4.19 015/131] ceph: dont skip updating wanted caps when cap is stale
 Date:   Tue, 28 Apr 2020 20:23:47 +0200
-Message-Id: <20200428182238.611507226@linuxfoundation.org>
+Message-Id: <20200428182227.091731205@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,172 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Barnett <kevin.barnett@microsemi.com>
+From: Yan, Zheng <zyan@redhat.com>
 
-[ Upstream commit 5b083b305b49f65269b888885455b8c0cf1a52e4 ]
+[ Upstream commit 0aa971b6fd3f92afef6afe24ef78d9bb14471519 ]
 
-Obtain the unique IDs from the RLL and RPL instead of VPD page 83h.
+1. try_get_cap_refs() fails to get caps and finds that mds_wanted
+   does not include what it wants. It returns -ESTALE.
+2. ceph_get_caps() calls ceph_renew_caps(). ceph_renew_caps() finds
+   that inode has cap, so it calls ceph_check_caps().
+3. ceph_check_caps() finds that issued caps (without checking if it's
+   stale) already includes caps wanted by open file, so it skips
+   updating wanted caps.
 
-Link: https://lore.kernel.org/r/157048751833.11757.11996314786914610803.stgit@brunhilda
-Reviewed-by: Scott Benesh <scott.benesh@microsemi.com>
-Reviewed-by: Scott Teel <scott.teel@microsemi.com>
-Signed-off-by: Kevin Barnett <kevin.barnett@microsemi.com>
-Signed-off-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Above events can cause an infinite loop inside ceph_get_caps().
+
+Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi.h      |  1 -
- drivers/scsi/smartpqi/smartpqi_init.c | 99 ++++-----------------------
- 2 files changed, 12 insertions(+), 88 deletions(-)
+ fs/ceph/caps.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi.h b/drivers/scsi/smartpqi/smartpqi.h
-index 2aa81b22f2695..7a3a942b40df0 100644
---- a/drivers/scsi/smartpqi/smartpqi.h
-+++ b/drivers/scsi/smartpqi/smartpqi.h
-@@ -907,7 +907,6 @@ struct pqi_scsi_dev {
- 	u8	scsi3addr[8];
- 	__be64	wwid;
- 	u8	volume_id[16];
--	u8	unique_id[16];
- 	u8	is_physical_device : 1;
- 	u8	is_external_raid_device : 1;
- 	u8	is_expander_smp_device : 1;
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 793793343950e..5ae074505386a 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -648,79 +648,6 @@ static inline int pqi_scsi_inquiry(struct pqi_ctrl_info *ctrl_info,
- 		buffer, buffer_length, vpd_page, NULL, NO_TIMEOUT);
- }
- 
--static bool pqi_vpd_page_supported(struct pqi_ctrl_info *ctrl_info,
--	u8 *scsi3addr, u16 vpd_page)
--{
--	int rc;
--	int i;
--	int pages;
--	unsigned char *buf, bufsize;
--
--	buf = kzalloc(256, GFP_KERNEL);
--	if (!buf)
--		return false;
--
--	/* Get the size of the page list first */
--	rc = pqi_scsi_inquiry(ctrl_info, scsi3addr,
--				VPD_PAGE | SCSI_VPD_SUPPORTED_PAGES,
--				buf, SCSI_VPD_HEADER_SZ);
--	if (rc != 0)
--		goto exit_unsupported;
--
--	pages = buf[3];
--	if ((pages + SCSI_VPD_HEADER_SZ) <= 255)
--		bufsize = pages + SCSI_VPD_HEADER_SZ;
--	else
--		bufsize = 255;
--
--	/* Get the whole VPD page list */
--	rc = pqi_scsi_inquiry(ctrl_info, scsi3addr,
--				VPD_PAGE | SCSI_VPD_SUPPORTED_PAGES,
--				buf, bufsize);
--	if (rc != 0)
--		goto exit_unsupported;
--
--	pages = buf[3];
--	for (i = 1; i <= pages; i++)
--		if (buf[3 + i] == vpd_page)
--			goto exit_supported;
--
--exit_unsupported:
--	kfree(buf);
--	return false;
--
--exit_supported:
--	kfree(buf);
--	return true;
--}
--
--static int pqi_get_device_id(struct pqi_ctrl_info *ctrl_info,
--	u8 *scsi3addr, u8 *device_id, int buflen)
--{
--	int rc;
--	unsigned char *buf;
--
--	if (!pqi_vpd_page_supported(ctrl_info, scsi3addr, SCSI_VPD_DEVICE_ID))
--		return 1; /* function not supported */
--
--	buf = kzalloc(64, GFP_KERNEL);
--	if (!buf)
--		return -ENOMEM;
--
--	rc = pqi_scsi_inquiry(ctrl_info, scsi3addr,
--				VPD_PAGE | SCSI_VPD_DEVICE_ID,
--				buf, 64);
--	if (rc == 0) {
--		if (buflen > 16)
--			buflen = 16;
--		memcpy(device_id, &buf[SCSI_VPD_DEVICE_ID_IDX], buflen);
--	}
--
--	kfree(buf);
--
--	return rc;
--}
--
- static int pqi_identify_physical_device(struct pqi_ctrl_info *ctrl_info,
- 	struct pqi_scsi_dev *device,
- 	struct bmic_identify_physical_device *buffer,
-@@ -1405,14 +1332,6 @@ static int pqi_get_device_info(struct pqi_ctrl_info *ctrl_info,
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 4c0b220e20bab..5241102b81a82 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1972,8 +1972,12 @@ retry_locked:
  		}
- 	}
  
--	if (pqi_get_device_id(ctrl_info, device->scsi3addr,
--		device->unique_id, sizeof(device->unique_id)) < 0)
--		dev_warn(&ctrl_info->pci_dev->dev,
--			"Can't get device id for scsi %d:%d:%d:%d\n",
--			ctrl_info->scsi_host->host_no,
--			device->bus, device->target,
--			device->lun);
--
- out:
- 	kfree(buffer);
+ 		/* want more caps from mds? */
+-		if (want & ~(cap->mds_wanted | cap->issued))
+-			goto ack;
++		if (want & ~cap->mds_wanted) {
++			if (want & ~(cap->mds_wanted | cap->issued))
++				goto ack;
++			if (!__cap_is_valid(cap))
++				goto ack;
++		}
  
-@@ -6319,7 +6238,7 @@ static ssize_t pqi_unique_id_show(struct device *dev,
- 	struct scsi_device *sdev;
- 	struct pqi_scsi_dev *device;
- 	unsigned long flags;
--	unsigned char uid[16];
-+	u8 unique_id[16];
- 
- 	sdev = to_scsi_device(dev);
- 	ctrl_info = shost_to_hba(sdev->host);
-@@ -6332,16 +6251,22 @@ static ssize_t pqi_unique_id_show(struct device *dev,
- 			flags);
- 		return -ENODEV;
- 	}
--	memcpy(uid, device->unique_id, sizeof(uid));
-+
-+	if (device->is_physical_device) {
-+		memset(unique_id, 0, 8);
-+		memcpy(unique_id + 8, &device->wwid, sizeof(device->wwid));
-+	} else {
-+		memcpy(unique_id, device->volume_id, sizeof(device->volume_id));
-+	}
- 
- 	spin_unlock_irqrestore(&ctrl_info->scsi_device_list_lock, flags);
- 
- 	return snprintf(buffer, PAGE_SIZE,
- 		"%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",
--		uid[0], uid[1], uid[2], uid[3],
--		uid[4], uid[5], uid[6], uid[7],
--		uid[8], uid[9], uid[10], uid[11],
--		uid[12], uid[13], uid[14], uid[15]);
-+		unique_id[0], unique_id[1], unique_id[2], unique_id[3],
-+		unique_id[4], unique_id[5], unique_id[6], unique_id[7],
-+		unique_id[8], unique_id[9], unique_id[10], unique_id[11],
-+		unique_id[12], unique_id[13], unique_id[14], unique_id[15]);
- }
- 
- static ssize_t pqi_lunid_show(struct device *dev,
+ 		/* things we might delay */
+ 		if ((cap->issued & ~retain) == 0 &&
 -- 
 2.20.1
 
