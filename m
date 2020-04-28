@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8DD71BC9B5
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A69711BCA70
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731069AbgD1SoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:44:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37020 "EHLO mail.kernel.org"
+        id S1730923AbgD1SkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:40:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731344AbgD1SoH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:44:07 -0400
+        id S1730527AbgD1SkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:40:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD346206D6;
-        Tue, 28 Apr 2020 18:44:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F08E42076A;
+        Tue, 28 Apr 2020 18:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099447;
-        bh=TeaS1cHqlCEkbfMEujQm1NjPPa5FBQpNl0nQJJvqyCU=;
+        s=default; t=1588099224;
+        bh=xorfflzJiIQ56ptLu2SlN+wqHbwI5lQWP2HuxQgbK+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=msKxMmzP+M4NLKYpLIZYmeXsNB1KrrFQLxXh21VBbs+H91FkaZSGN/U00R9o1YhrQ
-         CMs800kmOSW1ftNpWUsrNwE/r9PsH9HpXl6BLRVHDlCKdlAI8Zpv8YZES7It3ZZQKd
-         Uy+i1fdwVcn0VUxa+Dslft+TWml22U7dOFS7Ejk4=
+        b=clGxQjlKdJZv4ifCVncUMjMp5GbDJXDszD6CdXLfNPQLs23ChEFfxQYSMh18ZSodC
+         9D98h42WkbGHuo8PxUFVE5OO9/mC1HuoQTrfE6KM0zEmjzlkmceqap/EGOI/du3dWe
+         MgZapSC97YcEnwDYUXjlpo1XaLmCF7J/MZ8ZV6bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.4 155/168] xhci: prevent bus suspend if a roothub port detected a over-current condition
+        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
+Subject: [PATCH 4.19 117/131] staging: vt6656: Dont set RCR_MULTICAST or RCR_BROADCAST by default.
 Date:   Tue, 28 Apr 2020 20:25:29 +0200
-Message-Id: <20200428182250.867738114@linuxfoundation.org>
+Message-Id: <20200428182239.962505488@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Malcolm Priestley <tvboxspy@gmail.com>
 
-commit e9fb08d617bfae5471d902112667d0eeb9dee3c4 upstream.
+commit 0f8240bfc070033a4823b19883efd3d38c7735cc upstream.
 
-Suspending the bus and host controller while a port is in a over-current
-condition may halt the host.
-Also keep the roothub running if over-current is active.
+mac80211/users control whether multicast is on or off don't enable it by default.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200421140822.28233-3-mathias.nyman@linux.intel.com
+Fixes an issue when multicast/broadcast is always on allowing other beacons through
+in power save.
+
+Fixes: db8f37fa3355 ("staging: vt6656: mac80211 conversion: main_usb add functions...")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/2c24c33d-68c4-f343-bd62-105422418eac@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-hub.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/staging/vt6656/main_usb.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1569,6 +1569,8 @@ int xhci_hub_status_data(struct usb_hcd
- 		}
- 		if ((temp & PORT_RC))
- 			reset_change = true;
-+		if (temp & PORT_OC)
-+			status = 1;
- 	}
- 	if (!status && !reset_change) {
- 		xhci_dbg(xhci, "%s: stopping port polling.\n", __func__);
-@@ -1634,6 +1636,13 @@ retry:
- 				 port_index);
- 			goto retry;
- 		}
-+		/* bail out if port detected a over-current condition */
-+		if (t1 & PORT_OC) {
-+			bus_state->bus_suspended = 0;
-+			spin_unlock_irqrestore(&xhci->lock, flags);
-+			xhci_dbg(xhci, "Bus suspend bailout, port over-current detected\n");
-+			return -EBUSY;
-+		}
- 		/* suspend ports in U0, or bail out for new connect changes */
- 		if ((t1 & PORT_PE) && (t1 & PORT_PLS_MASK) == XDEV_U0) {
- 			if ((t1 & PORT_CSC) && wake_enabled) {
+--- a/drivers/staging/vt6656/main_usb.c
++++ b/drivers/staging/vt6656/main_usb.c
+@@ -780,15 +780,11 @@ static void vnt_configure(struct ieee802
+ {
+ 	struct vnt_private *priv = hw->priv;
+ 	u8 rx_mode = 0;
+-	int rc;
+ 
+ 	*total_flags &= FIF_ALLMULTI | FIF_OTHER_BSS | FIF_BCN_PRBRESP_PROMISC;
+ 
+-	rc = vnt_control_in(priv, MESSAGE_TYPE_READ, MAC_REG_RCR,
+-			    MESSAGE_REQUEST_MACREG, sizeof(u8), &rx_mode);
+-
+-	if (!rc)
+-		rx_mode = RCR_MULTICAST | RCR_BROADCAST;
++	vnt_control_in(priv, MESSAGE_TYPE_READ, MAC_REG_RCR,
++		       MESSAGE_REQUEST_MACREG, sizeof(u8), &rx_mode);
+ 
+ 	dev_dbg(&priv->usb->dev, "rx mode in = %x\n", rx_mode);
+ 
 
 
