@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E7751BC9F1
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:48:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E8DC1BC977
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731344AbgD1SoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:44:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37114 "EHLO mail.kernel.org"
+        id S1730424AbgD1Sly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:41:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730893AbgD1SoM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:44:12 -0400
+        id S1731040AbgD1Slx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:41:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6276206A1;
-        Tue, 28 Apr 2020 18:44:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 617982076A;
+        Tue, 28 Apr 2020 18:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099452;
-        bh=0sOTq4s30ooeuz5sbfz4jOZfhxiqi4UmbeG8VQrVoww=;
+        s=default; t=1588099312;
+        bh=aahOHx1HrhOd24QqWXHAvskGU7qNA+4pMhwXGZq56e4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLnXpAlWM9u5hJDryipAltZMvujqMnP9M9wHU9TZVQhWBkI6Q4WML8ufntiC+BhP0
-         mL8ZOuVNRJVkeEqi74xQSIZC4nwE000aDTACqHrTue/T4NgJoTUuxHV82MrgdCgfdu
-         HHPWfouODG5kgYabZlnppzdUhETDiBLnyQmPENi4=
+        b=kr7/8BmVTqHAbADqQ02BZAm8Qv3/Z5QYPma023dYi+OJNYFrlEeHoFb6ZvPFEz1A5
+         gcX8Y0ITyhLQAU3MBzkwEZwF+fFiJnorQSVqzCTnSaPRAjXm5seu6pgPJ0w/7LSc7i
+         r0NDQbk6P5Z98HEWKdVjHiPeXwVp3m2T2/ovwDzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
-        Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH 5.4 139/168] vt: dont use kmalloc() for the unicode screen buffer
-Date:   Tue, 28 Apr 2020 20:25:13 +0200
-Message-Id: <20200428182249.373313755@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+d889b59b2bb87d4047a2@syzkaller.appspotmail.com,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 102/131] KVM: Check validity of resolved slot when searching memslots
+Date:   Tue, 28 Apr 2020 20:25:14 +0200
+Message-Id: <20200428182237.965367121@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Pitre <nico@fluxnic.net>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 9a98e7a80f95378c9ee0c644705e3b5aa54745f1 upstream.
+commit b6467ab142b708dd076f6186ca274f14af379c72 upstream.
 
-Even if the actual screen size is bounded in vc_do_resize(), the unicode
-buffer is still a little more than twice the size of the glyph buffer
-and may exceed MAX_ORDER down the kmalloc() path. This can be triggered
-from user space.
+Check that the resolved slot (somewhat confusingly named 'start') is a
+valid/allocated slot before doing the final comparison to see if the
+specified gfn resides in the associated slot.  The resolved slot can be
+invalid if the binary search loop terminated because the search index
+was incremented beyond the number of used slots.
 
-Since there is no point having a physically contiguous buffer here,
-let's avoid the above issue as well as reducing pressure on high order
-allocations by using vmalloc() instead.
+This bug has existed since the binary search algorithm was introduced,
+but went unnoticed because KVM statically allocated memory for the max
+number of slots, i.e. the access would only be truly out-of-bounds if
+all possible slots were allocated and the specified gfn was less than
+the base of the lowest memslot.  Commit 36947254e5f98 ("KVM: Dynamically
+size memslot array based on number of used slots") eliminated the "all
+possible slots allocated" condition and made the bug embarrasingly easy
+to hit.
 
-Signed-off-by: Nicolas Pitre <nico@fluxnic.net>
-Cc: <stable@vger.kernel.org>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.2003282214210.2671@knanqh.ubzr
+Fixes: 9c1a5d38780e6 ("kvm: optimize GFN to memslot lookup with large slots amount")
+Reported-by: syzbot+d889b59b2bb87d4047a2@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200408064059.8957-2-sean.j.christopherson@intel.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/linux/kvm_host.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -81,6 +81,7 @@
- #include <linux/errno.h>
- #include <linux/kd.h>
- #include <linux/slab.h>
-+#include <linux/vmalloc.h>
- #include <linux/major.h>
- #include <linux/mm.h>
- #include <linux/console.h>
-@@ -350,7 +351,7 @@ static struct uni_screen *vc_uniscr_allo
- 	/* allocate everything in one go */
- 	memsize = cols * rows * sizeof(char32_t);
- 	memsize += rows * sizeof(char32_t *);
--	p = kmalloc(memsize, GFP_KERNEL);
-+	p = vmalloc(memsize);
- 	if (!p)
- 		return NULL;
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -999,7 +999,7 @@ search_memslots(struct kvm_memslots *slo
+ 			start = slot + 1;
+ 	}
  
-@@ -366,7 +367,7 @@ static struct uni_screen *vc_uniscr_allo
- 
- static void vc_uniscr_set(struct vc_data *vc, struct uni_screen *new_uniscr)
- {
--	kfree(vc->vc_uni_screen);
-+	vfree(vc->vc_uni_screen);
- 	vc->vc_uni_screen = new_uniscr;
- }
- 
+-	if (gfn >= memslots[start].base_gfn &&
++	if (start < slots->used_slots && gfn >= memslots[start].base_gfn &&
+ 	    gfn < memslots[start].base_gfn + memslots[start].npages) {
+ 		atomic_set(&slots->lru_slot, start);
+ 		return &memslots[start];
 
 
