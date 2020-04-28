@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7211D1BC89B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E457A1BC8E2
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730015AbgD1SeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:34:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50692 "EHLO mail.kernel.org"
+        id S1730116AbgD1Sgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:36:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730011AbgD1SeC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:34:02 -0400
+        id S1729857AbgD1Sgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:36:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67EEC2085B;
-        Tue, 28 Apr 2020 18:34:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68A4D20575;
+        Tue, 28 Apr 2020 18:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098841;
-        bh=lu+rWn0DuPCOc6t/Q8s2CXZu/8GtE0gGQvraLXW4+mk=;
+        s=default; t=1588098995;
+        bh=FK7eUuzCW4GPx08jc70s2BZ2va0uZtioF7V7N9/9Ugk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eobwr+Eui/IJTbttVNwjbKWC2kjW2GpgFNNLgC7Hc9og/JIVtnsnfnEOiC70YSTlo
-         j5bsD4/Km6bcoz1UoX9XwB0pMMcLhp9QHctv4u9//0ThJc801FqJ9wv41NNKF0nnhy
-         Jfh4id444wrd5OjYTaalb8PY97AfwdlIQLwCD+Ss=
+        b=YNYwmCNCzmXpssW7WwFV+0xxjxUrd42EZhzDJsk7mL+O7xgthHe5HUZzXrIhXBFKM
+         Ag7cbVuMdu7+VC3P6jqh9RYVoK+tUHvkBeehboM2UtS8ZQ9JIpH2qOowazHzfrOzUP
+         WdQ5tHu6PeAuoLz6zLFkxYGManQ2/G8QjwJ7Gnuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikita Lipski <mikita.lipski@amd.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.6 119/167] drm/dp_mst: Zero assigned PBN when releasing VCPI slots
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 083/131] iio: xilinx-xadc: Make sure not exceed maximum samplerate
 Date:   Tue, 28 Apr 2020 20:24:55 +0200
-Message-Id: <20200428182240.281525612@linuxfoundation.org>
+Message-Id: <20200428182235.352564767@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikita Lipski <mikita.lipski@amd.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 7bfc1fec1af3e2f0194843855b0d49054fa42fd2 upstream.
+commit 3b7f9dbb827ce8680b98490215e698b6079a9ec5 upstream.
 
-Zero Port's PBN together with VCPI slots when releasing
-allocated VCPI slots. That way when disabling the connector
-it will not cause issues in drm_dp_mst_atomic_check verifying
-branch bw limit.
+The XADC supports a samplerate of up to 1MSPS. Unfortunately the hardware
+does not have a FIFO, which means it generates an interrupt for each
+conversion sequence. At one 1MSPS this creates an interrupt storm that
+causes the system to soft-lock.
 
-Signed-off-by: Mikita Lipski <mikita.lipski@amd.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: cd82d82cbc04 ("drm/dp_mst: Add branch bandwidth validation to MST atomic check")
-Cc: <stable@vger.kernel.org> # v5.6+
-Link: https://patchwork.freedesktop.org/patch/msgid/20200407160717.27976-1-mikita.lipski@amd.com
+For this reason the driver limits the maximum samplerate to 150kSPS.
+Currently this check is only done when setting a new samplerate. But it is
+also possible that the initial samplerate configured in the FPGA bitstream
+exceeds the limit.
+
+In this case when starting to capture data without first changing the
+samplerate the system can overload.
+
+To prevent this check the currently configured samplerate in the probe
+function and reduce it to the maximum if necessary.
+
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/adc/xilinx-xadc-core.c |   78 ++++++++++++++++++++++++++++---------
+ 1 file changed, 60 insertions(+), 18 deletions(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -4290,6 +4290,7 @@ int drm_dp_atomic_release_vcpi_slots(str
- 	if (pos->vcpi) {
- 		drm_dp_mst_put_port_malloc(port);
- 		pos->vcpi = 0;
-+		pos->pbn = 0;
- 	}
+--- a/drivers/iio/adc/xilinx-xadc-core.c
++++ b/drivers/iio/adc/xilinx-xadc-core.c
+@@ -103,6 +103,16 @@ static const unsigned int XADC_ZYNQ_UNMA
  
- 	return 0;
+ #define XADC_FLAGS_BUFFERED BIT(0)
+ 
++/*
++ * The XADC hardware supports a samplerate of up to 1MSPS. Unfortunately it does
++ * not have a hardware FIFO. Which means an interrupt is generated for each
++ * conversion sequence. At 1MSPS sample rate the CPU in ZYNQ7000 is completely
++ * overloaded by the interrupts that it soft-lockups. For this reason the driver
++ * limits the maximum samplerate 150kSPS. At this rate the CPU is fairly busy,
++ * but still responsive.
++ */
++#define XADC_MAX_SAMPLERATE 150000
++
+ static void xadc_write_reg(struct xadc *xadc, unsigned int reg,
+ 	uint32_t val)
+ {
+@@ -835,11 +845,27 @@ static const struct iio_buffer_setup_ops
+ 	.postdisable = &xadc_postdisable,
+ };
+ 
++static int xadc_read_samplerate(struct xadc *xadc)
++{
++	unsigned int div;
++	uint16_t val16;
++	int ret;
++
++	ret = xadc_read_adc_reg(xadc, XADC_REG_CONF2, &val16);
++	if (ret)
++		return ret;
++
++	div = (val16 & XADC_CONF2_DIV_MASK) >> XADC_CONF2_DIV_OFFSET;
++	if (div < 2)
++		div = 2;
++
++	return xadc_get_dclk_rate(xadc) / div / 26;
++}
++
+ static int xadc_read_raw(struct iio_dev *indio_dev,
+ 	struct iio_chan_spec const *chan, int *val, int *val2, long info)
+ {
+ 	struct xadc *xadc = iio_priv(indio_dev);
+-	unsigned int div;
+ 	uint16_t val16;
+ 	int ret;
+ 
+@@ -892,41 +918,31 @@ static int xadc_read_raw(struct iio_dev
+ 		*val = -((273150 << 12) / 503975);
+ 		return IIO_VAL_INT;
+ 	case IIO_CHAN_INFO_SAMP_FREQ:
+-		ret = xadc_read_adc_reg(xadc, XADC_REG_CONF2, &val16);
+-		if (ret)
++		ret = xadc_read_samplerate(xadc);
++		if (ret < 0)
+ 			return ret;
+ 
+-		div = (val16 & XADC_CONF2_DIV_MASK) >> XADC_CONF2_DIV_OFFSET;
+-		if (div < 2)
+-			div = 2;
+-
+-		*val = xadc_get_dclk_rate(xadc) / div / 26;
+-
++		*val = ret;
+ 		return IIO_VAL_INT;
+ 	default:
+ 		return -EINVAL;
+ 	}
+ }
+ 
+-static int xadc_write_raw(struct iio_dev *indio_dev,
+-	struct iio_chan_spec const *chan, int val, int val2, long info)
++static int xadc_write_samplerate(struct xadc *xadc, int val)
+ {
+-	struct xadc *xadc = iio_priv(indio_dev);
+ 	unsigned long clk_rate = xadc_get_dclk_rate(xadc);
+ 	unsigned int div;
+ 
+ 	if (!clk_rate)
+ 		return -EINVAL;
+ 
+-	if (info != IIO_CHAN_INFO_SAMP_FREQ)
+-		return -EINVAL;
+-
+ 	if (val <= 0)
+ 		return -EINVAL;
+ 
+ 	/* Max. 150 kSPS */
+-	if (val > 150000)
+-		val = 150000;
++	if (val > XADC_MAX_SAMPLERATE)
++		val = XADC_MAX_SAMPLERATE;
+ 
+ 	val *= 26;
+ 
+@@ -939,7 +955,7 @@ static int xadc_write_raw(struct iio_dev
+ 	 * limit.
+ 	 */
+ 	div = clk_rate / val;
+-	if (clk_rate / div / 26 > 150000)
++	if (clk_rate / div / 26 > XADC_MAX_SAMPLERATE)
+ 		div++;
+ 	if (div < 2)
+ 		div = 2;
+@@ -950,6 +966,17 @@ static int xadc_write_raw(struct iio_dev
+ 		div << XADC_CONF2_DIV_OFFSET);
+ }
+ 
++static int xadc_write_raw(struct iio_dev *indio_dev,
++	struct iio_chan_spec const *chan, int val, int val2, long info)
++{
++	struct xadc *xadc = iio_priv(indio_dev);
++
++	if (info != IIO_CHAN_INFO_SAMP_FREQ)
++		return -EINVAL;
++
++	return xadc_write_samplerate(xadc, val);
++}
++
+ static const struct iio_event_spec xadc_temp_events[] = {
+ 	{
+ 		.type = IIO_EV_TYPE_THRESH,
+@@ -1237,6 +1264,21 @@ static int xadc_probe(struct platform_de
+ 	if (ret)
+ 		goto err_free_samplerate_trigger;
+ 
++	/*
++	 * Make sure not to exceed the maximum samplerate since otherwise the
++	 * resulting interrupt storm will soft-lock the system.
++	 */
++	if (xadc->ops->flags & XADC_FLAGS_BUFFERED) {
++		ret = xadc_read_samplerate(xadc);
++		if (ret < 0)
++			goto err_free_samplerate_trigger;
++		if (ret > XADC_MAX_SAMPLERATE) {
++			ret = xadc_write_samplerate(xadc, XADC_MAX_SAMPLERATE);
++			if (ret < 0)
++				goto err_free_samplerate_trigger;
++		}
++	}
++
+ 	ret = request_irq(xadc->irq, xadc->ops->interrupt_handler, 0,
+ 			dev_name(&pdev->dev), indio_dev);
+ 	if (ret)
 
 
