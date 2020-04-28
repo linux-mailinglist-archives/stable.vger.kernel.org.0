@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C86F31BCA9B
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 435651BCA6D
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730521AbgD1Shl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55808 "EHLO mail.kernel.org"
+        id S1730759AbgD1SkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:40:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730059AbgD1Shl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:37:41 -0400
+        id S1730892AbgD1SkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:40:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEE2320575;
-        Tue, 28 Apr 2020 18:37:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CE4F20730;
+        Tue, 28 Apr 2020 18:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099060;
-        bh=HoZ1jmKaAFJOPrM4P+ug3uY8Rfr2dLp6MGHRka+OT7E=;
+        s=default; t=1588099209;
+        bh=lmDtm9jdllLum61esOiwhBFGzn+l1a9Y0Ph5OnavGXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdgjTTom0IfPvoBfYUIFm/cJO745p3cDZTPNT8tLB4cJj+el9txpQ28PCmz543BVV
-         Y409toJhntwur5CEbCEC98gtU+7U74/jWnEMVHrvdbVoHKdEPoSH6S425tRDEHqCLp
-         SIGi8vDwB34SQqFHgAClD++h5r8BVqPLDd+btyuA=
+        b=UwihRN2u+xoxtB1v1XokDXEwT68s+HAJP/lSYPgHscNTNF3X2++NPmNrfmRd7y395
+         b6m+qthKOd60sq2gDOydpcrxVXoz2f0VnOgWZvnXAXMfc8OnLc0TsAluFcLgRq0FJP
+         BDcA2yXJccZn86FUUrLGNgZVAgPp+Sc2HfZJi/DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Udipto Goswami <ugoswami@codeaurora.org>,
-        Sriharsha Allenki <sallenki@codeaurora.org>,
-        Manu Gautam <mgautam@codeaurora.org>
-Subject: [PATCH 5.6 150/167] usb: f_fs: Clear OS Extended descriptor counts to zero in ffs_data_reset()
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.19 114/131] staging: comedi: Fix comedi_device refcnt leak in comedi_open
 Date:   Tue, 28 Apr 2020 20:25:26 +0200
-Message-Id: <20200428182244.534530387@linuxfoundation.org>
+Message-Id: <20200428182239.580994000@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Udipto Goswami <ugoswami@codeaurora.org>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 1c2e54fbf1da5e5445a0ab132c862b02ccd8d230 upstream.
+commit 332e0e17ad49e084b7db670ef43b5eb59abd9e34 upstream.
 
-For userspace functions using OS Descriptors, if a function also supplies
-Extended Property descriptors currently the counts and lengths stored in
-the ms_os_descs_ext_prop_{count,name_len,data_len} variables are not
-getting reset to 0 during an unbind or when the epfiles are closed. If
-the same function is re-bound and the descriptors are re-written, this
-results in those count/length variables to monotonically increase
-causing the VLA allocation in _ffs_func_bind() to grow larger and larger
-at each bind/unbind cycle and eventually fail to allocate.
+comedi_open() invokes comedi_dev_get_from_minor(), which returns a
+reference of the COMEDI device to "dev" with increased refcount.
 
-Fix this by clearing the ms_os_descs_ext_prop count & lengths to 0 in
-ffs_data_reset().
+When comedi_open() returns, "dev" becomes invalid, so the refcount
+should be decreased to keep refcount balanced.
 
-Fixes: f0175ab51993 ("usb: gadget: f_fs: OS descriptors support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Udipto Goswami <ugoswami@codeaurora.org>
-Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
-Reviewed-by: Manu Gautam <mgautam@codeaurora.org>
-Link: https://lore.kernel.org/r/20200402044521.9312-1-sallenki@codeaurora.org
+The reference counting issue happens in one exception handling path of
+comedi_open(). When "cfp" allocation is failed, the refcnt increased by
+comedi_dev_get_from_minor() is not decreased, causing a refcnt leak.
+
+Fix this issue by calling comedi_dev_put() on this error path when "cfp"
+allocation is failed.
+
+Fixes: 20f083c07565 ("staging: comedi: prepare support for per-file read and write subdevices")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/1587361459-83622-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_fs.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/staging/comedi/comedi_fops.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1813,6 +1813,10 @@ static void ffs_data_reset(struct ffs_da
- 	ffs->state = FFS_READ_DESCRIPTORS;
- 	ffs->setup_state = FFS_NO_SETUP;
- 	ffs->flags = 0;
-+
-+	ffs->ms_os_descs_ext_prop_count = 0;
-+	ffs->ms_os_descs_ext_prop_name_len = 0;
-+	ffs->ms_os_descs_ext_prop_data_len = 0;
- }
+--- a/drivers/staging/comedi/comedi_fops.c
++++ b/drivers/staging/comedi/comedi_fops.c
+@@ -2594,8 +2594,10 @@ static int comedi_open(struct inode *ino
+ 	}
  
+ 	cfp = kzalloc(sizeof(*cfp), GFP_KERNEL);
+-	if (!cfp)
++	if (!cfp) {
++		comedi_dev_put(dev);
+ 		return -ENOMEM;
++	}
+ 
+ 	cfp->dev = dev;
  
 
 
