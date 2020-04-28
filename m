@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21D411BC942
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 878FD1BC828
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730764AbgD1SkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:40:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59108 "EHLO mail.kernel.org"
+        id S1729449AbgD1SaE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:30:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730759AbgD1SkG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:40:06 -0400
+        id S1729432AbgD1SaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77A1920575;
-        Tue, 28 Apr 2020 18:40:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98E262137B;
+        Tue, 28 Apr 2020 18:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099204;
-        bh=oQzH92Nu3rnEIWIs/DPXqzVb2aXpghGfFLFQYUmobTQ=;
+        s=default; t=1588098600;
+        bh=3AjzAH6sCRBBQIALkZlA3mWNYY6eXAlOgczOsfvavPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lw6Kx6JgFMgrP9HCIciZu89Sz4ZrL95//fU7jmy+dgzCotq4cioiWjY6v6Sdkb6Tl
-         TuNsmZioYpr091gfMzXBJZ/xmtQ4cs8JbuzITNtXFF2Iey1DQln/3GvLQsHNcH6v5X
-         nyE34t08tEZYnp7ignXWsOz4XQy4I94NBNVQZ6Pc=
+        b=wyzmHccbIzHrgF62wuLi20hYOU1ixxfqG3Lt4Y3VzL52USZc0tPKqxGDf9ebbQUod
+         fh6HtVwYfJJbr3HjLugrEaksv5pjTdINYHn3udEKzEWZHYyu+gzUiasACFV6V5rp6Z
+         YHUnrJ8HoBptLgmpxDViGwwWSdgmdRS/rGBfae+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 063/168] net: bcmgenet: correct per TX/RX ring statistics
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 025/131] loop: Better discard support for block devices
 Date:   Tue, 28 Apr 2020 20:23:57 +0200
-Message-Id: <20200428182239.895987908@linuxfoundation.org>
+Message-Id: <20200428182228.298249436@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +47,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Evan Green <evgreen@chromium.org>
 
-[ Upstream commit a6d0b83f25073bdf08b8547aeff961a62c6ab229 ]
+[ Upstream commit c52abf563049e787c1341cdf15c7dbe1bfbc951b ]
 
-The change to track net_device_stats per ring to better support SMP
-missed updating the rx_dropped member.
+If the backing device for a loop device is itself a block device,
+then mirror the "write zeroes" capabilities of the underlying
+block device into the loop device. Copy this capability into both
+max_write_zeroes_sectors and max_discard_sectors of the loop device.
 
-The ndo_get_stats method is also needed to combine the results for
-ethtool statistics (-S) before filling in the ethtool structure.
+The reason for this is that REQ_OP_DISCARD on a loop device translates
+into blkdev_issue_zeroout(), rather than blkdev_issue_discard(). This
+presents a consistent interface for loop devices (that discarded data
+is zeroed), regardless of the backing device type of the loop device.
+There should be no behavior change for loop devices backed by regular
+files.
 
-Fixes: 37a30b435b92 ("net: bcmgenet: Track per TX/RX rings statistics")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This change fixes blktest block/003, and removes an extraneous
+error print in block/013 when testing on a loop device backed
+by a block device that does not support discard.
+
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Reviewed-by: Gwendal Grignou <gwendal@chromium.org>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+[used updated version of Evan's comment in loop_config_discard()]
+[moved backingq to local scope, removed redundant braces]
+Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/block/loop.c | 42 +++++++++++++++++++++++++++++++-----------
+ 1 file changed, 31 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -995,6 +995,8 @@ static void bcmgenet_get_ethtool_stats(s
- 	if (netif_running(dev))
- 		bcmgenet_update_mib_counters(priv);
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 9cd231a27328e..c1341c86bcded 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -426,11 +426,12 @@ static int lo_fallocate(struct loop_device *lo, struct request *rq, loff_t pos,
+ 	 * information.
+ 	 */
+ 	struct file *file = lo->lo_backing_file;
++	struct request_queue *q = lo->lo_queue;
+ 	int ret;
  
-+	dev->netdev_ops->ndo_get_stats(dev);
+ 	mode |= FALLOC_FL_KEEP_SIZE;
+ 
+-	if ((!file->f_op->fallocate) || lo->lo_encrypt_key_size) {
++	if (!blk_queue_discard(q)) {
+ 		ret = -EOPNOTSUPP;
+ 		goto out;
+ 	}
+@@ -864,28 +865,47 @@ static void loop_config_discard(struct loop_device *lo)
+ 	struct inode *inode = file->f_mapping->host;
+ 	struct request_queue *q = lo->lo_queue;
+ 
++	/*
++	 * If the backing device is a block device, mirror its zeroing
++	 * capability. Set the discard sectors to the block device's zeroing
++	 * capabilities because loop discards result in blkdev_issue_zeroout(),
++	 * not blkdev_issue_discard(). This maintains consistent behavior with
++	 * file-backed loop devices: discarded regions read back as zero.
++	 */
++	if (S_ISBLK(inode->i_mode) && !lo->lo_encrypt_key_size) {
++		struct request_queue *backingq;
 +
- 	for (i = 0; i < BCMGENET_STATS_LEN; i++) {
- 		const struct bcmgenet_stats *s;
- 		char *p;
-@@ -3204,6 +3206,7 @@ static struct net_device_stats *bcmgenet
- 	dev->stats.rx_packets = rx_packets;
- 	dev->stats.rx_errors = rx_errors;
- 	dev->stats.rx_missed_errors = rx_errors;
-+	dev->stats.rx_dropped = rx_dropped;
- 	return &dev->stats;
++		backingq = bdev_get_queue(inode->i_bdev);
++		blk_queue_max_discard_sectors(q,
++			backingq->limits.max_write_zeroes_sectors);
++
++		blk_queue_max_write_zeroes_sectors(q,
++			backingq->limits.max_write_zeroes_sectors);
++
+ 	/*
+ 	 * We use punch hole to reclaim the free space used by the
+ 	 * image a.k.a. discard. However we do not support discard if
+ 	 * encryption is enabled, because it may give an attacker
+ 	 * useful information.
+ 	 */
+-	if ((!file->f_op->fallocate) ||
+-	    lo->lo_encrypt_key_size) {
++	} else if (!file->f_op->fallocate || lo->lo_encrypt_key_size) {
+ 		q->limits.discard_granularity = 0;
+ 		q->limits.discard_alignment = 0;
+ 		blk_queue_max_discard_sectors(q, 0);
+ 		blk_queue_max_write_zeroes_sectors(q, 0);
+-		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, q);
+-		return;
+-	}
+ 
+-	q->limits.discard_granularity = inode->i_sb->s_blocksize;
+-	q->limits.discard_alignment = 0;
++	} else {
++		q->limits.discard_granularity = inode->i_sb->s_blocksize;
++		q->limits.discard_alignment = 0;
+ 
+-	blk_queue_max_discard_sectors(q, UINT_MAX >> 9);
+-	blk_queue_max_write_zeroes_sectors(q, UINT_MAX >> 9);
+-	blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
++		blk_queue_max_discard_sectors(q, UINT_MAX >> 9);
++		blk_queue_max_write_zeroes_sectors(q, UINT_MAX >> 9);
++	}
++
++	if (q->limits.max_write_zeroes_sectors)
++		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
++	else
++		blk_queue_flag_clear(QUEUE_FLAG_DISCARD, q);
  }
  
+ static void loop_unprepare_queue(struct loop_device *lo)
+-- 
+2.20.1
+
 
 
