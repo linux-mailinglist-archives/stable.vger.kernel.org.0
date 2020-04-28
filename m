@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3DD1BC915
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:40:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F41441BC7EC
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:28:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729668AbgD1Si2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:38:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56914 "EHLO mail.kernel.org"
+        id S1729092AbgD1S1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:27:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730629AbgD1Si1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:38:27 -0400
+        id S1729089AbgD1S1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:27:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AA752085B;
-        Tue, 28 Apr 2020 18:38:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06E6B208E0;
+        Tue, 28 Apr 2020 18:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588099107;
-        bh=/AT+BPEtbgPhVXoYP8gxORxx9FEIM787m91UbGqpI24=;
+        s=default; t=1588098473;
+        bh=zlddwORQrlH5IAiGWGOgrWrkmekZCrnXInhF3wrWrA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1GQYsOeBPNCxoqdYiba6MFwtdRgDF/ygM6b+1jBTK4uExxnNWVPAzrK2D211cWUBH
-         8eWMpH7u40w9qLuEDzW3eFRoT7BlaM8I8ZxzYKTM+p9UOSAm0R9EIXGfv8ctjeoSap
-         Vle9qPd4CwJu8ec1jfXZkGMuYaRwv/T88VkEanJk=
+        b=KfUQcp4nExM2rZZ+zvTByS0IjmFvdbRROcCgCKn+LGhsZbUwYhKMQaHWRJ/ZK+qad
+         mrntbLc0fXEcqx2Y9XXtxvtUjvl6Yrshk2U9bbR/Ova/0sJgqU0ow5lt5z+ERKzfP7
+         QN44tU2byGryH0Q0ujt5GrZerUdV/lK6hNfzoE7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manoj Malviya <manojmalviya@chelsio.com>,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        stable@vger.kernel.org, Pravin B Shelar <pshelar@ovn.org>,
+        Yi-Hung Wei <yihung.wei@gmail.com>,
+        syzbot+7ef50afd3a211f879112@syzkaller.appspotmail.com,
+        Tonghao Zhang <xiangxia.m.yue@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 057/168] cxgb4: fix large delays in PTP synchronization
+Subject: [PATCH 5.6 055/167] net: openvswitch: ovs_ct_exit to be done under ovs_lock
 Date:   Tue, 28 Apr 2020 20:23:51 +0200
-Message-Id: <20200428182239.139390413@linuxfoundation.org>
+Message-Id: <20200428182231.932558521@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
-References: <20200428182231.704304409@linuxfoundation.org>
+In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
+References: <20200428182225.451225420@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-[ Upstream commit bd019427bf3623ee3c7d2845cf921bbf4c14846c ]
+[ Upstream commit 27de77cec985233bdf6546437b9761853265c505 ]
 
-Fetching PTP sync information from mailbox is slow and can take
-up to 10 milliseconds. Reduce this unnecessary delay by directly
-reading the information from the corresponding registers.
+syzbot wrote:
+| =============================
+| WARNING: suspicious RCU usage
+| 5.7.0-rc1+ #45 Not tainted
+| -----------------------------
+| net/openvswitch/conntrack.c:1898 RCU-list traversed in non-reader section!!
+|
+| other info that might help us debug this:
+| rcu_scheduler_active = 2, debug_locks = 1
+| ...
+|
+| stack backtrace:
+| Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
+| Workqueue: netns cleanup_net
+| Call Trace:
+| ...
+| ovs_ct_exit
+| ovs_exit_net
+| ops_exit_list.isra.7
+| cleanup_net
+| process_one_work
+| worker_thread
 
-Fixes: 9c33e4208bce ("cxgb4: Add PTP Hardware Clock (PHC) support")
-Signed-off-by: Manoj Malviya <manojmalviya@chelsio.com>
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+To avoid that warning, invoke the ovs_ct_exit under ovs_lock and add
+lockdep_ovsl_is_held as optional lockdep expression.
+
+Link: https://lore.kernel.org/lkml/000000000000e642a905a0cbee6e@google.com
+Fixes: 11efd5cb04a1 ("openvswitch: Support conntrack zone limit")
+Cc: Pravin B Shelar <pshelar@ovn.org>
+Cc: Yi-Hung Wei <yihung.wei@gmail.com>
+Reported-by: syzbot+7ef50afd3a211f879112@syzkaller.appspotmail.com
+Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Acked-by: Pravin B Shelar <pshelar@ovn.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_ptp.c |   27 +++++--------------------
- drivers/net/ethernet/chelsio/cxgb4/t4_regs.h   |    3 ++
- 2 files changed, 9 insertions(+), 21 deletions(-)
+ net/openvswitch/conntrack.c |    3 ++-
+ net/openvswitch/datapath.c  |    4 +++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ptp.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_ptp.c
-@@ -311,32 +311,17 @@ static int cxgb4_ptp_adjtime(struct ptp_
-  */
- static int cxgb4_ptp_gettime(struct ptp_clock_info *ptp, struct timespec64 *ts)
- {
--	struct adapter *adapter = (struct adapter *)container_of(ptp,
--				   struct adapter, ptp_clock_info);
--	struct fw_ptp_cmd c;
-+	struct adapter *adapter = container_of(ptp, struct adapter,
-+					       ptp_clock_info);
- 	u64 ns;
--	int err;
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -1895,7 +1895,8 @@ static void ovs_ct_limit_exit(struct net
+ 		struct hlist_head *head = &info->limits[i];
+ 		struct ovs_ct_limit *ct_limit;
  
--	memset(&c, 0, sizeof(c));
--	c.op_to_portid = cpu_to_be32(FW_CMD_OP_V(FW_PTP_CMD) |
--				     FW_CMD_REQUEST_F |
--				     FW_CMD_READ_F |
--				     FW_PTP_CMD_PORTID_V(0));
--	c.retval_len16 = cpu_to_be32(FW_CMD_LEN16_V(sizeof(c) / 16));
--	c.u.ts.sc = FW_PTP_SC_GET_TIME;
--
--	err = t4_wr_mbox(adapter, adapter->mbox, &c, sizeof(c), &c);
--	if (err < 0) {
--		dev_err(adapter->pdev_dev,
--			"PTP: %s error %d\n", __func__, -err);
--		return err;
--	}
-+	ns = t4_read_reg(adapter, T5_PORT_REG(0, MAC_PORT_PTP_SUM_LO_A));
-+	ns |= (u64)t4_read_reg(adapter,
-+			       T5_PORT_REG(0, MAC_PORT_PTP_SUM_HI_A)) << 32;
+-		hlist_for_each_entry_rcu(ct_limit, head, hlist_node)
++		hlist_for_each_entry_rcu(ct_limit, head, hlist_node,
++					 lockdep_ovsl_is_held())
+ 			kfree_rcu(ct_limit, rcu);
+ 	}
+ 	kfree(ovs_net->ct_limit_info->limits);
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -2466,8 +2466,10 @@ static void __net_exit ovs_exit_net(stru
+ 	struct net *net;
+ 	LIST_HEAD(head);
  
- 	/* convert to timespec*/
--	ns = be64_to_cpu(c.u.ts.tm);
- 	*ts = ns_to_timespec64(ns);
--
--	return err;
-+	return 0;
- }
- 
- /**
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_regs.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_regs.h
-@@ -1900,6 +1900,9 @@
- 
- #define MAC_PORT_CFG2_A 0x818
- 
-+#define MAC_PORT_PTP_SUM_LO_A 0x990
-+#define MAC_PORT_PTP_SUM_HI_A 0x994
+-	ovs_ct_exit(dnet);
+ 	ovs_lock();
 +
- #define MPS_CMN_CTL_A	0x9000
++	ovs_ct_exit(dnet);
++
+ 	list_for_each_entry_safe(dp, dp_next, &ovs_net->dps, list_node)
+ 		__dp_destroy(dp);
  
- #define COUNTPAUSEMCRX_S    5
 
 
