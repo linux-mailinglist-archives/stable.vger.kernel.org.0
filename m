@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C6B1BCBDD
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 21:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 691A41BCAA3
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728935AbgD1TAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 15:00:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39094 "EHLO mail.kernel.org"
+        id S1729755AbgD1SvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:51:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728903AbgD1S1H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:27:07 -0400
+        id S1730024AbgD1ShX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:37:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D1CB20BED;
-        Tue, 28 Apr 2020 18:27:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D106320575;
+        Tue, 28 Apr 2020 18:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098426;
-        bh=uRKGWEHffTzz+HeEoRdC6kD4Fwtd9WIkFuzd8NRpf9I=;
+        s=default; t=1588099043;
+        bh=isVRNvQT2EACdfwVZ9k/k4qA8as+uSSfDwj793vYOTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Woo3JlZA50cKbiPfzetBhjpB21mR7em/isbdnjt6OGqPhWdR/O1featPLutUPEoJg
-         pleFUjB82VdalnvwI0PEmgHDZobkyGikS+qRvTp8UThjNtxxTq5XXrVwL/KTh83ctB
-         I3zQ16PRkof7GcFVApE8mkQeAouIlfh0ONaps5OA=
+        b=NOqqOWskXZ70HXX7KBlD9dF/IfDo4qyy05orVnmBOalOsfrV5VCMO6eg2wBxyHLgq
+         dYU4Dom97UT5KrsFyCzgOsHH7XzcV+PQhLCpcV0n17ft+T5IFoloLn2kfh8+ICAXJ6
+         tjAjVpziz8QjONSBhhPdSMBggm8nldZxMiy3KwvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 034/167] pwm: bcm2835: Dynamically allocate base
-Date:   Tue, 28 Apr 2020 20:23:30 +0200
-Message-Id: <20200428182229.486995863@linuxfoundation.org>
+Subject: [PATCH 5.4 037/168] perf/core: Disable page faults when getting phys address
+Date:   Tue, 28 Apr 2020 20:23:31 +0200
+Message-Id: <20200428182236.424187629@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,37 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit 2c25b07e5ec119cab609e41407a1fb3fa61442f5 ]
+[ Upstream commit d3296fb372bf7497b0e5d0478c4e7a677ec6f6e9 ]
 
-The newer 2711 and 7211 chips have two PWM controllers and failure to
-dynamically allocate the PWM base would prevent the second PWM
-controller instance being probed for succeeding with an -EEXIST error
-from alloc_pwms().
+We hit following warning when running tests on kernel
+compiled with CONFIG_DEBUG_ATOMIC_SLEEP=y:
 
-Fixes: e5a06dc5ac1f ("pwm: Add BCM2835 PWM driver")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+ WARNING: CPU: 19 PID: 4472 at mm/gup.c:2381 __get_user_pages_fast+0x1a4/0x200
+ CPU: 19 PID: 4472 Comm: dummy Not tainted 5.6.0-rc6+ #3
+ RIP: 0010:__get_user_pages_fast+0x1a4/0x200
+ ...
+ Call Trace:
+  perf_prepare_sample+0xff1/0x1d90
+  perf_event_output_forward+0xe8/0x210
+  __perf_event_overflow+0x11a/0x310
+  __intel_pmu_pebs_event+0x657/0x850
+  intel_pmu_drain_pebs_nhm+0x7de/0x11d0
+  handle_pmi_common+0x1b2/0x650
+  intel_pmu_handle_irq+0x17b/0x370
+  perf_event_nmi_handler+0x40/0x60
+  nmi_handle+0x192/0x590
+  default_do_nmi+0x6d/0x150
+  do_nmi+0x2f9/0x3c0
+  nmi+0x8e/0xd7
+
+While __get_user_pages_fast() is IRQ-safe, it calls access_ok(),
+which warns on:
+
+  WARN_ON_ONCE(!in_task() && !pagefault_disabled())
+
+Peter suggested disabling page faults around __get_user_pages_fast(),
+which gets rid of the warning in access_ok() call.
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200407141427.3184722-1-jolsa@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-bcm2835.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/events/core.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pwm/pwm-bcm2835.c b/drivers/pwm/pwm-bcm2835.c
-index 91e24f01b54ed..d78f86f8e4621 100644
---- a/drivers/pwm/pwm-bcm2835.c
-+++ b/drivers/pwm/pwm-bcm2835.c
-@@ -166,6 +166,7 @@ static int bcm2835_pwm_probe(struct platform_device *pdev)
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 15b123bdcaf53..72d0cfd73cf11 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6537,9 +6537,12 @@ static u64 perf_virt_to_phys(u64 virt)
+ 		 * Try IRQ-safe __get_user_pages_fast first.
+ 		 * If failed, leave phys_addr as 0.
+ 		 */
+-		if ((current->mm != NULL) &&
+-		    (__get_user_pages_fast(virt, 1, 0, &p) == 1))
+-			phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
++		if (current->mm != NULL) {
++			pagefault_disable();
++			if (__get_user_pages_fast(virt, 1, 0, &p) == 1)
++				phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
++			pagefault_enable();
++		}
  
- 	pc->chip.dev = &pdev->dev;
- 	pc->chip.ops = &bcm2835_pwm_ops;
-+	pc->chip.base = -1;
- 	pc->chip.npwm = 2;
- 	pc->chip.of_xlate = of_pwm_xlate_with_flags;
- 	pc->chip.of_pwm_n_cells = 3;
+ 		if (p)
+ 			put_page(p);
 -- 
 2.20.1
 
