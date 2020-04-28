@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9CE41BC801
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C199F1BCB74
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729228AbgD1S2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:28:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41716 "EHLO mail.kernel.org"
+        id S1729439AbgD1S5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:57:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729226AbgD1S2j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:28:39 -0400
+        id S1729491AbgD1SaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:30:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C19AB214AF;
-        Tue, 28 Apr 2020 18:28:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DE9F2076A;
+        Tue, 28 Apr 2020 18:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098519;
-        bh=VCUEQTgmfZLGjvgi/6tnlrZ8RE72jb9+fRQ4fCctbC0=;
+        s=default; t=1588098621;
+        bh=LJPNTG9+CksbqGWw/Lw0H/aPHnvQKgLfs3lHpxgohkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=euqOyhEQz+VJFGga9yvpbRX4q7894IuUoI/qOmuMiE6AJc1kRIreYGYHuAAKRo6pL
-         OU7yd+DvvdgdpVpZgkQpXDV6K6Ryf9kGBNm6RzowjlfDUEFf2/4dh9HhNkS1nTaWFw
-         ewLShZE2rhkMBdwu0zEEUgr2dllsfTCLkH0HiWpY=
+        b=ofhWtR5qzdFtMnB0haR+s6JV0dzbfnNPPERlBXm3vMl82OXucIfZczWw24YbBps2k
+         nUF/C866P+0z8HrUlqHoA2m6wuKRRUcZ27sYrZh+axr7Zi64LN6pwgksOHNBFdUASr
+         WTjU0uBS4Hp9BGg6X9KS/ECeDRtiJHvzOCiWRu7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 065/167] net: dsa: b53: Lookup VID in ARL searches when VLAN is enabled
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 029/131] perf/core: Disable page faults when getting phys address
 Date:   Tue, 28 Apr 2020 20:24:01 +0200
-Message-Id: <20200428182233.201072476@linuxfoundation.org>
+Message-Id: <20200428182228.805413119@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182225.451225420@linuxfoundation.org>
-References: <20200428182225.451225420@linuxfoundation.org>
+In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
+References: <20200428182224.822179290@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit 2e97b0cd1651a270f3a3fcf42115c51f3284c049 ]
+[ Upstream commit d3296fb372bf7497b0e5d0478c4e7a677ec6f6e9 ]
 
-When VLAN is enabled, and an ARL search is issued, we also need to
-compare the full {MAC,VID} tuple before returning a successful search
-result.
+We hit following warning when running tests on kernel
+compiled with CONFIG_DEBUG_ATOMIC_SLEEP=y:
 
-Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ WARNING: CPU: 19 PID: 4472 at mm/gup.c:2381 __get_user_pages_fast+0x1a4/0x200
+ CPU: 19 PID: 4472 Comm: dummy Not tainted 5.6.0-rc6+ #3
+ RIP: 0010:__get_user_pages_fast+0x1a4/0x200
+ ...
+ Call Trace:
+  perf_prepare_sample+0xff1/0x1d90
+  perf_event_output_forward+0xe8/0x210
+  __perf_event_overflow+0x11a/0x310
+  __intel_pmu_pebs_event+0x657/0x850
+  intel_pmu_drain_pebs_nhm+0x7de/0x11d0
+  handle_pmi_common+0x1b2/0x650
+  intel_pmu_handle_irq+0x17b/0x370
+  perf_event_nmi_handler+0x40/0x60
+  nmi_handle+0x192/0x590
+  default_do_nmi+0x6d/0x150
+  do_nmi+0x2f9/0x3c0
+  nmi+0x8e/0xd7
+
+While __get_user_pages_fast() is IRQ-safe, it calls access_ok(),
+which warns on:
+
+  WARN_ON_ONCE(!in_task() && !pagefault_disabled())
+
+Peter suggested disabling page faults around __get_user_pages_fast(),
+which gets rid of the warning in access_ok() call.
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200407141427.3184722-1-jolsa@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/b53/b53_common.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/events/core.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -1485,6 +1485,9 @@ static int b53_arl_read(struct b53_devic
- 			continue;
- 		if ((mac_vid & ARLTBL_MAC_MASK) != mac)
- 			continue;
-+		if (dev->vlan_enabled &&
-+		    ((mac_vid >> ARLTBL_VID_S) & ARLTBL_VID_MASK) != vid)
-+			continue;
- 		*idx = i;
- 	}
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 8c70ee23fbe91..00fb2fe92c4d6 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6411,9 +6411,12 @@ static u64 perf_virt_to_phys(u64 virt)
+ 		 * Try IRQ-safe __get_user_pages_fast first.
+ 		 * If failed, leave phys_addr as 0.
+ 		 */
+-		if ((current->mm != NULL) &&
+-		    (__get_user_pages_fast(virt, 1, 0, &p) == 1))
+-			phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
++		if (current->mm != NULL) {
++			pagefault_disable();
++			if (__get_user_pages_fast(virt, 1, 0, &p) == 1)
++				phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
++			pagefault_enable();
++		}
  
+ 		if (p)
+ 			put_page(p);
+-- 
+2.20.1
+
 
 
