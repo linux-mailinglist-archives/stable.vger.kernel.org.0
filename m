@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EE51BCB82
-	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B71B1BCA9E
+	for <lists+stable@lfdr.de>; Tue, 28 Apr 2020 20:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728742AbgD1S3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Apr 2020 14:29:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42650 "EHLO mail.kernel.org"
+        id S1730501AbgD1Shg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Apr 2020 14:37:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729306AbgD1S3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Apr 2020 14:29:09 -0400
+        id S1730047AbgD1Shb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Apr 2020 14:37:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24A2120B80;
-        Tue, 28 Apr 2020 18:29:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31A91208E0;
+        Tue, 28 Apr 2020 18:37:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588098548;
-        bh=qNus+Aotl4Ykw5mSaayfce2H6rMn0LHCUbNcuJPfFkU=;
+        s=default; t=1588099050;
+        bh=dyQ/jAoog3/afvIT8/E4Yzhzrzavmt+MBeOOR32Pl3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1FUFKtN3GKC/CGLZU2pqUl8Jm1x6vH5+JsM7fJnkNNNDPqr2c/meVwP+EeiMrLTn
-         bivTgO1PU9ifVNGlNOAzjqzwnNp4nxjhB9QAa4bxlWrncOCFq0rwWKtlq01+/TrGK5
-         KPK2tOIFJyNmpzOqVwHvZVozDFGgOhLjmA2km8SI=
+        b=NN+A8Iw8lBQJfyzXHcYlwIExsZ+WARCX0ZT4FBdXtF1/rTmeLsF+Hp6FBmnyCeWCv
+         E5DRENml4Kqwwc0121Gl6f6PMiVjdr4lb5/OYABGZzKmhcQ0c2yCpA1izyv9hAyDO+
+         TWLq+2C0GJZKnCN0dEtyipSwx5ehW+xslojdEPNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 012/131] scsi: lpfc: Fix kasan slab-out-of-bounds error in lpfc_unreg_login
+Subject: [PATCH 5.4 050/168] virtio-blk: improve virtqueue error to BLK_STS
 Date:   Tue, 28 Apr 2020 20:23:44 +0200
-Message-Id: <20200428182226.716275284@linuxfoundation.org>
+Message-Id: <20200428182238.212252103@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200428182224.822179290@linuxfoundation.org>
-References: <20200428182224.822179290@linuxfoundation.org>
+In-Reply-To: <20200428182231.704304409@linuxfoundation.org>
+References: <20200428182231.704304409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 38503943c89f0bafd9e3742f63f872301d44cbea ]
+[ Upstream commit 3d973b2e9a625996ee997c7303cd793b9d197c65 ]
 
-The following kasan bug was called out:
+Let's change the mapping between virtqueue_add errors to BLK_STS
+statuses, so that -ENOSPC, which indicates virtqueue full is still
+mapped to BLK_STS_DEV_RESOURCE, but -ENOMEM which indicates non-device
+specific resource outage is mapped to BLK_STS_RESOURCE.
 
- BUG: KASAN: slab-out-of-bounds in lpfc_unreg_login+0x7c/0xc0 [lpfc]
- Read of size 2 at addr ffff889fc7c50a22 by task lpfc_worker_3/6676
- ...
- Call Trace:
- dump_stack+0x96/0xe0
- ? lpfc_unreg_login+0x7c/0xc0 [lpfc]
- print_address_description.constprop.6+0x1b/0x220
- ? lpfc_unreg_login+0x7c/0xc0 [lpfc]
- ? lpfc_unreg_login+0x7c/0xc0 [lpfc]
- __kasan_report.cold.9+0x37/0x7c
- ? lpfc_unreg_login+0x7c/0xc0 [lpfc]
- kasan_report+0xe/0x20
- lpfc_unreg_login+0x7c/0xc0 [lpfc]
- lpfc_sli_def_mbox_cmpl+0x334/0x430 [lpfc]
- ...
-
-When processing the completion of a "Reg Rpi" login mailbox command in
-lpfc_sli_def_mbox_cmpl, a call may be made to lpfc_unreg_login. The vpi is
-extracted from the completing mailbox context and passed as an input for
-the next. However, the vpi stored in the mailbox command context is an
-absolute vpi, which for SLI4 represents both base + offset.  When used with
-a non-zero base component, (function id > 0) this results in an
-out-of-range access beyond the allocated phba->vpi_ids array.
-
-Fix by subtracting the function's base value to get an accurate vpi number.
-
-Link: https://lore.kernel.org/r/20200322181304.37655-2-jsmart2021@gmail.com
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200213123728.61216-3-pasic@linux.ibm.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/block/virtio_blk.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index a801917d3c193..a56a939792ac1 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -2472,6 +2472,8 @@ lpfc_sli_def_mbox_cmpl(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
- 	    !pmb->u.mb.mbxStatus) {
- 		rpi = pmb->u.mb.un.varWords[0];
- 		vpi = pmb->u.mb.un.varRegLogin.vpi;
-+		if (phba->sli_rev == LPFC_SLI_REV4)
-+			vpi -= phba->sli4_hba.max_cfg_param.vpi_base;
- 		lpfc_unreg_login(phba, vpi, rpi, pmb);
- 		pmb->vport = vport;
- 		pmb->mbox_cmpl = lpfc_sli_def_mbox_cmpl;
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index c2ed3e9128e3a..a55383b139df9 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -345,9 +345,14 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		if (err == -ENOSPC)
+ 			blk_mq_stop_hw_queue(hctx);
+ 		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+-		if (err == -ENOMEM || err == -ENOSPC)
++		switch (err) {
++		case -ENOSPC:
+ 			return BLK_STS_DEV_RESOURCE;
+-		return BLK_STS_IOERR;
++		case -ENOMEM:
++			return BLK_STS_RESOURCE;
++		default:
++			return BLK_STS_IOERR;
++		}
+ 	}
+ 
+ 	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
 -- 
 2.20.1
 
