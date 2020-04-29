@@ -2,99 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2121C1BE71B
-	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 21:15:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E831BE769
+	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 21:30:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727090AbgD2TPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Apr 2020 15:15:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52894 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726921AbgD2TPd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 Apr 2020 15:15:33 -0400
-Received: from mail-il1-f173.google.com (mail-il1-f173.google.com [209.85.166.173])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09F18221EA;
-        Wed, 29 Apr 2020 19:15:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588187733;
-        bh=8zGF7J5vU1aHCP5NVrkZGLyiOLpTgil37hVC6FyH4+g=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=CjXDKQe50JwPGFFd2wqJPBv40jTi+sCUJ4DaP44BJ0ffo0qDgF4CCT/up//grV+1X
-         H5XHXUf7VrgTddw49+fLsdqZbguhhBESE0/5YGZddRYiqx0Jo97WEX7mbcnqbaWpIj
-         irEoW5bcty8tZMIKiOKqEusZ2LpinmUtT10U5WJk=
-Received: by mail-il1-f173.google.com with SMTP id e8so3553189ilm.7;
-        Wed, 29 Apr 2020 12:15:33 -0700 (PDT)
-X-Gm-Message-State: AGi0PuZ+ljW/oxfpWo3Ry1qNXMbP9fExAPCpODxbdV1xTPROcNRtUrjN
-        ziOtRoYc71d5kEzDvg2Wgph/EW9B0BM7lyV2qT4=
-X-Google-Smtp-Source: APiQypJsnlAvQfc7irLT1YgR+mCRIPtINI2GxAyyU6DQsDAhz6atG1lWYITEEV+JOjR4au3GhCYE9ARuvXzpnDuZRd8=
-X-Received: by 2002:a92:39dd:: with SMTP id h90mr4677889ilf.80.1588187732438;
- Wed, 29 Apr 2020 12:15:32 -0700 (PDT)
+        id S1726481AbgD2Tah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Apr 2020 15:30:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52336 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726423AbgD2Tag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Apr 2020 15:30:36 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73EE1C03C1AE
+        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 12:30:36 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id d3so1490659pgj.6
+        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 12:30:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=+fMOxEUgmCaS6B7t4gcp8M2pv114s98FJqFlbj0FJag=;
+        b=WJmbUG1xffctB3sUTG8PxNVr+42uuhG6E9ZuQalrorF6zO+KJNis1P7MDBDDFMUzpV
+         0oXK+uPGmQhEXYn0Ao2QkkTewjIxKpBrS17hVCR5BXUiVH4+twSyWdcZ7RVI7MgCW/v6
+         a79n+hfecFAwcgGuyy0joUAYWP8RqgD/tmIBUwodtScmNLyY52lBMMMwSNXPGfoRMuGt
+         7QG594mNfnmYwnHvi1RkHiNEqqLiocQqtPGF1Aqw1cWi+sJglWWTh8zJs8XZnAvTB+SA
+         aK0PRYuxyLm1X5v/coIgGwlIFm31qECso1GRxEp0nfQcheucycUiv2rvX1y6gD7h0c6P
+         Jt7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition:user-agent;
+        bh=+fMOxEUgmCaS6B7t4gcp8M2pv114s98FJqFlbj0FJag=;
+        b=sNpYRuU3Z4Ouggu1lFbH9imgWKTEIwsBA6VcNFBEX/1jubhpmQdJIvMfO8VTarWKNd
+         yvpzLyWYS/cdiVTT4DAaYlRVdo860J1ycPFiFDCtryRLRX7RHmPqRLapXH4nDf+xLNAG
+         o73MIuxpdvTbqQFKmUvEuxPxbpkd4Zu5TEBVKDJj9tj4+x6qpDYyIAQqEllmXVtzffei
+         OjRF/JKJInb07K7hGMaw2qMqdaezjjwK9YE/iqKhZlY2lqEC1hzOAeH6JXGddgUz8dme
+         TNg98vgBnPvg/BXXZaJtNqigmj4lqbLIS1t5jm6PCaaEQa/CDeh7XNeCV15RDcjBqmcw
+         /73A==
+X-Gm-Message-State: AGi0PuYtv2K02AdlgqfPpNzMKdeXtRN5XfU88TM4FD0MtSW5Qd7t+W1Z
+        kdE/4e/cqsnvYWKlUsGIFZOtCFi9
+X-Google-Smtp-Source: APiQypKHfPepUnvL0zpruuFt0MJBEKMoR+fohOMKvQBc07OUDydWs6FmT0ZzYvhuKw02MMpxPEuF0A==
+X-Received: by 2002:a65:4b86:: with SMTP id t6mr15246419pgq.177.1588188635645;
+        Wed, 29 Apr 2020 12:30:35 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d184sm1654006pfc.130.2020.04.29.12.30.34
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 29 Apr 2020 12:30:34 -0700 (PDT)
+Date:   Wed, 29 Apr 2020 12:30:33 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: List of patches to apply to stable releases (4/29)
+Message-ID: <20200429193033.GA83504@roeck-us.net>
 MIME-Version: 1.0
-References: <20200429190119.43595-1-arnd@arndb.de>
-In-Reply-To: <20200429190119.43595-1-arnd@arndb.de>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Wed, 29 Apr 2020 21:15:21 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXE4DSOhN7+ydGytHwOCn+L=0VoxW4T76ERL8+_fjyNj7A@mail.gmail.com>
-Message-ID: <CAMj1kXE4DSOhN7+ydGytHwOCn+L=0VoxW4T76ERL8+_fjyNj7A@mail.gmail.com>
-Subject: Re: [PATCH] efi/tpm: fix section mismatch warning
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Dave Young <dyoung@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>, Lyude Paul <lyude@redhat.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Peter Jones <pjones@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Scott Talbert <swt@techie.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 29 Apr 2020 at 21:02, Arnd Bergmann <arnd@arndb.de> wrote:
->
-> Building with gcc-10 causes a harmless warning about a section mismatch:
->
-> WARNING: modpost: vmlinux.o(.text.unlikely+0x5e191): Section mismatch in reference from the function tpm2_calc_event_log_size() to the function .init.text:early_memunmap()
-> The function tpm2_calc_event_log_size() references
-> the function __init early_memunmap().
-> This is often because tpm2_calc_event_log_size lacks a __init
-> annotation or the annotation of early_memunmap is wrong.
->
-> Add the missing annotation.
->
-> Fixes: e658c82be556 ("efi/tpm: Only set 'efi_tpm_final_log_size' after successful event log parsing")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Hi,
 
-Thanks, I'll take it as a fix.
+Please consider applying the following patches to the listed stable releases.
 
-> ---
->  drivers/firmware/efi/tpm.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
-> index 31f9f0e369b9..55b031d2c989 100644
-> --- a/drivers/firmware/efi/tpm.c
-> +++ b/drivers/firmware/efi/tpm.c
-> @@ -16,7 +16,7 @@
->  int efi_tpm_final_log_size;
->  EXPORT_SYMBOL(efi_tpm_final_log_size);
->
-> -static int tpm2_calc_event_log_size(void *data, int count, void *size_info)
-> +static int __init tpm2_calc_event_log_size(void *data, int count, void *size_info)
->  {
->         struct tcg_pcr_event2_head *header;
->         int event_size, size = 0;
-> --
-> 2.26.0
->
+The following patches were found to be missing in stable releases by the
+Chrome OS missing patch robot. The patches meet the following criteria.
+- The patch includes a Fixes: tag
+- The patch referenced in the Fixes: tag has been applied to the listed
+  stable release
+- The patch has not been applied to that stable release
+
+All patches have been applied to the listed stable releases and to at least one
+Chrome OS branch. Resulting images have been build- and runtime-tested (where
+applicable) on real hardware and with virtual hardware on kerneltests.org.
+
+Thanks,
+Guenter
+
+---
+Upstream commit a8dd397903a6 ("sctp: use right member as the param of list_for_each_entry")
+  upstream: v4.15-rc2
+    Fixes: d04adf1b3551 ("sctp: reset owner sk for data chunks on out queues when migrating a sock")
+      in linux-4.4.y: 4b5bb7723da1
+      in linux-4.9.y: b89fc6a5caff
+      upstream: v4.14-rc7
+    Affected branches:
+      linux-4.4.y
+      linux-4.9.y (already applied)
+      linux-4.14.y (already applied)
+i
+Upstream commit 2d84a2d19b61 ("fuse: fix possibly missed wake-up after abort")
+  upstream: v4.20-rc3
+    Fixes: b8f95e5d13f5 ("fuse: umount should wait for all requests")
+      in linux-4.4.y: 4d6ef17a060c
+      in linux-4.9.y: 6465d7688c2d
+      in linux-4.14.y: 973206923812
+      upstream: v4.19-rc1
+    Affected branches:
+      linux-4.4.y
+      linux-4.9.y
+      linux-4.14.y (already applied)
+      linux-4.19.y (already applied)
+
+Upstream commit d9b8a67b3b95 ("mtd: cfi: fix deadloop in cfi_cmdset_0002.c do_write_buffer")
+  upstream: v5.1-rc4
+    Fixes: dfeae1073583 ("mtd: cfi_cmdset_0002: Change write buffer to check correct value")
+      in linux-4.4.y: 5069cd50117a
+      in linux-4.9.y: e9dc5dce0925
+      in linux-4.14.y: 746c1362c434
+      upstream: v4.18-rc1
+    Affected branches:
+      linux-4.4.y
+      linux-4.9.y
+      linux-4.14.y
+      linux-4.19.y
+
+Upstream commit 467d12f5c784 ("include/uapi/linux/swab.h: fix userspace breakage, use __BITS_PER_LONG for swap")
+  upstream: v5.6-rc3
+    Fixes: d5767057c9a7 ("uapi: rename ext2_swab() to swab() and share globally in swab.h")
+      in linux-4.14.y: 4eb9d5bc7065
+      in linux-4.19.y: 9af535dc019e
+      in linux-5.4.y: 8b0f08036659
+      in linux-5.5.y: b83fb35b0300
+      upstream: v5.6-rc1
+    Affected branches:
+      linux-4.14.y
+      linux-4.19.y
+      linux-5.4.y (already applied)
+
+Upstream commit 60d488571083 ("binder: take read mode of mmap_sem in binder_alloc_free_page()")
+  upstream: v5.2-rc1
+    Fixes: 5cec2d2e5839 ("binder: fix race between munmap() and direct reclaim")
+      in linux-4.14.y: c2a035d7822a
+      in linux-4.19.y: 9d57cfd4e9d8
+      upstream: v5.1-rc3
+    Affected branches:
+      linux-4.14.y
+      linux-4.19.y
+
+Upstream commit e2bcb65782f9 ("ASoC: stm32: sai: fix sai probe")
+  upstream: v5.7-rc3
+    Fixes: 0d6defc7e0e4 ("ASoC: stm32: sai: manage rebind issue")
+      in linux-5.4.y: af7dd05d7c8f
+      in linux-5.5.y: 1ab75b0342d2
+      upstream: v5.6-rc5
+    Affected branches:
+      linux-5.4.y
+      linux-5.6.y
