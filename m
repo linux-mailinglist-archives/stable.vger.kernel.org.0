@@ -2,117 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C40281BD454
-	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 08:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B981BD4B9
+	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 08:36:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726436AbgD2GB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Apr 2020 02:01:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38386 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725861AbgD2GB1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Apr 2020 02:01:27 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B865C03C1AC
-        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 23:01:27 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id fu13so337946pjb.5
-        for <stable@vger.kernel.org>; Tue, 28 Apr 2020 23:01:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=kuE0E26/TX1j/2SBOAfvxO1uB/xBDMEJDA15lEegsGU=;
-        b=yN+aysCEsTDL9AlkHTqB8VstN4LBU743/4oNXs3ybRrYX+EKMZ+ujW8PSZmoRZwpHt
-         BSa+JpN419c8FX3aRzkjJXBrF4/ntv7FT/B+fpRvbXxVYUqqYKlxTvYMWmC/cbQmDSY+
-         /e4xn+Zm7l9fvSsX1oTWlwKKvlg6wDIlHvvVOEOQhX9Jrf/ULxTeKLyaNqRWbCH1rpMc
-         VSVw8XhdFr112rSBPEOVZcGypXV8HyHIh1+k5YQaoX/A4zLnXReTYdgyYGXtUlLVGcjZ
-         LZIfhL+LEnSlTCt8M9KsG0xPPXJhAhLtpjOHqQ4b6OFW1U4rVFSNyRlWYKNycH7xk+Ps
-         NB6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=kuE0E26/TX1j/2SBOAfvxO1uB/xBDMEJDA15lEegsGU=;
-        b=GFet7R0ybjA5hM6UQaMdN7gnEu7HyMIiBKjgIeXHCR9LYZEixWBNptgjOFT/socfGa
-         LmKkUR4PENRv+m3xTyIy2AxlrCULSK98UmQ4z3bCMS/+z4Rn2YaKW0dPwglqoUeQ/J9G
-         lFIE+ZatGEkHoo6P1nCCX4C5Sd9FCZ1qJa607E/waI6M9vjec0QYDGPCgs1hoPK6EdFi
-         RLGP/oTC9B8tLeaG5i77GOzvGvX1M5rPSwn+ab2fVZ5DzX7eUjxIzJLuobFijBoeCBXs
-         cpdc/fZxqSlyjtYIhG358PCeLwdKGgfHlgYTeou/NcggI7MI74wD6ssxzqfcmKOaNxyP
-         ymtA==
-X-Gm-Message-State: AGi0PuaCwFzWhw4fc9HWk77nK1YtxChoJQyud7QhZl4/p3l2sUPGNQvM
-        PB+yCQByZ53FJtJ7AUED5VzzwB8HjNw=
-X-Google-Smtp-Source: APiQypJp9Zfo+OIMECDefYvi3aDlwFiC3dIdm+JC785XeWTFTEcWxc0W2XPimHPM0M2QNSI2E3vn7A==
-X-Received: by 2002:a17:902:a40b:: with SMTP id p11mr33285603plq.304.1588140086104;
-        Tue, 28 Apr 2020 23:01:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g27sm133551pgn.52.2020.04.28.23.01.24
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Apr 2020 23:01:25 -0700 (PDT)
-Message-ID: <5ea91835.1c69fb81.bd2c0.082f@mx.google.com>
-Date:   Tue, 28 Apr 2020 23:01:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726420AbgD2Ggp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Apr 2020 02:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43658 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726158AbgD2Ggo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Apr 2020 02:36:44 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BBA8206F0;
+        Wed, 29 Apr 2020 06:36:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588142204;
+        bh=N4/e8rFbJKShvQh4pRtyzPbTxIkVgTMXGfjkTkX/wsM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KR+V3CfLTztAr2Ai7CKhLA9t6joaigtvxDED4TdDWUcSZenQfTmAix2ZsUCdCa/9c
+         /P1eKkeA4oY83wHb+d9S7ZuDhPhXzstj6kBTmDWnfXbEE81pkz8Ex/+cTYA2JZgpLd
+         FuA5Wu5V9Yf+f7xRXLkMAOK8Tr9ehd1jLa0ZvKQg=
+Date:   Wed, 29 Apr 2020 08:36:40 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.6 000/167] 5.6.8-rc1 review
+Message-ID: <20200429063640.GA2007811@kroah.com>
+References: <20200428182225.451225420@linuxfoundation.org>
+ <37127381-3bd6-e32c-ab2e-e0f542a3fca7@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.118-132-g3fc812d65db6
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.19.y boot: 109 boots: 1 failed,
- 102 passed with 6 untried/unknown (v4.19.118-132-g3fc812d65db6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <37127381-3bd6-e32c-ab2e-e0f542a3fca7@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 109 boots: 1 failed, 102 passed with 6 untried=
-/unknown (v4.19.118-132-g3fc812d65db6)
+On Tue, Apr 28, 2020 at 06:44:16PM -0600, shuah wrote:
+> On 4/28/20 12:22 PM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.6.8 release.
+> > There are 167 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 30 Apr 2020 18:20:42 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.8-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> Compiled and booted on my test system. No dmesg regressions.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.118-132-g3fc812d65db6/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.118-132-g3fc812d65db6/
+Great, thanks for testing these and letting me know.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.118-132-g3fc812d65db6
-Git Commit: 3fc812d65db6b5ad19f0ef548492a25ba2a276bc
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 62 unique boards, 16 SoC families, 18 builds out of 206
-
-Boot Regressions Detected:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-baylibre: new failure (last pass: v4.19.118-131-g9815485c=
-f882)
-          sun8i-h2-plus-orangepi-r1:
-              lab-baylibre: new failure (last pass: v4.19.118-131-g9815485c=
-f882)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 46 days (last pass: v4.19.108-87-=
-g624c124960e8 - first fail: v4.19.109)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.19.118-131-g9815485=
-cf882)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+greg k-h
