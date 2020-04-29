@@ -2,115 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBCE1BE0B2
-	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 16:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06DBC1BE0BB
+	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 16:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726901AbgD2OWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Apr 2020 10:22:11 -0400
-Received: from mga07.intel.com ([134.134.136.100]:1349 "EHLO mga07.intel.com"
+        id S1727112AbgD2OWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Apr 2020 10:22:35 -0400
+Received: from mga06.intel.com ([134.134.136.31]:17452 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726691AbgD2OWL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 Apr 2020 10:22:11 -0400
-IronPort-SDR: LgnWTTuWbaIsCtA80/Jc16ThDGM8oOOj+N07l5IztSoXewfybckL6WDqoRgeyy0ug1EIURy8H2
- 73QzjPpETYdw==
+        id S1726691AbgD2OWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Apr 2020 10:22:34 -0400
+IronPort-SDR: 63GWCtRK5mcJA5Rx9uc6qwS/2L3CDSpHDh91rd9HjbnjDAl3OU+Bq8YpKs44MshTF8k3Rlt4oD
+ /2rjm7CcstJw==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2020 07:22:10 -0700
-IronPort-SDR: N81ZmKouHyFZr/u5MTSxU1Qi7vCcMMzjx7r6Z5dnI/mgsYe+NrS1FcKzvYdzrh7Bsx7bOqaEf6
- fNaLjWtLoHJA==
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2020 07:22:33 -0700
+IronPort-SDR: +Hzi2eWgB5BczDeFvRtdJiKTAFNYW4m37DwADTTV7oXwq8PbysNUU2zLXAmW0o8u9wkSGCazjN
+ pq8Aga9fthow==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.73,332,1583222400"; 
-   d="scan'208";a="336969599"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga001.jf.intel.com with ESMTP; 29 Apr 2020 07:22:08 -0700
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1jTnb5-003jjK-B0; Wed, 29 Apr 2020 17:21:59 +0300
-Date:   Wed, 29 Apr 2020 17:21:59 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] pinctrl: cherryview: Ensure _REG(ACPI_ADR_SPACE_GPIO, 1)
- gets called
-Message-ID: <20200429142159.GJ185537@smile.fi.intel.com>
-References: <20200429104651.63643-1-hdegoede@redhat.com>
+   d="scan'208";a="405051026"
+Received: from ramaling-i9x.iind.intel.com (HELO intel.com) ([10.99.66.154])
+  by orsmga004.jf.intel.com with ESMTP; 29 Apr 2020 07:22:30 -0700
+Date:   Wed, 29 Apr 2020 19:52:21 +0530
+From:   Ramalingam C <ramalingam.c@intel.com>
+To:     Sean Paul <sean@poorly.run>
+Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        stable <stable@vger.kernel.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2] drm: Fix HDCP failures when SRM fw is missing
+Message-ID: <20200429142221.GG22816@intel.com>
+References: <20200414184835.2878-1-sean@poorly.run>
+ <20200414190258.38873-1-sean@poorly.run>
+ <20200429135037.GF22816@intel.com>
+ <CAMavQKKOKfcJSN1GjKctQp4qw6LyP6WNE9Q3Y4LedkjzcvPXxA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200429104651.63643-1-hdegoede@redhat.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <CAMavQKKOKfcJSN1GjKctQp4qw6LyP6WNE9Q3Y4LedkjzcvPXxA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 29, 2020 at 12:46:51PM +0200, Hans de Goede wrote:
-> On Cherry Trail devices there are 2 possible ACPI OpRegions for
-> accessing GPIOs. The standard GeneralPurposeIo OpRegion and the Cherry
-> Trail specific UserDefined 0x9X OpRegions.
+On 2020-04-29 at 09:58:16 -0400, Sean Paul wrote:
+> On Wed, Apr 29, 2020 at 9:50 AM Ramalingam C <ramalingam.c@intel.com> wrote:
+> >
+> > On 2020-04-14 at 15:02:55 -0400, Sean Paul wrote:
+> > > From: Sean Paul <seanpaul@chromium.org>
+> > >
+> > > The SRM cleanup in 79643fddd6eb2 ("drm/hdcp: optimizing the srm
+> > > handling") inadvertently altered the behavior of HDCP auth when
+> > > the SRM firmware is missing. Before that patch, missing SRM was
+> > > interpreted as the device having no revoked keys. With that patch,
+> > > if the SRM fw file is missing we reject _all_ keys.
+> > >
+> > > This patch fixes that regression by returning success if the file
+> > > cannot be found. It also checks the return value from request_srm such
+> > > that we won't end up trying to parse the ksv list if there is an error
+> > > fetching it.
+> > >
+> > > Fixes: 79643fddd6eb ("drm/hdcp: optimizing the srm handling")
+> > > Cc: stable@vger.kernel.org
+> > > Cc: Ramalingam C <ramalingam.c@intel.com>
+> > > Cc: Sean Paul <sean@poorly.run>
+> > > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> > > Cc: Maxime Ripard <mripard@kernel.org>
+> > > Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> > > Cc: David Airlie <airlied@linux.ie>
+> > > Cc: Daniel Vetter <daniel@ffwll.ch>
+> > > Cc: dri-devel@lists.freedesktop.org
+> > > Signed-off-by: Sean Paul <seanpaul@chromium.org>
+> > >
+> > > Changes in v2:
+> > > -Noticed a couple other things to clean up
+> > > ---
+> > >
+> > > Sorry for the quick rev, noticed a couple other loose ends that should
+> > > be cleaned up.
+> > >
+> > >  drivers/gpu/drm/drm_hdcp.c | 8 +++++++-
+> > >  1 file changed, 7 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/gpu/drm/drm_hdcp.c b/drivers/gpu/drm/drm_hdcp.c
+> > > index 7f386adcf872..910108ccaae1 100644
+> > > --- a/drivers/gpu/drm/drm_hdcp.c
+> > > +++ b/drivers/gpu/drm/drm_hdcp.c
+> > > @@ -241,8 +241,12 @@ static int drm_hdcp_request_srm(struct drm_device *drm_dev,
+> > >
+> > >       ret = request_firmware_direct(&fw, (const char *)fw_name,
+> > >                                     drm_dev->dev);
+> > > -     if (ret < 0)
+> > > +     if (ret < 0) {
+> > > +             *revoked_ksv_cnt = 0;
+> > > +             *revoked_ksv_list = NULL;
+> > These two variables are already initialized by the caller.
 > 
-> Having 2 different types of OpRegions leads to potential issues with
-> checks for OpRegion availability, or in other words checks if _REG has
-> been called for the OpRegion which the ACPI code wants to use.
+> Right now it is, but that's not guaranteed. In the ret == 0 case, it's
+> pretty common for a caller to assume the called function has
+> validated/assigned all the function output.
+Ok.
 > 
-> The ACPICA core does not call _REG on an ACPI node which does not
-> define an OpRegion matching the type being registered; and the reference
-> design DSDT, from which most Cherry Trail DSDTs are derived, does not
-> define GeneralPurposeIo, nor UserDefined(0x93) OpRegions for the GPO2
-> (UID 3) device, because no pins were assigned ACPI controlled functions
-> in the reference design.
+> > > +             ret = 0;
+> > Missing of this should have been caught by CI. May be CI system always
+> > having the SRM file from previous execution. Never been removed. IGT
+> > need a fix to clean the prior SRM files before execution.
+> >
+> > CI fix shouldn't block this fix.
+> > >               goto exit;
+> > > +     }
+> > >
+> > >       if (fw->size && fw->data)
+> > >               ret = drm_hdcp_srm_update(fw->data, fw->size, revoked_ksv_list,
+> > > @@ -287,6 +291,8 @@ int drm_hdcp_check_ksvs_revoked(struct drm_device *drm_dev, u8 *ksvs,
+> > >
+> > >       ret = drm_hdcp_request_srm(drm_dev, &revoked_ksv_list,
+> > >                                  &revoked_ksv_cnt);
+> > > +     if (ret)
+> > > +             return ret;
+> > This error code also shouldn't effect the caller(i915)
 > 
-> Together this leads to the perfect storm, at least on the Cherry Trail
-> based Medion Akayo E1239T. This design does use a GPO2 pin from its ACPI
-> code and has added the Cherry Trail specific UserDefined(0x93) opregion
-> to its GPO2 ACPI node to access this pin.
+> Why not? I'd assume an invalid SRM revocation list should probably be
+> treated as failure?
+IMHO invalid SRM revocation need not be treated as HDCP authentication
+failure.
+
+First of all SRM need not supplied by all players. and incase, supplied
+SRM is not as per the spec, then we dont have any list of revoked ID.
+with this I dont think we need to fail the HDCP authentication. Until we
+have valid list of revoked IDs from SRM, and the receiver ID is matching
+to one of the revoked IDs, I wouldn't want to fail the HDCP
+authentication. 
+
+-Ram
 > 
-> But it uses a has _REG been called availability check for the standard
-> GeneralPurposeIo OpRegion. This clearly is a bug in the DSDT, but this
-> does work under Windows. This issue leads to the intel_vbtn driver
-> reporting the device always being in tablet-mode at boot, even if it
-> is in laptop mode. Which in turn causes userspace to ignore touchpad
-> events. So iow this issues causes the touchpad to not work at boot.
 > 
-> Since the bug in the DSDT stems from the confusion of having 2 different
-> OpRegion types for accessing GPIOs on Cherry Trail devices, I believe
-> that this is best fixed inside the cherryview pinctrl driver.
-> 
-> This commit adds a workaround to the cherryview pinctrl driver so
-> that the DSDT's expectations of _REG always getting called for the
-> GeneralPurposeIo OpRegion are met.
-
-s/cherryview/Cherryview/g
-
-...
-
-> +	if (acpi_has_method(adev->handle, "_REG")) {
-
-And this check si redundant, you may call it as is (you didn't check for error
-anyway), see also below.
-
-> +		struct acpi_object_list input;
-> +		union acpi_object params[2];
-> +
-> +		input.count = 2;
-> +		input.pointer = params;
-> +		params[0].type = ACPI_TYPE_INTEGER;
-> +		params[0].integer.value = ACPI_ADR_SPACE_GPIO;
-> +		params[1].type = ACPI_TYPE_INTEGER;
-> +		params[1].integer.value = 1;
-> +		acpi_evaluate_object(adev->handle, "_REG", &input, NULL);
-> +	}
-
-Can you consider to unify this with one in drivers/pci/hotplug/acpiphp_glue.c,
-so we will have some helper function at the end? (perhaps as separate changes
-to make less burden on backporting this one)
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+> > hence pushed a
+> > change https://patchwork.freedesktop.org/series/76730/
+> >
+> > With these addresed.
+> >
+> > LGTM.
+> >
+> > Reviewed-by: Ramalingam C <ramalingam.c@intel.com>
+> > >
+> > >       /* revoked_ksv_cnt will be zero when above function failed */
+> > >       for (i = 0; i < revoked_ksv_cnt; i++)
+> > > --
+> > > Sean Paul, Software Engineer, Google / Chromium OS
+> > >
