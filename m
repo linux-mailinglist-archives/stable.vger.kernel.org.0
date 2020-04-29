@@ -2,113 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EC441BE6BF
-	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 20:58:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 766C41BE6DD
+	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 21:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726618AbgD2S6a convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 29 Apr 2020 14:58:30 -0400
-Received: from lithops.sigma-star.at ([195.201.40.130]:49054 "EHLO
-        lithops.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726423AbgD2S63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Apr 2020 14:58:29 -0400
-X-Greylist: delayed 438 seconds by postgrey-1.27 at vger.kernel.org; Wed, 29 Apr 2020 14:58:28 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 5A18D6071A61;
-        Wed, 29 Apr 2020 20:51:08 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id NbIDHCmeZZST; Wed, 29 Apr 2020 20:51:07 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 008C262257A2;
-        Wed, 29 Apr 2020 20:51:06 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id TPdioTLx9-de; Wed, 29 Apr 2020 20:51:06 +0200 (CEST)
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lithops.sigma-star.at (Postfix) with ESMTP id D3EA26089348;
-        Wed, 29 Apr 2020 20:51:06 +0200 (CEST)
-Date:   Wed, 29 Apr 2020 20:51:06 +0200 (CEST)
-From:   Richard Weinberger <richard@nod.at>
-To:     stable <stable@vger.kernel.org>
-Cc:     linux-mtd <linux-mtd@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        John Ogness <john.ogness@linutronix.de>
-Message-ID: <1537701093.171645.1588186266734.JavaMail.zimbra@nod.at>
-In-Reply-To: <875zdibasg.fsf@vostro.fn.ogness.net>
-References: <20200119215233.7292-1-richard@nod.at> <875zdibasg.fsf@vostro.fn.ogness.net>
-Subject: Please queue ubifs: Fix ubifs_tnc_lookup() usage in
- do_kill_orphans() for stable (was: Re: [PATCH] ubifs: Fix
- ubifs_tnc_lookup() usage in do_kill_orphans())
+        id S1727025AbgD2TCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Apr 2020 15:02:03 -0400
+Received: from mout.kundenserver.de ([212.227.126.187]:44269 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726511AbgD2TCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Apr 2020 15:02:03 -0400
+Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue011 [212.227.15.129]) with ESMTPA (Nemesis) id
+ 1MUY9w-1jcdPt3kW0-00QWZG; Wed, 29 Apr 2020 21:01:22 +0200
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Ard Biesheuvel <ardb@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Jerry Snitselaar <jsnitsel@redhat.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Ben Dooks <ben.dooks@codethink.co.uk>,
+        Dave Young <dyoung@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Lukas Wunner <lukas@wunner.de>, Lyude Paul <lyude@redhat.com>,
+        Matthew Garrett <mjg59@google.com>,
+        Octavian Purdila <octavian.purdila@intel.com>,
+        Peter Jones <pjones@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Scott Talbert <swt@techie.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] efi/tpm: fix section mismatch warning
+Date:   Wed, 29 Apr 2020 21:01:08 +0200
+Message-Id: <20200429190119.43595-1-arnd@arndb.de>
+X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [195.201.40.130]
-X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF68 (Linux)/8.8.12_GA_3809)
-Thread-Topic: Please queue ubifs: Fix ubifs_tnc_lookup() usage in do_kill_orphans() for stable (was: Re: [PATCH] ubifs: Fix ubifs_tnc_lookup() usage in do_kill_orphans())
-Thread-Index: vuDlWTB9U53gSqUpBqsVy2sOOiFwnA==
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:ZQnTjnUaD3Ot3Nx9eVP2/03GaU0JA4GRDpusvqc79KiO4fUHV7z
+ xbCc99Kr8a1zJJE/r4bO0Q47fh+gOYXqvMEruI2hqCMZW/f96D/07cYwGJnjvGbRf0QYvGa
+ AMxgwBy1kWiVvyyalES1BaAtiU6NPyGlrSvjv+GzdcJsq9wtDZIW17AmoNdVJMst0obhgPq
+ ZtBIEXgn3++a0vuwB8Rrg==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:eoASaEfANZA=:UKYNanq8Tate2hME67jf0h
+ HFfVw5eEnAwV2ivqhWR10qdqEdCv1a/qH6+I1GUsQxdb5fSJg2p6lrkbKfR5fE+VkR1jStuAE
+ vdlwseanNyzYnYPr/IK92xAXWRJsKbD8hzPQy+wW4OCnLKAu4mr7PZVANZ/2Vvyw9aAo+/kfv
+ HOGPCihZSJ5NHcXqDB4sMDZnWEx4EFDNwPRN2zlmFMkWQpEt7qNQxV7Cko6eYgRTKPFKYw8ug
+ luD8JtZccLzQ1F614k8UJnfxA/4Hm/lf2RrzFDzl6skwPh2C533wIsyYwh0kdjZb925DZIviL
+ qkk+iKL0wG19l3fDIu8L5nKkjz4FqOV6qe3lbbV3PwZcZyF6EAdLuLHI+WtqQRHQaK42K36k+
+ vfTQhNM6n1RRXh4GU4SDRXXr7rs1Q0+X2ygEeFZZ2zPdtMf1IbrvSIoI0b6eukMM7JuKCYGoR
+ 62odyLSl1Mh+mEkFX9rq7IILGbbNuIM8m0xGW5OXbdVwgccDWLRwFPS48XvKePoM6uvfFIrJe
+ VWLVZP99LysMhyAwj6vAP8nM1xuHPt0oYb2Z38d6GUZIpbo0VrQyqElgoNlHkXWgHoBvdu7Sy
+ ssYDxqMdy3rDwOas9hhs04+3fSHEDkxcdkLIQdI3TfBNoYO10BFb52q5HynGfHvlBS7HypmOp
+ Xzy8IVQOlKP42yNGNIXWOOq745r7tsoZOtd4hlQlnBd4bZf3bCZRVi8uBfE7NefGf3vG145yF
+ VH/3/ipt6Udrv4zPUIsxu7sC36zEbaKDVaR9OxAi+Kdh25JO5JtPuaitxehAnkJSWdPU9BHAg
+ hEn5TMsMst+vMlNCOwANobfLlaTMcLgSm+Prswy1rgbevxfr9U=
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ Ursprüngliche Mail -----
-> Von: "John Ogness" <john.ogness@linutronix.de>
-> An: "richard" <richard@nod.at>
-> CC: "linux-mtd" <linux-mtd@lists.infradead.org>, "linux-kernel" <linux-kernel@vger.kernel.org>
-> Gesendet: Mittwoch, 29. April 2020 16:56:31
-> Betreff: Re: [PATCH] ubifs: Fix ubifs_tnc_lookup() usage in do_kill_orphans()
+Building with gcc-10 causes a harmless warning about a section mismatch:
 
-> Hi Richard,
-> 
-> Could you CC this patch to stable? It fixes a serious problem that I am
-> seeing on real devices (i.e. Linux not being able to mount its root
-> filesystem after a power cut). Thanks.
+WARNING: modpost: vmlinux.o(.text.unlikely+0x5e191): Section mismatch in reference from the function tpm2_calc_event_log_size() to the function .init.text:early_memunmap()
+The function tpm2_calc_event_log_size() references
+the function __init early_memunmap().
+This is often because tpm2_calc_event_log_size lacks a __init
+annotation or the annotation of early_memunmap is wrong.
 
-Just checked again, better ask stable maintainers. :-)
+Add the missing annotation.
 
-Stable maintainers, can you please make sure this patch will make it
-into stable?
-The upstream commit is:
-4ab25ac8b2b5 ("ubifs: Fix ubifs_tnc_lookup() usage in do_kill_orphans()")
+Fixes: e658c82be556 ("efi/tpm: Only set 'efi_tpm_final_log_size' after successful event log parsing")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/firmware/efi/tpm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I always thought havings a Fixes-Tag is enough to make sure it will
-get picked up. Isn't this the case?
-
-Thanks,
-//richard
+diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
+index 31f9f0e369b9..55b031d2c989 100644
+--- a/drivers/firmware/efi/tpm.c
++++ b/drivers/firmware/efi/tpm.c
+@@ -16,7 +16,7 @@
+ int efi_tpm_final_log_size;
+ EXPORT_SYMBOL(efi_tpm_final_log_size);
  
-> John Ogness
-> 
-> On 2020-01-19, Richard Weinberger <richard@nod.at> wrote:
->> Orphans are allowed to point to deleted inodes.
->> So -ENOENT is not a fatal error.
->>
->> Reported-by: Кочетков Максим <fido_max@inbox.ru>
->> Reported-and-tested-by: "Christian Berger" <Christian.Berger@de.bosch.com>
->> Fixes: ee1438ce5dc4 ("ubifs: Check link count of inodes when killing orphans.")
->> Signed-off-by: Richard Weinberger <richard@nod.at>
->> ---
->>  fs/ubifs/orphan.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/fs/ubifs/orphan.c b/fs/ubifs/orphan.c
->> index 54d6db61106f..2645917360b9 100644
->> --- a/fs/ubifs/orphan.c
->> +++ b/fs/ubifs/orphan.c
->> @@ -688,14 +688,14 @@ static int do_kill_orphans(struct ubifs_info *c, struct
->> ubifs_scan_leb *sleb,
->>  
->>  			ino_key_init(c, &key1, inum);
->>  			err = ubifs_tnc_lookup(c, &key1, ino);
->> -			if (err)
->> +			if (err && err != -ENOENT)
->>  				goto out_free;
->>  
->>  			/*
->>  			 * Check whether an inode can really get deleted.
->>  			 * linkat() with O_TMPFILE allows rebirth of an inode.
->>  			 */
->> -			if (ino->nlink == 0) {
->> +			if (err == 0 && ino->nlink == 0) {
->>  				dbg_rcvry("deleting orphaned inode %lu",
-> >  					  (unsigned long)inum);
+-static int tpm2_calc_event_log_size(void *data, int count, void *size_info)
++static int __init tpm2_calc_event_log_size(void *data, int count, void *size_info)
+ {
+ 	struct tcg_pcr_event2_head *header;
+ 	int event_size, size = 0;
+-- 
+2.26.0
+
