@@ -2,110 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DF631BE664
-	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 20:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EC441BE6BF
+	for <lists+stable@lfdr.de>; Wed, 29 Apr 2020 20:58:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726776AbgD2Skm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Apr 2020 14:40:42 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:60342 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726481AbgD2Skm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Apr 2020 14:40:42 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 03TIdLu3003073
-        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 18:40:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2020-01-29; bh=jbcOaLedyblHDgvXAB77hjgrPDytmblEa+/5JWW1l1w=;
- b=dgBugU5fAxSH0zNlz2Q2zxz0NjqowY1Ev8louvl4waOVOHTD2XHARe38hSsHpiLNlzVx
- rS+ITZ5Hi8EFEWt4EOexJGhdEFZrrHEejf/6l+BLs+vzTH2qzUPPsV0q55EZV/L+tgYW
- cg38VpIKIbuq7KcxBnUsrqj7P0zoGCKLgjCx3SQ74gS5ncRhtVaslaGvVkStT3dkstOx
- J3ZXaqWcCJwWaUOoZDDMWjDIJVJnqmspmuuF21+bWztwPu1wHzg8afQ6Yir/2Tx+iNIh
- hGIlxhYSvaw9ZJMWaAyzeOtelUPDZVdvEtRPpvjXfvjWNXT36d0SD4L4ImVsUDhrLZ3W Ww== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2120.oracle.com with ESMTP id 30p2p0cwjw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 18:40:41 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 03TIbBfb118082
-        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 18:40:40 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 30my0hshfp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 18:40:40 +0000
-Received: from abhmp0007.oracle.com (abhmp0007.oracle.com [141.146.116.13])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 03TIedlX003293
-        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 18:40:39 GMT
-Received: from localhost (/10.135.188.124)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 29 Apr 2020 11:40:39 -0700
-From:   Tom Saeger <tom.saeger@oracle.com>
-To:     stable@vger.kernel.org
-Cc:     Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 5.4] bcache: initialize 'sb_page' in register_bcache()
-Date:   Wed, 29 Apr 2020 18:38:17 +0000
-Message-Id: <041443374fde130be3bc864b6ac8ffba6640c2b0.1588184799.git.tom.saeger@oracle.com>
-X-Mailer: git-send-email 2.25.1
+        id S1726618AbgD2S6a convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 29 Apr 2020 14:58:30 -0400
+Received: from lithops.sigma-star.at ([195.201.40.130]:49054 "EHLO
+        lithops.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726423AbgD2S63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Apr 2020 14:58:29 -0400
+X-Greylist: delayed 438 seconds by postgrey-1.27 at vger.kernel.org; Wed, 29 Apr 2020 14:58:28 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by lithops.sigma-star.at (Postfix) with ESMTP id 5A18D6071A61;
+        Wed, 29 Apr 2020 20:51:08 +0200 (CEST)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id NbIDHCmeZZST; Wed, 29 Apr 2020 20:51:07 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by lithops.sigma-star.at (Postfix) with ESMTP id 008C262257A2;
+        Wed, 29 Apr 2020 20:51:06 +0200 (CEST)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id TPdioTLx9-de; Wed, 29 Apr 2020 20:51:06 +0200 (CEST)
+Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
+        by lithops.sigma-star.at (Postfix) with ESMTP id D3EA26089348;
+        Wed, 29 Apr 2020 20:51:06 +0200 (CEST)
+Date:   Wed, 29 Apr 2020 20:51:06 +0200 (CEST)
+From:   Richard Weinberger <richard@nod.at>
+To:     stable <stable@vger.kernel.org>
+Cc:     linux-mtd <linux-mtd@lists.infradead.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        John Ogness <john.ogness@linutronix.de>
+Message-ID: <1537701093.171645.1588186266734.JavaMail.zimbra@nod.at>
+In-Reply-To: <875zdibasg.fsf@vostro.fn.ogness.net>
+References: <20200119215233.7292-1-richard@nod.at> <875zdibasg.fsf@vostro.fn.ogness.net>
+Subject: Please queue ubifs: Fix ubifs_tnc_lookup() usage in
+ do_kill_orphans() for stable (was: Re: [PATCH] ubifs: Fix
+ ubifs_tnc_lookup() usage in do_kill_orphans())
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9606 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 spamscore=0
- suspectscore=1 adultscore=0 mlxlogscore=999 bulkscore=0 phishscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2004290141
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9606 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 phishscore=0 clxscore=1011
- bulkscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0 malwarescore=0
- mlxscore=0 suspectscore=1 mlxlogscore=999 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2004290141
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-Originating-IP: [195.201.40.130]
+X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF68 (Linux)/8.8.12_GA_3809)
+Thread-Topic: Please queue ubifs: Fix ubifs_tnc_lookup() usage in do_kill_orphans() for stable (was: Re: [PATCH] ubifs: Fix ubifs_tnc_lookup() usage in do_kill_orphans())
+Thread-Index: vuDlWTB9U53gSqUpBqsVy2sOOiFwnA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 393b8509be33 (bcache: rework error unwinding in register_bcache)
+----- Ursprüngliche Mail -----
+> Von: "John Ogness" <john.ogness@linutronix.de>
+> An: "richard" <richard@nod.at>
+> CC: "linux-mtd" <linux-mtd@lists.infradead.org>, "linux-kernel" <linux-kernel@vger.kernel.org>
+> Gesendet: Mittwoch, 29. April 2020 16:56:31
+> Betreff: Re: [PATCH] ubifs: Fix ubifs_tnc_lookup() usage in do_kill_orphans()
 
-introduced compile warning:
-warning: 'sb_page' may be used uninitialized in this function [-Wmaybe-uninitialized]
+> Hi Richard,
+> 
+> Could you CC this patch to stable? It fixes a serious problem that I am
+> seeing on real devices (i.e. Linux not being able to mount its root
+> filesystem after a power cut). Thanks.
 
-Use 'sb_page' initialization prior to 393b8509be33.
+Just checked again, better ask stable maintainers. :-)
 
-Fixes: 393b8509be33 (bcache: rework error unwinding in register_bcache)
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
----
+Stable maintainers, can you please make sure this patch will make it
+into stable?
+The upstream commit is:
+4ab25ac8b2b5 ("ubifs: Fix ubifs_tnc_lookup() usage in do_kill_orphans()")
 
-This addresses warning only seen in 5.4.22+.  Upstream avoids
-this in a different way.
+I always thought havings a Fixes-Tag is enough to make sure it will
+get picked up. Isn't this the case?
 
-Compile test case:
-
-cp arch/arm64/configs/defconfig .config
-./scripts/config -e BCACHE
-make ARCH=arm64 olddefconfig
-make ARCH=arm64 -j $(nproc)
-
-Regards,
---Tom
-
-
- drivers/md/bcache/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 658b0f4a01f5..25cbc9e2f8e3 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -2376,7 +2376,7 @@ static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
- 	char *path = NULL;
- 	struct cache_sb *sb;
- 	struct block_device *bdev = NULL;
--	struct page *sb_page;
-+	struct page *sb_page = NULL;
- 	ssize_t ret;
+Thanks,
+//richard
  
- 	ret = -EBUSY;
--- 
-2.25.1
-
+> John Ogness
+> 
+> On 2020-01-19, Richard Weinberger <richard@nod.at> wrote:
+>> Orphans are allowed to point to deleted inodes.
+>> So -ENOENT is not a fatal error.
+>>
+>> Reported-by: Кочетков Максим <fido_max@inbox.ru>
+>> Reported-and-tested-by: "Christian Berger" <Christian.Berger@de.bosch.com>
+>> Fixes: ee1438ce5dc4 ("ubifs: Check link count of inodes when killing orphans.")
+>> Signed-off-by: Richard Weinberger <richard@nod.at>
+>> ---
+>>  fs/ubifs/orphan.c | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/fs/ubifs/orphan.c b/fs/ubifs/orphan.c
+>> index 54d6db61106f..2645917360b9 100644
+>> --- a/fs/ubifs/orphan.c
+>> +++ b/fs/ubifs/orphan.c
+>> @@ -688,14 +688,14 @@ static int do_kill_orphans(struct ubifs_info *c, struct
+>> ubifs_scan_leb *sleb,
+>>  
+>>  			ino_key_init(c, &key1, inum);
+>>  			err = ubifs_tnc_lookup(c, &key1, ino);
+>> -			if (err)
+>> +			if (err && err != -ENOENT)
+>>  				goto out_free;
+>>  
+>>  			/*
+>>  			 * Check whether an inode can really get deleted.
+>>  			 * linkat() with O_TMPFILE allows rebirth of an inode.
+>>  			 */
+>> -			if (ino->nlink == 0) {
+>> +			if (err == 0 && ino->nlink == 0) {
+>>  				dbg_rcvry("deleting orphaned inode %lu",
+> >  					  (unsigned long)inum);
