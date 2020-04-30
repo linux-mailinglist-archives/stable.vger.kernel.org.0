@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B871BFA39
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61D7D1BFCBE
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728341AbgD3NwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:52:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33116 "EHLO mail.kernel.org"
+        id S1728375AbgD3NwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:52:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728331AbgD3NwN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:52:13 -0400
+        id S1728359AbgD3NwW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:52:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1707C20873;
-        Thu, 30 Apr 2020 13:52:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB13220873;
+        Thu, 30 Apr 2020 13:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254732;
-        bh=o7KxBjb+d6apb6dejD19BxWHMPGDWq+w5wKpDjJLYwk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBbZj/z4yMuNBownoV8xfSncBW+nFZEIJud8nl+uDxf42MTJTLunsrJcvKz86txj7
-         KrG3Mpz/KfYvk+nHJF2F12Af7GiiF8v/WZyOVH4d/kTteWgGqgaHjmnsVqgddDh3PB
-         6DdkrjC5tzXdu/N1Dm/VwdCsPZhCGapU5OaTYJ/A=
+        s=default; t=1588254740;
+        bh=r2EjWEVUPezkNE5CyIxnKq1/Poy/iWkkjjfp4PKowvA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Ldzs+/sa3HaFDnbxRwBTC7b7qp7tI2rorGr1ub5AnOC8qyFuB/Ms5Ih+h/+1Ac7jE
+         KRJ0BP/HGu21UUWpTsxtdFrfoUJCaZS2MWr668wdb1T5Cg5jQ+2BE3oTSsqnAyoMWH
+         CuRMJIQgCRcKzMxzUELU3suXpG/33F7zZn8US7r0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stanislav Fomichev <sdf@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-api@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 79/79] selftests/bpf: Fix a couple of broken test_btf cases
-Date:   Thu, 30 Apr 2020 09:50:43 -0400
-Message-Id: <20200430135043.19851-79-sashal@kernel.org>
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Andy Yan <andy.yan@rock-chips.com>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 01/57] drm/bridge: analogix_dp: Split bind() into probe() and real bind()
+Date:   Thu, 30 Apr 2020 09:51:22 -0400
+Message-Id: <20200430135218.20372-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200430135043.19851-1-sashal@kernel.org>
-References: <20200430135043.19851-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,239 +46,328 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislav Fomichev <sdf@google.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit e1cebd841b0aa1ceda771706d54a0501986a3c88 ]
+[ Upstream commit 83a196773b8bc6702f49df1eddc848180e350340 ]
 
-Commit 51c39bb1d5d1 ("bpf: Introduce function-by-function verification")
-introduced function linkage flag and changed the error message from
-"vlen != 0" to "Invalid func linkage" and broke some fake BPF programs.
+Analogix_dp driver acquires all its resources in the ->bind() callback,
+what is a bit against the component driver based approach, where the
+driver initialization is split into a probe(), where all resources are
+gathered, and a bind(), where all objects are created and a compound
+driver is initialized.
 
-Adjust the test accordingly.
+Extract all the resource related operations to analogix_dp_probe() and
+analogix_dp_remove(), then call them before/after registration of the
+device components from the main Exynos DP and Rockchip DP drivers. Also
+move the plat_data initialization to the probe() to make it available for
+the analogix_dp_probe() function.
 
-AFACT, the programs don't really need any arguments and only look
-at BTF for maps, so let's drop the args altogether.
+This fixes the multiple calls to the bind() of the DRM compound driver
+when the DP PHY driver is not yet loaded/probed:
 
-Before:
-BTF raw test[103] (func (Non zero vlen)): do_test_raw:3703:FAIL expected
-err_str:vlen != 0
-magic: 0xeb9f
-version: 1
-flags: 0x0
-hdr_len: 24
-type_off: 0
-type_len: 72
-str_off: 72
-str_len: 10
-btf_total_size: 106
-[1] INT (anon) size=4 bits_offset=0 nr_bits=32 encoding=SIGNED
-[2] INT (anon) size=4 bits_offset=0 nr_bits=32 encoding=(none)
-[3] FUNC_PROTO (anon) return=0 args=(1 a, 2 b)
-[4] FUNC func type_id=3 Invalid func linkage
+[drm] Exynos DRM: using 14400000.fimd device for DMA mapping operations
+exynos-drm exynos-drm: bound 14400000.fimd (ops fimd_component_ops [exynosdrm])
+exynos-drm exynos-drm: bound 14450000.mixer (ops mixer_component_ops [exynosdrm])
+exynos-dp 145b0000.dp-controller: no DP phy configured
+exynos-drm exynos-drm: failed to bind 145b0000.dp-controller (ops exynos_dp_ops [exynosdrm]): -517
+exynos-drm exynos-drm: master bind failed: -517
+...
+[drm] Exynos DRM: using 14400000.fimd device for DMA mapping operations
+exynos-drm exynos-drm: bound 14400000.fimd (ops hdmi_enable [exynosdrm])
+exynos-drm exynos-drm: bound 14450000.mixer (ops hdmi_enable [exynosdrm])
+exynos-drm exynos-drm: bound 145b0000.dp-controller (ops hdmi_enable [exynosdrm])
+exynos-drm exynos-drm: bound 14530000.hdmi (ops hdmi_enable [exynosdrm])
+[drm] Supports vblank timestamp caching Rev 2 (21.10.2013).
+Console: switching to colour frame buffer device 170x48
+exynos-drm exynos-drm: fb0: exynosdrmfb frame buffer device
+[drm] Initialized exynos 1.1.0 20180330 for exynos-drm on minor 1
+...
 
-BTF libbpf test[1] (test_btf_haskv.o): libbpf: load bpf program failed:
-Invalid argument
-libbpf: -- BEGIN DUMP LOG ---
-libbpf:
-Validating test_long_fname_2() func#1...
-Arg#0 type PTR in test_long_fname_2() is not supported yet.
-processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0
-peak_states 0 mark_read 0
-
-libbpf: -- END LOG --
-libbpf: failed to load program 'dummy_tracepoint'
-libbpf: failed to load object 'test_btf_haskv.o'
-do_test_file:4201:FAIL bpf_object__load: -4007
-BTF libbpf test[2] (test_btf_newkv.o): libbpf: load bpf program failed:
-Invalid argument
-libbpf: -- BEGIN DUMP LOG ---
-libbpf:
-Validating test_long_fname_2() func#1...
-Arg#0 type PTR in test_long_fname_2() is not supported yet.
-processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0
-peak_states 0 mark_read 0
-
-libbpf: -- END LOG --
-libbpf: failed to load program 'dummy_tracepoint'
-libbpf: failed to load object 'test_btf_newkv.o'
-do_test_file:4201:FAIL bpf_object__load: -4007
-BTF libbpf test[3] (test_btf_nokv.o): libbpf: load bpf program failed:
-Invalid argument
-libbpf: -- BEGIN DUMP LOG ---
-libbpf:
-Validating test_long_fname_2() func#1...
-Arg#0 type PTR in test_long_fname_2() is not supported yet.
-processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0
-peak_states 0 mark_read 0
-
-libbpf: -- END LOG --
-libbpf: failed to load program 'dummy_tracepoint'
-libbpf: failed to load object 'test_btf_nokv.o'
-do_test_file:4201:FAIL bpf_object__load: -4007
-
-Fixes: 51c39bb1d5d1 ("bpf: Introduce function-by-function verification")
-Signed-off-by: Stanislav Fomichev <sdf@google.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200422003753.124921-1-sdf@google.com
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Andy Yan <andy.yan@rock-chips.com>
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200310103427.26048-1-m.szyprowski@samsung.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/progs/test_btf_haskv.c       | 18 +++++-------------
- .../selftests/bpf/progs/test_btf_newkv.c       | 18 +++++-------------
- .../selftests/bpf/progs/test_btf_nokv.c        | 18 +++++-------------
- tools/testing/selftests/bpf/test_btf.c         |  2 +-
- 4 files changed, 16 insertions(+), 40 deletions(-)
+ .../drm/bridge/analogix/analogix_dp_core.c    | 33 +++++++++++------
+ drivers/gpu/drm/exynos/exynos_dp.c            | 29 ++++++++-------
+ .../gpu/drm/rockchip/analogix_dp-rockchip.c   | 36 ++++++++++---------
+ include/drm/bridge/analogix_dp.h              |  5 +--
+ 4 files changed, 61 insertions(+), 42 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/test_btf_haskv.c b/tools/testing/selftests/bpf/progs/test_btf_haskv.c
-index 88b0566da13d2..31538c9ed1939 100644
---- a/tools/testing/selftests/bpf/progs/test_btf_haskv.c
-+++ b/tools/testing/selftests/bpf/progs/test_btf_haskv.c
-@@ -20,20 +20,12 @@ struct bpf_map_def SEC("maps") btf_map = {
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+index 22885dceaa177..1f26890a8da6e 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -1635,8 +1635,7 @@ static ssize_t analogix_dpaux_transfer(struct drm_dp_aux *aux,
+ }
  
- BPF_ANNOTATE_KV_PAIR(btf_map, int, struct ipv_counts);
+ struct analogix_dp_device *
+-analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
+-		 struct analogix_dp_plat_data *plat_data)
++analogix_dp_probe(struct device *dev, struct analogix_dp_plat_data *plat_data)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct analogix_dp_device *dp;
+@@ -1739,22 +1738,30 @@ analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
+ 					irq_flags, "analogix-dp", dp);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to request irq\n");
+-		goto err_disable_pm_runtime;
++		return ERR_PTR(ret);
+ 	}
+ 	disable_irq(dp->irq);
  
--struct dummy_tracepoint_args {
--	unsigned long long pad;
--	struct sock *sock;
--};
++	return dp;
++}
++EXPORT_SYMBOL_GPL(analogix_dp_probe);
++
++int analogix_dp_bind(struct analogix_dp_device *dp, struct drm_device *drm_dev)
++{
++	int ret;
++
+ 	dp->drm_dev = drm_dev;
+ 	dp->encoder = dp->plat_data->encoder;
+ 
+ 	dp->aux.name = "DP-AUX";
+ 	dp->aux.transfer = analogix_dpaux_transfer;
+-	dp->aux.dev = &pdev->dev;
++	dp->aux.dev = dp->dev;
+ 
+ 	ret = drm_dp_aux_register(&dp->aux);
+ 	if (ret)
+-		return ERR_PTR(ret);
++		return ret;
+ 
+-	pm_runtime_enable(dev);
++	pm_runtime_enable(dp->dev);
+ 
+ 	ret = analogix_dp_create_bridge(drm_dev, dp);
+ 	if (ret) {
+@@ -1762,13 +1769,12 @@ analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
+ 		goto err_disable_pm_runtime;
+ 	}
+ 
+-	return dp;
++	return 0;
+ 
+ err_disable_pm_runtime:
++	pm_runtime_disable(dp->dev);
+ 
+-	pm_runtime_disable(dev);
 -
- __attribute__((noinline))
--int test_long_fname_2(struct dummy_tracepoint_args *arg)
-+int test_long_fname_2(void)
- {
- 	struct ipv_counts *counts;
- 	int key = 0;
+-	return ERR_PTR(ret);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(analogix_dp_bind);
  
--	if (!arg->sock)
--		return 0;
+@@ -1785,10 +1791,15 @@ void analogix_dp_unbind(struct analogix_dp_device *dp)
+ 
+ 	drm_dp_aux_unregister(&dp->aux);
+ 	pm_runtime_disable(dp->dev);
+-	clk_disable_unprepare(dp->clock);
+ }
+ EXPORT_SYMBOL_GPL(analogix_dp_unbind);
+ 
++void analogix_dp_remove(struct analogix_dp_device *dp)
++{
++	clk_disable_unprepare(dp->clock);
++}
++EXPORT_SYMBOL_GPL(analogix_dp_remove);
++
+ #ifdef CONFIG_PM
+ int analogix_dp_suspend(struct analogix_dp_device *dp)
+ {
+diff --git a/drivers/gpu/drm/exynos/exynos_dp.c b/drivers/gpu/drm/exynos/exynos_dp.c
+index 3a0f0ba8c63a0..e0cfae744afc9 100644
+--- a/drivers/gpu/drm/exynos/exynos_dp.c
++++ b/drivers/gpu/drm/exynos/exynos_dp.c
+@@ -158,15 +158,8 @@ static int exynos_dp_bind(struct device *dev, struct device *master, void *data)
+ 	struct drm_device *drm_dev = data;
+ 	int ret;
+ 
+-	dp->dev = dev;
+ 	dp->drm_dev = drm_dev;
+ 
+-	dp->plat_data.dev_type = EXYNOS_DP;
+-	dp->plat_data.power_on_start = exynos_dp_poweron;
+-	dp->plat_data.power_off = exynos_dp_poweroff;
+-	dp->plat_data.attach = exynos_dp_bridge_attach;
+-	dp->plat_data.get_modes = exynos_dp_get_modes;
 -
- 	counts = bpf_map_lookup_elem(&btf_map, &key);
- 	if (!counts)
- 		return 0;
-@@ -44,15 +36,15 @@ int test_long_fname_2(struct dummy_tracepoint_args *arg)
+ 	if (!dp->plat_data.panel && !dp->ptn_bridge) {
+ 		ret = exynos_dp_dt_parse_panel(dp);
+ 		if (ret)
+@@ -184,13 +177,11 @@ static int exynos_dp_bind(struct device *dev, struct device *master, void *data)
+ 
+ 	dp->plat_data.encoder = encoder;
+ 
+-	dp->adp = analogix_dp_bind(dev, dp->drm_dev, &dp->plat_data);
+-	if (IS_ERR(dp->adp)) {
++	ret = analogix_dp_bind(dp->adp, dp->drm_dev);
++	if (ret)
+ 		dp->encoder.funcs->destroy(&dp->encoder);
+-		return PTR_ERR(dp->adp);
+-	}
+ 
+-	return 0;
++	return ret;
  }
  
- __attribute__((noinline))
--int test_long_fname_1(struct dummy_tracepoint_args *arg)
-+int test_long_fname_1(void)
+ static void exynos_dp_unbind(struct device *dev, struct device *master,
+@@ -221,6 +212,7 @@ static int exynos_dp_probe(struct platform_device *pdev)
+ 	if (!dp)
+ 		return -ENOMEM;
+ 
++	dp->dev = dev;
+ 	/*
+ 	 * We just use the drvdata until driver run into component
+ 	 * add function, and then we would set drvdata to null, so
+@@ -246,16 +238,29 @@ static int exynos_dp_probe(struct platform_device *pdev)
+ 
+ 	/* The remote port can be either a panel or a bridge */
+ 	dp->plat_data.panel = panel;
++	dp->plat_data.dev_type = EXYNOS_DP;
++	dp->plat_data.power_on_start = exynos_dp_poweron;
++	dp->plat_data.power_off = exynos_dp_poweroff;
++	dp->plat_data.attach = exynos_dp_bridge_attach;
++	dp->plat_data.get_modes = exynos_dp_get_modes;
+ 	dp->plat_data.skip_connector = !!bridge;
++
+ 	dp->ptn_bridge = bridge;
+ 
+ out:
++	dp->adp = analogix_dp_probe(dev, &dp->plat_data);
++	if (IS_ERR(dp->adp))
++		return PTR_ERR(dp->adp);
++
+ 	return component_add(&pdev->dev, &exynos_dp_ops);
+ }
+ 
+ static int exynos_dp_remove(struct platform_device *pdev)
  {
--	return test_long_fname_2(arg);
-+	return test_long_fname_2();
- }
++	struct exynos_dp_device *dp = platform_get_drvdata(pdev);
++
+ 	component_del(&pdev->dev, &exynos_dp_ops);
++	analogix_dp_remove(dp->adp);
  
- SEC("dummy_tracepoint")
--int _dummy_tracepoint(struct dummy_tracepoint_args *arg)
-+int _dummy_tracepoint(void *arg)
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+index f38f5e113c6b3..ce98c08aa8b44 100644
+--- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
++++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+@@ -325,15 +325,9 @@ static int rockchip_dp_bind(struct device *dev, struct device *master,
+ 			    void *data)
  {
--	return test_long_fname_1(arg);
-+	return test_long_fname_1();
- }
+ 	struct rockchip_dp_device *dp = dev_get_drvdata(dev);
+-	const struct rockchip_dp_chip_data *dp_data;
+ 	struct drm_device *drm_dev = data;
+ 	int ret;
  
- char _license[] SEC("license") = "GPL";
-diff --git a/tools/testing/selftests/bpf/progs/test_btf_newkv.c b/tools/testing/selftests/bpf/progs/test_btf_newkv.c
-index a924e53c8e9d8..6c5560162746b 100644
---- a/tools/testing/selftests/bpf/progs/test_btf_newkv.c
-+++ b/tools/testing/selftests/bpf/progs/test_btf_newkv.c
-@@ -28,20 +28,12 @@ struct {
- 	__type(value, struct ipv_counts);
- } btf_map SEC(".maps");
- 
--struct dummy_tracepoint_args {
--	unsigned long long pad;
--	struct sock *sock;
--};
+-	dp_data = of_device_get_match_data(dev);
+-	if (!dp_data)
+-		return -ENODEV;
 -
- __attribute__((noinline))
--int test_long_fname_2(struct dummy_tracepoint_args *arg)
-+int test_long_fname_2(void)
- {
- 	struct ipv_counts *counts;
- 	int key = 0;
+-	dp->data = dp_data;
+ 	dp->drm_dev = drm_dev;
  
--	if (!arg->sock)
--		return 0;
+ 	ret = rockchip_dp_drm_create_encoder(dp);
+@@ -344,16 +338,9 @@ static int rockchip_dp_bind(struct device *dev, struct device *master,
+ 
+ 	dp->plat_data.encoder = &dp->encoder;
+ 
+-	dp->plat_data.dev_type = dp->data->chip_type;
+-	dp->plat_data.power_on_start = rockchip_dp_poweron_start;
+-	dp->plat_data.power_off = rockchip_dp_powerdown;
+-	dp->plat_data.get_modes = rockchip_dp_get_modes;
 -
- 	counts = bpf_map_lookup_elem(&btf_map, &key);
- 	if (!counts)
- 		return 0;
-@@ -57,15 +49,15 @@ int test_long_fname_2(struct dummy_tracepoint_args *arg)
- }
+-	dp->adp = analogix_dp_bind(dev, dp->drm_dev, &dp->plat_data);
+-	if (IS_ERR(dp->adp)) {
+-		ret = PTR_ERR(dp->adp);
++	ret = analogix_dp_bind(dp->adp, drm_dev);
++	if (ret)
+ 		goto err_cleanup_encoder;
+-	}
  
- __attribute__((noinline))
--int test_long_fname_1(struct dummy_tracepoint_args *arg)
-+int test_long_fname_1(void)
- {
--	return test_long_fname_2(arg);
-+	return test_long_fname_2();
- }
+ 	return 0;
+ err_cleanup_encoder:
+@@ -368,8 +355,6 @@ static void rockchip_dp_unbind(struct device *dev, struct device *master,
  
- SEC("dummy_tracepoint")
--int _dummy_tracepoint(struct dummy_tracepoint_args *arg)
-+int _dummy_tracepoint(void *arg)
- {
--	return test_long_fname_1(arg);
-+	return test_long_fname_1();
- }
- 
- char _license[] SEC("license") = "GPL";
-diff --git a/tools/testing/selftests/bpf/progs/test_btf_nokv.c b/tools/testing/selftests/bpf/progs/test_btf_nokv.c
-index 983aedd1c0725..506da7fd2da23 100644
---- a/tools/testing/selftests/bpf/progs/test_btf_nokv.c
-+++ b/tools/testing/selftests/bpf/progs/test_btf_nokv.c
-@@ -17,20 +17,12 @@ struct bpf_map_def SEC("maps") btf_map = {
- 	.max_entries = 4,
- };
- 
--struct dummy_tracepoint_args {
--	unsigned long long pad;
--	struct sock *sock;
--};
+ 	analogix_dp_unbind(dp->adp);
+ 	dp->encoder.funcs->destroy(&dp->encoder);
 -
- __attribute__((noinline))
--int test_long_fname_2(struct dummy_tracepoint_args *arg)
-+int test_long_fname_2(void)
- {
- 	struct ipv_counts *counts;
- 	int key = 0;
- 
--	if (!arg->sock)
--		return 0;
--
- 	counts = bpf_map_lookup_elem(&btf_map, &key);
- 	if (!counts)
- 		return 0;
-@@ -41,15 +33,15 @@ int test_long_fname_2(struct dummy_tracepoint_args *arg)
+-	dp->adp = ERR_PTR(-ENODEV);
  }
  
- __attribute__((noinline))
--int test_long_fname_1(struct dummy_tracepoint_args *arg)
-+int test_long_fname_1(void)
+ static const struct component_ops rockchip_dp_component_ops = {
+@@ -380,10 +365,15 @@ static const struct component_ops rockchip_dp_component_ops = {
+ static int rockchip_dp_probe(struct platform_device *pdev)
  {
--	return test_long_fname_2(arg);
-+	return test_long_fname_2();
+ 	struct device *dev = &pdev->dev;
++	const struct rockchip_dp_chip_data *dp_data;
+ 	struct drm_panel *panel = NULL;
+ 	struct rockchip_dp_device *dp;
+ 	int ret;
+ 
++	dp_data = of_device_get_match_data(dev);
++	if (!dp_data)
++		return -ENODEV;
++
+ 	ret = drm_of_find_panel_or_bridge(dev->of_node, 1, 0, &panel, NULL);
+ 	if (ret < 0)
+ 		return ret;
+@@ -394,7 +384,12 @@ static int rockchip_dp_probe(struct platform_device *pdev)
+ 
+ 	dp->dev = dev;
+ 	dp->adp = ERR_PTR(-ENODEV);
++	dp->data = dp_data;
+ 	dp->plat_data.panel = panel;
++	dp->plat_data.dev_type = dp->data->chip_type;
++	dp->plat_data.power_on_start = rockchip_dp_poweron_start;
++	dp->plat_data.power_off = rockchip_dp_powerdown;
++	dp->plat_data.get_modes = rockchip_dp_get_modes;
+ 
+ 	ret = rockchip_dp_of_probe(dp);
+ 	if (ret < 0)
+@@ -402,12 +397,19 @@ static int rockchip_dp_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, dp);
+ 
++	dp->adp = analogix_dp_probe(dev, &dp->plat_data);
++	if (IS_ERR(dp->adp))
++		return PTR_ERR(dp->adp);
++
+ 	return component_add(dev, &rockchip_dp_component_ops);
  }
  
- SEC("dummy_tracepoint")
--int _dummy_tracepoint(struct dummy_tracepoint_args *arg)
-+int _dummy_tracepoint(void *arg)
+ static int rockchip_dp_remove(struct platform_device *pdev)
  {
--	return test_long_fname_1(arg);
-+	return test_long_fname_1();
++	struct rockchip_dp_device *dp = platform_get_drvdata(pdev);
++
+ 	component_del(&pdev->dev, &rockchip_dp_component_ops);
++	analogix_dp_remove(dp->adp);
+ 
+ 	return 0;
  }
+diff --git a/include/drm/bridge/analogix_dp.h b/include/drm/bridge/analogix_dp.h
+index 7aa2f93da49ca..b0dcc07334a1e 100644
+--- a/include/drm/bridge/analogix_dp.h
++++ b/include/drm/bridge/analogix_dp.h
+@@ -42,9 +42,10 @@ int analogix_dp_resume(struct analogix_dp_device *dp);
+ int analogix_dp_suspend(struct analogix_dp_device *dp);
  
- char _license[] SEC("license") = "GPL";
-diff --git a/tools/testing/selftests/bpf/test_btf.c b/tools/testing/selftests/bpf/test_btf.c
-index 8da77cda5f4a5..305fae8f80a98 100644
---- a/tools/testing/selftests/bpf/test_btf.c
-+++ b/tools/testing/selftests/bpf/test_btf.c
-@@ -2854,7 +2854,7 @@ static struct btf_raw_test raw_tests[] = {
- 	.value_type_id = 1,
- 	.max_entries = 4,
- 	.btf_load_err = true,
--	.err_str = "vlen != 0",
-+	.err_str = "Invalid func linkage",
- },
+ struct analogix_dp_device *
+-analogix_dp_bind(struct device *dev, struct drm_device *drm_dev,
+-		 struct analogix_dp_plat_data *plat_data);
++analogix_dp_probe(struct device *dev, struct analogix_dp_plat_data *plat_data);
++int analogix_dp_bind(struct analogix_dp_device *dp, struct drm_device *drm_dev);
+ void analogix_dp_unbind(struct analogix_dp_device *dp);
++void analogix_dp_remove(struct analogix_dp_device *dp);
  
- {
+ int analogix_dp_start_crc(struct drm_connector *connector);
+ int analogix_dp_stop_crc(struct drm_connector *connector);
 -- 
 2.20.1
 
