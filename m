@@ -2,100 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A45F1BF068
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 08:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A571BF06A
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 08:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726396AbgD3Gl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 02:41:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47280 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726180AbgD3Glz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 02:41:55 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8B5220784;
-        Thu, 30 Apr 2020 06:41:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588228915;
-        bh=X8gimk3yFAeK754Nb7O29n9XhkvBxvxg4SjVPsgNc2s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=roKlYC4uPUs+R+tqgf43a/hneMSfmZSv4Lfp7+UBTdYwCJzx70fegoc2JrwU5IfVD
-         Wz3M4FXcyD/MMWJt14Oga8bAFNgncpHXEnRu0PT/2rdzmA2gMZuxDDjSaoYAkfeRwj
-         v4ZvQCeb1CMGGXu02GN/9dRaPbGZAWlo8FvFgA9s=
-Date:   Thu, 30 Apr 2020 08:41:53 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Andrei Vagin <avagin@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "X.f. Ren" <xiaofeng.ren@nxp.com>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Kuldeep Singh <kuldeep.singh@nxp.com>
-Subject: Re: [PATCH 5.6 000/167] 5.6.8-rc1 review
-Message-ID: <20200430064153.GD2377651@kroah.com>
-References: <20200428182225.451225420@linuxfoundation.org>
- <CA+G9fYvPhDsaHKJSGfxWLUPmrf_mRx7S3_RdXWmRzbg25SRRoQ@mail.gmail.com>
+        id S1726391AbgD3GmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 02:42:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44050 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726180AbgD3GmF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 02:42:05 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB039C035494
+        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 23:42:05 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id hi11so312545pjb.3
+        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 23:42:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=T3jiM6S2EZPgxwdUoJDJ9EbJ7BvjKwMsD7b+O4sIZW0=;
+        b=Er2yA3cRy5QzVlrzg4k5LNndKseD3jVa5hrv55w/sU+INi3RIiHgVd4uca1RNI9Y5J
+         pJhM+IPKBsUHl9L4f6S2sspxoea65f/KepHmp90amKgTk1rVxYykaVgBEkeDQKqJVmtm
+         kgd4apcx/jQFyz59KFKbUT7h5YhldUtrBybqMG81XGDFRjlA5nxy+KDE6RFYSv7ViNAp
+         Q8WefU3j7WH7xOQVT1z95X8q26x5oDmwobY3xcE/A9P4S6O40zxCp/5D4QE4F6rqBKdh
+         1qnepVqIOadQqu+bmeQnJPYi2kdN92nxZDhTqJDvwD6NJABeYJ5Edp/ZwJsPBjxtL/se
+         mnmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=T3jiM6S2EZPgxwdUoJDJ9EbJ7BvjKwMsD7b+O4sIZW0=;
+        b=oARaGLTXqBYj5ODvIuB0p+C4r994vcIQetNfkBILQlSHf1c82zSdTCaN3lZTnAZb9t
+         IwIOnCiIZ3kEYpYQ0Se+5kWMVus/WfINljM4yCsj8Jj206Pf9D943L168pMogWSPLety
+         1MrTM90aT+++qiHm2s1uHlCsehijM73jXYZVyWvY99OkBPH7LWXzi3zxlKr4FtscxAfQ
+         uY0LsRIRxIWjQnwYidm9+4QLM5wGm54uD7tYxm4zVMZeW/YvzACLokeiZHEqAuzLhJeR
+         Jr4FIkm4gqauDlIQEkQsG3qzPSwHCmSY5W2lTP4xOeJWTXCicM68yNeAZWzhUdMNp0VQ
+         83hQ==
+X-Gm-Message-State: AGi0PubDknmXyBmDkHQUc+wNGrRIkzhOs6haFvGPlakPVsUna7NbyMuw
+        7esmA93RLMZCOc1Zoow9qzpmTqzsY1M=
+X-Google-Smtp-Source: APiQypIwEkmY6ffzBzmH8XmrboG2uC80X3gSKSaf2Hd2leIkLVPaY7ceqW18Oc3MGWkCZuBAqNJ3gg==
+X-Received: by 2002:a17:90a:930c:: with SMTP id p12mr1245738pjo.64.1588228924760;
+        Wed, 29 Apr 2020 23:42:04 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x10sm2367001pgq.79.2020.04.29.23.42.03
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Apr 2020 23:42:04 -0700 (PDT)
+Message-ID: <5eaa733c.1c69fb81.8b800.88d7@mx.google.com>
+Date:   Wed, 29 Apr 2020 23:42:04 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYvPhDsaHKJSGfxWLUPmrf_mRx7S3_RdXWmRzbg25SRRoQ@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.36
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.4.y boot: 167 boots: 2 failed,
+ 151 passed with 5 offline, 6 untried/unknown, 3 conflicts (v5.4.36)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 29, 2020 at 02:38:29PM +0530, Naresh Kamboju wrote:
-> On Tue, 28 Apr 2020 at 23:57, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.6.8 release.
-> > There are 167 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 30 Apr 2020 18:20:42 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.8-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+stable-rc/linux-5.4.y boot: 167 boots: 2 failed, 151 passed with 5 offline,=
+ 6 untried/unknown, 3 conflicts (v5.4.36)
 
-Great, thanks fro testing these and letting me know.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.36/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.36/
 
-> NOTE:
-> This kernel panic seems to be platform specific.
-> However, I am sharing a few kernel panic logs here.
-> While running LTP cve[1] and  libhugetlbfs[2] test suite on nxp ls2088
-> device the kernel panic noticed with different kernel dump
-> and unfortunately it is not easily reproducible.
-> At this point it is unclear whether this problem
-> started happening from this stable rc review or not.
-> Because a different type of kernel panic noticed on Linus 's  mainline tree
-> (5.7.0-rc2) version kernel while running LTP containers tests.
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.36
+Git Commit: aa73bcc376865c23e61dcebd467697b527901be8
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 100 unique boards, 26 SoC families, 22 builds out of 200
 
-If you end up narrowing this down to an offending commit, that would be
-great.
+Boot Regressions Detected:
 
-thanks,
+arm:
 
-greg k-h
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 81 days (last pass: v5.4.=
+17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 22 days (last pass: v5.4.30-37-g4=
+0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
+
+    sunxi_defconfig:
+        gcc-8:
+          sun8i-h2-plus-orangepi-r1:
+              lab-baylibre: new failure (last pass: v5.4.35-169-g388ff47a1f=
+ba)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.4.35-169-g388ff47a1=
+fba)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxl-s805x-libretech-ac:
+              lab-baylibre: new failure (last pass: v5.4.35-169-g388ff47a1f=
+ba)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s805x-libretech-ac: 1 failed lab
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-baylibre: PASS (gcc-8)
+            lab-collabora: FAIL (gcc-8)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: PASS (gcc-8)
+            lab-collabora: FAIL (gcc-8)
+
+arm:
+    omap2plus_defconfig:
+        omap4-panda:
+            lab-baylibre: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
