@@ -2,77 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 459BF1BFAF5
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68DD91BFD07
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:10:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729208AbgD3N4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:56:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39192 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729202AbgD3N4N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:56:13 -0400
-Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7821E2072A;
-        Thu, 30 Apr 2020 13:56:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254972;
-        bh=CtV13aq5EHUV1ZS63QEGO/ZcyB2FMYXMcfBQyRvAbo8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zgED640dEidKBx4f+5IYcttqkLLgMNsPupj8XSvfZrstPPLUzJXejf6/XpjMx1Z0O
-         csJYRNoXMxf+3Vgf4ZOVgj1ukvOFOyk6NwEKmYgBbExJWm2MCAwOJKR0Ms+nhM9I2h
-         YMM3VPC8n/9CDRCU7aUQSlJVoq1Vv8HuRH1iLURk=
-Date:   Thu, 30 Apr 2020 14:56:10 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        alsa-devel@alsa-project.org
-Subject: Re: [PATCH AUTOSEL 5.6 45/79] ASoC: meson: axg-card: fix
- codec-to-codec link setup
-Message-ID: <20200430135610.GD4633@sirena.org.uk>
-References: <20200430135043.19851-1-sashal@kernel.org>
- <20200430135043.19851-45-sashal@kernel.org>
+        id S1728455AbgD3OJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 10:09:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57698 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728166AbgD3OJ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 10:09:56 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC64EC035494
+        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 07:09:55 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id j3so6623025ljg.8
+        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 07:09:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=gqs6/WoFCiYvtJs2NOyJ4iHVgMuqbT1GqHeEFPhOPPQ=;
+        b=O8t7ysvn4JbuCgfHB0iclVfyXqKjhyJMADH7fryiwgDIaikCUb2xUHFTGkfrv/kOGT
+         ChdTR92r6FB9qFSdR0QPOufTNyG3cZsWdSpf9JRI7IcOooSDszEv4yLEcFZtwKJToURL
+         x34EdQwoyAhaLyKmaBh1g7sFR+CWi6lGqj6Xo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=gqs6/WoFCiYvtJs2NOyJ4iHVgMuqbT1GqHeEFPhOPPQ=;
+        b=fKThl1PIW+cmspM4dIzF0q8Lo/p5VJPKb8OhE2vsIqiNIaCgBh6WR4phckJfG9VjRP
+         bDsyJinpormq2S4ye0xITHI2KgPLkjvuvvwvf4EFs5BAFGOoD7SMPR8+072hrhOi5tPo
+         IUsg53ml51wStvQH77tNefZ4TaFSgilhCa37UrRhQOLS7jDAbCOzyiIKvjq7HtVyFMfr
+         qDpCYU77v/nrLDyuDrCmpeLU24ZhgM3NDCgmSMHGLDKDdU/pKrqFyR+Jl/3WYzGetj/C
+         SMWUVy8Tf6ZVKEKj9/Y8O+1JuoZUF8U35HwN2t7DyPKkahh3TRRcYp2GTab/Si5smXQt
+         +R1w==
+X-Gm-Message-State: AGi0PuYr8R4O3Pz3ixH51qd/AVfL2zZ6iC9Q3DbmFzzQRdDqf6BDAlQN
+        l3PCHbu8tytcEaYlNha/OSf7ZjpAdb4=
+X-Google-Smtp-Source: APiQypI/+e9YDdbrA4kS3yXkkx2HvfS756ocOiLvI6Wy9D8PlyD3/YjUqeCaE7wV0aogTKaD0BQXlg==
+X-Received: by 2002:a2e:5855:: with SMTP id x21mr2299832ljd.75.1588255794061;
+        Thu, 30 Apr 2020 07:09:54 -0700 (PDT)
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com. [209.85.208.172])
+        by smtp.gmail.com with ESMTPSA id m132sm1343556lfa.94.2020.04.30.07.09.53
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Apr 2020 07:09:53 -0700 (PDT)
+Received: by mail-lj1-f172.google.com with SMTP id j3so6622955ljg.8
+        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 07:09:53 -0700 (PDT)
+X-Received: by 2002:a2e:9a54:: with SMTP id k20mr2483575ljj.265.1588255391241;
+ Thu, 30 Apr 2020 07:03:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="mJm6k4Vb/yFcL9ZU"
-Content-Disposition: inline
-In-Reply-To: <20200430135043.19851-45-sashal@kernel.org>
-X-Cookie: Sign here without admitting guilt.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <158823509800.2094061.9683997333958344535.stgit@dwillia2-desk3.amr.corp.intel.com>
+In-Reply-To: <158823509800.2094061.9683997333958344535.stgit@dwillia2-desk3.amr.corp.intel.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 30 Apr 2020 07:02:55 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wh6d59KAG_6t+NrCLBz-i0OUSJrqurric=m0ZG850Ddkw@mail.gmail.com>
+Message-ID: <CAHk-=wh6d59KAG_6t+NrCLBz-i0OUSJrqurric=m0ZG850Ddkw@mail.gmail.com>
+Subject: Re: [PATCH v2 0/2] Replace and improve "mcsafe" with copy_safe()
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        stable <stable@vger.kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Erwin Tsaur <erwin.tsaur@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Apr 30, 2020 at 1:41 AM Dan Williams <dan.j.williams@intel.com> wrote:
+>
+> With the above realizations the name "mcsafe" is no longer accurate and
+> copy_safe() is proposed as its replacement. x86 grows a copy_safe_fast()
+> implementation as a default implementation that is independent of
+> detecting the presence of x86-MCA.
 
---mJm6k4Vb/yFcL9ZU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+How is this then different from "probe_kernel_read()" and
+"probe_kernel_write()"? Other than the obvious "it does it for both
+reads and writes"?
 
-On Thu, Apr 30, 2020 at 09:50:09AM -0400, Sasha Levin wrote:
+IOW, wouldn't it be sensible to try to match the naming and try to
+find some unified model for all these things?
 
-> Since the addition of commit 9b5db059366a ("ASoC: soc-pcm: dpcm: Only allow
-> playback/capture if supported"), meson-axg cards which have codec-to-codec
-> links fail to init and Oops:
+"probe_kernel_copy()"?
 
-This clearly describes the issue as only being present after the above
-commit which is not in v5.6.
-
---mJm6k4Vb/yFcL9ZU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl6q2PkACgkQJNaLcl1U
-h9DApAf/a8MgVHko2gpdxkUsvbUQwdEzB7YRiWynwvKJ/ud0k+E08H894+NR3LF5
-FBgvDURotlT45pncz5G3Rynkgvbr9IluKuJLSfVXhCzrGXHiFXxxDQZncs18Lr+f
-/nmdtOzXoRLBHZiYY60a/Wzsw+b3VhM01JmFnvodnIQoEojGAkr09lEIQQhvpr3I
-jJjRWp3KzVzU9z0dYXW2m4fqPeDAmvKM6G5USTnXdgx8QlRfWKs5I8EgSLFwG+gR
-1pqi95AFL8hQZevt81Jl5qHQuI/Xyn2Wz0lWlGfZG3BaSDJYe6peJSiSfxdpmpV7
-Nv7JtglVXZvI6Y33OxL56LJJaPVAng==
-=G+K6
------END PGP SIGNATURE-----
-
---mJm6k4Vb/yFcL9ZU--
+              Linus
