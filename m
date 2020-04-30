@@ -2,235 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07BEB1C09CE
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 23:55:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E5DC1C09E8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 00:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727951AbgD3Vzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 17:55:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51850 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727947AbgD3Vzf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 17:55:35 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07C0020836;
-        Thu, 30 Apr 2020 21:55:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588283735;
-        bh=BtFjtaEy/vUcskQ4fqnZyMAAKEEjYOjetjsic/Ka5GQ=;
-        h=Date:From:To:Subject:From;
-        b=jHhjl96dbCk0tilo2Ir5SIMyoLYiU8L825tld51ttLFUyvefN+Uy9aY1qN1aHnrJ0
-         lP5ECaqrXjZFyRZm/1zhg4B4mkqGFIpKDhv1wwM/2FIpFbNOlvpsVeel3PkbAZx1nc
-         1KRPSpwcnxA8UTkWi/xzDJfqgjIotDLcgbzdJi/w=
-Date:   Thu, 30 Apr 2020 14:55:34 -0700
-From:   akpm@linux-foundation.org
-To:     jbaron@akamai.com, khazhy@google.com, mm-commits@vger.kernel.org,
-        r@hev.cc, rpenyaev@suse.de, stable@vger.kernel.org,
-        viro@zeniv.linux.org.uk
-Subject:  + epoll-atomically-remove-wait-entry-on-wake-up.patch
- added to -mm tree
-Message-ID: <20200430215534.IpzmGl3G_%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1727768AbgD3WGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 18:06:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48210 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726447AbgD3WGi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 18:06:38 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C9BDC035494;
+        Thu, 30 Apr 2020 15:06:36 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id q8so6016072eja.2;
+        Thu, 30 Apr 2020 15:06:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=OqdsL6oVEYDsaU2ajghqSTycB/dhWD7JVGPrizA/d1E=;
+        b=bk6sNZJ87amcVdfIb232iw1yidtULT6ThRortjgOydN9S//dH/QOGsc0rHLvYSzQD7
+         J+KGwzZyTa6q4jZNBsXkewjvCDVpxxQvpmHIYL0tm7I65sBPrqgrNXf8VQ8sUJrJsLhO
+         MyRbJklX6Y7xzb26M5+D1SGps/Y8DVEbqi+mbSDTjcL1zlV0wXovsOhHB9WWFGtYBeHh
+         YyG6HD4myO1FCt9bA+cF1+D835PhXO0K1Uka11HdNR7/K2mQrP4rcCEUWxcgEcLks4En
+         NTY4Gszr0e3RLDXPFJiTdMqibOKVl6Mm9Vbbx6DbjytMTBPZ3S2MDsXcUnqgYSSvKAhj
+         7HJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=OqdsL6oVEYDsaU2ajghqSTycB/dhWD7JVGPrizA/d1E=;
+        b=hVcrwZEEoEB2UFNVdm6dmi+7CdLGle2Ix7C0fI1oS4JWO9V1zgfNWBYuVv3LCnWqo3
+         Bm+CSOPQ1skTLbiVzwoloTPEKv3Lk9lwts1QtLq16bFVQ5ZmM/FBLJc9fIBuiUY4nyTo
+         yxvDIhnZ2pT7lZeWd4d11MadKsRqrjdA/pxQH8kg5IHaKsXmNcAPwEap5TZQqmxRi0Vl
+         /UqGbD99DjJ9z/oDAb7xcvB/SbNe3zJuftN+Z3QP0yAXJOPy7dRpZZkDOHfbbbGy40iP
+         zLNHWS8bollmWos4Q3D+w9F2ur7RYTF6PegVR4MjnLE6Q1/4Vm3qgIUinEsudJzzz36R
+         Qf4g==
+X-Gm-Message-State: AGi0PuaxAOSGpUi/nUbd6Tm031o0OeD2CCjgj9VRmPQGeNmUEWaT5iKW
+        /IcgdXNc/cJinRZs3U7HK0M=
+X-Google-Smtp-Source: APiQypItPxjgwbSyRlXSixiFqHQbhHHGoPoMPlzjtd7ZlRMtNHvSfTkDOsdKKHiWxy7IK+enwCBH9w==
+X-Received: by 2002:a17:906:13d1:: with SMTP id g17mr596971ejc.162.1588284394952;
+        Thu, 30 Apr 2020 15:06:34 -0700 (PDT)
+Received: from Ansuel-XPS.localdomain ([79.37.253.240])
+        by smtp.googlemail.com with ESMTPSA id t17sm54185edq.88.2020.04.30.15.06.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Apr 2020 15:06:34 -0700 (PDT)
+From:   Ansuel Smith <ansuelsmth@gmail.com>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Ansuel Smith <ansuelsmth@gmail.com>,
+        Sham Muthayyan <smuthayy@codeaurora.org>,
+        stable@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <amurray@thegoodpenguin.co.uk>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v3 01/11] PCI: qcom: add missing ipq806x clocks in PCIe driver
+Date:   Fri,  1 May 2020 00:06:08 +0200
+Message-Id: <20200430220619.3169-2-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200430220619.3169-1-ansuelsmth@gmail.com>
+References: <20200430220619.3169-1-ansuelsmth@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Aux and Ref clk are missing in PCIe qcom driver.
+Add support in the driver to fix PCIe initialization in ipq806x.
 
-The patch titled
-     Subject: epoll: atomically remove wait entry on wake up
-has been added to the -mm tree.  Its filename is
-     epoll-atomically-remove-wait-entry-on-wake-up.patch
-
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/epoll-atomically-remove-wait-entry-on-wake-up.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/epoll-atomically-remove-wait-entry-on-wake-up.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Roman Penyaev <rpenyaev@suse.de>
-Subject: epoll: atomically remove wait entry on wake up
-
-This patch does two things:
-
-1. fixes lost wakeup introduced by:
-  339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
-
-2. improves performance for events delivery.
-
-The description of the problem is the following: if N (>1) threads are
-waiting on ep->wq for new events and M (>1) events come, it is quite
-likely that >1 wakeups hit the same wait queue entry, because there is
-quite a big window between __add_wait_queue_exclusive() and the following
-__remove_wait_queue() calls in ep_poll() function.  This can lead to lost
-wakeups, because thread, which was woken up, can handle not all the events
-in ->rdllist.  (in better words the problem is described here:
-https://lkml.org/lkml/2019/10/7/905)
-
-The idea of the current patch is to use init_wait() instead of
-init_waitqueue_entry().  Internally init_wait() sets
-autoremove_wake_function as a callback, which removes the wait entry
-atomically (under the wq locks) from the list, thus the next coming wakeup
-hits the next wait entry in the wait queue, thus preventing lost wakeups.
-
-Problem is very well reproduced by the epoll60 test case [1].
-
-Wait entry removal on wakeup has also performance benefits, because there
-is no need to take a ep->lock and remove wait entry from the queue after
-the successful wakeup.  Here is the timing output of the epoll60 test
-case:
-
-  With explicit wakeup from ep_scan_ready_list() (the state of the
-  code prior 339ddb53d373):
-
-    real    0m6.970s
-    user    0m49.786s
-    sys     0m0.113s
-
- After this patch:
-
-   real    0m5.220s
-   user    0m36.879s
-   sys     0m0.019s
-
-The other testcase is the stress-epoll [2], where one thread consumes
-all the events and other threads produce many events:
-
-  With explicit wakeup from ep_scan_ready_list() (the state of the
-  code prior 339ddb53d373):
-
-    threads  events/ms  run-time ms
-          8       5427         1474
-         16       6163         2596
-         32       6824         4689
-         64       7060         9064
-        128       6991        18309
-
- After this patch:
-
-    threads  events/ms  run-time ms
-          8       5598         1429
-         16       7073         2262
-         32       7502         4265
-         64       7640         8376
-        128       7634        16767
-
- (number of "events/ms" represents event bandwidth, thus higher is
-  better; number of "run-time ms" represents overall time spent
-  doing the benchmark, thus lower is better)
-
-[1] tools/testing/selftests/filesystems/epoll/epoll_wakeup_test.c
-[2] https://github.com/rouming/test-tools/blob/master/stress-epoll.c
-
-Link: http://lkml.kernel.org/r/20200430130326.1368509-2-rpenyaev@suse.de
-Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
-Cc: Khazhismel Kumykov <khazhy@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Heiher <r@hev.cc>
-Cc: Jason Baron <jbaron@akamai.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 82a823833f4e PCI: qcom: Add Qualcomm PCIe controller driver
+Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Cc: stable@vger.kernel.org # v4.5+
 ---
+ drivers/pci/controller/dwc/pcie-qcom.c | 44 ++++++++++++++++++++++----
+ 1 file changed, 38 insertions(+), 6 deletions(-)
 
- fs/eventpoll.c |   43 ++++++++++++++++++++++++-------------------
- 1 file changed, 24 insertions(+), 19 deletions(-)
-
---- a/fs/eventpoll.c~epoll-atomically-remove-wait-entry-on-wake-up
-+++ a/fs/eventpoll.c
-@@ -1822,7 +1822,6 @@ static int ep_poll(struct eventpoll *ep,
- {
- 	int res = 0, eavail, timed_out = 0;
- 	u64 slack = 0;
--	bool waiter = false;
- 	wait_queue_entry_t wait;
- 	ktime_t expires, *to = NULL;
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index 5ea527a6bd9f..2a39dfdccfc8 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -88,6 +88,8 @@ struct qcom_pcie_resources_2_1_0 {
+ 	struct clk *iface_clk;
+ 	struct clk *core_clk;
+ 	struct clk *phy_clk;
++	struct clk *aux_clk;
++	struct clk *ref_clk;
+ 	struct reset_control *pci_reset;
+ 	struct reset_control *axi_reset;
+ 	struct reset_control *ahb_reset;
+@@ -246,6 +248,14 @@ static int qcom_pcie_get_resources_2_1_0(struct qcom_pcie *pcie)
+ 	if (IS_ERR(res->phy_clk))
+ 		return PTR_ERR(res->phy_clk);
  
-@@ -1867,21 +1866,23 @@ fetch_events:
- 	 */
- 	ep_reset_busy_poll_napi_id(ep);
- 
--	/*
--	 * We don't have any available event to return to the caller.  We need
--	 * to sleep here, and we will be woken by ep_poll_callback() when events
--	 * become available.
--	 */
--	if (!waiter) {
--		waiter = true;
--		init_waitqueue_entry(&wait, current);
--
-+	do {
-+		/*
-+		 * Internally init_wait() uses autoremove_wake_function(),
-+		 * thus wait entry is removed from the wait queue on each
-+		 * wakeup. Why it is important? In case of several waiters
-+		 * each new wakeup will hit the next waiter, giving it the
-+		 * chance to harvest new event. Otherwise wakeup can be
-+		 * lost. This is also good performance-wise, because on
-+		 * normal wakeup path no need to call __remove_wait_queue()
-+		 * explicitly, thus ep->lock is not taken, which halts the
-+		 * event delivery.
-+		 */
-+		init_wait(&wait);
- 		write_lock_irq(&ep->lock);
- 		__add_wait_queue_exclusive(&ep->wq, &wait);
- 		write_unlock_irq(&ep->lock);
--	}
- 
--	for (;;) {
- 		/*
- 		 * We don't want to sleep if the ep_poll_callback() sends us
- 		 * a wakeup in between. That's why we set the task state
-@@ -1911,10 +1912,20 @@ fetch_events:
- 			timed_out = 1;
- 			break;
- 		}
--	}
++	res->aux_clk = devm_clk_get_optional(dev, "aux");
++	if (IS_ERR(res->aux_clk))
++		return PTR_ERR(res->aux_clk);
 +
-+		/* We were woken up, thus go and try to harvest some events */
-+		eavail = 1;
++	res->ref_clk = devm_clk_get_optional(dev, "ref");
++	if (IS_ERR(res->ref_clk))
++		return PTR_ERR(res->ref_clk);
 +
-+	} while (0);
- 
- 	__set_current_state(TASK_RUNNING);
- 
-+	if (!list_empty_careful(&wait.entry)) {
-+		write_lock_irq(&ep->lock);
-+		__remove_wait_queue(&ep->wq, &wait);
-+		write_unlock_irq(&ep->lock);
-+	}
-+
- send_events:
- 	/*
- 	 * Try to transfer events to user space. In case we get 0 events and
-@@ -1925,12 +1936,6 @@ send_events:
- 	    !(res = ep_send_events(ep, events, maxevents)) && !timed_out)
- 		goto fetch_events;
- 
--	if (waiter) {
--		write_lock_irq(&ep->lock);
--		__remove_wait_queue(&ep->wq, &wait);
--		write_unlock_irq(&ep->lock);
--	}
--
- 	return res;
+ 	res->pci_reset = devm_reset_control_get_exclusive(dev, "pci");
+ 	if (IS_ERR(res->pci_reset))
+ 		return PTR_ERR(res->pci_reset);
+@@ -278,6 +288,8 @@ static void qcom_pcie_deinit_2_1_0(struct qcom_pcie *pcie)
+ 	clk_disable_unprepare(res->iface_clk);
+ 	clk_disable_unprepare(res->core_clk);
+ 	clk_disable_unprepare(res->phy_clk);
++	clk_disable_unprepare(res->aux_clk);
++	clk_disable_unprepare(res->ref_clk);
+ 	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
  }
  
-_
-
-Patches currently in -mm which might be from rpenyaev@suse.de are
-
-kselftests-introduce-new-epoll60-testcase-for-catching-lost-wakeups.patch
-epoll-atomically-remove-wait-entry-on-wake-up.patch
+@@ -307,16 +319,32 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 		goto err_assert_ahb;
+ 	}
+ 
++	ret = clk_prepare_enable(res->core_clk);
++	if (ret) {
++		dev_err(dev, "cannot prepare/enable core clock\n");
++		goto err_clk_core;
++	}
++
+ 	ret = clk_prepare_enable(res->phy_clk);
+ 	if (ret) {
+ 		dev_err(dev, "cannot prepare/enable phy clock\n");
+ 		goto err_clk_phy;
+ 	}
+ 
+-	ret = clk_prepare_enable(res->core_clk);
+-	if (ret) {
+-		dev_err(dev, "cannot prepare/enable core clock\n");
+-		goto err_clk_core;
++	if (res->aux_clk) {
++		ret = clk_prepare_enable(res->aux_clk);
++		if (ret) {
++			dev_err(dev, "cannot prepare/enable aux clock\n");
++			goto err_clk_aux;
++		}
++	}
++
++	if (res->ref_clk) {
++		ret = clk_prepare_enable(res->ref_clk);
++		if (ret) {
++			dev_err(dev, "cannot prepare/enable ref clock\n");
++			goto err_clk_ref;
++		}
+ 	}
+ 
+ 	ret = reset_control_deassert(res->ahb_reset);
+@@ -372,10 +400,14 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 	return 0;
+ 
+ err_deassert_ahb:
+-	clk_disable_unprepare(res->core_clk);
+-err_clk_core:
++	clk_disable_unprepare(res->ref_clk);
++err_clk_ref:
++	clk_disable_unprepare(res->aux_clk);
++err_clk_aux:
+ 	clk_disable_unprepare(res->phy_clk);
+ err_clk_phy:
++	clk_disable_unprepare(res->core_clk);
++err_clk_core:
+ 	clk_disable_unprepare(res->iface_clk);
+ err_assert_ahb:
+ 	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
+-- 
+2.25.1
 
