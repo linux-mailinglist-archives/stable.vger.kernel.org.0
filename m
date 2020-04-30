@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 340491BFA72
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:54:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A926A1BFBFD
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:03:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728748AbgD3Nxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:53:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35366 "EHLO mail.kernel.org"
+        id S1729004AbgD3OCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 10:02:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728740AbgD3Nxf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:53:35 -0400
+        id S1728747AbgD3Nxg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:53:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8718B20873;
-        Thu, 30 Apr 2020 13:53:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF37E24959;
+        Thu, 30 Apr 2020 13:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254814;
-        bh=Kfo2vn3yqA8JwOeV+60gHpQu1H2xrObwQKVATCSMK98=;
+        s=default; t=1588254815;
+        bh=ZeQ+nsfG34bCl5uEds18kIJEKqqdj1c0qRK1uyLut8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BIk3/lrRsRPUqIegsPqD84P/n2BBie9za+aevO2fexb5U6xqdirle1ZZsquLdrRQZ
-         GyeVcS0OPMYkhq9slCRyNVqtNhHCeeL06wkibnB9NrcYrDKxqqs3jwM/y+WVt5IfDG
-         S3qoWqfe0EjwV+5zgk4AIVl2TGNekPlQokf5ntdw=
+        b=CkloH/vru3NPp6yh0HeYo8YWd6sxIKafNuAb6wx6tBjEqFgo5rRnjHA5SoIlVivI9
+         U+Q2pYwKd+3adiVm77awOi8W3SbZsr9a0GaqVjRp6vPfTdGHj1kHo8ia6s5Tx8ktwJ
+         4c48vy/1fwUqqby81ybTufjVa2c63KmP47mK05bg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
@@ -30,9 +30,9 @@ Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
         Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
         linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 07/30] usb: dwc3: gadget: Properly set maxpacket limit
-Date:   Thu, 30 Apr 2020 09:53:02 -0400
-Message-Id: <20200430135325.20762-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 08/30] usb: dwc3: gadget: Do link recovery for SS and SSP
+Date:   Thu, 30 Apr 2020 09:53:03 -0400
+Message-Id: <20200430135325.20762-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135325.20762-1-sashal@kernel.org>
 References: <20200430135325.20762-1-sashal@kernel.org>
@@ -47,131 +47,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit d94ea5319813658ad5861d161ae16a194c2abf88 ]
+[ Upstream commit d0550cd20e52558ecf6847a0f96ebd5d944c17e4 ]
 
-Currently the calculation of max packet size limit for IN endpoints is
-too restrictive. This prevents a matching of a capable hardware endpoint
-during configuration. Below is the minimum recommended HW configuration
-to support a particular endpoint setup from the databook:
+The controller always supports link recovery for device in SS and SSP.
+Remove the speed limit check. Also, when the device is in RESUME or
+RESET state, it means the controller received the resume/reset request.
+The driver must send the link recovery to acknowledge the request. They
+are valid states for the driver to send link recovery.
 
-For OUT endpoints, the databook recommended the minimum RxFIFO size to
-be at least 3x MaxPacketSize + 3x setup packets size (8 bytes each) +
-clock crossing margin (16 bytes).
-
-For IN endpoints, the databook recommended the minimum TxFIFO size to be
-at least 3x MaxPacketSize for endpoints that support burst. If the
-endpoint doesn't support burst or when the device is operating in USB
-2.0 mode, a minimum TxFIFO size of 2x MaxPacketSize is recommended.
-
-Base on these recommendations, we can calculate the MaxPacketSize limit
-of each endpoint. This patch revises the IN endpoint MaxPacketSize limit
-and also sets the MaxPacketSize limit for OUT endpoints.
-
-Reference: Databook 3.30a section 3.2.2 and 3.2.3
-
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Fixes: ee5cd41c9117 ("usb: dwc3: Update speed checks for SuperSpeedPlus")
 Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.h   |  4 +++
- drivers/usb/dwc3/gadget.c | 52 ++++++++++++++++++++++++++++++---------
- 2 files changed, 45 insertions(+), 11 deletions(-)
+ drivers/usb/dwc3/gadget.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index e34308d64619e..d6968b90ee6bb 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -300,6 +300,10 @@
- #define DWC3_GTXFIFOSIZ_TXFDEF(n)	((n) & 0xffff)
- #define DWC3_GTXFIFOSIZ_TXFSTADDR(n)	((n) & 0xffff0000)
- 
-+/* Global RX Fifo Size Register */
-+#define DWC31_GRXFIFOSIZ_RXFDEP(n)	((n) & 0x7fff)	/* DWC_usb31 only */
-+#define DWC3_GRXFIFOSIZ_RXFDEP(n)	((n) & 0xffff)
-+
- /* Global Event Size Registers */
- #define DWC3_GEVNTSIZ_INTMASK		BIT(31)
- #define DWC3_GEVNTSIZ_SIZE(n)		((n) & 0xffff)
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 8222e674c7770..50d2481041c85 100644
+index 50d2481041c85..99f6a5aa01095 100644
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -2036,7 +2036,6 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
- {
- 	struct dwc3 *dwc = dep->dwc;
- 	int mdwidth;
--	int kbytes;
- 	int size;
+@@ -1577,7 +1577,6 @@ static int __dwc3_gadget_wakeup(struct dwc3 *dwc)
+ 	u32			reg;
  
- 	mdwidth = DWC3_MDWIDTH(dwc->hwparams.hwparams0);
-@@ -2052,17 +2051,17 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
- 	/* FIFO Depth is in MDWDITH bytes. Multiply */
- 	size *= mdwidth;
+ 	u8			link_state;
+-	u8			speed;
  
--	kbytes = size / 1024;
--	if (kbytes == 0)
--		kbytes = 1;
--
  	/*
--	 * FIFO sizes account an extra MDWIDTH * (kbytes + 1) bytes for
--	 * internal overhead. We don't really know how these are used,
--	 * but documentation say it exists.
-+	 * To meet performance requirement, a minimum TxFIFO size of 3x
-+	 * MaxPacketSize is recommended for endpoints that support burst and a
-+	 * minimum TxFIFO size of 2x MaxPacketSize for endpoints that don't
-+	 * support burst. Use those numbers and we can calculate the max packet
-+	 * limit as below.
+ 	 * According to the Databook Remote wakeup request should
+@@ -1587,16 +1586,13 @@ static int __dwc3_gadget_wakeup(struct dwc3 *dwc)
  	 */
--	size -= mdwidth * (kbytes + 1);
--	size /= kbytes;
-+	if (dwc->maximum_speed >= USB_SPEED_SUPER)
-+		size /= 3;
-+	else
-+		size /= 2;
+ 	reg = dwc3_readl(dwc->regs, DWC3_DSTS);
  
- 	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
+-	speed = reg & DWC3_DSTS_CONNECTSPD;
+-	if ((speed == DWC3_DSTS_SUPERSPEED) ||
+-	    (speed == DWC3_DSTS_SUPERSPEED_PLUS))
+-		return 0;
+-
+ 	link_state = DWC3_DSTS_USBLNKST(reg);
  
-@@ -2080,8 +2079,39 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
- static int dwc3_gadget_init_out_endpoint(struct dwc3_ep *dep)
- {
- 	struct dwc3 *dwc = dep->dwc;
-+	int mdwidth;
-+	int size;
-+
-+	mdwidth = DWC3_MDWIDTH(dwc->hwparams.hwparams0);
-+
-+	/* MDWIDTH is represented in bits, convert to bytes */
-+	mdwidth /= 8;
- 
--	usb_ep_set_maxpacket_limit(&dep->endpoint, 1024);
-+	/* All OUT endpoints share a single RxFIFO space */
-+	size = dwc3_readl(dwc->regs, DWC3_GRXFIFOSIZ(0));
-+	if (dwc3_is_usb31(dwc))
-+		size = DWC31_GRXFIFOSIZ_RXFDEP(size);
-+	else
-+		size = DWC3_GRXFIFOSIZ_RXFDEP(size);
-+
-+	/* FIFO depth is in MDWDITH bytes */
-+	size *= mdwidth;
-+
-+	/*
-+	 * To meet performance requirement, a minimum recommended RxFIFO size
-+	 * is defined as follow:
-+	 * RxFIFO size >= (3 x MaxPacketSize) +
-+	 * (3 x 8 bytes setup packets size) + (16 bytes clock crossing margin)
-+	 *
-+	 * Then calculate the max packet limit as below.
-+	 */
-+	size -= (3 * 8) + 16;
-+	if (size < 0)
-+		size = 0;
-+	else
-+		size /= 3;
-+
-+	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
- 	dep->endpoint.max_streams = 15;
- 	dep->endpoint.ops = &dwc3_gadget_ep_ops;
- 	list_add_tail(&dep->endpoint.ep_list,
+ 	switch (link_state) {
++	case DWC3_LINK_STATE_RESET:
+ 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
+ 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
++	case DWC3_LINK_STATE_RESUME:
+ 		break;
+ 	default:
+ 		return -EINVAL;
 -- 
 2.20.1
 
