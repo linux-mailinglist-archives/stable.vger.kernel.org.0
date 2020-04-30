@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C6CA1BFBB3
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:02:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 051BE1BFA7F
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:54:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729042AbgD3OBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 10:01:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36058 "EHLO mail.kernel.org"
+        id S1728884AbgD3NyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:54:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728863AbgD3NyA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:54:00 -0400
+        id S1728881AbgD3NyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:54:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94BB920873;
-        Thu, 30 Apr 2020 13:53:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AB582063A;
+        Thu, 30 Apr 2020 13:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254839;
-        bh=bZgjp+pRE/vGlH0B5qlNg+/CZHrjuHxxB2hCd/EaJQc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NvAsRYftw4OXe/IU7lplZ3CSAi4SbwwMLKk3eMkJamUEzbc6LwbROg87KLZqC56BZ
-         8/lEGU9xNJPDOW/Tku1xCJDVYxlE5eOcKnR9vFX5wuNeUaHT1tnkukg3PUgsoLvAdW
-         VeW3PJ3eJIX4HOySjJ4WDfGLYM+T64/rZJhktu5s=
+        s=default; t=1588254844;
+        bh=2q6xYtEnk5Q9fAbhYOot0AOAKQNt/B7JU4vxKPWHFG0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=el+UKp8X4Hs8p+up8LaYpNIcWkgJ3xnqAeAnrt4cNxr+csL97WCdhop9mIXgENQQ1
+         J31zQlTRoLm76jFT9slCfmvVb84aRXd8LuCeKMuELWiYwZ7Z6KKflfEAp3hY2t1VSa
+         iaKvgFGFr3kuMdk0rHXQOWQXo+t3rsNW6Fa6FOgs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luke Nelson <lukenels@cs.washington.edu>,
-        Xi Wang <xi.wang@gmail.com>,
-        Luke Nelson <luke.r.nels@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Wang YanQing <udknight@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 30/30] bpf, x86_32: Fix incorrect encoding in BPF_LDX zero-extension
-Date:   Thu, 30 Apr 2020 09:53:25 -0400
-Message-Id: <20200430135325.20762-30-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/27] iio:ad7797: Use correct attribute_group
+Date:   Thu, 30 Apr 2020 09:53:36 -0400
+Message-Id: <20200430135402.20994-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200430135325.20762-1-sashal@kernel.org>
-References: <20200430135325.20762-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,57 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke Nelson <lukenels@cs.washington.edu>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 5fa9a98fb10380e48a398998cd36a85e4ef711d6 ]
+[ Upstream commit 28535877ac5b2b84f0d394fd67a5ec71c0c48b10 ]
 
-The current JIT uses the following sequence to zero-extend into the
-upper 32 bits of the destination register for BPF_LDX BPF_{B,H,W},
-when the destination register is not on the stack:
+It should use ad7797_attribute_group in ad7797_info,
+according to commit ("iio:ad7793: Add support for the ad7796 and ad7797").
 
-  EMIT3(0xC7, add_1reg(0xC0, dst_hi), 0);
+Scale is fixed for the ad7796 and not programmable, hence
+should not have the scale_available attribute.
 
-The problem is that C7 /0 encodes a MOV instruction that requires a 4-byte
-immediate; the current code emits only 1 byte of the immediate. This
-means that the first 3 bytes of the next instruction will be treated as
-the rest of the immediate, breaking the stream of instructions.
-
-This patch fixes the problem by instead emitting "xor dst_hi,dst_hi"
-to clear the upper 32 bits. This fixes the problem and is more efficient
-than using MOV to load a zero immediate.
-
-This bug may not be currently triggerable as BPF_REG_AX is the only
-register not stored on the stack and the verifier uses it in a limited
-way, and the verifier implements a zero-extension optimization. But the
-JIT should avoid emitting incorrect encodings regardless.
-
-Fixes: 03f5781be2c7b ("bpf, x86_32: add eBPF JIT compiler for ia32")
-Signed-off-by: Xi Wang <xi.wang@gmail.com>
-Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: H. Peter Anvin (Intel) <hpa@zytor.com>
-Acked-by: Wang YanQing <udknight@gmail.com>
-Link: https://lore.kernel.org/bpf/20200422173630.8351-1-luke.r.nels@gmail.com
+Fixes: fd1a8b912841 ("iio:ad7793: Add support for the ad7796 and ad7797")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/net/bpf_jit_comp32.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ad7793.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/net/bpf_jit_comp32.c b/arch/x86/net/bpf_jit_comp32.c
-index 24d573bc550d9..21df0b6d7be6e 100644
---- a/arch/x86/net/bpf_jit_comp32.c
-+++ b/arch/x86/net/bpf_jit_comp32.c
-@@ -1830,7 +1830,9 @@ static int do_jit(struct bpf_prog *bpf_prog, int *addrs, u8 *image,
- 					      STACK_VAR(dst_hi));
- 					EMIT(0x0, 4);
- 				} else {
--					EMIT3(0xC7, add_1reg(0xC0, dst_hi), 0);
-+					/* xor dst_hi,dst_hi */
-+					EMIT2(0x33,
-+					      add_2reg(0xC0, dst_hi, dst_hi));
- 				}
- 				break;
- 			case BPF_DW:
+diff --git a/drivers/iio/adc/ad7793.c b/drivers/iio/adc/ad7793.c
+index 07246a6037e31..f64781d03d5d3 100644
+--- a/drivers/iio/adc/ad7793.c
++++ b/drivers/iio/adc/ad7793.c
+@@ -543,7 +543,7 @@ static const struct iio_info ad7797_info = {
+ 	.read_raw = &ad7793_read_raw,
+ 	.write_raw = &ad7793_write_raw,
+ 	.write_raw_get_fmt = &ad7793_write_raw_get_fmt,
+-	.attrs = &ad7793_attribute_group,
++	.attrs = &ad7797_attribute_group,
+ 	.validate_trigger = ad_sd_validate_trigger,
+ 	.driver_module = THIS_MODULE,
+ };
 -- 
 2.20.1
 
