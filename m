@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EC051BFCB4
+	by mail.lfdr.de (Postfix) with ESMTP id DB1CD1BFCB5
 	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728421AbgD3Nwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33616 "EHLO mail.kernel.org"
+        id S1728844AbgD3OHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 10:07:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728413AbgD3Nwa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:52:30 -0400
+        id S1728418AbgD3Nwb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:52:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 562A220870;
-        Thu, 30 Apr 2020 13:52:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59377208CA;
+        Thu, 30 Apr 2020 13:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254750;
-        bh=/pCLZHYr2OmVi2mS3ZUGZ80/NyMpK1+qw2ThEw/BWPI=;
+        s=default; t=1588254751;
+        bh=GGm6SNIpsGc9lTJiZHyTaTJIn5IjKm61sUkgQAWidaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2qOmiAfF3VSRcp5kx3imh3IDyQbnS80tq/U1sKk1cTkuv75yhYeMdqyEF/mpKSIy
-         tC9VHop6TruWVvHXhl4KMxECEHTYLYKctL52LK9FiS9Jj697TZZVlYJBGOBJXQRRng
-         6cp5imhMWAPR5LcaeWei4QnZDFcO/y2oWCZ2+C5E=
+        b=auNFZRVAL7iIyGJ2IT4oCwa4wBd7RnHNq46TGqDRg6Jno/j9oXdI0qjR+gg9hsoUp
+         9mBfXeSg58gR/hR3Lv1ibjl1nTuhMaWcA/KklCdWelaioZCg3im8pL1sIQKbUfk34E
+         JWLCcwe+iRopSGjZ/+tCwa67Y3+bzCVj7aoIkUTU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-api@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/57] selftests/ipc: Fix test failure seen after initial test run
-Date:   Thu, 30 Apr 2020 09:51:30 -0400
-Message-Id: <20200430135218.20372-9-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 10/57] drivers: soc: xilinx: fix firmware driver Kconfig dependency
+Date:   Thu, 30 Apr 2020 09:51:31 -0400
+Message-Id: <20200430135218.20372-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135218.20372-1-sashal@kernel.org>
 References: <20200430135218.20372-1-sashal@kernel.org>
@@ -43,59 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit b87080eab4c1377706c113fc9c0157f19ea8fed1 ]
+[ Upstream commit d0384eedcde21276ac51f57c641f875605024b32 ]
 
-After successfully running the IPC msgque test once, subsequent runs
-result in a test failure:
+The firmware driver is optional, but the power driver depends on it,
+which needs to be reflected in Kconfig to avoid link errors:
 
-  $ sudo ./run_kselftest.sh
-  TAP version 13
-  1..1
-  # selftests: ipc: msgque
-  # Failed to get stats for IPC queue with id 0
-  # Failed to dump queue: -22
-  # Bail out!
-  # # Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
-  not ok 1 selftests: ipc: msgque # exit=1
+aarch64-linux-ld: drivers/soc/xilinx/zynqmp_power.o: in function `zynqmp_pm_isr':
+zynqmp_power.c:(.text+0x284): undefined reference to `zynqmp_pm_invoke_fn'
 
-The dump_queue() function loops through the possible message queue index
-values using calls to msgctl(kern_id, MSG_STAT, ...) where kern_id
-represents the index value. The first time the test is ran, the initial
-index value of 0 is valid and the test is able to complete. The index
-value of 0 is not valid in subsequent test runs and the loop attempts to
-try index values of 1, 2, 3, and so on until a valid index value is
-found that corresponds to the message queue created earlier in the test.
+The firmware driver can probably be allowed for compile-testing as
+well, so it's best to drop the dependency on the ZYNQ platform
+here and allow building as long as the firmware code is built-in.
 
-The msgctl() syscall returns -1 and sets errno to EINVAL when invalid
-index values are used. The test failure is caused by incorrectly
-comparing errno to -EINVAL when cycling through possible index values.
-
-Fix invalid test failures on subsequent runs of the msgque test by
-correctly comparing errno values to a non-negated EINVAL.
-
-Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: ab272643d723 ("drivers: soc: xilinx: Add ZynqMP PM driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20200408155224.2070880-1-arnd@arndb.de
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/ipc/msgque.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/xilinx/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
-index 4c156aeab6b80..5ec4d9e18806c 100644
---- a/tools/testing/selftests/ipc/msgque.c
-+++ b/tools/testing/selftests/ipc/msgque.c
-@@ -137,7 +137,7 @@ int dump_queue(struct msgque_data *msgque)
- 	for (kern_id = 0; kern_id < 256; kern_id++) {
- 		ret = msgctl(kern_id, MSG_STAT, &ds);
- 		if (ret < 0) {
--			if (errno == -EINVAL)
-+			if (errno == EINVAL)
- 				continue;
- 			printf("Failed to get stats for IPC queue with id %d\n",
- 					kern_id);
+diff --git a/drivers/soc/xilinx/Kconfig b/drivers/soc/xilinx/Kconfig
+index 01e76b58dd78a..3fa162c1fde73 100644
+--- a/drivers/soc/xilinx/Kconfig
++++ b/drivers/soc/xilinx/Kconfig
+@@ -19,7 +19,7 @@ config XILINX_VCU
+ 
+ config ZYNQMP_POWER
+ 	bool "Enable Xilinx Zynq MPSoC Power Management driver"
+-	depends on PM && ARCH_ZYNQMP
++	depends on PM && ZYNQMP_FIRMWARE
+ 	default y
+ 	help
+ 	  Say yes to enable power management support for ZyqnMP SoC.
+@@ -31,7 +31,7 @@ config ZYNQMP_POWER
+ config ZYNQMP_PM_DOMAINS
+ 	bool "Enable Zynq MPSoC generic PM domains"
+ 	default y
+-	depends on PM && ARCH_ZYNQMP && ZYNQMP_FIRMWARE
++	depends on PM && ZYNQMP_FIRMWARE
+ 	select PM_GENERIC_DOMAINS
+ 	help
+ 	  Say yes to enable device power management through PM domains
 -- 
 2.20.1
 
