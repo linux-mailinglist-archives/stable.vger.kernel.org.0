@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F171BFC05
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:03:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 340491BFA72
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:54:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728742AbgD3Nxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:53:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35344 "EHLO mail.kernel.org"
+        id S1728748AbgD3Nxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:53:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728736AbgD3Nxe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:53:34 -0400
+        id S1728740AbgD3Nxf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:53:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DCA72072A;
-        Thu, 30 Apr 2020 13:53:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8718B20873;
+        Thu, 30 Apr 2020 13:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254813;
-        bh=ofC+s2rpOOXSYWluYL+/aP6SMzxLfIP2anHBiVYKQ9s=;
+        s=default; t=1588254814;
+        bh=Kfo2vn3yqA8JwOeV+60gHpQu1H2xrObwQKVATCSMK98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcGkurw7+f2DA/X5R/STGiqKJdO6UGCVWcUcDrWC5dAg6c7w9Vu8vncxPMnq5TnTQ
-         sq1343eCZvODng9Hz0J9VfGudvS+qPORJKwinazTet2sfr2Q8MYg8GjrnFHdZHCmDF
-         xL+wFasiZ6vHA7co1r35ZMjtkcFeFGTtECs9ETwU=
+        b=BIk3/lrRsRPUqIegsPqD84P/n2BBie9za+aevO2fexb5U6xqdirle1ZZsquLdrRQZ
+         GyeVcS0OPMYkhq9slCRyNVqtNhHCeeL06wkibnB9NrcYrDKxqqs3jwM/y+WVt5IfDG
+         S3qoWqfe0EjwV+5zgk4AIVl2TGNekPlQokf5ntdw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 06/30] ASoC: q6dsp6: q6afe-dai: add missing channels to MI2S DAIs
-Date:   Thu, 30 Apr 2020 09:53:01 -0400
-Message-Id: <20200430135325.20762-6-sashal@kernel.org>
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 07/30] usb: dwc3: gadget: Properly set maxpacket limit
+Date:   Thu, 30 Apr 2020 09:53:02 -0400
+Message-Id: <20200430135325.20762-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135325.20762-1-sashal@kernel.org>
 References: <20200430135325.20762-1-sashal@kernel.org>
@@ -44,121 +45,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 0c824ec094b5cda766c80d88c2036e28c24a4cb1 ]
+[ Upstream commit d94ea5319813658ad5861d161ae16a194c2abf88 ]
 
-For some reason, the MI2S DAIs do not have channels_min/max defined.
-This means that snd_soc_dai_stream_valid() returns false,
-i.e. the DAIs have neither valid playback nor capture stream.
+Currently the calculation of max packet size limit for IN endpoints is
+too restrictive. This prevents a matching of a capable hardware endpoint
+during configuration. Below is the minimum recommended HW configuration
+to support a particular endpoint setup from the databook:
 
-It's quite surprising that this ever worked correctly,
-but in 5.7-rc1 this is now failing badly: :)
+For OUT endpoints, the databook recommended the minimum RxFIFO size to
+be at least 3x MaxPacketSize + 3x setup packets size (8 bytes each) +
+clock crossing margin (16 bytes).
 
-Commit 0e9cf4c452ad ("ASoC: pcm: check if cpu-dai supports a given stream")
-introduced a check for snd_soc_dai_stream_valid() before calling
-hw_params(), which means that the q6i2s_hw_params() function
-was never called, eventually resulting in:
+For IN endpoints, the databook recommended the minimum TxFIFO size to be
+at least 3x MaxPacketSize for endpoints that support burst. If the
+endpoint doesn't support burst or when the device is operating in USB
+2.0 mode, a minimum TxFIFO size of 2x MaxPacketSize is recommended.
 
-    qcom-q6afe aprsvc:q6afe:4:4: no line is assigned
+Base on these recommendations, we can calculate the MaxPacketSize limit
+of each endpoint. This patch revises the IN endpoint MaxPacketSize limit
+and also sets the MaxPacketSize limit for OUT endpoints.
 
-... even though "qcom,sd-lines" is set in the device tree.
+Reference: Databook 3.30a section 3.2.2 and 3.2.3
 
-Commit 9b5db059366a ("ASoC: soc-pcm: dpcm: Only allow playback/capture if supported")
-now even avoids creating PCM devices if the stream is not supported,
-which means that it is failing even earlier with e.g.:
-
-    Primary MI2S: ASoC: no backend playback stream
-
-Avoid all that trouble by adding channels_min/max for the MI2S DAIs.
-
-Fixes: 24c4cbcfac09 ("ASoC: qdsp6: q6afe: Add q6afe dai driver")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200415150050.616392-1-stephan@gerhold.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/qdsp6/q6afe-dai.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/usb/dwc3/core.h   |  4 +++
+ drivers/usb/dwc3/gadget.c | 52 ++++++++++++++++++++++++++++++---------
+ 2 files changed, 45 insertions(+), 11 deletions(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6afe-dai.c b/sound/soc/qcom/qdsp6/q6afe-dai.c
-index 8f6c8fc073a93..1fc1939b90c2f 100644
---- a/sound/soc/qcom/qdsp6/q6afe-dai.c
-+++ b/sound/soc/qcom/qdsp6/q6afe-dai.c
-@@ -899,6 +899,8 @@ static struct snd_soc_dai_driver q6afe_dais[] = {
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -914,6 +916,8 @@ static struct snd_soc_dai_driver q6afe_dais[] = {
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -928,6 +932,8 @@ static struct snd_soc_dai_driver q6afe_dais[] = {
- 			.rates = SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_8000 |
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -943,6 +949,8 @@ static struct snd_soc_dai_driver q6afe_dais[] = {
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -957,6 +965,8 @@ static struct snd_soc_dai_driver q6afe_dais[] = {
- 			.rates = SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_8000 |
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -972,6 +982,8 @@ static struct snd_soc_dai_driver q6afe_dais[] = {
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -986,6 +998,8 @@ static struct snd_soc_dai_driver q6afe_dais[] = {
- 			.rates = SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_8000 |
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -1001,6 +1015,8 @@ static struct snd_soc_dai_driver q6afe_dais[] = {
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index e34308d64619e..d6968b90ee6bb 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -300,6 +300,10 @@
+ #define DWC3_GTXFIFOSIZ_TXFDEF(n)	((n) & 0xffff)
+ #define DWC3_GTXFIFOSIZ_TXFSTADDR(n)	((n) & 0xffff0000)
+ 
++/* Global RX Fifo Size Register */
++#define DWC31_GRXFIFOSIZ_RXFDEP(n)	((n) & 0x7fff)	/* DWC_usb31 only */
++#define DWC3_GRXFIFOSIZ_RXFDEP(n)	((n) & 0xffff)
++
+ /* Global Event Size Registers */
+ #define DWC3_GEVNTSIZ_INTMASK		BIT(31)
+ #define DWC3_GEVNTSIZ_SIZE(n)		((n) & 0xffff)
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 8222e674c7770..50d2481041c85 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2036,7 +2036,6 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
+ {
+ 	struct dwc3 *dwc = dep->dwc;
+ 	int mdwidth;
+-	int kbytes;
+ 	int size;
+ 
+ 	mdwidth = DWC3_MDWIDTH(dwc->hwparams.hwparams0);
+@@ -2052,17 +2051,17 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
+ 	/* FIFO Depth is in MDWDITH bytes. Multiply */
+ 	size *= mdwidth;
+ 
+-	kbytes = size / 1024;
+-	if (kbytes == 0)
+-		kbytes = 1;
+-
+ 	/*
+-	 * FIFO sizes account an extra MDWIDTH * (kbytes + 1) bytes for
+-	 * internal overhead. We don't really know how these are used,
+-	 * but documentation say it exists.
++	 * To meet performance requirement, a minimum TxFIFO size of 3x
++	 * MaxPacketSize is recommended for endpoints that support burst and a
++	 * minimum TxFIFO size of 2x MaxPacketSize for endpoints that don't
++	 * support burst. Use those numbers and we can calculate the max packet
++	 * limit as below.
+ 	 */
+-	size -= mdwidth * (kbytes + 1);
+-	size /= kbytes;
++	if (dwc->maximum_speed >= USB_SPEED_SUPER)
++		size /= 3;
++	else
++		size /= 2;
+ 
+ 	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
+ 
+@@ -2080,8 +2079,39 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
+ static int dwc3_gadget_init_out_endpoint(struct dwc3_ep *dep)
+ {
+ 	struct dwc3 *dwc = dep->dwc;
++	int mdwidth;
++	int size;
++
++	mdwidth = DWC3_MDWIDTH(dwc->hwparams.hwparams0);
++
++	/* MDWIDTH is represented in bits, convert to bytes */
++	mdwidth /= 8;
+ 
+-	usb_ep_set_maxpacket_limit(&dep->endpoint, 1024);
++	/* All OUT endpoints share a single RxFIFO space */
++	size = dwc3_readl(dwc->regs, DWC3_GRXFIFOSIZ(0));
++	if (dwc3_is_usb31(dwc))
++		size = DWC31_GRXFIFOSIZ_RXFDEP(size);
++	else
++		size = DWC3_GRXFIFOSIZ_RXFDEP(size);
++
++	/* FIFO depth is in MDWDITH bytes */
++	size *= mdwidth;
++
++	/*
++	 * To meet performance requirement, a minimum recommended RxFIFO size
++	 * is defined as follow:
++	 * RxFIFO size >= (3 x MaxPacketSize) +
++	 * (3 x 8 bytes setup packets size) + (16 bytes clock crossing margin)
++	 *
++	 * Then calculate the max packet limit as below.
++	 */
++	size -= (3 * 8) + 16;
++	if (size < 0)
++		size = 0;
++	else
++		size /= 3;
++
++	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
+ 	dep->endpoint.max_streams = 15;
+ 	dep->endpoint.ops = &dwc3_gadget_ep_ops;
+ 	list_add_tail(&dep->endpoint.ep_list,
 -- 
 2.20.1
 
