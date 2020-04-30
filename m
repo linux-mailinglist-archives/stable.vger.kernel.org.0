@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2D5D1BFCBF
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 486911BFA3E
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:52:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728371AbgD3NwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:52:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33302 "EHLO mail.kernel.org"
+        id S1728379AbgD3NwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:52:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728361AbgD3NwW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:52:22 -0400
+        id S1728366AbgD3NwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:52:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 164A7208D5;
-        Thu, 30 Apr 2020 13:52:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B5B22137B;
+        Thu, 30 Apr 2020 13:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254741;
-        bh=0wW0V+rRBxMvbpxl7tX25DnAh6VZYNKvgkET024GIBE=;
+        s=default; t=1588254743;
+        bh=FDZY+s+wCtA2hrGYGuRdyfgJiqpSlmXqbgsFOKZZSPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e4DXl7/EGpRyXzmXeUAZWp/RGXbNCvzxMv1uSPdIta+NdYnl0hvZ48PU0Dva97HVl
-         256c8RaoF9fLiSemHjKiQjQuKNeVjK2PDQkK9Yj4CnjLUc3rqa4KVrRDnPUR6BNGGY
-         vu9jRqmpk/NV/hX5jHmkG0XG9ojXYI6hmfr1wySU=
+        b=apdE4DwCalqSFFEh6H/41dmMxZkMLHLFQZHSD/M2VzFAyPJBn4WemAAVKoTYAs8gR
+         9jzJuKmFmITdnuviv3NM4zL++o5B4Tzsd0OPY0bcYvCKjXnA+lzEoFc9T16RUWZ6dX
+         WgNeyO0oQNqKQaLBS9WHMnQWcDCjiiHy4WN4OXek=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 02/57] iio:ad7797: Use correct attribute_group
-Date:   Thu, 30 Apr 2020 09:51:23 -0400
-Message-Id: <20200430135218.20372-2-sashal@kernel.org>
+Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 03/57] ASoC: topology: Check return value of soc_tplg_create_tlv
+Date:   Thu, 30 Apr 2020 09:51:24 -0400
+Message-Id: <20200430135218.20372-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135218.20372-1-sashal@kernel.org>
 References: <20200430135218.20372-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,38 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit 28535877ac5b2b84f0d394fd67a5ec71c0c48b10 ]
+[ Upstream commit 482db55ae87f3749db05810a38b1d618dfd4407c ]
 
-It should use ad7797_attribute_group in ad7797_info,
-according to commit ("iio:ad7793: Add support for the ad7796 and ad7797").
+Function soc_tplg_create_tlv can fail, so we should check if it succeded
+or not and proceed appropriately.
 
-Scale is fixed for the ad7796 and not programmable, hence
-should not have the scale_available attribute.
-
-Fixes: fd1a8b912841 ("iio:ad7793: Add support for the ad7796 and ad7797")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200327204729.397-3-amadeuszx.slawinski@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7793.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-topology.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/ad7793.c b/drivers/iio/adc/ad7793.c
-index bbc41ecf0d2ff..6ed6d14102016 100644
---- a/drivers/iio/adc/ad7793.c
-+++ b/drivers/iio/adc/ad7793.c
-@@ -541,7 +541,7 @@ static const struct iio_info ad7797_info = {
- 	.read_raw = &ad7793_read_raw,
- 	.write_raw = &ad7793_write_raw,
- 	.write_raw_get_fmt = &ad7793_write_raw_get_fmt,
--	.attrs = &ad7793_attribute_group,
-+	.attrs = &ad7797_attribute_group,
- 	.validate_trigger = ad_sd_validate_trigger,
- };
+diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
+index 17556a47f7274..c2901652a6d04 100644
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -893,7 +893,13 @@ static int soc_tplg_dmixer_create(struct soc_tplg *tplg, unsigned int count,
+ 		}
  
+ 		/* create any TLV data */
+-		soc_tplg_create_tlv(tplg, &kc, &mc->hdr);
++		err = soc_tplg_create_tlv(tplg, &kc, &mc->hdr);
++		if (err < 0) {
++			dev_err(tplg->dev, "ASoC: failed to create TLV %s\n",
++				mc->hdr.name);
++			kfree(sm);
++			continue;
++		}
+ 
+ 		/* pass control to driver for optional further init */
+ 		err = soc_tplg_init_kcontrol(tplg, &kc,
+@@ -1354,7 +1360,13 @@ static struct snd_kcontrol_new *soc_tplg_dapm_widget_dmixer_create(
+ 		}
+ 
+ 		/* create any TLV data */
+-		soc_tplg_create_tlv(tplg, &kc[i], &mc->hdr);
++		err = soc_tplg_create_tlv(tplg, &kc[i], &mc->hdr);
++		if (err < 0) {
++			dev_err(tplg->dev, "ASoC: failed to create TLV %s\n",
++				mc->hdr.name);
++			kfree(sm);
++			continue;
++		}
+ 
+ 		/* pass control to driver for optional further init */
+ 		err = soc_tplg_init_kcontrol(tplg, &kc[i],
 -- 
 2.20.1
 
