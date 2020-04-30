@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6543C1BFCE9
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 758B61BFCE7
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728163AbgD3Nv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:51:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60766 "EHLO mail.kernel.org"
+        id S1728254AbgD3Nv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:51:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728243AbgD3Nv5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:51:57 -0400
+        id S1728246AbgD3Nv6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:51:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EB77208D6;
-        Thu, 30 Apr 2020 13:51:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F11E6208D5;
+        Thu, 30 Apr 2020 13:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254716;
-        bh=iw4toVuYkRpmrlvVQJwhG1kN7mqnSLu2YFYTlvrElgk=;
+        s=default; t=1588254717;
+        bh=EturXDdmuhBBBinF/mcrRmdf5FdYX9aTc5Zb5f3bQPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pc4jPdnK6TMNqb9TLuKHm2fJuegct3UFS6zK6KBgdAgiKD/U7dFQTSwAz+xhiHWfk
-         P9DQ9leMZDHCTV2fIRP/6hKeEuc4ae+4Dotdcw8+6uFdWbfrldtjTpCqi2z6H475p/
-         t/XZwUhX5Aj6nBJB+WWMwRKXYTEw2uFO4h8rBpHU=
+        b=vQj5DzH6BBn77RpFmhClJnt6hPa6z40xK6GI8Tl13fuPFK9vLK+5TTVX/D0ABongs
+         YEgK5ZwliAui/fcV+y3gXR1YqYS1hxT+eQ1MJRHcDFiZEM/AiAMbS8SVXaIBpSOmV+
+         tWZam9EXm62FexpRTQYgb30+qm1nHReaysiQNbek=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 64/79] tracing: Fix memory leaks in trace_events_hist.c
-Date:   Thu, 30 Apr 2020 09:50:28 -0400
-Message-Id: <20200430135043.19851-64-sashal@kernel.org>
+Cc:     Vitor Massaru Iha <vitor@massaru.org>,
+        Theodore Ts'o <tytso@mit.edu>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        user-mode-linux-devel@lists.sourceforge.net,
+        user-mode-linux-user@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.6 65/79] um: ensure `make ARCH=um mrproper` removes arch/$(SUBARCH)/include/generated/
+Date:   Thu, 30 Apr 2020 09:50:29 -0400
+Message-Id: <20200430135043.19851-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135043.19851-1-sashal@kernel.org>
 References: <20200430135043.19851-1-sashal@kernel.org>
@@ -43,106 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Vitor Massaru Iha <vitor@massaru.org>
 
-[ Upstream commit 9da73974eb9c965dd9989befb593b8c8da9e4bdc ]
+[ Upstream commit 63ec90f18204f2fe072df108de8a021b28b1b173 ]
 
-kmemleak report 1:
-    [<9092c50b>] kmem_cache_alloc_trace+0x138/0x270
-    [<05a2c9ed>] create_field_var+0xcf/0x180
-    [<528a2d68>] action_create+0xe2/0xc80
-    [<63f50b61>] event_hist_trigger_func+0x15b5/0x1920
-    [<28ea5d3d>] trigger_process_regex+0x7b/0xc0
-    [<3138e86f>] event_trigger_write+0x4d/0xb0
-    [<ffd66c19>] __vfs_write+0x30/0x200
-    [<4f424a0d>] vfs_write+0x96/0x1b0
-    [<da59a290>] ksys_write+0x53/0xc0
-    [<3717101a>] __ia32_sys_write+0x15/0x20
-    [<c5f23497>] do_fast_syscall_32+0x70/0x250
-    [<46e2629c>] entry_SYSENTER_32+0xaf/0x102
+In this workflow:
 
-This is because save_vars[] of struct hist_trigger_data are
-not destroyed
+$ make ARCH=um defconfig && make ARCH=um -j8
+  [snip]
+$ make ARCH=um mrproper
+  [snip]
+$ make ARCH=um defconfig O=./build_um && make ARCH=um -j8 O=./build_um
+  [snip]
+  CC      scripts/mod/empty.o
+In file included from ../include/linux/types.h:6,
+                 from ../include/linux/mod_devicetable.h:12,
+                 from ../scripts/mod/devicetable-offsets.c:3:
+../include/uapi/linux/types.h:5:10: fatal error: asm/types.h: No such file or directory
+    5 | #include <asm/types.h>
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+make[2]: *** [../scripts/Makefile.build:100: scripts/mod/devicetable-offsets.s] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [/home/iha/sdb/opensource/lkmp/linux-kselftest.git/Makefile:1140: prepare0] Error 2
+make[1]: Leaving directory '/home/iha/sdb/opensource/lkmp/linux-kselftest.git/build_um'
+make: *** [Makefile:180: sub-make] Error 2
 
-kmemleak report 2:
-    [<9092c50b>] kmem_cache_alloc_trace+0x138/0x270
-    [<6e5e97c5>] create_var+0x3c/0x110
-    [<de82f1b9>] create_field_var+0xaf/0x180
-    [<528a2d68>] action_create+0xe2/0xc80
-    [<63f50b61>] event_hist_trigger_func+0x15b5/0x1920
-    [<28ea5d3d>] trigger_process_regex+0x7b/0xc0
-    [<3138e86f>] event_trigger_write+0x4d/0xb0
-    [<ffd66c19>] __vfs_write+0x30/0x200
-    [<4f424a0d>] vfs_write+0x96/0x1b0
-    [<da59a290>] ksys_write+0x53/0xc0
-    [<3717101a>] __ia32_sys_write+0x15/0x20
-    [<c5f23497>] do_fast_syscall_32+0x70/0x250
-    [<46e2629c>] entry_SYSENTER_32+0xaf/0x102
+The cause of the error was because arch/$(SUBARCH)/include/generated files
+weren't properly cleaned by `make ARCH=um mrproper`.
 
-struct hist_field allocated through create_var() do not initialize
-"ref" field to 1. The code in __destroy_hist_field() does not destroy
-object if "ref" is initialized to zero, the condition
-if (--hist_field->ref > 1) always passes since unsigned int wraps.
-
-kmemleak report 3:
-    [<f8666fcc>] __kmalloc_track_caller+0x139/0x2b0
-    [<bb7f80a5>] kstrdup+0x27/0x50
-    [<39d70006>] init_var_ref+0x58/0xd0
-    [<8ca76370>] create_var_ref+0x89/0xe0
-    [<f045fc39>] action_create+0x38f/0xc80
-    [<7c146821>] event_hist_trigger_func+0x15b5/0x1920
-    [<07de3f61>] trigger_process_regex+0x7b/0xc0
-    [<e87daf8f>] event_trigger_write+0x4d/0xb0
-    [<19bf1512>] __vfs_write+0x30/0x200
-    [<64ce4d27>] vfs_write+0x96/0x1b0
-    [<a6f34170>] ksys_write+0x53/0xc0
-    [<7d4230cd>] __ia32_sys_write+0x15/0x20
-    [<8eadca00>] do_fast_syscall_32+0x70/0x250
-    [<235cf985>] entry_SYSENTER_32+0xaf/0x102
-
-hist_fields (system & event_name) are not freed
-
-Link: http://lkml.kernel.org/r/20200422061503.GA5151@cosmos
-
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: a788b2ed81ab ("kbuild: check arch/$(SRCARCH)/include/generated before out-of-tree build")
+Reported-by: Theodore Ts'o <tytso@mit.edu>
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Vitor Massaru Iha <vitor@massaru.org>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Tested-by: Brendan Higgins <brendanhiggins@google.com>
+Link: https://groups.google.com/forum/#!msg/kunit-dev/QmA27YEgEgI/hvS1kiz2CwAJ
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/um/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 5f6834a2bf411..fcab11cc6833b 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -3320,6 +3320,9 @@ static void __destroy_hist_field(struct hist_field *hist_field)
- 	kfree(hist_field->name);
- 	kfree(hist_field->type);
+diff --git a/arch/um/Makefile b/arch/um/Makefile
+index d2daa206872da..275f5ffdf6f0a 100644
+--- a/arch/um/Makefile
++++ b/arch/um/Makefile
+@@ -140,6 +140,7 @@ export CFLAGS_vmlinux := $(LINK-y) $(LINK_WRAPS) $(LD_FLAGS_CMDLINE)
+ # When cleaning we don't include .config, so we don't include
+ # TT or skas makefiles and don't clean skas_ptregs.h.
+ CLEAN_FILES += linux x.i gmon.out
++MRPROPER_DIRS += arch/$(SUBARCH)/include/generated
  
-+	kfree(hist_field->system);
-+	kfree(hist_field->event_name);
-+
- 	kfree(hist_field);
- }
- 
-@@ -4382,6 +4385,7 @@ static struct hist_field *create_var(struct hist_trigger_data *hist_data,
- 		goto out;
- 	}
- 
-+	var->ref = 1;
- 	var->flags = HIST_FIELD_FL_VAR;
- 	var->var.idx = idx;
- 	var->var.hist_data = var->hist_data = hist_data;
-@@ -5011,6 +5015,9 @@ static void destroy_field_vars(struct hist_trigger_data *hist_data)
- 
- 	for (i = 0; i < hist_data->n_field_vars; i++)
- 		destroy_field_var(hist_data->field_vars[i]);
-+
-+	for (i = 0; i < hist_data->n_save_vars; i++)
-+		destroy_field_var(hist_data->save_vars[i]);
- }
- 
- static void save_field_var(struct hist_trigger_data *hist_data,
+ archclean:
+ 	@find . \( -name '*.bb' -o -name '*.bbg' -o -name '*.da' \
 -- 
 2.20.1
 
