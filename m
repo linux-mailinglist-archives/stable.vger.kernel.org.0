@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66E361BFC9E
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:07:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0661BFA4E
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728472AbgD3Nwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:52:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33956 "EHLO mail.kernel.org"
+        id S1728476AbgD3Nwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:52:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728463AbgD3Nwk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:52:40 -0400
+        id S1728469AbgD3Nwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:52:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18A6324958;
-        Thu, 30 Apr 2020 13:52:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 157DA208DB;
+        Thu, 30 Apr 2020 13:52:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254759;
-        bh=jlkHXoihReddzPOAJ1lmAMz3Qsw9jgoxpyqzH4jRIE4=;
+        s=default; t=1588254760;
+        bh=YmqlM56F2jJuRWYNTBNA8ew3wBlgerJMSnKaUx6c5AM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dadSrEuY/9yI+9i8tdexAUX1Hw2y9YJK3iftDwusu/1et+52sdeoDXwfPw9qlZPL/
-         FYpQSVlY+3BZ6XPTWgc7Fx6SbtQcHGGcTzamnRbM97+tBOOYrGQGoydYRPcJSB1iB2
-         uhuOyQFlKTw0CocEcfey6kJgKMiPeV41n2MB45G8=
+        b=GO9/M7z0meQXELMnIwhSkE6DyhDe3d419tjuVACuaRCVTIYk2oQwD+OqEdQ7krjui
+         dzC0ArJHkDKgGO5gh0mlF+4TIiBAX88cmfhh2hLQeigOeIgy8vacy1H2oLomjwHupb
+         CsBw0NNBHDleRBi5fd/Xy3ClAZ9hWQ2u8sGzAJBo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 18/57] ASoC: codecs: hdac_hdmi: Fix incorrect use of list_for_each_entry
-Date:   Thu, 30 Apr 2020 09:51:39 -0400
-Message-Id: <20200430135218.20372-18-sashal@kernel.org>
+Cc:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Eric Anholt <eric@anholt.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 19/57] ARM: dts: bcm283x: Disable dsi0 node
+Date:   Thu, 30 Apr 2020 09:51:40 -0400
+Message-Id: <20200430135218.20372-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135218.20372-1-sashal@kernel.org>
 References: <20200430135218.20372-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,44 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-[ Upstream commit 326b509238171d37402dbe308e154cc234ed1960 ]
+[ Upstream commit 90444b958461a5f8fc299ece0fe17eab15cba1e1 ]
 
-If we don't find any pcm, pcm will point at address at an offset from
-the the list head and not a meaningful structure. Fix this by returning
-correct pcm if found and NULL if not. Found with coccinelle.
+Since its inception the module was meant to be disabled by default, but
+the original commit failed to add the relevant property.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20200415162849.308-1-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 4aba4cf82054 ("ARM: dts: bcm2835: Add the DSI module nodes and clocks")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Reviewed-by: Eric Anholt <eric@anholt.net>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hdmi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/bcm283x.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/hdac_hdmi.c b/sound/soc/codecs/hdac_hdmi.c
-index 18c173e6a13b2..78d5b4d31bb69 100644
---- a/sound/soc/codecs/hdac_hdmi.c
-+++ b/sound/soc/codecs/hdac_hdmi.c
-@@ -150,14 +150,14 @@ static struct hdac_hdmi_pcm *
- hdac_hdmi_get_pcm_from_cvt(struct hdac_hdmi_priv *hdmi,
- 			   struct hdac_hdmi_cvt *cvt)
- {
--	struct hdac_hdmi_pcm *pcm = NULL;
-+	struct hdac_hdmi_pcm *pcm;
+diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
+index 90125ce19a1b3..50c64146d4926 100644
+--- a/arch/arm/boot/dts/bcm283x.dtsi
++++ b/arch/arm/boot/dts/bcm283x.dtsi
+@@ -488,6 +488,7 @@
+ 					     "dsi0_ddr2",
+ 					     "dsi0_ddr";
  
- 	list_for_each_entry(pcm, &hdmi->pcm_list, head) {
- 		if (pcm->cvt == cvt)
--			break;
-+			return pcm;
- 	}
++			status = "disabled";
+ 		};
  
--	return pcm;
-+	return NULL;
- }
- 
- static void hdac_hdmi_jack_report(struct hdac_hdmi_pcm *pcm,
+ 		thermal: thermal@7e212000 {
 -- 
 2.20.1
 
