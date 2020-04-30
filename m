@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8EC61BFD69
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:12:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E07C01BFD5E
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726355AbgD3OMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 10:12:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59052 "EHLO mail.kernel.org"
+        id S1727917AbgD3NvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:51:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727896AbgD3NvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:51:07 -0400
+        id S1727906AbgD3NvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:51:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26FA9208DB;
-        Thu, 30 Apr 2020 13:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B0562137B;
+        Thu, 30 Apr 2020 13:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254666;
-        bh=/pCLZHYr2OmVi2mS3ZUGZ80/NyMpK1+qw2ThEw/BWPI=;
+        s=default; t=1588254667;
+        bh=PQO2qszkR2ZOJGdXJ9WPdFL9T2v4oNVLb9SEfQ0GBfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kyqFvYQUobjjoTm5JRlekaeIUMb9T4lPXyVs0iORad78Ms5Gw3kTLTcTds3wOh7bt
-         RQW49wo4smXX27ORanqfPuR7ZjLqDFZgIaESzpueC8AtqIrEAHaoT8xNddRvCdTtoR
-         SRAjg2v7i6Nd+9nUUmacQWpxKuv0WfVT3MqHjI30=
+        b=LaVjopSsE41AZx8PuqKNVTBlNfy7BvBJFIcAw2sbOTRijv7IQvuqySAWal04CSaxH
+         1xvcKsNJrm6LhUER3goWj0BVw3xIgoMyMiR16kz7V3o9Bl0oWElMr5GNocnFOI28Y2
+         FdTizDNNc2XEKVcz2OcysdZ+lPTccT4sduTeh05w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-api@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 19/79] selftests/ipc: Fix test failure seen after initial test run
-Date:   Thu, 30 Apr 2020 09:49:43 -0400
-Message-Id: <20200430135043.19851-19-sashal@kernel.org>
+Cc:     Vasily Khoruzhick <anarsoul@gmail.com>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 20/79] drm/bridge: anx6345: set correct BPC for display_info of connector
+Date:   Thu, 30 Apr 2020 09:49:44 -0400
+Message-Id: <20200430135043.19851-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135043.19851-1-sashal@kernel.org>
 References: <20200430135043.19851-1-sashal@kernel.org>
@@ -43,59 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Vasily Khoruzhick <anarsoul@gmail.com>
 
-[ Upstream commit b87080eab4c1377706c113fc9c0157f19ea8fed1 ]
+[ Upstream commit 1e8a6ce9186dbf342eebc07cf14cae5e82164e03 ]
 
-After successfully running the IPC msgque test once, subsequent runs
-result in a test failure:
+Some drivers (e.g. sun4i-drm) need this info to decide whether they
+need to enable dithering. Currently driver reports what panel supports
+and if panel supports 8 we don't get dithering enabled.
 
-  $ sudo ./run_kselftest.sh
-  TAP version 13
-  1..1
-  # selftests: ipc: msgque
-  # Failed to get stats for IPC queue with id 0
-  # Failed to dump queue: -22
-  # Bail out!
-  # # Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
-  not ok 1 selftests: ipc: msgque # exit=1
+Hardcode BPC to 6 for now since that's the only BPC
+that driver supports.
 
-The dump_queue() function loops through the possible message queue index
-values using calls to msgctl(kern_id, MSG_STAT, ...) where kern_id
-represents the index value. The first time the test is ran, the initial
-index value of 0 is valid and the test is able to complete. The index
-value of 0 is not valid in subsequent test runs and the loop attempts to
-try index values of 1, 2, 3, and so on until a valid index value is
-found that corresponds to the message queue created earlier in the test.
-
-The msgctl() syscall returns -1 and sets errno to EINVAL when invalid
-index values are used. The test failure is caused by incorrectly
-comparing errno to -EINVAL when cycling through possible index values.
-
-Fix invalid test failures on subsequent runs of the msgque test by
-correctly comparing errno values to a non-negated EINVAL.
-
-Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 6aa192698089 ("drm/bridge: Add Analogix anx6345 support")
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+Acked-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200329222253.2941405-1-anarsoul@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/ipc/msgque.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/analogix/analogix-anx6345.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
-index 4c156aeab6b80..5ec4d9e18806c 100644
---- a/tools/testing/selftests/ipc/msgque.c
-+++ b/tools/testing/selftests/ipc/msgque.c
-@@ -137,7 +137,7 @@ int dump_queue(struct msgque_data *msgque)
- 	for (kern_id = 0; kern_id < 256; kern_id++) {
- 		ret = msgctl(kern_id, MSG_STAT, &ds);
- 		if (ret < 0) {
--			if (errno == -EINVAL)
-+			if (errno == EINVAL)
- 				continue;
- 			printf("Failed to get stats for IPC queue with id %d\n",
- 					kern_id);
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix-anx6345.c b/drivers/gpu/drm/bridge/analogix/analogix-anx6345.c
+index 526507102c1ea..8d32fea84c75e 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix-anx6345.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix-anx6345.c
+@@ -485,6 +485,9 @@ static int anx6345_get_modes(struct drm_connector *connector)
+ 
+ 	num_modes += drm_add_edid_modes(connector, anx6345->edid);
+ 
++	/* Driver currently supports only 6bpc */
++	connector->display_info.bpc = 6;
++
+ unlock:
+ 	if (power_off)
+ 		anx6345_poweroff(anx6345);
 -- 
 2.20.1
 
