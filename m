@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 482861BFCE0
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:09:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F681BFCE5
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:09:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728652AbgD3OI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728233AbgD3OI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 30 Apr 2020 10:08:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60896 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728263AbgD3NwB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:52:01 -0400
+        id S1728271AbgD3NwC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:52:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 211DE24956;
-        Thu, 30 Apr 2020 13:52:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 395C221775;
+        Thu, 30 Apr 2020 13:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254720;
-        bh=/F9JKVwDou5NhYrhKi27NvGY0xN/IWMFBTSb7Z63lPI=;
+        s=default; t=1588254722;
+        bh=zI9U96ifGGqZbsvmYhIvux+kaVFx/2j17snz9G3CqCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X/a+k2deN685y68mz8Px4Q5vrh/PP9IXrEZj3e8QXKx7A0MjkV4LSNLFJco4yFuCz
-         A6eZYgiVGNiFYtMFIVr+3GBpTE+9oEoMHL80ahuzez9xcT3uAApIf0pkNgX6zDUnd9
-         gd3S4EsHeMplNmG6NTw0NptvUdGUMftoaFGXkfjs=
+        b=c+FUOpJmh/RgylIPDES5vJ7Rx+CTLWk5FfnVgQrSrLujmP66MOF0js2mPUQVVb0bc
+         vvRnPL9q/Dem0WGF9gyTXLW6TKuxKyYrCvNPN4CgtRVWIgtCDt60G/UmnKw6/YOdS6
+         CJ0tpxpzo9PLwPl1VqhY+R8hHKEgKspx1zrs9mk4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        kbuild test robot <lkp@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 68/79] lib/mpi: Fix building for powerpc with clang
-Date:   Thu, 30 Apr 2020 09:50:32 -0400
-Message-Id: <20200430135043.19851-68-sashal@kernel.org>
+Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 69/79] mac80211: sta_info: Add lockdep condition for RCU list usage
+Date:   Thu, 30 Apr 2020 09:50:33 -0400
+Message-Id: <20200430135043.19851-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135043.19851-1-sashal@kernel.org>
 References: <20200430135043.19851-1-sashal@kernel.org>
@@ -45,121 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit 5990cdee689c6885b27c6d969a3d58b09002b0bc ]
+[ Upstream commit 8ca47eb9f9e4e10e7e7fa695731a88941732c38d ]
 
-0day reports over and over on an powerpc randconfig with clang:
+The function sta_info_get_by_idx() uses RCU list primitive.
+It is called with  local->sta_mtx held from mac80211/cfg.c.
+Add lockdep expression to avoid any false positive RCU list warnings.
 
-lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast or build with
--fheinous-gnu-extensions
-
-Remove the superfluous casts, which have been done previously for x86
-and arm32 in commit dea632cadd12 ("lib/mpi: fix build with clang") and
-commit 7b7c1df2883d ("lib/mpi/longlong.h: fix building with 32-bit
-x86").
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/991
-Link: https://lore.kernel.org/r/20200413195041.24064-1-natechancellor@gmail.com
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Link: https://lore.kernel.org/r/20200409082906.27427-1-madhuparnabhowmik10@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/longlong.h | 34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ net/mac80211/sta_info.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
-index 2dceaca27489c..891e1c3549c46 100644
---- a/lib/mpi/longlong.h
-+++ b/lib/mpi/longlong.h
-@@ -722,22 +722,22 @@ do {									\
- do { \
- 	if (__builtin_constant_p(bh) && (bh) == 0) \
- 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"%r" ((USItype)(al)), \
- 		"rI" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
- 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"%r" ((USItype)(al)), \
- 		"rI" ((USItype)(bl))); \
- 	else \
- 		__asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"r" ((USItype)(bh)), \
- 		"%r" ((USItype)(al)), \
-@@ -747,36 +747,36 @@ do { \
- do { \
- 	if (__builtin_constant_p(ah) && (ah) == 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(ah) && (ah) == ~(USItype) 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else \
- 		__asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
-@@ -787,7 +787,7 @@ do { \
- do { \
- 	USItype __m0 = (m0), __m1 = (m1); \
- 	__asm__ ("mulhwu %0,%1,%2" \
--	: "=r" ((USItype) ph) \
-+	: "=r" (ph) \
- 	: "%r" (__m0), \
- 	"r" (__m1)); \
- 	(pl) = __m0 * __m1; \
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index e3572be307d6c..149ed0510778d 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -231,7 +231,8 @@ struct sta_info *sta_info_get_by_idx(struct ieee80211_sub_if_data *sdata,
+ 	struct sta_info *sta;
+ 	int i = 0;
+ 
+-	list_for_each_entry_rcu(sta, &local->sta_list, list) {
++	list_for_each_entry_rcu(sta, &local->sta_list, list,
++				lockdep_is_held(&local->sta_mtx)) {
+ 		if (sdata != sta->sdata)
+ 			continue;
+ 		if (i < idx) {
 -- 
 2.20.1
 
