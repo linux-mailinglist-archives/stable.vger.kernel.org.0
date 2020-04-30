@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA6E1BFC76
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:06:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2C781BFC75
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:06:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729187AbgD3OFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728478AbgD3OFz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 30 Apr 2020 10:05:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34320 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728541AbgD3Nwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728548AbgD3Nwy (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 30 Apr 2020 09:52:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3060B20774;
-        Thu, 30 Apr 2020 13:52:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AF422495A;
+        Thu, 30 Apr 2020 13:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254772;
-        bh=TuIeUAQH5rlaGcfmtVR241m3C6iev7hPb3HiwJCoXVk=;
+        s=default; t=1588254774;
+        bh=HvgQtozXPajYVnHS90k19ocaTh/Mfax+KW0Y9WIaGKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vSS5PBZYPOWElGHKR6nPkoRbWUAuk2fahfe+dLZkHN3u9YoDtcaOH8UBsc5bvp1s
-         arX7cNQ/TQWa5LbDKnrfQS5Bgf32XaO/CwYfqI6cZzJXkOpY+YlCts3zNF5KIOrd0i
-         hEmdkjNQY6hY1r4IawXutS99WLb7cWkZ9+DeEdlE=
+        b=V6Ml/ZeGHiw3Scnezk5pPMbodQuziMA7mHKyPxHoCBtY6AT9QVg2Fu8vxJc7vNQFk
+         uKKNl6wlPlSM/0PwQxUQ3r1kuOcEgiWJv7ls5jgcc2uSFZuG8fL5cdwIy+/5PlCIF3
+         o3BUj+uoA1hnTw40FER20yQsXFFGM3Oypc2rtM4w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Syed Nayyar Waris <syednwaris@gmail.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 30/57] counter: 104-quad-8: Add lock guards - generic interface
-Date:   Thu, 30 Apr 2020 09:51:51 -0400
-Message-Id: <20200430135218.20372-30-sashal@kernel.org>
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 31/57] ASoC: meson: axg-card: fix codec-to-codec link setup
+Date:   Thu, 30 Apr 2020 09:51:52 -0400
+Message-Id: <20200430135218.20372-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135218.20372-1-sashal@kernel.org>
 References: <20200430135218.20372-1-sashal@kernel.org>
@@ -44,575 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Syed Nayyar Waris <syednwaris@gmail.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit fc069262261c43ed11d639dadcf982e79bfe652b ]
+[ Upstream commit 1164284270779e1865cc2046a2a01b58a1e858a9 ]
 
-Add lock protection from race conditions to 104-quad-8 counter driver
-generic interface code changes. Mutex calls used for protection.
+Since the addition of commit 9b5db059366a ("ASoC: soc-pcm: dpcm: Only allow
+playback/capture if supported"), meson-axg cards which have codec-to-codec
+links fail to init and Oops:
 
-Fixes: f1d8a071d45b ("counter: 104-quad-8: Add Generic Counter interface support")
+  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000128
+  Internal error: Oops: 96000044 [#1] PREEMPT SMP
+  CPU: 3 PID: 1582 Comm: arecord Not tainted 5.7.0-rc1
+  pc : invalidate_paths_ep+0x30/0xe0
+  lr : snd_soc_dapm_dai_get_connected_widgets+0x170/0x1a8
+  Call trace:
+   invalidate_paths_ep+0x30/0xe0
+   snd_soc_dapm_dai_get_connected_widgets+0x170/0x1a8
+   dpcm_path_get+0x38/0xd0
+   dpcm_fe_dai_open+0x70/0x920
+   snd_pcm_open_substream+0x564/0x840
+   snd_pcm_open+0xfc/0x228
+   snd_pcm_capture_open+0x4c/0x78
+   snd_open+0xac/0x1a8
+   ...
 
-Signed-off-by: Syed Nayyar Waris <syednwaris@gmail.com>
-Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+While initiliazing the links, ASoC treats the codec-to-codec links of this
+card type as a DPCM backend. This error eventually leads to the Oops.
+
+Most of the card driver code is shared between DPCM backends and
+codec-to-codec links. The property "no_pcm" marking DCPM BE was left set on
+codec-to-codec links, leading to this problem. This commit fixes that.
+
+Fixes: 0a8f1117a680 ("ASoC: meson: axg-card: add basic codec-to-codec link support")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20200420114511.450560-2-jbrunet@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/counter/104-quad-8.c | 194 +++++++++++++++++++++++++++++------
- 1 file changed, 160 insertions(+), 34 deletions(-)
+ sound/soc/meson/axg-card.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
-index 00b113f4b9588..5c23a9a56921b 100644
---- a/drivers/counter/104-quad-8.c
-+++ b/drivers/counter/104-quad-8.c
-@@ -42,6 +42,7 @@ MODULE_PARM_DESC(base, "ACCES 104-QUAD-8 base addresses");
-  * @base:		base port address of the IIO device
-  */
- struct quad8_iio {
-+	struct mutex lock;
- 	struct counter_device counter;
- 	unsigned int preset[QUAD8_NUM_COUNTERS];
- 	unsigned int count_mode[QUAD8_NUM_COUNTERS];
-@@ -116,6 +117,8 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
- 		/* Borrow XOR Carry effectively doubles count range */
- 		*val = (borrow ^ carry) << 24;
+diff --git a/sound/soc/meson/axg-card.c b/sound/soc/meson/axg-card.c
+index 1f698adde506c..2b04ac3d8fd3b 100644
+--- a/sound/soc/meson/axg-card.c
++++ b/sound/soc/meson/axg-card.c
+@@ -586,8 +586,10 @@ static int axg_card_add_link(struct snd_soc_card *card, struct device_node *np,
  
-+		mutex_lock(&priv->lock);
-+
- 		/* Reset Byte Pointer; transfer Counter to Output Latch */
- 		outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_BP | QUAD8_RLD_CNTR_OUT,
- 		     base_offset + 1);
-@@ -123,6 +126,8 @@ static int quad8_read_raw(struct iio_dev *indio_dev,
- 		for (i = 0; i < 3; i++)
- 			*val |= (unsigned int)inb(base_offset) << (8 * i);
- 
-+		mutex_unlock(&priv->lock);
-+
- 		return IIO_VAL_INT;
- 	case IIO_CHAN_INFO_ENABLE:
- 		*val = priv->ab_enable[chan->channel];
-@@ -153,6 +158,8 @@ static int quad8_write_raw(struct iio_dev *indio_dev,
- 		if ((unsigned int)val > 0xFFFFFF)
- 			return -EINVAL;
- 
-+		mutex_lock(&priv->lock);
-+
- 		/* Reset Byte Pointer */
- 		outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_BP, base_offset + 1);
- 
-@@ -176,12 +183,16 @@ static int quad8_write_raw(struct iio_dev *indio_dev,
- 		/* Reset Error flag */
- 		outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_E, base_offset + 1);
- 
-+		mutex_unlock(&priv->lock);
-+
- 		return 0;
- 	case IIO_CHAN_INFO_ENABLE:
- 		/* only boolean values accepted */
- 		if (val < 0 || val > 1)
- 			return -EINVAL;
- 
-+		mutex_lock(&priv->lock);
-+
- 		priv->ab_enable[chan->channel] = val;
- 
- 		ior_cfg = val | priv->preset_enable[chan->channel] << 1;
-@@ -189,11 +200,18 @@ static int quad8_write_raw(struct iio_dev *indio_dev,
- 		/* Load I/O control configuration */
- 		outb(QUAD8_CTR_IOR | ior_cfg, base_offset + 1);
- 
-+		mutex_unlock(&priv->lock);
-+
- 		return 0;
- 	case IIO_CHAN_INFO_SCALE:
-+		mutex_lock(&priv->lock);
-+
- 		/* Quadrature scaling only available in quadrature mode */
--		if (!priv->quadrature_mode[chan->channel] && (val2 || val != 1))
-+		if (!priv->quadrature_mode[chan->channel] &&
-+				(val2 || val != 1)) {
-+			mutex_unlock(&priv->lock);
- 			return -EINVAL;
-+		}
- 
- 		/* Only three gain states (1, 0.5, 0.25) */
- 		if (val == 1 && !val2)
-@@ -207,11 +225,15 @@ static int quad8_write_raw(struct iio_dev *indio_dev,
- 				priv->quadrature_scale[chan->channel] = 2;
- 				break;
- 			default:
-+				mutex_unlock(&priv->lock);
- 				return -EINVAL;
- 			}
--		else
-+		else {
-+			mutex_unlock(&priv->lock);
- 			return -EINVAL;
-+		}
- 
-+		mutex_unlock(&priv->lock);
- 		return 0;
- 	}
- 
-@@ -248,6 +270,8 @@ static ssize_t quad8_write_preset(struct iio_dev *indio_dev, uintptr_t private,
- 	if (preset > 0xFFFFFF)
- 		return -EINVAL;
- 
-+	mutex_lock(&priv->lock);
-+
- 	priv->preset[chan->channel] = preset;
- 
- 	/* Reset Byte Pointer */
-@@ -257,6 +281,8 @@ static ssize_t quad8_write_preset(struct iio_dev *indio_dev, uintptr_t private,
- 	for (i = 0; i < 3; i++)
- 		outb(preset >> (8 * i), base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return len;
- }
- 
-@@ -286,6 +312,8 @@ static ssize_t quad8_write_set_to_preset_on_index(struct iio_dev *indio_dev,
- 	/* Preset enable is active low in Input/Output Control register */
- 	preset_enable = !preset_enable;
- 
-+	mutex_lock(&priv->lock);
-+
- 	priv->preset_enable[chan->channel] = preset_enable;
- 
- 	ior_cfg = priv->ab_enable[chan->channel] |
-@@ -294,6 +322,8 @@ static ssize_t quad8_write_set_to_preset_on_index(struct iio_dev *indio_dev,
- 	/* Load I/O control configuration to Input / Output Control Register */
- 	outb(QUAD8_CTR_IOR | ior_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return len;
- }
- 
-@@ -351,6 +381,8 @@ static int quad8_set_count_mode(struct iio_dev *indio_dev,
- 	unsigned int mode_cfg = cnt_mode << 1;
- 	const int base_offset = priv->base + 2 * chan->channel + 1;
- 
-+	mutex_lock(&priv->lock);
-+
- 	priv->count_mode[chan->channel] = cnt_mode;
- 
- 	/* Add quadrature mode configuration */
-@@ -360,6 +392,8 @@ static int quad8_set_count_mode(struct iio_dev *indio_dev,
- 	/* Load mode configuration to Counter Mode Register */
- 	outb(QUAD8_CTR_CMR | mode_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
-@@ -387,19 +421,26 @@ static int quad8_set_synchronous_mode(struct iio_dev *indio_dev,
- 	const struct iio_chan_spec *chan, unsigned int synchronous_mode)
- {
- 	struct quad8_iio *const priv = iio_priv(indio_dev);
--	const unsigned int idr_cfg = synchronous_mode |
--		priv->index_polarity[chan->channel] << 1;
- 	const int base_offset = priv->base + 2 * chan->channel + 1;
-+	unsigned int idr_cfg = synchronous_mode;
-+
-+	mutex_lock(&priv->lock);
-+
-+	idr_cfg |= priv->index_polarity[chan->channel] << 1;
- 
- 	/* Index function must be non-synchronous in non-quadrature mode */
--	if (synchronous_mode && !priv->quadrature_mode[chan->channel])
-+	if (synchronous_mode && !priv->quadrature_mode[chan->channel]) {
-+		mutex_unlock(&priv->lock);
- 		return -EINVAL;
+ 	if (axg_card_cpu_is_tdm_iface(dai_link->cpus->of_node))
+ 		ret = axg_card_parse_tdm(card, np, index);
+-	else if (axg_card_cpu_is_codec(dai_link->cpus->of_node))
++	else if (axg_card_cpu_is_codec(dai_link->cpus->of_node)) {
+ 		dai_link->params = &codec_params;
++		dai_link->no_pcm = 0; /* link is not a DPCM BE */
 +	}
  
- 	priv->synchronous_mode[chan->channel] = synchronous_mode;
- 
- 	/* Load Index Control configuration to Index Control Register */
- 	outb(QUAD8_CTR_IDR | idr_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
+ 	return ret;
  }
- 
-@@ -427,8 +468,12 @@ static int quad8_set_quadrature_mode(struct iio_dev *indio_dev,
- 	const struct iio_chan_spec *chan, unsigned int quadrature_mode)
- {
- 	struct quad8_iio *const priv = iio_priv(indio_dev);
--	unsigned int mode_cfg = priv->count_mode[chan->channel] << 1;
- 	const int base_offset = priv->base + 2 * chan->channel + 1;
-+	unsigned int mode_cfg;
-+
-+	mutex_lock(&priv->lock);
-+
-+	mode_cfg = priv->count_mode[chan->channel] << 1;
- 
- 	if (quadrature_mode)
- 		mode_cfg |= (priv->quadrature_scale[chan->channel] + 1) << 3;
-@@ -446,6 +491,8 @@ static int quad8_set_quadrature_mode(struct iio_dev *indio_dev,
- 	/* Load mode configuration to Counter Mode Register */
- 	outb(QUAD8_CTR_CMR | mode_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
-@@ -473,15 +520,20 @@ static int quad8_set_index_polarity(struct iio_dev *indio_dev,
- 	const struct iio_chan_spec *chan, unsigned int index_polarity)
- {
- 	struct quad8_iio *const priv = iio_priv(indio_dev);
--	const unsigned int idr_cfg = priv->synchronous_mode[chan->channel] |
--		index_polarity << 1;
- 	const int base_offset = priv->base + 2 * chan->channel + 1;
-+	unsigned int idr_cfg = index_polarity << 1;
-+
-+	mutex_lock(&priv->lock);
-+
-+	idr_cfg |= priv->synchronous_mode[chan->channel];
- 
- 	priv->index_polarity[chan->channel] = index_polarity;
- 
- 	/* Load Index Control configuration to Index Control Register */
- 	outb(QUAD8_CTR_IDR | idr_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
-@@ -585,7 +637,7 @@ static int quad8_signal_read(struct counter_device *counter,
- static int quad8_count_read(struct counter_device *counter,
- 	struct counter_count *count, struct counter_count_read_value *val)
- {
--	const struct quad8_iio *const priv = counter->priv;
-+	struct quad8_iio *const priv = counter->priv;
- 	const int base_offset = priv->base + 2 * count->id;
- 	unsigned int flags;
- 	unsigned int borrow;
-@@ -600,6 +652,8 @@ static int quad8_count_read(struct counter_device *counter,
- 	/* Borrow XOR Carry effectively doubles count range */
- 	position = (unsigned long)(borrow ^ carry) << 24;
- 
-+	mutex_lock(&priv->lock);
-+
- 	/* Reset Byte Pointer; transfer Counter to Output Latch */
- 	outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_BP | QUAD8_RLD_CNTR_OUT,
- 	     base_offset + 1);
-@@ -609,13 +663,15 @@ static int quad8_count_read(struct counter_device *counter,
- 
- 	counter_count_read_value_set(val, COUNTER_COUNT_POSITION, &position);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
- static int quad8_count_write(struct counter_device *counter,
- 	struct counter_count *count, struct counter_count_write_value *val)
- {
--	const struct quad8_iio *const priv = counter->priv;
-+	struct quad8_iio *const priv = counter->priv;
- 	const int base_offset = priv->base + 2 * count->id;
- 	int err;
- 	unsigned long position;
-@@ -630,6 +686,8 @@ static int quad8_count_write(struct counter_device *counter,
- 	if (position > 0xFFFFFF)
- 		return -EINVAL;
- 
-+	mutex_lock(&priv->lock);
-+
- 	/* Reset Byte Pointer */
- 	outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_BP, base_offset + 1);
- 
-@@ -653,6 +711,8 @@ static int quad8_count_write(struct counter_device *counter,
- 	/* Reset Error flag */
- 	outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_E, base_offset + 1);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
-@@ -673,13 +733,13 @@ static enum counter_count_function quad8_count_functions_list[] = {
- static int quad8_function_get(struct counter_device *counter,
- 	struct counter_count *count, size_t *function)
- {
--	const struct quad8_iio *const priv = counter->priv;
-+	struct quad8_iio *const priv = counter->priv;
- 	const int id = count->id;
--	const unsigned int quadrature_mode = priv->quadrature_mode[id];
--	const unsigned int scale = priv->quadrature_scale[id];
- 
--	if (quadrature_mode)
--		switch (scale) {
-+	mutex_lock(&priv->lock);
-+
-+	if (priv->quadrature_mode[id])
-+		switch (priv->quadrature_scale[id]) {
- 		case 0:
- 			*function = QUAD8_COUNT_FUNCTION_QUADRATURE_X1;
- 			break;
-@@ -693,6 +753,8 @@ static int quad8_function_get(struct counter_device *counter,
- 	else
- 		*function = QUAD8_COUNT_FUNCTION_PULSE_DIRECTION;
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
-@@ -703,10 +765,15 @@ static int quad8_function_set(struct counter_device *counter,
- 	const int id = count->id;
- 	unsigned int *const quadrature_mode = priv->quadrature_mode + id;
- 	unsigned int *const scale = priv->quadrature_scale + id;
--	unsigned int mode_cfg = priv->count_mode[id] << 1;
- 	unsigned int *const synchronous_mode = priv->synchronous_mode + id;
--	const unsigned int idr_cfg = priv->index_polarity[id] << 1;
- 	const int base_offset = priv->base + 2 * id + 1;
-+	unsigned int mode_cfg;
-+	unsigned int idr_cfg;
-+
-+	mutex_lock(&priv->lock);
-+
-+	mode_cfg = priv->count_mode[id] << 1;
-+	idr_cfg = priv->index_polarity[id] << 1;
- 
- 	if (function == QUAD8_COUNT_FUNCTION_PULSE_DIRECTION) {
- 		*quadrature_mode = 0;
-@@ -742,6 +809,8 @@ static int quad8_function_set(struct counter_device *counter,
- 	/* Load mode configuration to Counter Mode Register */
- 	outb(QUAD8_CTR_CMR | mode_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
-@@ -858,15 +927,20 @@ static int quad8_index_polarity_set(struct counter_device *counter,
- {
- 	struct quad8_iio *const priv = counter->priv;
- 	const size_t channel_id = signal->id - 16;
--	const unsigned int idr_cfg = priv->synchronous_mode[channel_id] |
--		index_polarity << 1;
- 	const int base_offset = priv->base + 2 * channel_id + 1;
-+	unsigned int idr_cfg = index_polarity << 1;
-+
-+	mutex_lock(&priv->lock);
-+
-+	idr_cfg |= priv->synchronous_mode[channel_id];
- 
- 	priv->index_polarity[channel_id] = index_polarity;
- 
- 	/* Load Index Control configuration to Index Control Register */
- 	outb(QUAD8_CTR_IDR | idr_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
-@@ -893,19 +967,26 @@ static int quad8_synchronous_mode_set(struct counter_device *counter,
- {
- 	struct quad8_iio *const priv = counter->priv;
- 	const size_t channel_id = signal->id - 16;
--	const unsigned int idr_cfg = synchronous_mode |
--		priv->index_polarity[channel_id] << 1;
- 	const int base_offset = priv->base + 2 * channel_id + 1;
-+	unsigned int idr_cfg = synchronous_mode;
-+
-+	mutex_lock(&priv->lock);
-+
-+	idr_cfg |= priv->index_polarity[channel_id] << 1;
- 
- 	/* Index function must be non-synchronous in non-quadrature mode */
--	if (synchronous_mode && !priv->quadrature_mode[channel_id])
-+	if (synchronous_mode && !priv->quadrature_mode[channel_id]) {
-+		mutex_unlock(&priv->lock);
- 		return -EINVAL;
-+	}
- 
- 	priv->synchronous_mode[channel_id] = synchronous_mode;
- 
- 	/* Load Index Control configuration to Index Control Register */
- 	outb(QUAD8_CTR_IDR | idr_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
-@@ -970,6 +1051,8 @@ static int quad8_count_mode_set(struct counter_device *counter,
- 		break;
- 	}
- 
-+	mutex_lock(&priv->lock);
-+
- 	priv->count_mode[count->id] = cnt_mode;
- 
- 	/* Set count mode configuration value */
-@@ -982,6 +1065,8 @@ static int quad8_count_mode_set(struct counter_device *counter,
- 	/* Load mode configuration to Counter Mode Register */
- 	outb(QUAD8_CTR_CMR | mode_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return 0;
- }
- 
-@@ -1023,6 +1108,8 @@ static ssize_t quad8_count_enable_write(struct counter_device *counter,
- 	if (err)
- 		return err;
- 
-+	mutex_lock(&priv->lock);
-+
- 	priv->ab_enable[count->id] = ab_enable;
- 
- 	ior_cfg = ab_enable | priv->preset_enable[count->id] << 1;
-@@ -1030,6 +1117,8 @@ static ssize_t quad8_count_enable_write(struct counter_device *counter,
- 	/* Load I/O control configuration */
- 	outb(QUAD8_CTR_IOR | ior_cfg, base_offset + 1);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return len;
- }
- 
-@@ -1058,14 +1147,28 @@ static ssize_t quad8_count_preset_read(struct counter_device *counter,
- 	return sprintf(buf, "%u\n", priv->preset[count->id]);
- }
- 
-+static void quad8_preset_register_set(struct quad8_iio *quad8iio, int id,
-+		unsigned int preset)
-+{
-+	const unsigned int base_offset = quad8iio->base + 2 * id;
-+	int i;
-+
-+	quad8iio->preset[id] = preset;
-+
-+	/* Reset Byte Pointer */
-+	outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_BP, base_offset + 1);
-+
-+	/* Set Preset Register */
-+	for (i = 0; i < 3; i++)
-+		outb(preset >> (8 * i), base_offset);
-+}
-+
- static ssize_t quad8_count_preset_write(struct counter_device *counter,
- 	struct counter_count *count, void *private, const char *buf, size_t len)
- {
- 	struct quad8_iio *const priv = counter->priv;
--	const int base_offset = priv->base + 2 * count->id;
- 	unsigned int preset;
- 	int ret;
--	int i;
- 
- 	ret = kstrtouint(buf, 0, &preset);
- 	if (ret)
-@@ -1075,14 +1178,11 @@ static ssize_t quad8_count_preset_write(struct counter_device *counter,
- 	if (preset > 0xFFFFFF)
- 		return -EINVAL;
- 
--	priv->preset[count->id] = preset;
-+	mutex_lock(&priv->lock);
- 
--	/* Reset Byte Pointer */
--	outb(QUAD8_CTR_RLD | QUAD8_RLD_RESET_BP, base_offset + 1);
-+	quad8_preset_register_set(priv, count->id, preset);
- 
--	/* Set Preset Register */
--	for (i = 0; i < 3; i++)
--		outb(preset >> (8 * i), base_offset);
-+	mutex_unlock(&priv->lock);
- 
- 	return len;
- }
-@@ -1090,15 +1190,20 @@ static ssize_t quad8_count_preset_write(struct counter_device *counter,
- static ssize_t quad8_count_ceiling_read(struct counter_device *counter,
- 	struct counter_count *count, void *private, char *buf)
- {
--	const struct quad8_iio *const priv = counter->priv;
-+	struct quad8_iio *const priv = counter->priv;
-+
-+	mutex_lock(&priv->lock);
- 
- 	/* Range Limit and Modulo-N count modes use preset value as ceiling */
- 	switch (priv->count_mode[count->id]) {
- 	case 1:
- 	case 3:
--		return quad8_count_preset_read(counter, count, private, buf);
-+		mutex_unlock(&priv->lock);
-+		return sprintf(buf, "%u\n", priv->preset[count->id]);
- 	}
- 
-+	mutex_unlock(&priv->lock);
-+
- 	/* By default 0x1FFFFFF (25 bits unsigned) is maximum count */
- 	return sprintf(buf, "33554431\n");
- }
-@@ -1107,15 +1212,29 @@ static ssize_t quad8_count_ceiling_write(struct counter_device *counter,
- 	struct counter_count *count, void *private, const char *buf, size_t len)
- {
- 	struct quad8_iio *const priv = counter->priv;
-+	unsigned int ceiling;
-+	int ret;
-+
-+	ret = kstrtouint(buf, 0, &ceiling);
-+	if (ret)
-+		return ret;
-+
-+	/* Only 24-bit values are supported */
-+	if (ceiling > 0xFFFFFF)
-+		return -EINVAL;
-+
-+	mutex_lock(&priv->lock);
- 
- 	/* Range Limit and Modulo-N count modes use preset value as ceiling */
- 	switch (priv->count_mode[count->id]) {
- 	case 1:
- 	case 3:
--		return quad8_count_preset_write(counter, count, private, buf,
--						len);
-+		quad8_preset_register_set(priv, count->id, ceiling);
-+		break;
- 	}
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return len;
- }
- 
-@@ -1143,6 +1262,8 @@ static ssize_t quad8_count_preset_enable_write(struct counter_device *counter,
- 	/* Preset enable is active low in Input/Output Control register */
- 	preset_enable = !preset_enable;
- 
-+	mutex_lock(&priv->lock);
-+
- 	priv->preset_enable[count->id] = preset_enable;
- 
- 	ior_cfg = priv->ab_enable[count->id] | (unsigned int)preset_enable << 1;
-@@ -1150,6 +1271,8 @@ static ssize_t quad8_count_preset_enable_write(struct counter_device *counter,
- 	/* Load I/O control configuration to Input / Output Control Register */
- 	outb(QUAD8_CTR_IOR | ior_cfg, base_offset);
- 
-+	mutex_unlock(&priv->lock);
-+
- 	return len;
- }
- 
-@@ -1320,6 +1443,9 @@ static int quad8_probe(struct device *dev, unsigned int id)
- 	quad8iio->counter.priv = quad8iio;
- 	quad8iio->base = base[id];
- 
-+	/* Initialize mutex */
-+	mutex_init(&quad8iio->lock);
-+
- 	/* Reset all counters and disable interrupt function */
- 	outb(QUAD8_CHAN_OP_RESET_COUNTERS, base[id] + QUAD8_REG_CHAN_OP);
- 	/* Set initial configuration for all counters */
 -- 
 2.20.1
 
