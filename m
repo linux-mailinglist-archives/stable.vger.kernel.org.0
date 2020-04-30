@@ -2,207 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B8971BF8CD
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:03:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06ABE1BF8F2
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:10:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726950AbgD3NDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:03:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49728 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726961AbgD3NDh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:03:37 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 5BD26AC85;
-        Thu, 30 Apr 2020 13:03:35 +0000 (UTC)
-From:   Roman Penyaev <rpenyaev@suse.de>
-Cc:     Roman Penyaev <rpenyaev@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
-        Jason Baron <jbaron@akamai.com>, stable@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] epoll: atomically remove wait entry on wake up
-Date:   Thu, 30 Apr 2020 15:03:26 +0200
-Message-Id: <20200430130326.1368509-2-rpenyaev@suse.de>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200430130326.1368509-1-rpenyaev@suse.de>
-References: <20200430130326.1368509-1-rpenyaev@suse.de>
+        id S1726550AbgD3NKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:10:18 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:57533 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726743AbgD3NKR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 09:10:17 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 4314B8CA;
+        Thu, 30 Apr 2020 09:10:16 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 30 Apr 2020 09:10:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=XOt/2f
+        0RLWOuquUX7n2EdDWNSLlCPLxTxMURCPulWfY=; b=OxkGiNzLqj6r0RQ5NZ/xvs
+        JZjlpDDw0dLQJiFW1o7iw4j+ZgynAm7WuVy/SpyLse2SkVd6rqJFie20w4ozx1mc
+        44/qho4yWjjFNpkbgHhcsZbTYiAbqa30vtJsVwKAtpVsdC7WI8ZmC5qdcNGhir33
+        EZW2AucYE32rkw5MOjqLOMeU0YblG+fcqgq6ymlTtzGCplnZS4CLHDDMcnn1VEi3
+        H00jQML+D3WenDGpLRIjxNwqwhD6X76KTvlUe+EPmCmj2jIapFmys2Nu/I3uZKHW
+        A5YT+1nRJmeancLbb/dA0GGnGJaRowgN4V4la/DSYcjjHyTyWGbg6AaNu1C7f3PA
+        ==
+X-ME-Sender: <xms:N86qXs_txUgH-L19aO1Rzy16NAIrockHELF0Kk4YrZn1irir9Nqn1g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrieehgdeitdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:N86qXo8w5y29gZuQJWroaHEMl-pyg95csFYfQwB8SX9Ildhti2hdSw>
+    <xmx:N86qXtATj8hMDOJ2adZmXrE38-3qPL_f60H3U4M7f1sTtTtZO7pYtg>
+    <xmx:N86qXgxZd6NYxiYDjgm-Dtt8fEV_8jjhGjlVaFwsEILHOwhJJSYEmg>
+    <xmx:N86qXhxUBdGfeWg86HlWOFoiZ7gh43nX-CT3AT0QTQiekA85zWC6d1BibeQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 515433065F29;
+        Thu, 30 Apr 2020 09:10:15 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] bpf: Forbid XADD on spilled pointers for unprivileged users" failed to apply to 4.19-stable tree
+To:     jannh@google.com, ast@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 30 Apr 2020 15:10:09 +0200
+Message-ID: <158825220952211@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch does two things:
 
-1. fixes lost wakeup introduced by:
-  339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-2. improves performance for events delivery.
+thanks,
 
-The description of the problem is the following: if N (>1) threads
-are waiting on ep->wq for new events and M (>1) events come, it is
-quite likely that >1 wakeups hit the same wait queue entry, because
-there is quite a big window between __add_wait_queue_exclusive() and
-the following __remove_wait_queue() calls in ep_poll() function.  This
-can lead to lost wakeups, because thread, which was woken up, can
-handle not all the events in ->rdllist. (in better words the problem
-is described here: https://lkml.org/lkml/2019/10/7/905)
+greg k-h
 
-The idea of the current patch is to use init_wait() instead of
-init_waitqueue_entry(). Internally init_wait() sets
-autoremove_wake_function as a callback, which removes the wait entry
-atomically (under the wq locks) from the list, thus the next coming
-wakeup hits the next wait entry in the wait queue, thus preventing
-lost wakeups.
+------------------ original commit in Linus's tree ------------------
 
-Problem is very well reproduced by the epoll60 test case [1].
+From 6e7e63cbb023976d828cdb22422606bf77baa8a9 Mon Sep 17 00:00:00 2001
+From: Jann Horn <jannh@google.com>
+Date: Fri, 17 Apr 2020 02:00:06 +0200
+Subject: [PATCH] bpf: Forbid XADD on spilled pointers for unprivileged users
 
-Wait entry removal on wakeup has also performance benefits, because
-there is no need to take a ep->lock and remove wait entry from the
-queue after the successful wakeup. Here is the timing output of
-the epoll60 test case:
+When check_xadd() verifies an XADD operation on a pointer to a stack slot
+containing a spilled pointer, check_stack_read() verifies that the read,
+which is part of XADD, is valid. However, since the placeholder value -1 is
+passed as `value_regno`, check_stack_read() can only return a binary
+decision and can't return the type of the value that was read. The intent
+here is to verify whether the value read from the stack slot may be used as
+a SCALAR_VALUE; but since check_stack_read() doesn't check the type, and
+the type information is lost when check_stack_read() returns, this is not
+enforced, and a malicious user can abuse XADD to leak spilled kernel
+pointers.
 
-  With explicit wakeup from ep_scan_ready_list() (the state of the
-  code prior 339ddb53d373):
+Fix it by letting check_stack_read() verify that the value is usable as a
+SCALAR_VALUE if no type information is passed to the caller.
 
-    real    0m6.970s
-    user    0m49.786s
-    sys     0m0.113s
+To be able to use __is_pointer_value() in check_stack_read(), move it up.
 
- After this patch:
+Fix up the expected unprivileged error message for a BPF selftest that,
+until now, assumed that unprivileged users can use XADD on stack-spilled
+pointers. This also gives us a test for the behavior introduced in this
+patch for free.
 
-   real    0m5.220s
-   user    0m36.879s
-   sys     0m0.019s
+In theory, this could also be fixed by forbidding XADD on stack spills
+entirely, since XADD is a locked operation (for operations on memory with
+concurrency) and there can't be any concurrency on the BPF stack; but
+Alexei has said that he wants to keep XADD on stack slots working to avoid
+changes to the test suite [1].
 
-The other testcase is the stress-epoll [2], where one thread consumes
-all the events and other threads produce many events:
+The following BPF program demonstrates how to leak a BPF map pointer as an
+unprivileged user using this bug:
 
-  With explicit wakeup from ep_scan_ready_list() (the state of the
-  code prior 339ddb53d373):
+    // r7 = map_pointer
+    BPF_LD_MAP_FD(BPF_REG_7, small_map),
+    // r8 = launder(map_pointer)
+    BPF_STX_MEM(BPF_DW, BPF_REG_FP, BPF_REG_7, -8),
+    BPF_MOV64_IMM(BPF_REG_1, 0),
+    ((struct bpf_insn) {
+      .code  = BPF_STX | BPF_DW | BPF_XADD,
+      .dst_reg = BPF_REG_FP,
+      .src_reg = BPF_REG_1,
+      .off = -8
+    }),
+    BPF_LDX_MEM(BPF_DW, BPF_REG_8, BPF_REG_FP, -8),
 
-    threads  events/ms  run-time ms
-          8       5427         1474
-         16       6163         2596
-         32       6824         4689
-         64       7060         9064
-        128       6991        18309
+    // store r8 into map
+    BPF_MOV64_REG(BPF_REG_ARG1, BPF_REG_7),
+    BPF_MOV64_REG(BPF_REG_ARG2, BPF_REG_FP),
+    BPF_ALU64_IMM(BPF_ADD, BPF_REG_ARG2, -4),
+    BPF_ST_MEM(BPF_W, BPF_REG_ARG2, 0, 0),
+    BPF_EMIT_CALL(BPF_FUNC_map_lookup_elem),
+    BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
+    BPF_EXIT_INSN(),
+    BPF_STX_MEM(BPF_DW, BPF_REG_0, BPF_REG_8, 0),
 
- After this patch:
+    BPF_MOV64_IMM(BPF_REG_0, 0),
+    BPF_EXIT_INSN()
 
-    threads  events/ms  run-time ms
-          8       5598         1429
-         16       7073         2262
-         32       7502         4265
-         64       7640         8376
-        128       7634        16767
+[1] https://lore.kernel.org/bpf/20200416211116.qxqcza5vo2ddnkdq@ast-mbp.dhcp.thefacebook.com/
 
- (number of "events/ms" represents event bandwidth, thus higher is
-  better; number of "run-time ms" represents overall time spent
-  doing the benchmark, thus lower is better)
+Fixes: 17a5267067f3 ("bpf: verifier (add verifier core)")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200417000007.10734-1-jannh@google.com
 
-[1] tools/testing/selftests/filesystems/epoll/epoll_wakeup_test.c
-[2] https://github.com/rouming/test-tools/blob/master/stress-epoll.c
-
-Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Khazhismel Kumykov <khazhy@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Heiher <r@hev.cc>
-Cc: Jason Baron <jbaron@akamai.com>
-Cc: stable@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- fs/eventpoll.c | 43 ++++++++++++++++++++++++-------------------
- 1 file changed, 24 insertions(+), 19 deletions(-)
-
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index d6ba0e52439b..aba03ee749f8 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1822,7 +1822,6 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
- {
- 	int res = 0, eavail, timed_out = 0;
- 	u64 slack = 0;
--	bool waiter = false;
- 	wait_queue_entry_t wait;
- 	ktime_t expires, *to = NULL;
- 
-@@ -1867,21 +1866,23 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
- 	 */
- 	ep_reset_busy_poll_napi_id(ep);
- 
--	/*
--	 * We don't have any available event to return to the caller.  We need
--	 * to sleep here, and we will be woken by ep_poll_callback() when events
--	 * become available.
--	 */
--	if (!waiter) {
--		waiter = true;
--		init_waitqueue_entry(&wait, current);
--
-+	do {
-+		/*
-+		 * Internally init_wait() uses autoremove_wake_function(),
-+		 * thus wait entry is removed from the wait queue on each
-+		 * wakeup. Why it is important? In case of several waiters
-+		 * each new wakeup will hit the next waiter, giving it the
-+		 * chance to harvest new event. Otherwise wakeup can be
-+		 * lost. This is also good performance-wise, because on
-+		 * normal wakeup path no need to call __remove_wait_queue()
-+		 * explicitly, thus ep->lock is not taken, which halts the
-+		 * event delivery.
-+		 */
-+		init_wait(&wait);
- 		write_lock_irq(&ep->lock);
- 		__add_wait_queue_exclusive(&ep->wq, &wait);
- 		write_unlock_irq(&ep->lock);
--	}
- 
--	for (;;) {
- 		/*
- 		 * We don't want to sleep if the ep_poll_callback() sends us
- 		 * a wakeup in between. That's why we set the task state
-@@ -1911,10 +1912,20 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
- 			timed_out = 1;
- 			break;
- 		}
--	}
-+
-+		/* We were woken up, thus go and try to harvest some events */
-+		eavail = 1;
-+
-+	} while (0);
- 
- 	__set_current_state(TASK_RUNNING);
- 
-+	if (!list_empty_careful(&wait.entry)) {
-+		write_lock_irq(&ep->lock);
-+		__remove_wait_queue(&ep->wq, &wait);
-+		write_unlock_irq(&ep->lock);
-+	}
-+
- send_events:
- 	/*
- 	 * Try to transfer events to user space. In case we get 0 events and
-@@ -1925,12 +1936,6 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
- 	    !(res = ep_send_events(ep, events, maxevents)) && !timed_out)
- 		goto fetch_events;
- 
--	if (waiter) {
--		write_lock_irq(&ep->lock);
--		__remove_wait_queue(&ep->wq, &wait);
--		write_unlock_irq(&ep->lock);
--	}
--
- 	return res;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 38cfcf701eeb..9e92d3d5ffd1 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2118,6 +2118,15 @@ static bool register_is_const(struct bpf_reg_state *reg)
+ 	return reg->type == SCALAR_VALUE && tnum_is_const(reg->var_off);
  }
  
--- 
-2.24.1
++static bool __is_pointer_value(bool allow_ptr_leaks,
++			       const struct bpf_reg_state *reg)
++{
++	if (allow_ptr_leaks)
++		return false;
++
++	return reg->type != SCALAR_VALUE;
++}
++
+ static void save_register_state(struct bpf_func_state *state,
+ 				int spi, struct bpf_reg_state *reg)
+ {
+@@ -2308,6 +2317,16 @@ static int check_stack_read(struct bpf_verifier_env *env,
+ 			 * which resets stack/reg liveness for state transitions
+ 			 */
+ 			state->regs[value_regno].live |= REG_LIVE_WRITTEN;
++		} else if (__is_pointer_value(env->allow_ptr_leaks, reg)) {
++			/* If value_regno==-1, the caller is asking us whether
++			 * it is acceptable to use this value as a SCALAR_VALUE
++			 * (e.g. for XADD).
++			 * We must not allow unprivileged callers to do that
++			 * with spilled pointers.
++			 */
++			verbose(env, "leaking pointer from stack off %d\n",
++				off);
++			return -EACCES;
+ 		}
+ 		mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
+ 	} else {
+@@ -2673,15 +2692,6 @@ static int check_sock_access(struct bpf_verifier_env *env, int insn_idx,
+ 	return -EACCES;
+ }
+ 
+-static bool __is_pointer_value(bool allow_ptr_leaks,
+-			       const struct bpf_reg_state *reg)
+-{
+-	if (allow_ptr_leaks)
+-		return false;
+-
+-	return reg->type != SCALAR_VALUE;
+-}
+-
+ static struct bpf_reg_state *reg_state(struct bpf_verifier_env *env, int regno)
+ {
+ 	return cur_regs(env) + regno;
+diff --git a/tools/testing/selftests/bpf/verifier/value_illegal_alu.c b/tools/testing/selftests/bpf/verifier/value_illegal_alu.c
+index 7f6c232cd842..ed1c2cea1dea 100644
+--- a/tools/testing/selftests/bpf/verifier/value_illegal_alu.c
++++ b/tools/testing/selftests/bpf/verifier/value_illegal_alu.c
+@@ -88,6 +88,7 @@
+ 	BPF_EXIT_INSN(),
+ 	},
+ 	.fixup_map_hash_48b = { 3 },
++	.errstr_unpriv = "leaking pointer from stack off -8",
+ 	.errstr = "R0 invalid mem access 'inv'",
+ 	.result = REJECT,
+ 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
 
