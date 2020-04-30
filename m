@@ -2,135 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FECD1C094A
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 23:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A001C09A5
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 23:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727089AbgD3VcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 17:32:22 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:49637 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727079AbgD3VcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 17:32:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588282340;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:in-reply-to:in-reply-to:  references:references;
-        bh=Jzrv5wRZ4K7XtvWDWWDISsbmjMxGQe+9BSaROBXcFYM=;
-        b=AgVmoz4kBlZy6j8mVFtcHDi/MREwcnra0ZYiYpOMC5tu4MtZQGh7al1TqkILD3YB6cmDsc
-        hrPfJGyUTh9oGLtbTLDw7hhJirXzaIHMcTPzo/qBFCnZ83iEtxGM541kxSKLF7QBNditQT
-        +xcJkbh3/EO0E91aGGanPmuemdVQ64M=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-435--CbRWlZaMkm9WfwuO45NIg-1; Thu, 30 Apr 2020 17:32:18 -0400
-X-MC-Unique: -CbRWlZaMkm9WfwuO45NIg-1
-Received: by mail-qk1-f197.google.com with SMTP id 30so7875145qkp.21
-        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 14:32:18 -0700 (PDT)
+        id S1726447AbgD3Vr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 17:47:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45182 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726336AbgD3Vr2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 17:47:28 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BA16C035494;
+        Thu, 30 Apr 2020 14:47:28 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id x2so569625pfx.7;
+        Thu, 30 Apr 2020 14:47:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VEoKjaxo4U/H7kyegfaqsoRet1MtFuSswC0UEQ4BGR4=;
+        b=nbxQst+Vtu3ZTqPSC6mNSEZiYn4TaBwPFH1Cm9loSUDn0Cx4uD9L6qTjQJW2wDaBpe
+         kOdXjfwrvhcDUIu4FmnufwEAmTUW/ojO1BI7gdzDrhOivb3PeoZLBPImO19WiedKgIOc
+         PY8VxGUt+gb82ydshSG3lAwaux9OPL47OB3tXOLykmO6eeZ3tAi0FPitnsfVNNVfxjjH
+         xvs1o9S3M4wWVV4vs1/kEr234iwPmYJixT5ZIL34ivF9hTIXf7DVbX+alwr2+h4OhtbS
+         DCNMA0eTr4zcCzsJB+3bY9JJUxWQ8IaCBmVsYr3jKjJxyo22EzkCG1e7e/7+GmGyYnFw
+         AvTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=Jzrv5wRZ4K7XtvWDWWDISsbmjMxGQe+9BSaROBXcFYM=;
-        b=Ap0rdRD6iViDdSJUBCury3frCD53V11TKexHlgZ4eJLGfCMj258+XvEXUUUF0jiBhG
-         KTC1Vf0ENQPOoMgNbKIteDMWUMSjB4RaiaZH5mJpCALYGnkX78N+CBTnRa87cPQoSJJD
-         4MFFV9C2C/+Sj/Tz3bqxunccvnWEeZEnNprdU8R6lXjB3aY3WesUqMKGJNzXs/KxHosv
-         CodBu31f+tKZ+lcrmg9guHzugOIf1rg4mMz1BzWFXBmRI+/yOlA3BqYfA+ecsWf3zsEm
-         YVA2jsBPDvxmEOJ/ARh3mR85aIbeD8ROtYsm5tDKzext8R9+VDnKuX9FSfDYtnFdpYyz
-         g3uA==
-X-Gm-Message-State: AGi0PuanHAjdpfKJ6VEOZPzN5j4v++wioZ9PvsuV4qsuXcYhFGHInrkM
-        mrtNNyLIamtTiRiSAbR9nhVpmDouSwzFJIXDs+N/u+Dh1ymzrIUDoU6Qgt0xqRn4UHRPdpzFYXf
-        IIffM9UDO91ACYsk1
-X-Received: by 2002:a37:5846:: with SMTP id m67mr569359qkb.78.1588282338108;
-        Thu, 30 Apr 2020 14:32:18 -0700 (PDT)
-X-Google-Smtp-Source: APiQypJZ/+p/l03HZUTw9TAzxeelMsC2X0K+JlusH68UBd280GrosJOpL9Xmkh0soQ588iZsWL59bA==
-X-Received: by 2002:a37:5846:: with SMTP id m67mr569335qkb.78.1588282337907;
-        Thu, 30 Apr 2020 14:32:17 -0700 (PDT)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id x16sm1077258qkh.14.2020.04.30.14.32.16
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=VEoKjaxo4U/H7kyegfaqsoRet1MtFuSswC0UEQ4BGR4=;
+        b=U1BK4Fe0UebhUvd+M04VC9snPMp5dfRQNMKbcRO1qOtVus5MRyZqzGzDZOfPG1Q6Fz
+         EQ6G4yZIt/gdWc5Cua3KiNMgSKyInemub3ugHCmhDgazlzp7a1aqdJMJcRybGesrgB15
+         P+l5mNLsaJSVNlhDKBAKagIrjjsESCQdh1dfphXc2O7+szsaM/DPKpifeL5zfmKYYKDb
+         Bc57YQapfaL1YxmyTsiOVzUb+YaHK6EyJVsuIoLHDh1WFmlmqcZ0KiWgXadh22iWxBjV
+         DjCzK6R9OrLSZ+rn05nF9W9dUDx3DGV6U32smbbAZf6Qaf9wZMDv6kDxQt3RhF82Oecr
+         KFTQ==
+X-Gm-Message-State: AGi0Puar0hhqEhXF7JdcEZq7ceBMBg3Yuhg/jK6orrnfxBr9oJS+vmpI
+        kIHM2Vzqm0j+6wmcBLFFVWs=
+X-Google-Smtp-Source: APiQypJLBHCI0Je+tTdRicNw26y1+Ew484sXuohXU4E0SDVCVIZZQM+F5FstoyxkeZxW8D7rvXbsmg==
+X-Received: by 2002:a63:da02:: with SMTP id c2mr1027206pgh.22.1588283247850;
+        Thu, 30 Apr 2020 14:47:27 -0700 (PDT)
+Received: from sultan-box.localdomain ([104.200.129.62])
+        by smtp.gmail.com with ESMTPSA id c2sm625854pfp.118.2020.04.30.14.47.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Apr 2020 14:32:17 -0700 (PDT)
-Date:   Thu, 30 Apr 2020 14:32:15 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Ingo Molnar <mingo@kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Dave Young <dyoung@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>, Lyude Paul <lyude@redhat.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Peter Jones <pjones@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Scott Talbert <swt@techie.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        linux-integrity@vger.kernel.org,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] efi/tpm: fix section mismatch warning
-Message-ID: <20200430213215.jqt2rj452hawj3j7@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: Ard Biesheuvel <ardb@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Ingo Molnar <mingo@kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Dave Young <dyoung@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>, Lyude Paul <lyude@redhat.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Peter Jones <pjones@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Scott Talbert <swt@techie.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        linux-integrity@vger.kernel.org, "# 3.4.x" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20200429190119.43595-1-arnd@arndb.de>
- <20200430211516.gkwaefjrzj2dypmr@cantor>
- <CAK8P3a1xk9b9Ntsf302EUP2Sp+yWe5UEsbf973=xmYRkiN1KuQ@mail.gmail.com>
- <CAMj1kXHc0uzzTKp7oj23_=X9ek2KNrKMq1gL09X7cTnjhV=nXQ@mail.gmail.com>
+        Thu, 30 Apr 2020 14:47:26 -0700 (PDT)
+From:   Sultan Alsawaf <sultan@kerneltoast.com>
+X-Google-Original-From: Sultan Alsawaf
+Cc:     Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, intel-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] drm/i915: Don't enable WaIncreaseLatencyIPCEnabled when IPC is disabled
+Date:   Thu, 30 Apr 2020 14:46:54 -0700
+Message-Id: <20200430214654.51314-1-sultan@kerneltoast.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAMj1kXHc0uzzTKp7oj23_=X9ek2KNrKMq1gL09X7cTnjhV=nXQ@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu Apr 30 20, Ard Biesheuvel wrote:
->On Thu, 30 Apr 2020 at 23:21, Arnd Bergmann <arnd@arndb.de> wrote:
->>
->> On Thu, Apr 30, 2020 at 11:15 PM Jerry Snitselaar <jsnitsel@redhat.com> wrote:
->> >
->> > On Wed Apr 29 20, Arnd Bergmann wrote:
->> > >Building with gcc-10 causes a harmless warning about a section mismatch:
->> > >
->> > >WARNING: modpost: vmlinux.o(.text.unlikely+0x5e191): Section mismatch in reference from the function tpm2_calc_event_log_size() to the function .init.text:early_memunmap()
->> > >The function tpm2_calc_event_log_size() references
->> > >the function __init early_memunmap().
->> > >This is often because tpm2_calc_event_log_size lacks a __init
->> > >annotation or the annotation of early_memunmap is wrong.
->> > >
->> > >Add the missing annotation.
->> > >
->> > >Fixes: e658c82be556 ("efi/tpm: Only set 'efi_tpm_final_log_size' after successful event log parsing")
->> > >Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->> >
->> > Minor thing, but should the Fixes be c46f3405692d ("tpm: Reserve the TPM final events table")? Or what am I missing
->> > about e658c82be556 that causes this? Just trying to understand what I did. :)
->>
->> You are right, I misread the git history. Can you fix it up when applying the
->> patch, or should I resend it?
->>
->
->I can fix it up, no worries.
->
+From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-With the fix applied:
+In commit 5a7d202b1574, a logical AND was erroneously changed to an OR,
+causing WaIncreaseLatencyIPCEnabled to be enabled unconditionally for
+kabylake and coffeelake, even when IPC is disabled. Fix the logic so
+that WaIncreaseLatencyIPCEnabled is only used when IPC is enabled.
 
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Fixes: 5a7d202b1574 ("drm/i915: Drop WaIncreaseLatencyIPCEnabled/1140 for cnl")
+Cc: stable@vger.kernel.org # 5.3.x+
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ drivers/gpu/drm/i915/intel_pm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+index 8375054ba27d..a52986a9e7a6 100644
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -4992,7 +4992,7 @@ static void skl_compute_plane_wm(const struct intel_crtc_state *crtc_state,
+ 	 * WaIncreaseLatencyIPCEnabled: kbl,cfl
+ 	 * Display WA #1141: kbl,cfl
+ 	 */
+-	if ((IS_KABYLAKE(dev_priv) || IS_COFFEELAKE(dev_priv)) ||
++	if ((IS_KABYLAKE(dev_priv) || IS_COFFEELAKE(dev_priv)) &&
+ 	    dev_priv->ipc_enabled)
+ 		latency += 4;
+ 
+-- 
+2.26.2
 
