@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF191BFBA8
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0BEB1BFBC8
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:02:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728806AbgD3Nxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:53:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35720 "EHLO mail.kernel.org"
+        id S1728736AbgD3OBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 10:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728802AbgD3Nxr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:53:47 -0400
+        id S1728805AbgD3Nxs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:53:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 740F024957;
-        Thu, 30 Apr 2020 13:53:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87DB520870;
+        Thu, 30 Apr 2020 13:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254827;
-        bh=2aLTZKLe+wSFrXeOLh7dOkpeYDowF5ZnL0QybDV3ROM=;
+        s=default; t=1588254828;
+        bh=ARzt+QRGNF/8fnvNLUN8Z+j7aZMWVm22ICAbuRC5tLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b23ajpo9jfZlUFJmtN3CNI5J+G3SFdyaZvnl69X/aIq3e9inTBcyeZjpGqN5ElH7y
-         vJJXic4doANdzOyFQFb5BzIJuI5hhNUWY5GqzkK0QZzr21lJvum9AsN6dvKxyRe7fE
-         +jb9Dn4Sfl3FrhGs2swj/AuFhrjEVCHb/bVsSV14=
+        b=slk8kbE64pkhcKAYzVj0R75zNGZCTlUuzcKk24Zbv2WbLHNszYdHSwTDfCTVGKDMe
+         Z36Xqyce7Yktn4cmxX1ht83Wmk5zQWkIth4QLbVt2sehIQCsJ4dbrlrGA6oMkf8yU2
+         RpBnu4vFtLMc5g+YmhdeU8gQKzMRptihQaVd7Vt8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthias Blankertz <matthias.blankertz@cetitec.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 19/30] ASoC: rsnd: Fix "status check failed" spam for multi-SSI
-Date:   Thu, 30 Apr 2020 09:53:14 -0400
-Message-Id: <20200430135325.20762-19-sashal@kernel.org>
+Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 20/30] net/mlx5: Fix failing fw tracer allocation on s390
+Date:   Thu, 30 Apr 2020 09:53:15 -0400
+Message-Id: <20200430135325.20762-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135325.20762-1-sashal@kernel.org>
 References: <20200430135325.20762-1-sashal@kernel.org>
@@ -44,50 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Blankertz <matthias.blankertz@cetitec.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 54cb6221688660670a2e430892d7f4e6370263b8 ]
+[ Upstream commit a019b36123aec9700b21ae0724710f62928a8bc1 ]
 
-Fix the rsnd_ssi_stop function to skip disabling the individual SSIs of
-a multi-SSI setup, as the actual stop is performed by rsnd_ssiu_stop_gen2
-- the same logic as in rsnd_ssi_start. The attempt to disable these SSIs
-was harmless, but caused a "status check failed" message to be printed
-for every SSI in the multi-SSI setup.
-The disabling of interrupts is still performed, as they are enabled for
-all SSIs in rsnd_ssi_init, but care is taken to not accidentally set the
-EN bit for an SSI where it was not set by rsnd_ssi_start.
+On s390 FORCE_MAX_ZONEORDER is 9 instead of 11, thus a larger kzalloc()
+allocation as done for the firmware tracer will always fail.
 
-Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20200417153017.1744454-3-matthias.blankertz@cetitec.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Looking at mlx5_fw_tracer_save_trace(), it is actually the driver itself
+that copies the debug data into the trace array and there is no need for
+the allocation to be contiguous in physical memory. We can therefor use
+kvzalloc() instead of kzalloc() and get rid of the large contiguous
+allcoation.
+
+Fixes: f53aaa31cce7 ("net/mlx5: FW tracer, implement tracer logic")
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/ssi.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index d5f663bb965f1..a6cf2ac223e42 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -566,10 +566,16 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
- 	 * Capture:  It might not receave data. Do nothing
- 	 */
- 	if (rsnd_io_is_play(io)) {
--		rsnd_mod_write(mod, SSICR, cr | EN);
-+		rsnd_mod_write(mod, SSICR, cr | ssi->cr_en);
- 		rsnd_ssi_status_check(mod, DIRQ);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+index d4ec93bde4ded..2266c09b741a2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+@@ -796,7 +796,7 @@ struct mlx5_fw_tracer *mlx5_fw_tracer_create(struct mlx5_core_dev *dev)
+ 		return NULL;
  	}
  
-+	/* In multi-SSI mode, stop is performed by setting ssi0129 in
-+	 * SSI_CONTROL to 0 (in rsnd_ssio_stop_gen2). Do nothing here.
-+	 */
-+	if (rsnd_ssi_multi_slaves_runtime(io))
-+		return 0;
-+
- 	/*
- 	 * disable SSI,
- 	 * and, wait idle state
+-	tracer = kzalloc(sizeof(*tracer), GFP_KERNEL);
++	tracer = kvzalloc(sizeof(*tracer), GFP_KERNEL);
+ 	if (!tracer)
+ 		return ERR_PTR(-ENOMEM);
+ 
+@@ -842,7 +842,7 @@ destroy_workqueue:
+ 	tracer->dev = NULL;
+ 	destroy_workqueue(tracer->work_queue);
+ free_tracer:
+-	kfree(tracer);
++	kvfree(tracer);
+ 	return ERR_PTR(err);
+ }
+ 
+@@ -919,7 +919,7 @@ void mlx5_fw_tracer_destroy(struct mlx5_fw_tracer *tracer)
+ 	mlx5_fw_tracer_destroy_log_buf(tracer);
+ 	flush_workqueue(tracer->work_queue);
+ 	destroy_workqueue(tracer->work_queue);
+-	kfree(tracer);
++	kvfree(tracer);
+ }
+ 
+ void mlx5_fw_tracer_event(struct mlx5_core_dev *dev, struct mlx5_eqe *eqe)
 -- 
 2.20.1
 
