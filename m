@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED391BFAA3
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 810561BFB1A
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:57:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729068AbgD3Nyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:54:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
+        id S1729072AbgD3Nyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:54:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729060AbgD3Nyt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:54:49 -0400
+        id S1729066AbgD3Nyv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:54:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9D72208D5;
-        Thu, 30 Apr 2020 13:54:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9D49208DB;
+        Thu, 30 Apr 2020 13:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254889;
-        bh=d4tZJ1lNOOitCep9qPpvmUw7f2lXt1ujH7SYD/ecmjE=;
+        s=default; t=1588254890;
+        bh=yHeiB67tW2XIZJMzXUe4enYchdDsqXbZcv1tiZPJtvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUn5FGJ2vRSXw1gvzzVIdAF6OLtSNx3dJAyaqO2dfutlnJw7AuvvuekLbPK4kZkGA
-         HdretYDLvtQYD0IzMQrcVOLI0APF9919uwsAkqnWhyDzOj4gE3caB0ssK2iwVDQvJc
-         gPi8wXZqsSyLILZRRaHzm1zuO2kqpFSrEv0Yze6s=
+        b=YjMknSh+jpAuzCIy3AxRN+iuhpZZPf1Ge9dcnhVsz8xP5pNQZy/s72LPwuQsucOB2
+         aw/KzLVETh/3KDTAoKBy4YIHAQ+CmJ1WXMP0vU2oiSRIwhcVnI61401/Se/MQn4dBK
+         dD2ZdpjWmjFz1F4vR1mx+sZsKlYrOKOz5K44M8/s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        kbuild test robot <lkp@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 14/17] lib/mpi: Fix building for powerpc with clang
-Date:   Thu, 30 Apr 2020 09:54:30 -0400
-Message-Id: <20200430135433.21204-14-sashal@kernel.org>
+Cc:     Taehee Yoo <ap420073@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 15/17] macsec: avoid to set wrong mtu
+Date:   Thu, 30 Apr 2020 09:54:31 -0400
+Message-Id: <20200430135433.21204-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135433.21204-1-sashal@kernel.org>
 References: <20200430135433.21204-1-sashal@kernel.org>
@@ -45,121 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 5990cdee689c6885b27c6d969a3d58b09002b0bc ]
+[ Upstream commit 7f327080364abccf923fa5a5b24e038eb0ba1407 ]
 
-0day reports over and over on an powerpc randconfig with clang:
+When a macsec interface is created, the mtu is calculated with the lower
+interface's mtu value.
+If the mtu of lower interface is lower than the length, which is needed
+by macsec interface, macsec's mtu value will be overflowed.
+So, if the lower interface's mtu is too low, macsec interface's mtu
+should be set to 0.
 
-lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast or build with
--fheinous-gnu-extensions
+Test commands:
+    ip link add dummy0 mtu 10 type dummy
+    ip link add macsec0 link dummy0 type macsec
+    ip link show macsec0
 
-Remove the superfluous casts, which have been done previously for x86
-and arm32 in commit dea632cadd12 ("lib/mpi: fix build with clang") and
-commit 7b7c1df2883d ("lib/mpi/longlong.h: fix building with 32-bit
-x86").
+Before:
+    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 4294967274
+After:
+    11: macsec0@dummy0: <BROADCAST,MULTICAST,M-DOWN> mtu 0
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/991
-Link: https://lore.kernel.org/r/20200413195041.24064-1-natechancellor@gmail.com
+Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/longlong.h | 34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ drivers/net/macsec.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
-index 0f64fcee4ccd1..8f383cca6bb1f 100644
---- a/lib/mpi/longlong.h
-+++ b/lib/mpi/longlong.h
-@@ -756,22 +756,22 @@ do {									\
- do { \
- 	if (__builtin_constant_p(bh) && (bh) == 0) \
- 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"%r" ((USItype)(al)), \
- 		"rI" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
- 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"%r" ((USItype)(al)), \
- 		"rI" ((USItype)(bl))); \
- 	else \
- 		__asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"r" ((USItype)(bh)), \
- 		"%r" ((USItype)(al)), \
-@@ -781,36 +781,36 @@ do { \
- do { \
- 	if (__builtin_constant_p(ah) && (ah) == 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(ah) && (ah) == ~(USItype) 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else \
- 		__asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
-@@ -821,7 +821,7 @@ do { \
- do { \
- 	USItype __m0 = (m0), __m1 = (m1); \
- 	__asm__ ("mulhwu %0,%1,%2" \
--	: "=r" ((USItype) ph) \
-+	: "=r" (ph) \
- 	: "%r" (__m0), \
- 	"r" (__m1)); \
- 	(pl) = __m0 * __m1; \
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index da8bf327a3e98..df2ee65a33e35 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -3209,11 +3209,11 @@ static int macsec_newlink(struct net *net, struct net_device *dev,
+ 			  struct nlattr *tb[], struct nlattr *data[])
+ {
+ 	struct macsec_dev *macsec = macsec_priv(dev);
++	rx_handler_func_t *rx_handler;
++	u8 icv_len = DEFAULT_ICV_LEN;
+ 	struct net_device *real_dev;
+-	int err;
++	int err, mtu;
+ 	sci_t sci;
+-	u8 icv_len = DEFAULT_ICV_LEN;
+-	rx_handler_func_t *rx_handler;
+ 
+ 	if (!tb[IFLA_LINK])
+ 		return -EINVAL;
+@@ -3229,7 +3229,11 @@ static int macsec_newlink(struct net *net, struct net_device *dev,
+ 
+ 	if (data && data[IFLA_MACSEC_ICV_LEN])
+ 		icv_len = nla_get_u8(data[IFLA_MACSEC_ICV_LEN]);
+-	dev->mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
++	mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
++	if (mtu < 0)
++		dev->mtu = 0;
++	else
++		dev->mtu = mtu;
+ 
+ 	rx_handler = rtnl_dereference(real_dev->rx_handler);
+ 	if (rx_handler && rx_handler != macsec_handle_frame)
 -- 
 2.20.1
 
