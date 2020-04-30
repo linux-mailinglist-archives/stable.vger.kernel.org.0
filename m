@@ -2,97 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68DD91BFD07
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:10:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B7CD1BFF9A
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 17:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728455AbgD3OJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 10:09:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57698 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728166AbgD3OJ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 10:09:56 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC64EC035494
-        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 07:09:55 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id j3so6623025ljg.8
-        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 07:09:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gqs6/WoFCiYvtJs2NOyJ4iHVgMuqbT1GqHeEFPhOPPQ=;
-        b=O8t7ysvn4JbuCgfHB0iclVfyXqKjhyJMADH7fryiwgDIaikCUb2xUHFTGkfrv/kOGT
-         ChdTR92r6FB9qFSdR0QPOufTNyG3cZsWdSpf9JRI7IcOooSDszEv4yLEcFZtwKJToURL
-         x34EdQwoyAhaLyKmaBh1g7sFR+CWi6lGqj6Xo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gqs6/WoFCiYvtJs2NOyJ4iHVgMuqbT1GqHeEFPhOPPQ=;
-        b=fKThl1PIW+cmspM4dIzF0q8Lo/p5VJPKb8OhE2vsIqiNIaCgBh6WR4phckJfG9VjRP
-         bDsyJinpormq2S4ye0xITHI2KgPLkjvuvvwvf4EFs5BAFGOoD7SMPR8+072hrhOi5tPo
-         IUsg53ml51wStvQH77tNefZ4TaFSgilhCa37UrRhQOLS7jDAbCOzyiIKvjq7HtVyFMfr
-         qDpCYU77v/nrLDyuDrCmpeLU24ZhgM3NDCgmSMHGLDKDdU/pKrqFyR+Jl/3WYzGetj/C
-         SMWUVy8Tf6ZVKEKj9/Y8O+1JuoZUF8U35HwN2t7DyPKkahh3TRRcYp2GTab/Si5smXQt
-         +R1w==
-X-Gm-Message-State: AGi0PuYr8R4O3Pz3ixH51qd/AVfL2zZ6iC9Q3DbmFzzQRdDqf6BDAlQN
-        l3PCHbu8tytcEaYlNha/OSf7ZjpAdb4=
-X-Google-Smtp-Source: APiQypI/+e9YDdbrA4kS3yXkkx2HvfS756ocOiLvI6Wy9D8PlyD3/YjUqeCaE7wV0aogTKaD0BQXlg==
-X-Received: by 2002:a2e:5855:: with SMTP id x21mr2299832ljd.75.1588255794061;
-        Thu, 30 Apr 2020 07:09:54 -0700 (PDT)
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com. [209.85.208.172])
-        by smtp.gmail.com with ESMTPSA id m132sm1343556lfa.94.2020.04.30.07.09.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Apr 2020 07:09:53 -0700 (PDT)
-Received: by mail-lj1-f172.google.com with SMTP id j3so6622955ljg.8
-        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 07:09:53 -0700 (PDT)
-X-Received: by 2002:a2e:9a54:: with SMTP id k20mr2483575ljj.265.1588255391241;
- Thu, 30 Apr 2020 07:03:11 -0700 (PDT)
+        id S1726530AbgD3PGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 11:06:22 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:49483 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726377AbgD3PGW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 11:06:22 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 4C19F879;
+        Thu, 30 Apr 2020 11:06:21 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 30 Apr 2020 11:06:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=0WTL63
+        hkSbAqQ9BNzEV5waoFOoE+2xaZoawZYCPaslg=; b=RM+qoz6/LMwiIc+l/M5F1D
+        SYMOEraqN+riMBtvb8Yr2CMY+RmifTJXiZlk9uAmov6IwTgIPiMtLUZ8fzU6wFqR
+        74YaQdmT5D6bvYv98QRvQuXvIOePeTHECTHh/6ejHBYlCBSm3TTTwomeUVVBLcLK
+        UJgRtJcPtMZomrr46FBG6pEeuek6lU1pX+iM+jgSBQisIVae8of9P4rNOqhol9IY
+        8hmzlU50WmR1/YlqVgPOsdJ/PYHTxmE7+FGF2ivsbfBfkF8wIRjHEgf2lHWCdfTX
+        ccFbmtWh9uTQI6IfzZlgXhfvyHn9uomCItlZnp2intBenROBcZ2oCE6drf4NYlBg
+        ==
+X-ME-Sender: <xms:bOmqXogw1jifK1CHnsaaMNRG-uKgrr_pcEn4trcfVx56JR4-TrCZNw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrieehgdekfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:bOmqXmGoLj2cCDhZ3lS_ZDwb887XUPFOvB5yxDcc14TLtucVf77-yw>
+    <xmx:bOmqXtEctzqq1ffDDD03UjlB1CJli6MvPzeG2TwyZNGnSFfzfBfqog>
+    <xmx:bOmqXm-stccuRwfmWilIQUIWqmrlnO_Ix9BNvXeBWA8bTyhMkSYUaA>
+    <xmx:bOmqXmoXma5_E4ZXghARmR0FU4cb4hkaNZm3KCpPw4ytpmiA1NumniRNFV8>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4BF7B3065F31;
+        Thu, 30 Apr 2020 11:06:20 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] bpf, x86: Fix encoding for lower 8-bit registers in BPF_STX" failed to apply to 4.4-stable tree
+To:     lukenels@cs.washington.edu, ast@kernel.org, luke.r.nels@gmail.com,
+        xi.wang@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 30 Apr 2020 17:06:15 +0200
+Message-ID: <1588259175185252@kroah.com>
 MIME-Version: 1.0
-References: <158823509800.2094061.9683997333958344535.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <158823509800.2094061.9683997333958344535.stgit@dwillia2-desk3.amr.corp.intel.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 30 Apr 2020 07:02:55 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wh6d59KAG_6t+NrCLBz-i0OUSJrqurric=m0ZG850Ddkw@mail.gmail.com>
-Message-ID: <CAHk-=wh6d59KAG_6t+NrCLBz-i0OUSJrqurric=m0ZG850Ddkw@mail.gmail.com>
-Subject: Re: [PATCH v2 0/2] Replace and improve "mcsafe" with copy_safe()
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>,
-        stable <stable@vger.kernel.org>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 30, 2020 at 1:41 AM Dan Williams <dan.j.williams@intel.com> wrote:
->
-> With the above realizations the name "mcsafe" is no longer accurate and
-> copy_safe() is proposed as its replacement. x86 grows a copy_safe_fast()
-> implementation as a default implementation that is independent of
-> detecting the presence of x86-MCA.
 
-How is this then different from "probe_kernel_read()" and
-"probe_kernel_write()"? Other than the obvious "it does it for both
-reads and writes"?
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-IOW, wouldn't it be sensible to try to match the naming and try to
-find some unified model for all these things?
+thanks,
 
-"probe_kernel_copy()"?
+greg k-h
 
-              Linus
+------------------ original commit in Linus's tree ------------------
+
+From aee194b14dd2b2bde6252b3acf57d36dccfc743a Mon Sep 17 00:00:00 2001
+From: Luke Nelson <lukenels@cs.washington.edu>
+Date: Sat, 18 Apr 2020 16:26:53 -0700
+Subject: [PATCH] bpf, x86: Fix encoding for lower 8-bit registers in BPF_STX
+ BPF_B
+
+This patch fixes an encoding bug in emit_stx for BPF_B when the source
+register is BPF_REG_FP.
+
+The current implementation for BPF_STX BPF_B in emit_stx saves one REX
+byte when the operands can be encoded using Mod-R/M alone. The lower 8
+bits of registers %rax, %rbx, %rcx, and %rdx can be accessed without using
+a REX prefix via %al, %bl, %cl, and %dl, respectively. Other registers,
+(e.g., %rsi, %rdi, %rbp, %rsp) require a REX prefix to use their 8-bit
+equivalents (%sil, %dil, %bpl, %spl).
+
+The current code checks if the source for BPF_STX BPF_B is BPF_REG_1
+or BPF_REG_2 (which map to %rdi and %rsi), in which case it emits the
+required REX prefix. However, it misses the case when the source is
+BPF_REG_FP (mapped to %rbp).
+
+The result is that BPF_STX BPF_B with BPF_REG_FP as the source operand
+will read from register %ch instead of the correct %bpl. This patch fixes
+the problem by fixing and refactoring the check on which registers need
+the extra REX byte. Since no BPF registers map to %rsp, there is no need
+to handle %spl.
+
+Fixes: 622582786c9e0 ("net: filter: x86: internal BPF JIT")
+Signed-off-by: Xi Wang <xi.wang@gmail.com>
+Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200418232655.23870-1-luke.r.nels@gmail.com
+
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 5ea7c2cf7ab4..42b6709e6dc7 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -158,6 +158,19 @@ static bool is_ereg(u32 reg)
+ 			     BIT(BPF_REG_AX));
+ }
+ 
++/*
++ * is_ereg_8l() == true if BPF register 'reg' is mapped to access x86-64
++ * lower 8-bit registers dil,sil,bpl,spl,r8b..r15b, which need extra byte
++ * of encoding. al,cl,dl,bl have simpler encoding.
++ */
++static bool is_ereg_8l(u32 reg)
++{
++	return is_ereg(reg) ||
++	    (1 << reg) & (BIT(BPF_REG_1) |
++			  BIT(BPF_REG_2) |
++			  BIT(BPF_REG_FP));
++}
++
+ static bool is_axreg(u32 reg)
+ {
+ 	return reg == BPF_REG_0;
+@@ -598,9 +611,8 @@ static void emit_stx(u8 **pprog, u32 size, u32 dst_reg, u32 src_reg, int off)
+ 	switch (size) {
+ 	case BPF_B:
+ 		/* Emit 'mov byte ptr [rax + off], al' */
+-		if (is_ereg(dst_reg) || is_ereg(src_reg) ||
+-		    /* We have to add extra byte for x86 SIL, DIL regs */
+-		    src_reg == BPF_REG_1 || src_reg == BPF_REG_2)
++		if (is_ereg(dst_reg) || is_ereg_8l(src_reg))
++			/* Add extra byte for eregs or SIL,DIL,BPL in src_reg */
+ 			EMIT2(add_2mod(0x40, dst_reg, src_reg), 0x88);
+ 		else
+ 			EMIT1(0x88);
+
