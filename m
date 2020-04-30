@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90F681BFCE5
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7BE1BFCDC
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:08:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728233AbgD3OI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 10:08:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60940 "EHLO mail.kernel.org"
+        id S1728645AbgD3OIp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 10:08:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728271AbgD3NwC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:52:02 -0400
+        id S1726866AbgD3NwD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:52:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 395C221775;
-        Thu, 30 Apr 2020 13:52:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49B5024957;
+        Thu, 30 Apr 2020 13:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1588254722;
-        bh=zI9U96ifGGqZbsvmYhIvux+kaVFx/2j17snz9G3CqCo=;
+        bh=4c1eSCdM1d4z+8oRJemUVWfwmsfEKKuAFN9JAfMPK0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+FUOpJmh/RgylIPDES5vJ7Rx+CTLWk5FfnVgQrSrLujmP66MOF0js2mPUQVVb0bc
-         vvRnPL9q/Dem0WGF9gyTXLW6TKuxKyYrCvNPN4CgtRVWIgtCDt60G/UmnKw6/YOdS6
-         CJ0tpxpzo9PLwPl1VqhY+R8hHKEgKspx1zrs9mk4=
+        b=NZAcGseHmNsfEcHae6qg5CRgT2gZUlUfWlos1GJY4W7DLXqAPvCmw93fkNuIPnenW
+         1VAUUlOVQcy0/SVd+yDE6TCoEs3IOQfPB/3vCNDbdc7dnJwwWq0RxY3FjBU+t7W9Wt
+         C2SaqfVx4fGapMzGIUm4XV2bv4I9pa5HOLYBDapg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 69/79] mac80211: sta_info: Add lockdep condition for RCU list usage
-Date:   Thu, 30 Apr 2020 09:50:33 -0400
-Message-Id: <20200430135043.19851-69-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 70/79] afs: Fix to actually set AFS_SERVER_FL_HAVE_EPOCH
+Date:   Thu, 30 Apr 2020 09:50:34 -0400
+Message-Id: <20200430135043.19851-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135043.19851-1-sashal@kernel.org>
 References: <20200430135043.19851-1-sashal@kernel.org>
@@ -44,36 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 8ca47eb9f9e4e10e7e7fa695731a88941732c38d ]
+[ Upstream commit 69cf3978f3ada4e54beae4ad44868b5627864884 ]
 
-The function sta_info_get_by_idx() uses RCU list primitive.
-It is called with  local->sta_mtx held from mac80211/cfg.c.
-Add lockdep expression to avoid any false positive RCU list warnings.
+AFS keeps track of the epoch value from the rxrpc protocol to note (a) when
+a fileserver appears to have restarted and (b) when different endpoints of
+a fileserver do not appear to be associated with the same fileserver
+(ie. all probes back from a fileserver from all of its interfaces should
+carry the same epoch).
 
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lore.kernel.org/r/20200409082906.27427-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+However, the AFS_SERVER_FL_HAVE_EPOCH flag that indicates that we've
+received the server's epoch is never set, though it is used.
+
+Fix this to set the flag when we first receive an epoch value from a probe
+sent to the filesystem client from the fileserver.
+
+Fixes: 3bf0fb6f33dd ("afs: Probe multiple fileservers simultaneously")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/sta_info.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/afs/cmservice.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
-index e3572be307d6c..149ed0510778d 100644
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -231,7 +231,8 @@ struct sta_info *sta_info_get_by_idx(struct ieee80211_sub_if_data *sdata,
- 	struct sta_info *sta;
- 	int i = 0;
+diff --git a/fs/afs/cmservice.c b/fs/afs/cmservice.c
+index 6765949b3aab6..380ad5ace7cfd 100644
+--- a/fs/afs/cmservice.c
++++ b/fs/afs/cmservice.c
+@@ -169,7 +169,7 @@ static int afs_record_cm_probe(struct afs_call *call, struct afs_server *server)
  
--	list_for_each_entry_rcu(sta, &local->sta_list, list) {
-+	list_for_each_entry_rcu(sta, &local->sta_list, list,
-+				lockdep_is_held(&local->sta_mtx)) {
- 		if (sdata != sta->sdata)
- 			continue;
- 		if (i < idx) {
+ 	spin_lock(&server->probe_lock);
+ 
+-	if (!test_bit(AFS_SERVER_FL_HAVE_EPOCH, &server->flags)) {
++	if (!test_and_set_bit(AFS_SERVER_FL_HAVE_EPOCH, &server->flags)) {
+ 		server->cm_epoch = call->epoch;
+ 		server->probe.cm_epoch = call->epoch;
+ 		goto out;
 -- 
 2.20.1
 
