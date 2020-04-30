@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D82B11BFA9D
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:55:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D133B1BFB43
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:59:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729013AbgD3Nyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:54:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37152 "EHLO mail.kernel.org"
+        id S1728137AbgD3N6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:58:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729004AbgD3Nyf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:54:35 -0400
+        id S1729011AbgD3Nyh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:54:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0161720873;
-        Thu, 30 Apr 2020 13:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1390D20870;
+        Thu, 30 Apr 2020 13:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254875;
-        bh=Woue08UuH1E6xYnR1Xr3NYFk9h75iRDPF90J70dmpe8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=d6b3ABofYW4QDnuVdDg4/HifuVzmMQLGndxF1T2rVZzuX6p/z7fbKh++CskHbxnsJ
-         Q+DF1M0Rl6DBt+rFnZNTEFAyobIQ+nYSjMS4I4wbJxRXuh+/cdIk7YzvQDZSTVAGus
-         1fB8VH8g+e11qiFe+MGNrccQRdVB+rxPfGRkqhhg=
+        s=default; t=1588254876;
+        bh=2y5orJ/2p1rH66TWBTgBpCZq6mWOcZBuWtjq0rNcpA4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=zBqibr8BMQg7XZ0KbqHjquzxCgSGtvfVCucsAMPmywRHkZvD3tgpRmUYjU0Jp9HCg
+         9PwpZBOsf4gOaq9xRS4/YOuzKeJ0OL6y1p8NWRdUiwyAC65v+hWB2s6EiFLPVEwFZQ
+         oxY7ZGAb5obHHiVs8OendMJ5r4p/UrbiaepujrUA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 01/17] iio:ad7797: Use correct attribute_group
-Date:   Thu, 30 Apr 2020 09:54:17 -0400
-Message-Id: <20200430135433.21204-1-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@virtuozzo.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 02/17] nfsd: memory corruption in nfsd4_lock()
+Date:   Thu, 30 Apr 2020 09:54:18 -0400
+Message-Id: <20200430135433.21204-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200430135433.21204-1-sashal@kernel.org>
+References: <20200430135433.21204-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,38 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 28535877ac5b2b84f0d394fd67a5ec71c0c48b10 ]
+[ Upstream commit e1e8399eee72e9d5246d4d1bcacd793debe34dd3 ]
 
-It should use ad7797_attribute_group in ad7797_info,
-according to commit ("iio:ad7793: Add support for the ad7796 and ad7797").
+New struct nfsd4_blocked_lock allocated in find_or_allocate_block()
+does not initialized nbl_list and nbl_lru.
+If conflock allocation fails rollback can call list_del_init()
+access uninitialized fields and corrupt memory.
 
-Scale is fixed for the ad7796 and not programmable, hence
-should not have the scale_available attribute.
+v2: just initialize nbl_list and nbl_lru right after nbl allocation.
 
-Fixes: fd1a8b912841 ("iio:ad7793: Add support for the ad7796 and ad7797")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 76d348fadff5 ("nfsd: have nfsd4_lock use blocking locks for v4.1+ lock")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7793.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4state.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/adc/ad7793.c b/drivers/iio/adc/ad7793.c
-index 47c3d7f329004..437762a1e4877 100644
---- a/drivers/iio/adc/ad7793.c
-+++ b/drivers/iio/adc/ad7793.c
-@@ -570,7 +570,7 @@ static const struct iio_info ad7797_info = {
- 	.read_raw = &ad7793_read_raw,
- 	.write_raw = &ad7793_write_raw,
- 	.write_raw_get_fmt = &ad7793_write_raw_get_fmt,
--	.attrs = &ad7793_attribute_group,
-+	.attrs = &ad7797_attribute_group,
- 	.validate_trigger = ad_sd_validate_trigger,
- 	.driver_module = THIS_MODULE,
- };
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 4509c76716e36..5c9231d5e14a0 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -246,6 +246,8 @@ find_or_allocate_block(struct nfs4_lockowner *lo, struct knfsd_fh *fh,
+ 	if (!nbl) {
+ 		nbl= kmalloc(sizeof(*nbl), GFP_KERNEL);
+ 		if (nbl) {
++			INIT_LIST_HEAD(&nbl->nbl_list);
++			INIT_LIST_HEAD(&nbl->nbl_lru);
+ 			fh_copy_shallow(&nbl->nbl_fh, fh);
+ 			locks_init_lock(&nbl->nbl_lock);
+ 			nfsd4_init_cb(&nbl->nbl_cb, lo->lo_owner.so_client,
 -- 
 2.20.1
 
