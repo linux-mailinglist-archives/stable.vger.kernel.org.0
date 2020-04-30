@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B0661BFA4E
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B8B1BFCA7
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728476AbgD3Nwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:52:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34000 "EHLO mail.kernel.org"
+        id S1728945AbgD3OHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 10:07:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728469AbgD3Nwl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:52:41 -0400
+        id S1728474AbgD3Nwm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:52:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 157DA208DB;
-        Thu, 30 Apr 2020 13:52:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CC5720873;
+        Thu, 30 Apr 2020 13:52:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254760;
-        bh=YmqlM56F2jJuRWYNTBNA8ew3wBlgerJMSnKaUx6c5AM=;
+        s=default; t=1588254761;
+        bh=12G08OjkcLRNptzhaSvIbZJBb4wxK+MHHopIQJcsoTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GO9/M7z0meQXELMnIwhSkE6DyhDe3d419tjuVACuaRCVTIYk2oQwD+OqEdQ7krjui
-         dzC0ArJHkDKgGO5gh0mlF+4TIiBAX88cmfhh2hLQeigOeIgy8vacy1H2oLomjwHupb
-         CsBw0NNBHDleRBi5fd/Xy3ClAZ9hWQ2u8sGzAJBo=
+        b=XHB2UbZE7FdkYpyv5NQMY/C2EJtd1+Csyz1Y4ZiwjzA4FjKxRHL9LcReepon/LM1W
+         69Mki9lRaNT9dtcQOW0/WcQ2nLYnwfaSRjMLMtd/9LyqWYjokMU+THyRFSz/JVoTC1
+         Rm1qa34EnIUFRAAqMJNgLU5L4CbGHAp3hYopWRnc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Eric Anholt <eric@anholt.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 19/57] ARM: dts: bcm283x: Disable dsi0 node
-Date:   Thu, 30 Apr 2020 09:51:40 -0400
-Message-Id: <20200430135218.20372-19-sashal@kernel.org>
+Cc:     Alex Elder <elder@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 20/57] remoteproc: qcom_q6v5_mss: fix a bug in q6v5_probe()
+Date:   Thu, 30 Apr 2020 09:51:41 -0400
+Message-Id: <20200430135218.20372-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135218.20372-1-sashal@kernel.org>
 References: <20200430135218.20372-1-sashal@kernel.org>
@@ -45,34 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 90444b958461a5f8fc299ece0fe17eab15cba1e1 ]
+[ Upstream commit 13c060b50a341dd60303e5264d12108b5747f200 ]
 
-Since its inception the module was meant to be disabled by default, but
-the original commit failed to add the relevant property.
+If looking up the DT "firmware-name" property fails in q6v6_probe(),
+the function returns without freeing the remoteproc structure
+that has been allocated.  Fix this by jumping to the free_rproc
+label, which takes care of this.
 
-Fixes: 4aba4cf82054 ("ARM: dts: bcm2835: Add the DSI module nodes and clocks")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Eric Anholt <eric@anholt.net>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Alex Elder <elder@linaro.org>
+Link: https://lore.kernel.org/r/20200403175005.17130-3-elder@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm283x.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/remoteproc/qcom_q6v5_mss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
-index 90125ce19a1b3..50c64146d4926 100644
---- a/arch/arm/boot/dts/bcm283x.dtsi
-+++ b/arch/arm/boot/dts/bcm283x.dtsi
-@@ -488,6 +488,7 @@
- 					     "dsi0_ddr2",
- 					     "dsi0_ddr";
+diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
+index 783d00131a2a9..6ba065d5c4d95 100644
+--- a/drivers/remoteproc/qcom_q6v5_mss.c
++++ b/drivers/remoteproc/qcom_q6v5_mss.c
+@@ -1440,7 +1440,7 @@ static int q6v5_probe(struct platform_device *pdev)
+ 	ret = of_property_read_string_index(pdev->dev.of_node, "firmware-name",
+ 					    1, &qproc->hexagon_mdt_image);
+ 	if (ret < 0 && ret != -EINVAL)
+-		return ret;
++		goto free_rproc;
  
-+			status = "disabled";
- 		};
+ 	platform_set_drvdata(pdev, qproc);
  
- 		thermal: thermal@7e212000 {
 -- 
 2.20.1
 
