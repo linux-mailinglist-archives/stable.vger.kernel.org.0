@@ -2,72 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDB3F1BEEDD
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 06:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 735851BEEDF
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 06:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726481AbgD3EAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 00:00:48 -0400
-Received: from mga11.intel.com ([192.55.52.93]:17334 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726354AbgD3EAs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 00:00:48 -0400
-IronPort-SDR: yj8TmLWwsReHG7GSMisHqz8qQxN9UgmsjVFCm+9i+ITXNwGI2Ia98G1veCLs3In1ea1CLkgAfz
- 10eAswiE8XXw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2020 21:00:48 -0700
-IronPort-SDR: sNz80AeppAXBoljxGVY/kL4RfiCytDXDWrKQuUVh9PAEvJaIEdaCuxfnhhn2s0EOSt9Ims/Xg0
- xJgVnmF7tD2A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,333,1583222400"; 
-   d="scan'208";a="432812986"
-Received: from aanderso-mobl3.amr.corp.intel.com (HELO localhost) ([10.252.52.101])
-  by orsmga005.jf.intel.com with ESMTP; 29 Apr 2020 21:00:39 -0700
-Date:   Thu, 30 Apr 2020 07:00:38 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Ard Biesheuvel <ardb@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Dave Young <dyoung@redhat.com>, Lukas Wunner <lukas@wunner.de>,
-        Lyude Paul <lyude@redhat.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Peter Jones <pjones@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Scott Talbert <swt@techie.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] efi/tpm: fix section mismatch warning
-Message-ID: <20200430040038.GD31820@linux.intel.com>
-References: <20200429190119.43595-1-arnd@arndb.de>
+        id S1726180AbgD3EBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 00:01:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47292 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726040AbgD3EBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 00:01:14 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5710BC035494
+        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 21:01:14 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id 18so2247403pfv.8
+        for <stable@vger.kernel.org>; Wed, 29 Apr 2020 21:01:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TCxSYF7H8vAJ/a2TbIWyLS0N80Fm1wL64LDk2KMh3Xg=;
+        b=Jsltnm9OJop6gt+ID4miRtfd1t/ol6ud0NTQC3jgOJ3vsRgolW268eRrA9/9OY6QCC
+         xxDMDvW9F0XS2Qyh5NqZ7r0aCrdck3kL9wWNtq7HsT9TfbD1ZcxlU4epsXQW9XAk7/3V
+         i7y1H7UOz8XxHGUR10chewWRJ7QC4yH/QgPrrvqXPvku/pEKW2yV1d5PObcR0mJYVt2t
+         8QtLAuMnPv17jpWSSqK+FmPq2wY954eOPwuTtT++mUfPsNY3jG3OgdssccBQm6mlqU5F
+         +lHxW/TvYTX+VzBuzvm9v7O4oUdO6zQUb3XMdriOGOUTm5vlqx5fJ6aXWBg+eaCoSXyD
+         5O9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TCxSYF7H8vAJ/a2TbIWyLS0N80Fm1wL64LDk2KMh3Xg=;
+        b=a1f/K8Gj8euwpXNiY/Z5tKjcp7u4sodNrsODXG54EaHST0I1KV35KVYYR3ImHuiT0p
+         JNnXAkfgjxlFYZlzf7c+zvOJO12gjVIQRMgo45PrkrrzAfL00oz0j9pbWydL1VuV5b+z
+         wVB7fpd0jkTQ9bTRiszDPTmsTEPVZC/op7q/SN0EIXFBppncponnvpxDq80FD+6D/018
+         kgy21wODd5TS0jXiVJvz3esVSUqr8YG8VsoCFbfeT9ItQv7rqvyOxZJ5KokAFJ1UjycY
+         ygB0aH6KU0Tn7MipLawyMrG9SYxM9jCg2rYoG2BqULAd30k6pj5KDft8ncGDeGNHawda
+         6yqQ==
+X-Gm-Message-State: AGi0PubNRDlUMVW/Q0VuPUigaJ1t89yVZmoiJn5xOmdx2cSTDwlXVCVI
+        18J9ESgLefJ0/CBj3ldBL1VvjNmB9vo=
+X-Google-Smtp-Source: APiQypJgpbeSdTNEvNbHQV5j9kj+up3NRa0VUSlDmV8VpzBl4SfXjBnvPT7KWPjjgo9+nHiWiamATg==
+X-Received: by 2002:a63:dc03:: with SMTP id s3mr1509348pgg.128.1588219273468;
+        Wed, 29 Apr 2020 21:01:13 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q11sm2256397pfl.97.2020.04.29.21.01.12
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Apr 2020 21:01:12 -0700 (PDT)
+Message-ID: <5eaa4d88.1c69fb81.23cb0.8598@mx.google.com>
+Date:   Wed, 29 Apr 2020 21:01:12 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200429190119.43595-1-arnd@arndb.de>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.220
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.9.y boot: 115 boots: 1 failed,
+ 102 passed with 5 offline, 5 untried/unknown, 2 conflicts (v4.9.220)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 29, 2020 at 09:01:08PM +0200, Arnd Bergmann wrote:
-> Building with gcc-10 causes a harmless warning about a section mismatch:
-> 
-> WARNING: modpost: vmlinux.o(.text.unlikely+0x5e191): Section mismatch in reference from the function tpm2_calc_event_log_size() to the function .init.text:early_memunmap()
-> The function tpm2_calc_event_log_size() references
-> the function __init early_memunmap().
-> This is often because tpm2_calc_event_log_size lacks a __init
-> annotation or the annotation of early_memunmap is wrong.
-> 
-> Add the missing annotation.
-> 
-> Fixes: e658c82be556 ("efi/tpm: Only set 'efi_tpm_final_log_size' after successful event log parsing")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+stable-rc/linux-4.9.y boot: 115 boots: 1 failed, 102 passed with 5 offline,=
+ 5 untried/unknown, 2 conflicts (v4.9.220)
 
-Acked-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.220/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.220/
 
-/Jarkko
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.220
+Git Commit: 0661b3d6cfd774e28a2e2ba90a3d87479e5c399b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 61 unique boards, 20 SoC families, 19 builds out of 197
+
+Boot Regressions Detected:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v4.9.219-125-g0=
+1b8cf611034)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.9.219-125-g0=
+1b8cf611034)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 77 days (last pass: v4.9.=
+213 - first fail: v4.9.213-37-g860ec95da9ad)
+
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v4.9.219-84-gd7b7a33b06=
+09)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
