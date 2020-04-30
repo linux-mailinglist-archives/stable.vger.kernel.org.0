@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 097101BFCF1
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F091BFCE8
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728263AbgD3OJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 10:09:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60712 "EHLO mail.kernel.org"
+        id S1728248AbgD3Nv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:51:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728230AbgD3Nvy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:51:54 -0400
+        id S1728239AbgD3Nv4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:51:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1531208CA;
-        Thu, 30 Apr 2020 13:51:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C14D920873;
+        Thu, 30 Apr 2020 13:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254714;
-        bh=z/SAI+WxyxCRvHGGrJbBNLw73UFuYbefK523W+/YLqI=;
+        s=default; t=1588254715;
+        bh=b2QdKOeAuXxVphJVniePs7dMgcY5GW7kcKW3nlDsHuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B+DqQVzJRh5PZRwPgAmq9/54yM3KLu28GNusBKTveA3Gd6i23UAvoQxy0cq6CRf1S
-         JtJbLwrjYT3HCiUbLE6oRtyrEoirpE5NiKM3Zhveycf/TNZ3f3LsuRuU+Iy4JVy9is
-         CGmyQUoyYU6IsTIyAAY+321qgocVE71XA17JzWp8=
+        b=Puz9FCESQ1C2Wav2lcfWu+xLcVl8Ohw2i3tnmuHoUBpRGV3ZTy8M3uyr93EZ/l3WH
+         ie1fwK7mNTEZ1TcQ7+A2IgsHun9j173VSiGbFHG437gJZfucQoEOj1QjwXMULlfFYG
+         8a5CHlZbgWn41mMLeMFp+hlEDL8FkbeKeZIITvcI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>, KP Singh <kpsingh@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 62/79] perf/core: fix parent pid/tid in task exit events
-Date:   Thu, 30 Apr 2020 09:50:26 -0400
-Message-Id: <20200430135043.19851-62-sashal@kernel.org>
+Cc:     Paulo Alcantara <pc@cjr.nz>, Aurelien Aptel <aaptel@suse.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.6 63/79] cifs: do not share tcons with DFS
+Date:   Thu, 30 Apr 2020 09:50:27 -0400
+Message-Id: <20200430135043.19851-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135043.19851-1-sashal@kernel.org>
 References: <20200430135043.19851-1-sashal@kernel.org>
@@ -43,61 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit f3bed55e850926614b9898fe982f66d2541a36a5 ]
+[ Upstream commit 65303de829dd6d291a4947c1a31de31896f8a060 ]
 
-Current logic yields the child task as the parent.
+This disables tcon re-use for DFS shares.
 
-Before:
-$ perf record bash -c "perf list > /dev/null"
-$ perf script -D |grep 'FORK\|EXIT'
-4387036190981094 0x5a70 [0x30]: PERF_RECORD_FORK(10472:10472):(10470:10470)
-4387036606207580 0xf050 [0x30]: PERF_RECORD_EXIT(10472:10472):(10472:10472)
-4387036607103839 0x17150 [0x30]: PERF_RECORD_EXIT(10470:10470):(10470:10470)
-                                                   ^
-  Note the repeated values here -------------------/
+tcon->dfs_path stores the path that the tcon should connect to when
+doing failing over.
 
-After:
-383281514043 0x9d8 [0x30]: PERF_RECORD_FORK(2268:2268):(2266:2266)
-383442003996 0x2180 [0x30]: PERF_RECORD_EXIT(2268:2268):(2266:2266)
-383451297778 0xb70 [0x30]: PERF_RECORD_EXIT(2266:2266):(2265:2265)
+If that tcon is used multiple times e.g. 2 mounts using it with
+different prefixpath, each will need a different dfs_path but there is
+only one tcon. The other solution would be to split the tcon in 2
+tcons during failover but that is much harder.
 
-Fixes: 94d5d1b2d891 ("perf_counter: Report the cloning task as parent on perf_counter_fork()")
-Reported-by: KP Singh <kpsingh@google.com>
-Signed-off-by: Ian Rogers <irogers@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200417182842.12522-1-irogers@google.com
+tcons could not be shared with DFS in cifs.ko because in a
+DFS namespace like:
+
+          //domain/dfsroot -> /serverA/dfsroot, /serverB/dfsroot
+
+          //serverA/dfsroot/link -> /serverA/target1/aa/bb
+
+          //serverA/dfsroot/link2 -> /serverA/target1/cc/dd
+
+you can see that link and link2 are two DFS links that both resolve to
+the same target share (/serverA/target1), so cifs.ko will only contain a
+single tcon for both link and link2.
+
+The problem with that is, if we (auto)mount "link" and "link2", cifs.ko
+will only contain a single tcon for both DFS links so we couldn't
+perform failover or refresh the DFS cache for both links because
+tcon->dfs_path was set to either "link" or "link2", but not both --
+which is wrong.
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ fs/cifs/connect.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 533c193481899..29ace472f9168 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -7278,10 +7278,17 @@ static void perf_event_task_output(struct perf_event *event,
- 		goto out;
- 
- 	task_event->event_id.pid = perf_event_pid(event, task);
--	task_event->event_id.ppid = perf_event_pid(event, current);
--
- 	task_event->event_id.tid = perf_event_tid(event, task);
--	task_event->event_id.ptid = perf_event_tid(event, current);
-+
-+	if (task_event->event_id.header.type == PERF_RECORD_EXIT) {
-+		task_event->event_id.ppid = perf_event_pid(event,
-+							task->real_parent);
-+		task_event->event_id.ptid = perf_event_pid(event,
-+							task->real_parent);
-+	} else {  /* PERF_RECORD_FORK */
-+		task_event->event_id.ppid = perf_event_pid(event, current);
-+		task_event->event_id.ptid = perf_event_tid(event, current);
-+	}
- 
- 	task_event->event_id.time = perf_event_clock(event);
- 
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index d4a23b48e24d8..9c614d6916c2d 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3419,6 +3419,10 @@ cifs_find_tcon(struct cifs_ses *ses, struct smb_vol *volume_info)
+ 	spin_lock(&cifs_tcp_ses_lock);
+ 	list_for_each(tmp, &ses->tcon_list) {
+ 		tcon = list_entry(tmp, struct cifs_tcon, tcon_list);
++#ifdef CONFIG_CIFS_DFS_UPCALL
++		if (tcon->dfs_path)
++			continue;
++#endif
+ 		if (!match_tcon(tcon, volume_info))
+ 			continue;
+ 		++tcon->tc_count;
 -- 
 2.20.1
 
