@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB071BFD81
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5ED1BFD83
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:13:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727779AbgD3Nuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:50:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58388 "EHLO mail.kernel.org"
+        id S1727801AbgD3Nuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:50:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726770AbgD3Nuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:50:50 -0400
+        id S1727086AbgD3Nuv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:50:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF6EF208D5;
-        Thu, 30 Apr 2020 13:50:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F194420873;
+        Thu, 30 Apr 2020 13:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254649;
-        bh=IIyfnyf7ODj084HXyTjKwyWDq+B1n1EEZB/bgN0wMKw=;
+        s=default; t=1588254650;
+        bh=zh48Mwux3jwlRb4nRNfRVX7V+9O0mJOiLa7xukcJ8qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLtPO4xePRut1ySt7UZAxL9kSzhekFJGaMwStcB4vj0FilJPWI0Yu2w0xzNYodHgo
-         VurApQJqwPnYDkMXCGq5xzOebltTsrNBSLSriXZ6DQlGPhZlOhCNoAcxXQLlAU7xb5
-         Pdnr/+3eG7Clmf1IQQxHejoaIvN8BfIqEPDV6Vpw=
+        b=aM2CA3/ZyqgR1ZnvGR2nyqxRn/ktVd3a8pfUTp/gKQxm8rt3hYG9/OLQJuaAHkOKa
+         w1nGIDwQT+TX/lB3ygMngFtr/VHJ9kmMgSv6w/jG2TLd8vaRIXl47C6PzQ4H8jcGYN
+         D5+FchyrFwAPbr6two9Kt+wrSGpVrTcVYT3UPHPQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 04/79] iio:ad7797: Use correct attribute_group
-Date:   Thu, 30 Apr 2020 09:49:28 -0400
-Message-Id: <20200430135043.19851-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 05/79] iio: imu: st_lsm6dsx: fix read misalignment on untagged FIFO
+Date:   Thu, 30 Apr 2020 09:49:29 -0400
+Message-Id: <20200430135043.19851-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135043.19851-1-sashal@kernel.org>
 References: <20200430135043.19851-1-sashal@kernel.org>
@@ -44,37 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 28535877ac5b2b84f0d394fd67a5ec71c0c48b10 ]
+[ Upstream commit 7762902c89c4c78d32ec562f1ada44d02039104b ]
 
-It should use ad7797_attribute_group in ad7797_info,
-according to commit ("iio:ad7793: Add support for the ad7796 and ad7797").
+st_lsm6dsx suffers of a read misalignment on untagged FIFO when
+all 3 supported sensors (accel, gyro and ext device) are running
+at different ODRs (the use-case is reported in the LSM6DSM Application
+Note at pag 100).
+Fix the issue taking into account decimation factor reading the FIFO
+pattern.
 
-Scale is fixed for the ad7796 and not programmable, hence
-should not have the scale_available attribute.
-
-Fixes: fd1a8b912841 ("iio:ad7793: Add support for the ad7796 and ad7797")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Fixes: e485e2a2cfd6 ("iio: imu: st_lsm6dsx: enable sensor-hub support for lsm6dsm")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7793.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h       |  2 ++
+ .../iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c    | 23 +++++++++++++------
+ 2 files changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/iio/adc/ad7793.c b/drivers/iio/adc/ad7793.c
-index b747db97f78ad..e5691e3303236 100644
---- a/drivers/iio/adc/ad7793.c
-+++ b/drivers/iio/adc/ad7793.c
-@@ -542,7 +542,7 @@ static const struct iio_info ad7797_info = {
- 	.read_raw = &ad7793_read_raw,
- 	.write_raw = &ad7793_write_raw,
- 	.write_raw_get_fmt = &ad7793_write_raw_get_fmt,
--	.attrs = &ad7793_attribute_group,
-+	.attrs = &ad7797_attribute_group,
- 	.validate_trigger = ad_sd_validate_trigger,
- };
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+index 9c3486a8134fd..b8ed6c900c457 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+@@ -337,6 +337,7 @@ enum st_lsm6dsx_fifo_mode {
+  * @gain: Configured sensor sensitivity.
+  * @odr: Output data rate of the sensor [Hz].
+  * @watermark: Sensor watermark level.
++ * @decimator: Sensor decimation factor.
+  * @sip: Number of samples in a given pattern.
+  * @ts_ref: Sensor timestamp reference for hw one.
+  * @ext_info: Sensor settings if it is connected to i2c controller
+@@ -350,6 +351,7 @@ struct st_lsm6dsx_sensor {
+ 	u32 odr;
+ 
+ 	u16 watermark;
++	u8 decimator;
+ 	u8 sip;
+ 	s64 ts_ref;
+ 
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
+index bb899345f2bba..afd00daeefb2d 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
+@@ -93,6 +93,7 @@ st_lsm6dsx_get_decimator_val(struct st_lsm6dsx_sensor *sensor, u32 max_odr)
+ 			break;
+ 	}
+ 
++	sensor->decimator = decimator;
+ 	return i == max_size ? 0 : st_lsm6dsx_decimator_table[i].val;
+ }
+ 
+@@ -337,7 +338,7 @@ static inline int st_lsm6dsx_read_block(struct st_lsm6dsx_hw *hw, u8 addr,
+ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
+ {
+ 	struct st_lsm6dsx_sensor *acc_sensor, *gyro_sensor, *ext_sensor = NULL;
+-	int err, acc_sip, gyro_sip, ts_sip, ext_sip, read_len, offset;
++	int err, sip, acc_sip, gyro_sip, ts_sip, ext_sip, read_len, offset;
+ 	u16 fifo_len, pattern_len = hw->sip * ST_LSM6DSX_SAMPLE_SIZE;
+ 	u16 fifo_diff_mask = hw->settings->fifo_ops.fifo_diff.mask;
+ 	u8 gyro_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
+@@ -399,19 +400,20 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
+ 		acc_sip = acc_sensor->sip;
+ 		ts_sip = hw->ts_sip;
+ 		offset = 0;
++		sip = 0;
+ 
+ 		while (acc_sip > 0 || gyro_sip > 0 || ext_sip > 0) {
+-			if (gyro_sip > 0) {
++			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
+ 				memcpy(gyro_buff, &hw->buff[offset],
+ 				       ST_LSM6DSX_SAMPLE_SIZE);
+ 				offset += ST_LSM6DSX_SAMPLE_SIZE;
+ 			}
+-			if (acc_sip > 0) {
++			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
+ 				memcpy(acc_buff, &hw->buff[offset],
+ 				       ST_LSM6DSX_SAMPLE_SIZE);
+ 				offset += ST_LSM6DSX_SAMPLE_SIZE;
+ 			}
+-			if (ext_sip > 0) {
++			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
+ 				memcpy(ext_buff, &hw->buff[offset],
+ 				       ST_LSM6DSX_SAMPLE_SIZE);
+ 				offset += ST_LSM6DSX_SAMPLE_SIZE;
+@@ -441,18 +443,25 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
+ 				offset += ST_LSM6DSX_SAMPLE_SIZE;
+ 			}
+ 
+-			if (gyro_sip-- > 0)
++			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
+ 				iio_push_to_buffers_with_timestamp(
+ 					hw->iio_devs[ST_LSM6DSX_ID_GYRO],
+ 					gyro_buff, gyro_sensor->ts_ref + ts);
+-			if (acc_sip-- > 0)
++				gyro_sip--;
++			}
++			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
+ 				iio_push_to_buffers_with_timestamp(
+ 					hw->iio_devs[ST_LSM6DSX_ID_ACC],
+ 					acc_buff, acc_sensor->ts_ref + ts);
+-			if (ext_sip-- > 0)
++				acc_sip--;
++			}
++			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
+ 				iio_push_to_buffers_with_timestamp(
+ 					hw->iio_devs[ST_LSM6DSX_ID_EXT0],
+ 					ext_buff, ext_sensor->ts_ref + ts);
++				ext_sip--;
++			}
++			sip++;
+ 		}
+ 	}
  
 -- 
 2.20.1
