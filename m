@@ -2,87 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A4C1BFAC9
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:56:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 459BF1BFAF5
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727103AbgD3Nz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:55:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38000 "EHLO mail.kernel.org"
+        id S1729208AbgD3N4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:56:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729123AbgD3NzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:55:06 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1729202AbgD3N4N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:56:13 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7923720774;
-        Thu, 30 Apr 2020 13:55:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7821E2072A;
+        Thu, 30 Apr 2020 13:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254906;
-        bh=bVOLY6qCCBKUOcXkUwFbnUT2UzHZrxXpjThWje4InnE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fALPALQdzfyGpTWTdqc849x9ftUyaxtN7rfhTLcpHypm4dTMzqRG2hK8pMdoLYsHX
-         WtAWVWtbimO3H37T+4N60Zh+9REmp1r7FF+1aCF0pW2utkL9KTyJGzYucWkycmFc1w
-         UFrZBp64YEL3voKOJRqeOzDudbDHOG4Rf2hy72LA=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 11/11] net: systemport: suppress warnings on failed Rx SKB allocations
-Date:   Thu, 30 Apr 2020 09:54:53 -0400
-Message-Id: <20200430135453.21353-11-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200430135453.21353-1-sashal@kernel.org>
-References: <20200430135453.21353-1-sashal@kernel.org>
+        s=default; t=1588254972;
+        bh=CtV13aq5EHUV1ZS63QEGO/ZcyB2FMYXMcfBQyRvAbo8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zgED640dEidKBx4f+5IYcttqkLLgMNsPupj8XSvfZrstPPLUzJXejf6/XpjMx1Z0O
+         csJYRNoXMxf+3Vgf4ZOVgj1ukvOFOyk6NwEKmYgBbExJWm2MCAwOJKR0Ms+nhM9I2h
+         YMM3VPC8n/9CDRCU7aUQSlJVoq1Vv8HuRH1iLURk=
+Date:   Thu, 30 Apr 2020 14:56:10 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH AUTOSEL 5.6 45/79] ASoC: meson: axg-card: fix
+ codec-to-codec link setup
+Message-ID: <20200430135610.GD4633@sirena.org.uk>
+References: <20200430135043.19851-1-sashal@kernel.org>
+ <20200430135043.19851-45-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="mJm6k4Vb/yFcL9ZU"
+Content-Disposition: inline
+In-Reply-To: <20200430135043.19851-45-sashal@kernel.org>
+X-Cookie: Sign here without admitting guilt.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit 3554e54a46125030c534820c297ed7f6c3907e24 ]
+--mJm6k4Vb/yFcL9ZU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The driver is designed to drop Rx packets and reclaim the buffers
-when an allocation fails, and the network interface needs to safely
-handle this packet loss. Therefore, an allocation failure of Rx
-SKBs is relatively benign.
+On Thu, Apr 30, 2020 at 09:50:09AM -0400, Sasha Levin wrote:
 
-However, the output of the warning message occurs with a high
-scheduling priority that can cause excessive jitter/latency for
-other high priority processing.
+> Since the addition of commit 9b5db059366a ("ASoC: soc-pcm: dpcm: Only allow
+> playback/capture if supported"), meson-axg cards which have codec-to-codec
+> links fail to init and Oops:
 
-This commit suppresses the warning messages to prevent scheduling
-problems while retaining the failure count in the statistics of
-the network interface.
+This clearly describes the issue as only being present after the above
+commit which is not in v5.6.
 
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/broadcom/bcmsysport.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+--mJm6k4Vb/yFcL9ZU
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
-index 3cb99ce7325b7..d46ea7a5e0886 100644
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -526,7 +526,8 @@ static struct sk_buff *bcm_sysport_rx_refill(struct bcm_sysport_priv *priv,
- 	dma_addr_t mapping;
- 
- 	/* Allocate a new SKB for a new packet */
--	skb = netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH);
-+	skb = __netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH,
-+				 GFP_ATOMIC | __GFP_NOWARN);
- 	if (!skb) {
- 		priv->mib.alloc_rx_buff_failed++;
- 		netif_err(priv, rx_err, ndev, "SKB alloc failed\n");
--- 
-2.20.1
+-----BEGIN PGP SIGNATURE-----
 
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl6q2PkACgkQJNaLcl1U
+h9DApAf/a8MgVHko2gpdxkUsvbUQwdEzB7YRiWynwvKJ/ud0k+E08H894+NR3LF5
+FBgvDURotlT45pncz5G3Rynkgvbr9IluKuJLSfVXhCzrGXHiFXxxDQZncs18Lr+f
+/nmdtOzXoRLBHZiYY60a/Wzsw+b3VhM01JmFnvodnIQoEojGAkr09lEIQQhvpr3I
+jJjRWp3KzVzU9z0dYXW2m4fqPeDAmvKM6G5USTnXdgx8QlRfWKs5I8EgSLFwG+gR
+1pqi95AFL8hQZevt81Jl5qHQuI/Xyn2Wz0lWlGfZG3BaSDJYe6peJSiSfxdpmpV7
+Nv7JtglVXZvI6Y33OxL56LJJaPVAng==
+=G+K6
+-----END PGP SIGNATURE-----
+
+--mJm6k4Vb/yFcL9ZU--
