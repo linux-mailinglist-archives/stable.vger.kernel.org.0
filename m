@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5616D1BFA0A
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A701BFD67
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:12:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbgD3NvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:51:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59118 "EHLO mail.kernel.org"
+        id S1726701AbgD3OMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 10:12:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727079AbgD3NvJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:51:09 -0400
+        id S1727921AbgD3NvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:51:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 316D02082E;
-        Thu, 30 Apr 2020 13:51:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 474BE20873;
+        Thu, 30 Apr 2020 13:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254668;
-        bh=vEhVLLwSFyJhdLX9Pt2w9y/nEjjsIQJj5jJiyTA4d3g=;
+        s=default; t=1588254669;
+        bh=RrOjOmwlFZRTd7KGEyHN6f9S1J4hCIihGGuUoP738dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZC7Efpt9apFX702Y0V8UEt2Ayn67snqlZjCmjpiQ5NhwQDmOu0XVv03yEVWwV+8/M
-         JNZxyou7QX1zUJ0tWYYzlgqHVQRg3q5T0IOsQMtipY5br+Pznqh63lU+ORTtahk9Sf
-         dXonyuomrPB7hOFWGyuGLizGQoYwg5OxlZ45AcR8=
+        b=LUtZ5uhQ9u062uddtNRZAQbxnLHbQlr45+bnsy2lcMNBi5EZses057QrjcUrrmfD1
+         oNXhPxahMIhHBwXbMcD45M/WvfnH7yO+x53yb4QTzN3mpUIPhbOQI4LCiM5cy4RsIV
+         JPTkYSM/rLmfD6Q3zcl9Sb3KuDTRXtzrS3s8S+Mk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wu Bo <wubo40@huawei.com>, Douglas Gilbert <dgilbert@interlog.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 21/79] scsi: sg: add sg_remove_request in sg_write
-Date:   Thu, 30 Apr 2020 09:49:45 -0400
-Message-Id: <20200430135043.19851-21-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 22/79] drivers: soc: xilinx: fix firmware driver Kconfig dependency
+Date:   Thu, 30 Apr 2020 09:49:46 -0400
+Message-Id: <20200430135043.19851-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135043.19851-1-sashal@kernel.org>
 References: <20200430135043.19851-1-sashal@kernel.org>
@@ -43,38 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Bo <wubo40@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 83c6f2390040f188cc25b270b4befeb5628c1aee ]
+[ Upstream commit d0384eedcde21276ac51f57c641f875605024b32 ]
 
-If the __copy_from_user function failed we need to call sg_remove_request
-in sg_write.
+The firmware driver is optional, but the power driver depends on it,
+which needs to be reflected in Kconfig to avoid link errors:
 
-Link: https://lore.kernel.org/r/610618d9-e983-fd56-ed0f-639428343af7@huawei.com
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+aarch64-linux-ld: drivers/soc/xilinx/zynqmp_power.o: in function `zynqmp_pm_isr':
+zynqmp_power.c:(.text+0x284): undefined reference to `zynqmp_pm_invoke_fn'
+
+The firmware driver can probably be allowed for compile-testing as
+well, so it's best to drop the dependency on the ZYNQ platform
+here and allow building as long as the firmware code is built-in.
+
+Fixes: ab272643d723 ("drivers: soc: xilinx: Add ZynqMP PM driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20200408155224.2070880-1-arnd@arndb.de
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sg.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/soc/xilinx/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
-index 9c0ee192f0f9c..20472aaaf630a 100644
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -685,8 +685,10 @@ sg_write(struct file *filp, const char __user *buf, size_t count, loff_t * ppos)
- 	hp->flags = input_size;	/* structure abuse ... */
- 	hp->pack_id = old_hdr.pack_id;
- 	hp->usr_ptr = NULL;
--	if (copy_from_user(cmnd, buf, cmd_size))
-+	if (copy_from_user(cmnd, buf, cmd_size)) {
-+		sg_remove_request(sfp, srp);
- 		return -EFAULT;
-+	}
- 	/*
- 	 * SG_DXFER_TO_FROM_DEV is functionally equivalent to SG_DXFER_FROM_DEV,
- 	 * but is is possible that the app intended SG_DXFER_TO_DEV, because there
+diff --git a/drivers/soc/xilinx/Kconfig b/drivers/soc/xilinx/Kconfig
+index 223f1f9d0922f..646512d7276f4 100644
+--- a/drivers/soc/xilinx/Kconfig
++++ b/drivers/soc/xilinx/Kconfig
+@@ -19,7 +19,7 @@ config XILINX_VCU
+ 
+ config ZYNQMP_POWER
+ 	bool "Enable Xilinx Zynq MPSoC Power Management driver"
+-	depends on PM && ARCH_ZYNQMP
++	depends on PM && ZYNQMP_FIRMWARE
+ 	default y
+ 	select MAILBOX
+ 	select ZYNQMP_IPI_MBOX
+@@ -35,7 +35,7 @@ config ZYNQMP_POWER
+ config ZYNQMP_PM_DOMAINS
+ 	bool "Enable Zynq MPSoC generic PM domains"
+ 	default y
+-	depends on PM && ARCH_ZYNQMP && ZYNQMP_FIRMWARE
++	depends on PM && ZYNQMP_FIRMWARE
+ 	select PM_GENERIC_DOMAINS
+ 	help
+ 	  Say yes to enable device power management through PM domains
 -- 
 2.20.1
 
