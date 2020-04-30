@@ -2,51 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD951C2162
-	for <lists+stable@lfdr.de>; Sat,  2 May 2020 01:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0781C0801
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 22:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726784AbgEAXuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 19:50:24 -0400
-Received: from [104.248.214.7] ([104.248.214.7]:34736 "EHLO narrain.in"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726344AbgEAXuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 19:50:24 -0400
-Received: from Shop01 (localhost [127.0.0.1])
-        by narrain.in (Postfix) with SMTP id 82CE19F0218;
-        Thu, 30 Apr 2020 23:35:35 +0000 (UTC)
-Received: from (HELO r9ot) [134.41.181.144] by Shop01 with ESMTP id FAC4AAE511B; Thu, 30 Apr 2020 20:31:41 -0400
-Message-ID: <a18-4$8lo$j$41si@93h.u0vpv>
-From:   "JEAN MARIE" <fkinneyofd@tampabay.rr.com>
-Reply-To: "JEAN MARIE" <fkinneyofd@tampabay.rr.com>
-To:     stabarelop@crusmail.com
-Subject: Please Kindly Acknowledge Receipt
-Date:   Thu, 30 Apr 20 20:31:41 GMT
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
+        id S1726917AbgD3Ugs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 16:36:48 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:64325 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726626AbgD3Ugs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 16:36:48 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1588279007; h=Message-ID: Subject: To: From: Date:
+ Content-Transfer-Encoding: Content-Type: MIME-Version: Sender;
+ bh=IWvKJ320jD87cbBzpMu9y90bgb6R9VmYIWJH+DMoYKA=; b=mYglZgjNMRJKGnpqKrb0uDqOCykzX0KXqeYjWbOhmtnIm3fetSaPygyfjlWNkvFRyZYWcYqI
+ QN/VrCdGyxNwnAhHnDcbVLsK3AD4qrj7LT8QTXp3dOXwxdVUu3rLOHrOil2Zb1MitzrrY48J
+ B49yz+fDP+wy7a5NJuSSiuSZan8=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5eab36df.7f7d5a35f570-smtp-out-n01;
+ Thu, 30 Apr 2020 20:36:47 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 0542AC433D2; Thu, 30 Apr 2020 20:36:46 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED autolearn=ham
+        autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: rananta)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id D0F0AC433CB
+        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 20:36:45 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="1B621DFBBE._F3BE3_...."
-X-Priority: 3
-X-MSMail-Priority: Normal
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Thu, 30 Apr 2020 13:36:45 -0700
+From:   rananta@codeaurora.org
+To:     stable@vger.kernel.org
+Subject: Request to backport a patch onto 5.4.y stable
+Message-ID: <b8f451c80fe1cd57bdd4fea74d21e8cd@codeaurora.org>
+X-Sender: rananta@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
---1B621DFBBE._F3BE3_....
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
+I need help to backport the patch with the following details onto the 
+5.4.y stable branch:
+Subject: [PATCH] tty: hvc: Fix data abort due to race in hvc_open
+commit-id: e2bd1dcbe1aa34ff5570b3427c530e4332ecf0fe
+Reason: The issue addressed in the patch was discovered on 5.4.y branch
 
-I 'm a Financial Consultant.  under my network as a financial consultant, =
-there are few private investors offering capital injection as project fund=
-ing or business expansion in critical areas of Investment placements such =
-as Real Estate, Healthcare, Transportation and Agriculture. 
-Get back to me for more details as you express your interest areas of spec=
-ialization.
-
-Regards.
-Mr. J. Marie
-fkinneyofd Consulting
-
---1B621DFBBE._F3BE3_....--
-
+Thank you.
+Raghavendra
