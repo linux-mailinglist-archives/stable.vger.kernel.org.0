@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F871BFD78
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:12:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 353261BFD89
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727850AbgD3NvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58830 "EHLO mail.kernel.org"
+        id S1728425AbgD3OMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 10:12:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727843AbgD3NvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:51:00 -0400
+        id S1727856AbgD3NvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:51:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2793C2137B;
-        Thu, 30 Apr 2020 13:50:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CF4F208D5;
+        Thu, 30 Apr 2020 13:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254659;
-        bh=y4Ozww6uIijXuHAOvz0mMxvOX3PpOo2Vb+eBpOul4JM=;
+        s=default; t=1588254661;
+        bh=X+8B5r+3ozNjTtxJhR0LgbtW2wp7VlQ+Pb0lz57jQmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rGmKvgLW9VHBI6qYEEGaEQ1e8AxQQZjkdhtmw8hrrfIF8MIs8JE+cCGVaAbHgPRrO
-         CerqMFFjpWWjj0HjUMO24pRad71jIUXv5aQz+rSGXuWE8mUbs7zWPLf0dVxTvlQT6k
-         zyF3fx3/l9OPpcnUFvYZOovfshDBwfGDtdgSUQ2c=
+        b=mIEMYHK8k1jV8J6Od2UQdFLxY9/epwe1j/mPxU6JGhqyhhaQagtRmol9ZqaQickAG
+         IBvpneHsuHame9iz7pBkvJTeYPvJ6UCO6Lv6hmQK31ungMbv17qm8iJfDdvi61425D
+         9IyEZRVOLWLhfwd7VJOA2zzQNHcZeaF6fY350PX8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>,
-        Jeff Layton <jlayton@kernel.org>,
+Cc:     Yihao Wu <wuyihao@linux.alibaba.com>, NeilBrown <neilb@suse.de>,
         Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 13/79] nfsd: memory corruption in nfsd4_lock()
-Date:   Thu, 30 Apr 2020 09:49:37 -0400
-Message-Id: <20200430135043.19851-13-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 14/79] SUNRPC/cache: Fix unsafe traverse caused double-free in cache_purge
+Date:   Thu, 30 Apr 2020 09:49:38 -0400
+Message-Id: <20200430135043.19851-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135043.19851-1-sashal@kernel.org>
 References: <20200430135043.19851-1-sashal@kernel.org>
@@ -44,39 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Yihao Wu <wuyihao@linux.alibaba.com>
 
-[ Upstream commit e1e8399eee72e9d5246d4d1bcacd793debe34dd3 ]
+[ Upstream commit 43e33924c38e8faeb0c12035481cb150e602e39d ]
 
-New struct nfsd4_blocked_lock allocated in find_or_allocate_block()
-does not initialized nbl_list and nbl_lru.
-If conflock allocation fails rollback can call list_del_init()
-access uninitialized fields and corrupt memory.
+Deleting list entry within hlist_for_each_entry_safe is not safe unless
+next pointer (tmp) is protected too. It's not, because once hash_lock
+is released, cache_clean may delete the entry that tmp points to. Then
+cache_purge can walk to a deleted entry and tries to double free it.
 
-v2: just initialize nbl_list and nbl_lru right after nbl allocation.
+Fix this bug by holding only the deleted entry's reference.
 
-Fixes: 76d348fadff5 ("nfsd: have nfsd4_lock use blocking locks for v4.1+ lock")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Suggested-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Yihao Wu <wuyihao@linux.alibaba.com>
+Reviewed-by: NeilBrown <neilb@suse.de>
+[ cel: removed unused variable ]
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/sunrpc/cache.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 65cfe9ab47be0..de9fbe7ed06ce 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -267,6 +267,8 @@ find_or_allocate_block(struct nfs4_lockowner *lo, struct knfsd_fh *fh,
- 	if (!nbl) {
- 		nbl= kmalloc(sizeof(*nbl), GFP_KERNEL);
- 		if (nbl) {
-+			INIT_LIST_HEAD(&nbl->nbl_list);
-+			INIT_LIST_HEAD(&nbl->nbl_lru);
- 			fh_copy_shallow(&nbl->nbl_fh, fh);
- 			locks_init_lock(&nbl->nbl_lock);
- 			nfsd4_init_cb(&nbl->nbl_cb, lo->lo_owner.so_client,
+diff --git a/net/sunrpc/cache.c b/net/sunrpc/cache.c
+index bd843a81afa0b..d36cea4e270de 100644
+--- a/net/sunrpc/cache.c
++++ b/net/sunrpc/cache.c
+@@ -521,7 +521,6 @@ void cache_purge(struct cache_detail *detail)
+ {
+ 	struct cache_head *ch = NULL;
+ 	struct hlist_head *head = NULL;
+-	struct hlist_node *tmp = NULL;
+ 	int i = 0;
+ 
+ 	spin_lock(&detail->hash_lock);
+@@ -533,7 +532,9 @@ void cache_purge(struct cache_detail *detail)
+ 	dprintk("RPC: %d entries in %s cache\n", detail->entries, detail->name);
+ 	for (i = 0; i < detail->hash_size; i++) {
+ 		head = &detail->hash_table[i];
+-		hlist_for_each_entry_safe(ch, tmp, head, cache_list) {
++		while (!hlist_empty(head)) {
++			ch = hlist_entry(head->first, struct cache_head,
++					 cache_list);
+ 			sunrpc_begin_cache_remove_entry(ch, detail);
+ 			spin_unlock(&detail->hash_lock);
+ 			sunrpc_end_cache_remove_entry(ch, detail);
 -- 
 2.20.1
 
