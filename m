@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47CAB1BFA84
+	by mail.lfdr.de (Postfix) with ESMTP id B3EB91BFA85
 	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 15:54:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728907AbgD3NyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728911AbgD3NyM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 30 Apr 2020 09:54:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36382 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728900AbgD3NyJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:54:09 -0400
+        id S1728904AbgD3NyL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:54:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6C4820873;
-        Thu, 30 Apr 2020 13:54:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08F772137B;
+        Thu, 30 Apr 2020 13:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254849;
-        bh=3/POyiqtelTVhdORwpZ36G6ZaXCF8YcncynUzPf+djo=;
+        s=default; t=1588254850;
+        bh=9Lp5v9/keYjswVxSuVEnn/6z7aoKhj1nB4IUyn6JhvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ry3UICElTD3yXk1nXxgz7xENlenctsToLfzc+lw0e5XPeRl9j+YAm43+2tRrIQwB4
-         6XsIjACQ2zzC3O24fA+QKjRl76TqEEMZyGCbi1XalGS7jOSBy2XqNif1gumktuJ5wQ
-         rW3ZmN0i/4sukD2Bnn9Bpmtmc/4RrC/G0ceaBkoU=
+        b=u0kqg40KMGgDhE/gc6rS290hfs5kYxQuaRJqFaKe8o3kmAoEQ+XmAlzsL6rwuUcdP
+         jTTBtMqdp8YjeelIkxsbR3+Kt1dkbu/Gc6kXHCdYSIdEeVEaKzmtmAF9Is5sw3M398
+         CNTlFx9OUGuyWezfFpoIFb1b62YO4zq263ZvbFQA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Fabio Estevam <festivem@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 06/27] ASoC: sgtl5000: Fix VAG power-on handling
-Date:   Thu, 30 Apr 2020 09:53:41 -0400
-Message-Id: <20200430135402.20994-6-sashal@kernel.org>
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 07/27] usb: dwc3: gadget: Do link recovery for SS and SSP
+Date:   Thu, 30 Apr 2020 09:53:42 -0400
+Message-Id: <20200430135402.20994-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135402.20994-1-sashal@kernel.org>
 References: <20200430135402.20994-1-sashal@kernel.org>
@@ -44,87 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit aa7812737f2877e192d57626cbe8825cc7cf6de9 ]
+[ Upstream commit d0550cd20e52558ecf6847a0f96ebd5d944c17e4 ]
 
-As mentioned slightly out of patch context in the code, there
-is no reset routine for the chip. On boards where the chip is
-supplied by a fixed regulator, it might not even be resetted
-during (e.g. watchdog) reboot and can be in any state.
+The controller always supports link recovery for device in SS and SSP.
+Remove the speed limit check. Also, when the device is in RESUME or
+RESET state, it means the controller received the resume/reset request.
+The driver must send the link recovery to acknowledge the request. They
+are valid states for the driver to send link recovery.
 
-If the device is probed with VAG enabled, the driver's probe
-routine will generate a loud pop sound when ANA_POWER is
-being programmed. Avoid this by properly disabling just the
-VAG bit and waiting the required power down time.
-
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Reviewed-by: Fabio Estevam <festivem@gmail.com>
-Link: https://lore.kernel.org/r/20200414181140.145825-1-sebastian.reichel@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Fixes: ee5cd41c9117 ("usb: dwc3: Update speed checks for SuperSpeedPlus")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 34 ++++++++++++++++++++++++++++++++++
- sound/soc/codecs/sgtl5000.h |  1 +
- 2 files changed, 35 insertions(+)
+ drivers/usb/dwc3/gadget.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index ca8a70ab22a82..d64cb28e8dc5c 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1563,6 +1563,40 @@ static int sgtl5000_i2c_probe(struct i2c_client *client,
- 		dev_err(&client->dev,
- 			"Error %d initializing CHIP_CLK_CTRL\n", ret);
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 76a0020b0f2e8..4149d751719e3 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1641,7 +1641,6 @@ static int __dwc3_gadget_wakeup(struct dwc3 *dwc)
+ 	u32			reg;
  
-+	/* Mute everything to avoid pop from the following power-up */
-+	ret = regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_CTRL,
-+			   SGTL5000_CHIP_ANA_CTRL_DEFAULT);
-+	if (ret) {
-+		dev_err(&client->dev,
-+			"Error %d muting outputs via CHIP_ANA_CTRL\n", ret);
-+		goto disable_clk;
-+	}
-+
-+	/*
-+	 * If VAG is powered-on (e.g. from previous boot), it would be disabled
-+	 * by the write to ANA_POWER in later steps of the probe code. This
-+	 * may create a loud pop even with all outputs muted. The proper way
-+	 * to circumvent this is disabling the bit first and waiting the proper
-+	 * cool-down time.
-+	 */
-+	ret = regmap_read(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, &value);
-+	if (ret) {
-+		dev_err(&client->dev, "Failed to read ANA_POWER: %d\n", ret);
-+		goto disable_clk;
-+	}
-+	if (value & SGTL5000_VAG_POWERUP) {
-+		ret = regmap_update_bits(sgtl5000->regmap,
-+					 SGTL5000_CHIP_ANA_POWER,
-+					 SGTL5000_VAG_POWERUP,
-+					 0);
-+		if (ret) {
-+			dev_err(&client->dev, "Error %d disabling VAG\n", ret);
-+			goto disable_clk;
-+		}
-+
-+		msleep(SGTL5000_VAG_POWERDOWN_DELAY);
-+	}
-+
- 	/* Follow section 2.2.1.1 of AN3663 */
- 	ana_pwr = SGTL5000_ANA_POWER_DEFAULT;
- 	if (sgtl5000->num_supplies <= VDDD) {
-diff --git a/sound/soc/codecs/sgtl5000.h b/sound/soc/codecs/sgtl5000.h
-index 22f3442af9826..9ea41749d0375 100644
---- a/sound/soc/codecs/sgtl5000.h
-+++ b/sound/soc/codecs/sgtl5000.h
-@@ -236,6 +236,7 @@
- /*
-  * SGTL5000_CHIP_ANA_CTRL
-  */
-+#define SGTL5000_CHIP_ANA_CTRL_DEFAULT		0x0133
- #define SGTL5000_LINE_OUT_MUTE			0x0100
- #define SGTL5000_HP_SEL_MASK			0x0040
- #define SGTL5000_HP_SEL_SHIFT			6
+ 	u8			link_state;
+-	u8			speed;
+ 
+ 	/*
+ 	 * According to the Databook Remote wakeup request should
+@@ -1651,16 +1650,13 @@ static int __dwc3_gadget_wakeup(struct dwc3 *dwc)
+ 	 */
+ 	reg = dwc3_readl(dwc->regs, DWC3_DSTS);
+ 
+-	speed = reg & DWC3_DSTS_CONNECTSPD;
+-	if ((speed == DWC3_DSTS_SUPERSPEED) ||
+-	    (speed == DWC3_DSTS_SUPERSPEED_PLUS))
+-		return 0;
+-
+ 	link_state = DWC3_DSTS_USBLNKST(reg);
+ 
+ 	switch (link_state) {
++	case DWC3_LINK_STATE_RESET:
+ 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
+ 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
++	case DWC3_LINK_STATE_RESUME:
+ 		break;
+ 	default:
+ 		return -EINVAL;
 -- 
 2.20.1
 
