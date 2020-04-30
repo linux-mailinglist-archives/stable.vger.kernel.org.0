@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925FB1BFB7F
-	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98D5A1BFB81
+	for <lists+stable@lfdr.de>; Thu, 30 Apr 2020 16:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728925AbgD3NyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 09:54:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36576 "EHLO mail.kernel.org"
+        id S1728930AbgD3NyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 09:54:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728919AbgD3NyO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:54:14 -0400
+        id S1728905AbgD3NyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:54:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 625D82495F;
-        Thu, 30 Apr 2020 13:54:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E8BD2072A;
+        Thu, 30 Apr 2020 13:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588254854;
-        bh=biXchweKB4DFENIbviTTEdyqXlCdXdqu7PHwjKG0fm8=;
+        s=default; t=1588254855;
+        bh=UZzWHQH2Ye08RTrRi7qlN1lnduAxTuqxC+B9xQqkuV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2BmW5dQS6BBfvMnhg4G5ftA4lhygcgNVg5cTY3fkvSjrBQJm8FN8felJTJYkxyRxW
-         FURPP0/6cmvlP2Ec2d7jBfZwuWbjwMtxzX0G6uHEXOLSfVtppn3j/nTv2Bfj0ckTsj
-         HuU5Ep/OVswhFcRTHbvrPqVPMR5+OWFCwpJfyV/A=
+        b=pZ7+80/OyL6xHc7F2xqRXDaDgCkWl6IU5unvSQBlMhU2EdqpmOPlLDbjOQSieOSwv
+         BVgCyDPH4s1Wh5TWOlFEC5Bv7hxAcPsy3HbSFDtKzZCOp1qK40pxB4us8vXuRuhlqo
+         qQq8KuJwcvgmlu0YslzpMKl/lfsggrplWRa8pMj0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Eric Anholt <eric@anholt.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 10/27] ARM: dts: bcm283x: Disable dsi0 node
-Date:   Thu, 30 Apr 2020 09:53:45 -0400
-Message-Id: <20200430135402.20994-10-sashal@kernel.org>
+Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 11/27] wimax/i2400m: Fix potential urb refcnt leak
+Date:   Thu, 30 Apr 2020 09:53:46 -0400
+Message-Id: <20200430135402.20994-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200430135402.20994-1-sashal@kernel.org>
 References: <20200430135402.20994-1-sashal@kernel.org>
@@ -45,34 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 90444b958461a5f8fc299ece0fe17eab15cba1e1 ]
+[ Upstream commit 7717cbec172c3554d470023b4020d5781961187e ]
 
-Since its inception the module was meant to be disabled by default, but
-the original commit failed to add the relevant property.
+i2400mu_bus_bm_wait_for_ack() invokes usb_get_urb(), which increases the
+refcount of the "notif_urb".
 
-Fixes: 4aba4cf82054 ("ARM: dts: bcm2835: Add the DSI module nodes and clocks")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Eric Anholt <eric@anholt.net>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+When i2400mu_bus_bm_wait_for_ack() returns, local variable "notif_urb"
+becomes invalid, so the refcount should be decreased to keep refcount
+balanced.
+
+The issue happens in all paths of i2400mu_bus_bm_wait_for_ack(), which
+forget to decrease the refcnt increased by usb_get_urb(), causing a
+refcnt leak.
+
+Fix this issue by calling usb_put_urb() before the
+i2400mu_bus_bm_wait_for_ack() returns.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm283x.dtsi | 1 +
+ drivers/net/wimax/i2400m/usb-fw.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
-index fdb018e1278fb..9d1e1061d8af1 100644
---- a/arch/arm/boot/dts/bcm283x.dtsi
-+++ b/arch/arm/boot/dts/bcm283x.dtsi
-@@ -454,6 +454,7 @@
- 					     "dsi0_ddr2",
- 					     "dsi0_ddr";
+diff --git a/drivers/net/wimax/i2400m/usb-fw.c b/drivers/net/wimax/i2400m/usb-fw.c
+index 502c346aa790b..7d396c81ec3eb 100644
+--- a/drivers/net/wimax/i2400m/usb-fw.c
++++ b/drivers/net/wimax/i2400m/usb-fw.c
+@@ -354,6 +354,7 @@ out:
+ 		usb_autopm_put_interface(i2400mu->usb_iface);
+ 	d_fnend(8, dev, "(i2400m %p ack %p size %zu) = %ld\n",
+ 		i2400m, ack, ack_size, (long) result);
++	usb_put_urb(&notif_urb);
+ 	return result;
  
-+			status = "disabled";
- 		};
- 
- 		thermal: thermal@7e212000 {
+ error_exceeded:
 -- 
 2.20.1
 
