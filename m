@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01C571C1305
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 107061C13C8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729228AbgEAN0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:26:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47864 "EHLO mail.kernel.org"
+        id S1729772AbgEANc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:32:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729221AbgEAN0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:26:19 -0400
+        id S1729798AbgEANcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:32:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 541F920757;
-        Fri,  1 May 2020 13:26:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7068D208C3;
+        Fri,  1 May 2020 13:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339578;
-        bh=tijJj11aAVrKsnH2882Z5P6AWVrNFwrzi/phiMu8aBk=;
+        s=default; t=1588339974;
+        bh=LmpQIxXgd4sQZVcscMsOXJbFpiz8wPrmMdzRd9rSilo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycnz3DLrqc8T5QzBfQv1qNXvbD0cRKNdWbXLH1aEwyhktY998RSyAFTA3nNHCWR+H
-         6SvzP85Dj04qlSAc9emlw/E9520Ehi4pdJhTR3XfucwQrioBuHAE7+q6cWPAzqOMJJ
-         GahMgB4Jq9FV1DPYOVZMEtAB1tB2y5QVwKcbY1MU=
+        b=YoOLAE8vF861FbZYqKgDE2ksN+vbIqT0Go5hX2PPx63FVAEpNJTUZYjjzXS9bww7Q
+         u0wDPDCjLEDLKMyTZ6eSx4tnbjHOho4FPKrXEELxnzYyMfG07PA79lImYkGZ+1i9qm
+         ji0Kj9+4J9q9twwihx5HBfatMY4gRiBu6VJxOsvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
         Paul Zimmerman <pauldzim@gmail.com>,
         Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.4 35/70] USB: hub: Fix handling of connect changes during sleep
+Subject: [PATCH 4.14 047/117] USB: hub: Fix handling of connect changes during sleep
 Date:   Fri,  1 May 2020 15:21:23 +0200
-Message-Id: <20200501131525.009118281@linuxfoundation.org>
+Message-Id: <20200501131550.361609021@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -89,7 +89,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
-@@ -1175,6 +1175,11 @@ static void hub_activate(struct usb_hub
+@@ -1195,6 +1195,11 @@ static void hub_activate(struct usb_hub
  #ifdef CONFIG_PM
  			udev->reset_resume = 1;
  #endif
@@ -101,7 +101,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  		} else {
  			/* The power session is gone; tell hub_wq */
-@@ -2939,6 +2944,15 @@ static int check_port_resume_type(struct
+@@ -3008,6 +3013,15 @@ static int check_port_resume_type(struct
  		if (portchange & USB_PORT_STAT_C_ENABLE)
  			usb_clear_port_feature(hub->hdev, port1,
  					USB_PORT_FEAT_C_ENABLE);
