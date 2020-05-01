@@ -2,74 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D8CB1C1511
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 805C81C23D6
+	for <lists+stable@lfdr.de>; Sat,  2 May 2020 09:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731420AbgEANpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:45:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47222 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731904AbgEANpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:45:33 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B58F5205C9;
-        Fri,  1 May 2020 13:45:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340733;
-        bh=7LKbcNOeMfJvvihIn8Zf8wY1Mxerk0ixgZDeR0vUWv8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nA5BKrHwxfzdNI4JzcyVDr0WxmpH1hlAlF++Maw78msZG6EuOXCiSn0OorNRGeERG
-         +rlgwrAZIuE6jMTBJAVxx/D13uPmaJJjxaTxW6DPshRUK6aNotEfYBYzrM3UZoTF7b
-         U0/M9kBm/fVdYgIetohIO/fipVqN407eN7mt+fkU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.6 106/106] ASoC: stm32: spdifrx: fix regmap status check
-Date:   Fri,  1 May 2020 15:24:19 +0200
-Message-Id: <20200501131556.095329590@linuxfoundation.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1726473AbgEBH1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 May 2020 03:27:10 -0400
+Received: from libre.maxnod.net ([46.227.16.189]:48711 "EHLO
+        svm-lin-web62.com6-interactive.fr" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726468AbgEBH1K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 May 2020 03:27:10 -0400
+X-Greylist: delayed 23860 seconds by postgrey-1.27 at vger.kernel.org; Sat, 02 May 2020 03:27:10 EDT
+Received: from Shop01 (localhost [127.0.0.1])
+        by svm-lin-web62.com6-interactive.fr (Postfix) with SMTP id 3ACAC15E886;
+        Fri,  1 May 2020 19:02:06 +0200 (CEST)
+Received: from [119.151.82.26] by Shop01 SMTP id 3Hf9fXn6VM1tf2; Fri, 01 May 2020 14:03:04 -0400
+Message-ID: <c$-41w8o-77$rs0$1$-f@j2jgz.y.x00mt>
+From:   "JEAN MARIE" <fkinneyofd@tampabay.rr.com>
+Reply-To: "JEAN MARIE" <fkinneyofd@tampabay.rr.com>
+To:     stable@freebsd.org
+Subject: Kindly Acknowledge Receipt
+Date:   Fri, 01 May 20 14:03:04 GMT
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/alternative;
+        boundary="A.8__C1.8D_9DF_E2DD_5F_9"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@st.com>
 
-commit a168dae5ea14283e8992d5282237bb0d6a3e1c06 upstream.
+--A.8__C1.8D_9DF_E2DD_5F_9
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-Release resources when exiting on error.
+I 'm a Financial Consultant.  under my network as a financial consultant, =
+there are few private investors offering capital injection as project fund=
+ing or business expansion in critical areas of Investment placements such =
+as Real Estate, Healthcare, Transportation and Agriculture. 
+Get back to me for more details as you express your interest areas of spec=
+ialization.
 
-Fixes: 1a5c0b28fc56 ("ASoC: stm32: spdifrx: manage identification registers")
+Regards.
+Mr. J. Marie
+fkinneyofd Consulting
 
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
-Link: https://lore.kernel.org/r/20200318144125.9163-2-olivier.moysan@st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- sound/soc/stm/stm32_spdifrx.c |    2 ++
- 1 file changed, 2 insertions(+)
-
---- a/sound/soc/stm/stm32_spdifrx.c
-+++ b/sound/soc/stm/stm32_spdifrx.c
-@@ -1009,6 +1009,8 @@ static int stm32_spdifrx_probe(struct pl
- 
- 	if (idr == SPDIFRX_IPIDR_NUMBER) {
- 		ret = regmap_read(spdifrx->regmap, STM32_SPDIFRX_VERR, &ver);
-+		if (ret)
-+			goto error;
- 
- 		dev_dbg(&pdev->dev, "SPDIFRX version: %lu.%lu registered\n",
- 			FIELD_GET(SPDIFRX_VERR_MAJ_MASK, ver),
-
+--A.8__C1.8D_9DF_E2DD_5F_9--
 
