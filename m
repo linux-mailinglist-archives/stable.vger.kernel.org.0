@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C671C1614
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E50B01C163F
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730861AbgEANjU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:39:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38984 "EHLO mail.kernel.org"
+        id S1731510AbgEANmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:42:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729861AbgEANjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:39:19 -0400
+        id S1731257AbgEANmc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:42:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 850F5205C9;
-        Fri,  1 May 2020 13:39:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF423208DB;
+        Fri,  1 May 2020 13:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340359;
-        bh=paTia634a73T7GFWMtcfe5TtLx6sLr/2SPBtIisZod0=;
+        s=default; t=1588340551;
+        bh=cQfR0hD4a3YN7vun3p8V5m8ykX096xqzBjJv0GAHj9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbtZwfUbleA/ti0RssfJ7YqJAQQHrGmcgJdGDnW2ua5RRw4cvzOMiuboVJxPFdiPb
-         KqEnFjaTt6QyTYA0ijKackNbEbpVG7nPdIyFb9IB5lCzNNMD20DQcSE2ihIlENBeN3
-         uG183cjomy95UtisrHXnKUCmnHYRt7W5SrJl8Z14=
+        b=p9Y0K2nFIarVSthHvG961gOYcd9Xw8z1HTQUx+cDjCPvwwfIR1Ct6Ct5sYW8qZnZy
+         oPEMMBhhPksof8ItFKtH1UhmjK/GtZWRILgqrjOavwyMcEj02YvO4hwEQ0i5+h09tf
+         s/c9u9DA7kjXdVNTpNRNcyWl1Pw2fRErVkbmOQKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 5.4 33/83] PCI: Unify ACS quirk desired vs provided checking
-Date:   Fri,  1 May 2020 15:23:12 +0200
-Message-Id: <20200501131532.212669424@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.6 040/106] svcrdma: Fix leak of svc_rdma_recv_ctxt objects
+Date:   Fri,  1 May 2020 15:23:13 +0200
+Message-Id: <20200501131548.605463306@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,173 +42,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 7cf2cba43f15c74bac46dc5f0326805d25ef514d upstream.
+commit 23cf1ee1f1869966b75518c59b5cbda4c6c92450 upstream.
 
-Most of the ACS quirks have a similar pattern of:
+Utilize the xpo_release_rqst transport method to ensure that each
+rqstp's svc_rdma_recv_ctxt object is released even when the server
+cannot return a Reply for that rqstp.
 
-  acs_flags &= ~( <controls provided by this device> );
-  return acs_flags ? 0 : 1;
+Without this fix, each RPC whose Reply cannot be sent leaks one
+svc_rdma_recv_ctxt. This is a 2.5KB structure, a 4KB DMA-mapped
+Receive buffer, and any pages that might be part of the Reply
+message.
 
-Pull this out into a helper function to simplify the quirks slightly.  The
-helper function is also a convenient place for comments about what the list
-of ACS controls means.  No functional change intended.
+The leak is infrequent unless the network fabric is unreliable or
+Kerberos is in use, as GSS sequence window overruns, which result
+in connection loss, are more common on fast transports.
 
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 3a88092ee319 ("svcrdma: Preserve Receive buffer until svc_rdma_sendto")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c |   67 ++++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 45 insertions(+), 22 deletions(-)
+ include/linux/sunrpc/svc_rdma.h          |    1 +
+ net/sunrpc/svc_xprt.c                    |    3 ---
+ net/sunrpc/svcsock.c                     |    4 ++++
+ net/sunrpc/xprtrdma/svc_rdma_recvfrom.c  |   22 ++++++++++++++++++++++
+ net/sunrpc/xprtrdma/svc_rdma_sendto.c    |   13 +++----------
+ net/sunrpc/xprtrdma/svc_rdma_transport.c |    5 -----
+ 6 files changed, 30 insertions(+), 18 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4353,6 +4353,24 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_C
- 			 quirk_chelsio_T5_disable_root_port_attributes);
+--- a/include/linux/sunrpc/svc_rdma.h
++++ b/include/linux/sunrpc/svc_rdma.h
+@@ -162,6 +162,7 @@ extern bool svc_rdma_post_recvs(struct s
+ extern void svc_rdma_recv_ctxt_put(struct svcxprt_rdma *rdma,
+ 				   struct svc_rdma_recv_ctxt *ctxt);
+ extern void svc_rdma_flush_recv_queues(struct svcxprt_rdma *rdma);
++extern void svc_rdma_release_rqst(struct svc_rqst *rqstp);
+ extern int svc_rdma_recvfrom(struct svc_rqst *);
  
- /*
-+ * pci_acs_ctrl_enabled - compare desired ACS controls with those provided
-+ *			  by a device
-+ * @acs_ctrl_req: Bitmask of desired ACS controls
-+ * @acs_ctrl_ena: Bitmask of ACS controls enabled or provided implicitly by
-+ *		  the hardware design
+ /* svc_rdma_rw.c */
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -897,9 +897,6 @@ int svc_send(struct svc_rqst *rqstp)
+ 	if (!xprt)
+ 		goto out;
+ 
+-	/* release the receive skb before sending the reply */
+-	xprt->xpt_ops->xpo_release_rqst(rqstp);
+-
+ 	/* calculate over-all length */
+ 	xb = &rqstp->rq_res;
+ 	xb->len = xb->head[0].iov_len +
+--- a/net/sunrpc/svcsock.c
++++ b/net/sunrpc/svcsock.c
+@@ -605,6 +605,8 @@ svc_udp_sendto(struct svc_rqst *rqstp)
+ {
+ 	int		error;
+ 
++	svc_release_udp_skb(rqstp);
++
+ 	error = svc_sendto(rqstp, &rqstp->rq_res);
+ 	if (error == -ECONNREFUSED)
+ 		/* ICMP error on earlier request. */
+@@ -1137,6 +1139,8 @@ static int svc_tcp_sendto(struct svc_rqs
+ 	int sent;
+ 	__be32 reclen;
+ 
++	svc_release_skb(rqstp);
++
+ 	/* Set up the first element of the reply kvec.
+ 	 * Any other kvecs that may be in use have been taken
+ 	 * care of by the server implementation itself.
+--- a/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
+@@ -222,6 +222,26 @@ void svc_rdma_recv_ctxt_put(struct svcxp
+ 		svc_rdma_recv_ctxt_destroy(rdma, ctxt);
+ }
+ 
++/**
++ * svc_rdma_release_rqst - Release transport-specific per-rqst resources
++ * @rqstp: svc_rqst being released
 + *
-+ * Return 1 if all ACS controls in the @acs_ctrl_req bitmask are included
-+ * in @acs_ctrl_ena, i.e., the device provides all the access controls the
-+ * caller desires.  Return 0 otherwise.
++ * Ensure that the recv_ctxt is released whether or not a Reply
++ * was sent. For example, the client could close the connection,
++ * or svc_process could drop an RPC, before the Reply is sent.
 + */
-+static int pci_acs_ctrl_enabled(u16 acs_ctrl_req, u16 acs_ctrl_ena)
++void svc_rdma_release_rqst(struct svc_rqst *rqstp)
 +{
-+	if ((acs_ctrl_req & acs_ctrl_ena) == acs_ctrl_req)
-+		return 1;
-+	return 0;
++	struct svc_rdma_recv_ctxt *ctxt = rqstp->rq_xprt_ctxt;
++	struct svc_xprt *xprt = rqstp->rq_xprt;
++	struct svcxprt_rdma *rdma =
++		container_of(xprt, struct svcxprt_rdma, sc_xprt);
++
++	rqstp->rq_xprt_ctxt = NULL;
++	if (ctxt)
++		svc_rdma_recv_ctxt_put(rdma, ctxt);
 +}
 +
-+/*
-  * AMD has indicated that the devices below do not support peer-to-peer
-  * in any system where they are found in the southbridge with an AMD
-  * IOMMU in the system.  Multifunction devices that do not support
-@@ -4395,7 +4413,7 @@ static int pci_quirk_amd_sb_acs(struct p
- 	/* Filter out flags not applicable to multifunction */
- 	acs_flags &= (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_EC | PCI_ACS_DT);
+ static int __svc_rdma_post_recv(struct svcxprt_rdma *rdma,
+ 				struct svc_rdma_recv_ctxt *ctxt)
+ {
+@@ -756,6 +776,8 @@ int svc_rdma_recvfrom(struct svc_rqst *r
+ 	__be32 *p;
+ 	int ret;
  
--	return acs_flags & ~(PCI_ACS_RR | PCI_ACS_CR) ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags, PCI_ACS_RR | PCI_ACS_CR);
- #else
- 	return -ENODEV;
- #endif
-@@ -4433,9 +4451,8 @@ static int pci_quirk_cavium_acs(struct p
- 	 * hardware implements and enables equivalent ACS functionality for
- 	 * these flags.
- 	 */
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
++	rqstp->rq_xprt_ctxt = NULL;
++
+ 	spin_lock(&rdma_xprt->sc_rq_dto_lock);
+ 	ctxt = svc_rdma_next_recv_ctxt(&rdma_xprt->sc_read_complete_q);
+ 	if (ctxt) {
+--- a/net/sunrpc/xprtrdma/svc_rdma_sendto.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_sendto.c
+@@ -877,12 +877,7 @@ int svc_rdma_sendto(struct svc_rqst *rqs
+ 				      wr_lst, rp_ch);
+ 	if (ret < 0)
+ 		goto err1;
+-	ret = 0;
 -
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
+-out:
+-	rqstp->rq_xprt_ctxt = NULL;
+-	svc_rdma_recv_ctxt_put(rdma, rctxt);
+-	return ret;
++	return 0;
+ 
+  err2:
+ 	if (ret != -E2BIG && ret != -EINVAL)
+@@ -891,14 +886,12 @@ out:
+ 	ret = svc_rdma_send_error_msg(rdma, sctxt, rqstp);
+ 	if (ret < 0)
+ 		goto err1;
+-	ret = 0;
+-	goto out;
++	return 0;
+ 
+  err1:
+ 	svc_rdma_send_ctxt_put(rdma, sctxt);
+  err0:
+ 	trace_svcrdma_send_failed(rqstp, ret);
+ 	set_bit(XPT_CLOSE, &xprt->xpt_flags);
+-	ret = -ENOTCONN;
+-	goto out;
++	return -ENOTCONN;
+ }
+--- a/net/sunrpc/xprtrdma/svc_rdma_transport.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_transport.c
+@@ -71,7 +71,6 @@ static struct svc_xprt *svc_rdma_create(
+ 					struct sockaddr *sa, int salen,
+ 					int flags);
+ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt);
+-static void svc_rdma_release_rqst(struct svc_rqst *);
+ static void svc_rdma_detach(struct svc_xprt *xprt);
+ static void svc_rdma_free(struct svc_xprt *xprt);
+ static int svc_rdma_has_wspace(struct svc_xprt *xprt);
+@@ -558,10 +557,6 @@ static struct svc_xprt *svc_rdma_accept(
+ 	return NULL;
  }
  
- static int pci_quirk_xgene_acs(struct pci_dev *dev, u16 acs_flags)
-@@ -4445,9 +4462,8 @@ static int pci_quirk_xgene_acs(struct pc
- 	 * transactions with others, allowing masking out these bits as if they
- 	 * were unimplemented in the ACS capability.
- 	 */
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
+-static void svc_rdma_release_rqst(struct svc_rqst *rqstp)
+-{
+-}
 -
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- }
- 
  /*
-@@ -4499,17 +4515,16 @@ static bool pci_quirk_intel_pch_acs_matc
- 	return false;
- }
- 
--#define INTEL_PCH_ACS_FLAGS (PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF)
--
- static int pci_quirk_intel_pch_acs(struct pci_dev *dev, u16 acs_flags)
- {
- 	if (!pci_quirk_intel_pch_acs_match(dev))
- 		return -ENOTTY;
- 
- 	if (dev->dev_flags & PCI_DEV_FLAGS_ACS_ENABLED_QUIRK)
--		acs_flags &= ~(INTEL_PCH_ACS_FLAGS);
-+		return pci_acs_ctrl_enabled(acs_flags,
-+			PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- 
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags, 0);
- }
- 
- /*
-@@ -4524,9 +4539,8 @@ static int pci_quirk_intel_pch_acs(struc
-  */
- static int pci_quirk_qcom_rp_acs(struct pci_dev *dev, u16 acs_flags)
- {
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
--
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- }
- 
- static int pci_quirk_al_acs(struct pci_dev *dev, u16 acs_flags)
-@@ -4627,7 +4641,7 @@ static int pci_quirk_intel_spt_pch_acs(s
- 
- 	pci_read_config_dword(dev, pos + INTEL_SPT_ACS_CTRL, &ctrl);
- 
--	return acs_flags & ~ctrl ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags, ctrl);
- }
- 
- static int pci_quirk_mf_endpoint_acs(struct pci_dev *dev, u16 acs_flags)
-@@ -4641,10 +4655,9 @@ static int pci_quirk_mf_endpoint_acs(str
- 	 * perform peer-to-peer with other functions, allowing us to mask out
- 	 * these bits as if they were unimplemented in the ACS capability.
- 	 */
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_TB | PCI_ACS_RR |
--		       PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_DT);
--
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_TB | PCI_ACS_RR |
-+		PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_DT);
- }
- 
- static int pci_quirk_brcm_acs(struct pci_dev *dev, u16 acs_flags)
-@@ -4655,9 +4668,8 @@ static int pci_quirk_brcm_acs(struct pci
- 	 * Allow each Root Port to be in a separate IOMMU group by masking
- 	 * SV/RR/CR/UF bits.
- 	 */
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
--
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- }
- 
- static const struct pci_dev_acs_enabled {
-@@ -4763,6 +4775,17 @@ static const struct pci_dev_acs_enabled
- 	{ 0 }
- };
- 
-+/*
-+ * pci_dev_specific_acs_enabled - check whether device provides ACS controls
-+ * @dev:	PCI device
-+ * @acs_flags:	Bitmask of desired ACS controls
-+ *
-+ * Returns:
-+ *   -ENOTTY:	No quirk applies to this device; we can't tell whether the
-+ *		device provides the desired controls
-+ *   0:		Device does not provide all the desired controls
-+ *   >0:	Device provides all the controls in @acs_flags
-+ */
- int pci_dev_specific_acs_enabled(struct pci_dev *dev, u16 acs_flags)
- {
- 	const struct pci_dev_acs_enabled *i;
+  * When connected, an svc_xprt has at least two references:
+  *
 
 
