@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8751C166A
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F13181C160B
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731392AbgEANsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:48:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43224 "EHLO mail.kernel.org"
+        id S1730327AbgEANi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:38:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731012AbgEANme (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:34 -0400
+        id S1730124AbgEANiz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:38:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 443BF2173E;
-        Fri,  1 May 2020 13:42:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE07A20757;
+        Fri,  1 May 2020 13:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340553;
-        bh=XmzUmZp9VZrvlkLwm87tHwtyJ72voaQpZBjIlRck0IA=;
+        s=default; t=1588340334;
+        bh=jFhxEbxTazybuTw45lIzIMfPyX8tm7JcOfLlE+K26I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1eQ8OTMExwVIo8P8qEdyvCSXvIHWSOZ7AOyZufP19TjICnlOwdbMbYqMxUVic87JL
-         699J8rL1z4X2qUm2dy5EMGfUXwDQX5SYfyQc2OybzbPjVRWnf9K3T6LVsdBRoiVgk4
-         wjYqryofxvTk1q/dO9FUHmGXrzpwXr6XlSCmzxFE=
+        b=FdS2+uVPWFUELwfoLN6yg2PABh9955rejKzLi9LUpL8L3ORCatkoUA52moNUnXXfW
+         I3zXcHX8ZIcAp0hTObZEj9rMuNF+2kLEOHyqBRSdOHj5UgQ2pu2W3cwfMNFeomD7BZ
+         y24nvx+zEUtRZNGqpZgSxNYJMPdMiBWXOq0FqsDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 041/106] net/mlx5e: Dont trigger IRQ multiple times on XSK wakeup to avoid WQ overruns
-Date:   Fri,  1 May 2020 15:23:14 +0200
-Message-Id: <20200501131548.693025914@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Lu=C3=ADs=20Mendes?= <luis.p.mendes@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Todd Poynor <toddpoynor@google.com>
+Subject: [PATCH 5.4 36/83] PCI: Move Apex Edge TPU class quirk to fix BAR assignment
+Date:   Fri,  1 May 2020 15:23:15 +0200
+Message-Id: <20200501131534.840715251@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,111 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-commit e7e0004abdd6f83ae4be5613b29ed396beff576c upstream.
+commit 0a8f41023e8a3c100b3dc458ed2da651bf961ead upstream.
 
-XSK wakeup function triggers NAPI by posting a NOP WQE to a special XSK
-ICOSQ. When the application floods the driver with wakeup requests by
-calling sendto() in a certain pattern that ends up in mlx5e_trigger_irq,
-the XSK ICOSQ may overflow.
+Some Google Apex Edge TPU devices have a class code of 0
+(PCI_CLASS_NOT_DEFINED).  This prevents the PCI core from assigning
+resources for the Apex BARs because __dev_sort_resources() ignores
+classless devices, host bridges, and IOAPICs.
 
-Multiple NOPs are not required and won't accelerate the process, so
-avoid posting a second NOP if there is one already on the way. This way
-we also avoid increasing the queue size (which might not help anyway).
+On x86, firmware typically assigns those resources, so this was not a
+problem.  But on some architectures, firmware does *not* assign BARs, and
+since the PCI core didn't do it either, the Apex device didn't work
+correctly:
 
-Fixes: db05815b36cb ("net/mlx5e: Add XSK zero-copy support")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+  apex 0000:01:00.0: can't enable device: BAR 0 [mem 0x00000000-0x00003fff 64bit pref] not claimed
+  apex 0000:01:00.0: error enabling PCI device
+
+f390d08d8b87 ("staging: gasket: apex: fixup undefined PCI class") added a
+quirk to fix the class code, but it was in the apex driver, and if the
+driver was built as a module, it was too late to help.
+
+Move the quirk to the PCI core, where it will always run early enough that
+the PCI core will assign resources if necessary.
+
+Link: https://lore.kernel.org/r/CAEzXK1r0Er039iERnc2KJ4jn7ySNUOG9H=Ha8TD8XroVqiZjgg@mail.gmail.com
+Fixes: f390d08d8b87 ("staging: gasket: apex: fixup undefined PCI class")
+Reported-by: Luís Mendes <luis.p.mendes@gmail.com>
+Debugged-by: Luís Mendes <luis.p.mendes@gmail.com>
+Tested-by: Luis Mendes <luis.p.mendes@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Todd Poynor <toddpoynor@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h        |    3 ++-
- drivers/net/ethernet/mellanox/mlx5/core/en/xsk/tx.c |    3 +++
- drivers/net/ethernet/mellanox/mlx5/core/en_rx.c     |    8 +++++---
- drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c   |    6 +++++-
- 4 files changed, 15 insertions(+), 5 deletions(-)
+ drivers/pci/quirks.c                 |    7 +++++++
+ drivers/staging/gasket/apex_driver.c |    7 -------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -367,6 +367,7 @@ enum {
- 	MLX5E_SQ_STATE_AM,
- 	MLX5E_SQ_STATE_TLS,
- 	MLX5E_SQ_STATE_VLAN_NEED_L2_INLINE,
-+	MLX5E_SQ_STATE_PENDING_XSK_TX,
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5550,3 +5550,10 @@ static void pci_fixup_no_d0_pme(struct p
+ 	dev->pme_support &= ~(PCI_PM_CAP_PME_D0 >> PCI_PM_CAP_PME_SHIFT);
+ }
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x2142, pci_fixup_no_d0_pme);
++
++static void apex_pci_fixup_class(struct pci_dev *pdev)
++{
++	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
++}
++DECLARE_PCI_FIXUP_CLASS_HEADER(0x1ac1, 0x089a,
++			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
+--- a/drivers/staging/gasket/apex_driver.c
++++ b/drivers/staging/gasket/apex_driver.c
+@@ -570,13 +570,6 @@ static const struct pci_device_id apex_p
+ 	{ PCI_DEVICE(APEX_PCI_VENDOR_ID, APEX_PCI_DEVICE_ID) }, { 0 }
  };
  
- struct mlx5e_sq_wqe_info {
-@@ -950,7 +951,7 @@ void mlx5e_page_release_dynamic(struct m
- void mlx5e_handle_rx_cqe(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe);
- void mlx5e_handle_rx_cqe_mpwrq(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe);
- bool mlx5e_post_rx_wqes(struct mlx5e_rq *rq);
--void mlx5e_poll_ico_cq(struct mlx5e_cq *cq);
-+int mlx5e_poll_ico_cq(struct mlx5e_cq *cq);
- bool mlx5e_post_rx_mpwqes(struct mlx5e_rq *rq);
- void mlx5e_dealloc_rx_wqe(struct mlx5e_rq *rq, u16 ix);
- void mlx5e_dealloc_rx_mpwqe(struct mlx5e_rq *rq, u16 ix);
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/tx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/tx.c
-@@ -33,6 +33,9 @@ int mlx5e_xsk_wakeup(struct net_device *
- 		if (unlikely(!test_bit(MLX5E_SQ_STATE_ENABLED, &c->xskicosq.state)))
- 			return 0;
- 
-+		if (test_and_set_bit(MLX5E_SQ_STATE_PENDING_XSK_TX, &c->xskicosq.state))
-+			return 0;
-+
- 		spin_lock(&c->xskicosq_lock);
- 		mlx5e_trigger_irq(&c->xskicosq);
- 		spin_unlock(&c->xskicosq_lock);
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-@@ -587,7 +587,7 @@ bool mlx5e_post_rx_wqes(struct mlx5e_rq
- 	return !!err;
- }
- 
--void mlx5e_poll_ico_cq(struct mlx5e_cq *cq)
-+int mlx5e_poll_ico_cq(struct mlx5e_cq *cq)
+-static void apex_pci_fixup_class(struct pci_dev *pdev)
+-{
+-	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
+-}
+-DECLARE_PCI_FIXUP_CLASS_HEADER(APEX_PCI_VENDOR_ID, APEX_PCI_DEVICE_ID,
+-			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
+-
+ static int apex_pci_probe(struct pci_dev *pci_dev,
+ 			  const struct pci_device_id *id)
  {
- 	struct mlx5e_icosq *sq = container_of(cq, struct mlx5e_icosq, cq);
- 	struct mlx5_cqe64 *cqe;
-@@ -595,11 +595,11 @@ void mlx5e_poll_ico_cq(struct mlx5e_cq *
- 	int i;
- 
- 	if (unlikely(!test_bit(MLX5E_SQ_STATE_ENABLED, &sq->state)))
--		return;
-+		return 0;
- 
- 	cqe = mlx5_cqwq_get_cqe(&cq->wq);
- 	if (likely(!cqe))
--		return;
-+		return 0;
- 
- 	/* sq->cc must be updated only after mlx5_cqwq_update_db_record(),
- 	 * otherwise a cq overrun may occur
-@@ -648,6 +648,8 @@ void mlx5e_poll_ico_cq(struct mlx5e_cq *
- 	sq->cc = sqcc;
- 
- 	mlx5_cqwq_update_db_record(&cq->wq);
-+
-+	return i;
- }
- 
- bool mlx5e_post_rx_mpwqes(struct mlx5e_rq *rq)
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
-@@ -145,7 +145,11 @@ int mlx5e_napi_poll(struct napi_struct *
- 
- 	busy |= rq->post_wqes(rq);
- 	if (xsk_open) {
--		mlx5e_poll_ico_cq(&c->xskicosq.cq);
-+		if (mlx5e_poll_ico_cq(&c->xskicosq.cq))
-+			/* Don't clear the flag if nothing was polled to prevent
-+			 * queueing more WQEs and overflowing XSKICOSQ.
-+			 */
-+			clear_bit(MLX5E_SQ_STATE_PENDING_XSK_TX, &c->xskicosq.state);
- 		busy |= mlx5e_poll_xdpsq_cq(&xsksq->cq);
- 		busy_xsk |= mlx5e_napi_xsk_post(xsksq, xskrq);
- 	}
 
 
