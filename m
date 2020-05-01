@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2849A1C150A
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 231D81C1517
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731298AbgEANp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:45:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46980 "EHLO mail.kernel.org"
+        id S1728873AbgEANpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:45:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731549AbgEANpY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:45:24 -0400
+        id S1730350AbgEANp0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:45:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBA792051A;
-        Fri,  1 May 2020 13:45:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FA542051A;
+        Fri,  1 May 2020 13:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340723;
-        bh=oMUcjWQcjseU8L7t68+U+sNpr71tfHvyL2nHJlihWiY=;
+        s=default; t=1588340725;
+        bh=T0K725d/BDnHCHwIT96c4wBB6CQd8Fy/Vm/PrXzgzOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUpYna8p2tVxOVs8dSpiobXhadD4ZSx8SYHdU+uA9Hv/Dgv5dIs1xvM6MHIk7fFU2
-         1MIf0rgzyk6MnOOJm9jknav6qeBOAFwk5JHApqoBe8fLVLxmXLc4+SUaMvrkkVpwRq
-         tyVCR0BrvwynvD6FAD7IBMgxu9QRkZd4PdhU66oY=
+        b=skqgHv1ASC8NnqVxlmy8wOqasHxSjX3o2Ie1l0bac2oAzzlqyjmL75JvY3/IzirJQ
+         Tt7+1sT9qdqX96ebcWqW+ShR5PD4/KJUc3AsXQzYqjx5gQC5Nq6COCevue9vHTOxaX
+         fVeZ4gbByxMf2T/22n9FsBozBSDdsxzXp9f6Yfwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Kalderon <mkalderon@marvell.com>,
-        Yuval Bason <ybason@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 102/106] qed: Fix use after free in qed_chain_free
-Date:   Fri,  1 May 2020 15:24:15 +0200
-Message-Id: <20200501131555.428962740@linuxfoundation.org>
+        stable@vger.kernel.org, Harish Sriram <harish@linux.ibm.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.6 103/106] ext4: check for non-zero journal inum in ext4_calculate_overhead
+Date:   Fri,  1 May 2020 15:24:16 +0200
+Message-Id: <20200501131555.539026186@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
 References: <20200501131543.421333643@linuxfoundation.org>
@@ -44,206 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuval Basson <ybason@marvell.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-commit 8063f761cd7c17fc1d0018728936e0c33a25388a upstream.
+commit f1eec3b0d0a849996ebee733b053efa71803dad5 upstream.
 
-The qed_chain data structure was modified in
-commit 1a4a69751f4d ("qed: Chain support for external PBL") to support
-receiving an external pbl (due to iWARP FW requirements).
-The pages pointed to by the pbl are allocated in qed_chain_alloc
-and their virtual address are stored in an virtual addresses array to
-enable accessing and freeing the data. The physical addresses however
-weren't stored and were accessed directly from the external-pbl
-during free.
+While calculating overhead for internal journal, also check
+that j_inum shouldn't be 0. Otherwise we get below error with
+xfstests generic/050 with external journal (XXX_LOGDEV config) enabled.
 
-Destroy-qp flow, leads to freeing the external pbl before the chain is
-freed, when the chain is freed it tries accessing the already freed
-external pbl, leading to a use-after-free. Therefore we need to store
-the physical addresses in additional to the virtual addresses in a
-new data structure.
+It could be simply reproduced with loop device with an external journal
+and marking blockdev as RO before mounting.
 
-Fixes: 1a4a69751f4d ("qed: Chain support for external PBL")
-Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
-Signed-off-by: Yuval Bason <ybason@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[ 3337.146838] EXT4-fs error (device pmem1p2): ext4_get_journal_inode:4634: comm mount: inode #0: comm mount: iget: illegal inode #
+------------[ cut here ]------------
+generic_make_request: Trying to write to read-only block-device pmem1p2 (partno 2)
+WARNING: CPU: 107 PID: 115347 at block/blk-core.c:788 generic_make_request_checks+0x6b4/0x7d0
+CPU: 107 PID: 115347 Comm: mount Tainted: G             L   --------- -t - 4.18.0-167.el8.ppc64le #1
+NIP:  c0000000006f6d44 LR: c0000000006f6d40 CTR: 0000000030041dd4
+<...>
+NIP [c0000000006f6d44] generic_make_request_checks+0x6b4/0x7d0
+LR [c0000000006f6d40] generic_make_request_checks+0x6b0/0x7d0
+<...>
+Call Trace:
+generic_make_request_checks+0x6b0/0x7d0 (unreliable)
+generic_make_request+0x3c/0x420
+submit_bio+0xd8/0x200
+submit_bh_wbc+0x1e8/0x250
+__sync_dirty_buffer+0xd0/0x210
+ext4_commit_super+0x310/0x420 [ext4]
+__ext4_error+0xa4/0x1e0 [ext4]
+__ext4_iget+0x388/0xe10 [ext4]
+ext4_get_journal_inode+0x40/0x150 [ext4]
+ext4_calculate_overhead+0x5a8/0x610 [ext4]
+ext4_fill_super+0x3188/0x3260 [ext4]
+mount_bdev+0x778/0x8f0
+ext4_mount+0x28/0x50 [ext4]
+mount_fs+0x74/0x230
+vfs_kern_mount.part.6+0x6c/0x250
+do_mount+0x2fc/0x1280
+sys_mount+0x158/0x180
+system_call+0x5c/0x70
+EXT4-fs (pmem1p2): no journal found
+EXT4-fs (pmem1p2): can't get journal size
+EXT4-fs (pmem1p2): mounted filesystem without journal. Opts: dax,norecovery
+
+Fixes: 3c816ded78bb ("ext4: use journal inode to determine journal overhead")
+Reported-by: Harish Sriram <harish@linux.ibm.com>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200316093038.25485-1-riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/qlogic/qed/qed_dev.c |   38 ++++++++++++------------------
- include/linux/qed/qed_chain.h             |   24 +++++++++++-------
- 2 files changed, 31 insertions(+), 31 deletions(-)
+ fs/ext4/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-@@ -4691,26 +4691,20 @@ static void qed_chain_free_single(struct
- 
- static void qed_chain_free_pbl(struct qed_dev *cdev, struct qed_chain *p_chain)
- {
--	void **pp_virt_addr_tbl = p_chain->pbl.pp_virt_addr_tbl;
-+	struct addr_tbl_entry *pp_addr_tbl = p_chain->pbl.pp_addr_tbl;
- 	u32 page_cnt = p_chain->page_cnt, i, pbl_size;
--	u8 *p_pbl_virt = p_chain->pbl_sp.p_virt_table;
- 
--	if (!pp_virt_addr_tbl)
-+	if (!pp_addr_tbl)
- 		return;
- 
--	if (!p_pbl_virt)
--		goto out;
--
- 	for (i = 0; i < page_cnt; i++) {
--		if (!pp_virt_addr_tbl[i])
-+		if (!pp_addr_tbl[i].virt_addr || !pp_addr_tbl[i].dma_map)
- 			break;
- 
- 		dma_free_coherent(&cdev->pdev->dev,
- 				  QED_CHAIN_PAGE_SIZE,
--				  pp_virt_addr_tbl[i],
--				  *(dma_addr_t *)p_pbl_virt);
--
--		p_pbl_virt += QED_CHAIN_PBL_ENTRY_SIZE;
-+				  pp_addr_tbl[i].virt_addr,
-+				  pp_addr_tbl[i].dma_map);
- 	}
- 
- 	pbl_size = page_cnt * QED_CHAIN_PBL_ENTRY_SIZE;
-@@ -4720,9 +4714,9 @@ static void qed_chain_free_pbl(struct qe
- 				  pbl_size,
- 				  p_chain->pbl_sp.p_virt_table,
- 				  p_chain->pbl_sp.p_phys_table);
--out:
--	vfree(p_chain->pbl.pp_virt_addr_tbl);
--	p_chain->pbl.pp_virt_addr_tbl = NULL;
-+
-+	vfree(p_chain->pbl.pp_addr_tbl);
-+	p_chain->pbl.pp_addr_tbl = NULL;
- }
- 
- void qed_chain_free(struct qed_dev *cdev, struct qed_chain *p_chain)
-@@ -4823,19 +4817,19 @@ qed_chain_alloc_pbl(struct qed_dev *cdev
- {
- 	u32 page_cnt = p_chain->page_cnt, size, i;
- 	dma_addr_t p_phys = 0, p_pbl_phys = 0;
--	void **pp_virt_addr_tbl = NULL;
-+	struct addr_tbl_entry *pp_addr_tbl;
- 	u8 *p_pbl_virt = NULL;
- 	void *p_virt = NULL;
- 
--	size = page_cnt * sizeof(*pp_virt_addr_tbl);
--	pp_virt_addr_tbl = vzalloc(size);
--	if (!pp_virt_addr_tbl)
-+	size = page_cnt * sizeof(*pp_addr_tbl);
-+	pp_addr_tbl =  vzalloc(size);
-+	if (!pp_addr_tbl)
- 		return -ENOMEM;
- 
- 	/* The allocation of the PBL table is done with its full size, since it
- 	 * is expected to be successive.
- 	 * qed_chain_init_pbl_mem() is called even in a case of an allocation
--	 * failure, since pp_virt_addr_tbl was previously allocated, and it
-+	 * failure, since tbl was previously allocated, and it
- 	 * should be saved to allow its freeing during the error flow.
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3610,7 +3610,8 @@ int ext4_calculate_overhead(struct super
  	 */
- 	size = page_cnt * QED_CHAIN_PBL_ENTRY_SIZE;
-@@ -4849,8 +4843,7 @@ qed_chain_alloc_pbl(struct qed_dev *cdev
- 		p_chain->b_external_pbl = true;
- 	}
- 
--	qed_chain_init_pbl_mem(p_chain, p_pbl_virt, p_pbl_phys,
--			       pp_virt_addr_tbl);
-+	qed_chain_init_pbl_mem(p_chain, p_pbl_virt, p_pbl_phys, pp_addr_tbl);
- 	if (!p_pbl_virt)
- 		return -ENOMEM;
- 
-@@ -4869,7 +4862,8 @@ qed_chain_alloc_pbl(struct qed_dev *cdev
- 		/* Fill the PBL table with the physical address of the page */
- 		*(dma_addr_t *)p_pbl_virt = p_phys;
- 		/* Keep the virtual address of the page */
--		p_chain->pbl.pp_virt_addr_tbl[i] = p_virt;
-+		p_chain->pbl.pp_addr_tbl[i].virt_addr = p_virt;
-+		p_chain->pbl.pp_addr_tbl[i].dma_map = p_phys;
- 
- 		p_pbl_virt += QED_CHAIN_PBL_ENTRY_SIZE;
- 	}
---- a/include/linux/qed/qed_chain.h
-+++ b/include/linux/qed/qed_chain.h
-@@ -97,6 +97,11 @@ struct qed_chain_u32 {
- 	u32 cons_idx;
- };
- 
-+struct addr_tbl_entry {
-+	void *virt_addr;
-+	dma_addr_t dma_map;
-+};
-+
- struct qed_chain {
- 	/* fastpath portion of the chain - required for commands such
- 	 * as produce / consume.
-@@ -107,10 +112,11 @@ struct qed_chain {
- 
- 	/* Fastpath portions of the PBL [if exists] */
- 	struct {
--		/* Table for keeping the virtual addresses of the chain pages,
--		 * respectively to the physical addresses in the pbl table.
-+		/* Table for keeping the virtual and physical addresses of the
-+		 * chain pages, respectively to the physical addresses
-+		 * in the pbl table.
- 		 */
--		void **pp_virt_addr_tbl;
-+		struct addr_tbl_entry *pp_addr_tbl;
- 
- 		union {
- 			struct qed_chain_pbl_u16 u16;
-@@ -287,7 +293,7 @@ qed_chain_advance_page(struct qed_chain
- 				*(u32 *)page_to_inc = 0;
- 			page_index = *(u32 *)page_to_inc;
- 		}
--		*p_next_elem = p_chain->pbl.pp_virt_addr_tbl[page_index];
-+		*p_next_elem = p_chain->pbl.pp_addr_tbl[page_index].virt_addr;
- 	}
- }
- 
-@@ -537,7 +543,7 @@ static inline void qed_chain_init_params
- 
- 	p_chain->pbl_sp.p_phys_table = 0;
- 	p_chain->pbl_sp.p_virt_table = NULL;
--	p_chain->pbl.pp_virt_addr_tbl = NULL;
-+	p_chain->pbl.pp_addr_tbl = NULL;
- }
- 
- /**
-@@ -575,11 +581,11 @@ static inline void qed_chain_init_mem(st
- static inline void qed_chain_init_pbl_mem(struct qed_chain *p_chain,
- 					  void *p_virt_pbl,
- 					  dma_addr_t p_phys_pbl,
--					  void **pp_virt_addr_tbl)
-+					  struct addr_tbl_entry *pp_addr_tbl)
- {
- 	p_chain->pbl_sp.p_phys_table = p_phys_pbl;
- 	p_chain->pbl_sp.p_virt_table = p_virt_pbl;
--	p_chain->pbl.pp_virt_addr_tbl = pp_virt_addr_tbl;
-+	p_chain->pbl.pp_addr_tbl = pp_addr_tbl;
- }
- 
- /**
-@@ -644,7 +650,7 @@ static inline void *qed_chain_get_last_e
- 		break;
- 	case QED_CHAIN_MODE_PBL:
- 		last_page_idx = p_chain->page_cnt - 1;
--		p_virt_addr = p_chain->pbl.pp_virt_addr_tbl[last_page_idx];
-+		p_virt_addr = p_chain->pbl.pp_addr_tbl[last_page_idx].virt_addr;
- 		break;
- 	}
- 	/* p_virt_addr points at this stage to the last page of the chain */
-@@ -716,7 +722,7 @@ static inline void qed_chain_pbl_zero_me
- 	page_cnt = qed_chain_get_page_cnt(p_chain);
- 
- 	for (i = 0; i < page_cnt; i++)
--		memset(p_chain->pbl.pp_virt_addr_tbl[i], 0,
-+		memset(p_chain->pbl.pp_addr_tbl[i].virt_addr, 0,
- 		       QED_CHAIN_PAGE_SIZE);
- }
- 
+ 	if (sbi->s_journal && !sbi->journal_bdev)
+ 		overhead += EXT4_NUM_B2C(sbi, sbi->s_journal->j_maxlen);
+-	else if (ext4_has_feature_journal(sb) && !sbi->s_journal) {
++	else if (ext4_has_feature_journal(sb) && !sbi->s_journal && j_inum) {
++		/* j_inum for internal journal is non-zero */
+ 		j_inode = ext4_get_journal_inode(sb, j_inum);
+ 		if (j_inode) {
+ 			j_blocks = j_inode->i_size >> sb->s_blocksize_bits;
 
 
