@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F22681C1352
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B8541C155D
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729647AbgEAN2h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:28:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51812 "EHLO mail.kernel.org"
+        id S1729146AbgEAN0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:26:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729643AbgEAN2g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:28:36 -0400
+        id S1729134AbgEANZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:25:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AA9D24958;
-        Fri,  1 May 2020 13:28:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00974216FD;
+        Fri,  1 May 2020 13:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339716;
-        bh=Z/zPxkWe2fRUFC3yfV2DUN3dnKzbzDiP4hZZYzjw2t0=;
+        s=default; t=1588339556;
+        bh=aeVsh5hX7YOQkqNEYFt9ZEQZ+1JIzn4VuGLrwbceF3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYR/yU6XZXSL23EfrbEzffL8ekaRQMnjfxRWSNUW2h3UzeMw2iyHKa0eqHVaPrawZ
-         FPxTLTiIREcxEiaSspb2fllpMGuj9aCR5WtDVBW+lBIrtGATnYtXKmhqqnTgSnWAVj
-         y8AANFGOXkZKgASYGaShU2pb/vRPeeA7AEUERUFw=
+        b=NccTYgnJqtxseBn9YBnuVnnRbtdjFPTt/RmIw2bzk0o/pXLrv1YTImUvvJlKq/M05
+         Fbp3C6pZaNmeTmkk6vnc94KiiY/R48n0FHgIXP7mCLnSftzN3EGru85JEb6Bv9GBs2
+         gg7QKunFMCgGyeQfLu2AFloHXa6CBKjAO8xJVfY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 31/80] iio: xilinx-xadc: Fix clearing interrupt when enabling trigger
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 37/70] ALSA: usb-audio: Fix usb audio refcnt leak when getting spdif
 Date:   Fri,  1 May 2020 15:21:25 +0200
-Message-Id: <20200501131524.233961097@linuxfoundation.org>
+Message-Id: <20200501131525.407099598@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit f954b098fbac4d183219ce5b42d76d6df2aed50a upstream.
+commit 59e1947ca09ebd1cae147c08c7c41f3141233c84 upstream.
 
-When enabling the trigger and unmasking the end-of-sequence (EOS) interrupt
-the EOS interrupt should be cleared from the status register. Otherwise it
-is possible that it was still set from a previous capture. If that is the
-case the interrupt would fire immediately even though no conversion has
-been done yet and stale data is being read from the device.
+snd_microii_spdif_default_get() invokes snd_usb_lock_shutdown(), which
+increases the refcount of the snd_usb_audio object "chip".
 
-The old code only clears the interrupt if the interrupt was previously
-unmasked. Which does not make much sense since the interrupt is always
-masked at this point and in addition masking the interrupt does not clear
-the interrupt from the status register. So the clearing needs to be done
-unconditionally.
+When snd_microii_spdif_default_get() returns, local variable "chip"
+becomes invalid, so the refcount should be decreased to keep refcount
+balanced.
 
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+The reference counting issue happens in several exception handling paths
+of snd_microii_spdif_default_get(). When those error scenarios occur
+such as usb_ifnum_to_if() returns NULL, the function forgets to decrease
+the refcnt increased by snd_usb_lock_shutdown(), causing a refcnt leak.
+
+Fix this issue by jumping to "end" label when those error scenarios
+occur.
+
+Fixes: 447d6275f0c2 ("ALSA: usb-audio: Add sanity checks for endpoint accesses")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1587617711-13200-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/xilinx-xadc-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/mixer_quirks.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -660,7 +660,7 @@ static int xadc_trigger_set_state(struct
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -1519,11 +1519,15 @@ static int snd_microii_spdif_default_get
  
- 	spin_lock_irqsave(&xadc->lock, flags);
- 	xadc_read_reg(xadc, XADC_AXI_REG_IPIER, &val);
--	xadc_write_reg(xadc, XADC_AXI_REG_IPISR, val & XADC_AXI_INT_EOS);
-+	xadc_write_reg(xadc, XADC_AXI_REG_IPISR, XADC_AXI_INT_EOS);
- 	if (state)
- 		val |= XADC_AXI_INT_EOS;
- 	else
+ 	/* use known values for that card: interface#1 altsetting#1 */
+ 	iface = usb_ifnum_to_if(chip->dev, 1);
+-	if (!iface || iface->num_altsetting < 2)
+-		return -EINVAL;
++	if (!iface || iface->num_altsetting < 2) {
++		err = -EINVAL;
++		goto end;
++	}
+ 	alts = &iface->altsetting[1];
+-	if (get_iface_desc(alts)->bNumEndpoints < 1)
+-		return -EINVAL;
++	if (get_iface_desc(alts)->bNumEndpoints < 1) {
++		err = -EINVAL;
++		goto end;
++	}
+ 	ep = get_endpoint(alts, 0)->bEndpointAddress;
+ 
+ 	err = snd_usb_ctl_msg(chip->dev,
 
 
