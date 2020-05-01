@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA3B91C1567
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2C671C1582
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729354AbgEAN0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:26:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48754 "EHLO mail.kernel.org"
+        id S1728950AbgEAN3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:29:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729338AbgEAN0v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:26:51 -0400
+        id S1729771AbgEAN32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:29:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C2192166E;
-        Fri,  1 May 2020 13:26:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEED0208D6;
+        Fri,  1 May 2020 13:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339610;
-        bh=vX5JsdCGV5Kz/GCsCmRJZkoJVehBUkNy3fA9Hk+Rjv4=;
+        s=default; t=1588339768;
+        bh=9brijW7GuhDSeY1AtCRbki20nRFuzUWvoIMQLuBG7Rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8vTRFa9IvQSF9wKCxulpZU1TPb2DMN4clAxp3KLdWhDhT4iw9X8/GDM9WXztYNQS
-         ZbvXP25a4HkLQnoOnSZ5gACJO/sW39Te6pfmwCu6Oon22pH5P+hAsBlzKjtlEBoZf/
-         Qd5ugiVjMKD8Bqr31Nls9g/mJPNS9iBiibuHLMBs=
+        b=0S4pNUGmsRr/aVvgYFGOzo2wPXud3AkztnAmcx66WTdDiLfF98AxY+FRkSNTTOJVU
+         WghEKZsktFXLwBr+S56hhN29SR4OuB8ugZukVMjwahXKJAmnwm39qI95+1jb2d9XST
+         +9ulYQi4UtFP4BIhoTyN4rjqOOq5pri1NVAzjRCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Clemens Gruber <clemens.gruber@pqgruber.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Roland Hieber <rhi@pengutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.4 46/70] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y
+        stable@vger.kernel.org, Lin Yi <teroincn@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 40/80] ALSA: usx2y: Fix potential NULL dereference
 Date:   Fri,  1 May 2020 15:21:34 +0200
-Message-Id: <20200501131527.546871988@linuxfoundation.org>
+Message-Id: <20200501131526.254332322@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit f1baca8896ae18e12c45552a4c4ae2086aa7e02c upstream.
+commit 7686e3485253635c529cdd5f416fc640abaf076f upstream.
 
-512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
-introduced an unintended linker error for i.MX6 configurations that have
-ARM_CPU_SUSPEND=n which can happen if neither CONFIG_PM, CONFIG_CPU_IDLE,
-nor ARM_PSCI_FW are selected.
+The error handling code in usX2Y_rate_set() may hit a potential NULL
+dereference when an error occurs before allocating all us->urb[].
+Add a proper NULL check for fixing the corner case.
 
-Fix this by having v7_cpu_resume() compiled only when cpu_resume() it
-calls is available as well.
-
-The C declaration for the function remains unguarded to avoid future code
-inadvertently using a stub and introducing a regression to the bug the
-original commit fixed.
-
+Reported-by: Lin Yi <teroincn@gmail.com>
 Cc: <stable@vger.kernel.org>
-Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
-Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Tested-by: Roland Hieber <rhi@pengutronix.de>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20200420075529.27203-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-imx/Makefile |    2 ++
+ sound/usb/usx2y/usbusx2yaudio.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/arch/arm/mach-imx/Makefile
-+++ b/arch/arm/mach-imx/Makefile
-@@ -91,8 +91,10 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7
- obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
- obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
- endif
-+ifeq ($(CONFIG_ARM_CPU_SUSPEND),y)
- AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
- obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
-+endif
- obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
- 
- obj-$(CONFIG_SOC_IMX50) += mach-imx50.o
+--- a/sound/usb/usx2y/usbusx2yaudio.c
++++ b/sound/usb/usx2y/usbusx2yaudio.c
+@@ -691,6 +691,8 @@ static int usX2Y_rate_set(struct usX2Yde
+ 			us->submitted =	2*NOOF_SETRATE_URBS;
+ 			for (i = 0; i < NOOF_SETRATE_URBS; ++i) {
+ 				struct urb *urb = us->urb[i];
++				if (!urb)
++					continue;
+ 				if (urb->status) {
+ 					if (!err)
+ 						err = -ENODEV;
 
 
