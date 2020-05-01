@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A251C1529
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45CD21C1491
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730700AbgEANqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:46:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46308 "EHLO mail.kernel.org"
+        id S1730747AbgEANkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:40:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731007AbgEANo5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:44:57 -0400
+        id S1731055AbgEANkp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:40:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8AAB2051A;
-        Fri,  1 May 2020 13:44:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91C3F205C9;
+        Fri,  1 May 2020 13:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340696;
-        bh=WMY2KhaknJ6qcA8omuj0vvPzI9GIiw3E9kxGJCALNEE=;
+        s=default; t=1588340445;
+        bh=iw5HLB9RKg4btKlq30kLQfhmRxj+DSaKAkyxmYcdXJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMW9xVBYzfZZTcTzlTdGZ9xK5jGVVR9jqJtD7L1ZBbxdVi+kJcXeIBC7j7lUueSvy
-         DIeVtr20/6BPJZykqo/r1l4sl11npoeZIYNmE8IOy1Q0OyB0fuciSNlSM2+mJ+P4lx
-         nuap2Yi5UdpfiesTyvMYW7qEcYqhs1TTj7PeRCEM=
+        b=q4AGu4nYkx4cixvlK5zQ4NvWBJcI6+/ZM2n/hSG/oNE0jjWIhDSwM3g3WAaz1Utx3
+         SN1E3rQHi14u6BrHCJ8WBev2XDQNtqYtiO/ByXWfWlyIuaVCugOGelySVr4QWB1hg2
+         sY0aSCYMIoqlgt3/jlAsY2vMMxHMV7P6VkFXZm6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 087/106] sched/vtime: Work around an unitialized variable warning
+        stable@vger.kernel.org, Harish Sriram <harish@linux.ibm.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 81/83] ext4: check for non-zero journal inum in ext4_calculate_overhead
 Date:   Fri,  1 May 2020 15:24:00 +0200
-Message-Id: <20200501131554.026238033@linuxfoundation.org>
+Message-Id: <20200501131543.077383714@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-[ Upstream commit e0d648f9d883ec1efab261af158d73aa30e9dd12 ]
+commit f1eec3b0d0a849996ebee733b053efa71803dad5 upstream.
 
-Work around this warning:
+While calculating overhead for internal journal, also check
+that j_inum shouldn't be 0. Otherwise we get below error with
+xfstests generic/050 with external journal (XXX_LOGDEV config) enabled.
 
-  kernel/sched/cputime.c: In function ‘kcpustat_field’:
-  kernel/sched/cputime.c:1007:6: warning: ‘val’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+It could be simply reproduced with loop device with an external journal
+and marking blockdev as RO before mounting.
 
-because GCC can't see that val is used only when err is 0.
+[ 3337.146838] EXT4-fs error (device pmem1p2): ext4_get_journal_inode:4634: comm mount: inode #0: comm mount: iget: illegal inode #
+------------[ cut here ]------------
+generic_make_request: Trying to write to read-only block-device pmem1p2 (partno 2)
+WARNING: CPU: 107 PID: 115347 at block/blk-core.c:788 generic_make_request_checks+0x6b4/0x7d0
+CPU: 107 PID: 115347 Comm: mount Tainted: G             L   --------- -t - 4.18.0-167.el8.ppc64le #1
+NIP:  c0000000006f6d44 LR: c0000000006f6d40 CTR: 0000000030041dd4
+<...>
+NIP [c0000000006f6d44] generic_make_request_checks+0x6b4/0x7d0
+LR [c0000000006f6d40] generic_make_request_checks+0x6b0/0x7d0
+<...>
+Call Trace:
+generic_make_request_checks+0x6b0/0x7d0 (unreliable)
+generic_make_request+0x3c/0x420
+submit_bio+0xd8/0x200
+submit_bh_wbc+0x1e8/0x250
+__sync_dirty_buffer+0xd0/0x210
+ext4_commit_super+0x310/0x420 [ext4]
+__ext4_error+0xa4/0x1e0 [ext4]
+__ext4_iget+0x388/0xe10 [ext4]
+ext4_get_journal_inode+0x40/0x150 [ext4]
+ext4_calculate_overhead+0x5a8/0x610 [ext4]
+ext4_fill_super+0x3188/0x3260 [ext4]
+mount_bdev+0x778/0x8f0
+ext4_mount+0x28/0x50 [ext4]
+mount_fs+0x74/0x230
+vfs_kern_mount.part.6+0x6c/0x250
+do_mount+0x2fc/0x1280
+sys_mount+0x158/0x180
+system_call+0x5c/0x70
+EXT4-fs (pmem1p2): no journal found
+EXT4-fs (pmem1p2): can't get journal size
+EXT4-fs (pmem1p2): mounted filesystem without journal. Opts: dax,norecovery
 
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20200327214334.GF8015@zn.tnic
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3c816ded78bb ("ext4: use journal inode to determine journal overhead")
+Reported-by: Harish Sriram <harish@linux.ibm.com>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200316093038.25485-1-riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/sched/cputime.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
-index dac9104d126f7..ff9435dee1df2 100644
---- a/kernel/sched/cputime.c
-+++ b/kernel/sched/cputime.c
-@@ -1003,12 +1003,12 @@ u64 kcpustat_field(struct kernel_cpustat *kcpustat,
- 		   enum cpu_usage_stat usage, int cpu)
- {
- 	u64 *cpustat = kcpustat->cpustat;
-+	u64 val = cpustat[usage];
- 	struct rq *rq;
--	u64 val;
- 	int err;
- 
- 	if (!vtime_accounting_enabled_cpu(cpu))
--		return cpustat[usage];
-+		return val;
- 
- 	rq = cpu_rq(cpu);
- 
--- 
-2.20.1
-
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3562,7 +3562,8 @@ int ext4_calculate_overhead(struct super
+ 	 */
+ 	if (sbi->s_journal && !sbi->journal_bdev)
+ 		overhead += EXT4_NUM_B2C(sbi, sbi->s_journal->j_maxlen);
+-	else if (ext4_has_feature_journal(sb) && !sbi->s_journal) {
++	else if (ext4_has_feature_journal(sb) && !sbi->s_journal && j_inum) {
++		/* j_inum for internal journal is non-zero */
+ 		j_inode = ext4_get_journal_inode(sb, j_inum);
+ 		if (j_inode) {
+ 			j_blocks = j_inode->i_size >> sb->s_blocksize_bits;
 
 
