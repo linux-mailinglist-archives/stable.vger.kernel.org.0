@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD8EC1C13B2
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3795C1C12D4
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:25:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729402AbgEANcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:32:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56924 "EHLO mail.kernel.org"
+        id S1728880AbgEANYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:24:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730243AbgEANcG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:32:06 -0400
+        id S1728879AbgEANYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:24:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CDBA2166E;
-        Fri,  1 May 2020 13:32:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A063224969;
+        Fri,  1 May 2020 13:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339925;
-        bh=3Vt7GQd7wb3UKQ+yz3AyRQhXSNorH7+J3rSuYAXq8xg=;
+        s=default; t=1588339490;
+        bh=OmsL5AT5dbpd9MY4DoICFXkIlbcngeocNeA2mHdqf/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsdw3CHD6dV7yA14iRA9JzfMwYs5gEGJNVvLioc1se4Z3ZygPBo7yK/1DwlAahw1Q
-         Llw0czcFmaWedFZvsKLzCVqKuX0eJuAkJAGrPCiI/qcOG7kFRqv+ovT5rckqFtjwCF
-         EFBLuYh5dQHwdIHg6YgQOmhxdirtosvwnoVeYZWE=
+        b=fLKOieIVZ1XfznGqCQua5QpMk/HYdE1/6PC0LXFUiv+jNSMWA4jmrnRiEUPGc1bLL
+         u2Y+TDTbqXR4650VoTjhdHfAujkL+NVvHK45JL60ZG+E/JtXwpnP0drfUjEOuOUKLM
+         SzZQiVhK7Hv+dOWrwF2YGc+bOx0/HpQchYU2nm9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/117] PCI/ASPM: Allow re-enabling Clock PM
+Subject: [PATCH 4.4 10/70] pwm: rcar: Fix late Runtime PM enablement
 Date:   Fri,  1 May 2020 15:20:58 +0200
-Message-Id: <20200501131547.645799327@linuxfoundation.org>
+Message-Id: <20200501131515.658174145@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 35efea32b26f9aacc99bf07e0d2cdfba2028b099 ]
+[ Upstream commit 1451a3eed24b5fd6a604683f0b6995e0e7e16c79 ]
 
-Previously Clock PM could not be re-enabled after being disabled by
-pci_disable_link_state() because clkpm_capable was reset.  Change this by
-adding a clkpm_disable field similar to aspm_disable.
+Runtime PM should be enabled before calling pwmchip_add(), as PWM users
+can appear immediately after the PWM chip has been added.
+Likewise, Runtime PM should be disabled after the removal of the PWM
+chip.
 
-Link: https://lore.kernel.org/r/4e8a66db-7d53-4a66-c26c-f0037ffaa705@gmail.com
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: ed6c1476bf7f16d5 ("pwm: Add support for R-Car PWM Timer")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/aspm.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/pwm/pwm-rcar.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
-index 6f58767b5190f..400031622b761 100644
---- a/drivers/pci/pcie/aspm.c
-+++ b/drivers/pci/pcie/aspm.c
-@@ -80,6 +80,7 @@ struct pcie_link_state {
- 	u32 clkpm_capable:1;		/* Clock PM capable? */
- 	u32 clkpm_enabled:1;		/* Current Clock PM state */
- 	u32 clkpm_default:1;		/* Default Clock PM state by BIOS */
-+	u32 clkpm_disable:1;		/* Clock PM disabled */
+diff --git a/drivers/pwm/pwm-rcar.c b/drivers/pwm/pwm-rcar.c
+index 6e99a63ffa290..df0723df1f997 100644
+--- a/drivers/pwm/pwm-rcar.c
++++ b/drivers/pwm/pwm-rcar.c
+@@ -232,24 +232,28 @@ static int rcar_pwm_probe(struct platform_device *pdev)
+ 	rcar_pwm->chip.base = -1;
+ 	rcar_pwm->chip.npwm = 1;
  
- 	/* Exit latencies */
- 	struct aspm_latency latency_up;	/* Upstream direction exit latency */
-@@ -177,8 +178,11 @@ static void pcie_set_clkpm_nocheck(struct pcie_link_state *link, int enable)
- 
- static void pcie_set_clkpm(struct pcie_link_state *link, int enable)
- {
--	/* Don't enable Clock PM if the link is not Clock PM capable */
--	if (!link->clkpm_capable)
-+	/*
-+	 * Don't enable Clock PM if the link is not Clock PM capable
-+	 * or Clock PM is disabled
-+	 */
-+	if (!link->clkpm_capable || link->clkpm_disable)
- 		enable = 0;
- 	/* Need nothing if the specified equals to current state */
- 	if (link->clkpm_enabled == enable)
-@@ -208,7 +212,8 @@ static void pcie_clkpm_cap_init(struct pcie_link_state *link, int blacklist)
++	pm_runtime_enable(&pdev->dev);
++
+ 	ret = pwmchip_add(&rcar_pwm->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register PWM chip: %d\n", ret);
++		pm_runtime_disable(&pdev->dev);
+ 		return ret;
  	}
- 	link->clkpm_enabled = enabled;
- 	link->clkpm_default = enabled;
--	link->clkpm_capable = (blacklist) ? 0 : capable;
-+	link->clkpm_capable = capable;
-+	link->clkpm_disable = blacklist ? 1 : 0;
+ 
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	return 0;
  }
  
- static bool pcie_retrain_link(struct pcie_link_state *link)
-@@ -1052,10 +1057,9 @@ static void __pci_disable_link_state(struct pci_dev *pdev, int state, bool sem)
- 		link->aspm_disable |= ASPM_STATE_L1;
- 	pcie_config_aspm_link(link, policy_to_aspm_state(link));
+ static int rcar_pwm_remove(struct platform_device *pdev)
+ {
+ 	struct rcar_pwm_chip *rcar_pwm = platform_get_drvdata(pdev);
++	int ret;
++
++	ret = pwmchip_remove(&rcar_pwm->chip);
  
--	if (state & PCIE_LINK_STATE_CLKPM) {
--		link->clkpm_capable = 0;
--		pcie_set_clkpm(link, 0);
--	}
-+	if (state & PCIE_LINK_STATE_CLKPM)
-+		link->clkpm_disable = 1;
-+	pcie_set_clkpm(link, policy_to_clkpm_state(link));
- 	mutex_unlock(&aspm_lock);
- 	if (sem)
- 		up_read(&pci_bus_sem);
+ 	pm_runtime_disable(&pdev->dev);
+ 
+-	return pwmchip_remove(&rcar_pwm->chip);
++	return ret;
+ }
+ 
+ static const struct of_device_id rcar_pwm_of_table[] = {
 -- 
 2.20.1
 
