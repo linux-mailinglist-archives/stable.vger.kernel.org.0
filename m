@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 982C31C1669
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02E2F1C16C1
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728847AbgEANsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:48:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43440 "EHLO mail.kernel.org"
+        id S1730277AbgEANwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:52:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729169AbgEANml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:41 -0400
+        id S1730563AbgEANh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC6B2208DB;
-        Fri,  1 May 2020 13:42:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC6AB24954;
+        Fri,  1 May 2020 13:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340561;
-        bh=I4wRL5poyl2fmkwPf1N4wKbUFGDbAZST9yu47/9xtN0=;
+        s=default; t=1588340247;
+        bh=lvMF2Kf965DlYlL/TYNqQSc35y6WcqH57P/K98qb/3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HiMPLvNSatZzDunN2V39jKaJ9LPX/u1EG9Iq/q9YtVHAbDm83iGsLQzCBBNj3yQCe
-         f7lEci4/dBBBh5s0usxLRlXnf+3hZgPQCAxzjsTR+wqKmMqB4iyZuNaZtB2tL5uWql
-         kpFvteZVwyaHbDyXT4m5RM2n9x/QaQHCYiC5zm0I=
+        b=ZmKEpx3p6VBNEPkzKmDpp/L/5RNIVRAh2HXXnbXUoGhC77F6sp6O4MVgtMIhrbZWx
+         JJseT6jlih41Ga3Y5ea1+8w+if7RIXqMU23aZg2+Zmie2KEBAHaJt66KDeJaqnyqeY
+         RUuVbFTUZAkk5YkqtsuLjEWBeI5qx4tC3LVPphE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Holger=20Hoffst=C3=A4tte?= 
-        <holger@applied-asynchrony.com>, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.6 032/106] hwmon: (drivetemp) Return -ENODATA for invalid temperatures
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 40/46] ext4: use matching invalidatepage in ext4_writepage
 Date:   Fri,  1 May 2020 15:23:05 +0200
-Message-Id: <20200501131547.822255949@linuxfoundation.org>
+Message-Id: <20200501131512.697455486@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: yangerkun <yangerkun@huawei.com>
 
-commit ed08ebb7124e90a99420bb913d602907d377d03d upstream.
+[ Upstream commit c2a559bc0e7ed5a715ad6b947025b33cb7c05ea7 ]
 
-Holger Hoffstätte observed that Samsung 850 Pro may return invalid
-temperatures for a short period of time after resume. Return -ENODATA
-to userspace if this is observed.
+Run generic/388 with journal data mode sometimes may trigger the warning
+in ext4_invalidatepage. Actually, we should use the matching invalidatepage
+in ext4_writepage.
 
-Fixes:  5b46903d8bf3 ("hwmon: Driver for disk and solid state drives with temperature sensors")
-Reported-by: Holger Hoffstätte <holger@applied-asynchrony.com>
-Cc: Holger Hoffstätte <holger@applied-asynchrony.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200226041002.13914-1-yangerkun@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/drivetemp.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ext4/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwmon/drivetemp.c
-+++ b/drivers/hwmon/drivetemp.c
-@@ -264,12 +264,18 @@ static int drivetemp_get_scttemp(struct
- 		return err;
- 	switch (attr) {
- 	case hwmon_temp_input:
-+		if (!temp_is_valid(buf[SCT_STATUS_TEMP]))
-+			return -ENODATA;
- 		*val = temp_from_sct(buf[SCT_STATUS_TEMP]);
- 		break;
- 	case hwmon_temp_lowest:
-+		if (!temp_is_valid(buf[SCT_STATUS_TEMP_LOWEST]))
-+			return -ENODATA;
- 		*val = temp_from_sct(buf[SCT_STATUS_TEMP_LOWEST]);
- 		break;
- 	case hwmon_temp_highest:
-+		if (!temp_is_valid(buf[SCT_STATUS_TEMP_HIGHEST]))
-+			return -ENODATA;
- 		*val = temp_from_sct(buf[SCT_STATUS_TEMP_HIGHEST]);
- 		break;
- 	default:
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 000fa0e392787..3b1a7597af15e 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -2128,7 +2128,7 @@ static int ext4_writepage(struct page *page,
+ 	bool keep_towrite = false;
+ 
+ 	if (unlikely(ext4_forced_shutdown(EXT4_SB(inode->i_sb)))) {
+-		ext4_invalidatepage(page, 0, PAGE_SIZE);
++		inode->i_mapping->a_ops->invalidatepage(page, 0, PAGE_SIZE);
+ 		unlock_page(page);
+ 		return -EIO;
+ 	}
+-- 
+2.20.1
+
 
 
