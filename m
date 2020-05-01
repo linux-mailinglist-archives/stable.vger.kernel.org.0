@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EC471C16CB
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21CCC1C15F3
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730897AbgEANxM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:53:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35284 "EHLO mail.kernel.org"
+        id S1730888AbgEANgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730883AbgEANgl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:36:41 -0400
+        id S1730150AbgEANgn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:36:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD8EE216FD;
-        Fri,  1 May 2020 13:36:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75E3124953;
+        Fri,  1 May 2020 13:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340200;
-        bh=U+7B60COkyRjyCALdr8M23NE9235adcJOkyY/YfpsaM=;
+        s=default; t=1588340202;
+        bh=IvEs8V4rgvmi8KyhUyC1kcTq/3jqZEIpwqMeUlgY8k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=psHTGw+D+rWt1dWWQl3NkPtI3chZCVFRRqY7L5p9wjrUCsGrfk5gvG7is3ZMde3N7
-         YkqTS6OkDrF8BIPP2dNPpOHzpq+T/Dx5Dh1cNbfnQbNL7MHjCWK6/VohsMcGbtgxR7
-         BALLWMQvzr386V51hKZYg9rE1evWT81VE2gxU42U=
+        b=07zfbMxjntsWyO3Nv+6/z2GASsJiYptLuoZURrAA/vMJ8jBBSYOpPD+v8APQCPK6n
+         7fZD5Fj+n4mxv6j+F9viFsJtNga1Cpdg37h1MESfffKvtH9/wPBKxfApTX6M613S3G
+         Ca+vxC23U2C9DTJq7c2AYQccdkjHwKGps/4PFlJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.19 16/46] svcrdma: Fix trace point use-after-free race
-Date:   Fri,  1 May 2020 15:22:41 +0200
-Message-Id: <20200501131504.178553519@linuxfoundation.org>
+Subject: [PATCH 4.19 17/46] svcrdma: Fix leak of svc_rdma_recv_ctxt objects
+Date:   Fri,  1 May 2020 15:22:42 +0200
+Message-Id: <20200501131504.483509947@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
 References: <20200501131457.023036302@linuxfoundation.org>
@@ -44,212 +44,167 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chuck Lever <chuck.lever@oracle.com>
 
-commit e28b4fc652c1830796a4d3e09565f30c20f9a2cf upstream.
+commit 23cf1ee1f1869966b75518c59b5cbda4c6c92450 upstream.
 
-I hit this while testing nfsd-5.7 with kernel memory debugging
-enabled on my server:
+Utilize the xpo_release_rqst transport method to ensure that each
+rqstp's svc_rdma_recv_ctxt object is released even when the server
+cannot return a Reply for that rqstp.
 
-Mar 30 13:21:45 klimt kernel: BUG: unable to handle page fault for address: ffff8887e6c279a8
-Mar 30 13:21:45 klimt kernel: #PF: supervisor read access in kernel mode
-Mar 30 13:21:45 klimt kernel: #PF: error_code(0x0000) - not-present page
-Mar 30 13:21:45 klimt kernel: PGD 3601067 P4D 3601067 PUD 87c519067 PMD 87c3e2067 PTE 800ffff8193d8060
-Mar 30 13:21:45 klimt kernel: Oops: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
-Mar 30 13:21:45 klimt kernel: CPU: 2 PID: 1933 Comm: nfsd Not tainted 5.6.0-rc6-00040-g881e87a3c6f9 #1591
-Mar 30 13:21:45 klimt kernel: Hardware name: Supermicro Super Server/X10SRL-F, BIOS 1.0c 09/09/2015
-Mar 30 13:21:45 klimt kernel: RIP: 0010:svc_rdma_post_chunk_ctxt+0xab/0x284 [rpcrdma]
-Mar 30 13:21:45 klimt kernel: Code: c1 83 34 02 00 00 29 d0 85 c0 7e 72 48 8b bb a0 02 00 00 48 8d 54 24 08 4c 89 e6 48 8b 07 48 8b 40 20 e8 5a 5c 2b e1 41 89 c6 <8b> 45 20 89 44 24 04 8b 05 02 e9 01 00 85 c0 7e 33 e9 5e 01 00 00
-Mar 30 13:21:45 klimt kernel: RSP: 0018:ffffc90000dfbdd8 EFLAGS: 00010286
-Mar 30 13:21:45 klimt kernel: RAX: 0000000000000000 RBX: ffff8887db8db400 RCX: 0000000000000030
-Mar 30 13:21:45 klimt kernel: RDX: 0000000000000040 RSI: 0000000000000000 RDI: 0000000000000246
-Mar 30 13:21:45 klimt kernel: RBP: ffff8887e6c27988 R08: 0000000000000000 R09: 0000000000000004
-Mar 30 13:21:45 klimt kernel: R10: ffffc90000dfbdd8 R11: 00c068ef00000000 R12: ffff8887eb4e4a80
-Mar 30 13:21:45 klimt kernel: R13: ffff8887db8db634 R14: 0000000000000000 R15: ffff8887fc931000
-Mar 30 13:21:45 klimt kernel: FS:  0000000000000000(0000) GS:ffff88885bd00000(0000) knlGS:0000000000000000
-Mar 30 13:21:45 klimt kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-Mar 30 13:21:45 klimt kernel: CR2: ffff8887e6c279a8 CR3: 000000081b72e002 CR4: 00000000001606e0
-Mar 30 13:21:45 klimt kernel: Call Trace:
-Mar 30 13:21:45 klimt kernel: ? svc_rdma_vec_to_sg+0x7f/0x7f [rpcrdma]
-Mar 30 13:21:45 klimt kernel: svc_rdma_send_write_chunk+0x59/0xce [rpcrdma]
-Mar 30 13:21:45 klimt kernel: svc_rdma_sendto+0xf9/0x3ae [rpcrdma]
-Mar 30 13:21:45 klimt kernel: ? nfsd_destroy+0x51/0x51 [nfsd]
-Mar 30 13:21:45 klimt kernel: svc_send+0x105/0x1e3 [sunrpc]
-Mar 30 13:21:45 klimt kernel: nfsd+0xf2/0x149 [nfsd]
-Mar 30 13:21:45 klimt kernel: kthread+0xf6/0xfb
-Mar 30 13:21:45 klimt kernel: ? kthread_queue_delayed_work+0x74/0x74
-Mar 30 13:21:45 klimt kernel: ret_from_fork+0x3a/0x50
-Mar 30 13:21:45 klimt kernel: Modules linked in: ocfs2_dlmfs ocfs2_stack_o2cb ocfs2_dlm ocfs2_nodemanager ocfs2_stackglue ib_umad ib_ipoib mlx4_ib sb_edac x86_pkg_temp_thermal iTCO_wdt iTCO_vendor_support coretemp kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel glue_helper crypto_simd cryptd pcspkr rpcrdma i2c_i801 rdma_ucm lpc_ich mfd_core ib_iser rdma_cm iw_cm ib_cm mei_me raid0 libiscsi mei sg scsi_transport_iscsi ioatdma wmi ipmi_si ipmi_devintf ipmi_msghandler acpi_power_meter nfsd nfs_acl lockd auth_rpcgss grace sunrpc ip_tables xfs libcrc32c mlx4_en sd_mod sr_mod cdrom mlx4_core crc32c_intel igb nvme i2c_algo_bit ahci i2c_core libahci nvme_core dca libata t10_pi qedr dm_mirror dm_region_hash dm_log dm_mod dax qede qed crc8 ib_uverbs ib_core
-Mar 30 13:21:45 klimt kernel: CR2: ffff8887e6c279a8
-Mar 30 13:21:45 klimt kernel: ---[ end trace 87971d2ad3429424 ]---
+Without this fix, each RPC whose Reply cannot be sent leaks one
+svc_rdma_recv_ctxt. This is a 2.5KB structure, a 4KB DMA-mapped
+Receive buffer, and any pages that might be part of the Reply
+message.
 
-It's absolutely not safe to use resources pointed to by the @send_wr
-argument of ib_post_send() _after_ that function returns. Those
-resources are typically freed by the Send completion handler, which
-can run before ib_post_send() returns.
+The leak is infrequent unless the network fabric is unreliable or
+Kerberos is in use, as GSS sequence window overruns, which result
+in connection loss, are more common on fast transports.
 
-Thus the trace points currently around ib_post_send() in the
-server's RPC/RDMA transport are a hazard, even when they are
-disabled. Rearrange them so that they touch the Work Request only
-_before_ ib_post_send() is invoked.
-
-Fixes: bd2abef33394 ("svcrdma: Trace key RDMA API events")
-Fixes: 4201c7464753 ("svcrdma: Introduce svc_rdma_send_ctxt")
+Fixes: 3a88092ee319 ("svcrdma: Preserve Receive buffer until svc_rdma_sendto")
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/trace/events/rpcrdma.h        |   50 ++++++++++++++++++++++++----------
- net/sunrpc/xprtrdma/svc_rdma_rw.c     |    3 --
- net/sunrpc/xprtrdma/svc_rdma_sendto.c |   16 ++++++----
- 3 files changed, 46 insertions(+), 23 deletions(-)
+ include/linux/sunrpc/svc_rdma.h          |    1 +
+ net/sunrpc/svc_xprt.c                    |    3 ---
+ net/sunrpc/svcsock.c                     |    4 ++++
+ net/sunrpc/xprtrdma/svc_rdma_recvfrom.c  |   22 ++++++++++++++++++++++
+ net/sunrpc/xprtrdma/svc_rdma_sendto.c    |   13 +++----------
+ net/sunrpc/xprtrdma/svc_rdma_transport.c |    5 -----
+ 6 files changed, 30 insertions(+), 18 deletions(-)
 
---- a/include/trace/events/rpcrdma.h
-+++ b/include/trace/events/rpcrdma.h
-@@ -1322,17 +1322,15 @@ DECLARE_EVENT_CLASS(svcrdma_sendcomp_eve
+--- a/include/linux/sunrpc/svc_rdma.h
++++ b/include/linux/sunrpc/svc_rdma.h
+@@ -159,6 +159,7 @@ extern bool svc_rdma_post_recvs(struct s
+ extern void svc_rdma_recv_ctxt_put(struct svcxprt_rdma *rdma,
+ 				   struct svc_rdma_recv_ctxt *ctxt);
+ extern void svc_rdma_flush_recv_queues(struct svcxprt_rdma *rdma);
++extern void svc_rdma_release_rqst(struct svc_rqst *rqstp);
+ extern int svc_rdma_recvfrom(struct svc_rqst *);
  
- TRACE_EVENT(svcrdma_post_send,
- 	TP_PROTO(
--		const struct ib_send_wr *wr,
--		int status
-+		const struct ib_send_wr *wr
- 	),
+ /* svc_rdma_rw.c */
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -878,9 +878,6 @@ int svc_send(struct svc_rqst *rqstp)
+ 	if (!xprt)
+ 		goto out;
  
--	TP_ARGS(wr, status),
-+	TP_ARGS(wr),
+-	/* release the receive skb before sending the reply */
+-	xprt->xpt_ops->xpo_release_rqst(rqstp);
+-
+ 	/* calculate over-all length */
+ 	xb = &rqstp->rq_res;
+ 	xb->len = xb->head[0].iov_len +
+--- a/net/sunrpc/svcsock.c
++++ b/net/sunrpc/svcsock.c
+@@ -636,6 +636,8 @@ svc_udp_sendto(struct svc_rqst *rqstp)
+ {
+ 	int		error;
  
- 	TP_STRUCT__entry(
- 		__field(const void *, cqe)
- 		__field(unsigned int, num_sge)
- 		__field(u32, inv_rkey)
--		__field(int, status)
- 	),
- 
- 	TP_fast_assign(
-@@ -1340,12 +1338,11 @@ TRACE_EVENT(svcrdma_post_send,
- 		__entry->num_sge = wr->num_sge;
- 		__entry->inv_rkey = (wr->opcode == IB_WR_SEND_WITH_INV) ?
- 					wr->ex.invalidate_rkey : 0;
--		__entry->status = status;
- 	),
- 
--	TP_printk("cqe=%p num_sge=%u inv_rkey=0x%08x status=%d",
-+	TP_printk("cqe=%p num_sge=%u inv_rkey=0x%08x",
- 		__entry->cqe, __entry->num_sge,
--		__entry->inv_rkey, __entry->status
-+		__entry->inv_rkey
- 	)
- );
- 
-@@ -1410,26 +1407,23 @@ TRACE_EVENT(svcrdma_wc_receive,
- TRACE_EVENT(svcrdma_post_rw,
- 	TP_PROTO(
- 		const void *cqe,
--		int sqecount,
--		int status
-+		int sqecount
- 	),
- 
--	TP_ARGS(cqe, sqecount, status),
-+	TP_ARGS(cqe, sqecount),
- 
- 	TP_STRUCT__entry(
- 		__field(const void *, cqe)
- 		__field(int, sqecount)
--		__field(int, status)
- 	),
- 
- 	TP_fast_assign(
- 		__entry->cqe = cqe;
- 		__entry->sqecount = sqecount;
--		__entry->status = status;
- 	),
- 
--	TP_printk("cqe=%p sqecount=%d status=%d",
--		__entry->cqe, __entry->sqecount, __entry->status
-+	TP_printk("cqe=%p sqecount=%d",
-+		__entry->cqe, __entry->sqecount
- 	)
- );
- 
-@@ -1525,6 +1519,34 @@ DECLARE_EVENT_CLASS(svcrdma_sendqueue_ev
- DEFINE_SQ_EVENT(full);
- DEFINE_SQ_EVENT(retry);
- 
-+TRACE_EVENT(svcrdma_sq_post_err,
-+	TP_PROTO(
-+		const struct svcxprt_rdma *rdma,
-+		int status
-+	),
++	svc_release_udp_skb(rqstp);
 +
-+	TP_ARGS(rdma, status),
-+
-+	TP_STRUCT__entry(
-+		__field(int, avail)
-+		__field(int, depth)
-+		__field(int, status)
-+		__string(addr, rdma->sc_xprt.xpt_remotebuf)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->avail = atomic_read(&rdma->sc_sq_avail);
-+		__entry->depth = rdma->sc_sq_depth;
-+		__entry->status = status;
-+		__assign_str(addr, rdma->sc_xprt.xpt_remotebuf);
-+	),
-+
-+	TP_printk("addr=%s sc_sq_avail=%d/%d status=%d",
-+		__get_str(addr), __entry->avail, __entry->depth,
-+		__entry->status
-+	)
-+);
-+
- #endif /* _TRACE_RPCRDMA_H */
+ 	error = svc_sendto(rqstp, &rqstp->rq_res);
+ 	if (error == -ECONNREFUSED)
+ 		/* ICMP error on earlier request. */
+@@ -1173,6 +1175,8 @@ static int svc_tcp_sendto(struct svc_rqs
+ 	int sent;
+ 	__be32 reclen;
  
- #include <trace/define_trace.h>
---- a/net/sunrpc/xprtrdma/svc_rdma_rw.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_rw.c
-@@ -331,8 +331,6 @@ static int svc_rdma_post_chunk_ctxt(stru
- 		if (atomic_sub_return(cc->cc_sqecount,
- 				      &rdma->sc_sq_avail) > 0) {
- 			ret = ib_post_send(rdma->sc_qp, first_wr, &bad_wr);
--			trace_svcrdma_post_rw(&cc->cc_cqe,
--					      cc->cc_sqecount, ret);
- 			if (ret)
- 				break;
- 			return 0;
-@@ -345,6 +343,7 @@ static int svc_rdma_post_chunk_ctxt(stru
- 		trace_svcrdma_sq_retry(rdma);
- 	} while (1);
- 
-+	trace_svcrdma_sq_post_err(rdma, ret);
- 	set_bit(XPT_CLOSE, &xprt->xpt_flags);
- 
- 	/* If even one was posted, there will be a completion. */
---- a/net/sunrpc/xprtrdma/svc_rdma_sendto.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_sendto.c
-@@ -310,15 +310,17 @@ int svc_rdma_send(struct svcxprt_rdma *r
- 		}
- 
- 		svc_xprt_get(&rdma->sc_xprt);
-+		trace_svcrdma_post_send(wr);
- 		ret = ib_post_send(rdma->sc_qp, wr, NULL);
--		trace_svcrdma_post_send(wr, ret);
--		if (ret) {
--			set_bit(XPT_CLOSE, &rdma->sc_xprt.xpt_flags);
--			svc_xprt_put(&rdma->sc_xprt);
--			wake_up(&rdma->sc_send_wait);
--		}
--		break;
-+		if (ret)
-+			break;
-+		return 0;
- 	}
++	svc_release_skb(rqstp);
 +
-+	trace_svcrdma_sq_post_err(rdma, ret);
-+	set_bit(XPT_CLOSE, &rdma->sc_xprt.xpt_flags);
-+	svc_xprt_put(&rdma->sc_xprt);
-+	wake_up(&rdma->sc_send_wait);
- 	return ret;
+ 	/* Set up the first element of the reply kvec.
+ 	 * Any other kvecs that may be in use have been taken
+ 	 * care of by the server implementation itself.
+--- a/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
+@@ -226,6 +226,26 @@ void svc_rdma_recv_ctxt_put(struct svcxp
+ 		svc_rdma_recv_ctxt_destroy(rdma, ctxt);
  }
  
++/**
++ * svc_rdma_release_rqst - Release transport-specific per-rqst resources
++ * @rqstp: svc_rqst being released
++ *
++ * Ensure that the recv_ctxt is released whether or not a Reply
++ * was sent. For example, the client could close the connection,
++ * or svc_process could drop an RPC, before the Reply is sent.
++ */
++void svc_rdma_release_rqst(struct svc_rqst *rqstp)
++{
++	struct svc_rdma_recv_ctxt *ctxt = rqstp->rq_xprt_ctxt;
++	struct svc_xprt *xprt = rqstp->rq_xprt;
++	struct svcxprt_rdma *rdma =
++		container_of(xprt, struct svcxprt_rdma, sc_xprt);
++
++	rqstp->rq_xprt_ctxt = NULL;
++	if (ctxt)
++		svc_rdma_recv_ctxt_put(rdma, ctxt);
++}
++
+ static int __svc_rdma_post_recv(struct svcxprt_rdma *rdma,
+ 				struct svc_rdma_recv_ctxt *ctxt)
+ {
+@@ -704,6 +724,8 @@ int svc_rdma_recvfrom(struct svc_rqst *r
+ 	__be32 *p;
+ 	int ret;
+ 
++	rqstp->rq_xprt_ctxt = NULL;
++
+ 	spin_lock(&rdma_xprt->sc_rq_dto_lock);
+ 	ctxt = svc_rdma_next_recv_ctxt(&rdma_xprt->sc_read_complete_q);
+ 	if (ctxt) {
+--- a/net/sunrpc/xprtrdma/svc_rdma_sendto.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_sendto.c
+@@ -908,12 +908,7 @@ int svc_rdma_sendto(struct svc_rqst *rqs
+ 				      wr_lst, rp_ch);
+ 	if (ret < 0)
+ 		goto err1;
+-	ret = 0;
+-
+-out:
+-	rqstp->rq_xprt_ctxt = NULL;
+-	svc_rdma_recv_ctxt_put(rdma, rctxt);
+-	return ret;
++	return 0;
+ 
+  err2:
+ 	if (ret != -E2BIG && ret != -EINVAL)
+@@ -922,14 +917,12 @@ out:
+ 	ret = svc_rdma_send_error_msg(rdma, sctxt, rqstp);
+ 	if (ret < 0)
+ 		goto err1;
+-	ret = 0;
+-	goto out;
++	return 0;
+ 
+  err1:
+ 	svc_rdma_send_ctxt_put(rdma, sctxt);
+  err0:
+ 	trace_svcrdma_send_failed(rqstp, ret);
+ 	set_bit(XPT_CLOSE, &xprt->xpt_flags);
+-	ret = -ENOTCONN;
+-	goto out;
++	return -ENOTCONN;
+ }
+--- a/net/sunrpc/xprtrdma/svc_rdma_transport.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_transport.c
+@@ -71,7 +71,6 @@ static struct svc_xprt *svc_rdma_create(
+ 					struct sockaddr *sa, int salen,
+ 					int flags);
+ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt);
+-static void svc_rdma_release_rqst(struct svc_rqst *);
+ static void svc_rdma_detach(struct svc_xprt *xprt);
+ static void svc_rdma_free(struct svc_xprt *xprt);
+ static int svc_rdma_has_wspace(struct svc_xprt *xprt);
+@@ -616,10 +615,6 @@ static struct svc_xprt *svc_rdma_accept(
+ 	return NULL;
+ }
+ 
+-static void svc_rdma_release_rqst(struct svc_rqst *rqstp)
+-{
+-}
+-
+ /*
+  * When connected, an svc_xprt has at least two references:
+  *
 
 
