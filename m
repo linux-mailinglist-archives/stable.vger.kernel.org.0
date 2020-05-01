@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EFAE1C1643
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 204C01C16BE
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730710AbgEANms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:42:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43522 "EHLO mail.kernel.org"
+        id S1729705AbgEANwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:52:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731193AbgEANmq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:46 -0400
+        id S1730277AbgEANhc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4968216FD;
-        Fri,  1 May 2020 13:42:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC2A0208DB;
+        Fri,  1 May 2020 13:37:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340566;
-        bh=lcWydKBWqQV/ZXC2wD/mYqXm6d863aZJxCKMdQZ+MX0=;
+        s=default; t=1588340252;
+        bh=wOuKPrjxBqIWiZszReIQZcoXpdptGYDNhKxL4TUtiEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOV9hPcRxHBERVb0ROKFDR7F9YB+ZxB48m7MhG6jp4xaXsmXkOIcGSiM6oRlKzHj1
-         yoza/yU/cY1CjMI+tVYNDUSX7zI9XYb5Jy+LqmcU+bxHT4Tvy3Spk1STg/yLcgMpv+
-         KAdU1zG/paz/ZnfAKgl0974ikeZLhsNengxrkMik=
+        b=L+yC9n6HN0in8lOfLBE/XAbpnaowjdEmtKW5w5CvJjXWWKcn0XpyPuG7ciX5Ni5XB
+         ObPzuKYTAZ+WFYPoRYxhn5ubHo07KFrnR/rXYTG6VmzeYCbI6JhcZqyV4tx120fC7Y
+         nRz6tO9l7P5QUEIU4WzQTbs98c26PaDlTccweKZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.6 034/106] netfilter: nf_tables: reintroduce the NFT_SET_CONCAT flag
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 42/46] ext4: convert BUG_ONs to WARN_ONs in mballoc.c
 Date:   Fri,  1 May 2020 15:23:07 +0200
-Message-Id: <20200501131548.040560317@linuxfoundation.org>
+Message-Id: <20200501131513.390465961@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit ef516e8625ddea90b3a0313f3a0b0baa83db7ac2 upstream.
+[ Upstream commit 907ea529fc4c3296701d2bfc8b831dd2a8121a34 ]
 
-Stefano originally proposed to introduce this flag, users hit EOPNOTSUPP
-in new binaries with old kernels when defining a set with ranges in
-a concatenation.
+If the in-core buddy bitmap gets corrupted (or out of sync with the
+block bitmap), issue a WARN_ON and try to recover.  In most cases this
+involves skipping trying to allocate out of a particular block group.
+We can end up declaring the file system corrupted, which is fair,
+since the file system probably should be checked before we proceed any
+further.
 
-Fixes: f3a2181e16f1 ("netfilter: nf_tables: Support for sets with multiple ranged fields")
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20200414035649.293164-1-tytso@mit.edu
+Google-Bug-Id: 34811296
+Google-Bug-Id: 34639169
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/netfilter/nf_tables.h |    2 ++
- net/netfilter/nf_tables_api.c            |    2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ fs/ext4/mballoc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/include/uapi/linux/netfilter/nf_tables.h
-+++ b/include/uapi/linux/netfilter/nf_tables.h
-@@ -276,6 +276,7 @@ enum nft_rule_compat_attributes {
-  * @NFT_SET_TIMEOUT: set uses timeouts
-  * @NFT_SET_EVAL: set can be updated from the evaluation path
-  * @NFT_SET_OBJECT: set contains stateful objects
-+ * @NFT_SET_CONCAT: set contains a concatenation
-  */
- enum nft_set_flags {
- 	NFT_SET_ANONYMOUS		= 0x1,
-@@ -285,6 +286,7 @@ enum nft_set_flags {
- 	NFT_SET_TIMEOUT			= 0x10,
- 	NFT_SET_EVAL			= 0x20,
- 	NFT_SET_OBJECT			= 0x40,
-+	NFT_SET_CONCAT			= 0x80,
- };
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index 71121fcf9e8cc..8dd54a8a03610 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -1936,7 +1936,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
+ 	int free;
  
- /**
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -3949,7 +3949,7 @@ static int nf_tables_newset(struct net *
- 		if (flags & ~(NFT_SET_ANONYMOUS | NFT_SET_CONSTANT |
- 			      NFT_SET_INTERVAL | NFT_SET_TIMEOUT |
- 			      NFT_SET_MAP | NFT_SET_EVAL |
--			      NFT_SET_OBJECT))
-+			      NFT_SET_OBJECT | NFT_SET_CONCAT))
- 			return -EOPNOTSUPP;
- 		/* Only one of these operations is supported */
- 		if ((flags & (NFT_SET_MAP | NFT_SET_OBJECT)) ==
+ 	free = e4b->bd_info->bb_free;
+-	BUG_ON(free <= 0);
++	if (WARN_ON(free <= 0))
++		return;
+ 
+ 	i = e4b->bd_info->bb_first_free;
+ 
+@@ -1959,7 +1960,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
+ 		}
+ 
+ 		mb_find_extent(e4b, i, ac->ac_g_ex.fe_len, &ex);
+-		BUG_ON(ex.fe_len <= 0);
++		if (WARN_ON(ex.fe_len <= 0))
++			break;
+ 		if (free < ex.fe_len) {
+ 			ext4_grp_locked_error(sb, e4b->bd_group, 0, 0,
+ 					"%d free clusters as per "
+-- 
+2.20.1
+
 
 
