@@ -2,84 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B7971C0B54
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 02:44:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF1B1C0B66
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 02:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbgEAAoM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 20:44:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53422 "EHLO mail.kernel.org"
+        id S1727971AbgEAA4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 20:56:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726384AbgEAAoM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 20:44:12 -0400
+        id S1726384AbgEAA4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 20:56:38 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C89C20757;
-        Fri,  1 May 2020 00:44:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F128206C0;
+        Fri,  1 May 2020 00:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588293851;
-        bh=P9Ev5x7vbb3vacTNEHEY7X81vZksEt4984EO2CqNHp0=;
+        s=default; t=1588294598;
+        bh=qzVIbLzLR1waAT8wlVFyTN88f+j4YehVbaac6sHmrqg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=spvc3AzL+IMXUFHCnhiaduGAMj1wjR/f51KLiZdxFxSreRimWJIaTGndfcPF2WE6g
-         UodRNjvdLmbJBQJ5BaGPzVxcKZE0raPrYoDcPGctZHGk3kWTcxLhg7Phqx6baNorpk
-         mNCdV5JbXeXYBoHt+jAwxkLt0tg9wFsXVZ4N0sY0=
-Date:   Thu, 30 Apr 2020 20:44:10 -0400
+        b=2dpHcfa2x6CWh90gpUjnXE6dUI69GmXxQwjq0IWsjL0YhUq3U2tGgrcuVqXjB90MX
+         H1jQG+xAN+jdyLJz6GqCfPvJGD2K22GTYUadDRhGRGWqMWbJIY5rsXKUPZl5prEJAC
+         7x7XxBnFtK5xqJvRl2tnkSTkDzCCjNwGm6TQfHhA=
+Date:   Thu, 30 Apr 2020 20:56:37 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     johannes.berg@intel.com, kvalo@codeaurora.org,
-        luciano.coelho@intel.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] iwlwifi: mvm: limit maximum queue
- appropriately" failed to apply to 4.19-stable tree
-Message-ID: <20200501004410.GC13035@sasha-vm>
-References: <1588003092239253@kroah.com>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Roy Spliet <nouveau@spliet.org>, alsa-devel@alsa-project.org
+Subject: Re: [PATCH AUTOSEL 4.9 03/13] ALSA: hda: Keep the controller
+ initialization even if no codecs found
+Message-ID: <20200501005637.GD13035@sasha-vm>
+References: <20200424122447.10882-1-sashal@kernel.org>
+ <20200424122447.10882-3-sashal@kernel.org>
+ <s5hh7x9rr0c.wl-tiwai@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1588003092239253@kroah.com>
+In-Reply-To: <s5hh7x9rr0c.wl-tiwai@suse.de>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 27, 2020 at 05:58:12PM +0200, gregkh@linuxfoundation.org wrote:
+On Fri, Apr 24, 2020 at 02:45:55PM +0200, Takashi Iwai wrote:
+>On Fri, 24 Apr 2020 14:24:36 +0200,
+>Sasha Levin wrote:
+>>
+>> From: Takashi Iwai <tiwai@suse.de>
+>>
+>> [ Upstream commit 9479e75fca370a5220784f7596bf598c4dad0b9b ]
+>>
+>> Currently, when the HD-audio controller driver doesn't detect any
+>> codecs, it tries to abort the probe.  But this abort happens at the
+>> delayed probe, i.e. the primary probe call already returned success,
+>> hence the driver is never unbound until user does so explicitly.
+>> As a result, it may leave the HD-audio device in the running state
+>> without the runtime PM.  More badly, if the device is a HD-audio bus
+>> that is tied with a GPU, GPU cannot reach to the full power down and
+>> consumes unnecessarily much power.
+>>
+>> This patch changes the logic after no-codec situation; it continues
+>> probing without the further codec initialization but keep the
+>> controller driver running normally.
+>>
+>> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
+>> Tested-by: Roy Spliet <nouveau@spliet.org>
+>> Link: https://lore.kernel.org/r/20200413082034.25166-5-tiwai@suse.de
+>> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
 >
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From e5b72e3bc4763152e24bf4b8333bae21cc526c56 Mon Sep 17 00:00:00 2001
->From: Johannes Berg <johannes.berg@intel.com>
->Date: Fri, 17 Apr 2020 10:08:12 +0300
->Subject: [PATCH] iwlwifi: mvm: limit maximum queue appropriately
->
->Due to some hardware issues, queue 31 isn't usable on devices that have
->32 queues (7000, 8000, 9000 families), which is correctly reflected in
->the configuration and TX queue initialization.
->
->However, the firmware API and queue allocation code assumes that there
->are 32 queues, and if something actually attempts to use #31 this leads
->to a NULL-pointer dereference since it's not allocated.
->
->Fix this by limiting to 31 in the IWL_MVM_DQA_MAX_DATA_QUEUE, and also
->add some code to catch this earlier in the future, if the configuration
->changes perhaps.
->
->Cc: stable@vger.kernel.org # v4.9+
->Signed-off-by: Johannes Berg <johannes.berg@intel.com>
->Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
->Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
->Link: https://lore.kernel.org/r/iwlwifi.20200417100405.98a79be2db6a.I3a4af6b03b87a6bc18db9b1ff9a812f397bee1fc@changeid
+>Applying this without other commits isn't recommended, especially for
+>the older branches.  Maybe OK up from 4.19, but I'd avoid applying for
+>the older.
 
-iwl_mvm_find_free_queue() lives in a different file. Fixed and queued up
-for 4.9+.
+Okay, I've dropped it from branches older than 4.19. Thanks!
 
 -- 
 Thanks,
