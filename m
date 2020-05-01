@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A61A21C157D
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7372B1C13D4
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729666AbgEAN2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:28:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51916 "EHLO mail.kernel.org"
+        id S1729901AbgEANdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:33:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729643AbgEAN2m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:28:42 -0400
+        id S1729136AbgEANdR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:33:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02DA22166E;
-        Fri,  1 May 2020 13:28:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E50E216FD;
+        Fri,  1 May 2020 13:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339721;
-        bh=O7IiGYCyA78pu2aucLrcQB8qvkxN+WNISdcEwwWrdf0=;
+        s=default; t=1588339996;
+        bh=n9OSzAOIsvEWYv3sAheV6vBFUKxRjlQxE4m3TbbWGOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIHbxeTqFx5KKl1T0rrKFQqn+J8mmiHboOhDB3Im5cR85j99nIxeSUj5pb0vfmb65
-         RgF7zxjhsEFYbT984SoVQ5GqOxCFKvA1Yun29ly8QBfQZo/lfp4vRK83V+VLWBUuDD
-         raMrfRbjWWX3caiouG57Aynh04S1sdQ9zF/PAy8c=
+        b=eTP6Y1kIjgH5X7hAE2mdoJi8i0tuWFbvL4SxL7oGCFBYwk+xkj2L+1POeL/neH+N8
+         j3n7MFngktfpy85lR64yKQQa97rLm84J0pVvVpxf4PNWcDAAgWnNgAkuTE+n06K5wy
+         0dUMRSxLM0Q4WeCPx5RAxZLbuWtcBC/1D5IHRdGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, greg@kroah.com
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.9 33/80] fs/namespace.c: fix mountpoint reference counter race
-Date:   Fri,  1 May 2020 15:21:27 +0200
-Message-Id: <20200501131524.742617650@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Martin Kelly <martin@martingkelly.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 052/117] tools/vm: fix cross-compile build
+Date:   Fri,  1 May 2020 15:21:28 +0200
+Message-Id: <20200501131550.957971934@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Lucas Stach <l.stach@pengutronix.de>
 
-From: Piotr Krysiuk <piotras@gmail.com>
+commit cf01699ee220c38099eb3e43ce3d10690c8b7060 upstream.
 
-A race condition between threads updating mountpoint reference counter
-affects longterm releases 4.4.220, 4.9.220, 4.14.177 and 4.19.118.
+Commit 7ed1c1901fe5 ("tools: fix cross-compile var clobbering") moved
+the setup of the CC variable to tools/scripts/Makefile.include to make
+the behavior consistent across all the tools Makefiles.
 
-The mountpoint reference counter corruption may occur when:
-* one thread increments m_count member of struct mountpoint
-  [under namespace_sem, but not holding mount_lock]
-    pivot_root()
-* another thread simultaneously decrements the same m_count
-  [under mount_lock, but not holding namespace_sem]
-    put_mountpoint()
-      unhash_mnt()
-        umount_mnt()
-          mntput_no_expire()
+As the vm tools missed the include we end up with the wrong CC in a
+cross-compiling evironment.
 
-To fix this race condition, grab mount_lock before updating m_count in
-pivot_root().
-
-Reference: CVE-2020-12114
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
+Fixes: 7ed1c1901fe5 (tools: fix cross-compile var clobbering)
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Martin Kelly <martin@martingkelly.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200416104748.25243-1-l.stach@pengutronix.de
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/namespace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/vm/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -3184,8 +3184,8 @@ SYSCALL_DEFINE2(pivot_root, const char _
- 	/* make certain new is below the root */
- 	if (!is_path_reachable(new_mnt, new.dentry, &root))
- 		goto out4;
--	root_mp->m_count++; /* pin it so it won't go away */
- 	lock_mount_hash();
-+	root_mp->m_count++; /* pin it so it won't go away */
- 	detach_mnt(new_mnt, &parent_path);
- 	detach_mnt(root_mnt, &root_parent);
- 	if (root_mnt->mnt.mnt_flags & MNT_LOCKED) {
+--- a/tools/vm/Makefile
++++ b/tools/vm/Makefile
+@@ -1,6 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for vm tools
+ #
++include ../scripts/Makefile.include
++
+ TARGETS=page-types slabinfo page_owner_sort
+ 
+ LIB_DIR = ../lib/api
 
 
