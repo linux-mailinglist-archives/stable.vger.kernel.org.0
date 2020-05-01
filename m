@@ -2,38 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AB651C16DB
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E83201C16D5
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729112AbgEANxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:53:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34118 "EHLO mail.kernel.org"
+        id S1729175AbgEANxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:53:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730777AbgEANfr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:35:47 -0400
+        id S1730798AbgEANf4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:35:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF0B9208DB;
-        Fri,  1 May 2020 13:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8298424954;
+        Fri,  1 May 2020 13:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340146;
-        bh=72RfqEdt6TMkCkKEnk3nIwJvrEzmxYJ1BM+PEqooLDk=;
+        s=default; t=1588340156;
+        bh=iyB7jYnakYPDqumcyEXSoel5QyTvyXki8tVZ+K2WuzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wlk1OrKFiAQD6bSpCm5AqaKW2P7BLhnxDjqOpsUpoQ+5W/yeUT3bKw1cjCSPozGo2
-         UIKASU0R+IFPS2hv19Y10t8iJW7NOQxHujr8AYU9uoHJNPqiYZhp29Fv/RUNmmP0/8
-         FyqqGSNhHVEvtlITRRK5nng7I/yTx4IJ/7PiqoXU=
+        b=JbQEZffLAGyqsTJX8S6zuJ7gSMqgLQYN88ns+kCbx5kvA093gqgOHySL/4qcYAWmR
+         Rev93NAqsOXM/p2v6QeuYn2bnC8ulqYX5Pfn3+RuyDxr5ywY31N/j55zfg6goX4WYq
+         iGuMc76m0UusDJUpg9o4vUKKX/Ob06SNyPTWnIvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org, Ashwin H <ashwinh@vmware.com>
-Subject: [PATCH 4.14 112/117] ext4: protect journal inodes blocks using block_validity
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Allison Randal <allison@lohutok.net>,
+        Joe Perches <joe@perches.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Torsten Hilbrich <torsten.hilbrich@secunet.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 03/46] include/uapi/linux/swab.h: fix userspace breakage, use __BITS_PER_LONG for swap
 Date:   Fri,  1 May 2020 15:22:28 +0200
-Message-Id: <20200501131558.377031323@linuxfoundation.org>
+Message-Id: <20200501131459.801370911@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +52,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-commit 345c0dbf3a30872d9b204db96b5857cd00808cae upstream.
+commit 467d12f5c7842896d2de3ced74e4147ee29e97c8 upstream.
 
-Add the blocks which belong to the journal inode to block_validity's
-system zone so attempts to deallocate or overwrite the journal due a
-corrupted file system where the journal blocks are also claimed by
-another inode.
+QEMU has a funny new build error message when I use the upstream kernel
+headers:
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202879
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Ashwin H <ashwinh@vmware.com>
+      CC      block/file-posix.o
+    In file included from /home/cborntra/REPOS/qemu/include/qemu/timer.h:4,
+                     from /home/cborntra/REPOS/qemu/include/qemu/timed-average.h:29,
+                     from /home/cborntra/REPOS/qemu/include/block/accounting.h:28,
+                     from /home/cborntra/REPOS/qemu/include/block/block_int.h:27,
+                     from /home/cborntra/REPOS/qemu/block/file-posix.c:30:
+    /usr/include/linux/swab.h: In function `__swab':
+    /home/cborntra/REPOS/qemu/include/qemu/bitops.h:20:34: error: "sizeof" is not defined, evaluates to 0 [-Werror=undef]
+       20 | #define BITS_PER_LONG           (sizeof (unsigned long) * BITS_PER_BYTE)
+          |                                  ^~~~~~
+    /home/cborntra/REPOS/qemu/include/qemu/bitops.h:20:41: error: missing binary operator before token "("
+       20 | #define BITS_PER_LONG           (sizeof (unsigned long) * BITS_PER_BYTE)
+          |                                         ^
+    cc1: all warnings being treated as errors
+    make: *** [/home/cborntra/REPOS/qemu/rules.mak:69: block/file-posix.o] Error 1
+    rm tests/qemu-iotests/socket_scm_helper.o
+
+This was triggered by commit d5767057c9a ("uapi: rename ext2_swab() to
+swab() and share globally in swab.h").  That patch is doing
+
+  #include <asm/bitsperlong.h>
+
+but it uses BITS_PER_LONG.
+
+The kernel file asm/bitsperlong.h provide only __BITS_PER_LONG.
+
+Let us use the __ variant in swap.h
+
+Link: http://lkml.kernel.org/r/20200213142147.17604-1-borntraeger@de.ibm.com
+Fixes: d5767057c9a ("uapi: rename ext2_swab() to swab() and share globally in swab.h")
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: Allison Randal <allison@lohutok.net>
+Cc: Joe Perches <joe@perches.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: William Breathitt Gray <vilhelm.gray@gmail.com>
+Cc: Torsten Hilbrich <torsten.hilbrich@secunet.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/block_validity.c |   48 +++++++++++++++++++++++++++++++++++++++++++++++
- fs/ext4/inode.c          |    4 +++
- 2 files changed, 52 insertions(+)
+ include/uapi/linux/swab.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -137,6 +137,48 @@ static void debug_print_tree(struct ext4
- 	printk(KERN_CONT "\n");
+--- a/include/uapi/linux/swab.h
++++ b/include/uapi/linux/swab.h
+@@ -135,9 +135,9 @@ static inline __attribute_const__ __u32
+ 
+ static __always_inline unsigned long __swab(const unsigned long y)
+ {
+-#if BITS_PER_LONG == 64
++#if __BITS_PER_LONG == 64
+ 	return __swab64(y);
+-#else /* BITS_PER_LONG == 32 */
++#else /* __BITS_PER_LONG == 32 */
+ 	return __swab32(y);
+ #endif
  }
- 
-+static int ext4_protect_reserved_inode(struct super_block *sb, u32 ino)
-+{
-+	struct inode *inode;
-+	struct ext4_sb_info *sbi = EXT4_SB(sb);
-+	struct ext4_map_blocks map;
-+	u32 i = 0, err = 0, num, n;
-+
-+	if ((ino < EXT4_ROOT_INO) ||
-+	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
-+		return -EINVAL;
-+	inode = ext4_iget(sb, ino, EXT4_IGET_SPECIAL);
-+	if (IS_ERR(inode))
-+		return PTR_ERR(inode);
-+	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
-+	while (i < num) {
-+		map.m_lblk = i;
-+		map.m_len = num - i;
-+		n = ext4_map_blocks(NULL, inode, &map, 0);
-+		if (n < 0) {
-+			err = n;
-+			break;
-+		}
-+		if (n == 0) {
-+			i++;
-+		} else {
-+			if (!ext4_data_block_valid(sbi, map.m_pblk, n)) {
-+				ext4_error(sb, "blocks %llu-%llu from inode %u "
-+					   "overlap system zone", map.m_pblk,
-+					   map.m_pblk + map.m_len - 1, ino);
-+				err = -EFSCORRUPTED;
-+				break;
-+			}
-+			err = add_system_zone(sbi, map.m_pblk, n);
-+			if (err < 0)
-+				break;
-+			i += n;
-+		}
-+	}
-+	iput(inode);
-+	return err;
-+}
-+
- int ext4_setup_system_zone(struct super_block *sb)
- {
- 	ext4_group_t ngroups = ext4_get_groups_count(sb);
-@@ -171,6 +213,12 @@ int ext4_setup_system_zone(struct super_
- 		if (ret)
- 			return ret;
- 	}
-+	if (ext4_has_feature_journal(sb) && sbi->s_es->s_journal_inum) {
-+		ret = ext4_protect_reserved_inode(sb,
-+				le32_to_cpu(sbi->s_es->s_journal_inum));
-+		if (ret)
-+			return ret;
-+	}
- 
- 	if (test_opt(sb, DEBUG))
- 		debug_print_tree(EXT4_SB(sb));
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -407,6 +407,10 @@ static int __check_block_validity(struct
- 				unsigned int line,
- 				struct ext4_map_blocks *map)
- {
-+	if (ext4_has_feature_journal(inode->i_sb) &&
-+	    (inode->i_ino ==
-+	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
-+		return 0;
- 	if (!ext4_data_block_valid(EXT4_SB(inode->i_sb), map->m_pblk,
- 				   map->m_len)) {
- 		ext4_error_inode(inode, func, line, map->m_pblk,
 
 
