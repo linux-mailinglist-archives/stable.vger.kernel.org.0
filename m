@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBAD1C15C6
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01FB01C1373
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730459AbgEANdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:33:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59428 "EHLO mail.kernel.org"
+        id S1729814AbgEAN3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:29:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729959AbgEANdm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:33:42 -0400
+        id S1729302AbgEAN3i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:29:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E07E92051A;
-        Fri,  1 May 2020 13:33:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC928208DB;
+        Fri,  1 May 2020 13:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340021;
-        bh=HcmqSNkXgW3zocf0FWKNqKFx+CgtTYFZigCx0CrBIck=;
+        s=default; t=1588339778;
+        bh=74iTO465UoUa8Ze5YwNrtetiBHOrvZsrEsFg1HbTjFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0UQCF6fmInA4WqUkiyOVeAK3ruS8+zn63KQpSJ1PTKKW3F3ye6yiSX2EchQXdp2HH
-         duthqZk7y73l9gcaGZMMTt6C69HXsTHE+Mp0rkHDKMc5IpOyDRtYShvZYANSOp9MC8
-         h5qsJ8/ERDw43c07VC79pTsazcjrYE0BzjofaY64=
+        b=c/cxlIA/DwAnUActfiSs/idlbkRCmZ5ZmjewzcgcUTjtA9aVx9yWW2uTLtf7T38+a
+         PIi7k3EvlJ+b0STtxVykCMvIM5ESZaMx792qe2KeTrVRTZ3NoIGVH38zvpkpOHi1Y1
+         Lgfh9Cg0dvUgyr2hiS4hi2NJeLAM8Jhk0kgCdfx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 4.14 062/117] tty: rocket, avoid OOB access
+        stable@vger.kernel.org,
+        syzbot+d889b59b2bb87d4047a2@syzkaller.appspotmail.com,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 44/80] KVM: Check validity of resolved slot when searching memslots
 Date:   Fri,  1 May 2020 15:21:38 +0200
-Message-Id: <20200501131552.701020872@linuxfoundation.org>
+Message-Id: <20200501131527.509549308@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 7127d24372bf23675a36edc64d092dc7fd92ebe8 upstream.
+commit b6467ab142b708dd076f6186ca274f14af379c72 upstream.
 
-init_r_port can access pc104 array out of bounds. pc104 is a 2D array
-defined to have 4 members. Each member has 8 submembers.
-* we can have more than 4 (PCI) boards, i.e. [board] can be OOB
-* line is not modulo-ed by anything, so the first line on the second
-  board can be 4, on the 3rd 12 or alike (depending on previously
-  registered boards). It's zero only on the first line of the first
-  board. So even [line] can be OOB, quite soon (with the 2nd registered
-  board already).
+Check that the resolved slot (somewhat confusingly named 'start') is a
+valid/allocated slot before doing the final comparison to see if the
+specified gfn resides in the associated slot.  The resolved slot can be
+invalid if the binary search loop terminated because the search index
+was incremented beyond the number of used slots.
 
-This code is broken for ages, so just avoid the OOB accesses and don't
-try to fix it as we would need to find out the correct line number. Use
-the default: RS232, if we are out.
+This bug has existed since the binary search algorithm was introduced,
+but went unnoticed because KVM statically allocated memory for the max
+number of slots, i.e. the access would only be truly out-of-bounds if
+all possible slots were allocated and the specified gfn was less than
+the base of the lowest memslot.  Commit 36947254e5f98 ("KVM: Dynamically
+size memslot array based on number of used slots") eliminated the "all
+possible slots allocated" condition and made the bug embarrasingly easy
+to hit.
 
-Generally, if anyone needs to set the interface types, a module parameter
-is past the last thing that should be used for this purpose. The
-parameters' description says it's for ISA cards anyway.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: stable <stable@vger.kernel.org>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Link: https://lore.kernel.org/r/20200417105959.15201-2-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9c1a5d38780e6 ("kvm: optimize GFN to memslot lookup with large slots amount")
+Reported-by: syzbot+d889b59b2bb87d4047a2@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200408064059.8957-2-sean.j.christopherson@intel.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/rocket.c |   25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ include/linux/kvm_host.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/rocket.c
-+++ b/drivers/tty/rocket.c
-@@ -645,18 +645,21 @@ init_r_port(int board, int aiop, int cha
- 	tty_port_init(&info->port);
- 	info->port.ops = &rocket_port_ops;
- 	info->flags &= ~ROCKET_MODE_MASK;
--	switch (pc104[board][line]) {
--	case 422:
--		info->flags |= ROCKET_MODE_RS422;
--		break;
--	case 485:
--		info->flags |= ROCKET_MODE_RS485;
--		break;
--	case 232:
--	default:
-+	if (board < ARRAY_SIZE(pc104) && line < ARRAY_SIZE(pc104_1))
-+		switch (pc104[board][line]) {
-+		case 422:
-+			info->flags |= ROCKET_MODE_RS422;
-+			break;
-+		case 485:
-+			info->flags |= ROCKET_MODE_RS485;
-+			break;
-+		case 232:
-+		default:
-+			info->flags |= ROCKET_MODE_RS232;
-+			break;
-+		}
-+	else
- 		info->flags |= ROCKET_MODE_RS232;
--		break;
--	}
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -914,7 +914,7 @@ search_memslots(struct kvm_memslots *slo
+ 			start = slot + 1;
+ 	}
  
- 	info->intmask = RXF_TRIG | TXFIFO_MT | SRC_INT | DELTA_CD | DELTA_CTS | DELTA_DSR;
- 	if (sInitChan(ctlp, &info->channel, aiop, chan) == 0) {
+-	if (gfn >= memslots[start].base_gfn &&
++	if (start < slots->used_slots && gfn >= memslots[start].base_gfn &&
+ 	    gfn < memslots[start].base_gfn + memslots[start].npages) {
+ 		atomic_set(&slots->lru_slot, start);
+ 		return &memslots[start];
 
 
