@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD4F11C1569
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71A331C1383
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729388AbgEAN1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:27:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49148 "EHLO mail.kernel.org"
+        id S1729903AbgEANaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:30:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728807AbgEAN1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:27:04 -0400
+        id S1728916AbgEANaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:30:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B83412166E;
-        Fri,  1 May 2020 13:27:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B738D20757;
+        Fri,  1 May 2020 13:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339623;
-        bh=9Q2IOMdHquNMhWFmuNNMTvTXMfG9dO1N8X6bkgWoKM8=;
+        s=default; t=1588339815;
+        bh=nGTL1wh7egZT7n+lqj36JrU0NugYFFSPPXaJzaJsVU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VRRGV7Aax0Ks2bmT587PqyKkiDi2QkZrP3Zjl4kLGZmO8yZuhiO2dXnyR8JoVOIBJ
-         SU727Yg0nzzuVsfhldQ8QhXVQpLyMdejutXktSnHeZUl22gZspjxnK7FV8CJxTtIuj
-         +9b5HhXuFQfXzEcxR1np8MRz8KduauNCFnidMk1E=
+        b=uMOZT6zOfGxeSbhEKVWcwLDmB3DakeuP9hKNxKq2O3VkZDqjbtAp1NTla533XpOAB
+         fxJx3e4apras6mI0UzNEWAIvZDvp1rUnuyz5e99R0Q5ozeupSESW3qyt+S4vf3XnLH
+         jykflUaYLs2aSEY+pbzxkKwN1LHuhdQ9eiApuR5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 64/70] ext4: convert BUG_ONs to WARN_ONs in mballoc.c
+        stable@vger.kernel.org, Udipto Goswami <ugoswami@codeaurora.org>,
+        Sriharsha Allenki <sallenki@codeaurora.org>,
+        Manu Gautam <mgautam@codeaurora.org>
+Subject: [PATCH 4.9 58/80] usb: f_fs: Clear OS Extended descriptor counts to zero in ffs_data_reset()
 Date:   Fri,  1 May 2020 15:21:52 +0200
-Message-Id: <20200501131532.152971895@linuxfoundation.org>
+Message-Id: <20200501131531.023129637@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Udipto Goswami <ugoswami@codeaurora.org>
 
-[ Upstream commit 907ea529fc4c3296701d2bfc8b831dd2a8121a34 ]
+commit 1c2e54fbf1da5e5445a0ab132c862b02ccd8d230 upstream.
 
-If the in-core buddy bitmap gets corrupted (or out of sync with the
-block bitmap), issue a WARN_ON and try to recover.  In most cases this
-involves skipping trying to allocate out of a particular block group.
-We can end up declaring the file system corrupted, which is fair,
-since the file system probably should be checked before we proceed any
-further.
+For userspace functions using OS Descriptors, if a function also supplies
+Extended Property descriptors currently the counts and lengths stored in
+the ms_os_descs_ext_prop_{count,name_len,data_len} variables are not
+getting reset to 0 during an unbind or when the epfiles are closed. If
+the same function is re-bound and the descriptors are re-written, this
+results in those count/length variables to monotonically increase
+causing the VLA allocation in _ffs_func_bind() to grow larger and larger
+at each bind/unbind cycle and eventually fail to allocate.
 
-Link: https://lore.kernel.org/r/20200414035649.293164-1-tytso@mit.edu
-Google-Bug-Id: 34811296
-Google-Bug-Id: 34639169
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by clearing the ms_os_descs_ext_prop count & lengths to 0 in
+ffs_data_reset().
+
+Fixes: f0175ab51993 ("usb: gadget: f_fs: OS descriptors support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Udipto Goswami <ugoswami@codeaurora.org>
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+Reviewed-by: Manu Gautam <mgautam@codeaurora.org>
+Link: https://lore.kernel.org/r/20200402044521.9312-1-sallenki@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ext4/mballoc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/f_fs.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index fda49f4c5a8eb..04fab14e630c1 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -1944,7 +1944,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
- 	int free;
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1701,6 +1701,10 @@ static void ffs_data_reset(struct ffs_da
+ 	ffs->state = FFS_READ_DESCRIPTORS;
+ 	ffs->setup_state = FFS_NO_SETUP;
+ 	ffs->flags = 0;
++
++	ffs->ms_os_descs_ext_prop_count = 0;
++	ffs->ms_os_descs_ext_prop_name_len = 0;
++	ffs->ms_os_descs_ext_prop_data_len = 0;
+ }
  
- 	free = e4b->bd_info->bb_free;
--	BUG_ON(free <= 0);
-+	if (WARN_ON(free <= 0))
-+		return;
  
- 	i = e4b->bd_info->bb_first_free;
- 
-@@ -1965,7 +1966,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
- 		}
- 
- 		mb_find_extent(e4b, i, ac->ac_g_ex.fe_len, &ex);
--		BUG_ON(ex.fe_len <= 0);
-+		if (WARN_ON(ex.fe_len <= 0))
-+			break;
- 		if (free < ex.fe_len) {
- 			ext4_grp_locked_error(sb, e4b->bd_group, 0, 0,
- 					"%d free clusters as per "
--- 
-2.20.1
-
 
 
