@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C4E21C1640
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9DFC1C16C3
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729327AbgEANmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:42:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43370 "EHLO mail.kernel.org"
+        id S1730424AbgEANwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:52:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731540AbgEANmj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:39 -0400
+        id S1730248AbgEANh0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33866208DB;
-        Fri,  1 May 2020 13:42:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75A5B24955;
+        Fri,  1 May 2020 13:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340558;
-        bh=4me/jR2ZnSatyCNKpFLzx58lk7Br2uuCIqzGWtW55sY=;
+        s=default; t=1588340244;
+        bh=khfuUtphoGowJXyD29xSnB3vDa40rTfdz83YDfqA7vA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ROwwFzjj3UFNa85FFcUBL547M8K2RlgViL8dZVx92sgs8rvwy+ZHPnod460XzP07Z
-         FooUXEtt6cUXC4lJGonHqHuAZXF7KR3Dcsk5KlC6KO6uUMWkotYWmQ6r4lFuSK/SfJ
-         Bf6KKuXfLtc//nHtHOw7uXxMl/hOX5kG2+VKhhA0=
+        b=t/JSEOrvEpD+FbF2nZtFz2RLUSQq1qfk82b6SbnrCrXBEc5n+aWIFZWiBHoNfFVgb
+         WMKX2Cr5dJr7jvfOKvaF233h4sv4rxFxKIC24aiwGyhmXW7lY6IOuV7hcZnfQoNMZX
+         Rje1tNZ1KLq2YKbyLMFWTsvMhOvJiqJ3i6I48vIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.6 031/106] rtw88: avoid unused function warnings
+        stable@vger.kernel.org, Ilie Halip <ilie.halip@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 39/46] arm64: Delete the space separator in __emit_inst
 Date:   Fri,  1 May 2020 15:23:04 +0200
-Message-Id: <20200501131547.705097613@linuxfoundation.org>
+Message-Id: <20200501131512.436917911@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Fangrui Song <maskray@google.com>
 
-commit 7dc7c41607d192ff660ba4ea82d517745c1d7523 upstream.
+[ Upstream commit c9a4ef66450145a356a626c833d3d7b1668b3ded ]
 
-The rtw88 driver defines emtpy functions with multiple indirections
-but gets one of these wrong:
+In assembly, many instances of __emit_inst(x) expand to a directive. In
+a few places __emit_inst(x) is used as an assembler macro argument. For
+example, in arch/arm64/kvm/hyp/entry.S
 
-drivers/net/wireless/realtek/rtw88/pci.c:1347:12: error: 'rtw_pci_resume' defined but not used [-Werror=unused-function]
- 1347 | static int rtw_pci_resume(struct device *dev)
-      |            ^~~~~~~~~~~~~~
-drivers/net/wireless/realtek/rtw88/pci.c:1342:12: error: 'rtw_pci_suspend' defined but not used [-Werror=unused-function]
- 1342 | static int rtw_pci_suspend(struct device *dev)
+  ALTERNATIVE(nop, SET_PSTATE_PAN(1), ARM64_HAS_PAN, CONFIG_ARM64_PAN)
 
-Better simplify it to rely on the conditional reference in
-SIMPLE_DEV_PM_OPS(), and mark the functions as __maybe_unused to avoid
-warning about it.
+expands to the following by the C preprocessor:
 
-I'm not sure if these are needed at all given that the functions
-don't do anything, but they were only recently added.
+  alternative_insn nop, .inst (0xd500401f | ((0) << 16 | (4) << 5) | ((!!1) << 8)), 4, 1
 
-Fixes: 44bc17f7f5b3 ("rtw88: support wowlan feature for 8822c")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200408185413.218643-1-arnd@arndb.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Both comma and space are separators, with an exception that content
+inside a pair of parentheses/quotes is not split, so the clang
+integrated assembler splits the arguments to:
 
+   nop, .inst, (0xd500401f | ((0) << 16 | (4) << 5) | ((!!1) << 8)), 4, 1
+
+GNU as preprocesses the input with do_scrub_chars(). Its arm64 backend
+(along with many other non-x86 backends) sees:
+
+  alternative_insn nop,.inst(0xd500401f|((0)<<16|(4)<<5)|((!!1)<<8)),4,1
+  # .inst(...) is parsed as one argument
+
+while its x86 backend sees:
+
+  alternative_insn nop,.inst (0xd500401f|((0)<<16|(4)<<5)|((!!1)<<8)),4,1
+  # The extra space before '(' makes the whole .inst (...) parsed as two arguments
+
+The non-x86 backend's behavior is considered unintentional
+(https://sourceware.org/bugzilla/show_bug.cgi?id=25750).
+So drop the space separator inside `.inst (...)` to make the clang
+integrated assembler work.
+
+Suggested-by: Ilie Halip <ilie.halip@gmail.com>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/939
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/pci.c |   11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ arch/arm64/include/asm/sysreg.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/realtek/rtw88/pci.c
-+++ b/drivers/net/wireless/realtek/rtw88/pci.c
-@@ -1287,22 +1287,17 @@ static void rtw_pci_phy_cfg(struct rtw_d
- 	rtw_pci_link_cfg(rtwdev);
- }
+diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+index 3091ae5975a3a..ed99d941c4623 100644
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -60,7 +60,9 @@
+ #ifndef CONFIG_BROKEN_GAS_INST
  
--#ifdef CONFIG_PM
--static int rtw_pci_suspend(struct device *dev)
-+static int __maybe_unused rtw_pci_suspend(struct device *dev)
- {
- 	return 0;
- }
- 
--static int rtw_pci_resume(struct device *dev)
-+static int __maybe_unused rtw_pci_resume(struct device *dev)
- {
- 	return 0;
- }
- 
- static SIMPLE_DEV_PM_OPS(rtw_pm_ops, rtw_pci_suspend, rtw_pci_resume);
--#define RTW_PM_OPS (&rtw_pm_ops)
--#else
--#define RTW_PM_OPS NULL
--#endif
- 
- static int rtw_pci_claim(struct rtw_dev *rtwdev, struct pci_dev *pdev)
- {
-@@ -1530,7 +1525,7 @@ static struct pci_driver rtw_pci_driver
- 	.id_table = rtw_pci_id_table,
- 	.probe = rtw_pci_probe,
- 	.remove = rtw_pci_remove,
--	.driver.pm = RTW_PM_OPS,
-+	.driver.pm = &rtw_pm_ops,
- };
- module_pci_driver(rtw_pci_driver);
- 
+ #ifdef __ASSEMBLY__
+-#define __emit_inst(x)			.inst (x)
++// The space separator is omitted so that __emit_inst(x) can be parsed as
++// either an assembler directive or an assembler macro argument.
++#define __emit_inst(x)			.inst(x)
+ #else
+ #define __emit_inst(x)			".inst " __stringify((x)) "\n\t"
+ #endif
+-- 
+2.20.1
+
 
 
