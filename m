@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96AA91C163C
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5898A1C143F
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730518AbgEANmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:42:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42920 "EHLO mail.kernel.org"
+        id S1730945AbgEANhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:37:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731285AbgEANmT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:19 -0400
+        id S1729200AbgEANhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72984205C9;
-        Fri,  1 May 2020 13:42:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED8192173E;
+        Fri,  1 May 2020 13:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340538;
-        bh=QsBMPlkjZfN4HIDsaQOupvvDezSP1V9ddU85POYwCXA=;
+        s=default; t=1588340232;
+        bh=GZCl39VIH5zDp0nkCodPTNaCNT1yMG52x4YMPziwtFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JevCKPc6Sf2olaYFc9N213gy5Ew7IvV3pJEimclo7NU7SXTVtRDegMKS2ZtEBoCxb
-         RmhPg/YYVtqwFmFZB28/QXQOexjZalVdmd95RGnX50AVQbRNhD7k8dRW7tfC1yP9Mg
-         WmoW5vdtmw913G7dN1ha0H05ksrAoE7sHtL+8360=
+        b=fzZ5RzRnNahSawy7uphFwacxRbxRfO0hVrOk0szcTajZk9vpa8/gx73FXd7hNfHo6
+         2PmTRYKebLhrfSzZzpH5qImTY3Uqbea996s8BAWgjlz8qf16/na8sOwsqdRmhTWXZ0
+         6Y7HQNjwNXF1DECqo47VjgjHGR9xASD+x8B9Sy0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Michal Simek <michal.simek@xilinx.com>
-Subject: [PATCH 5.6 023/106] drivers: soc: xilinx: fix firmware driver Kconfig dependency
+        stable@vger.kernel.org, Roy Spliet <nouveau@spliet.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 31/46] ALSA: hda: Keep the controller initialization even if no codecs found
 Date:   Fri,  1 May 2020 15:22:56 +0200
-Message-Id: <20200501131546.856962666@linuxfoundation.org>
+Message-Id: <20200501131509.715298157@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d0384eedcde21276ac51f57c641f875605024b32 upstream.
+[ Upstream commit 9479e75fca370a5220784f7596bf598c4dad0b9b ]
 
-The firmware driver is optional, but the power driver depends on it,
-which needs to be reflected in Kconfig to avoid link errors:
+Currently, when the HD-audio controller driver doesn't detect any
+codecs, it tries to abort the probe.  But this abort happens at the
+delayed probe, i.e. the primary probe call already returned success,
+hence the driver is never unbound until user does so explicitly.
+As a result, it may leave the HD-audio device in the running state
+without the runtime PM.  More badly, if the device is a HD-audio bus
+that is tied with a GPU, GPU cannot reach to the full power down and
+consumes unnecessarily much power.
 
-aarch64-linux-ld: drivers/soc/xilinx/zynqmp_power.o: in function `zynqmp_pm_isr':
-zynqmp_power.c:(.text+0x284): undefined reference to `zynqmp_pm_invoke_fn'
+This patch changes the logic after no-codec situation; it continues
+probing without the further codec initialization but keep the
+controller driver running normally.
 
-The firmware driver can probably be allowed for compile-testing as
-well, so it's best to drop the dependency on the ZYNQ platform
-here and allow building as long as the firmware code is built-in.
-
-Fixes: ab272643d723 ("drivers: soc: xilinx: Add ZynqMP PM driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200408155224.2070880-1-arnd@arndb.de
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
+Tested-by: Roy Spliet <nouveau@spliet.org>
+Link: https://lore.kernel.org/r/20200413082034.25166-5-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/xilinx/Kconfig |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/hda_intel.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/soc/xilinx/Kconfig
-+++ b/drivers/soc/xilinx/Kconfig
-@@ -19,7 +19,7 @@ config XILINX_VCU
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 0502042c16163..72c268e887e55 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2054,7 +2054,7 @@ static int azx_first_init(struct azx *chip)
+ 	/* codec detection */
+ 	if (!azx_bus(chip)->codec_mask) {
+ 		dev_err(card->dev, "no codecs found!\n");
+-		return -ENODEV;
++		/* keep running the rest for the runtime PM */
+ 	}
  
- config ZYNQMP_POWER
- 	bool "Enable Xilinx Zynq MPSoC Power Management driver"
--	depends on PM && ARCH_ZYNQMP
-+	depends on PM && ZYNQMP_FIRMWARE
- 	default y
- 	select MAILBOX
- 	select ZYNQMP_IPI_MBOX
-@@ -35,7 +35,7 @@ config ZYNQMP_POWER
- config ZYNQMP_PM_DOMAINS
- 	bool "Enable Zynq MPSoC generic PM domains"
- 	default y
--	depends on PM && ARCH_ZYNQMP && ZYNQMP_FIRMWARE
-+	depends on PM && ZYNQMP_FIRMWARE
- 	select PM_GENERIC_DOMAINS
- 	help
- 	  Say yes to enable device power management through PM domains
+ 	if (azx_acquire_irq(chip, 0) < 0)
+@@ -2440,9 +2440,11 @@ static int azx_probe_continue(struct azx *chip)
+ #endif
+ 
+ 	/* create codec instances */
+-	err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
+-	if (err < 0)
+-		goto out_free;
++	if (bus->codec_mask) {
++		err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
++		if (err < 0)
++			goto out_free;
++	}
+ 
+ #ifdef CONFIG_SND_HDA_PATCH_LOADER
+ 	if (chip->fw) {
+@@ -2456,7 +2458,7 @@ static int azx_probe_continue(struct azx *chip)
+ #endif
+ 	}
+ #endif
+-	if ((probe_only[dev] & 1) == 0) {
++	if (bus->codec_mask && !(probe_only[dev] & 1)) {
+ 		err = azx_codec_configure(chip);
+ 		if (err < 0)
+ 			goto out_free;
+-- 
+2.20.1
+
 
 
