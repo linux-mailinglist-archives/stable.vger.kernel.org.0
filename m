@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 777951C151A
+	by mail.lfdr.de (Postfix) with ESMTP id 093A81C1519
 	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731912AbgEANpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:45:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46890 "EHLO mail.kernel.org"
+        id S1731864AbgEANpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:45:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731910AbgEANpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:45:18 -0400
+        id S1731862AbgEANpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:45:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12A972051A;
-        Fri,  1 May 2020 13:45:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8217B205C9;
+        Fri,  1 May 2020 13:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340718;
-        bh=ZGFQnPj+OU8LVyvSqdIHmCAuOxQ6QFw+O6SrVP/NNeo=;
+        s=default; t=1588340721;
+        bh=t5G0LgOWL6P9GAICIqsd0ieuhfB9zxCfY/LCqMyZtxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQJAOz6TVSeVFhGa9mv8G0G/dnEjpstk1KrJklbGNgWKsCd5AXzHmFhi7jA4ASHqX
-         ncL3RNxQeBhS7ODKsXJhEsBH7vMN0RhO7TaDPEnJOcerReMpUjPgZGLU1YHVV9xiqA
-         tgFLEkg438PUwH2xsFfQZkaCx2qXabAobAKJKeU8=
+        b=VRZWrM1CKS75OEjYVjTR+LzzNtgtcaKBG4C5sBkGGOxJkJLuHGyrktKfFQ95XqZiH
+         w5yBliWiU3WVb900APg8niCnvHQT/dGxkCjh8woCjbv3NTmNrRd54e7OrkSHPKxf75
+         nWz05h8XiZa+kQw6YD58MRirLqySJuNQWB5+lzBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 100/106] Crypto: chelsio - Fixes a hang issue during driver registration
-Date:   Fri,  1 May 2020 15:24:13 +0200
-Message-Id: <20200501131555.236481009@linuxfoundation.org>
+Subject: [PATCH 5.6 101/106] net: use indirect call wrappers for skb_copy_datagram_iter()
+Date:   Fri,  1 May 2020 15:24:14 +0200
+Message-Id: <20200501131555.335484038@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
 References: <20200501131543.421333643@linuxfoundation.org>
@@ -43,42 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit ad59ddd02de26271b89564962e74d689f1a30b49 upstream.
+commit 29f3490ba9d2399d3d1b20c4aa74592d92bd4e11 upstream.
 
-This issue occurs only when multiadapters are present. Hang
-happens because assign_chcr_device returns u_ctx pointer of
-adapter which is not yet initialized as for this adapter cxgb_up
-is not been called yet.
+TCP recvmsg() calls skb_copy_datagram_iter(), which
+calls an indirect function (cb pointing to simple_copy_to_iter())
+for every MSS (fragment) present in the skb.
 
-The last_dev pointer is used to determine u_ctx pointer and it
-is initialized two times in chcr_uld_add in chcr_dev_add respectively.
+CONFIG_RETPOLINE=y forces a very expensive operation
+that we can avoid thanks to indirect call wrappers.
 
-The fix here is don't initialize the last_dev pointer during
-chcr_uld_add. Only assign to value to it when the adapter's
-initialization is completed i.e in chcr_dev_add.
+This patch gives a 13% increase of performance on
+a single flow, if the bottleneck is the thread reading
+the TCP socket.
 
-Fixes: fef4912b66d62 ("crypto: chelsio - Handle PCI shutdown event").
-
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
+Fixes: 950fcaecd5cc ("datagram: consolidate datagram copy to iter helpers")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/chelsio/chcr_core.c |    2 --
- 1 file changed, 2 deletions(-)
+ net/core/datagram.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/crypto/chelsio/chcr_core.c
-+++ b/drivers/crypto/chelsio/chcr_core.c
-@@ -125,8 +125,6 @@ static void chcr_dev_init(struct uld_ctx
- 	atomic_set(&dev->inflight, 0);
- 	mutex_lock(&drv_data.drv_mutex);
- 	list_add_tail(&u_ctx->entry, &drv_data.inact_dev);
--	if (!drv_data.last_dev)
--		drv_data.last_dev = u_ctx;
- 	mutex_unlock(&drv_data.drv_mutex);
- }
+--- a/net/core/datagram.c
++++ b/net/core/datagram.c
+@@ -51,6 +51,7 @@
+ #include <linux/slab.h>
+ #include <linux/pagemap.h>
+ #include <linux/uio.h>
++#include <linux/indirect_call_wrapper.h>
  
+ #include <net/protocol.h>
+ #include <linux/skbuff.h>
+@@ -414,6 +415,11 @@ int skb_kill_datagram(struct sock *sk, s
+ }
+ EXPORT_SYMBOL(skb_kill_datagram);
+ 
++INDIRECT_CALLABLE_DECLARE(static size_t simple_copy_to_iter(const void *addr,
++						size_t bytes,
++						void *data __always_unused,
++						struct iov_iter *i));
++
+ static int __skb_datagram_iter(const struct sk_buff *skb, int offset,
+ 			       struct iov_iter *to, int len, bool fault_short,
+ 			       size_t (*cb)(const void *, size_t, void *,
+@@ -427,7 +433,8 @@ static int __skb_datagram_iter(const str
+ 	if (copy > 0) {
+ 		if (copy > len)
+ 			copy = len;
+-		n = cb(skb->data + offset, copy, data, to);
++		n = INDIRECT_CALL_1(cb, simple_copy_to_iter,
++				    skb->data + offset, copy, data, to);
+ 		offset += n;
+ 		if (n != copy)
+ 			goto short_copy;
+@@ -449,8 +456,9 @@ static int __skb_datagram_iter(const str
+ 
+ 			if (copy > len)
+ 				copy = len;
+-			n = cb(vaddr + skb_frag_off(frag) + offset - start,
+-			       copy, data, to);
++			n = INDIRECT_CALL_1(cb, simple_copy_to_iter,
++					vaddr + skb_frag_off(frag) + offset - start,
++					copy, data, to);
+ 			kunmap(page);
+ 			offset += n;
+ 			if (n != copy)
 
 
