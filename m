@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E621C1638
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C2D21C1459
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730908AbgEANmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42580 "EHLO mail.kernel.org"
+        id S1730425AbgEANia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:38:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730702AbgEANmG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:06 -0400
+        id S1730715AbgEANi1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:38:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 042F9216FD;
-        Fri,  1 May 2020 13:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1A1624956;
+        Fri,  1 May 2020 13:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340526;
-        bh=7ACioUpGvxF1j7icMOqHMIk8C56G4vDbxmfYP/7Jros=;
+        s=default; t=1588340307;
+        bh=bj5FfiH9/bwBg7/KDQ9MB5vzY3FhvOzZI71BOOxtLGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZ4jUS+tG82zRCRSCWXqAtv1jsEgfD9XKt8oQXg99bTYbKwP9u1MpxduhZ4rgKUZx
-         PncGlVjB//DoIyLcsxRwI65KOVh5nCyg3y6+F8/IY0D75I5YI44p/FXhw8Gfgj+w7B
-         isFHvieXad96ZwtN2mY0Kr9YqDAhuVjtNbvAZF28=
+        b=lnvPXd5unAjYF+myPOCKpf8T84VosUwSjp39WpyW4nji6urH97IeV/Vz5hFr46FZ0
+         Vw9aHQdw91U5yiDfoLWPfJuyJwFy3wBkYt4DCG7/UtXE6dlF3YuYJ1M4QediKrp2Qq
+         QMwHzjXM2ggJd5IBbrvNAtDP5xoZVZQetC+ihnBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Rorvick <chris@rorvick.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.6 018/106] iwlwifi: actually check allocated conf_tlv pointer
+        stable@vger.kernel.org, stable@kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.4 12/83] propagate_one(): mnt_set_mountpoint() needs mount_lock
 Date:   Fri,  1 May 2020 15:22:51 +0200
-Message-Id: <20200501131546.357715759@linuxfoundation.org>
+Message-Id: <20200501131526.933446851@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Rorvick <chris@rorvick.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit a176e114ace4cca7df0e34b4bd90c301cdc6d653 upstream.
+commit b0d3869ce9eeacbb1bbd541909beeef4126426d5 upstream.
 
-Commit 71bc0334a637 ("iwlwifi: check allocated pointer when allocating
-conf_tlvs") attempted to fix a typoe introduced by commit 17b809c9b22e
-("iwlwifi: dbg: move debug data to a struct") but does not implement the
-check correctly.
+... to protect the modification of mp->m_count done by it.  Most of
+the places that modify that thing also have namespace_lock held,
+but not all of them can do so, so we really need mount_lock here.
+Kudos to Piotr Krysiuk <piotras@gmail.com>, who'd spotted a related
+bug in pivot_root(2) (fixed unnoticed in 5.3); search for other
+similar turds has caught out this one.
 
-Fixes: 71bc0334a637 ("iwlwifi: check allocated pointer when allocating conf_tlvs")
-Tweeted-by: @grsecurity
-Signed-off-by: Chris Rorvick <chris@rorvick.com>
-Signed-off-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200417074558.12316-1-sedat.dilek@gmail.com
+Cc: stable@kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/pnode.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-@@ -1467,7 +1467,7 @@ static void iwl_req_fw_callback(const st
- 				kmemdup(pieces->dbg_conf_tlv[i],
- 					pieces->dbg_conf_tlv_len[i],
- 					GFP_KERNEL);
--			if (!pieces->dbg_conf_tlv[i])
-+			if (!drv->fw.dbg.conf_tlv[i])
- 				goto out_free_fw;
- 		}
- 	}
+--- a/fs/pnode.c
++++ b/fs/pnode.c
+@@ -261,14 +261,13 @@ static int propagate_one(struct mount *m
+ 	child = copy_tree(last_source, last_source->mnt.mnt_root, type);
+ 	if (IS_ERR(child))
+ 		return PTR_ERR(child);
++	read_seqlock_excl(&mount_lock);
+ 	mnt_set_mountpoint(m, mp, child);
++	if (m->mnt_master != dest_master)
++		SET_MNT_MARK(m->mnt_master);
++	read_sequnlock_excl(&mount_lock);
+ 	last_dest = m;
+ 	last_source = child;
+-	if (m->mnt_master != dest_master) {
+-		read_seqlock_excl(&mount_lock);
+-		SET_MNT_MARK(m->mnt_master);
+-		read_sequnlock_excl(&mount_lock);
+-	}
+ 	hlist_add_head(&child->mnt_hash, list);
+ 	return count_mounts(m->mnt_ns, child);
+ }
 
 
