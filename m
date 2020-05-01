@@ -2,67 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31FE01C11D4
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 14:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F2C1C1222
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 14:25:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728585AbgEAMFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 08:05:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37222 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728485AbgEAMFH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 08:05:07 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08223C061A0C
-        for <stable@vger.kernel.org>; Fri,  1 May 2020 05:05:05 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id u6so2404885ljl.6
-        for <stable@vger.kernel.org>; Fri, 01 May 2020 05:05:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=cL7p8coE2isFBGeu29V9YswT6AqsyeomA8ad3pXbozI=;
-        b=QN54dDSnrxWNMyj6LTKv0M6lHZ9l4Den2rw8kPc6KMGF0R5cntNd/6w5N6iZXM1SIC
-         l2w2gj2dNMy/m4LuK1BzcUTvF00pa6XlNa0WQsM+5mDRXuDwNivyLZaNRAX4rES6/x4E
-         wyV5/+zZJNvcfWbeTWELv2MlRNXgmxJQfkSuRTSetutkIosffT5E8tMY7l/bxVwo7mUC
-         McVuQv+6LPi8gE/jJWkCYQWA7jQE9ReZFA7gyy7nuIRmggfadC2yQA6OQO92qVXUL3UY
-         1dGb+NEBfJxkRUZhRKsXy6joyJA0iKu+IMyF+YX9+dR99aT3N3skRrhqputIsHIRS7bH
-         7Tjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=cL7p8coE2isFBGeu29V9YswT6AqsyeomA8ad3pXbozI=;
-        b=NvjQZH2k7DH4u+JktZH887tVuIEzUCTnVnDeV23wmTUC0+ghuzcUiXq9GsS03NRjJu
-         MNd5hXL2Ol4dMPn+gisRVjCl42PwB3mNTqmBAjnCssJXfI8k1ZAAgbOhK5CFJnS708UP
-         sy57l6AnmgtRMzxaI9l8SySy3rrQu1zjFuPCWslWr55h/IEjge3y0E1OSF4EE/aDZHAF
-         NmjDfr98loqYjbmehQtsie4h9ZcGb2Rswf9sWa5+7qwgUSd9DQwDmeTVC79hMsAP29uL
-         /RoGXlZuuWXHWLZEEErJuBumITGMhbHAx4f9aK+2l+FNXtplMi8537I2VmgNeZZPgj1u
-         9aDw==
-X-Gm-Message-State: AGi0Puaa4/Sq88lC9i6PECZncPBr6PxFNRIOczEOvjcYAez7qi63Lb1W
-        BGOtO6f3Nk9fhSBKEcHdMN185IICF2uot0D4Ddo=
-X-Google-Smtp-Source: APiQypJ7SzOPHnHdt5XRIQI6us0fc3LvyIltkMfTnKyHzD0vRuMJoSG4jFiDs42mPIp2yBtRFB0fd9gJwpR/cUJzvJU=
-X-Received: by 2002:a2e:9c13:: with SMTP id s19mr2137205lji.5.1588334704445;
- Fri, 01 May 2020 05:05:04 -0700 (PDT)
+        id S1728600AbgEAMZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 08:25:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48998 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726131AbgEAMZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 08:25:39 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8D7F206F0;
+        Fri,  1 May 2020 12:25:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588335939;
+        bh=lbHm2sZNgmp3xDR80ZjBmeiaApE7ajQoqCcVAqDgfgg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zrF3lGKQPpXX6JTIbE+Knz2sn0YQPnyc4YtbdPh/DiS+5mS6DF5Ygk3fQa42tDBwa
+         cVHsrt1i8wqi82NsuS5SeRrh7UeZNVimqtdPm4ZsFNrYs3iBiMmljn+uUma2PTRrpg
+         7PuEpijuzm3s3AMAP+01cNeMfLDGfysSqJsKwzzg=
+Date:   Fri, 1 May 2020 13:25:36 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Guillaume Tucker <guillaume.tucker@collabora.com>
+Cc:     Jerome Brunet <jbrunet@baylibre.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        kernelci@groups.io, Kevin Hilman <khilman@baylibre.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, linux-kernel@vger.kernel.org,
+        alsa-devel@alsa-project.org, stable@vger.kernel.org
+Subject: Re: stable-rc/linux-5.4.y bisection: baseline.dmesg.alert on
+ meson-g12a-x96-max
+Message-ID: <20200501122536.GA38314@sirena.org.uk>
+References: <5eabecbf.1c69fb81.2c617.628f@mx.google.com>
+ <cc10812b-19bd-6bd1-75da-32082241640a@collabora.com>
 MIME-Version: 1.0
-Received: by 2002:a19:c38b:0:0:0:0:0 with HTTP; Fri, 1 May 2020 05:05:03 -0700 (PDT)
-Reply-To: uwah2@hotmail.com
-From:   ouwah <carine6704@gmail.com>
-Date:   Fri, 1 May 2020 12:05:03 +0000
-Message-ID: <CAH=SHUUJhBumYN0q8hEAyvY4M=PcQ7ezE3g+mTvA2+Pa+vyAqg@mail.gmail.com>
-Subject: !!!
-To:     Sgtrose42@hotmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+Content-Disposition: inline
+In-Reply-To: <cc10812b-19bd-6bd1-75da-32082241640a@collabora.com>
+X-Cookie: Androphobia:
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ahoj zlato,
-jen se rozhodl v=C4=9Bd=C4=9Bt l=C3=A9pe,
-Chci od v=C3=A1s sly=C5=A1et,
-a r=C3=A1d bych se jasn=C4=9B vysv=C4=9Btlil.
-Pokud to bude od v=C3=A1s mil=C3=A9, m=C5=AF=C5=BEu zn=C3=A1t va=C5=A1e p=
-=C5=99=C3=A1n=C3=AD
-tak, abych se pohnul kup=C5=99edu.
-Mohu dokonce pos=C3=ADlat sv=C3=A9 obr=C3=A1zky a informace o sob=C4=9B,
+
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, May 01, 2020 at 12:57:27PM +0100, Guillaume Tucker wrote:
+
+> The call stack is not the same as in the commit message found by
+> the bisection, so maybe it only fixed part of the problem:
+
+No, it is a backport which was fixing an issue that wasn't present in
+v5.4.
+
+> >   Result:     09f4294793bd3 ASoC: meson: axg-card: fix codec-to-codec link setup
+
+As I said in reply to the AUTOSEL mail:
+
+| > Since the addition of commit 9b5db059366a ("ASoC: soc-pcm: dpcm: Only allow
+| > playback/capture if supported"), meson-axg cards which have codec-to-codec
+| > links fail to init and Oops:
+
+| This clearly describes the issue as only being present after the above
+| commit which is not in v5.6.
+
+Probably best that this not be backported.
+
+--zYM0uCDKw75PZbzx
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl6sFT8ACgkQJNaLcl1U
+h9CjCwf6A/KP149/7ilTWJylUigNvyI1cVIskzDBGQREGWK0VI2Z8qGOKkNgLzZw
+F8H2cYXmeDRb0MJRqgNwV0mDl3iHd7l2lqtIUd4kQdvL7id2OlZV2NEso/o28AwF
+x5GDVyl5E9rRto72Krs/X1R1V2+ACbNJORJiargnx7mv7QlmY5L0axZKbifhjP/C
+aEA5DlAD6eZXLpOCh++yPZYuatnik0c5uSao+TKsurFgxfC2+xdUnFC9QTYRd7NA
+jchP5RvU86y4V7yzhlBcndg+msHZ9/EjcJj1zdbJuaeDX2y895T3jCtgLzlhHVAM
+bCa8P2t5jxwaaDQxCLHjRE+uFUbt+w==
+=Ue/C
+-----END PGP SIGNATURE-----
+
+--zYM0uCDKw75PZbzx--
