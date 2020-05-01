@@ -2,122 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BABB1C0B80
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 03:10:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E6DA1C0B93
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 03:15:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727889AbgEABKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 21:10:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48496 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727057AbgEABKL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 21:10:11 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC885C035494
-        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 18:10:11 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id 7so4178841pjo.0
-        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 18:10:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amacapital-net.20150623.gappssmtp.com; s=20150623;
-        h=content-transfer-encoding:from:mime-version:subject:date:message-id
-         :references:cc:in-reply-to:to;
-        bh=k15OpOeoQ3rmzh87tU7V+M2stfR65Ddwc7t7jeSZ6rI=;
-        b=ZLa2+csE7C3ftsRmz/3+xOMLvS/uMepf5whKkn8d0OzfNoAxs3NYCmP/f16enqaROD
-         JXZtPTYe1UyUJ/8SMeBi91XE6HWT6NlMiR35fFnnS7pvY3G7mtAEbbz5XTC/gox9CeWD
-         eiReEYv/wwrQc3YopVZRokis2rX/nm1PfgdSC4RCTLPAgTawOYwjMf5cvk1BtVdwvXJ8
-         uGNOUfjzRolRhppVNHd4kWTxIHehl5ULT1jNZb1WnV7sL9d3eiUzPkPD4f6tnuQ14q06
-         +fnZlk8TLV+1KRT0DC5j0jC9LPU+s7Jmfx/bn3uiN2FV8qzlbJXUjdcVZKGkx7i8RNOE
-         URiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:content-transfer-encoding:from:mime-version
-         :subject:date:message-id:references:cc:in-reply-to:to;
-        bh=k15OpOeoQ3rmzh87tU7V+M2stfR65Ddwc7t7jeSZ6rI=;
-        b=uRXULh9JDozCjF07cik06Bvjps0Ly18mD6iD3E6A23R175YZeY39avICnSPFb8krLs
-         PKERJhxW9W8Ne2TTDJP0IcA4Ly/vRxk0jW1ToQ5S3Kbdx42XhG63KFEyI43nAUs4jUmq
-         nQJUNXZe8E3Xm0eE+GSkUFrGJdvLdk1K9+2CEOIw11OLqkXfPtpwRBEwv7qbs/scughb
-         OXJbs3MtQHmFeCKvPRyO/jcemiGs4AB4zVW6l1CHlD4w2tvpoH8ujZAumlpkHypD6y0X
-         jTBqACeVmGgsPzYsmLvTOvWDxA3FxUcyQDHe3KfECMGAM9qV+9c07MoGhutG+lYPE/dY
-         CW5w==
-X-Gm-Message-State: AGi0PuYWr6VWVzxNj2MU6KimjGIve0C4CXD0s+Zt21SJApEXlGEAmYhD
-        7pPv7R5w80rMXvKgQePpiqvtBA==
-X-Google-Smtp-Source: APiQypLTNhaQKdhVNhLmaUuI3eQ6yUGYMyMvnDjWA4wLYl43Zk7iNftpbdYKFJfHjKaWZp+OVuHDLQ==
-X-Received: by 2002:a17:90a:2526:: with SMTP id j35mr1791482pje.98.1588295411228;
-        Thu, 30 Apr 2020 18:10:11 -0700 (PDT)
-Received: from ?IPv6:2601:646:c200:1ef2:d495:581b:d692:e814? ([2601:646:c200:1ef2:d495:581b:d692:e814])
-        by smtp.gmail.com with ESMTPSA id y13sm818856pfc.78.2020.04.30.18.10.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Apr 2020 18:10:10 -0700 (PDT)
+        id S1727908AbgEABPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 21:15:37 -0400
+Received: from userp2130.oracle.com ([156.151.31.86]:46378 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727114AbgEABPg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 21:15:36 -0400
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04119SoL083963;
+        Fri, 1 May 2020 01:15:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to; s=corp-2020-01-29;
+ bh=pBuU+RCLaqVpy+s6o/A5oeo7wautScBrEGmXR33kavo=;
+ b=DzgllCfesSD8YjdNEbZx6Yh1/6Qt2pFmiLtOHkM4irGgTkoSijKQBGcJTCKLA1PcPvjp
+ g2ohs0IAwZ9nZlGIkDU5/U7YEyFyCncoIOTKvMiRCYLucBO+BV7uGNosef5pvQllx1Z+
+ lt5ibico+F5bjU4LQmYRcLSGhJRWzYo00UCi1+6Sj48I0tnufrzZDtul3nBtdMoT7qfK
+ TPUQAvQo5r/EeT9ORNlgURGG8bj245bWeAzZULd0I/W5k6kidPufVG70ZSKpxxjKX4GK
+ Ljt2kcz8vgUJJXRo47SHs+eblU4QJUYOCdnNMl+wXxBU9BYEtyEggyMAuh0OGKYNfP/U xQ== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2130.oracle.com with ESMTP id 30r7f80d4n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 01 May 2020 01:15:34 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04116uFJ061776;
+        Fri, 1 May 2020 01:15:34 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by aserp3020.oracle.com with ESMTP id 30r7f8pa24-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 01 May 2020 01:15:34 +0000
+Received: from abhmp0013.oracle.com (abhmp0013.oracle.com [141.146.116.19])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 0411FWKV031522;
+        Fri, 1 May 2020 01:15:33 GMT
+Received: from revenge.us.oracle.com (/10.135.188.124)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 30 Apr 2020 18:15:32 -0700
+Date:   Fri, 1 May 2020 01:13:18 +0000
+From:   Tom Saeger <tom.saeger@oracle.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 5.4] bcache: initialize 'sb_page' in register_bcache()
+Message-ID: <20200501011318.pwcjic2jsvotxebd@revenge.us.oracle.com>
+References: <041443374fde130be3bc864b6ac8ffba6640c2b0.1588184799.git.tom.saeger@oracle.com>
+ <20200430064421.GF2377651@kroah.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From:   Andy Lutomirski <luto@amacapital.net>
-Mime-Version: 1.0 (1.0)
-Subject: Re: [PATCH v2 0/2] Replace and improve "mcsafe" with copy_safe()
-Date:   Thu, 30 Apr 2020 18:10:08 -0700
-Message-Id: <1AA57F55-0361-4230-82B3-B432C40C0DBC@amacapital.net>
-References: <CAHk-=wgeMRm_yhb_fwvmgdaPMYzgXY01cYvw5htHUCTwSzswqg@mail.gmail.com>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        "Luck, Tony" <tony.luck@intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>,
-        stable <stable@vger.kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <CAHk-=wgeMRm_yhb_fwvmgdaPMYzgXY01cYvw5htHUCTwSzswqg@mail.gmail.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-X-Mailer: iPhone Mail (17E262)
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200430064421.GF2377651@kroah.com>
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9607 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 suspectscore=5
+ phishscore=0 malwarescore=0 mlxscore=0 spamscore=0 mlxlogscore=999
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2005010004
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9607 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 impostorscore=0 mlxlogscore=999
+ spamscore=0 malwarescore=0 clxscore=1011 phishscore=0 mlxscore=0
+ lowpriorityscore=0 suspectscore=5 adultscore=0 priorityscore=1501
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2005010004
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Apr 30, 2020 at 08:44:21AM +0200, Greg KH wrote:
+> On Wed, Apr 29, 2020 at 06:38:17PM +0000, Tom Saeger wrote:
+> > commit 393b8509be33 (bcache: rework error unwinding in register_bcache)
+> > 
+> > introduced compile warning:
+> > warning: 'sb_page' may be used uninitialized in this function [-Wmaybe-uninitialized]
+> > 
+> > Use 'sb_page' initialization prior to 393b8509be33.
+> > 
+> > Fixes: 393b8509be33 (bcache: rework error unwinding in register_bcache)
+> > Cc: <stable@vger.kernel.org> # 5.4.x
+> > Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+> > ---
+> > 
+> > This addresses warning only seen in 5.4.22+.  Upstream avoids
+> > this in a different way.
+> 
+> What is the "different way"?
+
+The mainline commits marked "+" below appear to go together.  Perhaps a
+refactoring series?
+
+git log upstream/master v5.4.. --format="%>(16)%h %<(30)%ae %s" -- drivers/md/bcache/super.c
+    3d745ea5b095 hch@lst.de                     block: simplify queue allocation
+    ff27668ce809 hch@lst.de                     bcache: pass the make_request methods to blk_queue_make_request
+    309cc719a2c8 colyli@suse.de                 bcache: Revert "bcache: shrink btree node cache after bch_btree_check()"
+    49d08d596e85 colyli@suse.de                 bcache: check return value of prio_read()
++   6321bef028de hch@lst.de                     bcache: use read_cache_page_gfp to read the superblock
++ - 475389ae5c08 hch@lst.de                     bcache: store a pointer to the on-disk sb in the cache and cached_dev structures
++ - cfa0c56db9c0 hch@lst.de                     bcache: return a pointer to the on-disk sb from read_super
++ - fc8f19cc5dce hch@lst.de                     bcache: transfer the sb_page reference to register_{bdev,cache}
++ - ae3cd299919a colyli@suse.de                 bcache: fix use-after-free in register_bcache()
++ - 29cda393bcaa colyli@suse.de                 bcache: properly initialize 'path' and 'err' in register_bcache()
++ - 50246693f81f hch@lst.de                     bcache: rework error unwinding in register_bcache
++   a702a692cd75 hch@lst.de                     bcache: use a separate data structure for the on-disk super block
+    e8547d42095e liangchen.linux@gmail.com      bcache: cached_dev_free needs to put the sb page
+    c5fcdedcee4e colyli@suse.de                 bcache: add idle_max_writeback_rate sysfs interface
+    84c529aea182 andrea.righi@canonical.com     bcache: fix deadlock in bcache_allocator
+    aaf8dbeab586 colyli@suse.de                 bcache: add more accurate error messages in read_super()
+    2d8869518a52 colyli@suse.de                 bcache: fix static checker warning in bcache_device_free()
+    34cf78bf34d4 fangguoju@gmail.com            bcache: fix a lost wake-up problem caused by mca_cannibalize_lock
+
+Bisecting these commits produced similar warnings.  Those marked "-"
+all had warnings (for me), and all warnings were resolved with commit:
+
+    6321bef028de hch@lst.de                     bcache: use read_cache_page_gfp to read the superblock
 
 
-> On Apr 30, 2020, at 5:40 PM, Linus Torvalds <torvalds@linux-foundation.org=
-> wrote:
->=20
-> =EF=BB=BFOn Thu, Apr 30, 2020 at 5:23 PM Andy Lutomirski <luto@amacapital.=
-net> wrote:
->>=20
->>> But anyway, I don't hate something like "copy_to_user_fallible()"
->>> conceptually. The naming needs to be fixed, in that "user" can always
->>> take a fault, so it's the _source_ that can fault, not the "user"
->>> part.
->>=20
->> I don=E2=80=99t like this.  =E2=80=9Cuser=E2=80=9D already implied that b=
-asically anything can be wrong with the memory
->=20
-> Maybe I didn't explain.
->=20
-> "user" already implies faulting. We agree.
->=20
-> And since we by definition cannot know what the user has mapped into
-> user space, *every* normal copy_to_user() has to be able to handle
-> whatever faults that throws at us.
->=20
-> The reason I dislike "copy_to_user_fallible()" is that the user side
-> already has that 'fallible".
->=20
-> If it's the _source_ being "fallible" (it really needs a better name -
-> I will not call it just "f") then it should be "copy_f_to_user()".
->=20
-> That would be ok.
->=20
-> So "copy_f_to_user()" makes sense. But "copy_to_user_f()" does not.
-> That puts the "f" on the "user", which we already know can fault.
->=20
-> See what I want in the name? I want the name to say which side can
-> cause problems!
+5.4 has 50246693f81f backported as 393b8509be3 (v5.4.22), but doesn't have:
 
-We are in violent agreement. I=E2=80=99m moderately confident that I never s=
-uggested copy_from_user_f(). We appear to agree completely.
++   6321bef028de hch@lst.de                     bcache: use read_cache_page_gfp to read the superblock
++ - 475389ae5c08 hch@lst.de                     bcache: store a pointer to the on-disk sb in the cache and cached_dev structures
++ - cfa0c56db9c0 hch@lst.de                     bcache: return a pointer to the on-disk sb from read_super
++ - fc8f19cc5dce hch@lst.de                     bcache: transfer the sb_page reference to register_{bdev,cache}
 
+And perhaps 5.4 should continue to exclude these??
+
+Thus the reason for my patch :)
+
+5.6 already has 6321bef028de and won't see this issue.
+
+
+> 
+> And why am I not seeing this warning in my builds?  What version of gcc
+> are you using?
+
+Hmm - did I mention this was on arm64 system?
+
+First I was using Oracle Linux 8 (gcc 8.3.1) aarch64.
+But I've recreated the same using Fedora 31 (gcc 9.3.1) aarch64.
+
+In file included from ./include/linux/export.h:42,
+                 from ./include/linux/linkage.h:7,
+                 from ./include/linux/fs.h:5,
+                 from ./include/linux/highmem.h:5,
+                 from ./include/linux/bio.h:8,
+                 from drivers/md/bcache/bcache.h:182,
+                 from drivers/md/bcache/super.c:10:
+drivers/md/bcache/super.c: In function ‘register_bcache’:
+./include/linux/compiler.h:188:26: warning: ‘sb_page’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  188 |  case 8: *(__u64 *)res = *(volatile __u64 *)p; break;  \
+      |                          ^
+drivers/md/bcache/super.c:2379:15: note: ‘sb_page’ was declared here
+ 2379 |  struct page *sb_page;
+      |               ^~~~~~~
+  AR      drivers/md/bcache/built-in.a
+
+Let me know if you need more info.
+
+Regards,
+
+--Tom
