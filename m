@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 093A81C1519
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2849A1C150A
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731864AbgEANpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:45:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46930 "EHLO mail.kernel.org"
+        id S1731298AbgEANp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:45:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731862AbgEANpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:45:21 -0400
+        id S1731549AbgEANpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:45:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8217B205C9;
-        Fri,  1 May 2020 13:45:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBA792051A;
+        Fri,  1 May 2020 13:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340721;
-        bh=t5G0LgOWL6P9GAICIqsd0ieuhfB9zxCfY/LCqMyZtxs=;
+        s=default; t=1588340723;
+        bh=oMUcjWQcjseU8L7t68+U+sNpr71tfHvyL2nHJlihWiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VRZWrM1CKS75OEjYVjTR+LzzNtgtcaKBG4C5sBkGGOxJkJLuHGyrktKfFQ95XqZiH
-         w5yBliWiU3WVb900APg8niCnvHQT/dGxkCjh8woCjbv3NTmNrRd54e7OrkSHPKxf75
-         nWz05h8XiZa+kQw6YD58MRirLqySJuNQWB5+lzBk=
+        b=RUpYna8p2tVxOVs8dSpiobXhadD4ZSx8SYHdU+uA9Hv/Dgv5dIs1xvM6MHIk7fFU2
+         1MIf0rgzyk6MnOOJm9jknav6qeBOAFwk5JHApqoBe8fLVLxmXLc4+SUaMvrkkVpwRq
+         tyVCR0BrvwynvD6FAD7IBMgxu9QRkZd4PdhU66oY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Michal Kalderon <mkalderon@marvell.com>,
+        Yuval Bason <ybason@marvell.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 101/106] net: use indirect call wrappers for skb_copy_datagram_iter()
-Date:   Fri,  1 May 2020 15:24:14 +0200
-Message-Id: <20200501131555.335484038@linuxfoundation.org>
+Subject: [PATCH 5.6 102/106] qed: Fix use after free in qed_chain_free
+Date:   Fri,  1 May 2020 15:24:15 +0200
+Message-Id: <20200501131555.428962740@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
 References: <20200501131543.421333643@linuxfoundation.org>
@@ -45,75 +44,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Yuval Basson <ybason@marvell.com>
 
-commit 29f3490ba9d2399d3d1b20c4aa74592d92bd4e11 upstream.
+commit 8063f761cd7c17fc1d0018728936e0c33a25388a upstream.
 
-TCP recvmsg() calls skb_copy_datagram_iter(), which
-calls an indirect function (cb pointing to simple_copy_to_iter())
-for every MSS (fragment) present in the skb.
+The qed_chain data structure was modified in
+commit 1a4a69751f4d ("qed: Chain support for external PBL") to support
+receiving an external pbl (due to iWARP FW requirements).
+The pages pointed to by the pbl are allocated in qed_chain_alloc
+and their virtual address are stored in an virtual addresses array to
+enable accessing and freeing the data. The physical addresses however
+weren't stored and were accessed directly from the external-pbl
+during free.
 
-CONFIG_RETPOLINE=y forces a very expensive operation
-that we can avoid thanks to indirect call wrappers.
+Destroy-qp flow, leads to freeing the external pbl before the chain is
+freed, when the chain is freed it tries accessing the already freed
+external pbl, leading to a use-after-free. Therefore we need to store
+the physical addresses in additional to the virtual addresses in a
+new data structure.
 
-This patch gives a 13% increase of performance on
-a single flow, if the bottleneck is the thread reading
-the TCP socket.
-
-Fixes: 950fcaecd5cc ("datagram: consolidate datagram copy to iter helpers")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
+Fixes: 1a4a69751f4d ("qed: Chain support for external PBL")
+Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
+Signed-off-by: Yuval Bason <ybason@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/datagram.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_dev.c |   38 ++++++++++++------------------
+ include/linux/qed/qed_chain.h             |   24 +++++++++++-------
+ 2 files changed, 31 insertions(+), 31 deletions(-)
 
---- a/net/core/datagram.c
-+++ b/net/core/datagram.c
-@@ -51,6 +51,7 @@
- #include <linux/slab.h>
- #include <linux/pagemap.h>
- #include <linux/uio.h>
-+#include <linux/indirect_call_wrapper.h>
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -4691,26 +4691,20 @@ static void qed_chain_free_single(struct
  
- #include <net/protocol.h>
- #include <linux/skbuff.h>
-@@ -414,6 +415,11 @@ int skb_kill_datagram(struct sock *sk, s
- }
- EXPORT_SYMBOL(skb_kill_datagram);
+ static void qed_chain_free_pbl(struct qed_dev *cdev, struct qed_chain *p_chain)
+ {
+-	void **pp_virt_addr_tbl = p_chain->pbl.pp_virt_addr_tbl;
++	struct addr_tbl_entry *pp_addr_tbl = p_chain->pbl.pp_addr_tbl;
+ 	u32 page_cnt = p_chain->page_cnt, i, pbl_size;
+-	u8 *p_pbl_virt = p_chain->pbl_sp.p_virt_table;
  
-+INDIRECT_CALLABLE_DECLARE(static size_t simple_copy_to_iter(const void *addr,
-+						size_t bytes,
-+						void *data __always_unused,
-+						struct iov_iter *i));
+-	if (!pp_virt_addr_tbl)
++	if (!pp_addr_tbl)
+ 		return;
+ 
+-	if (!p_pbl_virt)
+-		goto out;
+-
+ 	for (i = 0; i < page_cnt; i++) {
+-		if (!pp_virt_addr_tbl[i])
++		if (!pp_addr_tbl[i].virt_addr || !pp_addr_tbl[i].dma_map)
+ 			break;
+ 
+ 		dma_free_coherent(&cdev->pdev->dev,
+ 				  QED_CHAIN_PAGE_SIZE,
+-				  pp_virt_addr_tbl[i],
+-				  *(dma_addr_t *)p_pbl_virt);
+-
+-		p_pbl_virt += QED_CHAIN_PBL_ENTRY_SIZE;
++				  pp_addr_tbl[i].virt_addr,
++				  pp_addr_tbl[i].dma_map);
+ 	}
+ 
+ 	pbl_size = page_cnt * QED_CHAIN_PBL_ENTRY_SIZE;
+@@ -4720,9 +4714,9 @@ static void qed_chain_free_pbl(struct qe
+ 				  pbl_size,
+ 				  p_chain->pbl_sp.p_virt_table,
+ 				  p_chain->pbl_sp.p_phys_table);
+-out:
+-	vfree(p_chain->pbl.pp_virt_addr_tbl);
+-	p_chain->pbl.pp_virt_addr_tbl = NULL;
 +
- static int __skb_datagram_iter(const struct sk_buff *skb, int offset,
- 			       struct iov_iter *to, int len, bool fault_short,
- 			       size_t (*cb)(const void *, size_t, void *,
-@@ -427,7 +433,8 @@ static int __skb_datagram_iter(const str
- 	if (copy > 0) {
- 		if (copy > len)
- 			copy = len;
--		n = cb(skb->data + offset, copy, data, to);
-+		n = INDIRECT_CALL_1(cb, simple_copy_to_iter,
-+				    skb->data + offset, copy, data, to);
- 		offset += n;
- 		if (n != copy)
- 			goto short_copy;
-@@ -449,8 +456,9 @@ static int __skb_datagram_iter(const str
++	vfree(p_chain->pbl.pp_addr_tbl);
++	p_chain->pbl.pp_addr_tbl = NULL;
+ }
  
- 			if (copy > len)
- 				copy = len;
--			n = cb(vaddr + skb_frag_off(frag) + offset - start,
--			       copy, data, to);
-+			n = INDIRECT_CALL_1(cb, simple_copy_to_iter,
-+					vaddr + skb_frag_off(frag) + offset - start,
-+					copy, data, to);
- 			kunmap(page);
- 			offset += n;
- 			if (n != copy)
+ void qed_chain_free(struct qed_dev *cdev, struct qed_chain *p_chain)
+@@ -4823,19 +4817,19 @@ qed_chain_alloc_pbl(struct qed_dev *cdev
+ {
+ 	u32 page_cnt = p_chain->page_cnt, size, i;
+ 	dma_addr_t p_phys = 0, p_pbl_phys = 0;
+-	void **pp_virt_addr_tbl = NULL;
++	struct addr_tbl_entry *pp_addr_tbl;
+ 	u8 *p_pbl_virt = NULL;
+ 	void *p_virt = NULL;
+ 
+-	size = page_cnt * sizeof(*pp_virt_addr_tbl);
+-	pp_virt_addr_tbl = vzalloc(size);
+-	if (!pp_virt_addr_tbl)
++	size = page_cnt * sizeof(*pp_addr_tbl);
++	pp_addr_tbl =  vzalloc(size);
++	if (!pp_addr_tbl)
+ 		return -ENOMEM;
+ 
+ 	/* The allocation of the PBL table is done with its full size, since it
+ 	 * is expected to be successive.
+ 	 * qed_chain_init_pbl_mem() is called even in a case of an allocation
+-	 * failure, since pp_virt_addr_tbl was previously allocated, and it
++	 * failure, since tbl was previously allocated, and it
+ 	 * should be saved to allow its freeing during the error flow.
+ 	 */
+ 	size = page_cnt * QED_CHAIN_PBL_ENTRY_SIZE;
+@@ -4849,8 +4843,7 @@ qed_chain_alloc_pbl(struct qed_dev *cdev
+ 		p_chain->b_external_pbl = true;
+ 	}
+ 
+-	qed_chain_init_pbl_mem(p_chain, p_pbl_virt, p_pbl_phys,
+-			       pp_virt_addr_tbl);
++	qed_chain_init_pbl_mem(p_chain, p_pbl_virt, p_pbl_phys, pp_addr_tbl);
+ 	if (!p_pbl_virt)
+ 		return -ENOMEM;
+ 
+@@ -4869,7 +4862,8 @@ qed_chain_alloc_pbl(struct qed_dev *cdev
+ 		/* Fill the PBL table with the physical address of the page */
+ 		*(dma_addr_t *)p_pbl_virt = p_phys;
+ 		/* Keep the virtual address of the page */
+-		p_chain->pbl.pp_virt_addr_tbl[i] = p_virt;
++		p_chain->pbl.pp_addr_tbl[i].virt_addr = p_virt;
++		p_chain->pbl.pp_addr_tbl[i].dma_map = p_phys;
+ 
+ 		p_pbl_virt += QED_CHAIN_PBL_ENTRY_SIZE;
+ 	}
+--- a/include/linux/qed/qed_chain.h
++++ b/include/linux/qed/qed_chain.h
+@@ -97,6 +97,11 @@ struct qed_chain_u32 {
+ 	u32 cons_idx;
+ };
+ 
++struct addr_tbl_entry {
++	void *virt_addr;
++	dma_addr_t dma_map;
++};
++
+ struct qed_chain {
+ 	/* fastpath portion of the chain - required for commands such
+ 	 * as produce / consume.
+@@ -107,10 +112,11 @@ struct qed_chain {
+ 
+ 	/* Fastpath portions of the PBL [if exists] */
+ 	struct {
+-		/* Table for keeping the virtual addresses of the chain pages,
+-		 * respectively to the physical addresses in the pbl table.
++		/* Table for keeping the virtual and physical addresses of the
++		 * chain pages, respectively to the physical addresses
++		 * in the pbl table.
+ 		 */
+-		void **pp_virt_addr_tbl;
++		struct addr_tbl_entry *pp_addr_tbl;
+ 
+ 		union {
+ 			struct qed_chain_pbl_u16 u16;
+@@ -287,7 +293,7 @@ qed_chain_advance_page(struct qed_chain
+ 				*(u32 *)page_to_inc = 0;
+ 			page_index = *(u32 *)page_to_inc;
+ 		}
+-		*p_next_elem = p_chain->pbl.pp_virt_addr_tbl[page_index];
++		*p_next_elem = p_chain->pbl.pp_addr_tbl[page_index].virt_addr;
+ 	}
+ }
+ 
+@@ -537,7 +543,7 @@ static inline void qed_chain_init_params
+ 
+ 	p_chain->pbl_sp.p_phys_table = 0;
+ 	p_chain->pbl_sp.p_virt_table = NULL;
+-	p_chain->pbl.pp_virt_addr_tbl = NULL;
++	p_chain->pbl.pp_addr_tbl = NULL;
+ }
+ 
+ /**
+@@ -575,11 +581,11 @@ static inline void qed_chain_init_mem(st
+ static inline void qed_chain_init_pbl_mem(struct qed_chain *p_chain,
+ 					  void *p_virt_pbl,
+ 					  dma_addr_t p_phys_pbl,
+-					  void **pp_virt_addr_tbl)
++					  struct addr_tbl_entry *pp_addr_tbl)
+ {
+ 	p_chain->pbl_sp.p_phys_table = p_phys_pbl;
+ 	p_chain->pbl_sp.p_virt_table = p_virt_pbl;
+-	p_chain->pbl.pp_virt_addr_tbl = pp_virt_addr_tbl;
++	p_chain->pbl.pp_addr_tbl = pp_addr_tbl;
+ }
+ 
+ /**
+@@ -644,7 +650,7 @@ static inline void *qed_chain_get_last_e
+ 		break;
+ 	case QED_CHAIN_MODE_PBL:
+ 		last_page_idx = p_chain->page_cnt - 1;
+-		p_virt_addr = p_chain->pbl.pp_virt_addr_tbl[last_page_idx];
++		p_virt_addr = p_chain->pbl.pp_addr_tbl[last_page_idx].virt_addr;
+ 		break;
+ 	}
+ 	/* p_virt_addr points at this stage to the last page of the chain */
+@@ -716,7 +722,7 @@ static inline void qed_chain_pbl_zero_me
+ 	page_cnt = qed_chain_get_page_cnt(p_chain);
+ 
+ 	for (i = 0; i < page_cnt; i++)
+-		memset(p_chain->pbl.pp_virt_addr_tbl[i], 0,
++		memset(p_chain->pbl.pp_addr_tbl[i].virt_addr, 0,
+ 		       QED_CHAIN_PAGE_SIZE);
+ }
+ 
 
 
