@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C91D81C167B
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7AC71C15F0
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730243AbgEANtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:49:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41888 "EHLO mail.kernel.org"
+        id S1730423AbgEANgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:36:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729765AbgEANlc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:41:32 -0400
+        id S1730853AbgEANgb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:36:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FCF420757;
-        Fri,  1 May 2020 13:41:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DD132173E;
+        Fri,  1 May 2020 13:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340491;
-        bh=OjR8h7N5ftFb4/Z9Ego9JsTtJSIyUIZxeTJX+rOmBi0=;
+        s=default; t=1588340190;
+        bh=kT2ssjy/cji7MP5tBA4BbKIZOxWc02oDr3+Bg7R6hiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EJXGwytIibJP1sznECwp6wWbklwXdaa8wWcZJiZR+quI1bDSAggLJM2qxswy5J2wt
-         LTZnKk4xNmLai01OEp28xaDFBrBFmKHHqb2rUpfYmIyPiZtrXkKbG1Yz5TvIKb5Flu
-         CY2+Qf1z8DzmhhNZ6nqi3BrPPHTWCBCr/zsocfKc=
+        b=pocFwyInZzx5KavArH/hy1aWGy39UU5i4IMpuqZ2GxuV9QLoSxXSgQ7l+ugQAuOOu
+         vVir0O02R+lHhzxQmsbuwbq0G57xqk7RUPvKqNJlFqdhs1iW6jWU77DOvLX+0wItax
+         mK9FqQkKcJRJw26KCZAcq3zZo7nVuNUHxTultpoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.6 004/106] usb: dwc3: gadget: Do link recovery for SS and SSP
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 4.19 12/46] i2c: altera: use proper variable to hold errno
 Date:   Fri,  1 May 2020 15:22:37 +0200
-Message-Id: <20200501131543.985322480@linuxfoundation.org>
+Message-Id: <20200501131503.107772756@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit d0550cd20e52558ecf6847a0f96ebd5d944c17e4 upstream.
+commit edb2c9dd3948738ef030c32b948543e84f4d3f81 upstream.
 
-The controller always supports link recovery for device in SS and SSP.
-Remove the speed limit check. Also, when the device is in RESUME or
-RESET state, it means the controller received the resume/reset request.
-The driver must send the link recovery to acknowledge the request. They
-are valid states for the driver to send link recovery.
+device_property_read_u32() returns errno or 0, so we should use the
+integer variable 'ret' and not the u32 'val' to hold the retval.
 
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Fixes: ee5cd41c9117 ("usb: dwc3: Update speed checks for SuperSpeedPlus")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: 0560ad576268 ("i2c: altera: Add Altera I2C Controller driver")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-altera.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1728,7 +1728,6 @@ static int __dwc3_gadget_wakeup(struct d
- 	u32			reg;
+--- a/drivers/i2c/busses/i2c-altera.c
++++ b/drivers/i2c/busses/i2c-altera.c
+@@ -395,7 +395,6 @@ static int altr_i2c_probe(struct platfor
+ 	struct altr_i2c_dev *idev = NULL;
+ 	struct resource *res;
+ 	int irq, ret;
+-	u32 val;
  
- 	u8			link_state;
--	u8			speed;
+ 	idev = devm_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
+ 	if (!idev)
+@@ -422,17 +421,17 @@ static int altr_i2c_probe(struct platfor
+ 	init_completion(&idev->msg_complete);
+ 	spin_lock_init(&idev->lock);
  
- 	/*
- 	 * According to the Databook Remote wakeup request should
-@@ -1738,16 +1737,13 @@ static int __dwc3_gadget_wakeup(struct d
- 	 */
- 	reg = dwc3_readl(dwc->regs, DWC3_DSTS);
+-	val = device_property_read_u32(idev->dev, "fifo-size",
++	ret = device_property_read_u32(idev->dev, "fifo-size",
+ 				       &idev->fifo_size);
+-	if (val) {
++	if (ret) {
+ 		dev_err(&pdev->dev, "FIFO size set to default of %d\n",
+ 			ALTR_I2C_DFLT_FIFO_SZ);
+ 		idev->fifo_size = ALTR_I2C_DFLT_FIFO_SZ;
+ 	}
  
--	speed = reg & DWC3_DSTS_CONNECTSPD;
--	if ((speed == DWC3_DSTS_SUPERSPEED) ||
--	    (speed == DWC3_DSTS_SUPERSPEED_PLUS))
--		return 0;
--
- 	link_state = DWC3_DSTS_USBLNKST(reg);
- 
- 	switch (link_state) {
-+	case DWC3_LINK_STATE_RESET:
- 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
- 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
-+	case DWC3_LINK_STATE_RESUME:
- 		break;
- 	default:
- 		return -EINVAL;
+-	val = device_property_read_u32(idev->dev, "clock-frequency",
++	ret = device_property_read_u32(idev->dev, "clock-frequency",
+ 				       &idev->bus_clk_rate);
+-	if (val) {
++	if (ret) {
+ 		dev_err(&pdev->dev, "Default to 100kHz\n");
+ 		idev->bus_clk_rate = 100000;	/* default clock rate */
+ 	}
 
 
