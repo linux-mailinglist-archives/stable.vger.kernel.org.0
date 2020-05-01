@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55E871C144A
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EC471C16CB
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729297AbgEANhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:37:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37104 "EHLO mail.kernel.org"
+        id S1730897AbgEANxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:53:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730447AbgEANhu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:37:50 -0400
+        id S1730883AbgEANgl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:36:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93DDB2495A;
-        Fri,  1 May 2020 13:37:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD8EE216FD;
+        Fri,  1 May 2020 13:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340270;
-        bh=wbTdBVJuZ2QGIL3DoE3RkbBh6BRtM0pmebWeNOoD6qo=;
+        s=default; t=1588340200;
+        bh=U+7B60COkyRjyCALdr8M23NE9235adcJOkyY/YfpsaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwKYePrPlJvKqpXmjNBKGDKbeu32QL35ISdF1N7P8MIMjPdGYKRUyBrydojwRu7dq
-         1ms5aD8iUCiQKzpkc4IbJOEQTtVYkgAIN+LNr6d5PwvxPy94uYVWX+pBW5f/bu+Imn
-         1tG0g67tBH24QXJT4J8bDcanYOP95O1+5EOjja8k=
+        b=psHTGw+D+rWt1dWWQl3NkPtI3chZCVFRRqY7L5p9wjrUCsGrfk5gvG7is3ZMde3N7
+         YkqTS6OkDrF8BIPP2dNPpOHzpq+T/Dx5Dh1cNbfnQbNL7MHjCWK6/VohsMcGbtgxR7
+         BALLWMQvzr386V51hKZYg9rE1evWT81VE2gxU42U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=D0=9A=D0=BE=D1=87=D0=B5=D1=82=D0=BA=D0=BE=D0=B2=20=D0=9C=D0=B0=D0=BA=D1=81=D0=B8=D0=BC?= 
-        <fido_max@inbox.ru>, Karl Olsen <karl@micro-technic.com>,
-        Jef Driesen <jef.driesen@niko.eu>,
-        Richard Weinberger <richard@nod.at>,
-        Christian Eggers <ceggers@arri.de>,
-        "Christian Berger" <Christian.Berger@de.bosch.com>
-Subject: [PATCH 5.4 02/83] ubifs: Fix ubifs_tnc_lookup() usage in do_kill_orphans()
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 4.19 16/46] svcrdma: Fix trace point use-after-free race
 Date:   Fri,  1 May 2020 15:22:41 +0200
-Message-Id: <20200501131524.703958316@linuxfoundation.org>
+Message-Id: <20200501131504.178553519@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,44 +42,214 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 4ab25ac8b2b5514151d5f91cf9514df08dd26938 upstream.
+commit e28b4fc652c1830796a4d3e09565f30c20f9a2cf upstream.
 
-Orphans are allowed to point to deleted inodes.
-So -ENOENT is not a fatal error.
+I hit this while testing nfsd-5.7 with kernel memory debugging
+enabled on my server:
 
-Reported-by: Кочетков Максим <fido_max@inbox.ru>
-Reported-and-tested-by: "Christian Berger" <Christian.Berger@de.bosch.com>
-Tested-by: Karl Olsen <karl@micro-technic.com>
-Tested-by: Jef Driesen <jef.driesen@niko.eu>
-Fixes: ee1438ce5dc4 ("ubifs: Check link count of inodes when killing orphans.")
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Cc: Christian Eggers <ceggers@arri.de>
+Mar 30 13:21:45 klimt kernel: BUG: unable to handle page fault for address: ffff8887e6c279a8
+Mar 30 13:21:45 klimt kernel: #PF: supervisor read access in kernel mode
+Mar 30 13:21:45 klimt kernel: #PF: error_code(0x0000) - not-present page
+Mar 30 13:21:45 klimt kernel: PGD 3601067 P4D 3601067 PUD 87c519067 PMD 87c3e2067 PTE 800ffff8193d8060
+Mar 30 13:21:45 klimt kernel: Oops: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
+Mar 30 13:21:45 klimt kernel: CPU: 2 PID: 1933 Comm: nfsd Not tainted 5.6.0-rc6-00040-g881e87a3c6f9 #1591
+Mar 30 13:21:45 klimt kernel: Hardware name: Supermicro Super Server/X10SRL-F, BIOS 1.0c 09/09/2015
+Mar 30 13:21:45 klimt kernel: RIP: 0010:svc_rdma_post_chunk_ctxt+0xab/0x284 [rpcrdma]
+Mar 30 13:21:45 klimt kernel: Code: c1 83 34 02 00 00 29 d0 85 c0 7e 72 48 8b bb a0 02 00 00 48 8d 54 24 08 4c 89 e6 48 8b 07 48 8b 40 20 e8 5a 5c 2b e1 41 89 c6 <8b> 45 20 89 44 24 04 8b 05 02 e9 01 00 85 c0 7e 33 e9 5e 01 00 00
+Mar 30 13:21:45 klimt kernel: RSP: 0018:ffffc90000dfbdd8 EFLAGS: 00010286
+Mar 30 13:21:45 klimt kernel: RAX: 0000000000000000 RBX: ffff8887db8db400 RCX: 0000000000000030
+Mar 30 13:21:45 klimt kernel: RDX: 0000000000000040 RSI: 0000000000000000 RDI: 0000000000000246
+Mar 30 13:21:45 klimt kernel: RBP: ffff8887e6c27988 R08: 0000000000000000 R09: 0000000000000004
+Mar 30 13:21:45 klimt kernel: R10: ffffc90000dfbdd8 R11: 00c068ef00000000 R12: ffff8887eb4e4a80
+Mar 30 13:21:45 klimt kernel: R13: ffff8887db8db634 R14: 0000000000000000 R15: ffff8887fc931000
+Mar 30 13:21:45 klimt kernel: FS:  0000000000000000(0000) GS:ffff88885bd00000(0000) knlGS:0000000000000000
+Mar 30 13:21:45 klimt kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+Mar 30 13:21:45 klimt kernel: CR2: ffff8887e6c279a8 CR3: 000000081b72e002 CR4: 00000000001606e0
+Mar 30 13:21:45 klimt kernel: Call Trace:
+Mar 30 13:21:45 klimt kernel: ? svc_rdma_vec_to_sg+0x7f/0x7f [rpcrdma]
+Mar 30 13:21:45 klimt kernel: svc_rdma_send_write_chunk+0x59/0xce [rpcrdma]
+Mar 30 13:21:45 klimt kernel: svc_rdma_sendto+0xf9/0x3ae [rpcrdma]
+Mar 30 13:21:45 klimt kernel: ? nfsd_destroy+0x51/0x51 [nfsd]
+Mar 30 13:21:45 klimt kernel: svc_send+0x105/0x1e3 [sunrpc]
+Mar 30 13:21:45 klimt kernel: nfsd+0xf2/0x149 [nfsd]
+Mar 30 13:21:45 klimt kernel: kthread+0xf6/0xfb
+Mar 30 13:21:45 klimt kernel: ? kthread_queue_delayed_work+0x74/0x74
+Mar 30 13:21:45 klimt kernel: ret_from_fork+0x3a/0x50
+Mar 30 13:21:45 klimt kernel: Modules linked in: ocfs2_dlmfs ocfs2_stack_o2cb ocfs2_dlm ocfs2_nodemanager ocfs2_stackglue ib_umad ib_ipoib mlx4_ib sb_edac x86_pkg_temp_thermal iTCO_wdt iTCO_vendor_support coretemp kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel glue_helper crypto_simd cryptd pcspkr rpcrdma i2c_i801 rdma_ucm lpc_ich mfd_core ib_iser rdma_cm iw_cm ib_cm mei_me raid0 libiscsi mei sg scsi_transport_iscsi ioatdma wmi ipmi_si ipmi_devintf ipmi_msghandler acpi_power_meter nfsd nfs_acl lockd auth_rpcgss grace sunrpc ip_tables xfs libcrc32c mlx4_en sd_mod sr_mod cdrom mlx4_core crc32c_intel igb nvme i2c_algo_bit ahci i2c_core libahci nvme_core dca libata t10_pi qedr dm_mirror dm_region_hash dm_log dm_mod dax qede qed crc8 ib_uverbs ib_core
+Mar 30 13:21:45 klimt kernel: CR2: ffff8887e6c279a8
+Mar 30 13:21:45 klimt kernel: ---[ end trace 87971d2ad3429424 ]---
+
+It's absolutely not safe to use resources pointed to by the @send_wr
+argument of ib_post_send() _after_ that function returns. Those
+resources are typically freed by the Send completion handler, which
+can run before ib_post_send() returns.
+
+Thus the trace points currently around ib_post_send() in the
+server's RPC/RDMA transport are a hazard, even when they are
+disabled. Rearrange them so that they touch the Work Request only
+_before_ ib_post_send() is invoked.
+
+Fixes: bd2abef33394 ("svcrdma: Trace key RDMA API events")
+Fixes: 4201c7464753 ("svcrdma: Introduce svc_rdma_send_ctxt")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ubifs/orphan.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/trace/events/rpcrdma.h        |   50 ++++++++++++++++++++++++----------
+ net/sunrpc/xprtrdma/svc_rdma_rw.c     |    3 --
+ net/sunrpc/xprtrdma/svc_rdma_sendto.c |   16 ++++++----
+ 3 files changed, 46 insertions(+), 23 deletions(-)
 
---- a/fs/ubifs/orphan.c
-+++ b/fs/ubifs/orphan.c
-@@ -688,14 +688,14 @@ static int do_kill_orphans(struct ubifs_
+--- a/include/trace/events/rpcrdma.h
++++ b/include/trace/events/rpcrdma.h
+@@ -1322,17 +1322,15 @@ DECLARE_EVENT_CLASS(svcrdma_sendcomp_eve
  
- 			ino_key_init(c, &key1, inum);
- 			err = ubifs_tnc_lookup(c, &key1, ino);
--			if (err)
-+			if (err && err != -ENOENT)
- 				goto out_free;
+ TRACE_EVENT(svcrdma_post_send,
+ 	TP_PROTO(
+-		const struct ib_send_wr *wr,
+-		int status
++		const struct ib_send_wr *wr
+ 	),
  
- 			/*
- 			 * Check whether an inode can really get deleted.
- 			 * linkat() with O_TMPFILE allows rebirth of an inode.
- 			 */
--			if (ino->nlink == 0) {
-+			if (err == 0 && ino->nlink == 0) {
- 				dbg_rcvry("deleting orphaned inode %lu",
- 					  (unsigned long)inum);
+-	TP_ARGS(wr, status),
++	TP_ARGS(wr),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(const void *, cqe)
+ 		__field(unsigned int, num_sge)
+ 		__field(u32, inv_rkey)
+-		__field(int, status)
+ 	),
+ 
+ 	TP_fast_assign(
+@@ -1340,12 +1338,11 @@ TRACE_EVENT(svcrdma_post_send,
+ 		__entry->num_sge = wr->num_sge;
+ 		__entry->inv_rkey = (wr->opcode == IB_WR_SEND_WITH_INV) ?
+ 					wr->ex.invalidate_rkey : 0;
+-		__entry->status = status;
+ 	),
+ 
+-	TP_printk("cqe=%p num_sge=%u inv_rkey=0x%08x status=%d",
++	TP_printk("cqe=%p num_sge=%u inv_rkey=0x%08x",
+ 		__entry->cqe, __entry->num_sge,
+-		__entry->inv_rkey, __entry->status
++		__entry->inv_rkey
+ 	)
+ );
+ 
+@@ -1410,26 +1407,23 @@ TRACE_EVENT(svcrdma_wc_receive,
+ TRACE_EVENT(svcrdma_post_rw,
+ 	TP_PROTO(
+ 		const void *cqe,
+-		int sqecount,
+-		int status
++		int sqecount
+ 	),
+ 
+-	TP_ARGS(cqe, sqecount, status),
++	TP_ARGS(cqe, sqecount),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(const void *, cqe)
+ 		__field(int, sqecount)
+-		__field(int, status)
+ 	),
+ 
+ 	TP_fast_assign(
+ 		__entry->cqe = cqe;
+ 		__entry->sqecount = sqecount;
+-		__entry->status = status;
+ 	),
+ 
+-	TP_printk("cqe=%p sqecount=%d status=%d",
+-		__entry->cqe, __entry->sqecount, __entry->status
++	TP_printk("cqe=%p sqecount=%d",
++		__entry->cqe, __entry->sqecount
+ 	)
+ );
+ 
+@@ -1525,6 +1519,34 @@ DECLARE_EVENT_CLASS(svcrdma_sendqueue_ev
+ DEFINE_SQ_EVENT(full);
+ DEFINE_SQ_EVENT(retry);
+ 
++TRACE_EVENT(svcrdma_sq_post_err,
++	TP_PROTO(
++		const struct svcxprt_rdma *rdma,
++		int status
++	),
++
++	TP_ARGS(rdma, status),
++
++	TP_STRUCT__entry(
++		__field(int, avail)
++		__field(int, depth)
++		__field(int, status)
++		__string(addr, rdma->sc_xprt.xpt_remotebuf)
++	),
++
++	TP_fast_assign(
++		__entry->avail = atomic_read(&rdma->sc_sq_avail);
++		__entry->depth = rdma->sc_sq_depth;
++		__entry->status = status;
++		__assign_str(addr, rdma->sc_xprt.xpt_remotebuf);
++	),
++
++	TP_printk("addr=%s sc_sq_avail=%d/%d status=%d",
++		__get_str(addr), __entry->avail, __entry->depth,
++		__entry->status
++	)
++);
++
+ #endif /* _TRACE_RPCRDMA_H */
+ 
+ #include <trace/define_trace.h>
+--- a/net/sunrpc/xprtrdma/svc_rdma_rw.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_rw.c
+@@ -331,8 +331,6 @@ static int svc_rdma_post_chunk_ctxt(stru
+ 		if (atomic_sub_return(cc->cc_sqecount,
+ 				      &rdma->sc_sq_avail) > 0) {
+ 			ret = ib_post_send(rdma->sc_qp, first_wr, &bad_wr);
+-			trace_svcrdma_post_rw(&cc->cc_cqe,
+-					      cc->cc_sqecount, ret);
+ 			if (ret)
+ 				break;
+ 			return 0;
+@@ -345,6 +343,7 @@ static int svc_rdma_post_chunk_ctxt(stru
+ 		trace_svcrdma_sq_retry(rdma);
+ 	} while (1);
+ 
++	trace_svcrdma_sq_post_err(rdma, ret);
+ 	set_bit(XPT_CLOSE, &xprt->xpt_flags);
+ 
+ 	/* If even one was posted, there will be a completion. */
+--- a/net/sunrpc/xprtrdma/svc_rdma_sendto.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_sendto.c
+@@ -310,15 +310,17 @@ int svc_rdma_send(struct svcxprt_rdma *r
+ 		}
+ 
+ 		svc_xprt_get(&rdma->sc_xprt);
++		trace_svcrdma_post_send(wr);
+ 		ret = ib_post_send(rdma->sc_qp, wr, NULL);
+-		trace_svcrdma_post_send(wr, ret);
+-		if (ret) {
+-			set_bit(XPT_CLOSE, &rdma->sc_xprt.xpt_flags);
+-			svc_xprt_put(&rdma->sc_xprt);
+-			wake_up(&rdma->sc_send_wait);
+-		}
+-		break;
++		if (ret)
++			break;
++		return 0;
+ 	}
++
++	trace_svcrdma_sq_post_err(rdma, ret);
++	set_bit(XPT_CLOSE, &rdma->sc_xprt.xpt_flags);
++	svc_xprt_put(&rdma->sc_xprt);
++	wake_up(&rdma->sc_send_wait);
+ 	return ret;
+ }
  
 
 
