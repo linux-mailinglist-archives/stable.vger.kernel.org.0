@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E401C14C5
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 751A51C146C
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731556AbgEANmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:42:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43550 "EHLO mail.kernel.org"
+        id S1731155AbgEANjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:39:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731327AbgEANmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:49 -0400
+        id S1730856AbgEANjM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:39:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18FF7205C9;
-        Fri,  1 May 2020 13:42:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CC22208DB;
+        Fri,  1 May 2020 13:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340568;
-        bh=GYPhc5rMNUeNYPNGbzs5OmtuGS1eXhbt6iZS9KEXzbs=;
+        s=default; t=1588340351;
+        bh=e7spcapCw09yWb/xBhsKXLncxrnPQacqV3xX+cpc1f4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ryz7SCSm3LODwoOhTW80mN0GQDKaQf2ke1ZCfhzlEScX1i2eACbtcNiC09x3q8BRH
-         rnzvYsAbguSEE6Sut0aZMsP9e8/Y4t6BUrWyY+OGjAq0d9O1Vt0DfalRe59XxQ2Cja
-         LBY+DXmM03BwFx/DsfyeK5NsfdyFqjk2oy9iJw9w=
+        b=V+E928I3Ndi2ttS2ZZ7LCzh7qlDrgDV+QzYyY+iCDmuCQ/JKHbao9V3biTX+DX+xn
+         Jw5RkOAAnwof+LUhxULi64uHZ2X5aCS+c6jMfWNC7F9me0bT/0OctK2enSFfDkkmdI
+         6+rc7fFWEUhecOriktYkVGsm8K6dAu7oO3fX93kY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.6 035/106] efi/x86: Dont remap text<->rodata gap read-only for mixed mode
-Date:   Fri,  1 May 2020 15:23:08 +0200
-Message-Id: <20200501131548.137419636@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.4 30/83] PCI: Avoid ASMedia XHCI USB PME# from D0 defect
+Date:   Fri,  1 May 2020 15:23:09 +0200
+Message-Id: <20200501131531.459830348@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit f6103162008dfd37567f240b50e5e1ea7cf2e00c upstream.
+commit 2880325bda8d53566dcb9725abc929eec871608e upstream.
 
-Commit
+The ASMedia USB XHCI Controller claims to support generating PME# while
+in D0:
 
-  d9e3d2c4f10320 ("efi/x86: Don't map the entire kernel text RW for mixed mode")
+  01:00.0 USB controller: ASMedia Technology Inc. Device 2142 (prog-if 30 [XHCI])
+    Subsystem: SUNIX Co., Ltd. Device 312b
+    Capabilities: [78] Power Management version 3
+      Flags: PMEClk- DSI- D1- D2- AuxCurrent=55mA PME(D0+,D1-,D2-,D3hot-,D3cold-)
+      Status: D0 NoSoftRst+ PME-Enable+ DSel=0 DScale=0 PME-
 
-updated the code that creates the 1:1 memory mapping to use read-only
-attributes for the 1:1 alias of the kernel's text and rodata sections, to
-protect it from inadvertent modification. However, it failed to take into
-account that the unused gap between text and rodata is given to the page
-allocator for general use.
+However PME# only gets asserted when plugging USB 2.0 or USB 1.1 devices,
+but not for USB 3.0 devices.
 
-If the vmap'ed stack happens to be allocated from this region, any by-ref
-output arguments passed to EFI runtime services that are allocated on the
-stack (such as the 'datasize' argument taken by GetVariable() when invoked
-from efivar_entry_size()) will be referenced via a read-only mapping,
-resulting in a page fault if the EFI code tries to write to it:
+Remove PCI_PM_CAP_PME_D0 to avoid using PME under D0.
 
-  BUG: unable to handle page fault for address: 00000000386aae88
-  #PF: supervisor write access in kernel mode
-  #PF: error_code(0x0003) - permissions violation
-  PGD fd61063 P4D fd61063 PUD fd62063 PMD 386000e1
-  Oops: 0003 [#1] SMP PTI
-  CPU: 2 PID: 255 Comm: systemd-sysv-ge Not tainted 5.6.0-rc4-default+ #22
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0008:0x3eaeed95
-  Code: ...  <89> 03 be 05 00 00 80 a1 74 63 b1 3e 83 c0 48 e8 44 d2 ff ff eb 05
-  RSP: 0018:000000000fd73fa0 EFLAGS: 00010002
-  RAX: 0000000000000001 RBX: 00000000386aae88 RCX: 000000003e9f1120
-  RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000000000000001
-  RBP: 000000000fd73fd8 R08: 00000000386aae88 R09: 0000000000000000
-  R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
-  R13: ffffc0f040220000 R14: 0000000000000000 R15: 0000000000000000
-  FS:  00007f21160ac940(0000) GS:ffff9cf23d500000(0000) knlGS:0000000000000000
-  CS:  0008 DS: 0018 ES: 0018 CR0: 0000000080050033
-  CR2: 00000000386aae88 CR3: 000000000fd6c004 CR4: 00000000003606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-  Modules linked in:
-  CR2: 00000000386aae88
-  ---[ end trace a8bfbd202e712834 ]---
-
-Let's fix this by remapping text and rodata individually, and leave the
-gaps mapped read-write.
-
-Fixes: d9e3d2c4f10320 ("efi/x86: Don't map the entire kernel text RW for mixed mode")
-Reported-by: Jiri Slaby <jslaby@suse.cz>
-Tested-by: Jiri Slaby <jslaby@suse.cz>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20200409130434.6736-10-ardb@kernel.org
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205919
+Link: https://lore.kernel.org/r/20191219192006.16270-1-kai.heng.feng@canonical.com
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/platform/efi/efi_64.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/pci/quirks.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/x86/platform/efi/efi_64.c
-+++ b/arch/x86/platform/efi/efi_64.c
-@@ -202,7 +202,7 @@ virt_to_phys_or_null_size(void *va, unsi
- 
- int __init efi_setup_page_tables(unsigned long pa_memmap, unsigned num_pages)
- {
--	unsigned long pfn, text, pf;
-+	unsigned long pfn, text, pf, rodata;
- 	struct page *page;
- 	unsigned npages;
- 	pgd_t *pgd = efi_mm.pgd;
-@@ -256,7 +256,7 @@ int __init efi_setup_page_tables(unsigne
- 
- 	efi_scratch.phys_stack = page_to_phys(page + 1); /* stack grows down */
- 
--	npages = (__end_rodata_aligned - _text) >> PAGE_SHIFT;
-+	npages = (_etext - _text) >> PAGE_SHIFT;
- 	text = __pa(_text);
- 	pfn = text >> PAGE_SHIFT;
- 
-@@ -266,6 +266,14 @@ int __init efi_setup_page_tables(unsigne
- 		return 1;
- 	}
- 
-+	npages = (__end_rodata - __start_rodata) >> PAGE_SHIFT;
-+	rodata = __pa(__start_rodata);
-+	pfn = rodata >> PAGE_SHIFT;
-+	if (kernel_map_pages_in_pgd(pgd, pfn, rodata, npages, pf)) {
-+		pr_err("Failed to map kernel rodata 1:1\n");
-+		return 1;
-+	}
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5490,3 +5490,14 @@ out_disable:
+ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, 0x13b1,
+ 			      PCI_CLASS_DISPLAY_VGA, 8,
+ 			      quirk_reset_lenovo_thinkpad_p50_nvgpu);
 +
- 	return 0;
- }
- 
++/*
++ * Device [1b21:2142]
++ * When in D0, PME# doesn't get asserted when plugging USB 3.0 device.
++ */
++static void pci_fixup_no_d0_pme(struct pci_dev *dev)
++{
++	pci_info(dev, "PME# does not work under D0, disabling it\n");
++	dev->pme_support &= ~(PCI_PM_CAP_PME_D0 >> PCI_PM_CAP_PME_SHIFT);
++}
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x2142, pci_fixup_no_d0_pme);
 
 
