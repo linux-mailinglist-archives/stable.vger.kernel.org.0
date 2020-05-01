@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F04131C143C
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 188911C16A5
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730441AbgEANhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:37:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35866 "EHLO mail.kernel.org"
+        id S1730455AbgEANvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:51:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730928AbgEANhG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:37:06 -0400
+        id S1730772AbgEANic (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:38:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A5672173E;
-        Fri,  1 May 2020 13:37:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C17912173E;
+        Fri,  1 May 2020 13:38:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340225;
-        bh=bYiTDvsbvgv/pWBNPUAEXwI+44yG39clSKcicpwBy7A=;
+        s=default; t=1588340312;
+        bh=CKIMJQM3BUgv/kNo+zVhPYPGAjCSUM4KvYD2NODQKhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AN/+s5x5t/Bx3/2TybfAYEm+XKsB/ZOLsdUgwz5WmUYlCmHLdmnSvrInvZp69yA2+
-         W2y3Nr4hMtNY550oAMlsyFMiKWg9F4YvgOtjD+u/e37ebKgM6ktv52NDG1GWFepUuX
-         2tZBy26mxChLbKBzFiAu2PaKB3dfWBkSlp4UzRgg=
+        b=yYOinUR7FAYWBey5qBSmlaXl/AUJ0gJiHnl35mjtV2rtuZ0xUpYqrPxyIhAEIb+O4
+         FRf+2S2zeyNN1CyiDVFR5mMOCmfZI1Jjeoae3Y+z2jK0X+Fzuh7cYbfVXwbh9BSqGP
+         RrSFH4qGrFhaRA/Q7AvnLjcJFFdU0HlgWWe69W/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Fugang Duan <fugang.duan@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/46] net: fec: set GPR bit on suspend by DT configuration.
+        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 14/83] s390/ftrace: fix potential crashes when switching tracers
 Date:   Fri,  1 May 2020 15:22:53 +0200
-Message-Id: <20200501131508.798164692@linuxfoundation.org>
+Message-Id: <20200501131527.389876682@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
-References: <20200501131457.023036302@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,315 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+From: Philipp Rudo <prudo@linux.ibm.com>
 
-[ Upstream commit da722186f6549d752ea5b5fbc18111833c81a133 ]
+commit 8ebf6da9db1b2a20bb86cc1bee2552e894d03308 upstream.
 
-On some SoCs, such as the i.MX6, it is necessary to set a bit
-in the SoC level GPR register before suspending for wake on lan
-to work.
+Switching tracers include instruction patching. To prevent that a
+instruction is patched while it's read the instruction patching is done
+in stop_machine 'context'. This also means that any function called
+during stop_machine must not be traced. Thus add 'notrace' to all
+functions called within stop_machine.
 
-The fec platform callback sleep_mode_enable was intended to allow this
-but the platform implementation was NAK'd back in 2015 [1]
+Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
+Fixes: 38f2c691a4b3 ("s390: improve wait logic of stop_machine")
+Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
+Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This means that, currently, wake on lan is broken on mainline for
-the i.MX6 at least.
-
-So implement the required bit setting in the fec driver by itself
-by adding a new optional DT property indicating the GPR register
-and adding the offset and bit information to the driver.
-
-[1] https://www.spinics.net/lists/netdev/msg310922.html
-
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec.h      |   7 +
- drivers/net/ethernet/freescale/fec_main.c | 149 +++++++++++++++++-----
- 2 files changed, 127 insertions(+), 29 deletions(-)
+ arch/s390/kernel/diag.c  |    2 +-
+ arch/s390/kernel/smp.c   |    4 ++--
+ arch/s390/kernel/trace.c |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec.h b/drivers/net/ethernet/freescale/fec.h
-index bf80855dd0dd4..d06a89e99872d 100644
---- a/drivers/net/ethernet/freescale/fec.h
-+++ b/drivers/net/ethernet/freescale/fec.h
-@@ -488,6 +488,12 @@ struct fec_enet_priv_rx_q {
- 	struct  sk_buff *rx_skbuff[RX_RING_SIZE];
- };
+--- a/arch/s390/kernel/diag.c
++++ b/arch/s390/kernel/diag.c
+@@ -133,7 +133,7 @@ void diag_stat_inc(enum diag_stat_enum n
+ }
+ EXPORT_SYMBOL(diag_stat_inc);
  
-+struct fec_stop_mode_gpr {
-+	struct regmap *gpr;
-+	u8 reg;
-+	u8 bit;
-+};
-+
- /* The FEC buffer descriptors track the ring buffers.  The rx_bd_base and
-  * tx_bd_base always point to the base of the buffer descriptors.  The
-  * cur_rx and cur_tx point to the currently available buffer.
-@@ -563,6 +569,7 @@ struct fec_enet_private {
- 	int hwts_tx_en;
- 	struct delayed_work time_keep;
- 	struct regulator *reg_phy;
-+	struct fec_stop_mode_gpr stop_gpr;
- 
- 	unsigned int tx_align;
- 	unsigned int rx_align;
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 9142992ccd5a7..48c58f93b124b 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -62,6 +62,8 @@
- #include <linux/if_vlan.h>
- #include <linux/pinctrl/consumer.h>
- #include <linux/prefetch.h>
-+#include <linux/mfd/syscon.h>
-+#include <linux/regmap.h>
- #include <soc/imx/cpuidle.h>
- 
- #include <asm/cacheflush.h>
-@@ -84,6 +86,56 @@ static void fec_enet_itr_coal_init(struct net_device *ndev);
- #define FEC_ENET_OPD_V	0xFFF0
- #define FEC_MDIO_PM_TIMEOUT  100 /* ms */
- 
-+struct fec_devinfo {
-+	u32 quirks;
-+	u8 stop_gpr_reg;
-+	u8 stop_gpr_bit;
-+};
-+
-+static const struct fec_devinfo fec_imx25_info = {
-+	.quirks = FEC_QUIRK_USE_GASKET | FEC_QUIRK_MIB_CLEAR |
-+		  FEC_QUIRK_HAS_FRREG,
-+};
-+
-+static const struct fec_devinfo fec_imx27_info = {
-+	.quirks = FEC_QUIRK_MIB_CLEAR | FEC_QUIRK_HAS_FRREG,
-+};
-+
-+static const struct fec_devinfo fec_imx28_info = {
-+	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_SWAP_FRAME |
-+		  FEC_QUIRK_SINGLE_MDIO | FEC_QUIRK_HAS_RACC |
-+		  FEC_QUIRK_HAS_FRREG,
-+};
-+
-+static const struct fec_devinfo fec_imx6q_info = {
-+	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
-+		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
-+		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR006358 |
-+		  FEC_QUIRK_HAS_RACC,
-+	.stop_gpr_reg = 0x34,
-+	.stop_gpr_bit = 27,
-+};
-+
-+static const struct fec_devinfo fec_mvf600_info = {
-+	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_RACC,
-+};
-+
-+static const struct fec_devinfo fec_imx6x_info = {
-+	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
-+		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
-+		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
-+		  FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
-+		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE,
-+};
-+
-+static const struct fec_devinfo fec_imx6ul_info = {
-+	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
-+		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
-+		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR007885 |
-+		  FEC_QUIRK_BUG_CAPTURE | FEC_QUIRK_HAS_RACC |
-+		  FEC_QUIRK_HAS_COALESCE,
-+};
-+
- static struct platform_device_id fec_devtype[] = {
- 	{
- 		/* keep it for coldfire */
-@@ -91,39 +143,25 @@ static struct platform_device_id fec_devtype[] = {
- 		.driver_data = 0,
- 	}, {
- 		.name = "imx25-fec",
--		.driver_data = FEC_QUIRK_USE_GASKET | FEC_QUIRK_MIB_CLEAR |
--			       FEC_QUIRK_HAS_FRREG,
-+		.driver_data = (kernel_ulong_t)&fec_imx25_info,
- 	}, {
- 		.name = "imx27-fec",
--		.driver_data = FEC_QUIRK_MIB_CLEAR | FEC_QUIRK_HAS_FRREG,
-+		.driver_data = (kernel_ulong_t)&fec_imx27_info,
- 	}, {
- 		.name = "imx28-fec",
--		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_SWAP_FRAME |
--				FEC_QUIRK_SINGLE_MDIO | FEC_QUIRK_HAS_RACC |
--				FEC_QUIRK_HAS_FRREG,
-+		.driver_data = (kernel_ulong_t)&fec_imx28_info,
- 	}, {
- 		.name = "imx6q-fec",
--		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
--				FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
--				FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR006358 |
--				FEC_QUIRK_HAS_RACC,
-+		.driver_data = (kernel_ulong_t)&fec_imx6q_info,
- 	}, {
- 		.name = "mvf600-fec",
--		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_RACC,
-+		.driver_data = (kernel_ulong_t)&fec_mvf600_info,
- 	}, {
- 		.name = "imx6sx-fec",
--		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
--				FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
--				FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
--				FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
--				FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE,
-+		.driver_data = (kernel_ulong_t)&fec_imx6x_info,
- 	}, {
- 		.name = "imx6ul-fec",
--		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
--				FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
--				FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR007885 |
--				FEC_QUIRK_BUG_CAPTURE | FEC_QUIRK_HAS_RACC |
--				FEC_QUIRK_HAS_COALESCE,
-+		.driver_data = (kernel_ulong_t)&fec_imx6ul_info,
- 	}, {
- 		/* sentinel */
- 	}
-@@ -1089,11 +1127,28 @@ fec_restart(struct net_device *ndev)
- 
+-void diag_stat_inc_norecursion(enum diag_stat_enum nr)
++void notrace diag_stat_inc_norecursion(enum diag_stat_enum nr)
+ {
+ 	this_cpu_inc(diag_stat.counter[nr]);
+ 	trace_s390_diagnose_norecursion(diag_map[nr].code);
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -403,7 +403,7 @@ int smp_find_processor_id(u16 address)
+ 	return -1;
  }
  
-+static void fec_enet_stop_mode(struct fec_enet_private *fep, bool enabled)
-+{
-+	struct fec_platform_data *pdata = fep->pdev->dev.platform_data;
-+	struct fec_stop_mode_gpr *stop_gpr = &fep->stop_gpr;
-+
-+	if (stop_gpr->gpr) {
-+		if (enabled)
-+			regmap_update_bits(stop_gpr->gpr, stop_gpr->reg,
-+					   BIT(stop_gpr->bit),
-+					   BIT(stop_gpr->bit));
-+		else
-+			regmap_update_bits(stop_gpr->gpr, stop_gpr->reg,
-+					   BIT(stop_gpr->bit), 0);
-+	} else if (pdata && pdata->sleep_mode_enable) {
-+		pdata->sleep_mode_enable(enabled);
-+	}
-+}
-+
- static void
- fec_stop(struct net_device *ndev)
+-bool arch_vcpu_is_preempted(int cpu)
++bool notrace arch_vcpu_is_preempted(int cpu)
  {
- 	struct fec_enet_private *fep = netdev_priv(ndev);
--	struct fec_platform_data *pdata = fep->pdev->dev.platform_data;
- 	u32 rmii_mode = readl(fep->hwp + FEC_R_CNTRL) & (1 << 8);
- 	u32 val;
- 
-@@ -1122,9 +1177,7 @@ fec_stop(struct net_device *ndev)
- 		val = readl(fep->hwp + FEC_ECNTRL);
- 		val |= (FEC_ECR_MAGICEN | FEC_ECR_SLEEP);
- 		writel(val, fep->hwp + FEC_ECNTRL);
--
--		if (pdata && pdata->sleep_mode_enable)
--			pdata->sleep_mode_enable(true);
-+		fec_enet_stop_mode(fep, true);
- 	}
- 	writel(fep->phy_speed, fep->hwp + FEC_MII_SPEED);
- 
-@@ -3347,6 +3400,37 @@ static int fec_enet_get_irq_cnt(struct platform_device *pdev)
- 	return irq_cnt;
+ 	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
+ 		return false;
+@@ -413,7 +413,7 @@ bool arch_vcpu_is_preempted(int cpu)
  }
+ EXPORT_SYMBOL(arch_vcpu_is_preempted);
  
-+static int fec_enet_init_stop_mode(struct fec_enet_private *fep,
-+				   struct fec_devinfo *dev_info,
-+				   struct device_node *np)
-+{
-+	struct device_node *gpr_np;
-+	int ret = 0;
-+
-+	if (!dev_info)
-+		return 0;
-+
-+	gpr_np = of_parse_phandle(np, "gpr", 0);
-+	if (!gpr_np)
-+		return 0;
-+
-+	fep->stop_gpr.gpr = syscon_node_to_regmap(gpr_np);
-+	if (IS_ERR(fep->stop_gpr.gpr)) {
-+		dev_err(&fep->pdev->dev, "could not find gpr regmap\n");
-+		ret = PTR_ERR(fep->stop_gpr.gpr);
-+		fep->stop_gpr.gpr = NULL;
-+		goto out;
-+	}
-+
-+	fep->stop_gpr.reg = dev_info->stop_gpr_reg;
-+	fep->stop_gpr.bit = dev_info->stop_gpr_bit;
-+
-+out:
-+	of_node_put(gpr_np);
-+
-+	return ret;
-+}
-+
- static int
- fec_probe(struct platform_device *pdev)
+-void smp_yield_cpu(int cpu)
++void notrace smp_yield_cpu(int cpu)
  {
-@@ -3362,6 +3446,7 @@ fec_probe(struct platform_device *pdev)
- 	int num_rx_qs;
- 	char irq_name[8];
- 	int irq_cnt;
-+	struct fec_devinfo *dev_info;
+ 	if (MACHINE_HAS_DIAG9C) {
+ 		diag_stat_inc_norecursion(DIAG_STAT_X09C);
+--- a/arch/s390/kernel/trace.c
++++ b/arch/s390/kernel/trace.c
+@@ -14,7 +14,7 @@ EXPORT_TRACEPOINT_SYMBOL(s390_diagnose);
  
- 	fec_enet_get_queue_num(pdev, &num_tx_qs, &num_rx_qs);
+ static DEFINE_PER_CPU(unsigned int, diagnose_trace_depth);
  
-@@ -3379,7 +3464,9 @@ fec_probe(struct platform_device *pdev)
- 	of_id = of_match_device(fec_dt_ids, &pdev->dev);
- 	if (of_id)
- 		pdev->id_entry = of_id->data;
--	fep->quirks = pdev->id_entry->driver_data;
-+	dev_info = (struct fec_devinfo *)pdev->id_entry->driver_data;
-+	if (dev_info)
-+		fep->quirks = dev_info->quirks;
- 
- 	fep->netdev = ndev;
- 	fep->num_rx_queues = num_rx_qs;
-@@ -3414,6 +3501,10 @@ fec_probe(struct platform_device *pdev)
- 	if (of_get_property(np, "fsl,magic-packet", NULL))
- 		fep->wol_flag |= FEC_WOL_HAS_MAGIC_PACKET;
- 
-+	ret = fec_enet_init_stop_mode(fep, dev_info, np);
-+	if (ret)
-+		goto failed_stop_mode;
-+
- 	phy_node = of_parse_phandle(np, "phy-handle", 0);
- 	if (!phy_node && of_phy_is_fixed_link(np)) {
- 		ret = of_phy_register_fixed_link(np);
-@@ -3583,6 +3674,7 @@ failed_clk:
- 	if (of_phy_is_fixed_link(np))
- 		of_phy_deregister_fixed_link(np);
- 	of_node_put(phy_node);
-+failed_stop_mode:
- failed_phy:
- 	dev_id--;
- failed_ioremap:
-@@ -3660,7 +3752,6 @@ static int __maybe_unused fec_resume(struct device *dev)
+-void trace_s390_diagnose_norecursion(int diag_nr)
++void notrace trace_s390_diagnose_norecursion(int diag_nr)
  {
- 	struct net_device *ndev = dev_get_drvdata(dev);
- 	struct fec_enet_private *fep = netdev_priv(ndev);
--	struct fec_platform_data *pdata = fep->pdev->dev.platform_data;
- 	int ret;
- 	int val;
- 
-@@ -3678,8 +3769,8 @@ static int __maybe_unused fec_resume(struct device *dev)
- 			goto failed_clk;
- 		}
- 		if (fep->wol_flag & FEC_WOL_FLAG_ENABLE) {
--			if (pdata && pdata->sleep_mode_enable)
--				pdata->sleep_mode_enable(false);
-+			fec_enet_stop_mode(fep, false);
-+
- 			val = readl(fep->hwp + FEC_ECNTRL);
- 			val &= ~(FEC_ECR_MAGICEN | FEC_ECR_SLEEP);
- 			writel(val, fep->hwp + FEC_ECNTRL);
--- 
-2.20.1
-
+ 	unsigned long flags;
+ 	unsigned int *depth;
 
 
