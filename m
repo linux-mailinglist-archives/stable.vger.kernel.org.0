@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBB21C1624
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B781C164F
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731283AbgEANkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:40:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40348 "EHLO mail.kernel.org"
+        id S1731688AbgEANn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:43:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730978AbgEANkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:40:18 -0400
+        id S1731439AbgEANn5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:43:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D4A3208DB;
-        Fri,  1 May 2020 13:40:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6ACB208DB;
+        Fri,  1 May 2020 13:43:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340418;
-        bh=17Z6ur9/JVGYgU+ovwJDkUoJXP5IFKxDcHNAtxzeoZ4=;
+        s=default; t=1588340637;
+        bh=vTyuW465oi1ldPe5fL/nkyV1YZRgw8uEFV8K5VJecbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/4ojm8bN6TkI9spTiKauJ1qxiZvYobLWCFuOUSUz4X9MWCk1Gv+PlAdciskaIkaQ
-         TiPg91D8O+OZxrCk6OylnGKPUPoD+hkBh3T88YoJtpviaTYsWPhV2ebN/0JhfGBs0o
-         QrdbjGSGsEqlAieUWY8oII8l/MkZUe4lp+P9lRnA=
+        b=pKUa1wzY2RXpoeKfJixlbBDsdDnPWgzjre+/AfTAXKLsgSUxZwQkiCAUVBAflSD5p
+         d+hFrttjZ8IOdnsO5i+iqPcgDRSq5PFkoWMD69Wc/Iw6FtKUV62xeBmhab+riL0TSr
+         Hj+bhRSfwi6LuBX0CYILh0UsWRhbgH+mMgwy7LVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 57/83] afs: Fix length of dump of bad YFSFetchStatus record
+        stable@vger.kernel.org, Wang YanQing <udknight@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.6 063/106] bpf, x86_32: Fix logic error in BPF_LDX zero-extension
 Date:   Fri,  1 May 2020 15:23:36 +0200
-Message-Id: <20200501131539.936291012@linuxfoundation.org>
+Message-Id: <20200501131551.363096069@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Wang YanQing <udknight@gmail.com>
 
-[ Upstream commit 3efe55b09a92a59ed8214db801683cf13c9742c4 ]
+commit 5ca1ca01fae1e90f8d010eb1d83374f28dc11ee6 upstream.
 
-Fix the length of the dump of a bad YFSFetchStatus record.  The function
-was copied from the AFS version, but the YFS variant contains bigger fields
-and extra information, so expand the dump to match.
+When verifier_zext is true, we don't need to emit code
+for zero-extension.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 836256bf5f37 ("x32: bpf: eliminate zero extension code-gen")
+Signed-off-by: Wang YanQing <udknight@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200423050637.GA4029@udknight
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/afs/yfsclient.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/net/bpf_jit_comp32.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
-index 31b236c6b1f76..39230880f372b 100644
---- a/fs/afs/yfsclient.c
-+++ b/fs/afs/yfsclient.c
-@@ -165,15 +165,15 @@ static void xdr_dump_bad(const __be32 *bp)
- 	int i;
- 
- 	pr_notice("YFS XDR: Bad status record\n");
--	for (i = 0; i < 5 * 4 * 4; i += 16) {
-+	for (i = 0; i < 6 * 4 * 4; i += 16) {
- 		memcpy(x, bp, 16);
- 		bp += 4;
- 		pr_notice("%03x: %08x %08x %08x %08x\n",
- 			  i, ntohl(x[0]), ntohl(x[1]), ntohl(x[2]), ntohl(x[3]));
- 	}
- 
--	memcpy(x, bp, 4);
--	pr_notice("0x50: %08x\n", ntohl(x[0]));
-+	memcpy(x, bp, 8);
-+	pr_notice("0x60: %08x %08x\n", ntohl(x[0]), ntohl(x[1]));
- }
- 
- /*
--- 
-2.20.1
-
+--- a/arch/x86/net/bpf_jit_comp32.c
++++ b/arch/x86/net/bpf_jit_comp32.c
+@@ -1847,7 +1847,7 @@ static int do_jit(struct bpf_prog *bpf_p
+ 			case BPF_B:
+ 			case BPF_H:
+ 			case BPF_W:
+-				if (!bpf_prog->aux->verifier_zext)
++				if (bpf_prog->aux->verifier_zext)
+ 					break;
+ 				if (dstk) {
+ 					EMIT3(0xC7, add_1reg(0x40, IA32_EBP),
 
 
