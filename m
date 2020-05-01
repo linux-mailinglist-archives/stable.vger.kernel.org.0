@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01FB01C1373
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C9C1C1564
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729814AbgEAN3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:29:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53242 "EHLO mail.kernel.org"
+        id S1729275AbgEAN0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:26:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729302AbgEAN3i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:29:38 -0400
+        id S1729266AbgEAN0b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:26:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC928208DB;
-        Fri,  1 May 2020 13:29:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9996C2166E;
+        Fri,  1 May 2020 13:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339778;
-        bh=74iTO465UoUa8Ze5YwNrtetiBHOrvZsrEsFg1HbTjFI=;
+        s=default; t=1588339591;
+        bh=2C+zaXH0NcVwovhzxCpIT+U1m1TU7namuJZfIR6ant8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/cxlIA/DwAnUActfiSs/idlbkRCmZ5ZmjewzcgcUTjtA9aVx9yWW2uTLtf7T38+a
-         PIi7k3EvlJ+b0STtxVykCMvIM5ESZaMx792qe2KeTrVRTZ3NoIGVH38zvpkpOHi1Y1
-         Lgfh9Cg0dvUgyr2hiS4hi2NJeLAM8Jhk0kgCdfx8=
+        b=OeqCCltue2xirhxZMjDiOwgT6sXlbk5f/Inj+mSCAym5GWmCvoGLQ+oPk/LTAVkS5
+         oZSCW2CyterWok1i/+WBrJeWRbSQMWkoj3as51IuluVajr80nIYzMyS023M3AaVJQE
+         gggXCS9IV58laQ10Pn/as2DAThc9MiS3xzf1Wifg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d889b59b2bb87d4047a2@syzkaller.appspotmail.com,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 44/80] KVM: Check validity of resolved slot when searching memslots
-Date:   Fri,  1 May 2020 15:21:38 +0200
-Message-Id: <20200501131527.509549308@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.4 51/70] UAS: no use logging any details in case of ENODEV
+Date:   Fri,  1 May 2020 15:21:39 +0200
+Message-Id: <20200501131529.217441706@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit b6467ab142b708dd076f6186ca274f14af379c72 upstream.
+commit 5963dec98dc52d52476390485f07a29c30c6a582 upstream.
 
-Check that the resolved slot (somewhat confusingly named 'start') is a
-valid/allocated slot before doing the final comparison to see if the
-specified gfn resides in the associated slot.  The resolved slot can be
-invalid if the binary search loop terminated because the search index
-was incremented beyond the number of used slots.
+Once a device is gone, the internal state does not matter anymore.
+There is no need to spam the logs.
 
-This bug has existed since the binary search algorithm was introduced,
-but went unnoticed because KVM statically allocated memory for the max
-number of slots, i.e. the access would only be truly out-of-bounds if
-all possible slots were allocated and the specified gfn was less than
-the base of the lowest memslot.  Commit 36947254e5f98 ("KVM: Dynamically
-size memslot array based on number of used slots") eliminated the "all
-possible slots allocated" condition and made the bug embarrasingly easy
-to hit.
-
-Fixes: 9c1a5d38780e6 ("kvm: optimize GFN to memslot lookup with large slots amount")
-Reported-by: syzbot+d889b59b2bb87d4047a2@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200408064059.8957-2-sean.j.christopherson@intel.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 326349f824619 ("uas: add dead request list")
+Link: https://lore.kernel.org/r/20200415141750.811-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/kvm_host.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/storage/uas.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -914,7 +914,7 @@ search_memslots(struct kvm_memslots *slo
- 			start = slot + 1;
- 	}
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -191,6 +191,9 @@ static void uas_log_cmd_state(struct scs
+ 	struct uas_cmd_info *ci = (void *)&cmnd->SCp;
+ 	struct uas_cmd_info *cmdinfo = (void *)&cmnd->SCp;
  
--	if (gfn >= memslots[start].base_gfn &&
-+	if (start < slots->used_slots && gfn >= memslots[start].base_gfn &&
- 	    gfn < memslots[start].base_gfn + memslots[start].npages) {
- 		atomic_set(&slots->lru_slot, start);
- 		return &memslots[start];
++	if (status == -ENODEV) /* too late */
++		return;
++
+ 	scmd_printk(KERN_INFO, cmnd,
+ 		    "%s %d uas-tag %d inflight:%s%s%s%s%s%s%s%s%s%s%s%s ",
+ 		    prefix, status, cmdinfo->uas_tag,
 
 
