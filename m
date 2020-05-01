@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27EBF1C168A
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 267FC1C1532
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731216AbgEANtw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:49:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41018 "EHLO mail.kernel.org"
+        id S1731531AbgEANoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:44:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730659AbgEANku (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:40:50 -0400
+        id S1731762AbgEANoh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:44:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 823AC205C9;
-        Fri,  1 May 2020 13:40:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 377B62051A;
+        Fri,  1 May 2020 13:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340450;
-        bh=d9WCOVPH7L+/dPvkYP6Uk/9VEzZL2uz/ct95MRypraM=;
+        s=default; t=1588340676;
+        bh=0q/xyRhBBkaXhh1rqSS+bdiBtGSIXDcfrgR5fSDD1xA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0f+vgwrix9fzqc8k7+usH5ovNgz9AabKuidbj+t+GvK74YpjHp0+GR3nwA7wscOD3
-         LfdFMJkzFXK65+fwvSWjf8AlufSQMLR7unGRNO++vGvvPCT0RxE38ZBVeGpSCNQbjE
-         SNPMNg3MOiFp2cBDFlK3gVdwIGHTxqXy428SyTaI=
+        b=XDjPKfvVclNJ648xPRV5KTnyxLBQOgThabSa6J/PdN3jkV9o30eyofpk8M0rZ0YTr
+         WggjuAlZFrkVuDbwfj25sy4gC/myGoIjaNgYEL42urHFNcQDamg8f4hoiQHsYovAQ8
+         fpVU/p22vY0jfp/ueCKyq02vuRSl+vhjQ1Dy6/Og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Bodo Stroesser <bstroesser@ts.fujitsu.com>,
+        Mike Christie <mchristi@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 72/83] ext4: increase wait time needed before reuse of deleted inode numbers
+Subject: [PATCH 5.6 078/106] scsi: target: fix PR IN / READ FULL STATUS for FC
 Date:   Fri,  1 May 2020 15:23:51 +0200
-Message-Id: <20200501131541.643071096@linuxfoundation.org>
+Message-Id: <20200501131553.220130512@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
 
-[ Upstream commit a17a9d935dc4a50acefaf319d58030f1da7f115a ]
+[ Upstream commit 8fed04eb79a74cbf471dfaa755900a51b37273ab ]
 
-Current wait times have proven to be too short to protect against inode
-reuses that lead to metadata inconsistencies.
+Creation of the response to READ FULL STATUS fails for FC based
+reservations. Reason is the too high loop limit (< 24) in
+fc_get_pr_transport_id(). The string representation of FC WWPN is 23 chars
+long only ("11:22:33:44:55:66:77:88"). So when i is 23, the loop body is
+executed a last time for the ending '\0' of the string and thus hex2bin()
+reports an error.
 
-Now that we will retry the inode allocation if we can't find any
-recently deleted inodes, it's a lot safer to increase the recently
-deleted time from 5 seconds to a minute.
-
-Link: https://lore.kernel.org/r/20200414023925.273867-1-tytso@mit.edu
-Google-Bug-Id: 36602237
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20200408132610.14623-3-bstroesser@ts.fujitsu.com
+Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+Reviewed-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ialloc.c | 2 +-
+ drivers/target/target_core_fabric_lib.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ext4/ialloc.c b/fs/ext4/ialloc.c
-index a6288730210e8..64b6549dd9016 100644
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -660,7 +660,7 @@ static int find_group_other(struct super_block *sb, struct inode *parent,
-  * block has been written back to disk.  (Yes, these values are
-  * somewhat arbitrary...)
-  */
--#define RECENTCY_MIN	5
-+#define RECENTCY_MIN	60
- #define RECENTCY_DIRTY	300
- 
- static int recently_deleted(struct super_block *sb, ext4_group_t group, int ino)
+diff --git a/drivers/target/target_core_fabric_lib.c b/drivers/target/target_core_fabric_lib.c
+index 6b4b354c88aa0..b5c970faf5854 100644
+--- a/drivers/target/target_core_fabric_lib.c
++++ b/drivers/target/target_core_fabric_lib.c
+@@ -63,7 +63,7 @@ static int fc_get_pr_transport_id(
+ 	 * encoded TransportID.
+ 	 */
+ 	ptr = &se_nacl->initiatorname[0];
+-	for (i = 0; i < 24; ) {
++	for (i = 0; i < 23; ) {
+ 		if (!strncmp(&ptr[i], ":", 1)) {
+ 			i++;
+ 			continue;
 -- 
 2.20.1
 
