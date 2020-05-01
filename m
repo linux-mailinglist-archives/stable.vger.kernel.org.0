@@ -2,164 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 660C01C1F35
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 23:02:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0A871C1F49
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 23:10:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726377AbgEAVCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 17:02:54 -0400
-Received: from mx2.suse.de ([195.135.220.15]:56454 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726045AbgEAVCy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 17:02:54 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 08F59ABC2;
-        Fri,  1 May 2020 21:02:51 +0000 (UTC)
+        id S1726495AbgEAVKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 17:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38444 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726045AbgEAVKJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 17:10:09 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FECBC061A0C
+        for <stable@vger.kernel.org>; Fri,  1 May 2020 14:10:09 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id ms17so398400pjb.0
+        for <stable@vger.kernel.org>; Fri, 01 May 2020 14:10:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Y/dBT/BjLZW7TMWhnY0UXKA21hTt8pfGNmlMpR0+9zA=;
+        b=LkgPG5aK4n3SoqA3xN+poXbSvVK0817Vs4YSmxNYuFgUYwzs/LUd/a17wzKnGfkPrk
+         92gg4ir3hjGuFAWSGTw/ECbXmAVahg785w0JKUytRMT8v3Tm9yhni2L+bb1TyGMQnpr7
+         y6MXKjvu1QoYkdFBtagz1NibB3WxSCZsJZMt89b3rVGWeVY0uC17V2w5RsQfaD/trHDu
+         ogaquFe0YWprrAVtHRpy7YyVh4o1UgUOYIDVt7XWJjlDY4JpaqOUYJcC3vCnXn8wtRxL
+         2Uu06OM8iZKhwsr0s4k0lpxTALEwB66IxPOLjpiIkgNFa+uncRvpEwKedXg1mCRpD0jR
+         EeVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Y/dBT/BjLZW7TMWhnY0UXKA21hTt8pfGNmlMpR0+9zA=;
+        b=fQIKnjyKYgMzaRgtqIDVksJJ9/+CzkaeXgoNNWW1OiUiz0Xt2ghTpZmWTeAFLxLbmX
+         EVThnLqRSlnoDp17UV3SgiZuIpVCboqyjy98809hFamWl0WjFHL634CaPvO82oa9kjGe
+         4pGQxsdeB7OtKHwi5sMOB4xmmkhRDxCJFrQuNBYcUWHtNgv7awjtYWzOjfHmIRIWYXpu
+         p8Cv0Trhy+UBKhKOWzf6aSXEwL5Cu+dLeRni85fRzAcT5T/esLAWe4WJWqcgauweZynG
+         tg4PvX+qyVAf0SpUQxMDS3ucTC79ChdfMNHG6na5UuDfqluj/2mdPBvyhrW0ieaZYBnI
+         4S1g==
+X-Gm-Message-State: AGi0Pube1r8FPNuoHpwrcXOnmFeifu3I9oswhvmenznlZM1unoD7WINF
+        uX2j7ifobAv39wGn3ciF0OCaDlDe2Q8=
+X-Google-Smtp-Source: APiQypKaG7ks4/TbGsDv2jKNjImbmLpc0wyeDcxm7MKnJwUrAeMwi7nkowiPiOcXN2EuR4Nx1+yEPw==
+X-Received: by 2002:a17:90a:f313:: with SMTP id ca19mr1766014pjb.7.1588367408463;
+        Fri, 01 May 2020 14:10:08 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k10sm3016040pfa.163.2020.05.01.14.10.07
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 May 2020 14:10:07 -0700 (PDT)
+Message-ID: <5eac902f.1c69fb81.aa9b0.abd9@mx.google.com>
+Date:   Fri, 01 May 2020 14:10:07 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Fri, 01 May 2020 23:02:51 +0200
-From:   Roman Penyaev <rpenyaev@suse.de>
-To:     Jason Baron <jbaron@akamai.com>
-Cc:     akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Davidlohr Bueso <dbueso@suse.de>, stable@vger.kernel.org
-Subject: Re: [PATCH] epoll: ensure ep_poll() doesn't miss wakeup events
-In-Reply-To: <1588360533-11828-1-git-send-email-jbaron@akamai.com>
-References: <1588360533-11828-1-git-send-email-jbaron@akamai.com>
-Message-ID: <930c565705249d2b6264a31f1be6529e@suse.de>
-X-Sender: rpenyaev@suse.de
-User-Agent: Roundcube Webmail
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.119-47-g81d4e31e1418
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.19.y boot: 106 boots: 1 failed,
+ 99 passed with 6 untried/unknown (v4.19.119-47-g81d4e31e1418)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jason,
+stable-rc/linux-4.19.y boot: 106 boots: 1 failed, 99 passed with 6 untried/=
+unknown (v4.19.119-47-g81d4e31e1418)
 
-That is indeed a nice catch.
-Seems we need smp_rmb() pair between list_empty_careful(&rp->rdllist) 
-and
-READ_ONCE(ep->ovflist) for ep_events_available(), do we?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.119-47-g81d4e31e1418/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.119-47-g81d4e31e1418/
 
-Other than that:
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.119-47-g81d4e31e1418
+Git Commit: 81d4e31e141844fdb5678510f819e09de1c9f607
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 62 unique boards, 16 SoC families, 18 builds out of 204
 
-Reviewed-by: Roman Penyaev <rpenyaev@suse.de>
+Boot Regressions Detected:
 
---
-Roman
+arc:
 
-On 2020-05-01 21:15, Jason Baron wrote:
-> Now that the ep_events_available() check is done in a lockless way, and
-> we no longer perform wakeups from ep_scan_ready_list(), we need to 
-> ensure
-> that either ep->rdllist has items or the overflow list is active. Prior 
-> to:
-> commit 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested
-> epoll"), we did wake_up(&ep->wq) after manipulating the ep->rdllist and 
-> the
-> overflow list. Thus, any waiters would observe the correct state. 
-> However,
-> with that wake_up() now removed we need to be more careful to ensure 
-> that
-> condition.
-> 
-> Here's an example of what could go wrong:
-> 
-> We have epoll fds: epfd1, epfd2. And epfd1 is added to epfd2 and epfd2 
-> is
-> added to a socket: epfd1->epfd2->socket. Thread a is doing epoll_wait() 
-> on
-> epfd1, and thread b is doing epoll_wait on epfd2. Then:
-> 
-> 1) data comes in on socket
-> 
-> ep_poll_callback() wakes up threads a and b
-> 
-> 2) thread a runs
-> 
-> ep_poll()
->  ep_scan_ready_list()
->   ep_send_events_proc()
->    ep_item_poll()
->      ep_scan_ready_list()
->        list_splice_init(&ep->rdllist, &txlist);
-> 
-> 3) now thread b is running
-> 
-> ep_poll()
->  ep_events_available()
->    returns false
->  schedule_hrtimeout_range()
-> 
-> Thus, thread b has now scheduled and missed the wakeup.
-> 
-> Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested 
-> epoll")
-> Signed-off-by: Jason Baron <jbaron@akamai.com>
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: Heiher <r@hev.cc>
-> Cc: Roman Penyaev <rpenyaev@suse.de>
-> Cc: Khazhismel Kumykov <khazhy@google.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Davidlohr Bueso <dbueso@suse.de>
-> Cc: <stable@vger.kernel.org>
-> ---
->  fs/eventpoll.c | 23 +++++++++++++++++------
->  1 file changed, 17 insertions(+), 6 deletions(-)
-> 
-> diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-> index aba03ee749f8..4af2d020f548 100644
-> --- a/fs/eventpoll.c
-> +++ b/fs/eventpoll.c
-> @@ -704,8 +704,14 @@ static __poll_t ep_scan_ready_list(struct 
-> eventpoll *ep,
->  	 * in a lockless way.
->  	 */
->  	write_lock_irq(&ep->lock);
-> -	list_splice_init(&ep->rdllist, &txlist);
->  	WRITE_ONCE(ep->ovflist, NULL);
-> +	/*
-> +	 * In ep_poll() we use ep_events_available() in a lockless way to 
-> decide
-> +	 * if events are available. So we need to preserve that either
-> +	 * ep->oflist != EP_UNACTIVE_PTR or there are events on the 
-> ep->rdllist.
-> +	 */
-> +	smp_wmb();
-> +	list_splice_init(&ep->rdllist, &txlist);
->  	write_unlock_irq(&ep->lock);
-> 
->  	/*
-> @@ -737,16 +743,21 @@ static __poll_t ep_scan_ready_list(struct 
-> eventpoll *ep,
->  		}
->  	}
->  	/*
-> +	 * Quickly re-inject items left on "txlist".
-> +	 */
-> +	list_splice(&txlist, &ep->rdllist);
-> +	/*
-> +	 * In ep_poll() we use ep_events_available() in a lockless way to 
-> decide
-> +	 * if events are available. So we need to preserve that either
-> +	 * ep->oflist != EP_UNACTIVE_PTR or there are events on the 
-> ep->rdllist.
-> +	 */
-> +	smp_wmb();
-> +	/*
->  	 * We need to set back ep->ovflist to EP_UNACTIVE_PTR, so that after
->  	 * releasing the lock, events will be queued in the normal way inside
->  	 * ep->rdllist.
->  	 */
->  	WRITE_ONCE(ep->ovflist, EP_UNACTIVE_PTR);
-> -
-> -	/*
-> -	 * Quickly re-inject items left on "txlist".
-> -	 */
-> -	list_splice(&txlist, &ep->rdllist);
->  	__pm_relax(ep->ws);
->  	write_unlock_irq(&ep->lock);
+    hsdk_defconfig:
+        gcc-8:
+          hsdk:
+              lab-baylibre: new failure (last pass: v4.19.119-27-gf142d35ff=
+6ac)
 
+arm:
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 49 days (last pass: v4.19.108-87-=
+g624c124960e8 - first fail: v4.19.109)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.19.119-27-gf142d35f=
+f6ac)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
