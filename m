@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D7BA1C15A1
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 975871C1553
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729247AbgEANbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:31:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55818 "EHLO mail.kernel.org"
+        id S1728907AbgEANY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729222AbgEANbR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:31:17 -0400
+        id S1728919AbgEANY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:24:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C313216FD;
-        Fri,  1 May 2020 13:31:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 109AF216FD;
+        Fri,  1 May 2020 13:24:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339876;
-        bh=qh+rRQ26snjET7PSeU8hJK8HLdSc6NZMY9RE8q3qkKs=;
+        s=default; t=1588339497;
+        bh=MPS1oniKcLpHTYJf5xEFeeb2N3GF+OU8Rj9Q5VoItQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QnByEkeztLn0WXFtV6S8IHGgiPr3TjWfqrn+nAUOTcnBMHH4boJZjIofhUn193i98
-         +clWAMXOU0eaEgiLh9eEzgGYbfkbnN5ey4lwjwoFLdnNGJh8kQ+5y23U8O9QuMPZrv
-         mywsorcrN/LTP9L6nGyasHnnyfej20XlviFKk0HM=
+        b=VyXJPc81rVXSBvHjpCI0D+BNxjdavELG7YrC+G0Iedl51HRgqQZRdfT2bfTzfnJk9
+         AX60wBoip3m50JGmDPkyRHKdqI10bvXemvR/oX9Zx+9ZA0d7creT3PxBLoA57DCLGY
+         8TjAnsGE4azQ99q627o0iUCcFks9TUDjzasdCloQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        NeilBrown <neilb@suse.com>, Steven Rostedt <rostedt@goodmis.org>,
-        Waiman Long <longman@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 015/117] kernel/gcov/fs.c: gcov_seq_next() should increase position index
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 03/70] net: ipv4: emulate READ_ONCE() on ->hdrincl bit-field in raw_sendmsg()
 Date:   Fri,  1 May 2020 15:20:51 +0200
-Message-Id: <20200501131546.870692997@linuxfoundation.org>
+Message-Id: <20200501131514.209892874@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Nicolai Stange <nstange@suse.de>
 
-[ Upstream commit f4d74ef6220c1eda0875da30457bef5c7111ab06 ]
+commit 20b50d79974ea3192e8c3ab7faf4e536e5f14d8f upstream.
 
-If seq_file .next function does not change position index, read after
-some lseek can generate unexpected output.
+Commit 8f659a03a0ba ("net: ipv4: fix for a race condition in
+raw_sendmsg") fixed the issue of possibly inconsistent ->hdrincl handling
+due to concurrent updates by reading this bit-field member into a local
+variable and using the thus stabilized value in subsequent tests.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: NeilBrown <neilb@suse.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Waiman Long <longman@redhat.com>
-Link: http://lkml.kernel.org/r/f65c6ee7-bd00-f910-2f8a-37cc67e4ff88@virtuozzo.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, aforementioned commit also adds the (correct) comment that
+
+  /* hdrincl should be READ_ONCE(inet->hdrincl)
+   * but READ_ONCE() doesn't work with bit fields
+   */
+
+because as it stands, the compiler is free to shortcut or even eliminate
+the local variable at its will.
+
+Note that I have not seen anything like this happening in reality and thus,
+the concern is a theoretical one.
+
+However, in order to be on the safe side, emulate a READ_ONCE() on the
+bit-field by doing it on the local 'hdrincl' variable itself:
+
+	int hdrincl = inet->hdrincl;
+	hdrincl = READ_ONCE(hdrincl);
+
+This breaks the chain in the sense that the compiler is not allowed
+to replace subsequent reads from hdrincl with reloads from inet->hdrincl.
+
+Fixes: 8f659a03a0ba ("net: ipv4: fix for a race condition in raw_sendmsg")
+Signed-off-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/gcov/fs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/raw.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/gcov/fs.c b/kernel/gcov/fs.c
-index 6e40ff6be083d..291e0797125b6 100644
---- a/kernel/gcov/fs.c
-+++ b/kernel/gcov/fs.c
-@@ -109,9 +109,9 @@ static void *gcov_seq_next(struct seq_file *seq, void *data, loff_t *pos)
- {
- 	struct gcov_iterator *iter = data;
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -507,9 +507,11 @@ static int raw_sendmsg(struct sock *sk,
+ 		goto out;
  
-+	(*pos)++;
- 	if (gcov_iter_next(iter))
- 		return NULL;
--	(*pos)++;
- 
- 	return iter;
- }
--- 
-2.20.1
-
+ 	/* hdrincl should be READ_ONCE(inet->hdrincl)
+-	 * but READ_ONCE() doesn't work with bit fields
++	 * but READ_ONCE() doesn't work with bit fields.
++	 * Doing this indirectly yields the same result.
+ 	 */
+ 	hdrincl = inet->hdrincl;
++	hdrincl = READ_ONCE(hdrincl);
+ 	/*
+ 	 *	Check the flags.
+ 	 */
 
 
