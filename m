@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2B7C1C14D2
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 976321C1660
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731612AbgEANnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:43:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44192 "EHLO mail.kernel.org"
+        id S1731000AbgEANrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:47:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731610AbgEANnQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:43:16 -0400
+        id S1731100AbgEANnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:43:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A28F20757;
-        Fri,  1 May 2020 13:43:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3925208DB;
+        Fri,  1 May 2020 13:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340595;
-        bh=PeQtKIAleQy6HOosdj2MCVxCQ38sxvlUcKeh2ybvwSU=;
+        s=default; t=1588340598;
+        bh=VRKwHyeST9eW8Jf751691ackqgxF3NVlkUp43jtpwUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kCkKfS/9IL0bseOeh8FqI+aKQwt5dNEsSvt3PRz81c2B+etTqMtjH3B7jED00ODsl
-         rq99GakmQ/3Dzuwzz+zdZ/OHsNQP/kZshM1ZbZuzW9Y48Z1wD1cHx+a2eSXA1O6KXl
-         yea2k2knDtfZn2pRy/hWfj2t8BSoaEiBfgwW3EJ0=
+        b=THI21LGX7r4OhdteMLheU4Fn2PcgV/HJkfyF6UEbDjkFcF0molGyGmBMrwtbPXf3N
+         Zt2JIhy2U2eJ5NinCHSKnfdNW32ryUNICEosryhtU6pLSJL/6GCva8rtY1TzvXF8WY
+         5cspYf1wT9ot7/R94j7b0kx+X8plWoyY/GGw00vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raymond Pang <RaymondPang-oc@zhaoxin.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.6 046/106] PCI: Add ACS quirk for Zhaoxin Root/Downstream Ports
-Date:   Fri,  1 May 2020 15:23:19 +0200
-Message-Id: <20200501131549.221200148@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Lu=C3=ADs=20Mendes?= <luis.p.mendes@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Todd Poynor <toddpoynor@google.com>
+Subject: [PATCH 5.6 047/106] PCI: Move Apex Edge TPU class quirk to fix BAR assignment
+Date:   Fri,  1 May 2020 15:23:20 +0200
+Message-Id: <20200501131549.319111249@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
 References: <20200501131543.421333643@linuxfoundation.org>
@@ -43,64 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raymond Pang <RaymondPang-oc@zhaoxin.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-commit 299bd044a6f332b4a6c8f708575c27cad70a35c1 upstream.
+commit 0a8f41023e8a3c100b3dc458ed2da651bf961ead upstream.
 
-Many Zhaoxin Root Ports and Switch Downstream Ports do provide ACS-like
-capability but have no ACS Capability Structure.  Peer-to-Peer transactions
-could be blocked between these ports, so add quirk so devices behind them
-could be assigned to different IOMMU group.
+Some Google Apex Edge TPU devices have a class code of 0
+(PCI_CLASS_NOT_DEFINED).  This prevents the PCI core from assigning
+resources for the Apex BARs because __dev_sort_resources() ignores
+classless devices, host bridges, and IOAPICs.
 
-Link: https://lore.kernel.org/r/20200327091148.5190-4-RaymondPang-oc@zhaoxin.com
-Signed-off-by: Raymond Pang <RaymondPang-oc@zhaoxin.com>
+On x86, firmware typically assigns those resources, so this was not a
+problem.  But on some architectures, firmware does *not* assign BARs, and
+since the PCI core didn't do it either, the Apex device didn't work
+correctly:
+
+  apex 0000:01:00.0: can't enable device: BAR 0 [mem 0x00000000-0x00003fff 64bit pref] not claimed
+  apex 0000:01:00.0: error enabling PCI device
+
+f390d08d8b87 ("staging: gasket: apex: fixup undefined PCI class") added a
+quirk to fix the class code, but it was in the apex driver, and if the
+driver was built as a module, it was too late to help.
+
+Move the quirk to the PCI core, where it will always run early enough that
+the PCI core will assign resources if necessary.
+
+Link: https://lore.kernel.org/r/CAEzXK1r0Er039iERnc2KJ4jn7ySNUOG9H=Ha8TD8XroVqiZjgg@mail.gmail.com
+Fixes: f390d08d8b87 ("staging: gasket: apex: fixup undefined PCI class")
+Reported-by: Luís Mendes <luis.p.mendes@gmail.com>
+Debugged-by: Luís Mendes <luis.p.mendes@gmail.com>
+Tested-by: Luis Mendes <luis.p.mendes@gmail.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Todd Poynor <toddpoynor@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c |   25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/pci/quirks.c                 |    7 +++++++
+ drivers/staging/gasket/apex_driver.c |    7 -------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -4466,6 +4466,29 @@ static int pci_quirk_xgene_acs(struct pc
+@@ -5567,3 +5567,10 @@ static void pci_fixup_no_d0_pme(struct p
+ 	dev->pme_support &= ~(PCI_PM_CAP_PME_D0 >> PCI_PM_CAP_PME_SHIFT);
  }
- 
- /*
-+ * Many Zhaoxin Root Ports and Switch Downstream Ports have no ACS capability.
-+ * But the implementation could block peer-to-peer transactions between them
-+ * and provide ACS-like functionality.
-+ */
-+static int  pci_quirk_zhaoxin_pcie_ports_acs(struct pci_dev *dev, u16 acs_flags)
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x2142, pci_fixup_no_d0_pme);
++
++static void apex_pci_fixup_class(struct pci_dev *pdev)
 +{
-+	if (!pci_is_pcie(dev) ||
-+	    ((pci_pcie_type(dev) != PCI_EXP_TYPE_ROOT_PORT) &&
-+	     (pci_pcie_type(dev) != PCI_EXP_TYPE_DOWNSTREAM)))
-+		return -ENOTTY;
-+
-+	switch (dev->device) {
-+	case 0x0710 ... 0x071e:
-+	case 0x0721:
-+	case 0x0723 ... 0x0732:
-+		return pci_acs_ctrl_enabled(acs_flags,
-+			PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
-+	}
-+
-+	return false;
++	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
 +}
-+
-+/*
-  * Many Intel PCH Root Ports do provide ACS-like features to disable peer
-  * transactions and validate bus numbers in requests, but do not provide an
-  * actual PCIe ACS capability.  This is the list of device IDs known to fall
-@@ -4771,6 +4794,8 @@ static const struct pci_dev_acs_enabled
- 	{ PCI_VENDOR_ID_ZHAOXIN, 0x3038, pci_quirk_mf_endpoint_acs },
- 	{ PCI_VENDOR_ID_ZHAOXIN, 0x3104, pci_quirk_mf_endpoint_acs },
- 	{ PCI_VENDOR_ID_ZHAOXIN, 0x9083, pci_quirk_mf_endpoint_acs },
-+	/* Zhaoxin Root/Downstream Ports */
-+	{ PCI_VENDOR_ID_ZHAOXIN, PCI_ANY_ID, pci_quirk_zhaoxin_pcie_ports_acs },
- 	{ 0 }
++DECLARE_PCI_FIXUP_CLASS_HEADER(0x1ac1, 0x089a,
++			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
+--- a/drivers/staging/gasket/apex_driver.c
++++ b/drivers/staging/gasket/apex_driver.c
+@@ -570,13 +570,6 @@ static const struct pci_device_id apex_p
+ 	{ PCI_DEVICE(APEX_PCI_VENDOR_ID, APEX_PCI_DEVICE_ID) }, { 0 }
  };
  
+-static void apex_pci_fixup_class(struct pci_dev *pdev)
+-{
+-	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
+-}
+-DECLARE_PCI_FIXUP_CLASS_HEADER(APEX_PCI_VENDOR_ID, APEX_PCI_DEVICE_ID,
+-			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
+-
+ static int apex_pci_probe(struct pci_dev *pci_dev,
+ 			  const struct pci_device_id *id)
+ {
 
 
