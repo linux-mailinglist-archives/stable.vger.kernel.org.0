@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D2DA1C1603
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA6341C162F
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730991AbgEANh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:37:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37332 "EHLO mail.kernel.org"
+        id S1731306AbgEANl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:41:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731000AbgEANh6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:37:58 -0400
+        id S1730881AbgEANlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:41:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B96C2495E;
-        Fri,  1 May 2020 13:37:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F83C208DB;
+        Fri,  1 May 2020 13:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340277;
-        bh=utsCfuWAYLZpKVlPrFWY0Hxq69c7Gb7mBIKGNiK+O94=;
+        s=default; t=1588340482;
+        bh=JyuC2SMawCNg6QZoDdmws0T5tZw/DSIWVRs30SIqjm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SG0XHYdwFuRZ27L1TgovFIqDWYkZqPs7Wjpif1nXYtDc9TKllBqc1zGaGAY4IKAud
-         RXFe8JBTqLRO5UOGj+ub3K/U2QpJqbtunUvF2xpo3+ASn9hNV2YgjivAeuWVEyq+IY
-         zlc69TuE2tSfIpEApl5TmLkeJnCc3vvcX9ydA/xY=
+        b=g+KcjRGGl0IfVq0n7g+z3uxhevgRrQrKfiXMdkFgGaRR1DtJGugncikllY+tuxlqC
+         D3OgmMQIV0Qe5X0wDhCLa/XNsjMkbHLj5q6/HfW2xZnEveblzqfh9KyCuJpx+FAuj3
+         VKvRDBRzR5cGPGCsa8Rznc3jjX17rSotJ9uguEx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 05/83] usb: dwc3: gadget: Do link recovery for SS and SSP
-Date:   Fri,  1 May 2020 15:22:44 +0200
-Message-Id: <20200501131525.450506908@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.6 012/106] iio: imu: st_lsm6dsx: fix read misalignment on untagged FIFO
+Date:   Fri,  1 May 2020 15:22:45 +0200
+Message-Id: <20200501131545.903895328@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +43,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit d0550cd20e52558ecf6847a0f96ebd5d944c17e4 upstream.
+commit 7762902c89c4c78d32ec562f1ada44d02039104b upstream.
 
-The controller always supports link recovery for device in SS and SSP.
-Remove the speed limit check. Also, when the device is in RESUME or
-RESET state, it means the controller received the resume/reset request.
-The driver must send the link recovery to acknowledge the request. They
-are valid states for the driver to send link recovery.
+st_lsm6dsx suffers of a read misalignment on untagged FIFO when
+all 3 supported sensors (accel, gyro and ext device) are running
+at different ODRs (the use-case is reported in the LSM6DSM Application
+Note at pag 100).
+Fix the issue taking into account decimation factor reading the FIFO
+pattern.
 
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Fixes: ee5cd41c9117 ("usb: dwc3: Update speed checks for SuperSpeedPlus")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: e485e2a2cfd6 ("iio: imu: st_lsm6dsx: enable sensor-hub support for lsm6dsm")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h        |    2 ++
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c |   23 ++++++++++++++++-------
+ 2 files changed, 18 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1725,7 +1725,6 @@ static int __dwc3_gadget_wakeup(struct d
- 	u32			reg;
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+@@ -337,6 +337,7 @@ enum st_lsm6dsx_fifo_mode {
+  * @gain: Configured sensor sensitivity.
+  * @odr: Output data rate of the sensor [Hz].
+  * @watermark: Sensor watermark level.
++ * @decimator: Sensor decimation factor.
+  * @sip: Number of samples in a given pattern.
+  * @ts_ref: Sensor timestamp reference for hw one.
+  * @ext_info: Sensor settings if it is connected to i2c controller
+@@ -350,6 +351,7 @@ struct st_lsm6dsx_sensor {
+ 	u32 odr;
  
- 	u8			link_state;
--	u8			speed;
+ 	u16 watermark;
++	u8 decimator;
+ 	u8 sip;
+ 	s64 ts_ref;
  
- 	/*
- 	 * According to the Databook Remote wakeup request should
-@@ -1735,16 +1734,13 @@ static int __dwc3_gadget_wakeup(struct d
- 	 */
- 	reg = dwc3_readl(dwc->regs, DWC3_DSTS);
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
+@@ -93,6 +93,7 @@ st_lsm6dsx_get_decimator_val(struct st_l
+ 			break;
+ 	}
  
--	speed = reg & DWC3_DSTS_CONNECTSPD;
--	if ((speed == DWC3_DSTS_SUPERSPEED) ||
--	    (speed == DWC3_DSTS_SUPERSPEED_PLUS))
--		return 0;
--
- 	link_state = DWC3_DSTS_USBLNKST(reg);
++	sensor->decimator = decimator;
+ 	return i == max_size ? 0 : st_lsm6dsx_decimator_table[i].val;
+ }
  
- 	switch (link_state) {
-+	case DWC3_LINK_STATE_RESET:
- 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
- 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
-+	case DWC3_LINK_STATE_RESUME:
- 		break;
- 	default:
- 		return -EINVAL;
+@@ -337,7 +338,7 @@ static inline int st_lsm6dsx_read_block(
+ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
+ {
+ 	struct st_lsm6dsx_sensor *acc_sensor, *gyro_sensor, *ext_sensor = NULL;
+-	int err, acc_sip, gyro_sip, ts_sip, ext_sip, read_len, offset;
++	int err, sip, acc_sip, gyro_sip, ts_sip, ext_sip, read_len, offset;
+ 	u16 fifo_len, pattern_len = hw->sip * ST_LSM6DSX_SAMPLE_SIZE;
+ 	u16 fifo_diff_mask = hw->settings->fifo_ops.fifo_diff.mask;
+ 	u8 gyro_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
+@@ -399,19 +400,20 @@ int st_lsm6dsx_read_fifo(struct st_lsm6d
+ 		acc_sip = acc_sensor->sip;
+ 		ts_sip = hw->ts_sip;
+ 		offset = 0;
++		sip = 0;
+ 
+ 		while (acc_sip > 0 || gyro_sip > 0 || ext_sip > 0) {
+-			if (gyro_sip > 0) {
++			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
+ 				memcpy(gyro_buff, &hw->buff[offset],
+ 				       ST_LSM6DSX_SAMPLE_SIZE);
+ 				offset += ST_LSM6DSX_SAMPLE_SIZE;
+ 			}
+-			if (acc_sip > 0) {
++			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
+ 				memcpy(acc_buff, &hw->buff[offset],
+ 				       ST_LSM6DSX_SAMPLE_SIZE);
+ 				offset += ST_LSM6DSX_SAMPLE_SIZE;
+ 			}
+-			if (ext_sip > 0) {
++			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
+ 				memcpy(ext_buff, &hw->buff[offset],
+ 				       ST_LSM6DSX_SAMPLE_SIZE);
+ 				offset += ST_LSM6DSX_SAMPLE_SIZE;
+@@ -441,18 +443,25 @@ int st_lsm6dsx_read_fifo(struct st_lsm6d
+ 				offset += ST_LSM6DSX_SAMPLE_SIZE;
+ 			}
+ 
+-			if (gyro_sip-- > 0)
++			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
+ 				iio_push_to_buffers_with_timestamp(
+ 					hw->iio_devs[ST_LSM6DSX_ID_GYRO],
+ 					gyro_buff, gyro_sensor->ts_ref + ts);
+-			if (acc_sip-- > 0)
++				gyro_sip--;
++			}
++			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
+ 				iio_push_to_buffers_with_timestamp(
+ 					hw->iio_devs[ST_LSM6DSX_ID_ACC],
+ 					acc_buff, acc_sensor->ts_ref + ts);
+-			if (ext_sip-- > 0)
++				acc_sip--;
++			}
++			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
+ 				iio_push_to_buffers_with_timestamp(
+ 					hw->iio_devs[ST_LSM6DSX_ID_EXT0],
+ 					ext_buff, ext_sensor->ts_ref + ts);
++				ext_sip--;
++			}
++			sip++;
+ 		}
+ 	}
+ 
 
 
