@@ -2,242 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C148D1C0E57
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 08:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D0E31C0E64
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 08:53:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728252AbgEAGmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 02:42:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53516 "EHLO mail.kernel.org"
+        id S1728312AbgEAGxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 02:53:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728184AbgEAGmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 02:42:01 -0400
+        id S1728126AbgEAGxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 02:53:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFDBC208DB;
-        Fri,  1 May 2020 06:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80A68206B8;
+        Fri,  1 May 2020 06:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588315319;
-        bh=7p5dDC5PVhHGBylSlJ06R66T8Aqff91gykiI6IP22tI=;
+        s=default; t=1588316027;
+        bh=xHpZtYqj3y198WrS0KhWjKFHdACJCDE4d5NVEHIU/+Q=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PW2Iv6Vfrc4SyCcyenIufc23FaPfsO7oZdJlzFN55KSaZEXNq+CWW2t8yGLTjuZTD
-         AyeqHTd1N8vue8Mye1kwUFcdZTJt3CrS/yiMAXjX8MgtkOSA9UcfS8Yrkn7JIvXJ6s
-         TKQTsEI9iTDX9JJodITaHCempgHI8+fN3YtWnsoE=
-Date:   Fri, 1 May 2020 08:41:57 +0200
+        b=haov/6SaAnyNo3aOzXVG48dX6671D5xEd9/lF4w6jtlxRtFwzoodfNJSLwA6tXAZB
+         UMBVaudd4LAkCL7UOXmD29xSGwYZUzmOU2NCuc+uOWfAGD6EOrr5P13uKUNJo0GDQ+
+         ABMGXD7FCH87X8kF+8QO9I+VOQQ+axmfH2JTl2HU=
+Date:   Fri, 1 May 2020 08:53:44 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Sasha Levin <sashal@kernel.org>, christian.brauner@ubuntu.com,
-        cmeerw@cmeerw.org, oleg@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] signal: Avoid corrupting si_pid and
- si_uid in" failed to apply to 4.19-stable tree
-Message-ID: <20200501064157.GA823191@kroah.com>
-References: <158800322124912@kroah.com>
- <20200501003435.GB13035@sasha-vm>
- <875zdgxrbi.fsf@x220.int.ebiederm.org>
+To:     Wang YanQing <udknight@gmail.com>
+Cc:     stable@vger.kernel.org, lukenels@cs.washington.edu, ast@kernel.org,
+        luke.r.nels@gmail.com, xi.wang@gmail.com, daniel@iogearbox.net,
+        bpf@vger.kernel.org
+Subject: Re: [PATCH] bpf, x86_32: Fix clobbering of dst for BPF_JSET
+Message-ID: <20200501065344.GA874145@kroah.com>
+References: <20200501031950.GA4782@udknight>
+ <20200501034228.GA4956@udknight>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <875zdgxrbi.fsf@x220.int.ebiederm.org>
+In-Reply-To: <20200501034228.GA4956@udknight>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 30, 2020 at 10:33:05PM -0500, Eric W. Biederman wrote:
-> Sasha Levin <sashal@kernel.org> writes:
-> 
-> > On Mon, Apr 27, 2020 at 06:00:21PM +0200, gregkh@linuxfoundation.org wrote:
-> >>
-> >>The patch below does not apply to the 4.19-stable tree.
-> >>If someone wants it applied there, or to any other stable or longterm
-> >>tree, then please email the backport, including the original git commit
-> >>id to <stable@vger.kernel.org>.
-> >>
-> >>thanks,
-> >>
-> >>greg k-h
-> >>
-> >>------------------ original commit in Linus's tree ------------------
-> >>
-> >>>From 61e713bdca3678e84815f2427f7a063fc353a1fc Mon Sep 17 00:00:00 2001
-> >>From: "Eric W. Biederman" <ebiederm@xmission.com>
-> >>Date: Mon, 20 Apr 2020 11:41:50 -0500
-> >>Subject: [PATCH] signal: Avoid corrupting si_pid and si_uid in
-> >> do_notify_parent
-> >>
-> >>Christof Meerwald <cmeerw@cmeerw.org> writes:
-> >>> Hi,
-> >>>
-> >>> this is probably related to commit
-> >>> 7a0cf094944e2540758b7f957eb6846d5126f535 (signal: Correct namespace
-> >>> fixups of si_pid and si_uid).
-> >>>
-> >>> With a 5.6.5 kernel I am seeing SIGCHLD signals that don't include a
-> >>> properly set si_pid field - this seems to happen for multi-threaded
-> >>> child processes.
-> >>>
-> >>> A simple test program (based on the sample from the signalfd man page):
-> >>>
-> >>> #include <sys/signalfd.h>
-> >>> #include <signal.h>
-> >>> #include <unistd.h>
-> >>> #include <spawn.h>
-> >>> #include <stdlib.h>
-> >>> #include <stdio.h>
-> >>>
-> >>> #define handle_error(msg) \
-> >>>     do { perror(msg); exit(EXIT_FAILURE); } while (0)
-> >>>
-> >>> int main(int argc, char *argv[])
-> >>> {
-> >>>   sigset_t mask;
-> >>>   int sfd;
-> >>>   struct signalfd_siginfo fdsi;
-> >>>   ssize_t s;
-> >>>
-> >>>   sigemptyset(&mask);
-> >>>   sigaddset(&mask, SIGCHLD);
-> >>>
-> >>>   if (sigprocmask(SIG_BLOCK, &mask, NULL) == -1)
-> >>>     handle_error("sigprocmask");
-> >>>
-> >>>   pid_t chldpid;
-> >>>   char *chldargv[] = { "./sfdclient", NULL };
-> >>>   posix_spawn(&chldpid, "./sfdclient", NULL, NULL, chldargv, NULL);
-> >>>
-> >>>   sfd = signalfd(-1, &mask, 0);
-> >>>   if (sfd == -1)
-> >>>     handle_error("signalfd");
-> >>>
-> >>>   for (;;) {
-> >>>     s = read(sfd, &fdsi, sizeof(struct signalfd_siginfo));
-> >>>     if (s != sizeof(struct signalfd_siginfo))
-> >>>       handle_error("read");
-> >>>
-> >>>     if (fdsi.ssi_signo == SIGCHLD) {
-> >>>       printf("Got SIGCHLD %d %d %d %d\n",
-> >>>           fdsi.ssi_status, fdsi.ssi_code,
-> >>>           fdsi.ssi_uid, fdsi.ssi_pid);
-> >>>       return 0;
-> >>>     } else {
-> >>>       printf("Read unexpected signal\n");
-> >>>     }
-> >>>   }
-> >>> }
-> >>>
-> >>>
-> >>> and a multi-threaded client to test with:
-> >>>
-> >>> #include <unistd.h>
-> >>> #include <pthread.h>
-> >>>
-> >>> void *f(void *arg)
-> >>> {
-> >>>   sleep(100);
-> >>> }
-> >>>
-> >>> int main()
-> >>> {
-> >>>   pthread_t t[8];
-> >>>
-> >>>   for (int i = 0; i != 8; ++i)
-> >>>   {
-> >>>     pthread_create(&t[i], NULL, f, NULL);
-> >>>   }
-> >>> }
-> >>>
-> >>> I tried to do a bit of debugging and what seems to be happening is
-> >>> that
-> >>>
-> >>>   /* From an ancestor pid namespace? */
-> >>>   if (!task_pid_nr_ns(current, task_active_pid_ns(t))) {
-> >>>
-> >>> fails inside task_pid_nr_ns because the check for "pid_alive" fails.
-> >>>
-> >>> This code seems to be called from do_notify_parent and there we
-> >>> actually have "tsk != current" (I am assuming both are threads of the
-> >>> current process?)
-> >>
-> >>I instrumented the code with a warning and received the following backtrace:
-> >>> WARNING: CPU: 0 PID: 777 at kernel/pid.c:501 __task_pid_nr_ns.cold.6+0xc/0x15
-> >>> Modules linked in:
-> >>> CPU: 0 PID: 777 Comm: sfdclient Not tainted 5.7.0-rc1userns+ #2924
-> >>> Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-> >>> RIP: 0010:__task_pid_nr_ns.cold.6+0xc/0x15
-> >>> Code: ff 66 90 48 83 ec 08 89 7c 24 04 48 8d 7e 08 48 8d 74 24 04 e8 9a b6 44 00 48 83 c4 08 c3 48 c7 c7 59 9f ac 82 e8 c2 c4 04 00 <0f> 0b e9 3fd
-> >>> RSP: 0018:ffffc9000042fbf8 EFLAGS: 00010046
-> >>> RAX: 000000000000000c RBX: 0000000000000000 RCX: ffffc9000042faf4
-> >>> RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff81193d29
-> >>> RBP: ffffc9000042fc18 R08: 0000000000000000 R09: 0000000000000001
-> >>> R10: 000000100f938416 R11: 0000000000000309 R12: ffff8880b941c140
-> >>> R13: 0000000000000000 R14: 0000000000000000 R15: ffff8880b941c140
-> >>> FS:  0000000000000000(0000) GS:ffff8880bca00000(0000) knlGS:0000000000000000
-> >>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> >>> CR2: 00007f2e8c0a32e0 CR3: 0000000002e10000 CR4: 00000000000006f0
-> >>> Call Trace:
-> >>>  send_signal+0x1c8/0x310
-> >>>  do_notify_parent+0x50f/0x550
-> >>>  release_task.part.21+0x4fd/0x620
-> >>>  do_exit+0x6f6/0xaf0
-> >>>  do_group_exit+0x42/0xb0
-> >>>  get_signal+0x13b/0xbb0
-> >>>  do_signal+0x2b/0x670
-> >>>  ? __audit_syscall_exit+0x24d/0x2b0
-> >>>  ? rcu_read_lock_sched_held+0x4d/0x60
-> >>>  ? kfree+0x24c/0x2b0
-> >>>  do_syscall_64+0x176/0x640
-> >>>  ? trace_hardirqs_off_thunk+0x1a/0x1c
-> >>>  entry_SYSCALL_64_after_hwframe+0x49/0xb3
-> >>
-> >>The immediate problem is as Christof noticed that "pid_alive(current) == false".
-> >>This happens because do_notify_parent is called from the last thread to exit
-> >>in a process after that thread has been reaped.
-> >>
-> >>The bigger issue is that do_notify_parent can be called from any
-> >>process that manages to wait on a thread of a multi-threaded process
-> >>from wait_task_zombie.  So any logic based upon current for
-> >>do_notify_parent is just nonsense, as current can be pretty much
-> >>anything.
-> >>
-> >>So change do_notify_parent to call __send_signal directly.
-> >>
-> >>Inspecting the code it appears this problem has existed since the pid
-> >>namespace support started handling this case in 2.6.30.  This fix only
-> >>backports to 7a0cf094944e ("signal: Correct namespace fixups of si_pid and si_uid")
-> >>where the problem logic was moved out of __send_signal and into send_signal.
-> >>
-> >>Cc: stable@vger.kernel.org
-> >>Fixes: 6588c1e3ff01 ("signals: SI_USER: Masquerade si_pid when crossing pid ns boundary")
-> >>Ref: 921cf9f63089 ("signals: protect cinit from unblocked SIG_DFL signals")
-> >>Link: https://lore.kernel.org/lkml/20200419201336.GI22017@edge.cmeerw.net/
-> >>Reported-by: Christof Meerwald <cmeerw@cmeerw.org>
-> >>Acked-by: Oleg Nesterov <oleg@redhat.com>
-> >>Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-> >>Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-> >
-> > The code just moved around a bit. I've fixed it and queued for all
-> > branches.
-> 
-> How does that work?
-> 
-> Is 7a0cf094944e ("signal: Correct namespace fixups of si_pid and si_uid")
-> Also backported?
-> 
-> Was it the code in do_notify_parent that had just been moved around a
-> little bit?
-> 
-> I used __send_signal directly to bypass the logic that lives in
-> send_signal.  That logic lived in __send_signal before 5.3.
-> How did you manage to bypass the problem logic?
-> 
-> Did you verify your change with the provided test program?
-> 
-> Just the way you describe your fixup and don't actually describe what
-> you have done makes me nervous that you may have missed something.
+On Fri, May 01, 2020 at 11:42:28AM +0800, Wang YanQing wrote:
+> On Fri, May 01, 2020 at 11:19:50AM +0800, Wang YanQing wrote:
+> > commit 50fe7ebb6475711c15b3397467e6424e20026d94 upstream.
+> > 
+> > The current JIT clobbers the destination register for BPF_JSET BPF_X
+> > and BPF_K by using "and" and "or" instructions. This is fine when the
+> > destination register is a temporary loaded from a register stored on
+> > the stack but not otherwise.
+> > 
+> > This patch fixes the problem (for both BPF_K and BPF_X) by always loading
+> > the destination register into temporaries since BPF_JSET should not
+> > modify the destination register.
+> > 
+> > This bug may not be currently triggerable as BPF_REG_AX is the only
+> > register not stored on the stack and the verifier uses it in a limited
+> > way.
+> > 
+> > Fixes: 03f5781be2c7b ("bpf, x86_32: add eBPF JIT compiler for ia32")
+> > Signed-off-by: Xi Wang <xi.wang@gmail.com>
+> > Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
+> > Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+> > Acked-by: Wang YanQing <udknight@gmail.com>
+> > Link: https://lore.kernel.org/bpf/20200422173630.8351-2-luke.r.nels@gmail.com
+> > Signed-off-by: Wang YanQing <udknight@gmail.com>
+> Cc: stable@vger.kernel.org #v4.19
 
-Yeah, I'm nervous as well and will go drop this patch from the queue for
-now until we get a backported version that has been tested by someone.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
