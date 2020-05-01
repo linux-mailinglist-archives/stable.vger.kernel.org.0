@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8140C1C1425
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:44:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D2DA1C1603
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730826AbgEANgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:36:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34684 "EHLO mail.kernel.org"
+        id S1730991AbgEANh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:37:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730843AbgEANgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:36:16 -0400
+        id S1731000AbgEANh6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EBEC24955;
-        Fri,  1 May 2020 13:36:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B96C2495E;
+        Fri,  1 May 2020 13:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340175;
-        bh=ebTXTMAiuQYreJ+FNcCcQwnLRxKRgHHsao4/s8uB/xE=;
+        s=default; t=1588340277;
+        bh=utsCfuWAYLZpKVlPrFWY0Hxq69c7Gb7mBIKGNiK+O94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RsHuz5VsEfmmovnFQQCZ+9G+vOZEr/YgKLCRq6qYsZJoIwEaZJAxSIVJPk3Pgx/Y/
-         PZ7iAyMtOGUAVDB6t+RuqgbMj7QZn8BfMg8zc6X20hCwegSNItoCKkFpXiE8XzJC21
-         j1O1GltWEjCtA4bEXYHAOn++Ey/fXZhmuVnc+dqE=
+        b=SG0XHYdwFuRZ27L1TgovFIqDWYkZqPs7Wjpif1nXYtDc9TKllBqc1zGaGAY4IKAud
+         RXFe8JBTqLRO5UOGj+ub3K/U2QpJqbtunUvF2xpo3+ASn9hNV2YgjivAeuWVEyq+IY
+         zlc69TuE2tSfIpEApl5TmLkeJnCc3vvcX9ydA/xY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Lu=C3=ADs=20Mendes?= <luis.p.mendes@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Todd Poynor <toddpoynor@google.com>
-Subject: [PATCH 4.19 19/46] PCI: Move Apex Edge TPU class quirk to fix BAR assignment
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.4 05/83] usb: dwc3: gadget: Do link recovery for SS and SSP
 Date:   Fri,  1 May 2020 15:22:44 +0200
-Message-Id: <20200501131505.458526200@linuxfoundation.org>
+Message-Id: <20200501131525.450506908@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
-References: <20200501131457.023036302@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 0a8f41023e8a3c100b3dc458ed2da651bf961ead upstream.
+commit d0550cd20e52558ecf6847a0f96ebd5d944c17e4 upstream.
 
-Some Google Apex Edge TPU devices have a class code of 0
-(PCI_CLASS_NOT_DEFINED).  This prevents the PCI core from assigning
-resources for the Apex BARs because __dev_sort_resources() ignores
-classless devices, host bridges, and IOAPICs.
+The controller always supports link recovery for device in SS and SSP.
+Remove the speed limit check. Also, when the device is in RESUME or
+RESET state, it means the controller received the resume/reset request.
+The driver must send the link recovery to acknowledge the request. They
+are valid states for the driver to send link recovery.
 
-On x86, firmware typically assigns those resources, so this was not a
-problem.  But on some architectures, firmware does *not* assign BARs, and
-since the PCI core didn't do it either, the Apex device didn't work
-correctly:
-
-  apex 0000:01:00.0: can't enable device: BAR 0 [mem 0x00000000-0x00003fff 64bit pref] not claimed
-  apex 0000:01:00.0: error enabling PCI device
-
-f390d08d8b87 ("staging: gasket: apex: fixup undefined PCI class") added a
-quirk to fix the class code, but it was in the apex driver, and if the
-driver was built as a module, it was too late to help.
-
-Move the quirk to the PCI core, where it will always run early enough that
-the PCI core will assign resources if necessary.
-
-Link: https://lore.kernel.org/r/CAEzXK1r0Er039iERnc2KJ4jn7ySNUOG9H=Ha8TD8XroVqiZjgg@mail.gmail.com
-Fixes: f390d08d8b87 ("staging: gasket: apex: fixup undefined PCI class")
-Reported-by: Luís Mendes <luis.p.mendes@gmail.com>
-Debugged-by: Luís Mendes <luis.p.mendes@gmail.com>
-Tested-by: Luis Mendes <luis.p.mendes@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Todd Poynor <toddpoynor@google.com>
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Fixes: ee5cd41c9117 ("usb: dwc3: Update speed checks for SuperSpeedPlus")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c                 |    7 +++++++
- drivers/staging/gasket/apex_driver.c |    7 -------
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/usb/dwc3/gadget.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5293,3 +5293,10 @@ static void pci_fixup_no_d0_pme(struct p
- 	dev->pme_support &= ~(PCI_PM_CAP_PME_D0 >> PCI_PM_CAP_PME_SHIFT);
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x2142, pci_fixup_no_d0_pme);
-+
-+static void apex_pci_fixup_class(struct pci_dev *pdev)
-+{
-+	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
-+}
-+DECLARE_PCI_FIXUP_CLASS_HEADER(0x1ac1, 0x089a,
-+			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
---- a/drivers/staging/gasket/apex_driver.c
-+++ b/drivers/staging/gasket/apex_driver.c
-@@ -578,13 +578,6 @@ static const struct pci_device_id apex_p
- 	{ PCI_DEVICE(APEX_PCI_VENDOR_ID, APEX_PCI_DEVICE_ID) }, { 0 }
- };
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1725,7 +1725,6 @@ static int __dwc3_gadget_wakeup(struct d
+ 	u32			reg;
  
--static void apex_pci_fixup_class(struct pci_dev *pdev)
--{
--	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
--}
--DECLARE_PCI_FIXUP_CLASS_HEADER(APEX_PCI_VENDOR_ID, APEX_PCI_DEVICE_ID,
--			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
+ 	u8			link_state;
+-	u8			speed;
+ 
+ 	/*
+ 	 * According to the Databook Remote wakeup request should
+@@ -1735,16 +1734,13 @@ static int __dwc3_gadget_wakeup(struct d
+ 	 */
+ 	reg = dwc3_readl(dwc->regs, DWC3_DSTS);
+ 
+-	speed = reg & DWC3_DSTS_CONNECTSPD;
+-	if ((speed == DWC3_DSTS_SUPERSPEED) ||
+-	    (speed == DWC3_DSTS_SUPERSPEED_PLUS))
+-		return 0;
 -
- static int apex_pci_probe(struct pci_dev *pci_dev,
- 			  const struct pci_device_id *id)
- {
+ 	link_state = DWC3_DSTS_USBLNKST(reg);
+ 
+ 	switch (link_state) {
++	case DWC3_LINK_STATE_RESET:
+ 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
+ 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
++	case DWC3_LINK_STATE_RESUME:
+ 		break;
+ 	default:
+ 		return -EINVAL;
 
 
