@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F651C13B0
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A50A1C12E6
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730239AbgEANcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:32:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56846 "EHLO mail.kernel.org"
+        id S1728984AbgEANZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729353AbgEANcD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:32:03 -0400
+        id S1728979AbgEANZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:25:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9D3E208C3;
-        Fri,  1 May 2020 13:32:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A806724955;
+        Fri,  1 May 2020 13:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339923;
-        bh=8TbDRuEl7SW/hnCTYxbSPFoal6+jcufVGTTSkOU1tjg=;
+        s=default; t=1588339512;
+        bh=/GX9T0D4odWQTx9IHT/mYKVbwAc7xE3hb7UQOZAveCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzxi6t11NgSMGFU0p++M3v/gre/XdDiHpKmhUqPSIrTANwGJUJc7AURnDeFJyoCEf
-         QKcH32Q3fFWdpuLPYFBUVBu5KCmeDoHU+4SOxjtQ6qGM/25wow9ppbgIfomy3vjrtJ
-         nM9zT38rQcwV7P07nOlJGKAtblygqqklNR8LtgHE=
+        b=Otr2T64zKqvcAvMKZ2afRTh0+apWLKiXOQU6bkjaIizfaYZ4mX0UVQLHBFJsqpA5h
+         +yczS+mXAb8Rp7ctR+21AJkHj+AZ5GV2aJ+NuNFlVOgsUeKavUO5c0b5u3UWL89x+A
+         yyc+Kotyb34oY2x0qiq7xzDIxWffqQYkcTszg0wQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Jiri Olsa <jolsa@kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 021/117] perf/core: Disable page faults when getting phys address
+Subject: [PATCH 4.4 09/70] ceph: dont skip updating wanted caps when cap is stale
 Date:   Fri,  1 May 2020 15:20:57 +0200
-Message-Id: <20200501131547.532803973@linuxfoundation.org>
+Message-Id: <20200501131515.294796911@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Yan, Zheng <zyan@redhat.com>
 
-[ Upstream commit d3296fb372bf7497b0e5d0478c4e7a677ec6f6e9 ]
+[ Upstream commit 0aa971b6fd3f92afef6afe24ef78d9bb14471519 ]
 
-We hit following warning when running tests on kernel
-compiled with CONFIG_DEBUG_ATOMIC_SLEEP=y:
+1. try_get_cap_refs() fails to get caps and finds that mds_wanted
+   does not include what it wants. It returns -ESTALE.
+2. ceph_get_caps() calls ceph_renew_caps(). ceph_renew_caps() finds
+   that inode has cap, so it calls ceph_check_caps().
+3. ceph_check_caps() finds that issued caps (without checking if it's
+   stale) already includes caps wanted by open file, so it skips
+   updating wanted caps.
 
- WARNING: CPU: 19 PID: 4472 at mm/gup.c:2381 __get_user_pages_fast+0x1a4/0x200
- CPU: 19 PID: 4472 Comm: dummy Not tainted 5.6.0-rc6+ #3
- RIP: 0010:__get_user_pages_fast+0x1a4/0x200
- ...
- Call Trace:
-  perf_prepare_sample+0xff1/0x1d90
-  perf_event_output_forward+0xe8/0x210
-  __perf_event_overflow+0x11a/0x310
-  __intel_pmu_pebs_event+0x657/0x850
-  intel_pmu_drain_pebs_nhm+0x7de/0x11d0
-  handle_pmi_common+0x1b2/0x650
-  intel_pmu_handle_irq+0x17b/0x370
-  perf_event_nmi_handler+0x40/0x60
-  nmi_handle+0x192/0x590
-  default_do_nmi+0x6d/0x150
-  do_nmi+0x2f9/0x3c0
-  nmi+0x8e/0xd7
+Above events can cause an infinite loop inside ceph_get_caps().
 
-While __get_user_pages_fast() is IRQ-safe, it calls access_ok(),
-which warns on:
-
-  WARN_ON_ONCE(!in_task() && !pagefault_disabled())
-
-Peter suggested disabling page faults around __get_user_pages_fast(),
-which gets rid of the warning in access_ok() call.
-
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20200407141427.3184722-1-jolsa@kernel.org
+Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/ceph/caps.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 845c8a1a9d30a..c16ce11049de3 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -6119,9 +6119,12 @@ static u64 perf_virt_to_phys(u64 virt)
- 		 * Try IRQ-safe __get_user_pages_fast first.
- 		 * If failed, leave phys_addr as 0.
- 		 */
--		if ((current->mm != NULL) &&
--		    (__get_user_pages_fast(virt, 1, 0, &p) == 1))
--			phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
-+		if (current->mm != NULL) {
-+			pagefault_disable();
-+			if (__get_user_pages_fast(virt, 1, 0, &p) == 1)
-+				phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
-+			pagefault_enable();
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index aa4df4a022525..efdf81ea3b5f8 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1734,8 +1734,12 @@ retry_locked:
+ 		}
+ 
+ 		/* want more caps from mds? */
+-		if (want & ~(cap->mds_wanted | cap->issued))
+-			goto ack;
++		if (want & ~cap->mds_wanted) {
++			if (want & ~(cap->mds_wanted | cap->issued))
++				goto ack;
++			if (!__cap_is_valid(cap))
++				goto ack;
 +		}
  
- 		if (p)
- 			put_page(p);
+ 		/* things we might delay */
+ 		if ((cap->issued & ~retain) == 0 &&
 -- 
 2.20.1
 
