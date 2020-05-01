@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A70DC1C1562
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D95B1C1732
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729242AbgEAN0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:26:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47944 "EHLO mail.kernel.org"
+        id S1730479AbgEAN7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:59:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728900AbgEAN0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:26:21 -0400
+        id S1729223AbgEAN3J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:29:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE874208D6;
-        Fri,  1 May 2020 13:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 271DC24955;
+        Fri,  1 May 2020 13:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339581;
-        bh=zUCiPF1saQAniHcWkEVbc4jYJQ/5z6kvlySYJdaGaC8=;
+        s=default; t=1588339748;
+        bh=i+vswq2Sq0i46k/4EmnFtanhfLKPKz4eNWg/fl2UibM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m8F5roJCz8T8Abq17s4UURHwtLA8ETinVF6aCa/xPWt8S/PllmN2wT4ewP1KD1Qwl
-         NccgijZTTZfi6iZUlK6eKW6KBOQO4vmynusEqNO79SYSm328FQQq2xhyeJma84WHpi
-         iaznoWcqKI6OyzEHepXOACaNmgumDJa8/EUe5Arc=
+        b=dzRK8TrQ0WuFinT7FX4s2hLMO7Z2QE92EdecS7zQfq2tvLgT4hJNo+JWlAkEuzSQf
+         jB8zZuWsltbQ7FJmp4nEwIIfLFWWqeHs4BsvHHyoJmKFi5TFXqOvAxfWDB4EQkuEY2
+         0UsTu/+a7KA9sRtHXVte9p7SMjWSyc4Qf5YWuLME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.4 26/70] iio: xilinx-xadc: Fix ADC-B powerdown
+        stable@vger.kernel.org, John Haxby <john.haxby@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 20/80] ipv6: fix restrict IPV6_ADDRFORM operation
 Date:   Fri,  1 May 2020 15:21:14 +0200
-Message-Id: <20200501131522.464085211@linuxfoundation.org>
+Message-Id: <20200501131520.810371371@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: John Haxby <john.haxby@oracle.com>
 
-commit e44ec7794d88f918805d700240211a9ec05ed89d upstream.
+[ Upstream commit 82c9ae440857840c56e05d4fb1427ee032531346 ]
 
-The check for shutting down the second ADC is inverted. This causes it to
-be powered down when it should be enabled. As a result channels that are
-supposed to be handled by the second ADC return invalid conversion results.
+Commit b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation") fixed a
+problem found by syzbot an unfortunate logic error meant that it
+also broke IPV6_ADDRFORM.
 
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Rearrange the checks so that the earlier test is just one of the series
+of checks made before moving the socket from IPv6 to IPv4.
+
+Fixes: b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation")
+Signed-off-by: John Haxby <john.haxby@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iio/adc/xilinx-xadc-core.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/ipv6/ipv6_sockglue.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/iio/adc/xilinx-xadc-core.c
-+++ b/drivers/iio/adc/xilinx-xadc-core.c
-@@ -709,13 +709,14 @@ static int xadc_power_adc_b(struct xadc
- {
- 	uint16_t val;
- 
-+	/* Powerdown the ADC-B when it is not needed. */
- 	switch (seq_mode) {
- 	case XADC_CONF1_SEQ_SIMULTANEOUS:
- 	case XADC_CONF1_SEQ_INDEPENDENT:
--		val = XADC_CONF2_PD_ADC_B;
-+		val = 0;
- 		break;
- 	default:
--		val = 0;
-+		val = XADC_CONF2_PD_ADC_B;
- 		break;
- 	}
- 
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -184,15 +184,14 @@ static int do_ipv6_setsockopt(struct soc
+ 					retv = -EBUSY;
+ 					break;
+ 				}
+-			} else if (sk->sk_protocol == IPPROTO_TCP) {
+-				if (sk->sk_prot != &tcpv6_prot) {
+-					retv = -EBUSY;
+-					break;
+-				}
+-				break;
+-			} else {
++			}
++			if (sk->sk_protocol == IPPROTO_TCP &&
++			    sk->sk_prot != &tcpv6_prot) {
++				retv = -EBUSY;
+ 				break;
+ 			}
++			if (sk->sk_protocol != IPPROTO_TCP)
++				break;
+ 			if (sk->sk_state != TCP_ESTABLISHED) {
+ 				retv = -ENOTCONN;
+ 				break;
 
 
