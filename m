@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 231D81C1517
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FC211C150C
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728873AbgEANpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:45:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47046 "EHLO mail.kernel.org"
+        id S1731151AbgEANpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:45:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730350AbgEANp0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:45:26 -0400
+        id S1731881AbgEANp3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:45:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FA542051A;
-        Fri,  1 May 2020 13:45:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7F2120836;
+        Fri,  1 May 2020 13:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340725;
-        bh=T0K725d/BDnHCHwIT96c4wBB6CQd8Fy/Vm/PrXzgzOg=;
+        s=default; t=1588340728;
+        bh=SrFW6PsYUnBBUbuKnPpW4WJLdY11KpMBLrLY3B248qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=skqgHv1ASC8NnqVxlmy8wOqasHxSjX3o2Ie1l0bac2oAzzlqyjmL75JvY3/IzirJQ
-         Tt7+1sT9qdqX96ebcWqW+ShR5PD4/KJUc3AsXQzYqjx5gQC5Nq6COCevue9vHTOxaX
-         fVeZ4gbByxMf2T/22n9FsBozBSDdsxzXp9f6Yfwo=
+        b=JedXHGyPeUay/87ChKJft+L5keIeMH372t3FdDNLMQ0fUQyRRhX6CdSZpBkOl78OW
+         STgkSSWXnGk78iMAwhMO4M01DohqoGBzyk6bfxLWDxswguQ2piyiZnKPXfWYzkGoCF
+         NtGe8aTOuLwhO58PK914lULHgX9SMuklMZSrkHUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harish Sriram <harish@linux.ibm.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.6 103/106] ext4: check for non-zero journal inum in ext4_calculate_overhead
-Date:   Fri,  1 May 2020 15:24:16 +0200
-Message-Id: <20200501131555.539026186@linuxfoundation.org>
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.6 104/106] ASoC: soc-pcm: fix regression in soc_new_pcm()
+Date:   Fri,  1 May 2020 15:24:17 +0200
+Message-Id: <20200501131555.894730725@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
 References: <20200501131543.421333643@linuxfoundation.org>
@@ -44,73 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit f1eec3b0d0a849996ebee733b053efa71803dad5 upstream.
+commit a4877a6fb2bd2e356a5eaacd86d6b6d69ff84e69 upstream.
 
-While calculating overhead for internal journal, also check
-that j_inum shouldn't be 0. Otherwise we get below error with
-xfstests generic/050 with external journal (XXX_LOGDEV config) enabled.
+Commit af4bac11531f ("ASoC: soc-pcm: crash in snd_soc_dapm_new_dai")
+swapped the SNDRV_PCM_STREAM_* parameter in the
+snd_soc_dai_stream_valid(cpu_dai, ...) checks. But that works only
+for codec2codec links. For normal links it breaks registration of
+playback/capture-only PCM devices.
 
-It could be simply reproduced with loop device with an external journal
-and marking blockdev as RO before mounting.
+E.g. on qcom/apq8016_sbc there is usually one playback-only and one
+capture-only PCM device, but they disappeared after the commit.
 
-[ 3337.146838] EXT4-fs error (device pmem1p2): ext4_get_journal_inode:4634: comm mount: inode #0: comm mount: iget: illegal inode #
-------------[ cut here ]------------
-generic_make_request: Trying to write to read-only block-device pmem1p2 (partno 2)
-WARNING: CPU: 107 PID: 115347 at block/blk-core.c:788 generic_make_request_checks+0x6b4/0x7d0
-CPU: 107 PID: 115347 Comm: mount Tainted: G             L   --------- -t - 4.18.0-167.el8.ppc64le #1
-NIP:  c0000000006f6d44 LR: c0000000006f6d40 CTR: 0000000030041dd4
-<...>
-NIP [c0000000006f6d44] generic_make_request_checks+0x6b4/0x7d0
-LR [c0000000006f6d40] generic_make_request_checks+0x6b0/0x7d0
-<...>
-Call Trace:
-generic_make_request_checks+0x6b0/0x7d0 (unreliable)
-generic_make_request+0x3c/0x420
-submit_bio+0xd8/0x200
-submit_bh_wbc+0x1e8/0x250
-__sync_dirty_buffer+0xd0/0x210
-ext4_commit_super+0x310/0x420 [ext4]
-__ext4_error+0xa4/0x1e0 [ext4]
-__ext4_iget+0x388/0xe10 [ext4]
-ext4_get_journal_inode+0x40/0x150 [ext4]
-ext4_calculate_overhead+0x5a8/0x610 [ext4]
-ext4_fill_super+0x3188/0x3260 [ext4]
-mount_bdev+0x778/0x8f0
-ext4_mount+0x28/0x50 [ext4]
-mount_fs+0x74/0x230
-vfs_kern_mount.part.6+0x6c/0x250
-do_mount+0x2fc/0x1280
-sys_mount+0x158/0x180
-system_call+0x5c/0x70
-EXT4-fs (pmem1p2): no journal found
-EXT4-fs (pmem1p2): can't get journal size
-EXT4-fs (pmem1p2): mounted filesystem without journal. Opts: dax,norecovery
+The codec2codec case was added in commit a342031cdd08
+("ASoC: create pcm for codec2codec links as well") as an extra check
+(e.g. `playback = playback && cpu_playback->channels_min`).
 
-Fixes: 3c816ded78bb ("ext4: use journal inode to determine journal overhead")
-Reported-by: Harish Sriram <harish@linux.ibm.com>
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200316093038.25485-1-riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+We should be able to simplify the code by checking directly for
+the correct stream type in the loop.
+This also fixes the regression because we check for PLAYBACK for
+both codec and cpu dai again when codec2codec is not used.
+
+Fixes: af4bac11531f ("ASoC: soc-pcm: crash in snd_soc_dapm_new_dai")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Tested-by: Jerome Brunet <jbrunet@baylibre.com>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Cc: Jerome Brunet <jbrunet@baylibre.com>
+Cc: Sameer Pujar <spujar@nvidia.com>
+Link: https://lore.kernel.org/r/20200218103824.26708-1-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/soc-pcm.c |   15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3610,7 +3610,8 @@ int ext4_calculate_overhead(struct super
- 	 */
- 	if (sbi->s_journal && !sbi->journal_bdev)
- 		overhead += EXT4_NUM_B2C(sbi, sbi->s_journal->j_maxlen);
--	else if (ext4_has_feature_journal(sb) && !sbi->s_journal) {
-+	else if (ext4_has_feature_journal(sb) && !sbi->s_journal && j_inum) {
-+		/* j_inum for internal journal is non-zero */
- 		j_inode = ext4_get_journal_inode(sb, j_inum);
- 		if (j_inode) {
- 			j_blocks = j_inode->i_size >> sb->s_blocksize_bits;
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -2890,22 +2890,19 @@ int soc_new_pcm(struct snd_soc_pcm_runti
+ 		capture = rtd->dai_link->dpcm_capture;
+ 	} else {
+ 		/* Adapt stream for codec2codec links */
+-		struct snd_soc_pcm_stream *cpu_capture = rtd->dai_link->params ?
+-			&cpu_dai->driver->playback : &cpu_dai->driver->capture;
+-		struct snd_soc_pcm_stream *cpu_playback = rtd->dai_link->params ?
+-			&cpu_dai->driver->capture : &cpu_dai->driver->playback;
++		int cpu_capture = rtd->dai_link->params ?
++			SNDRV_PCM_STREAM_PLAYBACK : SNDRV_PCM_STREAM_CAPTURE;
++		int cpu_playback = rtd->dai_link->params ?
++			SNDRV_PCM_STREAM_CAPTURE : SNDRV_PCM_STREAM_PLAYBACK;
+ 
+ 		for_each_rtd_codec_dai(rtd, i, codec_dai) {
+ 			if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_PLAYBACK) &&
+-			    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_CAPTURE))
++			    snd_soc_dai_stream_valid(cpu_dai,   cpu_playback))
+ 				playback = 1;
+ 			if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_CAPTURE) &&
+-			    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_PLAYBACK))
++			    snd_soc_dai_stream_valid(cpu_dai,   cpu_capture))
+ 				capture = 1;
+ 		}
+-
+-		capture = capture && cpu_capture->channels_min;
+-		playback = playback && cpu_playback->channels_min;
+ 	}
+ 
+ 	if (rtd->dai_link->playback_only) {
 
 
