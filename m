@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA6F01C15B1
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 403801C1740
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730215AbgEANb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:31:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56722 "EHLO mail.kernel.org"
+        id S1729620AbgEAOAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 10:00:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728845AbgEANb7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:31:59 -0400
+        id S1729486AbgEAN1n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:27:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3755208C3;
-        Fri,  1 May 2020 13:31:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C86920757;
+        Fri,  1 May 2020 13:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339918;
-        bh=S5579T0/eEWJ0+afvsFWAkNck1Ara5B0uHZdI68kixg=;
+        s=default; t=1588339662;
+        bh=L3u2ft0lFO9yh3Lx3P3RINgTgN9612FxJRMV34cM3S4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=krVMtoko2xBRh0Vc+NvZRmmYot6k1GmyTiVo/IuLy5cz6gTrCWQ5bfEH0k6a0R9IX
-         sbWCIYNEO9Axfve76s2ryIgbo4+Zmqs1BnrkaUfAUMZL3nYlU+fWV/EtqY0CcdIFgG
-         H9PxZbXUKzVszC+aR88ODKyEecVFMTpYVirlOHxw=
+        b=eiL8llS8Zl3pOEN3IfqHr38RQlHd/TKHftQfFwFXhQ+3oFnPmOwItLdiCGKPq0H3e
+         zsTyK6Mrf4CqIIMYqntJVMGLVzbfnxBv8Yb9quS370UdF/7a/wU43rmMB0NV2Qi8bc
+         dN+pdrppIyRV7l9cya3+6TlZkDRcWDmZDlVnBmnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 019/117] pwm: renesas-tpu: Fix late Runtime PM enablement
+        stable@vger.kernel.org, Dmitry Monakhov <dmonakhov@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 01/80] ext4: fix extent_status fragmentation for plain files
 Date:   Fri,  1 May 2020 15:20:55 +0200
-Message-Id: <20200501131547.328623167@linuxfoundation.org>
+Message-Id: <20200501131514.101804599@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,63 +45,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Dmitry Monakhov <dmonakhov@gmail.com>
 
-[ Upstream commit d5a3c7a4536e1329a758e14340efd0e65252bd3d ]
+commit 4068664e3cd2312610ceac05b74c4cf1853b8325 upstream.
 
-Runtime PM should be enabled before calling pwmchip_add(), as PWM users
-can appear immediately after the PWM chip has been added.
-Likewise, Runtime PM should always be disabled after the removal of the
-PWM chip, even if the latter failed.
+Extents are cached in read_extent_tree_block(); as a result, extents
+are not cached for inodes with depth == 0 when we try to find the
+extent using ext4_find_extent().  The result of the lookup is cached
+in ext4_map_blocks() but is only a subset of the extent on disk.  As a
+result, the contents of extents status cache can get very badly
+fragmented for certain workloads, such as a random 4k read workload.
 
-Fixes: 99b82abb0a35b073 ("pwm: Add Renesas TPU PWM driver")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+File size of /mnt/test is 33554432 (8192 blocks of 4096 bytes)
+ ext:     logical_offset:        physical_offset: length:   expected: flags:
+   0:        0..    8191:      40960..     49151:   8192:             last,eof
+
+$ perf record -e 'ext4:ext4_es_*' /root/bin/fio --name=t --direct=0 --rw=randread --bs=4k --filesize=32M --size=32M --filename=/mnt/test
+$ perf script | grep ext4_es_insert_extent | head -n 10
+             fio   131 [000]    13.975421:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [494/1) mapped 41454 status W
+             fio   131 [000]    13.975939:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [6064/1) mapped 47024 status W
+             fio   131 [000]    13.976467:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [6907/1) mapped 47867 status W
+             fio   131 [000]    13.976937:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [3850/1) mapped 44810 status W
+             fio   131 [000]    13.977440:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [3292/1) mapped 44252 status W
+             fio   131 [000]    13.977931:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [6882/1) mapped 47842 status W
+             fio   131 [000]    13.978376:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [3117/1) mapped 44077 status W
+             fio   131 [000]    13.978957:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [2896/1) mapped 43856 status W
+             fio   131 [000]    13.979474:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [7479/1) mapped 48439 status W
+
+Fix this by caching the extents for inodes with depth == 0 in
+ext4_find_extent().
+
+[ Renamed ext4_es_cache_extents() to ext4_cache_extents() since this
+  newly added function is not in extents_cache.c, and to avoid
+  potential visual confusion with ext4_es_cache_extent().  -TYT ]
+
+Signed-off-by: Dmitry Monakhov <dmonakhov@gmail.com>
+Link: https://lore.kernel.org/r/20191106122502.19986-1-dmonakhov@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pwm/pwm-renesas-tpu.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ fs/ext4/extents.c |   47 +++++++++++++++++++++++++++--------------------
+ 1 file changed, 27 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/pwm/pwm-renesas-tpu.c b/drivers/pwm/pwm-renesas-tpu.c
-index 29267d12fb4c9..9c7962f2f0aa4 100644
---- a/drivers/pwm/pwm-renesas-tpu.c
-+++ b/drivers/pwm/pwm-renesas-tpu.c
-@@ -423,16 +423,17 @@ static int tpu_probe(struct platform_device *pdev)
- 	tpu->chip.base = -1;
- 	tpu->chip.npwm = TPU_CHANNEL_MAX;
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -510,6 +510,30 @@ int ext4_ext_check_inode(struct inode *i
+ 	return ext4_ext_check(inode, ext_inode_hdr(inode), ext_depth(inode), 0);
+ }
  
-+	pm_runtime_enable(&pdev->dev);
++static void ext4_cache_extents(struct inode *inode,
++			       struct ext4_extent_header *eh)
++{
++	struct ext4_extent *ex = EXT_FIRST_EXTENT(eh);
++	ext4_lblk_t prev = 0;
++	int i;
 +
- 	ret = pwmchip_add(&tpu->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to register PWM chip\n");
-+		pm_runtime_disable(&pdev->dev);
- 		return ret;
- 	}
- 
- 	dev_info(&pdev->dev, "TPU PWM %d registered\n", tpu->pdev->id);
- 
--	pm_runtime_enable(&pdev->dev);
++	for (i = le16_to_cpu(eh->eh_entries); i > 0; i--, ex++) {
++		unsigned int status = EXTENT_STATUS_WRITTEN;
++		ext4_lblk_t lblk = le32_to_cpu(ex->ee_block);
++		int len = ext4_ext_get_actual_len(ex);
++
++		if (prev && (prev != lblk))
++			ext4_es_cache_extent(inode, prev, lblk - prev, ~0,
++					     EXTENT_STATUS_HOLE);
++
++		if (ext4_ext_is_unwritten(ex))
++			status = EXTENT_STATUS_UNWRITTEN;
++		ext4_es_cache_extent(inode, lblk, len,
++				     ext4_ext_pblock(ex), status);
++		prev = lblk + len;
++	}
++}
++
+ static struct buffer_head *
+ __read_extent_tree_block(const char *function, unsigned int line,
+ 			 struct inode *inode, ext4_fsblk_t pblk, int depth,
+@@ -540,26 +564,7 @@ __read_extent_tree_block(const char *fun
+ 	 */
+ 	if (!(flags & EXT4_EX_NOCACHE) && depth == 0) {
+ 		struct ext4_extent_header *eh = ext_block_hdr(bh);
+-		struct ext4_extent *ex = EXT_FIRST_EXTENT(eh);
+-		ext4_lblk_t prev = 0;
+-		int i;
 -
- 	return 0;
- }
+-		for (i = le16_to_cpu(eh->eh_entries); i > 0; i--, ex++) {
+-			unsigned int status = EXTENT_STATUS_WRITTEN;
+-			ext4_lblk_t lblk = le32_to_cpu(ex->ee_block);
+-			int len = ext4_ext_get_actual_len(ex);
+-
+-			if (prev && (prev != lblk))
+-				ext4_es_cache_extent(inode, prev,
+-						     lblk - prev, ~0,
+-						     EXTENT_STATUS_HOLE);
+-
+-			if (ext4_ext_is_unwritten(ex))
+-				status = EXTENT_STATUS_UNWRITTEN;
+-			ext4_es_cache_extent(inode, lblk, len,
+-					     ext4_ext_pblock(ex), status);
+-			prev = lblk + len;
+-		}
++		ext4_cache_extents(inode, eh);
+ 	}
+ 	return bh;
+ errout:
+@@ -907,6 +912,8 @@ ext4_find_extent(struct inode *inode, ex
+ 	path[0].p_bh = NULL;
  
-@@ -442,12 +443,10 @@ static int tpu_remove(struct platform_device *pdev)
- 	int ret;
- 
- 	ret = pwmchip_remove(&tpu->chip);
--	if (ret)
--		return ret;
- 
- 	pm_runtime_disable(&pdev->dev);
- 
--	return 0;
-+	return ret;
- }
- 
- #ifdef CONFIG_OF
--- 
-2.20.1
-
+ 	i = depth;
++	if (!(flags & EXT4_EX_NOCACHE) && depth == 0)
++		ext4_cache_extents(inode, eh);
+ 	/* walk through the tree */
+ 	while (i) {
+ 		ext_debug("depth %d: num %d, max %d\n",
 
 
