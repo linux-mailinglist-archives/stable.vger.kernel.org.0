@@ -2,123 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D41F91C1DD8
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 21:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AFBD1C1E2C
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 22:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726554AbgEAT0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 15:26:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50516 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726346AbgEAT0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 15:26:54 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40880C061A0C
-        for <stable@vger.kernel.org>; Fri,  1 May 2020 12:26:53 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id re23so8323475ejb.4
-        for <stable@vger.kernel.org>; Fri, 01 May 2020 12:26:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=anholt-net.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=WSBsQZ2+xdpIGJHeWYCQoQ8u8zj8iW41GKBmcCq8Vf4=;
-        b=DLoHcXmcvTFS/+twF+21LyXQXa4r4cYqQemg0TWHfg58oMuYNXGlh4SbNe1B1cZWqa
-         pujm5ZCp6nUNtWH1bpuP7OT1zBdLGI8kmzc5Gkuw3zLLyc2k8omqAuPDaalUhwAbPtcx
-         C3eBYHxenOfc1KBPb2qSB/tdUOXMWOqyoiWoqzwNtZNoLeaCYjZB8AFmnHlC1Ak1PwhO
-         0Q9DHbS3rT5WcnA/M6enVwME+JEpBS9mSZZsAGVyC2CT6CuKaAgJTGLFM+EwSuHx/QjA
-         0hAqt5i/jSubHG67tR13+UV9Qq9vkTRzsw09F5Mqov72qHjl+ZMBVjy+KYXUz32XgIPu
-         kX1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WSBsQZ2+xdpIGJHeWYCQoQ8u8zj8iW41GKBmcCq8Vf4=;
-        b=NkG4+C5qXCEJhWIjH754REBB/DsEfxKmgD4mJge2slt1KLqrm1wBhQd5O3mEgagLFy
-         W+alq10dH5cmFItlRm5WNQFCYBKmXiKikiKx6/Ynmm4/1pYOJOTRIuExZUozFPkcxYg3
-         ZK4N/e76wrM4N0qM0YWu9Y/hGcej0KOsZuwjH9sVnKTaFqmCL5Od1MhevQyeKqNH8kCc
-         mbIEEbRD7mhdG1qZf/hQiaaTGDSxKC7ttuep1w6tkS9UOtFvmcmcAIgTueyz9opdlDez
-         yHFeppXqNBIM7A23kv6wLMijsgQfEW/Hs3xrFFpU6x9JQzOXD61TFqSACId1aZUkeAlD
-         Nkzg==
-X-Gm-Message-State: AGi0PubUI7VA8Z9nmZoxx5XwM/lcbhK0pWvORarYim2BlCV0nD/c81ms
-        fwIGtOfj7UiaiE5q9IFy53nx2z/Web5qnyclJCNZBg==
-X-Google-Smtp-Source: APiQypLApNY61otSA22NZA39/hjaktQy51DUgGFWhUfIxiTrwN68t56bqzU5r5Zim7TgQ4ysNdZzyPE3WcKZnLt9dbU=
-X-Received: by 2002:a17:907:214d:: with SMTP id rk13mr4810578ejb.220.1588361211835;
- Fri, 01 May 2020 12:26:51 -0700 (PDT)
+        id S1726377AbgEAUGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 16:06:17 -0400
+Received: from mx0a-00190b01.pphosted.com ([67.231.149.131]:16390 "EHLO
+        mx0a-00190b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726307AbgEAUGQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 16:06:16 -0400
+X-Greylist: delayed 2664 seconds by postgrey-1.27 at vger.kernel.org; Fri, 01 May 2020 16:06:16 EDT
+Received: from pps.filterd (m0122332.ppops.net [127.0.0.1])
+        by mx0a-00190b01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 041JN6vN020977;
+        Fri, 1 May 2020 20:27:20 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=jan2016.eng;
+ bh=FIb1tRSakOixa+KWRoQwQxkx2NZ7hP7elrzO5eAo2xQ=;
+ b=HaZQ4QnFRwOyGdnOW8jnUd0CBlZwxoilEXTBO5jKomHjZLo+9MIRyC7/PjV6BijWAG64
+ EMQqmBozS+ft/tl+ryi4e8Ez+1RIHkh+J7DcfpuYyuRlgO9XbB3DkrytCdSV44s67dj4
+ JYZmW3W81fxXb0ai/pOcBcvI8JpKfrs4OH2lQJMOImka0Y4W8se3OeN1v9hGN8pjbAIv
+ mzFLn8MVAKaFBHcvoolc6Cy1aa4Id5OD93Lk4nbKfnl38vjVs1Kn2Ds5OFMSAh1n+IxT
+ U8vZUFqQuSMFg5D8nv+0YnAiqH8L/n6Nx00sYfUHsohKDBcEx5B7zIRBcPB9oEoZDrgx 7A== 
+Received: from prod-mail-ppoint5 (prod-mail-ppoint5.akamai.com [184.51.33.60] (may be forged))
+        by mx0a-00190b01.pphosted.com with ESMTP id 30r7jqbfqe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 01 May 2020 20:27:19 +0100
+Received: from pps.filterd (prod-mail-ppoint5.akamai.com [127.0.0.1])
+        by prod-mail-ppoint5.akamai.com (8.16.0.27/8.16.0.27) with SMTP id 041JIvlP013453;
+        Fri, 1 May 2020 12:27:18 -0700
+Received: from prod-mail-relay10.akamai.com ([172.27.118.251])
+        by prod-mail-ppoint5.akamai.com with ESMTP id 30mk6909vh-1;
+        Fri, 01 May 2020 12:27:18 -0700
+Received: from [0.0.0.0] (prod-ssh-gw01.bos01.corp.akamai.com [172.27.119.138])
+        by prod-mail-relay10.akamai.com (Postfix) with ESMTP id DAD2034906;
+        Fri,  1 May 2020 19:27:17 +0000 (GMT)
+Subject: Re: [PATCH 2/2] epoll: atomically remove wait entry on wake up
+To:     Roman Penyaev <rpenyaev@suse.de>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Khazhismel Kumykov <khazhy@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
+        stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20200430130326.1368509-1-rpenyaev@suse.de>
+ <20200430130326.1368509-2-rpenyaev@suse.de>
+From:   Jason Baron <jbaron@akamai.com>
+Message-ID: <6cb1fc30-d4a1-f483-48b7-9fa594d9e46f@akamai.com>
+Date:   Fri, 1 May 2020 15:27:17 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <20200501190320.17681-1-jcrouse@codeaurora.org>
-In-Reply-To: <20200501190320.17681-1-jcrouse@codeaurora.org>
-From:   Eric Anholt <eric@anholt.net>
-Date:   Fri, 1 May 2020 12:26:40 -0700
-Message-ID: <CADaigPXJJoEgWK6nx8yc_DVsDAv1VdzuA5NYZO63K=hHVvT2JQ@mail.gmail.com>
-Subject: Re: [PATCH v2] drm/msm: Check for powered down HW in the devfreq callbacks
-To:     Jordan Crouse <jcrouse@codeaurora.org>
-Cc:     linux-arm-msm@vger.kernel.org, stable@vger.kernel.org,
-        Akhil P Oommen <akhilpo@codeaurora.org>,
-        AngeloGioacchino Del Regno <kholk11@gmail.com>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        David Airlie <airlied@linux.ie>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
-        Sharat Masetty <smasetty@codeaurora.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        DRI Development <dri-devel@lists.freedesktop.org>,
-        freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200430130326.1368509-2-rpenyaev@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-05-01_14:2020-05-01,2020-05-01 signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-2002250000 definitions=main-2005010143
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-05-01_11:2020-05-01,2020-05-01 signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 bulkscore=0 mlxlogscore=999
+ suspectscore=0 clxscore=1015 impostorscore=0 spamscore=0
+ lowpriorityscore=0 adultscore=0 malwarescore=0 priorityscore=1501
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2005010143
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 1, 2020 at 12:03 PM Jordan Crouse <jcrouse@codeaurora.org> wrote:
->
-> Writing to the devfreq sysfs nodes while the GPU is powered down can
-> result in a system crash (on a5xx) or a nasty GMU error (on a6xx):
->
->  $ /sys/class/devfreq/5000000.gpu# echo 500000000 > min_freq
->   [  104.841625] platform 506a000.gmu: [drm:a6xx_gmu_set_oob]
->         *ERROR* Timeout waiting for GMU OOB set GPU_DCVS: 0x0
->
-> Despite the fact that we carefully try to suspend the devfreq device when
-> the hardware is powered down there are lots of holes in the governors that
-> don't check for the suspend state and blindly call into the devfreq
-> callbacks that end up triggering hardware reads in the GPU driver.
->
-> Call pm_runtime_get_if_in_use() in the gpu_busy() and gpu_set_freq()
-> callbacks to skip the hardware access if it isn't active.
->
-> v2: Use pm_runtime_get_if_in_use() per Eric Anholt
->
+
+
+On 4/30/20 9:03 AM, Roman Penyaev wrote:
+> This patch does two things:
+> 
+> 1. fixes lost wakeup introduced by:
+>   339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
+> 
+> 2. improves performance for events delivery.
+> 
+> The description of the problem is the following: if N (>1) threads
+> are waiting on ep->wq for new events and M (>1) events come, it is
+> quite likely that >1 wakeups hit the same wait queue entry, because
+> there is quite a big window between __add_wait_queue_exclusive() and
+> the following __remove_wait_queue() calls in ep_poll() function.  This
+> can lead to lost wakeups, because thread, which was woken up, can
+> handle not all the events in ->rdllist. (in better words the problem
+> is described here: https://lkml.org/lkml/2019/10/7/905)
+> 
+> The idea of the current patch is to use init_wait() instead of
+> init_waitqueue_entry(). Internally init_wait() sets
+> autoremove_wake_function as a callback, which removes the wait entry
+> atomically (under the wq locks) from the list, thus the next coming
+> wakeup hits the next wait entry in the wait queue, thus preventing
+> lost wakeups.
+> 
+> Problem is very well reproduced by the epoll60 test case [1].
+> 
+> Wait entry removal on wakeup has also performance benefits, because
+> there is no need to take a ep->lock and remove wait entry from the
+> queue after the successful wakeup. Here is the timing output of
+> the epoll60 test case:
+> 
+>   With explicit wakeup from ep_scan_ready_list() (the state of the
+>   code prior 339ddb53d373):
+> 
+>     real    0m6.970s
+>     user    0m49.786s
+>     sys     0m0.113s
+> 
+>  After this patch:
+> 
+>    real    0m5.220s
+>    user    0m36.879s
+>    sys     0m0.019s
+> 
+> The other testcase is the stress-epoll [2], where one thread consumes
+> all the events and other threads produce many events:
+> 
+>   With explicit wakeup from ep_scan_ready_list() (the state of the
+>   code prior 339ddb53d373):
+> 
+>     threads  events/ms  run-time ms
+>           8       5427         1474
+>          16       6163         2596
+>          32       6824         4689
+>          64       7060         9064
+>         128       6991        18309
+> 
+>  After this patch:
+> 
+>     threads  events/ms  run-time ms
+>           8       5598         1429
+>          16       7073         2262
+>          32       7502         4265
+>          64       7640         8376
+>         128       7634        16767
+> 
+>  (number of "events/ms" represents event bandwidth, thus higher is
+>   better; number of "run-time ms" represents overall time spent
+>   doing the benchmark, thus lower is better)
+> 
+> [1] tools/testing/selftests/filesystems/epoll/epoll_wakeup_test.c
+> [2] https://github.com/rouming/test-tools/blob/master/stress-epoll.c
+> 
+> Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Khazhismel Kumykov <khazhy@google.com>
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: Heiher <r@hev.cc>
+> Cc: Jason Baron <jbaron@akamai.com>
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
 > ---
->
->  drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 6 ++++++
->  drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 8 ++++++++
->  drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 7 +++++++
->  3 files changed, 21 insertions(+)
->
-> diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-> index 724024a2243a..4d7f269edfcc 100644
-> --- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-> +++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-> @@ -1404,6 +1404,10 @@ static unsigned long a5xx_gpu_busy(struct msm_gpu *gpu)
->  {
->         u64 busy_cycles, busy_time;
->
-> +       /* Only read the gpu busy if the hardware is already active */
-> +       if (pm_runtime_get_if_in_use(&gpu->pdev->dev) <= 0)
-> +               return 0;
-> +
+>  fs/eventpoll.c | 43 ++++++++++++++++++++++++-------------------
+>  1 file changed, 24 insertions(+), 19 deletions(-)
+> 
 
-RPM's APIs are a bit of a trap and will return a negative errno for
-the get functions if runtime PM is disabled in kconfig, even though
-usually that would mean that the power domain is not ever disabled by
-RPM.  I think in these checks you want "if (pm_runtime_get_if_in_use()
-== 0)", and that seems to be a common pattern in other drivers.  With
-that,
+Looks good to me and nice speedups.
+Reviewed-by: Jason Baron <jbaron@akamai.com>
 
-Reviewed-by: Eric Anholt <eric@anholt.net>
+Thanks,
 
-(and tested, too)
+-Jason
+
+
