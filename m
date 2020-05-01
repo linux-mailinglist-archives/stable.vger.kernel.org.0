@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B301C15D5
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1023D1C15D8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730630AbgEANe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:34:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33140 "EHLO mail.kernel.org"
+        id S1730624AbgEANfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:35:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730624AbgEANe5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:34:57 -0400
+        id S1730637AbgEANfA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:35:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1B7124953;
-        Fri,  1 May 2020 13:34:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 333772495C;
+        Fri,  1 May 2020 13:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340097;
-        bh=QpvCLsMVUmPNvhbcAdhLPAMk2bdjVhQBVqFvBHaLzLw=;
+        s=default; t=1588340099;
+        bh=kT2ssjy/cji7MP5tBA4BbKIZOxWc02oDr3+Bg7R6hiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEENiLfpX8RHTS2tI3ePqDjt57LOa/3Xgmf57HoqreXwXRbB0Yp+9JCTaGy8GtFkz
-         HVVLO0AyFMlzHHQw9pfVeaXap7rmWaFHoFQqMPQcRYJV0Z2zDftdVt2UlrW0tlvZXr
-         VW2rRkbRMT48oq8JFKL6pOMNrTNnRWHo+7QJkgZ4=
+        b=McaYqapQw/QHJ/sSwd4XFq04XY/qTYPo1DENcmvDeNjByfBH7u74hRjsnRlopupzG
+         ys3eAyd8yUfVqIxjiLjiufz234KDphmm1ddh+qNSs5W2MpYJz63yawIQJQsewzDUWo
+         BxGIHkfFgJOF2o9ALmon4GoeTrbdpSEyU//BrEw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.14 092/117] nfsd: memory corruption in nfsd4_lock()
-Date:   Fri,  1 May 2020 15:22:08 +0200
-Message-Id: <20200501131555.482963497@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 4.14 093/117] i2c: altera: use proper variable to hold errno
+Date:   Fri,  1 May 2020 15:22:09 +0200
+Message-Id: <20200501131555.574644067@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
 References: <20200501131544.291247695@linuxfoundation.org>
@@ -44,37 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit e1e8399eee72e9d5246d4d1bcacd793debe34dd3 upstream.
+commit edb2c9dd3948738ef030c32b948543e84f4d3f81 upstream.
 
-New struct nfsd4_blocked_lock allocated in find_or_allocate_block()
-does not initialized nbl_list and nbl_lru.
-If conflock allocation fails rollback can call list_del_init()
-access uninitialized fields and corrupt memory.
+device_property_read_u32() returns errno or 0, so we should use the
+integer variable 'ret' and not the u32 'val' to hold the retval.
 
-v2: just initialize nbl_list and nbl_lru right after nbl allocation.
-
-Fixes: 76d348fadff5 ("nfsd: have nfsd4_lock use blocking locks for v4.1+ lock")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 0560ad576268 ("i2c: altera: Add Altera I2C Controller driver")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfsd/nfs4state.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-altera.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -246,6 +246,8 @@ find_or_allocate_block(struct nfs4_locko
- 	if (!nbl) {
- 		nbl= kmalloc(sizeof(*nbl), GFP_KERNEL);
- 		if (nbl) {
-+			INIT_LIST_HEAD(&nbl->nbl_list);
-+			INIT_LIST_HEAD(&nbl->nbl_lru);
- 			fh_copy_shallow(&nbl->nbl_fh, fh);
- 			locks_init_lock(&nbl->nbl_lock);
- 			nfsd4_init_cb(&nbl->nbl_cb, lo->lo_owner.so_client,
+--- a/drivers/i2c/busses/i2c-altera.c
++++ b/drivers/i2c/busses/i2c-altera.c
+@@ -395,7 +395,6 @@ static int altr_i2c_probe(struct platfor
+ 	struct altr_i2c_dev *idev = NULL;
+ 	struct resource *res;
+ 	int irq, ret;
+-	u32 val;
+ 
+ 	idev = devm_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
+ 	if (!idev)
+@@ -422,17 +421,17 @@ static int altr_i2c_probe(struct platfor
+ 	init_completion(&idev->msg_complete);
+ 	spin_lock_init(&idev->lock);
+ 
+-	val = device_property_read_u32(idev->dev, "fifo-size",
++	ret = device_property_read_u32(idev->dev, "fifo-size",
+ 				       &idev->fifo_size);
+-	if (val) {
++	if (ret) {
+ 		dev_err(&pdev->dev, "FIFO size set to default of %d\n",
+ 			ALTR_I2C_DFLT_FIFO_SZ);
+ 		idev->fifo_size = ALTR_I2C_DFLT_FIFO_SZ;
+ 	}
+ 
+-	val = device_property_read_u32(idev->dev, "clock-frequency",
++	ret = device_property_read_u32(idev->dev, "clock-frequency",
+ 				       &idev->bus_clk_rate);
+-	if (val) {
++	if (ret) {
+ 		dev_err(&pdev->dev, "Default to 100kHz\n");
+ 		idev->bus_clk_rate = 100000;	/* default clock rate */
+ 	}
 
 
