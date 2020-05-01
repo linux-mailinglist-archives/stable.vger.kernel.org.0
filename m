@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 734651C13F5
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2070D1C1587
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730576AbgEANeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:34:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60750 "EHLO mail.kernel.org"
+        id S1729300AbgEANaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:30:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730125AbgEANea (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:34:30 -0400
+        id S1729156AbgEAN36 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:29:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB0D5216FD;
-        Fri,  1 May 2020 13:34:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F545208D6;
+        Fri,  1 May 2020 13:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340070;
-        bh=8/jvWTH7Ty71d4g0gKGv0ead6LT7K7fwbgRdZrWWT8U=;
+        s=default; t=1588339798;
+        bh=FrPbYjdAs9QBWu+sGeZq7heSAjE/44KWUKf0zQO/x+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=frDv065EG9lK2jKPUmn5cAbhAh28MaV48G5QUrXdAMZabNkbipeRG9xgDW/N6Fodi
-         BMzwNiTZmWYOUXtC+EmZMbt0xoaw0ruD/Bzab4dVeEqOQW8sXuwTqWFP/5gyPGfCkq
-         z+O4FbmzCKot9+ODZClsslw434cQ72Bxok+Fx4Vk=
+        b=Ic+lKbGrJpN31HJ8jq6REsDbEOT6s9RIOSxT1ARR13PxOy1UFgVm990oIqj/jpiEP
+         JMjO5yUfuNtFY2Q6R5xQugDO2Lo0JTOPRszKLvHVJJ6J1pawXJJqiMrnRWsiwgWOC9
+         BZJkeD2RezsXXHj6tzZwr25OtTWm1AbZYQ8Hiklo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kazuhiro Fujita <kazuhiro.fujita.jg@renesas.com>,
-        Hao Bui <hao.bui.yg@renesas.com>,
-        KAZUMI HARADA <kazumi.harada.rh@renesas.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 4.14 082/117] serial: sh-sci: Make sure status register SCxSR is read in correct sequence
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 64/80] net/cxgb4: Check the return from t4_query_params properly
 Date:   Fri,  1 May 2020 15:21:58 +0200
-Message-Id: <20200501131554.552812283@linuxfoundation.org>
+Message-Id: <20200501131532.746764921@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kazuhiro Fujita <kazuhiro.fujita.jg@renesas.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-commit 3dc4db3662366306e54ddcbda4804acb1258e4ba upstream.
+commit c799fca8baf18d1bbbbad6c3b736eefbde8bdb90 upstream.
 
-For SCIF and HSCIF interfaces the SCxSR register holds the status of
-data that is to be read next from SCxRDR register, But where as for
-SCIFA and SCIFB interfaces SCxSR register holds status of data that is
-previously read from SCxRDR register.
+Positive return values are also failures that don't set val,
+although this probably can't happen. Fixes gcc 10 warning:
 
-This patch makes sure the status register is read depending on the port
-types so that errors are caught accordingly.
+drivers/net/ethernet/chelsio/cxgb4/t4_hw.c: In function ‘t4_phy_fw_ver’:
+drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:3747:14: warning: ‘val’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+ 3747 |  *phy_fw_ver = val;
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Kazuhiro Fujita <kazuhiro.fujita.jg@renesas.com>
-Signed-off-by: Hao Bui <hao.bui.yg@renesas.com>
-Signed-off-by: KAZUMI HARADA <kazumi.harada.rh@renesas.com>
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/1585333048-31828-1-git-send-email-kazuhiro.fujita.jg@renesas.com
+Fixes: 01b6961410b7 ("cxgb4: Add PHY firmware support for T420-BT cards")
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/sh-sci.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -841,9 +841,16 @@ static void sci_receive_chars(struct uar
- 				tty_insert_flip_char(tport, c, TTY_NORMAL);
- 		} else {
- 			for (i = 0; i < count; i++) {
--				char c = serial_port_in(port, SCxRDR);
-+				char c;
- 
--				status = serial_port_in(port, SCxSR);
-+				if (port->type == PORT_SCIF ||
-+				    port->type == PORT_HSCIF) {
-+					status = serial_port_in(port, SCxSR);
-+					c = serial_port_in(port, SCxRDR);
-+				} else {
-+					c = serial_port_in(port, SCxRDR);
-+					status = serial_port_in(port, SCxSR);
-+				}
- 				if (uart_handle_sysrq_char(port, c)) {
- 					count--; i--;
- 					continue;
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+@@ -3400,7 +3400,7 @@ int t4_phy_fw_ver(struct adapter *adap,
+ 		 FW_PARAMS_PARAM_Z_V(FW_PARAMS_PARAM_DEV_PHYFW_VERSION));
+ 	ret = t4_query_params(adap, adap->mbox, adap->pf, 0, 1,
+ 			      &param, &val);
+-	if (ret < 0)
++	if (ret)
+ 		return ret;
+ 	*phy_fw_ver = val;
+ 	return 0;
 
 
