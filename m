@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 106A51C15E1
+	by mail.lfdr.de (Postfix) with ESMTP id 7B8D61C15E2
 	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729702AbgEANfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33878 "EHLO mail.kernel.org"
+        id S1730758AbgEANfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:35:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730727AbgEANfe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:35:34 -0400
+        id S1730690AbgEANfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:35:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85E4724953;
-        Fri,  1 May 2020 13:35:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1ED624954;
+        Fri,  1 May 2020 13:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340134;
-        bh=CA8zO5UpVMlcoGn02cPt+zMyeWdnhMr7Dns6RljCs1E=;
+        s=default; t=1588340136;
+        bh=+H7PFAZPvShQZdie03AT/x/QpAs3IlQg0D5YNNrV2co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHFH6ZVTV50/HuGFGQiNRA1vjoTWtrCox68RslKSXmnj0fl3+/cv2fH44PL6iCj/w
-         zLSa6SkXozm49HQl9pE+asWiECP9unyap2864Wujme7onZnmqmhg1kg9dN5cIohNDD
-         y1h5JF7sm/9UNsZugd4CTtWR1nY1AY/9SjcJ8ZSQ=
+        b=Ux8UZs4PIYjufV1eVzBXER0/dfYkoUXecZhuFAyoh33bS7vKclyfn0auf3M0Obv18
+         5iN4Zhvjwdyc2eIqhoIW1yCJNkwTy0yo0+Kxz1a6OHsPFvLahLnj8UXSaVsQe12CkN
+         eCQuM7ebsI4CjxdgL7fm0CdqET173CeNbseTbNoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 107/117] ext4: increase wait time needed before reuse of deleted inode numbers
-Date:   Fri,  1 May 2020 15:22:23 +0200
-Message-Id: <20200501131558.018681086@linuxfoundation.org>
+Subject: [PATCH 4.14 108/117] ext4: convert BUG_ONs to WARN_ONs in mballoc.c
+Date:   Fri,  1 May 2020 15:22:24 +0200
+Message-Id: <20200501131558.096375385@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
 References: <20200501131544.291247695@linuxfoundation.org>
@@ -45,36 +45,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit a17a9d935dc4a50acefaf319d58030f1da7f115a ]
+[ Upstream commit 907ea529fc4c3296701d2bfc8b831dd2a8121a34 ]
 
-Current wait times have proven to be too short to protect against inode
-reuses that lead to metadata inconsistencies.
+If the in-core buddy bitmap gets corrupted (or out of sync with the
+block bitmap), issue a WARN_ON and try to recover.  In most cases this
+involves skipping trying to allocate out of a particular block group.
+We can end up declaring the file system corrupted, which is fair,
+since the file system probably should be checked before we proceed any
+further.
 
-Now that we will retry the inode allocation if we can't find any
-recently deleted inodes, it's a lot safer to increase the recently
-deleted time from 5 seconds to a minute.
-
-Link: https://lore.kernel.org/r/20200414023925.273867-1-tytso@mit.edu
-Google-Bug-Id: 36602237
+Link: https://lore.kernel.org/r/20200414035649.293164-1-tytso@mit.edu
+Google-Bug-Id: 34811296
+Google-Bug-Id: 34639169
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ialloc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/mballoc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/ialloc.c b/fs/ext4/ialloc.c
-index 2a480c0ef1bc1..96efe53855a0b 100644
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -673,7 +673,7 @@ static int find_group_other(struct super_block *sb, struct inode *parent,
-  * block has been written back to disk.  (Yes, these values are
-  * somewhat arbitrary...)
-  */
--#define RECENTCY_MIN	5
-+#define RECENTCY_MIN	60
- #define RECENTCY_DIRTY	300
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index 745a89d30a57a..d7cedfaa1cc08 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -1952,7 +1952,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
+ 	int free;
  
- static int recently_deleted(struct super_block *sb, ext4_group_t group, int ino)
+ 	free = e4b->bd_info->bb_free;
+-	BUG_ON(free <= 0);
++	if (WARN_ON(free <= 0))
++		return;
+ 
+ 	i = e4b->bd_info->bb_first_free;
+ 
+@@ -1973,7 +1974,8 @@ void ext4_mb_complex_scan_group(struct ext4_allocation_context *ac,
+ 		}
+ 
+ 		mb_find_extent(e4b, i, ac->ac_g_ex.fe_len, &ex);
+-		BUG_ON(ex.fe_len <= 0);
++		if (WARN_ON(ex.fe_len <= 0))
++			break;
+ 		if (free < ex.fe_len) {
+ 			ext4_grp_locked_error(sb, e4b->bd_group, 0, 0,
+ 					"%d free clusters as per "
 -- 
 2.20.1
 
