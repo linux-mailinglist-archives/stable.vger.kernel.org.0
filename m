@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25DF11C14E9
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E641C14F3
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730466AbgEANoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:44:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45190 "EHLO mail.kernel.org"
+        id S1730931AbgEANo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:44:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731717AbgEANoH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:44:07 -0400
+        id S1731739AbgEANoW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:44:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A89FB205C9;
-        Fri,  1 May 2020 13:44:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CEC0216FD;
+        Fri,  1 May 2020 13:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340647;
-        bh=SAmhZ94kAm6nE8pFR6LQ+iQqbeuid7sTq8jwZcfG5/k=;
+        s=default; t=1588340662;
+        bh=d9R2OtnCbzy2kZlftOg/kItqCRyQPnSNX2spNt3uGCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RtXF8czHrqkHqjiVyL76DLhmhdYjUPZB7iSOYmULv4oFIa32IMRqGVXCNoT92T4gq
-         QLxAqGZW+NE+o6JVfsoZ1b/P3Yrjb/r5U+1JWwEba0f5twL5IFG3QAso+xGXYQMqoz
-         lWcvD/Xrsgi6PN6FNCrX3h/gC3x8y/kFmM9AYWX4=
+        b=tVw9RZ5ZLXubovvZv4NUq6x+WNkyvBH3muLTIbB7sFkiHygjKsWF2ZsFek7MgVppB
+         t0wH0APU21NGzg9DdHrm9RtW0n2NQXv3jjbQFrdikQhYcW7hPXbcLtZEipC11oBRRl
+         xL48InWI6Ac7l5ejCUBaFKxUSr6gxlhTxsEga+08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 071/106] signal: check sig before setting info in kill_pid_usb_asyncio
-Date:   Fri,  1 May 2020 15:23:44 +0200
-Message-Id: <20200501131552.648364843@linuxfoundation.org>
+Subject: [PATCH 5.6 072/106] afs: Fix length of dump of bad YFSFetchStatus record
+Date:   Fri,  1 May 2020 15:23:45 +0200
+Message-Id: <20200501131552.706730090@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
 References: <20200501131543.421333643@linuxfoundation.org>
@@ -44,45 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit eaec2b0bd30690575c581eebffae64bfb7f684ac ]
+[ Upstream commit 3efe55b09a92a59ed8214db801683cf13c9742c4 ]
 
-In kill_pid_usb_asyncio, if signal is not valid, we do not need to
-set info struct.
+Fix the length of the dump of a bad YFSFetchStatus record.  The function
+was copied from the AFS version, but the YFS variant contains bigger fields
+and extra information, so expand the dump to match.
 
-Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/r/f525fd08-1cf7-fb09-d20c-4359145eb940@huawei.com
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/signal.c | 6 +++---
+ fs/afs/yfsclient.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 7938c60e11dd2..9abf962bbde47 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1510,15 +1510,15 @@ int kill_pid_usb_asyncio(int sig, int errno, sigval_t addr,
- 	unsigned long flags;
- 	int ret = -EINVAL;
+diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
+index 83b6d67325f6c..b5b45c57e1b1d 100644
+--- a/fs/afs/yfsclient.c
++++ b/fs/afs/yfsclient.c
+@@ -165,15 +165,15 @@ static void xdr_dump_bad(const __be32 *bp)
+ 	int i;
  
-+	if (!valid_signal(sig))
-+		return ret;
-+
- 	clear_siginfo(&info);
- 	info.si_signo = sig;
- 	info.si_errno = errno;
- 	info.si_code = SI_ASYNCIO;
- 	*((sigval_t *)&info.si_pid) = addr;
+ 	pr_notice("YFS XDR: Bad status record\n");
+-	for (i = 0; i < 5 * 4 * 4; i += 16) {
++	for (i = 0; i < 6 * 4 * 4; i += 16) {
+ 		memcpy(x, bp, 16);
+ 		bp += 4;
+ 		pr_notice("%03x: %08x %08x %08x %08x\n",
+ 			  i, ntohl(x[0]), ntohl(x[1]), ntohl(x[2]), ntohl(x[3]));
+ 	}
  
--	if (!valid_signal(sig))
--		return ret;
--
- 	rcu_read_lock();
- 	p = pid_task(pid, PIDTYPE_PID);
- 	if (!p) {
+-	memcpy(x, bp, 4);
+-	pr_notice("0x50: %08x\n", ntohl(x[0]));
++	memcpy(x, bp, 8);
++	pr_notice("0x60: %08x %08x\n", ntohl(x[0]), ntohl(x[1]));
+ }
+ 
+ /*
 -- 
 2.20.1
 
