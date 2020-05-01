@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 203C31C1499
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9380F1C1533
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728839AbgEANlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:41:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41352 "EHLO mail.kernel.org"
+        id S1730617AbgEANod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:44:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728833AbgEANlI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:41:08 -0400
+        id S1731755AbgEANoc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:44:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6188205C9;
-        Fri,  1 May 2020 13:41:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D6CA20836;
+        Fri,  1 May 2020 13:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340467;
-        bh=t6QrlUuqm7H12f/LEkP2lMqOz6UI8P+PkX2WkGbdVLQ=;
+        s=default; t=1588340671;
+        bh=e3WA4H3fLJzyOfElQQrhJFcn7WuC5HHdFu+UZ04g7yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQdOIf4VZlb7WvGfbBs5jERtCUN30D4GiwqGVoz9JanaG5CW7Up2FqWxAUV1bWR0+
-         wHGqA+vdHY/8VqMWBd3ae/WKzcbvjAa91zrPf5FNA2CxJoUkOmNcFabEEUCCfQC181
-         +0qaO2LdK8JbotydiUD+Ey5OWU9BwalDmcxyKR2M=
+        b=jAzijffL/SCoWFdgutO0/lOenrN8oMJbZ9LGJ+8lbS0oZl4bEhgsLpKL6DJclBfB4
+         6/r2biJ+nyPQPSLhgtNJGs50VeBu9Y9wVBSIjSEnU4sIgCjmt8FVlVZvqlDoWDal5m
+         9uDMqGpBHue/TUypholkUybsD6bblpNXtk5szLTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tamizh chelvam <tamizhr@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 69/83] mac80211: fix channel switch trigger from unknown mesh peer
-Date:   Fri,  1 May 2020 15:23:48 +0200
-Message-Id: <20200501131541.304152226@linuxfoundation.org>
+        stable@vger.kernel.org, Roy Spliet <nouveau@spliet.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 076/106] ALSA: hda: Explicitly permit using autosuspend if runtime PM is supported
+Date:   Fri,  1 May 2020 15:23:49 +0200
+Message-Id: <20200501131553.047737467@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tamizh chelvam <tamizhr@codeaurora.org>
+From: Roy Spliet <nouveau@spliet.org>
 
-[ Upstream commit 93e2d04a1888668183f3fb48666e90b9b31d29e6 ]
+[ Upstream commit 3ba21113bd33d49f3c300a23fc08cf114c434995 ]
 
-Previously mesh channel switch happens if beacon contains
-CSA IE without checking the mesh peer info. Due to that
-channel switch happens even if the beacon is not from
-its own mesh peer. Fixing that by checking if the CSA
-originated from the same mesh network before proceeding
-for channel switch.
+This fixes runtime PM not working after a suspend-to-RAM cycle at least for
+the codec-less HDA device found on NVIDIA GPUs.
 
-Signed-off-by: Tamizh chelvam <tamizhr@codeaurora.org>
-Link: https://lore.kernel.org/r/1585403604-29274-1-git-send-email-tamizhr@codeaurora.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
+Signed-off-by: Roy Spliet <nouveau@spliet.org>
+Link: https://lore.kernel.org/r/20200413082034.25166-7-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ sound/pci/hda/hda_intel.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/mesh.c b/net/mac80211/mesh.c
-index d09b3c789314d..36978a0e50001 100644
---- a/net/mac80211/mesh.c
-+++ b/net/mac80211/mesh.c
-@@ -1257,15 +1257,15 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
- 		    sdata->u.mesh.mshcfg.rssi_threshold < rx_status->signal)
- 			mesh_neighbour_update(sdata, mgmt->sa, &elems,
- 					      rx_status);
-+
-+		if (ifmsh->csa_role != IEEE80211_MESH_CSA_ROLE_INIT &&
-+		    !sdata->vif.csa_active)
-+			ieee80211_mesh_process_chnswitch(sdata, &elems, true);
- 	}
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index d69005e29975c..4f6d8a4b38452 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2337,8 +2337,10 @@ static int azx_probe_continue(struct azx *chip)
  
- 	if (ifmsh->sync_ops)
- 		ifmsh->sync_ops->rx_bcn_presp(sdata,
- 			stype, mgmt, &elems, rx_status);
--
--	if (ifmsh->csa_role != IEEE80211_MESH_CSA_ROLE_INIT &&
--	    !sdata->vif.csa_active)
--		ieee80211_mesh_process_chnswitch(sdata, &elems, true);
- }
+ 	set_default_power_save(chip);
  
- int ieee80211_mesh_finish_csa(struct ieee80211_sub_if_data *sdata)
-@@ -1373,6 +1373,9 @@ static void mesh_rx_csa_frame(struct ieee80211_sub_if_data *sdata,
- 	ieee802_11_parse_elems(pos, len - baselen, true, &elems,
- 			       mgmt->bssid, NULL);
+-	if (azx_has_pm_runtime(chip))
++	if (azx_has_pm_runtime(chip)) {
++		pm_runtime_use_autosuspend(&pci->dev);
+ 		pm_runtime_put_autosuspend(&pci->dev);
++	}
  
-+	if (!mesh_matches_local(sdata, &elems))
-+		return;
-+
- 	ifmsh->chsw_ttl = elems.mesh_chansw_params_ie->mesh_ttl;
- 	if (!--ifmsh->chsw_ttl)
- 		fwd_csa = false;
+ out_free:
+ 	if (err < 0) {
 -- 
 2.20.1
 
