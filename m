@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D7B41C1629
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9BA91C14FA
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729759AbgEANks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:40:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40882 "EHLO mail.kernel.org"
+        id S1731547AbgEANoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:44:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730275AbgEANkn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:40:43 -0400
+        id S1731332AbgEANoo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:44:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29BE4205C9;
-        Fri,  1 May 2020 13:40:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 999C720757;
+        Fri,  1 May 2020 13:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340442;
-        bh=6OqBXGwNZRg2iIABLTkCACjOhL+8Zt0oEMiBkHLzQhQ=;
+        s=default; t=1588340684;
+        bh=XJaNe5pXks9bL5KapSdiW5O2hhPV6fdgJmwFmiAry0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1c6mk3T2tC4OmafJGr4d/9yAMQO0YHeqGVzjnsE49ccMPMkbPY2HgNilK1VxvICN
-         vdJGQ0KXi+Ta0QK/Rv3MmFPp5rZ0bwiS40JAiUvySXPoveUZgh1pNwxVo/QIeDy9Ud
-         RCiaodrofviTRfs0z53O0KyagnQbowrN5x4Ejg7k=
+        b=Nt4JXX8lHBWL+ULYvj6ZK63tmlpWw4RyjwX75WMb4cZAnIQwBxvcKZs7LlkfCUKuE
+         4vdmKM2SyIXFKMQVkMXx7yKV825osH7xuwR0oHt/WCDepVAn0hWqDT/237QeqCIs8F
+         iQ8CmBMFCpRjLnExAtM/fg6Y6FD2FIqJLqLLJOvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Kalderon <mkalderon@marvell.com>,
-        Yuval Bason <ybason@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 80/83] qed: Fix use after free in qed_chain_free
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Peter Xu <peterx@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 086/106] sched/isolation: Allow "isolcpus=" to skip unknown sub-parameters
 Date:   Fri,  1 May 2020 15:23:59 +0200
-Message-Id: <20200501131542.932619245@linuxfoundation.org>
+Message-Id: <20200501131553.927400371@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,206 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuval Basson <ybason@marvell.com>
+From: Peter Xu <peterx@redhat.com>
 
-commit 8063f761cd7c17fc1d0018728936e0c33a25388a upstream.
+[ Upstream commit 3662daf023500dc084fa3b96f68a6f46179ddc73 ]
 
-The qed_chain data structure was modified in
-commit 1a4a69751f4d ("qed: Chain support for external PBL") to support
-receiving an external pbl (due to iWARP FW requirements).
-The pages pointed to by the pbl are allocated in qed_chain_alloc
-and their virtual address are stored in an virtual addresses array to
-enable accessing and freeing the data. The physical addresses however
-weren't stored and were accessed directly from the external-pbl
-during free.
+The "isolcpus=" parameter allows sub-parameters before the cpulist is
+specified, and if the parser detects an unknown sub-parameters the whole
+parameter will be ignored.
 
-Destroy-qp flow, leads to freeing the external pbl before the chain is
-freed, when the chain is freed it tries accessing the already freed
-external pbl, leading to a use-after-free. Therefore we need to store
-the physical addresses in additional to the virtual addresses in a
-new data structure.
+This design is incompatible with itself when new sub-parameters are added.
+An older kernel will not recognize the new sub-parameter and will
+invalidate the whole parameter so the CPU isolation will not take
+effect. It emits a warning:
 
-Fixes: 1a4a69751f4d ("qed: Chain support for external PBL")
-Signed-off-by: Michal Kalderon <mkalderon@marvell.com>
-Signed-off-by: Yuval Bason <ybason@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    isolcpus: Error, unknown flag
 
+The better and compatible way is to allow "isolcpus=" to skip unknown
+sub-parameters, so that even if new sub-parameters are added an older
+kernel will still be able to behave as usual even if with the new
+sub-parameter specified on the command line.
+
+Ideally this should have been there when the first sub-parameter for
+"isolcpus=" was introduced.
+
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20200403223517.406353-1-peterx@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_dev.c |   38 ++++++++++++------------------
- include/linux/qed/qed_chain.h             |   24 +++++++++++-------
- 2 files changed, 31 insertions(+), 31 deletions(-)
+ kernel/sched/isolation.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-@@ -4648,26 +4648,20 @@ static void qed_chain_free_single(struct
- 
- static void qed_chain_free_pbl(struct qed_dev *cdev, struct qed_chain *p_chain)
+diff --git a/kernel/sched/isolation.c b/kernel/sched/isolation.c
+index 008d6ac2342b7..808244f3ddd98 100644
+--- a/kernel/sched/isolation.c
++++ b/kernel/sched/isolation.c
+@@ -149,6 +149,9 @@ __setup("nohz_full=", housekeeping_nohz_full_setup);
+ static int __init housekeeping_isolcpus_setup(char *str)
  {
--	void **pp_virt_addr_tbl = p_chain->pbl.pp_virt_addr_tbl;
-+	struct addr_tbl_entry *pp_addr_tbl = p_chain->pbl.pp_addr_tbl;
- 	u32 page_cnt = p_chain->page_cnt, i, pbl_size;
--	u8 *p_pbl_virt = p_chain->pbl_sp.p_virt_table;
+ 	unsigned int flags = 0;
++	bool illegal = false;
++	char *par;
++	int len;
  
--	if (!pp_virt_addr_tbl)
-+	if (!pp_addr_tbl)
- 		return;
- 
--	if (!p_pbl_virt)
--		goto out;
--
- 	for (i = 0; i < page_cnt; i++) {
--		if (!pp_virt_addr_tbl[i])
-+		if (!pp_addr_tbl[i].virt_addr || !pp_addr_tbl[i].dma_map)
- 			break;
- 
- 		dma_free_coherent(&cdev->pdev->dev,
- 				  QED_CHAIN_PAGE_SIZE,
--				  pp_virt_addr_tbl[i],
--				  *(dma_addr_t *)p_pbl_virt);
--
--		p_pbl_virt += QED_CHAIN_PBL_ENTRY_SIZE;
-+				  pp_addr_tbl[i].virt_addr,
-+				  pp_addr_tbl[i].dma_map);
- 	}
- 
- 	pbl_size = page_cnt * QED_CHAIN_PBL_ENTRY_SIZE;
-@@ -4677,9 +4671,9 @@ static void qed_chain_free_pbl(struct qe
- 				  pbl_size,
- 				  p_chain->pbl_sp.p_virt_table,
- 				  p_chain->pbl_sp.p_phys_table);
--out:
--	vfree(p_chain->pbl.pp_virt_addr_tbl);
--	p_chain->pbl.pp_virt_addr_tbl = NULL;
-+
-+	vfree(p_chain->pbl.pp_addr_tbl);
-+	p_chain->pbl.pp_addr_tbl = NULL;
- }
- 
- void qed_chain_free(struct qed_dev *cdev, struct qed_chain *p_chain)
-@@ -4780,19 +4774,19 @@ qed_chain_alloc_pbl(struct qed_dev *cdev
- {
- 	u32 page_cnt = p_chain->page_cnt, size, i;
- 	dma_addr_t p_phys = 0, p_pbl_phys = 0;
--	void **pp_virt_addr_tbl = NULL;
-+	struct addr_tbl_entry *pp_addr_tbl;
- 	u8 *p_pbl_virt = NULL;
- 	void *p_virt = NULL;
- 
--	size = page_cnt * sizeof(*pp_virt_addr_tbl);
--	pp_virt_addr_tbl = vzalloc(size);
--	if (!pp_virt_addr_tbl)
-+	size = page_cnt * sizeof(*pp_addr_tbl);
-+	pp_addr_tbl =  vzalloc(size);
-+	if (!pp_addr_tbl)
- 		return -ENOMEM;
- 
- 	/* The allocation of the PBL table is done with its full size, since it
- 	 * is expected to be successive.
- 	 * qed_chain_init_pbl_mem() is called even in a case of an allocation
--	 * failure, since pp_virt_addr_tbl was previously allocated, and it
-+	 * failure, since tbl was previously allocated, and it
- 	 * should be saved to allow its freeing during the error flow.
- 	 */
- 	size = page_cnt * QED_CHAIN_PBL_ENTRY_SIZE;
-@@ -4806,8 +4800,7 @@ qed_chain_alloc_pbl(struct qed_dev *cdev
- 		p_chain->b_external_pbl = true;
- 	}
- 
--	qed_chain_init_pbl_mem(p_chain, p_pbl_virt, p_pbl_phys,
--			       pp_virt_addr_tbl);
-+	qed_chain_init_pbl_mem(p_chain, p_pbl_virt, p_pbl_phys, pp_addr_tbl);
- 	if (!p_pbl_virt)
- 		return -ENOMEM;
- 
-@@ -4826,7 +4819,8 @@ qed_chain_alloc_pbl(struct qed_dev *cdev
- 		/* Fill the PBL table with the physical address of the page */
- 		*(dma_addr_t *)p_pbl_virt = p_phys;
- 		/* Keep the virtual address of the page */
--		p_chain->pbl.pp_virt_addr_tbl[i] = p_virt;
-+		p_chain->pbl.pp_addr_tbl[i].virt_addr = p_virt;
-+		p_chain->pbl.pp_addr_tbl[i].dma_map = p_phys;
- 
- 		p_pbl_virt += QED_CHAIN_PBL_ENTRY_SIZE;
- 	}
---- a/include/linux/qed/qed_chain.h
-+++ b/include/linux/qed/qed_chain.h
-@@ -97,6 +97,11 @@ struct qed_chain_u32 {
- 	u32 cons_idx;
- };
- 
-+struct addr_tbl_entry {
-+	void *virt_addr;
-+	dma_addr_t dma_map;
-+};
-+
- struct qed_chain {
- 	/* fastpath portion of the chain - required for commands such
- 	 * as produce / consume.
-@@ -107,10 +112,11 @@ struct qed_chain {
- 
- 	/* Fastpath portions of the PBL [if exists] */
- 	struct {
--		/* Table for keeping the virtual addresses of the chain pages,
--		 * respectively to the physical addresses in the pbl table.
-+		/* Table for keeping the virtual and physical addresses of the
-+		 * chain pages, respectively to the physical addresses
-+		 * in the pbl table.
- 		 */
--		void **pp_virt_addr_tbl;
-+		struct addr_tbl_entry *pp_addr_tbl;
- 
- 		union {
- 			struct qed_chain_pbl_u16 u16;
-@@ -287,7 +293,7 @@ qed_chain_advance_page(struct qed_chain
- 				*(u32 *)page_to_inc = 0;
- 			page_index = *(u32 *)page_to_inc;
+ 	while (isalpha(*str)) {
+ 		if (!strncmp(str, "nohz,", 5)) {
+@@ -169,8 +172,22 @@ static int __init housekeeping_isolcpus_setup(char *str)
+ 			continue;
  		}
--		*p_next_elem = p_chain->pbl.pp_virt_addr_tbl[page_index];
-+		*p_next_elem = p_chain->pbl.pp_addr_tbl[page_index].virt_addr;
+ 
+-		pr_warn("isolcpus: Error, unknown flag\n");
+-		return 0;
++		/*
++		 * Skip unknown sub-parameter and validate that it is not
++		 * containing an invalid character.
++		 */
++		for (par = str, len = 0; *str && *str != ','; str++, len++) {
++			if (!isalpha(*str) && *str != '_')
++				illegal = true;
++		}
++
++		if (illegal) {
++			pr_warn("isolcpus: Invalid flag %.*s\n", len, par);
++			return 0;
++		}
++
++		pr_info("isolcpus: Skipped unknown flag %.*s\n", len, par);
++		str++;
  	}
- }
  
-@@ -537,7 +543,7 @@ static inline void qed_chain_init_params
- 
- 	p_chain->pbl_sp.p_phys_table = 0;
- 	p_chain->pbl_sp.p_virt_table = NULL;
--	p_chain->pbl.pp_virt_addr_tbl = NULL;
-+	p_chain->pbl.pp_addr_tbl = NULL;
- }
- 
- /**
-@@ -575,11 +581,11 @@ static inline void qed_chain_init_mem(st
- static inline void qed_chain_init_pbl_mem(struct qed_chain *p_chain,
- 					  void *p_virt_pbl,
- 					  dma_addr_t p_phys_pbl,
--					  void **pp_virt_addr_tbl)
-+					  struct addr_tbl_entry *pp_addr_tbl)
- {
- 	p_chain->pbl_sp.p_phys_table = p_phys_pbl;
- 	p_chain->pbl_sp.p_virt_table = p_virt_pbl;
--	p_chain->pbl.pp_virt_addr_tbl = pp_virt_addr_tbl;
-+	p_chain->pbl.pp_addr_tbl = pp_addr_tbl;
- }
- 
- /**
-@@ -644,7 +650,7 @@ static inline void *qed_chain_get_last_e
- 		break;
- 	case QED_CHAIN_MODE_PBL:
- 		last_page_idx = p_chain->page_cnt - 1;
--		p_virt_addr = p_chain->pbl.pp_virt_addr_tbl[last_page_idx];
-+		p_virt_addr = p_chain->pbl.pp_addr_tbl[last_page_idx].virt_addr;
- 		break;
- 	}
- 	/* p_virt_addr points at this stage to the last page of the chain */
-@@ -716,7 +722,7 @@ static inline void qed_chain_pbl_zero_me
- 	page_cnt = qed_chain_get_page_cnt(p_chain);
- 
- 	for (i = 0; i < page_cnt; i++)
--		memset(p_chain->pbl.pp_virt_addr_tbl[i], 0,
-+		memset(p_chain->pbl.pp_addr_tbl[i].virt_addr, 0,
- 		       QED_CHAIN_PAGE_SIZE);
- }
- 
+ 	/* Default behaviour for isolcpus without flags */
+-- 
+2.20.1
+
 
 
