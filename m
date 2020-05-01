@@ -2,113 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 911FE1C0B96
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 03:17:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7D131C0B9E
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 03:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727124AbgEABR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 21:17:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44664 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727114AbgEABR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 21:17:26 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 376C72073E;
-        Fri,  1 May 2020 01:17:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588295845;
-        bh=Mz6sN8uk0484dPtngixCMMsVEMJZKClCMUn+e0ge4NU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=x63oQ56cQA9Bl8D50Rpxxf8WvZrBvFUvuXGolJKStkcDajfnGA0hsDp6X5vr8LFVt
-         3ogdumnhPxzwfsfy0gmKrSzIoo1dLds7f2tExur8fAAEz9TWhyC+boj7aJPmSBjMt6
-         RDkFis3kbIzztbBb9F2PhXedX++P9qV62kAh56+o=
-Date:   Thu, 30 Apr 2020 21:17:24 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Roy Spliet <nouveau@spliet.org>
-Cc:     Takashi Iwai <tiwai@suse.de>, alsa-devel@alsa-project.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.6 12/38] ALSA: hda: Skip controller resume if
- not needed
-Message-ID: <20200501011724.GF13035@sasha-vm>
-References: <20200424122237.9831-1-sashal@kernel.org>
- <20200424122237.9831-12-sashal@kernel.org>
- <s5himhprr32.wl-tiwai@suse.de>
- <f5f301c7-a74d-7c2e-d182-3f003bfc061b@spliet.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <f5f301c7-a74d-7c2e-d182-3f003bfc061b@spliet.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1727970AbgEABUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 21:20:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50104 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727124AbgEABUn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 21:20:43 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20CEBC035494
+        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 18:20:43 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id x77so915238pfc.0
+        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 18:20:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amacapital-net.20150623.gappssmtp.com; s=20150623;
+        h=content-transfer-encoding:from:mime-version:subject:date:message-id
+         :references:cc:in-reply-to:to;
+        bh=+ob/X0QXFpxvmr3EWB8fQOJcF1u/V0cTtMVpIs2p45o=;
+        b=JWz/HNe9QVe3KpMe6Fx9Bq2GqkBQAoBVa8iqrJqTOXH9HIZzwUCDZU8rE102fg1z7o
+         0kalZERJUV6gw/xA8MPaoOfaHwYAbAANimUog9Hm676+TIjcO+dBY89FjUJ4wcMs975/
+         SKm9CbmjdES6fxlHT0h2/dzk9hxGqC1/y06ZPZMjk0uNY0N5EoJ6K6sn0qt6pUf2eCuJ
+         jgwqP5f32gdTlY0FX3Gs1FAz+ZOhcRu86YggMsjZ1RdG5yNctLB6+vmapn45gRamTYGp
+         fRbPwUxOjDOzHfI5AUlpxdC9aNAaFqoSCkIZ/PKmcj6qIrFM96yFQKqxFpwDUaMHMKf7
+         yvLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:content-transfer-encoding:from:mime-version
+         :subject:date:message-id:references:cc:in-reply-to:to;
+        bh=+ob/X0QXFpxvmr3EWB8fQOJcF1u/V0cTtMVpIs2p45o=;
+        b=Twn75Lu/SEza7OO3drBPSdYCJnN1gQPdHxH7vlR8arg8PYh8tNsX4i5FTK5fnUjG7h
+         C1yvbHm+g/X1sfzOFoJKscPo/soSwUx/mIWdguoyBgbZQoOd3pvuNO2205he1Jndn5yX
+         9ZuliARPhX5vSQoiihV68qBe9QFIWPwNtgOanbUQGktaxBg3EdWzRP8Ln0wK7jVdwCsr
+         RdcPWAb4eMN9Wf2E8P69qydKkVkoP5MD9NhKvo09VAacIoSGaDJmS51VGvSiePl9wnjj
+         0UkTja8K3lQpWNltzy+Grwi4P1rm1Q8mcn6/RJF8iJufQkS41jlu8XEr5ECA9BAsgHnI
+         fkCw==
+X-Gm-Message-State: AGi0PuZ7syLmNnHQsmDl6BodpQyalhU7lJayce8oHPJis10aHcBugrDp
+        C6b7zU9w+YaIZT05pkkbrh3CPw==
+X-Google-Smtp-Source: APiQypJVdLbyXVtAGU4O61QE9USzd9aHvhWz43HYF+zei+FPbOx+DYcTAVOeS9XOsayG60rqSExmJg==
+X-Received: by 2002:aa7:819a:: with SMTP id g26mr1723584pfi.193.1588296042609;
+        Thu, 30 Apr 2020 18:20:42 -0700 (PDT)
+Received: from ?IPv6:2601:646:c200:1ef2:d495:581b:d692:e814? ([2601:646:c200:1ef2:d495:581b:d692:e814])
+        by smtp.gmail.com with ESMTPSA id h31sm784779pjb.33.2020.04.30.18.20.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Apr 2020 18:20:41 -0700 (PDT)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From:   Andy Lutomirski <luto@amacapital.net>
+Mime-Version: 1.0 (1.0)
+Subject: Re: [PATCH v2 0/2] Replace and improve "mcsafe" with copy_safe()
+Date:   Thu, 30 Apr 2020 18:20:39 -0700
+Message-Id: <D47C71D3-349B-49C4-9945-330C9F42A3E0@amacapital.net>
+References: <CAHk-=wh1SPyuGkTkQESsacwKTpjWd=_-KwoCK5o=SuC3yMdf7A@mail.gmail.com>
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        "Luck, Tony" <tony.luck@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        stable <stable@vger.kernel.org>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Erwin Tsaur <erwin.tsaur@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <CAHk-=wh1SPyuGkTkQESsacwKTpjWd=_-KwoCK5o=SuC3yMdf7A@mail.gmail.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+X-Mailer: iPhone Mail (17E262)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 30, 2020 at 11:36:05PM +0100, Roy Spliet wrote:
->(Minus "Linux kernel", that list has enough volume)
->
->Op 24-04-2020 om 13:44 schreef Takashi Iwai:
->>On Fri, 24 Apr 2020 14:22:10 +0200,
->>Sasha Levin wrote:
->>>
->>>From: Takashi Iwai <tiwai@suse.de>
->>>
->>>[ Upstream commit c4c8dd6ef807663e42a5f04ea77cd62029eb99fa ]
->>>
->>>The HD-audio controller does system-suspend and resume operations by
->>>directly calling its helpers __azx_runtime_suspend() and
->>>__azx_runtime_resume().  However, in general, we don't have to resume
->>>always the device fully at the system resume; typically, if a device
->>>has been runtime-suspended, we can leave it to runtime resume.
->>>
->>>Usually for achieving this, the driver would call
->>>pm_runtime_force_suspend() and pm_runtime_force_resume() pairs in the
->>>system suspend and resume ops.  Unfortunately, this doesn't work for
->>>the resume path in our case.  For handling the jack detection at the
->>>system resume, a child codec device may need the (literally) forcibly
->>>resume even if it's been runtime-suspended, and for that, the
->>>controller device must be also resumed even if it's been suspended.
->>>
->>>This patch is an attempt to improve the situation.  It replaces the
->>>direct __azx_runtime_suspend()/_resume() calls with with
->>>pm_runtime_force_suspend() and pm_runtime_force_resume() with a slight
->>>trick as we've done for the codec side.  More exactly:
->>>
->>>- azx_has_pm_runtime() check is dropped from azx_runtime_suspend() and
->>>   azx_runtime_resume(), so that it can be properly executed from the
->>>   system-suspend/resume path
->>>
->>>- The WAKEEN handling depends on the card's power state now; it's set
->>>   and cleared only for the runtime-suspend
->>>
->>>- azx_resume() checks whether any codec may need the forcible resume
->>>   beforehand.  If the forcible resume is required, it does temporary
->>>   PM refcount up/down for actually triggering the runtime resume.
->>>
->>>- A new helper function, hda_codec_need_resume(), is introduced for
->>>   checking whether the codec needs a forcible runtime-resume, and the
->>>   existing code is rewritten with that.
->>>
->>>BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
->>>Link: https://lore.kernel.org/r/20200413082034.25166-6-tiwai@suse.de
->>>Signed-off-by: Takashi Iwai <tiwai@suse.de>
->>>Signed-off-by: Sasha Levin <sashal@kernel.org>
->>
->>This commit is known to cause a regression, and the fix patch is
->>included in today's pull request.  If we apply this, better to wait
->>for the next batch including its fix.
->
->These six patches, plus Takashi's fix on top of them, do not seem to 
->have made it to 5.6.7 or 5.6.8 in the end. Is there a plan to include 
 
-AUTOSEL stuff take a while to hit the stable trees, if you want patches
-in quicker they should be tagged for stable...
 
->them in 5.6.9?
+> On Apr 30, 2020, at 5:25 PM, Linus Torvalds <torvalds@linux-foundation.org=
+> wrote:
+>=20
+>=20
+> It wasn't clear how "copy_to_mc()" could ever fault. Poisoning
+> after-the-fact? Why would that be preferable to just mapping a dummy
+> page?
 
-What are the commit ids?
+If the kernel gets an async memory error and maps a dummy page, then subsequ=
+ent reads will subsequently succeed and return garbage when they should fail=
+.  If x86 had write-only pages, we could map a dummy write-only page. But we=
+ don=E2=80=99t, so I think we=E2=80=99re stuck.
 
--- 
-Thanks,
-Sasha
+As for naming the kind of memory we=E2=80=99re taking about, ISTM there are t=
+wo classes: DAX and monstrous memory-mapped non-persistent cache devices.  B=
+oth could be Optane, I suppose.
+
+But I also think it=E2=80=99s legitimate to use these accessors to increase t=
+he chance of surviving a failure of normal memory. If a normal page happens t=
+o be page cache when it fails and if page cache access use these fancy acces=
+sors, then we might actually survive a failure.
+
+We could be ambitious: declare that all page cache and all get_user_page=E2=80=
+=99d memory should use the new accessors.  I doubt we=E2=80=99ll ever really=
+ succeed due to magical things like rseq and anything that thinks that users=
+ can set up their own memory as a kernel-accessed ring buffer, but I suppose=
+ we could try.
+
