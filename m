@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3795C1C12D4
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 218811C15B2
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728880AbgEANYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:24:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45236 "EHLO mail.kernel.org"
+        id S1730250AbgEANcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:32:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728879AbgEANYu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:24:50 -0400
+        id S1729560AbgEANcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:32:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A063224969;
-        Fri,  1 May 2020 13:24:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B47520757;
+        Fri,  1 May 2020 13:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339490;
-        bh=OmsL5AT5dbpd9MY4DoICFXkIlbcngeocNeA2mHdqf/M=;
+        s=default; t=1588339928;
+        bh=KxgNkUjVFM7CT+iFDdcDZHWsAV/C9tx3nHEWZ0Hnhl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLKOieIVZ1XfznGqCQua5QpMk/HYdE1/6PC0LXFUiv+jNSMWA4jmrnRiEUPGc1bLL
-         u2Y+TDTbqXR4650VoTjhdHfAujkL+NVvHK45JL60ZG+E/JtXwpnP0drfUjEOuOUKLM
-         SzZQiVhK7Hv+dOWrwF2YGc+bOx0/HpQchYU2nm9I=
+        b=vnFPh7eKUFHwHn2d/hO3ewAh1hFDT8CIs7TYpybTNIoCIhRbqxDPKqZiftsgtUteK
+         18Ke8xQKysosNkR7LcJqZEN/zFUs/bFjFl0yyQMN+afPJT/IPXVj2lIGqxOFuOC4yT
+         ssKszueZQL68dCIb64SYb7PHSXFvycAwPQgC+CuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
+        Kees Cook <keescook@chromium.org>,
+        Daniel Micay <danielmicay@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Matthias Schiffer <mschiffer@universe-factory.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sven Eckelmann <sven@narfation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/70] pwm: rcar: Fix late Runtime PM enablement
-Date:   Fri,  1 May 2020 15:20:58 +0200
-Message-Id: <20200501131515.658174145@linuxfoundation.org>
+Subject: [PATCH 4.14 023/117] mm, slub: restore the original intention of prefetch_freepointer()
+Date:   Fri,  1 May 2020 15:20:59 +0200
+Message-Id: <20200501131547.739266029@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,61 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Vlastimil Babka <vbabka@suse.cz>
 
-[ Upstream commit 1451a3eed24b5fd6a604683f0b6995e0e7e16c79 ]
+commit 0882ff9190e3bc51e2d78c3aadd7c690eeaa91d5 upstream.
 
-Runtime PM should be enabled before calling pwmchip_add(), as PWM users
-can appear immediately after the PWM chip has been added.
-Likewise, Runtime PM should be disabled after the removal of the PWM
-chip.
+In SLUB, prefetch_freepointer() is used when allocating an object from
+cache's freelist, to make sure the next object in the list is cache-hot,
+since it's probable it will be allocated soon.
 
-Fixes: ed6c1476bf7f16d5 ("pwm: Add support for R-Car PWM Timer")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Commit 2482ddec670f ("mm: add SLUB free list pointer obfuscation") has
+unintentionally changed the prefetch in a way where the prefetch is
+turned to a real fetch, and only the next->next pointer is prefetched.
+In case there is not a stream of allocations that would benefit from
+prefetching, the extra real fetch might add a useless cache miss to the
+allocation.  Restore the previous behavior.
+
+Link: http://lkml.kernel.org/r/20180809085245.22448-1-vbabka@suse.cz
+Fixes: 2482ddec670f ("mm: add SLUB free list pointer obfuscation")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: Kees Cook <keescook@chromium.org>
+Cc: Daniel Micay <danielmicay@gmail.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Matthias Schiffer <mschiffer@universe-factory.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-rcar.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ mm/slub.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/pwm/pwm-rcar.c b/drivers/pwm/pwm-rcar.c
-index 6e99a63ffa290..df0723df1f997 100644
---- a/drivers/pwm/pwm-rcar.c
-+++ b/drivers/pwm/pwm-rcar.c
-@@ -232,24 +232,28 @@ static int rcar_pwm_probe(struct platform_device *pdev)
- 	rcar_pwm->chip.base = -1;
- 	rcar_pwm->chip.npwm = 1;
+diff --git a/mm/slub.c b/mm/slub.c
+index 3c1a16f03b2bd..481518c3f61a9 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -269,8 +269,7 @@ static inline void *get_freepointer(struct kmem_cache *s, void *object)
  
-+	pm_runtime_enable(&pdev->dev);
-+
- 	ret = pwmchip_add(&rcar_pwm->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to register PWM chip: %d\n", ret);
-+		pm_runtime_disable(&pdev->dev);
- 		return ret;
- 	}
- 
--	pm_runtime_enable(&pdev->dev);
--
- 	return 0;
- }
- 
- static int rcar_pwm_remove(struct platform_device *pdev)
+ static void prefetch_freepointer(const struct kmem_cache *s, void *object)
  {
- 	struct rcar_pwm_chip *rcar_pwm = platform_get_drvdata(pdev);
-+	int ret;
-+
-+	ret = pwmchip_remove(&rcar_pwm->chip);
- 
- 	pm_runtime_disable(&pdev->dev);
- 
--	return pwmchip_remove(&rcar_pwm->chip);
-+	return ret;
+-	if (object)
+-		prefetch(freelist_dereference(s, object + s->offset));
++	prefetch(object + s->offset);
  }
  
- static const struct of_device_id rcar_pwm_of_table[] = {
+ static inline void *get_freepointer_safe(struct kmem_cache *s, void *object)
 -- 
 2.20.1
 
