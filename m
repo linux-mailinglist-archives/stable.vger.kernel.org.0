@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F1A1C169D
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D15F1C16BC
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730663AbgEANu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:50:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38922 "EHLO mail.kernel.org"
+        id S1730979AbgEANw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:52:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731174AbgEANjR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:39:17 -0400
+        id S1730538AbgEANhn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FAD6208DB;
-        Fri,  1 May 2020 13:39:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0749B2173E;
+        Fri,  1 May 2020 13:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340356;
-        bh=uNz9X7jFv1095SN1iz30H01MoEYgyreaxlkOKw/rAGU=;
+        s=default; t=1588340262;
+        bh=QYf+C4nM/MoIhpuZUdyO8q0kRjg4YFz2TyZsJzE+QHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a19R4WbkA4Q13BtQIg6XdBEpB0+JIbQh/B9QVhylidrlLeUeQCYGBgUBXtkbOFjp/
-         YYjAygzZVO+WEJiK2UQX/h5cMPaLPwCcQeOKzgBGYmgJ1FA0DHJJ1OEsnXpDPZClnG
-         NPAqVTOGJIdWPJCY+5n7Cm+46/LBEVb4hMoL/8o8=
+        b=b91o6wGYCAO59bfwWKAxd0sxdh7PPzW9rXH44IJIlengFtceQULy9o37eu73Tb5xS
+         wQ6zRYlh6DQOIxtCbuWefWRss7xSmd1g47zINhARPuFxscbUhcT+Bt4sF7iBIp6fS9
+         9FtFKUxagFT8u91kdZOIPjbxhfPNIyojRFPtQyss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 5.4 32/83] PCI: Make ACS quirk implementations more uniform
+        stable@vger.kernel.org, Harish Sriram <harish@linux.ibm.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 46/46] ext4: check for non-zero journal inum in ext4_calculate_overhead
 Date:   Fri,  1 May 2020 15:23:11 +0200
-Message-Id: <20200501131531.779800051@linuxfoundation.org>
+Message-Id: <20200501131514.540152633@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,120 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-commit c8de8ed2dcaac82e5d76d467dc0b02e0ee79809b upstream.
+commit f1eec3b0d0a849996ebee733b053efa71803dad5 upstream.
 
-The ACS quirks differ in needless ways, which makes them look more
-different than they really are.
+While calculating overhead for internal journal, also check
+that j_inum shouldn't be 0. Otherwise we get below error with
+xfstests generic/050 with external journal (XXX_LOGDEV config) enabled.
 
-Reorder the ACS flags in order of definitions in the spec:
+It could be simply reproduced with loop device with an external journal
+and marking blockdev as RO before mounting.
 
-  PCI_ACS_SV   Source Validation
-  PCI_ACS_TB   Translation Blocking
-  PCI_ACS_RR   P2P Request Redirect
-  PCI_ACS_CR   P2P Completion Redirect
-  PCI_ACS_UF   Upstream Forwarding
-  PCI_ACS_EC   P2P Egress Control
-  PCI_ACS_DT   Direct Translated P2P
+[ 3337.146838] EXT4-fs error (device pmem1p2): ext4_get_journal_inode:4634: comm mount: inode #0: comm mount: iget: illegal inode #
+------------[ cut here ]------------
+generic_make_request: Trying to write to read-only block-device pmem1p2 (partno 2)
+WARNING: CPU: 107 PID: 115347 at block/blk-core.c:788 generic_make_request_checks+0x6b4/0x7d0
+CPU: 107 PID: 115347 Comm: mount Tainted: G             L   --------- -t - 4.18.0-167.el8.ppc64le #1
+NIP:  c0000000006f6d44 LR: c0000000006f6d40 CTR: 0000000030041dd4
+<...>
+NIP [c0000000006f6d44] generic_make_request_checks+0x6b4/0x7d0
+LR [c0000000006f6d40] generic_make_request_checks+0x6b0/0x7d0
+<...>
+Call Trace:
+generic_make_request_checks+0x6b0/0x7d0 (unreliable)
+generic_make_request+0x3c/0x420
+submit_bio+0xd8/0x200
+submit_bh_wbc+0x1e8/0x250
+__sync_dirty_buffer+0xd0/0x210
+ext4_commit_super+0x310/0x420 [ext4]
+__ext4_error+0xa4/0x1e0 [ext4]
+__ext4_iget+0x388/0xe10 [ext4]
+ext4_get_journal_inode+0x40/0x150 [ext4]
+ext4_calculate_overhead+0x5a8/0x610 [ext4]
+ext4_fill_super+0x3188/0x3260 [ext4]
+mount_bdev+0x778/0x8f0
+ext4_mount+0x28/0x50 [ext4]
+mount_fs+0x74/0x230
+vfs_kern_mount.part.6+0x6c/0x250
+do_mount+0x2fc/0x1280
+sys_mount+0x158/0x180
+system_call+0x5c/0x70
+EXT4-fs (pmem1p2): no journal found
+EXT4-fs (pmem1p2): can't get journal size
+EXT4-fs (pmem1p2): mounted filesystem without journal. Opts: dax,norecovery
 
-(PCIe r5.0, sec 7.7.8.2) and use similar code structure in all.  No
-functional change intended.
-
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 3c816ded78bb ("ext4: use journal inode to determine journal overhead")
+Reported-by: Harish Sriram <harish@linux.ibm.com>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200316093038.25485-1-riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c |   41 +++++++++++++++++++----------------------
- 1 file changed, 19 insertions(+), 22 deletions(-)
+ fs/ext4/super.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4422,18 +4422,18 @@ static bool pci_quirk_cavium_acs_match(s
- 
- static int pci_quirk_cavium_acs(struct pci_dev *dev, u16 acs_flags)
- {
-+	if (!pci_quirk_cavium_acs_match(dev))
-+		return -ENOTTY;
-+
- 	/*
--	 * Cavium root ports don't advertise an ACS capability.  However,
-+	 * Cavium Root Ports don't advertise an ACS capability.  However,
- 	 * the RTL internally implements similar protection as if ACS had
--	 * Request Redirection, Completion Redirection, Source Validation,
-+	 * Source Validation, Request Redirection, Completion Redirection,
- 	 * and Upstream Forwarding features enabled.  Assert that the
- 	 * hardware implements and enables equivalent ACS functionality for
- 	 * these flags.
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3524,7 +3524,8 @@ int ext4_calculate_overhead(struct super
  	 */
--	acs_flags &= ~(PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_SV | PCI_ACS_UF);
--
--	if (!pci_quirk_cavium_acs_match(dev))
--		return -ENOTTY;
-+	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- 
- 	return acs_flags ? 0 : 1;
- }
-@@ -4451,7 +4451,7 @@ static int pci_quirk_xgene_acs(struct pc
- }
- 
- /*
-- * Many Intel PCH root ports do provide ACS-like features to disable peer
-+ * Many Intel PCH Root Ports do provide ACS-like features to disable peer
-  * transactions and validate bus numbers in requests, but do not provide an
-  * actual PCIe ACS capability.  This is the list of device IDs known to fall
-  * into that category as provided by Intel in Red Hat bugzilla 1037684.
-@@ -4499,37 +4499,34 @@ static bool pci_quirk_intel_pch_acs_matc
- 	return false;
- }
- 
--#define INTEL_PCH_ACS_FLAGS (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_SV)
-+#define INTEL_PCH_ACS_FLAGS (PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF)
- 
- static int pci_quirk_intel_pch_acs(struct pci_dev *dev, u16 acs_flags)
- {
--	u16 flags = dev->dev_flags & PCI_DEV_FLAGS_ACS_ENABLED_QUIRK ?
--		    INTEL_PCH_ACS_FLAGS : 0;
--
- 	if (!pci_quirk_intel_pch_acs_match(dev))
- 		return -ENOTTY;
- 
--	return acs_flags & ~flags ? 0 : 1;
-+	if (dev->dev_flags & PCI_DEV_FLAGS_ACS_ENABLED_QUIRK)
-+		acs_flags &= ~(INTEL_PCH_ACS_FLAGS);
-+
-+	return acs_flags ? 0 : 1;
- }
- 
- /*
-- * These QCOM root ports do provide ACS-like features to disable peer
-+ * These QCOM Root Ports do provide ACS-like features to disable peer
-  * transactions and validate bus numbers in requests, but do not provide an
-  * actual PCIe ACS capability.  Hardware supports source validation but it
-  * will report the issue as Completer Abort instead of ACS Violation.
-- * Hardware doesn't support peer-to-peer and each root port is a root
-- * complex with unique segment numbers.  It is not possible for one root
-- * port to pass traffic to another root port.  All PCIe transactions are
-- * terminated inside the root port.
-+ * Hardware doesn't support peer-to-peer and each Root Port is a Root
-+ * Complex with unique segment numbers.  It is not possible for one Root
-+ * Port to pass traffic to another Root Port.  All PCIe transactions are
-+ * terminated inside the Root Port.
-  */
- static int pci_quirk_qcom_rp_acs(struct pci_dev *dev, u16 acs_flags)
- {
--	u16 flags = (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_SV);
--	int ret = acs_flags & ~flags ? 0 : 1;
--
--	pci_info(dev, "Using QCOM ACS Quirk (%d)\n", ret);
-+	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- 
--	return ret;
-+	return acs_flags ? 0 : 1;
- }
- 
- static int pci_quirk_al_acs(struct pci_dev *dev, u16 acs_flags)
+ 	if (sbi->s_journal && !sbi->journal_bdev)
+ 		overhead += EXT4_NUM_B2C(sbi, sbi->s_journal->j_maxlen);
+-	else if (ext4_has_feature_journal(sb) && !sbi->s_journal) {
++	else if (ext4_has_feature_journal(sb) && !sbi->s_journal && j_inum) {
++		/* j_inum for internal journal is non-zero */
+ 		j_inode = ext4_get_journal_inode(sb, j_inum);
+ 		if (j_inode) {
+ 			j_blocks = j_inode->i_size >> sb->s_blocksize_bits;
 
 
