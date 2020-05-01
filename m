@@ -2,52 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D681C1C0C50
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 04:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 725F31C0C51
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 04:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728163AbgEACzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 22:55:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59920 "EHLO mail.kernel.org"
+        id S1728164AbgEACzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 22:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727985AbgEACzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728162AbgEACzS (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 30 Apr 2020 22:55:18 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB73220643;
-        Fri,  1 May 2020 02:55:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD6C1207DD;
+        Fri,  1 May 2020 02:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588301716;
-        bh=gOF5szvkFQGU4bLyCFqidUoxx8Uf9FWKYuANNbg3xdQ=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:
-         Subject:In-Reply-To:References:From;
-        b=p/u0gg4Hqma64SxbbU3mVGGQ/HBUFg3rit0TX4FZHGtLd65h03RnEKRWCYLVh+xeN
-         I0ApnKBYGH+PRcoRXWXuR8034t4nD1RhAoycGI+MvOGtRbmrGKD19LvrUCN1nrNUWn
-         HlMdp6eh9AG+D3+Aa71OCXT1pAf4nbK+accMktBU=
-Date:   Fri, 01 May 2020 02:55:15 +0000
+        s=default; t=1588301718;
+        bh=cJZDwhdKmVmAPA17KoxHWrNGsDZvlWmk5qDuWgIP+t0=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=jKiEoLAUB4IlX2S9ZlvEgjNZZKWcDbwbeEOOKopwQqxhB0oR3+kPYgihsF/3oR5vK
+         d1xvXGiCK09TP9iwc/+BxKu6uuLCqwhsA10oN2K5ESZZzyrRlPU1ODCmLENmb1zwES
+         i3cMxi5S3sherx9lZdfSvtHGZ/8MpyaZLl8gxFL0=
+Date:   Fri, 01 May 2020 02:55:17 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-To:     tglx@linutronix.de, mingo@redhat.com
-Cc:     x86@kernel.org, stable@vger.kernel.org
-Cc:     x86@kernel.org
-Cc:     <stable@vger.kernel.org>
-Cc:     Ingo Molnar <mingo@redhat.com>
-Cc:     Borislav Petkov <bp@alien8.de>
-Cc:     "H. Peter Anvin" <hpa@zytor.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Tony Luck <tony.luck@intel.com>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc:     Paul Mackerras <paulus@samba.org>
-Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>
+To:     Lyude Paul <lyude@redhat.com>
+To:     dri-devel@lists.freedesktop.org
+Cc:     Maxime Ripard <mripard@kernel.org>
+Cc:     Sean Paul <sean@poorly.run>
+Cc:     "Lin, Wayne" <Wayne.Lin@amd.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] copy_safe: Rename memcpy_mcsafe() to copy_safe()
-In-Reply-To: <158823510324.2094061.12032081359821152024.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <158823510324.2094061.12032081359821152024.stgit@dwillia2-desk3.amr.corp.intel.com>
-Message-Id: <20200501025516.AB73220643@mail.kernel.org>
+Subject: Re: [PATCH 1/1] drm/dp_mst: Kill the second sideband tx slot, save the world
+In-Reply-To: <20200427213422.1414614-2-lyude@redhat.com>
+References: <20200427213422.1414614-2-lyude@redhat.com>
+Message-Id: <20200501025517.CD6C1207DD@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -57,104 +46,115 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)").
 
 The bot has tested the following trees: v5.6.7, v5.4.35, v4.19.118, v4.14.177, v4.9.220, v4.4.220.
 
 v5.6.7: Failed to apply! Possible dependencies:
-    d0ef4c360f7e ("iov_iter: Use generic instrumented.h")
+    1cfff5f01563 ("drm/dp_mst: Convert drm_dp_mst_topology_mgr.is_waiting_for_dwn_reply to bitfield")
 
 v5.4.35: Failed to apply! Possible dependencies:
-    30a2441cae7b ("x86/asm: Make more symbols local")
-    6dcc5627f6ae ("x86/asm: Change all ENTRY+ENDPROC to SYM_FUNC_*")
-    74d8b90a8890 ("x86/asm/crypto: Annotate local functions")
-    e9b9d020c487 ("x86/asm: Annotate aliases")
-    ef1e03152cb0 ("x86/asm: Make some functions local")
+    14692a3637d4 ("drm/dp_mst: Add probe_lock")
+    2f015ec6eab6 ("drm/dp_mst: Add sideband down request tracing + selftests")
+    37dfdc55ffeb ("drm/dp_mst: Cleanup drm_dp_send_link_address() a bit")
+    50094b5dcd32 ("drm/dp_mst: Destroy topology_mgr mutexes")
+    5950f0b797fc ("drm/dp_mst: Move link address dumping into a function")
+    5a64967a2f3b ("drm/dp_mst: Have DP_Tx send one msg at a time")
+    60f9ae9d0d3d ("drm/dp_mst: Remove huge conditional in drm_dp_mst_handle_up_req()")
+    7cb12d48314e ("drm/dp_mst: Destroy MSTBs asynchronously")
+    7cbce45d6243 ("drm/dp_mst: Move test_calc_pbn_mode() into an actual selftest")
+    8b1e589d138c ("drm/dp_mst: Refactor drm_dp_mst_handle_down_rep()")
+    9408cc94eb04 ("drm/dp_mst: Handle UP requests asynchronously")
+    a29d881875fc ("drm/dp_mst: Refactor drm_dp_mst_handle_up_req()")
+    caf81ec6cd72 ("drm: Destroy the correct mutex name in drm_dp_mst_topology_mgr_destroy")
+    e2839ff692c6 ("drm/dp_mst: Rename drm_dp_add_port and drm_dp_update_port")
 
 v4.19.118: Failed to apply! Possible dependencies:
-    02c02bf12c5d ("xarray: Change definition of sibling entries")
-    175967318c30 ("mm: introduce ARCH_HAS_PTE_DEVMAP")
-    3159f943aafd ("xarray: Replace exceptional entries")
-    3a08cd52c37c ("radix tree: Remove multiorder support")
-    3d0186bb068e ("Update email address")
-    461cef2a676e ("powerpc/32: activate ARCH_HAS_PMEM_API and ARCH_HAS_UACCESS_FLUSHCACHE")
-    66ee620f06f9 ("idr: Permit any valid kernel pointer to be stored")
-    74d609585d8b ("page cache: Add and replace pages using the XArray")
+    16bff572cc66 ("drm/dp-mst-helper: Remove hotplug callback")
+    19b85cfabf5c ("drm/bochs: move remaining fb bits to kms")
+    2f015ec6eab6 ("drm/dp_mst: Add sideband down request tracing + selftests")
+    2f69deb1d9a1 ("drm/arcpgu: prepare for drmP.h removal from drm_modeset_helper.h")
+    48b442238250 ("drm/bochs: fix DRM_FORMAT_* handling for big endian machines.")
+    562836a269e3 ("drm/dp_mst: Enable registration of AUX devices for MST ports")
+    580fc13f3ee4 ("drm/dp: drmP.h include removal")
+    5a64967a2f3b ("drm/dp_mst: Have DP_Tx send one msg at a time")
+    6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up helpers.")
+    6abb49402a79 ("drm/bridge: cdns: prepare for drmP.h removal from drm_modeset_helper.h")
+    6c76c0eb031f ("drm/bridge: ti-sn65dsi86: Fixup register names")
+    7780eb9ce80f ("bochs: convert to drm_dev_register")
+    86351de023dd ("drm/bochs: support changing byteorder at mode set time")
+    a095f15c00e2 ("drm/bridge: add support for sn65dsi86 bridge driver")
+    b814ec6d4535 ("drm/bridge: ti-sn65dsi86: Implement AUX channel")
+    df2052cc9221 ("bochs: convert to drm_fb_helper_fbdev_setup/teardown")
+    f38b7cca6d0e ("drm/bridge: tc358764: Add DSI to LVDS bridge driver")
+    fcd70cd36b9b ("drm: Split out drm_probe_helper.h")
+    fe1f664a3609 ("drm/arc: do not rely on drmP.h from drm_gem_cma_helper.h")
 
 v4.14.177: Failed to apply! Possible dependencies:
-    07037db5d479 ("RISC-V: Paging and MMU")
-    10dac04c79b1 ("mips: fix an off-by-one in dma_capable")
-    175967318c30 ("mm: introduce ARCH_HAS_PTE_DEVMAP")
-    3010a5ea665a ("mm: introduce ARCH_HAS_PTE_SPECIAL")
-    31cb1bc0dc94 ("sched/core: Rework and clarify prepare_lock_switch()")
-    32ce3862af3c ("powerpc/lib: Implement PMEM API")
-    3ccfebedd8cf ("powerpc, membarrier: Skip memory barrier in switch_mm()")
-    461cef2a676e ("powerpc/32: activate ARCH_HAS_PMEM_API and ARCH_HAS_UACCESS_FLUSHCACHE")
-    75387b92635e ("arm64: handle 52-bit physical addresses in page table entries")
-    76d2a0493a17 ("RISC-V: Init and Halt Code")
-    7db91e57a0ac ("RISC-V: Task implementation")
-    8c4cdce8b1ab ("mtd: nand: qcom: add command elements in BAM transaction")
-    c7c527dd6e76 ("Revert "Documentation/features/vm: Remove arch support status file for 'pte_special'"")
-    cc6c98485f8e ("RISC-V: Move to the new GENERIC_IRQ_MULTI_HANDLER handler")
-    d1b069f5febc ("EXPERT Kconfig menu: fix broken EXPERT menu")
-    e6d588a8e3da ("arm64: head.S: handle 52-bit PAs in PTEs in early page table setup")
-    ea8c64ace866 ("dma-mapping: move swiotlb arch helpers to a new header")
-    ee333554fed5 ("ARM: 8749/1: Kconfig: Add ARCH_HAS_FORTIFY_SOURCE")
-    f1e3a12b6543 ("membarrier/arm64: Provide core serializing command")
-    fbe934d69eb7 ("RISC-V: Build Infrastructure")
+    1b0c0f9dc5ca ("drm/amdgpu: move userptr BOs to CPU domain during CS v2")
+    1ed3d2567c80 ("drm/amdgpu: keep the MMU lock until the update ends v4")
+    2f015ec6eab6 ("drm/dp_mst: Add sideband down request tracing + selftests")
+    3fe89771cb0a ("drm/amdgpu: stop reserving the BO in the MMU callback v3")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    562836a269e3 ("drm/dp_mst: Enable registration of AUX devices for MST ports")
+    580fc13f3ee4 ("drm/dp: drmP.h include removal")
+    5a64967a2f3b ("drm/dp_mst: Have DP_Tx send one msg at a time")
+    60de1c1740f3 ("drm/amdgpu: use a rw_semaphore for MMU notifiers")
+    9a18999640fa ("drm/amdgpu: move MMU notifier related defines to amdgpu_mn.h")
+    9cca0b8e5df0 ("drm/amdgpu: move amdgpu_cs_sysvm_access_required into find_mapping")
+    a216ab09955d ("drm/amdgpu: fix userptr put_page handling")
+    b72cf4fca2bb ("drm/amdgpu: move taking mmap_sem into get_user_pages v2")
+    ca666a3c298f ("drm/amdgpu: stop using BO status for user pages")
+    fcd70cd36b9b ("drm: Split out drm_probe_helper.h")
 
 v4.9.220: Failed to apply! Possible dependencies:
-    15accb3cbbcd ("MAINTAINERS: extend mvebu SoC entry with pinctrl drivers")
-    1cb0b57fec06 ("MAINTAINERS: add irqchip related drivers to Marvell EBU maintainers")
-    20bb5505e96f ("MAINTAINERS: cpufreq: add bmips-cpufreq.c")
-    21dd0ece34c2 ("ARM: dts: at91: add devicetree for the Axentia TSE-850")
-    2e7d1098c00c ("MAINTAINERS: add entry for dma mapping helpers")
-    384fe7a4d732 ("drivers: net: xgene-v2: Add DMA descriptor")
-    3b3f9a75d931 ("drivers: net: xgene-v2: Add base driver")
-    3f0d80b6d228 ("MAINTAINERS: Add bnxt_en maintainer info.")
-    413dfbbfca54 ("MAINTAINERS: add entry for Aspeed I2C driver")
-    420a3879d694 ("MAINTAINERS: change email address from atmel to microchip")
-    461cef2a676e ("powerpc/32: activate ARCH_HAS_PMEM_API and ARCH_HAS_UACCESS_FLUSHCACHE")
-    51c5d8447bd7 ("MMC: meson: initial support for GX platforms")
-    52c468fb37b6 ("MAINTAINERS: oxnas: Add new files definitions")
-    70dbd9b258d5 ("MAINTAINERS: Add entry for APM X-Gene SoC Ethernet (v2) driver")
-    7683e9e52925 ("Properly alphabetize MAINTAINERS file")
-    81ccd0cab29b ("drivers: net: xgene-v2: Add mac configuration")
-    aa43112445f0 ("ASoC: atmel: tse850: add ASoC driver for the Axentia TSE-850")
-    b105bcdaaa0e ("drivers: net: xgene-v2: Add transmit and receive")
-    c821d30148ca ("ASoC: tse850: document axentia,tse850-pcm5142 bindings")
-    e7c1572f6565 ("MAINTAINERS: sort F entries for Marvell EBU maintainers")
-    ea8c64ace866 ("dma-mapping: move swiotlb arch helpers to a new header")
-    fd33f3eca6bf ("MAINTAINERS: Add maintainers for the meson clock driver")
+    178e32c224d2 ("drm/atomic: Remove pointless private object NULL state check")
+    1cec20f0ea0e ("dma-buf: Restart reservation_object_wait_timeout_rcu() after writes")
+    2f015ec6eab6 ("drm/dp_mst: Add sideband down request tracing + selftests")
+    3941dae15ed9 ("drm_dp_aux_dev: switch to read_iter/write_iter")
+    3f3353b7e121 ("drm/dp: Introduce MST topology state to track available link bandwidth")
+    562836a269e3 ("drm/dp_mst: Enable registration of AUX devices for MST ports")
+    580fc13f3ee4 ("drm/dp: drmP.h include removal")
+    5a64967a2f3b ("drm/dp_mst: Have DP_Tx send one msg at a time")
+    6806cdf9aa1c ("drm/kms-helpers: Use recommened kerneldoc for struct member refs")
+    78010cd9736e ("dma-buf/fence: add an lockdep_assert_held()")
+    9498c19b3f53 ("drm: Move tile group code into drm_connector.c")
+    9a83a71ac0d5 ("drm/fences: add DOC: for explicit fencing")
+    a4370c777406 ("drm/atomic: Make private objs proper objects")
+    b430c27a7de3 ("drm: Add driver-private objects to atomic state")
+    beaf5af48034 ("drm/fence: add out-fences support")
+    d807ed1c55fb ("drm: atomic: Clarify documentation around drm_atomic_crtc_needs_modeset")
+    ea0dd85a75f1 ("drm/doc: use preferred struct reference in kernel-doc")
+    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
+    fedf54132d24 ("dma-buf: Restart reservation_object_get_fences_rcu() after writes")
 
 v4.4.220: Failed to apply! Possible dependencies:
-    1f664ab7d9d4 ("MAINTAINERS: update entry for Marvell ARM platform maintainers")
-    27eb6622ab67 ("config: add android config fragments")
-    384fe7a4d732 ("drivers: net: xgene-v2: Add DMA descriptor")
-    3b3f9a75d931 ("drivers: net: xgene-v2: Add base driver")
-    413dfbbfca54 ("MAINTAINERS: add entry for Aspeed I2C driver")
-    461cef2a676e ("powerpc/32: activate ARCH_HAS_PMEM_API and ARCH_HAS_UACCESS_FLUSHCACHE")
-    51c5d8447bd7 ("MMC: meson: initial support for GX platforms")
-    5255034d1701 ("ARM: mach-artpec: add entry to MAINTAINERS")
-    54176cc68038 ("maintainers: update rmk's email address(es)")
-    5b7551db8688 ("ARM: dts: keystone: Add minimum support for K2G evm")
-    5edafc29829b ("ARM: dts: k2*: Rename the k2* files to keystone-k2* files")
-    6683d91cde25 ("MAINTAINERS: ARM/Amlogic: add co-maintainer, misc. updates")
-    70dbd9b258d5 ("MAINTAINERS: Add entry for APM X-Gene SoC Ethernet (v2) driver")
-    7683e9e52925 ("Properly alphabetize MAINTAINERS file")
-    79318452cb36 ("MAINTAINERS: Extend info, add wiki and ml for meson arch")
-    81ccd0cab29b ("drivers: net: xgene-v2: Add mac configuration")
-    8bb0bce92ec9 ("MAINTAINERS: add maintainer and reviewers for the etnaviv DRM driver")
-    8c2ed9bcfbeb ("arm: Add Aspeed machine")
-    8cb555b603f3 ("MAINTAINERS: add Chanho Min as ARM/LG1K maintainer")
-    b105bcdaaa0e ("drivers: net: xgene-v2: Add transmit and receive")
-    dcc3068a757e ("MAINTAINERS: Extend dts entry for ARM64 mvebu files")
-    e68d7c143a62 ("MAINTAINERS: Add missing platform maintainers for dts files")
-    e7c1572f6565 ("MAINTAINERS: sort F entries for Marvell EBU maintainers")
-    ea8c64ace866 ("dma-mapping: move swiotlb arch helpers to a new header")
-    fd33f3eca6bf ("MAINTAINERS: Add maintainers for the meson clock driver")
-    fd3a628e3f2a ("MAINTAINERS: Add entry for APM X-Gene SoC PMU driver")
+    22554020409f ("Documentation/gpu: use recommended order of heading markers")
+    22cba31bae9d ("Documentation/sphinx: add basic working Sphinx configuration and build")
+    2f015ec6eab6 ("drm/dp_mst: Add sideband down request tracing + selftests")
+    2fa91d15588c ("Documentation/gpu: split up mm, kms and kms-helpers from internals")
+    311b62d94c0b ("drm/doc: Reorg for drm-kms.rst")
+    321a95ae35f2 ("drm: Extract drm_encoder.[hc]")
+    36230cb5668c ("drm/dp: Allow signals to interrupt drm_aux-dev reads/writes")
+    3941dae15ed9 ("drm_dp_aux_dev: switch to read_iter/write_iter")
+    43968d7b806d ("drm: Extract drm_plane.[hc]")
+    522171951761 ("drm: Extract drm_connector.[hc]")
+    562836a269e3 ("drm/dp_mst: Enable registration of AUX devices for MST ports")
+    580fc13f3ee4 ("drm/dp: drmP.h include removal")
+    5a64967a2f3b ("drm/dp_mst: Have DP_Tx send one msg at a time")
+    5fff80bbdb6b ("drm/atomic: Allow for holes in connector state, v2.")
+    70412cfa6dde ("drm/kms_helper: Add a common place to call init and exit functions.")
+    96106c9729f5 ("drm: fix implicit declaration build error on ia64")
+    9b20fa08d3fd ("Documentation/gpu: convert the KMS properties table to CSV")
+    a095caa7f5ec ("drm/atomic-helper: roll out commit synchronization")
+    a4370c777406 ("drm/atomic: Make private objs proper objects")
+    b430c27a7de3 ("drm: Add driver-private objects to atomic state")
+    be9174a482b9 ("drm/atomic-helper: use for_each_*_in_state more")
+    ca00c2b986ea ("Documentation/gpu: split up the gpu documentation")
+    cb597fcea5c2 ("Documentation/gpu: add new gpu.rst converted from DocBook gpu.tmpl")
+    e94cb37b34eb ("drm/dp: Add a drm_aux-dev module for reading/writing dpcd registers.")
+    ede53344dbfd ("drm: Add helper for DP++ adaptors")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
