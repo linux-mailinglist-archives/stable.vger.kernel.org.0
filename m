@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B30B21C1621
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25DF11C14E9
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730726AbgEANkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:40:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40032 "EHLO mail.kernel.org"
+        id S1730466AbgEANoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:44:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731249AbgEANkG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:40:06 -0400
+        id S1731717AbgEANoH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:44:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D4A220757;
-        Fri,  1 May 2020 13:40:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A89FB205C9;
+        Fri,  1 May 2020 13:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340405;
-        bh=YphpFFixkiyfnywxVYFRTXsrp7Q0WASly/v6cgjf3Eo=;
+        s=default; t=1588340647;
+        bh=SAmhZ94kAm6nE8pFR6LQ+iQqbeuid7sTq8jwZcfG5/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HMFi6TSut+gb7SE2uOnGm1isblwDxYu8F/xnSGG24B/C82KdLQwvUXXTCQC1L/BP5
-         fyeG2cI0WokBhS/qBObjlLJBwFB4L7kxhx3TQhBybkpWye5tYPtKzhpwi49/TCC/WP
-         RCwnvMZlBF8m+h15EP6kxDfuSYhHdHD4m3+cRkeU=
+        b=RtXF8czHrqkHqjiVyL76DLhmhdYjUPZB7iSOYmULv4oFIa32IMRqGVXCNoT92T4gq
+         QLxAqGZW+NE+o6JVfsoZ1b/P3Yrjb/r5U+1JWwEba0f5twL5IFG3QAso+xGXYQMqoz
+         lWcvD/Xrsgi6PN6FNCrX3h/gC3x8y/kFmM9AYWX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>, Miroslav Benes <mbenes@suse.cz>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 65/83] objtool: Support Clang non-section symbols in ORC dump
+Subject: [PATCH 5.6 071/106] signal: check sig before setting info in kill_pid_usb_asyncio
 Date:   Fri,  1 May 2020 15:23:44 +0200
-Message-Id: <20200501131540.818399101@linuxfoundation.org>
+Message-Id: <20200501131552.648364843@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,109 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
 
-[ Upstream commit 8782e7cab51b6bf01a5a86471dd82228af1ac185 ]
+[ Upstream commit eaec2b0bd30690575c581eebffae64bfb7f684ac ]
 
-Historically, the relocation symbols for ORC entries have only been
-section symbols:
+In kill_pid_usb_asyncio, if signal is not valid, we do not need to
+set info struct.
 
-  .text+0: sp:sp+8 bp:(und) type:call end:0
-
-However, the Clang assembler is aggressive about stripping section
-symbols.  In that case we will need to use function symbols:
-
-  freezing_slow_path+0: sp:sp+8 bp:(und) type:call end:0
-
-In preparation for the generation of such entries in "objtool orc
-generate", add support for reading them in "objtool orc dump".
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/b811b5eb1a42602c3b523576dc5efab9ad1c174d.1585761021.git.jpoimboe@redhat.com
+Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Link: https://lore.kernel.org/r/f525fd08-1cf7-fb09-d20c-4359145eb940@huawei.com
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/orc_dump.c | 44 ++++++++++++++++++++++++----------------
- 1 file changed, 27 insertions(+), 17 deletions(-)
+ kernel/signal.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/objtool/orc_dump.c b/tools/objtool/orc_dump.c
-index 13ccf775a83a4..ba4cbb1cdd632 100644
---- a/tools/objtool/orc_dump.c
-+++ b/tools/objtool/orc_dump.c
-@@ -66,7 +66,7 @@ int orc_dump(const char *_objname)
- 	char *name;
- 	size_t nr_sections;
- 	Elf64_Addr orc_ip_addr = 0;
--	size_t shstrtab_idx;
-+	size_t shstrtab_idx, strtab_idx = 0;
- 	Elf *elf;
- 	Elf_Scn *scn;
- 	GElf_Shdr sh;
-@@ -127,6 +127,8 @@ int orc_dump(const char *_objname)
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 7938c60e11dd2..9abf962bbde47 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1510,15 +1510,15 @@ int kill_pid_usb_asyncio(int sig, int errno, sigval_t addr,
+ 	unsigned long flags;
+ 	int ret = -EINVAL;
  
- 		if (!strcmp(name, ".symtab")) {
- 			symtab = data;
-+		} else if (!strcmp(name, ".strtab")) {
-+			strtab_idx = i;
- 		} else if (!strcmp(name, ".orc_unwind")) {
- 			orc = data->d_buf;
- 			orc_size = sh.sh_size;
-@@ -138,7 +140,7 @@ int orc_dump(const char *_objname)
- 		}
- 	}
- 
--	if (!symtab || !orc || !orc_ip)
-+	if (!symtab || !strtab_idx || !orc || !orc_ip)
- 		return 0;
- 
- 	if (orc_size % sizeof(*orc) != 0) {
-@@ -159,21 +161,29 @@ int orc_dump(const char *_objname)
- 				return -1;
- 			}
- 
--			scn = elf_getscn(elf, sym.st_shndx);
--			if (!scn) {
--				WARN_ELF("elf_getscn");
--				return -1;
--			}
--
--			if (!gelf_getshdr(scn, &sh)) {
--				WARN_ELF("gelf_getshdr");
--				return -1;
--			}
--
--			name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
--			if (!name || !*name) {
--				WARN_ELF("elf_strptr");
--				return -1;
-+			if (GELF_ST_TYPE(sym.st_info) == STT_SECTION) {
-+				scn = elf_getscn(elf, sym.st_shndx);
-+				if (!scn) {
-+					WARN_ELF("elf_getscn");
-+					return -1;
-+				}
++	if (!valid_signal(sig))
++		return ret;
 +
-+				if (!gelf_getshdr(scn, &sh)) {
-+					WARN_ELF("gelf_getshdr");
-+					return -1;
-+				}
-+
-+				name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
-+			} else {
-+				name = elf_strptr(elf, strtab_idx, sym.st_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
- 			}
+ 	clear_siginfo(&info);
+ 	info.si_signo = sig;
+ 	info.si_errno = errno;
+ 	info.si_code = SI_ASYNCIO;
+ 	*((sigval_t *)&info.si_pid) = addr;
  
- 			printf("%s+%llx:", name, (unsigned long long)rela.r_addend);
+-	if (!valid_signal(sig))
+-		return ret;
+-
+ 	rcu_read_lock();
+ 	p = pid_task(pid, PIDTYPE_PID);
+ 	if (!p) {
 -- 
 2.20.1
 
