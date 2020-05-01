@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF5CF1C132A
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8729E1C159A
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729506AbgEAN1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:27:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50056 "EHLO mail.kernel.org"
+        id S1730062AbgEANa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:30:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729486AbgEAN1i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:27:38 -0400
+        id S1730059AbgEANa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:30:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53DD0208DB;
-        Fri,  1 May 2020 13:27:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7816208C3;
+        Fri,  1 May 2020 13:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339657;
-        bh=l6I8N9mAySJ1NIPQgd/YPEign4VOEC6ZJUPecdttEXI=;
+        s=default; t=1588339857;
+        bh=+ONsByQjosCqxU9ehFEMvDwxrPv9dLGz5S8YJ76OkgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2RkZlgVCrsP0hlzhzeK76O4/NHEoCpmtRHJSwvrzctpt5WZQLy+KG3WVN8hcMeFJQ
-         o7SViFiUNaZdtBmYfiqhPgbIuq+gANHvp5mYeT7k9NVUON0FcGivcpIBmjSxutjk8M
-         eyPBCICxvB1s6lly2zaH0Tz2cJgqzIf1APJZGmak=
+        b=otuQSc7x9QEIqI9BOiUQbxNuXhk5JC7E/abkLAybls6guhibSsBWgCknNiF41jO58
+         3kZSL1PwOKN5jkyDSv34+ceD6DFM9CS1ta2IhfUuk7uD+j3+mmErYTzIHKjF6SF2ug
+         U8tWneOydy96d/hd7cVuoCwjpGWtVagkXjksXXIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Theodore Tso <tytso@mit.edu>, Ashwin H <ashwinh@vmware.com>
-Subject: [PATCH 4.4 70/70] ext4: unsigned int compared against zero
-Date:   Fri,  1 May 2020 15:21:58 +0200
-Message-Id: <20200501131535.146297950@linuxfoundation.org>
+        stable@vger.kernel.org, KP Singh <kpsingh@google.com>,
+        Ian Rogers <irogers@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.9 65/80] perf/core: fix parent pid/tid in task exit events
+Date:   Fri,  1 May 2020 15:21:59 +0200
+Message-Id: <20200501131533.235703039@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Ian Rogers <irogers@google.com>
 
-commit fbbbbd2f28aec991f3fbc248df211550fbdfd58c upstream.
+commit f3bed55e850926614b9898fe982f66d2541a36a5 upstream.
 
-There are two cases where u32 variables n and err are being checked
-for less than zero error values, the checks is always false because
-the variables are not signed. Fix this by making the variables ints.
+Current logic yields the child task as the parent.
 
-Addresses-Coverity: ("Unsigned compared against 0")
-Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Ashwin H <ashwinh@vmware.com>
+Before:
+$ perf record bash -c "perf list > /dev/null"
+$ perf script -D |grep 'FORK\|EXIT'
+4387036190981094 0x5a70 [0x30]: PERF_RECORD_FORK(10472:10472):(10470:10470)
+4387036606207580 0xf050 [0x30]: PERF_RECORD_EXIT(10472:10472):(10472:10472)
+4387036607103839 0x17150 [0x30]: PERF_RECORD_EXIT(10470:10470):(10470:10470)
+                                                   ^
+  Note the repeated values here -------------------/
+
+After:
+383281514043 0x9d8 [0x30]: PERF_RECORD_FORK(2268:2268):(2266:2266)
+383442003996 0x2180 [0x30]: PERF_RECORD_EXIT(2268:2268):(2266:2266)
+383451297778 0xb70 [0x30]: PERF_RECORD_EXIT(2266:2266):(2265:2265)
+
+Fixes: 94d5d1b2d891 ("perf_counter: Report the cloning task as parent on perf_counter_fork()")
+Reported-by: KP Singh <kpsingh@google.com>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200417182842.12522-1-irogers@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/block_validity.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/events/core.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -141,7 +141,8 @@ static int ext4_protect_reserved_inode(s
- 	struct inode *inode;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_map_blocks map;
--	u32 i = 0, err = 0, num, n;
-+	u32 i = 0, num;
-+	int err = 0, n;
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6431,10 +6431,17 @@ static void perf_event_task_output(struc
+ 		goto out;
  
- 	if ((ino < EXT4_ROOT_INO) ||
- 	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
+ 	task_event->event_id.pid = perf_event_pid(event, task);
+-	task_event->event_id.ppid = perf_event_pid(event, current);
+-
+ 	task_event->event_id.tid = perf_event_tid(event, task);
+-	task_event->event_id.ptid = perf_event_tid(event, current);
++
++	if (task_event->event_id.header.type == PERF_RECORD_EXIT) {
++		task_event->event_id.ppid = perf_event_pid(event,
++							task->real_parent);
++		task_event->event_id.ptid = perf_event_pid(event,
++							task->real_parent);
++	} else {  /* PERF_RECORD_FORK */
++		task_event->event_id.ppid = perf_event_pid(event, current);
++		task_event->event_id.ptid = perf_event_tid(event, current);
++	}
+ 
+ 	task_event->event_id.time = perf_event_clock(event);
+ 
 
 
