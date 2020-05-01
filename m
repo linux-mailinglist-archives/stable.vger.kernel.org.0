@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 772101C1327
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1647F1C16F7
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728947AbgEAN1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:27:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49924 "EHLO mail.kernel.org"
+        id S1728938AbgEANzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:55:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729486AbgEAN1e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:27:34 -0400
+        id S1730492AbgEANdv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:33:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FE0420757;
-        Fri,  1 May 2020 13:27:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98DA52051A;
+        Fri,  1 May 2020 13:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339652;
-        bh=9z4LahtgSkFQavSR0Kpqso99n4FDvhhsFpPIpUuuUlY=;
+        s=default; t=1588340031;
+        bh=qhGlq2nwd+F+3TQoXM4Nys//vTHfy280XtnLt2hcuYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyCimMYF5dGfvlGAUSPvlLmgp6nwHDrDLY/cSK/zXkdMBFjLXv/mjxHBe4qli9Gs5
-         Tzov2ZKpggBb3FCYdvjS6aUEV732kbO5fyg2AISnyXYA1CioVElH/kijnWYrLCIb2h
-         UV3W4UsvJl2zAK2MLRB17P1e7jEMCM/dAwTBxN4A=
+        b=1/wfHs39/MOtcXULflPDfCgEECsPVrHKapq9tMGw9YDbMLvSxJTk4qiuMqSnTyngy
+         KL3bfAroawUfDgPwhHAMiRv5o4D+zskrNjOsUUIZDuwe9J6Kuly96IZhkWrTAcI0/K
+         BjOsCK/TKPBWYyvzE8DSs6H+csdSz6vK+734+ir0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Clement Leger <cleger@kalray.eu>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Doug Anderson <dianders@chromium.org>
-Subject: [PATCH 4.4 54/70] remoteproc: Fix wrong rvring index computation
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 066/117] iwlwifi: pcie: actually release queue memory in TVQM
 Date:   Fri,  1 May 2020 15:21:42 +0200
-Message-Id: <20200501131529.831555248@linuxfoundation.org>
+Message-Id: <20200501131553.048775965@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clement Leger <cleger@kalray.eu>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 00a0eec59ddbb1ce966b19097d8a8d2f777e726a upstream.
+commit b98b33d5560a2d940f3b80f6768a6177bf3dfbc0 upstream.
 
-Index of rvring is computed using pointer arithmetic. However, since
-rvring->rvdev->vring is the base of the vring array, computation
-of rvring idx should be reversed. It previously lead to writing at negative
-indices in the resource table.
+The iwl_trans_pcie_dyn_txq_free() function only releases the frames
+that may be left on the queue by calling iwl_pcie_gen2_txq_unmap(),
+but doesn't actually free the DMA ring or byte-count tables for the
+queue. This leads to pretty large memory leaks (at least before my
+queue size improvements), in particular in monitor/sniffer mode on
+channel hopping since this happens on every channel change.
 
-Signed-off-by: Clement Leger <cleger@kalray.eu>
-Link: https://lore.kernel.org/r/20191004073736.8327-1-cleger@kalray.eu
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Doug Anderson <dianders@chromium.org>
+This was also now more evident after the move to a DMA pool for the
+byte count tables, showing messages such as
+
+  BUG iwlwifi:bc (...): Objects remaining in iwlwifi:bc on __kmem_cache_shutdown()
+
+This fixes https://bugzilla.kernel.org/show_bug.cgi?id=206811.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 6b35ff91572f ("iwlwifi: pcie: introduce a000 TX queues management")
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20200417100405.f5f4c4193ec1.Id5feebc9b4318041913a9c89fc1378bb5454292c@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/remoteproc/remoteproc_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -288,7 +288,7 @@ void rproc_free_vring(struct rproc_vring
- {
- 	int size = PAGE_ALIGN(vring_size(rvring->len, rvring->align));
- 	struct rproc *rproc = rvring->rvdev->rproc;
--	int idx = rvring->rvdev->vring - rvring;
-+	int idx = rvring - rvring->rvdev->vring;
- 	struct fw_rsc_vdev *rsc;
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
+@@ -1124,6 +1124,9 @@ void iwl_trans_pcie_dyn_txq_free(struct
  
- 	dma_free_coherent(rproc->dev.parent, size, rvring->va, rvring->dma);
+ 	iwl_pcie_gen2_txq_unmap(trans, queue);
+ 
++	iwl_pcie_gen2_txq_free_memory(trans, trans_pcie->txq[queue]);
++	trans_pcie->txq[queue] = NULL;
++
+ 	IWL_DEBUG_TX_QUEUES(trans, "Deactivate queue %d\n", queue);
+ }
+ 
 
 
