@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 721281C1593
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2F691C1724
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729376AbgEANab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54584 "EHLO mail.kernel.org"
+        id S1729795AbgEAN6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:58:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729956AbgEANaa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:30:30 -0400
+        id S1729481AbgEANac (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:30:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 783A020757;
-        Fri,  1 May 2020 13:30:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1AAD20757;
+        Fri,  1 May 2020 13:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339829;
-        bh=RnHZ55ZQd+oFxIjGZK85Q+Q5EPPSaa4vig9BLZFgBww=;
+        s=default; t=1588339832;
+        bh=0bmmoobu5JO6/P+JWnOrpzSDyd+b/gmKezvE5yBlgME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUlWhGjRoVjClL4HtIUbqvjFdEzJ9om1aYx4C2aSLqxVj4loO1Dvim0uWaRPXibpQ
-         4j/ofyC+sNNeMVl7PKsoMQT9Jg2761Cb5Yqn5XqAZ1ENUENlIXfIRPEOQ53pd8lyNW
-         A5N3oqfEl67UHFebfWdm7hro4UDRaNChQo4a/4j4=
+        b=J2cXFu5C14nqwQjuEgp98LYViXiU3pRpUToCyd+Zv+WEgzlEPxo/gUmsDl+8SYZhx
+         qFRjSRx+uQVGds59DxYX2iEFe32nOpJtNf+n5hLLhk1odsb3iyVIOU/0y6R4SkAene
+         xQGKYbMi6DzS/lCrjxK+ebNqUhIP7bNRk3XCHzDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Rue <dan.rue@linaro.org>,
-        Theodore Tso <tytso@mit.edu>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Ashwin H <ashwinh@vmware.com>
-Subject: [PATCH 4.9 77/80] ext4: dont perform block validity checks on the journal inode
-Date:   Fri,  1 May 2020 15:22:11 +0200
-Message-Id: <20200501131537.255299635@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Arthur Marsh <arthur.marsh@internode.on.net>,
+        Theodore Tso <tytso@mit.edu>, Ashwin H <ashwinh@vmware.com>
+Subject: [PATCH 4.9 78/80] ext4: fix block validity checks for journal inodes using indirect blocks
+Date:   Fri,  1 May 2020 15:22:12 +0200
+Message-Id: <20200501131537.532578814@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
 References: <20200501131513.810761598@linuxfoundation.org>
@@ -47,54 +46,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Theodore Ts'o <tytso@mit.edu>
 
-commit 0a944e8a6c66ca04c7afbaa17e22bf208a8b37f0 upstream.
+commit 170417c8c7bb2cbbdd949bf5c443c0c8f24a203b upstream.
 
-Since the journal inode is already checked when we added it to the
-block validity's system zone, if we check it again, we'll just trigger
-a failure.
+Commit 345c0dbf3a30 ("ext4: protect journal inode's blocks using
+block_validity") failed to add an exception for the journal inode in
+ext4_check_blockref(), which is the function used by ext4_get_branch()
+for indirect blocks.  This caused attempts to read from the ext3-style
+journals to fail with:
 
-This was causing failures like this:
+[  848.968550] EXT4-fs error (device sdb7): ext4_get_branch:171: inode #8: block 30343695: comm jbd2/sdb7-8: invalid block
 
-[   53.897001] EXT4-fs error (device sda): ext4_find_extent:909: inode
-#8: comm jbd2/sda-8: pblk 121667583 bad header/extent: invalid extent entries - magic f30a, entries 8, max 340(340), depth 0(0)
-[   53.931430] jbd2_journal_bmap: journal block not found at offset 49 on sda-8
-[   53.938480] Aborting journal on device sda-8.
-
-... but only if the system was under enough memory pressure that
-logical->physical mapping for the journal inode gets pushed out of the
-extent cache.  (This is why it wasn't noticed earlier.)
+Fix this by adding the missing exception check.
 
 Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
-Reported-by: Dan Rue <dan.rue@linaro.org>
+Reported-by: Arthur Marsh <arthur.marsh@internode.on.net>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
 Signed-off-by: Ashwin H <ashwinh@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/extents.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ fs/ext4/block_validity.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -554,10 +554,14 @@ __read_extent_tree_block(const char *fun
- 	}
- 	if (buffer_verified(bh) && !(flags & EXT4_EX_FORCE_CACHE))
- 		return bh;
--	err = __ext4_ext_check(function, line, inode,
--			       ext_block_hdr(bh), depth, pblk);
--	if (err)
--		goto errout;
-+	if (!ext4_has_feature_journal(inode->i_sb) ||
-+	    (inode->i_ino !=
-+	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum))) {
-+		err = __ext4_ext_check(function, line, inode,
-+				       ext_block_hdr(bh), depth, pblk);
-+		if (err)
-+			goto errout;
-+	}
- 	set_buffer_verified(bh);
- 	/*
- 	 * If this is a leaf block, cache all of its entries
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -274,6 +274,11 @@ int ext4_check_blockref(const char *func
+ 	__le32 *bref = p;
+ 	unsigned int blk;
+ 
++	if (ext4_has_feature_journal(inode->i_sb) &&
++	    (inode->i_ino ==
++	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
++		return 0;
++
+ 	while (bref < p+max) {
+ 		blk = le32_to_cpu(*bref++);
+ 		if (blk &&
 
 
