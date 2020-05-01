@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C28C71C1314
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:28:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 861BE1C13E8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729340AbgEAN0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:26:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48824 "EHLO mail.kernel.org"
+        id S1730039AbgEANeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:34:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729357AbgEAN0x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:26:53 -0400
+        id S1730521AbgEANeB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:34:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7205208D6;
-        Fri,  1 May 2020 13:26:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60B03208D6;
+        Fri,  1 May 2020 13:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339613;
-        bh=VsYap1cvGow2jSCcWvjNno49atcuMeOuC56eocJemgs=;
+        s=default; t=1588340040;
+        bh=M1Uw2oN3BhKp4keHsbQLTDAyrYEGICjGNJp73s1thXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFZPWLwfPhPx+/bfBS3nL1Ygpqi7HN2z8WTEKHfweaiLprUaoHsdGZFwaFIep9OkO
-         VUKW7kxiQCVTnExMU7vVBPDxqtAHU0vTd69OGd+LCceXce5KdWSPpFee1PxBo0ia57
-         1pvbekTBk7pHhbdm/lFKizLVv5G0zBgnqQoctW+g=
+        b=1I20ynFwN9Vxdn5KaQcJlovWpDuROoDKyEx5Oxbo/0v1t1MMlRfnJ52q6T/6eljx0
+         jQ2Rbzlvnff/gj/l7guo7Tg8XzxLBIQCnZKwVdpyoOvQt48BzTUCrjBR+85QKH7SXd
+         kE+ZPr/DKI2AcWP5SyQTzaswv/NMznl5vwt3wXhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.4 47/70] staging: comedi: dt2815: fix writing hi byte of analog output
-Date:   Fri,  1 May 2020 15:21:35 +0200
-Message-Id: <20200501131528.012059340@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Uros Bizjak <ubizjak@gmail.com>
+Subject: [PATCH 4.14 060/117] KVM: VMX: Enable machine check support for 32bit targets
+Date:   Fri,  1 May 2020 15:21:36 +0200
+Message-Id: <20200501131552.572128466@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Uros Bizjak <ubizjak@gmail.com>
 
-commit ed87d33ddbcd9a1c3b5ae87995da34e6f51a862c upstream.
+commit fb56baae5ea509e63c2a068d66a4d8ea91969fca upstream.
 
-The DT2815 analog output command is 16 bits wide, consisting of the
-12-bit sample value in bits 15 to 4, the channel number in bits 3 to 1,
-and a voltage or current selector in bit 0.  Both bytes of the 16-bit
-command need to be written in turn to a single 8-bit data register.
-However, the driver currently only writes the low 8-bits.  It is broken
-and appears to have always been broken.
+There is no reason to limit the use of do_machine_check
+to 64bit targets. MCE handling works for both target familes.
 
-Electronic copies of the DT2815 User's Manual seem impossible to find
-online, but looking at the source code, a best guess for the sequence
-the driver intended to use to write the analog output command is as
-follows:
-
-1. Wait for the status register to read 0x00.
-2. Write the low byte of the command to the data register.
-3. Wait for the status register to read 0x80.
-4. Write the high byte of the command to the data register.
-
-Step 4 is missing from the driver.  Add step 4 to (hopefully) fix the
-driver.
-
-Also add a "FIXME" comment about setting bit 0 of the low byte of the
-command.  Supposedly, it is used to choose between voltage output and
-current output, but the current driver always sets it to 1.
-
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200406142015.126982-1-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: a0861c02a981 ("KVM: Add VT-x machine check support")
+Signed-off-by: Uros Bizjak <ubizjak@gmail.com>
+Message-Id: <20200414071414.45636-1-ubizjak@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/dt2815.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/vmx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/dt2815.c
-+++ b/drivers/staging/comedi/drivers/dt2815.c
-@@ -101,6 +101,7 @@ static int dt2815_ao_insn(struct comedi_
- 	int ret;
- 
- 	for (i = 0; i < insn->n; i++) {
-+		/* FIXME: lo bit 0 chooses voltage output or current output */
- 		lo = ((data[i] & 0x0f) << 4) | (chan << 1) | 0x01;
- 		hi = (data[i] & 0xff0) >> 4;
- 
-@@ -114,6 +115,8 @@ static int dt2815_ao_insn(struct comedi_
- 		if (ret)
- 			return ret;
- 
-+		outb(hi, dev->iobase + DT2815_DATA);
-+
- 		devpriv->ao_readback[chan] = data[i];
- 	}
- 	return i;
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -6250,7 +6250,7 @@ static int handle_rmode_exception(struct
+  */
+ static void kvm_machine_check(void)
+ {
+-#if defined(CONFIG_X86_MCE) && defined(CONFIG_X86_64)
++#if defined(CONFIG_X86_MCE)
+ 	struct pt_regs regs = {
+ 		.cs = 3, /* Fake ring 3 no matter what the guest ran on */
+ 		.flags = X86_EFLAGS_IF,
 
 
