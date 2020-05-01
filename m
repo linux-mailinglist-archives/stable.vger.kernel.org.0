@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2E641C14F3
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21AB31C1693
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730931AbgEANo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:44:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45576 "EHLO mail.kernel.org"
+        id S1729165AbgEANuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:50:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731739AbgEANoW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:44:22 -0400
+        id S1731267AbgEANkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:40:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CEC0216FD;
-        Fri,  1 May 2020 13:44:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B052B205C9;
+        Fri,  1 May 2020 13:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340662;
-        bh=d9R2OtnCbzy2kZlftOg/kItqCRyQPnSNX2spNt3uGCI=;
+        s=default; t=1588340408;
+        bh=IUCErDYU5+chUFB9+LblbUcLmt79a5CAIndVF79zzyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tVw9RZ5ZLXubovvZv4NUq6x+WNkyvBH3muLTIbB7sFkiHygjKsWF2ZsFek7MgVppB
-         t0wH0APU21NGzg9DdHrm9RtW0n2NQXv3jjbQFrdikQhYcW7hPXbcLtZEipC11oBRRl
-         xL48InWI6Ac7l5ejCUBaFKxUSr6gxlhTxsEga+08=
+        b=jSOZWJdjx1nmR1fwxkHfES4u6qnBHO96LuY3WAHUqi39XVlxWh6ifTba5YW4I/EnD
+         7QT4PkByCg04gk0wTaHE1ravVfxhFHRJJbDbLL1Zfs3REhidOwRDsVYqMnLU2v+ZjU
+         BhvsOMlKdDYVZLZNll0GNGLYlxNzcbw3r0KhlNIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 072/106] afs: Fix length of dump of bad YFSFetchStatus record
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Wei Liu <wl@xen.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 66/83] xen/xenbus: ensure xenbus_map_ring_valloc() returns proper grant status
 Date:   Fri,  1 May 2020 15:23:45 +0200
-Message-Id: <20200501131552.706730090@linuxfoundation.org>
+Message-Id: <20200501131540.943357495@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 3efe55b09a92a59ed8214db801683cf13c9742c4 ]
+[ Upstream commit 6b51fd3f65a22e3d1471b18a1d56247e246edd46 ]
 
-Fix the length of the dump of a bad YFSFetchStatus record.  The function
-was copied from the AFS version, but the YFS variant contains bigger fields
-and extra information, so expand the dump to match.
+xenbus_map_ring_valloc() maps a ring page and returns the status of the
+used grant (0 meaning success).
 
-Signed-off-by: David Howells <dhowells@redhat.com>
+There are Xen hypervisors which might return the value 1 for the status
+of a failed grant mapping due to a bug. Some callers of
+xenbus_map_ring_valloc() test for errors by testing the returned status
+to be less than zero, resulting in no error detected and crashing later
+due to a not available ring page.
+
+Set the return value of xenbus_map_ring_valloc() to GNTST_general_error
+in case the grant status reported by Xen is greater than zero.
+
+This is part of XSA-316.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Wei Liu <wl@xen.org>
+Link: https://lore.kernel.org/r/20200326080358.1018-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/yfsclient.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/xen/xenbus/xenbus_client.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
-index 83b6d67325f6c..b5b45c57e1b1d 100644
---- a/fs/afs/yfsclient.c
-+++ b/fs/afs/yfsclient.c
-@@ -165,15 +165,15 @@ static void xdr_dump_bad(const __be32 *bp)
- 	int i;
- 
- 	pr_notice("YFS XDR: Bad status record\n");
--	for (i = 0; i < 5 * 4 * 4; i += 16) {
-+	for (i = 0; i < 6 * 4 * 4; i += 16) {
- 		memcpy(x, bp, 16);
- 		bp += 4;
- 		pr_notice("%03x: %08x %08x %08x %08x\n",
- 			  i, ntohl(x[0]), ntohl(x[1]), ntohl(x[2]), ntohl(x[3]));
- 	}
- 
--	memcpy(x, bp, 4);
--	pr_notice("0x50: %08x\n", ntohl(x[0]));
-+	memcpy(x, bp, 8);
-+	pr_notice("0x60: %08x %08x\n", ntohl(x[0]), ntohl(x[1]));
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index e17ca81561713..a38292ef79f6d 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -448,7 +448,14 @@ EXPORT_SYMBOL_GPL(xenbus_free_evtchn);
+ int xenbus_map_ring_valloc(struct xenbus_device *dev, grant_ref_t *gnt_refs,
+ 			   unsigned int nr_grefs, void **vaddr)
+ {
+-	return ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
++	int err;
++
++	err = ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
++	/* Some hypervisors are buggy and can return 1. */
++	if (err > 0)
++		err = GNTST_general_error;
++
++	return err;
  }
+ EXPORT_SYMBOL_GPL(xenbus_map_ring_valloc);
  
- /*
 -- 
 2.20.1
 
