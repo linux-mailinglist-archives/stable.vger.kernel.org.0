@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BD61C15F5
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 454731C14AF
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730910AbgEANgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:36:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35548 "EHLO mail.kernel.org"
+        id S1731453AbgEANl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:41:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730907AbgEANgx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:36:53 -0400
+        id S1731049AbgEANl5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:41:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C65C216FD;
-        Fri,  1 May 2020 13:36:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35064205C9;
+        Fri,  1 May 2020 13:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340212;
-        bh=qlK1Qsg9nh837m7uoLR3xqSQhl2zVHgNEkg9ggYtcJ4=;
+        s=default; t=1588340516;
+        bh=fSiUYeg6Rqlm5GfQm9hSnYaD1d2kG1L0OU9BVWSX7TI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y3FoyCuJDLTFWzVWczyMNXCssAQuvGDfWsqv1URxoy6q+MVPxpKEmVDVk7yCAi/tq
-         DCbkbf2TA+DJSV5H9AWISilnpAcXICXgsbE91mBRItDHmNk/q3YzYHgGuVo8nhrBCZ
-         RbNzjWfeecAHE9Nk14WRBeBaZv80HeyFVpy+8Ht0=
+        b=zfrQGo/t+gAAPwzOupbIS2cEdb0CzyIMn68ZeYM6JhvilV/UrIjb6pmRxWSWw35xJ
+         A768k/0gSLFrKOsj9h+dBYkGiArMV+yrKQpO3VYqXXIoV5ggNFYDlXC9UJUM7M1UU/
+         Rcf8/3/0x0p9eOccSDrGealMOjsuxx8sF0Owh/Ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
-        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 34/46] scsi: target: tcmu: reset_ring should reset TCMU_DEV_BIT_BROKEN
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.6 026/106] bpf: Forbid XADD on spilled pointers for unprivileged users
 Date:   Fri,  1 May 2020 15:22:59 +0200
-Message-Id: <20200501131510.854207385@linuxfoundation.org>
+Message-Id: <20200501131547.179558131@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
-References: <20200501131457.023036302@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +43,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 066f79a5fd6d1b9a5cc57b5cd445b3e4bb68a5b2 ]
+commit 6e7e63cbb023976d828cdb22422606bf77baa8a9 upstream.
 
-In case command ring buffer becomes inconsistent, tcmu sets device flag
-TCMU_DEV_BIT_BROKEN.  If the bit is set, tcmu rejects new commands from LIO
-core with TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE, and no longer processes
-completions from the ring.  The reset_ring attribute can be used to
-completely clean up the command ring, so after reset_ring the ring no
-longer is inconsistent.
+When check_xadd() verifies an XADD operation on a pointer to a stack slot
+containing a spilled pointer, check_stack_read() verifies that the read,
+which is part of XADD, is valid. However, since the placeholder value -1 is
+passed as `value_regno`, check_stack_read() can only return a binary
+decision and can't return the type of the value that was read. The intent
+here is to verify whether the value read from the stack slot may be used as
+a SCALAR_VALUE; but since check_stack_read() doesn't check the type, and
+the type information is lost when check_stack_read() returns, this is not
+enforced, and a malicious user can abuse XADD to leak spilled kernel
+pointers.
 
-Therefore reset_ring also should reset bit TCMU_DEV_BIT_BROKEN to allow
-normal processing.
+Fix it by letting check_stack_read() verify that the value is usable as a
+SCALAR_VALUE if no type information is passed to the caller.
 
-Link: https://lore.kernel.org/r/20200409101026.17872-1-bstroesser@ts.fujitsu.com
-Acked-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To be able to use __is_pointer_value() in check_stack_read(), move it up.
+
+Fix up the expected unprivileged error message for a BPF selftest that,
+until now, assumed that unprivileged users can use XADD on stack-spilled
+pointers. This also gives us a test for the behavior introduced in this
+patch for free.
+
+In theory, this could also be fixed by forbidding XADD on stack spills
+entirely, since XADD is a locked operation (for operations on memory with
+concurrency) and there can't be any concurrency on the BPF stack; but
+Alexei has said that he wants to keep XADD on stack slots working to avoid
+changes to the test suite [1].
+
+The following BPF program demonstrates how to leak a BPF map pointer as an
+unprivileged user using this bug:
+
+    // r7 = map_pointer
+    BPF_LD_MAP_FD(BPF_REG_7, small_map),
+    // r8 = launder(map_pointer)
+    BPF_STX_MEM(BPF_DW, BPF_REG_FP, BPF_REG_7, -8),
+    BPF_MOV64_IMM(BPF_REG_1, 0),
+    ((struct bpf_insn) {
+      .code  = BPF_STX | BPF_DW | BPF_XADD,
+      .dst_reg = BPF_REG_FP,
+      .src_reg = BPF_REG_1,
+      .off = -8
+    }),
+    BPF_LDX_MEM(BPF_DW, BPF_REG_8, BPF_REG_FP, -8),
+
+    // store r8 into map
+    BPF_MOV64_REG(BPF_REG_ARG1, BPF_REG_7),
+    BPF_MOV64_REG(BPF_REG_ARG2, BPF_REG_FP),
+    BPF_ALU64_IMM(BPF_ADD, BPF_REG_ARG2, -4),
+    BPF_ST_MEM(BPF_W, BPF_REG_ARG2, 0, 0),
+    BPF_EMIT_CALL(BPF_FUNC_map_lookup_elem),
+    BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
+    BPF_EXIT_INSN(),
+    BPF_STX_MEM(BPF_DW, BPF_REG_0, BPF_REG_8, 0),
+
+    BPF_MOV64_IMM(BPF_REG_0, 0),
+    BPF_EXIT_INSN()
+
+[1] https://lore.kernel.org/bpf/20200416211116.qxqcza5vo2ddnkdq@ast-mbp.dhcp.thefacebook.com/
+
+Fixes: 17a5267067f3 ("bpf: verifier (add verifier core)")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200417000007.10734-1-jannh@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/target/target_core_user.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/bpf/verifier.c                                    |   28 ++++++++++-----
+ tools/testing/selftests/bpf/verifier/value_illegal_alu.c |    1 
+ 2 files changed, 20 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
-index 7ee0a75ce4526..eff1e36ca03c2 100644
---- a/drivers/target/target_core_user.c
-+++ b/drivers/target/target_core_user.c
-@@ -2067,6 +2067,7 @@ static void tcmu_reset_ring(struct tcmu_dev *udev, u8 err_level)
- 	mb->cmd_tail = 0;
- 	mb->cmd_head = 0;
- 	tcmu_flush_dcache_range(mb, sizeof(*mb));
-+	clear_bit(TCMU_DEV_BIT_BROKEN, &udev->flags);
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1918,6 +1918,15 @@ static bool register_is_const(struct bpf
+ 	return reg->type == SCALAR_VALUE && tnum_is_const(reg->var_off);
+ }
  
- 	del_timer(&udev->cmd_timer);
++static bool __is_pointer_value(bool allow_ptr_leaks,
++			       const struct bpf_reg_state *reg)
++{
++	if (allow_ptr_leaks)
++		return false;
++
++	return reg->type != SCALAR_VALUE;
++}
++
+ static void save_register_state(struct bpf_func_state *state,
+ 				int spi, struct bpf_reg_state *reg)
+ {
+@@ -2108,6 +2117,16 @@ static int check_stack_read(struct bpf_v
+ 			 * which resets stack/reg liveness for state transitions
+ 			 */
+ 			state->regs[value_regno].live |= REG_LIVE_WRITTEN;
++		} else if (__is_pointer_value(env->allow_ptr_leaks, reg)) {
++			/* If value_regno==-1, the caller is asking us whether
++			 * it is acceptable to use this value as a SCALAR_VALUE
++			 * (e.g. for XADD).
++			 * We must not allow unprivileged callers to do that
++			 * with spilled pointers.
++			 */
++			verbose(env, "leaking pointer from stack off %d\n",
++				off);
++			return -EACCES;
+ 		}
+ 		mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
+ 	} else {
+@@ -2473,15 +2492,6 @@ static int check_sock_access(struct bpf_
+ 	return -EACCES;
+ }
  
--- 
-2.20.1
-
+-static bool __is_pointer_value(bool allow_ptr_leaks,
+-			       const struct bpf_reg_state *reg)
+-{
+-	if (allow_ptr_leaks)
+-		return false;
+-
+-	return reg->type != SCALAR_VALUE;
+-}
+-
+ static struct bpf_reg_state *reg_state(struct bpf_verifier_env *env, int regno)
+ {
+ 	return cur_regs(env) + regno;
+--- a/tools/testing/selftests/bpf/verifier/value_illegal_alu.c
++++ b/tools/testing/selftests/bpf/verifier/value_illegal_alu.c
+@@ -88,6 +88,7 @@
+ 	BPF_EXIT_INSN(),
+ 	},
+ 	.fixup_map_hash_48b = { 3 },
++	.errstr_unpriv = "leaking pointer from stack off -8",
+ 	.errstr = "R0 invalid mem access 'inv'",
+ 	.result = REJECT,
+ 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
 
 
