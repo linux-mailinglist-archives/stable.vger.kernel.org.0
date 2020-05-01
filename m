@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B908A1C137B
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 734651C13F5
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729374AbgEAN36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:29:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53700 "EHLO mail.kernel.org"
+        id S1730576AbgEANeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:34:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729848AbgEAN3z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:29:55 -0400
+        id S1730125AbgEANea (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:34:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 140FA208DB;
-        Fri,  1 May 2020 13:29:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB0D5216FD;
+        Fri,  1 May 2020 13:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339795;
-        bh=QpvCLsMVUmPNvhbcAdhLPAMk2bdjVhQBVqFvBHaLzLw=;
+        s=default; t=1588340070;
+        bh=8/jvWTH7Ty71d4g0gKGv0ead6LT7K7fwbgRdZrWWT8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rnwx1B2AQlCbcy+p2IjfwpVPyUOhscy/nLu1rHaPcr4N+i784okClnVpoMVplWnFY
-         Hfrzg2zpZUdTLoCG6GyoHU9VPO5mEdWuFh98tSW0NN/ENZ4aZyPedHGmqPgTSqrx0v
-         O9QmJUnQvsw2I0jUw2tuBYDE7MotVSHQCAoavr98=
+        b=frDv065EG9lK2jKPUmn5cAbhAh28MaV48G5QUrXdAMZabNkbipeRG9xgDW/N6Fodi
+         BMzwNiTZmWYOUXtC+EmZMbt0xoaw0ruD/Bzab4dVeEqOQW8sXuwTqWFP/5gyPGfCkq
+         z+O4FbmzCKot9+ODZClsslw434cQ72Bxok+Fx4Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.9 63/80] nfsd: memory corruption in nfsd4_lock()
-Date:   Fri,  1 May 2020 15:21:57 +0200
-Message-Id: <20200501131532.279438484@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kazuhiro Fujita <kazuhiro.fujita.jg@renesas.com>,
+        Hao Bui <hao.bui.yg@renesas.com>,
+        KAZUMI HARADA <kazumi.harada.rh@renesas.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 4.14 082/117] serial: sh-sci: Make sure status register SCxSR is read in correct sequence
+Date:   Fri,  1 May 2020 15:21:58 +0200
+Message-Id: <20200501131554.552812283@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Kazuhiro Fujita <kazuhiro.fujita.jg@renesas.com>
 
-commit e1e8399eee72e9d5246d4d1bcacd793debe34dd3 upstream.
+commit 3dc4db3662366306e54ddcbda4804acb1258e4ba upstream.
 
-New struct nfsd4_blocked_lock allocated in find_or_allocate_block()
-does not initialized nbl_list and nbl_lru.
-If conflock allocation fails rollback can call list_del_init()
-access uninitialized fields and corrupt memory.
+For SCIF and HSCIF interfaces the SCxSR register holds the status of
+data that is to be read next from SCxRDR register, But where as for
+SCIFA and SCIFB interfaces SCxSR register holds status of data that is
+previously read from SCxRDR register.
 
-v2: just initialize nbl_list and nbl_lru right after nbl allocation.
+This patch makes sure the status register is read depending on the port
+types so that errors are caught accordingly.
 
-Fixes: 76d348fadff5 ("nfsd: have nfsd4_lock use blocking locks for v4.1+ lock")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Kazuhiro Fujita <kazuhiro.fujita.jg@renesas.com>
+Signed-off-by: Hao Bui <hao.bui.yg@renesas.com>
+Signed-off-by: KAZUMI HARADA <kazumi.harada.rh@renesas.com>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/1585333048-31828-1-git-send-email-kazuhiro.fujita.jg@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfsd/nfs4state.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/sh-sci.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -246,6 +246,8 @@ find_or_allocate_block(struct nfs4_locko
- 	if (!nbl) {
- 		nbl= kmalloc(sizeof(*nbl), GFP_KERNEL);
- 		if (nbl) {
-+			INIT_LIST_HEAD(&nbl->nbl_list);
-+			INIT_LIST_HEAD(&nbl->nbl_lru);
- 			fh_copy_shallow(&nbl->nbl_fh, fh);
- 			locks_init_lock(&nbl->nbl_lock);
- 			nfsd4_init_cb(&nbl->nbl_cb, lo->lo_owner.so_client,
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -841,9 +841,16 @@ static void sci_receive_chars(struct uar
+ 				tty_insert_flip_char(tport, c, TTY_NORMAL);
+ 		} else {
+ 			for (i = 0; i < count; i++) {
+-				char c = serial_port_in(port, SCxRDR);
++				char c;
+ 
+-				status = serial_port_in(port, SCxSR);
++				if (port->type == PORT_SCIF ||
++				    port->type == PORT_HSCIF) {
++					status = serial_port_in(port, SCxSR);
++					c = serial_port_in(port, SCxRDR);
++				} else {
++					c = serial_port_in(port, SCxRDR);
++					status = serial_port_in(port, SCxSR);
++				}
+ 				if (uart_handle_sysrq_char(port, c)) {
+ 					count--; i--;
+ 					continue;
 
 
