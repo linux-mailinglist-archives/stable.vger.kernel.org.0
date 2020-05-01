@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 521FB1C14CD
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB3261C1697
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731327AbgEANnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43852 "EHLO mail.kernel.org"
+        id S1729739AbgEANuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:50:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731078AbgEANnB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:43:01 -0400
+        id S1731225AbgEANjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:39:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6453120757;
-        Fri,  1 May 2020 13:43:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D12520757;
+        Fri,  1 May 2020 13:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340580;
-        bh=JIjDI1yWmotW1ixclDVHEKfcxGRhfZ1evqCSWr+9Ni4=;
+        s=default; t=1588340388;
+        bh=KIPoBk7K8wgI48MMKiOmelRUYbArjb3GQ1nhKoUkKeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FEf8r1AOOP4SmyUd5b4YXTbjSV7te6olWNJ8YpsZdoAltPq9339sL6v84pvq+Xo9f
-         GXSyrk4+JAbDGU+Qyu5r5XJvUZStzeMYrskqNJ7a3l2w5P45ggyqDjTOmMUwry7V3d
-         siAcmGVW3yU0CvMiy2djnvsJSoU0cSWnmnekl06Q=
+        b=jNy9D9LHlLchnRFWhxkqA4FOSQpnA+fSWmyTSSxEdVmn9i3cv9nOvMJqxJLDaGmU7
+         /k0TnbKoQc1KefFndx75WZsub9UNKvHm5NDsJoU5/uHAdYxyVmhaGFVBXPH/beosET
+         ZHN7D4kBuwjfDuVeBlWG3Mc14U3MJQSMZhGPXwX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 052/106] net/mlx5: Fix failing fw tracer allocation on s390
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Vitor Massaru Iha <vitor@massaru.org>,
+        Brendan Higgins <brendanhiggins@google.com>
+Subject: [PATCH 5.4 46/83] um: ensure `make ARCH=um mrproper` removes arch/$(SUBARCH)/include/generated/
 Date:   Fri,  1 May 2020 15:23:25 +0200
-Message-Id: <20200501131549.901718824@linuxfoundation.org>
+Message-Id: <20200501131536.899363242@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Vitor Massaru Iha <vitor@massaru.org>
 
-commit a019b36123aec9700b21ae0724710f62928a8bc1 upstream.
+commit 63ec90f18204f2fe072df108de8a021b28b1b173 upstream.
 
-On s390 FORCE_MAX_ZONEORDER is 9 instead of 11, thus a larger kzalloc()
-allocation as done for the firmware tracer will always fail.
+In this workflow:
 
-Looking at mlx5_fw_tracer_save_trace(), it is actually the driver itself
-that copies the debug data into the trace array and there is no need for
-the allocation to be contiguous in physical memory. We can therefor use
-kvzalloc() instead of kzalloc() and get rid of the large contiguous
-allcoation.
+$ make ARCH=um defconfig && make ARCH=um -j8
+  [snip]
+$ make ARCH=um mrproper
+  [snip]
+$ make ARCH=um defconfig O=./build_um && make ARCH=um -j8 O=./build_um
+  [snip]
+  CC      scripts/mod/empty.o
+In file included from ../include/linux/types.h:6,
+                 from ../include/linux/mod_devicetable.h:12,
+                 from ../scripts/mod/devicetable-offsets.c:3:
+../include/uapi/linux/types.h:5:10: fatal error: asm/types.h: No such file or directory
+    5 | #include <asm/types.h>
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+make[2]: *** [../scripts/Makefile.build:100: scripts/mod/devicetable-offsets.s] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [/home/iha/sdb/opensource/lkmp/linux-kselftest.git/Makefile:1140: prepare0] Error 2
+make[1]: Leaving directory '/home/iha/sdb/opensource/lkmp/linux-kselftest.git/build_um'
+make: *** [Makefile:180: sub-make] Error 2
 
-Fixes: f53aaa31cce7 ("net/mlx5: FW tracer, implement tracer logic")
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+The cause of the error was because arch/$(SUBARCH)/include/generated files
+weren't properly cleaned by `make ARCH=um mrproper`.
+
+Fixes: a788b2ed81ab ("kbuild: check arch/$(SRCARCH)/include/generated before out-of-tree build")
+Reported-by: Theodore Ts'o <tytso@mit.edu>
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Vitor Massaru Iha <vitor@massaru.org>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Tested-by: Brendan Higgins <brendanhiggins@google.com>
+Link: https://groups.google.com/forum/#!msg/kunit-dev/QmA27YEgEgI/hvS1kiz2CwAJ
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/um/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-@@ -935,7 +935,7 @@ struct mlx5_fw_tracer *mlx5_fw_tracer_cr
- 		return NULL;
- 	}
+--- a/arch/um/Makefile
++++ b/arch/um/Makefile
+@@ -140,6 +140,7 @@ export CFLAGS_vmlinux := $(LINK-y) $(LIN
+ # When cleaning we don't include .config, so we don't include
+ # TT or skas makefiles and don't clean skas_ptregs.h.
+ CLEAN_FILES += linux x.i gmon.out
++MRPROPER_DIRS += arch/$(SUBARCH)/include/generated
  
--	tracer = kzalloc(sizeof(*tracer), GFP_KERNEL);
-+	tracer = kvzalloc(sizeof(*tracer), GFP_KERNEL);
- 	if (!tracer)
- 		return ERR_PTR(-ENOMEM);
- 
-@@ -982,7 +982,7 @@ destroy_workqueue:
- 	tracer->dev = NULL;
- 	destroy_workqueue(tracer->work_queue);
- free_tracer:
--	kfree(tracer);
-+	kvfree(tracer);
- 	return ERR_PTR(err);
- }
- 
-@@ -1061,7 +1061,7 @@ void mlx5_fw_tracer_destroy(struct mlx5_
- 	mlx5_fw_tracer_destroy_log_buf(tracer);
- 	flush_workqueue(tracer->work_queue);
- 	destroy_workqueue(tracer->work_queue);
--	kfree(tracer);
-+	kvfree(tracer);
- }
- 
- static int fw_tracer_event(struct notifier_block *nb, unsigned long action, void *data)
+ archclean:
+ 	@find . \( -name '*.bb' -o -name '*.bbg' -o -name '*.da' \
 
 
