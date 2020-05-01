@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 178AB1C1634
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C93071C15F9
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731433AbgEANly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:41:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42288 "EHLO mail.kernel.org"
+        id S1730951AbgEANhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:37:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731440AbgEANlx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:41:53 -0400
+        id S1730947AbgEANhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49DA520757;
-        Fri,  1 May 2020 13:41:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EBFB24953;
+        Fri,  1 May 2020 13:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340511;
-        bh=44hdycj57AvKGtsmoTNAZ6yda52kBOkJ8+59JoTSlaM=;
+        s=default; t=1588340234;
+        bh=gvoPlAhdeERC2Ip4BdBniTET9ciqTQp2T1LuscGhOMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XbOair3WFl8oWEmdW/IgQboyxnh/CxAfnv92vh/CyUzFGTQsp4PwO2xJDXIZWCGaw
-         b5nh1sP9aOr/nh2fR7i4iKjcR7FQsWrZ69frrZXQ5imxQjo4VAuH7Bvd1sLtg2OV9P
-         bHaBF1HEcgLc6ZYfMeo3Wz6TQafH7BzK6BtISRRA=
+        b=vdFpihOH+teqpNk6I7IinVDDmKX9T194as/3z8wu6ax0PbBfIQzDEGhK0oLv6sNod
+         euEqi6UI8DJYkjnXuMvK4aXnUI9ulDrKj+DqM+p0/DcO+ABT5wzGx+PdhmtsMTdtVC
+         VynwwMeLnZdVMr75zHl8MDpTN4y8i84GsAHakwlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.6 024/106] nfsd: memory corruption in nfsd4_lock()
+        stable@vger.kernel.org, Roy Spliet <nouveau@spliet.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 32/46] ALSA: hda: Explicitly permit using autosuspend if runtime PM is supported
 Date:   Fri,  1 May 2020 15:22:57 +0200
-Message-Id: <20200501131546.966151031@linuxfoundation.org>
+Message-Id: <20200501131510.016049966@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Roy Spliet <nouveau@spliet.org>
 
-commit e1e8399eee72e9d5246d4d1bcacd793debe34dd3 upstream.
+[ Upstream commit 3ba21113bd33d49f3c300a23fc08cf114c434995 ]
 
-New struct nfsd4_blocked_lock allocated in find_or_allocate_block()
-does not initialized nbl_list and nbl_lru.
-If conflock allocation fails rollback can call list_del_init()
-access uninitialized fields and corrupt memory.
+This fixes runtime PM not working after a suspend-to-RAM cycle at least for
+the codec-less HDA device found on NVIDIA GPUs.
 
-v2: just initialize nbl_list and nbl_lru right after nbl allocation.
-
-Fixes: 76d348fadff5 ("nfsd: have nfsd4_lock use blocking locks for v4.1+ lock")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
+Signed-off-by: Roy Spliet <nouveau@spliet.org>
+Link: https://lore.kernel.org/r/20200413082034.25166-7-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/hda_intel.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -267,6 +267,8 @@ find_or_allocate_block(struct nfs4_locko
- 	if (!nbl) {
- 		nbl= kmalloc(sizeof(*nbl), GFP_KERNEL);
- 		if (nbl) {
-+			INIT_LIST_HEAD(&nbl->nbl_list);
-+			INIT_LIST_HEAD(&nbl->nbl_lru);
- 			fh_copy_shallow(&nbl->nbl_fh, fh);
- 			locks_init_lock(&nbl->nbl_lock);
- 			nfsd4_init_cb(&nbl->nbl_cb, lo->lo_owner.so_client,
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 72c268e887e55..ff448abb5449f 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2475,8 +2475,10 @@ static int azx_probe_continue(struct azx *chip)
+ 
+ 	set_default_power_save(chip);
+ 
+-	if (azx_has_pm_runtime(chip))
++	if (azx_has_pm_runtime(chip)) {
++		pm_runtime_use_autosuspend(&pci->dev);
+ 		pm_runtime_put_autosuspend(&pci->dev);
++	}
+ 
+ out_free:
+ 	if ((chip->driver_caps & AZX_DCAPS_I915_POWERWELL)
+-- 
+2.20.1
+
 
 
