@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A02C61C16FF
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E019A1C1579
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730452AbgEAN4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:56:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58036 "EHLO mail.kernel.org"
+        id S1729083AbgEAN2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:28:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729730AbgEANcw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:32:52 -0400
+        id S1729604AbgEAN2W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:28:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0549B24957;
-        Fri,  1 May 2020 13:32:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B5AD216FD;
+        Fri,  1 May 2020 13:28:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339972;
-        bh=Do1MKtQwU5B4HtI4gZ3Q52PmZmllkDlWjxz/JdLtaB8=;
+        s=default; t=1588339702;
+        bh=kn3vplV2Ajsfs0kgxnWd05XDF0uaf40IGq6aiy9WXAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAuUEU3pJtALyFbN7X8CZ7EFiDmrlUnjYc3fOSa0uLu4Map2DsYHYhw1+WKQmdnCn
-         eDP8JFFyX1DY3uxioB/lo/zsp+ABcNQcgvKru+kZdIJQHGipIb4MBBq5FiKXUViJij
-         LB2qroOW2JlKdnDoDlplYfByfDR8L9ksSrOBbZ7Y=
+        b=rMUS2SO5fmz5DRAvNa6D2Ym/69PlwGPFZmFmGxYx35/P8muWMTUFOPBa7YgR3uTSG
+         ZsvAowcWDQJQ9wdINIzcW+1zohWZW/S88U1HYyKyjKWdEI2lisXMdINAOVT9tkQWNx
+         +yNHgFLjtsVhMLJR8EgC1J1XUG9FJ9kQ2WutzUi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 031/117] tcp: cache line align MAX_TCP_HEADER
-Date:   Fri,  1 May 2020 15:21:07 +0200
-Message-Id: <20200501131548.538900548@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Ingo Molnar <mingo@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        NeilBrown <neilb@suse.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Waiman Long <longman@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 14/80] kernel/gcov/fs.c: gcov_seq_next() should increase position index
+Date:   Fri,  1 May 2020 15:21:08 +0200
+Message-Id: <20200501131518.274814134@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 9bacd256f1354883d3c1402655153367982bba49 ]
+[ Upstream commit f4d74ef6220c1eda0875da30457bef5c7111ab06 ]
 
-TCP stack is dumb in how it cooks its output packets.
+If seq_file .next function does not change position index, read after
+some lseek can generate unexpected output.
 
-Depending on MAX_HEADER value, we might chose a bad ending point
-for the headers.
-
-If we align the end of TCP headers to cache line boundary, we
-make sure to always use the smallest number of cache lines,
-which always help.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: NeilBrown <neilb@suse.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Waiman Long <longman@redhat.com>
+Link: http://lkml.kernel.org/r/f65c6ee7-bd00-f910-2f8a-37cc67e4ff88@virtuozzo.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tcp.h |    2 +-
+ kernel/gcov/fs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -55,7 +55,7 @@ extern struct inet_hashinfo tcp_hashinfo
- extern struct percpu_counter tcp_orphan_count;
- void tcp_time_wait(struct sock *sk, int state, int timeo);
+diff --git a/kernel/gcov/fs.c b/kernel/gcov/fs.c
+index edf67c493a8e1..e473f6a1f6ca7 100644
+--- a/kernel/gcov/fs.c
++++ b/kernel/gcov/fs.c
+@@ -108,9 +108,9 @@ static void *gcov_seq_next(struct seq_file *seq, void *data, loff_t *pos)
+ {
+ 	struct gcov_iterator *iter = data;
  
--#define MAX_TCP_HEADER	(128 + MAX_HEADER)
-+#define MAX_TCP_HEADER	L1_CACHE_ALIGN(128 + MAX_HEADER)
- #define MAX_TCP_OPTION_SPACE 40
- #define TCP_MIN_SND_MSS		48
- #define TCP_MIN_GSO_SIZE	(TCP_MIN_SND_MSS - MAX_TCP_OPTION_SPACE)
++	(*pos)++;
+ 	if (gcov_iter_next(iter))
+ 		return NULL;
+-	(*pos)++;
+ 
+ 	return iter;
+ }
+-- 
+2.20.1
+
 
 
