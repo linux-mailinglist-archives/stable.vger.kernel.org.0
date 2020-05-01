@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4BD11C144D
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E9E1C14A3
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731023AbgEANiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:38:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37438 "EHLO mail.kernel.org"
+        id S1730299AbgEANl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:41:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731021AbgEANiD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:38:03 -0400
+        id S1729765AbgEANlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:41:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E545324955;
-        Fri,  1 May 2020 13:38:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED4FF205C9;
+        Fri,  1 May 2020 13:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340282;
-        bh=EJ6dlQJyvFOAXUfsGqol6Wmqc66jE3hiFMMygdlxfTk=;
+        s=default; t=1588340484;
+        bh=yfmgup1j+g7a8gzNFBbIPglvFt+5H4EnjEA4sFgEpmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Api+mdd1t/sWucBVIHSYd6D7hL1d1626mcV75cJg1LErDf6SyZ1t2bXs2ooV3Xvkn
-         hLZx2P8g/ClubeIIaRgmrDlNcpwT1rBrG4YqhW9h7S9/vHSCH6POg333h7hw9yoD2q
-         /+XFphc6fIfyH8i05mepIeKe+yrMW9vO0vDzgFBI=
+        b=ZGYg56QqVP2t29buloEZkDu5uDy97cCPpgx07Izeq7UP4VOR+T5eMN8fN0z1CsrPu
+         YhGeyPog6TnIr74GvaJWWNLHSZgogrL6NRII5d2u4PZDUzY0IL3/c9zBWJ9SgOT1Ux
+         XuL0PEFSnGQIG5/DyLNT9W8DwgOAzcnb0U3oCZII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 07/83] usb: gadget: udc: bdc: Remove unnecessary NULL checks in bdc_req_complete
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.6 013/106] iio: imu: st_lsm6dsx: specify slave odr in slv_odr
 Date:   Fri,  1 May 2020 15:22:46 +0200
-Message-Id: <20200501131525.748029168@linuxfoundation.org>
+Message-Id: <20200501131545.969987449@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 09b04abb70f096333bef6bc95fa600b662e7ee13 upstream.
+commit 76551a3c3df151750a842b003c6899e9c62e0fd2 upstream.
 
-When building with Clang + -Wtautological-pointer-compare:
+Introduce slv_odr in ext_info data structure in order to distinguish
+between sensor hub trigger (accel sensor) odr and i2c slave odr and
+properly compute samples in FIFO pattern
 
-drivers/usb/gadget/udc/bdc/bdc_ep.c:543:28: warning: comparison of
-address of 'req->queue' equal to a null pointer is always false
-[-Wtautological-pointer-compare]
-        if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
-                             ~~~~~^~~~~    ~~~~
-drivers/usb/gadget/udc/bdc/bdc_ep.c:543:51: warning: comparison of
-address of 'req->usb_req' equal to a null pointer is always false
-[-Wtautological-pointer-compare]
-        if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
-                                                    ~~~~~^~~~~~~    ~~~~
-2 warnings generated.
-
-As it notes, these statements will always evaluate to false so remove
-them.
-
-Fixes: efed421a94e6 ("usb: gadget: Add UDC driver for Broadcom USB3.0 device controller IP BDC")
-Link: https://github.com/ClangBuiltLinux/linux/issues/749
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: e485e2a2cfd6 ("iio: imu: st_lsm6dsx: enable sensor-hub support for lsm6dsm")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/udc/bdc/bdc_ep.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h      |    1 
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c |   29 ++++++++++++++++++++-------
+ 2 files changed, 23 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/gadget/udc/bdc/bdc_ep.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_ep.c
-@@ -540,7 +540,7 @@ static void bdc_req_complete(struct bdc_
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+@@ -357,6 +357,7 @@ struct st_lsm6dsx_sensor {
+ 
+ 	struct {
+ 		const struct st_lsm6dsx_ext_dev_settings *settings;
++		u32 slv_odr;
+ 		u8 addr;
+ 	} ext_info;
+ };
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c
+@@ -421,7 +421,8 @@ int st_lsm6dsx_shub_set_enable(struct st
+ 
+ 	settings = sensor->ext_info.settings;
+ 	if (enable) {
+-		err = st_lsm6dsx_shub_set_odr(sensor, sensor->odr);
++		err = st_lsm6dsx_shub_set_odr(sensor,
++					      sensor->ext_info.slv_odr);
+ 		if (err < 0)
+ 			return err;
+ 	} else {
+@@ -459,7 +460,7 @@ st_lsm6dsx_shub_read_oneshot(struct st_l
+ 	if (err < 0)
+ 		return err;
+ 
+-	delay = 1000000000 / sensor->odr;
++	delay = 1000000000 / sensor->ext_info.slv_odr;
+ 	usleep_range(delay, 2 * delay);
+ 
+ 	len = min_t(int, sizeof(data), ch->scan_type.realbits >> 3);
+@@ -500,8 +501,8 @@ st_lsm6dsx_shub_read_raw(struct iio_dev
+ 		iio_device_release_direct_mode(iio_dev);
+ 		break;
+ 	case IIO_CHAN_INFO_SAMP_FREQ:
+-		*val = sensor->odr / 1000;
+-		*val2 = (sensor->odr % 1000) * 1000;
++		*val = sensor->ext_info.slv_odr / 1000;
++		*val2 = (sensor->ext_info.slv_odr % 1000) * 1000;
+ 		ret = IIO_VAL_INT_PLUS_MICRO;
+ 		break;
+ 	case IIO_CHAN_INFO_SCALE:
+@@ -535,8 +536,20 @@ st_lsm6dsx_shub_write_raw(struct iio_dev
+ 
+ 		val = val * 1000 + val2 / 1000;
+ 		err = st_lsm6dsx_shub_get_odr_val(sensor, val, &data);
+-		if (!err)
+-			sensor->odr = val;
++		if (!err) {
++			struct st_lsm6dsx_hw *hw = sensor->hw;
++			struct st_lsm6dsx_sensor *ref_sensor;
++			u8 odr_val;
++			int odr;
++
++			ref_sensor = iio_priv(hw->iio_devs[ST_LSM6DSX_ID_ACC]);
++			odr = st_lsm6dsx_check_odr(ref_sensor, val, &odr_val);
++			if (odr < 0)
++				return odr;
++
++			sensor->ext_info.slv_odr = val;
++			sensor->odr = odr;
++		}
+ 		break;
+ 	}
+ 	default:
+@@ -613,6 +626,7 @@ st_lsm6dsx_shub_alloc_iiodev(struct st_l
+ 			     const struct st_lsm6dsx_ext_dev_settings *info,
+ 			     u8 i2c_addr, const char *name)
  {
- 	struct bdc *bdc = ep->bdc;
- 
--	if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
-+	if (req == NULL)
- 		return;
- 
- 	dev_dbg(bdc->dev, "%s ep:%s status:%d\n", __func__, ep->name, status);
++	enum st_lsm6dsx_sensor_id ref_id = ST_LSM6DSX_ID_ACC;
+ 	struct iio_chan_spec *ext_channels;
+ 	struct st_lsm6dsx_sensor *sensor;
+ 	struct iio_dev *iio_dev;
+@@ -628,7 +642,8 @@ st_lsm6dsx_shub_alloc_iiodev(struct st_l
+ 	sensor = iio_priv(iio_dev);
+ 	sensor->id = id;
+ 	sensor->hw = hw;
+-	sensor->odr = info->odr_table.odr_avl[0].milli_hz;
++	sensor->odr = hw->settings->odr_table[ref_id].odr_avl[0].milli_hz;
++	sensor->ext_info.slv_odr = info->odr_table.odr_avl[0].milli_hz;
+ 	sensor->gain = info->fs_table.fs_avl[0].gain;
+ 	sensor->ext_info.settings = info;
+ 	sensor->ext_info.addr = i2c_addr;
 
 
