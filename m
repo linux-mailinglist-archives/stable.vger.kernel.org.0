@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C9C1C1564
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02E311C13DE
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729275AbgEAN0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:26:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48286 "EHLO mail.kernel.org"
+        id S1730475AbgEANdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:33:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729266AbgEAN0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:26:31 -0400
+        id S1730470AbgEANdo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:33:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9996C2166E;
-        Fri,  1 May 2020 13:26:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56C59216FD;
+        Fri,  1 May 2020 13:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339591;
-        bh=2C+zaXH0NcVwovhzxCpIT+U1m1TU7namuJZfIR6ant8=;
+        s=default; t=1588340023;
+        bh=6ZZjgCH98qpYC/CbtgxU6mXtYtB82jt3T4S206u6knA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OeqCCltue2xirhxZMjDiOwgT6sXlbk5f/Inj+mSCAym5GWmCvoGLQ+oPk/LTAVkS5
-         oZSCW2CyterWok1i/+WBrJeWRbSQMWkoj3as51IuluVajr80nIYzMyS023M3AaVJQE
-         gggXCS9IV58laQ10Pn/as2DAThc9MiS3xzf1Wifg=
+        b=XQ+FLVV8r6CuOvpLeK0g0EtnG+xwug8wgGYx94Cx1Q7gY2rJJbeRVolN36t7tdw3Y
+         96wYHd9GpeoIuCaSUrHIGkmUOo4gZ32z3QeU1udqTTDnehzDKSa/oHHUlfkfD61a0n
+         8ElpsQ733AJFsLORLM3GBNixpxgCEA+VralChhWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.4 51/70] UAS: no use logging any details in case of ENODEV
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Cyril Roelandt <tipecaml@gmail.com>
+Subject: [PATCH 4.14 063/117] usb-storage: Add unusual_devs entry for JMicron JMS566
 Date:   Fri,  1 May 2020 15:21:39 +0200
-Message-Id: <20200501131529.217441706@linuxfoundation.org>
+Message-Id: <20200501131552.776279991@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,33 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 5963dec98dc52d52476390485f07a29c30c6a582 upstream.
+commit 94f9c8c3c404ee1f7aaff81ad4f24aec4e34a78b upstream.
 
-Once a device is gone, the internal state does not matter anymore.
-There is no need to spam the logs.
+Cyril Roelandt reports that his JMicron JMS566 USB-SATA bridge fails
+to handle WRITE commands with the FUA bit set, even though it claims
+to support FUA.  (Oddly enough, a later version of the same bridge,
+version 2.03 as opposed to 1.14, doesn't claim to support FUA.  Also
+oddly, the bridge _does_ support FUA when using the UAS transport
+instead of the Bulk-Only transport -- but this device was blacklisted
+for uas in commit bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron
+SATA enclosure") for apparently unrelated reasons.)
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Fixes: 326349f824619 ("uas: add dead request list")
-Link: https://lore.kernel.org/r/20200415141750.811-1-oneukum@suse.com
+This patch adds a usb-storage unusual_devs entry with the BROKEN_FUA
+flag.  This allows the bridge to work properly with usb-storage.
+
+Reported-and-tested-by: Cyril Roelandt <tipecaml@gmail.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2004221613110.11262-100000@iolanthe.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/storage/uas.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -191,6 +191,9 @@ static void uas_log_cmd_state(struct scs
- 	struct uas_cmd_info *ci = (void *)&cmnd->SCp;
- 	struct uas_cmd_info *cmdinfo = (void *)&cmnd->SCp;
+---
+ drivers/usb/storage/unusual_devs.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2342,6 +2342,13 @@ UNUSUAL_DEV(  0x3340, 0xffff, 0x0000, 0x
+ 		USB_SC_DEVICE,USB_PR_DEVICE,NULL,
+ 		US_FL_MAX_SECTORS_64 ),
  
-+	if (status == -ENODEV) /* too late */
-+		return;
++/* Reported by Cyril Roelandt <tipecaml@gmail.com> */
++UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x0114,
++		"JMicron",
++		"USB to ATA/ATAPI Bridge",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_BROKEN_FUA ),
 +
- 	scmd_printk(KERN_INFO, cmnd,
- 		    "%s %d uas-tag %d inflight:%s%s%s%s%s%s%s%s%s%s%s%s ",
- 		    prefix, status, cmdinfo->uas_tag,
+ /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
+ UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
+ 		"iRiver",
 
 
