@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B01D1C15F6
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E401C16A9
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730915AbgEANhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:37:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35678 "EHLO mail.kernel.org"
+        id S1731693AbgEANvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:51:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730203AbgEANg7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:36:59 -0400
+        id S1729909AbgEANiU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:38:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F85B24953;
-        Fri,  1 May 2020 13:36:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69AEB216FD;
+        Fri,  1 May 2020 13:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340217;
-        bh=L+se4EUE/pZckriwgIxSr/w/Hv9fDqIMZfph3JCGnEY=;
+        s=default; t=1588340299;
+        bh=jPVKI2qaxo/7QA2XlOawIZ/frg4b+VSJVx+26PioqTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3fN9xCDl6xET0xhKn9innrCHGXJh2N/WUBuR0Q5AnXj0QQI+fg7H8EZOvEUvJg33
-         6SZEOb7b0qk2FsdOANbn77LYjfPKMXdd2PIe1uH3//5JDQXe/3QY6fmQhL5nmZuYJb
-         EfUVgleP5abXLr+IieMY3y7AG5NE9m386qx0Uqxg=
+        b=z9G6JF9haWDj8TYY4QK1rW9/iblInE5ljIqHpmNjQP2rzDs8b5yr10WdpoVwyk14d
+         v19NgTdyAs3oKXQrt9rc7kbK64jDrNndObt8c/phUiVsGCry9CGvp0Sbsl3JCo7YeN
+         P5MxcHT+qQEjWycRqycXLL8i8epuQKqz6jGMTnQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>, Miroslav Benes <mbenes@suse.cz>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/46] objtool: Support Clang non-section symbols in ORC dump
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 5.4 22/83] i2c: altera: use proper variable to hold errno
 Date:   Fri,  1 May 2020 15:23:01 +0200
-Message-Id: <20200501131511.713496669@linuxfoundation.org>
+Message-Id: <20200501131529.721767120@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
-References: <20200501131457.023036302@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,111 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 8782e7cab51b6bf01a5a86471dd82228af1ac185 ]
+commit edb2c9dd3948738ef030c32b948543e84f4d3f81 upstream.
 
-Historically, the relocation symbols for ORC entries have only been
-section symbols:
+device_property_read_u32() returns errno or 0, so we should use the
+integer variable 'ret' and not the u32 'val' to hold the retval.
 
-  .text+0: sp:sp+8 bp:(und) type:call end:0
+Fixes: 0560ad576268 ("i2c: altera: Add Altera I2C Controller driver")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-However, the Clang assembler is aggressive about stripping section
-symbols.  In that case we will need to use function symbols:
-
-  freezing_slow_path+0: sp:sp+8 bp:(und) type:call end:0
-
-In preparation for the generation of such entries in "objtool orc
-generate", add support for reading them in "objtool orc dump".
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/b811b5eb1a42602c3b523576dc5efab9ad1c174d.1585761021.git.jpoimboe@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/orc_dump.c | 44 ++++++++++++++++++++++++----------------
- 1 file changed, 27 insertions(+), 17 deletions(-)
+ drivers/i2c/busses/i2c-altera.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/tools/objtool/orc_dump.c b/tools/objtool/orc_dump.c
-index faa444270ee3a..1a3e774941f8e 100644
---- a/tools/objtool/orc_dump.c
-+++ b/tools/objtool/orc_dump.c
-@@ -78,7 +78,7 @@ int orc_dump(const char *_objname)
- 	char *name;
- 	size_t nr_sections;
- 	Elf64_Addr orc_ip_addr = 0;
--	size_t shstrtab_idx;
-+	size_t shstrtab_idx, strtab_idx = 0;
- 	Elf *elf;
- 	Elf_Scn *scn;
- 	GElf_Shdr sh;
-@@ -139,6 +139,8 @@ int orc_dump(const char *_objname)
+--- a/drivers/i2c/busses/i2c-altera.c
++++ b/drivers/i2c/busses/i2c-altera.c
+@@ -384,7 +384,6 @@ static int altr_i2c_probe(struct platfor
+ 	struct altr_i2c_dev *idev = NULL;
+ 	struct resource *res;
+ 	int irq, ret;
+-	u32 val;
  
- 		if (!strcmp(name, ".symtab")) {
- 			symtab = data;
-+		} else if (!strcmp(name, ".strtab")) {
-+			strtab_idx = i;
- 		} else if (!strcmp(name, ".orc_unwind")) {
- 			orc = data->d_buf;
- 			orc_size = sh.sh_size;
-@@ -150,7 +152,7 @@ int orc_dump(const char *_objname)
- 		}
+ 	idev = devm_kzalloc(&pdev->dev, sizeof(*idev), GFP_KERNEL);
+ 	if (!idev)
+@@ -411,17 +410,17 @@ static int altr_i2c_probe(struct platfor
+ 	init_completion(&idev->msg_complete);
+ 	spin_lock_init(&idev->lock);
+ 
+-	val = device_property_read_u32(idev->dev, "fifo-size",
++	ret = device_property_read_u32(idev->dev, "fifo-size",
+ 				       &idev->fifo_size);
+-	if (val) {
++	if (ret) {
+ 		dev_err(&pdev->dev, "FIFO size set to default of %d\n",
+ 			ALTR_I2C_DFLT_FIFO_SZ);
+ 		idev->fifo_size = ALTR_I2C_DFLT_FIFO_SZ;
  	}
  
--	if (!symtab || !orc || !orc_ip)
-+	if (!symtab || !strtab_idx || !orc || !orc_ip)
- 		return 0;
- 
- 	if (orc_size % sizeof(*orc) != 0) {
-@@ -171,21 +173,29 @@ int orc_dump(const char *_objname)
- 				return -1;
- 			}
- 
--			scn = elf_getscn(elf, sym.st_shndx);
--			if (!scn) {
--				WARN_ELF("elf_getscn");
--				return -1;
--			}
--
--			if (!gelf_getshdr(scn, &sh)) {
--				WARN_ELF("gelf_getshdr");
--				return -1;
--			}
--
--			name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
--			if (!name || !*name) {
--				WARN_ELF("elf_strptr");
--				return -1;
-+			if (GELF_ST_TYPE(sym.st_info) == STT_SECTION) {
-+				scn = elf_getscn(elf, sym.st_shndx);
-+				if (!scn) {
-+					WARN_ELF("elf_getscn");
-+					return -1;
-+				}
-+
-+				if (!gelf_getshdr(scn, &sh)) {
-+					WARN_ELF("gelf_getshdr");
-+					return -1;
-+				}
-+
-+				name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
-+			} else {
-+				name = elf_strptr(elf, strtab_idx, sym.st_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
- 			}
- 
- 			printf("%s+%llx:", name, (unsigned long long)rela.r_addend);
--- 
-2.20.1
-
+-	val = device_property_read_u32(idev->dev, "clock-frequency",
++	ret = device_property_read_u32(idev->dev, "clock-frequency",
+ 				       &idev->bus_clk_rate);
+-	if (val) {
++	if (ret) {
+ 		dev_err(&pdev->dev, "Default to 100kHz\n");
+ 		idev->bus_clk_rate = 100000;	/* default clock rate */
+ 	}
 
 
