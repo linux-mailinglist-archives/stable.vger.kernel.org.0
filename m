@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7AD1C15F2
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 732821C16B8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730880AbgEANgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:36:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35206 "EHLO mail.kernel.org"
+        id S1729102AbgEANwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:52:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730877AbgEANgi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:36:38 -0400
+        id S1729601AbgEANhr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7734E208DB;
-        Fri,  1 May 2020 13:36:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F30BA24956;
+        Fri,  1 May 2020 13:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340197;
-        bh=DEKOV80S+EgZGm5x0oH/1MuU21eybiRSXazP2DjWCGA=;
+        s=default; t=1588340267;
+        bh=XukTGRUrtvKB6T6Dx7YJG9irS2u0oNYCp9zrre1bP/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vw+kNrV62uLWJ/fZfXCe4CCxeqd6aAUxm0oRtIJCUupGyMlm7vbfA1XHXAI1N+X9S
-         YcRm7XIHEEzE6sGY5Pqr2TwYweFpZYWypZ8TgeVSEzZrm8BI9gYV5AvBPkWriuCB1N
-         b/NQcpqwlrUAsSzXyI7VsiiEGIuvekoUbXLfbaaU=
+        b=abNaf4Br8ZxLrXqKp+Prb/PkktfHrL6At8xL3j0MRu7lJPMuTfvQXip1RBl60DlRP
+         ktrB1FG3Ffb0xOkr9Q0Tjsq+H3l4mfgZVZyTK26ORg5jaVEIE2nZwea50VzioHei1E
+         905vOBfGHh9JLjz4bnavyvXcnDu3iAh58Q1Nk7io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Furtado <paulfurtado91@gmail.com>,
-        Brian Foster <bfoster@redhat.com>,
-        Chandan Rajendra <chandanrlinux@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Allison Collins <allison.henderson@oracle.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>
-Subject: [PATCH 4.19 15/46] xfs: acquire superblock freeze protection on eofblocks scans
+        stable@vger.kernel.org, Clement Leger <cleger@kalray.eu>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Doug Anderson <dianders@chromium.org>
+Subject: [PATCH 5.4 01/83] remoteproc: Fix wrong rvring index computation
 Date:   Fri,  1 May 2020 15:22:40 +0200
-Message-Id: <20200501131503.899313616@linuxfoundation.org>
+Message-Id: <20200501131524.384742556@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
-References: <20200501131457.023036302@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,79 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Clement Leger <cleger@kalray.eu>
 
-commit 4b674b9ac852937af1f8c62f730c325fb6eadcdb upstream.
+commit 00a0eec59ddbb1ce966b19097d8a8d2f777e726a upstream.
 
-The filesystem freeze sequence in XFS waits on any background
-eofblocks or cowblocks scans to complete before the filesystem is
-quiesced. At this point, the freezer has already stopped the
-transaction subsystem, however, which means a truncate or cowblock
-cancellation in progress is likely blocked in transaction
-allocation. This results in a deadlock between freeze and the
-associated scanner.
+Index of rvring is computed using pointer arithmetic. However, since
+rvring->rvdev->vring is the base of the vring array, computation
+of rvring idx should be reversed. It previously lead to writing at negative
+indices in the resource table.
 
-Fix this problem by holding superblock write protection across calls
-into the block reapers. Since protection for background scans is
-acquired from the workqueue task context, trylock to avoid a similar
-deadlock between freeze and blocking on the write lock.
-
-Fixes: d6b636ebb1c9f ("xfs: halt auto-reclamation activities while rebuilding rmap")
-Reported-by: Paul Furtado <paulfurtado91@gmail.com>
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Chandan Rajendra <chandanrlinux@gmail.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Allison Collins <allison.henderson@oracle.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Clement Leger <cleger@kalray.eu>
+Link: https://lore.kernel.org/r/20191004073736.8327-1-cleger@kalray.eu
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Doug Anderson <dianders@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/xfs/xfs_icache.c |   10 ++++++++++
- fs/xfs/xfs_ioctl.c  |    5 ++++-
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/remoteproc/remoteproc_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/xfs/xfs_icache.c
-+++ b/fs/xfs/xfs_icache.c
-@@ -902,7 +902,12 @@ xfs_eofblocks_worker(
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -400,7 +400,7 @@ rproc_parse_vring(struct rproc_vdev *rvd
+ void rproc_free_vring(struct rproc_vring *rvring)
  {
- 	struct xfs_mount *mp = container_of(to_delayed_work(work),
- 				struct xfs_mount, m_eofblocks_work);
-+
-+	if (!sb_start_write_trylock(mp->m_super))
-+		return;
- 	xfs_icache_free_eofblocks(mp, NULL);
-+	sb_end_write(mp->m_super);
-+
- 	xfs_queue_eofblocks(mp);
- }
+ 	struct rproc *rproc = rvring->rvdev->rproc;
+-	int idx = rvring->rvdev->vring - rvring;
++	int idx = rvring - rvring->rvdev->vring;
+ 	struct fw_rsc_vdev *rsc;
  
-@@ -929,7 +934,12 @@ xfs_cowblocks_worker(
- {
- 	struct xfs_mount *mp = container_of(to_delayed_work(work),
- 				struct xfs_mount, m_cowblocks_work);
-+
-+	if (!sb_start_write_trylock(mp->m_super))
-+		return;
- 	xfs_icache_free_cowblocks(mp, NULL);
-+	sb_end_write(mp->m_super);
-+
- 	xfs_queue_cowblocks(mp);
- }
- 
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -2182,7 +2182,10 @@ xfs_file_ioctl(
- 		if (error)
- 			return error;
- 
--		return xfs_icache_free_eofblocks(mp, &keofb);
-+		sb_start_write(mp->m_super);
-+		error = xfs_icache_free_eofblocks(mp, &keofb);
-+		sb_end_write(mp->m_super);
-+		return error;
- 	}
- 
- 	default:
+ 	idr_remove(&rproc->notifyids, rvring->notifyid);
 
 
