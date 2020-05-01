@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 110AC1C134A
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F6711C12F1
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729609AbgEAN2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:28:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51274 "EHLO mail.kernel.org"
+        id S1729090AbgEANZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:25:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729600AbgEAN2U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:28:20 -0400
+        id S1729085AbgEANZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:25:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4855D2166E;
-        Fri,  1 May 2020 13:28:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FCBE20757;
+        Fri,  1 May 2020 13:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339699;
-        bh=6jjChTOwjboi/ZhCm4bbGl72wYOXGs0UFyfWdsLpKxo=;
+        s=default; t=1588339541;
+        bh=1261mRWm35wCWIvo4LlMuXY4uqC6P1O6XbPJo8laiZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eAREST38t80MnWNyG/Tdu3s2eJhFqb7W63Gm/gHAObOqzfLRx2OXeAftzje6zDM7X
-         4ujFcxgilWckCrXDbRXcqlQxwm/CtyNgO1izDekPhZaR5SnkvyNO6Sdx1vU3lpynS9
-         hWbvdwU6C5gV2YjlQW68GWll6w1EP0QP13HthPOc=
+        b=LbHhv01X3majs7bq51O3lrVeDAHDa4+fnY6XtQS37StU54+3ndRDJmcfJ1HWClXb0
+         nRBORe+CZI+Cyu1jMTPviwjcNBuwuh3pUm7oS2UKXolN1TBkmB8wttc0wo3YVErub/
+         pjU39eymNhCuCJFXxxwLpQK412WrDoj0JOMrbN74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/80] ASoC: Intel: atom: Take the drv->lock mutex before calling sst_send_slot_map()
+        stable@vger.kernel.org,
+        syzbot+5035b1f9dc7ea4558d5a@syzkaller.appspotmail.com,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 19/70] macvlan: fix null dereference in macvlan_device_event()
 Date:   Fri,  1 May 2020 15:21:07 +0200
-Message-Id: <20200501131517.843807609@linuxfoundation.org>
+Message-Id: <20200501131519.981945141@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +45,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 81630dc042af998b9f58cd8e2c29dab9777ea176 ]
+[ Upstream commit 4dee15b4fd0d61ec6bbd179238191e959d34cf7a ]
 
-sst_send_slot_map() uses sst_fill_and_send_cmd_unlocked() because in some
-places it is called with the drv->lock mutex already held.
+In the macvlan_device_event(), the list_first_entry_or_null() is used.
+This function could return null pointer if there is no node.
+But, the macvlan module doesn't check the null pointer.
+So, null-ptr-deref would occur.
 
-So it must always be called with the mutex locked. This commit adds missing
-locking in the sst_set_be_modules() code-path.
+      bond0
+        |
+   +----+-----+
+   |          |
+macvlan0   macvlan1
+   |          |
+ dummy0     dummy1
 
-Fixes: 24c8d14192cc ("ASoC: Intel: mrfld: add DSP core controls")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200402185359.3424-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The problem scenario.
+If dummy1 is removed,
+1. ->dellink() of dummy1 is called.
+2. NETDEV_UNREGISTER of dummy1 notification is sent to macvlan module.
+3. ->dellink() of macvlan1 is called.
+4. NETDEV_UNREGISTER of macvlan1 notification is sent to bond module.
+5. __bond_release_one() is called and it internally calls
+   dev_set_mac_address().
+6. dev_set_mac_address() calls the ->ndo_set_mac_address() of macvlan1,
+   which is macvlan_set_mac_address().
+7. macvlan_set_mac_address() calls the dev_set_mac_address() with dummy1.
+8. NETDEV_CHANGEADDR of dummy1 is sent to macvlan module.
+9. In the macvlan_device_event(), it calls list_first_entry_or_null().
+At this point, dummy1 and macvlan1 were removed.
+So, list_first_entry_or_null() will return NULL.
+
+Test commands:
+    ip netns add nst
+    ip netns exec nst ip link add bond0 type bond
+    for i in {0..10}
+    do
+        ip netns exec nst ip link add dummy$i type dummy
+	ip netns exec nst ip link add macvlan$i link dummy$i \
+		type macvlan mode passthru
+	ip netns exec nst ip link set macvlan$i master bond0
+    done
+    ip netns del nst
+
+Splat looks like:
+[   40.585687][  T146] general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] SMP DEI
+[   40.587249][  T146] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+[   40.588342][  T146] CPU: 1 PID: 146 Comm: kworker/u8:2 Not tainted 5.7.0-rc1+ #532
+[   40.589299][  T146] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   40.590469][  T146] Workqueue: netns cleanup_net
+[   40.591045][  T146] RIP: 0010:macvlan_device_event+0x4e2/0x900 [macvlan]
+[   40.591905][  T146] Code: 00 00 00 00 00 fc ff df 80 3c 06 00 0f 85 45 02 00 00 48 89 da 48 b8 00 00 00 00 00 fc ff d2
+[   40.594126][  T146] RSP: 0018:ffff88806116f4a0 EFLAGS: 00010246
+[   40.594783][  T146] RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+[   40.595653][  T146] RDX: 0000000000000000 RSI: ffff88806547ddd8 RDI: ffff8880540f1360
+[   40.596495][  T146] RBP: ffff88804011a808 R08: fffffbfff4fb8421 R09: fffffbfff4fb8421
+[   40.597377][  T146] R10: ffffffffa7dc2107 R11: 0000000000000000 R12: 0000000000000008
+[   40.598186][  T146] R13: ffff88804011a000 R14: ffff8880540f1000 R15: 1ffff1100c22de9a
+[   40.599012][  T146] FS:  0000000000000000(0000) GS:ffff888067800000(0000) knlGS:0000000000000000
+[   40.600004][  T146] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   40.600665][  T146] CR2: 00005572d3a807b8 CR3: 000000005fcf4003 CR4: 00000000000606e0
+[   40.601485][  T146] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   40.602461][  T146] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   40.603443][  T146] Call Trace:
+[   40.603871][  T146]  ? nf_tables_dump_setelem+0xa0/0xa0 [nf_tables]
+[   40.604587][  T146]  ? macvlan_uninit+0x100/0x100 [macvlan]
+[   40.605212][  T146]  ? __module_text_address+0x13/0x140
+[   40.605842][  T146]  notifier_call_chain+0x90/0x160
+[   40.606477][  T146]  dev_set_mac_address+0x28e/0x3f0
+[   40.607117][  T146]  ? netdev_notify_peers+0xc0/0xc0
+[   40.607762][  T146]  ? __module_text_address+0x13/0x140
+[   40.608440][  T146]  ? notifier_call_chain+0x90/0x160
+[   40.609097][  T146]  ? dev_set_mac_address+0x1f0/0x3f0
+[   40.609758][  T146]  dev_set_mac_address+0x1f0/0x3f0
+[   40.610402][  T146]  ? __local_bh_enable_ip+0xe9/0x1b0
+[   40.611071][  T146]  ? bond_hw_addr_flush+0x77/0x100 [bonding]
+[   40.611823][  T146]  ? netdev_notify_peers+0xc0/0xc0
+[   40.612461][  T146]  ? bond_hw_addr_flush+0x77/0x100 [bonding]
+[   40.613213][  T146]  ? bond_hw_addr_flush+0x77/0x100 [bonding]
+[   40.613963][  T146]  ? __local_bh_enable_ip+0xe9/0x1b0
+[   40.614631][  T146]  ? bond_time_in_interval.isra.31+0x90/0x90 [bonding]
+[   40.615484][  T146]  ? __bond_release_one+0x9f0/0x12c0 [bonding]
+[   40.616230][  T146]  __bond_release_one+0x9f0/0x12c0 [bonding]
+[   40.616949][  T146]  ? bond_enslave+0x47c0/0x47c0 [bonding]
+[   40.617642][  T146]  ? lock_downgrade+0x730/0x730
+[   40.618218][  T146]  ? check_flags.part.42+0x450/0x450
+[   40.618850][  T146]  ? __mutex_unlock_slowpath+0xd0/0x670
+[   40.619519][  T146]  ? trace_hardirqs_on+0x30/0x180
+[   40.620117][  T146]  ? wait_for_completion+0x250/0x250
+[   40.620754][  T146]  bond_netdev_event+0x822/0x970 [bonding]
+[   40.621460][  T146]  ? __module_text_address+0x13/0x140
+[   40.622097][  T146]  notifier_call_chain+0x90/0x160
+[   40.622806][  T146]  rollback_registered_many+0x660/0xcf0
+[   40.623522][  T146]  ? netif_set_real_num_tx_queues+0x780/0x780
+[   40.624290][  T146]  ? notifier_call_chain+0x90/0x160
+[   40.624957][  T146]  ? netdev_upper_dev_unlink+0x114/0x180
+[   40.625686][  T146]  ? __netdev_adjacent_dev_unlink_neighbour+0x30/0x30
+[   40.626421][  T146]  ? mutex_is_locked+0x13/0x50
+[   40.627016][  T146]  ? unregister_netdevice_queue+0xf2/0x240
+[   40.627663][  T146]  unregister_netdevice_many.part.134+0x13/0x1b0
+[   40.628362][  T146]  default_device_exit_batch+0x2d9/0x390
+[   40.628987][  T146]  ? unregister_netdevice_many+0x40/0x40
+[   40.629615][  T146]  ? dev_change_net_namespace+0xcb0/0xcb0
+[   40.630279][  T146]  ? prepare_to_wait_exclusive+0x2e0/0x2e0
+[   40.630943][  T146]  ? ops_exit_list.isra.9+0x97/0x140
+[   40.631554][  T146]  cleanup_net+0x441/0x890
+[ ... ]
+
+Fixes: e289fd28176b ("macvlan: fix the problem when mac address changes for passthru mode")
+Reported-by: syzbot+5035b1f9dc7ea4558d5a@syzkaller.appspotmail.com
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/atom/sst-atom-controls.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/macvlan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/atom/sst-atom-controls.c b/sound/soc/intel/atom/sst-atom-controls.c
-index b3464ac99b991..ec8be720d5cd2 100644
---- a/sound/soc/intel/atom/sst-atom-controls.c
-+++ b/sound/soc/intel/atom/sst-atom-controls.c
-@@ -976,7 +976,9 @@ static int sst_set_be_modules(struct snd_soc_dapm_widget *w,
- 	dev_dbg(c->dev, "Enter: widget=%s\n", w->name);
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -1561,7 +1561,7 @@ static int macvlan_device_event(struct n
+ 						struct macvlan_dev,
+ 						list);
  
- 	if (SND_SOC_DAPM_EVENT_ON(event)) {
-+		mutex_lock(&drv->lock);
- 		ret = sst_send_slot_map(drv);
-+		mutex_unlock(&drv->lock);
- 		if (ret)
- 			return ret;
- 		ret = sst_send_pipe_module_params(w, k);
--- 
-2.20.1
-
+-		if (macvlan_sync_address(vlan->dev, dev->dev_addr))
++		if (vlan && macvlan_sync_address(vlan->dev, dev->dev_addr))
+ 			return NOTIFY_BAD;
+ 
+ 		break;
 
 
