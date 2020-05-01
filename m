@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 751A51C146C
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 881351C15FF
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731155AbgEANjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:39:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38818 "EHLO mail.kernel.org"
+        id S1730968AbgEANhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:37:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730856AbgEANjM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:39:12 -0400
+        id S1728892AbgEANhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CC22208DB;
-        Fri,  1 May 2020 13:39:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFED924958;
+        Fri,  1 May 2020 13:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340351;
-        bh=e7spcapCw09yWb/xBhsKXLncxrnPQacqV3xX+cpc1f4=;
+        s=default; t=1588340257;
+        bh=KsWMYPxMlZON7DQw1Q3Z0jbq0/A30rq39ijzdlF+zSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+E928I3Ndi2ttS2ZZ7LCzh7qlDrgDV+QzYyY+iCDmuCQ/JKHbao9V3biTX+DX+xn
-         Jw5RkOAAnwof+LUhxULi64uHZ2X5aCS+c6jMfWNC7F9me0bT/0OctK2enSFfDkkmdI
-         6+rc7fFWEUhecOriktYkVGsm8K6dAu7oO3fX93kY=
+        b=I/Kcfhds2jirWz7LvuG3oUWm+m+WZYzFR5OpdjQ4C00M+1U+W16+W2M8WPWpBE7qm
+         ZCxnzNf3gJL5pjNNah+5r7HqSohIs/NSyHeAcowzgqEO1lsa/C3Cgsc1OrkS+laY/u
+         P7OdctzcH6dhuOh9D7QMYt2dtplx/irjwDtIRX+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 30/83] PCI: Avoid ASMedia XHCI USB PME# from D0 defect
+        stable@vger.kernel.org, Xi Wang <xi.wang@gmail.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Wang YanQing <udknight@gmail.com>
+Subject: [PATCH 4.19 44/46] bpf, x86_32: Fix clobbering of dst for BPF_JSET
 Date:   Fri,  1 May 2020 15:23:09 +0200
-Message-Id: <20200501131531.459830348@linuxfoundation.org>
+Message-Id: <20200501131513.858153421@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Luke Nelson <lukenels@cs.washington.edu>
 
-commit 2880325bda8d53566dcb9725abc929eec871608e upstream.
+commit 50fe7ebb6475711c15b3397467e6424e20026d94 upstream.
 
-The ASMedia USB XHCI Controller claims to support generating PME# while
-in D0:
+The current JIT clobbers the destination register for BPF_JSET BPF_X
+and BPF_K by using "and" and "or" instructions. This is fine when the
+destination register is a temporary loaded from a register stored on
+the stack but not otherwise.
 
-  01:00.0 USB controller: ASMedia Technology Inc. Device 2142 (prog-if 30 [XHCI])
-    Subsystem: SUNIX Co., Ltd. Device 312b
-    Capabilities: [78] Power Management version 3
-      Flags: PMEClk- DSI- D1- D2- AuxCurrent=55mA PME(D0+,D1-,D2-,D3hot-,D3cold-)
-      Status: D0 NoSoftRst+ PME-Enable+ DSel=0 DScale=0 PME-
+This patch fixes the problem (for both BPF_K and BPF_X) by always loading
+the destination register into temporaries since BPF_JSET should not
+modify the destination register.
 
-However PME# only gets asserted when plugging USB 2.0 or USB 1.1 devices,
-but not for USB 3.0 devices.
+This bug may not be currently triggerable as BPF_REG_AX is the only
+register not stored on the stack and the verifier uses it in a limited
+way.
 
-Remove PCI_PM_CAP_PME_D0 to avoid using PME under D0.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205919
-Link: https://lore.kernel.org/r/20191219192006.16270-1-kai.heng.feng@canonical.com
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: 03f5781be2c7b ("bpf, x86_32: add eBPF JIT compiler for ia32")
+Signed-off-by: Xi Wang <xi.wang@gmail.com>
+Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Wang YanQing <udknight@gmail.com>
+Link: https://lore.kernel.org/bpf/20200422173630.8351-2-luke.r.nels@gmail.com
+Signed-off-by: Wang YanQing <udknight@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/x86/net/bpf_jit_comp32.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5490,3 +5490,14 @@ out_disable:
- DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, 0x13b1,
- 			      PCI_CLASS_DISPLAY_VGA, 8,
- 			      quirk_reset_lenovo_thinkpad_p50_nvgpu);
-+
-+/*
-+ * Device [1b21:2142]
-+ * When in D0, PME# doesn't get asserted when plugging USB 3.0 device.
-+ */
-+static void pci_fixup_no_d0_pme(struct pci_dev *dev)
-+{
-+	pci_info(dev, "PME# does not work under D0, disabling it\n");
-+	dev->pme_support &= ~(PCI_PM_CAP_PME_D0 >> PCI_PM_CAP_PME_SHIFT);
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x2142, pci_fixup_no_d0_pme);
+--- a/arch/x86/net/bpf_jit_comp32.c
++++ b/arch/x86/net/bpf_jit_comp32.c
+@@ -1970,8 +1970,8 @@ static int do_jit(struct bpf_prog *bpf_p
+ 			goto emit_cond_jmp_signed;
+ 		}
+ 		case BPF_JMP | BPF_JSET | BPF_X: {
+-			u8 dreg_lo = dstk ? IA32_EAX : dst_lo;
+-			u8 dreg_hi = dstk ? IA32_EDX : dst_hi;
++			u8 dreg_lo = IA32_EAX;
++			u8 dreg_hi = IA32_EDX;
+ 			u8 sreg_lo = sstk ? IA32_ECX : src_lo;
+ 			u8 sreg_hi = sstk ? IA32_EBX : src_hi;
+ 
+@@ -1980,6 +1980,12 @@ static int do_jit(struct bpf_prog *bpf_p
+ 				      STACK_VAR(dst_lo));
+ 				EMIT3(0x8B, add_2reg(0x40, IA32_EBP, IA32_EDX),
+ 				      STACK_VAR(dst_hi));
++			} else {
++				/* mov dreg_lo,dst_lo */
++				EMIT2(0x89, add_2reg(0xC0, dreg_lo, dst_lo));
++				/* mov dreg_hi,dst_hi */
++				EMIT2(0x89,
++				      add_2reg(0xC0, dreg_hi, dst_hi));
+ 			}
+ 
+ 			if (sstk) {
+@@ -1998,8 +2004,8 @@ static int do_jit(struct bpf_prog *bpf_p
+ 		}
+ 		case BPF_JMP | BPF_JSET | BPF_K: {
+ 			u32 hi;
+-			u8 dreg_lo = dstk ? IA32_EAX : dst_lo;
+-			u8 dreg_hi = dstk ? IA32_EDX : dst_hi;
++			u8 dreg_lo = IA32_EAX;
++			u8 dreg_hi = IA32_EDX;
+ 			u8 sreg_lo = IA32_ECX;
+ 			u8 sreg_hi = IA32_EBX;
+ 
+@@ -2008,6 +2014,12 @@ static int do_jit(struct bpf_prog *bpf_p
+ 				      STACK_VAR(dst_lo));
+ 				EMIT3(0x8B, add_2reg(0x40, IA32_EBP, IA32_EDX),
+ 				      STACK_VAR(dst_hi));
++			} else {
++				/* mov dreg_lo,dst_lo */
++				EMIT2(0x89, add_2reg(0xC0, dreg_lo, dst_lo));
++				/* mov dreg_hi,dst_hi */
++				EMIT2(0x89,
++				      add_2reg(0xC0, dreg_hi, dst_hi));
+ 			}
+ 			hi = imm32 & (1<<31) ? (u32)~0 : 0;
+ 
 
 
