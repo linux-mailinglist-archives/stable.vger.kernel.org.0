@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 188911C16A5
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1021C143E
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730455AbgEANvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:51:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38058 "EHLO mail.kernel.org"
+        id S1730943AbgEANhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:37:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730772AbgEANic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:38:32 -0400
+        id S1730933AbgEANhH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C17912173E;
-        Fri,  1 May 2020 13:38:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1980A24953;
+        Fri,  1 May 2020 13:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340312;
-        bh=CKIMJQM3BUgv/kNo+zVhPYPGAjCSUM4KvYD2NODQKhk=;
+        s=default; t=1588340227;
+        bh=lX7GO5zZRgBAxgEabLCkym2MplVXRl3kwn5k981MtVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYOinUR7FAYWBey5qBSmlaXl/AUJ0gJiHnl35mjtV2rtuZ0xUpYqrPxyIhAEIb+O4
-         FRf+2S2zeyNN1CyiDVFR5mMOCmfZI1Jjeoae3Y+z2jK0X+Fzuh7cYbfVXwbh9BSqGP
-         RrSFH4qGrFhaRA/Q7AvnLjcJFFdU0HlgWWe69W/s=
+        b=pwLzLcXswMdeSyvK9rI7qw1A6SHhBOJBORsCWNXy9YpPsKIlQbupXum0Epz2tEVp+
+         J+bbp1A+K39Mbj0SNcRmKD2EpHLRfaXe3Xk7NckXVz5mVyhFBcR8pMsaSS8wAHUoVS
+         oGqtN+k48ngIwLL4EQnIGMqlNt+gayQ3wDRFQWaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 14/83] s390/ftrace: fix potential crashes when switching tracers
-Date:   Fri,  1 May 2020 15:22:53 +0200
-Message-Id: <20200501131527.389876682@linuxfoundation.org>
+        stable@vger.kernel.org, Olaf Hering <olaf@aepfle.de>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 29/46] x86: hyperv: report value of misc_features
+Date:   Fri,  1 May 2020 15:22:54 +0200
+Message-Id: <20200501131509.204198464@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,70 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Rudo <prudo@linux.ibm.com>
+From: Olaf Hering <olaf@aepfle.de>
 
-commit 8ebf6da9db1b2a20bb86cc1bee2552e894d03308 upstream.
+[ Upstream commit 97d9f1c43bedd400301d6f1eff54d46e8c636e47 ]
 
-Switching tracers include instruction patching. To prevent that a
-instruction is patched while it's read the instruction patching is done
-in stop_machine 'context'. This also means that any function called
-during stop_machine must not be traced. Thus add 'notrace' to all
-functions called within stop_machine.
+A few kernel features depend on ms_hyperv.misc_features, but unlike its
+siblings ->features and ->hints, the value was never reported during boot.
 
-Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
-Fixes: 38f2c691a4b3 ("s390: improve wait logic of stop_machine")
-Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
-Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Olaf Hering <olaf@aepfle.de>
+Link: https://lore.kernel.org/r/20200407172739.31371-1-olaf@aepfle.de
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/diag.c  |    2 +-
- arch/s390/kernel/smp.c   |    4 ++--
- arch/s390/kernel/trace.c |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kernel/cpu/mshyperv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/s390/kernel/diag.c
-+++ b/arch/s390/kernel/diag.c
-@@ -133,7 +133,7 @@ void diag_stat_inc(enum diag_stat_enum n
- }
- EXPORT_SYMBOL(diag_stat_inc);
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index fc93ae3255153..f8b0fa2dbe374 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -214,8 +214,8 @@ static void __init ms_hyperv_init_platform(void)
+ 	ms_hyperv.misc_features = cpuid_edx(HYPERV_CPUID_FEATURES);
+ 	ms_hyperv.hints    = cpuid_eax(HYPERV_CPUID_ENLIGHTMENT_INFO);
  
--void diag_stat_inc_norecursion(enum diag_stat_enum nr)
-+void notrace diag_stat_inc_norecursion(enum diag_stat_enum nr)
- {
- 	this_cpu_inc(diag_stat.counter[nr]);
- 	trace_s390_diagnose_norecursion(diag_map[nr].code);
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -403,7 +403,7 @@ int smp_find_processor_id(u16 address)
- 	return -1;
- }
+-	pr_info("Hyper-V: features 0x%x, hints 0x%x\n",
+-		ms_hyperv.features, ms_hyperv.hints);
++	pr_info("Hyper-V: features 0x%x, hints 0x%x, misc 0x%x\n",
++		ms_hyperv.features, ms_hyperv.hints, ms_hyperv.misc_features);
  
--bool arch_vcpu_is_preempted(int cpu)
-+bool notrace arch_vcpu_is_preempted(int cpu)
- {
- 	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
- 		return false;
-@@ -413,7 +413,7 @@ bool arch_vcpu_is_preempted(int cpu)
- }
- EXPORT_SYMBOL(arch_vcpu_is_preempted);
- 
--void smp_yield_cpu(int cpu)
-+void notrace smp_yield_cpu(int cpu)
- {
- 	if (MACHINE_HAS_DIAG9C) {
- 		diag_stat_inc_norecursion(DIAG_STAT_X09C);
---- a/arch/s390/kernel/trace.c
-+++ b/arch/s390/kernel/trace.c
-@@ -14,7 +14,7 @@ EXPORT_TRACEPOINT_SYMBOL(s390_diagnose);
- 
- static DEFINE_PER_CPU(unsigned int, diagnose_trace_depth);
- 
--void trace_s390_diagnose_norecursion(int diag_nr)
-+void notrace trace_s390_diagnose_norecursion(int diag_nr)
- {
- 	unsigned long flags;
- 	unsigned int *depth;
+ 	ms_hyperv.max_vp_index = cpuid_eax(HYPERV_CPUID_IMPLEMENT_LIMITS);
+ 	ms_hyperv.max_lp_index = cpuid_ebx(HYPERV_CPUID_IMPLEMENT_LIMITS);
+-- 
+2.20.1
+
 
 
