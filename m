@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8431C1713
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED2351C155A
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730285AbgEAN5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56520 "EHLO mail.kernel.org"
+        id S1729023AbgEANZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:25:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730159AbgEANbs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:31:48 -0400
+        id S1729054AbgEANZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:25:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17937208C3;
-        Fri,  1 May 2020 13:31:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C70282166E;
+        Fri,  1 May 2020 13:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339908;
-        bh=TIDW1O+XunI+ndei1fj20NuEKsENS1mU14MYLt4g7J8=;
+        s=default; t=1588339534;
+        bh=gvckD+08zbGS7Exmtd6V1EEAPXF8knBKNzJ+PEUIKx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0exOwOCv2vxJNjaMK6ReGi1VJod/9HhbJWsLqWF3K0JdiDTlsfdjlZcYitmKvCPpS
-         p/nmp3N1D9AEa4ufwPfd+vgzCJlm0ekkqt6WjYep+DYOHxGnA465AJbQOF+hYvVAYO
-         wN1oa+LRom5s3Y3Gtx4s24AabMFHEoBibfU+tbjk=
+        b=CJOnM95GlkM/bkpnDAa5LUIQnjhOeVIX4SSK6VUR9h6K2VCwqTkPV38vsCH1OJjDE
+         sguOgERh/jIa8CLAXxmLpzx7FpcfRtl0wxhuMT25ge8vhiNSVJ/dp9tjA+zXhDRSCG
+         yVXG9pG9icDkEdA2gkgo9JuVZwDcyHa2KonTmrVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 028/117] net: bcmgenet: correct per TX/RX ring statistics
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 16/70] pwm: renesas-tpu: Fix late Runtime PM enablement
 Date:   Fri,  1 May 2020 15:21:04 +0200
-Message-Id: <20200501131548.233610904@linuxfoundation.org>
+Message-Id: <20200501131518.647264208@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit a6d0b83f25073bdf08b8547aeff961a62c6ab229 ]
+[ Upstream commit d5a3c7a4536e1329a758e14340efd0e65252bd3d ]
 
-The change to track net_device_stats per ring to better support SMP
-missed updating the rx_dropped member.
+Runtime PM should be enabled before calling pwmchip_add(), as PWM users
+can appear immediately after the PWM chip has been added.
+Likewise, Runtime PM should always be disabled after the removal of the
+PWM chip, even if the latter failed.
 
-The ndo_get_stats method is also needed to combine the results for
-ethtool statistics (-S) before filling in the ethtool structure.
-
-Fixes: 37a30b435b92 ("net: bcmgenet: Track per TX/RX rings statistics")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 99b82abb0a35b073 ("pwm: Add Renesas TPU PWM driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pwm/pwm-renesas-tpu.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -973,6 +973,8 @@ static void bcmgenet_get_ethtool_stats(s
- 	if (netif_running(dev))
- 		bcmgenet_update_mib_counters(priv);
+diff --git a/drivers/pwm/pwm-renesas-tpu.c b/drivers/pwm/pwm-renesas-tpu.c
+index 075c1a764ba29..6247a956cc089 100644
+--- a/drivers/pwm/pwm-renesas-tpu.c
++++ b/drivers/pwm/pwm-renesas-tpu.c
+@@ -423,16 +423,17 @@ static int tpu_probe(struct platform_device *pdev)
+ 	tpu->chip.base = -1;
+ 	tpu->chip.npwm = TPU_CHANNEL_MAX;
  
-+	dev->netdev_ops->ndo_get_stats(dev);
++	pm_runtime_enable(&pdev->dev);
 +
- 	for (i = 0; i < BCMGENET_STATS_LEN; i++) {
- 		const struct bcmgenet_stats *s;
- 		char *p;
-@@ -3215,6 +3217,7 @@ static struct net_device_stats *bcmgenet
- 	dev->stats.rx_packets = rx_packets;
- 	dev->stats.rx_errors = rx_errors;
- 	dev->stats.rx_missed_errors = rx_errors;
-+	dev->stats.rx_dropped = rx_dropped;
- 	return &dev->stats;
+ 	ret = pwmchip_add(&tpu->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register PWM chip\n");
++		pm_runtime_disable(&pdev->dev);
+ 		return ret;
+ 	}
+ 
+ 	dev_info(&pdev->dev, "TPU PWM %d registered\n", tpu->pdev->id);
+ 
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	return 0;
  }
  
+@@ -442,12 +443,10 @@ static int tpu_remove(struct platform_device *pdev)
+ 	int ret;
+ 
+ 	ret = pwmchip_remove(&tpu->chip);
+-	if (ret)
+-		return ret;
+ 
+ 	pm_runtime_disable(&pdev->dev);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ #ifdef CONFIG_OF
+-- 
+2.20.1
+
 
 
