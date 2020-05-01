@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B545B1C1670
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DC471C15F8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731361AbgEANse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
+        id S1730529AbgEANhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:37:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731492AbgEANmQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:16 -0400
+        id S1730938AbgEANhK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC4142173E;
-        Fri,  1 May 2020 13:42:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F28E24966;
+        Fri,  1 May 2020 13:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340536;
-        bh=kccyWggFbCwVoneumpdT1HwbogboBp2y4gZSkk5jbJM=;
+        s=default; t=1588340230;
+        bh=Q7wr+JoVHPtUK3TZeDjw6cArSL3A4zyLJkI2EYwi8Kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHOPJbJMSXMQr3HmBpsnJewNoia8x64y0Q5umsb+q6pzVdlyz60JKOqdSv47Npp0D
-         20Qt8vg8qGRINiSREh9KT5TCuPmgRZjKKdLa+Mq7Z6LU1bkwxZCc0hf7Rc90eZkK8R
-         jZOaVraql7uT7pGEPW7H92e0ej2uiXEyThRK93LM=
+        b=wvqwTNKr7uvZv5TuxZ/xamPG6d668thqblc5ij0ejWAbyZREGMJH9TUdbSbRi2xXG
+         Ki7TOIlEQmMZFjxZmphslsUD6pfS74wjiCyEFmoOF7faFkzvvFMKe9OCQQv+P/9pK0
+         7q2jimMYO2acmnpsz97qESt9nPNJ7oMbfnnX8Rkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.6 022/106] ASoC: wm8960: Fix wrong clock after suspend & resume
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 30/46] xfs: fix partially uninitialized structure in xfs_reflink_remap_extent
 Date:   Fri,  1 May 2020 15:22:55 +0200
-Message-Id: <20200501131546.762743793@linuxfoundation.org>
+Message-Id: <20200501131509.461589297@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-commit 1e060a453c8604311fb45ae2f84f67ed673329b4 upstream.
+[ Upstream commit c142932c29e533ee892f87b44d8abc5719edceec ]
 
-After suspend & resume, wm8960_hw_params may be called when
-bias_level is not SND_SOC_BIAS_ON, then wm8960_configure_clocking
-is not called. But if sample rate is changed at that time, then
-the output clock rate will be not correct.
+In the reflink extent remap function, it turns out that uirec (the block
+mapping corresponding only to the part of the passed-in mapping that got
+unmapped) was not fully initialized.  Specifically, br_state was not
+being copied from the passed-in struct to the uirec.  This could lead to
+unpredictable results such as the reflinked mapping being marked
+unwritten in the destination file.
 
-So judgement of bias_level is SND_SOC_BIAS_ON in wm8960_hw_params
-is not necessary and it causes above issue.
-
-Fixes: 3176bf2d7ccd ("ASoC: wm8960: update pll and clock setting function")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/1587468525-27514-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8960.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/xfs/xfs_reflink.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/soc/codecs/wm8960.c
-+++ b/sound/soc/codecs/wm8960.c
-@@ -860,8 +860,7 @@ static int wm8960_hw_params(struct snd_p
+diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
+index f3c393f309e19..6622652a85a80 100644
+--- a/fs/xfs/xfs_reflink.c
++++ b/fs/xfs/xfs_reflink.c
+@@ -1058,6 +1058,7 @@ xfs_reflink_remap_extent(
+ 		uirec.br_startblock = irec->br_startblock + rlen;
+ 		uirec.br_startoff = irec->br_startoff + rlen;
+ 		uirec.br_blockcount = unmap_len - rlen;
++		uirec.br_state = irec->br_state;
+ 		unmap_len = rlen;
  
- 	wm8960->is_stream_in_use[tx] = true;
- 
--	if (snd_soc_component_get_bias_level(component) == SND_SOC_BIAS_ON &&
--	    !wm8960->is_stream_in_use[!tx])
-+	if (!wm8960->is_stream_in_use[!tx])
- 		return wm8960_configure_clocking(component);
- 
- 	return 0;
+ 		/* If this isn't a real mapping, we're done. */
+-- 
+2.20.1
+
 
 
