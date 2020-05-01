@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB5621C173D
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD8EC1C13B2
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729382AbgEAOAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 10:00:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50428 "EHLO mail.kernel.org"
+        id S1729402AbgEANcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:32:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729515AbgEAN1u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:27:50 -0400
+        id S1730243AbgEANcG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:32:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88C1024956;
-        Fri,  1 May 2020 13:27:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CDBA2166E;
+        Fri,  1 May 2020 13:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339670;
-        bh=67WXkKjdYpBnKVKwbZIkicrEvVjnlaHwfQXx5oM+XE0=;
+        s=default; t=1588339925;
+        bh=3Vt7GQd7wb3UKQ+yz3AyRQhXSNorH7+J3rSuYAXq8xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3Yb7yCwWqYoaGf2L28Rcet0I47cVlyrCYCiQNCp5cYXevWE+nWgCppOk3gd1AqXE
-         aUf6vaBRN8ItOWdYhWfqPi8mhoqK+OGB7lpa6XCXXl5iFUuQlph4LUIcjn5Wz5rdRq
-         ZwXsZTQqRgaD1gELgn/0FS8JFDSocetrT8YFOUsM=
+        b=dsdw3CHD6dV7yA14iRA9JzfMwYs5gEGJNVvLioc1se4Z3ZygPBo7yK/1DwlAahw1Q
+         Llw0czcFmaWedFZvsKLzCVqKuX0eJuAkJAGrPCiI/qcOG7kFRqv+ovT5rckqFtjwCF
+         EFBLuYh5dQHwdIHg6YgQOmhxdirtosvwnoVeYZWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 04/80] drm/msm: Use the correct dma_sync calls harder
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 022/117] PCI/ASPM: Allow re-enabling Clock PM
 Date:   Fri,  1 May 2020 15:20:58 +0200
-Message-Id: <20200501131514.679157241@linuxfoundation.org>
+Message-Id: <20200501131547.645799327@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 9f614197c744002f9968e82c649fdf7fe778e1e7 upstream.
+[ Upstream commit 35efea32b26f9aacc99bf07e0d2cdfba2028b099 ]
 
-Looks like the dma_sync calls don't do what we want on armv7 either.
-Fixes:
+Previously Clock PM could not be re-enabled after being disabled by
+pci_disable_link_state() because clkpm_capable was reset.  Change this by
+adding a clkpm_disable field similar to aspm_disable.
 
-  Unable to handle kernel paging request at virtual address 50001000
-  pgd = (ptrval)
-  [50001000] *pgd=00000000
-  Internal error: Oops: 805 [#1] SMP ARM
-  Modules linked in:
-  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.3.0-rc6-00271-g9f159ae07f07 #4
-  Hardware name: Freescale i.MX53 (Device Tree Support)
-  PC is at v7_dma_clean_range+0x20/0x38
-  LR is at __dma_page_cpu_to_dev+0x28/0x90
-  pc : [<c011c76c>]    lr : [<c01181c4>]    psr: 20000013
-  sp : d80b5a88  ip : de96c000  fp : d840ce6c
-  r10: 00000000  r9 : 00000001  r8 : d843e010
-  r7 : 00000000  r6 : 00008000  r5 : ddb6c000  r4 : 00000000
-  r3 : 0000003f  r2 : 00000040  r1 : 50008000  r0 : 50001000
-  Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-  Control: 10c5387d  Table: 70004019  DAC: 00000051
-  Process swapper/0 (pid: 1, stack limit = 0x(ptrval))
-
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Fixes: 3de433c5b38a ("drm/msm: Use the correct dma_sync calls in msm_gem")
-Tested-by: Fabio Estevam <festevam@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/4e8a66db-7d53-4a66-c26c-f0037ffaa705@gmail.com
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/pcie/aspm.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/drivers/gpu/drm/msm/msm_gem.c
-+++ b/drivers/gpu/drm/msm/msm_gem.c
-@@ -58,7 +58,7 @@ static void sync_for_device(struct msm_g
- {
- 	struct device *dev = msm_obj->base.dev->dev;
+diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
+index 6f58767b5190f..400031622b761 100644
+--- a/drivers/pci/pcie/aspm.c
++++ b/drivers/pci/pcie/aspm.c
+@@ -80,6 +80,7 @@ struct pcie_link_state {
+ 	u32 clkpm_capable:1;		/* Clock PM capable? */
+ 	u32 clkpm_enabled:1;		/* Current Clock PM state */
+ 	u32 clkpm_default:1;		/* Default Clock PM state by BIOS */
++	u32 clkpm_disable:1;		/* Clock PM disabled */
  
--	if (get_dma_ops(dev)) {
-+	if (get_dma_ops(dev) && IS_ENABLED(CONFIG_ARM64)) {
- 		dma_sync_sg_for_device(dev, msm_obj->sgt->sgl,
- 			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
- 	} else {
-@@ -71,7 +71,7 @@ static void sync_for_cpu(struct msm_gem_
- {
- 	struct device *dev = msm_obj->base.dev->dev;
+ 	/* Exit latencies */
+ 	struct aspm_latency latency_up;	/* Upstream direction exit latency */
+@@ -177,8 +178,11 @@ static void pcie_set_clkpm_nocheck(struct pcie_link_state *link, int enable)
  
--	if (get_dma_ops(dev)) {
-+	if (get_dma_ops(dev) && IS_ENABLED(CONFIG_ARM64)) {
- 		dma_sync_sg_for_cpu(dev, msm_obj->sgt->sgl,
- 			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
- 	} else {
+ static void pcie_set_clkpm(struct pcie_link_state *link, int enable)
+ {
+-	/* Don't enable Clock PM if the link is not Clock PM capable */
+-	if (!link->clkpm_capable)
++	/*
++	 * Don't enable Clock PM if the link is not Clock PM capable
++	 * or Clock PM is disabled
++	 */
++	if (!link->clkpm_capable || link->clkpm_disable)
+ 		enable = 0;
+ 	/* Need nothing if the specified equals to current state */
+ 	if (link->clkpm_enabled == enable)
+@@ -208,7 +212,8 @@ static void pcie_clkpm_cap_init(struct pcie_link_state *link, int blacklist)
+ 	}
+ 	link->clkpm_enabled = enabled;
+ 	link->clkpm_default = enabled;
+-	link->clkpm_capable = (blacklist) ? 0 : capable;
++	link->clkpm_capable = capable;
++	link->clkpm_disable = blacklist ? 1 : 0;
+ }
+ 
+ static bool pcie_retrain_link(struct pcie_link_state *link)
+@@ -1052,10 +1057,9 @@ static void __pci_disable_link_state(struct pci_dev *pdev, int state, bool sem)
+ 		link->aspm_disable |= ASPM_STATE_L1;
+ 	pcie_config_aspm_link(link, policy_to_aspm_state(link));
+ 
+-	if (state & PCIE_LINK_STATE_CLKPM) {
+-		link->clkpm_capable = 0;
+-		pcie_set_clkpm(link, 0);
+-	}
++	if (state & PCIE_LINK_STATE_CLKPM)
++		link->clkpm_disable = 1;
++	pcie_set_clkpm(link, policy_to_clkpm_state(link));
+ 	mutex_unlock(&aspm_lock);
+ 	if (sem)
+ 		up_read(&pci_bus_sem);
+-- 
+2.20.1
+
 
 
