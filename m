@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C90551C172D
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C28C71C1314
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:28:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729812AbgEAN7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:59:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53070 "EHLO mail.kernel.org"
+        id S1729340AbgEAN0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:26:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729293AbgEAN3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:29:31 -0400
+        id S1729357AbgEAN0x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:26:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FFBC208DB;
-        Fri,  1 May 2020 13:29:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7205208D6;
+        Fri,  1 May 2020 13:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339770;
-        bh=aeVsh5hX7YOQkqNEYFt9ZEQZ+1JIzn4VuGLrwbceF3E=;
+        s=default; t=1588339613;
+        bh=VsYap1cvGow2jSCcWvjNno49atcuMeOuC56eocJemgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLJ84D4L0ll02jt07QANcZc9FWtrVvMfiSHnB4lL6IjHGqeEu6vOhkP3fTUDuMO7Z
-         Xlq7qf/tFmrKnpvHUpp2qsXUDU5vTe1alr9yZnH548iy/YOXtkVG1NgU46jLrndQ/9
-         amomKWHXS053hK89yJPJaQckWPq0bW0ZBKgxn0Xc=
+        b=KFZPWLwfPhPx+/bfBS3nL1Ygpqi7HN2z8WTEKHfweaiLprUaoHsdGZFwaFIep9OkO
+         VUKW7kxiQCVTnExMU7vVBPDxqtAHU0vTd69OGd+LCceXce5KdWSPpFee1PxBo0ia57
+         1pvbekTBk7pHhbdm/lFKizLVv5G0zBgnqQoctW+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 41/80] ALSA: usb-audio: Fix usb audio refcnt leak when getting spdif
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.4 47/70] staging: comedi: dt2815: fix writing hi byte of analog output
 Date:   Fri,  1 May 2020 15:21:35 +0200
-Message-Id: <20200501131526.511659575@linuxfoundation.org>
+Message-Id: <20200501131528.012059340@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 59e1947ca09ebd1cae147c08c7c41f3141233c84 upstream.
+commit ed87d33ddbcd9a1c3b5ae87995da34e6f51a862c upstream.
 
-snd_microii_spdif_default_get() invokes snd_usb_lock_shutdown(), which
-increases the refcount of the snd_usb_audio object "chip".
+The DT2815 analog output command is 16 bits wide, consisting of the
+12-bit sample value in bits 15 to 4, the channel number in bits 3 to 1,
+and a voltage or current selector in bit 0.  Both bytes of the 16-bit
+command need to be written in turn to a single 8-bit data register.
+However, the driver currently only writes the low 8-bits.  It is broken
+and appears to have always been broken.
 
-When snd_microii_spdif_default_get() returns, local variable "chip"
-becomes invalid, so the refcount should be decreased to keep refcount
-balanced.
+Electronic copies of the DT2815 User's Manual seem impossible to find
+online, but looking at the source code, a best guess for the sequence
+the driver intended to use to write the analog output command is as
+follows:
 
-The reference counting issue happens in several exception handling paths
-of snd_microii_spdif_default_get(). When those error scenarios occur
-such as usb_ifnum_to_if() returns NULL, the function forgets to decrease
-the refcnt increased by snd_usb_lock_shutdown(), causing a refcnt leak.
+1. Wait for the status register to read 0x00.
+2. Write the low byte of the command to the data register.
+3. Wait for the status register to read 0x80.
+4. Write the high byte of the command to the data register.
 
-Fix this issue by jumping to "end" label when those error scenarios
-occur.
+Step 4 is missing from the driver.  Add step 4 to (hopefully) fix the
+driver.
 
-Fixes: 447d6275f0c2 ("ALSA: usb-audio: Add sanity checks for endpoint accesses")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1587617711-13200-1-git-send-email-xiyuyang19@fudan.edu.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Also add a "FIXME" comment about setting bit 0 of the low byte of the
+command.  Supposedly, it is used to choose between voltage output and
+current output, but the current driver always sets it to 1.
+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200406142015.126982-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer_quirks.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/staging/comedi/drivers/dt2815.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -1519,11 +1519,15 @@ static int snd_microii_spdif_default_get
+--- a/drivers/staging/comedi/drivers/dt2815.c
++++ b/drivers/staging/comedi/drivers/dt2815.c
+@@ -101,6 +101,7 @@ static int dt2815_ao_insn(struct comedi_
+ 	int ret;
  
- 	/* use known values for that card: interface#1 altsetting#1 */
- 	iface = usb_ifnum_to_if(chip->dev, 1);
--	if (!iface || iface->num_altsetting < 2)
--		return -EINVAL;
-+	if (!iface || iface->num_altsetting < 2) {
-+		err = -EINVAL;
-+		goto end;
-+	}
- 	alts = &iface->altsetting[1];
--	if (get_iface_desc(alts)->bNumEndpoints < 1)
--		return -EINVAL;
-+	if (get_iface_desc(alts)->bNumEndpoints < 1) {
-+		err = -EINVAL;
-+		goto end;
-+	}
- 	ep = get_endpoint(alts, 0)->bEndpointAddress;
+ 	for (i = 0; i < insn->n; i++) {
++		/* FIXME: lo bit 0 chooses voltage output or current output */
+ 		lo = ((data[i] & 0x0f) << 4) | (chan << 1) | 0x01;
+ 		hi = (data[i] & 0xff0) >> 4;
  
- 	err = snd_usb_ctl_msg(chip->dev,
+@@ -114,6 +115,8 @@ static int dt2815_ao_insn(struct comedi_
+ 		if (ret)
+ 			return ret;
+ 
++		outb(hi, dev->iobase + DT2815_DATA);
++
+ 		devpriv->ao_readback[chan] = data[i];
+ 	}
+ 	return i;
 
 
