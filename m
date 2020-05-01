@@ -2,77 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F3E61C1E5F
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 22:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABCC21C1E9A
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 22:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726473AbgEAUYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 16:24:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59468 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726468AbgEAUYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 16:24:02 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D9B9C061A0C;
-        Fri,  1 May 2020 13:24:02 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id r2so5521832ilo.6;
-        Fri, 01 May 2020 13:24:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=LK4KRJWWAJrsktLuXoC6PRNRtrhqTlN6TNIUc7GGM/o=;
-        b=vB5TlFep8hgJKi6dS0MaRhAYk2yzL72ajlDlz11NSbzdkDifbr0AgDdV1oqx5ZFLWm
-         IQsTJaTMreta1RUpBD0fCEr5P7otKkgBIll5VEI8S7FZfxUTwFlYLI7ZDNLGC0yfMTiD
-         sWFQ+oY0qaPsIBlwsJ1PZmmJ9zeMAK9fZc7DX46qVbJ+MdNO9msxDgRLcEC9HePJb7Df
-         buDSxgXUu32FaaQmnoVRjTm5FkYVOQ7OYgbfcCRn4XhG80mOq1Dbt1IREumE/eJlcVk4
-         hz2GzJuxJdfDvSWMEvxdcjsc1BfN8fbeQB+5yUOZcR9f0AXGCK3bnA1wo2W6DSZWsUfU
-         3+nQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=LK4KRJWWAJrsktLuXoC6PRNRtrhqTlN6TNIUc7GGM/o=;
-        b=k4ZcmuckDCB6Zfqn8uyb4SLVoo9PMRkT9zBn2dLYPkBv1JJ33MoSFT+EMo5QhLP4HD
-         utHqZM5LHQ0h2yXkbfcvGkUSL6AWIHLlPTS/Gr7HlML3WWE4Bo1YqBXvltYA5j4nbSqp
-         5a2WPA7bglIQfofOjWD1i767GBp2LTcpAK0/uEH2+Ydb7LfKuoFBk+30V7/zM+oz2dj7
-         iAdQCjBEHutw+Tcw4VsL6zhJ7oPMXqVsMzZxwhQXmbYhCkXSXMup4wbu6wHklzFfy1Zt
-         AtW8Xu3NdtyzXTlFCIhjBF3SKD+3gWba3yJ7VUtiHvMnB8Dk5x9Z8iDfYGHpD6cP7dJt
-         P4gw==
-X-Gm-Message-State: AGi0Pub5AjSnDgvrMe2irWmQVqoZt0jkA7pLpJo6FdaXiz5BZlxSnu+w
-        vjk6QhtAoKngMp//vlYX5eJ70/UguqjAxGk+HHO+iuWrOwQ=
-X-Google-Smtp-Source: APiQypJ2pdDkfmWz0mP7qJIHbl7TMEqa6cSc3EXEKoYfD9MoFsVPs7bguN2tGQtnp7XHH+jiQFaOd132E/pKzjm7FGE=
-X-Received: by 2002:a92:c80d:: with SMTP id v13mr5327570iln.285.1588364640499;
- Fri, 01 May 2020 13:24:00 -0700 (PDT)
-MIME-Version: 1.0
-From:   Miguel Borges de Freitas <miguelborgesdefreitas@gmail.com>
-Date:   Fri, 1 May 2020 21:23:49 +0100
-Message-ID: <CAC4G8N75VkqDug9AmhvMQnXr8bOvC9cu_jUwZVUKwpvWr6pO5A@mail.gmail.com>
-Subject: [Patch include request] ARM: dts: imx6qdl-sr-som-ti: indicate
- powering off wifi is safe
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, rmk+kernel@armlinux.org.uk
-Content-Type: text/plain; charset="UTF-8"
+        id S1727985AbgEAUcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 16:32:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50116 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726463AbgEAUcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 16:32:55 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F39692166E;
+        Fri,  1 May 2020 20:32:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588365174;
+        bh=UBgnUT59SBIdOyHVmemUVu9VrMDBciMNDgAsqjfZ1/U=;
+        h=Date:From:To:Subject:From;
+        b=spJd2QVSfJPq55lolVQF8QrxxEwiebjaWRYfILn1yRAPNRJUogwZASpNrrV595iKj
+         KQQZ4bh3xGJRvRF/zQVwmdwRLFF+hrvl9u2wUiu9l0n5crYcYo6G9DzZJQB5T7QlVQ
+         g/0nA99bQCn7IZ0E17MEC9s66UC0XoPcOHORKqCk=
+Date:   Fri, 01 May 2020 13:32:53 -0700
+From:   akpm@linux-foundation.org
+To:     dbueso@suse.de, jbaron@akamai.com, khazhy@google.com,
+        mm-commits@vger.kernel.org, r@hev.cc, rpenyaev@suse.de,
+        stable@vger.kernel.org, viro@zeniv.linux.org.uk
+Subject:  + epoll-ensure-ep_poll-doesnt-miss-wakeup-events.patch
+ added to -mm tree
+Message-ID: <20200501203253.rwAfrJbDX%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear all,
 
-This is a request to backport b7dc7205b2ae6b6c9d9cfc3e47d6f08da8647b10
-(Arm: dts:  imx6qdl-sr-som-ti: indicate powering off wifi is safe),
-already in Linus tree
-(https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/arch/arm/boot/dts/imx6qdl-sr-som-ti.dtsi?h=v5.7-rc3&id=b7dc7205b2ae6b6c9d9cfc3e47d6f08da8647b10)
-to LTS kernel 5.4 and to stable 5.6.8.
+The patch titled
+     Subject: epoll: ensure ep_poll() doesn't miss wakeup events
+has been added to the -mm tree.  Its filename is
+     epoll-ensure-ep_poll-doesnt-miss-wakeup-events.patch
 
-Reasoning:
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/epoll-ensure-ep_poll-doesnt-miss-wakeup-events.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/epoll-ensure-ep_poll-doesnt-miss-wakeup-events.patch
 
-Changes to the wlcore driver during Kernel 5.x development, made the
-Cubox-i with the IMX SOM v1.5 (which includes.a TI Wilink 8 wifi
-chipset) not power the wireless interface on boot leaving it
-completely unusable. This happens since at least kernel 5.3 (older one
-I tested) and affects the current stable and LTS latest kernels. The
-linked commit, already in linux mainline, restores the wifi
-functionality.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Thanks in advance,
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Miguel B Freitas
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Jason Baron <jbaron@akamai.com>
+Subject: epoll: ensure ep_poll() doesn't miss wakeup events
+
+Now that the ep_events_available() check is done in a lockless way, and we
+no longer perform wakeups from ep_scan_ready_list(), we need to ensure
+that either ep->rdllist has items or the overflow list is active.  Prior
+to: commit 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested
+epoll"), we did wake_up(&ep->wq) after manipulating the ep->rdllist and
+the overflow list.  Thus, any waiters would observe the correct state. 
+However, with that wake_up() now removed we need to be more careful to
+ensure that condition.
+
+Here's an example of what could go wrong:
+
+We have epoll fds: epfd1, epfd2.  And epfd1 is added to epfd2 and epfd2 is
+added to a socket: epfd1->epfd2->socket.  Thread a is doing epoll_wait()
+on epfd1, and thread b is doing epoll_wait on epfd2.  Then:
+
+1) data comes in on socket
+
+ep_poll_callback() wakes up threads a and b
+
+2) thread a runs
+
+ep_poll()
+ ep_scan_ready_list()
+  ep_send_events_proc()
+   ep_item_poll()
+     ep_scan_ready_list()
+       list_splice_init(&ep->rdllist, &txlist);
+
+3) now thread b is running
+
+ep_poll()
+ ep_events_available()
+   returns false
+ schedule_hrtimeout_range()
+
+Thus, thread b has now scheduled and missed the wakeup.
+
+Link: http://lkml.kernel.org/r/1588360533-11828-1-git-send-email-jbaron@akamai.com
+Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
+Signed-off-by: Jason Baron <jbaron@akamai.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Heiher <r@hev.cc>
+Cc: Roman Penyaev <rpenyaev@suse.de>
+Cc: Khazhismel Kumykov <khazhy@google.com>
+Cc: Davidlohr Bueso <dbueso@suse.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/eventpoll.c |   23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
+
+--- a/fs/eventpoll.c~epoll-ensure-ep_poll-doesnt-miss-wakeup-events
++++ a/fs/eventpoll.c
+@@ -704,8 +704,14 @@ static __poll_t ep_scan_ready_list(struc
+ 	 * in a lockless way.
+ 	 */
+ 	write_lock_irq(&ep->lock);
+-	list_splice_init(&ep->rdllist, &txlist);
+ 	WRITE_ONCE(ep->ovflist, NULL);
++	/*
++	 * In ep_poll() we use ep_events_available() in a lockless way to decide
++	 * if events are available. So we need to preserve that either
++	 * ep->oflist != EP_UNACTIVE_PTR or there are events on the ep->rdllist.
++	 */
++	smp_wmb();
++	list_splice_init(&ep->rdllist, &txlist);
+ 	write_unlock_irq(&ep->lock);
+ 
+ 	/*
+@@ -737,16 +743,21 @@ static __poll_t ep_scan_ready_list(struc
+ 		}
+ 	}
+ 	/*
++	 * Quickly re-inject items left on "txlist".
++	 */
++	list_splice(&txlist, &ep->rdllist);
++	/*
++	 * In ep_poll() we use ep_events_available() in a lockless way to decide
++	 * if events are available. So we need to preserve that either
++	 * ep->oflist != EP_UNACTIVE_PTR or there are events on the ep->rdllist.
++	 */
++	smp_wmb();
++	/*
+ 	 * We need to set back ep->ovflist to EP_UNACTIVE_PTR, so that after
+ 	 * releasing the lock, events will be queued in the normal way inside
+ 	 * ep->rdllist.
+ 	 */
+ 	WRITE_ONCE(ep->ovflist, EP_UNACTIVE_PTR);
+-
+-	/*
+-	 * Quickly re-inject items left on "txlist".
+-	 */
+-	list_splice(&txlist, &ep->rdllist);
+ 	__pm_relax(ep->ws);
+ 	write_unlock_irq(&ep->lock);
+ 
+_
+
+Patches currently in -mm which might be from jbaron@akamai.com are
+
+epoll-ensure-ep_poll-doesnt-miss-wakeup-events.patch
+
