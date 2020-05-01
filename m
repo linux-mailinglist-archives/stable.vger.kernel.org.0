@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE431C1750
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14FDC1C1331
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730019AbgEAOBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 10:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47014 "EHLO mail.kernel.org"
+        id S1729008AbgEAN14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:27:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729092AbgEANZt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:25:49 -0400
+        id S1729546AbgEAN1z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:27:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A17D1208DB;
-        Fri,  1 May 2020 13:25:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68AE02166E;
+        Fri,  1 May 2020 13:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339549;
-        bh=FNhRyMpSGvDcWL+FkiSO+CoSo19v+u5k7e/iOZoQyfk=;
+        s=default; t=1588339674;
+        bh=t389B+7YVRykBZ82jpfWstK+R1RrjTgZegRMYVczFts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCtys+aLBD6QqMbJvll2HjfNFWVApCdHzruYpRse7GxZWdso5MIvdLOdpeU3Jj3JA
-         Q0wXR3zB7ip0x1SLAkhYH5Rt7ts/DPNznrKGiDwa+D6Bkou/uZW8RiHDYLnBCDopzX
-         3XbwvJt8kIs9aF79RHIr/SCAXQiH400FapT0lf2Q=
+        b=kedpyLis1MTixOliKfrPKSZozk0eBisds9FxD8lsTUoquWixZ9qUdyS90zkzPHW/E
+         80AoQ6FIiJvRf7ahZZH2MN9rnoBayP77jWIfrI2+edhm5qyLfznsRA0mu4tPRTYBuo
+         dWV2HkpB0rF6aolclB0tAjpgt1IxESRa0nqMUiIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 12/70] ASoC: Intel: atom: Take the drv->lock mutex before calling sst_send_slot_map()
+        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.9 06/80] vti4: removed duplicate log message.
 Date:   Fri,  1 May 2020 15:21:00 +0200
-Message-Id: <20200501131517.423153311@linuxfoundation.org>
+Message-Id: <20200501131515.061082404@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit 81630dc042af998b9f58cd8e2c29dab9777ea176 ]
+commit 01ce31c57b3f07c91c9d45bbaf126124cce83a5d upstream.
 
-sst_send_slot_map() uses sst_fill_and_send_cmd_unlocked() because in some
-places it is called with the drv->lock mutex already held.
+Removed info log-message if ipip tunnel registration fails during
+module-initialization: it adds nothing to the error message that is
+written on all failures.
 
-So it must always be called with the mutex locked. This commit adds missing
-locking in the sst_set_be_modules() code-path.
+Fixes: dd9ee3444014e ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 24c8d14192cc ("ASoC: Intel: mrfld: add DSP core controls")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200402185359.3424-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/atom/sst-atom-controls.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/ip_vti.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/sound/soc/intel/atom/sst-atom-controls.c b/sound/soc/intel/atom/sst-atom-controls.c
-index b070d47547450..067cee92d333b 100644
---- a/sound/soc/intel/atom/sst-atom-controls.c
-+++ b/sound/soc/intel/atom/sst-atom-controls.c
-@@ -963,7 +963,9 @@ static int sst_set_be_modules(struct snd_soc_dapm_widget *w,
- 	dev_dbg(c->dev, "Enter: widget=%s\n", w->name);
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -696,10 +696,8 @@ static int __init vti_init(void)
  
- 	if (SND_SOC_DAPM_EVENT_ON(event)) {
-+		mutex_lock(&drv->lock);
- 		ret = sst_send_slot_map(drv);
-+		mutex_unlock(&drv->lock);
- 		if (ret)
- 			return ret;
- 		ret = sst_send_pipe_module_params(w, k);
--- 
-2.20.1
-
+ 	msg = "ipip tunnel";
+ 	err = xfrm4_tunnel_register(&ipip_handler, AF_INET);
+-	if (err < 0) {
+-		pr_info("%s: cant't register tunnel\n",__func__);
++	if (err < 0)
+ 		goto xfrm_tunnel_failed;
+-	}
+ 
+ 	msg = "netlink interface";
+ 	err = rtnl_link_register(&vti_link_ops);
 
 
