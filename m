@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE6E31C1699
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34DAA1C164D
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731322AbgEANuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:50:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39368 "EHLO mail.kernel.org"
+        id S1731672AbgEANnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:43:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729339AbgEANjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:39:36 -0400
+        id S1731670AbgEANns (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:43:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C34DB20757;
-        Fri,  1 May 2020 13:39:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B89820757;
+        Fri,  1 May 2020 13:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340376;
-        bh=JEfPVeCIXS2ihp4wiKoaxqcfVeN9Aopia2uXZyuMbzs=;
+        s=default; t=1588340627;
+        bh=vHcalEBLMutUMRD2FIfDoqpmbNja+3/JedzvGyfkonk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2sGXyFNmNM4fTIMGSsCDevmR2WfFS6hjWgxmnaBXqypLef57yjTY5Tcwoov0QTZx
-         qV2RZXZ+L4y617cPoImMtvrOMJXCCE71+lWGKSryKkcimmmW/bsiihG5cpKsO4f9Ra
-         2dpEe51tAD3b+VWOX/OcvuLhkLN/0vUwEZfOkQho=
+        b=R7Q8LUABIV83YW+3S6ZPJvw3cqPok3lNTkv8vCnhohBtd8VocNxNetAn6ng92nvnk
+         WUUvcOfwBQDdW6opWvJVuSigwhn80QFIixBefUuO0bWN1G9K73w68m1uB+oErxGVfI
+         34dE6gUppV2mQd50phb8puQ5aYh+R8sLbtahHkTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Cline <jcline@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 53/83] libbpf: Initialize *nl_pid so gcc 10 is happy
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.6 059/106] bpf: Fix handling of XADD on BTF memory
 Date:   Fri,  1 May 2020 15:23:32 +0200
-Message-Id: <20200501131538.906016002@linuxfoundation.org>
+Message-Id: <20200501131550.708315300@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Cline <jcline@redhat.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 4734b0fefbbf98f8c119eb8344efa19dac82cd2c ]
+commit 8ff3571f7e1bf3f293cc5e3dc14f2943f4fa7fcf upstream.
 
-Builds of Fedora's kernel-tools package started to fail with "may be
-used uninitialized" warnings for nl_pid in bpf_set_link_xdp_fd() and
-bpf_get_link_xdp_info() on the s390 architecture.
+check_xadd() can cause check_ptr_to_btf_access() to be executed with
+atype==BPF_READ and value_regno==-1 (meaning "just check whether the access
+is okay, don't tell me what type it will result in").
+Handle that case properly and skip writing type information, instead of
+indexing into the registers at index -1 and writing into out-of-bounds
+memory.
 
-Although libbpf_netlink_open() always returns a negative number when it
-does not set *nl_pid, the compiler does not determine this and thus
-believes the variable might be used uninitialized. Assuage gcc's fears
-by explicitly initializing nl_pid.
+Note that at least at the moment, you can't actually write through a BTF
+pointer, so check_xadd() will reject the program after calling
+check_ptr_to_btf_access with atype==BPF_WRITE; but that's after the
+verifier has already corrupted memory.
 
-Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1807781
+This patch assumes that BTF pointers are not available in unprivileged
+programs.
 
-Signed-off-by: Jeremy Cline <jcline@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200404051430.698058-1-jcline@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9e15db66136a ("bpf: Implement accurate raw_tp context access via BTF")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200417000007.10734-2-jannh@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/lib/bpf/netlink.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/netlink.c b/tools/lib/bpf/netlink.c
-index ce3ec81b71c01..88416be2bf994 100644
---- a/tools/lib/bpf/netlink.c
-+++ b/tools/lib/bpf/netlink.c
-@@ -137,7 +137,7 @@ int bpf_set_link_xdp_fd(int ifindex, int fd, __u32 flags)
- 		struct ifinfomsg ifinfo;
- 		char             attrbuf[64];
- 	} req;
--	__u32 nl_pid;
-+	__u32 nl_pid = 0;
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2885,7 +2885,7 @@ static int check_ptr_to_btf_access(struc
+ 	if (ret < 0)
+ 		return ret;
  
- 	sock = libbpf_netlink_open(&nl_pid);
- 	if (sock < 0)
-@@ -254,7 +254,7 @@ int bpf_get_link_xdp_id(int ifindex, __u32 *prog_id, __u32 flags)
- {
- 	struct xdp_id_md xdp_id = {};
- 	int sock, ret;
--	__u32 nl_pid;
-+	__u32 nl_pid = 0;
- 	__u32 mask;
- 
- 	if (flags & ~XDP_FLAGS_MASK)
--- 
-2.20.1
-
+-	if (atype == BPF_READ) {
++	if (atype == BPF_READ && value_regno >= 0) {
+ 		if (ret == SCALAR_VALUE) {
+ 			mark_reg_unknown(env, regs, value_regno);
+ 			return 0;
 
 
