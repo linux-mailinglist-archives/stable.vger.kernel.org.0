@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CEAF1C1585
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F23041C1310
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729302AbgEAN3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:29:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53390 "EHLO mail.kernel.org"
+        id S1729309AbgEAN0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:26:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729821AbgEAN3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:29:43 -0400
+        id S1729306AbgEAN0l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:26:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFE64208DB;
-        Fri,  1 May 2020 13:29:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B15D20757;
+        Fri,  1 May 2020 13:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339783;
-        bh=fAeSOCyDZWHZwB1xapsOFAfJK2fFtww/H82lacETJ7U=;
+        s=default; t=1588339600;
+        bh=nhCt2Lm+GlbVDcPUrxjnDLRk9fDfQp0uSJp10Ax2z50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0fWZb29nILJjx9d5xiu8AMRU9KL+WBCxiNTqBXSXe+Zeo5+zhn3v0UYWpj7sWHLT
-         fhAK6xAjict5FAfIEi4sXyWabPbvvKcojm9nch1/CZndUIy99zoIhTlF2+rsEbcueH
-         AexUb+5Q6RdIS5LUZAcBPYmm6UvQKwkE2FwQ9En8=
+        b=xhQIxx9jaRMK4LJhyigIkPd7+NBUyIhvWQrDdWA+wfermqpWt3XRxCy0oXp+9eEAm
+         JpK9ZzGRee3PnVGXfZFqcMKuciPK0Q7l8WDiVMMNSYdtGcDzRjjx/CJhRetuRpmF0V
+         BGVyZxnWSUH4IUkoNy+UeCNTfXp95zATxTpHqJvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Kyungtae Kim <kt0755@gmail.com>
-Subject: [PATCH 4.9 36/80] USB: core: Fix free-while-in-use bug in the USB S-Glibrary
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.4 42/70] tty: rocket, avoid OOB access
 Date:   Fri,  1 May 2020 15:21:30 +0200
-Message-Id: <20200501131525.462585701@linuxfoundation.org>
+Message-Id: <20200501131526.509105545@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 056ad39ee9253873522f6469c3364964a322912b upstream.
+commit 7127d24372bf23675a36edc64d092dc7fd92ebe8 upstream.
 
-FuzzUSB (a variant of syzkaller) found a free-while-still-in-use bug
-in the USB scatter-gather library:
+init_r_port can access pc104 array out of bounds. pc104 is a 2D array
+defined to have 4 members. Each member has 8 submembers.
+* we can have more than 4 (PCI) boards, i.e. [board] can be OOB
+* line is not modulo-ed by anything, so the first line on the second
+  board can be 4, on the 3rd 12 or alike (depending on previously
+  registered boards). It's zero only on the first line of the first
+  board. So even [line] can be OOB, quite soon (with the 2nd registered
+  board already).
 
-BUG: KASAN: use-after-free in atomic_read
-include/asm-generic/atomic-instrumented.h:26 [inline]
-BUG: KASAN: use-after-free in usb_hcd_unlink_urb+0x5f/0x170
-drivers/usb/core/hcd.c:1607
-Read of size 4 at addr ffff888065379610 by task kworker/u4:1/27
+This code is broken for ages, so just avoid the OOB accesses and don't
+try to fix it as we would need to find out the correct line number. Use
+the default: RS232, if we are out.
 
-CPU: 1 PID: 27 Comm: kworker/u4:1 Not tainted 5.5.11 #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-1.10.2-1ubuntu1 04/01/2014
-Workqueue: scsi_tmf_2 scmd_eh_abort_handler
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xce/0x128 lib/dump_stack.c:118
- print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
- __kasan_report+0x153/0x1cb mm/kasan/report.c:506
- kasan_report+0x12/0x20 mm/kasan/common.c:639
- check_memory_region_inline mm/kasan/generic.c:185 [inline]
- check_memory_region+0x152/0x1b0 mm/kasan/generic.c:192
- __kasan_check_read+0x11/0x20 mm/kasan/common.c:95
- atomic_read include/asm-generic/atomic-instrumented.h:26 [inline]
- usb_hcd_unlink_urb+0x5f/0x170 drivers/usb/core/hcd.c:1607
- usb_unlink_urb+0x72/0xb0 drivers/usb/core/urb.c:657
- usb_sg_cancel+0x14e/0x290 drivers/usb/core/message.c:602
- usb_stor_stop_transport+0x5e/0xa0 drivers/usb/storage/transport.c:937
+Generally, if anyone needs to set the interface types, a module parameter
+is past the last thing that should be used for this purpose. The
+parameters' description says it's for ISA cards anyway.
 
-This bug occurs when cancellation of the S-G transfer races with
-transfer completion.  When that happens, usb_sg_cancel() may continue
-to access the transfer's URBs after usb_sg_wait() has freed them.
-
-The bug is caused by the fact that usb_sg_cancel() does not take any
-sort of reference to the transfer, and so there is nothing to prevent
-the URBs from being deallocated while the routine is trying to use
-them.  The fix is to take such a reference by incrementing the
-transfer's io->count field while the cancellation is in progres and
-decrementing it afterward.  The transfer's URBs are not deallocated
-until io->complete is triggered, which happens when io->count reaches
-zero.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2003281615140.14837-100000@netrider.rowland.org
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Link: https://lore.kernel.org/r/20200417105959.15201-2-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/message.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/tty/rocket.c |   25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -585,12 +585,13 @@ void usb_sg_cancel(struct usb_sg_request
- 	int i, retval;
+--- a/drivers/tty/rocket.c
++++ b/drivers/tty/rocket.c
+@@ -645,18 +645,21 @@ static void init_r_port(int board, int a
+ 	info->port.ops = &rocket_port_ops;
+ 	init_completion(&info->close_wait);
+ 	info->flags &= ~ROCKET_MODE_MASK;
+-	switch (pc104[board][line]) {
+-	case 422:
+-		info->flags |= ROCKET_MODE_RS422;
+-		break;
+-	case 485:
+-		info->flags |= ROCKET_MODE_RS485;
+-		break;
+-	case 232:
+-	default:
++	if (board < ARRAY_SIZE(pc104) && line < ARRAY_SIZE(pc104_1))
++		switch (pc104[board][line]) {
++		case 422:
++			info->flags |= ROCKET_MODE_RS422;
++			break;
++		case 485:
++			info->flags |= ROCKET_MODE_RS485;
++			break;
++		case 232:
++		default:
++			info->flags |= ROCKET_MODE_RS232;
++			break;
++		}
++	else
+ 		info->flags |= ROCKET_MODE_RS232;
+-		break;
+-	}
  
- 	spin_lock_irqsave(&io->lock, flags);
--	if (io->status) {
-+	if (io->status || io->count == 0) {
- 		spin_unlock_irqrestore(&io->lock, flags);
- 		return;
- 	}
- 	/* shut everything down */
- 	io->status = -ECONNRESET;
-+	io->count++;		/* Keep the request alive until we're done */
- 	spin_unlock_irqrestore(&io->lock, flags);
- 
- 	for (i = io->entries - 1; i >= 0; --i) {
-@@ -604,6 +605,12 @@ void usb_sg_cancel(struct usb_sg_request
- 			dev_warn(&io->dev->dev, "%s, unlink --> %d\n",
- 				 __func__, retval);
- 	}
-+
-+	spin_lock_irqsave(&io->lock, flags);
-+	io->count--;
-+	if (!io->count)
-+		complete(&io->complete);
-+	spin_unlock_irqrestore(&io->lock, flags);
- }
- EXPORT_SYMBOL_GPL(usb_sg_cancel);
- 
+ 	info->intmask = RXF_TRIG | TXFIFO_MT | SRC_INT | DELTA_CD | DELTA_CTS | DELTA_DSR;
+ 	if (sInitChan(ctlp, &info->channel, aiop, chan) == 0) {
 
 
