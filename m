@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8561A1C174A
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED3F21C16F9
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728933AbgEAOA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 10:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48586 "EHLO mail.kernel.org"
+        id S1729309AbgEANzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:55:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729311AbgEAN0n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:26:43 -0400
+        id S1729452AbgEANdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:33:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8F7C208D6;
-        Fri,  1 May 2020 13:26:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A439E208DB;
+        Fri,  1 May 2020 13:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339603;
-        bh=Cb4pOtpFiJMGeNeMZz3zSExR2RBZRcF80/NhwP3pBJs=;
+        s=default; t=1588340004;
+        bh=UsXDmF+wQH+tJ5tRdHFW/fgPyCygc41l0cHrlTzW7t4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxGDkRiZjEZRB1RIDoIj7a8GubQy6Uu2om32/nhorTCEB6KyCK8c5zgf1BT9nc7GB
-         /siRfDMy6UbajJ6ePn+EOswz8xCFuVc7n7ZlTsu2C16ACBA6NL00lR6zSzN3c7S8Mn
-         bIvYMAJGtQ3hncuMd6FHukdBnVdXG2wAGEpnQ7QQ=
+        b=I3A1AodyMsV8+7ENv6qUklM6LX0q98RAt1B6Z+UOC65BSDwbsHYmE542gtT+xZTd8
+         ESdR2KcaYT9oFFbKxz9hMOmWSEVNMieI0itQ38msKL1CQFUf+ld/yUpk7gFYK7oerz
+         wIGfFIv7o3MhG5qxKvB+oY/za71KbYGLPm/5yua8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Cyril Roelandt <tipecaml@gmail.com>
-Subject: [PATCH 4.4 43/70] usb-storage: Add unusual_devs entry for JMicron JMS566
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 055/117] ALSA: usb-audio: Fix usb audio refcnt leak when getting spdif
 Date:   Fri,  1 May 2020 15:21:31 +0200
-Message-Id: <20200501131526.783857983@linuxfoundation.org>
+Message-Id: <20200501131552.176256749@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 94f9c8c3c404ee1f7aaff81ad4f24aec4e34a78b upstream.
+commit 59e1947ca09ebd1cae147c08c7c41f3141233c84 upstream.
 
-Cyril Roelandt reports that his JMicron JMS566 USB-SATA bridge fails
-to handle WRITE commands with the FUA bit set, even though it claims
-to support FUA.  (Oddly enough, a later version of the same bridge,
-version 2.03 as opposed to 1.14, doesn't claim to support FUA.  Also
-oddly, the bridge _does_ support FUA when using the UAS transport
-instead of the Bulk-Only transport -- but this device was blacklisted
-for uas in commit bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron
-SATA enclosure") for apparently unrelated reasons.)
+snd_microii_spdif_default_get() invokes snd_usb_lock_shutdown(), which
+increases the refcount of the snd_usb_audio object "chip".
 
-This patch adds a usb-storage unusual_devs entry with the BROKEN_FUA
-flag.  This allows the bridge to work properly with usb-storage.
+When snd_microii_spdif_default_get() returns, local variable "chip"
+becomes invalid, so the refcount should be decreased to keep refcount
+balanced.
 
-Reported-and-tested-by: Cyril Roelandt <tipecaml@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2004221613110.11262-100000@iolanthe.rowland.org
+The reference counting issue happens in several exception handling paths
+of snd_microii_spdif_default_get(). When those error scenarios occur
+such as usb_ifnum_to_if() returns NULL, the function forgets to decrease
+the refcnt increased by snd_usb_lock_shutdown(), causing a refcnt leak.
+
+Fix this issue by jumping to "end" label when those error scenarios
+occur.
+
+Fixes: 447d6275f0c2 ("ALSA: usb-audio: Add sanity checks for endpoint accesses")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1587617711-13200-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/unusual_devs.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/usb/mixer_quirks.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2208,6 +2208,13 @@ UNUSUAL_DEV(  0x3340, 0xffff, 0x0000, 0x
- 		USB_SC_DEVICE,USB_PR_DEVICE,NULL,
- 		US_FL_MAX_SECTORS_64 ),
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -1520,11 +1520,15 @@ static int snd_microii_spdif_default_get
  
-+/* Reported by Cyril Roelandt <tipecaml@gmail.com> */
-+UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x0114,
-+		"JMicron",
-+		"USB to ATA/ATAPI Bridge",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_BROKEN_FUA ),
-+
- /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
- UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
- 		"iRiver",
+ 	/* use known values for that card: interface#1 altsetting#1 */
+ 	iface = usb_ifnum_to_if(chip->dev, 1);
+-	if (!iface || iface->num_altsetting < 2)
+-		return -EINVAL;
++	if (!iface || iface->num_altsetting < 2) {
++		err = -EINVAL;
++		goto end;
++	}
+ 	alts = &iface->altsetting[1];
+-	if (get_iface_desc(alts)->bNumEndpoints < 1)
+-		return -EINVAL;
++	if (get_iface_desc(alts)->bNumEndpoints < 1) {
++		err = -EINVAL;
++		goto end;
++	}
+ 	ep = get_endpoint(alts, 0)->bEndpointAddress;
+ 
+ 	err = snd_usb_ctl_msg(chip->dev,
 
 
