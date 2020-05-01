@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B5C1C1537
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203C31C1499
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731470AbgEANqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:46:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45752 "EHLO mail.kernel.org"
+        id S1728839AbgEANlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:41:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731747AbgEANo3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:44:29 -0400
+        id S1728833AbgEANlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:41:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2B9220757;
-        Fri,  1 May 2020 13:44:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6188205C9;
+        Fri,  1 May 2020 13:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340669;
-        bh=RtRRC74pGhJUajt7Ye5uu9sZHPJ3CC7RyaeyOssT8T0=;
+        s=default; t=1588340467;
+        bh=t6QrlUuqm7H12f/LEkP2lMqOz6UI8P+PkX2WkGbdVLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gz1MN9ANMJI5eQl4iVNZcc3BccHU3vxc+Op4q45UylLExGDieR+cfeLd1lzp59YRX
-         hYqgWa9Kneosj0Qf7pD6nNG8byfJ4JefhREjeKuWAdWw+fSViVEU1nJlZHGZSdFxIO
-         V8eIwCaaUAaEVDeflmp23oQIPIvEsKSQzkgwcC98=
+        b=oQdOIf4VZlb7WvGfbBs5jERtCUN30D4GiwqGVoz9JanaG5CW7Up2FqWxAUV1bWR0+
+         wHGqA+vdHY/8VqMWBd3ae/WKzcbvjAa91zrPf5FNA2CxJoUkOmNcFabEEUCCfQC181
+         +0qaO2LdK8JbotydiUD+Ey5OWU9BwalDmcxyKR2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roy Spliet <nouveau@spliet.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 075/106] ALSA: hda: Keep the controller initialization even if no codecs found
+        stable@vger.kernel.org, Tamizh chelvam <tamizhr@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 69/83] mac80211: fix channel switch trigger from unknown mesh peer
 Date:   Fri,  1 May 2020 15:23:48 +0200
-Message-Id: <20200501131552.954957667@linuxfoundation.org>
+Message-Id: <20200501131541.304152226@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tamizh chelvam <tamizhr@codeaurora.org>
 
-[ Upstream commit 9479e75fca370a5220784f7596bf598c4dad0b9b ]
+[ Upstream commit 93e2d04a1888668183f3fb48666e90b9b31d29e6 ]
 
-Currently, when the HD-audio controller driver doesn't detect any
-codecs, it tries to abort the probe.  But this abort happens at the
-delayed probe, i.e. the primary probe call already returned success,
-hence the driver is never unbound until user does so explicitly.
-As a result, it may leave the HD-audio device in the running state
-without the runtime PM.  More badly, if the device is a HD-audio bus
-that is tied with a GPU, GPU cannot reach to the full power down and
-consumes unnecessarily much power.
+Previously mesh channel switch happens if beacon contains
+CSA IE without checking the mesh peer info. Due to that
+channel switch happens even if the beacon is not from
+its own mesh peer. Fixing that by checking if the CSA
+originated from the same mesh network before proceeding
+for channel switch.
 
-This patch changes the logic after no-codec situation; it continues
-probing without the further codec initialization but keep the
-controller driver running normally.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
-Tested-by: Roy Spliet <nouveau@spliet.org>
-Link: https://lore.kernel.org/r/20200413082034.25166-5-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tamizh chelvam <tamizhr@codeaurora.org>
+Link: https://lore.kernel.org/r/1585403604-29274-1-git-send-email-tamizhr@codeaurora.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ net/mac80211/mesh.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 3047dc357b38b..d69005e29975c 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2009,7 +2009,7 @@ static int azx_first_init(struct azx *chip)
- 	/* codec detection */
- 	if (!azx_bus(chip)->codec_mask) {
- 		dev_err(card->dev, "no codecs found!\n");
--		return -ENODEV;
-+		/* keep running the rest for the runtime PM */
+diff --git a/net/mac80211/mesh.c b/net/mac80211/mesh.c
+index d09b3c789314d..36978a0e50001 100644
+--- a/net/mac80211/mesh.c
++++ b/net/mac80211/mesh.c
+@@ -1257,15 +1257,15 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
+ 		    sdata->u.mesh.mshcfg.rssi_threshold < rx_status->signal)
+ 			mesh_neighbour_update(sdata, mgmt->sa, &elems,
+ 					      rx_status);
++
++		if (ifmsh->csa_role != IEEE80211_MESH_CSA_ROLE_INIT &&
++		    !sdata->vif.csa_active)
++			ieee80211_mesh_process_chnswitch(sdata, &elems, true);
  	}
  
- 	if (azx_acquire_irq(chip, 0) < 0)
-@@ -2302,9 +2302,11 @@ static int azx_probe_continue(struct azx *chip)
- #endif
+ 	if (ifmsh->sync_ops)
+ 		ifmsh->sync_ops->rx_bcn_presp(sdata,
+ 			stype, mgmt, &elems, rx_status);
+-
+-	if (ifmsh->csa_role != IEEE80211_MESH_CSA_ROLE_INIT &&
+-	    !sdata->vif.csa_active)
+-		ieee80211_mesh_process_chnswitch(sdata, &elems, true);
+ }
  
- 	/* create codec instances */
--	err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
--	if (err < 0)
--		goto out_free;
-+	if (bus->codec_mask) {
-+		err = azx_probe_codecs(chip, azx_max_codecs[chip->driver_type]);
-+		if (err < 0)
-+			goto out_free;
-+	}
+ int ieee80211_mesh_finish_csa(struct ieee80211_sub_if_data *sdata)
+@@ -1373,6 +1373,9 @@ static void mesh_rx_csa_frame(struct ieee80211_sub_if_data *sdata,
+ 	ieee802_11_parse_elems(pos, len - baselen, true, &elems,
+ 			       mgmt->bssid, NULL);
  
- #ifdef CONFIG_SND_HDA_PATCH_LOADER
- 	if (chip->fw) {
-@@ -2318,7 +2320,7 @@ static int azx_probe_continue(struct azx *chip)
- #endif
- 	}
- #endif
--	if ((probe_only[dev] & 1) == 0) {
-+	if (bus->codec_mask && !(probe_only[dev] & 1)) {
- 		err = azx_codec_configure(chip);
- 		if (err < 0)
- 			goto out_free;
++	if (!mesh_matches_local(sdata, &elems))
++		return;
++
+ 	ifmsh->chsw_ttl = elems.mesh_chansw_params_ie->mesh_ttl;
+ 	if (!--ifmsh->chsw_ttl)
+ 		fwd_csa = false;
 -- 
 2.20.1
 
