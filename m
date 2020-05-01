@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0F31C1369
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F2401C130C
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729756AbgEAN3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:29:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52680 "EHLO mail.kernel.org"
+        id S1729287AbgEAN0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:26:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729742AbgEAN3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:29:14 -0400
+        id S1729278AbgEAN0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:26:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A2A1208C3;
-        Fri,  1 May 2020 13:29:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0804020757;
+        Fri,  1 May 2020 13:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339753;
-        bh=pd924RWWF35qaMXbApnuAGEJ0+1JdwtPLSCIFr1pg8E=;
+        s=default; t=1588339593;
+        bh=a1+FXtok+TTkSt4b7dyUP5VrL5ZhVpYgHALlc/p/cAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzyU50rIb/v/4MEkQxEfyxntC/pxIlK5rMTuzPtk7cSd9OP7wX9kV4KDMnsDFphXc
-         9FRU7BTn9AfHlZVUyYGFyJG5YL18VVeuPkRdZSYFvZxSmNfulMevHILhRCLu9lkHrp
-         eK1cDUhgbnzwKj+QhTcXH6a6jgouuP9AFxPF6rno=
+        b=nUEbaB1i06itJecqmXBPo67wiIoAzBWTPPAmdQjq3bY85lWvqQG8rzrBjRH0lkM1F
+         atqagX5wKDQlJrNWnEDBg+4LvEtp+zvpA8bq0Sos+C+OBLUrq/ywQg6Mulu6+45Tir
+         G7c6RMRGYFTTHt6LrJi1ZdOd5NyM1VV8MKu9O97E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Melnychenko <andrew@daynix.com>
-Subject: [PATCH 4.9 46/80] tty: hvc: fix buffer overflow during hvc_alloc().
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.4 52/70] UAS: fix deadlock in error handling and PM flushing work
 Date:   Fri,  1 May 2020 15:21:40 +0200
-Message-Id: <20200501131528.064407675@linuxfoundation.org>
+Message-Id: <20200501131529.454780848@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,126 +42,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Melnychenko <andrew@daynix.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 9a9fc42b86c06120744555fea43fdcabe297c656 upstream.
+commit f6cc6093a729ede1ff5658b493237c42b82ba107 upstream.
 
-If there is a lot(more then 16) of virtio-console devices
-or virtio_console module is reloaded
-- buffers 'vtermnos' and 'cons_ops' are overflowed.
-In older kernels it overruns spinlock which leads to kernel freezing:
-https://bugzilla.redhat.com/show_bug.cgi?id=1786239
+A SCSI error handler and block runtime PM must not allocate
+memory with GFP_KERNEL. Furthermore they must not wait for
+tasks allocating memory with GFP_KERNEL.
+That means that they cannot share a workqueue with arbitrary tasks.
 
-To reproduce the issue, you can try simple script that
-loads/unloads module. Something like this:
-while [ 1 ]
-do
-  modprobe virtio_console
-  sleep 2
-  modprobe -r virtio_console
-  sleep 2
-done
+Fix this for UAS using a private workqueue.
 
-Description of problem:
-Guest get 'Call Trace' when loading module "virtio_console"
-and unloading it frequently - clearly reproduced on kernel-4.18.0:
-
-[   81.498208] ------------[ cut here ]------------
-[   81.499263] pvqspinlock: lock 0xffffffff92080020 has corrupted value 0xc0774ca0!
-[   81.501000] WARNING: CPU: 0 PID: 785 at kernel/locking/qspinlock_paravirt.h:500 __pv_queued_spin_unlock_slowpath+0xc0/0xd0
-[   81.503173] Modules linked in: virtio_console fuse xt_CHECKSUM ipt_MASQUERADE xt_conntrack ipt_REJECT nft_counter nf_nat_tftp nft_objref nf_conntrack_tftp tun bridge stp llc nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nf_tables_set nft_chain_nat_ipv6 nf_conntrack_ipv6 nf_defrag_ipv6 nf_nat_ipv6 nft_chain_route_ipv6 nft_chain_nat_ipv4 nf_conntrack_ipv4 nf_defrag_ipv4 nf_nat_ipv4 nf_nat nf_conntrack nft_chain_route_ipv4 ip6_tables nft_compat ip_set nf_tables nfnetlink sunrpc bochs_drm drm_vram_helper ttm drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm i2c_piix4 pcspkr crct10dif_pclmul crc32_pclmul joydev ghash_clmulni_intel ip_tables xfs libcrc32c sd_mod sg ata_generic ata_piix virtio_net libata crc32c_intel net_failover failover serio_raw virtio_scsi dm_mirror dm_region_hash dm_log dm_mod [last unloaded: virtio_console]
-[   81.517019] CPU: 0 PID: 785 Comm: kworker/0:2 Kdump: loaded Not tainted 4.18.0-167.el8.x86_64 #1
-[   81.518639] Hardware name: Red Hat KVM, BIOS 1.12.0-5.scrmod+el8.2.0+5159+d8aa4d83 04/01/2014
-[   81.520205] Workqueue: events control_work_handler [virtio_console]
-[   81.521354] RIP: 0010:__pv_queued_spin_unlock_slowpath+0xc0/0xd0
-[   81.522450] Code: 07 00 48 63 7a 10 e8 bf 64 f5 ff 66 90 c3 8b 05 e6 cf d6 01 85 c0 74 01 c3 8b 17 48 89 fe 48 c7 c7 38 4b 29 91 e8 3a 6c fa ff <0f> 0b c3 0f 0b 90 90 90 90 90 90 90 90 90 90 90 0f 1f 44 00 00 48
-[   81.525830] RSP: 0018:ffffb51a01ffbd70 EFLAGS: 00010282
-[   81.526798] RAX: 0000000000000000 RBX: 0000000000000010 RCX: 0000000000000000
-[   81.528110] RDX: ffff9e66f1826480 RSI: ffff9e66f1816a08 RDI: ffff9e66f1816a08
-[   81.529437] RBP: ffffffff9153ff10 R08: 000000000000026c R09: 0000000000000053
-[   81.530732] R10: 0000000000000000 R11: ffffb51a01ffbc18 R12: ffff9e66cd682200
-[   81.532133] R13: ffffffff9153ff10 R14: ffff9e6685569500 R15: ffff9e66cd682000
-[   81.533442] FS:  0000000000000000(0000) GS:ffff9e66f1800000(0000) knlGS:0000000000000000
-[   81.534914] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   81.535971] CR2: 00005624c55b14d0 CR3: 00000003a023c000 CR4: 00000000003406f0
-[   81.537283] Call Trace:
-[   81.537763]  __raw_callee_save___pv_queued_spin_unlock_slowpath+0x11/0x20
-[   81.539011]  .slowpath+0x9/0xe
-[   81.539585]  hvc_alloc+0x25e/0x300
-[   81.540237]  init_port_console+0x28/0x100 [virtio_console]
-[   81.541251]  handle_control_message.constprop.27+0x1c4/0x310 [virtio_console]
-[   81.542546]  control_work_handler+0x70/0x10c [virtio_console]
-[   81.543601]  process_one_work+0x1a7/0x3b0
-[   81.544356]  worker_thread+0x30/0x390
-[   81.545025]  ? create_worker+0x1a0/0x1a0
-[   81.545749]  kthread+0x112/0x130
-[   81.546358]  ? kthread_flush_work_fn+0x10/0x10
-[   81.547183]  ret_from_fork+0x22/0x40
-[   81.547842] ---[ end trace aa97649bd16c8655 ]---
-[   83.546539] general protection fault: 0000 [#1] SMP NOPTI
-[   83.547422] CPU: 5 PID: 3225 Comm: modprobe Kdump: loaded Tainted: G        W        --------- -  - 4.18.0-167.el8.x86_64 #1
-[   83.549191] Hardware name: Red Hat KVM, BIOS 1.12.0-5.scrmod+el8.2.0+5159+d8aa4d83 04/01/2014
-[   83.550544] RIP: 0010:__pv_queued_spin_lock_slowpath+0x19a/0x2a0
-[   83.551504] Code: c4 c1 ea 12 41 be 01 00 00 00 4c 8d 6d 14 41 83 e4 03 8d 42 ff 49 c1 e4 05 48 98 49 81 c4 40 a5 02 00 4c 03 24 c5 60 48 34 91 <49> 89 2c 24 b8 00 80 00 00 eb 15 84 c0 75 0a 41 0f b6 54 24 14 84
-[   83.554449] RSP: 0018:ffffb51a0323fdb0 EFLAGS: 00010202
-[   83.555290] RAX: 000000000000301c RBX: ffffffff92080020 RCX: 0000000000000001
-[   83.556426] RDX: 000000000000301d RSI: 0000000000000000 RDI: 0000000000000000
-[   83.557556] RBP: ffff9e66f196a540 R08: 000000000000028a R09: ffff9e66d2757788
-[   83.558688] R10: 0000000000000000 R11: 0000000000000000 R12: 646e61725f770b07
-[   83.559821] R13: ffff9e66f196a554 R14: 0000000000000001 R15: 0000000000180000
-[   83.560958] FS:  00007fd5032e8740(0000) GS:ffff9e66f1940000(0000) knlGS:0000000000000000
-[   83.562233] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   83.563149] CR2: 00007fd5022b0da0 CR3: 000000038c334000 CR4: 00000000003406e0
-
-Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Fixes: f9dc024a2da1f ("uas: pre_reset and suspend: Fix a few races")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200414191503.3471783-1-andrew@daynix.com
+Link: https://lore.kernel.org/r/20200415141750.811-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/hvc/hvc_console.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/usb/storage/uas.c |   43 ++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 40 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -289,10 +289,6 @@ int hvc_instantiate(uint32_t vtermno, in
- 	vtermnos[index] = vtermno;
- 	cons_ops[index] = ops;
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -82,6 +82,19 @@ static void uas_free_streams(struct uas_
+ static void uas_log_cmd_state(struct scsi_cmnd *cmnd, const char *prefix,
+ 				int status);
  
--	/* reserve all indices up to and including this index */
--	if (last_hvc < index)
--		last_hvc = index;
--
- 	/* check if we need to re-register the kernel console */
- 	hvc_check_console(index);
- 
-@@ -896,13 +892,22 @@ struct hvc_struct *hvc_alloc(uint32_t vt
- 		    cons_ops[i] == hp->ops)
- 			break;
- 
--	/* no matching slot, just use a counter */
--	if (i >= MAX_NR_HVC_CONSOLES)
--		i = ++last_hvc;
-+	if (i >= MAX_NR_HVC_CONSOLES) {
++/*
++ * This driver needs its own workqueue, as we need to control memory allocation.
++ *
++ * In the course of error handling and power management uas_wait_for_pending_cmnds()
++ * needs to flush pending work items. In these contexts we cannot allocate memory
++ * by doing block IO as we would deadlock. For the same reason we cannot wait
++ * for anything allocating memory not heeding these constraints.
++ *
++ * So we have to control all work items that can be on the workqueue we flush.
++ * Hence we cannot share a queue and need our own.
++ */
++static struct workqueue_struct *workqueue;
 +
-+		/* find 'empty' slot for console */
-+		for (i = 0; i < MAX_NR_HVC_CONSOLES && vtermnos[i] != -1; i++) {
-+		}
+ static void uas_do_work(struct work_struct *work)
+ {
+ 	struct uas_dev_info *devinfo =
+@@ -110,7 +123,7 @@ static void uas_do_work(struct work_stru
+ 		if (!err)
+ 			cmdinfo->state &= ~IS_IN_WORK_LIST;
+ 		else
+-			schedule_work(&devinfo->work);
++			queue_work(workqueue, &devinfo->work);
+ 	}
+ out:
+ 	spin_unlock_irqrestore(&devinfo->lock, flags);
+@@ -135,7 +148,7 @@ static void uas_add_work(struct uas_cmd_
+ 
+ 	lockdep_assert_held(&devinfo->lock);
+ 	cmdinfo->state |= IS_IN_WORK_LIST;
+-	schedule_work(&devinfo->work);
++	queue_work(workqueue, &devinfo->work);
+ }
+ 
+ static void uas_zap_pending(struct uas_dev_info *devinfo, int result)
+@@ -1176,7 +1189,31 @@ static struct usb_driver uas_driver = {
+ 	.id_table = uas_usb_ids,
+ };
+ 
+-module_usb_driver(uas_driver);
++static int __init uas_init(void)
++{
++	int rv;
 +
-+		/* no matching slot, just use a counter */
-+		if (i == MAX_NR_HVC_CONSOLES)
-+			i = ++last_hvc + MAX_NR_HVC_CONSOLES;
++	workqueue = alloc_workqueue("uas", WQ_MEM_RECLAIM, 0);
++	if (!workqueue)
++		return -ENOMEM;
++
++	rv = usb_register(&uas_driver);
++	if (rv) {
++		destroy_workqueue(workqueue);
++		return -ENOMEM;
 +	}
++
++	return 0;
++}
++
++static void __exit uas_exit(void)
++{
++	usb_deregister(&uas_driver);
++	destroy_workqueue(workqueue);
++}
++
++module_init(uas_init);
++module_exit(uas_exit);
  
- 	hp->index = i;
--	cons_ops[i] = ops;
--	vtermnos[i] = vtermno;
-+	if (i < MAX_NR_HVC_CONSOLES) {
-+		cons_ops[i] = ops;
-+		vtermnos[i] = vtermno;
-+	}
- 
- 	list_add_tail(&(hp->next), &hvc_structs);
- 	spin_unlock(&hvc_structs_lock);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR(
 
 
