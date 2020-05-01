@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3242E1C15A0
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2271C12D8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:25:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730111AbgEANbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:31:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55746 "EHLO mail.kernel.org"
+        id S1728586AbgEANY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:24:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729551AbgEANbO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:31:14 -0400
+        id S1728907AbgEANYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:24:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB48C20757;
-        Fri,  1 May 2020 13:31:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9751E24953;
+        Fri,  1 May 2020 13:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339874;
-        bh=KvoUL5xcNE7fQQSeTKHhSEZ9Y7/6EBtFNGEhTkUrHfM=;
+        s=default; t=1588339495;
+        bh=oQ7B0AkpzBHnU7WHZ3slnVmqyOaWkKR6y1mZf8UXi78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWQulS3Qiqlvn0S4+0IZ3/3k79NpNyEX6aoGRBomogd2FFD9Vs7AtZr2eNr2PcjZ/
-         OIg1U2yjFWw6P4VBacFwGigzHf0FKCjYwReHKNkoN9bULEIOfeADLLMSkvjay+9o5m
-         RY0vhuZZBs2RYfeO+U0nDhIZCQl7d4P08IaHIhK8=
+        b=nVh85VqiKKfmoQLL4b/XXpbjsYzzxNmBC8hHicOzAh2n5EXm7aSox7yBcnDprTDi3
+         3ngSqHrlFNSKGMuvLuSoITucHKflqCI6l9CJ7ua1VF9+9P0K9KQTAYqVuYIsYeDUCJ
+         ezxAgEzu6KAebuQuvOrqfxWV974vFrs7v0BCoczA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 014/117] ASoC: Intel: atom: Take the drv->lock mutex before calling sst_send_slot_map()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 02/70] ALSA: hda - Fix incorrect usage of IS_REACHABLE()
 Date:   Fri,  1 May 2020 15:20:50 +0200
-Message-Id: <20200501131546.751570895@linuxfoundation.org>
+Message-Id: <20200501131513.978773721@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 81630dc042af998b9f58cd8e2c29dab9777ea176 ]
+commit 6a30abaa40b62aed46ef12ea4c16c48565bdb376 upstream.
 
-sst_send_slot_map() uses sst_fill_and_send_cmd_unlocked() because in some
-places it is called with the drv->lock mutex already held.
+The commit c469652bb5e8 ("ALSA: hda - Use IS_REACHABLE() for
+dependency on input") simplified the dependencies with IS_REACHABLE()
+macro, but it broke due to its incorrect usage: it should have been
+IS_REACHABLE(CONFIG_INPUT) instead of IS_REACHABLE(INPUT).
 
-So it must always be called with the mutex locked. This commit adds missing
-locking in the sst_set_be_modules() code-path.
+Fixes: c469652bb5e8 ("ALSA: hda - Use IS_REACHABLE() for dependency on input")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 24c8d14192cc ("ASoC: Intel: mrfld: add DSP core controls")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200402185359.3424-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/atom/sst-atom-controls.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/atom/sst-atom-controls.c b/sound/soc/intel/atom/sst-atom-controls.c
-index 6044b3bbb1211..999eb3ba78672 100644
---- a/sound/soc/intel/atom/sst-atom-controls.c
-+++ b/sound/soc/intel/atom/sst-atom-controls.c
-@@ -974,7 +974,9 @@ static int sst_set_be_modules(struct snd_soc_dapm_widget *w,
- 	dev_dbg(c->dev, "Enter: widget=%s\n", w->name);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -3500,7 +3500,7 @@ static void alc280_fixup_hp_gpio4(struct
+ 	}
+ }
  
- 	if (SND_SOC_DAPM_EVENT_ON(event)) {
-+		mutex_lock(&drv->lock);
- 		ret = sst_send_slot_map(drv);
-+		mutex_unlock(&drv->lock);
- 		if (ret)
- 			return ret;
- 		ret = sst_send_pipe_module_params(w, k);
--- 
-2.20.1
-
+-#if IS_REACHABLE(INPUT)
++#if IS_REACHABLE(CONFIG_INPUT)
+ static void gpio2_mic_hotkey_event(struct hda_codec *codec,
+ 				   struct hda_jack_callback *event)
+ {
 
 
