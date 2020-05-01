@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D72B1C14A9
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA7AD1C15F2
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731429AbgEANlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
+        id S1730880AbgEANgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:36:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730909AbgEANlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:41:40 -0400
+        id S1730877AbgEANgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:36:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9BC524954;
-        Fri,  1 May 2020 13:41:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7734E208DB;
+        Fri,  1 May 2020 13:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340499;
-        bh=EJ6dlQJyvFOAXUfsGqol6Wmqc66jE3hiFMMygdlxfTk=;
+        s=default; t=1588340197;
+        bh=DEKOV80S+EgZGm5x0oH/1MuU21eybiRSXazP2DjWCGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuf/lwxCJTjB/oD581RzCYofwJgS907B7AHCirQAt/a1nVeqQIv5SsKUatcO5fJJV
-         koXqU3V0z005jZtj6ROpBh/Y53ZuUnamzdHiqA/pHZMRvXg63s9uvx7CfTK5NmWzuE
-         OHthLHBF431mz7d46lBmp0X6eM1lIe4MryM/gdE8=
+        b=vw+kNrV62uLWJ/fZfXCe4CCxeqd6aAUxm0oRtIJCUupGyMlm7vbfA1XHXAI1N+X9S
+         YcRm7XIHEEzE6sGY5Pqr2TwYweFpZYWypZ8TgeVSEzZrm8BI9gYV5AvBPkWriuCB1N
+         b/NQcpqwlrUAsSzXyI7VsiiEGIuvekoUbXLfbaaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.6 007/106] usb: gadget: udc: bdc: Remove unnecessary NULL checks in bdc_req_complete
+        stable@vger.kernel.org, Paul Furtado <paulfurtado91@gmail.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Chandan Rajendra <chandanrlinux@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Allison Collins <allison.henderson@oracle.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>
+Subject: [PATCH 4.19 15/46] xfs: acquire superblock freeze protection on eofblocks scans
 Date:   Fri,  1 May 2020 15:22:40 +0200
-Message-Id: <20200501131544.396838062@linuxfoundation.org>
+Message-Id: <20200501131503.899313616@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Brian Foster <bfoster@redhat.com>
 
-commit 09b04abb70f096333bef6bc95fa600b662e7ee13 upstream.
+commit 4b674b9ac852937af1f8c62f730c325fb6eadcdb upstream.
 
-When building with Clang + -Wtautological-pointer-compare:
+The filesystem freeze sequence in XFS waits on any background
+eofblocks or cowblocks scans to complete before the filesystem is
+quiesced. At this point, the freezer has already stopped the
+transaction subsystem, however, which means a truncate or cowblock
+cancellation in progress is likely blocked in transaction
+allocation. This results in a deadlock between freeze and the
+associated scanner.
 
-drivers/usb/gadget/udc/bdc/bdc_ep.c:543:28: warning: comparison of
-address of 'req->queue' equal to a null pointer is always false
-[-Wtautological-pointer-compare]
-        if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
-                             ~~~~~^~~~~    ~~~~
-drivers/usb/gadget/udc/bdc/bdc_ep.c:543:51: warning: comparison of
-address of 'req->usb_req' equal to a null pointer is always false
-[-Wtautological-pointer-compare]
-        if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
-                                                    ~~~~~^~~~~~~    ~~~~
-2 warnings generated.
+Fix this problem by holding superblock write protection across calls
+into the block reapers. Since protection for background scans is
+acquired from the workqueue task context, trylock to avoid a similar
+deadlock between freeze and blocking on the write lock.
 
-As it notes, these statements will always evaluate to false so remove
-them.
-
-Fixes: efed421a94e6 ("usb: gadget: Add UDC driver for Broadcom USB3.0 device controller IP BDC")
-Link: https://github.com/ClangBuiltLinux/linux/issues/749
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: d6b636ebb1c9f ("xfs: halt auto-reclamation activities while rebuilding rmap")
+Reported-by: Paul Furtado <paulfurtado91@gmail.com>
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Chandan Rajendra <chandanrlinux@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/udc/bdc/bdc_ep.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/xfs_icache.c |   10 ++++++++++
+ fs/xfs/xfs_ioctl.c  |    5 ++++-
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/udc/bdc/bdc_ep.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_ep.c
-@@ -540,7 +540,7 @@ static void bdc_req_complete(struct bdc_
+--- a/fs/xfs/xfs_icache.c
++++ b/fs/xfs/xfs_icache.c
+@@ -902,7 +902,12 @@ xfs_eofblocks_worker(
  {
- 	struct bdc *bdc = ep->bdc;
+ 	struct xfs_mount *mp = container_of(to_delayed_work(work),
+ 				struct xfs_mount, m_eofblocks_work);
++
++	if (!sb_start_write_trylock(mp->m_super))
++		return;
+ 	xfs_icache_free_eofblocks(mp, NULL);
++	sb_end_write(mp->m_super);
++
+ 	xfs_queue_eofblocks(mp);
+ }
  
--	if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
-+	if (req == NULL)
- 		return;
+@@ -929,7 +934,12 @@ xfs_cowblocks_worker(
+ {
+ 	struct xfs_mount *mp = container_of(to_delayed_work(work),
+ 				struct xfs_mount, m_cowblocks_work);
++
++	if (!sb_start_write_trylock(mp->m_super))
++		return;
+ 	xfs_icache_free_cowblocks(mp, NULL);
++	sb_end_write(mp->m_super);
++
+ 	xfs_queue_cowblocks(mp);
+ }
  
- 	dev_dbg(bdc->dev, "%s ep:%s status:%d\n", __func__, ep->name, status);
+--- a/fs/xfs/xfs_ioctl.c
++++ b/fs/xfs/xfs_ioctl.c
+@@ -2182,7 +2182,10 @@ xfs_file_ioctl(
+ 		if (error)
+ 			return error;
+ 
+-		return xfs_icache_free_eofblocks(mp, &keofb);
++		sb_start_write(mp->m_super);
++		error = xfs_icache_free_eofblocks(mp, &keofb);
++		sb_end_write(mp->m_super);
++		return error;
+ 	}
+ 
+ 	default:
 
 
