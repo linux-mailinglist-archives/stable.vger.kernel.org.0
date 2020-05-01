@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02E311C13DE
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B581C1584
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730475AbgEANdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:33:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59516 "EHLO mail.kernel.org"
+        id S1729822AbgEAN3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:29:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730470AbgEANdo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:33:44 -0400
+        id S1729819AbgEAN3l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:29:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56C59216FD;
-        Fri,  1 May 2020 13:33:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47B572495A;
+        Fri,  1 May 2020 13:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340023;
-        bh=6ZZjgCH98qpYC/CbtgxU6mXtYtB82jt3T4S206u6knA=;
+        s=default; t=1588339780;
+        bh=oKPEVnF03r3G2DLWNq0tK6eovYLjR0lpVzFPy7t21Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQ+FLVV8r6CuOvpLeK0g0EtnG+xwug8wgGYx94Cx1Q7gY2rJJbeRVolN36t7tdw3Y
-         96wYHd9GpeoIuCaSUrHIGkmUOo4gZ32z3QeU1udqTTDnehzDKSa/oHHUlfkfD61a0n
-         8ElpsQ733AJFsLORLM3GBNixpxgCEA+VralChhWM=
+        b=sxvT/c/YkGfyd7cMOzg/y/MCY8RxiVvm1gkg2+hqmrhORvRcK9TAWhtOpCcFYiZFe
+         JVuaTUownaf+bAjk+kkKFvTtmP17JaOoWTjP5LZy7tO1R10iS/y48MDjPz2bsNV5Ut
+         26/4Fibxo3alUeg5lZcwrz82oG1f6HbV+PIj3Id8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Cyril Roelandt <tipecaml@gmail.com>
-Subject: [PATCH 4.14 063/117] usb-storage: Add unusual_devs entry for JMicron JMS566
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Uros Bizjak <ubizjak@gmail.com>
+Subject: [PATCH 4.9 45/80] KVM: VMX: Enable machine check support for 32bit targets
 Date:   Fri,  1 May 2020 15:21:39 +0200
-Message-Id: <20200501131552.776279991@linuxfoundation.org>
+Message-Id: <20200501131527.915393222@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Uros Bizjak <ubizjak@gmail.com>
 
-commit 94f9c8c3c404ee1f7aaff81ad4f24aec4e34a78b upstream.
+commit fb56baae5ea509e63c2a068d66a4d8ea91969fca upstream.
 
-Cyril Roelandt reports that his JMicron JMS566 USB-SATA bridge fails
-to handle WRITE commands with the FUA bit set, even though it claims
-to support FUA.  (Oddly enough, a later version of the same bridge,
-version 2.03 as opposed to 1.14, doesn't claim to support FUA.  Also
-oddly, the bridge _does_ support FUA when using the UAS transport
-instead of the Bulk-Only transport -- but this device was blacklisted
-for uas in commit bc3bdb12bbb3 ("usb-storage: Disable UAS on JMicron
-SATA enclosure") for apparently unrelated reasons.)
+There is no reason to limit the use of do_machine_check
+to 64bit targets. MCE handling works for both target familes.
 
-This patch adds a usb-storage unusual_devs entry with the BROKEN_FUA
-flag.  This allows the bridge to work properly with usb-storage.
-
-Reported-and-tested-by: Cyril Roelandt <tipecaml@gmail.com>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2004221613110.11262-100000@iolanthe.rowland.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: a0861c02a981 ("KVM: Add VT-x machine check support")
+Signed-off-by: Uros Bizjak <ubizjak@gmail.com>
+Message-Id: <20200414071414.45636-1-ubizjak@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/unusual_devs.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/kvm/vmx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2342,6 +2342,13 @@ UNUSUAL_DEV(  0x3340, 0xffff, 0x0000, 0x
- 		USB_SC_DEVICE,USB_PR_DEVICE,NULL,
- 		US_FL_MAX_SECTORS_64 ),
- 
-+/* Reported by Cyril Roelandt <tipecaml@gmail.com> */
-+UNUSUAL_DEV(  0x357d, 0x7788, 0x0114, 0x0114,
-+		"JMicron",
-+		"USB to ATA/ATAPI Bridge",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_BROKEN_FUA ),
-+
- /* Reported by Andrey Rahmatullin <wrar@altlinux.org> */
- UNUSUAL_DEV(  0x4102, 0x1020, 0x0100,  0x0100,
- 		"iRiver",
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -5785,7 +5785,7 @@ static int handle_rmode_exception(struct
+  */
+ static void kvm_machine_check(void)
+ {
+-#if defined(CONFIG_X86_MCE) && defined(CONFIG_X86_64)
++#if defined(CONFIG_X86_MCE)
+ 	struct pt_regs regs = {
+ 		.cs = 3, /* Fake ring 3 no matter what the guest ran on */
+ 		.flags = X86_EFLAGS_IF,
 
 
