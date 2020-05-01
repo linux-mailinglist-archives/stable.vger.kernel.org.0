@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C3F1C16AE
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE2F11C1437
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730772AbgEANvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:51:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37712 "EHLO mail.kernel.org"
+        id S1730917AbgEANg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:36:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730745AbgEANiP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:38:15 -0400
+        id S1730913AbgEANgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:36:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 679DD216FD;
-        Fri,  1 May 2020 13:38:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C92152173E;
+        Fri,  1 May 2020 13:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340294;
-        bh=oPCGkNwJSuGnBP6t8hYYIlZeZHpRdt+KyRxwlKB/UTo=;
+        s=default; t=1588340215;
+        bh=Mi2EeL3jHCWIbg8Moz3TNZ/gICusH4EaR9zxNVDG98U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUqUhXB4Q4YxV0loRdlMoLRm6tYJjcgt+YYg1UxcF7zTCNwgTCXfqbyUw/y0c18Sm
-         J/pwWuSMw3vIM31UlMgdKZ5t384PSBzZxbnH5beu4olRprNXRtWFJEY6d32LktcoVY
-         a8gA96LnPLK2mIzPoJNLP/MXDeXcwaYAFq0H2zxY=
+        b=A704BlUBxms2tvuOuWIFHQOED2tuGIjqUEt0oih7YI1FsV/T00NXh5JsbCSY668Vq
+         2m733FO1xaOiVkO4b1klgL11YNAF0RYt+aff3lfLT1Skd69trwdLpZ+29JFIVLI6Nz
+         ZcO1YUOgIx40VSYKSHHogmuaXrjMhdjgHClBJ7Ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.4 20/83] nfsd: memory corruption in nfsd4_lock()
-Date:   Fri,  1 May 2020 15:22:59 +0200
-Message-Id: <20200501131529.256295213@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>,
+        Kees Cook <keescook@chromium.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 35/46] objtool: Fix CONFIG_UBSAN_TRAP unreachable warnings
+Date:   Fri,  1 May 2020 15:23:00 +0200
+Message-Id: <20200501131511.262749709@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +48,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit e1e8399eee72e9d5246d4d1bcacd793debe34dd3 upstream.
+[ Upstream commit bd841d6154f5f41f8a32d3c1b0bc229e326e640a ]
 
-New struct nfsd4_blocked_lock allocated in find_or_allocate_block()
-does not initialized nbl_list and nbl_lru.
-If conflock allocation fails rollback can call list_del_init()
-access uninitialized fields and corrupt memory.
+CONFIG_UBSAN_TRAP causes GCC to emit a UD2 whenever it encounters an
+unreachable code path.  This includes __builtin_unreachable().  Because
+the BUG() macro uses __builtin_unreachable() after it emits its own UD2,
+this results in a double UD2.  In this case objtool rightfully detects
+that the second UD2 is unreachable:
 
-v2: just initialize nbl_list and nbl_lru right after nbl allocation.
+  init/main.o: warning: objtool: repair_env_string()+0x1c8: unreachable instruction
 
-Fixes: 76d348fadff5 ("nfsd: have nfsd4_lock use blocking locks for v4.1+ lock")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We weren't able to figure out a way to get rid of the double UD2s, so
+just silence the warning.
 
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/6653ad73c6b59c049211bd7c11ed3809c20ee9f5.1585761021.git.jpoimboe@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tools/objtool/check.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -266,6 +266,8 @@ find_or_allocate_block(struct nfs4_locko
- 	if (!nbl) {
- 		nbl= kmalloc(sizeof(*nbl), GFP_KERNEL);
- 		if (nbl) {
-+			INIT_LIST_HEAD(&nbl->nbl_list);
-+			INIT_LIST_HEAD(&nbl->nbl_lru);
- 			fh_copy_shallow(&nbl->nbl_fh, fh);
- 			locks_init_lock(&nbl->nbl_lock);
- 			nfsd4_init_cb(&nbl->nbl_cb, lo->lo_owner.so_client,
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 9479c74af9baf..4613d796492ab 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -2086,14 +2086,27 @@ static bool ignore_unreachable_insn(struct instruction *insn)
+ 	    !strcmp(insn->sec->name, ".altinstr_aux"))
+ 		return true;
+ 
++	if (!insn->func)
++		return false;
++
++	/*
++	 * CONFIG_UBSAN_TRAP inserts a UD2 when it sees
++	 * __builtin_unreachable().  The BUG() macro has an unreachable() after
++	 * the UD2, which causes GCC's undefined trap logic to emit another UD2
++	 * (or occasionally a JMP to UD2).
++	 */
++	if (list_prev_entry(insn, list)->dead_end &&
++	    (insn->type == INSN_BUG ||
++	     (insn->type == INSN_JUMP_UNCONDITIONAL &&
++	      insn->jump_dest && insn->jump_dest->type == INSN_BUG)))
++		return true;
++
+ 	/*
+ 	 * Check if this (or a subsequent) instruction is related to
+ 	 * CONFIG_UBSAN or CONFIG_KASAN.
+ 	 *
+ 	 * End the search at 5 instructions to avoid going into the weeds.
+ 	 */
+-	if (!insn->func)
+-		return false;
+ 	for (i = 0; i < 5; i++) {
+ 
+ 		if (is_kasan_insn(insn) || is_ubsan_insn(insn))
+-- 
+2.20.1
+
 
 
