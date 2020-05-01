@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 496DA1C155F
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A521C15BB
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729195AbgEAN0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:26:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
+        id S1730312AbgEANce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:32:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729184AbgEAN0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:26:12 -0400
+        id S1729737AbgEANcb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:32:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E408820757;
-        Fri,  1 May 2020 13:26:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8D2C216FD;
+        Fri,  1 May 2020 13:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339571;
-        bh=XbN+XK43HYEmFbefRCu63/+LCwj5Fxct5UImYlR+yoo=;
+        s=default; t=1588339950;
+        bh=NIbft6V8F//k/CbPqI9h4qGjA4meZGzEFcylyGbRsNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJo4dto57S1c2D4EFMgSZx3607pELUGLnzaBhLc3XBhx1AniO/iGlbUZ9pzyAMxdS
-         L8TUBECIOLL97g2RJTbZ21N1ao6TQ1q3T6c7lRtXLwvJfj4Vq7yPZBOOxUUOVZlC3O
-         IJozssyHh2vgRbj4wOy05jKqgZJKdjkxGnVMGz/0=
+        b=dQXbSVnOedBaGw9jRxio8VHi/Ho99Mc/q+hlJ/mjej/AF659zWYNXoiWK1AFDbsPk
+         p7Nv/gbE28yV3W2xPeOOTXCvR2hHXpj1iYu3n9l7agBF2SUd3h0V1IpXxAP3RrPreI
+         LqWIyYc5/QN7LcT+IKGuVgj5u283VfyGpeFfMvp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Mosberger <davidm@egauge.net>
-Subject: [PATCH 4.4 32/70] drivers: usb: core: Dont disable irqs in usb_sg_wait() during URB submit.
-Date:   Fri,  1 May 2020 15:21:20 +0200
-Message-Id: <20200501131524.259332967@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>
+Subject: [PATCH 4.14 045/117] USB: early: Handle AMDs spec-compliant identifiers, too
+Date:   Fri,  1 May 2020 15:21:21 +0200
+Message-Id: <20200501131550.128270018@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,79 +42,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Mosberger <davidm@egauge.net>
+From: Jann Horn <jannh@google.com>
 
-commit 98b74b0ee57af1bcb6e8b2e76e707a71c5ef8ec9 upstream.
+commit 7dbdb53d72a51cea9b921d9dbba54be00752212a upstream.
 
-usb_submit_urb() may take quite long to execute.  For example, a
-single sg list may have 30 or more entries, possibly leading to that
-many calls to DMA-map pages.  This can cause interrupt latency of
-several hundred micro-seconds.
+This fixes a bug that causes the USB3 early console to freeze after
+printing a single line on AMD machines because it can't parse the
+Transfer TRB properly.
 
-Avoid the problem by releasing the io->lock spinlock and re-enabling
-interrupts before calling usb_submit_urb().  This opens races with
-usb_sg_cancel() and sg_complete().  Handle those races by using
-usb_block_urb() to stop URBs from being submitted after
-usb_sg_cancel() or sg_complete() with error.
+The spec at
+https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf
+says in section "4.5.1 Device Context Index" that the Context Index,
+also known as Endpoint ID according to
+section "1.6 Terms and Abbreviations", is normally computed as
+`DCI = (Endpoint Number * 2) + Direction`, which matches the current
+definitions of XDBC_EPID_OUT and XDBC_EPID_IN.
 
-Note that usb_unlink_urb() is guaranteed to return -ENODEV if
-!io->urbs[i]->dev and since the -ENODEV case is already handled,
-we don't have to check for !io->urbs[i]->dev explicitly.
+However, the numbering in a Debug Capability Context data structure is
+supposed to be different:
+Section "7.6.3.2 Endpoint Contexts and Transfer Rings" explains that a
+Debug Capability Context data structure has the endpoints mapped to indices
+0 and 1.
 
-Before this change, reading 512MB from an ext3 filesystem on a USB
-memory stick showed a throughput of 12 MB/s with about 500 missed
-deadlines.
+Change XDBC_EPID_OUT/XDBC_EPID_IN to the spec-compliant values, add
+XDBC_EPID_OUT_INTEL/XDBC_EPID_IN_INTEL with Intel's incorrect values, and
+let xdbc_handle_tx_event() handle both.
 
-With this change, reading the same file gave the same throughput but
-only one or two missed deadlines.
+I have verified that with this patch applied, the USB3 early console works
+on both an Intel and an AMD machine.
 
-Signed-off-by: David Mosberger <davidm@egauge.net>
+Fixes: aeb9dd1de98c ("usb/early: Add driver for xhci debug capability")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/r/20200401074619.8024-1-jannh@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/message.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/usb/early/xhci-dbc.c |    8 ++++----
+ drivers/usb/early/xhci-dbc.h |   18 ++++++++++++++++--
+ 2 files changed, 20 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -306,9 +306,10 @@ static void sg_complete(struct urb *urb)
- 		 */
- 		spin_unlock(&io->lock);
- 		for (i = 0, found = 0; i < io->entries; i++) {
--			if (!io->urbs[i] || !io->urbs[i]->dev)
-+			if (!io->urbs[i])
- 				continue;
- 			if (found) {
-+				usb_block_urb(io->urbs[i]);
- 				retval = usb_unlink_urb(io->urbs[i]);
- 				if (retval != -EINPROGRESS &&
- 				    retval != -ENODEV &&
-@@ -519,12 +520,10 @@ void usb_sg_wait(struct usb_sg_request *
- 		int retval;
+--- a/drivers/usb/early/xhci-dbc.c
++++ b/drivers/usb/early/xhci-dbc.c
+@@ -738,19 +738,19 @@ static void xdbc_handle_tx_event(struct
+ 	case COMP_USB_TRANSACTION_ERROR:
+ 	case COMP_STALL_ERROR:
+ 	default:
+-		if (ep_id == XDBC_EPID_OUT)
++		if (ep_id == XDBC_EPID_OUT || ep_id == XDBC_EPID_OUT_INTEL)
+ 			xdbc.flags |= XDBC_FLAGS_OUT_STALL;
+-		if (ep_id == XDBC_EPID_IN)
++		if (ep_id == XDBC_EPID_IN || ep_id == XDBC_EPID_IN_INTEL)
+ 			xdbc.flags |= XDBC_FLAGS_IN_STALL;
  
- 		io->urbs[i]->dev = io->dev;
--		retval = usb_submit_urb(io->urbs[i], GFP_ATOMIC);
--
--		/* after we submit, let completions or cancellations fire;
--		 * we handshake using io->status.
--		 */
- 		spin_unlock_irq(&io->lock);
-+
-+		retval = usb_submit_urb(io->urbs[i], GFP_NOIO);
-+
- 		switch (retval) {
- 			/* maybe we retrying will recover */
- 		case -ENXIO:	/* hc didn't queue this one */
-@@ -594,8 +593,8 @@ void usb_sg_cancel(struct usb_sg_request
- 		for (i = 0; i < io->entries; i++) {
- 			int retval;
+ 		xdbc_trace("endpoint %d stalled\n", ep_id);
+ 		break;
+ 	}
  
--			if (!io->urbs[i]->dev)
--				continue;
-+			usb_block_urb(io->urbs[i]);
-+
- 			retval = usb_unlink_urb(io->urbs[i]);
- 			if (retval != -EINPROGRESS
- 					&& retval != -ENODEV
+-	if (ep_id == XDBC_EPID_IN) {
++	if (ep_id == XDBC_EPID_IN || ep_id == XDBC_EPID_IN_INTEL) {
+ 		xdbc.flags &= ~XDBC_FLAGS_IN_PROCESS;
+ 		xdbc_bulk_transfer(NULL, XDBC_MAX_PACKET, true);
+-	} else if (ep_id == XDBC_EPID_OUT) {
++	} else if (ep_id == XDBC_EPID_OUT || ep_id == XDBC_EPID_OUT_INTEL) {
+ 		xdbc.flags &= ~XDBC_FLAGS_OUT_PROCESS;
+ 	} else {
+ 		xdbc_trace("invalid endpoint id %d\n", ep_id);
+--- a/drivers/usb/early/xhci-dbc.h
++++ b/drivers/usb/early/xhci-dbc.h
+@@ -123,8 +123,22 @@ struct xdbc_ring {
+ 	u32			cycle_state;
+ };
+ 
+-#define XDBC_EPID_OUT		2
+-#define XDBC_EPID_IN		3
++/*
++ * These are the "Endpoint ID" (also known as "Context Index") values for the
++ * OUT Transfer Ring and the IN Transfer Ring of a Debug Capability Context data
++ * structure.
++ * According to the "eXtensible Host Controller Interface for Universal Serial
++ * Bus (xHCI)" specification, section "7.6.3.2 Endpoint Contexts and Transfer
++ * Rings", these should be 0 and 1, and those are the values AMD machines give
++ * you; but Intel machines seem to use the formula from section "4.5.1 Device
++ * Context Index", which is supposed to be used for the Device Context only.
++ * Luckily the values from Intel don't overlap with those from AMD, so we can
++ * just test for both.
++ */
++#define XDBC_EPID_OUT		0
++#define XDBC_EPID_IN		1
++#define XDBC_EPID_OUT_INTEL	2
++#define XDBC_EPID_IN_INTEL	3
+ 
+ struct xdbc_state {
+ 	u16			vendor;
 
 
