@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 550151C1595
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD4E1C1397
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729981AbgEANaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:30:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54686 "EHLO mail.kernel.org"
+        id S1729199AbgEANbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:31:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729965AbgEANaf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:30:35 -0400
+        id S1730072AbgEANbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:31:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 703A420757;
-        Fri,  1 May 2020 13:30:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DB8A216FD;
+        Fri,  1 May 2020 13:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339834;
-        bh=l6I8N9mAySJ1NIPQgd/YPEign4VOEC6ZJUPecdttEXI=;
+        s=default; t=1588339859;
+        bh=OgoQkKV0zIrAg2Vj0DcalAL3eiZv3rhgHBPJP+JEHXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4rx1E5BVHRec+6b3urh6DIfvD9PP8zNgg4mGYtpaZM4n6gEG6wIju/WJUgzDX/Ry
-         kNv0JsIaypZILrEPZF1IHfkF4qMFqs/0uXAfXN+XjL3VEHhV0SpHPG31CPNxu8DerK
-         67ksef7Dsf8z2GFPeULN/F6/xFGEL1jMImAykZEU=
+        b=IjXtTyQi77p1TqLe32H3aRb9Gs6UohMM0YRP/iSCq3jI1ihxFcKR9k7XBz/dQCBXV
+         W8D3XxFdrMyQSdqxWvTqZqeeoe+eGcji0w2ol+vqONHfbwnUucAWFKUFUD6fuMUbgW
+         s9XabajGy+U6S75BTVOpu14R060jt4MpDULYqjdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Theodore Tso <tytso@mit.edu>, Ashwin H <ashwinh@vmware.com>
-Subject: [PATCH 4.9 79/80] ext4: unsigned int compared against zero
-Date:   Fri,  1 May 2020 15:22:13 +0200
-Message-Id: <20200501131537.893149960@linuxfoundation.org>
+        stable@vger.kernel.org, Harish Sriram <harish@linux.ibm.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 80/80] ext4: check for non-zero journal inum in ext4_calculate_overhead
+Date:   Fri,  1 May 2020 15:22:14 +0200
+Message-Id: <20200501131538.163291058@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
 References: <20200501131513.810761598@linuxfoundation.org>
@@ -43,36 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-commit fbbbbd2f28aec991f3fbc248df211550fbdfd58c upstream.
+commit f1eec3b0d0a849996ebee733b053efa71803dad5 upstream.
 
-There are two cases where u32 variables n and err are being checked
-for less than zero error values, the checks is always false because
-the variables are not signed. Fix this by making the variables ints.
+While calculating overhead for internal journal, also check
+that j_inum shouldn't be 0. Otherwise we get below error with
+xfstests generic/050 with external journal (XXX_LOGDEV config) enabled.
 
-Addresses-Coverity: ("Unsigned compared against 0")
-Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+It could be simply reproduced with loop device with an external journal
+and marking blockdev as RO before mounting.
+
+[ 3337.146838] EXT4-fs error (device pmem1p2): ext4_get_journal_inode:4634: comm mount: inode #0: comm mount: iget: illegal inode #
+------------[ cut here ]------------
+generic_make_request: Trying to write to read-only block-device pmem1p2 (partno 2)
+WARNING: CPU: 107 PID: 115347 at block/blk-core.c:788 generic_make_request_checks+0x6b4/0x7d0
+CPU: 107 PID: 115347 Comm: mount Tainted: G             L   --------- -t - 4.18.0-167.el8.ppc64le #1
+NIP:  c0000000006f6d44 LR: c0000000006f6d40 CTR: 0000000030041dd4
+<...>
+NIP [c0000000006f6d44] generic_make_request_checks+0x6b4/0x7d0
+LR [c0000000006f6d40] generic_make_request_checks+0x6b0/0x7d0
+<...>
+Call Trace:
+generic_make_request_checks+0x6b0/0x7d0 (unreliable)
+generic_make_request+0x3c/0x420
+submit_bio+0xd8/0x200
+submit_bh_wbc+0x1e8/0x250
+__sync_dirty_buffer+0xd0/0x210
+ext4_commit_super+0x310/0x420 [ext4]
+__ext4_error+0xa4/0x1e0 [ext4]
+__ext4_iget+0x388/0xe10 [ext4]
+ext4_get_journal_inode+0x40/0x150 [ext4]
+ext4_calculate_overhead+0x5a8/0x610 [ext4]
+ext4_fill_super+0x3188/0x3260 [ext4]
+mount_bdev+0x778/0x8f0
+ext4_mount+0x28/0x50 [ext4]
+mount_fs+0x74/0x230
+vfs_kern_mount.part.6+0x6c/0x250
+do_mount+0x2fc/0x1280
+sys_mount+0x158/0x180
+system_call+0x5c/0x70
+EXT4-fs (pmem1p2): no journal found
+EXT4-fs (pmem1p2): can't get journal size
+EXT4-fs (pmem1p2): mounted filesystem without journal. Opts: dax,norecovery
+
+Fixes: 3c816ded78bb ("ext4: use journal inode to determine journal overhead")
+Reported-by: Harish Sriram <harish@linux.ibm.com>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200316093038.25485-1-riteshh@linux.ibm.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Ashwin H <ashwinh@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/block_validity.c |    3 ++-
+ fs/ext4/super.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -141,7 +141,8 @@ static int ext4_protect_reserved_inode(s
- 	struct inode *inode;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_map_blocks map;
--	u32 i = 0, err = 0, num, n;
-+	u32 i = 0, num;
-+	int err = 0, n;
- 
- 	if ((ino < EXT4_ROOT_INO) ||
- 	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3337,7 +3337,8 @@ int ext4_calculate_overhead(struct super
+ 	 */
+ 	if (sbi->s_journal && !sbi->journal_bdev)
+ 		overhead += EXT4_NUM_B2C(sbi, sbi->s_journal->j_maxlen);
+-	else if (ext4_has_feature_journal(sb) && !sbi->s_journal) {
++	else if (ext4_has_feature_journal(sb) && !sbi->s_journal && j_inum) {
++		/* j_inum for internal journal is non-zero */
+ 		j_inode = ext4_get_journal_inode(sb, j_inum);
+ 		if (j_inode) {
+ 			j_blocks = j_inode->i_size >> sb->s_blocksize_bits;
 
 
