@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7C911C1642
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5A11C146A
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730731AbgEANmp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:42:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43476 "EHLO mail.kernel.org"
+        id S1731130AbgEANjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:39:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731548AbgEANmo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:44 -0400
+        id S1731138AbgEANjF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:39:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36EFC205C9;
-        Fri,  1 May 2020 13:42:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA961205C9;
+        Fri,  1 May 2020 13:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340563;
-        bh=Tgvy8L/qcTQAd0WfpP+tRSfrskJUjHDc5vwMG2Vn+uA=;
+        s=default; t=1588340344;
+        bh=mhWCNRBqxNEFicIbMOJqf+tM5VGm4UgJgeHyU1IFA/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPK7shIoIQTI5i22g1QXWjiWimpbDNvNizyDGPcNoTsrPpQJnKDTZBXP+RjAFULiB
-         /msuLjusjpUGHe671avQuSsHkYrcyLi77zlRsgodBBB/B15veVUzsjEO8pAGFC5uNF
-         vKvx7+bSoX5v4KE1xmCsKXuCxbk/tssezbzSCsTg=
+        b=R2jao1qaPrUiPCbX0/bD+RFr+WqqY2RlFDM4z5quIfqmzsg7xz4pTyS8p4pW2kNPb
+         QpAoL5lxxaEvQAXdXPhRtCG1OqM8yl9lD6IOOSLUn7HHLvKeCH05TwGRLFydZdfdla
+         UGXEJOy/KR/Fx2X4LGXuGzbMFzltGy2SNY4LBQ5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 033/106] rxrpc: Fix DATA Tx to disable nofrag for UDP on AF_INET6 socket
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.4 27/83] svcrdma: Fix leak of svc_rdma_recv_ctxt objects
 Date:   Fri,  1 May 2020 15:23:06 +0200
-Message-Id: <20200501131547.931293506@linuxfoundation.org>
+Message-Id: <20200501131530.788578173@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,111 +42,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 0e631eee17dcea576ab922fa70e4fdbd596ee452 upstream.
+commit 23cf1ee1f1869966b75518c59b5cbda4c6c92450 upstream.
 
-Fix the DATA packet transmission to disable nofrag for UDPv4 on an AF_INET6
-socket as well as UDPv6 when trying to transmit fragmentably.
+Utilize the xpo_release_rqst transport method to ensure that each
+rqstp's svc_rdma_recv_ctxt object is released even when the server
+cannot return a Reply for that rqstp.
 
-Without this, packets filled to the normal size used by the kernel AFS
-client of 1412 bytes be rejected by udp_sendmsg() with EMSGSIZE
-immediately.  The ->sk_error_report() notification hook is called, but
-rxrpc doesn't generate a trace for it.
+Without this fix, each RPC whose Reply cannot be sent leaks one
+svc_rdma_recv_ctxt. This is a 2.5KB structure, a 4KB DMA-mapped
+Receive buffer, and any pages that might be part of the Reply
+message.
 
-This is a temporary fix; a more permanent solution needs to involve
-changing the size of the packets being filled in accordance with the MTU,
-which isn't currently done in AF_RXRPC.  The reason for not doing so was
-that, barring the last packet in an rx jumbo packet, jumbos can only be
-assembled out of 1412-byte packets - and the plan was to construct jumbos
-on the fly at transmission time.
+The leak is infrequent unless the network fabric is unreliable or
+Kerberos is in use, as GSS sequence window overruns, which result
+in connection loss, are more common on fast transports.
 
-Also, there's no point turning on IPV6_MTU_DISCOVER, since IPv6 has to
-engage in this anyway since fragmentation is only done by the sender.  We
-can then condense the switch-statement in rxrpc_send_data_packet().
-
-Fixes: 75b54cb57ca3 ("rxrpc: Add IPv6 support")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3a88092ee319 ("svcrdma: Preserve Receive buffer until svc_rdma_sendto")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/rxrpc/local_object.c |    9 ---------
- net/rxrpc/output.c       |   42 +++++++++++-------------------------------
- 2 files changed, 11 insertions(+), 40 deletions(-)
+ include/linux/sunrpc/svc_rdma.h          |    1 +
+ net/sunrpc/svc_xprt.c                    |    3 ---
+ net/sunrpc/svcsock.c                     |    4 ++++
+ net/sunrpc/xprtrdma/svc_rdma_recvfrom.c  |   22 ++++++++++++++++++++++
+ net/sunrpc/xprtrdma/svc_rdma_sendto.c    |   13 +++----------
+ net/sunrpc/xprtrdma/svc_rdma_transport.c |    5 -----
+ 6 files changed, 30 insertions(+), 18 deletions(-)
 
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -165,15 +165,6 @@ static int rxrpc_open_socket(struct rxrp
- 			goto error;
- 		}
+--- a/include/linux/sunrpc/svc_rdma.h
++++ b/include/linux/sunrpc/svc_rdma.h
+@@ -162,6 +162,7 @@ extern bool svc_rdma_post_recvs(struct s
+ extern void svc_rdma_recv_ctxt_put(struct svcxprt_rdma *rdma,
+ 				   struct svc_rdma_recv_ctxt *ctxt);
+ extern void svc_rdma_flush_recv_queues(struct svcxprt_rdma *rdma);
++extern void svc_rdma_release_rqst(struct svc_rqst *rqstp);
+ extern int svc_rdma_recvfrom(struct svc_rqst *);
  
--		/* we want to set the don't fragment bit */
--		opt = IPV6_PMTUDISC_DO;
--		ret = kernel_setsockopt(local->socket, SOL_IPV6, IPV6_MTU_DISCOVER,
--					(char *) &opt, sizeof(opt));
--		if (ret < 0) {
--			_debug("setsockopt failed");
--			goto error;
--		}
+ /* svc_rdma_rw.c */
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -897,9 +897,6 @@ int svc_send(struct svc_rqst *rqstp)
+ 	if (!xprt)
+ 		goto out;
+ 
+-	/* release the receive skb before sending the reply */
+-	xprt->xpt_ops->xpo_release_rqst(rqstp);
 -
- 		/* Fall through and set IPv4 options too otherwise we don't get
- 		 * errors from IPv4 packets sent through the IPv6 socket.
- 		 */
---- a/net/rxrpc/output.c
-+++ b/net/rxrpc/output.c
-@@ -474,41 +474,21 @@ send_fragmentable:
- 	skb->tstamp = ktime_get_real();
+ 	/* calculate over-all length */
+ 	xb = &rqstp->rq_res;
+ 	xb->len = xb->head[0].iov_len +
+--- a/net/sunrpc/svcsock.c
++++ b/net/sunrpc/svcsock.c
+@@ -605,6 +605,8 @@ svc_udp_sendto(struct svc_rqst *rqstp)
+ {
+ 	int		error;
  
- 	switch (conn->params.local->srx.transport.family) {
-+	case AF_INET6:
- 	case AF_INET:
- 		opt = IP_PMTUDISC_DONT;
--		ret = kernel_setsockopt(conn->params.local->socket,
--					SOL_IP, IP_MTU_DISCOVER,
--					(char *)&opt, sizeof(opt));
--		if (ret == 0) {
--			ret = kernel_sendmsg(conn->params.local->socket, &msg,
--					     iov, 2, len);
--			conn->params.peer->last_tx_at = ktime_get_seconds();
++	svc_release_udp_skb(rqstp);
++
+ 	error = svc_sendto(rqstp, &rqstp->rq_res);
+ 	if (error == -ECONNREFUSED)
+ 		/* ICMP error on earlier request. */
+@@ -1137,6 +1139,8 @@ static int svc_tcp_sendto(struct svc_rqs
+ 	int sent;
+ 	__be32 reclen;
+ 
++	svc_release_skb(rqstp);
++
+ 	/* Set up the first element of the reply kvec.
+ 	 * Any other kvecs that may be in use have been taken
+ 	 * care of by the server implementation itself.
+--- a/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
+@@ -222,6 +222,26 @@ void svc_rdma_recv_ctxt_put(struct svcxp
+ 		svc_rdma_recv_ctxt_destroy(rdma, ctxt);
+ }
+ 
++/**
++ * svc_rdma_release_rqst - Release transport-specific per-rqst resources
++ * @rqstp: svc_rqst being released
++ *
++ * Ensure that the recv_ctxt is released whether or not a Reply
++ * was sent. For example, the client could close the connection,
++ * or svc_process could drop an RPC, before the Reply is sent.
++ */
++void svc_rdma_release_rqst(struct svc_rqst *rqstp)
++{
++	struct svc_rdma_recv_ctxt *ctxt = rqstp->rq_xprt_ctxt;
++	struct svc_xprt *xprt = rqstp->rq_xprt;
++	struct svcxprt_rdma *rdma =
++		container_of(xprt, struct svcxprt_rdma, sc_xprt);
++
++	rqstp->rq_xprt_ctxt = NULL;
++	if (ctxt)
++		svc_rdma_recv_ctxt_put(rdma, ctxt);
++}
++
+ static int __svc_rdma_post_recv(struct svcxprt_rdma *rdma,
+ 				struct svc_rdma_recv_ctxt *ctxt)
+ {
+@@ -756,6 +776,8 @@ int svc_rdma_recvfrom(struct svc_rqst *r
+ 	__be32 *p;
+ 	int ret;
+ 
++	rqstp->rq_xprt_ctxt = NULL;
++
+ 	spin_lock(&rdma_xprt->sc_rq_dto_lock);
+ 	ctxt = svc_rdma_next_recv_ctxt(&rdma_xprt->sc_read_complete_q);
+ 	if (ctxt) {
+--- a/net/sunrpc/xprtrdma/svc_rdma_sendto.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_sendto.c
+@@ -873,12 +873,7 @@ int svc_rdma_sendto(struct svc_rqst *rqs
+ 				      wr_lst, rp_ch);
+ 	if (ret < 0)
+ 		goto err1;
+-	ret = 0;
 -
--			opt = IP_PMTUDISC_DO;
--			kernel_setsockopt(conn->params.local->socket, SOL_IP,
--					  IP_MTU_DISCOVER,
--					  (char *)&opt, sizeof(opt));
--		}
--		break;
+-out:
+-	rqstp->rq_xprt_ctxt = NULL;
+-	svc_rdma_recv_ctxt_put(rdma, rctxt);
+-	return ret;
++	return 0;
+ 
+  err2:
+ 	if (ret != -E2BIG && ret != -EINVAL)
+@@ -887,14 +882,12 @@ out:
+ 	ret = svc_rdma_send_error_msg(rdma, sctxt, rqstp);
+ 	if (ret < 0)
+ 		goto err1;
+-	ret = 0;
+-	goto out;
++	return 0;
+ 
+  err1:
+ 	svc_rdma_send_ctxt_put(rdma, sctxt);
+  err0:
+ 	trace_svcrdma_send_failed(rqstp, ret);
+ 	set_bit(XPT_CLOSE, &xprt->xpt_flags);
+-	ret = -ENOTCONN;
+-	goto out;
++	return -ENOTCONN;
+ }
+--- a/net/sunrpc/xprtrdma/svc_rdma_transport.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_transport.c
+@@ -71,7 +71,6 @@ static struct svc_xprt *svc_rdma_create(
+ 					struct sockaddr *sa, int salen,
+ 					int flags);
+ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt);
+-static void svc_rdma_release_rqst(struct svc_rqst *);
+ static void svc_rdma_detach(struct svc_xprt *xprt);
+ static void svc_rdma_free(struct svc_xprt *xprt);
+ static int svc_rdma_has_wspace(struct svc_xprt *xprt);
+@@ -558,10 +557,6 @@ static struct svc_xprt *svc_rdma_accept(
+ 	return NULL;
+ }
+ 
+-static void svc_rdma_release_rqst(struct svc_rqst *rqstp)
+-{
+-}
 -
--#ifdef CONFIG_AF_RXRPC_IPV6
--	case AF_INET6:
--		opt = IPV6_PMTUDISC_DONT;
--		ret = kernel_setsockopt(conn->params.local->socket,
--					SOL_IPV6, IPV6_MTU_DISCOVER,
--					(char *)&opt, sizeof(opt));
--		if (ret == 0) {
--			ret = kernel_sendmsg(conn->params.local->socket, &msg,
--					     iov, 2, len);
--			conn->params.peer->last_tx_at = ktime_get_seconds();
-+		kernel_setsockopt(conn->params.local->socket,
-+				  SOL_IP, IP_MTU_DISCOVER,
-+				  (char *)&opt, sizeof(opt));
-+		ret = kernel_sendmsg(conn->params.local->socket, &msg,
-+				     iov, 2, len);
-+		conn->params.peer->last_tx_at = ktime_get_seconds();
- 
--			opt = IPV6_PMTUDISC_DO;
--			kernel_setsockopt(conn->params.local->socket,
--					  SOL_IPV6, IPV6_MTU_DISCOVER,
--					  (char *)&opt, sizeof(opt));
--		}
-+		opt = IP_PMTUDISC_DO;
-+		kernel_setsockopt(conn->params.local->socket,
-+				  SOL_IP, IP_MTU_DISCOVER,
-+				  (char *)&opt, sizeof(opt));
- 		break;
--#endif
- 
- 	default:
- 		BUG();
+ /*
+  * When connected, an svc_xprt has at least two references:
+  *
 
 
