@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE5341C15C8
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF9B1C13E5
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730484AbgEANdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:33:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59768 "EHLO mail.kernel.org"
+        id S1730513AbgEANd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730501AbgEANdy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:33:54 -0400
+        id S1730509AbgEANd4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:33:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1934B2051A;
-        Fri,  1 May 2020 13:33:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81739208C3;
+        Fri,  1 May 2020 13:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340033;
-        bh=lBlvo2JLinn+xJftezxS3qAHZEyExem1Y2iGhZCX2BM=;
+        s=default; t=1588340036;
+        bh=I/8wWdMsyaeMajMPLmadoycWaGnQX3FlrUMeRfRaWsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDC+ftYnfvhYOtwNDfi1Av9P409b1hQetCJOoW8TmTJ0w5Bg4AZK9eVLJcVhH/DLV
-         osErWWFMOgT0xXSVhj85iaC/GwZjvnV53m3KtR89Llt0uO1UJHXSeMTCc2jTu3bV8D
-         AMj4CRcbnJj9yUJmhyqGZYq8p2vOzcpu5pyHsym4=
+        b=DgqRgN4FZxdf5oY3USlbxkEjP/jQp6ESkCYg37Ds6mq8ER9WAvh/6fbu3Pn3NRj/6
+         RbYUQMUvHpkFuoUU6nOHavuo8X1+iMOnQ8MDWnpckQvxVukb8iy2k6L3Mxi1qhDNIn
+         jziT1JdJM5Ko3ZJepk+uhaAbKLr1Fh+a9MTB086s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Clemens Gruber <clemens.gruber@pqgruber.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Roland Hieber <rhi@pengutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.14 067/117] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y
-Date:   Fri,  1 May 2020 15:21:43 +0200
-Message-Id: <20200501131553.150920438@linuxfoundation.org>
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Qian Cai <cai@lca.pw>, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 068/117] powerpc/setup_64: Set cache-line-size based on cache-block-size
+Date:   Fri,  1 May 2020 15:21:44 +0200
+Message-Id: <20200501131553.234643918@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
 References: <20200501131544.291247695@linuxfoundation.org>
@@ -46,46 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-commit f1baca8896ae18e12c45552a4c4ae2086aa7e02c upstream.
+commit 94c0b013c98583614e1ad911e8795ca36da34a85 upstream.
 
-512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
-introduced an unintended linker error for i.MX6 configurations that have
-ARM_CPU_SUSPEND=n which can happen if neither CONFIG_PM, CONFIG_CPU_IDLE,
-nor ARM_PSCI_FW are selected.
+If {i,d}-cache-block-size is set and {i,d}-cache-line-size is not, use
+the block-size value for both. Per the devicetree spec cache-line-size
+is only needed if it differs from the block size.
 
-Fix this by having v7_cpu_resume() compiled only when cpu_resume() it
-calls is available as well.
+Originally the code would fallback from block size to line size. An
+error message was printed if both properties were missing.
 
-The C declaration for the function remains unguarded to avoid future code
-inadvertently using a stub and introducing a regression to the bug the
-original commit fixed.
+Later the code was refactored to use clearer names and logic but it
+inadvertently made line size a required property, meaning on systems
+without a line size property we fall back to the default from the
+cputable.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
-Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Tested-by: Roland Hieber <rhi@pengutronix.de>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On powernv (OPAL) platforms, since the introduction of device tree CPU
+features (5a61ef74f269 ("powerpc/64s: Support new device tree binding
+for discovering CPU features")), that has led to the wrong value being
+used, as the fallback value is incorrect for Power8/Power9 CPUs.
+
+The incorrect values flow through to the VDSO and also to the sysconf
+values, SC_LEVEL1_ICACHE_LINESIZE etc.
+
+Fixes: bd067f83b084 ("powerpc/64: Fix naming of cache block vs. cache line")
+Cc: stable@vger.kernel.org # v4.11+
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reported-by: Qian Cai <cai@lca.pw>
+[mpe: Add even more detail to change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200416221908.7886-1-chris.packham@alliedtelesis.co.nz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-imx/Makefile |    2 ++
+ arch/powerpc/kernel/setup_64.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/arch/arm/mach-imx/Makefile
-+++ b/arch/arm/mach-imx/Makefile
-@@ -87,8 +87,10 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7
- obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
- obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
- endif
-+ifeq ($(CONFIG_ARM_CPU_SUSPEND),y)
- AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
- obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
-+endif
- obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
- 
- obj-$(CONFIG_SOC_IMX1) += mach-imx1.o
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -466,6 +466,8 @@ static bool __init parse_cache_info(stru
+ 	lsizep = of_get_property(np, propnames[3], NULL);
+ 	if (bsizep == NULL)
+ 		bsizep = lsizep;
++	if (lsizep == NULL)
++		lsizep = bsizep;
+ 	if (lsizep != NULL)
+ 		lsize = be32_to_cpu(*lsizep);
+ 	if (bsizep != NULL)
 
 
