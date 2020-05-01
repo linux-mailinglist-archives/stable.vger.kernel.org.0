@@ -2,101 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08F11C0DB6
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 07:29:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D05D1C0DE7
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 07:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727922AbgEAF3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 01:29:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726452AbgEAF3m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 01:29:42 -0400
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DAB7C035494
-        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 22:29:42 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id y6so1937190pjc.4
-        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 22:29:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rSDnzE263hh7BnWrRxqLWLnXFcIkBH1IvnRTPrDcWNM=;
-        b=g3sDU4xT8LPPRgzeAPOx2gLLRTxeNG/nmndx0ttY84gUAafU/p76WmgnC0F6qU5JIt
-         Ga0CMLVyjTxOg2RJAq8VOc30rkbsvgXZHVwLn0678fQmW/RVphpClmUqBMh7nUo+TlrE
-         pP7Ggj/XOBKuvkl3GYCOgGuqe61XJe2vOWfL+SXKyr3vzLhepSthSjagpnNOEwi+K4nK
-         v070JrAlpRofbETePEkYWSUlU9S9cu9kVAQH0Em7fjghgURL8P1lIRPTymaApcGgLMuA
-         pTgVSDbbRFgB8WXHhvMoP36vosKB34Q40hj+xabQZ2EyqnLpdE0J5mFzU9hflrN+SWVp
-         7pZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rSDnzE263hh7BnWrRxqLWLnXFcIkBH1IvnRTPrDcWNM=;
-        b=QWkYIZP1nXbcvnspd4gpHTKV2yaX99988rXojO9l1rJQBXNg9JN8ooed8f7ZhI/ipw
-         CNJAeaF8iG9q8p6zt28L/RXyqY5MJY0oPCR3mY1VAxcw0hRl2ylf9ZPEAzcIa548jYid
-         B3VlNWTfL3n5ShFYXFuTSgV41PAIMprv8E7I6TIdONnL9Hk7bVmkBP9P5yXghwzQLylh
-         K4/h6Pdyk0wrnIi+FthUgu8XWpnQVKzMk07eoZsJKXMsAUlA+/k/l/2nyvUgI5NXcpjY
-         1KvbqxbGHxXYb0H94dPimZO7hf/6srpLKzy4LqMG8h/l595zqBUkU16kOFHjgOfCnXtx
-         nyFA==
-X-Gm-Message-State: AGi0Pub/unHZEEdshD/PLdbADEWFbFrWMrN0L/gbCj/4DbLPJmRXsIWD
-        8miDpUbgI4Uk6N2QCb+iXmVqHOJGLeY=
-X-Google-Smtp-Source: APiQypKXqZVS0OPtjRCqh/Wtf+RD5uTzVm6OECAwWqofHt/4cUTs2+YA7faPUiAqBEEl4jQhd2f3BQ==
-X-Received: by 2002:a17:90a:7a83:: with SMTP id q3mr2586473pjf.162.1588310981716;
-        Thu, 30 Apr 2020 22:29:41 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w75sm1213374pfc.156.2020.04.30.22.29.40
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Apr 2020 22:29:41 -0700 (PDT)
-Message-ID: <5eabb3c5.1c69fb81.d0859.617e@mx.google.com>
-Date:   Thu, 30 Apr 2020 22:29:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728184AbgEAFxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 01:53:31 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:37399 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726452AbgEAFxb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 01:53:31 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 30979480;
+        Fri,  1 May 2020 01:53:30 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 01 May 2020 01:53:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=aL2xoRvlH3KhRZsuUB+rD3AmlYc
+        cUb/P3zhe/y/AnQk=; b=cDeOnyzkS1pzz4RvdQSYaflaxsfqWUym5u/eIbYN7wW
+        E+z2iG1Co+7V3e8Eo1o+kaPL/s8hieocH4YjrovsbwuWiAp1F90biJT28tqYfM0I
+        CIJrxv/RavUAT2fwPpCWfu5EU6dHGTVKTa1ko2sulSMg1AI8mEIUzROMP3gBRzfi
+        w9OUxv4dcC67AIMM0E42ITeo4R0MVvCCG05/kxWDW3Wm3WFA+jh5RILn4oFY3mKr
+        R28EJXYI2jwwqbEFaOSnKGmDjYR6l5Y0MLg0Hccx4ng8BxuNfUojMNoiR9Mpv4hh
+        Ga/sKFYHarvxTkBArruPADQOeMderQ+muzDsqQAgu2w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=aL2xoR
+        vlH3KhRZsuUB+rD3AmlYccUb/P3zhe/y/AnQk=; b=n2FRkI87xDtyzVITcDIe66
+        Maq38f389+E2/oPtOW1ZbPBQUrOiaS7scgKxUfEol5cHREy6nEPyS6SX3w9bZ2Vc
+        uplXixOOms8BfYxgnHijyS0yaXWObax8FugqHlg1/enP60OiE7x5kuwWp/84KgRN
+        B9dDnvRBhdCF0S6PqHi7lyQ25MvWCr48kVPj1hKV2KzmMwkXaVQZ1O/dkGWBhncR
+        VXnIYXqCVh02nLpxpP/nx+V2gOH1FGUfy2agwUcnjsQ2K3BJCcmsr63W2EhNfP6J
+        4bAi3fSyJSeOPY4askKlhK0d2wVlqT0buqAc2rb991cy8QBdnZVDkaFsXutFjNyg
+        ==
+X-ME-Sender: <xms:WbmrXhC4_OFEtN-UaXJRuFnZF143MliT8_bPlUdDeLlXDquqEs1Y5Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrieeigdelkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
+    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
+    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhm
+X-ME-Proxy: <xmx:WbmrXgxEWYrRFQmoF_9pNMMGYKJ65htZkISsWyZHMT9MACDrGmI3iA>
+    <xmx:WbmrXuVl_uSB_vsI4-gKarrfWdjU8mRJSmJpdDWj-Di1FBhw87Vhjg>
+    <xmx:WbmrXlN5duXHpV6UBoXyZO1xvgjlbNAz9E67FXR0oJUa4Y4VJZULlA>
+    <xmx:WbmrXoLqh7rQPNCi7c3l-USjght9IDL9Z58MFtHX-oVSTeQ--BNgRA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 62CE63280059;
+        Fri,  1 May 2020 01:53:29 -0400 (EDT)
+Date:   Fri, 1 May 2020 07:53:26 +0200
+From:   Greg KH <greg@kroah.com>
+To:     rananta@codeaurora.org
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
+Subject: Re: Request to backport a patch onto 5.4.y stable
+Message-ID: <20200501055326.GA805178@kroah.com>
+References: <b8f451c80fe1cd57bdd4fea74d21e8cd@codeaurora.org>
+ <20200430233357.GA13035@sasha-vm>
+ <ba319dc2e66986c7cc594f88ce98621c@codeaurora.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.6.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.6.8-68-g8fe1aeefcb6f
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.6.y boot: 95 boots: 1 failed,
- 91 passed with 3 untried/unknown (v5.6.8-68-g8fe1aeefcb6f)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ba319dc2e66986c7cc594f88ce98621c@codeaurora.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.6.y boot: 95 boots: 1 failed, 91 passed with 3 untried/un=
-known (v5.6.8-68-g8fe1aeefcb6f)
+On Thu, Apr 30, 2020 at 08:23:54PM -0700, rananta@codeaurora.org wrote:
+> On 2020-04-30 16:33, Sasha Levin wrote:
+> > On Thu, Apr 30, 2020 at 01:36:45PM -0700, rananta@codeaurora.org wrote:
+> > > Hi,
+> > > 
+> > > I need help to backport the patch with the following details onto
+> > > the 5.4.y stable branch:
+> > > Subject: [PATCH] tty: hvc: Fix data abort due to race in hvc_open
+> > > commit-id: e2bd1dcbe1aa34ff5570b3427c530e4332ecf0fe
+> > > Reason: The issue addressed in the patch was discovered on 5.4.y
+> > > branch
+> > 
+> > Is it in Linus's tree?
+> It's on linux-next tree:
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/drivers/tty/hvc/hvc_console.c?id=e2bd1dcbe1aa34ff5570b3427c530e4332ecf0fe
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.6.y/kernel/v5.6.8-68-g8fe1aeefcb6f/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
-/kernel/v5.6.8-68-g8fe1aeefcb6f/
+As per the rules documented at:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+a patch has to be in Linus's tree before it can be included in a stable
+kernel.
 
-Tree: stable-rc
-Branch: linux-5.6.y
-Git Describe: v5.6.8-68-g8fe1aeefcb6f
-Git Commit: 8fe1aeefcb6f3029d70d9ea731359d954526f7ec
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 16 SoC families, 18 builds out of 200
+Please work with the tty developer to get this into Linus's tree if you
+feel it should be needed there.  As it is, it is only scheduled to be
+sent to him for 5.8-rc1 as your patch description did not make it seem
+very urgent or relevant for 5.7-final.
 
-Boot Regressions Detected:
+thanks,
 
-arc:
-
-    hsdk_defconfig:
-        gcc-8:
-          hsdk:
-              lab-baylibre: new failure (last pass: v5.6.8)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+greg k-h
