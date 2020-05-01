@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16EE61C130E
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 597F41C13E1
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729278AbgEAN0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:26:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48396 "EHLO mail.kernel.org"
+        id S1730487AbgEANdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:33:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729292AbgEAN0g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:26:36 -0400
+        id S1730484AbgEANdt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:33:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77107208D6;
-        Fri,  1 May 2020 13:26:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C554208C3;
+        Fri,  1 May 2020 13:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339595;
-        bh=pfLbE4VzKyFtdeGfDyuYIWsD/fCOmU/zkT+bA4jZ3ek=;
+        s=default; t=1588340028;
+        bh=+r+srJX8hquEpA7t0IW71IHLe0QFyhrogr8b/R2VQkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m1Vt4vyKyqRLo2kVas2o1HvPzBYEOm/GsA80ti4CajODug1UznDrkq8TB0ptWEnmD
-         FtdqVMMV/AeKbphvQbuz6gh8cdRoxx6NOx2DEpCDsWtI22dxhb2fgiCTY8AJvEA1gj
-         SH/IozgREWvOYfUGyasRyL3bQXFui7AzHKKW3O3U=
+        b=yy3FyuJE1u98tbJUy0n6MH8LebRZxQ+Hco3jxawQGTK0ljNv5gqPCericf6OjG4SW
+         5h+Gl2XGoOd4d4LNL9O+9eSAl9F5P08Ah3ONz2Vcb7wBOMo55XckcvutiDDbIJlGOc
+         9dxZc0OpJiPSTb3vUYsMjs0gIYvmqIHp/J2rnFG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Udipto Goswami <ugoswami@codeaurora.org>,
-        Sriharsha Allenki <sallenki@codeaurora.org>,
-        Manu Gautam <mgautam@codeaurora.org>
-Subject: [PATCH 4.4 53/70] usb: f_fs: Clear OS Extended descriptor counts to zero in ffs_data_reset()
+        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 065/117] ASoC: dapm: fixup dapm kcontrol widget
 Date:   Fri,  1 May 2020 15:21:41 +0200
-Message-Id: <20200501131529.693541005@linuxfoundation.org>
+Message-Id: <20200501131552.952789045@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Udipto Goswami <ugoswami@codeaurora.org>
+From: Gyeongtaek Lee <gt82.lee@samsung.com>
 
-commit 1c2e54fbf1da5e5445a0ab132c862b02ccd8d230 upstream.
+commit ebf1474745b4373fdde0fcf32d9d1f369b50b212 upstream.
 
-For userspace functions using OS Descriptors, if a function also supplies
-Extended Property descriptors currently the counts and lengths stored in
-the ms_os_descs_ext_prop_{count,name_len,data_len} variables are not
-getting reset to 0 during an unbind or when the epfiles are closed. If
-the same function is re-bound and the descriptors are re-written, this
-results in those count/length variables to monotonically increase
-causing the VLA allocation in _ffs_func_bind() to grow larger and larger
-at each bind/unbind cycle and eventually fail to allocate.
+snd_soc_dapm_kcontrol widget which is created by autodisable control
+should contain correct on_val, mask and shift because it is set when the
+widget is powered and changed value is applied on registers by following
+code in dapm_seq_run_coalesced().
 
-Fix this by clearing the ms_os_descs_ext_prop count & lengths to 0 in
-ffs_data_reset().
+		mask |= w->mask << w->shift;
+		if (w->power)
+			value |= w->on_val << w->shift;
+		else
+			value |= w->off_val << w->shift;
 
-Fixes: f0175ab51993 ("usb: gadget: f_fs: OS descriptors support")
+Shift on the mask in dapm_kcontrol_data_alloc() is removed to prevent
+double shift.
+And, on_val in dapm_kcontrol_set_value() is modified to get correct
+value in the dapm_seq_run_coalesced().
+
+Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Udipto Goswami <ugoswami@codeaurora.org>
-Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
-Reviewed-by: Manu Gautam <mgautam@codeaurora.org>
-Link: https://lore.kernel.org/r/20200402044521.9312-1-sallenki@codeaurora.org
+Link: https://lore.kernel.org/r/000001d61537$b212f620$1638e260$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_fs.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/soc-dapm.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1511,6 +1511,10 @@ static void ffs_data_reset(struct ffs_da
- 	ffs->state = FFS_READ_DESCRIPTORS;
- 	ffs->setup_state = FFS_NO_SETUP;
- 	ffs->flags = 0;
-+
-+	ffs->ms_os_descs_ext_prop_count = 0;
-+	ffs->ms_os_descs_ext_prop_name_len = 0;
-+	ffs->ms_os_descs_ext_prop_data_len = 0;
- }
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -413,7 +413,7 @@ static int dapm_kcontrol_data_alloc(stru
  
+ 			memset(&template, 0, sizeof(template));
+ 			template.reg = e->reg;
+-			template.mask = e->mask << e->shift_l;
++			template.mask = e->mask;
+ 			template.shift = e->shift_l;
+ 			template.off_val = snd_soc_enum_item_to_val(e, 0);
+ 			template.on_val = template.off_val;
+@@ -539,8 +539,22 @@ static bool dapm_kcontrol_set_value(cons
+ 	if (data->value == value)
+ 		return false;
+ 
+-	if (data->widget)
+-		data->widget->on_val = value;
++	if (data->widget) {
++		switch (dapm_kcontrol_get_wlist(kcontrol)->widgets[0]->id) {
++		case snd_soc_dapm_switch:
++		case snd_soc_dapm_mixer:
++		case snd_soc_dapm_mixer_named_ctl:
++			data->widget->on_val = value & data->widget->mask;
++			break;
++		case snd_soc_dapm_demux:
++		case snd_soc_dapm_mux:
++			data->widget->on_val = value >> data->widget->shift;
++			break;
++		default:
++			data->widget->on_val = value;
++			break;
++		}
++	}
+ 
+ 	data->value = value;
  
 
 
