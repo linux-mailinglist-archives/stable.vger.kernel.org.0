@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFD511C161F
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30B21C1621
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731252AbgEANkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:40:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39952 "EHLO mail.kernel.org"
+        id S1730726AbgEANkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:40:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731255AbgEANkD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:40:03 -0400
+        id S1731249AbgEANkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:40:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB908208DB;
-        Fri,  1 May 2020 13:40:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D4A220757;
+        Fri,  1 May 2020 13:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340403;
-        bh=RpfhVOXxX3aV7XV0Dv4K1wjnb66rGRtdNoF3FMlSnv8=;
+        s=default; t=1588340405;
+        bh=YphpFFixkiyfnywxVYFRTXsrp7Q0WASly/v6cgjf3Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EjdAAt2YhMB8CvbASUfTc4fGey6ayzL1/kMVO8Xql2eI/Jh/HIEj3oW2tsXbLilCt
-         4bdgTPrXsYQuj4Sia4fchTSl1jHKBFgUq8ziocNzuKRnf4VDXd1aZVBorBH73DgjY8
-         UNHIiaNdbe/Dw4/ApNC5KGY30rHl6p9bcE1HTiqc=
+        b=HMFi6TSut+gb7SE2uOnGm1isblwDxYu8F/xnSGG24B/C82KdLQwvUXXTCQC1L/BP5
+         fyeG2cI0WokBhS/qBObjlLJBwFB4L7kxhx3TQhBybkpWye5tYPtKzhpwi49/TCC/WP
+         RCwnvMZlBF8m+h15EP6kxDfuSYhHdHD4m3+cRkeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Kees Cook <keescook@chromium.org>,
-        Miroslav Benes <mbenes@suse.cz>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>, Miroslav Benes <mbenes@suse.cz>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 64/83] objtool: Fix CONFIG_UBSAN_TRAP unreachable warnings
-Date:   Fri,  1 May 2020 15:23:43 +0200
-Message-Id: <20200501131540.689210634@linuxfoundation.org>
+Subject: [PATCH 5.4 65/83] objtool: Support Clang non-section symbols in ORC dump
+Date:   Fri,  1 May 2020 15:23:44 +0200
+Message-Id: <20200501131540.818399101@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
 References: <20200501131524.004332640@linuxfoundation.org>
@@ -50,65 +47,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit bd841d6154f5f41f8a32d3c1b0bc229e326e640a ]
+[ Upstream commit 8782e7cab51b6bf01a5a86471dd82228af1ac185 ]
 
-CONFIG_UBSAN_TRAP causes GCC to emit a UD2 whenever it encounters an
-unreachable code path.  This includes __builtin_unreachable().  Because
-the BUG() macro uses __builtin_unreachable() after it emits its own UD2,
-this results in a double UD2.  In this case objtool rightfully detects
-that the second UD2 is unreachable:
+Historically, the relocation symbols for ORC entries have only been
+section symbols:
 
-  init/main.o: warning: objtool: repair_env_string()+0x1c8: unreachable instruction
+  .text+0: sp:sp+8 bp:(und) type:call end:0
 
-We weren't able to figure out a way to get rid of the double UD2s, so
-just silence the warning.
+However, the Clang assembler is aggressive about stripping section
+symbols.  In that case we will need to use function symbols:
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
+  freezing_slow_path+0: sp:sp+8 bp:(und) type:call end:0
+
+In preparation for the generation of such entries in "objtool orc
+generate", add support for reading them in "objtool orc dump".
+
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: Miroslav Benes <mbenes@suse.cz>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/6653ad73c6b59c049211bd7c11ed3809c20ee9f5.1585761021.git.jpoimboe@redhat.com
+Link: https://lkml.kernel.org/r/b811b5eb1a42602c3b523576dc5efab9ad1c174d.1585761021.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ tools/objtool/orc_dump.c | 44 ++++++++++++++++++++++++----------------
+ 1 file changed, 27 insertions(+), 17 deletions(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 9fa4e1a46ca95..d6a971326f879 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -2306,14 +2306,27 @@ static bool ignore_unreachable_insn(struct instruction *insn)
- 	    !strcmp(insn->sec->name, ".altinstr_aux"))
- 		return true;
+diff --git a/tools/objtool/orc_dump.c b/tools/objtool/orc_dump.c
+index 13ccf775a83a4..ba4cbb1cdd632 100644
+--- a/tools/objtool/orc_dump.c
++++ b/tools/objtool/orc_dump.c
+@@ -66,7 +66,7 @@ int orc_dump(const char *_objname)
+ 	char *name;
+ 	size_t nr_sections;
+ 	Elf64_Addr orc_ip_addr = 0;
+-	size_t shstrtab_idx;
++	size_t shstrtab_idx, strtab_idx = 0;
+ 	Elf *elf;
+ 	Elf_Scn *scn;
+ 	GElf_Shdr sh;
+@@ -127,6 +127,8 @@ int orc_dump(const char *_objname)
  
-+	if (!insn->func)
-+		return false;
-+
-+	/*
-+	 * CONFIG_UBSAN_TRAP inserts a UD2 when it sees
-+	 * __builtin_unreachable().  The BUG() macro has an unreachable() after
-+	 * the UD2, which causes GCC's undefined trap logic to emit another UD2
-+	 * (or occasionally a JMP to UD2).
-+	 */
-+	if (list_prev_entry(insn, list)->dead_end &&
-+	    (insn->type == INSN_BUG ||
-+	     (insn->type == INSN_JUMP_UNCONDITIONAL &&
-+	      insn->jump_dest && insn->jump_dest->type == INSN_BUG)))
-+		return true;
-+
- 	/*
- 	 * Check if this (or a subsequent) instruction is related to
- 	 * CONFIG_UBSAN or CONFIG_KASAN.
- 	 *
- 	 * End the search at 5 instructions to avoid going into the weeds.
- 	 */
--	if (!insn->func)
--		return false;
- 	for (i = 0; i < 5; i++) {
+ 		if (!strcmp(name, ".symtab")) {
+ 			symtab = data;
++		} else if (!strcmp(name, ".strtab")) {
++			strtab_idx = i;
+ 		} else if (!strcmp(name, ".orc_unwind")) {
+ 			orc = data->d_buf;
+ 			orc_size = sh.sh_size;
+@@ -138,7 +140,7 @@ int orc_dump(const char *_objname)
+ 		}
+ 	}
  
- 		if (is_kasan_insn(insn) || is_ubsan_insn(insn))
+-	if (!symtab || !orc || !orc_ip)
++	if (!symtab || !strtab_idx || !orc || !orc_ip)
+ 		return 0;
+ 
+ 	if (orc_size % sizeof(*orc) != 0) {
+@@ -159,21 +161,29 @@ int orc_dump(const char *_objname)
+ 				return -1;
+ 			}
+ 
+-			scn = elf_getscn(elf, sym.st_shndx);
+-			if (!scn) {
+-				WARN_ELF("elf_getscn");
+-				return -1;
+-			}
+-
+-			if (!gelf_getshdr(scn, &sh)) {
+-				WARN_ELF("gelf_getshdr");
+-				return -1;
+-			}
+-
+-			name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
+-			if (!name || !*name) {
+-				WARN_ELF("elf_strptr");
+-				return -1;
++			if (GELF_ST_TYPE(sym.st_info) == STT_SECTION) {
++				scn = elf_getscn(elf, sym.st_shndx);
++				if (!scn) {
++					WARN_ELF("elf_getscn");
++					return -1;
++				}
++
++				if (!gelf_getshdr(scn, &sh)) {
++					WARN_ELF("gelf_getshdr");
++					return -1;
++				}
++
++				name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
++				if (!name) {
++					WARN_ELF("elf_strptr");
++					return -1;
++				}
++			} else {
++				name = elf_strptr(elf, strtab_idx, sym.st_name);
++				if (!name) {
++					WARN_ELF("elf_strptr");
++					return -1;
++				}
+ 			}
+ 
+ 			printf("%s+%llx:", name, (unsigned long long)rela.r_addend);
 -- 
 2.20.1
 
