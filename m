@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE62F1C1400
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:44:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB57B1C158B
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730589AbgEANeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:34:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60848 "EHLO mail.kernel.org"
+        id S1729419AbgEANaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:30:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730586AbgEANef (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:34:35 -0400
+        id S1729032AbgEANaK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:30:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA991208DB;
-        Fri,  1 May 2020 13:34:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B781A208D6;
+        Fri,  1 May 2020 13:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340075;
-        bh=0w8PVJr8+NNOQecU/YV1JfnyPX2mTWZey+/TOljFZWI=;
+        s=default; t=1588339810;
+        bh=2C+zaXH0NcVwovhzxCpIT+U1m1TU7namuJZfIR6ant8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AOEVemgXgug0Ss0jABInf1wW57JSh4Uz/2O7ubJRBK9CGxd61ThhUvKC9ORFjsrQ5
-         Fl0Sr+ZCHqouAxBMDGgb7M6HUhPbq2AYlheIamjpXbrcb0VJcnvP4E3k3p/xwedOiL
-         6Ccl7hhORXaCXZ6JXyo9zjzkfNEM+wbZ/UMXFBUg=
+        b=SDmIlfpybFALJLGUvkP7SNyg3QSA5vtqMT4wWwTIrL62oHEDqhZqupPog75S7JsKJ
+         OnMWfSchb4jO/wHmEKuSgtiXfJIL02oiZame6R74hiLHpZUsrAhykM0rbf56d7XmiX
+         G8YnAPzbyFMqwZNItpUT81LDg62qaFYENNpzO0Lc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 4.14 074/117] staging: vt6656: Fix drivers TBTT timing counter.
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.9 56/80] UAS: no use logging any details in case of ENODEV
 Date:   Fri,  1 May 2020 15:21:50 +0200
-Message-Id: <20200501131553.808718905@linuxfoundation.org>
+Message-Id: <20200501131530.483623421@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malcolm Priestley <tvboxspy@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 09057742af98a39ebffa27fac4f889dc873132de upstream.
+commit 5963dec98dc52d52476390485f07a29c30c6a582 upstream.
 
-The drivers TBTT counter is not synchronized with mac80211 timestamp.
+Once a device is gone, the internal state does not matter anymore.
+There is no need to spam the logs.
 
-Reorder the functions and use vnt_update_next_tbtt to do the final
-synchronize.
-
-Fixes: c15158797df6 ("staging: vt6656: implement TSF counter")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/375d0b25-e8bc-c8f7-9b10-6cc705d486ee@gmail.com
+Fixes: 326349f824619 ("uas: add dead request list")
+Link: https://lore.kernel.org/r/20200415141750.811-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/vt6656/main_usb.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/usb/storage/uas.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -739,12 +739,15 @@ static void vnt_bss_info_changed(struct
- 			vnt_mac_reg_bits_on(priv, MAC_REG_TFTCTL,
- 					    TFTCTL_TSFCNTREN);
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -191,6 +191,9 @@ static void uas_log_cmd_state(struct scs
+ 	struct uas_cmd_info *ci = (void *)&cmnd->SCp;
+ 	struct uas_cmd_info *cmdinfo = (void *)&cmnd->SCp;
  
--			vnt_adjust_tsf(priv, conf->beacon_rate->hw_value,
--				       conf->sync_tsf, priv->current_tsf);
--
- 			vnt_mac_set_beacon_interval(priv, conf->beacon_int);
- 
- 			vnt_reset_next_tbtt(priv, conf->beacon_int);
++	if (status == -ENODEV) /* too late */
++		return;
 +
-+			vnt_adjust_tsf(priv, conf->beacon_rate->hw_value,
-+				       conf->sync_tsf, priv->current_tsf);
-+
-+			vnt_update_next_tbtt(priv,
-+					     conf->sync_tsf, conf->beacon_int);
- 		} else {
- 			vnt_clear_current_tsf(priv);
- 
+ 	scmd_printk(KERN_INFO, cmnd,
+ 		    "%s %d uas-tag %d inflight:%s%s%s%s%s%s%s%s%s%s%s%s ",
+ 		    prefix, status, cmdinfo->uas_tag,
 
 
