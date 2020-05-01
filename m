@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED45F1C1337
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:28:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54BCA1C13BE
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729569AbgEAN2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:28:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50778 "EHLO mail.kernel.org"
+        id S1729509AbgEANcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:32:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729560AbgEAN2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:28:02 -0400
+        id S1730327AbgEANci (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:32:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFC6424957;
-        Fri,  1 May 2020 13:28:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38870208C3;
+        Fri,  1 May 2020 13:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339682;
-        bh=gvckD+08zbGS7Exmtd6V1EEAPXF8knBKNzJ+PEUIKx8=;
+        s=default; t=1588339957;
+        bh=NEw4h2mf+ZommB+hhjS96rqsqdRd5+L5tcm2uLB/e9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjCoMC1dIWeRGI+90ao0Hu4anIrVW1jT2GK5ZM+HYGG/6iy1dTRNPVt4jrPsO+nHX
-         +p6nqslgZJPcFx6LPLFVNzHB5KfGOoSzyiXVwTBFy+M6RhGTm9HoRv1zbkUrZpVx4v
-         m4ibn5h25jT4pN84b+XVazHRxNYrdRFTldwY0D2Q=
+        b=j+HBFbTghTemx/skq5l9gLPWNP3QJ75RAT3SSYj2HOMipYQap7XnXvElOL22kQq9W
+         T9YbcEszmZlPvKW+lEWvITEMtaK84YJExqIXHlrj6oT9Idkx4dYK0nQZSXBrSDP+1c
+         LyadhPMVS6ffR3PDTiLtLeJfKrHpoX8L2JRqLp6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 17/80] pwm: renesas-tpu: Fix late Runtime PM enablement
+        stable@vger.kernel.org, Trev Larock <trev@larock.ca>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 035/117] vrf: Check skb for XFRM_TRANSFORMED flag
 Date:   Fri,  1 May 2020 15:21:11 +0200
-Message-Id: <20200501131519.700617266@linuxfoundation.org>
+Message-Id: <20200501131548.956894222@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: David Ahern <dsahern@gmail.com>
 
-[ Upstream commit d5a3c7a4536e1329a758e14340efd0e65252bd3d ]
+[ Upstream commit 16b9db1ce34ff00d6c18e82825125cfef0cdfb13 ]
 
-Runtime PM should be enabled before calling pwmchip_add(), as PWM users
-can appear immediately after the PWM chip has been added.
-Likewise, Runtime PM should always be disabled after the removal of the
-PWM chip, even if the latter failed.
+To avoid a loop with qdiscs and xfrms, check if the skb has already gone
+through the qdisc attached to the VRF device and then to the xfrm layer.
+If so, no need for a second redirect.
 
-Fixes: 99b82abb0a35b073 ("pwm: Add Renesas TPU PWM driver")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 193125dbd8eb ("net: Introduce VRF device driver")
+Reported-by: Trev Larock <trev@larock.ca>
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pwm/pwm-renesas-tpu.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/vrf.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pwm/pwm-renesas-tpu.c b/drivers/pwm/pwm-renesas-tpu.c
-index 075c1a764ba29..6247a956cc089 100644
---- a/drivers/pwm/pwm-renesas-tpu.c
-+++ b/drivers/pwm/pwm-renesas-tpu.c
-@@ -423,16 +423,17 @@ static int tpu_probe(struct platform_device *pdev)
- 	tpu->chip.base = -1;
- 	tpu->chip.npwm = TPU_CHANNEL_MAX;
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -476,7 +476,8 @@ static struct sk_buff *vrf_ip6_out(struc
+ 	if (rt6_need_strict(&ipv6_hdr(skb)->daddr))
+ 		return skb;
  
-+	pm_runtime_enable(&pdev->dev);
-+
- 	ret = pwmchip_add(&tpu->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to register PWM chip\n");
-+		pm_runtime_disable(&pdev->dev);
- 		return ret;
- 	}
+-	if (qdisc_tx_is_default(vrf_dev))
++	if (qdisc_tx_is_default(vrf_dev) ||
++	    IP6CB(skb)->flags & IP6SKB_XFRM_TRANSFORMED)
+ 		return vrf_ip6_out_direct(vrf_dev, sk, skb);
  
- 	dev_info(&pdev->dev, "TPU PWM %d registered\n", tpu->pdev->id);
+ 	return vrf_ip6_out_redirect(vrf_dev, skb);
+@@ -692,7 +693,8 @@ static struct sk_buff *vrf_ip_out(struct
+ 	    ipv4_is_lbcast(ip_hdr(skb)->daddr))
+ 		return skb;
  
--	pm_runtime_enable(&pdev->dev);
--
- 	return 0;
- }
+-	if (qdisc_tx_is_default(vrf_dev))
++	if (qdisc_tx_is_default(vrf_dev) ||
++	    IPCB(skb)->flags & IPSKB_XFRM_TRANSFORMED)
+ 		return vrf_ip_out_direct(vrf_dev, sk, skb);
  
-@@ -442,12 +443,10 @@ static int tpu_remove(struct platform_device *pdev)
- 	int ret;
- 
- 	ret = pwmchip_remove(&tpu->chip);
--	if (ret)
--		return ret;
- 
- 	pm_runtime_disable(&pdev->dev);
- 
--	return 0;
-+	return ret;
- }
- 
- #ifdef CONFIG_OF
--- 
-2.20.1
-
+ 	return vrf_ip_out_redirect(vrf_dev, skb);
 
 
