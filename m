@@ -2,49 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 218811C15B2
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2594C1C12D6
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:25:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730250AbgEANcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:32:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56956 "EHLO mail.kernel.org"
+        id S1728901AbgEANYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:24:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729560AbgEANcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:32:08 -0400
+        id S1728586AbgEANYx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:24:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B47520757;
-        Fri,  1 May 2020 13:32:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B1EE20757;
+        Fri,  1 May 2020 13:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339928;
-        bh=KxgNkUjVFM7CT+iFDdcDZHWsAV/C9tx3nHEWZ0Hnhl8=;
+        s=default; t=1588339492;
+        bh=J/Vduuc6K4oG5QaPbPv+hZlHI7uJ73AU87b85d0RVSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vnFPh7eKUFHwHn2d/hO3ewAh1hFDT8CIs7TYpybTNIoCIhRbqxDPKqZiftsgtUteK
-         18Ke8xQKysosNkR7LcJqZEN/zFUs/bFjFl0yyQMN+afPJT/IPXVj2lIGqxOFuOC4yT
-         ssKszueZQL68dCIb64SYb7PHSXFvycAwPQgC+CuE=
+        b=xt2qqRiFdUWTxSp+HxfVHYJCQ865e082JPnciqoR3SoSRRUiEOS7V+/JfXzDi2Is+
+         QqzIA9xuyrAMCuzYD9qjzvYcWKrhEy9nYrmu+7X8lBGjPfpXwFmbqDNI8WAa852D0e
+         6xZLDF2lD+Bldvr8qTaiAIGwBUiZZFEa6KP9K3m8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Kees Cook <keescook@chromium.org>,
-        Daniel Micay <danielmicay@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Matthias Schiffer <mschiffer@universe-factory.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sven Eckelmann <sven@narfation.org>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Wu Bo <wubo40@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 023/117] mm, slub: restore the original intention of prefetch_freepointer()
+Subject: [PATCH 4.4 11/70] scsi: iscsi: Report unbind session event when the target has been removed
 Date:   Fri,  1 May 2020 15:20:59 +0200
-Message-Id: <20200501131547.739266029@linuxfoundation.org>
+Message-Id: <20200501131516.273977049@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
+From: Wu Bo <wubo40@huawei.com>
 
-commit 0882ff9190e3bc51e2d78c3aadd7c690eeaa91d5 upstream.
+[ Upstream commit 13e60d3ba287d96eeaf1deaadba51f71578119a3 ]
 
-In SLUB, prefetch_freepointer() is used when allocating an object from
-cache's freelist, to make sure the next object in the list is cache-hot,
-since it's probable it will be allocated soon.
+If the daemon is restarted or crashes while logging out of a session, the
+unbind session event sent by the kernel is not processed and is lost.  When
+the daemon starts again, the session can't be unbound because the daemon is
+waiting for the event message. However, the kernel has already logged out
+and the event will not be resent.
 
-Commit 2482ddec670f ("mm: add SLUB free list pointer obfuscation") has
-unintentionally changed the prefetch in a way where the prefetch is
-turned to a real fetch, and only the next->next pointer is prefetched.
-In case there is not a stream of allocations that would benefit from
-prefetching, the extra real fetch might add a useless cache miss to the
-allocation.  Restore the previous behavior.
+When iscsid restart is complete, logout session reports error:
 
-Link: http://lkml.kernel.org/r/20180809085245.22448-1-vbabka@suse.cz
-Fixes: 2482ddec670f ("mm: add SLUB free list pointer obfuscation")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Kees Cook <keescook@chromium.org>
-Cc: Daniel Micay <danielmicay@gmail.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Matthias Schiffer <mschiffer@universe-factory.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Logging out of session [sid: 6, target: iqn.xxxxx, portal: xx.xx.xx.xx,3260]
+iscsiadm: Could not logout of [sid: 6, target: iscsiadm -m node iqn.xxxxx, portal: xx.xx.xx.xx,3260].
+iscsiadm: initiator reported error (9 - internal error)
+iscsiadm: Could not logout of all requested sessions
+
+Make sure the unbind event is emitted.
+
+[mkp: commit desc and applied by hand since patch was mangled]
+
+Link: https://lore.kernel.org/r/4eab1771-2cb3-8e79-b31c-923652340e99@huawei.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Wu Bo <wubo40@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/mm/slub.c b/mm/slub.c
-index 3c1a16f03b2bd..481518c3f61a9 100644
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -269,8 +269,7 @@ static inline void *get_freepointer(struct kmem_cache *s, void *object)
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 20cf01d6ded7e..de10b461ec7ef 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -2014,7 +2014,7 @@ static void __iscsi_unbind_session(struct work_struct *work)
+ 	if (session->target_id == ISCSI_MAX_TARGET) {
+ 		spin_unlock_irqrestore(&session->lock, flags);
+ 		mutex_unlock(&ihost->mutex);
+-		return;
++		goto unbind_session_exit;
+ 	}
  
- static void prefetch_freepointer(const struct kmem_cache *s, void *object)
- {
--	if (object)
--		prefetch(freelist_dereference(s, object + s->offset));
-+	prefetch(object + s->offset);
+ 	target_id = session->target_id;
+@@ -2026,6 +2026,8 @@ static void __iscsi_unbind_session(struct work_struct *work)
+ 		ida_simple_remove(&iscsi_sess_ida, target_id);
+ 
+ 	scsi_remove_target(&session->dev);
++
++unbind_session_exit:
+ 	iscsi_session_event(session, ISCSI_KEVENT_UNBIND_SESSION);
+ 	ISCSI_DBG_TRANS_SESSION(session, "Completed target removal\n");
  }
- 
- static inline void *get_freepointer_safe(struct kmem_cache *s, void *object)
 -- 
 2.20.1
 
