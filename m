@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21CCC1C15F3
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53D111C14AB
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730888AbgEANgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:36:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35322 "EHLO mail.kernel.org"
+        id S1730665AbgEANls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730150AbgEANgn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:36:43 -0400
+        id S1731195AbgEANlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:41:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75E3124953;
-        Fri,  1 May 2020 13:36:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8D4C208DB;
+        Fri,  1 May 2020 13:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340202;
-        bh=IvEs8V4rgvmi8KyhUyC1kcTq/3jqZEIpwqMeUlgY8k8=;
+        s=default; t=1588340504;
+        bh=zS4435gaHbhXcNFQzlsGB0b2rao3xyinhG5EY9EUhTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07zfbMxjntsWyO3Nv+6/z2GASsJiYptLuoZURrAA/vMJ8jBBSYOpPD+v8APQCPK6n
-         7fZD5Fj+n4mxv6j+F9viFsJtNga1Cpdg37h1MESfffKvtH9/wPBKxfApTX6M613S3G
-         Ca+vxC23U2C9DTJq7c2AYQccdkjHwKGps/4PFlJk=
+        b=MW4emRmpQN+XDbSuj0NVcC5GZqAW9tC0Thee2DxjItPMTNtTLLkLHuyBNiHF+mkNh
+         pEXqWK5iSOpRR5uKuK2wpMw4m9gBzmsHAYclHFnqOi3t3Z0sSuZTiMTHZCfkuQrpgv
+         ATjMbwTIxiwZU/7U/mTgJQ6i+eNkI8lvDulVPsds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.19 17/46] svcrdma: Fix leak of svc_rdma_recv_ctxt objects
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: [PATCH 5.6 009/106] afs: Make record checking use TASK_UNINTERRUPTIBLE when appropriate
 Date:   Fri,  1 May 2020 15:22:42 +0200
-Message-Id: <20200501131504.483509947@linuxfoundation.org>
+Message-Id: <20200501131544.659017431@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
-References: <20200501131457.023036302@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,169 +42,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 23cf1ee1f1869966b75518c59b5cbda4c6c92450 upstream.
+commit c4bfda16d1b40d1c5941c61b5aa336bdd2d9904a upstream.
 
-Utilize the xpo_release_rqst transport method to ensure that each
-rqstp's svc_rdma_recv_ctxt object is released even when the server
-cannot return a Reply for that rqstp.
+When an operation is meant to be done uninterruptibly (such as
+FS.StoreData), we should not be allowing volume and server record checking
+to be interrupted.
 
-Without this fix, each RPC whose Reply cannot be sent leaks one
-svc_rdma_recv_ctxt. This is a 2.5KB structure, a 4KB DMA-mapped
-Receive buffer, and any pages that might be part of the Reply
-message.
-
-The leak is infrequent unless the network fabric is unreliable or
-Kerberos is in use, as GSS sequence window overruns, which result
-in connection loss, are more common on fast transports.
-
-Fixes: 3a88092ee319 ("svcrdma: Preserve Receive buffer until svc_rdma_sendto")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: d2ddc776a458 ("afs: Overhaul volume and server record caching and fileserver rotation")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/sunrpc/svc_rdma.h          |    1 +
- net/sunrpc/svc_xprt.c                    |    3 ---
- net/sunrpc/svcsock.c                     |    4 ++++
- net/sunrpc/xprtrdma/svc_rdma_recvfrom.c  |   22 ++++++++++++++++++++++
- net/sunrpc/xprtrdma/svc_rdma_sendto.c    |   13 +++----------
- net/sunrpc/xprtrdma/svc_rdma_transport.c |    5 -----
- 6 files changed, 30 insertions(+), 18 deletions(-)
+ fs/afs/internal.h |    2 +-
+ fs/afs/rotate.c   |    6 +++---
+ fs/afs/server.c   |    7 ++-----
+ fs/afs/volume.c   |    8 +++++---
+ 4 files changed, 11 insertions(+), 12 deletions(-)
 
---- a/include/linux/sunrpc/svc_rdma.h
-+++ b/include/linux/sunrpc/svc_rdma.h
-@@ -159,6 +159,7 @@ extern bool svc_rdma_post_recvs(struct s
- extern void svc_rdma_recv_ctxt_put(struct svcxprt_rdma *rdma,
- 				   struct svc_rdma_recv_ctxt *ctxt);
- extern void svc_rdma_flush_recv_queues(struct svcxprt_rdma *rdma);
-+extern void svc_rdma_release_rqst(struct svc_rqst *rqstp);
- extern int svc_rdma_recvfrom(struct svc_rqst *);
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -1335,7 +1335,7 @@ extern struct afs_volume *afs_create_vol
+ extern void afs_activate_volume(struct afs_volume *);
+ extern void afs_deactivate_volume(struct afs_volume *);
+ extern void afs_put_volume(struct afs_cell *, struct afs_volume *);
+-extern int afs_check_volume_status(struct afs_volume *, struct key *);
++extern int afs_check_volume_status(struct afs_volume *, struct afs_fs_cursor *);
  
- /* svc_rdma_rw.c */
---- a/net/sunrpc/svc_xprt.c
-+++ b/net/sunrpc/svc_xprt.c
-@@ -878,9 +878,6 @@ int svc_send(struct svc_rqst *rqstp)
- 	if (!xprt)
- 		goto out;
- 
--	/* release the receive skb before sending the reply */
--	xprt->xpt_ops->xpo_release_rqst(rqstp);
--
- 	/* calculate over-all length */
- 	xb = &rqstp->rq_res;
- 	xb->len = xb->head[0].iov_len +
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -636,6 +636,8 @@ svc_udp_sendto(struct svc_rqst *rqstp)
- {
- 	int		error;
- 
-+	svc_release_udp_skb(rqstp);
-+
- 	error = svc_sendto(rqstp, &rqstp->rq_res);
- 	if (error == -ECONNREFUSED)
- 		/* ICMP error on earlier request. */
-@@ -1173,6 +1175,8 @@ static int svc_tcp_sendto(struct svc_rqs
- 	int sent;
- 	__be32 reclen;
- 
-+	svc_release_skb(rqstp);
-+
- 	/* Set up the first element of the reply kvec.
- 	 * Any other kvecs that may be in use have been taken
- 	 * care of by the server implementation itself.
---- a/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_recvfrom.c
-@@ -226,6 +226,26 @@ void svc_rdma_recv_ctxt_put(struct svcxp
- 		svc_rdma_recv_ctxt_destroy(rdma, ctxt);
- }
- 
-+/**
-+ * svc_rdma_release_rqst - Release transport-specific per-rqst resources
-+ * @rqstp: svc_rqst being released
-+ *
-+ * Ensure that the recv_ctxt is released whether or not a Reply
-+ * was sent. For example, the client could close the connection,
-+ * or svc_process could drop an RPC, before the Reply is sent.
-+ */
-+void svc_rdma_release_rqst(struct svc_rqst *rqstp)
-+{
-+	struct svc_rdma_recv_ctxt *ctxt = rqstp->rq_xprt_ctxt;
-+	struct svc_xprt *xprt = rqstp->rq_xprt;
-+	struct svcxprt_rdma *rdma =
-+		container_of(xprt, struct svcxprt_rdma, sc_xprt);
-+
-+	rqstp->rq_xprt_ctxt = NULL;
-+	if (ctxt)
-+		svc_rdma_recv_ctxt_put(rdma, ctxt);
-+}
-+
- static int __svc_rdma_post_recv(struct svcxprt_rdma *rdma,
- 				struct svc_rdma_recv_ctxt *ctxt)
- {
-@@ -704,6 +724,8 @@ int svc_rdma_recvfrom(struct svc_rqst *r
- 	__be32 *p;
- 	int ret;
- 
-+	rqstp->rq_xprt_ctxt = NULL;
-+
- 	spin_lock(&rdma_xprt->sc_rq_dto_lock);
- 	ctxt = svc_rdma_next_recv_ctxt(&rdma_xprt->sc_read_complete_q);
- 	if (ctxt) {
---- a/net/sunrpc/xprtrdma/svc_rdma_sendto.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_sendto.c
-@@ -908,12 +908,7 @@ int svc_rdma_sendto(struct svc_rqst *rqs
- 				      wr_lst, rp_ch);
- 	if (ret < 0)
- 		goto err1;
--	ret = 0;
--
--out:
--	rqstp->rq_xprt_ctxt = NULL;
--	svc_rdma_recv_ctxt_put(rdma, rctxt);
--	return ret;
-+	return 0;
- 
-  err2:
- 	if (ret != -E2BIG && ret != -EINVAL)
-@@ -922,14 +917,12 @@ out:
- 	ret = svc_rdma_send_error_msg(rdma, sctxt, rqstp);
- 	if (ret < 0)
- 		goto err1;
--	ret = 0;
--	goto out;
-+	return 0;
- 
-  err1:
- 	svc_rdma_send_ctxt_put(rdma, sctxt);
-  err0:
- 	trace_svcrdma_send_failed(rqstp, ret);
- 	set_bit(XPT_CLOSE, &xprt->xpt_flags);
--	ret = -ENOTCONN;
--	goto out;
-+	return -ENOTCONN;
- }
---- a/net/sunrpc/xprtrdma/svc_rdma_transport.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_transport.c
-@@ -71,7 +71,6 @@ static struct svc_xprt *svc_rdma_create(
- 					struct sockaddr *sa, int salen,
- 					int flags);
- static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt);
--static void svc_rdma_release_rqst(struct svc_rqst *);
- static void svc_rdma_detach(struct svc_xprt *xprt);
- static void svc_rdma_free(struct svc_xprt *xprt);
- static int svc_rdma_has_wspace(struct svc_xprt *xprt);
-@@ -616,10 +615,6 @@ static struct svc_xprt *svc_rdma_accept(
- 	return NULL;
- }
- 
--static void svc_rdma_release_rqst(struct svc_rqst *rqstp)
--{
--}
--
  /*
-  * When connected, an svc_xprt has at least two references:
-  *
+  * write.c
+--- a/fs/afs/rotate.c
++++ b/fs/afs/rotate.c
+@@ -192,7 +192,7 @@ bool afs_select_fileserver(struct afs_fs
+ 			write_unlock(&vnode->volume->servers_lock);
+ 
+ 			set_bit(AFS_VOLUME_NEEDS_UPDATE, &vnode->volume->flags);
+-			error = afs_check_volume_status(vnode->volume, fc->key);
++			error = afs_check_volume_status(vnode->volume, fc);
+ 			if (error < 0)
+ 				goto failed_set_error;
+ 
+@@ -281,7 +281,7 @@ bool afs_select_fileserver(struct afs_fs
+ 
+ 			set_bit(AFS_VOLUME_WAIT, &vnode->volume->flags);
+ 			set_bit(AFS_VOLUME_NEEDS_UPDATE, &vnode->volume->flags);
+-			error = afs_check_volume_status(vnode->volume, fc->key);
++			error = afs_check_volume_status(vnode->volume, fc);
+ 			if (error < 0)
+ 				goto failed_set_error;
+ 
+@@ -341,7 +341,7 @@ start:
+ 	/* See if we need to do an update of the volume record.  Note that the
+ 	 * volume may have moved or even have been deleted.
+ 	 */
+-	error = afs_check_volume_status(vnode->volume, fc->key);
++	error = afs_check_volume_status(vnode->volume, fc);
+ 	if (error < 0)
+ 		goto failed_set_error;
+ 
+--- a/fs/afs/server.c
++++ b/fs/afs/server.c
+@@ -594,12 +594,9 @@ retry:
+ 	}
+ 
+ 	ret = wait_on_bit(&server->flags, AFS_SERVER_FL_UPDATING,
+-			  TASK_INTERRUPTIBLE);
++			  (fc->flags & AFS_FS_CURSOR_INTR) ?
++			  TASK_INTERRUPTIBLE : TASK_UNINTERRUPTIBLE);
+ 	if (ret == -ERESTARTSYS) {
+-		if (!(fc->flags & AFS_FS_CURSOR_INTR) && server->addresses) {
+-			_leave(" = t [intr]");
+-			return true;
+-		}
+ 		fc->error = ret;
+ 		_leave(" = f [intr]");
+ 		return false;
+--- a/fs/afs/volume.c
++++ b/fs/afs/volume.c
+@@ -281,7 +281,7 @@ error:
+ /*
+  * Make sure the volume record is up to date.
+  */
+-int afs_check_volume_status(struct afs_volume *volume, struct key *key)
++int afs_check_volume_status(struct afs_volume *volume, struct afs_fs_cursor *fc)
+ {
+ 	time64_t now = ktime_get_real_seconds();
+ 	int ret, retries = 0;
+@@ -299,7 +299,7 @@ retry:
+ 	}
+ 
+ 	if (!test_and_set_bit_lock(AFS_VOLUME_UPDATING, &volume->flags)) {
+-		ret = afs_update_volume_status(volume, key);
++		ret = afs_update_volume_status(volume, fc->key);
+ 		clear_bit_unlock(AFS_VOLUME_WAIT, &volume->flags);
+ 		clear_bit_unlock(AFS_VOLUME_UPDATING, &volume->flags);
+ 		wake_up_bit(&volume->flags, AFS_VOLUME_WAIT);
+@@ -312,7 +312,9 @@ retry:
+ 		return 0;
+ 	}
+ 
+-	ret = wait_on_bit(&volume->flags, AFS_VOLUME_WAIT, TASK_INTERRUPTIBLE);
++	ret = wait_on_bit(&volume->flags, AFS_VOLUME_WAIT,
++			  (fc->flags & AFS_FS_CURSOR_INTR) ?
++			  TASK_INTERRUPTIBLE : TASK_UNINTERRUPTIBLE);
+ 	if (ret == -ERESTARTSYS) {
+ 		_leave(" = %d", ret);
+ 		return ret;
 
 
