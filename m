@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D6721C15F4
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E67901C15F7
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730176AbgEANgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:36:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35508 "EHLO mail.kernel.org"
+        id S1730927AbgEANhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:37:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730902AbgEANgv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:36:51 -0400
+        id S1730516AbgEANhC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E240324953;
-        Fri,  1 May 2020 13:36:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B055824959;
+        Fri,  1 May 2020 13:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340210;
-        bh=tU8TJhxBIWcjE1Am1/vlBCvgrjTH7SCZbgZ7JE4Qicw=;
+        s=default; t=1588340220;
+        bh=aT5MDR+kkB0/oWTzJRyOuO0Fi5po4xdtnGXGXqPWHmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s6+aJyfNSzN0zAlBMG4e+mpxV/FIXW1hMmFPC02Qy+5CuPWYFd5iAeuBc+lJxIkLF
-         2d3deSTjJza4AeR3s7U5yEag28XdM/lYxSfjmpIH0R6ZU2C8aXMB7nNmJ3ASYjp99P
-         XSjZdmUANVCBBB6ttlmhqOX8iflJ5xBFyUkt+muU=
+        b=ikOOfx5+AUvo90hn8EfnYBXN4veiYDpT+22fbS1mHSq+bUO4/rpsvv1BgiPiFScyj
+         cyCNbMu4zN9tBPx1T/252Q7EGXQyCmJWETR1qXdle/k5Wrt/2PTTZWH25gOzOXAvs9
+         j65TfSVdl/6c5m6G1/LWxfK2J0cu/dcGcZG0O+z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 25/46] mm: shmem: disable interrupt when acquiring info->lock in userfaultfd_copy path
-Date:   Fri,  1 May 2020 15:22:50 +0200
-Message-Id: <20200501131507.682072631@linuxfoundation.org>
+        syzbot+1f9dc49e8de2582d90c2@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 4.19 26/46] xfs: clear PF_MEMALLOC before exiting xfsaild thread
+Date:   Fri,  1 May 2020 15:22:51 +0200
+Message-Id: <20200501131507.913994050@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
 References: <20200501131457.023036302@linuxfoundation.org>
@@ -48,79 +46,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 94b7cc01da5a3cc4f3da5e0ff492ef008bb555d6 upstream.
+commit 10a98cb16d80be3595fdb165fad898bb28b8b6d2 upstream.
 
-Syzbot reported the below lockdep splat:
+Leaving PF_MEMALLOC set when exiting a kthread causes it to remain set
+during do_exit().  That can confuse things.  In particular, if BSD
+process accounting is enabled, then do_exit() writes data to an
+accounting file.  If that file has FS_SYNC_FL set, then this write
+occurs synchronously and can misbehave if PF_MEMALLOC is set.
 
-    WARNING: possible irq lock inversion dependency detected
-    5.6.0-rc7-syzkaller #0 Not tainted
-    --------------------------------------------------------
-    syz-executor.0/10317 just changed the state of lock:
-    ffff888021d16568 (&(&info->lock)->rlock){+.+.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-    ffff888021d16568 (&(&info->lock)->rlock){+.+.}, at: shmem_mfill_atomic_pte+0x1012/0x21c0 mm/shmem.c:2407
-    but this lock was taken by another, SOFTIRQ-safe lock in the past:
-     (&(&xa->xa_lock)->rlock#5){..-.}
+For example, if the accounting file is located on an XFS filesystem,
+then a WARN_ON_ONCE() in iomap_do_writepage() is triggered and the data
+doesn't get written when it should.  Or if the accounting file is
+located on an ext4 filesystem without a journal, then a WARN_ON_ONCE()
+in ext4_write_inode() is triggered and the inode doesn't get written.
 
-    and interrupts could create inverse lock ordering between them.
+Fix this in xfsaild() by using the helper functions to save and restore
+PF_MEMALLOC.
 
-    other info that might help us debug this:
-     Possible interrupt unsafe locking scenario:
+This can be reproduced as follows in the kvm-xfstests test appliance
+modified to add the 'acct' Debian package, and with kvm-xfstests's
+recommended kconfig modified to add CONFIG_BSD_PROCESS_ACCT=y:
 
-           CPU0                    CPU1
-           ----                    ----
-      lock(&(&info->lock)->rlock);
-                                   local_irq_disable();
-                                   lock(&(&xa->xa_lock)->rlock#5);
-                                   lock(&(&info->lock)->rlock);
-      <Interrupt>
-        lock(&(&xa->xa_lock)->rlock#5);
+        mkfs.xfs -f /dev/vdb
+        mount /vdb
+        touch /vdb/file
+        chattr +S /vdb/file
+        accton /vdb/file
+        mkfs.xfs -f /dev/vdc
+        mount /vdc
+        umount /vdc
 
-     *** DEADLOCK ***
+It causes:
+	WARNING: CPU: 1 PID: 336 at fs/iomap/buffered-io.c:1534
+	CPU: 1 PID: 336 Comm: xfsaild/vdc Not tainted 5.6.0-rc5 #3
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20191223_100556-anatol 04/01/2014
+	RIP: 0010:iomap_do_writepage+0x16b/0x1f0 fs/iomap/buffered-io.c:1534
+	[...]
+	Call Trace:
+	 write_cache_pages+0x189/0x4d0 mm/page-writeback.c:2238
+	 iomap_writepages+0x1c/0x33 fs/iomap/buffered-io.c:1642
+	 xfs_vm_writepages+0x65/0x90 fs/xfs/xfs_aops.c:578
+	 do_writepages+0x41/0xe0 mm/page-writeback.c:2344
+	 __filemap_fdatawrite_range+0xd2/0x120 mm/filemap.c:421
+	 file_write_and_wait_range+0x71/0xc0 mm/filemap.c:760
+	 xfs_file_fsync+0x7a/0x2b0 fs/xfs/xfs_file.c:114
+	 generic_write_sync include/linux/fs.h:2867 [inline]
+	 xfs_file_buffered_aio_write+0x379/0x3b0 fs/xfs/xfs_file.c:691
+	 call_write_iter include/linux/fs.h:1901 [inline]
+	 new_sync_write+0x130/0x1d0 fs/read_write.c:483
+	 __kernel_write+0x54/0xe0 fs/read_write.c:515
+	 do_acct_process+0x122/0x170 kernel/acct.c:522
+	 slow_acct_process kernel/acct.c:581 [inline]
+	 acct_process+0x1d4/0x27c kernel/acct.c:607
+	 do_exit+0x83d/0xbc0 kernel/exit.c:791
+	 kthread+0xf1/0x140 kernel/kthread.c:257
+	 ret_from_fork+0x27/0x50 arch/x86/entry/entry_64.S:352
 
-The full report is quite lengthy, please see:
+This bug was originally reported by syzbot at
+https://lore.kernel.org/r/0000000000000e7156059f751d7b@google.com.
 
-  https://lore.kernel.org/linux-mm/alpine.LSU.2.11.2004152007370.13597@eggly.anvils/T/#m813b412c5f78e25ca8c6c7734886ed4de43f241d
-
-It is because CPU 0 held info->lock with IRQ enabled in userfaultfd_copy
-path, then CPU 1 is splitting a THP which held xa_lock and info->lock in
-IRQ disabled context at the same time.  If softirq comes in to acquire
-xa_lock, the deadlock would be triggered.
-
-The fix is to acquire/release info->lock with *_irq version instead of
-plain spin_{lock,unlock} to make it softirq safe.
-
-Fixes: 4c27fe4c4c84 ("userfaultfd: shmem: add shmem_mcopy_atomic_pte for userfaultfd support")
-Reported-by: syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com
-Acked-by: Hugh Dickins <hughd@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Link: http://lkml.kernel.org/r/1587061357-122619-1-git-send-email-yang.shi@linux.alibaba.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: syzbot+1f9dc49e8de2582d90c2@syzkaller.appspotmail.com
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/shmem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/xfs/xfs_trans_ail.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2350,11 +2350,11 @@ static int shmem_mfill_atomic_pte(struct
+--- a/fs/xfs/xfs_trans_ail.c
++++ b/fs/xfs/xfs_trans_ail.c
+@@ -520,8 +520,9 @@ xfsaild(
+ {
+ 	struct xfs_ail	*ailp = data;
+ 	long		tout = 0;	/* milliseconds */
++	unsigned int	noreclaim_flag;
  
- 	lru_cache_add_anon(page);
+-	current->flags |= PF_MEMALLOC;
++	noreclaim_flag = memalloc_noreclaim_save();
+ 	set_freezable();
  
--	spin_lock(&info->lock);
-+	spin_lock_irq(&info->lock);
- 	info->alloced++;
- 	inode->i_blocks += BLOCKS_PER_PAGE;
- 	shmem_recalc_inode(inode);
--	spin_unlock(&info->lock);
-+	spin_unlock_irq(&info->lock);
+ 	while (1) {
+@@ -592,6 +593,7 @@ xfsaild(
+ 		tout = xfsaild_push(ailp);
+ 	}
  
- 	inc_mm_counter(dst_mm, mm_counter_file(page));
- 	page_add_file_rmap(page, false);
++	memalloc_noreclaim_restore(noreclaim_flag);
+ 	return 0;
+ }
+ 
 
 
