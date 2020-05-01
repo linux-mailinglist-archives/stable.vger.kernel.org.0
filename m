@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0931C138F
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03F271C1402
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:44:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730000AbgEANaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:30:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54898 "EHLO mail.kernel.org"
+        id S1730596AbgEANei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:34:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730008AbgEANap (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:30:45 -0400
+        id S1730595AbgEANeh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:34:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 355EF208C3;
-        Fri,  1 May 2020 13:30:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D304208DB;
+        Fri,  1 May 2020 13:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339844;
-        bh=qEu0WFBLwwFGr/j4YzQwcJbCKPVRRW4ytCD4XaDu31s=;
+        s=default; t=1588340077;
+        bh=6X1mfxyBzWDLUUEJceQpc3dqqqTe+U+Zq76vP098AX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j8E2qBChgL9prlj0SrbgHqxtm2YIWAcv/CwhpCb3iorUHc1JAJNtZPW7xDKewXrD7
-         kWDc9JUlppF7bkaPptlG0BnSPWAr4HsV5Zdc2MHRgTl3rYW3W50AagnjF9Cx6SCMqE
-         JfeHc3HrhAbpCTT94kvIdu9ncNciaoQZRoP+P3gw=
+        b=nA4meTVccMGjAcELpRc/YAVdzc373E35aETc0SfITx3suZJj7vZX6AEDd4F/51+1r
+         jLucoub0iErsgVBi2y1xGiIzryxZlC6xh+XVGGE76QOxnjUVWt42L3jwq2mzlVfgyG
+         2dRMRUE2XOiSzqyfLxuDAixeLfa3e2LdXqwwzl80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>, Miroslav Benes <mbenes@suse.cz>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 70/80] objtool: Support Clang non-section symbols in ORC dump
-Date:   Fri,  1 May 2020 15:22:04 +0200
-Message-Id: <20200501131535.692678080@linuxfoundation.org>
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.14 089/117] usb: dwc3: gadget: Do link recovery for SS and SSP
+Date:   Fri,  1 May 2020 15:22:05 +0200
+Message-Id: <20200501131555.202889321@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,111 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 8782e7cab51b6bf01a5a86471dd82228af1ac185 ]
+commit d0550cd20e52558ecf6847a0f96ebd5d944c17e4 upstream.
 
-Historically, the relocation symbols for ORC entries have only been
-section symbols:
+The controller always supports link recovery for device in SS and SSP.
+Remove the speed limit check. Also, when the device is in RESUME or
+RESET state, it means the controller received the resume/reset request.
+The driver must send the link recovery to acknowledge the request. They
+are valid states for the driver to send link recovery.
 
-  .text+0: sp:sp+8 bp:(und) type:call end:0
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Fixes: ee5cd41c9117 ("usb: dwc3: Update speed checks for SuperSpeedPlus")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-However, the Clang assembler is aggressive about stripping section
-symbols.  In that case we will need to use function symbols:
-
-  freezing_slow_path+0: sp:sp+8 bp:(und) type:call end:0
-
-In preparation for the generation of such entries in "objtool orc
-generate", add support for reading them in "objtool orc dump".
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/b811b5eb1a42602c3b523576dc5efab9ad1c174d.1585761021.git.jpoimboe@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/orc_dump.c | 44 ++++++++++++++++++++++++----------------
- 1 file changed, 27 insertions(+), 17 deletions(-)
+ drivers/usb/dwc3/gadget.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/tools/objtool/orc_dump.c b/tools/objtool/orc_dump.c
-index c3343820916a6..7cbbbdd932f1d 100644
---- a/tools/objtool/orc_dump.c
-+++ b/tools/objtool/orc_dump.c
-@@ -78,7 +78,7 @@ int orc_dump(const char *_objname)
- 	char *name;
- 	size_t nr_sections;
- 	Elf64_Addr orc_ip_addr = 0;
--	size_t shstrtab_idx;
-+	size_t shstrtab_idx, strtab_idx = 0;
- 	Elf *elf;
- 	Elf_Scn *scn;
- 	GElf_Shdr sh;
-@@ -139,6 +139,8 @@ int orc_dump(const char *_objname)
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1641,7 +1641,6 @@ static int __dwc3_gadget_wakeup(struct d
+ 	u32			reg;
  
- 		if (!strcmp(name, ".symtab")) {
- 			symtab = data;
-+		} else if (!strcmp(name, ".strtab")) {
-+			strtab_idx = i;
- 		} else if (!strcmp(name, ".orc_unwind")) {
- 			orc = data->d_buf;
- 			orc_size = sh.sh_size;
-@@ -150,7 +152,7 @@ int orc_dump(const char *_objname)
- 		}
- 	}
+ 	u8			link_state;
+-	u8			speed;
  
--	if (!symtab || !orc || !orc_ip)
-+	if (!symtab || !strtab_idx || !orc || !orc_ip)
- 		return 0;
+ 	/*
+ 	 * According to the Databook Remote wakeup request should
+@@ -1651,16 +1650,13 @@ static int __dwc3_gadget_wakeup(struct d
+ 	 */
+ 	reg = dwc3_readl(dwc->regs, DWC3_DSTS);
  
- 	if (orc_size % sizeof(*orc) != 0) {
-@@ -171,21 +173,29 @@ int orc_dump(const char *_objname)
- 				return -1;
- 			}
- 
--			scn = elf_getscn(elf, sym.st_shndx);
--			if (!scn) {
--				WARN_ELF("elf_getscn");
--				return -1;
--			}
+-	speed = reg & DWC3_DSTS_CONNECTSPD;
+-	if ((speed == DWC3_DSTS_SUPERSPEED) ||
+-	    (speed == DWC3_DSTS_SUPERSPEED_PLUS))
+-		return 0;
 -
--			if (!gelf_getshdr(scn, &sh)) {
--				WARN_ELF("gelf_getshdr");
--				return -1;
--			}
--
--			name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
--			if (!name || !*name) {
--				WARN_ELF("elf_strptr");
--				return -1;
-+			if (GELF_ST_TYPE(sym.st_info) == STT_SECTION) {
-+				scn = elf_getscn(elf, sym.st_shndx);
-+				if (!scn) {
-+					WARN_ELF("elf_getscn");
-+					return -1;
-+				}
-+
-+				if (!gelf_getshdr(scn, &sh)) {
-+					WARN_ELF("gelf_getshdr");
-+					return -1;
-+				}
-+
-+				name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
-+			} else {
-+				name = elf_strptr(elf, strtab_idx, sym.st_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
- 			}
+ 	link_state = DWC3_DSTS_USBLNKST(reg);
  
- 			printf("%s+%llx:", name, (unsigned long long)rela.r_addend);
--- 
-2.20.1
-
+ 	switch (link_state) {
++	case DWC3_LINK_STATE_RESET:
+ 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
+ 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
++	case DWC3_LINK_STATE_RESUME:
+ 		break;
+ 	default:
+ 		return -EINVAL;
 
 
