@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43BC31C135C
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 629181C135E
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729707AbgEAN2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:28:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52224 "EHLO mail.kernel.org"
+        id S1729717AbgEAN26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:28:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729158AbgEAN2y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:28:54 -0400
+        id S1729158AbgEAN25 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:28:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 502602166E;
-        Fri,  1 May 2020 13:28:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DADEC2173E;
+        Fri,  1 May 2020 13:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339733;
-        bh=1bJXgS9EGSsKXLluKrL63N6r/YnFN67KmUdN1uqhg/E=;
+        s=default; t=1588339736;
+        bh=kVEuf2gaxCNZnPQLaEEHOFcGlNG9hxk+Tp1dBik2BeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wqbKJZ1A8y32RvaxKDhdLeAX10XcBO559KezjV46U/CTUK6gNmf7dZmmUH6eethHv
-         ykVqe5gCAGllN5QNt3bP94/Iytb+U87ynuqY03yAjnN0WrS/WwROgi3Q7lbkUL5NZB
-         DXqIkvx2C2df6H01tjve01nMMmvQKbqYV83kZkrI=
+        b=e+gfi278H7xodGJ6E1rTljW5Ek5TkNAE63TAZX2aeUxeGw0y7lg9UxNcjKPF4SvkM
+         bK6N4SHB5CnAYfz1obPwya8JAQst7xlrdYmKs9zKavxrkLJ+Hb7O+oa9Oa9m62FHJB
+         h+Yq16ZnnD1L1m/eB13cBhaSBXekx2POAv5EMWY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 24/80] net/x25: Fix x25_neigh refcnt leak when receiving frame
-Date:   Fri,  1 May 2020 15:21:18 +0200
-Message-Id: <20200501131522.247780294@linuxfoundation.org>
+Subject: [PATCH 4.9 25/80] tcp: cache line align MAX_TCP_HEADER
+Date:   Fri,  1 May 2020 15:21:19 +0200
+Message-Id: <20200501131522.465024046@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
 References: <20200501131513.810761598@linuxfoundation.org>
@@ -44,47 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit f35d12971b4d814cdb2f659d76b42f0c545270b6 ]
+[ Upstream commit 9bacd256f1354883d3c1402655153367982bba49 ]
 
-x25_lapb_receive_frame() invokes x25_get_neigh(), which returns a
-reference of the specified x25_neigh object to "nb" with increased
-refcnt.
+TCP stack is dumb in how it cooks its output packets.
 
-When x25_lapb_receive_frame() returns, local variable "nb" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
+Depending on MAX_HEADER value, we might chose a bad ending point
+for the headers.
 
-The reference counting issue happens in one path of
-x25_lapb_receive_frame(). When pskb_may_pull() returns false, the
-function forgets to decrease the refcnt increased by x25_get_neigh(),
-causing a refcnt leak.
+If we align the end of TCP headers to cache line boundary, we
+make sure to always use the smallest number of cache lines,
+which always help.
 
-Fix this issue by calling x25_neigh_put() when pskb_may_pull() returns
-false.
-
-Fixes: cb101ed2c3c7 ("x25: Handle undersized/fragmented skbs")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/x25/x25_dev.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/net/tcp.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/x25/x25_dev.c
-+++ b/net/x25/x25_dev.c
-@@ -120,8 +120,10 @@ int x25_lapb_receive_frame(struct sk_buf
- 		goto drop;
- 	}
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -51,7 +51,7 @@ extern struct inet_hashinfo tcp_hashinfo
+ extern struct percpu_counter tcp_orphan_count;
+ void tcp_time_wait(struct sock *sk, int state, int timeo);
  
--	if (!pskb_may_pull(skb, 1))
-+	if (!pskb_may_pull(skb, 1)) {
-+		x25_neigh_put(nb);
- 		return 0;
-+	}
- 
- 	switch (skb->data[0]) {
- 
+-#define MAX_TCP_HEADER	(128 + MAX_HEADER)
++#define MAX_TCP_HEADER	L1_CACHE_ALIGN(128 + MAX_HEADER)
+ #define MAX_TCP_OPTION_SPACE 40
+ #define TCP_MIN_SND_MSS		48
+ #define TCP_MIN_GSO_SIZE	(TCP_MIN_SND_MSS - MAX_TCP_OPTION_SPACE)
 
 
