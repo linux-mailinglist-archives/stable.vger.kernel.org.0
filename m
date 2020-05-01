@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB3261C1697
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DFDB1C147D
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729739AbgEANuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:50:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
+        id S1730944AbgEANjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:39:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731225AbgEANjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:39:49 -0400
+        id S1731233AbgEANjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:39:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D12520757;
-        Fri,  1 May 2020 13:39:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87B34216FD;
+        Fri,  1 May 2020 13:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340388;
-        bh=KIPoBk7K8wgI48MMKiOmelRUYbArjb3GQ1nhKoUkKeg=;
+        s=default; t=1588340391;
+        bh=xQhIbqv9qqbGbztx1QNd5fp99mJetbAhMqDs+wPVU+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNy9D9LHlLchnRFWhxkqA4FOSQpnA+fSWmyTSSxEdVmn9i3cv9nOvMJqxJLDaGmU7
-         /k0TnbKoQc1KefFndx75WZsub9UNKvHm5NDsJoU5/uHAdYxyVmhaGFVBXPH/beosET
-         ZHN7D4kBuwjfDuVeBlWG3Mc14U3MJQSMZhGPXwX0=
+        b=eDl596X0aJwcUV7Wy+vIqV+8DaNCkTqV9Lp4hy1jac0bH0RlN9yHt7yNDkeWM2MPB
+         f6I3IV4A4dyN4GPsmnsuleAvo8Pn5D+MmBUCjw3lHvw+wDkv7SWTBZVlqkf+ZDuNNY
+         7hPJgO4P5eCcB7DsCmIBDFpr0m5bGzVrao0uJFjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Vitor Massaru Iha <vitor@massaru.org>,
-        Brendan Higgins <brendanhiggins@google.com>
-Subject: [PATCH 5.4 46/83] um: ensure `make ARCH=um mrproper` removes arch/$(SUBARCH)/include/generated/
-Date:   Fri,  1 May 2020 15:23:25 +0200
-Message-Id: <20200501131536.899363242@linuxfoundation.org>
+        stable@vger.kernel.org, Xi Wang <xi.wang@gmail.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        "H. Peter Anvin (Intel)" <hpa@zytor.com>,
+        Wang YanQing <udknight@gmail.com>
+Subject: [PATCH 5.4 47/83] bpf, x86_32: Fix incorrect encoding in BPF_LDX zero-extension
+Date:   Fri,  1 May 2020 15:23:26 +0200
+Message-Id: <20200501131537.251370260@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
 References: <20200501131524.004332640@linuxfoundation.org>
@@ -45,58 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitor Massaru Iha <vitor@massaru.org>
+From: Luke Nelson <lukenels@cs.washington.edu>
 
-commit 63ec90f18204f2fe072df108de8a021b28b1b173 upstream.
+commit 5fa9a98fb10380e48a398998cd36a85e4ef711d6 upstream.
 
-In this workflow:
+The current JIT uses the following sequence to zero-extend into the
+upper 32 bits of the destination register for BPF_LDX BPF_{B,H,W},
+when the destination register is not on the stack:
 
-$ make ARCH=um defconfig && make ARCH=um -j8
-  [snip]
-$ make ARCH=um mrproper
-  [snip]
-$ make ARCH=um defconfig O=./build_um && make ARCH=um -j8 O=./build_um
-  [snip]
-  CC      scripts/mod/empty.o
-In file included from ../include/linux/types.h:6,
-                 from ../include/linux/mod_devicetable.h:12,
-                 from ../scripts/mod/devicetable-offsets.c:3:
-../include/uapi/linux/types.h:5:10: fatal error: asm/types.h: No such file or directory
-    5 | #include <asm/types.h>
-      |          ^~~~~~~~~~~~~
-compilation terminated.
-make[2]: *** [../scripts/Makefile.build:100: scripts/mod/devicetable-offsets.s] Error 1
-make[2]: *** Waiting for unfinished jobs....
-make[1]: *** [/home/iha/sdb/opensource/lkmp/linux-kselftest.git/Makefile:1140: prepare0] Error 2
-make[1]: Leaving directory '/home/iha/sdb/opensource/lkmp/linux-kselftest.git/build_um'
-make: *** [Makefile:180: sub-make] Error 2
+  EMIT3(0xC7, add_1reg(0xC0, dst_hi), 0);
 
-The cause of the error was because arch/$(SUBARCH)/include/generated files
-weren't properly cleaned by `make ARCH=um mrproper`.
+The problem is that C7 /0 encodes a MOV instruction that requires a 4-byte
+immediate; the current code emits only 1 byte of the immediate. This
+means that the first 3 bytes of the next instruction will be treated as
+the rest of the immediate, breaking the stream of instructions.
 
-Fixes: a788b2ed81ab ("kbuild: check arch/$(SRCARCH)/include/generated before out-of-tree build")
-Reported-by: Theodore Ts'o <tytso@mit.edu>
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Vitor Massaru Iha <vitor@massaru.org>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Tested-by: Brendan Higgins <brendanhiggins@google.com>
-Link: https://groups.google.com/forum/#!msg/kunit-dev/QmA27YEgEgI/hvS1kiz2CwAJ
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+This patch fixes the problem by instead emitting "xor dst_hi,dst_hi"
+to clear the upper 32 bits. This fixes the problem and is more efficient
+than using MOV to load a zero immediate.
+
+This bug may not be currently triggerable as BPF_REG_AX is the only
+register not stored on the stack and the verifier uses it in a limited
+way, and the verifier implements a zero-extension optimization. But the
+JIT should avoid emitting incorrect encodings regardless.
+
+Fixes: 03f5781be2c7b ("bpf, x86_32: add eBPF JIT compiler for ia32")
+Signed-off-by: Xi Wang <xi.wang@gmail.com>
+Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: H. Peter Anvin (Intel) <hpa@zytor.com>
+Acked-by: Wang YanQing <udknight@gmail.com>
+Link: https://lore.kernel.org/bpf/20200422173630.8351-1-luke.r.nels@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/um/Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/net/bpf_jit_comp32.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/um/Makefile
-+++ b/arch/um/Makefile
-@@ -140,6 +140,7 @@ export CFLAGS_vmlinux := $(LINK-y) $(LIN
- # When cleaning we don't include .config, so we don't include
- # TT or skas makefiles and don't clean skas_ptregs.h.
- CLEAN_FILES += linux x.i gmon.out
-+MRPROPER_DIRS += arch/$(SUBARCH)/include/generated
- 
- archclean:
- 	@find . \( -name '*.bb' -o -name '*.bbg' -o -name '*.da' \
+--- a/arch/x86/net/bpf_jit_comp32.c
++++ b/arch/x86/net/bpf_jit_comp32.c
+@@ -1854,7 +1854,9 @@ static int do_jit(struct bpf_prog *bpf_p
+ 					      STACK_VAR(dst_hi));
+ 					EMIT(0x0, 4);
+ 				} else {
+-					EMIT3(0xC7, add_1reg(0xC0, dst_hi), 0);
++					/* xor dst_hi,dst_hi */
++					EMIT2(0x33,
++					      add_2reg(0xC0, dst_hi, dst_hi));
+ 				}
+ 				break;
+ 			case BPF_DW:
 
 
