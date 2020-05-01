@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40E431C15DD
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0931C138F
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730643AbgEANfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:35:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33444 "EHLO mail.kernel.org"
+        id S1730000AbgEANaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:30:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730729AbgEANfM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:35:12 -0400
+        id S1730008AbgEANap (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:30:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66771216FD;
-        Fri,  1 May 2020 13:35:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 355EF208C3;
+        Fri,  1 May 2020 13:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340111;
-        bh=ThW24rHB67QXfn8DBDct3fwUkUI14YNT5QcUKG2PlDo=;
+        s=default; t=1588339844;
+        bh=qEu0WFBLwwFGr/j4YzQwcJbCKPVRRW4ytCD4XaDu31s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/dEVQqVn0kGQIE+FKJC+KN4trbmUbU7wzFGzGJ4LBTLk0WZmdP6f7rnWXwn5CFk0
-         gerdDQ1oiBaZjF3sbL0EDBaCT2+Ks6Grn76l6nb+iWUgK8DrWpSrU6ekPW85aZZvGp
-         DALhfX5eWWPvMrc9b9j/r0B+CXB4pMVmGXAT8rn8=
+        b=j8E2qBChgL9prlj0SrbgHqxtm2YIWAcv/CwhpCb3iorUHc1JAJNtZPW7xDKewXrD7
+         kWDc9JUlppF7bkaPptlG0BnSPWAr4HsV5Zdc2MHRgTl3rYW3W50AagnjF9Cx6SCMqE
+         JfeHc3HrhAbpCTT94kvIdu9ncNciaoQZRoP+P3gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@canonical.com>,
-        Todd Kjos <tkjos@android.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 088/117] binder: take read mode of mmap_sem in binder_alloc_free_page()
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>, Miroslav Benes <mbenes@suse.cz>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 70/80] objtool: Support Clang non-section symbols in ORC dump
 Date:   Fri,  1 May 2020 15:22:04 +0200
-Message-Id: <20200501131555.108306626@linuxfoundation.org>
+Message-Id: <20200501131535.692678080@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@canonical.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 60d4885710836595192c42d3e04b27551d30ec91 upstream.
+[ Upstream commit 8782e7cab51b6bf01a5a86471dd82228af1ac185 ]
 
-Restore the behavior of locking mmap_sem for reading in
-binder_alloc_free_page(), as was first done in commit 3013bf62b67a
-("binder: reduce mmap_sem write-side lock"). That change was
-inadvertently reverted by commit 5cec2d2e5839 ("binder: fix race between
-munmap() and direct reclaim").
+Historically, the relocation symbols for ORC entries have only been
+section symbols:
 
-In addition, change the name of the label for the error path to
-accurately reflect that we're taking the lock for reading.
+  .text+0: sp:sp+8 bp:(und) type:call end:0
 
-Backporting note: This fix is only needed when *both* of the commits
-mentioned above are applied. That's an unlikely situation since they
-both landed during the development of v5.1 but only one of them is
-targeted for stable.
+However, the Clang assembler is aggressive about stripping section
+symbols.  In that case we will need to use function symbols:
 
-Fixes: 5cec2d2e5839 ("binder: fix race between munmap() and direct reclaim")
-Signed-off-by: Tyler Hicks <tyhicks@canonical.com>
-Acked-by: Todd Kjos <tkjos@android.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  freezing_slow_path+0: sp:sp+8 bp:(und) type:call end:0
 
+In preparation for the generation of such entries in "objtool orc
+generate", add support for reading them in "objtool orc dump".
+
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/b811b5eb1a42602c3b523576dc5efab9ad1c174d.1585761021.git.jpoimboe@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder_alloc.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/objtool/orc_dump.c | 44 ++++++++++++++++++++++++----------------
+ 1 file changed, 27 insertions(+), 17 deletions(-)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -951,8 +951,8 @@ enum lru_status binder_alloc_free_page(s
- 	mm = alloc->vma_vm_mm;
- 	if (!mmget_not_zero(mm))
- 		goto err_mmget;
--	if (!down_write_trylock(&mm->mmap_sem))
--		goto err_down_write_mmap_sem_failed;
-+	if (!down_read_trylock(&mm->mmap_sem))
-+		goto err_down_read_mmap_sem_failed;
- 	vma = binder_alloc_get_vma(alloc);
+diff --git a/tools/objtool/orc_dump.c b/tools/objtool/orc_dump.c
+index c3343820916a6..7cbbbdd932f1d 100644
+--- a/tools/objtool/orc_dump.c
++++ b/tools/objtool/orc_dump.c
+@@ -78,7 +78,7 @@ int orc_dump(const char *_objname)
+ 	char *name;
+ 	size_t nr_sections;
+ 	Elf64_Addr orc_ip_addr = 0;
+-	size_t shstrtab_idx;
++	size_t shstrtab_idx, strtab_idx = 0;
+ 	Elf *elf;
+ 	Elf_Scn *scn;
+ 	GElf_Shdr sh;
+@@ -139,6 +139,8 @@ int orc_dump(const char *_objname)
  
- 	list_lru_isolate(lru, item);
-@@ -967,7 +967,7 @@ enum lru_status binder_alloc_free_page(s
- 
- 		trace_binder_unmap_user_end(alloc, index);
+ 		if (!strcmp(name, ".symtab")) {
+ 			symtab = data;
++		} else if (!strcmp(name, ".strtab")) {
++			strtab_idx = i;
+ 		} else if (!strcmp(name, ".orc_unwind")) {
+ 			orc = data->d_buf;
+ 			orc_size = sh.sh_size;
+@@ -150,7 +152,7 @@ int orc_dump(const char *_objname)
+ 		}
  	}
--	up_write(&mm->mmap_sem);
-+	up_read(&mm->mmap_sem);
- 	mmput(mm);
  
- 	trace_binder_unmap_kernel_start(alloc, index);
-@@ -982,7 +982,7 @@ enum lru_status binder_alloc_free_page(s
- 	mutex_unlock(&alloc->mutex);
- 	return LRU_REMOVED_RETRY;
+-	if (!symtab || !orc || !orc_ip)
++	if (!symtab || !strtab_idx || !orc || !orc_ip)
+ 		return 0;
  
--err_down_write_mmap_sem_failed:
-+err_down_read_mmap_sem_failed:
- 	mmput_async(mm);
- err_mmget:
- err_page_already_freed:
+ 	if (orc_size % sizeof(*orc) != 0) {
+@@ -171,21 +173,29 @@ int orc_dump(const char *_objname)
+ 				return -1;
+ 			}
+ 
+-			scn = elf_getscn(elf, sym.st_shndx);
+-			if (!scn) {
+-				WARN_ELF("elf_getscn");
+-				return -1;
+-			}
+-
+-			if (!gelf_getshdr(scn, &sh)) {
+-				WARN_ELF("gelf_getshdr");
+-				return -1;
+-			}
+-
+-			name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
+-			if (!name || !*name) {
+-				WARN_ELF("elf_strptr");
+-				return -1;
++			if (GELF_ST_TYPE(sym.st_info) == STT_SECTION) {
++				scn = elf_getscn(elf, sym.st_shndx);
++				if (!scn) {
++					WARN_ELF("elf_getscn");
++					return -1;
++				}
++
++				if (!gelf_getshdr(scn, &sh)) {
++					WARN_ELF("gelf_getshdr");
++					return -1;
++				}
++
++				name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
++				if (!name) {
++					WARN_ELF("elf_strptr");
++					return -1;
++				}
++			} else {
++				name = elf_strptr(elf, strtab_idx, sym.st_name);
++				if (!name) {
++					WARN_ELF("elf_strptr");
++					return -1;
++				}
+ 			}
+ 
+ 			printf("%s+%llx:", name, (unsigned long long)rela.r_addend);
+-- 
+2.20.1
+
 
 
