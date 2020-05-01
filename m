@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE2F11C1437
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F271C14B2
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730917AbgEANg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:36:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35586 "EHLO mail.kernel.org"
+        id S1731463AbgEANmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730913AbgEANgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:36:55 -0400
+        id S1731230AbgEANmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:42:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C92152173E;
-        Fri,  1 May 2020 13:36:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DD9220757;
+        Fri,  1 May 2020 13:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340215;
-        bh=Mi2EeL3jHCWIbg8Moz3TNZ/gICusH4EaR9zxNVDG98U=;
+        s=default; t=1588340519;
+        bh=76cKjet0vKlIT86tfCUd3npTQx3P++NCHejV0tVuvVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A704BlUBxms2tvuOuWIFHQOED2tuGIjqUEt0oih7YI1FsV/T00NXh5JsbCSY668Vq
-         2m733FO1xaOiVkO4b1klgL11YNAF0RYt+aff3lfLT1Skd69trwdLpZ+29JFIVLI6Nz
-         ZcO1YUOgIx40VSYKSHHogmuaXrjMhdjgHClBJ7Ag=
+        b=d3IYtOrSSaC2az3fzGyxnoZ4ov1Tt4fDY+S6MXepmWi4NU5bJdJWYwuZnuUculAhl
+         aO1raUeG4Bpo80J29/RWwrL5R9pKMKlcDtkR1aMqO6hUj9FgE6qswMSbb2EN1FRMLN
+         aNmCL90jtP/DaVqOb2q55y2OmmhrYQ2v5NGpr0+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>,
-        Kees Cook <keescook@chromium.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/46] objtool: Fix CONFIG_UBSAN_TRAP unreachable warnings
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.6 027/106] brcmfmac: add stub for monitor interface xmit
 Date:   Fri,  1 May 2020 15:23:00 +0200
-Message-Id: <20200501131511.262749709@linuxfoundation.org>
+Message-Id: <20200501131547.290347368@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
-References: <20200501131457.023036302@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,69 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit bd841d6154f5f41f8a32d3c1b0bc229e326e640a ]
+commit 5bf8e6096c7390f8f2c4d5394b5e49823adb004e upstream.
 
-CONFIG_UBSAN_TRAP causes GCC to emit a UD2 whenever it encounters an
-unreachable code path.  This includes __builtin_unreachable().  Because
-the BUG() macro uses __builtin_unreachable() after it emits its own UD2,
-this results in a double UD2.  In this case objtool rightfully detects
-that the second UD2 is unreachable:
+According to the struct net_device_ops documentation .ndo_start_xmit is
+"Required; cannot be NULL.". Missing it may crash kernel easily:
 
-  init/main.o: warning: objtool: repair_env_string()+0x1c8: unreachable instruction
+[  341.216709] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+[  341.224836] pgd = 26088755
+[  341.227544] [00000000] *pgd=00000000
+[  341.231135] Internal error: Oops: 80000007 [#1] SMP ARM
+[  341.236367] Modules linked in: pppoe ppp_async iptable_nat brcmfmac xt_state xt_nat xt_conntrack xt_REDIRECT xt_MASQU
+[  341.304689] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.24 #0
+[  341.310621] Hardware name: BCM5301X
+[  341.314116] PC is at 0x0
+[  341.316664] LR is at dev_hard_start_xmit+0x8c/0x11c
+[  341.321546] pc : [<00000000>]    lr : [<c0469fa8>]    psr: 60000113
+[  341.327821] sp : c0801c30  ip : c610cf00  fp : c08048e4
+[  341.333051] r10: c073a63a  r9 : c08044dc  r8 : c6c04e00
+[  341.338283] r7 : 00000000  r6 : c60f5000  r5 : 00000000  r4 : c6a9c3c0
+[  341.344820] r3 : 00000000  r2 : bf25a13c  r1 : c60f5000  r0 : c6a9c3c0
+[  341.351358] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[  341.358504] Control: 10c5387d  Table: 0611c04a  DAC: 00000051
+[  341.364257] Process swapper/0 (pid: 0, stack limit = 0xc68ed0ca)
+[  341.370271] Stack: (0xc0801c30 to 0xc0802000)
+[  341.374633] 1c20:                                     c6e7d480 c0802d00 c60f5050 c0801c6c
+[  341.382825] 1c40: c60f5000 c6a9c3c0 c6f90000 c6f9005c c6c04e00 c60f5000 00000000 c6f9005c
+[  341.391015] 1c60: 00000000 c04a033c 00f90200 00000010 c6a9c3c0 c6a9c3c0 c6f90000 00000000
+[  341.399205] 1c80: 00000000 00000000 00000000 c046a7ac c6f9005c 00000001 fffffff4 00000000
+[  341.407395] 1ca0: c6f90200 00000000 c60f5000 c0479550 00000000 c6f90200 c6a9c3c0 16000000
+[  341.415586] 1cc0: 0000001c 6f4ad52f c6197040 b6df9387 36000000 c0520404 c073a80c c6a9c3c0
+[  341.423777] 1ce0: 00000000 c6d643c0 c6a9c3c0 c0800024 00000001 00000001 c6d643c8 c6a9c3c0
+[  341.431967] 1d00: c081b9c0 c7abca80 c610c840 c081b9c0 0000001c 00400000 c6bc5e6c c0522fb4
+[  341.440157] 1d20: c6d64400 00000004 c6bc5e0a 00000000 c60f5000 c7abca80 c081b9c0 c0522f54
+[  341.448348] 1d40: c6a9c3c0 c7abca80 c0803e48 c0549c94 c610c828 0000000a c0801d74 00000003
+[  341.456538] 1d60: c6ec8f0a 00000000 c60f5000 c7abca80 c081b9c0 c0548520 0000000a 00000000
+[  341.464728] 1d80: 00000000 003a0000 00000000 00000000 00000000 00000000 00000000 00000000
+[  341.472919] 1da0: 000002ff 00000000 00000000 16000000 00000000 00000000 00000000 00000000
+[  341.481110] 1dc0: 00000000 0000008f 00000000 00000000 00000000 2d132a69 c6bc5e40 00000000
+[  341.489300] 1de0: c6bc5e40 c6a9c3c0 00000000 c6ec8e50 00000001 c054b070 00000001 00000000
+[  341.497490] 1e00: c0807200 c6bc5e00 00000000 ffffe000 00000100 c054aea4 00000000 00000000
+[  341.505681] 1e20: 00000122 00400000 c0802d00 c0172e80 6f56a70e ffffffff 6f56a70e c7eb9cc0
+[  341.513871] 1e40: c7eb82c0 00000000 c0801e60 c017309c 00000000 00000000 07780000 c07382c0
+[  341.522061] 1e60: 00000000 c7eb9cc0 c0739cc0 c0803f74 c0801e70 c0801e70 c0801ea4 c013d380
+[  341.530253] 1e80: 00000000 000000a0 00000001 c0802084 c0802080 40000001 ffffe000 00000100
+[  341.538443] 1ea0: c0802080 c01021e8 c8803100 10c5387d 00000000 c07341f0 c0739880 0000000a
+[  341.546633] 1ec0: c0734180 00001017 c0802d00 c062aa98 00200002 c062aa60 c8803100 c073984c
+[  341.554823] 1ee0: 00000000 00000001 00000000 c7810000 c8803100 10c5387d 00000000 c011c188
+[  341.563014] 1f00: c073984c c015f0f8 c0804244 c0815ae4 c880210c c8802100 c0801f40 c037c584
+[  341.571204] 1f20: c01035f8 60000013 ffffffff c0801f74 c080afd4 c0800000 10c5387d c0101a8c
+[  341.579395] 1f40: 00000000 004ac9dc c7eba4b4 c010ee60 ffffe000 c0803e68 c0803ea8 00000001
+[  341.587587] 1f60: c080afd4 c062ca20 10c5387d 00000000 00000000 c0801f90 c01035f4 c01035f8
+[  341.595776] 1f80: 60000013 ffffffff 00000051 00000000 ffffe000 c013ff50 000000ce c0803e40
+[  341.603967] 1fa0: c082216c 00000000 00000001 c072ba38 10c5387d c0140214 c0822184 c0700df8
+[  341.612157] 1fc0: ffffffff ffffffff 00000000 c070058c c072ba38 2d162e71 00000000 c0700330
+[  341.620348] 1fe0: 00000051 10c0387d 000000ff 00a521d0 413fc090 00000000 00000000 00000000
+[  341.628558] [<c0469fa8>] (dev_hard_start_xmit) from [<c04a033c>] (sch_direct_xmit+0xe4/0x2bc)
+[  341.637106] [<c04a033c>] (sch_direct_xmit) from [<c046a7ac>] (__dev_queue_xmit+0x6a4/0x72c)
+[  341.645481] [<c046a7ac>] (__dev_queue_xmit) from [<c0520404>] (ip6_finish_output2+0x18c/0x434)
+[  341.654112] [<c0520404>] (ip6_finish_output2) from [<c0522fb4>] (ip6_output+0x5c/0xd0)
+[  341.662053] [<c0522fb4>] (ip6_output) from [<c0549c94>] (mld_sendpack+0x1a0/0x1a8)
+[  341.669640] [<c0549c94>] (mld_sendpack) from [<c054b070>] (mld_ifc_timer_expire+0x1cc/0x2e4)
+[  341.678111] [<c054b070>] (mld_ifc_timer_expire) from [<c0172e80>] (call_timer_fn.constprop.3+0x24/0x98)
+[  341.687527] [<c0172e80>] (call_timer_fn.constprop.3) from [<c017309c>] (run_timer_softirq+0x1a8/0x1e4)
+[  341.696860] [<c017309c>] (run_timer_softirq) from [<c01021e8>] (__do_softirq+0x120/0x2b0)
+[  341.705066] [<c01021e8>] (__do_softirq) from [<c011c188>] (irq_exit+0x78/0x84)
+[  341.712317] [<c011c188>] (irq_exit) from [<c015f0f8>] (__handle_domain_irq+0x60/0xb4)
+[  341.720179] [<c015f0f8>] (__handle_domain_irq) from [<c037c584>] (gic_handle_irq+0x4c/0x90)
+[  341.728549] [<c037c584>] (gic_handle_irq) from [<c0101a8c>] (__irq_svc+0x6c/0x90)
 
-We weren't able to figure out a way to get rid of the double UD2s, so
-just silence the warning.
+Fixes: 20f2c5fa3af0 ("brcmfmac: add initial support for monitor mode")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200327130307.26477-1-zajec5@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/6653ad73c6b59c049211bd7c11ed3809c20ee9f5.1585761021.git.jpoimboe@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 9479c74af9baf..4613d796492ab 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -2086,14 +2086,27 @@ static bool ignore_unreachable_insn(struct instruction *insn)
- 	    !strcmp(insn->sec->name, ".altinstr_aux"))
- 		return true;
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -729,9 +729,18 @@ static int brcmf_net_mon_stop(struct net
+ 	return err;
+ }
  
-+	if (!insn->func)
-+		return false;
++static netdev_tx_t brcmf_net_mon_start_xmit(struct sk_buff *skb,
++					    struct net_device *ndev)
++{
++	dev_kfree_skb_any(skb);
 +
-+	/*
-+	 * CONFIG_UBSAN_TRAP inserts a UD2 when it sees
-+	 * __builtin_unreachable().  The BUG() macro has an unreachable() after
-+	 * the UD2, which causes GCC's undefined trap logic to emit another UD2
-+	 * (or occasionally a JMP to UD2).
-+	 */
-+	if (list_prev_entry(insn, list)->dead_end &&
-+	    (insn->type == INSN_BUG ||
-+	     (insn->type == INSN_JUMP_UNCONDITIONAL &&
-+	      insn->jump_dest && insn->jump_dest->type == INSN_BUG)))
-+		return true;
++	return NETDEV_TX_OK;
++}
 +
- 	/*
- 	 * Check if this (or a subsequent) instruction is related to
- 	 * CONFIG_UBSAN or CONFIG_KASAN.
- 	 *
- 	 * End the search at 5 instructions to avoid going into the weeds.
- 	 */
--	if (!insn->func)
--		return false;
- 	for (i = 0; i < 5; i++) {
+ static const struct net_device_ops brcmf_netdev_ops_mon = {
+ 	.ndo_open = brcmf_net_mon_open,
+ 	.ndo_stop = brcmf_net_mon_stop,
++	.ndo_start_xmit = brcmf_net_mon_start_xmit,
+ };
  
- 		if (is_kasan_insn(insn) || is_ubsan_insn(insn))
--- 
-2.20.1
-
+ int brcmf_net_mon_attach(struct brcmf_if *ifp)
 
 
