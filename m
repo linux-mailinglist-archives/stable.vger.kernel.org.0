@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07DD91C16B7
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F20F41C16A7
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730544AbgEANwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:52:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36972 "EHLO mail.kernel.org"
+        id S1731628AbgEANvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:51:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730979AbgEANhq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:37:46 -0400
+        id S1730391AbgEANiW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:38:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7720B24957;
-        Fri,  1 May 2020 13:37:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D62E624957;
+        Fri,  1 May 2020 13:38:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340264;
-        bh=IN3dBcosvKC2QUoeyRI6B2svCXNsLO997YBPPyyQJAs=;
+        s=default; t=1588340302;
+        bh=Tgvy8L/qcTQAd0WfpP+tRSfrskJUjHDc5vwMG2Vn+uA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v090XWm5ipUm0ypRTmUjmDqQJfypChijEz1gZuOZggCRi7Xy18Mka4b8uKWrLRNWY
-         4bmCFwXz3GV+QzyKCtYird8I9jsJiQzYxgF1gjPc/FXfjTCcuL/YC4RyKIskf/m6lc
-         07E5lJDnygT5CNuA0xfJhBDaf+IzFJAwjfPSR3Vo=
+        b=rp13FBeQxR2PxdRlXGRvWXcVjVc7OaYHH8xTV3BxiL9FGc8H00jsUQPjBzG2OL7Ch
+         T3mkAaTLHjzKqC/jVRsjPsLF82Xf/09DblAfbyHgEhUgA0fGjRciFU+KCGkLBAUITG
+         fAJKz2/C8SPRwLPfaZ1CPHv/f/41ddzTQGZWdLC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Wei Liu <wl@xen.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 37/46] xen/xenbus: ensure xenbus_map_ring_valloc() returns proper grant status
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 23/83] rxrpc: Fix DATA Tx to disable nofrag for UDP on AF_INET6 socket
 Date:   Fri,  1 May 2020 15:23:02 +0200
-Message-Id: <20200501131511.871004246@linuxfoundation.org>
+Message-Id: <20200501131529.874502065@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
-References: <20200501131457.023036302@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 6b51fd3f65a22e3d1471b18a1d56247e246edd46 ]
+commit 0e631eee17dcea576ab922fa70e4fdbd596ee452 upstream.
 
-xenbus_map_ring_valloc() maps a ring page and returns the status of the
-used grant (0 meaning success).
+Fix the DATA packet transmission to disable nofrag for UDPv4 on an AF_INET6
+socket as well as UDPv6 when trying to transmit fragmentably.
 
-There are Xen hypervisors which might return the value 1 for the status
-of a failed grant mapping due to a bug. Some callers of
-xenbus_map_ring_valloc() test for errors by testing the returned status
-to be less than zero, resulting in no error detected and crashing later
-due to a not available ring page.
+Without this, packets filled to the normal size used by the kernel AFS
+client of 1412 bytes be rejected by udp_sendmsg() with EMSGSIZE
+immediately.  The ->sk_error_report() notification hook is called, but
+rxrpc doesn't generate a trace for it.
 
-Set the return value of xenbus_map_ring_valloc() to GNTST_general_error
-in case the grant status reported by Xen is greater than zero.
+This is a temporary fix; a more permanent solution needs to involve
+changing the size of the packets being filled in accordance with the MTU,
+which isn't currently done in AF_RXRPC.  The reason for not doing so was
+that, barring the last packet in an rx jumbo packet, jumbos can only be
+assembled out of 1412-byte packets - and the plan was to construct jumbos
+on the fly at transmission time.
 
-This is part of XSA-316.
+Also, there's no point turning on IPV6_MTU_DISCOVER, since IPv6 has to
+engage in this anyway since fragmentation is only done by the sender.  We
+can then condense the switch-statement in rxrpc_send_data_packet().
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Wei Liu <wl@xen.org>
-Link: https://lore.kernel.org/r/20200326080358.1018-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 75b54cb57ca3 ("rxrpc: Add IPv6 support")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/xen/xenbus/xenbus_client.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/rxrpc/local_object.c |    9 ---------
+ net/rxrpc/output.c       |   42 +++++++++++-------------------------------
+ 2 files changed, 11 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
-index a1c17000129ba..e94a61eaeceb0 100644
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -450,7 +450,14 @@ EXPORT_SYMBOL_GPL(xenbus_free_evtchn);
- int xenbus_map_ring_valloc(struct xenbus_device *dev, grant_ref_t *gnt_refs,
- 			   unsigned int nr_grefs, void **vaddr)
- {
--	return ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
-+	int err;
-+
-+	err = ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
-+	/* Some hypervisors are buggy and can return 1. */
-+	if (err > 0)
-+		err = GNTST_general_error;
-+
-+	return err;
- }
- EXPORT_SYMBOL_GPL(xenbus_map_ring_valloc);
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -165,15 +165,6 @@ static int rxrpc_open_socket(struct rxrp
+ 			goto error;
+ 		}
  
--- 
-2.20.1
-
+-		/* we want to set the don't fragment bit */
+-		opt = IPV6_PMTUDISC_DO;
+-		ret = kernel_setsockopt(local->socket, SOL_IPV6, IPV6_MTU_DISCOVER,
+-					(char *) &opt, sizeof(opt));
+-		if (ret < 0) {
+-			_debug("setsockopt failed");
+-			goto error;
+-		}
+-
+ 		/* Fall through and set IPv4 options too otherwise we don't get
+ 		 * errors from IPv4 packets sent through the IPv6 socket.
+ 		 */
+--- a/net/rxrpc/output.c
++++ b/net/rxrpc/output.c
+@@ -474,41 +474,21 @@ send_fragmentable:
+ 	skb->tstamp = ktime_get_real();
+ 
+ 	switch (conn->params.local->srx.transport.family) {
++	case AF_INET6:
+ 	case AF_INET:
+ 		opt = IP_PMTUDISC_DONT;
+-		ret = kernel_setsockopt(conn->params.local->socket,
+-					SOL_IP, IP_MTU_DISCOVER,
+-					(char *)&opt, sizeof(opt));
+-		if (ret == 0) {
+-			ret = kernel_sendmsg(conn->params.local->socket, &msg,
+-					     iov, 2, len);
+-			conn->params.peer->last_tx_at = ktime_get_seconds();
+-
+-			opt = IP_PMTUDISC_DO;
+-			kernel_setsockopt(conn->params.local->socket, SOL_IP,
+-					  IP_MTU_DISCOVER,
+-					  (char *)&opt, sizeof(opt));
+-		}
+-		break;
+-
+-#ifdef CONFIG_AF_RXRPC_IPV6
+-	case AF_INET6:
+-		opt = IPV6_PMTUDISC_DONT;
+-		ret = kernel_setsockopt(conn->params.local->socket,
+-					SOL_IPV6, IPV6_MTU_DISCOVER,
+-					(char *)&opt, sizeof(opt));
+-		if (ret == 0) {
+-			ret = kernel_sendmsg(conn->params.local->socket, &msg,
+-					     iov, 2, len);
+-			conn->params.peer->last_tx_at = ktime_get_seconds();
++		kernel_setsockopt(conn->params.local->socket,
++				  SOL_IP, IP_MTU_DISCOVER,
++				  (char *)&opt, sizeof(opt));
++		ret = kernel_sendmsg(conn->params.local->socket, &msg,
++				     iov, 2, len);
++		conn->params.peer->last_tx_at = ktime_get_seconds();
+ 
+-			opt = IPV6_PMTUDISC_DO;
+-			kernel_setsockopt(conn->params.local->socket,
+-					  SOL_IPV6, IPV6_MTU_DISCOVER,
+-					  (char *)&opt, sizeof(opt));
+-		}
++		opt = IP_PMTUDISC_DO;
++		kernel_setsockopt(conn->params.local->socket,
++				  SOL_IP, IP_MTU_DISCOVER,
++				  (char *)&opt, sizeof(opt));
+ 		break;
+-#endif
+ 
+ 	default:
+ 		BUG();
 
 
