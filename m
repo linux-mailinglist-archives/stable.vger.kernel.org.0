@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C72211C165C
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6E31C1699
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731683AbgEANrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:47:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44712 "EHLO mail.kernel.org"
+        id S1731322AbgEANuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:50:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731426AbgEANnp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:43:45 -0400
+        id S1729339AbgEANjg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:39:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C42F208C3;
-        Fri,  1 May 2020 13:43:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C34DB20757;
+        Fri,  1 May 2020 13:39:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340625;
-        bh=KIPoBk7K8wgI48MMKiOmelRUYbArjb3GQ1nhKoUkKeg=;
+        s=default; t=1588340376;
+        bh=JEfPVeCIXS2ihp4wiKoaxqcfVeN9Aopia2uXZyuMbzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJyQlTcJuyjOuiEtCibJJ+/aRcvo2EcTxNGdMca8a3N6DzT0TePCI08eYwp9WmKFc
-         f8cNPBRzNzE+jxM3Oe0OpZkbzLmA53b54HC9fXQ4XFxTBQpjPR+rhzI7rK05Z3j9t/
-         XKJgWCIpYsp2AMTN6Qc3GDDUkJfl+GnNvyQxpgWo=
+        b=S2sGXyFNmNM4fTIMGSsCDevmR2WfFS6hjWgxmnaBXqypLef57yjTY5Tcwoov0QTZx
+         qV2RZXZ+L4y617cPoImMtvrOMJXCCE71+lWGKSryKkcimmmW/bsiihG5cpKsO4f9Ra
+         2dpEe51tAD3b+VWOX/OcvuLhkLN/0vUwEZfOkQho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Vitor Massaru Iha <vitor@massaru.org>,
-        Brendan Higgins <brendanhiggins@google.com>
-Subject: [PATCH 5.6 058/106] um: ensure `make ARCH=um mrproper` removes arch/$(SUBARCH)/include/generated/
-Date:   Fri,  1 May 2020 15:23:31 +0200
-Message-Id: <20200501131550.592783609@linuxfoundation.org>
+        stable@vger.kernel.org, Jeremy Cline <jcline@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 53/83] libbpf: Initialize *nl_pid so gcc 10 is happy
+Date:   Fri,  1 May 2020 15:23:32 +0200
+Message-Id: <20200501131538.906016002@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitor Massaru Iha <vitor@massaru.org>
+From: Jeremy Cline <jcline@redhat.com>
 
-commit 63ec90f18204f2fe072df108de8a021b28b1b173 upstream.
+[ Upstream commit 4734b0fefbbf98f8c119eb8344efa19dac82cd2c ]
 
-In this workflow:
+Builds of Fedora's kernel-tools package started to fail with "may be
+used uninitialized" warnings for nl_pid in bpf_set_link_xdp_fd() and
+bpf_get_link_xdp_info() on the s390 architecture.
 
-$ make ARCH=um defconfig && make ARCH=um -j8
-  [snip]
-$ make ARCH=um mrproper
-  [snip]
-$ make ARCH=um defconfig O=./build_um && make ARCH=um -j8 O=./build_um
-  [snip]
-  CC      scripts/mod/empty.o
-In file included from ../include/linux/types.h:6,
-                 from ../include/linux/mod_devicetable.h:12,
-                 from ../scripts/mod/devicetable-offsets.c:3:
-../include/uapi/linux/types.h:5:10: fatal error: asm/types.h: No such file or directory
-    5 | #include <asm/types.h>
-      |          ^~~~~~~~~~~~~
-compilation terminated.
-make[2]: *** [../scripts/Makefile.build:100: scripts/mod/devicetable-offsets.s] Error 1
-make[2]: *** Waiting for unfinished jobs....
-make[1]: *** [/home/iha/sdb/opensource/lkmp/linux-kselftest.git/Makefile:1140: prepare0] Error 2
-make[1]: Leaving directory '/home/iha/sdb/opensource/lkmp/linux-kselftest.git/build_um'
-make: *** [Makefile:180: sub-make] Error 2
+Although libbpf_netlink_open() always returns a negative number when it
+does not set *nl_pid, the compiler does not determine this and thus
+believes the variable might be used uninitialized. Assuage gcc's fears
+by explicitly initializing nl_pid.
 
-The cause of the error was because arch/$(SUBARCH)/include/generated files
-weren't properly cleaned by `make ARCH=um mrproper`.
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1807781
 
-Fixes: a788b2ed81ab ("kbuild: check arch/$(SRCARCH)/include/generated before out-of-tree build")
-Reported-by: Theodore Ts'o <tytso@mit.edu>
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Vitor Massaru Iha <vitor@massaru.org>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Tested-by: Brendan Higgins <brendanhiggins@google.com>
-Link: https://groups.google.com/forum/#!msg/kunit-dev/QmA27YEgEgI/hvS1kiz2CwAJ
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jeremy Cline <jcline@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200404051430.698058-1-jcline@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ tools/lib/bpf/netlink.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/um/Makefile
-+++ b/arch/um/Makefile
-@@ -140,6 +140,7 @@ export CFLAGS_vmlinux := $(LINK-y) $(LIN
- # When cleaning we don't include .config, so we don't include
- # TT or skas makefiles and don't clean skas_ptregs.h.
- CLEAN_FILES += linux x.i gmon.out
-+MRPROPER_DIRS += arch/$(SUBARCH)/include/generated
+diff --git a/tools/lib/bpf/netlink.c b/tools/lib/bpf/netlink.c
+index ce3ec81b71c01..88416be2bf994 100644
+--- a/tools/lib/bpf/netlink.c
++++ b/tools/lib/bpf/netlink.c
+@@ -137,7 +137,7 @@ int bpf_set_link_xdp_fd(int ifindex, int fd, __u32 flags)
+ 		struct ifinfomsg ifinfo;
+ 		char             attrbuf[64];
+ 	} req;
+-	__u32 nl_pid;
++	__u32 nl_pid = 0;
  
- archclean:
- 	@find . \( -name '*.bb' -o -name '*.bbg' -o -name '*.da' \
+ 	sock = libbpf_netlink_open(&nl_pid);
+ 	if (sock < 0)
+@@ -254,7 +254,7 @@ int bpf_get_link_xdp_id(int ifindex, __u32 *prog_id, __u32 flags)
+ {
+ 	struct xdp_id_md xdp_id = {};
+ 	int sock, ret;
+-	__u32 nl_pid;
++	__u32 nl_pid = 0;
+ 	__u32 mask;
+ 
+ 	if (flags & ~XDP_FLAGS_MASK)
+-- 
+2.20.1
+
 
 
