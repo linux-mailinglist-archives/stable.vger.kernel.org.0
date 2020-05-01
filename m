@@ -2,38 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2271C12D8
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7BA1C15A1
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728586AbgEANY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:24:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
+        id S1729247AbgEANbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:31:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728907AbgEANYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:24:55 -0400
+        id S1729222AbgEANbR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:31:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9751E24953;
-        Fri,  1 May 2020 13:24:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C313216FD;
+        Fri,  1 May 2020 13:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339495;
-        bh=oQ7B0AkpzBHnU7WHZ3slnVmqyOaWkKR6y1mZf8UXi78=;
+        s=default; t=1588339876;
+        bh=qh+rRQ26snjET7PSeU8hJK8HLdSc6NZMY9RE8q3qkKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nVh85VqiKKfmoQLL4b/XXpbjsYzzxNmBC8hHicOzAh2n5EXm7aSox7yBcnDprTDi3
-         3ngSqHrlFNSKGMuvLuSoITucHKflqCI6l9CJ7ua1VF9+9P0K9KQTAYqVuYIsYeDUCJ
-         ezxAgEzu6KAebuQuvOrqfxWV974vFrs7v0BCoczA=
+        b=QnByEkeztLn0WXFtV6S8IHGgiPr3TjWfqrn+nAUOTcnBMHH4boJZjIofhUn193i98
+         +clWAMXOU0eaEgiLh9eEzgGYbfkbnN5ey4lwjwoFLdnNGJh8kQ+5y23U8O9QuMPZrv
+         mywsorcrN/LTP9L6nGyasHnnyfej20XlviFKk0HM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 02/70] ALSA: hda - Fix incorrect usage of IS_REACHABLE()
-Date:   Fri,  1 May 2020 15:20:50 +0200
-Message-Id: <20200501131513.978773721@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Ingo Molnar <mingo@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        NeilBrown <neilb@suse.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Waiman Long <longman@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 015/117] kernel/gcov/fs.c: gcov_seq_next() should increase position index
+Date:   Fri,  1 May 2020 15:20:51 +0200
+Message-Id: <20200501131546.870692997@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 6a30abaa40b62aed46ef12ea4c16c48565bdb376 upstream.
+[ Upstream commit f4d74ef6220c1eda0875da30457bef5c7111ab06 ]
 
-The commit c469652bb5e8 ("ALSA: hda - Use IS_REACHABLE() for
-dependency on input") simplified the dependencies with IS_REACHABLE()
-macro, but it broke due to its incorrect usage: it should have been
-IS_REACHABLE(CONFIG_INPUT) instead of IS_REACHABLE(INPUT).
+If seq_file .next function does not change position index, read after
+some lseek can generate unexpected output.
 
-Fixes: c469652bb5e8 ("ALSA: hda - Use IS_REACHABLE() for dependency on input")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: NeilBrown <neilb@suse.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Waiman Long <longman@redhat.com>
+Link: http://lkml.kernel.org/r/f65c6ee7-bd00-f910-2f8a-37cc67e4ff88@virtuozzo.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    2 +-
+ kernel/gcov/fs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3500,7 +3500,7 @@ static void alc280_fixup_hp_gpio4(struct
- 	}
- }
- 
--#if IS_REACHABLE(INPUT)
-+#if IS_REACHABLE(CONFIG_INPUT)
- static void gpio2_mic_hotkey_event(struct hda_codec *codec,
- 				   struct hda_jack_callback *event)
+diff --git a/kernel/gcov/fs.c b/kernel/gcov/fs.c
+index 6e40ff6be083d..291e0797125b6 100644
+--- a/kernel/gcov/fs.c
++++ b/kernel/gcov/fs.c
+@@ -109,9 +109,9 @@ static void *gcov_seq_next(struct seq_file *seq, void *data, loff_t *pos)
  {
+ 	struct gcov_iterator *iter = data;
+ 
++	(*pos)++;
+ 	if (gcov_iter_next(iter))
+ 		return NULL;
+-	(*pos)++;
+ 
+ 	return iter;
+ }
+-- 
+2.20.1
+
 
 
