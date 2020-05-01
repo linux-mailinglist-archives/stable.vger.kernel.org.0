@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F04E81C1675
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E771C16C7
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731333AbgEANss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:48:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42662 "EHLO mail.kernel.org"
+        id S1730638AbgEANw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:52:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731468AbgEANmJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:09 -0400
+        id S1730523AbgEANhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99626205C9;
-        Fri,  1 May 2020 13:42:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B42E2173E;
+        Fri,  1 May 2020 13:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340529;
-        bh=P2FPlNLwFu1BCj1FNepdbv+lSCP7PjbV+bjvFbzBD9g=;
+        s=default; t=1588340222;
+        bh=j2t6aAKl8zLrt0Hxrw86AzQhKEI6iRPEJt+Q45nQCAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJxdBPhyPOZwbqPlVZOio4p/yaSSvM8mtnF7K76L6sMFwTqQQd7ffUosMZusza9ov
-         aWwbQV8ni7VdzsPVXFR+y47lcPRtJ5BJmoS+yS7i35tSaXmGQZkzqhy3WHRAG8D8xX
-         kRYdNUGqPPmcwZBohWdyzF7D0n1/jSx3ObW3Y4z4=
+        b=cqCT3LYPHJDGx3xA9//0oNCSgax8yV2SZyyKTN/gCR+of8EUTe0XVJZ5pMJmICG0g
+         75y3pIASoFIbdH5Wfzp84ND7TYy6xQaXED7gzwPz+D98wp3lxLIU5pddq0lXLoI62x
+         51zdV42Yv0XfotmCCdIzjnahQ8bPLfxNtIgDhnfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.6 019/106] ASoC: samsung: s3c24xx-i2s: Fix build after removal of DAI suspend/resume
+        stable@vger.kernel.org, Xi Wang <xi.wang@gmail.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 27/46] bpf, x86: Fix encoding for lower 8-bit registers in BPF_STX BPF_B
 Date:   Fri,  1 May 2020 15:22:52 +0200
-Message-Id: <20200501131546.455042594@linuxfoundation.org>
+Message-Id: <20200501131508.182238651@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,182 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Luke Nelson <lukenels@cs.washington.edu>
 
-commit ec21bdc6dd16d74b3674ef1fd12ae8e4e7418603 upstream.
+[ Upstream commit aee194b14dd2b2bde6252b3acf57d36dccfc743a ]
 
-Commit 450312b640f9 ("ASoC: soc-core: remove DAI suspend/resume")
-removed the DAI side suspend/resume hooks and switched entirely to
-component suspend/resume.  However the Samsung SoC s3c-i2s-v2 driver was
-not updated.
+This patch fixes an encoding bug in emit_stx for BPF_B when the source
+register is BPF_REG_FP.
 
-Move the suspend/resume hooks from s3c-i2s-v2.c to s3c2412-i2s.c while
-changing dai to component which allows to keep the struct
-snd_soc_component_driver const.
+The current implementation for BPF_STX BPF_B in emit_stx saves one REX
+byte when the operands can be encoded using Mod-R/M alone. The lower 8
+bits of registers %rax, %rbx, %rcx, and %rdx can be accessed without using
+a REX prefix via %al, %bl, %cl, and %dl, respectively. Other registers,
+(e.g., %rsi, %rdi, %rbp, %rsp) require a REX prefix to use their 8-bit
+equivalents (%sil, %dil, %bpl, %spl).
 
-This fixes build errors:
+The current code checks if the source for BPF_STX BPF_B is BPF_REG_1
+or BPF_REG_2 (which map to %rdi and %rsi), in which case it emits the
+required REX prefix. However, it misses the case when the source is
+BPF_REG_FP (mapped to %rbp).
 
-    sound/soc/samsung/s3c-i2s-v2.c: In function ‘s3c_i2sv2_register_component’:
-    sound/soc/samsung/s3c-i2s-v2.c:730:9: error: ‘struct snd_soc_dai_driver’ has no member named ‘suspend’
-      dai_drv->suspend = s3c2412_i2s_suspend;
+The result is that BPF_STX BPF_B with BPF_REG_FP as the source operand
+will read from register %ch instead of the correct %bpl. This patch fixes
+the problem by fixing and refactoring the check on which registers need
+the extra REX byte. Since no BPF registers map to %rsp, there is no need
+to handle %spl.
 
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Fixes: 450312b640f9 ("ASoC: soc-core: remove DAI suspend/resume")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Link: https://lore.kernel.org/r/20200413124548.28197-1-krzk@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-
+Fixes: 622582786c9e0 ("net: filter: x86: internal BPF JIT")
+Signed-off-by: Xi Wang <xi.wang@gmail.com>
+Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200418232655.23870-1-luke.r.nels@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/samsung/s3c-i2s-v2.c  |   57 ----------------------------------------
- sound/soc/samsung/s3c2412-i2s.c |   56 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 56 insertions(+), 57 deletions(-)
+ arch/x86/net/bpf_jit_comp.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/sound/soc/samsung/s3c-i2s-v2.c
-+++ b/sound/soc/samsung/s3c-i2s-v2.c
-@@ -656,60 +656,6 @@ void s3c_i2sv2_cleanup(struct snd_soc_da
- }
- EXPORT_SYMBOL_GPL(s3c_i2sv2_cleanup);
- 
--#ifdef CONFIG_PM
--static int s3c2412_i2s_suspend(struct snd_soc_dai *dai)
--{
--	struct s3c_i2sv2_info *i2s = to_info(dai);
--	u32 iismod;
--
--	if (dai->active) {
--		i2s->suspend_iismod = readl(i2s->regs + S3C2412_IISMOD);
--		i2s->suspend_iiscon = readl(i2s->regs + S3C2412_IISCON);
--		i2s->suspend_iispsr = readl(i2s->regs + S3C2412_IISPSR);
--
--		/* some basic suspend checks */
--
--		iismod = readl(i2s->regs + S3C2412_IISMOD);
--
--		if (iismod & S3C2412_IISCON_RXDMA_ACTIVE)
--			pr_warn("%s: RXDMA active?\n", __func__);
--
--		if (iismod & S3C2412_IISCON_TXDMA_ACTIVE)
--			pr_warn("%s: TXDMA active?\n", __func__);
--
--		if (iismod & S3C2412_IISCON_IIS_ACTIVE)
--			pr_warn("%s: IIS active\n", __func__);
--	}
--
--	return 0;
--}
--
--static int s3c2412_i2s_resume(struct snd_soc_dai *dai)
--{
--	struct s3c_i2sv2_info *i2s = to_info(dai);
--
--	pr_info("dai_active %d, IISMOD %08x, IISCON %08x\n",
--		dai->active, i2s->suspend_iismod, i2s->suspend_iiscon);
--
--	if (dai->active) {
--		writel(i2s->suspend_iiscon, i2s->regs + S3C2412_IISCON);
--		writel(i2s->suspend_iismod, i2s->regs + S3C2412_IISMOD);
--		writel(i2s->suspend_iispsr, i2s->regs + S3C2412_IISPSR);
--
--		writel(S3C2412_IISFIC_RXFLUSH | S3C2412_IISFIC_TXFLUSH,
--		       i2s->regs + S3C2412_IISFIC);
--
--		ndelay(250);
--		writel(0x0, i2s->regs + S3C2412_IISFIC);
--	}
--
--	return 0;
--}
--#else
--#define s3c2412_i2s_suspend NULL
--#define s3c2412_i2s_resume  NULL
--#endif
--
- int s3c_i2sv2_register_component(struct device *dev, int id,
- 			   const struct snd_soc_component_driver *cmp_drv,
- 			   struct snd_soc_dai_driver *dai_drv)
-@@ -727,9 +673,6 @@ int s3c_i2sv2_register_component(struct
- 	if (!ops->delay)
- 		ops->delay = s3c2412_i2s_delay;
- 
--	dai_drv->suspend = s3c2412_i2s_suspend;
--	dai_drv->resume = s3c2412_i2s_resume;
--
- 	return devm_snd_soc_register_component(dev, cmp_drv, dai_drv, 1);
- }
- EXPORT_SYMBOL_GPL(s3c_i2sv2_register_component);
---- a/sound/soc/samsung/s3c2412-i2s.c
-+++ b/sound/soc/samsung/s3c2412-i2s.c
-@@ -117,6 +117,60 @@ static int s3c2412_i2s_hw_params(struct
- 	return 0;
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index a32fc3d994076..46ab928312517 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -142,6 +142,19 @@ static bool is_ereg(u32 reg)
+ 			     BIT(BPF_REG_AX));
  }
  
-+#ifdef CONFIG_PM
-+static int s3c2412_i2s_suspend(struct snd_soc_component *component)
++/*
++ * is_ereg_8l() == true if BPF register 'reg' is mapped to access x86-64
++ * lower 8-bit registers dil,sil,bpl,spl,r8b..r15b, which need extra byte
++ * of encoding. al,cl,dl,bl have simpler encoding.
++ */
++static bool is_ereg_8l(u32 reg)
 +{
-+	struct s3c_i2sv2_info *i2s = snd_soc_component_get_drvdata(component);
-+	u32 iismod;
-+
-+	if (component->active) {
-+		i2s->suspend_iismod = readl(i2s->regs + S3C2412_IISMOD);
-+		i2s->suspend_iiscon = readl(i2s->regs + S3C2412_IISCON);
-+		i2s->suspend_iispsr = readl(i2s->regs + S3C2412_IISPSR);
-+
-+		/* some basic suspend checks */
-+
-+		iismod = readl(i2s->regs + S3C2412_IISMOD);
-+
-+		if (iismod & S3C2412_IISCON_RXDMA_ACTIVE)
-+			pr_warn("%s: RXDMA active?\n", __func__);
-+
-+		if (iismod & S3C2412_IISCON_TXDMA_ACTIVE)
-+			pr_warn("%s: TXDMA active?\n", __func__);
-+
-+		if (iismod & S3C2412_IISCON_IIS_ACTIVE)
-+			pr_warn("%s: IIS active\n", __func__);
-+	}
-+
-+	return 0;
++	return is_ereg(reg) ||
++	    (1 << reg) & (BIT(BPF_REG_1) |
++			  BIT(BPF_REG_2) |
++			  BIT(BPF_REG_FP));
 +}
 +
-+static int s3c2412_i2s_resume(struct snd_soc_component *component)
-+{
-+	struct s3c_i2sv2_info *i2s = snd_soc_component_get_drvdata(component);
-+
-+	pr_info("component_active %d, IISMOD %08x, IISCON %08x\n",
-+		component->active, i2s->suspend_iismod, i2s->suspend_iiscon);
-+
-+	if (component->active) {
-+		writel(i2s->suspend_iiscon, i2s->regs + S3C2412_IISCON);
-+		writel(i2s->suspend_iismod, i2s->regs + S3C2412_IISMOD);
-+		writel(i2s->suspend_iispsr, i2s->regs + S3C2412_IISPSR);
-+
-+		writel(S3C2412_IISFIC_RXFLUSH | S3C2412_IISFIC_TXFLUSH,
-+		       i2s->regs + S3C2412_IISFIC);
-+
-+		ndelay(250);
-+		writel(0x0, i2s->regs + S3C2412_IISFIC);
-+	}
-+
-+	return 0;
-+}
-+#else
-+#define s3c2412_i2s_suspend NULL
-+#define s3c2412_i2s_resume  NULL
-+#endif
-+
- #define S3C2412_I2S_RATES \
- 	(SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_11025 | SNDRV_PCM_RATE_16000 | \
- 	SNDRV_PCM_RATE_22050 | SNDRV_PCM_RATE_32000 | SNDRV_PCM_RATE_44100 | \
-@@ -146,6 +200,8 @@ static struct snd_soc_dai_driver s3c2412
- 
- static const struct snd_soc_component_driver s3c2412_i2s_component = {
- 	.name		= "s3c2412-i2s",
-+	.suspend	= s3c2412_i2s_suspend,
-+	.resume		= s3c2412_i2s_resume,
- };
- 
- static int s3c2412_iis_dev_probe(struct platform_device *pdev)
+ static bool is_axreg(u32 reg)
+ {
+ 	return reg == BPF_REG_0;
+@@ -751,9 +764,8 @@ st:			if (is_imm8(insn->off))
+ 			/* STX: *(u8*)(dst_reg + off) = src_reg */
+ 		case BPF_STX | BPF_MEM | BPF_B:
+ 			/* Emit 'mov byte ptr [rax + off], al' */
+-			if (is_ereg(dst_reg) || is_ereg(src_reg) ||
+-			    /* We have to add extra byte for x86 SIL, DIL regs */
+-			    src_reg == BPF_REG_1 || src_reg == BPF_REG_2)
++			if (is_ereg(dst_reg) || is_ereg_8l(src_reg))
++				/* Add extra byte for eregs or SIL,DIL,BPL in src_reg */
+ 				EMIT2(add_2mod(0x40, dst_reg, src_reg), 0x88);
+ 			else
+ 				EMIT1(0x88);
+-- 
+2.20.1
+
 
 
