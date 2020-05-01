@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 014261C1478
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 603E11C14D8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730781AbgEANjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:39:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39548 "EHLO mail.kernel.org"
+        id S1731274AbgEANn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:43:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729789AbgEANjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:39:44 -0400
+        id S1731630AbgEANn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:43:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35DD8208DB;
-        Fri,  1 May 2020 13:39:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1132B205C9;
+        Fri,  1 May 2020 13:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340383;
-        bh=xsIm47QT/PkC5BM6zlFzzxen0zJsZueoPhnmIWEltf0=;
+        s=default; t=1588340605;
+        bh=4hZvBE6xsC/iubCP5MVXG8dhgb8LLPoFp3HBF0HbDCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oFFOKj5vEshfPIwEhaOfnUAI/FrU76JHtq7E6D9HA65khzddhQHKmIwMOIdxYULeW
-         aXDL7odaOvVzd3pgdey6NUEgibmBMzKM+KR178+gRA901JN7iuJLG2G51YViiPdW5E
-         xj66FUvmb75qSeNNpRebtG3v8oVQfLECYWdUdMkY=
+        b=ho86uiGvKQ1w/nOoZejV5qjdR9pddmC06+wRGme6p/ebx+k9eLV5tuc2x1iYMwDL+
+         dwsWmWRdXX2B8mgcDdSj61RgxrnPQXpJI52Y+h7Z2U7vFy5+izjq611x9n6Y9GYau+
+         bwu4rPuTyVw903syrzVXGcuZa4VEmG4FjxqGWLwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 44/83] PM: sleep: core: Switch back to async_schedule_dev()
+        stable@vger.kernel.org, Alexander Schmidt <alexs@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.6 050/106] s390/pci: do not set affinity for floating irqs
 Date:   Fri,  1 May 2020 15:23:23 +0200
-Message-Id: <20200501131536.577666747@linuxfoundation.org>
+Message-Id: <20200501131549.691055631@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-commit 09beebd8f93b3c8bf894e342f0a203a5c612478c upstream.
+commit 86dbf32da150339ca81509fa2eb84c814b55258b upstream.
 
-Commit 8b9ec6b73277 ("PM core: Use new async_schedule_dev command")
-introduced a new function for better performance.
+with the introduction of CPU directed interrupts the kernel
+parameter pci=force_floating was introduced to fall back
+to the previous behavior using floating irqs.
 
-However commit f2a424f6c613 ("PM / core: Introduce dpm_async_fn()
-helper") went back to the non-optimized version, async_schedule().
+However we were still setting the affinity in that case,
+both in __irq_alloc_descs() and via the irq_set_affinity
+callback in struct irq_chip.
 
-So switch back to the sync_schedule_dev() to improve performance
+For the former only set the affinity in the directed case.
 
-Fixes: f2a424f6c613 ("PM / core: Introduce dpm_async_fn() helper")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The latter is explicitly set in zpci_directed_irq_init()
+so we can just leave it unset for the floating case.
+
+Fixes: e979ce7bced2 ("s390/pci: provide support for CPU directed interrupts")
+Co-developed-by: Alexander Schmidt <alexs@linux.ibm.com>
+Signed-off-by: Alexander Schmidt <alexs@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/power/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/pci/pci_irq.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -726,7 +726,7 @@ static bool dpm_async_fn(struct device *
+--- a/arch/s390/pci/pci_irq.c
++++ b/arch/s390/pci/pci_irq.c
+@@ -115,7 +115,6 @@ static struct irq_chip zpci_irq_chip = {
+ 	.name = "PCI-MSI",
+ 	.irq_unmask = pci_msi_unmask_irq,
+ 	.irq_mask = pci_msi_mask_irq,
+-	.irq_set_affinity = zpci_set_irq_affinity,
+ };
  
- 	if (is_async(dev)) {
- 		get_device(dev);
--		async_schedule(func, dev);
-+		async_schedule_dev(func, dev);
- 		return true;
- 	}
- 
+ static void zpci_handle_cpu_local_irq(bool rescan)
+@@ -276,7 +275,9 @@ int arch_setup_msi_irqs(struct pci_dev *
+ 		rc = -EIO;
+ 		if (hwirq - bit >= msi_vecs)
+ 			break;
+-		irq = __irq_alloc_descs(-1, 0, 1, 0, THIS_MODULE, msi->affinity);
++		irq = __irq_alloc_descs(-1, 0, 1, 0, THIS_MODULE,
++				(irq_delivery == DIRECTED) ?
++				msi->affinity : NULL);
+ 		if (irq < 0)
+ 			return -ENOMEM;
+ 		rc = irq_set_msi_desc(irq, msi);
 
 
