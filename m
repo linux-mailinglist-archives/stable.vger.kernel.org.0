@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 518471C1568
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE5341C15C8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729389AbgEAN1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:27:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49038 "EHLO mail.kernel.org"
+        id S1730484AbgEANdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:33:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729363AbgEAN1C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:27:02 -0400
+        id S1730501AbgEANdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:33:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 527EE24955;
-        Fri,  1 May 2020 13:27:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1934B2051A;
+        Fri,  1 May 2020 13:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339620;
-        bh=bFzTwxNpNnXKW5y0Ld8IcgIJN0YnBTHn+0HciPjoj/Q=;
+        s=default; t=1588340033;
+        bh=lBlvo2JLinn+xJftezxS3qAHZEyExem1Y2iGhZCX2BM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gq37U9jn0X8hPrt/P8FkapXV4TX/9OmG5QBuRF23MsH3NlqbdghaFyV6xQ+ooDdw8
-         8kkVF5z7eyMmQ8IpKNF+MLe9AdDFGdjrT1DrND+cUZZ+h05/YqtGNGBuw/SUNpR+Yi
-         Wsa+16i+GybYYwnrMZaYVem0MKKEt0SsTzk+/7Pw=
+        b=yDC+ftYnfvhYOtwNDfi1Av9P409b1hQetCJOoW8TmTJ0w5Bg4AZK9eVLJcVhH/DLV
+         osErWWFMOgT0xXSVhj85iaC/GwZjvnV53m3KtR89Llt0uO1UJHXSeMTCc2jTu3bV8D
+         AMj4CRcbnJj9yUJmhyqGZYq8p2vOzcpu5pyHsym4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 55/70] sctp: use right member as the param of list_for_each_entry
+        stable@vger.kernel.org,
+        Clemens Gruber <clemens.gruber@pqgruber.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Roland Hieber <rhi@pengutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.14 067/117] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y
 Date:   Fri,  1 May 2020 15:21:43 +0200
-Message-Id: <20200501131530.005417399@linuxfoundation.org>
+Message-Id: <20200501131553.150920438@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-commit a8dd397903a6e57157f6265911f7d35681364427 upstream.
+commit f1baca8896ae18e12c45552a4c4ae2086aa7e02c upstream.
 
-Commit d04adf1b3551 ("sctp: reset owner sk for data chunks on out queues
-when migrating a sock") made a mistake that using 'list' as the param of
-list_for_each_entry to traverse the retransmit, sacked and abandoned
-queues, while chunks are using 'transmitted_list' to link into these
-queues.
+512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+introduced an unintended linker error for i.MX6 configurations that have
+ARM_CPU_SUSPEND=n which can happen if neither CONFIG_PM, CONFIG_CPU_IDLE,
+nor ARM_PSCI_FW are selected.
 
-It could cause NULL dereference panic if there are chunks in any of these
-queues when peeling off one asoc.
+Fix this by having v7_cpu_resume() compiled only when cpu_resume() it
+calls is available as well.
 
-So use the chunk member 'transmitted_list' instead in this patch.
+The C declaration for the function remains unguarded to avoid future code
+inadvertently using a stub and introducing a regression to the bug the
+original commit fixed.
 
-Fixes: d04adf1b3551 ("sctp: reset owner sk for data chunks on out queues when migrating a sock")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: <stable@vger.kernel.org>
+Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Tested-by: Roland Hieber <rhi@pengutronix.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sctp/socket.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/mach-imx/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -185,13 +185,13 @@ static void sctp_for_each_tx_datachunk(s
- 		list_for_each_entry(chunk, &t->transmitted, transmitted_list)
- 			cb(chunk);
+--- a/arch/arm/mach-imx/Makefile
++++ b/arch/arm/mach-imx/Makefile
+@@ -87,8 +87,10 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7
+ obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
+ obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
+ endif
++ifeq ($(CONFIG_ARM_CPU_SUSPEND),y)
+ AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
+ obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
++endif
+ obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
  
--	list_for_each_entry(chunk, &q->retransmit, list)
-+	list_for_each_entry(chunk, &q->retransmit, transmitted_list)
- 		cb(chunk);
- 
--	list_for_each_entry(chunk, &q->sacked, list)
-+	list_for_each_entry(chunk, &q->sacked, transmitted_list)
- 		cb(chunk);
- 
--	list_for_each_entry(chunk, &q->abandoned, list)
-+	list_for_each_entry(chunk, &q->abandoned, transmitted_list)
- 		cb(chunk);
- 
- 	list_for_each_entry(chunk, &q->out_chunk_list, list)
+ obj-$(CONFIG_SOC_IMX1) += mach-imx1.o
 
 
