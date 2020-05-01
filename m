@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E019A1C1579
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC9081C12F2
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729083AbgEAN2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:28:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51360 "EHLO mail.kernel.org"
+        id S1729097AbgEANZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:25:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729604AbgEAN2W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:28:22 -0400
+        id S1729092AbgEANZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:25:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B5AD216FD;
-        Fri,  1 May 2020 13:28:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B156B20757;
+        Fri,  1 May 2020 13:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339702;
-        bh=kn3vplV2Ajsfs0kgxnWd05XDF0uaf40IGq6aiy9WXAM=;
+        s=default; t=1588339544;
+        bh=tTsw+yYwD3xrXKCecdUfo4izDlAh6sniyrh8KljU0Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMUS2SO5fmz5DRAvNa6D2Ym/69PlwGPFZmFmGxYx35/P8muWMTUFOPBa7YgR3uTSG
-         ZsvAowcWDQJQ9wdINIzcW+1zohWZW/S88U1HYyKyjKWdEI2lisXMdINAOVT9tkQWNx
-         +yNHgFLjtsVhMLJR8EgC1J1XUG9FJ9kQ2WutzUi0=
+        b=LFAgZIpN/3pL+uQfPWc8EK+PKa/YjhjaMqXbhzpHADfoUjvxFhWUFj+8Low4n0CRi
+         O0w2s5bOXjnV62bi/rEuvnGZJqTnm4hAshaB/DsqoO42ku5DoeGPlYTwcWCp2Vv+4Q
+         WitUIBNkjNP+mTbH9HENoxnNzqCUH7Lt9gX9RlZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        NeilBrown <neilb@suse.com>, Steven Rostedt <rostedt@goodmis.org>,
-        Waiman Long <longman@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 14/80] kernel/gcov/fs.c: gcov_seq_next() should increase position index
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 20/70] net: netrom: Fix potential nr_neigh refcnt leak in nr_add_node
 Date:   Fri,  1 May 2020 15:21:08 +0200
-Message-Id: <20200501131518.274814134@linuxfoundation.org>
+Message-Id: <20200501131520.421197793@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit f4d74ef6220c1eda0875da30457bef5c7111ab06 ]
+[ Upstream commit d03f228470a8c0a22b774d1f8d47071e0de4f6dd ]
 
-If seq_file .next function does not change position index, read after
-some lseek can generate unexpected output.
+nr_add_node() invokes nr_neigh_get_dev(), which returns a local
+reference of the nr_neigh object to "nr_neigh" with increased refcnt.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: NeilBrown <neilb@suse.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Waiman Long <longman@redhat.com>
-Link: http://lkml.kernel.org/r/f65c6ee7-bd00-f910-2f8a-37cc67e4ff88@virtuozzo.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When nr_add_node() returns, "nr_neigh" becomes invalid, so the refcount
+should be decreased to keep refcount balanced.
+
+The issue happens in one normal path of nr_add_node(), which forgets to
+decrease the refcnt increased by nr_neigh_get_dev() and causes a refcnt
+leak. It should decrease the refcnt before the function returns like
+other normal paths do.
+
+Fix this issue by calling nr_neigh_put() before the nr_add_node()
+returns.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/gcov/fs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netrom/nr_route.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/gcov/fs.c b/kernel/gcov/fs.c
-index edf67c493a8e1..e473f6a1f6ca7 100644
---- a/kernel/gcov/fs.c
-+++ b/kernel/gcov/fs.c
-@@ -108,9 +108,9 @@ static void *gcov_seq_next(struct seq_file *seq, void *data, loff_t *pos)
- {
- 	struct gcov_iterator *iter = data;
+--- a/net/netrom/nr_route.c
++++ b/net/netrom/nr_route.c
+@@ -199,6 +199,7 @@ static int __must_check nr_add_node(ax25
+ 		/* refcount initialized at 1 */
+ 		spin_unlock_bh(&nr_node_list_lock);
  
-+	(*pos)++;
- 	if (gcov_iter_next(iter))
- 		return NULL;
--	(*pos)++;
- 
- 	return iter;
- }
--- 
-2.20.1
-
++		nr_neigh_put(nr_neigh);
+ 		return 0;
+ 	}
+ 	nr_node_lock(nr_node);
 
 
