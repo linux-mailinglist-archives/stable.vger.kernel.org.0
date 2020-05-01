@@ -2,86 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E97D51C175D
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 891011C1927
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 17:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728884AbgEAOJX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 10:09:23 -0400
-Received: from mga18.intel.com ([134.134.136.126]:26239 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728840AbgEAOJW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 10:09:22 -0400
-IronPort-SDR: oqzMxGezNetHf1zVxqo1/37tdvdP2zOc1I7Md452rwzg+SLJ+2CtM0qmkejT7Ki6QfLGAgWa//
- Rg9ap2dNWnSQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 May 2020 07:09:21 -0700
-IronPort-SDR: T8F0QqIQVBxO8n19+0hE/vGhvzYePOPeBHTI9gbaOnHqLw9nF12kUm+ibLM91YufzG0lEtO7Jh
- TDHwScBUPBRQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,339,1583222400"; 
-   d="scan'208";a="460272134"
-Received: from orsmsx109.amr.corp.intel.com ([10.22.240.7])
-  by fmsmga006.fm.intel.com with ESMTP; 01 May 2020 07:09:21 -0700
-Received: from orsmsx160.amr.corp.intel.com (10.22.226.43) by
- ORSMSX109.amr.corp.intel.com (10.22.240.7) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Fri, 1 May 2020 07:09:20 -0700
-Received: from orsmsx115.amr.corp.intel.com ([169.254.4.83]) by
- ORSMSX160.amr.corp.intel.com ([169.254.13.187]) with mapi id 14.03.0439.000;
- Fri, 1 May 2020 07:09:20 -0700
-From:   "Luck, Tony" <tony.luck@intel.com>
-To:     Andy Lutomirski <luto@amacapital.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-CC:     "Williams, Dan J" <dan.j.williams@intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>,
-        stable <stable@vger.kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        "Tsaur, Erwin" <erwin.tsaur@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH v2 0/2] Replace and improve "mcsafe" with copy_safe()
-Thread-Topic: [PATCH v2 0/2] Replace and improve "mcsafe" with copy_safe()
-Thread-Index: AQHWHsst2+7frPAw9kCYaqQsGNEgp6iSJ9mAgAAvKwCAAAcmgIAAF8EA//+WBACAAH0TAIAAQ4gAgAAE/4CAAAO1gIAAb4YQ
-Date:   Fri, 1 May 2020 14:09:20 +0000
-Message-ID: <3908561D78D1C84285E8C5FCA982C28F7F60EBB6@ORSMSX115.amr.corp.intel.com>
-References: <CAHk-=wiMs=A90np0Hv5WjHY8HXQWpgtuq-xrrJvyk7_pNB4meg@mail.gmail.com>
- <1962EE67-8AD1-409D-963A-4F1E1AB3B865@amacapital.net>
-In-Reply-To: <1962EE67-8AD1-409D-963A-4F1E1AB3B865@amacapital.net>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.2.0.6
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.140]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1729184AbgEAPN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 11:13:27 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:6044 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728896AbgEAPN0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 11:13:26 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5eac3c190000>; Fri, 01 May 2020 08:11:21 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 01 May 2020 08:13:26 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Fri, 01 May 2020 08:13:26 -0700
+Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 1 May
+ 2020 15:13:25 +0000
+Received: from [10.26.73.180] (10.124.1.5) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 1 May 2020
+ 15:13:22 +0000
+Subject: Re: [PATCH 4.4 00/70] 4.4.221-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200501131513.302599262@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <5bd427c7-9a92-cae9-27c7-1998dbff2d83@nvidia.com>
+Date:   Fri, 1 May 2020 16:13:20 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ DRHQMAIL107.nvidia.com (10.27.9.16)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1588345881; bh=D1qWdXKYvcHZVzuSDVINfTGagAk3jxTBROcztaJ1+js=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=K3AlNroQGrZKvTDRf1+FgXJePPNdNVOFIUXM3f9g0tJnD24wIgvyBUfRofFS6QzBH
+         CTnw4yqpj6VAetUD4+4OGygAL0ZjCtWfeSbrNt2nrmHDNMqq6AvQucou+ZD+7+AS/L
+         sL32cXbbO9OxmuRqgNxWK3apfLz+6P2O56OqrbHQC3rq69tr1K4HmBx/IxXjqgGGju
+         Kt2RMyyBl9YeermR0niB7QMxIBlozp+J9Kx6J9EHDlYve05Oghp/Ra3uDKmNxhuesz
+         nSM3wIBldNskej61X/8E+f5TAD5qdq7/l5aCJB+0PWteJY1XlBy3sfMy2ThsYDt3Bp
+         Wz/Zy/LY5LLfQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiBOb3cgbWF5YmUgY29weV90b191c2VyKCkgc2hvdWxkICphbHdheXMqIHdvcmsgdGhpcyB3YXks
-IGJ1dCBJ4oCZbSBub3QgY29udmluY2VkLg0KPiBDZXJ0YWlubHkgcHV0X3VzZXIoKSBzaG91bGRu
-4oCZdCDigJQgdGhlIHJlc3VsdCB3b3VsZG7igJl0IGV2ZW4gYmUgd2VsbCBkZWZpbmVkLiBBbmQg
-SeKAmW0NCj4gIHVuY29udmluY2VkIHRoYXQgaXQgbWFrZXMgbXVjaCBzZW5zZSBmb3IgdGhlIG1h
-am9yaXR5IG9mIGNvcHlfdG9fdXNlcigpIGNhbGxlcnMNCj4gIHRoYXQgYXJlIGFsc28gZGlyZWN0
-bHkgYWNjZXNzaW5nIHRoZSBzb3VyY2Ugc3RydWN0dXJlLg0KDQpPbmUgY2FzZSB0aGF0IG1pZ2h0
-IHdvcmsgaXMgY29weV90b191c2VyKCkgdGhhdCdzIGNvcHlpbmcgZnJvbSB0aGUga2VybmVsIHBh
-Z2UgY2FjaGUNCnRvIHRoZSB1c2VyIGluIHJlc3BvbnNlIHRvIGEgcmVhZCgyKSBzeXN0ZW0gY2Fs
-bC4gIEFjdGlvbiB3b3VsZCBiZSB0byBjaGVjayBpZiB3ZSBjb3VsZA0KcmUtcmVhZCBmcm9tIHRo
-ZSBmaWxlIHN5c3RlbSB0byBhIGRpZmZlcmVudCBwYWdlLiBJZiBub3QsIHJldHVybiAtRUlPLiBF
-aXRoZXIgd2F5IGRpdGNoIHRoZQ0KcG9pc29uIHBhZ2UgZnJvbSB0aGUgcGFnZSBjYWNoZS4NCg0K
-LVRvbnkNCg==
+
+On 01/05/2020 14:20, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.221 release.
+> There are 70 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 03 May 2020 13:12:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.221-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+
+All tests are passing for Tegra ...
+
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
+
+Linux version:	4.4.221-rc1-gbe0a2ec77b53
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
