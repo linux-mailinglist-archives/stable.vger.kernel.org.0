@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F37E1C14B6
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F04131C143C
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:44:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730654AbgEANmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42730 "EHLO mail.kernel.org"
+        id S1730441AbgEANhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:37:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731487AbgEANmN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:13 -0400
+        id S1730928AbgEANhG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16AE82173E;
-        Fri,  1 May 2020 13:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A5672173E;
+        Fri,  1 May 2020 13:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340531;
-        bh=9NNJsc9JOP3hU8LNhjS2NaJS8yNIq1mysN+ebg5cZJU=;
+        s=default; t=1588340225;
+        bh=bYiTDvsbvgv/pWBNPUAEXwI+44yG39clSKcicpwBy7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEDBimgnyTYEKjPh+GQw1vdx+N4/xzkieq894mi6mboW4PQFqRdESwpa4bzcOqDhR
-         x3YEsgkUrcqC8QzYhP1xQ9GPUdBSbPqgjhOrNvFMBz/UzfI2mcmn9k8lcYstBskUB4
-         jwX51UBZBmjXLQohy5lLAI5PCU+Mj1CAViq55gCs=
+        b=AN/+s5x5t/Bx3/2TybfAYEm+XKsB/ZOLsdUgwz5WmUYlCmHLdmnSvrInvZp69yA2+
+         W2y3Nr4hMtNY550oAMlsyFMiKWg9F4YvgOtjD+u/e37ebKgM6ktv52NDG1GWFepUuX
+         2tZBy26mxChLbKBzFiAu2PaKB3dfWBkSlp4UzRgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Puschmann <p.puschmann@pironex.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.6 020/106] ASoC: tas571x: disable regulators on failed probe
+        stable@vger.kernel.org,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        Fugang Duan <fugang.duan@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 28/46] net: fec: set GPR bit on suspend by DT configuration.
 Date:   Fri,  1 May 2020 15:22:53 +0200
-Message-Id: <20200501131546.542657061@linuxfoundation.org>
+Message-Id: <20200501131508.798164692@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +46,315 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Puschmann <p.puschmann@pironex.de>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-commit 9df8ba7c63073508e5aa677dade48fcab6a6773e upstream.
+[ Upstream commit da722186f6549d752ea5b5fbc18111833c81a133 ]
 
-If probe fails after enabling the regulators regulator_put is called for
-each supply without having them disabled before. This produces some
-warnings like
+On some SoCs, such as the i.MX6, it is necessary to set a bit
+in the SoC level GPR register before suspending for wake on lan
+to work.
 
-WARNING: CPU: 0 PID: 90 at drivers/regulator/core.c:2044 _regulator_put.part.0+0x154/0x15c
-[<c010f7a8>] (unwind_backtrace) from [<c010c544>] (show_stack+0x10/0x14)
-[<c010c544>] (show_stack) from [<c012b640>] (__warn+0xd0/0xf4)
-[<c012b640>] (__warn) from [<c012b9b4>] (warn_slowpath_fmt+0x64/0xc4)
-[<c012b9b4>] (warn_slowpath_fmt) from [<c04c4064>] (_regulator_put.part.0+0x154/0x15c)
-[<c04c4064>] (_regulator_put.part.0) from [<c04c4094>] (regulator_put+0x28/0x38)
-[<c04c4094>] (regulator_put) from [<c04c40cc>] (regulator_bulk_free+0x28/0x38)
-[<c04c40cc>] (regulator_bulk_free) from [<c0579b2c>] (release_nodes+0x1d0/0x22c)
-[<c0579b2c>] (release_nodes) from [<c05756dc>] (really_probe+0x108/0x34c)
-[<c05756dc>] (really_probe) from [<c0575aec>] (driver_probe_device+0xb8/0x16c)
-[<c0575aec>] (driver_probe_device) from [<c0575d40>] (device_driver_attach+0x58/0x60)
-[<c0575d40>] (device_driver_attach) from [<c0575da0>] (__driver_attach+0x58/0xcc)
-[<c0575da0>] (__driver_attach) from [<c0573978>] (bus_for_each_dev+0x78/0xc0)
-[<c0573978>] (bus_for_each_dev) from [<c0574b5c>] (bus_add_driver+0x188/0x1e0)
-[<c0574b5c>] (bus_add_driver) from [<c05768b0>] (driver_register+0x74/0x108)
-[<c05768b0>] (driver_register) from [<c061ab7c>] (i2c_register_driver+0x3c/0x88)
-[<c061ab7c>] (i2c_register_driver) from [<c0102df8>] (do_one_initcall+0x58/0x250)
-[<c0102df8>] (do_one_initcall) from [<c01a91bc>] (do_init_module+0x60/0x244)
-[<c01a91bc>] (do_init_module) from [<c01ab5a4>] (load_module+0x2180/0x2540)
-[<c01ab5a4>] (load_module) from [<c01abbd4>] (sys_finit_module+0xd0/0xe8)
-[<c01abbd4>] (sys_finit_module) from [<c01011e0>] (__sys_trace_return+0x0/0x20)
+The fec platform callback sleep_mode_enable was intended to allow this
+but the platform implementation was NAK'd back in 2015 [1]
 
-Fixes: 3fd6e7d9a146 (ASoC: tas571x: New driver for TI TAS571x power amplifiers)
-Signed-off-by: Philipp Puschmann <p.puschmann@pironex.de>
-Link: https://lore.kernel.org/r/20200414112754.3365406-1-p.puschmann@pironex.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This means that, currently, wake on lan is broken on mainline for
+the i.MX6 at least.
 
+So implement the required bit setting in the fec driver by itself
+by adding a new optional DT property indicating the GPR register
+and adding the offset and bit information to the driver.
+
+[1] https://www.spinics.net/lists/netdev/msg310922.html
+
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tas571x.c |   20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/freescale/fec.h      |   7 +
+ drivers/net/ethernet/freescale/fec_main.c | 149 +++++++++++++++++-----
+ 2 files changed, 127 insertions(+), 29 deletions(-)
 
---- a/sound/soc/codecs/tas571x.c
-+++ b/sound/soc/codecs/tas571x.c
-@@ -820,8 +820,10 @@ static int tas571x_i2c_probe(struct i2c_
+diff --git a/drivers/net/ethernet/freescale/fec.h b/drivers/net/ethernet/freescale/fec.h
+index bf80855dd0dd4..d06a89e99872d 100644
+--- a/drivers/net/ethernet/freescale/fec.h
++++ b/drivers/net/ethernet/freescale/fec.h
+@@ -488,6 +488,12 @@ struct fec_enet_priv_rx_q {
+ 	struct  sk_buff *rx_skbuff[RX_RING_SIZE];
+ };
  
- 	priv->regmap = devm_regmap_init(dev, NULL, client,
- 					priv->chip->regmap_config);
--	if (IS_ERR(priv->regmap))
--		return PTR_ERR(priv->regmap);
-+	if (IS_ERR(priv->regmap)) {
-+		ret = PTR_ERR(priv->regmap);
-+		goto disable_regs;
-+	}
++struct fec_stop_mode_gpr {
++	struct regmap *gpr;
++	u8 reg;
++	u8 bit;
++};
++
+ /* The FEC buffer descriptors track the ring buffers.  The rx_bd_base and
+  * tx_bd_base always point to the base of the buffer descriptors.  The
+  * cur_rx and cur_tx point to the currently available buffer.
+@@ -563,6 +569,7 @@ struct fec_enet_private {
+ 	int hwts_tx_en;
+ 	struct delayed_work time_keep;
+ 	struct regulator *reg_phy;
++	struct fec_stop_mode_gpr stop_gpr;
  
- 	priv->pdn_gpio = devm_gpiod_get_optional(dev, "pdn", GPIOD_OUT_LOW);
- 	if (IS_ERR(priv->pdn_gpio)) {
-@@ -845,7 +847,7 @@ static int tas571x_i2c_probe(struct i2c_
+ 	unsigned int tx_align;
+ 	unsigned int rx_align;
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 9142992ccd5a7..48c58f93b124b 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -62,6 +62,8 @@
+ #include <linux/if_vlan.h>
+ #include <linux/pinctrl/consumer.h>
+ #include <linux/prefetch.h>
++#include <linux/mfd/syscon.h>
++#include <linux/regmap.h>
+ #include <soc/imx/cpuidle.h>
  
- 	ret = regmap_write(priv->regmap, TAS571X_OSC_TRIM_REG, 0);
- 	if (ret)
--		return ret;
-+		goto disable_regs;
+ #include <asm/cacheflush.h>
+@@ -84,6 +86,56 @@ static void fec_enet_itr_coal_init(struct net_device *ndev);
+ #define FEC_ENET_OPD_V	0xFFF0
+ #define FEC_MDIO_PM_TIMEOUT  100 /* ms */
  
- 	usleep_range(50000, 60000);
- 
-@@ -861,12 +863,20 @@ static int tas571x_i2c_probe(struct i2c_
- 		 */
- 		ret = regmap_update_bits(priv->regmap, TAS571X_MVOL_REG, 1, 0);
- 		if (ret)
--			return ret;
-+			goto disable_regs;
++struct fec_devinfo {
++	u32 quirks;
++	u8 stop_gpr_reg;
++	u8 stop_gpr_bit;
++};
++
++static const struct fec_devinfo fec_imx25_info = {
++	.quirks = FEC_QUIRK_USE_GASKET | FEC_QUIRK_MIB_CLEAR |
++		  FEC_QUIRK_HAS_FRREG,
++};
++
++static const struct fec_devinfo fec_imx27_info = {
++	.quirks = FEC_QUIRK_MIB_CLEAR | FEC_QUIRK_HAS_FRREG,
++};
++
++static const struct fec_devinfo fec_imx28_info = {
++	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_SWAP_FRAME |
++		  FEC_QUIRK_SINGLE_MDIO | FEC_QUIRK_HAS_RACC |
++		  FEC_QUIRK_HAS_FRREG,
++};
++
++static const struct fec_devinfo fec_imx6q_info = {
++	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
++		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
++		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR006358 |
++		  FEC_QUIRK_HAS_RACC,
++	.stop_gpr_reg = 0x34,
++	.stop_gpr_bit = 27,
++};
++
++static const struct fec_devinfo fec_mvf600_info = {
++	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_RACC,
++};
++
++static const struct fec_devinfo fec_imx6x_info = {
++	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
++		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
++		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
++		  FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
++		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE,
++};
++
++static const struct fec_devinfo fec_imx6ul_info = {
++	.quirks = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
++		  FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
++		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR007885 |
++		  FEC_QUIRK_BUG_CAPTURE | FEC_QUIRK_HAS_RACC |
++		  FEC_QUIRK_HAS_COALESCE,
++};
++
+ static struct platform_device_id fec_devtype[] = {
+ 	{
+ 		/* keep it for coldfire */
+@@ -91,39 +143,25 @@ static struct platform_device_id fec_devtype[] = {
+ 		.driver_data = 0,
+ 	}, {
+ 		.name = "imx25-fec",
+-		.driver_data = FEC_QUIRK_USE_GASKET | FEC_QUIRK_MIB_CLEAR |
+-			       FEC_QUIRK_HAS_FRREG,
++		.driver_data = (kernel_ulong_t)&fec_imx25_info,
+ 	}, {
+ 		.name = "imx27-fec",
+-		.driver_data = FEC_QUIRK_MIB_CLEAR | FEC_QUIRK_HAS_FRREG,
++		.driver_data = (kernel_ulong_t)&fec_imx27_info,
+ 	}, {
+ 		.name = "imx28-fec",
+-		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_SWAP_FRAME |
+-				FEC_QUIRK_SINGLE_MDIO | FEC_QUIRK_HAS_RACC |
+-				FEC_QUIRK_HAS_FRREG,
++		.driver_data = (kernel_ulong_t)&fec_imx28_info,
+ 	}, {
+ 		.name = "imx6q-fec",
+-		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
+-				FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
+-				FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR006358 |
+-				FEC_QUIRK_HAS_RACC,
++		.driver_data = (kernel_ulong_t)&fec_imx6q_info,
+ 	}, {
+ 		.name = "mvf600-fec",
+-		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_RACC,
++		.driver_data = (kernel_ulong_t)&fec_mvf600_info,
+ 	}, {
+ 		.name = "imx6sx-fec",
+-		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
+-				FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
+-				FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
+-				FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
+-				FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE,
++		.driver_data = (kernel_ulong_t)&fec_imx6x_info,
+ 	}, {
+ 		.name = "imx6ul-fec",
+-		.driver_data = FEC_QUIRK_ENET_MAC | FEC_QUIRK_HAS_GBIT |
+-				FEC_QUIRK_HAS_BUFDESC_EX | FEC_QUIRK_HAS_CSUM |
+-				FEC_QUIRK_HAS_VLAN | FEC_QUIRK_ERR007885 |
+-				FEC_QUIRK_BUG_CAPTURE | FEC_QUIRK_HAS_RACC |
+-				FEC_QUIRK_HAS_COALESCE,
++		.driver_data = (kernel_ulong_t)&fec_imx6ul_info,
+ 	}, {
+ 		/* sentinel */
  	}
+@@ -1089,11 +1127,28 @@ fec_restart(struct net_device *ndev)
  
--	return devm_snd_soc_register_component(&client->dev,
-+	ret = devm_snd_soc_register_component(&client->dev,
- 				      &priv->component_driver,
- 				      &tas571x_dai, 1);
-+	if (ret)
-+		goto disable_regs;
-+
-+	return ret;
-+
-+disable_regs:
-+	regulator_bulk_disable(priv->chip->num_supply_names, priv->supplies);
-+	return ret;
  }
  
- static int tas571x_i2c_remove(struct i2c_client *client)
++static void fec_enet_stop_mode(struct fec_enet_private *fep, bool enabled)
++{
++	struct fec_platform_data *pdata = fep->pdev->dev.platform_data;
++	struct fec_stop_mode_gpr *stop_gpr = &fep->stop_gpr;
++
++	if (stop_gpr->gpr) {
++		if (enabled)
++			regmap_update_bits(stop_gpr->gpr, stop_gpr->reg,
++					   BIT(stop_gpr->bit),
++					   BIT(stop_gpr->bit));
++		else
++			regmap_update_bits(stop_gpr->gpr, stop_gpr->reg,
++					   BIT(stop_gpr->bit), 0);
++	} else if (pdata && pdata->sleep_mode_enable) {
++		pdata->sleep_mode_enable(enabled);
++	}
++}
++
+ static void
+ fec_stop(struct net_device *ndev)
+ {
+ 	struct fec_enet_private *fep = netdev_priv(ndev);
+-	struct fec_platform_data *pdata = fep->pdev->dev.platform_data;
+ 	u32 rmii_mode = readl(fep->hwp + FEC_R_CNTRL) & (1 << 8);
+ 	u32 val;
+ 
+@@ -1122,9 +1177,7 @@ fec_stop(struct net_device *ndev)
+ 		val = readl(fep->hwp + FEC_ECNTRL);
+ 		val |= (FEC_ECR_MAGICEN | FEC_ECR_SLEEP);
+ 		writel(val, fep->hwp + FEC_ECNTRL);
+-
+-		if (pdata && pdata->sleep_mode_enable)
+-			pdata->sleep_mode_enable(true);
++		fec_enet_stop_mode(fep, true);
+ 	}
+ 	writel(fep->phy_speed, fep->hwp + FEC_MII_SPEED);
+ 
+@@ -3347,6 +3400,37 @@ static int fec_enet_get_irq_cnt(struct platform_device *pdev)
+ 	return irq_cnt;
+ }
+ 
++static int fec_enet_init_stop_mode(struct fec_enet_private *fep,
++				   struct fec_devinfo *dev_info,
++				   struct device_node *np)
++{
++	struct device_node *gpr_np;
++	int ret = 0;
++
++	if (!dev_info)
++		return 0;
++
++	gpr_np = of_parse_phandle(np, "gpr", 0);
++	if (!gpr_np)
++		return 0;
++
++	fep->stop_gpr.gpr = syscon_node_to_regmap(gpr_np);
++	if (IS_ERR(fep->stop_gpr.gpr)) {
++		dev_err(&fep->pdev->dev, "could not find gpr regmap\n");
++		ret = PTR_ERR(fep->stop_gpr.gpr);
++		fep->stop_gpr.gpr = NULL;
++		goto out;
++	}
++
++	fep->stop_gpr.reg = dev_info->stop_gpr_reg;
++	fep->stop_gpr.bit = dev_info->stop_gpr_bit;
++
++out:
++	of_node_put(gpr_np);
++
++	return ret;
++}
++
+ static int
+ fec_probe(struct platform_device *pdev)
+ {
+@@ -3362,6 +3446,7 @@ fec_probe(struct platform_device *pdev)
+ 	int num_rx_qs;
+ 	char irq_name[8];
+ 	int irq_cnt;
++	struct fec_devinfo *dev_info;
+ 
+ 	fec_enet_get_queue_num(pdev, &num_tx_qs, &num_rx_qs);
+ 
+@@ -3379,7 +3464,9 @@ fec_probe(struct platform_device *pdev)
+ 	of_id = of_match_device(fec_dt_ids, &pdev->dev);
+ 	if (of_id)
+ 		pdev->id_entry = of_id->data;
+-	fep->quirks = pdev->id_entry->driver_data;
++	dev_info = (struct fec_devinfo *)pdev->id_entry->driver_data;
++	if (dev_info)
++		fep->quirks = dev_info->quirks;
+ 
+ 	fep->netdev = ndev;
+ 	fep->num_rx_queues = num_rx_qs;
+@@ -3414,6 +3501,10 @@ fec_probe(struct platform_device *pdev)
+ 	if (of_get_property(np, "fsl,magic-packet", NULL))
+ 		fep->wol_flag |= FEC_WOL_HAS_MAGIC_PACKET;
+ 
++	ret = fec_enet_init_stop_mode(fep, dev_info, np);
++	if (ret)
++		goto failed_stop_mode;
++
+ 	phy_node = of_parse_phandle(np, "phy-handle", 0);
+ 	if (!phy_node && of_phy_is_fixed_link(np)) {
+ 		ret = of_phy_register_fixed_link(np);
+@@ -3583,6 +3674,7 @@ failed_clk:
+ 	if (of_phy_is_fixed_link(np))
+ 		of_phy_deregister_fixed_link(np);
+ 	of_node_put(phy_node);
++failed_stop_mode:
+ failed_phy:
+ 	dev_id--;
+ failed_ioremap:
+@@ -3660,7 +3752,6 @@ static int __maybe_unused fec_resume(struct device *dev)
+ {
+ 	struct net_device *ndev = dev_get_drvdata(dev);
+ 	struct fec_enet_private *fep = netdev_priv(ndev);
+-	struct fec_platform_data *pdata = fep->pdev->dev.platform_data;
+ 	int ret;
+ 	int val;
+ 
+@@ -3678,8 +3769,8 @@ static int __maybe_unused fec_resume(struct device *dev)
+ 			goto failed_clk;
+ 		}
+ 		if (fep->wol_flag & FEC_WOL_FLAG_ENABLE) {
+-			if (pdata && pdata->sleep_mode_enable)
+-				pdata->sleep_mode_enable(false);
++			fec_enet_stop_mode(fep, false);
++
+ 			val = readl(fep->hwp + FEC_ECNTRL);
+ 			val &= ~(FEC_ECR_MAGICEN | FEC_ECR_SLEEP);
+ 			writel(val, fep->hwp + FEC_ECNTRL);
+-- 
+2.20.1
+
 
 
