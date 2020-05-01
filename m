@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE5E71C1636
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABC011C15FB
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730723AbgEANmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:42:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42470 "EHLO mail.kernel.org"
+        id S1730571AbgEANh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:37:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729712AbgEANmC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:02 -0400
+        id S1730552AbgEANhU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:37:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11C80205C9;
-        Fri,  1 May 2020 13:42:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 683942173E;
+        Fri,  1 May 2020 13:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340521;
-        bh=6T0RzNca53fTcr0xsQ0bozFXTxhOw2weySWR/MkjV7g=;
+        s=default; t=1588340239;
+        bh=oV6YG3KBmVsKh2hALrLGtg4+/xaDxIwbUFVk/sCmzaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFYeKgawYwZqU0mrazowHzDiL8PcxDoraQkwZPnlcdedvn4Br3E0ErzdRu1rdevZP
-         k4hTHCNtZnsCwtsnAGG7fzUGkiN3BYMACtxQN/VMivkIxvFMIKogDjruK3/ceA04QS
-         KZVP5BI/8QqGnbkAl1mrR5NcKK2u0mSaMNdHyDxM=
+        b=ZbCoeJ7AlBMACaOFKTJ7UVngT21btdgOjBFA0V311ZMB83+8QbMf6U8iHSenpbbdU
+         u2gXgUKKLN6ETlDKuCs+vUW44KiS0odMHz6LrOw0M7JIAOjyp1Bokj+A9Z6yrVrhy9
+         GHyzBOqcnhd8dqQ9k+HHeSuclHHRRgwQ3xn6AMJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.6 016/106] s390/ftrace: fix potential crashes when switching tracers
+        stable@vger.kernel.org, Xi Wang <xi.wang@gmail.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        "H. Peter Anvin (Intel)" <hpa@zytor.com>,
+        Wang YanQing <udknight@gmail.com>
+Subject: [PATCH 4.19 24/46] bpf, x86_32: Fix incorrect encoding in BPF_LDX zero-extension
 Date:   Fri,  1 May 2020 15:22:49 +0200
-Message-Id: <20200501131546.168126327@linuxfoundation.org>
+Message-Id: <20200501131507.375996284@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,70 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Rudo <prudo@linux.ibm.com>
+From: Luke Nelson <lukenels@cs.washington.edu>
 
-commit 8ebf6da9db1b2a20bb86cc1bee2552e894d03308 upstream.
+commit 5fa9a98fb10380e48a398998cd36a85e4ef711d6 upstream.
 
-Switching tracers include instruction patching. To prevent that a
-instruction is patched while it's read the instruction patching is done
-in stop_machine 'context'. This also means that any function called
-during stop_machine must not be traced. Thus add 'notrace' to all
-functions called within stop_machine.
+The current JIT uses the following sequence to zero-extend into the
+upper 32 bits of the destination register for BPF_LDX BPF_{B,H,W},
+when the destination register is not on the stack:
 
-Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
-Fixes: 38f2c691a4b3 ("s390: improve wait logic of stop_machine")
-Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
-Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+  EMIT3(0xC7, add_1reg(0xC0, dst_hi), 0);
+
+The problem is that C7 /0 encodes a MOV instruction that requires a 4-byte
+immediate; the current code emits only 1 byte of the immediate. This
+means that the first 3 bytes of the next instruction will be treated as
+the rest of the immediate, breaking the stream of instructions.
+
+This patch fixes the problem by instead emitting "xor dst_hi,dst_hi"
+to clear the upper 32 bits. This fixes the problem and is more efficient
+than using MOV to load a zero immediate.
+
+This bug may not be currently triggerable as BPF_REG_AX is the only
+register not stored on the stack and the verifier uses it in a limited
+way, and the verifier implements a zero-extension optimization. But the
+JIT should avoid emitting incorrect encodings regardless.
+
+Fixes: 03f5781be2c7b ("bpf, x86_32: add eBPF JIT compiler for ia32")
+Signed-off-by: Xi Wang <xi.wang@gmail.com>
+Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: H. Peter Anvin (Intel) <hpa@zytor.com>
+Acked-by: Wang YanQing <udknight@gmail.com>
+Link: https://lore.kernel.org/bpf/20200422173630.8351-1-luke.r.nels@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kernel/diag.c  |    2 +-
- arch/s390/kernel/smp.c   |    4 ++--
- arch/s390/kernel/trace.c |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/net/bpf_jit_comp32.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/s390/kernel/diag.c
-+++ b/arch/s390/kernel/diag.c
-@@ -133,7 +133,7 @@ void diag_stat_inc(enum diag_stat_enum n
- }
- EXPORT_SYMBOL(diag_stat_inc);
- 
--void diag_stat_inc_norecursion(enum diag_stat_enum nr)
-+void notrace diag_stat_inc_norecursion(enum diag_stat_enum nr)
- {
- 	this_cpu_inc(diag_stat.counter[nr]);
- 	trace_s390_diagnose_norecursion(diag_map[nr].code);
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -403,7 +403,7 @@ int smp_find_processor_id(u16 address)
- 	return -1;
- }
- 
--bool arch_vcpu_is_preempted(int cpu)
-+bool notrace arch_vcpu_is_preempted(int cpu)
- {
- 	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
- 		return false;
-@@ -413,7 +413,7 @@ bool arch_vcpu_is_preempted(int cpu)
- }
- EXPORT_SYMBOL(arch_vcpu_is_preempted);
- 
--void smp_yield_cpu(int cpu)
-+void notrace smp_yield_cpu(int cpu)
- {
- 	if (!MACHINE_HAS_DIAG9C)
- 		return;
---- a/arch/s390/kernel/trace.c
-+++ b/arch/s390/kernel/trace.c
-@@ -14,7 +14,7 @@ EXPORT_TRACEPOINT_SYMBOL(s390_diagnose);
- 
- static DEFINE_PER_CPU(unsigned int, diagnose_trace_depth);
- 
--void trace_s390_diagnose_norecursion(int diag_nr)
-+void notrace trace_s390_diagnose_norecursion(int diag_nr)
- {
- 	unsigned long flags;
- 	unsigned int *depth;
+--- a/arch/x86/net/bpf_jit_comp32.c
++++ b/arch/x86/net/bpf_jit_comp32.c
+@@ -1830,7 +1830,9 @@ static int do_jit(struct bpf_prog *bpf_p
+ 					      STACK_VAR(dst_hi));
+ 					EMIT(0x0, 4);
+ 				} else {
+-					EMIT3(0xC7, add_1reg(0xC0, dst_hi), 0);
++					/* xor dst_hi,dst_hi */
++					EMIT2(0x33,
++					      add_2reg(0xC0, dst_hi, dst_hi));
+ 				}
+ 				break;
+ 			case BPF_DW:
 
 
