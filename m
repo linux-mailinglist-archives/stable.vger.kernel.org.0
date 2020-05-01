@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C65D91C1628
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 677C31C1531
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731316AbgEANke (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:40:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40654 "EHLO mail.kernel.org"
+        id S1731767AbgEANon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:44:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730350AbgEANkd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:40:33 -0400
+        id S1729386AbgEANom (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:44:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F29C205C9;
-        Fri,  1 May 2020 13:40:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A25420836;
+        Fri,  1 May 2020 13:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340432;
-        bh=S1pFrNshqtwbqsTvzoUTRMylnIQecyR9t7n1Hbdwejo=;
+        s=default; t=1588340681;
+        bh=tD3zOv8bsJgydoBG6kFrPw2CiE43HwdTyu1zaZF25Mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aayDskhJW/67XlbXXR3OZUAtuLPqjDHdp8RntAdvNFWH+OArlDEQ2mHg6gDDaoOzU
-         WH3S/oZ2jMW88kJVdXyf1/4kw8jrYlLONSwaTOTNkQNWa+85GjlHmtqlzTHuIbcUeU
-         OWyDuhZlDSy5VP+dvxdABn/HzH1i+x7SLfF/JDq0=
+        b=famoT9SQSYDiZrpJAgl/O9ElcZyytq292Orh8hxudfA3j/9oeyoAU/CmwvlLmwQPk
+         mn0Z37vsiIzSp7j3Wrm/51ypOXQsSHc1Z5hly4DsAQYau9/OxrZXi5Tq3036WRf9XI
+         zA9mzMdnVBqytvGjtN22/nk+ceSqcZp9Mv8P+KyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
-        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 63/83] scsi: target: tcmu: reset_ring should reset TCMU_DEV_BIT_BROKEN
-Date:   Fri,  1 May 2020 15:23:42 +0200
-Message-Id: <20200501131540.585278307@linuxfoundation.org>
+        stable@vger.kernel.org, Olaf Hering <olaf@aepfle.de>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 070/106] x86: hyperv: report value of misc_features
+Date:   Fri,  1 May 2020 15:23:43 +0200
+Message-Id: <20200501131552.594887594@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+From: Olaf Hering <olaf@aepfle.de>
 
-[ Upstream commit 066f79a5fd6d1b9a5cc57b5cd445b3e4bb68a5b2 ]
+[ Upstream commit 97d9f1c43bedd400301d6f1eff54d46e8c636e47 ]
 
-In case command ring buffer becomes inconsistent, tcmu sets device flag
-TCMU_DEV_BIT_BROKEN.  If the bit is set, tcmu rejects new commands from LIO
-core with TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE, and no longer processes
-completions from the ring.  The reset_ring attribute can be used to
-completely clean up the command ring, so after reset_ring the ring no
-longer is inconsistent.
+A few kernel features depend on ms_hyperv.misc_features, but unlike its
+siblings ->features and ->hints, the value was never reported during boot.
 
-Therefore reset_ring also should reset bit TCMU_DEV_BIT_BROKEN to allow
-normal processing.
-
-Link: https://lore.kernel.org/r/20200409101026.17872-1-bstroesser@ts.fujitsu.com
-Acked-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Olaf Hering <olaf@aepfle.de>
+Link: https://lore.kernel.org/r/20200407172739.31371-1-olaf@aepfle.de
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_user.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/cpu/mshyperv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
-index 35be1be87d2a1..9425354aef99c 100644
---- a/drivers/target/target_core_user.c
-+++ b/drivers/target/target_core_user.c
-@@ -2073,6 +2073,7 @@ static void tcmu_reset_ring(struct tcmu_dev *udev, u8 err_level)
- 	mb->cmd_tail = 0;
- 	mb->cmd_head = 0;
- 	tcmu_flush_dcache_range(mb, sizeof(*mb));
-+	clear_bit(TCMU_DEV_BIT_BROKEN, &udev->flags);
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index 5e296a7e60363..ebf34c7bc8bc0 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -227,8 +227,8 @@ static void __init ms_hyperv_init_platform(void)
+ 	ms_hyperv.misc_features = cpuid_edx(HYPERV_CPUID_FEATURES);
+ 	ms_hyperv.hints    = cpuid_eax(HYPERV_CPUID_ENLIGHTMENT_INFO);
  
- 	del_timer(&udev->cmd_timer);
+-	pr_info("Hyper-V: features 0x%x, hints 0x%x\n",
+-		ms_hyperv.features, ms_hyperv.hints);
++	pr_info("Hyper-V: features 0x%x, hints 0x%x, misc 0x%x\n",
++		ms_hyperv.features, ms_hyperv.hints, ms_hyperv.misc_features);
  
+ 	ms_hyperv.max_vp_index = cpuid_eax(HYPERV_CPUID_IMPLEMENT_LIMITS);
+ 	ms_hyperv.max_lp_index = cpuid_ebx(HYPERV_CPUID_IMPLEMENT_LIMITS);
 -- 
 2.20.1
 
