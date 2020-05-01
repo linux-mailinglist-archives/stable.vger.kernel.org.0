@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B48D1C13F3
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A89481C1586
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729970AbgEANeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60520 "EHLO mail.kernel.org"
+        id S1729835AbgEAN3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:29:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730558AbgEANeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:34:20 -0400
+        id S1729022AbgEAN3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:29:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1673924957;
-        Fri,  1 May 2020 13:34:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3B53208C3;
+        Fri,  1 May 2020 13:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340060;
-        bh=pvqg+T3fegrWc6pRXGDLuGW+rkYe0Io6nNfeOYwhRiY=;
+        s=default; t=1588339788;
+        bh=O3QIexIeqU5P2QEyxwjjbx+5fccgxwre6dJpMsJdDm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsz7QF9V3m8/kPyk7ckZRe1qo6XDtk2pmJpejUcIN2iYG4wUA5VvfI72LYnry8BKi
-         9nDzh8JDIq8BUckbexvF8inrUS/hjfOdcbzoQ8P+RhTdrm1TA+a+GVwjNZoRd+qXr5
-         EexxJnOl0Uy74i+NOh5J9cZeGhVV3qriPmH8isBo=
+        b=kK/2zhQiJnVb7CAZRWDUYETnOMT69imq8AhjVBgRvY/3fBkm+Gs3SAnqKb7xLlUhS
+         A2LLlhzx+66ndq7YAPYKqcrpSMHIq5W2L8VXorJKeMCArYnRGt2ReW/luRg6ac6eDf
+         AoEr8S8/eoP5iWL1zOUP8fKbVIeVQbDKg7eUs0s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Jonas Karlsson <jonas.karlsson@actia.se>
-Subject: [PATCH 4.14 078/117] cdc-acm: introduce a cool down
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.9 60/80] fuse: fix possibly missed wake-up after abort
 Date:   Fri,  1 May 2020 15:21:54 +0200
-Message-Id: <20200501131554.172370804@linuxfoundation.org>
+Message-Id: <20200501131531.407149934@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,137 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit a4e7279cd1d19f48f0af2a10ed020febaa9ac092 upstream.
+commit 2d84a2d19b6150c6dbac1e6ebad9c82e4c123772 upstream.
 
-Immediate submission in case of a babbling device can lead
-to a busy loop. Introducing a delayed work.
+In current fuse_drop_waiting() implementation it's possible that
+fuse_wait_aborted() will not be woken up in the unlikely case that
+fuse_abort_conn() + fuse_wait_aborted() runs in between checking
+fc->connected and calling atomic_dec(&fc->num_waiting).
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Jonas Karlsson <jonas.karlsson@actia.se>
-Link: https://lore.kernel.org/r/20200415151358.32664-2-oneukum@suse.com
+Do the atomic_dec_and_test() unconditionally, which also provides the
+necessary barrier against reordering with the fc->connected check.
+
+The explicit smp_mb() in fuse_wait_aborted() is not actually needed, since
+the spin_unlock() in fuse_abort_conn() provides the necessary RELEASE
+barrier after resetting fc->connected.  However, this is not a performance
+sensitive path, and adding the explicit barrier makes it easier to
+document.
+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: b8f95e5d13f5 ("fuse: umount should wait for all requests")
+Cc: <stable@vger.kernel.org> #v4.19
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-acm.c |   30 ++++++++++++++++++++++++++++--
- drivers/usb/class/cdc-acm.h |    5 ++++-
- 2 files changed, 32 insertions(+), 3 deletions(-)
+ fs/fuse/dev.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -424,9 +424,12 @@ static void acm_ctrl_irq(struct urb *urb
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -132,9 +132,13 @@ static bool fuse_block_alloc(struct fuse
  
- exit:
- 	retval = usb_submit_urb(urb, GFP_ATOMIC);
--	if (retval && retval != -EPERM)
-+	if (retval && retval != -EPERM && retval != -ENODEV)
- 		dev_err(&acm->control->dev,
- 			"%s - usb_submit_urb failed: %d\n", __func__, retval);
-+	else
-+		dev_vdbg(&acm->control->dev,
-+			"control resubmission terminated %d\n", retval);
- }
- 
- static int acm_submit_read_urb(struct acm *acm, int index, gfp_t mem_flags)
-@@ -442,6 +445,8 @@ static int acm_submit_read_urb(struct ac
- 			dev_err(&acm->data->dev,
- 				"urb %d failed submission with %d\n",
- 				index, res);
-+		} else {
-+			dev_vdbg(&acm->data->dev, "intended failure %d\n", res);
- 		}
- 		set_bit(index, &acm->read_urbs_free);
- 		return res;
-@@ -484,6 +489,7 @@ static void acm_read_bulk_callback(struc
- 	int status = urb->status;
- 	bool stopped = false;
- 	bool stalled = false;
-+	bool cooldown = false;
- 
- 	dev_vdbg(&acm->data->dev, "got urb %d, len %d, status %d\n",
- 		rb->index, urb->actual_length, status);
-@@ -510,6 +516,14 @@ static void acm_read_bulk_callback(struc
- 			__func__, status);
- 		stopped = true;
- 		break;
-+	case -EOVERFLOW:
-+	case -EPROTO:
-+		dev_dbg(&acm->data->dev,
-+			"%s - cooling babbling device\n", __func__);
-+		usb_mark_last_busy(acm->dev);
-+		set_bit(rb->index, &acm->urbs_in_error_delay);
-+		cooldown = true;
-+		break;
- 	default:
- 		dev_dbg(&acm->data->dev,
- 			"%s - nonzero urb status received: %d\n",
-@@ -531,9 +545,11 @@ static void acm_read_bulk_callback(struc
- 	 */
- 	smp_mb__after_atomic();
- 
--	if (stopped || stalled) {
-+	if (stopped || stalled || cooldown) {
- 		if (stalled)
- 			schedule_work(&acm->work);
-+		else if (cooldown)
-+			schedule_delayed_work(&acm->dwork, HZ / 2);
- 		return;
+ static void fuse_drop_waiting(struct fuse_conn *fc)
+ {
+-	if (fc->connected) {
+-		atomic_dec(&fc->num_waiting);
+-	} else if (atomic_dec_and_test(&fc->num_waiting)) {
++	/*
++	 * lockess check of fc->connected is okay, because atomic_dec_and_test()
++	 * provides a memory barrier mached with the one in fuse_wait_aborted()
++	 * to ensure no wake-up is missed.
++	 */
++	if (atomic_dec_and_test(&fc->num_waiting) &&
++	    !READ_ONCE(fc->connected)) {
+ 		/* wake up aborters */
+ 		wake_up_all(&fc->blocked_waitq);
  	}
+@@ -2164,6 +2168,8 @@ EXPORT_SYMBOL_GPL(fuse_abort_conn);
  
-@@ -585,6 +601,12 @@ static void acm_softint(struct work_stru
- 		}
- 	}
- 
-+	if (test_and_clear_bit(ACM_ERROR_DELAY, &acm->flags)) {
-+		for (i = 0; i < ACM_NR; i++)
-+			if (test_and_clear_bit(i, &acm->urbs_in_error_delay))
-+					acm_submit_read_urb(acm, i, GFP_NOIO);
-+	}
-+
- 	if (test_and_clear_bit(EVENT_TTY_WAKEUP, &acm->flags))
- 		tty_port_tty_wakeup(&acm->port);
+ void fuse_wait_aborted(struct fuse_conn *fc)
+ {
++	/* matches implicit memory barrier in fuse_drop_waiting() */
++	smp_mb();
+ 	wait_event(fc->blocked_waitq, atomic_read(&fc->num_waiting) == 0);
  }
-@@ -1374,6 +1396,7 @@ made_compressed_probe:
- 	acm->readsize = readsize;
- 	acm->rx_buflimit = num_rx_buf;
- 	INIT_WORK(&acm->work, acm_softint);
-+	INIT_DELAYED_WORK(&acm->dwork, acm_softint);
- 	init_waitqueue_head(&acm->wioctl);
- 	spin_lock_init(&acm->write_lock);
- 	spin_lock_init(&acm->read_lock);
-@@ -1587,6 +1610,7 @@ static void acm_disconnect(struct usb_in
  
- 	acm_kill_urbs(acm);
- 	cancel_work_sync(&acm->work);
-+	cancel_delayed_work_sync(&acm->dwork);
- 
- 	tty_unregister_device(acm_tty_driver, acm->minor);
- 
-@@ -1629,6 +1653,8 @@ static int acm_suspend(struct usb_interf
- 
- 	acm_kill_urbs(acm);
- 	cancel_work_sync(&acm->work);
-+	cancel_delayed_work_sync(&acm->dwork);
-+	acm->urbs_in_error_delay = 0;
- 
- 	return 0;
- }
---- a/drivers/usb/class/cdc-acm.h
-+++ b/drivers/usb/class/cdc-acm.h
-@@ -108,8 +108,11 @@ struct acm {
- 	unsigned long flags;
- #		define EVENT_TTY_WAKEUP	0
- #		define EVENT_RX_STALL	1
-+#		define ACM_ERROR_DELAY	3
-+	unsigned long urbs_in_error_delay;		/* these need to be restarted after a delay */
- 	struct usb_cdc_line_coding line;		/* bits, stop, parity */
--	struct work_struct work;			/* work queue entry for line discipline waking up */
-+	struct work_struct work;			/* work queue entry for various purposes*/
-+	struct delayed_work dwork;			/* for cool downs needed in error recovery */
- 	unsigned int ctrlin;				/* input control lines (DCD, DSR, RI, break, overruns) */
- 	unsigned int ctrlout;				/* output control lines (DTR, RTS) */
- 	struct async_icount iocount;			/* counters for control line changes */
 
 
