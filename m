@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155B11C15A2
+	by mail.lfdr.de (Postfix) with ESMTP id 80C8A1C15A3
 	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729271AbgEANbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:31:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55922 "EHLO mail.kernel.org"
+        id S1730123AbgEANbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:31:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730114AbgEANbV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:31:21 -0400
+        id S1730117AbgEANbY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:31:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E647C24953;
-        Fri,  1 May 2020 13:31:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DD4424967;
+        Fri,  1 May 2020 13:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339881;
-        bh=u3WJmEf+Y+rA88Fg6ye7fFbRzFH5LlMsn1YCXE2XJ+M=;
+        s=default; t=1588339883;
+        bh=nceTqLdVboUOGm/PsS40NdeWfzI7F31Pjt262b0fQus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1sEYvQr1RXf4vmeZ7BQIFXjiG+fZ+0K7QPBiCiOabOxzhF+5NnFZDepZFPq9xYq1
-         9iUcTrG9nlKmxGjdHQ/2Te+1to3TKO9MyKui33C81UT/6YRCifN83wGiYhLr3OY/aM
-         BfiqBHwUo//HUhttQv+/OzbpMeEt7/aX3zBdAZ74=
+        b=0i4PKmNspxFiTbdNOon91keIPc0k45/hs27VP7tUpF4OkUlcwEl7ySYhiQMEf+5tB
+         HHgOeMqflShiAH/760IAfPg4sObV6doxb6t4hWNCjjufPd2DRbsCSR5n08P0HXmdkM
+         8XColAf8H+znLtXu6VnfCyRXskjh6VS5mc3kO36s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        James Morris <jmorris@namei.org>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Stephan Mueller <smueller@chronox.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        James Morris <james.morris@microsoft.com>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Fabio Estevam <festevam@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 004/117] keys: Fix the use of the C++ keyword "private" in uapi/linux/keyctl.h
-Date:   Fri,  1 May 2020 15:20:40 +0200
-Message-Id: <20200501131545.904633704@linuxfoundation.org>
+Subject: [PATCH 4.14 005/117] drm/msm: Use the correct dma_sync calls harder
+Date:   Fri,  1 May 2020 15:20:41 +0200
+Message-Id: <20200501131545.973539612@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
 References: <20200501131544.291247695@linuxfoundation.org>
@@ -51,62 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Rob Clark <robdclark@chromium.org>
 
-commit 2ecefa0a15fd0ef88b9cd5d15ceb813008136431 upstream.
+commit 9f614197c744002f9968e82c649fdf7fe778e1e7 upstream.
 
-The keyctl_dh_params struct in uapi/linux/keyctl.h contains the symbol
-"private" which means that the header file will cause compilation failure
-if #included in to a C++ program.  Further, the patch that added the same
-struct to the keyutils package named the symbol "priv", not "private".
+Looks like the dma_sync calls don't do what we want on armv7 either.
+Fixes:
 
-The previous attempt to fix this (commit 8a2336e549d3) did so by simply
-renaming the kernel's copy of the field to dh_private, but this then breaks
-existing userspace and as such has been reverted (commit 8c0f9f5b309d).
+  Unable to handle kernel paging request at virtual address 50001000
+  pgd = (ptrval)
+  [50001000] *pgd=00000000
+  Internal error: Oops: 805 [#1] SMP ARM
+  Modules linked in:
+  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.3.0-rc6-00271-g9f159ae07f07 #4
+  Hardware name: Freescale i.MX53 (Device Tree Support)
+  PC is at v7_dma_clean_range+0x20/0x38
+  LR is at __dma_page_cpu_to_dev+0x28/0x90
+  pc : [<c011c76c>]    lr : [<c01181c4>]    psr: 20000013
+  sp : d80b5a88  ip : de96c000  fp : d840ce6c
+  r10: 00000000  r9 : 00000001  r8 : d843e010
+  r7 : 00000000  r6 : 00008000  r5 : ddb6c000  r4 : 00000000
+  r3 : 0000003f  r2 : 00000040  r1 : 50008000  r0 : 50001000
+  Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+  Control: 10c5387d  Table: 70004019  DAC: 00000051
+  Process swapper/0 (pid: 1, stack limit = 0x(ptrval))
 
-[And note, to those who think that wrapping the struct in extern "C" {}
- will work: it won't; that only changes how symbol names are presented to
- the assembler and linker.].
-
-Instead, insert an anonymous union around the "private" member and add a
-second member in there with the name "priv" to match the one in the
-keyutils package.  The "private" member is then wrapped in !__cplusplus
-cpp-conditionals to hide it from C++.
-
-Fixes: ddbb41148724 ("KEYS: Add KEYCTL_DH_COMPUTE command")
-Fixes: 8a2336e549d3 ("uapi/linux/keyctl.h: don't use C++ reserved keyword as a struct member name")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Randy Dunlap <rdunlap@infradead.org>
-cc: Lubomir Rintel <lkundrak@v3.sk>
-cc: James Morris <jmorris@namei.org>
-cc: Mat Martineau <mathew.j.martineau@linux.intel.com>
-cc: Stephan Mueller <smueller@chronox.de>
-cc: Andrew Morton <akpm@linux-foundation.org>
-cc: Linus Torvalds <torvalds@linux-foundation.org>
-cc: stable@vger.kernel.org
-Signed-off-by: James Morris <james.morris@microsoft.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 3de433c5b38a ("drm/msm: Use the correct dma_sync calls in msm_gem")
+Tested-by: Fabio Estevam <festevam@gmail.com>
 Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/linux/keyctl.h |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/msm_gem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/uapi/linux/keyctl.h
-+++ b/include/uapi/linux/keyctl.h
-@@ -65,7 +65,12 @@
+--- a/drivers/gpu/drm/msm/msm_gem.c
++++ b/drivers/gpu/drm/msm/msm_gem.c
+@@ -61,7 +61,7 @@ static void sync_for_device(struct msm_g
+ {
+ 	struct device *dev = msm_obj->base.dev->dev;
  
- /* keyctl structures */
- struct keyctl_dh_params {
--	__s32 private;
-+	union {
-+#ifndef __cplusplus
-+		__s32 private;
-+#endif
-+		__s32 priv;
-+	};
- 	__s32 prime;
- 	__s32 base;
- };
+-	if (get_dma_ops(dev)) {
++	if (get_dma_ops(dev) && IS_ENABLED(CONFIG_ARM64)) {
+ 		dma_sync_sg_for_device(dev, msm_obj->sgt->sgl,
+ 			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
+ 	} else {
+@@ -74,7 +74,7 @@ static void sync_for_cpu(struct msm_gem_
+ {
+ 	struct device *dev = msm_obj->base.dev->dev;
+ 
+-	if (get_dma_ops(dev)) {
++	if (get_dma_ops(dev) && IS_ENABLED(CONFIG_ARM64)) {
+ 		dma_sync_sg_for_cpu(dev, msm_obj->sgt->sgl,
+ 			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
+ 	} else {
 
 
