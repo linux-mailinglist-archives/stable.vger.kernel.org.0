@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F271C14B2
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C5D31C1606
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731463AbgEANmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:42:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42428 "EHLO mail.kernel.org"
+        id S1730687AbgEANi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:38:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731230AbgEANmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:42:00 -0400
+        id S1731049AbgEANiS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:38:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DD9220757;
-        Fri,  1 May 2020 13:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1CD124953;
+        Fri,  1 May 2020 13:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340519;
-        bh=76cKjet0vKlIT86tfCUd3npTQx3P++NCHejV0tVuvVQ=;
+        s=default; t=1588340297;
+        bh=lcefXzZ4EzHhJc4wmjHG3oX6zptAVUI00YV1nUfJzRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d3IYtOrSSaC2az3fzGyxnoZ4ov1Tt4fDY+S6MXepmWi4NU5bJdJWYwuZnuUculAhl
-         aO1raUeG4Bpo80J29/RWwrL5R9pKMKlcDtkR1aMqO6hUj9FgE6qswMSbb2EN1FRMLN
-         aNmCL90jtP/DaVqOb2q55y2OmmhrYQ2v5NGpr0+w=
+        b=z56XA2E/WI09KSNUKOwiqwK+d40xSsIRcmnAM7MsUtBn1sRBzpc0B5jlMEB5duoXB
+         5q7jC84JqzpFILL2E+p7nrBRBTzKiBHb3GyqHBYv67QP2k2NeFs4qUvMbPnFnWzl+G
+         mKf1dkADZIUIiXKvCr2y3OgHNFtGarlFA5/5x5YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.6 027/106] brcmfmac: add stub for monitor interface xmit
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.4 21/83] bpf: Forbid XADD on spilled pointers for unprivileged users
 Date:   Fri,  1 May 2020 15:23:00 +0200
-Message-Id: <20200501131547.290347368@linuxfoundation.org>
+Message-Id: <20200501131529.491727486@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,106 +43,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Jann Horn <jannh@google.com>
 
-commit 5bf8e6096c7390f8f2c4d5394b5e49823adb004e upstream.
+commit 6e7e63cbb023976d828cdb22422606bf77baa8a9 upstream.
 
-According to the struct net_device_ops documentation .ndo_start_xmit is
-"Required; cannot be NULL.". Missing it may crash kernel easily:
+When check_xadd() verifies an XADD operation on a pointer to a stack slot
+containing a spilled pointer, check_stack_read() verifies that the read,
+which is part of XADD, is valid. However, since the placeholder value -1 is
+passed as `value_regno`, check_stack_read() can only return a binary
+decision and can't return the type of the value that was read. The intent
+here is to verify whether the value read from the stack slot may be used as
+a SCALAR_VALUE; but since check_stack_read() doesn't check the type, and
+the type information is lost when check_stack_read() returns, this is not
+enforced, and a malicious user can abuse XADD to leak spilled kernel
+pointers.
 
-[  341.216709] Unable to handle kernel NULL pointer dereference at virtual address 00000000
-[  341.224836] pgd = 26088755
-[  341.227544] [00000000] *pgd=00000000
-[  341.231135] Internal error: Oops: 80000007 [#1] SMP ARM
-[  341.236367] Modules linked in: pppoe ppp_async iptable_nat brcmfmac xt_state xt_nat xt_conntrack xt_REDIRECT xt_MASQU
-[  341.304689] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.24 #0
-[  341.310621] Hardware name: BCM5301X
-[  341.314116] PC is at 0x0
-[  341.316664] LR is at dev_hard_start_xmit+0x8c/0x11c
-[  341.321546] pc : [<00000000>]    lr : [<c0469fa8>]    psr: 60000113
-[  341.327821] sp : c0801c30  ip : c610cf00  fp : c08048e4
-[  341.333051] r10: c073a63a  r9 : c08044dc  r8 : c6c04e00
-[  341.338283] r7 : 00000000  r6 : c60f5000  r5 : 00000000  r4 : c6a9c3c0
-[  341.344820] r3 : 00000000  r2 : bf25a13c  r1 : c60f5000  r0 : c6a9c3c0
-[  341.351358] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-[  341.358504] Control: 10c5387d  Table: 0611c04a  DAC: 00000051
-[  341.364257] Process swapper/0 (pid: 0, stack limit = 0xc68ed0ca)
-[  341.370271] Stack: (0xc0801c30 to 0xc0802000)
-[  341.374633] 1c20:                                     c6e7d480 c0802d00 c60f5050 c0801c6c
-[  341.382825] 1c40: c60f5000 c6a9c3c0 c6f90000 c6f9005c c6c04e00 c60f5000 00000000 c6f9005c
-[  341.391015] 1c60: 00000000 c04a033c 00f90200 00000010 c6a9c3c0 c6a9c3c0 c6f90000 00000000
-[  341.399205] 1c80: 00000000 00000000 00000000 c046a7ac c6f9005c 00000001 fffffff4 00000000
-[  341.407395] 1ca0: c6f90200 00000000 c60f5000 c0479550 00000000 c6f90200 c6a9c3c0 16000000
-[  341.415586] 1cc0: 0000001c 6f4ad52f c6197040 b6df9387 36000000 c0520404 c073a80c c6a9c3c0
-[  341.423777] 1ce0: 00000000 c6d643c0 c6a9c3c0 c0800024 00000001 00000001 c6d643c8 c6a9c3c0
-[  341.431967] 1d00: c081b9c0 c7abca80 c610c840 c081b9c0 0000001c 00400000 c6bc5e6c c0522fb4
-[  341.440157] 1d20: c6d64400 00000004 c6bc5e0a 00000000 c60f5000 c7abca80 c081b9c0 c0522f54
-[  341.448348] 1d40: c6a9c3c0 c7abca80 c0803e48 c0549c94 c610c828 0000000a c0801d74 00000003
-[  341.456538] 1d60: c6ec8f0a 00000000 c60f5000 c7abca80 c081b9c0 c0548520 0000000a 00000000
-[  341.464728] 1d80: 00000000 003a0000 00000000 00000000 00000000 00000000 00000000 00000000
-[  341.472919] 1da0: 000002ff 00000000 00000000 16000000 00000000 00000000 00000000 00000000
-[  341.481110] 1dc0: 00000000 0000008f 00000000 00000000 00000000 2d132a69 c6bc5e40 00000000
-[  341.489300] 1de0: c6bc5e40 c6a9c3c0 00000000 c6ec8e50 00000001 c054b070 00000001 00000000
-[  341.497490] 1e00: c0807200 c6bc5e00 00000000 ffffe000 00000100 c054aea4 00000000 00000000
-[  341.505681] 1e20: 00000122 00400000 c0802d00 c0172e80 6f56a70e ffffffff 6f56a70e c7eb9cc0
-[  341.513871] 1e40: c7eb82c0 00000000 c0801e60 c017309c 00000000 00000000 07780000 c07382c0
-[  341.522061] 1e60: 00000000 c7eb9cc0 c0739cc0 c0803f74 c0801e70 c0801e70 c0801ea4 c013d380
-[  341.530253] 1e80: 00000000 000000a0 00000001 c0802084 c0802080 40000001 ffffe000 00000100
-[  341.538443] 1ea0: c0802080 c01021e8 c8803100 10c5387d 00000000 c07341f0 c0739880 0000000a
-[  341.546633] 1ec0: c0734180 00001017 c0802d00 c062aa98 00200002 c062aa60 c8803100 c073984c
-[  341.554823] 1ee0: 00000000 00000001 00000000 c7810000 c8803100 10c5387d 00000000 c011c188
-[  341.563014] 1f00: c073984c c015f0f8 c0804244 c0815ae4 c880210c c8802100 c0801f40 c037c584
-[  341.571204] 1f20: c01035f8 60000013 ffffffff c0801f74 c080afd4 c0800000 10c5387d c0101a8c
-[  341.579395] 1f40: 00000000 004ac9dc c7eba4b4 c010ee60 ffffe000 c0803e68 c0803ea8 00000001
-[  341.587587] 1f60: c080afd4 c062ca20 10c5387d 00000000 00000000 c0801f90 c01035f4 c01035f8
-[  341.595776] 1f80: 60000013 ffffffff 00000051 00000000 ffffe000 c013ff50 000000ce c0803e40
-[  341.603967] 1fa0: c082216c 00000000 00000001 c072ba38 10c5387d c0140214 c0822184 c0700df8
-[  341.612157] 1fc0: ffffffff ffffffff 00000000 c070058c c072ba38 2d162e71 00000000 c0700330
-[  341.620348] 1fe0: 00000051 10c0387d 000000ff 00a521d0 413fc090 00000000 00000000 00000000
-[  341.628558] [<c0469fa8>] (dev_hard_start_xmit) from [<c04a033c>] (sch_direct_xmit+0xe4/0x2bc)
-[  341.637106] [<c04a033c>] (sch_direct_xmit) from [<c046a7ac>] (__dev_queue_xmit+0x6a4/0x72c)
-[  341.645481] [<c046a7ac>] (__dev_queue_xmit) from [<c0520404>] (ip6_finish_output2+0x18c/0x434)
-[  341.654112] [<c0520404>] (ip6_finish_output2) from [<c0522fb4>] (ip6_output+0x5c/0xd0)
-[  341.662053] [<c0522fb4>] (ip6_output) from [<c0549c94>] (mld_sendpack+0x1a0/0x1a8)
-[  341.669640] [<c0549c94>] (mld_sendpack) from [<c054b070>] (mld_ifc_timer_expire+0x1cc/0x2e4)
-[  341.678111] [<c054b070>] (mld_ifc_timer_expire) from [<c0172e80>] (call_timer_fn.constprop.3+0x24/0x98)
-[  341.687527] [<c0172e80>] (call_timer_fn.constprop.3) from [<c017309c>] (run_timer_softirq+0x1a8/0x1e4)
-[  341.696860] [<c017309c>] (run_timer_softirq) from [<c01021e8>] (__do_softirq+0x120/0x2b0)
-[  341.705066] [<c01021e8>] (__do_softirq) from [<c011c188>] (irq_exit+0x78/0x84)
-[  341.712317] [<c011c188>] (irq_exit) from [<c015f0f8>] (__handle_domain_irq+0x60/0xb4)
-[  341.720179] [<c015f0f8>] (__handle_domain_irq) from [<c037c584>] (gic_handle_irq+0x4c/0x90)
-[  341.728549] [<c037c584>] (gic_handle_irq) from [<c0101a8c>] (__irq_svc+0x6c/0x90)
+Fix it by letting check_stack_read() verify that the value is usable as a
+SCALAR_VALUE if no type information is passed to the caller.
 
-Fixes: 20f2c5fa3af0 ("brcmfmac: add initial support for monitor mode")
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200327130307.26477-1-zajec5@gmail.com
+To be able to use __is_pointer_value() in check_stack_read(), move it up.
+
+Fix up the expected unprivileged error message for a BPF selftest that,
+until now, assumed that unprivileged users can use XADD on stack-spilled
+pointers. This also gives us a test for the behavior introduced in this
+patch for free.
+
+In theory, this could also be fixed by forbidding XADD on stack spills
+entirely, since XADD is a locked operation (for operations on memory with
+concurrency) and there can't be any concurrency on the BPF stack; but
+Alexei has said that he wants to keep XADD on stack slots working to avoid
+changes to the test suite [1].
+
+The following BPF program demonstrates how to leak a BPF map pointer as an
+unprivileged user using this bug:
+
+    // r7 = map_pointer
+    BPF_LD_MAP_FD(BPF_REG_7, small_map),
+    // r8 = launder(map_pointer)
+    BPF_STX_MEM(BPF_DW, BPF_REG_FP, BPF_REG_7, -8),
+    BPF_MOV64_IMM(BPF_REG_1, 0),
+    ((struct bpf_insn) {
+      .code  = BPF_STX | BPF_DW | BPF_XADD,
+      .dst_reg = BPF_REG_FP,
+      .src_reg = BPF_REG_1,
+      .off = -8
+    }),
+    BPF_LDX_MEM(BPF_DW, BPF_REG_8, BPF_REG_FP, -8),
+
+    // store r8 into map
+    BPF_MOV64_REG(BPF_REG_ARG1, BPF_REG_7),
+    BPF_MOV64_REG(BPF_REG_ARG2, BPF_REG_FP),
+    BPF_ALU64_IMM(BPF_ADD, BPF_REG_ARG2, -4),
+    BPF_ST_MEM(BPF_W, BPF_REG_ARG2, 0, 0),
+    BPF_EMIT_CALL(BPF_FUNC_map_lookup_elem),
+    BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
+    BPF_EXIT_INSN(),
+    BPF_STX_MEM(BPF_DW, BPF_REG_0, BPF_REG_8, 0),
+
+    BPF_MOV64_IMM(BPF_REG_0, 0),
+    BPF_EXIT_INSN()
+
+[1] https://lore.kernel.org/bpf/20200416211116.qxqcza5vo2ddnkdq@ast-mbp.dhcp.thefacebook.com/
+
+Fixes: 17a5267067f3 ("bpf: verifier (add verifier core)")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200417000007.10734-1-jannh@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ kernel/bpf/verifier.c                                    |   28 ++++++++++-----
+ tools/testing/selftests/bpf/verifier/value_illegal_alu.c |    1 
+ 2 files changed, 20 insertions(+), 9 deletions(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-@@ -729,9 +729,18 @@ static int brcmf_net_mon_stop(struct net
- 	return err;
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1866,6 +1866,15 @@ static bool register_is_const(struct bpf
+ 	return reg->type == SCALAR_VALUE && tnum_is_const(reg->var_off);
  }
  
-+static netdev_tx_t brcmf_net_mon_start_xmit(struct sk_buff *skb,
-+					    struct net_device *ndev)
++static bool __is_pointer_value(bool allow_ptr_leaks,
++			       const struct bpf_reg_state *reg)
 +{
-+	dev_kfree_skb_any(skb);
++	if (allow_ptr_leaks)
++		return false;
 +
-+	return NETDEV_TX_OK;
++	return reg->type != SCALAR_VALUE;
 +}
 +
- static const struct net_device_ops brcmf_netdev_ops_mon = {
- 	.ndo_open = brcmf_net_mon_open,
- 	.ndo_stop = brcmf_net_mon_stop,
-+	.ndo_start_xmit = brcmf_net_mon_start_xmit,
- };
+ static void save_register_state(struct bpf_func_state *state,
+ 				int spi, struct bpf_reg_state *reg)
+ {
+@@ -2056,6 +2065,16 @@ static int check_stack_read(struct bpf_v
+ 			 * which resets stack/reg liveness for state transitions
+ 			 */
+ 			state->regs[value_regno].live |= REG_LIVE_WRITTEN;
++		} else if (__is_pointer_value(env->allow_ptr_leaks, reg)) {
++			/* If value_regno==-1, the caller is asking us whether
++			 * it is acceptable to use this value as a SCALAR_VALUE
++			 * (e.g. for XADD).
++			 * We must not allow unprivileged callers to do that
++			 * with spilled pointers.
++			 */
++			verbose(env, "leaking pointer from stack off %d\n",
++				off);
++			return -EACCES;
+ 		}
+ 		mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
+ 	} else {
+@@ -2416,15 +2435,6 @@ static int check_sock_access(struct bpf_
+ 	return -EACCES;
+ }
  
- int brcmf_net_mon_attach(struct brcmf_if *ifp)
+-static bool __is_pointer_value(bool allow_ptr_leaks,
+-			       const struct bpf_reg_state *reg)
+-{
+-	if (allow_ptr_leaks)
+-		return false;
+-
+-	return reg->type != SCALAR_VALUE;
+-}
+-
+ static struct bpf_reg_state *reg_state(struct bpf_verifier_env *env, int regno)
+ {
+ 	return cur_regs(env) + regno;
+--- a/tools/testing/selftests/bpf/verifier/value_illegal_alu.c
++++ b/tools/testing/selftests/bpf/verifier/value_illegal_alu.c
+@@ -88,6 +88,7 @@
+ 	BPF_EXIT_INSN(),
+ 	},
+ 	.fixup_map_hash_48b = { 3 },
++	.errstr_unpriv = "leaking pointer from stack off -8",
+ 	.errstr = "R0 invalid mem access 'inv'",
+ 	.result = REJECT,
+ 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
 
 
