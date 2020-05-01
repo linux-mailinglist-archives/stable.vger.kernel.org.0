@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47B561C15C2
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6CE1C156E
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730437AbgEANdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:33:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59156 "EHLO mail.kernel.org"
+        id S1728923AbgEAN1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:27:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730433AbgEANdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:33:31 -0400
+        id S1729436AbgEAN1S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:27:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14DAB208C3;
-        Fri,  1 May 2020 13:33:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FAD32166E;
+        Fri,  1 May 2020 13:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340011;
-        bh=f/fwzZFg0f1HI+4wKwzeOAmlMY6UcodpWxR9NRYIXsc=;
+        s=default; t=1588339637;
+        bh=mOL8kwx0fJd6+yTK39aLKxU65pkth2YFc6ofJzLg4Hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlCfgXiwWDeXEMsaitUKI+DT7aqA74EthUBIqNh7Gy+Y/jlYBsnb7qo806sTLaJBr
-         Gfs0WPZMtqkRRBZcvHCJXmfEUIC0abcQjaLXRhnWwgqzv41JzN3odQzUfwI0B1Nl70
-         EfwJdJDGFCPG+VVf3sOVhc8rwNv+kW6n0lRAk1Dc=
+        b=TuGYznY5ypPFz5busYAnuOPXTcp0ZRaHzRQn/aIRzqxN5ZEqB/RVhIp5JMDenTJxK
+         /zn9jSMeEEwQbUA2ucYMd6g3PKCEwWFf9Cm59ZNqId9ZvuENEXbvn69CkOUcgJHFES
+         jVs6O9O9KW+uIRh0oSZOofqh3PTVPRVnDHEJtCko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.14 070/117] staging: comedi: Fix comedi_device refcnt leak in comedi_open
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.4 58/70] usb: gadget: udc: bdc: Remove unnecessary NULL checks in bdc_req_complete
 Date:   Fri,  1 May 2020 15:21:46 +0200
-Message-Id: <20200501131553.439947944@linuxfoundation.org>
+Message-Id: <20200501131530.923569359@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 332e0e17ad49e084b7db670ef43b5eb59abd9e34 upstream.
+commit 09b04abb70f096333bef6bc95fa600b662e7ee13 upstream.
 
-comedi_open() invokes comedi_dev_get_from_minor(), which returns a
-reference of the COMEDI device to "dev" with increased refcount.
+When building with Clang + -Wtautological-pointer-compare:
 
-When comedi_open() returns, "dev" becomes invalid, so the refcount
-should be decreased to keep refcount balanced.
+drivers/usb/gadget/udc/bdc/bdc_ep.c:543:28: warning: comparison of
+address of 'req->queue' equal to a null pointer is always false
+[-Wtautological-pointer-compare]
+        if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
+                             ~~~~~^~~~~    ~~~~
+drivers/usb/gadget/udc/bdc/bdc_ep.c:543:51: warning: comparison of
+address of 'req->usb_req' equal to a null pointer is always false
+[-Wtautological-pointer-compare]
+        if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
+                                                    ~~~~~^~~~~~~    ~~~~
+2 warnings generated.
 
-The reference counting issue happens in one exception handling path of
-comedi_open(). When "cfp" allocation is failed, the refcnt increased by
-comedi_dev_get_from_minor() is not decreased, causing a refcnt leak.
+As it notes, these statements will always evaluate to false so remove
+them.
 
-Fix this issue by calling comedi_dev_put() on this error path when "cfp"
-allocation is failed.
-
-Fixes: 20f083c07565 ("staging: comedi: prepare support for per-file read and write subdevices")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/1587361459-83622-1-git-send-email-xiyuyang19@fudan.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: efed421a94e6 ("usb: gadget: Add UDC driver for Broadcom USB3.0 device controller IP BDC")
+Link: https://github.com/ClangBuiltLinux/linux/issues/749
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/comedi_fops.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/bdc/bdc_ep.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/comedi_fops.c
-+++ b/drivers/staging/comedi/comedi_fops.c
-@@ -2603,8 +2603,10 @@ static int comedi_open(struct inode *ino
- 	}
+--- a/drivers/usb/gadget/udc/bdc/bdc_ep.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_ep.c
+@@ -546,7 +546,7 @@ static void bdc_req_complete(struct bdc_
+ {
+ 	struct bdc *bdc = ep->bdc;
  
- 	cfp = kzalloc(sizeof(*cfp), GFP_KERNEL);
--	if (!cfp)
-+	if (!cfp) {
-+		comedi_dev_put(dev);
- 		return -ENOMEM;
-+	}
+-	if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
++	if (req == NULL)
+ 		return;
  
- 	cfp->dev = dev;
- 
+ 	dev_dbg(bdc->dev, "%s ep:%s status:%d\n", __func__, ep->name, status);
 
 
