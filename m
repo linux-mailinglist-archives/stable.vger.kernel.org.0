@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DADE51C12FC
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA1A31C15B8
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729165AbgEAN0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:26:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47410 "EHLO mail.kernel.org"
+        id S1730294AbgEANcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:32:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729134AbgEAN0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:26:04 -0400
+        id S1730284AbgEANcV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:32:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53F78216FD;
-        Fri,  1 May 2020 13:26:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03A1C208C3;
+        Fri,  1 May 2020 13:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339563;
-        bh=tfz7M9OCaKR63kVR+Wx58RtIJ6IU3JDzhP8V+olyxcs=;
+        s=default; t=1588339940;
+        bh=U+U2iYpx0DbAp2Qok+ROLY7JqeDXOVnqZQgUxYD8ArQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWbgbXAf8MKMiKTv8NArqwioMyHH48fnyrtfrWQ+B0ML1aHkjyHqMxDJNkxq8yXcT
-         /8qdrN1sXAKZDpqgEDNDgVfNz21kxQ6UYb38Tr7rpjglwSzTRWr3E2coqTH+79tkIx
-         70KJnXHptfbrZTPJe1y5gniFPXR8DumMeoLnW10o=
+        b=inCfDtXgbmtZX+CWvvwK/mPgB75l32AYigvDVo9xNKk/7/bal2zG85OzgVm8hln7B
+         x25ReZ5eyJowYisTZhvyD0v4C4KpAKLD4bVYBasFF95nnR1UXZaBXVHDpgG0cirRdz
+         Sq5SG17OGSQo/jK4CdfK5fWMn6lVvBKC+gDmL4Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, greg@kroah.com
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.4 29/70] fs/namespace.c: fix mountpoint reference counter race
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 041/117] iio: xilinx-xadc: Fix sequencer configuration for aux channels in simultaneous mode
 Date:   Fri,  1 May 2020 15:21:17 +0200
-Message-Id: <20200501131523.349529322@linuxfoundation.org>
+Message-Id: <20200501131549.670465445@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
-References: <20200501131513.302599262@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-From: Piotr Krysiuk <piotras@gmail.com>
+commit 8bef455c8b1694547ee59e8b1939205ed9d901a6 upstream.
 
-A race condition between threads updating mountpoint reference counter
-affects longterm releases 4.4.220, 4.9.220, 4.14.177 and 4.19.118.
+The XADC has two internal ADCs. Depending on the mode it is operating in
+either one or both of them are used. The device manual calls this
+continuous (one ADC) and simultaneous (both ADCs) mode.
 
-The mountpoint reference counter corruption may occur when:
-* one thread increments m_count member of struct mountpoint
-  [under namespace_sem, but not holding mount_lock]
-    pivot_root()
-* another thread simultaneously decrements the same m_count
-  [under mount_lock, but not holding namespace_sem]
-    put_mountpoint()
-      unhash_mnt()
-        umount_mnt()
-          mntput_no_expire()
+The meaning of the sequencing register for the aux channels changes
+depending on the mode.
 
-To fix this race condition, grab mount_lock before updating m_count in
-pivot_root().
+In continuous mode each bit corresponds to one of the 16 aux channels. And
+the single ADC will convert them one by one in order.
 
-Reference: CVE-2020-12114
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Piotr Krysiuk <piotras@gmail.com>
+In simultaneous mode the aux channels are split into two groups the first 8
+channels are assigned to the first ADC and the other 8 channels to the
+second ADC. The upper 8 bits of the sequencing register are unused and the
+lower 8 bits control both ADCs. This means a bit needs to be set if either
+the corresponding channel from the first group or the second group (or
+both) are set.
+
+Currently the driver does not have the special handling required for
+simultaneous mode. Add it.
+
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Fixes: bdc8cda1d010 ("iio:adc: Add Xilinx XADC driver")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/namespace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/xilinx-xadc-core.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -3161,8 +3161,8 @@ SYSCALL_DEFINE2(pivot_root, const char _
- 	/* make certain new is below the root */
- 	if (!is_path_reachable(new_mnt, new.dentry, &root))
- 		goto out4;
--	root_mp->m_count++; /* pin it so it won't go away */
- 	lock_mount_hash();
-+	root_mp->m_count++; /* pin it so it won't go away */
- 	detach_mnt(new_mnt, &parent_path);
- 	detach_mnt(root_mnt, &root_parent);
- 	if (root_mnt->mnt.mnt_flags & MNT_LOCKED) {
+--- a/drivers/iio/adc/xilinx-xadc-core.c
++++ b/drivers/iio/adc/xilinx-xadc-core.c
+@@ -785,6 +785,16 @@ static int xadc_preenable(struct iio_dev
+ 	if (ret)
+ 		goto err;
+ 
++	/*
++	 * In simultaneous mode the upper and lower aux channels are samples at
++	 * the same time. In this mode the upper 8 bits in the sequencer
++	 * register are don't care and the lower 8 bits control two channels
++	 * each. As such we must set the bit if either the channel in the lower
++	 * group or the upper group is enabled.
++	 */
++	if (seq_mode == XADC_CONF1_SEQ_SIMULTANEOUS)
++		scan_mask = ((scan_mask >> 8) | scan_mask) & 0xff0000;
++
+ 	ret = xadc_write_adc_reg(xadc, XADC_REG_SEQ(1), scan_mask >> 16);
+ 	if (ret)
+ 		goto err;
 
 
