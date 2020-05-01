@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB731C15E0
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3E51C15EA
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730678AbgEANfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:35:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33570 "EHLO mail.kernel.org"
+        id S1729773AbgEANgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:36:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730101AbgEANfT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:35:19 -0400
+        id S1730327AbgEANgB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:36:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF64C24953;
-        Fri,  1 May 2020 13:35:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98317216FD;
+        Fri,  1 May 2020 13:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340119;
-        bh=xxj/vkO5jIF3eG2mRjYToGA+pScWak8JsqUuFoSTKvg=;
+        s=default; t=1588340161;
+        bh=WM6Psp5MWsVb3j3Aezr/CMsEltwqmJ+7sheXVHai2yI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hcNuV7148q3rZpA5j/4j5elxDLs0Pr9JNcajhffgGwqYY96ISSlDk/djJCi5n/N9B
-         pnzYyLFCHsrxsRnxHM96zZeFcO8SQcx+1MvdWccbUnzNQ9Ld+WDzs6xoEI+BX+2rB2
-         wtyPLaNHw+e5xmMgTBh0107EqWz0ENcVadl92z7E=
+        b=Hierap/HkwRAZiaqCbcTh+iZjJ+OuOoZuSmkSz0MrINS09FSBEhNRFOiJsZSRdLyn
+         sEftq9aK63o+kbrxF6eR313XCmmfYYEbubaHQxaRtpSbwegZSXxZ18D9mrQsy/CQiY
+         VG5sdMd7Fo5o7StTAzUwjJ+InD0EiFobnlobZSvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arthur Marsh <arthur.marsh@internode.on.net>,
-        Theodore Tso <tytso@mit.edu>, Ashwin H <ashwinh@vmware.com>
-Subject: [PATCH 4.14 114/117] ext4: fix block validity checks for journal inodes using indirect blocks
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.19 05/46] usb: dwc3: gadget: Do link recovery for SS and SSP
 Date:   Fri,  1 May 2020 15:22:30 +0200
-Message-Id: <20200501131558.514350724@linuxfoundation.org>
+Message-Id: <20200501131501.161306362@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 170417c8c7bb2cbbdd949bf5c443c0c8f24a203b upstream.
+commit d0550cd20e52558ecf6847a0f96ebd5d944c17e4 upstream.
 
-Commit 345c0dbf3a30 ("ext4: protect journal inode's blocks using
-block_validity") failed to add an exception for the journal inode in
-ext4_check_blockref(), which is the function used by ext4_get_branch()
-for indirect blocks.  This caused attempts to read from the ext3-style
-journals to fail with:
+The controller always supports link recovery for device in SS and SSP.
+Remove the speed limit check. Also, when the device is in RESUME or
+RESET state, it means the controller received the resume/reset request.
+The driver must send the link recovery to acknowledge the request. They
+are valid states for the driver to send link recovery.
 
-[  848.968550] EXT4-fs error (device sdb7): ext4_get_branch:171: inode #8: block 30343695: comm jbd2/sdb7-8: invalid block
-
-Fix this by adding the missing exception check.
-
-Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
-Reported-by: Arthur Marsh <arthur.marsh@internode.on.net>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Ashwin H <ashwinh@vmware.com>
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Fixes: ee5cd41c9117 ("usb: dwc3: Update speed checks for SuperSpeedPlus")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/block_validity.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/dwc3/gadget.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -275,6 +275,11 @@ int ext4_check_blockref(const char *func
- 	__le32 *bref = p;
- 	unsigned int blk;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1577,7 +1577,6 @@ static int __dwc3_gadget_wakeup(struct d
+ 	u32			reg;
  
-+	if (ext4_has_feature_journal(inode->i_sb) &&
-+	    (inode->i_ino ==
-+	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum)))
-+		return 0;
-+
- 	while (bref < p+max) {
- 		blk = le32_to_cpu(*bref++);
- 		if (blk &&
+ 	u8			link_state;
+-	u8			speed;
+ 
+ 	/*
+ 	 * According to the Databook Remote wakeup request should
+@@ -1587,16 +1586,13 @@ static int __dwc3_gadget_wakeup(struct d
+ 	 */
+ 	reg = dwc3_readl(dwc->regs, DWC3_DSTS);
+ 
+-	speed = reg & DWC3_DSTS_CONNECTSPD;
+-	if ((speed == DWC3_DSTS_SUPERSPEED) ||
+-	    (speed == DWC3_DSTS_SUPERSPEED_PLUS))
+-		return 0;
+-
+ 	link_state = DWC3_DSTS_USBLNKST(reg);
+ 
+ 	switch (link_state) {
++	case DWC3_LINK_STATE_RESET:
+ 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
+ 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
++	case DWC3_LINK_STATE_RESUME:
+ 		break;
+ 	default:
+ 		return -EINVAL;
 
 
