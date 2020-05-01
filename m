@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD4E1C1397
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80F7E1C16EF
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729199AbgEANbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:31:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55272 "EHLO mail.kernel.org"
+        id S1730618AbgEANzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:55:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730072AbgEANbA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:31:00 -0400
+        id S1730600AbgEANek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:34:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DB8A216FD;
-        Fri,  1 May 2020 13:30:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BBBF208DB;
+        Fri,  1 May 2020 13:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339859;
-        bh=OgoQkKV0zIrAg2Vj0DcalAL3eiZv3rhgHBPJP+JEHXM=;
+        s=default; t=1588340080;
+        bh=ifextXkKmhhV5w83hSp4HJWt+WV0uhKMrMNPmStDfTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IjXtTyQi77p1TqLe32H3aRb9Gs6UohMM0YRP/iSCq3jI1ihxFcKR9k7XBz/dQCBXV
-         W8D3XxFdrMyQSdqxWvTqZqeeoe+eGcji0w2ol+vqONHfbwnUucAWFKUFUD6fuMUbgW
-         s9XabajGy+U6S75BTVOpu14R060jt4MpDULYqjdE=
+        b=ck/GAfte6devqJ99Ok+pATwDHOq5CZAyuF7jk4mUfwM3F0Vt8qvGkzLi5kGZ6rEj1
+         1hwJGr4hGsFzDNHPijXtHd0zZ/TjfCtYjf1A31Xtln0oLCpvW2m+5XZvbjflYiX15F
+         Zx/g84rQsA0oszK3rVEzjZGAb5rlrwzzKyFtcDGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harish Sriram <harish@linux.ibm.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 80/80] ext4: check for non-zero journal inum in ext4_calculate_overhead
+        stable@vger.kernel.org, Xi Wang <xi.wang@gmail.com>,
+        Luke Nelson <luke.r.nels@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 098/117] bpf, x86: Fix encoding for lower 8-bit registers in BPF_STX BPF_B
 Date:   Fri,  1 May 2020 15:22:14 +0200
-Message-Id: <20200501131538.163291058@linuxfoundation.org>
+Message-Id: <20200501131557.424010265@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Luke Nelson <lukenels@cs.washington.edu>
 
-commit f1eec3b0d0a849996ebee733b053efa71803dad5 upstream.
+[ Upstream commit aee194b14dd2b2bde6252b3acf57d36dccfc743a ]
 
-While calculating overhead for internal journal, also check
-that j_inum shouldn't be 0. Otherwise we get below error with
-xfstests generic/050 with external journal (XXX_LOGDEV config) enabled.
+This patch fixes an encoding bug in emit_stx for BPF_B when the source
+register is BPF_REG_FP.
 
-It could be simply reproduced with loop device with an external journal
-and marking blockdev as RO before mounting.
+The current implementation for BPF_STX BPF_B in emit_stx saves one REX
+byte when the operands can be encoded using Mod-R/M alone. The lower 8
+bits of registers %rax, %rbx, %rcx, and %rdx can be accessed without using
+a REX prefix via %al, %bl, %cl, and %dl, respectively. Other registers,
+(e.g., %rsi, %rdi, %rbp, %rsp) require a REX prefix to use their 8-bit
+equivalents (%sil, %dil, %bpl, %spl).
 
-[ 3337.146838] EXT4-fs error (device pmem1p2): ext4_get_journal_inode:4634: comm mount: inode #0: comm mount: iget: illegal inode #
-------------[ cut here ]------------
-generic_make_request: Trying to write to read-only block-device pmem1p2 (partno 2)
-WARNING: CPU: 107 PID: 115347 at block/blk-core.c:788 generic_make_request_checks+0x6b4/0x7d0
-CPU: 107 PID: 115347 Comm: mount Tainted: G             L   --------- -t - 4.18.0-167.el8.ppc64le #1
-NIP:  c0000000006f6d44 LR: c0000000006f6d40 CTR: 0000000030041dd4
-<...>
-NIP [c0000000006f6d44] generic_make_request_checks+0x6b4/0x7d0
-LR [c0000000006f6d40] generic_make_request_checks+0x6b0/0x7d0
-<...>
-Call Trace:
-generic_make_request_checks+0x6b0/0x7d0 (unreliable)
-generic_make_request+0x3c/0x420
-submit_bio+0xd8/0x200
-submit_bh_wbc+0x1e8/0x250
-__sync_dirty_buffer+0xd0/0x210
-ext4_commit_super+0x310/0x420 [ext4]
-__ext4_error+0xa4/0x1e0 [ext4]
-__ext4_iget+0x388/0xe10 [ext4]
-ext4_get_journal_inode+0x40/0x150 [ext4]
-ext4_calculate_overhead+0x5a8/0x610 [ext4]
-ext4_fill_super+0x3188/0x3260 [ext4]
-mount_bdev+0x778/0x8f0
-ext4_mount+0x28/0x50 [ext4]
-mount_fs+0x74/0x230
-vfs_kern_mount.part.6+0x6c/0x250
-do_mount+0x2fc/0x1280
-sys_mount+0x158/0x180
-system_call+0x5c/0x70
-EXT4-fs (pmem1p2): no journal found
-EXT4-fs (pmem1p2): can't get journal size
-EXT4-fs (pmem1p2): mounted filesystem without journal. Opts: dax,norecovery
+The current code checks if the source for BPF_STX BPF_B is BPF_REG_1
+or BPF_REG_2 (which map to %rdi and %rsi), in which case it emits the
+required REX prefix. However, it misses the case when the source is
+BPF_REG_FP (mapped to %rbp).
 
-Fixes: 3c816ded78bb ("ext4: use journal inode to determine journal overhead")
-Reported-by: Harish Sriram <harish@linux.ibm.com>
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200316093038.25485-1-riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The result is that BPF_STX BPF_B with BPF_REG_FP as the source operand
+will read from register %ch instead of the correct %bpl. This patch fixes
+the problem by fixing and refactoring the check on which registers need
+the extra REX byte. Since no BPF registers map to %rsp, there is no need
+to handle %spl.
 
+Fixes: 622582786c9e0 ("net: filter: x86: internal BPF JIT")
+Signed-off-by: Xi Wang <xi.wang@gmail.com>
+Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200418232655.23870-1-luke.r.nels@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/net/bpf_jit_comp.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3337,7 +3337,8 @@ int ext4_calculate_overhead(struct super
- 	 */
- 	if (sbi->s_journal && !sbi->journal_bdev)
- 		overhead += EXT4_NUM_B2C(sbi, sbi->s_journal->j_maxlen);
--	else if (ext4_has_feature_journal(sb) && !sbi->s_journal) {
-+	else if (ext4_has_feature_journal(sb) && !sbi->s_journal && j_inum) {
-+		/* j_inum for internal journal is non-zero */
- 		j_inode = ext4_get_journal_inode(sb, j_inum);
- 		if (j_inode) {
- 			j_blocks = j_inode->i_size >> sb->s_blocksize_bits;
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index cdb386fa71013..0415c0cd4a191 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -153,6 +153,19 @@ static bool is_ereg(u32 reg)
+ 			     BIT(BPF_REG_AX));
+ }
+ 
++/*
++ * is_ereg_8l() == true if BPF register 'reg' is mapped to access x86-64
++ * lower 8-bit registers dil,sil,bpl,spl,r8b..r15b, which need extra byte
++ * of encoding. al,cl,dl,bl have simpler encoding.
++ */
++static bool is_ereg_8l(u32 reg)
++{
++	return is_ereg(reg) ||
++	    (1 << reg) & (BIT(BPF_REG_1) |
++			  BIT(BPF_REG_2) |
++			  BIT(BPF_REG_FP));
++}
++
+ /* add modifiers if 'reg' maps to x64 registers r8..r15 */
+ static u8 add_1mod(u8 byte, u32 reg)
+ {
+@@ -770,9 +783,8 @@ st:			if (is_imm8(insn->off))
+ 			/* STX: *(u8*)(dst_reg + off) = src_reg */
+ 		case BPF_STX | BPF_MEM | BPF_B:
+ 			/* emit 'mov byte ptr [rax + off], al' */
+-			if (is_ereg(dst_reg) || is_ereg(src_reg) ||
+-			    /* have to add extra byte for x86 SIL, DIL regs */
+-			    src_reg == BPF_REG_1 || src_reg == BPF_REG_2)
++			if (is_ereg(dst_reg) || is_ereg_8l(src_reg))
++				/* Add extra byte for eregs or SIL,DIL,BPL in src_reg */
+ 				EMIT2(add_2mod(0x40, dst_reg, src_reg), 0x88);
+ 			else
+ 				EMIT1(0x88);
+-- 
+2.20.1
+
 
 
