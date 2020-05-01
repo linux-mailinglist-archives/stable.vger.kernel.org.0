@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF9B1C13E5
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABA151C158F
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730513AbgEANd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:33:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59840 "EHLO mail.kernel.org"
+        id S1729923AbgEANaV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:30:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730509AbgEANd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:33:56 -0400
+        id S1729075AbgEANaU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:30:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81739208C3;
-        Fri,  1 May 2020 13:33:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6272208C3;
+        Fri,  1 May 2020 13:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340036;
-        bh=I/8wWdMsyaeMajMPLmadoycWaGnQX3FlrUMeRfRaWsU=;
+        s=default; t=1588339820;
+        bh=KnH9XDnMyRahOYpiIFkke00TmrZSxSRtFPurF5f0YHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DgqRgN4FZxdf5oY3USlbxkEjP/jQp6ESkCYg37Ds6mq8ER9WAvh/6fbu3Pn3NRj/6
-         RbYUQMUvHpkFuoUU6nOHavuo8X1+iMOnQ8MDWnpckQvxVukb8iy2k6L3Mxi1qhDNIn
-         jziT1JdJM5Ko3ZJepk+uhaAbKLr1Fh+a9MTB086s=
+        b=u1+Ax7+yRyWAF263hqQBLvsCnUBcjuSkWU7/YkXJlioPyDbLgHmpmDz/ubVTC6I+Z
+         AXqS+qP7JJkTqpQWOB4Kt9wG9xfOg5fzgJTRXwUM1tHRuplpXDbes+UJnxyIc1mX3b
+         6jFNR/aPn7Ngz0hsEND14uUjbDCGNxws1BHJO0Hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Qian Cai <cai@lca.pw>, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 068/117] powerpc/setup_64: Set cache-line-size based on cache-block-size
+        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 50/80] ASoC: dapm: fixup dapm kcontrol widget
 Date:   Fri,  1 May 2020 15:21:44 +0200
-Message-Id: <20200501131553.234643918@linuxfoundation.org>
+Message-Id: <20200501131529.177929439@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Gyeongtaek Lee <gt82.lee@samsung.com>
 
-commit 94c0b013c98583614e1ad911e8795ca36da34a85 upstream.
+commit ebf1474745b4373fdde0fcf32d9d1f369b50b212 upstream.
 
-If {i,d}-cache-block-size is set and {i,d}-cache-line-size is not, use
-the block-size value for both. Per the devicetree spec cache-line-size
-is only needed if it differs from the block size.
+snd_soc_dapm_kcontrol widget which is created by autodisable control
+should contain correct on_val, mask and shift because it is set when the
+widget is powered and changed value is applied on registers by following
+code in dapm_seq_run_coalesced().
 
-Originally the code would fallback from block size to line size. An
-error message was printed if both properties were missing.
+		mask |= w->mask << w->shift;
+		if (w->power)
+			value |= w->on_val << w->shift;
+		else
+			value |= w->off_val << w->shift;
 
-Later the code was refactored to use clearer names and logic but it
-inadvertently made line size a required property, meaning on systems
-without a line size property we fall back to the default from the
-cputable.
+Shift on the mask in dapm_kcontrol_data_alloc() is removed to prevent
+double shift.
+And, on_val in dapm_kcontrol_set_value() is modified to get correct
+value in the dapm_seq_run_coalesced().
 
-On powernv (OPAL) platforms, since the introduction of device tree CPU
-features (5a61ef74f269 ("powerpc/64s: Support new device tree binding
-for discovering CPU features")), that has led to the wrong value being
-used, as the fallback value is incorrect for Power8/Power9 CPUs.
-
-The incorrect values flow through to the VDSO and also to the sysconf
-values, SC_LEVEL1_ICACHE_LINESIZE etc.
-
-Fixes: bd067f83b084 ("powerpc/64: Fix naming of cache block vs. cache line")
-Cc: stable@vger.kernel.org # v4.11+
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Reported-by: Qian Cai <cai@lca.pw>
-[mpe: Add even more detail to change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200416221908.7886-1-chris.packham@alliedtelesis.co.nz
+Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/000001d61537$b212f620$1638e260$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/setup_64.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/soc-dapm.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -466,6 +466,8 @@ static bool __init parse_cache_info(stru
- 	lsizep = of_get_property(np, propnames[3], NULL);
- 	if (bsizep == NULL)
- 		bsizep = lsizep;
-+	if (lsizep == NULL)
-+		lsizep = bsizep;
- 	if (lsizep != NULL)
- 		lsize = be32_to_cpu(*lsizep);
- 	if (bsizep != NULL)
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -384,7 +384,7 @@ static int dapm_kcontrol_data_alloc(stru
+ 
+ 			memset(&template, 0, sizeof(template));
+ 			template.reg = e->reg;
+-			template.mask = e->mask << e->shift_l;
++			template.mask = e->mask;
+ 			template.shift = e->shift_l;
+ 			template.off_val = snd_soc_enum_item_to_val(e, 0);
+ 			template.on_val = template.off_val;
+@@ -510,8 +510,22 @@ static bool dapm_kcontrol_set_value(cons
+ 	if (data->value == value)
+ 		return false;
+ 
+-	if (data->widget)
+-		data->widget->on_val = value;
++	if (data->widget) {
++		switch (dapm_kcontrol_get_wlist(kcontrol)->widgets[0]->id) {
++		case snd_soc_dapm_switch:
++		case snd_soc_dapm_mixer:
++		case snd_soc_dapm_mixer_named_ctl:
++			data->widget->on_val = value & data->widget->mask;
++			break;
++		case snd_soc_dapm_demux:
++		case snd_soc_dapm_mux:
++			data->widget->on_val = value >> data->widget->shift;
++			break;
++		default:
++			data->widget->on_val = value;
++			break;
++		}
++	}
+ 
+ 	data->value = value;
+ 
 
 
