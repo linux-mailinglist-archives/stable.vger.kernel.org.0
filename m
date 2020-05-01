@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C96931C15DC
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 550151C1595
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729845AbgEANfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:35:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33418 "EHLO mail.kernel.org"
+        id S1729981AbgEANaj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:30:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730679AbgEANfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:35:10 -0400
+        id S1729965AbgEANaf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:30:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED19C24953;
-        Fri,  1 May 2020 13:35:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 703A420757;
+        Fri,  1 May 2020 13:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340109;
-        bh=kkYlaCzeAPTBAZUCrEwg/VKcVhWrWErN3+we1EYbLZU=;
+        s=default; t=1588339834;
+        bh=l6I8N9mAySJ1NIPQgd/YPEign4VOEC6ZJUPecdttEXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvto7ViGFlBawLGKeURGIMud73vw+l15DuvoVd74EUb3q3dcsolMhGgmW/jXyWnXR
-         xehWmeM6AzFA5Ojti6s1O79p1MkxuG4q13cJQdxxHNqt1GRDFY99dScn5XgYCyuDY5
-         cshjvPnoW+KpDS0FOZWgT1pC6/xc9pBYlnUMELkI=
+        b=b4rx1E5BVHRec+6b3urh6DIfvD9PP8zNgg4mGYtpaZM4n6gEG6wIju/WJUgzDX/Ry
+         kNv0JsIaypZILrEPZF1IHfkF4qMFqs/0uXAfXN+XjL3VEHhV0SpHPG31CPNxu8DerK
+         67ksef7Dsf8z2GFPeULN/F6/xFGEL1jMImAykZEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 097/117] mm: shmem: disable interrupt when acquiring info->lock in userfaultfd_copy path
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Theodore Tso <tytso@mit.edu>, Ashwin H <ashwinh@vmware.com>
+Subject: [PATCH 4.9 79/80] ext4: unsigned int compared against zero
 Date:   Fri,  1 May 2020 15:22:13 +0200
-Message-Id: <20200501131556.737155505@linuxfoundation.org>
+Message-Id: <20200501131537.893149960@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,79 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 94b7cc01da5a3cc4f3da5e0ff492ef008bb555d6 upstream.
+commit fbbbbd2f28aec991f3fbc248df211550fbdfd58c upstream.
 
-Syzbot reported the below lockdep splat:
+There are two cases where u32 variables n and err are being checked
+for less than zero error values, the checks is always false because
+the variables are not signed. Fix this by making the variables ints.
 
-    WARNING: possible irq lock inversion dependency detected
-    5.6.0-rc7-syzkaller #0 Not tainted
-    --------------------------------------------------------
-    syz-executor.0/10317 just changed the state of lock:
-    ffff888021d16568 (&(&info->lock)->rlock){+.+.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-    ffff888021d16568 (&(&info->lock)->rlock){+.+.}, at: shmem_mfill_atomic_pte+0x1012/0x21c0 mm/shmem.c:2407
-    but this lock was taken by another, SOFTIRQ-safe lock in the past:
-     (&(&xa->xa_lock)->rlock#5){..-.}
-
-    and interrupts could create inverse lock ordering between them.
-
-    other info that might help us debug this:
-     Possible interrupt unsafe locking scenario:
-
-           CPU0                    CPU1
-           ----                    ----
-      lock(&(&info->lock)->rlock);
-                                   local_irq_disable();
-                                   lock(&(&xa->xa_lock)->rlock#5);
-                                   lock(&(&info->lock)->rlock);
-      <Interrupt>
-        lock(&(&xa->xa_lock)->rlock#5);
-
-     *** DEADLOCK ***
-
-The full report is quite lengthy, please see:
-
-  https://lore.kernel.org/linux-mm/alpine.LSU.2.11.2004152007370.13597@eggly.anvils/T/#m813b412c5f78e25ca8c6c7734886ed4de43f241d
-
-It is because CPU 0 held info->lock with IRQ enabled in userfaultfd_copy
-path, then CPU 1 is splitting a THP which held xa_lock and info->lock in
-IRQ disabled context at the same time.  If softirq comes in to acquire
-xa_lock, the deadlock would be triggered.
-
-The fix is to acquire/release info->lock with *_irq version instead of
-plain spin_{lock,unlock} to make it softirq safe.
-
-Fixes: 4c27fe4c4c84 ("userfaultfd: shmem: add shmem_mcopy_atomic_pte for userfaultfd support")
-Reported-by: syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com
-Acked-by: Hugh Dickins <hughd@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Link: http://lkml.kernel.org/r/1587061357-122619-1-git-send-email-yang.shi@linux.alibaba.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Addresses-Coverity: ("Unsigned compared against 0")
+Fixes: 345c0dbf3a30 ("ext4: protect journal inode's blocks using block_validity")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Ashwin H <ashwinh@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/shmem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/block_validity.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2330,11 +2330,11 @@ static int shmem_mfill_atomic_pte(struct
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -141,7 +141,8 @@ static int ext4_protect_reserved_inode(s
+ 	struct inode *inode;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct ext4_map_blocks map;
+-	u32 i = 0, err = 0, num, n;
++	u32 i = 0, num;
++	int err = 0, n;
  
- 	lru_cache_add_anon(page);
- 
--	spin_lock(&info->lock);
-+	spin_lock_irq(&info->lock);
- 	info->alloced++;
- 	inode->i_blocks += BLOCKS_PER_PAGE;
- 	shmem_recalc_inode(inode);
--	spin_unlock(&info->lock);
-+	spin_unlock_irq(&info->lock);
- 
- 	inc_mm_counter(dst_mm, mm_counter_file(page));
- 	page_add_file_rmap(page, false);
+ 	if ((ino < EXT4_ROOT_INO) ||
+ 	    (ino > le32_to_cpu(sbi->s_es->s_inodes_count)))
 
 
