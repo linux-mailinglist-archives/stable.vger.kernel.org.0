@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1647F1C16F7
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 463C31C136B
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728938AbgEANzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:55:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59688 "EHLO mail.kernel.org"
+        id S1729768AbgEAN3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:29:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730492AbgEANdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:33:51 -0400
+        id S1729766AbgEAN3V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:29:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98DA52051A;
-        Fri,  1 May 2020 13:33:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B977208D6;
+        Fri,  1 May 2020 13:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340031;
-        bh=qhGlq2nwd+F+3TQoXM4Nys//vTHfy280XtnLt2hcuYM=;
+        s=default; t=1588339761;
+        bh=L9W7ToVGh3TEgwhLmqWCC2AlIbFT2re0QaNSwcakZus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/wfHs39/MOtcXULflPDfCgEECsPVrHKapq9tMGw9YDbMLvSxJTk4qiuMqSnTyngy
-         KL3bfAroawUfDgPwhHAMiRv5o4D+zskrNjOsUUIZDuwe9J6Kuly96IZhkWrTAcI0/K
-         BjOsCK/TKPBWYyvzE8DSs6H+csdSz6vK+734+ir0=
+        b=urVSD1gKwjKZNNJUIhPWcruwZdLBVNDfT96vxJZkaUT1ThvPIxkBsHWzmsk5DSTTV
+         o3+Dluz84Y7DLAixXqBFrkxAtyt0adF/c6f1N5K4PDTTHYUlCwYvoyRSPHnLjuxcrP
+         AtVxKdAPdCwAA6xXa7MAExKtpIkCA6m0KWSuYq04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 066/117] iwlwifi: pcie: actually release queue memory in TVQM
-Date:   Fri,  1 May 2020 15:21:42 +0200
-Message-Id: <20200501131553.048775965@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+49e69b4d71a420ceda3e@syzkaller.appspotmail.com,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.9 49/80] audit: check the length of userspace generated audit records
+Date:   Fri,  1 May 2020 15:21:43 +0200
+Message-Id: <20200501131528.800691245@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit b98b33d5560a2d940f3b80f6768a6177bf3dfbc0 upstream.
+commit 763dafc520add02a1f4639b500c509acc0ea8e5b upstream.
 
-The iwl_trans_pcie_dyn_txq_free() function only releases the frames
-that may be left on the queue by calling iwl_pcie_gen2_txq_unmap(),
-but doesn't actually free the DMA ring or byte-count tables for the
-queue. This leads to pretty large memory leaks (at least before my
-queue size improvements), in particular in monitor/sniffer mode on
-channel hopping since this happens on every channel change.
+Commit 756125289285 ("audit: always check the netlink payload length
+in audit_receive_msg()") fixed a number of missing message length
+checks, but forgot to check the length of userspace generated audit
+records.  The good news is that you need CAP_AUDIT_WRITE to submit
+userspace audit records, which is generally only given to trusted
+processes, so the impact should be limited.
 
-This was also now more evident after the move to a DMA pool for the
-byte count tables, showing messages such as
-
-  BUG iwlwifi:bc (...): Objects remaining in iwlwifi:bc on __kmem_cache_shutdown()
-
-This fixes https://bugzilla.kernel.org/show_bug.cgi?id=206811.
-
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: 6b35ff91572f ("iwlwifi: pcie: introduce a000 TX queues management")
-Cc: stable@vger.kernel.org # v4.14+
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20200417100405.f5f4c4193ec1.Id5feebc9b4318041913a9c89fc1378bb5454292c@changeid
+Cc: stable@vger.kernel.org
+Fixes: 756125289285 ("audit: always check the netlink payload length in audit_receive_msg()")
+Reported-by: syzbot+49e69b4d71a420ceda3e@syzkaller.appspotmail.com
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c |    3 +++
+ kernel/audit.c |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/tx-gen2.c
-@@ -1124,6 +1124,9 @@ void iwl_trans_pcie_dyn_txq_free(struct
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -941,6 +941,9 @@ static int audit_receive_msg(struct sk_b
+ 	case AUDIT_FIRST_USER_MSG2 ... AUDIT_LAST_USER_MSG2:
+ 		if (!audit_enabled && msg_type != AUDIT_USER_AVC)
+ 			return 0;
++		/* exit early if there isn't at least one character to print */
++		if (data_len < 2)
++			return -EINVAL;
  
- 	iwl_pcie_gen2_txq_unmap(trans, queue);
- 
-+	iwl_pcie_gen2_txq_free_memory(trans, trans_pcie->txq[queue]);
-+	trans_pcie->txq[queue] = NULL;
-+
- 	IWL_DEBUG_TX_QUEUES(trans, "Deactivate queue %d\n", queue);
- }
- 
+ 		err = audit_filter(msg_type, AUDIT_FILTER_USER);
+ 		if (err == 1) { /* match or error */
 
 
