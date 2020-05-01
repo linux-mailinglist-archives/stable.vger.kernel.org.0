@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F271C1402
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1457C1C1390
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730596AbgEANei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:34:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60904 "EHLO mail.kernel.org"
+        id S1730029AbgEANat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:30:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730595AbgEANeh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:34:37 -0400
+        id S1730010AbgEANar (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:30:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D304208DB;
-        Fri,  1 May 2020 13:34:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A965F20757;
+        Fri,  1 May 2020 13:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340077;
-        bh=6X1mfxyBzWDLUUEJceQpc3dqqqTe+U+Zq76vP098AX4=;
+        s=default; t=1588339847;
+        bh=GqiAjsB0umloZVqaiehWJl9SaeTz4QMV4YkOimw4U6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nA4meTVccMGjAcELpRc/YAVdzc373E35aETc0SfITx3suZJj7vZX6AEDd4F/51+1r
-         jLucoub0iErsgVBi2y1xGiIzryxZlC6xh+XVGGE76QOxnjUVWt42L3jwq2mzlVfgyG
-         2dRMRUE2XOiSzqyfLxuDAixeLfa3e2LdXqwwzl80=
+        b=QiNuU7H+VE5ZtAH//Dsr0m5Z8qIvzm4UhUK/70EU5i/jEUoGcUZdd5mzv9SiX3yXP
+         strAOQBIaLbhohLqJB6jjeSZRG6GwQ7Uf/nXQZ5X7g813AnkoiH5H7Mt2IG8lCEtaf
+         O5Uc0zRxU0JjgEROwLf4DCRQaSLy2NZgHJFMfOVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.14 089/117] usb: dwc3: gadget: Do link recovery for SS and SSP
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Wei Liu <wl@xen.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 71/80] xen/xenbus: ensure xenbus_map_ring_valloc() returns proper grant status
 Date:   Fri,  1 May 2020 15:22:05 +0200
-Message-Id: <20200501131555.202889321@linuxfoundation.org>
+Message-Id: <20200501131535.782271467@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
+References: <20200501131513.810761598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit d0550cd20e52558ecf6847a0f96ebd5d944c17e4 upstream.
+[ Upstream commit 6b51fd3f65a22e3d1471b18a1d56247e246edd46 ]
 
-The controller always supports link recovery for device in SS and SSP.
-Remove the speed limit check. Also, when the device is in RESUME or
-RESET state, it means the controller received the resume/reset request.
-The driver must send the link recovery to acknowledge the request. They
-are valid states for the driver to send link recovery.
+xenbus_map_ring_valloc() maps a ring page and returns the status of the
+used grant (0 meaning success).
 
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Fixes: ee5cd41c9117 ("usb: dwc3: Update speed checks for SuperSpeedPlus")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There are Xen hypervisors which might return the value 1 for the status
+of a failed grant mapping due to a bug. Some callers of
+xenbus_map_ring_valloc() test for errors by testing the returned status
+to be less than zero, resulting in no error detected and crashing later
+due to a not available ring page.
 
+Set the return value of xenbus_map_ring_valloc() to GNTST_general_error
+in case the grant status reported by Xen is greater than zero.
+
+This is part of XSA-316.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Wei Liu <wl@xen.org>
+Link: https://lore.kernel.org/r/20200326080358.1018-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/xen/xenbus/xenbus_client.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1641,7 +1641,6 @@ static int __dwc3_gadget_wakeup(struct d
- 	u32			reg;
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index 056da6ee1a357..df27cefb2fa35 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -469,7 +469,14 @@ EXPORT_SYMBOL_GPL(xenbus_free_evtchn);
+ int xenbus_map_ring_valloc(struct xenbus_device *dev, grant_ref_t *gnt_refs,
+ 			   unsigned int nr_grefs, void **vaddr)
+ {
+-	return ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
++	int err;
++
++	err = ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
++	/* Some hypervisors are buggy and can return 1. */
++	if (err > 0)
++		err = GNTST_general_error;
++
++	return err;
+ }
+ EXPORT_SYMBOL_GPL(xenbus_map_ring_valloc);
  
- 	u8			link_state;
--	u8			speed;
- 
- 	/*
- 	 * According to the Databook Remote wakeup request should
-@@ -1651,16 +1650,13 @@ static int __dwc3_gadget_wakeup(struct d
- 	 */
- 	reg = dwc3_readl(dwc->regs, DWC3_DSTS);
- 
--	speed = reg & DWC3_DSTS_CONNECTSPD;
--	if ((speed == DWC3_DSTS_SUPERSPEED) ||
--	    (speed == DWC3_DSTS_SUPERSPEED_PLUS))
--		return 0;
--
- 	link_state = DWC3_DSTS_USBLNKST(reg);
- 
- 	switch (link_state) {
-+	case DWC3_LINK_STATE_RESET:
- 	case DWC3_LINK_STATE_RX_DET:	/* in HS, means Early Suspend */
- 	case DWC3_LINK_STATE_U3:	/* in HS, means SUSPEND */
-+	case DWC3_LINK_STATE_RESUME:
- 		break;
- 	default:
- 		return -EINVAL;
+-- 
+2.20.1
+
 
 
