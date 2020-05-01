@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A338C1C1608
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96AA91C163C
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731083AbgEANim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:38:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38210 "EHLO mail.kernel.org"
+        id S1730518AbgEANmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:42:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731080AbgEANik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:38:40 -0400
+        id S1731285AbgEANmT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:42:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F7012173E;
-        Fri,  1 May 2020 13:38:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72984205C9;
+        Fri,  1 May 2020 13:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340319;
-        bh=ZOWlDXJ+y14rAyA1g+BeULgdahx3vf6rhu7aIbrlV4Y=;
+        s=default; t=1588340538;
+        bh=QsBMPlkjZfN4HIDsaQOupvvDezSP1V9ddU85POYwCXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mLn2jZ41YRP75CCsMHNJtXm1/DFcsOHl7n/lX9Bl6CoAXqlaO/KZRlLX9CcnRDLW2
-         jsb23qhmG5gLilt89n9ceWzDSw4Mvvo1PR+6PZLrEhspeZaIg/x99WuityHLmD6rVx
-         B5AtkzkcQF7aZyMNztIbRU9ED5UTS+RwUb2ubI/w=
+        b=JevCKPc6Sf2olaYFc9N213gy5Ew7IvV3pJEimclo7NU7SXTVtRDegMKS2ZtEBoCxb
+         RmhPg/YYVtqwFmFZB28/QXQOexjZalVdmd95RGnX50AVQbRNhD7k8dRW7tfC1yP9Mg
+         WmoW5vdtmw913G7dN1ha0H05ksrAoE7sHtL+8360=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 17/83] ASoC: meson: axg-card: fix codec-to-codec link setup
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH 5.6 023/106] drivers: soc: xilinx: fix firmware driver Kconfig dependency
 Date:   Fri,  1 May 2020 15:22:56 +0200
-Message-Id: <20200501131528.267807251@linuxfoundation.org>
+Message-Id: <20200501131546.856962666@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 1164284270779e1865cc2046a2a01b58a1e858a9 upstream.
+commit d0384eedcde21276ac51f57c641f875605024b32 upstream.
 
-Since the addition of commit 9b5db059366a ("ASoC: soc-pcm: dpcm: Only allow
-playback/capture if supported"), meson-axg cards which have codec-to-codec
-links fail to init and Oops:
+The firmware driver is optional, but the power driver depends on it,
+which needs to be reflected in Kconfig to avoid link errors:
 
-  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000128
-  Internal error: Oops: 96000044 [#1] PREEMPT SMP
-  CPU: 3 PID: 1582 Comm: arecord Not tainted 5.7.0-rc1
-  pc : invalidate_paths_ep+0x30/0xe0
-  lr : snd_soc_dapm_dai_get_connected_widgets+0x170/0x1a8
-  Call trace:
-   invalidate_paths_ep+0x30/0xe0
-   snd_soc_dapm_dai_get_connected_widgets+0x170/0x1a8
-   dpcm_path_get+0x38/0xd0
-   dpcm_fe_dai_open+0x70/0x920
-   snd_pcm_open_substream+0x564/0x840
-   snd_pcm_open+0xfc/0x228
-   snd_pcm_capture_open+0x4c/0x78
-   snd_open+0xac/0x1a8
-   ...
+aarch64-linux-ld: drivers/soc/xilinx/zynqmp_power.o: in function `zynqmp_pm_isr':
+zynqmp_power.c:(.text+0x284): undefined reference to `zynqmp_pm_invoke_fn'
 
-While initiliazing the links, ASoC treats the codec-to-codec links of this
-card type as a DPCM backend. This error eventually leads to the Oops.
+The firmware driver can probably be allowed for compile-testing as
+well, so it's best to drop the dependency on the ZYNQ platform
+here and allow building as long as the firmware code is built-in.
 
-Most of the card driver code is shared between DPCM backends and
-codec-to-codec links. The property "no_pcm" marking DCPM BE was left set on
-codec-to-codec links, leading to this problem. This commit fixes that.
-
-Fixes: 0a8f1117a680 ("ASoC: meson: axg-card: add basic codec-to-codec link support")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20200420114511.450560-2-jbrunet@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ab272643d723 ("drivers: soc: xilinx: Add ZynqMP PM driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20200408155224.2070880-1-arnd@arndb.de
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/meson/axg-card.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/soc/xilinx/Kconfig |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/soc/meson/axg-card.c
-+++ b/sound/soc/meson/axg-card.c
-@@ -586,8 +586,10 @@ static int axg_card_add_link(struct snd_
+--- a/drivers/soc/xilinx/Kconfig
++++ b/drivers/soc/xilinx/Kconfig
+@@ -19,7 +19,7 @@ config XILINX_VCU
  
- 	if (axg_card_cpu_is_tdm_iface(dai_link->cpus->of_node))
- 		ret = axg_card_parse_tdm(card, np, index);
--	else if (axg_card_cpu_is_codec(dai_link->cpus->of_node))
-+	else if (axg_card_cpu_is_codec(dai_link->cpus->of_node)) {
- 		dai_link->params = &codec_params;
-+		dai_link->no_pcm = 0; /* link is not a DPCM BE */
-+	}
- 
- 	return ret;
- }
+ config ZYNQMP_POWER
+ 	bool "Enable Xilinx Zynq MPSoC Power Management driver"
+-	depends on PM && ARCH_ZYNQMP
++	depends on PM && ZYNQMP_FIRMWARE
+ 	default y
+ 	select MAILBOX
+ 	select ZYNQMP_IPI_MBOX
+@@ -35,7 +35,7 @@ config ZYNQMP_POWER
+ config ZYNQMP_PM_DOMAINS
+ 	bool "Enable Zynq MPSoC generic PM domains"
+ 	default y
+-	depends on PM && ARCH_ZYNQMP && ZYNQMP_FIRMWARE
++	depends on PM && ZYNQMP_FIRMWARE
+ 	select PM_GENERIC_DOMAINS
+ 	help
+ 	  Say yes to enable device power management through PM domains
 
 
