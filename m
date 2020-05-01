@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1036D1C1454
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D6721C15F4
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731046AbgEANiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:38:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37686 "EHLO mail.kernel.org"
+        id S1730176AbgEANgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:36:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730363AbgEANiM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:38:12 -0400
+        id S1730902AbgEANgv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:36:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA73224954;
-        Fri,  1 May 2020 13:38:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E240324953;
+        Fri,  1 May 2020 13:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340292;
-        bh=6CiMdrPnWQi3pqBWYcAn2b5sChb43RtcXG61/dQYeBU=;
+        s=default; t=1588340210;
+        bh=tU8TJhxBIWcjE1Am1/vlBCvgrjTH7SCZbgZ7JE4Qicw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+Q7Z/4GG2pXOxsIUcgmh+cYIYgn9lQrttf/SkYfQl4ZYMtIKMrpK3eIwlbQN6Mg4
-         SKalN3M+T7vrNbFgvDORGmAKuqN/k6o9nGUHq8SpMqiIoKtzAmwQd3juk7DQuAOQ1j
-         jWAddrNx0vo7OnLam89d/IkEpOWZRKUzmMpiowks=
+        b=s6+aJyfNSzN0zAlBMG4e+mpxV/FIXW1hMmFPC02Qy+5CuPWYFd5iAeuBc+lJxIkLF
+         2d3deSTjJza4AeR3s7U5yEag28XdM/lYxSfjmpIH0R6ZU2C8aXMB7nNmJ3ASYjp99P
+         XSjZdmUANVCBBB6ttlmhqOX8iflJ5xBFyUkt+muU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 11/83] iio:ad7797: Use correct attribute_group
+        stable@vger.kernel.org,
+        syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 25/46] mm: shmem: disable interrupt when acquiring info->lock in userfaultfd_copy path
 Date:   Fri,  1 May 2020 15:22:50 +0200
-Message-Id: <20200501131526.650287332@linuxfoundation.org>
+Message-Id: <20200501131507.682072631@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131457.023036302@linuxfoundation.org>
+References: <20200501131457.023036302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +48,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Yang Shi <yang.shi@linux.alibaba.com>
 
-commit 28535877ac5b2b84f0d394fd67a5ec71c0c48b10 upstream.
+commit 94b7cc01da5a3cc4f3da5e0ff492ef008bb555d6 upstream.
 
-It should use ad7797_attribute_group in ad7797_info,
-according to commit ("iio:ad7793: Add support for the ad7796 and ad7797").
+Syzbot reported the below lockdep splat:
 
-Scale is fixed for the ad7796 and not programmable, hence
-should not have the scale_available attribute.
+    WARNING: possible irq lock inversion dependency detected
+    5.6.0-rc7-syzkaller #0 Not tainted
+    --------------------------------------------------------
+    syz-executor.0/10317 just changed the state of lock:
+    ffff888021d16568 (&(&info->lock)->rlock){+.+.}, at: spin_lock include/linux/spinlock.h:338 [inline]
+    ffff888021d16568 (&(&info->lock)->rlock){+.+.}, at: shmem_mfill_atomic_pte+0x1012/0x21c0 mm/shmem.c:2407
+    but this lock was taken by another, SOFTIRQ-safe lock in the past:
+     (&(&xa->xa_lock)->rlock#5){..-.}
 
-Fixes: fd1a8b912841 ("iio:ad7793: Add support for the ad7796 and ad7797")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+    and interrupts could create inverse lock ordering between them.
+
+    other info that might help us debug this:
+     Possible interrupt unsafe locking scenario:
+
+           CPU0                    CPU1
+           ----                    ----
+      lock(&(&info->lock)->rlock);
+                                   local_irq_disable();
+                                   lock(&(&xa->xa_lock)->rlock#5);
+                                   lock(&(&info->lock)->rlock);
+      <Interrupt>
+        lock(&(&xa->xa_lock)->rlock#5);
+
+     *** DEADLOCK ***
+
+The full report is quite lengthy, please see:
+
+  https://lore.kernel.org/linux-mm/alpine.LSU.2.11.2004152007370.13597@eggly.anvils/T/#m813b412c5f78e25ca8c6c7734886ed4de43f241d
+
+It is because CPU 0 held info->lock with IRQ enabled in userfaultfd_copy
+path, then CPU 1 is splitting a THP which held xa_lock and info->lock in
+IRQ disabled context at the same time.  If softirq comes in to acquire
+xa_lock, the deadlock would be triggered.
+
+The fix is to acquire/release info->lock with *_irq version instead of
+plain spin_{lock,unlock} to make it softirq safe.
+
+Fixes: 4c27fe4c4c84 ("userfaultfd: shmem: add shmem_mcopy_atomic_pte for userfaultfd support")
+Reported-by: syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Link: http://lkml.kernel.org/r/1587061357-122619-1-git-send-email-yang.shi@linux.alibaba.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/ad7793.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/shmem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/adc/ad7793.c
-+++ b/drivers/iio/adc/ad7793.c
-@@ -541,7 +541,7 @@ static const struct iio_info ad7797_info
- 	.read_raw = &ad7793_read_raw,
- 	.write_raw = &ad7793_write_raw,
- 	.write_raw_get_fmt = &ad7793_write_raw_get_fmt,
--	.attrs = &ad7793_attribute_group,
-+	.attrs = &ad7797_attribute_group,
- 	.validate_trigger = ad_sd_validate_trigger,
- };
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2350,11 +2350,11 @@ static int shmem_mfill_atomic_pte(struct
  
+ 	lru_cache_add_anon(page);
+ 
+-	spin_lock(&info->lock);
++	spin_lock_irq(&info->lock);
+ 	info->alloced++;
+ 	inode->i_blocks += BLOCKS_PER_PAGE;
+ 	shmem_recalc_inode(inode);
+-	spin_unlock(&info->lock);
++	spin_unlock_irq(&info->lock);
+ 
+ 	inc_mm_counter(dst_mm, mm_counter_file(page));
+ 	page_add_file_rmap(page, false);
 
 
