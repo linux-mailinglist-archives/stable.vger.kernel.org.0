@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF63B1C1572
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52BF11C12E1
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729519AbgEAN1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:27:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50244 "EHLO mail.kernel.org"
+        id S1728974AbgEANZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:25:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729515AbgEAN1p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:27:45 -0400
+        id S1728969AbgEANZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:25:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7F74208D6;
-        Fri,  1 May 2020 13:27:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A13920757;
+        Fri,  1 May 2020 13:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339665;
-        bh=IVJOfNLtvCEdzuAhnciHXzmS17s/bggOu4fpNhDnLXc=;
+        s=default; t=1588339509;
+        bh=x2nQX49DejcTSMkqKDh8blNT4ob6Yff8fCJ441kAin0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HTKMm8XvOZsfOaIU7Vq4tSGAfPbjepLyd5YDQ7uWwqFjG0ZCsOZLmYSMh52qlP9/l
-         Vg83wfYv+H/DNlc3CXUsSrrzRhaIkhTpovKIW7jzPXe3A4xWpyJZAlesZUH0m3uEFO
-         9omhOaEK1BMAZmVL3WXhP3x0mLw/oLh6O/MOJEFs=
+        b=IMiz5EtC8gflX1pFyl0HKdrxaOldzt8ihKRGvrCJe3zUL+foni6mF96mp4epmS2H4
+         vj6uYwHUsUfUVW+EvCBeMv3g7rlf8nDPEMlf9RJq51yNXZ9T8dJHV0nM5byCOL5VOP
+         xZB/BjLIL04lCqiWnBUGQwKQiY8DwpkenxruFzdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        Stefano Brivio <sbrivio@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 02/80] net: ipv4: emulate READ_ONCE() on ->hdrincl bit-field in raw_sendmsg()
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 08/70] ceph: return ceph_mdsc_do_request() errors from __get_parent()
 Date:   Fri,  1 May 2020 15:20:56 +0200
-Message-Id: <20200501131514.361349343@linuxfoundation.org>
+Message-Id: <20200501131515.096286832@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolai Stange <nstange@suse.de>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit 20b50d79974ea3192e8c3ab7faf4e536e5f14d8f upstream.
+[ Upstream commit c6d50296032f0b97473eb2e274dc7cc5d0173847 ]
 
-Commit 8f659a03a0ba ("net: ipv4: fix for a race condition in
-raw_sendmsg") fixed the issue of possibly inconsistent ->hdrincl handling
-due to concurrent updates by reading this bit-field member into a local
-variable and using the thus stabilized value in subsequent tests.
+Return the error returned by ceph_mdsc_do_request(). Otherwise,
+r_target_inode ends up being NULL this ends up returning ENOENT
+regardless of the error.
 
-However, aforementioned commit also adds the (correct) comment that
-
-  /* hdrincl should be READ_ONCE(inet->hdrincl)
-   * but READ_ONCE() doesn't work with bit fields
-   */
-
-because as it stands, the compiler is free to shortcut or even eliminate
-the local variable at its will.
-
-Note that I have not seen anything like this happening in reality and thus,
-the concern is a theoretical one.
-
-However, in order to be on the safe side, emulate a READ_ONCE() on the
-bit-field by doing it on the local 'hdrincl' variable itself:
-
-	int hdrincl = inet->hdrincl;
-	hdrincl = READ_ONCE(hdrincl);
-
-This breaks the chain in the sense that the compiler is not allowed
-to replace subsequent reads from hdrincl with reloads from inet->hdrincl.
-
-Fixes: 8f659a03a0ba ("net: ipv4: fix for a race condition in raw_sendmsg")
-Signed-off-by: Nicolai Stange <nstange@suse.de>
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/raw.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ceph/export.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/ipv4/raw.c
-+++ b/net/ipv4/raw.c
-@@ -509,9 +509,11 @@ static int raw_sendmsg(struct sock *sk,
- 		goto out;
- 
- 	/* hdrincl should be READ_ONCE(inet->hdrincl)
--	 * but READ_ONCE() doesn't work with bit fields
-+	 * but READ_ONCE() doesn't work with bit fields.
-+	 * Doing this indirectly yields the same result.
- 	 */
- 	hdrincl = inet->hdrincl;
-+	hdrincl = READ_ONCE(hdrincl);
- 	/*
- 	 *	Check the flags.
- 	 */
+diff --git a/fs/ceph/export.c b/fs/ceph/export.c
+index fe02ae7f056a3..ff9e60daf086b 100644
+--- a/fs/ceph/export.c
++++ b/fs/ceph/export.c
+@@ -146,6 +146,11 @@ static struct dentry *__get_parent(struct super_block *sb,
+ 	}
+ 	req->r_num_caps = 1;
+ 	err = ceph_mdsc_do_request(mdsc, NULL, req);
++	if (err) {
++		ceph_mdsc_put_request(req);
++		return ERR_PTR(err);
++	}
++
+ 	inode = req->r_target_inode;
+ 	if (inode)
+ 		ihold(inode);
+-- 
+2.20.1
+
 
 
