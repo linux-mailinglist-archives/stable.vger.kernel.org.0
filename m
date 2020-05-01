@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A04691C164E
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D99651C14E4
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730642AbgEANn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:43:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44828 "EHLO mail.kernel.org"
+        id S1731341AbgEANnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731676AbgEANnu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:43:50 -0400
+        id S1731680AbgEANnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:43:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8900D208C3;
-        Fri,  1 May 2020 13:43:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06BF22051A;
+        Fri,  1 May 2020 13:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340630;
-        bh=LW7y78RcRNuq2ClolLmtCwJG48Op+BFKTQuN2fe/mjc=;
+        s=default; t=1588340632;
+        bh=xQhIbqv9qqbGbztx1QNd5fp99mJetbAhMqDs+wPVU+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Htt2JQvcTbckHymzU9p1RgFvCreY3wuXDp/XkbNXzKVff+OJVCIe1/r6saQmogcZ7
-         ZRJxy22X/4n4THne/Mw583OQdOlOv3VZp0V9aAVIaiSiAwi4ppB+/YqmwURhlN00ca
-         HrpjcTB6fCR02FZTcnGGkZV+bcIyYmJR1NgkBQ7Y=
+        b=0UuihE8G+GjHEDpz1fuhv3EMFWKBzR4Jb0UMR+loav+6r2cNLjr6j7Pb2NBbxjRpG
+         KM1SF02nK0qeymr8/MbyQIhVzuMEph0R5q1CrcUi0NUZtB5oZSNY+6cbKEE2B5P9YV
+         9srgI8r4AQavU2f19lK9zvpajNROsbtDFpVeueQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Xi Wang <xi.wang@gmail.com>,
         Luke Nelson <luke.r.nels@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.6 060/106] bpf, x86: Fix encoding for lower 8-bit registers in BPF_STX BPF_B
-Date:   Fri,  1 May 2020 15:23:33 +0200
-Message-Id: <20200501131550.798901859@linuxfoundation.org>
+        Alexei Starovoitov <ast@kernel.org>,
+        "H. Peter Anvin (Intel)" <hpa@zytor.com>,
+        Wang YanQing <udknight@gmail.com>
+Subject: [PATCH 5.6 061/106] bpf, x86_32: Fix incorrect encoding in BPF_LDX zero-extension
+Date:   Fri,  1 May 2020 15:23:34 +0200
+Message-Id: <20200501131550.891106146@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
 References: <20200501131543.421333643@linuxfoundation.org>
@@ -46,73 +48,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luke Nelson <lukenels@cs.washington.edu>
 
-commit aee194b14dd2b2bde6252b3acf57d36dccfc743a upstream.
+commit 5fa9a98fb10380e48a398998cd36a85e4ef711d6 upstream.
 
-This patch fixes an encoding bug in emit_stx for BPF_B when the source
-register is BPF_REG_FP.
+The current JIT uses the following sequence to zero-extend into the
+upper 32 bits of the destination register for BPF_LDX BPF_{B,H,W},
+when the destination register is not on the stack:
 
-The current implementation for BPF_STX BPF_B in emit_stx saves one REX
-byte when the operands can be encoded using Mod-R/M alone. The lower 8
-bits of registers %rax, %rbx, %rcx, and %rdx can be accessed without using
-a REX prefix via %al, %bl, %cl, and %dl, respectively. Other registers,
-(e.g., %rsi, %rdi, %rbp, %rsp) require a REX prefix to use their 8-bit
-equivalents (%sil, %dil, %bpl, %spl).
+  EMIT3(0xC7, add_1reg(0xC0, dst_hi), 0);
 
-The current code checks if the source for BPF_STX BPF_B is BPF_REG_1
-or BPF_REG_2 (which map to %rdi and %rsi), in which case it emits the
-required REX prefix. However, it misses the case when the source is
-BPF_REG_FP (mapped to %rbp).
+The problem is that C7 /0 encodes a MOV instruction that requires a 4-byte
+immediate; the current code emits only 1 byte of the immediate. This
+means that the first 3 bytes of the next instruction will be treated as
+the rest of the immediate, breaking the stream of instructions.
 
-The result is that BPF_STX BPF_B with BPF_REG_FP as the source operand
-will read from register %ch instead of the correct %bpl. This patch fixes
-the problem by fixing and refactoring the check on which registers need
-the extra REX byte. Since no BPF registers map to %rsp, there is no need
-to handle %spl.
+This patch fixes the problem by instead emitting "xor dst_hi,dst_hi"
+to clear the upper 32 bits. This fixes the problem and is more efficient
+than using MOV to load a zero immediate.
 
-Fixes: 622582786c9e0 ("net: filter: x86: internal BPF JIT")
+This bug may not be currently triggerable as BPF_REG_AX is the only
+register not stored on the stack and the verifier uses it in a limited
+way, and the verifier implements a zero-extension optimization. But the
+JIT should avoid emitting incorrect encodings regardless.
+
+Fixes: 03f5781be2c7b ("bpf, x86_32: add eBPF JIT compiler for ia32")
 Signed-off-by: Xi Wang <xi.wang@gmail.com>
 Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200418232655.23870-1-luke.r.nels@gmail.com
+Reviewed-by: H. Peter Anvin (Intel) <hpa@zytor.com>
+Acked-by: Wang YanQing <udknight@gmail.com>
+Link: https://lore.kernel.org/bpf/20200422173630.8351-1-luke.r.nels@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/net/bpf_jit_comp.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ arch/x86/net/bpf_jit_comp32.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -158,6 +158,19 @@ static bool is_ereg(u32 reg)
- 			     BIT(BPF_REG_AX));
- }
- 
-+/*
-+ * is_ereg_8l() == true if BPF register 'reg' is mapped to access x86-64
-+ * lower 8-bit registers dil,sil,bpl,spl,r8b..r15b, which need extra byte
-+ * of encoding. al,cl,dl,bl have simpler encoding.
-+ */
-+static bool is_ereg_8l(u32 reg)
-+{
-+	return is_ereg(reg) ||
-+	    (1 << reg) & (BIT(BPF_REG_1) |
-+			  BIT(BPF_REG_2) |
-+			  BIT(BPF_REG_FP));
-+}
-+
- static bool is_axreg(u32 reg)
- {
- 	return reg == BPF_REG_0;
-@@ -598,9 +611,8 @@ static void emit_stx(u8 **pprog, u32 siz
- 	switch (size) {
- 	case BPF_B:
- 		/* Emit 'mov byte ptr [rax + off], al' */
--		if (is_ereg(dst_reg) || is_ereg(src_reg) ||
--		    /* We have to add extra byte for x86 SIL, DIL regs */
--		    src_reg == BPF_REG_1 || src_reg == BPF_REG_2)
-+		if (is_ereg(dst_reg) || is_ereg_8l(src_reg))
-+			/* Add extra byte for eregs or SIL,DIL,BPL in src_reg */
- 			EMIT2(add_2mod(0x40, dst_reg, src_reg), 0x88);
- 		else
- 			EMIT1(0x88);
+--- a/arch/x86/net/bpf_jit_comp32.c
++++ b/arch/x86/net/bpf_jit_comp32.c
+@@ -1854,7 +1854,9 @@ static int do_jit(struct bpf_prog *bpf_p
+ 					      STACK_VAR(dst_hi));
+ 					EMIT(0x0, 4);
+ 				} else {
+-					EMIT3(0xC7, add_1reg(0xC0, dst_hi), 0);
++					/* xor dst_hi,dst_hi */
++					EMIT2(0x33,
++					      add_2reg(0xC0, dst_hi, dst_hi));
+ 				}
+ 				break;
+ 			case BPF_DW:
 
 
