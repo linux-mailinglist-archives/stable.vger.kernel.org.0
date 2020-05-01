@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 649F51C15E6
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 236D41C15DF
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730234AbgEANfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34140 "EHLO mail.kernel.org"
+        id S1730741AbgEANfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:35:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729721AbgEANft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:35:49 -0400
+        id S1730736AbgEANfP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:35:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A228208DB;
-        Fri,  1 May 2020 13:35:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA4D624957;
+        Fri,  1 May 2020 13:35:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340148;
-        bh=qEu0WFBLwwFGr/j4YzQwcJbCKPVRRW4ytCD4XaDu31s=;
+        s=default; t=1588340114;
+        bh=IN3dBcosvKC2QUoeyRI6B2svCXNsLO997YBPPyyQJAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1W3x9orn4ZFM7SPZ04zAimGww+OWLgik0kOmzSFM9HDRkUS3Uc0HxPRTN+WQuGBYa
-         +SY/JW5lr9UzDRcODS+om2cxuEzVU9MXv/jOQ5jGjCrDz0Hgh/3+wXZbOcXVKX5jRT
-         vgyE5rLxV3I00wOuudab4+CqYMeyb2X7pYR1/meA=
+        b=OslHfkcKlTBR5hnNN2zkbgDA08uvKqLTnYr7NMiUTEqyKiH/42P8vRyRl9XS7ydwp
+         WwZh2wiCeJnIiZvh1iWfO6+XasT7ZEp3N7QksnUBOF4rXw+VHQsVnZ7loBIAe9XfAY
+         ezk5WHYxwnzmg11KvjSJdcyo3A/D0I4OiqR2Y2XY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>, Miroslav Benes <mbenes@suse.cz>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 103/117] objtool: Support Clang non-section symbols in ORC dump
-Date:   Fri,  1 May 2020 15:22:19 +0200
-Message-Id: <20200501131557.746385741@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Wei Liu <wl@xen.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 104/117] xen/xenbus: ensure xenbus_map_ring_valloc() returns proper grant status
+Date:   Fri,  1 May 2020 15:22:20 +0200
+Message-Id: <20200501131557.809877454@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
 References: <20200501131544.291247695@linuxfoundation.org>
@@ -45,109 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 8782e7cab51b6bf01a5a86471dd82228af1ac185 ]
+[ Upstream commit 6b51fd3f65a22e3d1471b18a1d56247e246edd46 ]
 
-Historically, the relocation symbols for ORC entries have only been
-section symbols:
+xenbus_map_ring_valloc() maps a ring page and returns the status of the
+used grant (0 meaning success).
 
-  .text+0: sp:sp+8 bp:(und) type:call end:0
+There are Xen hypervisors which might return the value 1 for the status
+of a failed grant mapping due to a bug. Some callers of
+xenbus_map_ring_valloc() test for errors by testing the returned status
+to be less than zero, resulting in no error detected and crashing later
+due to a not available ring page.
 
-However, the Clang assembler is aggressive about stripping section
-symbols.  In that case we will need to use function symbols:
+Set the return value of xenbus_map_ring_valloc() to GNTST_general_error
+in case the grant status reported by Xen is greater than zero.
 
-  freezing_slow_path+0: sp:sp+8 bp:(und) type:call end:0
+This is part of XSA-316.
 
-In preparation for the generation of such entries in "objtool orc
-generate", add support for reading them in "objtool orc dump".
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/b811b5eb1a42602c3b523576dc5efab9ad1c174d.1585761021.git.jpoimboe@redhat.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Wei Liu <wl@xen.org>
+Link: https://lore.kernel.org/r/20200326080358.1018-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/orc_dump.c | 44 ++++++++++++++++++++++++----------------
- 1 file changed, 27 insertions(+), 17 deletions(-)
+ drivers/xen/xenbus/xenbus_client.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/tools/objtool/orc_dump.c b/tools/objtool/orc_dump.c
-index c3343820916a6..7cbbbdd932f1d 100644
---- a/tools/objtool/orc_dump.c
-+++ b/tools/objtool/orc_dump.c
-@@ -78,7 +78,7 @@ int orc_dump(const char *_objname)
- 	char *name;
- 	size_t nr_sections;
- 	Elf64_Addr orc_ip_addr = 0;
--	size_t shstrtab_idx;
-+	size_t shstrtab_idx, strtab_idx = 0;
- 	Elf *elf;
- 	Elf_Scn *scn;
- 	GElf_Shdr sh;
-@@ -139,6 +139,8 @@ int orc_dump(const char *_objname)
- 
- 		if (!strcmp(name, ".symtab")) {
- 			symtab = data;
-+		} else if (!strcmp(name, ".strtab")) {
-+			strtab_idx = i;
- 		} else if (!strcmp(name, ".orc_unwind")) {
- 			orc = data->d_buf;
- 			orc_size = sh.sh_size;
-@@ -150,7 +152,7 @@ int orc_dump(const char *_objname)
- 		}
- 	}
- 
--	if (!symtab || !orc || !orc_ip)
-+	if (!symtab || !strtab_idx || !orc || !orc_ip)
- 		return 0;
- 
- 	if (orc_size % sizeof(*orc) != 0) {
-@@ -171,21 +173,29 @@ int orc_dump(const char *_objname)
- 				return -1;
- 			}
- 
--			scn = elf_getscn(elf, sym.st_shndx);
--			if (!scn) {
--				WARN_ELF("elf_getscn");
--				return -1;
--			}
--
--			if (!gelf_getshdr(scn, &sh)) {
--				WARN_ELF("gelf_getshdr");
--				return -1;
--			}
--
--			name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
--			if (!name || !*name) {
--				WARN_ELF("elf_strptr");
--				return -1;
-+			if (GELF_ST_TYPE(sym.st_info) == STT_SECTION) {
-+				scn = elf_getscn(elf, sym.st_shndx);
-+				if (!scn) {
-+					WARN_ELF("elf_getscn");
-+					return -1;
-+				}
+diff --git a/drivers/xen/xenbus/xenbus_client.c b/drivers/xen/xenbus/xenbus_client.c
+index a1c17000129ba..e94a61eaeceb0 100644
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -450,7 +450,14 @@ EXPORT_SYMBOL_GPL(xenbus_free_evtchn);
+ int xenbus_map_ring_valloc(struct xenbus_device *dev, grant_ref_t *gnt_refs,
+ 			   unsigned int nr_grefs, void **vaddr)
+ {
+-	return ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
++	int err;
 +
-+				if (!gelf_getshdr(scn, &sh)) {
-+					WARN_ELF("gelf_getshdr");
-+					return -1;
-+				}
++	err = ring_ops->map(dev, gnt_refs, nr_grefs, vaddr);
++	/* Some hypervisors are buggy and can return 1. */
++	if (err > 0)
++		err = GNTST_general_error;
 +
-+				name = elf_strptr(elf, shstrtab_idx, sh.sh_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
-+			} else {
-+				name = elf_strptr(elf, strtab_idx, sym.st_name);
-+				if (!name) {
-+					WARN_ELF("elf_strptr");
-+					return -1;
-+				}
- 			}
++	return err;
+ }
+ EXPORT_SYMBOL_GPL(xenbus_map_ring_valloc);
  
- 			printf("%s+%llx:", name, (unsigned long long)rela.r_addend);
 -- 
 2.20.1
 
