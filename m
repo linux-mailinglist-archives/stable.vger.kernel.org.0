@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 167D81C1371
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 489121C1317
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:28:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729289AbgEAN3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:29:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53140 "EHLO mail.kernel.org"
+        id S1729368AbgEAN05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:26:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729797AbgEAN3d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:29:33 -0400
+        id S1729363AbgEAN04 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:26:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C80B124957;
-        Fri,  1 May 2020 13:29:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BC8E24958;
+        Fri,  1 May 2020 13:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339773;
-        bh=N2g5AetZjjeqhnyaacK54kADqjcgydOL3a79SG4b514=;
+        s=default; t=1588339615;
+        bh=JyKPbUi+7fIQGEbYVTLY+DWyPmwJghq8tvGOTZssA5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7Njh+JeYIv4+y3c32zchREGK4qtc7d7RX2d38PnQmoNV2c+jcRXoriH/57TydVeQ
-         gfhNEAfwN5f51EyaQNy5bi9lV8vAzM5epXPIkjUdqB4a8n8tqEAvUbCLR0KDtzkV6+
-         RMqrue/W3YSawi7zoxUQV8vxPr12Ndqwz7/vc8xc=
+        b=c7PkdTamkMVJ84t/YR8QiMAKPVbht6MeK8SEHyUP4y/Q0xNbLhfxULJjM26k6pz+C
+         MHQReCFtBheWHzk5QCzJCcG9R5x2iqM0fU6ZeXvEc0PwPEe+ygjmUlIg49lw1zEF8l
+         GdqtMtVbo74whETwAkB85RlkWBR9cbnHd9E4bsRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Skobkin <skobkin-ru@ya.ru>,
-        Alexander Tsoy <alexander@tsoy.me>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 42/80] ALSA: usb-audio: Filter out unsupported sample rates on Focusrite devices
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.4 48/70] staging: comedi: Fix comedi_device refcnt leak in comedi_open
 Date:   Fri,  1 May 2020 15:21:36 +0200
-Message-Id: <20200501131526.784723791@linuxfoundation.org>
+Message-Id: <20200501131528.111031752@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,105 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Tsoy <alexander@tsoy.me>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 1c826792586f526a5a5cd21d55aad388f5bb0b23 upstream.
+commit 332e0e17ad49e084b7db670ef43b5eb59abd9e34 upstream.
 
-Many Focusrite devices supports a limited set of sample rates per
-altsetting. These includes audio interfaces with ADAT ports:
- - Scarlett 18i6, 18i8 1st gen, 18i20 1st gen;
- - Scarlett 18i8 2nd gen, 18i20 2nd gen;
- - Scarlett 18i8 3rd gen, 18i20 3rd gen;
- - Clarett 2Pre USB, 4Pre USB, 8Pre USB.
+comedi_open() invokes comedi_dev_get_from_minor(), which returns a
+reference of the COMEDI device to "dev" with increased refcount.
 
-Maximum rate is exposed in the last 4 bytes of Format Type descriptor
-which has a non-standard bLength = 10.
+When comedi_open() returns, "dev" becomes invalid, so the refcount
+should be decreased to keep refcount balanced.
 
-Tested-by: Alexey Skobkin <skobkin-ru@ya.ru>
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200418175815.12211-1-alexander@tsoy.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The reference counting issue happens in one exception handling path of
+comedi_open(). When "cfp" allocation is failed, the refcnt increased by
+comedi_dev_get_from_minor() is not decreased, causing a refcnt leak.
+
+Fix this issue by calling comedi_dev_put() on this error path when "cfp"
+allocation is failed.
+
+Fixes: 20f083c07565 ("staging: comedi: prepare support for per-file read and write subdevices")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/1587361459-83622-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/format.c |   52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 52 insertions(+)
+ drivers/staging/comedi/comedi_fops.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -221,6 +221,52 @@ static int parse_audio_format_rates_v1(s
- }
+--- a/drivers/staging/comedi/comedi_fops.c
++++ b/drivers/staging/comedi/comedi_fops.c
+@@ -2592,8 +2592,10 @@ static int comedi_open(struct inode *ino
+ 	}
  
- /*
-+ * Many Focusrite devices supports a limited set of sampling rates per
-+ * altsetting. Maximum rate is exposed in the last 4 bytes of Format Type
-+ * descriptor which has a non-standard bLength = 10.
-+ */
-+static bool focusrite_valid_sample_rate(struct snd_usb_audio *chip,
-+					struct audioformat *fp,
-+					unsigned int rate)
-+{
-+	struct usb_interface *iface;
-+	struct usb_host_interface *alts;
-+	unsigned char *fmt;
-+	unsigned int max_rate;
-+
-+	iface = usb_ifnum_to_if(chip->dev, fp->iface);
-+	if (!iface)
-+		return true;
-+
-+	alts = &iface->altsetting[fp->altset_idx];
-+	fmt = snd_usb_find_csint_desc(alts->extra, alts->extralen,
-+				      NULL, UAC_FORMAT_TYPE);
-+	if (!fmt)
-+		return true;
-+
-+	if (fmt[0] == 10) { /* bLength */
-+		max_rate = combine_quad(&fmt[6]);
-+
-+		/* Validate max rate */
-+		if (max_rate != 48000 &&
-+		    max_rate != 96000 &&
-+		    max_rate != 192000 &&
-+		    max_rate != 384000) {
-+
-+			usb_audio_info(chip,
-+				"%u:%d : unexpected max rate: %u\n",
-+				fp->iface, fp->altsetting, max_rate);
-+
-+			return true;
-+		}
-+
-+		return rate <= max_rate;
+ 	cfp = kzalloc(sizeof(*cfp), GFP_KERNEL);
+-	if (!cfp)
++	if (!cfp) {
++		comedi_dev_put(dev);
+ 		return -ENOMEM;
 +	}
-+
-+	return true;
-+}
-+
-+/*
-  * Helper function to walk the array of sample rate triplets reported by
-  * the device. The problem is that we need to parse whole array first to
-  * get to know how many sample rates we have to expect.
-@@ -256,6 +302,11 @@ static int parse_uac2_sample_rate_range(
- 		}
  
- 		for (rate = min; rate <= max; rate += res) {
-+			/* Filter out invalid rates on Focusrite devices */
-+			if (USB_ID_VENDOR(chip->usb_id) == 0x1235 &&
-+			    !focusrite_valid_sample_rate(chip, fp, rate))
-+				goto skip_rate;
-+
- 			if (fp->rate_table)
- 				fp->rate_table[nr_rates] = rate;
- 			if (!fp->rate_min || rate < fp->rate_min)
-@@ -270,6 +321,7 @@ static int parse_uac2_sample_rate_range(
- 				break;
- 			}
+ 	cfp->dev = dev;
  
-+skip_rate:
- 			/* avoid endless loop */
- 			if (res == 0)
- 				break;
 
 
