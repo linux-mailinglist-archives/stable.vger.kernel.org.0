@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E47AD1C15AD
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD3A71C1398
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729003AbgEANbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:31:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56278 "EHLO mail.kernel.org"
+        id S1730083AbgEANbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:31:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729100AbgEANbj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:31:39 -0400
+        id S1729542AbgEANbF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:31:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F5072166E;
-        Fri,  1 May 2020 13:31:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2886D208D6;
+        Fri,  1 May 2020 13:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339898;
-        bh=L3u2ft0lFO9yh3Lx3P3RINgTgN9612FxJRMV34cM3S4=;
+        s=default; t=1588339864;
+        bh=edkgb4YFtV0pjk4fMcb3zIHYot/KfuGSfN95srNmDaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QJ3tDwN5pxtQhj9mSKs6DlK/RT89joivCXfDx/bZLuvgGK4On/ShqTDKMgkDCcSud
-         XdNRTKXxTMRRz8SolmHPPQZRf2oY3FUqsDYp1+n36lwdTRDPkjPu6mvQvwk/4tRZdf
-         bEybSflLIx5OpPqbQliuqfJlb6wdxMGpHMn76500=
+        b=hlFTd18a/+PdkdlO5xvC9RvUrJJYtTe06niY5Owkq+pbTW/6Q77yEg2duGVt5tNFU
+         JcLAzyJzcVQ7zb5yFPRj3S+ImHIbxEz5024NV/PWqyXBAzZ/TGES6It+cQd2pRRDFl
+         62uX0Gq+KTRi+TtCrMFfwwtaEVe4/fvKDdWMCq5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Monakhov <dmonakhov@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 001/117] ext4: fix extent_status fragmentation for plain files
-Date:   Fri,  1 May 2020 15:20:37 +0200
-Message-Id: <20200501131544.466586016@linuxfoundation.org>
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.14 002/117] net: ipv4: emulate READ_ONCE() on ->hdrincl bit-field in raw_sendmsg()
+Date:   Fri,  1 May 2020 15:20:38 +0200
+Message-Id: <20200501131544.590806170@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
 References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,118 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Monakhov <dmonakhov@gmail.com>
+From: Nicolai Stange <nstange@suse.de>
 
-commit 4068664e3cd2312610ceac05b74c4cf1853b8325 upstream.
+commit 20b50d79974ea3192e8c3ab7faf4e536e5f14d8f upstream.
 
-Extents are cached in read_extent_tree_block(); as a result, extents
-are not cached for inodes with depth == 0 when we try to find the
-extent using ext4_find_extent().  The result of the lookup is cached
-in ext4_map_blocks() but is only a subset of the extent on disk.  As a
-result, the contents of extents status cache can get very badly
-fragmented for certain workloads, such as a random 4k read workload.
+Commit 8f659a03a0ba ("net: ipv4: fix for a race condition in
+raw_sendmsg") fixed the issue of possibly inconsistent ->hdrincl handling
+due to concurrent updates by reading this bit-field member into a local
+variable and using the thus stabilized value in subsequent tests.
 
-File size of /mnt/test is 33554432 (8192 blocks of 4096 bytes)
- ext:     logical_offset:        physical_offset: length:   expected: flags:
-   0:        0..    8191:      40960..     49151:   8192:             last,eof
+However, aforementioned commit also adds the (correct) comment that
 
-$ perf record -e 'ext4:ext4_es_*' /root/bin/fio --name=t --direct=0 --rw=randread --bs=4k --filesize=32M --size=32M --filename=/mnt/test
-$ perf script | grep ext4_es_insert_extent | head -n 10
-             fio   131 [000]    13.975421:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [494/1) mapped 41454 status W
-             fio   131 [000]    13.975939:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [6064/1) mapped 47024 status W
-             fio   131 [000]    13.976467:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [6907/1) mapped 47867 status W
-             fio   131 [000]    13.976937:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [3850/1) mapped 44810 status W
-             fio   131 [000]    13.977440:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [3292/1) mapped 44252 status W
-             fio   131 [000]    13.977931:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [6882/1) mapped 47842 status W
-             fio   131 [000]    13.978376:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [3117/1) mapped 44077 status W
-             fio   131 [000]    13.978957:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [2896/1) mapped 43856 status W
-             fio   131 [000]    13.979474:           ext4:ext4_es_insert_extent: dev 253,0 ino 12 es [7479/1) mapped 48439 status W
+  /* hdrincl should be READ_ONCE(inet->hdrincl)
+   * but READ_ONCE() doesn't work with bit fields
+   */
 
-Fix this by caching the extents for inodes with depth == 0 in
-ext4_find_extent().
+because as it stands, the compiler is free to shortcut or even eliminate
+the local variable at its will.
 
-[ Renamed ext4_es_cache_extents() to ext4_cache_extents() since this
-  newly added function is not in extents_cache.c, and to avoid
-  potential visual confusion with ext4_es_cache_extent().  -TYT ]
+Note that I have not seen anything like this happening in reality and thus,
+the concern is a theoretical one.
 
-Signed-off-by: Dmitry Monakhov <dmonakhov@gmail.com>
-Link: https://lore.kernel.org/r/20191106122502.19986-1-dmonakhov@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+However, in order to be on the safe side, emulate a READ_ONCE() on the
+bit-field by doing it on the local 'hdrincl' variable itself:
+
+	int hdrincl = inet->hdrincl;
+	hdrincl = READ_ONCE(hdrincl);
+
+This breaks the chain in the sense that the compiler is not allowed
+to replace subsequent reads from hdrincl with reloads from inet->hdrincl.
+
+Fixes: 8f659a03a0ba ("net: ipv4: fix for a race condition in raw_sendmsg")
+Signed-off-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/extents.c |   47 +++++++++++++++++++++++++++--------------------
- 1 file changed, 27 insertions(+), 20 deletions(-)
+ net/ipv4/raw.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -510,6 +510,30 @@ int ext4_ext_check_inode(struct inode *i
- 	return ext4_ext_check(inode, ext_inode_hdr(inode), ext_depth(inode), 0);
- }
+--- a/net/ipv4/raw.c
++++ b/net/ipv4/raw.c
+@@ -520,9 +520,11 @@ static int raw_sendmsg(struct sock *sk,
+ 		goto out;
  
-+static void ext4_cache_extents(struct inode *inode,
-+			       struct ext4_extent_header *eh)
-+{
-+	struct ext4_extent *ex = EXT_FIRST_EXTENT(eh);
-+	ext4_lblk_t prev = 0;
-+	int i;
-+
-+	for (i = le16_to_cpu(eh->eh_entries); i > 0; i--, ex++) {
-+		unsigned int status = EXTENT_STATUS_WRITTEN;
-+		ext4_lblk_t lblk = le32_to_cpu(ex->ee_block);
-+		int len = ext4_ext_get_actual_len(ex);
-+
-+		if (prev && (prev != lblk))
-+			ext4_es_cache_extent(inode, prev, lblk - prev, ~0,
-+					     EXTENT_STATUS_HOLE);
-+
-+		if (ext4_ext_is_unwritten(ex))
-+			status = EXTENT_STATUS_UNWRITTEN;
-+		ext4_es_cache_extent(inode, lblk, len,
-+				     ext4_ext_pblock(ex), status);
-+		prev = lblk + len;
-+	}
-+}
-+
- static struct buffer_head *
- __read_extent_tree_block(const char *function, unsigned int line,
- 			 struct inode *inode, ext4_fsblk_t pblk, int depth,
-@@ -540,26 +564,7 @@ __read_extent_tree_block(const char *fun
+ 	/* hdrincl should be READ_ONCE(inet->hdrincl)
+-	 * but READ_ONCE() doesn't work with bit fields
++	 * but READ_ONCE() doesn't work with bit fields.
++	 * Doing this indirectly yields the same result.
  	 */
- 	if (!(flags & EXT4_EX_NOCACHE) && depth == 0) {
- 		struct ext4_extent_header *eh = ext_block_hdr(bh);
--		struct ext4_extent *ex = EXT_FIRST_EXTENT(eh);
--		ext4_lblk_t prev = 0;
--		int i;
--
--		for (i = le16_to_cpu(eh->eh_entries); i > 0; i--, ex++) {
--			unsigned int status = EXTENT_STATUS_WRITTEN;
--			ext4_lblk_t lblk = le32_to_cpu(ex->ee_block);
--			int len = ext4_ext_get_actual_len(ex);
--
--			if (prev && (prev != lblk))
--				ext4_es_cache_extent(inode, prev,
--						     lblk - prev, ~0,
--						     EXTENT_STATUS_HOLE);
--
--			if (ext4_ext_is_unwritten(ex))
--				status = EXTENT_STATUS_UNWRITTEN;
--			ext4_es_cache_extent(inode, lblk, len,
--					     ext4_ext_pblock(ex), status);
--			prev = lblk + len;
--		}
-+		ext4_cache_extents(inode, eh);
- 	}
- 	return bh;
- errout:
-@@ -907,6 +912,8 @@ ext4_find_extent(struct inode *inode, ex
- 	path[0].p_bh = NULL;
- 
- 	i = depth;
-+	if (!(flags & EXT4_EX_NOCACHE) && depth == 0)
-+		ext4_cache_extents(inode, eh);
- 	/* walk through the tree */
- 	while (i) {
- 		ext_debug("depth %d: num %d, max %d\n",
+ 	hdrincl = inet->hdrincl;
++	hdrincl = READ_ONCE(hdrincl);
+ 	/*
+ 	 *	Check the flags.
+ 	 */
 
 
