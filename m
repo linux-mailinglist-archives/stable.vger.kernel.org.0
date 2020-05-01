@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 976321C1660
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C1031C1617
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731000AbgEANrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:47:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44234 "EHLO mail.kernel.org"
+        id S1730160AbgEANj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:39:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731100AbgEANnT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:43:19 -0400
+        id S1729798AbgEANj1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:39:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3925208DB;
-        Fri,  1 May 2020 13:43:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDC1020757;
+        Fri,  1 May 2020 13:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340598;
-        bh=VRKwHyeST9eW8Jf751691ackqgxF3NVlkUp43jtpwUc=;
+        s=default; t=1588340366;
+        bh=Yj53TDZGyhIVReXyvNdN+DVUhHo/t6zGJIeir/EWXzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=THI21LGX7r4OhdteMLheU4Fn2PcgV/HJkfyF6UEbDjkFcF0molGyGmBMrwtbPXf3N
-         Zt2JIhy2U2eJ5NinCHSKnfdNW32ryUNICEosryhtU6pLSJL/6GCva8rtY1TzvXF8WY
-         5cspYf1wT9ot7/R94j7b0kx+X8plWoyY/GGw00vg=
+        b=I8yCSMlbma2KQvMts741ai1fAS+6kNjkEBA5dGcgvQ2G+zdxHE4kXi22cL68kQ0oM
+         e4+/CAmRJtR3yhn+WMnOqYrIO7Vevg3uFzjHZec6C3FYZnixZaeDr+I9Ou6i/2xKBT
+         hjLDExkrnJ2WDVH+LNegD9GZ5sfqcmdKnCO5y4UE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Lu=C3=ADs=20Mendes?= <luis.p.mendes@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Todd Poynor <toddpoynor@google.com>
-Subject: [PATCH 5.6 047/106] PCI: Move Apex Edge TPU class quirk to fix BAR assignment
+        Chitti Babu Theegala <ctheegal@codeaurora.org>,
+        Quentin Perret <qperret@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Patrick Bellasi <patrick.bellasi@matbug.net>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>
+Subject: [PATCH 5.4 41/83] sched/core: Fix reset-on-fork from RT with uclamp
 Date:   Fri,  1 May 2020 15:23:20 +0200
-Message-Id: <20200501131549.319111249@linuxfoundation.org>
+Message-Id: <20200501131535.781214366@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Quentin Perret <qperret@google.com>
 
-commit 0a8f41023e8a3c100b3dc458ed2da651bf961ead upstream.
+commit eaf5a92ebde5bca3bb2565616115bd6d579486cd upstream.
 
-Some Google Apex Edge TPU devices have a class code of 0
-(PCI_CLASS_NOT_DEFINED).  This prevents the PCI core from assigning
-resources for the Apex BARs because __dev_sort_resources() ignores
-classless devices, host bridges, and IOAPICs.
+uclamp_fork() resets the uclamp values to their default when the
+reset-on-fork flag is set. It also checks whether the task has a RT
+policy, and sets its uclamp.min to 1024 accordingly. However, during
+reset-on-fork, the task's policy is lowered to SCHED_NORMAL right after,
+hence leading to an erroneous uclamp.min setting for the new task if it
+was forked from RT.
 
-On x86, firmware typically assigns those resources, so this was not a
-problem.  But on some architectures, firmware does *not* assign BARs, and
-since the PCI core didn't do it either, the Apex device didn't work
-correctly:
+Fix this by removing the unnecessary check on rt_task() in
+uclamp_fork() as this doesn't make sense if the reset-on-fork flag is
+set.
 
-  apex 0000:01:00.0: can't enable device: BAR 0 [mem 0x00000000-0x00003fff 64bit pref] not claimed
-  apex 0000:01:00.0: error enabling PCI device
-
-f390d08d8b87 ("staging: gasket: apex: fixup undefined PCI class") added a
-quirk to fix the class code, but it was in the apex driver, and if the
-driver was built as a module, it was too late to help.
-
-Move the quirk to the PCI core, where it will always run early enough that
-the PCI core will assign resources if necessary.
-
-Link: https://lore.kernel.org/r/CAEzXK1r0Er039iERnc2KJ4jn7ySNUOG9H=Ha8TD8XroVqiZjgg@mail.gmail.com
-Fixes: f390d08d8b87 ("staging: gasket: apex: fixup undefined PCI class")
-Reported-by: Luís Mendes <luis.p.mendes@gmail.com>
-Debugged-by: Luís Mendes <luis.p.mendes@gmail.com>
-Tested-by: Luis Mendes <luis.p.mendes@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Todd Poynor <toddpoynor@google.com>
+Fixes: 1a00d999971c ("sched/uclamp: Set default clamps for RT tasks")
+Reported-by: Chitti Babu Theegala <ctheegal@codeaurora.org>
+Signed-off-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Patrick Bellasi <patrick.bellasi@matbug.net>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Link: https://lkml.kernel.org/r/20200416085956.217587-1-qperret@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c                 |    7 +++++++
- drivers/staging/gasket/apex_driver.c |    7 -------
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ kernel/sched/core.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5567,3 +5567,10 @@ static void pci_fixup_no_d0_pme(struct p
- 	dev->pme_support &= ~(PCI_PM_CAP_PME_D0 >> PCI_PM_CAP_PME_SHIFT);
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x2142, pci_fixup_no_d0_pme);
-+
-+static void apex_pci_fixup_class(struct pci_dev *pdev)
-+{
-+	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
-+}
-+DECLARE_PCI_FIXUP_CLASS_HEADER(0x1ac1, 0x089a,
-+			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
---- a/drivers/staging/gasket/apex_driver.c
-+++ b/drivers/staging/gasket/apex_driver.c
-@@ -570,13 +570,6 @@ static const struct pci_device_id apex_p
- 	{ PCI_DEVICE(APEX_PCI_VENDOR_ID, APEX_PCI_DEVICE_ID) }, { 0 }
- };
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1233,13 +1233,8 @@ static void uclamp_fork(struct task_stru
+ 		return;
  
--static void apex_pci_fixup_class(struct pci_dev *pdev)
--{
--	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
--}
--DECLARE_PCI_FIXUP_CLASS_HEADER(APEX_PCI_VENDOR_ID, APEX_PCI_DEVICE_ID,
--			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
+ 	for_each_clamp_id(clamp_id) {
+-		unsigned int clamp_value = uclamp_none(clamp_id);
 -
- static int apex_pci_probe(struct pci_dev *pci_dev,
- 			  const struct pci_device_id *id)
- {
+-		/* By default, RT tasks always get 100% boost */
+-		if (unlikely(rt_task(p) && clamp_id == UCLAMP_MIN))
+-			clamp_value = uclamp_none(UCLAMP_MAX);
+-
+-		uclamp_se_set(&p->uclamp_req[clamp_id], clamp_value, false);
++		uclamp_se_set(&p->uclamp_req[clamp_id],
++			      uclamp_none(clamp_id), false);
+ 	}
+ }
+ 
 
 
