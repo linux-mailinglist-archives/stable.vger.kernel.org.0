@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B803F1C1471
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B0DE1C1656
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731191AbgEANja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:39:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39224 "EHLO mail.kernel.org"
+        id S1731289AbgEANrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:47:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730887AbgEANj3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:39:29 -0400
+        id S1731459AbgEANoF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:44:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CC9C208DB;
-        Fri,  1 May 2020 13:39:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44A52205C9;
+        Fri,  1 May 2020 13:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340368;
-        bh=GqlmAUn9spAeoFJfHmoQ+tyM6nLQ1/Q+vdEe9RR7x6c=;
+        s=default; t=1588340644;
+        bh=xsIm47QT/PkC5BM6zlFzzxen0zJsZueoPhnmIWEltf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=133/HPW19/t/vxTLeBshpsvTYKgS+MYKf8ZFbfQYWncAEp3B6mQXOsFSP7dae9NlF
-         klKB0wTmjeJzsGzGCyZ3bFFuJk6ciUuE7lHp5IRhA0t1jWS99UnYBruE9UCi2s3hVH
-         qcV3zS4Bo5DoNmCOGySu5Ag7+SDq+yEXdOI9wNFQ=
+        b=haYmC3XHlXIqaiNedzG/xeZ2OeHi+VcNbeoBXC+FTReaa66Bd1L9KezMfq/JVlYGY
+         g8lbWPwmOKkS81VMYwz0Gx7wBWYrCPK4QrgFrm6a/0jONXJRkwhqv8wQ7I+NHQ7AnP
+         t0NRBLhtMPKqT2UKWfWXLiNXLvQLKRJ7Q2KEFQFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 50/83] mm: shmem: disable interrupt when acquiring info->lock in userfaultfd_copy path
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.6 056/106] PM: sleep: core: Switch back to async_schedule_dev()
 Date:   Fri,  1 May 2020 15:23:29 +0200
-Message-Id: <20200501131538.160783351@linuxfoundation.org>
+Message-Id: <20200501131550.354821764@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,79 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 94b7cc01da5a3cc4f3da5e0ff492ef008bb555d6 upstream.
+commit 09beebd8f93b3c8bf894e342f0a203a5c612478c upstream.
 
-Syzbot reported the below lockdep splat:
+Commit 8b9ec6b73277 ("PM core: Use new async_schedule_dev command")
+introduced a new function for better performance.
 
-    WARNING: possible irq lock inversion dependency detected
-    5.6.0-rc7-syzkaller #0 Not tainted
-    --------------------------------------------------------
-    syz-executor.0/10317 just changed the state of lock:
-    ffff888021d16568 (&(&info->lock)->rlock){+.+.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-    ffff888021d16568 (&(&info->lock)->rlock){+.+.}, at: shmem_mfill_atomic_pte+0x1012/0x21c0 mm/shmem.c:2407
-    but this lock was taken by another, SOFTIRQ-safe lock in the past:
-     (&(&xa->xa_lock)->rlock#5){..-.}
+However commit f2a424f6c613 ("PM / core: Introduce dpm_async_fn()
+helper") went back to the non-optimized version, async_schedule().
 
-    and interrupts could create inverse lock ordering between them.
+So switch back to the sync_schedule_dev() to improve performance
 
-    other info that might help us debug this:
-     Possible interrupt unsafe locking scenario:
-
-           CPU0                    CPU1
-           ----                    ----
-      lock(&(&info->lock)->rlock);
-                                   local_irq_disable();
-                                   lock(&(&xa->xa_lock)->rlock#5);
-                                   lock(&(&info->lock)->rlock);
-      <Interrupt>
-        lock(&(&xa->xa_lock)->rlock#5);
-
-     *** DEADLOCK ***
-
-The full report is quite lengthy, please see:
-
-  https://lore.kernel.org/linux-mm/alpine.LSU.2.11.2004152007370.13597@eggly.anvils/T/#m813b412c5f78e25ca8c6c7734886ed4de43f241d
-
-It is because CPU 0 held info->lock with IRQ enabled in userfaultfd_copy
-path, then CPU 1 is splitting a THP which held xa_lock and info->lock in
-IRQ disabled context at the same time.  If softirq comes in to acquire
-xa_lock, the deadlock would be triggered.
-
-The fix is to acquire/release info->lock with *_irq version instead of
-plain spin_{lock,unlock} to make it softirq safe.
-
-Fixes: 4c27fe4c4c84 ("userfaultfd: shmem: add shmem_mcopy_atomic_pte for userfaultfd support")
-Reported-by: syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: syzbot+e27980339d305f2dbfd9@syzkaller.appspotmail.com
-Acked-by: Hugh Dickins <hughd@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Link: http://lkml.kernel.org/r/1587061357-122619-1-git-send-email-yang.shi@linux.alibaba.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f2a424f6c613 ("PM / core: Introduce dpm_async_fn() helper")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/shmem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/base/power/main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2403,11 +2403,11 @@ static int shmem_mfill_atomic_pte(struct
+--- a/drivers/base/power/main.c
++++ b/drivers/base/power/main.c
+@@ -726,7 +726,7 @@ static bool dpm_async_fn(struct device *
  
- 	lru_cache_add_anon(page);
+ 	if (is_async(dev)) {
+ 		get_device(dev);
+-		async_schedule(func, dev);
++		async_schedule_dev(func, dev);
+ 		return true;
+ 	}
  
--	spin_lock(&info->lock);
-+	spin_lock_irq(&info->lock);
- 	info->alloced++;
- 	inode->i_blocks += BLOCKS_PER_PAGE;
- 	shmem_recalc_inode(inode);
--	spin_unlock(&info->lock);
-+	spin_unlock_irq(&info->lock);
- 
- 	inc_mm_counter(dst_mm, mm_counter_file(page));
- 	page_add_file_rmap(page, false);
 
 
