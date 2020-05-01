@@ -2,144 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 091FF1C1E47
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 22:17:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88CDA1C1E4C
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 22:18:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726394AbgEAURe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 16:17:34 -0400
-Received: from mga18.intel.com ([134.134.136.126]:46214 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726045AbgEAURe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 16:17:34 -0400
-IronPort-SDR: zj4UYa71sB69TVDdev2QeOYNbot2ZjyphjcsRxzUEMHI6wQDku9VD4qOvqe7jtg0xh2/YbLpk+
- J5w/6QmkcFzA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 May 2020 13:17:33 -0700
-IronPort-SDR: DHfa1QdNWLU+u0G42xvHw1BL1q9UWEF8qre8VppMRty+zj5ckfa4EhGL+gmSwzf3XnQYhSYV+h
- YJOTEP9XzgHQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,340,1583222400"; 
-   d="scan'208";a="262181738"
-Received: from vjaiswa1-mobl.amr.corp.intel.com (HELO [10.252.137.219]) ([10.252.137.219])
-  by orsmga006.jf.intel.com with ESMTP; 01 May 2020 13:17:33 -0700
-Subject: Re: [PATCH v2 0/2] Replace and improve "mcsafe" with copy_safe()
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Dan Williams <dan.j.williams@intel.com>
-Cc:     "Luck, Tony" <tony.luck@intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>,
-        stable <stable@vger.kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <158823509800.2094061.9683997333958344535.stgit@dwillia2-desk3.amr.corp.intel.com>
- <CAHk-=wh6d59KAG_6t+NrCLBz-i0OUSJrqurric=m0ZG850Ddkw@mail.gmail.com>
- <CALCETrVP5k25yCfknEPJm=XX0or4o2b2mnzmevnVHGNLNOXJ2g@mail.gmail.com>
- <CAHk-=widQfxhWMUN3bGxM_zg3az0fRKYvFoP8bEhqsCtaEDVAA@mail.gmail.com>
- <CALCETrVq11YVqGZH7J6A=tkHB1AZUWXnKwAfPUQ-m9qXjWfZtg@mail.gmail.com>
- <20200430192258.GA24749@agluck-desk2.amr.corp.intel.com>
- <CAHk-=wg0Sza8uzQHzJbdt7FFc7bRK+o1BB=VBUGrQEvVv6+23w@mail.gmail.com>
- <CAPcyv4g0a406X9-=NATJZ9QqObim9Phdkb_WmmhsT9zvXsGSpw@mail.gmail.com>
- <CAHk-=wiMs=A90np0Hv5WjHY8HXQWpgtuq-xrrJvyk7_pNB4meg@mail.gmail.com>
- <CAPcyv4jvgCGU700x_U6EKyGsHwQBoPkJUF+6gP4YDPupjdViyQ@mail.gmail.com>
- <CAHk-=wiPkwF2+y6wZd=VD9BooKxHRWhSVW8dr+WSeeSPkJk7kQ@mail.gmail.com>
-From:   Dave Hansen <dave.hansen@intel.com>
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
- z5cecg==
-Message-ID: <b1dbb13d-f812-684f-2892-5004674db0f7@intel.com>
-Date:   Fri, 1 May 2020 13:17:32 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1726272AbgEAUSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 16:18:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58580 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726045AbgEAUSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 16:18:35 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C441DC061A0C
+        for <stable@vger.kernel.org>; Fri,  1 May 2020 13:18:35 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id mq3so338579pjb.1
+        for <stable@vger.kernel.org>; Fri, 01 May 2020 13:18:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8ZA7/KESIBgxgX3oZXkTkEjfP6Vh9zizF7Zc6fHALRM=;
+        b=YvXQ1AUI5XVNdEFAfWd8XPwqq4FCC7ODjxffRTwIgRRS78Qds8480s+ok5mACDCvVL
+         lRzqcrDWCmbo/lCZwm8draoEAYjJNrXj4Gm4CnRQa6aMy8jZNnnkiNlUbODwKK4qBece
+         0BX422nfOqUC9YB4LLALsFsBZ2snVy0OdYExRg9G4oGwsbu346BWoSK+NSwzIrRr5JPK
+         j72JgTZuuoETHgjmh9RJcfhF9QE0wvNJWkWuO7UsBvEUmVPrwaYv2bDkoFvdOQVTPeul
+         3I27hc+WT6z0iqvqtYrUjcpMNXz6VDtMesmu62ngwhdn6XbllU+dqGe6bRaeWA3HbG7J
+         FE8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8ZA7/KESIBgxgX3oZXkTkEjfP6Vh9zizF7Zc6fHALRM=;
+        b=rQl3FfGT0hTSjS7/HZbwtaZgzqFLGiI+cDxIDsVIuRKN4aKxecHVGX3vkEnpmOa9Jo
+         chyztKaxqRzbkb11iq/yw6AQ7dvrbMz/HqZwIQyzDCtSGoFntX6rBlVmfGmJ8BwOEN8V
+         dZaBCPXlLp4iL8mG+RGAidsV7ctko4XdUHn/wsWJGwEg0A3Uo/MarjIE3bap2nzU0yoW
+         dXSNvADO5eRDzrgfFZNWkmRx+nnjxgtlwXYIMDUEGVzgcXqh36fBi+aMskhWr5wqXsnT
+         c7TMWEZcRUT2RakZNGKpMpp4JTESbEG/fVtstFh5Gc+FAbzsedTKbCxGY8og7ZRjxWfm
+         T12A==
+X-Gm-Message-State: AGi0PuZQ0x1l9YvxCnIYbR7Zp0U1PK3JHP2gQiOnEULuVNVkQwpTBFBX
+        uDqZoK2+6t2mUOu+2dtUaEsjrRje9Dg=
+X-Google-Smtp-Source: APiQypLpdROffmN3APgjQj4LJaTtb77nvTrAL6MEvj1xBKAIpxvTKOptSDiGfe0kdH4NLJJWRMT2Wg==
+X-Received: by 2002:a17:90a:b293:: with SMTP id c19mr1425301pjr.22.1588364314976;
+        Fri, 01 May 2020 13:18:34 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u188sm2906315pfu.33.2020.05.01.13.18.34
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 May 2020 13:18:34 -0700 (PDT)
+Message-ID: <5eac841a.1c69fb81.dc8fb.a6aa@mx.google.com>
+Date:   Fri, 01 May 2020 13:18:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <CAHk-=wiPkwF2+y6wZd=VD9BooKxHRWhSVW8dr+WSeeSPkJk7kQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.177-118-gb24d32661fe1
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.14.y boot: 130 boots: 3 failed,
+ 117 passed with 5 offline, 5 untried/unknown (v4.14.177-118-gb24d32661fe1)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/1/20 11:28 AM, Linus Torvalds wrote:
-> Plus on x86 you can't reasonably even have different code sequences
-> for that case, because CLAC/STAC don't have a "enable users read
-> accesses" vs "write accesses" case. It's an all-or-nothing "enable
-> user faults".
-> 
-> We _used_ to have a difference on x86, back when we did the whole "fs
-> segment points to user space".
+stable-rc/linux-4.14.y boot: 130 boots: 3 failed, 117 passed with 5 offline=
+, 5 untried/unknown (v4.14.177-118-gb24d32661fe1)
 
-Protection keys might give us _some_ of this back.  If we're doing a
-copy_from_user(), we could (logically) do:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.177-118-gb24d32661fe1/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.177-118-gb24d32661fe1/
 
-	stac()
-	save_pkru()
-	pkru |= ~0x55555555
-	... do userspace read
-	restore_pkru()
-	clac()
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.177-118-gb24d32661fe1
+Git Commit: b24d32661fe15b71ca1f5f6913749d2c8be9e0ae
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 75 unique boards, 20 SoC families, 18 builds out of 201
 
-That *should* generate a fault if we try to write to userspace in there
-because PKRU affects all user *addresses* (PTEs with _PAGE_USER set) not
-user-mode *accesses*.
+Boot Regressions Detected:
 
-Properly stashing the value off and context switching it correctly would
-be fun, but probably not impossible to pull off.  You actually wouldn't
-even technically need to restore PKRU in this path.  It would just need
-to be restored before the thread runs userspace or hits a copy_to_user()
-equivalent.
+arm:
 
-I can't imagine this would all be worth the trouble, but there are
-crazier people out there than me.
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 83 days (last pass: v4.14=
+.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 71 days (last pass: v4.14.170-141=
+-g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.14.177-98-gc52cc936=
+0302)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
+            meson-gxm-q200: 1 failed lab
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
