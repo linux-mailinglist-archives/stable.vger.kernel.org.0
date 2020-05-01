@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FAA01C1729
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B561C15C2
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729696AbgEAN6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:58:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53800 "EHLO mail.kernel.org"
+        id S1730437AbgEANdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:33:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729848AbgEANaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:30:01 -0400
+        id S1730433AbgEANdb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:33:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E710F208DB;
-        Fri,  1 May 2020 13:29:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14DAB208C3;
+        Fri,  1 May 2020 13:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339800;
-        bh=VsYap1cvGow2jSCcWvjNno49atcuMeOuC56eocJemgs=;
+        s=default; t=1588340011;
+        bh=f/fwzZFg0f1HI+4wKwzeOAmlMY6UcodpWxR9NRYIXsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvCIrqsfZu8qMHxmW4T5+hCvr4eOIoFup0VkiGIy4vzda1loqQs07gzAOxOTpeGJZ
-         Ux/VeUtt1VdhCZYV108nhgWrmoBlhSuJ/s6tX6Gf3W4Q9EVUYgWILPuuuN2y925Ifc
-         yBGA/SKuoq467JBov0RwTJAJcDocYg1+tTAjsH24=
+        b=UlCfgXiwWDeXEMsaitUKI+DT7aqA74EthUBIqNh7Gy+Y/jlYBsnb7qo806sTLaJBr
+         Gfs0WPZMtqkRRBZcvHCJXmfEUIC0abcQjaLXRhnWwgqzv41JzN3odQzUfwI0B1Nl70
+         EfwJdJDGFCPG+VVf3sOVhc8rwNv+kW6n0lRAk1Dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.9 52/80] staging: comedi: dt2815: fix writing hi byte of analog output
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.14 070/117] staging: comedi: Fix comedi_device refcnt leak in comedi_open
 Date:   Fri,  1 May 2020 15:21:46 +0200
-Message-Id: <20200501131529.726360587@linuxfoundation.org>
+Message-Id: <20200501131553.439947944@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131513.810761598@linuxfoundation.org>
-References: <20200501131513.810761598@linuxfoundation.org>
+In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
+References: <20200501131544.291247695@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit ed87d33ddbcd9a1c3b5ae87995da34e6f51a862c upstream.
+commit 332e0e17ad49e084b7db670ef43b5eb59abd9e34 upstream.
 
-The DT2815 analog output command is 16 bits wide, consisting of the
-12-bit sample value in bits 15 to 4, the channel number in bits 3 to 1,
-and a voltage or current selector in bit 0.  Both bytes of the 16-bit
-command need to be written in turn to a single 8-bit data register.
-However, the driver currently only writes the low 8-bits.  It is broken
-and appears to have always been broken.
+comedi_open() invokes comedi_dev_get_from_minor(), which returns a
+reference of the COMEDI device to "dev" with increased refcount.
 
-Electronic copies of the DT2815 User's Manual seem impossible to find
-online, but looking at the source code, a best guess for the sequence
-the driver intended to use to write the analog output command is as
-follows:
+When comedi_open() returns, "dev" becomes invalid, so the refcount
+should be decreased to keep refcount balanced.
 
-1. Wait for the status register to read 0x00.
-2. Write the low byte of the command to the data register.
-3. Wait for the status register to read 0x80.
-4. Write the high byte of the command to the data register.
+The reference counting issue happens in one exception handling path of
+comedi_open(). When "cfp" allocation is failed, the refcnt increased by
+comedi_dev_get_from_minor() is not decreased, causing a refcnt leak.
 
-Step 4 is missing from the driver.  Add step 4 to (hopefully) fix the
-driver.
+Fix this issue by calling comedi_dev_put() on this error path when "cfp"
+allocation is failed.
 
-Also add a "FIXME" comment about setting bit 0 of the low byte of the
-command.  Supposedly, it is used to choose between voltage output and
-current output, but the current driver always sets it to 1.
-
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Fixes: 20f083c07565 ("staging: comedi: prepare support for per-file read and write subdevices")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200406142015.126982-1-abbotti@mev.co.uk
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/1587361459-83622-1-git-send-email-xiyuyang19@fudan.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/dt2815.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/comedi/comedi_fops.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/dt2815.c
-+++ b/drivers/staging/comedi/drivers/dt2815.c
-@@ -101,6 +101,7 @@ static int dt2815_ao_insn(struct comedi_
- 	int ret;
- 
- 	for (i = 0; i < insn->n; i++) {
-+		/* FIXME: lo bit 0 chooses voltage output or current output */
- 		lo = ((data[i] & 0x0f) << 4) | (chan << 1) | 0x01;
- 		hi = (data[i] & 0xff0) >> 4;
- 
-@@ -114,6 +115,8 @@ static int dt2815_ao_insn(struct comedi_
- 		if (ret)
- 			return ret;
- 
-+		outb(hi, dev->iobase + DT2815_DATA);
-+
- 		devpriv->ao_readback[chan] = data[i];
+--- a/drivers/staging/comedi/comedi_fops.c
++++ b/drivers/staging/comedi/comedi_fops.c
+@@ -2603,8 +2603,10 @@ static int comedi_open(struct inode *ino
  	}
- 	return i;
+ 
+ 	cfp = kzalloc(sizeof(*cfp), GFP_KERNEL);
+-	if (!cfp)
++	if (!cfp) {
++		comedi_dev_put(dev);
+ 		return -ENOMEM;
++	}
+ 
+ 	cfp->dev = dev;
+ 
 
 
