@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B97621C145A
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A131C1C169B
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730763AbgEANib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:38:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37904 "EHLO mail.kernel.org"
+        id S1729000AbgEANuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:50:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729711AbgEANi0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:38:26 -0400
+        id S1731179AbgEANjY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:39:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5098F24954;
-        Fri,  1 May 2020 13:38:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60158205C9;
+        Fri,  1 May 2020 13:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340304;
-        bh=fmdMka6r2wpgXnVMGeFqUxtEH2GK2lsEyeancMPq7LE=;
+        s=default; t=1588340363;
+        bh=p262YZn7SlOJ9SdgjgOh7lUmTweP6tiBeMxeDpl8gu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1i2inkwN6quxxsD2CGcs5Q/gZLZy8ebpFVHJrxGFE6HKXrEmZ7Tq2KZP1a5rx2a4V
-         jjdh5+GKfKL2/LNnBPdFOBGEAVbIMQtb3Ty9lMF49eiDiib96fUmrmA0NZL1Mw19yB
-         p3SignlLQqdZB2OYp0s1mIkISBCStkDgsGdrq/Kk=
+        b=xsj576hEoQes6wKvS/cvdA9nuWhb5tyj684d8SuYn7oyd9f0qFCvaYcnIxr6l55jm
+         7MxcCkzEdqxMRp05howhJEL8JJSBmBtrO25Y2BIm4ZXq4R5VNH2wZyXmyaW4bqaxmG
+         96HzMJJskgPvxCJbOXEwl81s5XBtDo2Ipe2+FddI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 24/83] net/cxgb4: Check the return from t4_query_params properly
-Date:   Fri,  1 May 2020 15:23:03 +0200
-Message-Id: <20200501131530.040739195@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Furtado <paulfurtado91@gmail.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Chandan Rajendra <chandanrlinux@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Allison Collins <allison.henderson@oracle.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>
+Subject: [PATCH 5.4 25/83] xfs: acquire superblock freeze protection on eofblocks scans
+Date:   Fri,  1 May 2020 15:23:04 +0200
+Message-Id: <20200501131530.318495482@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
 References: <20200501131524.004332640@linuxfoundation.org>
@@ -43,36 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Brian Foster <bfoster@redhat.com>
 
-commit c799fca8baf18d1bbbbad6c3b736eefbde8bdb90 upstream.
+commit 4b674b9ac852937af1f8c62f730c325fb6eadcdb upstream.
 
-Positive return values are also failures that don't set val,
-although this probably can't happen. Fixes gcc 10 warning:
+The filesystem freeze sequence in XFS waits on any background
+eofblocks or cowblocks scans to complete before the filesystem is
+quiesced. At this point, the freezer has already stopped the
+transaction subsystem, however, which means a truncate or cowblock
+cancellation in progress is likely blocked in transaction
+allocation. This results in a deadlock between freeze and the
+associated scanner.
 
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c: In function ‘t4_phy_fw_ver’:
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:3747:14: warning: ‘val’ may be used uninitialized in this function [-Wmaybe-uninitialized]
- 3747 |  *phy_fw_ver = val;
+Fix this problem by holding superblock write protection across calls
+into the block reapers. Since protection for background scans is
+acquired from the workqueue task context, trylock to avoid a similar
+deadlock between freeze and blocking on the write lock.
 
-Fixes: 01b6961410b7 ("cxgb4: Add PHY firmware support for T420-BT cards")
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d6b636ebb1c9f ("xfs: halt auto-reclamation activities while rebuilding rmap")
+Reported-by: Paul Furtado <paulfurtado91@gmail.com>
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Chandan Rajendra <chandanrlinux@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/chelsio/cxgb4/t4_hw.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/xfs_icache.c |   10 ++++++++++
+ fs/xfs/xfs_ioctl.c  |    5 ++++-
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-@@ -3748,7 +3748,7 @@ int t4_phy_fw_ver(struct adapter *adap,
- 		 FW_PARAMS_PARAM_Z_V(FW_PARAMS_PARAM_DEV_PHYFW_VERSION));
- 	ret = t4_query_params(adap, adap->mbox, adap->pf, 0, 1,
- 			      &param, &val);
--	if (ret < 0)
-+	if (ret)
- 		return ret;
- 	*phy_fw_ver = val;
- 	return 0;
+--- a/fs/xfs/xfs_icache.c
++++ b/fs/xfs/xfs_icache.c
+@@ -907,7 +907,12 @@ xfs_eofblocks_worker(
+ {
+ 	struct xfs_mount *mp = container_of(to_delayed_work(work),
+ 				struct xfs_mount, m_eofblocks_work);
++
++	if (!sb_start_write_trylock(mp->m_super))
++		return;
+ 	xfs_icache_free_eofblocks(mp, NULL);
++	sb_end_write(mp->m_super);
++
+ 	xfs_queue_eofblocks(mp);
+ }
+ 
+@@ -934,7 +939,12 @@ xfs_cowblocks_worker(
+ {
+ 	struct xfs_mount *mp = container_of(to_delayed_work(work),
+ 				struct xfs_mount, m_cowblocks_work);
++
++	if (!sb_start_write_trylock(mp->m_super))
++		return;
+ 	xfs_icache_free_cowblocks(mp, NULL);
++	sb_end_write(mp->m_super);
++
+ 	xfs_queue_cowblocks(mp);
+ }
+ 
+--- a/fs/xfs/xfs_ioctl.c
++++ b/fs/xfs/xfs_ioctl.c
+@@ -2401,7 +2401,10 @@ xfs_file_ioctl(
+ 		if (error)
+ 			return error;
+ 
+-		return xfs_icache_free_eofblocks(mp, &keofb);
++		sb_start_write(mp->m_super);
++		error = xfs_icache_free_eofblocks(mp, &keofb);
++		sb_end_write(mp->m_super);
++		return error;
+ 	}
+ 
+ 	default:
 
 
