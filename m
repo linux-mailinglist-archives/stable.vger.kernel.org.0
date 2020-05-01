@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A3E21C1523
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:46:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08E041C149B
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731764AbgEANpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:45:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46362 "EHLO mail.kernel.org"
+        id S1731403AbgEANlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:41:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731802AbgEANo7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:44:59 -0400
+        id S1728833AbgEANlM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:41:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61F412051A;
-        Fri,  1 May 2020 13:44:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC7FF2173E;
+        Fri,  1 May 2020 13:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340698;
-        bh=XjxUPLmaZfpR/Y4FaTxgXOpZTIC1gf1eeU66oXHFRZ0=;
+        s=default; t=1588340472;
+        bh=tNbHRXvQVRQnm7qv6Y3bHuOuLUu/Gt2nW45E8Gy/QLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tBZgV9/mROBZvbKl3wIlRluwtJD10xmnR4kmZ0JwDWv37tfyK5bXSblpSA8syeOYd
-         kl19/i/mYcL8elanNd4H2oN/35+6SauDmw8FTgencqW9gx7l01NEnYK18Npkr36iWW
-         bWSlZZ0swLqneWtyPFa0+/0fEP/92185EM/BQNHc=
+        b=NQIok6k8Es+yACvJ+Hy+sv3vI0cNtLwW5rb8hh/x4ayk9J+HlNKxgHT6jsMobQffL
+         yLhXcBgsPMwuxbbaKgm1ge4LZCNbCNONg9TmGjUW1kDNGGPTZ8oDDj13bgQMw5XZ6B
+         Abc+C0dK1sgYu9lxTgVcIi2aYQnDVQ0/hSD0R57k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilie Halip <ilie.halip@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 088/106] arm64: Delete the space separator in __emit_inst
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 82/83] ASoC: soc-core: disable route checks for legacy devices
 Date:   Fri,  1 May 2020 15:24:01 +0200
-Message-Id: <20200501131554.114385744@linuxfoundation.org>
+Message-Id: <20200501131543.210193855@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
-References: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
+References: <20200501131524.004332640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +45,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit c9a4ef66450145a356a626c833d3d7b1668b3ded ]
+commit a22ae72b86a4f754e8d25fbf9ea5a8f77365e531 upstream.
 
-In assembly, many instances of __emit_inst(x) expand to a directive. In
-a few places __emit_inst(x) is used as an assembler macro argument. For
-example, in arch/arm64/kvm/hyp/entry.S
+v5.4 changes in soc-core tightened the checks on soc_dapm_add_routes,
+which results in the ASoC card probe failing.
 
-  ALTERNATIVE(nop, SET_PSTATE_PAN(1), ARM64_HAS_PAN, CONFIG_ARM64_PAN)
+Introduce a flag to be set in machine drivers to prevent the probe
+from stopping in case of incomplete topologies or missing routes. This
+flag is for backwards compatibility only and shall not be used for
+newer machine drivers.
 
-expands to the following by the C preprocessor:
+Example with an HDaudio card with a bad topology:
 
-  alternative_insn nop, .inst (0xd500401f | ((0) << 16 | (4) << 5) | ((!!1) << 8)), 4, 1
+[ 236.177898] skl_hda_dsp_generic skl_hda_dsp_generic: ASoC: Failed to
+add route iDisp1_out -> direct -> iDisp1 Tx
 
-Both comma and space are separators, with an exception that content
-inside a pair of parentheses/quotes is not split, so the clang
-integrated assembler splits the arguments to:
+[ 236.177902] skl_hda_dsp_generic skl_hda_dsp_generic:
+snd_soc_bind_card: snd_soc_dapm_add_routes failed: -19
 
-   nop, .inst, (0xd500401f | ((0) << 16 | (4) << 5) | ((!!1) << 8)), 4, 1
+with the disable_route_checks set:
 
-GNU as preprocesses the input with do_scrub_chars(). Its arm64 backend
-(along with many other non-x86 backends) sees:
+[ 64.031657] skl_hda_dsp_generic skl_hda_dsp_generic: ASoC: Failed to
+add route iDisp1_out -> direct -> iDisp1 Tx
 
-  alternative_insn nop,.inst(0xd500401f|((0)<<16|(4)<<5)|((!!1)<<8)),4,1
-  # .inst(...) is parsed as one argument
+[ 64.031661] skl_hda_dsp_generic skl_hda_dsp_generic:
+snd_soc_bind_card: disable_route_checks set, ignoring errors on
+add_routes
 
-while its x86 backend sees:
+Fixes: daa480bde6b3a9 ("ASoC: soc-core: tidyup for snd_soc_dapm_add_routes()")
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/20200309192744.18380-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  alternative_insn nop,.inst (0xd500401f|((0)<<16|(4)<<5)|((!!1)<<8)),4,1
-  # The extra space before '(' makes the whole .inst (...) parsed as two arguments
-
-The non-x86 backend's behavior is considered unintentional
-(https://sourceware.org/bugzilla/show_bug.cgi?id=25750).
-So drop the space separator inside `.inst (...)` to make the clang
-integrated assembler work.
-
-Suggested-by: Ilie Halip <ilie.halip@gmail.com>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/939
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/sysreg.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/sound/soc.h  |    1 +
+ sound/soc/soc-core.c |   28 ++++++++++++++++++++++++----
+ 2 files changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
-index b91570ff9db14..931037500e83c 100644
---- a/arch/arm64/include/asm/sysreg.h
-+++ b/arch/arm64/include/asm/sysreg.h
-@@ -49,7 +49,9 @@
- #ifndef CONFIG_BROKEN_GAS_INST
+--- a/include/sound/soc.h
++++ b/include/sound/soc.h
+@@ -1059,6 +1059,7 @@ struct snd_soc_card {
+ 	const struct snd_soc_dapm_route *of_dapm_routes;
+ 	int num_of_dapm_routes;
+ 	bool fully_routed;
++	bool disable_route_checks;
  
- #ifdef __ASSEMBLY__
--#define __emit_inst(x)			.inst (x)
-+// The space separator is omitted so that __emit_inst(x) can be parsed as
-+// either an assembler directive or an assembler macro argument.
-+#define __emit_inst(x)			.inst(x)
- #else
- #define __emit_inst(x)			".inst " __stringify((x)) "\n\t"
- #endif
--- 
-2.20.1
-
+ 	/* lists of probed devices belonging to this card */
+ 	struct list_head component_dev_list;
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -1076,8 +1076,18 @@ static int soc_probe_component(struct sn
+ 	ret = snd_soc_dapm_add_routes(dapm,
+ 				      component->driver->dapm_routes,
+ 				      component->driver->num_dapm_routes);
+-	if (ret < 0)
+-		goto err_probe;
++	if (ret < 0) {
++		if (card->disable_route_checks) {
++			dev_info(card->dev,
++				 "%s: disable_route_checks set, ignoring errors on add_routes\n",
++				 __func__);
++		} else {
++			dev_err(card->dev,
++				"%s: snd_soc_dapm_add_routes failed: %d\n",
++				__func__, ret);
++			goto err_probe;
++		}
++	}
+ 
+ 	/* see for_each_card_components */
+ 	list_add(&component->card_list, &card->component_dev_list);
+@@ -2067,8 +2077,18 @@ static int snd_soc_instantiate_card(stru
+ 
+ 	ret = snd_soc_dapm_add_routes(&card->dapm, card->dapm_routes,
+ 				      card->num_dapm_routes);
+-	if (ret < 0)
+-		goto probe_end;
++	if (ret < 0) {
++		if (card->disable_route_checks) {
++			dev_info(card->dev,
++				 "%s: disable_route_checks set, ignoring errors on add_routes\n",
++				 __func__);
++		} else {
++			dev_err(card->dev,
++				 "%s: snd_soc_dapm_add_routes failed: %d\n",
++				 __func__, ret);
++			goto probe_end;
++		}
++	}
+ 
+ 	ret = snd_soc_dapm_add_routes(&card->dapm, card->of_dapm_routes,
+ 				      card->num_of_dapm_routes);
 
 
