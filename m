@@ -2,218 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F221C0B47
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 02:34:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F39FE1C0B58
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 02:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbgEAAei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 20:34:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51180 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726384AbgEAAeh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 20:34:37 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A44ED20873;
-        Fri,  1 May 2020 00:34:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588293276;
-        bh=1coNHQrqhppYymJjbHJNkFocMASSv/QZFbmqys6aAoo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=w8dAPF1VCcVliG41hlptJI1lz0LTKtFhKsXeTRPjwjzkmSnx0GJQ8j/DisQHb22d8
-         F0bX/iiMCyM46XnCv9ScgBgCuD0BT1HeuPNL+vCBBl8JXDcYqsh8aJqa0ZwaIIOjN7
-         xmwIJTpPB09yJ1ypA9NGhIkkObmwkBdjoV9Mnzp8=
-Date:   Thu, 30 Apr 2020 20:34:35 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     ebiederm@xmission.com, christian.brauner@ubuntu.com,
-        cmeerw@cmeerw.org, oleg@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] signal: Avoid corrupting si_pid and
- si_uid in" failed to apply to 4.19-stable tree
-Message-ID: <20200501003435.GB13035@sasha-vm>
-References: <158800322124912@kroah.com>
+        id S1726545AbgEAArq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 20:47:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44998 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726384AbgEAArq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Apr 2020 20:47:46 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DADB2C035494
+        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 17:47:45 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id s3so6304354eji.6
+        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 17:47:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=sRFJfZwHnsJQqFJepe+LvPqS40H3J51FnSnbFsYaAJM=;
+        b=AvUgqN7PB/2m6j6r3ChFqht9nBGFMbV8AKa9u30SyVlVrTUy+Tv1TOIg+df2atuDm9
+         mrQr9/kg7XzvTBlUGO0QByBQRaSsjKRXNdddPP7Y9Z8zjn9Nh1TKQSTFhhdcbHFIGZAm
+         23fUYndzjvvhniZu8dhlkJL4EDHoYqfSv1iW0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=sRFJfZwHnsJQqFJepe+LvPqS40H3J51FnSnbFsYaAJM=;
+        b=kIMe1GBDJd29bucskhG36s+Hj4PpKoDIT7bc8Cs9H7t2uRT374zsFJzGQlJqUtUMQ9
+         yAqQyUV7/cJJAgcc5t46gWUlrydtsrUoNAbFUQYEOJQZ0T6Qb6WwGZmcfsj+jmzH4i0Z
+         L3pD5KKhDwCLz37JgYoQXEywcPFvUYFjhn3QpuJfq95ugDA7sbqpSLlEvRzHo2KtNmo+
+         YsdITqKrVa7YyeLK/p+40jV5+WhuR6CIvPnBr82pYjTmpcMU8jFu7flxEB+RXSI+wSKx
+         0l/nboFwzWWIIIeSZDgPVVxyPNYMk10jmKwtmaG3628UKg7dmNIjrKbk4+/4b1Tpr+qR
+         qV1Q==
+X-Gm-Message-State: AGi0PuZUN3d0lluCoYM70xHoFqMMuBmpQ/9rFUszJoc7tO0vqD1nGXJZ
+        OYjFFI605DMuhCKO8WtSIt35e0u/hOs=
+X-Google-Smtp-Source: APiQypIPDufVRJHTTvFoOMkz3KZ3AcK3KnfboBHb3vBEkAPl63kkdTD+vK1Fcnx9JZkgxWhS76oObw==
+X-Received: by 2002:a17:906:459:: with SMTP id e25mr1060264eja.379.1588294064230;
+        Thu, 30 Apr 2020 17:47:44 -0700 (PDT)
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com. [209.85.218.49])
+        by smtp.gmail.com with ESMTPSA id f17sm64088edj.86.2020.04.30.17.47.43
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Apr 2020 17:47:43 -0700 (PDT)
+Received: by mail-ej1-f49.google.com with SMTP id n4so6271782ejs.11
+        for <stable@vger.kernel.org>; Thu, 30 Apr 2020 17:47:43 -0700 (PDT)
+X-Received: by 2002:a2e:814e:: with SMTP id t14mr886854ljg.204.1588293602471;
+ Thu, 30 Apr 2020 17:40:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <158800322124912@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <CAHk-=wiMs=A90np0Hv5WjHY8HXQWpgtuq-xrrJvyk7_pNB4meg@mail.gmail.com>
+ <1962EE67-8AD1-409D-963A-4F1E1AB3B865@amacapital.net>
+In-Reply-To: <1962EE67-8AD1-409D-963A-4F1E1AB3B865@amacapital.net>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 30 Apr 2020 17:39:46 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgeMRm_yhb_fwvmgdaPMYzgXY01cYvw5htHUCTwSzswqg@mail.gmail.com>
+Message-ID: <CAHk-=wgeMRm_yhb_fwvmgdaPMYzgXY01cYvw5htHUCTwSzswqg@mail.gmail.com>
+Subject: Re: [PATCH v2 0/2] Replace and improve "mcsafe" with copy_safe()
+To:     Andy Lutomirski <luto@amacapital.net>
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        "Luck, Tony" <tony.luck@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        stable <stable@vger.kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Erwin Tsaur <erwin.tsaur@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 27, 2020 at 06:00:21PM +0200, gregkh@linuxfoundation.org wrote:
+On Thu, Apr 30, 2020 at 5:23 PM Andy Lutomirski <luto@amacapital.net> wrote=
+:
 >
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
+> > But anyway, I don't hate something like "copy_to_user_fallible()"
+> > conceptually. The naming needs to be fixed, in that "user" can always
+> > take a fault, so it's the _source_ that can fault, not the "user"
+> > part.
 >
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 61e713bdca3678e84815f2427f7a063fc353a1fc Mon Sep 17 00:00:00 2001
->From: "Eric W. Biederman" <ebiederm@xmission.com>
->Date: Mon, 20 Apr 2020 11:41:50 -0500
->Subject: [PATCH] signal: Avoid corrupting si_pid and si_uid in
-> do_notify_parent
->
->Christof Meerwald <cmeerw@cmeerw.org> writes:
->> Hi,
->>
->> this is probably related to commit
->> 7a0cf094944e2540758b7f957eb6846d5126f535 (signal: Correct namespace
->> fixups of si_pid and si_uid).
->>
->> With a 5.6.5 kernel I am seeing SIGCHLD signals that don't include a
->> properly set si_pid field - this seems to happen for multi-threaded
->> child processes.
->>
->> A simple test program (based on the sample from the signalfd man page):
->>
->> #include <sys/signalfd.h>
->> #include <signal.h>
->> #include <unistd.h>
->> #include <spawn.h>
->> #include <stdlib.h>
->> #include <stdio.h>
->>
->> #define handle_error(msg) \
->>     do { perror(msg); exit(EXIT_FAILURE); } while (0)
->>
->> int main(int argc, char *argv[])
->> {
->>   sigset_t mask;
->>   int sfd;
->>   struct signalfd_siginfo fdsi;
->>   ssize_t s;
->>
->>   sigemptyset(&mask);
->>   sigaddset(&mask, SIGCHLD);
->>
->>   if (sigprocmask(SIG_BLOCK, &mask, NULL) == -1)
->>     handle_error("sigprocmask");
->>
->>   pid_t chldpid;
->>   char *chldargv[] = { "./sfdclient", NULL };
->>   posix_spawn(&chldpid, "./sfdclient", NULL, NULL, chldargv, NULL);
->>
->>   sfd = signalfd(-1, &mask, 0);
->>   if (sfd == -1)
->>     handle_error("signalfd");
->>
->>   for (;;) {
->>     s = read(sfd, &fdsi, sizeof(struct signalfd_siginfo));
->>     if (s != sizeof(struct signalfd_siginfo))
->>       handle_error("read");
->>
->>     if (fdsi.ssi_signo == SIGCHLD) {
->>       printf("Got SIGCHLD %d %d %d %d\n",
->>           fdsi.ssi_status, fdsi.ssi_code,
->>           fdsi.ssi_uid, fdsi.ssi_pid);
->>       return 0;
->>     } else {
->>       printf("Read unexpected signal\n");
->>     }
->>   }
->> }
->>
->>
->> and a multi-threaded client to test with:
->>
->> #include <unistd.h>
->> #include <pthread.h>
->>
->> void *f(void *arg)
->> {
->>   sleep(100);
->> }
->>
->> int main()
->> {
->>   pthread_t t[8];
->>
->>   for (int i = 0; i != 8; ++i)
->>   {
->>     pthread_create(&t[i], NULL, f, NULL);
->>   }
->> }
->>
->> I tried to do a bit of debugging and what seems to be happening is
->> that
->>
->>   /* From an ancestor pid namespace? */
->>   if (!task_pid_nr_ns(current, task_active_pid_ns(t))) {
->>
->> fails inside task_pid_nr_ns because the check for "pid_alive" fails.
->>
->> This code seems to be called from do_notify_parent and there we
->> actually have "tsk != current" (I am assuming both are threads of the
->> current process?)
->
->I instrumented the code with a warning and received the following backtrace:
->> WARNING: CPU: 0 PID: 777 at kernel/pid.c:501 __task_pid_nr_ns.cold.6+0xc/0x15
->> Modules linked in:
->> CPU: 0 PID: 777 Comm: sfdclient Not tainted 5.7.0-rc1userns+ #2924
->> Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
->> RIP: 0010:__task_pid_nr_ns.cold.6+0xc/0x15
->> Code: ff 66 90 48 83 ec 08 89 7c 24 04 48 8d 7e 08 48 8d 74 24 04 e8 9a b6 44 00 48 83 c4 08 c3 48 c7 c7 59 9f ac 82 e8 c2 c4 04 00 <0f> 0b e9 3fd
->> RSP: 0018:ffffc9000042fbf8 EFLAGS: 00010046
->> RAX: 000000000000000c RBX: 0000000000000000 RCX: ffffc9000042faf4
->> RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff81193d29
->> RBP: ffffc9000042fc18 R08: 0000000000000000 R09: 0000000000000001
->> R10: 000000100f938416 R11: 0000000000000309 R12: ffff8880b941c140
->> R13: 0000000000000000 R14: 0000000000000000 R15: ffff8880b941c140
->> FS:  0000000000000000(0000) GS:ffff8880bca00000(0000) knlGS:0000000000000000
->> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->> CR2: 00007f2e8c0a32e0 CR3: 0000000002e10000 CR4: 00000000000006f0
->> Call Trace:
->>  send_signal+0x1c8/0x310
->>  do_notify_parent+0x50f/0x550
->>  release_task.part.21+0x4fd/0x620
->>  do_exit+0x6f6/0xaf0
->>  do_group_exit+0x42/0xb0
->>  get_signal+0x13b/0xbb0
->>  do_signal+0x2b/0x670
->>  ? __audit_syscall_exit+0x24d/0x2b0
->>  ? rcu_read_lock_sched_held+0x4d/0x60
->>  ? kfree+0x24c/0x2b0
->>  do_syscall_64+0x176/0x640
->>  ? trace_hardirqs_off_thunk+0x1a/0x1c
->>  entry_SYSCALL_64_after_hwframe+0x49/0xb3
->
->The immediate problem is as Christof noticed that "pid_alive(current) == false".
->This happens because do_notify_parent is called from the last thread to exit
->in a process after that thread has been reaped.
->
->The bigger issue is that do_notify_parent can be called from any
->process that manages to wait on a thread of a multi-threaded process
->from wait_task_zombie.  So any logic based upon current for
->do_notify_parent is just nonsense, as current can be pretty much
->anything.
->
->So change do_notify_parent to call __send_signal directly.
->
->Inspecting the code it appears this problem has existed since the pid
->namespace support started handling this case in 2.6.30.  This fix only
->backports to 7a0cf094944e ("signal: Correct namespace fixups of si_pid and si_uid")
->where the problem logic was moved out of __send_signal and into send_signal.
->
->Cc: stable@vger.kernel.org
->Fixes: 6588c1e3ff01 ("signals: SI_USER: Masquerade si_pid when crossing pid ns boundary")
->Ref: 921cf9f63089 ("signals: protect cinit from unblocked SIG_DFL signals")
->Link: https://lore.kernel.org/lkml/20200419201336.GI22017@edge.cmeerw.net/
->Reported-by: Christof Meerwald <cmeerw@cmeerw.org>
->Acked-by: Oleg Nesterov <oleg@redhat.com>
->Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
->Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> I don=E2=80=99t like this.  =E2=80=9Cuser=E2=80=9D already implied that b=
+asically anything can be wrong with the memory
 
-The code just moved around a bit. I've fixed it and queued for all
-branches.
+Maybe I didn't explain.
 
--- 
-Thanks,
-Sasha
+"user" already implies faulting. We agree.
+
+And since we by definition cannot know what the user has mapped into
+user space, *every* normal copy_to_user() has to be able to handle
+whatever faults that throws at us.
+
+The reason I dislike "copy_to_user_fallible()" is that the user side
+already has that 'fallible".
+
+If it's the _source_ being "fallible" (it really needs a better name -
+I will not call it just "f") then it should be "copy_f_to_user()".
+
+That would be ok.
+
+So "copy_f_to_user()" makes sense. But "copy_to_user_f()" does not.
+That puts the "f" on the "user", which we already know can fault.
+
+See what I want in the name? I want the name to say which side can
+cause problems!
+
+If you are copying memory from some f source, it must not be
+"copy_safe()". That doesn't say if the _source_ is f, or the
+destination is f.
+
+So "copy_to_f()" makes sense (we don't say "copy_kernel_to_user()" -
+the "normal" case is silent), and "copy_from_f()" makes sense.
+"copy_in_f()" makes sense too.
+
+But not this "randomly copy some randomly f memory area that I don't
+know if it's the source or the destination".
+
+Sometimes you may then use a common implementation for the different
+directions - if that works on the architecture.
+
+For example, "copy_to_user()" and "copy_from_user()" on x86 both end
+up internally using a shared "copy_user_generic()" implementation. I
+wish that wasn't the case (when I asked for what was to become
+STAC/CLAC, I asked for one that could determine which direction of a
+"rep movs" could touch user space), but it so happens that the
+implementations end up being symmetric on x86.
+
+But that's a pure implementation issue, and it very much is not going
+to be true in general, and it shouldn't be exposed to users as such
+(and we obviously don't).
+
+                Linus
