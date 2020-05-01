@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3CAD1C13BB
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:34:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B67941C12F5
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730314AbgEANcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:32:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57470 "EHLO mail.kernel.org"
+        id S1729112AbgEANZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:25:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729734AbgEANce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:32:34 -0400
+        id S1729103AbgEANZq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:25:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5258A208C3;
-        Fri,  1 May 2020 13:32:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3102D208D6;
+        Fri,  1 May 2020 13:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588339952;
-        bh=wNCuuLXS0rituLo0KCCOgprFLFL+V0H/YZ9ILTjzuNo=;
+        s=default; t=1588339546;
+        bh=1bJXgS9EGSsKXLluKrL63N6r/YnFN67KmUdN1uqhg/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIViKhD+7pTeF4fjnzENQYbYo7FiXu/o1covzol6MRDmxvYT5CK2yuqaLvjgggH6o
-         4lxjydgb+i/5T3q4YkpOwr+o0a0QxPmfB8YrXAS01NDeO9tfuer7sKMOuf9+yLAT0H
-         7/KZxegvCIp0n/MbNCzpFZY7KkUezfhBc7Y5HSzg=
+        b=Qy5r1JfOsJMqU3m1VPMcqENC3r9++OFfGUnbbTBKwb5a6q8eETPENq4i0D4Lj9NlS
+         aJVDEsasO+SnWvkU5A6jPyN/ME69Q3bgdf01xovEtIU1MrEFi4yXvG+QgrgDS7txcE
+         BtG+RfQV6RceJhf0rtNfIi/9bJSXwFyk6uv/6O5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 033/117] net: dsa: b53: Fix ARL register definitions
+Subject: [PATCH 4.4 21/70] net/x25: Fix x25_neigh refcnt leak when receiving frame
 Date:   Fri,  1 May 2020 15:21:09 +0200
-Message-Id: <20200501131548.751795758@linuxfoundation.org>
+Message-Id: <20200501131520.809525053@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit c2e77a18a7ed65eb48f6e389b6a59a0fd753646a ]
+[ Upstream commit f35d12971b4d814cdb2f659d76b42f0c545270b6 ]
 
-The ARL {MAC,VID} tuple and the forward entry were off by 0x10 bytes,
-which means that when we read/wrote from/to ARL bin index 0, we were
-actually accessing the ARLA_RWCTRL register.
+x25_lapb_receive_frame() invokes x25_get_neigh(), which returns a
+reference of the specified x25_neigh object to "nb" with increased
+refcnt.
 
-Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+When x25_lapb_receive_frame() returns, local variable "nb" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
+
+The reference counting issue happens in one path of
+x25_lapb_receive_frame(). When pskb_may_pull() returns false, the
+function forgets to decrease the refcnt increased by x25_get_neigh(),
+causing a refcnt leak.
+
+Fix this issue by calling x25_neigh_put() when pskb_may_pull() returns
+false.
+
+Fixes: cb101ed2c3c7 ("x25: Handle undersized/fragmented skbs")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/b53/b53_regs.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/x25/x25_dev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -294,7 +294,7 @@
-  *
-  * BCM5325 and BCM5365 share most definitions below
-  */
--#define B53_ARLTBL_MAC_VID_ENTRY(n)	(0x10 * (n))
-+#define B53_ARLTBL_MAC_VID_ENTRY(n)	((0x10 * (n)) + 0x10)
- #define   ARLTBL_MAC_MASK		0xffffffffffffULL
- #define   ARLTBL_VID_S			48
- #define   ARLTBL_VID_MASK_25		0xff
-@@ -306,7 +306,7 @@
- #define   ARLTBL_VALID_25		BIT(63)
+--- a/net/x25/x25_dev.c
++++ b/net/x25/x25_dev.c
+@@ -120,8 +120,10 @@ int x25_lapb_receive_frame(struct sk_buf
+ 		goto drop;
+ 	}
  
- /* ARL Table Data Entry N Registers (32 bit) */
--#define B53_ARLTBL_DATA_ENTRY(n)	((0x10 * (n)) + 0x08)
-+#define B53_ARLTBL_DATA_ENTRY(n)	((0x10 * (n)) + 0x18)
- #define   ARLTBL_DATA_PORT_ID_MASK	0x1ff
- #define   ARLTBL_TC(tc)			((3 & tc) << 11)
- #define   ARLTBL_AGE			BIT(14)
+-	if (!pskb_may_pull(skb, 1))
++	if (!pskb_may_pull(skb, 1)) {
++		x25_neigh_put(nb);
+ 		return 0;
++	}
+ 
+ 	switch (skb->data[0]) {
+ 
 
 
