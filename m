@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 362761C16A3
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:09:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B351C1C163A
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:08:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729681AbgEANv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:51:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
+        id S1731493AbgEANmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731065AbgEANif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:38:35 -0400
+        id S1731304AbgEANmP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:42:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3ACFA205C9;
-        Fri,  1 May 2020 13:38:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83070208DB;
+        Fri,  1 May 2020 13:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340314;
-        bh=QtraSO/KBfOH6GBWPZ9xnZquO0Vf93a/M99u/hbLZRA=;
+        s=default; t=1588340534;
+        bh=ZOWlDXJ+y14rAyA1g+BeULgdahx3vf6rhu7aIbrlV4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+NLmu/g/UH8XkeudmVfNIXnvW/i+LhJM09ArJUnIXLP4qRhVBuCbZMkHjhXj0AFh
-         PfLf12pNcxfCNI6VUyrHaIEVmoXE04p4itaQ+ZjOdRZBM2FS5tHFg3Ysds9gTyiyY0
-         BA8RvSN/RS7xMKq9jbl5SqumqGBpaNWLepCohFeg=
+        b=LXljtFg9EO6eELZPc3/27IYdpG3ja9fpGMY0NuSnshveTPW8eNeQdBUMXVoMlpeii
+         MJew5p4ZPeUAyslPFrEnIQnmig3nSUZzCkrImvgiJCfojxW+MAy95M/FootKlIjuqq
+         CN02GVLPzD8KOKFtdiPqyx/eo3D1q5OoZMamcZEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 15/83] ASoC: q6dsp6: q6afe-dai: add missing channels to MI2S DAIs
+Subject: [PATCH 5.6 021/106] ASoC: meson: axg-card: fix codec-to-codec link setup
 Date:   Fri,  1 May 2020 15:22:54 +0200
-Message-Id: <20200501131527.908472952@linuxfoundation.org>
+Message-Id: <20200501131546.647879294@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,119 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-commit 0c824ec094b5cda766c80d88c2036e28c24a4cb1 upstream.
+commit 1164284270779e1865cc2046a2a01b58a1e858a9 upstream.
 
-For some reason, the MI2S DAIs do not have channels_min/max defined.
-This means that snd_soc_dai_stream_valid() returns false,
-i.e. the DAIs have neither valid playback nor capture stream.
+Since the addition of commit 9b5db059366a ("ASoC: soc-pcm: dpcm: Only allow
+playback/capture if supported"), meson-axg cards which have codec-to-codec
+links fail to init and Oops:
 
-It's quite surprising that this ever worked correctly,
-but in 5.7-rc1 this is now failing badly: :)
+  Unable to handle kernel NULL pointer dereference at virtual address 0000000000000128
+  Internal error: Oops: 96000044 [#1] PREEMPT SMP
+  CPU: 3 PID: 1582 Comm: arecord Not tainted 5.7.0-rc1
+  pc : invalidate_paths_ep+0x30/0xe0
+  lr : snd_soc_dapm_dai_get_connected_widgets+0x170/0x1a8
+  Call trace:
+   invalidate_paths_ep+0x30/0xe0
+   snd_soc_dapm_dai_get_connected_widgets+0x170/0x1a8
+   dpcm_path_get+0x38/0xd0
+   dpcm_fe_dai_open+0x70/0x920
+   snd_pcm_open_substream+0x564/0x840
+   snd_pcm_open+0xfc/0x228
+   snd_pcm_capture_open+0x4c/0x78
+   snd_open+0xac/0x1a8
+   ...
 
-Commit 0e9cf4c452ad ("ASoC: pcm: check if cpu-dai supports a given stream")
-introduced a check for snd_soc_dai_stream_valid() before calling
-hw_params(), which means that the q6i2s_hw_params() function
-was never called, eventually resulting in:
+While initiliazing the links, ASoC treats the codec-to-codec links of this
+card type as a DPCM backend. This error eventually leads to the Oops.
 
-    qcom-q6afe aprsvc:q6afe:4:4: no line is assigned
+Most of the card driver code is shared between DPCM backends and
+codec-to-codec links. The property "no_pcm" marking DCPM BE was left set on
+codec-to-codec links, leading to this problem. This commit fixes that.
 
-... even though "qcom,sd-lines" is set in the device tree.
-
-Commit 9b5db059366a ("ASoC: soc-pcm: dpcm: Only allow playback/capture if supported")
-now even avoids creating PCM devices if the stream is not supported,
-which means that it is failing even earlier with e.g.:
-
-    Primary MI2S: ASoC: no backend playback stream
-
-Avoid all that trouble by adding channels_min/max for the MI2S DAIs.
-
-Fixes: 24c4cbcfac09 ("ASoC: qdsp6: q6afe: Add q6afe dai driver")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200415150050.616392-1-stephan@gerhold.net
+Fixes: 0a8f1117a680 ("ASoC: meson: axg-card: add basic codec-to-codec link support")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20200420114511.450560-2-jbrunet@baylibre.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/qcom/qdsp6/q6afe-dai.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ sound/soc/meson/axg-card.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/soc/qcom/qdsp6/q6afe-dai.c
-+++ b/sound/soc/qcom/qdsp6/q6afe-dai.c
-@@ -902,6 +902,8 @@ static struct snd_soc_dai_driver q6afe_d
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -917,6 +919,8 @@ static struct snd_soc_dai_driver q6afe_d
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -931,6 +935,8 @@ static struct snd_soc_dai_driver q6afe_d
- 			.rates = SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_8000 |
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -946,6 +952,8 @@ static struct snd_soc_dai_driver q6afe_d
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -960,6 +968,8 @@ static struct snd_soc_dai_driver q6afe_d
- 			.rates = SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_8000 |
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -975,6 +985,8 @@ static struct snd_soc_dai_driver q6afe_d
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -989,6 +1001,8 @@ static struct snd_soc_dai_driver q6afe_d
- 			.rates = SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_8000 |
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
-@@ -1004,6 +1018,8 @@ static struct snd_soc_dai_driver q6afe_d
- 				 SNDRV_PCM_RATE_16000,
- 			.formats = SNDRV_PCM_FMTBIT_S16_LE |
- 				   SNDRV_PCM_FMTBIT_S24_LE,
-+			.channels_min = 1,
-+			.channels_max = 8,
- 			.rate_min =     8000,
- 			.rate_max =     48000,
- 		},
+--- a/sound/soc/meson/axg-card.c
++++ b/sound/soc/meson/axg-card.c
+@@ -586,8 +586,10 @@ static int axg_card_add_link(struct snd_
+ 
+ 	if (axg_card_cpu_is_tdm_iface(dai_link->cpus->of_node))
+ 		ret = axg_card_parse_tdm(card, np, index);
+-	else if (axg_card_cpu_is_codec(dai_link->cpus->of_node))
++	else if (axg_card_cpu_is_codec(dai_link->cpus->of_node)) {
+ 		dai_link->params = &codec_params;
++		dai_link->no_pcm = 0; /* link is not a DPCM BE */
++	}
+ 
+ 	return ret;
+ }
 
 
