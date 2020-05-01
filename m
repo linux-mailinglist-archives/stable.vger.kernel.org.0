@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 610741C0C53
+	by mail.lfdr.de (Postfix) with ESMTP id D74DE1C0C54
 	for <lists+stable@lfdr.de>; Fri,  1 May 2020 04:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728165AbgEACzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Apr 2020 22:55:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60088 "EHLO mail.kernel.org"
+        id S1728172AbgEACzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Apr 2020 22:55:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727985AbgEACzU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 Apr 2020 22:55:20 -0400
+        id S1727985AbgEACzV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 Apr 2020 22:55:21 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 133B821582;
-        Fri,  1 May 2020 02:55:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29058207DD;
+        Fri,  1 May 2020 02:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588301720;
-        bh=oFZv9k1d+TkXE+O4dFIDdGxn0iWkc4YpXMlP5o0fjeo=;
+        s=default; t=1588301721;
+        bh=AY/2sAFJABO2jGTnMjxy1+23WPlfoZvwL8LoXdIPHpA=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=TW6f1OpOFw30YGN3LcXC2lpAPVJJg3KBSifwtt/cTN3d/B8VvrclexdIbNDPsVpia
-         aK5KkDS3y6szdTmMZ00DZKk0g6oCSwnY17FWzhyDSELipeiZHOkSXIuFAP60sWzRnX
-         4vqh9ua2NYyamUESE1srbQQOegDk7uT/S4xglCVw=
-Date:   Fri, 01 May 2020 02:55:19 +0000
+        b=RHswbWJhwahYzKgGMUyHb3eX1lZHbUiQELgzux4gNsasOrylmZzoQ6um6LkZaiuU2
+         ol1eo0MMUFUN3Qgm7HFUvOEKVMaBqbTNKXx+ZbsucaBYUI1VfnLXqetNIFt9eQMzrL
+         tH29ndvRWOM4qhvp0YtFbI2cmXK1i1hcjOxjCE5k=
+Date:   Fri, 01 May 2020 02:55:20 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Richard Weinberger <richard@nod.at>
-Cc:     Boris Brezillon <boris.brezillon@collabora.com>
+To:     Tomas Winkler <tomas.winkler@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>
+Cc:     <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3 3/9] mtd: rawnand: onfi: Fix redundancy detection check
-In-Reply-To: <20200428094302.14624-4-miquel.raynal@bootlin.com>
-References: <20200428094302.14624-4-miquel.raynal@bootlin.com>
-Message-Id: <20200501025520.133B821582@mail.kernel.org>
+Subject: Re: [char-misc] mei: me: disable mei interface on LBG servers.
+In-Reply-To: <20200428211200.12200-1-tomas.winkler@intel.com>
+References: <20200428211200.12200-1-tomas.winkler@intel.com>
+Message-Id: <20200501025521.29058207DD@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,24 +44,69 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 39138c1f4a31 ("mtd: rawnand: use bit-wise majority to recover the ONFI param page").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-The bot has tested the following trees: v5.6.7, v5.4.35, v4.19.118.
+The bot has tested the following trees: v5.6.7, v5.4.35, v4.19.118, v4.14.177, v4.9.220, v4.4.220.
 
 v5.6.7: Build OK!
-v5.4.35: Build OK!
+v5.4.35: Failed to apply! Possible dependencies:
+    52f6efdf8092 ("mei: add trc detection register to sysfs")
+
 v4.19.118: Failed to apply! Possible dependencies:
-    0f808c1602bc ("mtd: rawnand: Pass a nand_chip object to chip->cmd_ctrl()")
-    1c325cc5077a ("mtd: rawnand: Move ONFI code to nand_onfi.c")
-    348d56a8c606 ("mtd: rawnand: Keep all internal stuff private")
-    3d4af7c19585 ("mtd: rawnand: Move legacy code to nand_legacy.c")
-    45240367939b ("mtd: rawnand: Deprecate ->{set,get}_features() hooks")
-    47bd59e538d4 ("mtd: rawnand: plat_nand: Pass a nand_chip object to all platform_nand_ctrl hooks")
-    716bbbabcc68 ("mtd: rawnand: Deprecate ->{read, write}_{byte, buf}() hooks")
-    7e534323c416 ("mtd: rawnand: Pass a nand_chip object to chip->read_xxx() hooks")
-    82fc5099744e ("mtd: rawnand: Create a legacy struct and move ->IO_ADDR_{R, W} there")
-    c0739d85723a ("mtd: rawnand: Pass a nand_chip object to chip->write_xxx() hooks")
+    43b8a7ed4739 ("mei: expose device state in sysfs")
+    52f6efdf8092 ("mei: add trc detection register to sysfs")
+    ce0925e8c2f8 ("mei: dma ring buffers allocation")
+
+v4.14.177: Failed to apply! Possible dependencies:
+    173436ba800d ("mei: me: mark LBG devices as having dma support")
+    1be8624a0cbe ("mei: me: add mule creek canyon (EHL) device ids")
+    3cfaeb335305 ("mei: expose fw version to sysfs")
+    43b8a7ed4739 ("mei: expose device state in sysfs")
+    52f6efdf8092 ("mei: add trc detection register to sysfs")
+    587f17407741 ("mei: me: add Tiger Lake point LP device ID")
+    7026a5fd7f2c ("mei: define dma ring buffer sizes for PCH12 HW and newer")
+    8d52af6795c0 ("mei: speed up the power down flow")
+    af336cabe083 ("mei: limit the number of queued writes")
+    ce0925e8c2f8 ("mei: dma ring buffers allocation")
+    efe814e90b98 ("mei: me: add ice lake point device id.")
+    f8204f0ddd62 ("mei: avoid FW version request on Ibex Peak and earlier")
+
+v4.9.220: Failed to apply! Possible dependencies:
+    17ba8a08b58a ("mei: consolidate repeating code in mei_cl_irq_read_msg")
+    29fe7d59bdd8 ("mei: make mei_io_list_flush static")
+    3cfaeb335305 ("mei: expose fw version to sysfs")
+    43b8a7ed4739 ("mei: expose device state in sysfs")
+    52f6efdf8092 ("mei: add trc detection register to sysfs")
+    6537ae2f2041 ("mei: amthif: clean command queue upon disconnection")
+    7026a5fd7f2c ("mei: define dma ring buffer sizes for PCH12 HW and newer")
+    88d1bece891f ("mei: show the HBM protocol versions in the device attributes")
+    962ff7bcec24 ("mei: replace callback structures used as list head by list_head")
+    9ecdbc58f96b ("mei: amthif: allow the read completion after close")
+    a2eb0fc07f4d ("mei: fix the back to back interrupt handling")
+    af336cabe083 ("mei: limit the number of queued writes")
+    e0cb6b2f878d ("mei: enable to set the internal flag for client write")
+    f046192d98c9 ("mei: revamp io list cleanup function.")
+    f5ac3c49ff0b ("mei: me: use an index instead of a pointer for private data")
+
+v4.4.220: Failed to apply! Possible dependencies:
+    32a1dc1d02eb ("mei: amthif: fix request cancel")
+    3cfaeb335305 ("mei: expose fw version to sysfs")
+    43b8a7ed4739 ("mei: expose device state in sysfs")
+    4bddf56fc93c ("mei: amthif: use rx_wait queue also for amthif client")
+    52f6efdf8092 ("mei: add trc detection register to sysfs")
+    62e8e6ad6097 ("mei: rename variable names 'file_object' to fp")
+    7026a5fd7f2c ("mei: define dma ring buffer sizes for PCH12 HW and newer")
+    77537ad2917b ("mei: recover after errors in runtime pm flow")
+    88d1bece891f ("mei: show the HBM protocol versions in the device attributes")
+    8b2458f413c4 ("mei: always copy the read buffer if data is ready")
+    9abd8b312924 ("mei: amthif: replace amthif_rd_complete_list with rd_completed")
+    af336cabe083 ("mei: limit the number of queued writes")
+    c85dba9e8737 ("mei: amthif: drop mei_clear_lists function")
+    f046192d98c9 ("mei: revamp io list cleanup function.")
+    f23e2cc4bb1d ("mei: constify struct file pointer")
+    f5ac3c49ff0b ("mei: me: use an index instead of a pointer for private data")
+    f862b6b24f0f ("mei: fix possible integer overflow issue")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
