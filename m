@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7B381C1462
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC58D1C14AE
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731090AbgEANit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:38:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38316 "EHLO mail.kernel.org"
+        id S1731450AbgEANl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:41:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730124AbgEANip (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:38:45 -0400
+        id S1730948AbgEANly (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:41:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1638220757;
-        Fri,  1 May 2020 13:38:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1806208DB;
+        Fri,  1 May 2020 13:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340324;
-        bh=EzBuUbP+MAp5jtdhazYUJEvVoX5tSl+lvg7WtwU5M/E=;
+        s=default; t=1588340514;
+        bh=H9/BvLXZS1pY3l92KsMnzT6NS6j3NtYA6L+sxVYnLkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziWPgqnUz8VYhb1Od3tUnxA3fYhJBZPGEXkJx/Y5aSNauv5Q0xKmEBSjAyIWzkZZo
-         8tu3/mZR+7r1SDBuuSncW+gb5+NUbLbjuIbHcc+avX9znnBgB7DPngadrN0AXOF1A2
-         e8vO8CVEPiVfqI1ZBUU2F+OnIb8CDLuzbwzAEFzw=
+        b=RYSu0hafTGW4QIbqYnv6jgUoRGrBwe+DlBBmTrXM1ALwToomCp9SO23MTVQkIlE3R
+         AS16jZfveCFRx6iBDlRJhvxypvbfIjZ8meCYqYKYICrrl182CTXmf1fs0YUpRzFN/Z
+         ksgb2x+BjJiOqE4b+aHbThXxb8hyAYv+6ypA82dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Michal Simek <michal.simek@xilinx.com>
-Subject: [PATCH 5.4 19/83] drivers: soc: xilinx: fix firmware driver Kconfig dependency
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.6 025/106] ARM: dts: OMAP3: disable RNG on N950/N9
 Date:   Fri,  1 May 2020 15:22:58 +0200
-Message-Id: <20200501131528.930744749@linuxfoundation.org>
+Message-Id: <20200501131547.069242395@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131524.004332640@linuxfoundation.org>
-References: <20200501131524.004332640@linuxfoundation.org>
+In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+References: <20200501131543.421333643@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
 
-commit d0384eedcde21276ac51f57c641f875605024b32 upstream.
+commit 07bdc492cff6f555538df95e9812fe72e16d154a upstream.
 
-The firmware driver is optional, but the power driver depends on it,
-which needs to be reflected in Kconfig to avoid link errors:
+Like on N900, we cannot access RNG directly on N950/N9. Mark it disabled in
+the DTS to allow kernel to boot.
 
-aarch64-linux-ld: drivers/soc/xilinx/zynqmp_power.o: in function `zynqmp_pm_isr':
-zynqmp_power.c:(.text+0x284): undefined reference to `zynqmp_pm_invoke_fn'
-
-The firmware driver can probably be allowed for compile-testing as
-well, so it's best to drop the dependency on the ZYNQ platform
-here and allow building as long as the firmware code is built-in.
-
-Fixes: ab272643d723 ("drivers: soc: xilinx: Add ZynqMP PM driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200408155224.2070880-1-arnd@arndb.de
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Fixes: 308607e5545f ("ARM: dts: Configure omap3 rng")
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/soc/xilinx/Kconfig |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/omap3-n950-n9.dtsi |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/soc/xilinx/Kconfig
-+++ b/drivers/soc/xilinx/Kconfig
-@@ -19,7 +19,7 @@ config XILINX_VCU
+--- a/arch/arm/boot/dts/omap3-n950-n9.dtsi
++++ b/arch/arm/boot/dts/omap3-n950-n9.dtsi
+@@ -341,6 +341,11 @@
+ 	status = "disabled";
+ };
  
- config ZYNQMP_POWER
- 	bool "Enable Xilinx Zynq MPSoC Power Management driver"
--	depends on PM && ARCH_ZYNQMP
-+	depends on PM && ZYNQMP_FIRMWARE
- 	default y
- 	help
- 	  Say yes to enable power management support for ZyqnMP SoC.
-@@ -31,7 +31,7 @@ config ZYNQMP_POWER
- config ZYNQMP_PM_DOMAINS
- 	bool "Enable Zynq MPSoC generic PM domains"
- 	default y
--	depends on PM && ARCH_ZYNQMP && ZYNQMP_FIRMWARE
-+	depends on PM && ZYNQMP_FIRMWARE
- 	select PM_GENERIC_DOMAINS
- 	help
- 	  Say yes to enable device power management through PM domains
++/* RNG not directly accessible on N950/N9. */
++&rng_target {
++	status = "disabled";
++};
++
+ &usb_otg_hs {
+ 	interface-type = <0>;
+ 	usb-phy = <&usb2_phy>;
 
 
