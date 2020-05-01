@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 110081C14A6
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D72B1C14A9
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 15:45:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730886AbgEANli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:41:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41958 "EHLO mail.kernel.org"
+        id S1731429AbgEANlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:41:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729426AbgEANlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:41:37 -0400
+        id S1730909AbgEANlk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:41:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7494A20757;
-        Fri,  1 May 2020 13:41:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9BC524954;
+        Fri,  1 May 2020 13:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340496;
-        bh=GMXiiPQKHX1FTn0hWKLhX1Whtb//R682Rms0uUbCt50=;
+        s=default; t=1588340499;
+        bh=EJ6dlQJyvFOAXUfsGqol6Wmqc66jE3hiFMMygdlxfTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cpomy3zLwclqGx6TLqkzowSp41YzkplC4+ARhqGmNyc9JVWKUUkNbnx9/BlZxRiFv
-         jctezUT3GImsTM9WV7FIYkzUiMnvhx1gfg+52S8/iR7IIgbqAFSczBi/YqmVDIIVVJ
-         i2815iZfnqSZVcEJmXWfy4RJETouuonm2hNNk3Vo=
+        b=kuf/lwxCJTjB/oD581RzCYofwJgS907B7AHCirQAt/a1nVeqQIv5SsKUatcO5fJJV
+         koXqU3V0z005jZtj6ROpBh/Y53ZuUnamzdHiqA/pHZMRvXg63s9uvx7CfTK5NmWzuE
+         OHthLHBF431mz7d46lBmp0X6eM1lIe4MryM/gdE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.6 006/106] kbuild: fix DT binding schema rule again to avoid needless rebuilds
-Date:   Fri,  1 May 2020 15:22:39 +0200
-Message-Id: <20200501131544.262669852@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 5.6 007/106] usb: gadget: udc: bdc: Remove unnecessary NULL checks in bdc_req_complete
+Date:   Fri,  1 May 2020 15:22:40 +0200
+Message-Id: <20200501131544.396838062@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
 References: <20200501131543.421333643@linuxfoundation.org>
@@ -42,37 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 3d4b2238684ac919394eba7fb51bb7eeeec6ab57 upstream.
+commit 09b04abb70f096333bef6bc95fa600b662e7ee13 upstream.
 
-Since commit 7a0496056064 ("kbuild: fix DT binding schema rule to detect
-command line changes"), this rule is every time re-run even if you change
-nothing.
+When building with Clang + -Wtautological-pointer-compare:
 
-cmd_dtc takes one additional parameter to pass to the -O option of dtc.
+drivers/usb/gadget/udc/bdc/bdc_ep.c:543:28: warning: comparison of
+address of 'req->queue' equal to a null pointer is always false
+[-Wtautological-pointer-compare]
+        if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
+                             ~~~~~^~~~~    ~~~~
+drivers/usb/gadget/udc/bdc/bdc_ep.c:543:51: warning: comparison of
+address of 'req->usb_req' equal to a null pointer is always false
+[-Wtautological-pointer-compare]
+        if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
+                                                    ~~~~~^~~~~~~    ~~~~
+2 warnings generated.
 
-We need to pass 'yaml' to if_changed_rule. Otherwise, cmd-check invoked
-from if_changed_rule is false positive.
+As it notes, these statements will always evaluate to false so remove
+them.
 
-Fixes: 7a0496056064 ("kbuild: fix DT binding schema rule to detect command line changes")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: efed421a94e6 ("usb: gadget: Add UDC driver for Broadcom USB3.0 device controller IP BDC")
+Link: https://github.com/ClangBuiltLinux/linux/issues/749
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- scripts/Makefile.lib |    2 +-
+ drivers/usb/gadget/udc/bdc/bdc_ep.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/scripts/Makefile.lib
-+++ b/scripts/Makefile.lib
-@@ -308,7 +308,7 @@ define rule_dtc
- endef
+--- a/drivers/usb/gadget/udc/bdc/bdc_ep.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_ep.c
+@@ -540,7 +540,7 @@ static void bdc_req_complete(struct bdc_
+ {
+ 	struct bdc *bdc = ep->bdc;
  
- $(obj)/%.dt.yaml: $(src)/%.dts $(DTC) $(DT_TMP_SCHEMA) FORCE
--	$(call if_changed_rule,dtc)
-+	$(call if_changed_rule,dtc,yaml)
+-	if (req == NULL  || &req->queue == NULL || &req->usb_req == NULL)
++	if (req == NULL)
+ 		return;
  
- dtc-tmp = $(subst $(comma),_,$(dot-target).dts.tmp)
- 
+ 	dev_dbg(bdc->dev, "%s ep:%s status:%d\n", __func__, ep->name, status);
 
 
