@@ -2,157 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B56C11C1DE6
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 21:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AAB21C1E08
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 21:44:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726649AbgEATap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 15:30:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51110 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726377AbgEATap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 15:30:45 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23827C061A0C
-        for <stable@vger.kernel.org>; Fri,  1 May 2020 12:30:45 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id d184so1986538pfd.4
-        for <stable@vger.kernel.org>; Fri, 01 May 2020 12:30:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=RiOM9aeCaVajMvDkeRc0afWzRq8+Gt0jqzt+u5W/xsY=;
-        b=YtDnCX66p7jgIjhZ+pGLIiqxMTv95/yONQ8KHofBv+KGP1+mqel2B2h78yuwNf5P88
-         /n4x62GSqZKGH2pSUtC6sQ97sOFpcAfs0zps84s3qruFYMaN9kfDq+j8b9v1Wmjp+cmo
-         do0cKDFcpL/cydN6nYyZpV7S3rjMKyHJnaUfj/EbnHTwZZpSO6JV5dL1VnDBrDYJnnNQ
-         OSp21Ko/uUaSqG6Q3MdkKAbrDqfclm1tC6shMnG9HoK1yL/uFodyMBX4aEIUBmGuXWYh
-         9QI9EqRsq81an6QN5uUmc9/dfNDfgbXjOVt4Y6TN3jTFE0pTBlNbPCjmvgt9Vsl/f1CF
-         jErA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=RiOM9aeCaVajMvDkeRc0afWzRq8+Gt0jqzt+u5W/xsY=;
-        b=WQ+9i3CFDUdmWwXX1A8KSvpGwT+ydPB2aSfe2z6Hmu7Fl8ttrwcJ4xN+GK59f+3YpQ
-         GHLluES5Ovcnus1I59zaTIOTvkrewldhHbrfqmZz2Wo0v0Idp7+uubwL+hGf3Gt+dwAq
-         w2UiUqmV1KY71l0yRs8K2Gg6EAZaSnc3JAUBz4Rfc/vWyflRY7d+iwTK3l3FTDiTWtDz
-         2ecqOqntbDZImhtTl9iIDjRDdjnZM9m/O4+KJohu1QeUL6S/hmYvvp/g2RZzEqT+HpCp
-         wMZbfZjVl7aEiBjjkk7ovK+kf2n5QGGJ6/U8s5s7KlJbWKmmXBwC7Wgnnnfzp+BgnutB
-         sbSQ==
-X-Gm-Message-State: AGi0PuYLIhfju1lB2iz8yM78zZhVWOFAoa0ovvdxyn7rgY1JGC8V6cnA
-        J6wfLhLlw5i6iTdk3Sb+ikuHq4bbs9c=
-X-Google-Smtp-Source: APiQypKCgX4eORgv0pOLStmohApBiBeJqCgSHMJqlyRQ0MLiswlYX1hxnWIRsxnMYI/ePagVFu43lA==
-X-Received: by 2002:a62:6585:: with SMTP id z127mr5628285pfb.217.1588361444312;
-        Fri, 01 May 2020 12:30:44 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a129sm2980283pfb.102.2020.05.01.12.30.43
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 May 2020 12:30:43 -0700 (PDT)
-Message-ID: <5eac78e3.1c69fb81.7e271.ac26@mx.google.com>
-Date:   Fri, 01 May 2020 12:30:43 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.220-71-gbe0a2ec77b53
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 92 boots: 3 failed,
- 79 passed with 4 offline, 4 untried/unknown,
- 2 conflicts (v4.4.220-71-gbe0a2ec77b53)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726475AbgEATns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 15:43:48 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:35313 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726892AbgEATns (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 15:43:48 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1588362227; h=Message-Id: Date: Subject: Cc: To: From:
+ Sender; bh=8MTWVNBp7jmyXYFX7PHfvSnL9tpX1AfSD1FL7Ijrg/8=; b=wdXJi9vBgh+4688bFfGqg7+cIbDc8V63/MJ37nY+MmFIgt3E3/LYjGv1PsKFpsnzLZbY2qUM
+ 8SYbluUHgHtdWielv4Q5ll5JGHldRCkwixwKk5DFrw3pRIATUNAgpK4RRN8EnSDnNzL3QxAt
+ 4YbfVhDVbT/0tTmiVCVXbSJRdyE=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5eac7be6.7f104dc41b20-smtp-out-n01;
+ Fri, 01 May 2020 19:43:34 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 5B9B6C4478F; Fri,  1 May 2020 19:43:32 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from jordan-laptop.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: jcrouse)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 639C4C433CB;
+        Fri,  1 May 2020 19:43:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 639C4C433CB
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=jcrouse@codeaurora.org
+From:   Jordan Crouse <jcrouse@codeaurora.org>
+To:     linux-arm-msm@vger.kernel.org
+Cc:     Eric Anholt <eric@anholt.net>, stable@vger.kernel.org,
+        Akhil P Oommen <akhilpo@codeaurora.org>,
+        AngeloGioacchino Del Regno <kholk11@gmail.com>,
+        Ben Dooks <ben.dooks@codethink.co.uk>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
+        Sharat Masetty <smasetty@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3] drm/msm: Check for powered down HW in the devfreq callbacks
+Date:   Fri,  1 May 2020 13:43:26 -0600
+Message-Id: <20200501194326.14593-1-jcrouse@codeaurora.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 92 boots: 3 failed, 79 passed with 4 offline, 4=
- untried/unknown, 2 conflicts (v4.4.220-71-gbe0a2ec77b53)
+Writing to the devfreq sysfs nodes while the GPU is powered down can
+result in a system crash (on a5xx) or a nasty GMU error (on a6xx):
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.220-71-gbe0a2ec77b53/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.220-71-gbe0a2ec77b53/
+ $ /sys/class/devfreq/5000000.gpu# echo 500000000 > min_freq
+  [  104.841625] platform 506a000.gmu: [drm:a6xx_gmu_set_oob]
+	*ERROR* Timeout waiting for GMU OOB set GPU_DCVS: 0x0
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.220-71-gbe0a2ec77b53
-Git Commit: be0a2ec77b5371fbc2ab490082d65ac7796b7392
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 49 unique boards, 17 SoC families, 17 builds out of 190
+Despite the fact that we carefully try to suspend the devfreq device when
+the hardware is powered down there are lots of holes in the governors that
+don't check for the suspend state and blindly call into the devfreq
+callbacks that end up triggering hardware reads in the GPU driver.
 
-Boot Regressions Detected:
+Call pm_runtime_get_if_in_use() in the gpu_busy() and gpu_set_freq()
+callbacks to skip the hardware access if it isn't active.
 
-arm:
+v3: Only check pm_runtime_get_if_in_use() for == 0 per Eric Anholt
+v2: Use pm_runtime_get_if_in_use() per Eric Anholt
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 83 days (last pass: v4.4.=
-212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 36 days (last pass: v4.4.216-127-=
-g955137020949 - first fail: v4.4.217)
-
-i386:
-
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-baylibre: failing since 1 day (last pass: v4.4.220-54-g00=
-dcb2acee8d - first fail: v4.4.220-61-gf597674b96ad)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-baylibre: FAIL (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-baylibre: PASS (gcc-8)
-            lab-collabora: FAIL (gcc-8)
-
+Cc: stable@vger.kernel.org
+Reviewed-by: Eric Anholt <eric@anholt.net>
+Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
 ---
-For more info write to <info@kernelci.org>
+
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 6 ++++++
+ drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 8 ++++++++
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 7 +++++++
+ 3 files changed, 21 insertions(+)
+
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index 724024a2243a..662d02289533 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -1404,6 +1404,10 @@ static unsigned long a5xx_gpu_busy(struct msm_gpu *gpu)
+ {
+ 	u64 busy_cycles, busy_time;
+ 
++	/* Only read the gpu busy if the hardware is already active */
++	if (pm_runtime_get_if_in_use(&gpu->pdev->dev) == 0)
++		return 0;
++
+ 	busy_cycles = gpu_read64(gpu, REG_A5XX_RBBM_PERFCTR_RBBM_0_LO,
+ 			REG_A5XX_RBBM_PERFCTR_RBBM_0_HI);
+ 
+@@ -1412,6 +1416,8 @@ static unsigned long a5xx_gpu_busy(struct msm_gpu *gpu)
+ 
+ 	gpu->devfreq.busy_cycles = busy_cycles;
+ 
++	pm_runtime_put(&gpu->pdev->dev);
++
+ 	if (WARN_ON(busy_time > ~0LU))
+ 		return ~0LU;
+ 
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+index c4e71abbdd53..34607a98cc7c 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+@@ -108,6 +108,13 @@ static void __a6xx_gmu_set_freq(struct a6xx_gmu *gmu, int index)
+ 	struct msm_gpu *gpu = &adreno_gpu->base;
+ 	int ret;
+ 
++	/*
++	 * This can get called from devfreq while the hardware is idle. Don't
++	 * bring up the power if it isn't already active
++	 */
++	if (pm_runtime_get_if_in_use(gmu->dev) == 0)
++		return;
++
+ 	gmu_write(gmu, REG_A6XX_GMU_DCVS_ACK_OPTION, 0);
+ 
+ 	gmu_write(gmu, REG_A6XX_GMU_DCVS_PERF_SETTING,
+@@ -134,6 +141,7 @@ static void __a6xx_gmu_set_freq(struct a6xx_gmu *gmu, int index)
+ 	 * for now leave it at max so that the performance is nominal.
+ 	 */
+ 	icc_set_bw(gpu->icc_path, 0, MBps_to_icc(7216));
++	pm_runtime_put(gmu->dev);
+ }
+ 
+ void a6xx_gmu_set_freq(struct msm_gpu *gpu, unsigned long freq)
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index 68af24150de5..2c09d2c21773 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -810,6 +810,11 @@ static unsigned long a6xx_gpu_busy(struct msm_gpu *gpu)
+ 	struct a6xx_gpu *a6xx_gpu = to_a6xx_gpu(adreno_gpu);
+ 	u64 busy_cycles, busy_time;
+ 
++
++	/* Only read the gpu busy if the hardware is already active */
++	if (pm_runtime_get_if_in_use(a6xx_gpu->gmu.dev) == 0)
++		return 0;
++
+ 	busy_cycles = gmu_read64(&a6xx_gpu->gmu,
+ 			REG_A6XX_GMU_CX_GMU_POWER_COUNTER_XOCLK_0_L,
+ 			REG_A6XX_GMU_CX_GMU_POWER_COUNTER_XOCLK_0_H);
+@@ -819,6 +824,8 @@ static unsigned long a6xx_gpu_busy(struct msm_gpu *gpu)
+ 
+ 	gpu->devfreq.busy_cycles = busy_cycles;
+ 
++	pm_runtime_put(a6xx_gpu->gmu.dev);
++
+ 	if (WARN_ON(busy_time > ~0LU))
+ 		return ~0LU;
+ 
+-- 
+2.17.1
