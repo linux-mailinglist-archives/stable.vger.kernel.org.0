@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F431C15C4
-	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:07:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70AF21C156F
+	for <lists+stable@lfdr.de>; Fri,  1 May 2020 16:06:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730449AbgEANdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 09:33:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59296 "EHLO mail.kernel.org"
+        id S1729451AbgEAN1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 09:27:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730446AbgEANdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 May 2020 09:33:36 -0400
+        id S1729449AbgEAN1X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 May 2020 09:27:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11FF52051A;
-        Fri,  1 May 2020 13:33:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E8972173E;
+        Fri,  1 May 2020 13:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588340016;
-        bh=nJIEePPE1TEDOFYdkWzJVazkkJ72DI3n4ItPC3EFnL8=;
+        s=default; t=1588339642;
+        bh=0zLG5dH1Rq1JDFb29VFSxBmi70aNXp5rUQ2OyGRCB7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQittsTOGRwnxVNRXbgkP0ZGOPoqGrBCsuRiNQ9oTvcurDMdyAS6h4e6dEjEhkLax
-         DSArnbTH41gECiRzdP9PXXGmRDRQbvUt1Tvx8LrW+qXBgQ/lWGM4dNz7m3yce48pWo
-         V4FlH651Fh1aJEaYkr6XZWGv2ZYJztTIqvbIGjdA=
+        b=uIZpRBQu25m9yJMkd/44X/y+qb6aQoHuXx0xPveRlGaSHvySYwXR9DTE/9CE32vK1
+         3Dk4gxBf8gP6sn4t9RcMPuD44BBjfSNfrTDI74rAgcDHZIeAH+PZ2oDTMkF5/G0szZ
+         y0ZeW9dke2KHK65KN11wfavhvrwqMUsMUVW5gEGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Malcolm Priestley <tvboxspy@gmail.com>
-Subject: [PATCH 4.14 072/117] staging: vt6656: Dont set RCR_MULTICAST or RCR_BROADCAST by default.
+        stable@vger.kernel.org, KP Singh <kpsingh@google.com>,
+        Ian Rogers <irogers@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.4 60/70] perf/core: fix parent pid/tid in task exit events
 Date:   Fri,  1 May 2020 15:21:48 +0200
-Message-Id: <20200501131553.625904236@linuxfoundation.org>
+Message-Id: <20200501131531.275176682@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200501131544.291247695@linuxfoundation.org>
-References: <20200501131544.291247695@linuxfoundation.org>
+In-Reply-To: <20200501131513.302599262@linuxfoundation.org>
+References: <20200501131513.302599262@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Malcolm Priestley <tvboxspy@gmail.com>
+From: Ian Rogers <irogers@google.com>
 
-commit 0f8240bfc070033a4823b19883efd3d38c7735cc upstream.
+commit f3bed55e850926614b9898fe982f66d2541a36a5 upstream.
 
-mac80211/users control whether multicast is on or off don't enable it by default.
+Current logic yields the child task as the parent.
 
-Fixes an issue when multicast/broadcast is always on allowing other beacons through
-in power save.
+Before:
+$ perf record bash -c "perf list > /dev/null"
+$ perf script -D |grep 'FORK\|EXIT'
+4387036190981094 0x5a70 [0x30]: PERF_RECORD_FORK(10472:10472):(10470:10470)
+4387036606207580 0xf050 [0x30]: PERF_RECORD_EXIT(10472:10472):(10472:10472)
+4387036607103839 0x17150 [0x30]: PERF_RECORD_EXIT(10470:10470):(10470:10470)
+                                                   ^
+  Note the repeated values here -------------------/
 
-Fixes: db8f37fa3355 ("staging: vt6656: mac80211 conversion: main_usb add functions...")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
-Link: https://lore.kernel.org/r/2c24c33d-68c4-f343-bd62-105422418eac@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After:
+383281514043 0x9d8 [0x30]: PERF_RECORD_FORK(2268:2268):(2266:2266)
+383442003996 0x2180 [0x30]: PERF_RECORD_EXIT(2268:2268):(2266:2266)
+383451297778 0xb70 [0x30]: PERF_RECORD_EXIT(2266:2266):(2265:2265)
+
+Fixes: 94d5d1b2d891 ("perf_counter: Report the cloning task as parent on perf_counter_fork()")
+Reported-by: KP Singh <kpsingh@google.com>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200417182842.12522-1-irogers@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6656/main_usb.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ kernel/events/core.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -779,15 +779,11 @@ static void vnt_configure(struct ieee802
- {
- 	struct vnt_private *priv = hw->priv;
- 	u8 rx_mode = 0;
--	int rc;
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5810,10 +5810,17 @@ static void perf_event_task_output(struc
+ 		goto out;
  
- 	*total_flags &= FIF_ALLMULTI | FIF_OTHER_BSS | FIF_BCN_PRBRESP_PROMISC;
- 
--	rc = vnt_control_in(priv, MESSAGE_TYPE_READ, MAC_REG_RCR,
--			    MESSAGE_REQUEST_MACREG, sizeof(u8), &rx_mode);
+ 	task_event->event_id.pid = perf_event_pid(event, task);
+-	task_event->event_id.ppid = perf_event_pid(event, current);
 -
--	if (!rc)
--		rx_mode = RCR_MULTICAST | RCR_BROADCAST;
-+	vnt_control_in(priv, MESSAGE_TYPE_READ, MAC_REG_RCR,
-+		       MESSAGE_REQUEST_MACREG, sizeof(u8), &rx_mode);
+ 	task_event->event_id.tid = perf_event_tid(event, task);
+-	task_event->event_id.ptid = perf_event_tid(event, current);
++
++	if (task_event->event_id.header.type == PERF_RECORD_EXIT) {
++		task_event->event_id.ppid = perf_event_pid(event,
++							task->real_parent);
++		task_event->event_id.ptid = perf_event_pid(event,
++							task->real_parent);
++	} else {  /* PERF_RECORD_FORK */
++		task_event->event_id.ppid = perf_event_pid(event, current);
++		task_event->event_id.ptid = perf_event_tid(event, current);
++	}
  
- 	dev_dbg(&priv->usb->dev, "rx mode in = %x\n", rx_mode);
+ 	task_event->event_id.time = perf_event_clock(event);
  
 
 
