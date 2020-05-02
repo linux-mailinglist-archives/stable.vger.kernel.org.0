@@ -2,140 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F03AD1C2370
-	for <lists+stable@lfdr.de>; Sat,  2 May 2020 08:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE06A1C2383
+	for <lists+stable@lfdr.de>; Sat,  2 May 2020 08:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726503AbgEBGAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 May 2020 02:00:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47450 "EHLO mail.kernel.org"
+        id S1726468AbgEBGR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 May 2020 02:17:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726468AbgEBGAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 2 May 2020 02:00:19 -0400
-Received: from sol.hsd1.ca.comcast.net (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726058AbgEBGR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 2 May 2020 02:17:28 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 174842137B;
-        Sat,  2 May 2020 06:00:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4F1A21775;
+        Sat,  2 May 2020 06:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588399219;
-        bh=2TZcArf1YUgKkcv3Pow2cc7A9wlRsm3LVNfkjMQvDIU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=bpBNP+z008ubNPNLGe/0RCLG7aa5tXFBEaeDeae+BOeIyPxQXhlYoOExsrpJrAMdj
-         8gLIYcsEn7tdNql0i07dnM5qJPf3DjDoG0pxAP/zOhW/Ank0Oaeydi0qZ0eoQXXN5H
-         9j7lW3scMPF/mW9KsDJ93WP+zRzOCEAJc6N1j0v8=
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Richard Weinberger <richard@nod.at>, linux-mtd@lists.infradead.org
-Cc:     linux-crypto@vger.kernel.org, stable@vger.kernel.org,
-        Sascha Hauer <s.hauer@pengutronix.de>
-Subject: [PATCH] ubifs: fix wrong use of crypto_shash_descsize()
-Date:   Fri,  1 May 2020 22:59:45 -0700
-Message-Id: <20200502055945.1008194-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.26.2
+        s=default; t=1588400248;
+        bh=//nlECgryOelNdzOoFPqzRTJSfSuHWAatQp8ys5mRaI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rDwxi5CbMZb6/AsUVW66xu0cv5yN9flOBBCcbixdLaHmUmM+q2jFPcMK/TgcOvNS6
+         4XrqItx7ZzKjnkakzRnDj8N6nAqpB/JJKKYmTeBazOHpMC6zPGyMBt2j+AJDe9lEKv
+         Rdu2vJBpLX4F+YsTUYjpCzDTbm8ZKfc7VamEdD1o=
+Date:   Sat, 2 May 2020 08:17:26 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.6 000/106] 5.6.9-rc1 review
+Message-ID: <20200502061726.GA2531911@kroah.com>
+References: <20200501131543.421333643@linuxfoundation.org>
+ <20200501221831.GF44185@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200501221831.GF44185@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+On Fri, May 01, 2020 at 03:18:31PM -0700, Guenter Roeck wrote:
+> On Fri, May 01, 2020 at 03:22:33PM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.6.9 release.
+> > There are 106 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sun, 03 May 2020 13:12:02 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> Build results:
+> 	total: 155 pass: 155 fail: 0
+> Qemu test results:
+> 	total: 428 pass: 428 fail: 0
 
-crypto_shash_descsize() returns the size of the shash_desc context
-needed to compute the hash, not the size of the hash itself.
+Thanks for testing all of these and letting me know.
 
-crypto_shash_digestsize() would be correct, or alternatively using
-c->hash_len and c->hmac_desc_len which already store the correct values.
-But actually it's simpler to just use stack arrays, so do that instead.
-
-Fixes: 49525e5eecca ("ubifs: Add helper functions for authentication support")
-Fixes: da8ef65f9573 ("ubifs: Authenticate replayed journal")
-Cc: <stable@vger.kernel.org> # v4.20+
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- fs/ubifs/auth.c   | 17 ++++-------------
- fs/ubifs/replay.c | 13 ++-----------
- 2 files changed, 6 insertions(+), 24 deletions(-)
-
-diff --git a/fs/ubifs/auth.c b/fs/ubifs/auth.c
-index 8cdbd53d780ca7..f985a3fbbb36a1 100644
---- a/fs/ubifs/auth.c
-+++ b/fs/ubifs/auth.c
-@@ -79,13 +79,9 @@ int ubifs_prepare_auth_node(struct ubifs_info *c, void *node,
- 			     struct shash_desc *inhash)
- {
- 	struct ubifs_auth_node *auth = node;
--	u8 *hash;
-+	u8 hash[UBIFS_HASH_ARR_SZ];
- 	int err;
- 
--	hash = kmalloc(crypto_shash_descsize(c->hash_tfm), GFP_NOFS);
--	if (!hash)
--		return -ENOMEM;
--
- 	{
- 		SHASH_DESC_ON_STACK(hash_desc, c->hash_tfm);
- 
-@@ -94,21 +90,16 @@ int ubifs_prepare_auth_node(struct ubifs_info *c, void *node,
- 
- 		err = crypto_shash_final(hash_desc, hash);
- 		if (err)
--			goto out;
-+			return err;
- 	}
- 
- 	err = ubifs_hash_calc_hmac(c, hash, auth->hmac);
- 	if (err)
--		goto out;
-+		return err;
- 
- 	auth->ch.node_type = UBIFS_AUTH_NODE;
- 	ubifs_prepare_node(c, auth, ubifs_auth_node_sz(c), 0);
--
--	err = 0;
--out:
--	kfree(hash);
--
--	return err;
-+	return 0;
- }
- 
- static struct shash_desc *ubifs_get_desc(const struct ubifs_info *c,
-diff --git a/fs/ubifs/replay.c b/fs/ubifs/replay.c
-index b28ac4dfb4070a..01fcf79750472b 100644
---- a/fs/ubifs/replay.c
-+++ b/fs/ubifs/replay.c
-@@ -601,18 +601,12 @@ static int authenticate_sleb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
- 	struct ubifs_scan_node *snod;
- 	int n_nodes = 0;
- 	int err;
--	u8 *hash, *hmac;
-+	u8 hash[UBIFS_HASH_ARR_SZ];
-+	u8 hmac[UBIFS_HMAC_ARR_SZ];
- 
- 	if (!ubifs_authenticated(c))
- 		return sleb->nodes_cnt;
- 
--	hash = kmalloc(crypto_shash_descsize(c->hash_tfm), GFP_NOFS);
--	hmac = kmalloc(c->hmac_desc_len, GFP_NOFS);
--	if (!hash || !hmac) {
--		err = -ENOMEM;
--		goto out;
--	}
--
- 	list_for_each_entry(snod, &sleb->nodes, list) {
- 
- 		n_nodes++;
-@@ -662,9 +656,6 @@ static int authenticate_sleb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
- 		err = 0;
- 	}
- out:
--	kfree(hash);
--	kfree(hmac);
--
- 	return err ? err : n_nodes - n_not_auth;
- }
- 
--- 
-2.26.2
-
+greg k-h
