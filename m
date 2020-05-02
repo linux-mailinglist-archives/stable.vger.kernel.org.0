@@ -2,147 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 276F11C2208
-	for <lists+stable@lfdr.de>; Sat,  2 May 2020 02:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADFFC1C2209
+	for <lists+stable@lfdr.de>; Sat,  2 May 2020 02:44:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726468AbgEBAnP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 May 2020 20:43:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726455AbgEBAnP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 20:43:15 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC61C061A0C
-        for <stable@vger.kernel.org>; Fri,  1 May 2020 17:43:14 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id t7so4232027plr.0
-        for <stable@vger.kernel.org>; Fri, 01 May 2020 17:43:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=TOFHAGqLpHwaPNJe47hHXyW9QYUukkvge2aEtaj1LuQ=;
-        b=zq83ZIzXEInR+2cRBYfSU1B3PnH/8iRTZUT8vyRo7TDoi54nxf9I6VF+paaHm61pnc
-         7a8ECiQcmfvy0ZXPoiFRZR8gBgcuEzFxaQSxgLbPYVcGqWA1wjPMVOScIkSGsmbt6tOh
-         gJqXgdCf4C3Bgg81srWYroZwrl6d80ZgQCyinuzFGJADZ+fBDfpnJw+SeTftoScoUrln
-         OqGDKQ3RUErnjMgEU1StTHCuaN//ibw153psSiRH3vPhKW7FKNdQjJvo8FbzIC9nKqvP
-         Egb79de4nlpX+x52/8xpuZxOfO1jrqr7C+JNLEUGExbl6gjRzpyT2gqUTobIUsXhQP5v
-         RjKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=TOFHAGqLpHwaPNJe47hHXyW9QYUukkvge2aEtaj1LuQ=;
-        b=WF2HkGEA+ew+pXHcjBB9yxrBq0AiRJp96QjejUzaTEwgmRZDLJ1Bx3hRNBg0Uw7TPu
-         RFhxZIkAx1gx+AjqBdXACTdQJ9qeP+UM6oEe5VfapS+384ygawbrZ/UcFPV1/6D6KsSi
-         ig2qClMnGQUkhGGDqqeihkZk0VH9vQYML1Tf375mLAJvygcWtJGzjDuK9BWkJa3lsVje
-         jxnxTRf+vliGYkOZv3qUSBiLOYjUShnS7Ruvi92vi+HgCudmjfOn8ZO82w8DcQELpt3l
-         wXjBjvJv26fevOqHUwBOG5Bnyb3fiUSHX6j7xHZVf+ewO4EsMQEObwCpS4wJ4Iim/DhD
-         03RA==
-X-Gm-Message-State: AGi0PuZU5yw6//9vlelG3MU4J50CTTg8SlraYWqkMYUX+xuOyX90G8kZ
-        MQA/wJBNeP8tXmRVWJK0TdK1Draohgs=
-X-Google-Smtp-Source: APiQypJ0zBqhEXzVolCow7Q3TnDjSlrcXAdzKHcd3+08kSwcTywNVxCgRwK9YQPJy8iChRbXjzHs8g==
-X-Received: by 2002:a17:90a:9f92:: with SMTP id o18mr2705527pjp.180.1588380194163;
-        Fri, 01 May 2020 17:43:14 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t103sm681207pjb.46.2020.05.01.17.43.13
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 May 2020 17:43:13 -0700 (PDT)
-Message-ID: <5eacc221.1c69fb81.b4358.28ce@mx.google.com>
-Date:   Fri, 01 May 2020 17:43:13 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.36-84-gbecd7d89321d
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.4.y boot: 139 boots: 2 failed,
- 128 passed with 5 offline, 4 untried/unknown (v5.4.36-84-gbecd7d89321d)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726430AbgEBAor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 May 2020 20:44:47 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:34772 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726352AbgEBAoq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 May 2020 20:44:46 -0400
+Received: from mailhost.synopsys.com (sv2-mailhost1.synopsys.com [10.205.2.133])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 50B1E4398D;
+        Sat,  2 May 2020 00:44:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1588380286; bh=f2s7mSgHF8VO4XLOfnwmQTgt2ilzKuI2hZe+IzdJUJM=;
+        h=Date:From:Subject:To:Cc:From;
+        b=aPLoFZEWBpENlDqHDxmnRjK4Fwo1irAi4Z+hBEXc/a3/tQNRIzJ6/hPCH+4dFfmUC
+         iplDwVPIHuB0JgKq5s+bUGHMdVbFcugF44doj0gU3LKm2q7tdq4WruJYH9HNdbPnPQ
+         We0n3SWhfaGm4zphdVwAgrMWhgPWQUho85ruG8KRzZ1dBTIMym2PZpy8whL/gMXF4I
+         znWfQna8kqDlf85dUtalBLLaMq16gdBg1oTh8Ue69pziprgksWqPI0fTQEwfVTyuL6
+         LJVxzptoDvOXgbk1db4+0XFUKM+1gNArrO7M6bmmDgB5eRoH5yLzOADXccDtQaCni+
+         Dk5jQTpMDmYoA==
+Received: from te-lab16 (nanobot.internal.synopsys.com [10.10.186.99])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id D5542A0259;
+        Sat,  2 May 2020 00:44:44 +0000 (UTC)
+Received: by te-lab16 (sSMTP sendmail emulation); Fri, 01 May 2020 17:44:44 -0700
+Date:   Fri, 01 May 2020 17:44:44 -0700
+Message-Id: <7685ba14eaa185a170d6c4c9668d2ad98eeb8b14.1588380090.git.thinhn@synopsys.com>
+From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH] usb: dwc3: gadget: Don't setup more than requested
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org,
+        Anurag Kumar Vulisha <anuragku@xilinx.com>
+Cc:     John Youn <John.Youn@synopsys.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 139 boots: 2 failed, 128 passed with 5 offline,=
- 4 untried/unknown (v5.4.36-84-gbecd7d89321d)
+The sgl may be allocated larger than the requested length. Check the
+usb_request->length and make sure that we don't setup the TRB to
+send/receive more than requested.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.36-84-gbecd7d89321d/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.36-84-gbecd7d89321d/
-
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.36-84-gbecd7d89321d
-Git Commit: becd7d89321d9b96617ee5a99498213c703be541
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 96 unique boards, 25 SoC families, 20 builds out of 200
-
-Boot Regressions Detected:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          imx6q-var-dt6customboard:
-              lab-baylibre: new failure (last pass: v5.4.36-52-g35bbc55d9e2=
-9)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 23 days (last pass: v5.4.30-37-g4=
-0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v5.4.36-52-g35b=
-bc55d9e29)
-          meson-g12b-a311d-khadas-vim3:
-              lab-baylibre: new failure (last pass: v5.4.36-52-g35bbc55d9e2=
-9)
-          meson-gxl-s805x-p241:
-              lab-baylibre: new failure (last pass: v5.4.36-52-g35bbc55d9e2=
-9)
-
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-g12b-a311d-khadas-vim3: 1 failed lab
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
+Cc: stable@vger.kernel.org
+Fixes: a31e63b608ff ("usb: dwc3: gadget: Correct handling of scattergather lists")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/usb/dwc3/gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 4ca3e197bee4..95ec39e42409 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1040,7 +1040,8 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
+ 	unsigned		no_interrupt = req->request.no_interrupt;
+ 
+ 	if (req->request.num_sgs > 0) {
+-		length = sg_dma_len(req->start_sg);
++		length = min_t(unsigned int, req->request.length,
++			       sg_dma_len(req->start_sg));
+ 		dma = sg_dma_address(req->start_sg);
+ 	} else {
+ 		length = req->request.length;
+-- 
+2.11.0
+
