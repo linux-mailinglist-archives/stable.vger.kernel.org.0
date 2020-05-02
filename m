@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 618DC1C239E
-	for <lists+stable@lfdr.de>; Sat,  2 May 2020 08:46:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 954A91C23A0
+	for <lists+stable@lfdr.de>; Sat,  2 May 2020 08:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726574AbgEBGq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 May 2020 02:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59304 "EHLO mail.kernel.org"
+        id S1726520AbgEBGrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 May 2020 02:47:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726473AbgEBGq5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 2 May 2020 02:46:57 -0400
+        id S1726473AbgEBGrP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 2 May 2020 02:47:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9754206F0;
-        Sat,  2 May 2020 06:46:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4622D2184D;
+        Sat,  2 May 2020 06:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588402016;
-        bh=rc4rA4GZKwo53l81RVnvD/Mbk/Muemv0hJoIpuQgd5M=;
+        s=default; t=1588402034;
+        bh=uFbbxqHjDAaBtjK8xy5H1rnfkyncUlke3i3gKFsbnZY=;
         h=From:To:Cc:Subject:Date:From;
-        b=T8EFFFd29g30fJ3c8VJdrwNGsQB6Z60rFizpQa5ZDBLO97cKsrXBL3iN/p2aaQjfu
-         V2QiAUujDWb41crJnIp/nvftARbTne2ToeAaXcCpZGH1+PkIr50EILwY5aCNQ3px2t
-         Kc5y95W9bB5S+ZL369WeAPqOPiPvXKE7HqLnKUY0=
+        b=psymQd/Q3loPI1EU4e0P6q3Tu7gX/Mq5wY9cHPRXFw1At0JwfBzPocUnt8Wj+/C1k
+         ccvIGhhHwbebkKGq8UBNseHK523u5V8fMZcvoWLiV0IW5fEB8zjsgG28bFJTbKfB4c
+         R13F+N4n2C87iygg3yid3xnrjXYYJfx9ey9ATIhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,19 +30,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH 4.4 00/70] 4.4.221-rc2 review
-Date:   Sat,  2 May 2020 08:46:53 +0200
-Message-Id: <20200502064240.568495432@linuxfoundation.org>
+Subject: [PATCH 4.9 00/80] 4.9.221-rc2 review
+Date:   Sat,  2 May 2020 08:47:10 +0200
+Message-Id: <20200502064242.181724036@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.221-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.221-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Branch: linux-4.9.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.221-rc2
+X-KernelTest-Version: 4.9.221-rc2
 X-KernelTest-Deadline: 2020-05-04T06:42+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -50,8 +50,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.221 release.
-There are 70 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 4.9.221 release.
+There are 80 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -59,9 +59,9 @@ Responses should be made by Mon, 04 May 2020 06:40:34 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.221-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.221-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
 and the diffstat can be found below.
 
 thanks,
@@ -72,10 +72,13 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.221-rc2
+    Linux 4.9.221-rc2
 
 Al Viro <viro@zeniv.linux.org.uk>
     propagate_one(): mnt_set_mountpoint() needs mount_lock
+
+Ritesh Harjani <riteshh@linux.ibm.com>
+    ext4: check for non-zero journal inum in ext4_calculate_overhead
 
 Colin Ian King <colin.king@canonical.com>
     ext4: unsigned int compared against zero
@@ -92,14 +95,26 @@ Theodore Ts'o <tytso@mit.edu>
 Theodore Ts'o <tytso@mit.edu>
     ext4: avoid declaring fs inconsistent due to invalid file handles
 
+Sascha Hauer <s.hauer@pengutronix.de>
+    hwmon: (jc42) Fix name to have no illegal characters
+
 Theodore Ts'o <tytso@mit.edu>
     ext4: convert BUG_ON's to WARN_ON's in mballoc.c
 
 Juergen Gross <jgross@suse.com>
     xen/xenbus: ensure xenbus_map_ring_valloc() returns proper grant status
 
+Josh Poimboeuf <jpoimboe@redhat.com>
+    objtool: Support Clang non-section symbols in ORC dump
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    objtool: Fix CONFIG_UBSAN_TRAP unreachable warnings
+
 Bodo Stroesser <bstroesser@ts.fujitsu.com>
     scsi: target: fix PR IN / READ FULL STATUS for FC
+
+Darrick J. Wong <darrick.wong@oracle.com>
+    xfs: fix partially uninitialized structure in xfs_reflink_remap_extent
 
 Luke Nelson <lukenels@cs.washington.edu>
     bpf, x86: Fix encoding for lower 8-bit registers in BPF_STX BPF_B
@@ -110,6 +125,9 @@ Ian Rogers <irogers@google.com>
 Jason Gunthorpe <jgg@mellanox.com>
     net/cxgb4: Check the return from t4_query_params properly
 
+Vasily Averin <vvs@virtuozzo.com>
+    nfsd: memory corruption in nfsd4_lock()
+
 Nathan Chancellor <natechancellor@gmail.com>
     usb: gadget: udc: bdc: Remove unnecessary NULL checks in bdc_req_complete
 
@@ -118,9 +136,6 @@ Liu Jian <liujian56@huawei.com>
 
 Miklos Szeredi <mszeredi@redhat.com>
     fuse: fix possibly missed wake-up after abort
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: use right member as the param of list_for_each_entry
 
 Clement Leger <cleger@kalray.eu>
     remoteproc: Fix wrong rvring index computation
@@ -170,6 +185,9 @@ Uros Bizjak <ubizjak@gmail.com>
 Sean Christopherson <sean.j.christopherson@intel.com>
     KVM: Check validity of resolved slot when searching memslots
 
+Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+    tpm/tpm_tis: Free IRQ if probing fails
+
 Alexander Tsoy <alexander@tsoy.me>
     ALSA: usb-audio: Filter out unsupported sample rates on Focusrite devices
 
@@ -179,17 +197,17 @@ Xiyu Yang <xiyuyang19@fudan.edu.cn>
 Takashi Iwai <tiwai@suse.de>
     ALSA: usx2y: Fix potential NULL dereference
 
+Jann Horn <jannh@google.com>
+    vmalloc: fix remap_vmalloc_range() bounds checks
+
+Jason Gunthorpe <jgg@mellanox.com>
+    overflow.h: Add arithmetic shift helper
+
 Alan Stern <stern@rowland.harvard.edu>
     USB: hub: Fix handling of connect changes during sleep
 
 Alan Stern <stern@rowland.harvard.edu>
     USB: core: Fix free-while-in-use bug in the USB S-Glibrary
-
-David Mosberger <davidm@egauge.net>
-    drivers: usb: core: Minimize irq disabling in usb_sg_cancel()
-
-David Mosberger <davidm@egauge.net>
-    drivers: usb: core: Don't disable irqs in usb_sg_wait() during URB submit.
 
 Jonathan Cox <jonathan@jdcox.net>
     USB: Add USB_QUIRK_DELAY_CTRL_MSG and USB_QUIRK_DELAY_INIT for Corsair K70 RGB RAPIDFIRE
@@ -215,6 +233,9 @@ Takashi Iwai <tiwai@suse.de>
 David Ahern <dsahern@gmail.com>
     xfrm: Always set XFRM_TRANSFORMED in xfrm{4,6}_output_finish
 
+Florian Fainelli <f.fainelli@gmail.com>
+    net: dsa: b53: Fix ARL register definitions
+
 Taehee Yoo <ap420073@gmail.com>
     team: fix hang in team_mode_get()
 
@@ -230,8 +251,14 @@ Xiyu Yang <xiyuyang19@fudan.edu.cn>
 Taehee Yoo <ap420073@gmail.com>
     macvlan: fix null dereference in macvlan_device_event()
 
+Taehee Yoo <ap420073@gmail.com>
+    macsec: avoid to set wrong mtu
+
 John Haxby <john.haxby@oracle.com>
     ipv6: fix restrict IPV6_ADDRFORM operation
+
+Heiner Kallweit <hkallweit1@gmail.com>
+    PCI/ASPM: Allow re-enabling Clock PM
 
 Florian Fainelli <f.fainelli@gmail.com>
     pwm: bcm2835: Dynamically allocate base
@@ -266,20 +293,23 @@ Qiujun Huang <hqjagain@gmail.com>
 James Smart <jsmart2021@gmail.com>
     scsi: lpfc: Fix kasan slab-out-of-bounds error in lpfc_unreg_login
 
+Tero Kristo <t-kristo@ti.com>
+    watchdog: reset last_hw_keepalive time at start
+
 Jeremy Sowden <jeremy@azazel.net>
     vti4: removed duplicate log message.
 
 Wei Yongjun <weiyongjun1@huawei.com>
     crypto: mxs-dcp - make symbols 'sha1_null_hash' and 'sha256_null_hash' static
 
+Rob Clark <robdclark@chromium.org>
+    drm/msm: Use the correct dma_sync calls harder
+
 Arnd Bergmann <arnd@arndb.de>
     net: ipv4: avoid unused variable warning for sysctl
 
 Nicolai Stange <nstange@suse.de>
     net: ipv4: emulate READ_ONCE() on ->hdrincl bit-field in raw_sendmsg()
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda - Fix incorrect usage of IS_REACHABLE()
 
 Dmitry Monakhov <dmonakhov@gmail.com>
     ext4: fix extent_status fragmentation for plain files
@@ -293,12 +323,18 @@ Diffstat:
  arch/arm/mach-imx/Makefile                 |  2 +
  arch/x86/kvm/vmx.c                         |  2 +-
  arch/x86/net/bpf_jit_comp.c                | 18 +++++++--
+ drivers/char/tpm/tpm_tis_core.c            |  8 +++-
  drivers/crypto/mxs-dcp.c                   |  4 +-
+ drivers/gpu/drm/msm/msm_gem.c              |  4 +-
+ drivers/hwmon/jc42.c                       |  2 +-
  drivers/iio/adc/xilinx-xadc-core.c         | 17 +++++++--
  drivers/mtd/chips/cfi_cmdset_0002.c        |  6 ++-
+ drivers/net/dsa/b53/b53_regs.h             |  4 +-
  drivers/net/ethernet/chelsio/cxgb4/t4_hw.c |  2 +-
+ drivers/net/macsec.c                       | 12 ++++--
  drivers/net/macvlan.c                      |  2 +-
  drivers/net/team/team.c                    |  4 ++
+ drivers/pci/pcie/aspm.c                    | 18 +++++----
  drivers/pwm/pwm-bcm2835.c                  |  1 +
  drivers/pwm/pwm-rcar.c                     | 10 +++--
  drivers/pwm/pwm-renesas-tpu.c              |  9 ++---
@@ -314,7 +350,7 @@ Diffstat:
  drivers/tty/hvc/hvc_console.c              | 23 +++++++-----
  drivers/tty/rocket.c                       | 25 +++++++------
  drivers/usb/core/hub.c                     | 14 +++++++
- drivers/usb/core/message.c                 | 53 ++++++++++++++-------------
+ drivers/usb/core/message.c                 |  9 ++++-
  drivers/usb/core/quirks.c                  |  4 ++
  drivers/usb/gadget/function/f_fs.c         |  4 ++
  drivers/usb/gadget/udc/bdc/bdc_ep.c        |  2 +-
@@ -322,6 +358,7 @@ Diffstat:
  drivers/usb/misc/sisusbvga/sisusb_init.h   | 14 +++----
  drivers/usb/storage/uas.c                  | 46 +++++++++++++++++++++--
  drivers/usb/storage/unusual_devs.h         |  7 ++++
+ drivers/watchdog/watchdog_dev.c            |  1 +
  drivers/xen/xenbus/xenbus_client.c         |  9 ++++-
  fs/ceph/caps.c                             |  8 +++-
  fs/ceph/export.c                           |  5 +++
@@ -334,16 +371,22 @@ Diffstat:
  fs/ext4/mballoc.c                          |  6 ++-
  fs/ext4/namei.c                            |  4 +-
  fs/ext4/resize.c                           |  5 ++-
- fs/ext4/super.c                            | 28 +++++---------
+ fs/ext4/super.c                            | 22 ++++-------
  fs/fuse/dev.c                              | 12 ++++--
  fs/namespace.c                             |  2 +-
+ fs/nfsd/nfs4state.c                        |  2 +
  fs/pnode.c                                 |  9 ++---
+ fs/proc/vmcore.c                           |  2 +-
+ fs/xfs/xfs_reflink.c                       |  1 +
  include/linux/kvm_host.h                   |  2 +-
+ include/linux/overflow.h                   | 31 ++++++++++++++++
+ include/linux/vmalloc.h                    |  2 +-
  include/net/tcp.h                          |  2 +-
  ipc/util.c                                 |  2 +-
  kernel/audit.c                             |  3 ++
  kernel/events/core.c                       | 13 +++++--
  kernel/gcov/fs.c                           |  2 +-
+ mm/vmalloc.c                               | 16 ++++++--
  net/ipv4/ip_vti.c                          |  4 +-
  net/ipv4/raw.c                             |  4 +-
  net/ipv4/route.c                           |  3 +-
@@ -351,15 +394,15 @@ Diffstat:
  net/ipv6/ipv6_sockglue.c                   | 13 +++----
  net/ipv6/xfrm6_output.c                    |  2 -
  net/netrom/nr_route.c                      |  1 +
- net/sctp/socket.c                          |  6 +--
  net/x25/x25_dev.c                          |  4 +-
  sound/pci/hda/hda_intel.c                  |  1 -
- sound/pci/hda/patch_realtek.c              |  2 +-
  sound/soc/intel/atom/sst-atom-controls.c   |  2 +
  sound/soc/soc-dapm.c                       | 20 ++++++++--
  sound/usb/format.c                         | 52 ++++++++++++++++++++++++++
  sound/usb/mixer_quirks.c                   | 12 ++++--
  sound/usb/usx2y/usbusx2yaudio.c            |  2 +
- 71 files changed, 543 insertions(+), 214 deletions(-)
+ tools/objtool/check.c                      | 17 ++++++++-
+ tools/objtool/orc_dump.c                   | 44 +++++++++++++---------
+ 84 files changed, 639 insertions(+), 224 deletions(-)
 
 
