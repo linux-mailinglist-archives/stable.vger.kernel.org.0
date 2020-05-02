@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 497E91C23C5
-	for <lists+stable@lfdr.de>; Sat,  2 May 2020 09:15:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C773B1C23C9
+	for <lists+stable@lfdr.de>; Sat,  2 May 2020 09:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726764AbgEBHPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 May 2020 03:15:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40954 "EHLO mail.kernel.org"
+        id S1727829AbgEBHPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 May 2020 03:15:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726520AbgEBHP3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 2 May 2020 03:15:29 -0400
+        id S1726520AbgEBHPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 2 May 2020 03:15:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2543621835;
-        Sat,  2 May 2020 07:15:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA8FB208DB;
+        Sat,  2 May 2020 07:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588403722;
+        s=default; t=1588403737;
         bh=6CTBAmO7fdnvTWOlGfUEbRvNvv2TwS/Kco6uy3uNGmc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nABq3kGWBEA3gMTKcQXix/qFOpNSGUWi87YHdwbrjmI3sGQiKqyTV2IhzZV8hwMwd
-         V30f53IOmeFwHfnpmxjelpU2SNHkOqdLNXdowqcP0kTBvIM5KmGudx2w6dUH43BytZ
-         N0df5wBqmfqsiPauRAZbD9feX0KoUFUMTZrlDN/4=
-Date:   Sat, 2 May 2020 09:15:19 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.6 000/106] 5.6.9-rc1 review
-Message-ID: <20200502071519.GB2593673@kroah.com>
-References: <20200501131543.421333643@linuxfoundation.org>
+        b=kt8Z09RJptaMFHWBF7h+e/EYuc9xJ1nbagvJ/WUgDUIa7/5JptszYBAqWpIIAAwLq
+         VM2C3Or+f9I7liN+WwUt1nVmy+sRbWyWb2LEMeJ8rDLko2Ve8sXtbGmrWd0RI4XIEu
+         JsCfBiuY0JYJJEPj8GnEyQPjrLDZwHENY9yuQi6Y=
+Date:   Sat, 2 May 2020 09:15:34 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
+Subject: Re: Linux 5.6.9
+Message-ID: <20200502071534.GC2593673@kroah.com>
+References: <20200502071513.GA2593673@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200501131543.421333643@linuxfoundation.org>
+In-Reply-To: <20200502071513.GA2593673@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
