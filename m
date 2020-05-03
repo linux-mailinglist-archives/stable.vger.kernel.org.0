@@ -2,92 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26BDD1C2F42
-	for <lists+stable@lfdr.de>; Sun,  3 May 2020 22:37:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 070E81C2FD6
+	for <lists+stable@lfdr.de>; Sun,  3 May 2020 23:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729102AbgECUh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 May 2020 16:37:26 -0400
-Received: from mail.zx2c4.com ([192.95.5.64]:34207 "EHLO mail.zx2c4.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729095AbgECUhZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 May 2020 16:37:25 -0400
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 1c1f5387;
-        Sun, 3 May 2020 20:25:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
-        :references:in-reply-to:from:date:message-id:subject:to:cc
-        :content-type; s=mail; bh=4oxhkRayVlbQD2eyndSaQE0tWZc=; b=vA549m
-        QfhxuqTQ/UFjGIJfh7Pmgt4ABg7edALWKWwfr+p1a7XQUU+OstnbhpbqS7SAvgVk
-        JFyEkLs4sNxlV9cfnMyfQiOhNv8VH/FGPtfK/S7mOPo27jeZnLCbYU0L+gGOFXQu
-        1RgrDZSj7KWXUHl6carogwlb1a+TMju+JstP1XP0BCDYgp98tGi0Iy+NGRdP/dSX
-        6+xKXkjuhXYnkF7XDe9v8kJcWoGC/9VzqXlXxJ9F3XTtWuTCiQ9ZpeZrRma29Mgj
-        8kEEb52x9xW3FrJraAMXywcoqdn9XLgo4hnAGX17f0+21BfKZUNP3o78SZ/JWKHz
-        h1kU4mhSVxR+Rk3g==
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 285f47ea (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Sun, 3 May 2020 20:24:59 +0000 (UTC)
-Received: by mail-il1-f179.google.com with SMTP id e8so9415329ilm.7;
-        Sun, 03 May 2020 13:37:19 -0700 (PDT)
-X-Gm-Message-State: AGi0Pua+ijx82Dzriaz7H1o1IcFJQHPygzRe43uD+7WreGMoHNNsu8+s
-        xGG0QhTnjDNu26RiyS7xIHFco0mxsfhaDm/4aI0=
-X-Google-Smtp-Source: APiQypIRfBeAuZGWtTR/twhRA+JKgfG0fxdVuT4KIOOzAu177n+yQghVKAOj9DMvm3a8v0062/KgRLH/QmcumDNrKd4=
-X-Received: by 2002:a92:d4c4:: with SMTP id o4mr13779158ilm.38.1588538238517;
- Sun, 03 May 2020 13:37:18 -0700 (PDT)
+        id S1729151AbgECVtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 May 2020 17:49:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38284 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729143AbgECVtX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 May 2020 17:49:23 -0400
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35A26C061A0E
+        for <stable@vger.kernel.org>; Sun,  3 May 2020 14:49:23 -0700 (PDT)
+Received: by mail-lf1-x12e.google.com with SMTP id b20so7773729lff.2
+        for <stable@vger.kernel.org>; Sun, 03 May 2020 14:49:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=3lkwUf97KrZvf5X62QsC+U/twsMrl7EX6SopeNpG08w=;
+        b=AL+TxTKigDJJbsWCxYYa0++46F8ifL1gWEOsuBb5V0R/Xfn8HJGfQA6TzCP0bdzoue
+         IgW0hwgnth0+18sRXYLrdsvFr84QINV7O2sghzVXBLI5/vFMb61tqrAsveNSYesfgXkS
+         g58w44K+W3DqWMKI8NJ/vZ6zP/1mwbliJyhyM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=3lkwUf97KrZvf5X62QsC+U/twsMrl7EX6SopeNpG08w=;
+        b=Tamsvo1Y1mZqbqpsLB/kiT/jB9xEA8oy9kA0g/8hEz0moE5Th2Y9k2o89Em+WtcpjL
+         Eur4iUKfp61+AZL8uvSYl0V88WD+w+8JrrxqM3A+F638y5ExkWOIonPrmdXpXrFzTvrY
+         G40IQRZ8DtZd+BAJ4G+trB6KsrXoigAHVa7+szG2n9uyADbO3sLwprQuq4DhUTLbtENu
+         +m3w59fTUQ+jQZF6nRrCuC/cLQFtnv8tK31WC/J2Ccz4W6OX5i3z5C5YlC4h4tgjxJJf
+         RdQU7LXlJ0vVIcVmGS6gktbIOKWzgPSZrNQKlZuLNZrHN0CxWEDMQY/JvajrY8axNHTY
+         PhRg==
+X-Gm-Message-State: AGi0PuZt1bl4cBBJkX8w2px2YAcPmgqDbZaImgJw+9LPFKX8NiBsU9F/
+        30XaJnkBjmwP79eu9cmo+hOyuijc1T8=
+X-Google-Smtp-Source: APiQypKtVbCmPd2azqGYRIxr1XsL/xD/kp31ohDPWeNcDopEDsvpYS/ay4PGO71oUXthWnhb+zd2tw==
+X-Received: by 2002:a05:6512:2027:: with SMTP id s7mr4243400lfs.39.1588542561329;
+        Sun, 03 May 2020 14:49:21 -0700 (PDT)
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
+        by smtp.gmail.com with ESMTPSA id u12sm6552022ljo.102.2020.05.03.14.49.20
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 03 May 2020 14:49:20 -0700 (PDT)
+Received: by mail-lj1-f179.google.com with SMTP id g4so7816606ljl.2
+        for <stable@vger.kernel.org>; Sun, 03 May 2020 14:49:20 -0700 (PDT)
+X-Received: by 2002:a2e:814e:: with SMTP id t14mr8364410ljg.204.1588542560282;
+ Sun, 03 May 2020 14:49:20 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200503203108.15420-1-chris@chris-wilson.co.uk>
-In-Reply-To: <20200503203108.15420-1-chris@chris-wilson.co.uk>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Sun, 3 May 2020 14:37:07 -0600
-X-Gmail-Original-Message-ID: <CAHmME9rK29z+uoEU4wBuZFF+=0vC_0zQWKcaW71ZrGV2spjwjw@mail.gmail.com>
-Message-ID: <CAHmME9rK29z+uoEU4wBuZFF+=0vC_0zQWKcaW71ZrGV2spjwjw@mail.gmail.com>
-Subject: Re: [PATCH] drm/i915: Avoid using simd from interrupt context
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        David Laight <David.Laight@aculab.com>,
-        Christoph Hellwig <hch@infradead.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sun, 3 May 2020 14:49:04 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wi6dw+Hu95GvcF=vdFbAp+H4NUWkUxG0N9VFRJBU0Xv=Q@mail.gmail.com>
+Message-ID: <CAHk-=wi6dw+Hu95GvcF=vdFbAp+H4NUWkUxG0N9VFRJBU0Xv=Q@mail.gmail.com>
+Subject: DRM broke for AMDGPU in 5.6.10
+To:     stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 3, 2020 at 2:31 PM Chris Wilson <chris@chris-wilson.co.uk> wrote:
->
-> Query whether or not we are in a legal context for using SIMD, before
-> using SSE4.2 registers.
->
-> Suggested-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> ---
->  drivers/gpu/drm/i915/i915_memcpy.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/gpu/drm/i915/i915_memcpy.c b/drivers/gpu/drm/i915/i915_memcpy.c
-> index 7b3b83bd5ab8..fc18d6c28d5f 100644
-> --- a/drivers/gpu/drm/i915/i915_memcpy.c
-> +++ b/drivers/gpu/drm/i915/i915_memcpy.c
-> @@ -24,6 +24,7 @@
->
->  #include <linux/kernel.h>
->  #include <asm/fpu/api.h>
-> +#include <asm/simd.h>
->
->  #include "i915_memcpy.h"
->
-> @@ -115,6 +116,9 @@ bool i915_memcpy_from_wc(void *dst, const void *src, unsigned long len)
->         if (unlikely(((unsigned long)dst | (unsigned long)src | len) & 15))
->                 return false;
->
-> +       if (unlikely(!may_use_simd()))
-> +               return false;
-> +
->         if (static_branch_likely(&has_movntdqa)) {
->                 if (likely(len))
->                         __memcpy_ntdqa(dst, src, len >> 4);
-> --
-> 2.20.1
+See
 
-Looks like you beat me to the punch. Thanks for doing this.
+    https://bugzilla.kernel.org/show_bug.cgi?id=207561
 
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+and the fix seems to be to back-port commit 8623b5255ae7
+("drm/scheduler: fix drm_sched_get_cleanup_job").
+
+I think Artem will (has?) make a report too, but I thought I'd just
+mention it to make sure since I was on the bugzilla.
+
+                Linus
