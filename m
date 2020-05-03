@@ -2,194 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 888311C2B50
-	for <lists+stable@lfdr.de>; Sun,  3 May 2020 12:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E37FC1C2B98
+	for <lists+stable@lfdr.de>; Sun,  3 May 2020 13:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727971AbgECKYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 May 2020 06:24:34 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46950 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727051AbgECKYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 May 2020 06:24:34 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id DBEB1ABBE;
-        Sun,  3 May 2020 10:24:32 +0000 (UTC)
+        id S1727099AbgECLVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 May 2020 07:21:40 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:58246 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727073AbgECLVk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 May 2020 07:21:40 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21097487-1500050 
+        for multiple; Sun, 03 May 2020 12:21:37 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 04/14] drm/i915: Mark concurrent submissions with a weak-dependency
+Date:   Sun,  3 May 2020 12:21:22 +0100
+Message-Id: <20200503112132.17899-4-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200503112132.17899-1-chris@chris-wilson.co.uk>
+References: <20200503112132.17899-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Sun, 03 May 2020 12:24:30 +0200
-From:   Roman Penyaev <rpenyaev@suse.de>
-To:     Jason Baron <jbaron@akamai.com>
-Cc:     akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Davidlohr Bueso <dbueso@suse.de>, stable@vger.kernel.org
-Subject: Re: [PATCH] epoll: ensure ep_poll() doesn't miss wakeup events
-In-Reply-To: <81612721-9448-83fa-4efe-603996d56b9a@akamai.com>
-References: <1588360533-11828-1-git-send-email-jbaron@akamai.com>
- <930c565705249d2b6264a31f1be6529e@suse.de>
- <81612721-9448-83fa-4efe-603996d56b9a@akamai.com>
-Message-ID: <f3c2e63ec34a611ec256785ebfd39270@suse.de>
-X-Sender: rpenyaev@suse.de
-User-Agent: Roundcube Webmail
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-05-02 00:09, Jason Baron wrote:
-> On 5/1/20 5:02 PM, Roman Penyaev wrote:
->> Hi Jason,
->> 
->> That is indeed a nice catch.
->> Seems we need smp_rmb() pair between list_empty_careful(&rp->rdllist) 
->> and
->> READ_ONCE(ep->ovflist) for ep_events_available(), do we?
->> 
-> 
-> Hi Roman,
-> 
-> Good point, even if we order those reads its still racy, since the
-> read of the ready list could come after its been cleared and the
-> read of the overflow could again come after its been cleared.
+We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
+correctly perform priority inheritance from the parallel branches to the
+common trunk. However, for the purpose of timeslicing and reset
+handling, the dependency is weak -- as we the pair of requests are
+allowed to run in parallel and not in strict succession. So for example
+we do need to suspend one if the other hangs.
 
-You mean the second chunk? True. Sigh.
+The real significance though is that this allows us to rearrange
+groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
+so can resolve user level inter-batch scheduling dependencies from user
+semaphores.
 
-> So I'm afraid we might need instead something like this to make
-> sure they are read together:
+Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.6+
+---
+ drivers/gpu/drm/i915/gt/intel_lrc.c         | 9 +++++++++
+ drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
+ drivers/gpu/drm/i915/i915_scheduler.c       | 4 +++-
+ drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
+ drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
+ 5 files changed, 21 insertions(+), 4 deletions(-)
 
-No, impossible, I can't believe in that :) We can't give up.
-
-All we need is to keep a mark, that ep->rdllist is not empty,
-even we've just spliced it.  ep_poll_callback() always takes
-the ->ovflist path, if ->ovflist is not EP_UNACTIVE_PTR, but
-ep_events_available() does not need to observe ->ovflist at
-all, just a ->rdllist.
-
-Take a look at that, do I miss something? :
-
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index aba03ee749f8..a8770f9a917e 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -376,8 +376,7 @@ static void ep_nested_calls_init(struct nested_calls 
-*ncalls)
-   */
-  static inline int ep_events_available(struct eventpoll *ep)
-  {
--       return !list_empty_careful(&ep->rdllist) ||
--               READ_ONCE(ep->ovflist) != EP_UNACTIVE_PTR;
-+       return !list_empty_careful(&ep->rdllist);
-  }
-
-  #ifdef CONFIG_NET_RX_BUSY_POLL
-@@ -683,7 +682,8 @@ static __poll_t ep_scan_ready_list(struct eventpoll 
-*ep,
-  {
-         __poll_t res;
-         struct epitem *epi, *nepi;
--       LIST_HEAD(txlist);
-+       LIST_HEAD(rdllist);
-+       LIST_HEAD(ovflist);
-
-         lockdep_assert_irqs_enabled();
-
-@@ -704,14 +704,22 @@ static __poll_t ep_scan_ready_list(struct 
-eventpoll *ep,
-          * in a lockless way.
-          */
-         write_lock_irq(&ep->lock);
--       list_splice_init(&ep->rdllist, &txlist);
-+       /*
-+        * We do not call list_splice_init() because for lockless
-+        * ep_events_available() ->rdllist is still "not empty".
-+        * Otherwise the feature that there is something left in
-+        * the list can be lost which causes missed wakeup.
-+        */
-+       list_splice(&ep->rdllist, &rdllist);
-+       /*
-+        * If ->rdllist was empty we should pretend it was not,
-+        * because after the unlock ->ovflist comes into play,
-+        * which is invisible for lockless ep_events_available().
-+        */
-+       ep->rdllist.next = LIST_POISON1;
-         WRITE_ONCE(ep->ovflist, NULL);
-         write_unlock_irq(&ep->lock);
-
-         /*
-          * Now call the callback function.
-          */
--       res = (*sproc)(ep, &txlist, priv);
-+       res = (*sproc)(ep, &rdllist, priv);
-
-         write_lock_irq(&ep->lock);
-         /*
-@@ -724,7 +732,7 @@ static __poll_t ep_scan_ready_list(struct eventpoll 
-*ep,
-                 /*
-                  * We need to check if the item is already in the list.
-                  * During the "sproc" callback execution time, items are
--                * queued into ->ovflist but the "txlist" might already
-+                * queued into ->ovflist but the "rdllist" might already
-                  * contain them, and the list_splice() below takes care 
-of them.
-                  */
-                 if (!ep_is_linked(epi)) {
-@@ -732,7 +740,7 @@ static __poll_t ep_scan_ready_list(struct eventpoll 
-*ep,
-                          * ->ovflist is LIFO, so we have to reverse it 
-in order
-                          * to keep in FIFO.
-                          */
--                       list_add(&epi->rdllink, &ep->rdllist);
-+                       list_add(&epi->rdllink, &ovflist);
-                         ep_pm_stay_awake(epi);
-                 }
-         }
-@@ -743,10 +751,11 @@ static __poll_t ep_scan_ready_list(struct 
-eventpoll *ep,
-          */
-         WRITE_ONCE(ep->ovflist, EP_UNACTIVE_PTR);
-
--       /*
--        * Quickly re-inject items left on "txlist".
--        */
--       list_splice(&txlist, &ep->rdllist);
-+       /* Events from ->ovflist happened later, thus splice to the tail 
-*/
-+       list_splice_tail(&ovflist, &rdllist);
-+       /* Just replace list */
-+       list_replace(&rdllist, &ep->rdllist);
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index c00366387b54..508661cf61d9 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1883,6 +1883,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
+ 			struct i915_request *w =
+ 				container_of(p->waiter, typeof(*w), sched);
+ 
++			if (p->flags & I915_DEPENDENCY_WEAK)
++				continue;
 +
-         __pm_relax(ep->ws);
-         write_unlock_irq(&ep->lock);
-
-@@ -1763,13 +1772,13 @@ static __poll_t ep_send_events_proc(struct 
-eventpoll *ep, struct list_head *head
-                          * Trigger mode, we need to insert back inside
-                          * the ready list, so that the next call to
-                          * epoll_wait() will check again the events
--                        * availability. At this point, no one can 
-insert
--                        * into ep->rdllist besides us. The epoll_ctl()
--                        * callers are locked out by
--                        * ep_scan_ready_list() holding "mtx" and the
--                        * poll callback will queue them in ep->ovflist.
-+                        * availability. What we do here is simply
-+                        * return the epi to the same position where
-+                        * it was, the ep_scan_ready_list() will
-+                        * re-inject the leftovers to the ->rdllist
-+                        * under the proper lock.
-                          */
--                       list_add_tail(&epi->rdllink, &ep->rdllist);
-+                       list_add_tail(&epi->rdllink, &tmp->rdllink);
-                         ep_pm_stay_awake(epi);
-                 }
-         }
-
-
---
-Roman
+ 			/* Leave semaphores spinning on the other engines */
+ 			if (w->engine != rq->engine)
+ 				continue;
+@@ -2729,6 +2732,9 @@ static void __execlists_hold(struct i915_request *rq)
+ 			struct i915_request *w =
+ 				container_of(p->waiter, typeof(*w), sched);
+ 
++			if (p->flags & I915_DEPENDENCY_WEAK)
++				continue;
++
+ 			/* Leave semaphores spinning on the other engines */
+ 			if (w->engine != rq->engine)
+ 				continue;
+@@ -2853,6 +2859,9 @@ static void __execlists_unhold(struct i915_request *rq)
+ 			struct i915_request *w =
+ 				container_of(p->waiter, typeof(*w), sched);
+ 
++			if (p->flags & I915_DEPENDENCY_WEAK)
++				continue;
++
+ 			/* Propagate any change in error status */
+ 			if (rq->fence.error)
+ 				i915_request_set_error_once(w, rq->fence.error);
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 22635bbabf06..95edc5523a01 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -1038,7 +1038,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
+ 		return 0;
+ 
+ 	if (to->engine->schedule) {
+-		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
++		ret = i915_sched_node_add_dependency(&to->sched,
++						     &from->sched,
++						     0);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+@@ -1200,7 +1202,9 @@ __i915_request_await_execution(struct i915_request *to,
+ 
+ 	/* Couple the dependency tree for PI on this exposed to->fence */
+ 	if (to->engine->schedule) {
+-		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
++		err = i915_sched_node_add_dependency(&to->sched,
++						     &from->sched,
++						     I915_DEPENDENCY_WEAK);
+ 		if (err < 0)
+ 			return err;
+ 	}
+diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
+index 37cfcf5b321b..5f4c1e49e974 100644
+--- a/drivers/gpu/drm/i915/i915_scheduler.c
++++ b/drivers/gpu/drm/i915/i915_scheduler.c
+@@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
+ }
+ 
+ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+-				   struct i915_sched_node *signal)
++				   struct i915_sched_node *signal,
++				   unsigned long flags)
+ {
+ 	struct i915_dependency *dep;
+ 
+@@ -473,6 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+ 	local_bh_disable();
+ 
+ 	if (!__i915_sched_node_add_dependency(node, signal, dep,
++					      flags |
+ 					      I915_DEPENDENCY_EXTERNAL |
+ 					      I915_DEPENDENCY_ALLOC))
+ 		i915_dependency_free(dep);
+diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
+index d1dc4efef77b..6f0bf00fc569 100644
+--- a/drivers/gpu/drm/i915/i915_scheduler.h
++++ b/drivers/gpu/drm/i915/i915_scheduler.h
+@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
+ 				      unsigned long flags);
+ 
+ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+-				   struct i915_sched_node *signal);
++				   struct i915_sched_node *signal,
++				   unsigned long flags);
+ 
+ void i915_sched_node_fini(struct i915_sched_node *node);
+ 
+diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
+index d18e70550054..7186875088a0 100644
+--- a/drivers/gpu/drm/i915/i915_scheduler_types.h
++++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
+@@ -78,6 +78,7 @@ struct i915_dependency {
+ 	unsigned long flags;
+ #define I915_DEPENDENCY_ALLOC		BIT(0)
+ #define I915_DEPENDENCY_EXTERNAL	BIT(1)
++#define I915_DEPENDENCY_WEAK		BIT(2)
+ };
+ 
+ #endif /* _I915_SCHEDULER_TYPES_H_ */
+-- 
+2.20.1
 
