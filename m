@@ -2,106 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B4B1C2B1B
-	for <lists+stable@lfdr.de>; Sun,  3 May 2020 12:07:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 888311C2B50
+	for <lists+stable@lfdr.de>; Sun,  3 May 2020 12:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728139AbgECKHf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 May 2020 06:07:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42898 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727892AbgECKHf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 May 2020 06:07:35 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4833AC061A0C;
-        Sun,  3 May 2020 03:07:35 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id w65so4042233pfc.12;
-        Sun, 03 May 2020 03:07:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=8nxdgRcKM19fcM+rPWLhG14M7DWM4NBsZlKsa3VM4rQ=;
-        b=ZpN/Pyh8jgDlcVAP+Zm995766QQ2OE8dLcS8OyvRqHICwXLezx8Stp7yWixH/5YmYh
-         S//AlCI/eUoyNkcOQr8d1MPl7J+chdUCwOP3av5QEcWQ7H/meb+6ZWu9Re+PaaRZeNIR
-         bQUMErOg1GRiV2AE7LpRm4BvBnjfXDOx5pWujyKpRtu/Z9UE91KkOHuCLxhwuGfn45vy
-         2bFMzMFxoPMTFqKLeYis+V+YIsUYUb2LJor9tqau+kzVy8BBcdvtxLhdHMcDxY5/42kg
-         oBENAMxrZM6orPq7RCF6jOgieNkatuN3+N4lkbKAXt0q2mTYfnliq5czkFMK2xp1H/Bu
-         eD5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=8nxdgRcKM19fcM+rPWLhG14M7DWM4NBsZlKsa3VM4rQ=;
-        b=bIiP6d/zNIz5D5MzpNMiaIEMfWwPmNlGV0kJS+WzkTObqU5s65tIPtrMa4rKr5yfhO
-         fuVfadpaofklYfAn9G7Wzw0Npgnzz39SIBFzti0awHfAsGJLcKcjK2CuDloHZ/WEd/H0
-         PfRzywlolkM/lYhJpzkkz0EJULcCVMMJNSFK4dJxpuTWSihR6CHDrLPBVIgDIMLrHkbD
-         P3zrjLTtonGrElvUTX3v47BpC1IRiqSzgisDUfqUE7UCgzywxI8UeO9iU2yxmQr9g5I4
-         ZdvNKcTHnXkCwQWmoJbg5xlMOM7YTPwJDKWzOb8EqUKDJf8Lo1PP4FTlXDqDv/xOw+29
-         PY4Q==
-X-Gm-Message-State: AGi0Pua9bQH0IrS3EvPiBUW4oZIJziQsot4DXgDe9/ZpCpR8nMyKyp5B
-        taZLyDxVJFsx7oS9nHIjjAY=
-X-Google-Smtp-Source: APiQypIzotBeRon7oxlBO4yIrbf8EUAWEp+oSCqBmePTdSGLwWv/6/lE4N2UbFE6dpM7IvDijapmuw==
-X-Received: by 2002:a62:808d:: with SMTP id j135mr11757046pfd.53.1588500454894;
-        Sun, 03 May 2020 03:07:34 -0700 (PDT)
-Received: from software.domain.org (28.144.92.34.bc.googleusercontent.com. [34.92.144.28])
-        by smtp.gmail.com with ESMTPSA id r26sm6329902pfq.75.2020.05.03.03.07.31
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 03 May 2020 03:07:34 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc:     kvm@vger.kernel.org, qemu-devel@nongnu.org,
-        linux-mips@vger.kernel.org,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Xing Li <lixing@loongson.cn>, stable@vger.kernel.org,
-        Huacai Chen <chenhc@lemote.com>
-Subject: [PATCH V3 02/14] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
-Date:   Sun,  3 May 2020 18:05:55 +0800
-Message-Id: <1588500367-1056-3-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
-In-Reply-To: <1588500367-1056-1-git-send-email-chenhc@lemote.com>
-References: <1588500367-1056-1-git-send-email-chenhc@lemote.com>
+        id S1727971AbgECKYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 May 2020 06:24:34 -0400
+Received: from mx2.suse.de ([195.135.220.15]:46950 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727051AbgECKYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 May 2020 06:24:34 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id DBEB1ABBE;
+        Sun,  3 May 2020 10:24:32 +0000 (UTC)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Sun, 03 May 2020 12:24:30 +0200
+From:   Roman Penyaev <rpenyaev@suse.de>
+To:     Jason Baron <jbaron@akamai.com>
+Cc:     akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
+        Khazhismel Kumykov <khazhy@google.com>,
+        Davidlohr Bueso <dbueso@suse.de>, stable@vger.kernel.org
+Subject: Re: [PATCH] epoll: ensure ep_poll() doesn't miss wakeup events
+In-Reply-To: <81612721-9448-83fa-4efe-603996d56b9a@akamai.com>
+References: <1588360533-11828-1-git-send-email-jbaron@akamai.com>
+ <930c565705249d2b6264a31f1be6529e@suse.de>
+ <81612721-9448-83fa-4efe-603996d56b9a@akamai.com>
+Message-ID: <f3c2e63ec34a611ec256785ebfd39270@suse.de>
+X-Sender: rpenyaev@suse.de
+User-Agent: Roundcube Webmail
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xing Li <lixing@loongson.cn>
+On 2020-05-02 00:09, Jason Baron wrote:
+> On 5/1/20 5:02 PM, Roman Penyaev wrote:
+>> Hi Jason,
+>> 
+>> That is indeed a nice catch.
+>> Seems we need smp_rmb() pair between list_empty_careful(&rp->rdllist) 
+>> and
+>> READ_ONCE(ep->ovflist) for ep_events_available(), do we?
+>> 
+> 
+> Hi Roman,
+> 
+> Good point, even if we order those reads its still racy, since the
+> read of the ready list could come after its been cleared and the
+> read of the overflow could again come after its been cleared.
 
-If a CPU support more than 32bit vmbits (which is true for 64bit CPUs),
-VPN2_MASK set to fixed 0xffffe000 will lead to a wrong EntryHi in some
-functions such as _kvm_mips_host_tlb_inv().
+You mean the second chunk? True. Sigh.
 
-The cpu_vmbits definition of 32bit CPU in cpu-features.h is 31, so we
-still use the old definition.
+> So I'm afraid we might need instead something like this to make
+> sure they are read together:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Xing Li <lixing@loongson.cn>
-[Huacai: Improve commit messages]
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- arch/mips/include/asm/kvm_host.h | 4 ++++
- 1 file changed, 4 insertions(+)
+No, impossible, I can't believe in that :) We can't give up.
 
-diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
-index a01cee9..caa2b936 100644
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -274,7 +274,11 @@ enum emulation_result {
- #define MIPS3_PG_SHIFT		6
- #define MIPS3_PG_FRAME		0x3fffffc0
- 
-+#if defined(CONFIG_64BIT)
-+#define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
-+#else
- #define VPN2_MASK		0xffffe000
-+#endif
- #define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
- #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
- #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
--- 
-2.7.0
+All we need is to keep a mark, that ep->rdllist is not empty,
+even we've just spliced it.  ep_poll_callback() always takes
+the ->ovflist path, if ->ovflist is not EP_UNACTIVE_PTR, but
+ep_events_available() does not need to observe ->ovflist at
+all, just a ->rdllist.
+
+Take a look at that, do I miss something? :
+
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index aba03ee749f8..a8770f9a917e 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -376,8 +376,7 @@ static void ep_nested_calls_init(struct nested_calls 
+*ncalls)
+   */
+  static inline int ep_events_available(struct eventpoll *ep)
+  {
+-       return !list_empty_careful(&ep->rdllist) ||
+-               READ_ONCE(ep->ovflist) != EP_UNACTIVE_PTR;
++       return !list_empty_careful(&ep->rdllist);
+  }
+
+  #ifdef CONFIG_NET_RX_BUSY_POLL
+@@ -683,7 +682,8 @@ static __poll_t ep_scan_ready_list(struct eventpoll 
+*ep,
+  {
+         __poll_t res;
+         struct epitem *epi, *nepi;
+-       LIST_HEAD(txlist);
++       LIST_HEAD(rdllist);
++       LIST_HEAD(ovflist);
+
+         lockdep_assert_irqs_enabled();
+
+@@ -704,14 +704,22 @@ static __poll_t ep_scan_ready_list(struct 
+eventpoll *ep,
+          * in a lockless way.
+          */
+         write_lock_irq(&ep->lock);
+-       list_splice_init(&ep->rdllist, &txlist);
++       /*
++        * We do not call list_splice_init() because for lockless
++        * ep_events_available() ->rdllist is still "not empty".
++        * Otherwise the feature that there is something left in
++        * the list can be lost which causes missed wakeup.
++        */
++       list_splice(&ep->rdllist, &rdllist);
++       /*
++        * If ->rdllist was empty we should pretend it was not,
++        * because after the unlock ->ovflist comes into play,
++        * which is invisible for lockless ep_events_available().
++        */
++       ep->rdllist.next = LIST_POISON1;
+         WRITE_ONCE(ep->ovflist, NULL);
+         write_unlock_irq(&ep->lock);
+
+         /*
+          * Now call the callback function.
+          */
+-       res = (*sproc)(ep, &txlist, priv);
++       res = (*sproc)(ep, &rdllist, priv);
+
+         write_lock_irq(&ep->lock);
+         /*
+@@ -724,7 +732,7 @@ static __poll_t ep_scan_ready_list(struct eventpoll 
+*ep,
+                 /*
+                  * We need to check if the item is already in the list.
+                  * During the "sproc" callback execution time, items are
+-                * queued into ->ovflist but the "txlist" might already
++                * queued into ->ovflist but the "rdllist" might already
+                  * contain them, and the list_splice() below takes care 
+of them.
+                  */
+                 if (!ep_is_linked(epi)) {
+@@ -732,7 +740,7 @@ static __poll_t ep_scan_ready_list(struct eventpoll 
+*ep,
+                          * ->ovflist is LIFO, so we have to reverse it 
+in order
+                          * to keep in FIFO.
+                          */
+-                       list_add(&epi->rdllink, &ep->rdllist);
++                       list_add(&epi->rdllink, &ovflist);
+                         ep_pm_stay_awake(epi);
+                 }
+         }
+@@ -743,10 +751,11 @@ static __poll_t ep_scan_ready_list(struct 
+eventpoll *ep,
+          */
+         WRITE_ONCE(ep->ovflist, EP_UNACTIVE_PTR);
+
+-       /*
+-        * Quickly re-inject items left on "txlist".
+-        */
+-       list_splice(&txlist, &ep->rdllist);
++       /* Events from ->ovflist happened later, thus splice to the tail 
+*/
++       list_splice_tail(&ovflist, &rdllist);
++       /* Just replace list */
++       list_replace(&rdllist, &ep->rdllist);
++
+         __pm_relax(ep->ws);
+         write_unlock_irq(&ep->lock);
+
+@@ -1763,13 +1772,13 @@ static __poll_t ep_send_events_proc(struct 
+eventpoll *ep, struct list_head *head
+                          * Trigger mode, we need to insert back inside
+                          * the ready list, so that the next call to
+                          * epoll_wait() will check again the events
+-                        * availability. At this point, no one can 
+insert
+-                        * into ep->rdllist besides us. The epoll_ctl()
+-                        * callers are locked out by
+-                        * ep_scan_ready_list() holding "mtx" and the
+-                        * poll callback will queue them in ep->ovflist.
++                        * availability. What we do here is simply
++                        * return the epi to the same position where
++                        * it was, the ep_scan_ready_list() will
++                        * re-inject the leftovers to the ->rdllist
++                        * under the proper lock.
+                          */
+-                       list_add_tail(&epi->rdllink, &ep->rdllist);
++                       list_add_tail(&epi->rdllink, &tmp->rdllink);
+                         ep_pm_stay_awake(epi);
+                 }
+         }
+
+
+--
+Roman
 
