@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A3B1C2B17
-	for <lists+stable@lfdr.de>; Sun,  3 May 2020 12:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B4B1C2B1B
+	for <lists+stable@lfdr.de>; Sun,  3 May 2020 12:07:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728081AbgECKGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 May 2020 06:06:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42776 "EHLO
+        id S1728139AbgECKHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 May 2020 06:07:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727971AbgECKGw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 May 2020 06:06:52 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7298BC061A0C;
-        Sun,  3 May 2020 03:06:52 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id a7so2336591pju.2;
-        Sun, 03 May 2020 03:06:52 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1727892AbgECKHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 May 2020 06:07:35 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4833AC061A0C;
+        Sun,  3 May 2020 03:07:35 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id w65so4042233pfc.12;
+        Sun, 03 May 2020 03:07:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=PbRSEAf2iP4s0AdgPIwTBI8UU6TRpGo2RmWTv12T7ho=;
-        b=VTYiLf8K3ZXQ03QVxYhF/9uO0E/tOu+kPQwoAc93b3BEAgcVSLQpBRqF2Tf/oUnNLT
-         5MfOCVNkyIxmfW6rqRAG/KDOGfJ90qSCOYkyLVyp0kCgfho/WbXvhYjmWOk0cHJ5XATU
-         DT0r+nBcu/TmiBtudt7o8B42SrS5xlGZch/1pUGsPFXcIVqwxqDNtPmHwMfsxvoFXZ1A
-         7UIBtWfNo9LYAGZPY0CkpTT/Cb9i6S0Nln245se2dLDSKKL+IHXw45JcsEkqVcmoO5VM
-         mVffHeh9xVjeJYazs9MkBbMnBRM3I7qierSyZc936jKsNujp4nP3aLs9jchzfKN8CZ1c
-         LRVw==
+        bh=8nxdgRcKM19fcM+rPWLhG14M7DWM4NBsZlKsa3VM4rQ=;
+        b=ZpN/Pyh8jgDlcVAP+Zm995766QQ2OE8dLcS8OyvRqHICwXLezx8Stp7yWixH/5YmYh
+         S//AlCI/eUoyNkcOQr8d1MPl7J+chdUCwOP3av5QEcWQ7H/meb+6ZWu9Re+PaaRZeNIR
+         bQUMErOg1GRiV2AE7LpRm4BvBnjfXDOx5pWujyKpRtu/Z9UE91KkOHuCLxhwuGfn45vy
+         2bFMzMFxoPMTFqKLeYis+V+YIsUYUb2LJor9tqau+kzVy8BBcdvtxLhdHMcDxY5/42kg
+         oBENAMxrZM6orPq7RCF6jOgieNkatuN3+N4lkbKAXt0q2mTYfnliq5czkFMK2xp1H/Bu
+         eD5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references;
-        bh=PbRSEAf2iP4s0AdgPIwTBI8UU6TRpGo2RmWTv12T7ho=;
-        b=kd2FBUxics+bZfp4qgSj4YoncMeCzVeuG2768QeZgE3M8sRK5AGi143DIW4Bmsfn00
-         n9OqyzYrhiefnbnvJ1T44vVSLs384QWzl3sQHTZ4lMRHxMbRhfBjMIlTqEjYtd2xhaEk
-         guxJNtD2J14HR32Bl0cBQ2m2/yZQmxxQoCQhob7LI3DdekoZtfP4WkvzNerKS96e+6Qw
-         aHEQjMEvbge7SlNJsfHBX1Pg893UF1jCpvgH/CzWxURDVXqTXNWHirPmwj0QJUb9Dptw
-         bmdHQVEOVJbLiMe2/gtgk7eqtOOJ0Quvre/JjHGmqCy68NjQne7oCYV1njSax2BumxX5
-         4f5Q==
-X-Gm-Message-State: AGi0PuZ0cn8iich0ESm/UC/ZqYdLxNcTR/FMyd/BHZf+tNb1G9uZQnro
-        PMnv5DmEIWMpX6MYb39S1+k=
-X-Google-Smtp-Source: APiQypIMzb4fvmZ2zpKo8dEGVhfSuz5hlvqkKdlygX14KjFPoy1s9T1BV1mrn7vMVcueySXbmeQTHw==
-X-Received: by 2002:a17:902:7045:: with SMTP id h5mr212211plt.108.1588500411150;
-        Sun, 03 May 2020 03:06:51 -0700 (PDT)
+        bh=8nxdgRcKM19fcM+rPWLhG14M7DWM4NBsZlKsa3VM4rQ=;
+        b=bIiP6d/zNIz5D5MzpNMiaIEMfWwPmNlGV0kJS+WzkTObqU5s65tIPtrMa4rKr5yfhO
+         fuVfadpaofklYfAn9G7Wzw0Npgnzz39SIBFzti0awHfAsGJLcKcjK2CuDloHZ/WEd/H0
+         PfRzywlolkM/lYhJpzkkz0EJULcCVMMJNSFK4dJxpuTWSihR6CHDrLPBVIgDIMLrHkbD
+         P3zrjLTtonGrElvUTX3v47BpC1IRiqSzgisDUfqUE7UCgzywxI8UeO9iU2yxmQr9g5I4
+         ZdvNKcTHnXkCwQWmoJbg5xlMOM7YTPwJDKWzOb8EqUKDJf8Lo1PP4FTlXDqDv/xOw+29
+         PY4Q==
+X-Gm-Message-State: AGi0Pua9bQH0IrS3EvPiBUW4oZIJziQsot4DXgDe9/ZpCpR8nMyKyp5B
+        taZLyDxVJFsx7oS9nHIjjAY=
+X-Google-Smtp-Source: APiQypIzotBeRon7oxlBO4yIrbf8EUAWEp+oSCqBmePTdSGLwWv/6/lE4N2UbFE6dpM7IvDijapmuw==
+X-Received: by 2002:a62:808d:: with SMTP id j135mr11757046pfd.53.1588500454894;
+        Sun, 03 May 2020 03:07:34 -0700 (PDT)
 Received: from software.domain.org (28.144.92.34.bc.googleusercontent.com. [34.92.144.28])
-        by smtp.gmail.com with ESMTPSA id r26sm6329902pfq.75.2020.05.03.03.06.47
+        by smtp.gmail.com with ESMTPSA id r26sm6329902pfq.75.2020.05.03.03.07.31
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 03 May 2020 03:06:50 -0700 (PDT)
+        Sun, 03 May 2020 03:07:34 -0700 (PDT)
 From:   Huacai Chen <chenhc@lemote.com>
 To:     Paolo Bonzini <pbonzini@redhat.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>
@@ -58,9 +58,9 @@ Cc:     kvm@vger.kernel.org, qemu-devel@nongnu.org,
         Jiaxun Yang <jiaxun.yang@flygoat.com>,
         Xing Li <lixing@loongson.cn>, stable@vger.kernel.org,
         Huacai Chen <chenhc@lemote.com>
-Subject: [PATCH V3 01/14] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
-Date:   Sun,  3 May 2020 18:05:54 +0800
-Message-Id: <1588500367-1056-2-git-send-email-chenhc@lemote.com>
+Subject: [PATCH V3 02/14] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
+Date:   Sun,  3 May 2020 18:05:55 +0800
+Message-Id: <1588500367-1056-3-git-send-email-chenhc@lemote.com>
 X-Mailer: git-send-email 2.7.0
 In-Reply-To: <1588500367-1056-1-git-send-email-chenhc@lemote.com>
 References: <1588500367-1056-1-git-send-email-chenhc@lemote.com>
@@ -71,39 +71,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xing Li <lixing@loongson.cn>
 
-The code in decode_config4() of arch/mips/kernel/cpu-probe.c
+If a CPU support more than 32bit vmbits (which is true for 64bit CPUs),
+VPN2_MASK set to fixed 0xffffe000 will lead to a wrong EntryHi in some
+functions such as _kvm_mips_host_tlb_inv().
 
-        asid_mask = MIPS_ENTRYHI_ASID;
-        if (config4 & MIPS_CONF4_AE)
-                asid_mask |= MIPS_ENTRYHI_ASIDX;
-        set_cpu_asid_mask(c, asid_mask);
-
-set asid_mask to cpuinfo->asid_mask.
-
-So in order to support variable ASID_MASK, KVM_ENTRYHI_ASID should also
-be changed to cpu_asid_mask(&boot_cpu_data).
+The cpu_vmbits definition of 32bit CPU in cpu-features.h is 31, so we
+still use the old definition.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Xing Li <lixing@loongson.cn>
-[Huacai: Change current_cpu_data to boot_cpu_data for optimization]
+[Huacai: Improve commit messages]
 Signed-off-by: Huacai Chen <chenhc@lemote.com>
 ---
- arch/mips/include/asm/kvm_host.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/kvm_host.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
-index 2c343c3..a01cee9 100644
+index a01cee9..caa2b936 100644
 --- a/arch/mips/include/asm/kvm_host.h
 +++ b/arch/mips/include/asm/kvm_host.h
-@@ -275,7 +275,7 @@ enum emulation_result {
+@@ -274,7 +274,11 @@ enum emulation_result {
+ #define MIPS3_PG_SHIFT		6
  #define MIPS3_PG_FRAME		0x3fffffc0
  
++#if defined(CONFIG_64BIT)
++#define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
++#else
  #define VPN2_MASK		0xffffe000
--#define KVM_ENTRYHI_ASID	MIPS_ENTRYHI_ASID
-+#define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
++#endif
+ #define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
  #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
  #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
- #define TLB_ASID(x)		((x).tlb_hi & KVM_ENTRYHI_ASID)
 -- 
 2.7.0
 
