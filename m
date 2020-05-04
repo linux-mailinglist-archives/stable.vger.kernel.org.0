@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF411C44E9
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAA151C4423
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:05:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731133AbgEDSEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730575AbgEDSEf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 4 May 2020 14:04:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33880 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730391AbgEDSE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:04:29 -0400
+        id S1731672AbgEDSEb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:04:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99B51205ED;
-        Mon,  4 May 2020 18:04:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DAAB206B8;
+        Mon,  4 May 2020 18:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615469;
-        bh=5dCP/Gb0YTMsyzKSqzDCdkXmTEkcfDYj7iiRizgRm3E=;
+        s=default; t=1588615471;
+        bh=MQS8+nTmhmm2Q150ULmKPcV1bXHSwsuoTev62VM611o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EYFIJ+QSrPhMzK8mzqTON0okLQr/kVzmvixeW0Fla2bDIFO6c44FG6yGulUE5CYol
-         LUV6NT+3S0X/jC5k7/OWAaKUIfJf55lOkFcsDqTjHhAXukfJs9xkc2eN9iQ7wNdYJt
-         fANf0gbPgHwt5I18euBE530yih5XUlHgliW3oJsw=
+        b=H7wq6lbXscAdKg/Dv4R1CAWGPSSjpTqOjhD08CRLcLpxAGrdA9AuA3py489pN9I/A
+         Q7JIcd1fo12jy9jZ8Dy028URuzhzDeRqwWDyjIZBJkAe5Q/AeyN5+3eBycvWKR1KCs
+         bXVwH4SuOYerIGYhQfWgGmTFfjGd9fqdSONSioR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Ian Kent <raven@themaw.net>, Al Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 51/57] Fix use after free in get_tree_bdev()
-Date:   Mon,  4 May 2020 19:57:55 +0200
-Message-Id: <20200504165501.103417676@linuxfoundation.org>
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.4 52/57] nvme: prevent double free in nvme_alloc_ns() error handling
+Date:   Mon,  4 May 2020 19:57:56 +0200
+Message-Id: <20200504165501.233875915@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
 References: <20200504165456.783676004@linuxfoundation.org>
@@ -45,46 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-commit dd7bc8158b413e0b580c491e8bd18cb91057c7c2 upstream.
+commit 132be62387c7a72a38872676c18b0dfae264adb8 upstream.
 
-Commit 6fcf0c72e4b9, a fix to get_tree_bdev() put a missing blkdev_put() in
-the wrong place, before a warnf() that displays the bdev under
-consideration rather after it.
+When jumping to the out_put_disk label, we will call put_disk(), which will
+trigger a call to disk_release(), which calls blk_put_queue().
 
-This results in a silent lockup in printk("%pg") called via warnf() from
-get_tree_bdev() under some circumstances when there's a race with the
-blockdev being frozen.  This can be caused by xfstests/tests/generic/085 in
-combination with Lukas Czerner's ext4 mount API conversion patchset.  It
-looks like it ought to occur with other users of get_tree_bdev() such as
-XFS, but apparently doesn't.
+Later in the cleanup code, we do blk_cleanup_queue(), which will also call
+blk_put_queue().
 
-Fix this by switching the order of the lines.
+Putting the queue twice is incorrect, and will generate a KASAN splat.
 
-Fixes: 6fcf0c72e4b9 ("vfs: add missing blkdev_put() in get_tree_bdev()")
-Reported-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Ian Kent <raven@themaw.net>
-cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Set the disk->queue pointer to NULL, before calling put_disk(), so that the
+first call to blk_put_queue() will not free the queue.
+
+The second call to blk_put_queue() uses another pointer to the same queue,
+so this call will still free the queue.
+
+Fixes: 85136c010285 ("lightnvm: simplify geometry enumeration")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1302,8 +1302,8 @@ int get_tree_bdev(struct fs_context *fc,
- 	mutex_lock(&bdev->bd_fsfreeze_mutex);
- 	if (bdev->bd_fsfreeze_count > 0) {
- 		mutex_unlock(&bdev->bd_fsfreeze_mutex);
--		blkdev_put(bdev, mode);
- 		warnf(fc, "%pg: Can't mount, blockdev is frozen", bdev);
-+		blkdev_put(bdev, mode);
- 		return -EBUSY;
- 	}
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3566,6 +3566,8 @@ static int nvme_alloc_ns(struct nvme_ctr
  
+ 	return 0;
+  out_put_disk:
++	/* prevent double queue cleanup */
++	ns->disk->queue = NULL;
+ 	put_disk(ns->disk);
+  out_unlink_ns:
+ 	mutex_lock(&ctrl->subsys->lock);
 
 
