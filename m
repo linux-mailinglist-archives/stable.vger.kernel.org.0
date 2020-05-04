@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9BFC1C449F
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD1211C4478
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730356AbgEDSIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38584 "EHLO mail.kernel.org"
+        id S1732180AbgEDSHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:07:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731071AbgEDSHj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:07:39 -0400
+        id S1732176AbgEDSHm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:07:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B22BC2078C;
-        Mon,  4 May 2020 18:07:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 278F320721;
+        Mon,  4 May 2020 18:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615659;
-        bh=VteYMk1LR6te1UA/DCtb6VMoHlcOc655RQxOBLcsWgs=;
+        s=default; t=1588615661;
+        bh=bJ2l/CHYhXqqCQmXxTph5G9oI6DoxV3kjVdO3Qi3s38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJXOQ0aQVsMtI5gVGXMm/GOyukP9EqdIxuy/nrI86Tdtm6s13cQds215sDVa7+Aq0
-         Wj4Kk+2mCZy+Y5VK3cwAmgHnwum+Xj+K6tZ71fqomeP+J7PHjU6fLmCaaZd1kHB/Rt
-         +u8Td2dEdkkxNndZ4kP870NRn0aKNctSS4Vm/epw=
+        b=H9Cq5BuTeyKKghy+aCMQBB3+JBNn2GYhUZsOsolf29jWS0pdWH0io7nRtUiskmeRD
+         6UxEcmPo0c2ug3+6a4yDvh3tMXqeVks2S1tlMSTpUPL8dasD9jV9yE/7IlB8xI8gjI
+         doByrODGPO6/hil2Ma/aHtRyPEo0EJ+iOWzhXOhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.6 70/73] drm/i915: Use proper fault mask in interrupt postinstall too
-Date:   Mon,  4 May 2020 19:58:13 +0200
-Message-Id: <20200504165510.444897810@linuxfoundation.org>
+        stable@vger.kernel.org, Seraj Alijan <seraj.alijan@sondrel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.6 71/73] dmaengine: dmatest: Fix process hang when reading wait parameter
+Date:   Mon,  4 May 2020 19:58:14 +0200
+Message-Id: <20200504165510.510085799@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
 References: <20200504165501.781878940@linuxfoundation.org>
@@ -47,53 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Roper <matthew.d.roper@intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 8598eb781cf68fd6cb67c479f1479ae58bd54fb9 upstream.
+commit aa72f1d20ee973d68f26d46fce5e1cf6f9b7e1ca upstream.
 
-The IRQ postinstall handling had open-coded pipe fault mask selection
-that never got updated for gen11.  Switch it to use
-gen8_de_pipe_fault_mask() to ensure we don't miss updates for new
-platforms.
+If we do
 
-Cc: José Roberto de Souza <jose.souza@intel.com>
-Fixes: d506a65d56fd ("drm/i915: Catch GTT fault errors for gen11+ planes")
-Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200424231423.4065231-1-matthew.d.roper@intel.com
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-(cherry picked from commit 869129ee0c624a78c74e50b51635e183196cd2c6)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+  % echo 1 > /sys/module/dmatest/parameters/run
+  [  115.851124] dmatest: Could not start test, no channels configured
+
+  % echo dma8chan7 > /sys/module/dmatest/parameters/channel
+  [  127.563872] dmatest: Added 1 threads using dma8chan7
+
+  % cat /sys/module/dmatest/parameters/wait
+  ... !!! HANG !!! ...
+
+The culprit is the commit 6138f967bccc
+
+  ("dmaengine: dmatest: Use fixed point div to calculate iops")
+
+which makes threads not to run, but pending and being kicked off by writing
+to the 'run' node. However, it forgot to consider 'wait' routine to avoid
+above mentioned case.
+
+In order to fix this, check for really running threads, i.e. with pending
+and done flags unset.
+
+It's pity the culprit commit hadn't updated documentation and tested all
+possible scenarios.
+
+Fixes: 6138f967bccc ("dmaengine: dmatest: Use fixed point div to calculate iops")
+Cc: Seraj Alijan <seraj.alijan@sondrel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20200428113518.70620-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/i915_irq.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/dma/dmatest.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/i915_irq.c
-+++ b/drivers/gpu/drm/i915/i915_irq.c
-@@ -3321,7 +3321,8 @@ static void gen8_de_irq_postinstall(stru
- {
- 	struct intel_uncore *uncore = &dev_priv->uncore;
+--- a/drivers/dma/dmatest.c
++++ b/drivers/dma/dmatest.c
+@@ -240,7 +240,7 @@ static bool is_threaded_test_run(struct
+ 		struct dmatest_thread *thread;
  
--	u32 de_pipe_masked = GEN8_PIPE_CDCLK_CRC_DONE;
-+	u32 de_pipe_masked = gen8_de_pipe_fault_mask(dev_priv) |
-+		GEN8_PIPE_CDCLK_CRC_DONE;
- 	u32 de_pipe_enables;
- 	u32 de_port_masked = GEN8_AUX_CHANNEL_A;
- 	u32 de_port_enables;
-@@ -3332,13 +3333,10 @@ static void gen8_de_irq_postinstall(stru
- 		de_misc_masked |= GEN8_DE_MISC_GSE;
- 
- 	if (INTEL_GEN(dev_priv) >= 9) {
--		de_pipe_masked |= GEN9_DE_PIPE_IRQ_FAULT_ERRORS;
- 		de_port_masked |= GEN9_AUX_CHANNEL_B | GEN9_AUX_CHANNEL_C |
- 				  GEN9_AUX_CHANNEL_D;
- 		if (IS_GEN9_LP(dev_priv))
- 			de_port_masked |= BXT_DE_PORT_GMBUS;
--	} else {
--		de_pipe_masked |= GEN8_DE_PIPE_IRQ_FAULT_ERRORS;
+ 		list_for_each_entry(thread, &dtc->threads, node) {
+-			if (!thread->done)
++			if (!thread->done && !thread->pending)
+ 				return true;
+ 		}
  	}
- 
- 	if (INTEL_GEN(dev_priv) >= 11)
 
 
