@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB411C394A
+	by mail.lfdr.de (Postfix) with ESMTP id 021A81C3949
 	for <lists+stable@lfdr.de>; Mon,  4 May 2020 14:26:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728621AbgEDM0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 08:26:43 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:55297 "EHLO
+        id S1728615AbgEDM0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 08:26:41 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:58679 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726744AbgEDM0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 08:26:43 -0400
+        by vger.kernel.org with ESMTP id S1726744AbgEDM0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 08:26:41 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 375A849A;
-        Mon,  4 May 2020 08:26:42 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 04 May 2020 08:26:42 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id B4C896A4;
+        Mon,  4 May 2020 08:26:40 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 04 May 2020 08:26:40 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=CTp1zi
-        rHv//nBQYGNYlJijrrvMjGrYoOKMkc3HTcS24=; b=ZlX4xvWN7Gf0GNz7msYfqP
-        6xQVFCxK8W4xEm2W6J7WMEbz0g4szXqJmiAVmEtM/5HDzgJiQskvurb3r7ctEE7e
-        qppjr4Cl73ChJ4Wm2y1jN9R2UgeYfwMff0esuZ0etiN9WCA83hy72g5VC1A3zYu7
-        I4zRSULJuEI8fEmzjSm2U4Xl5YjrdJ9R/IH02t/UIfnZd3Ksw5PtvRzsA5tzpRzt
-        fgwZaaCMLZ1NDVaMV1bPv0TPsHh5pC+j1TImTUndErSiSOL67w1X++XyoLKFM+Wy
-        VH/mFIAI6JZVmrBBo6o0LxxVL8VmACyTYzmDAIVx32RQ4BcYfEw6sPlsLuBg2mOQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LgsF69
+        vVdRpl9iNduZaJS4QDQG/5g2NzFB/DKX29i64=; b=0wFn9gMDIwNM4mHvhBdK1c
+        QNXPLo3/uCK7FGtqdncx4J/Tu4RTBz9W8VeE5D/P8CFYr60bQg0Mbfh0ppi8ZhOV
+        7JW7SyTW0MezaWcvvtMKe28oJZ2RUirzakzyGxiTmX991D/eedYBoSIz6QOuCQmc
+        dCjpOWBgzWIruc5/iGM8wHXspL3tlKDo6gugFD5+nb6ykwnjETjdt1TzZKNk+Jlk
+        99LIwGl/dCv1jZjQmXST9BfpmrIVXfvTXx++0OlPJmq7d4qklXCFLv62ixHcDWks
+        vJrsJZc806O4/6sAAdKwROVEE2wu89wc5f3M/+T6fYowZmlh/3O+sUaUafQ2QLDw
         ==
-X-ME-Sender: <xms:AQqwXlx7657BdUpXeTyPjEq6jgm-gtsl_Ol54vVukT4lomEiNHFhUw>
+X-ME-Sender: <xms:AAqwXkjQkXI76SaU_rQPONLrPzpYsKdhAiihrmUlG5H3MQvUL5Zzeg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrjeeggdegiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -36,19 +36,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrjeeggdegiecutefuodetggdote
     evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
     rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:AQqwXnEZkcH6ydxPS_ZKIUXLLdza_akARlRdlBs8aepo4ChE5xrYag>
-    <xmx:AQqwXhGFNNiKQrthbbl-47ToQj4CZFGwhamMJeb7w9KbwiuOKz6aJg>
-    <xmx:AQqwXou4t29FH5c5bgzpI6QQ4i9N-08liPb_Tekn4Zz6cheXR2YFTQ>
-    <xmx:AQqwXjzyVTXSCliKsIJIrsxSQJCpir9_PTqXEWWuAiHWoAs813VdMnCAG1k>
+X-ME-Proxy: <xmx:AAqwXknmyMjPVjcHLWPC8YvOSUioXkqDMixAujMnhr2c6REKTmQktw>
+    <xmx:AAqwXpD7w_wBeSEr6MnErPkRHeCg9Jq1k587Le8ylQ7j-PKilrZNOw>
+    <xmx:AAqwXjNTghdN_aGB0JyetAPkJXc-8JczIcG6dhbMCffWVTH02PzXIQ>
+    <xmx:AAqwXtfVRz1GAS6rrJcdePhh1xTrK1B2XM_Cyqsf10Xrx7nYuSoxDj-GKIQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 73C163066021;
-        Mon,  4 May 2020 08:26:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] xprtrdma: Fix trace point use-after-free race" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 09CAA328005D;
+        Mon,  4 May 2020 08:26:39 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] xprtrdma: Fix trace point use-after-free race" failed to apply to 4.9-stable tree
 To:     chuck.lever@oracle.com, Anna.Schumaker@Netapp.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 May 2020 14:26:36 +0200
-Message-ID: <15885951965016@kroah.com>
+Message-ID: <1588595196170197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
