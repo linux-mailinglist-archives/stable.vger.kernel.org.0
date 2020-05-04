@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D87A1C43C6
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51E971C450A
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731166AbgEDSB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:01:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56996 "EHLO mail.kernel.org"
+        id S1731392AbgEDSCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:02:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730598AbgEDSB1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:01:27 -0400
+        id S1731386AbgEDSCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:02:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D94C2206B8;
-        Mon,  4 May 2020 18:01:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06618206B8;
+        Mon,  4 May 2020 18:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615287;
-        bh=wRkYzBLk0vUVQRuUS+lFzvR6kc1EqVlOI6UkZWW2SN8=;
+        s=default; t=1588615369;
+        bh=9qF+e5c6C36Hi9HIevezn/W5y8F3mvwCj9jVIt19RFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9X9oLClbxWJnpc7KCXD94QW3yUNsc77tF2Ms/d67JDeXJ37lfLK5+GUXI1K5I5TH
-         isftEl2FO2K9MH8rize9PZu3ACVhyPMIfVQztOoMgwnpFuCmmscf/nDLEnFVmVO2Zi
-         O9q6Njc6Bx8VnX6S8N6BwXXYqODnUtzjsZp7LcxE=
+        b=yjg4pp3TtBQ2N4ycAaWvi3NWFbiZBcktZbtOyj9a8c3STcskJ/Mdmd2Q3N07K7YP5
+         fzCQMSvdgG3Sm1aqcXc+6z/wX03qJghtJRpDmUhOtSciJ7+UwDjtYoaeTYqq8Ud/QT
+         0RlJX4c15viNvty4EoNCSqn+2D2hdghha6IwcWtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 4.19 02/37] drm/qxl: qxl_release leak in qxl_draw_dirty_fb()
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 11/57] btrfs: transaction: Avoid deadlock due to bad initialization timing of fs_info::journal_info
 Date:   Mon,  4 May 2020 19:57:15 +0200
-Message-Id: <20200504165448.660485899@linuxfoundation.org>
+Message-Id: <20200504165457.421310508@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 85e9b88af1e6164f19ec71381efd5e2bcfc17620 upstream.
+commit fcc99734d1d4ced30167eb02e17f656735cb9928 upstream.
 
-ret should be changed to release allocated struct qxl_release
+[BUG]
+One run of btrfs/063 triggered the following lockdep warning:
+  ============================================
+  WARNING: possible recursive locking detected
+  5.6.0-rc7-custom+ #48 Not tainted
+  --------------------------------------------
+  kworker/u24:0/7 is trying to acquire lock:
+  ffff88817d3a46e0 (sb_internal#2){.+.+}, at: start_transaction+0x66c/0x890 [btrfs]
 
-Cc: stable@vger.kernel.org
-Fixes: 8002db6336dd ("qxl: convert qxl driver to proper use for reservations")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/22cfd55f-07c8-95d0-a2f7-191b7153c3d4@virtuozzo.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+  but task is already holding lock:
+  ffff88817d3a46e0 (sb_internal#2){.+.+}, at: start_transaction+0x66c/0x890 [btrfs]
+
+  other info that might help us debug this:
+   Possible unsafe locking scenario:
+
+         CPU0
+         ----
+    lock(sb_internal#2);
+    lock(sb_internal#2);
+
+   *** DEADLOCK ***
+
+   May be due to missing lock nesting notation
+
+  4 locks held by kworker/u24:0/7:
+   #0: ffff88817b495948 ((wq_completion)btrfs-endio-write){+.+.}, at: process_one_work+0x557/0xb80
+   #1: ffff888189ea7db8 ((work_completion)(&work->normal_work)){+.+.}, at: process_one_work+0x557/0xb80
+   #2: ffff88817d3a46e0 (sb_internal#2){.+.+}, at: start_transaction+0x66c/0x890 [btrfs]
+   #3: ffff888174ca4da8 (&fs_info->reloc_mutex){+.+.}, at: btrfs_record_root_in_trans+0x83/0xd0 [btrfs]
+
+  stack backtrace:
+  CPU: 0 PID: 7 Comm: kworker/u24:0 Not tainted 5.6.0-rc7-custom+ #48
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  Workqueue: btrfs-endio-write btrfs_work_helper [btrfs]
+  Call Trace:
+   dump_stack+0xc2/0x11a
+   __lock_acquire.cold+0xce/0x214
+   lock_acquire+0xe6/0x210
+   __sb_start_write+0x14e/0x290
+   start_transaction+0x66c/0x890 [btrfs]
+   btrfs_join_transaction+0x1d/0x20 [btrfs]
+   find_free_extent+0x1504/0x1a50 [btrfs]
+   btrfs_reserve_extent+0xd5/0x1f0 [btrfs]
+   btrfs_alloc_tree_block+0x1ac/0x570 [btrfs]
+   btrfs_copy_root+0x213/0x580 [btrfs]
+   create_reloc_root+0x3bd/0x470 [btrfs]
+   btrfs_init_reloc_root+0x2d2/0x310 [btrfs]
+   record_root_in_trans+0x191/0x1d0 [btrfs]
+   btrfs_record_root_in_trans+0x90/0xd0 [btrfs]
+   start_transaction+0x16e/0x890 [btrfs]
+   btrfs_join_transaction+0x1d/0x20 [btrfs]
+   btrfs_finish_ordered_io+0x55d/0xcd0 [btrfs]
+   finish_ordered_fn+0x15/0x20 [btrfs]
+   btrfs_work_helper+0x116/0x9a0 [btrfs]
+   process_one_work+0x632/0xb80
+   worker_thread+0x80/0x690
+   kthread+0x1a3/0x1f0
+   ret_from_fork+0x27/0x50
+
+It's pretty hard to reproduce, only one hit so far.
+
+[CAUSE]
+This is because we're calling btrfs_join_transaction() without re-using
+the current running one:
+
+btrfs_finish_ordered_io()
+|- btrfs_join_transaction()		<<< Call #1
+   |- btrfs_record_root_in_trans()
+      |- btrfs_reserve_extent()
+	 |- btrfs_join_transaction()	<<< Call #2
+
+Normally such btrfs_join_transaction() call should re-use the existing
+one, without trying to re-start a transaction.
+
+But the problem is, in btrfs_join_transaction() call #1, we call
+btrfs_record_root_in_trans() before initializing current::journal_info.
+
+And in btrfs_join_transaction() call #2, we're relying on
+current::journal_info to avoid such deadlock.
+
+[FIX]
+Call btrfs_record_root_in_trans() after we have initialized
+current::journal_info.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/qxl/qxl_draw.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/btrfs/transaction.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/qxl/qxl_draw.c
-+++ b/drivers/gpu/drm/qxl/qxl_draw.c
-@@ -348,9 +348,10 @@ void qxl_draw_dirty_fb(struct qxl_device
- 		goto out_release_backoff;
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -590,10 +590,19 @@ again:
+ 	}
  
- 	rects = drawable_set_clipping(qdev, num_clips, clips_bo);
--	if (!rects)
-+	if (!rects) {
-+		ret = -EINVAL;
- 		goto out_release_backoff;
+ got_it:
+-	btrfs_record_root_in_trans(h, root);
 -
-+	}
- 	drawable = (struct qxl_drawable *)qxl_release_map(qdev, release);
+ 	if (!current->journal_info)
+ 		current->journal_info = h;
++
++	/*
++	 * btrfs_record_root_in_trans() needs to alloc new extents, and may
++	 * call btrfs_join_transaction() while we're also starting a
++	 * transaction.
++	 *
++	 * Thus it need to be called after current->journal_info initialized,
++	 * or we can deadlock.
++	 */
++	btrfs_record_root_in_trans(h, root);
++
+ 	return h;
  
- 	drawable->clip.type = SPICE_CLIP_TYPE_RECTS;
+ join_fail:
 
 
