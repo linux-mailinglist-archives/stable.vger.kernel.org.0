@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74AD01C363C
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 11:55:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3542A1C3642
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 11:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727108AbgEDJza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 05:55:30 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:38675 "EHLO
+        id S1728444AbgEDJ4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 05:56:04 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:52631 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726666AbgEDJza (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 05:55:30 -0400
+        by vger.kernel.org with ESMTP id S1726666AbgEDJ4E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 05:56:04 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 3A79D414;
-        Mon,  4 May 2020 05:55:29 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 04 May 2020 05:55:29 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 47198613;
+        Mon,  4 May 2020 05:56:03 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 04 May 2020 05:56:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=3ysGEP
-        lcXDv2AlLdGoOMF3W097IDMjkuXAZwMvORRqM=; b=Vy+6dj6LbHdooAzFqDI/Kp
-        ObyMB1c38wwpGJGRdXmXFPa5zb8B1/KIG/4tAZNfWUVpp52FdNidfDxY0pKGaIGV
-        5HxZ6zTuvPXnxyIA3hMdLtWux3LNKR80wJc93oUPE6w1V2BcSeuabbif6+ARUzK+
-        ggxxpw0RVOMdfFrGDJn3dAOUdVdA2nUNAMlw/g5au9aWRyWaKY4dZypNetQVw/N4
-        CB5UYay+MdWPtQJPg5170JrJtl5bFim1MbeuJl+lPWz6cidESnpeIIym0pVGI1AM
-        y3Pc6S9tMIyxeamcIMYt/MsJTcAcA8upa5QTgUpZysmuBRRRMAvwiISWMGr0d4TQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=hazg3t
+        uGPVyg0D/Bx6J0v8XEwsNOUuNBNWzEx6nQNwA=; b=XTNjxgmB39UWs33ks8kmsy
+        wzntAcOh58nPk/sdFUXrkdyptTxAJKSIEKnHbsIBw9OFXdZ3MgLuahaTOTAWolrd
+        u+T9y1SOCP9PvYHSmHysmexYgpWonOg5DFK061+MxNNvYP9BvStNFIl8XXV08Y8N
+        0ECfUfFHEIez5OjY9v14cV7Ec0BJuRe8LSu6md3pXJ3bH/1bn3A7Hb7rNGRfrwev
+        S6nm8gBWT3/Hyd5aqN/fvGqUmRiwybXoseCB1HYWvo0V6bEQJ59ahygZCsTp/XIo
+        J6jRXCWFx+WFHsO4E3Wo32U0DPNm+oo7cN3Zj1QjGGQ14cUEFjj8ArJqEV9mnuAw
         ==
-X-ME-Sender: <xms:kOavXgnK-wSQQlTmoPL-tslKZhJj3ZUSPPEtGeWX0KKwTeXvSUbc4w>
+X-ME-Sender: <xms:suavXnFIoOYdmsi3SaY_Yc5akZsnjOdY2dnLri2sQLx0IzVwh_RSlA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrjeeggddvtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:kOavXqdLheaWoD2zcXe3R6L3R4QWEZsMcL33BbZLymWflWlXrNaaeg>
-    <xmx:kOavXkr2TopkKYpcep5gpzip4HQrPTmCb5yTRItmSWTBC5ZNsuiU3g>
-    <xmx:kOavXsNVJNZi498I5hEPYBsaJ22TREXToruLIdVrFvZFFIN9EHx7Rg>
-    <xmx:kOavXmffsmLhc4-SGXWoKS7wjXF5MtEANSBTgSh5x5SqvDhLTg6HFwfCWns>
+X-ME-Proxy: <xmx:suavXkSf4fjVRahBTMDzOnfWCua1GwJR0HCVKZx8512b6C_kYr9OYQ>
+    <xmx:suavXksG2YcFgvhLxyy-rbaiMwmXrKe89kehjoFjmwPcQSAIPaxcAA>
+    <xmx:suavXqBk-wZYkAgD63l6T0dfJOyIuhtqlR8aj9aovfy4zM-Teq7dzQ>
+    <xmx:suavXnj9q11HqARU1KcfDocRi7bqRct1j7jTfxxXPgjH7M1nyUGaMxac7Yo>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2CAD13065FFD;
-        Mon,  4 May 2020 05:55:28 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] selinux: properly handle multiple messages in" failed to apply to 5.4-stable tree
-To:     paul@paul-moore.com, dvyukov@google.com,
-        stephen.smalley.work@gmail.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 311413280059;
+        Mon,  4 May 2020 05:56:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: statx must grab the file table for valid fd" failed to apply to 5.6-stable tree
+To:     axboe@kernel.dk, bugs@claycon.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 May 2020 11:55:24 +0200
-Message-ID: <1588586124220222@kroah.com>
+Date:   Mon, 04 May 2020 11:56:01 +0200
+Message-ID: <1588586161159248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.6-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,110 +69,77 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fb73974172ffaaf57a7c42f35424d9aece1a5af6 Mon Sep 17 00:00:00 2001
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 28 Apr 2020 09:59:02 -0400
-Subject: [PATCH] selinux: properly handle multiple messages in
- selinux_netlink_send()
+From 5b0bbee4732cbd58aa98213d4c11a366356bba3d Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Mon, 27 Apr 2020 10:41:22 -0600
+Subject: [PATCH] io_uring: statx must grab the file table for valid fd
 
-Fix the SELinux netlink_send hook to properly handle multiple netlink
-messages in a single sk_buff; each message is parsed and subject to
-SELinux access control.  Prior to this patch, SELinux only inspected
-the first message in the sk_buff.
+Clay reports that OP_STATX fails for a test case with a valid fd
+and empty path:
 
-Cc: stable@vger.kernel.org
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+ -- Test 0: statx:fd 3: SUCCEED, file mode 100755
+ -- Test 1: statx:path ./uring_statx: SUCCEED, file mode 100755
+ -- Test 2: io_uring_statx:fd 3: FAIL, errno 9: Bad file descriptor
+ -- Test 3: io_uring_statx:path ./uring_statx: SUCCEED, file mode 100755
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b8e09aedbc56..487d4df0e37c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5842,40 +5842,60 @@ static unsigned int selinux_ipv6_postroute(void *priv,
+This is due to statx not grabbing the process file table, hence we can't
+lookup the fd in async context. If the fd is valid, ensure that we grab
+the file table so we can grab the file from async context.
+
+Cc: stable@vger.kernel.org # v5.6
+Reported-by: Clay Harris <bugs@claycon.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c687f57fb651..084dfade5cda 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -524,6 +524,7 @@ enum {
+ 	REQ_F_OVERFLOW_BIT,
+ 	REQ_F_POLLED_BIT,
+ 	REQ_F_BUFFER_SELECTED_BIT,
++	REQ_F_NO_FILE_TABLE_BIT,
  
- static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
- {
--	int err = 0;
--	u32 perm;
-+	int rc = 0;
-+	unsigned int msg_len;
-+	unsigned int data_len = skb->len;
-+	unsigned char *data = skb->data;
- 	struct nlmsghdr *nlh;
- 	struct sk_security_struct *sksec = sk->sk_security;
-+	u16 sclass = sksec->sclass;
-+	u32 perm;
+ 	/* not a real bit, just to check we're not overflowing the space */
+ 	__REQ_F_LAST_BIT,
+@@ -577,6 +578,8 @@ enum {
+ 	REQ_F_POLLED		= BIT(REQ_F_POLLED_BIT),
+ 	/* buffer already selected */
+ 	REQ_F_BUFFER_SELECTED	= BIT(REQ_F_BUFFER_SELECTED_BIT),
++	/* doesn't need file table for this request */
++	REQ_F_NO_FILE_TABLE	= BIT(REQ_F_NO_FILE_TABLE_BIT),
+ };
  
--	if (skb->len < NLMSG_HDRLEN) {
--		err = -EINVAL;
--		goto out;
--	}
--	nlh = nlmsg_hdr(skb);
-+	while (data_len >= nlmsg_total_size(0)) {
-+		nlh = (struct nlmsghdr *)data;
-+
-+		/* NOTE: the nlmsg_len field isn't reliably set by some netlink
-+		 *       users which means we can't reject skb's with bogus
-+		 *       length fields; our solution is to follow what
-+		 *       netlink_rcv_skb() does and simply skip processing at
-+		 *       messages with length fields that are clearly junk
-+		 */
-+		if (nlh->nlmsg_len < NLMSG_HDRLEN || nlh->nlmsg_len > data_len)
-+			return 0;
+ struct async_poll {
+@@ -799,6 +802,7 @@ static const struct io_op_def io_op_defs[] = {
+ 		.needs_file		= 1,
+ 		.fd_non_neg		= 1,
+ 		.needs_fs		= 1,
++		.file_table		= 1,
+ 	},
+ 	[IORING_OP_READ] = {
+ 		.needs_mm		= 1,
+@@ -3355,8 +3359,12 @@ static int io_statx(struct io_kiocb *req, bool force_nonblock)
+ 	struct kstat stat;
+ 	int ret;
  
--	err = selinux_nlmsg_lookup(sksec->sclass, nlh->nlmsg_type, &perm);
--	if (err) {
--		if (err == -EINVAL) {
-+		rc = selinux_nlmsg_lookup(sclass, nlh->nlmsg_type, &perm);
-+		if (rc == 0) {
-+			rc = sock_has_perm(sk, perm);
-+			if (rc)
-+				return rc;
-+		} else if (rc == -EINVAL) {
-+			/* -EINVAL is a missing msg/perm mapping */
- 			pr_warn_ratelimited("SELinux: unrecognized netlink"
--			       " message: protocol=%hu nlmsg_type=%hu sclass=%s"
--			       " pid=%d comm=%s\n",
--			       sk->sk_protocol, nlh->nlmsg_type,
--			       secclass_map[sksec->sclass - 1].name,
--			       task_pid_nr(current), current->comm);
--			if (!enforcing_enabled(&selinux_state) ||
--			    security_get_allow_unknown(&selinux_state))
--				err = 0;
-+				" message: protocol=%hu nlmsg_type=%hu sclass=%s"
-+				" pid=%d comm=%s\n",
-+				sk->sk_protocol, nlh->nlmsg_type,
-+				secclass_map[sclass - 1].name,
-+				task_pid_nr(current), current->comm);
-+			if (enforcing_enabled(&selinux_state) &&
-+			    !security_get_allow_unknown(&selinux_state))
-+				return rc;
-+			rc = 0;
-+		} else if (rc == -ENOENT) {
-+			/* -ENOENT is a missing socket/class mapping, ignore */
-+			rc = 0;
-+		} else {
-+			return rc;
- 		}
+-	if (force_nonblock)
++	if (force_nonblock) {
++		/* only need file table for an actual valid fd */
++		if (ctx->dfd == -1 || ctx->dfd == AT_FDCWD)
++			req->flags |= REQ_F_NO_FILE_TABLE;
+ 		return -EAGAIN;
++	}
  
--		/* Ignore */
--		if (err == -ENOENT)
--			err = 0;
--		goto out;
-+		/* move to the next message after applying netlink padding */
-+		msg_len = NLMSG_ALIGN(nlh->nlmsg_len);
-+		if (msg_len >= data_len)
-+			return 0;
-+		data_len -= msg_len;
-+		data += msg_len;
- 	}
+ 	if (vfs_stat_set_lookup_flags(&lookup_flags, ctx->how.flags))
+ 		return -EINVAL;
+@@ -5429,7 +5437,7 @@ static int io_grab_files(struct io_kiocb *req)
+ 	int ret = -EBADF;
+ 	struct io_ring_ctx *ctx = req->ctx;
  
--	err = sock_has_perm(sk, perm);
--out:
--	return err;
-+	return rc;
- }
- 
- static void ipc_init_security(struct ipc_security_struct *isec, u16 sclass)
+-	if (req->work.files)
++	if (req->work.files || (req->flags & REQ_F_NO_FILE_TABLE))
+ 		return 0;
+ 	if (!ctx->ring_file)
+ 		return -EBADF;
 
