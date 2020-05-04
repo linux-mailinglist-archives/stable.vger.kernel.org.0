@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1971C44E0
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C4481C4468
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731695AbgEDSEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:04:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
+        id S1731521AbgEDSHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731693AbgEDSEj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:04:39 -0400
+        id S1732069AbgEDSHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:07:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF5E6205ED;
-        Mon,  4 May 2020 18:04:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02EB520721;
+        Mon,  4 May 2020 18:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615479;
-        bh=bJ2l/CHYhXqqCQmXxTph5G9oI6DoxV3kjVdO3Qi3s38=;
+        s=default; t=1588615625;
+        bh=fLIVL3sjse+37SzZ0JN8pjVguV51V/e7QehVdNR5FHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHBqgI+0OkFMzZMSIPSqCBeA3ZVFIfX/LpJ5FI+V04oJddoYeN1fX1qJIMqQO3GId
-         cVFOpJFwyHrUfrMvT/4Czd/q8Q0mOJryKkfLdWUf2heVo9lsbRrv7DL2aLScT97vBw
-         ibbvU4e8rSrbsIfZpYU259ke6WJ0HUTztGZIu+EI=
+        b=NqAZCIXSpqrlfa2VKwh346yokR0Do1KovWfB+RdlzqdusMqd4IR9AuH9XcASqBOZi
+         AlgK3MOKzgb/vZqLey478JZ5+PzC2fmL3YeTEuknQKj6X7JD7i/5/u1J0zyF33eyX/
+         MsiJN6TOmGoNcTIVOS7yXwhS+HPgPG1pFPi0c5BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seraj Alijan <seraj.alijan@sondrel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
         Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 55/57] dmaengine: dmatest: Fix process hang when reading wait parameter
-Date:   Mon,  4 May 2020 19:57:59 +0200
-Message-Id: <20200504165501.618491542@linuxfoundation.org>
+Subject: [PATCH 5.6 57/73] dmaengine: ti: k3-psil: fix deadlock on error path
+Date:   Mon,  4 May 2020 19:58:00 +0200
+Message-Id: <20200504165509.601260333@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-commit aa72f1d20ee973d68f26d46fce5e1cf6f9b7e1ca upstream.
+commit 172d59ecd61b89f535ad99a7e531c0f111453b9a upstream.
 
-If we do
+The mutex_unlock() is missed on error path of psil_get_ep_config()
+which causes deadlock, so add missed mutex_unlock().
 
-  % echo 1 > /sys/module/dmatest/parameters/run
-  [  115.851124] dmatest: Could not start test, no channels configured
-
-  % echo dma8chan7 > /sys/module/dmatest/parameters/channel
-  [  127.563872] dmatest: Added 1 threads using dma8chan7
-
-  % cat /sys/module/dmatest/parameters/wait
-  ... !!! HANG !!! ...
-
-The culprit is the commit 6138f967bccc
-
-  ("dmaengine: dmatest: Use fixed point div to calculate iops")
-
-which makes threads not to run, but pending and being kicked off by writing
-to the 'run' node. However, it forgot to consider 'wait' routine to avoid
-above mentioned case.
-
-In order to fix this, check for really running threads, i.e. with pending
-and done flags unset.
-
-It's pity the culprit commit hadn't updated documentation and tested all
-possible scenarios.
-
-Fixes: 6138f967bccc ("dmaengine: dmatest: Use fixed point div to calculate iops")
-Cc: Seraj Alijan <seraj.alijan@sondrel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200428113518.70620-1-andriy.shevchenko@linux.intel.com
+Fixes: 8c6bb62f6b4a ("dmaengine: ti: k3 PSI-L remote endpoint configuration")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20200408185501.30776-1-grygorii.strashko@ti.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/dmatest.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/ti/k3-psil.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/dma/dmatest.c
-+++ b/drivers/dma/dmatest.c
-@@ -240,7 +240,7 @@ static bool is_threaded_test_run(struct
- 		struct dmatest_thread *thread;
- 
- 		list_for_each_entry(thread, &dtc->threads, node) {
--			if (!thread->done)
-+			if (!thread->done && !thread->pending)
- 				return true;
+--- a/drivers/dma/ti/k3-psil.c
++++ b/drivers/dma/ti/k3-psil.c
+@@ -27,6 +27,7 @@ struct psil_endpoint_config *psil_get_ep
+ 			soc_ep_map = &j721e_ep_map;
+ 		} else {
+ 			pr_err("PSIL: No compatible machine found for map\n");
++			mutex_unlock(&ep_map_mutex);
+ 			return ERR_PTR(-ENOTSUPP);
  		}
- 	}
+ 		pr_debug("%s: Using map for %s\n", __func__, soc_ep_map->name);
 
 
