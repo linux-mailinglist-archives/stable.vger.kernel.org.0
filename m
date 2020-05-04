@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ABB81C44F0
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38A611C450E
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730937AbgEDSFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:05:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35252 "EHLO mail.kernel.org"
+        id S1731447AbgEDSDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:03:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731817AbgEDSF2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:05:28 -0400
+        id S1731426AbgEDSDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:03:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C86D206B8;
-        Mon,  4 May 2020 18:05:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D16E2073E;
+        Mon,  4 May 2020 18:03:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615526;
-        bh=bDrhjzhTskjV7kPXv5v9McXEoLe8VDFr0GW1kaT3njM=;
+        s=default; t=1588615384;
+        bh=m0NOQkhaDLLWHMFRUMofd+9PQkdwLZpGR0kbkLzWY9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X5p8PIEcDvAAJnJ1SFXFtupV754GQrJp7V1nokR2Af1sleQif55KEKdAMIhedn+kk
-         MlU5JmJk4U66uUiZh9ytrwlIY1uCOme4Jkx883Nyx9QJpcB9haRAXkOTWV3q5cDqK3
-         usThdjeRBA54e720pLpTJM4inhWl64ayn61apDq0=
+        b=WHTTa15tkVhTawOhmrl2a+8R6gbMCeav2nTtMN2V9LF0J+v/Gtys+Wsm4JfHLV0hb
+         TNGcP0E5mooI0xNAfgK81l6/SCcmQ6gaB628ny8gGBWh2OtF0E2rKQxRMOkj9dqHDy
+         7mZ1CFyaHGcn60weHeeB//mR0awEN4/ya7KA6X94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.6 17/73] mmc: sdhci-xenon: fix annoying 1.8V regulator warning
-Date:   Mon,  4 May 2020 19:57:20 +0200
-Message-Id: <20200504165505.044101855@linuxfoundation.org>
+Subject: [PATCH 5.4 17/57] mmc: meson-mx-sdio: remove the broken ->card_busy() op
+Date:   Mon,  4 May 2020 19:57:21 +0200
+Message-Id: <20200504165457.896543710@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <marek.behun@nic.cz>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit bb32e1987bc55ce1db400faf47d85891da3c9b9f upstream.
+commit ddca1092c4324c89cf692b5efe655aa251864b51 upstream.
 
-For some reason the Host Control2 register of the Xenon SDHCI controller
-sometimes reports the bit representing 1.8V signaling as 0 when read
-after it was written as 1. Subsequent read reports 1.
+The recent commit 0d84c3e6a5b2 ("mmc: core: Convert to
+mmc_poll_for_busy() for erase/trim/discard") makes use of the
+->card_busy() op for SD cards. This uncovered that the ->card_busy() op
+in the Meson SDIO driver was never working right:
+while polling the busy status with ->card_busy()
+meson_mx_mmc_card_busy() reads only one of the two MESON_MX_SDIO_IRQC
+register values 0x1f001f10 or 0x1f003f10. This translates to "three out
+of four DAT lines are HIGH" and "all four DAT lines are HIGH", which
+is interpreted as "the card is busy".
 
-This causes the sdhci_start_signal_voltage_switch function to report
-  1.8V regulator output did not become stable
+It turns out that no situation can be observed where all four DAT lines
+are LOW, meaning the card is not busy anymore. Upon further research the
+3.10 vendor driver for this controller does not implement the
+->card_busy() op.
 
-When CONFIG_PM is enabled, the host is suspended and resumend many
-times, and in each resume the switch to 1.8V is called, and so the
-kernel log reports this message annoyingly often.
+Remove the ->card_busy() op from the meson-mx-sdio driver since it is
+not working. At the time of writing this patch it is not clear what's
+needed to make the ->card_busy() implementation work with this specific
+controller hardware. For all use-cases which have previously worked the
+MMC_CAP_WAIT_WHILE_BUSY flag is now taking over, even if we don't have
+a ->card_busy() op anymore.
 
-Do an empty read of the Host Control2 register in Xenon's
-.voltage_switch method to circumvent this.
-
-This patch fixes this particular problem on Turris MOX.
-
-Signed-off-by: Marek Behún <marek.behun@nic.cz>
-Fixes: 8d876bf472db ("mmc: sdhci-xenon: wait 5ms after set 1.8V...")
-Cc: stable@vger.kernel.org # v4.16+
-Link: https://lore.kernel.org/r/20200420080444.25242-1-marek.behun@nic.cz
+Fixes: ed80a13bb4c4c9 ("mmc: meson-mx-sdio: Add a driver for the Amlogic Meson8 and Meson8b SoCs")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200416183513.993763-3-martin.blumenstingl@googlemail.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-xenon.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/mmc/host/meson-mx-sdio.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
---- a/drivers/mmc/host/sdhci-xenon.c
-+++ b/drivers/mmc/host/sdhci-xenon.c
-@@ -235,6 +235,16 @@ static void xenon_voltage_switch(struct
- {
- 	/* Wait for 5ms after set 1.8V signal enable bit */
- 	usleep_range(5000, 5500);
-+
-+	/*
-+	 * For some reason the controller's Host Control2 register reports
-+	 * the bit representing 1.8V signaling as 0 when read after it was
-+	 * written as 1. Subsequent read reports 1.
-+	 *
-+	 * Since this may cause some issues, do an empty read of the Host
-+	 * Control2 register here to circumvent this.
-+	 */
-+	sdhci_readw(host, SDHCI_HOST_CONTROL2);
+--- a/drivers/mmc/host/meson-mx-sdio.c
++++ b/drivers/mmc/host/meson-mx-sdio.c
+@@ -357,14 +357,6 @@ static void meson_mx_mmc_request(struct
+ 		meson_mx_mmc_start_cmd(mmc, mrq->cmd);
  }
  
- static const struct sdhci_ops sdhci_xenon_ops = {
+-static int meson_mx_mmc_card_busy(struct mmc_host *mmc)
+-{
+-	struct meson_mx_mmc_host *host = mmc_priv(mmc);
+-	u32 irqc = readl(host->base + MESON_MX_SDIO_IRQC);
+-
+-	return !!(irqc & MESON_MX_SDIO_IRQC_FORCE_DATA_DAT_MASK);
+-}
+-
+ static void meson_mx_mmc_read_response(struct mmc_host *mmc,
+ 				       struct mmc_command *cmd)
+ {
+@@ -506,7 +498,6 @@ static void meson_mx_mmc_timeout(struct
+ static struct mmc_host_ops meson_mx_mmc_ops = {
+ 	.request		= meson_mx_mmc_request,
+ 	.set_ios		= meson_mx_mmc_set_ios,
+-	.card_busy		= meson_mx_mmc_card_busy,
+ 	.get_cd			= mmc_gpio_get_cd,
+ 	.get_ro			= mmc_gpio_get_ro,
+ };
 
 
