@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC0AF1C43F3
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:03:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4331C4533
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731421AbgEDSC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:02:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59738 "EHLO mail.kernel.org"
+        id S1731832AbgEDSNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:13:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731416AbgEDSC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:02:57 -0400
+        id S1731168AbgEDSBe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:01:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5039320707;
-        Mon,  4 May 2020 18:02:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 165E520707;
+        Mon,  4 May 2020 18:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615376;
-        bh=e6ccMfhxtpK7sTocC+QkoGt/nt9t13JWpEXbmbDlFks=;
+        s=default; t=1588615294;
+        bh=+uHnYeckTZ/b/1RoIw0t+qHts3oKfYXWET/DSt23zbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ReiSJfoWIXscHLvMnzHxAZmqcuSxWy+QpROoWh4DOWfbn1YzMJafW5cwnR7c7gYdu
-         0Vns6qcQSRMyJU7fTG+aZfFxO/coK1MPBJ0DwAqTCmbNyA4ECLYs7SqIX8gkYfe8OQ
-         kyz6YJnC8DVulO+vnD6NWWLbUOzn+L2+9eyK+Cvw=
+        b=Ui7iHAAyYSGP4SBB3EDXNbWP7L7nwG/v96SJZ6RlvrJJNGVkQb4vieC61zzrfiXBZ
+         yiWZezlmEC26Q4cGrzAnsswwlSdn/Hkf7ofOSG98+h0qubkoU2jIbPqzwk6h9F3RjV
+         JSm4tSVW0pYDHnkf7C3Y2zrH9Q0jcvPn/g9DB0n4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 14/57] mmc: sdhci-pci: Fix eMMC driver strength for BYT-based controllers
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 05/37] btrfs: fix block group leak when removing fails
 Date:   Mon,  4 May 2020 19:57:18 +0200
-Message-Id: <20200504165457.666271534@linuxfoundation.org>
+Message-Id: <20200504165449.199649237@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 1a8eb6b373c2af6533c13d1ea11f504e5010ed9a upstream.
+commit f6033c5e333238f299c3ae03fac8cc1365b23b77 upstream.
 
-BIOS writers have begun the practice of setting 40 ohm eMMC driver strength
-even though the eMMC may not support it, on the assumption that the kernel
-will validate the value against the eMMC (Extended CSD DRIVER_STRENGTH
-[offset 197]) and revert to the default 50 ohm value if 40 ohm is invalid.
+btrfs_remove_block_group() invokes btrfs_lookup_block_group(), which
+returns a local reference of the block group that contains the given
+bytenr to "block_group" with increased refcount.
 
-This is done to avoid changing the value for different boards.
+When btrfs_remove_block_group() returns, "block_group" becomes invalid,
+so the refcount should be decreased to keep refcount balanced.
 
-Putting aside the merits of this approach, it is clear the eMMC's mask
-of supported driver strengths is more reliable than the value provided
-by BIOS. Add validation accordingly.
+The reference counting issue happens in several exception handling paths
+of btrfs_remove_block_group(). When those error scenarios occur such as
+btrfs_alloc_path() returns NULL, the function forgets to decrease its
+refcnt increased by btrfs_lookup_block_group() and will cause a refcnt
+leak.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 51ced59cc02e ("mmc: sdhci-pci: Use ACPI DSM to get driver strength for some Intel devices")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200422111629.4899-1-adrian.hunter@intel.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fix this issue by jumping to "out_put_group" label and calling
+btrfs_put_block_group() when those error scenarios occur.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-pci-core.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/btrfs/extent-tree.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -601,6 +601,9 @@ static int intel_select_drive_strength(s
- 	struct sdhci_pci_slot *slot = sdhci_priv(host);
- 	struct intel_host *intel_host = sdhci_pci_priv(slot);
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -10286,7 +10286,7 @@ int btrfs_remove_block_group(struct btrf
+ 	path = btrfs_alloc_path();
+ 	if (!path) {
+ 		ret = -ENOMEM;
+-		goto out;
++		goto out_put_group;
+ 	}
  
-+	if (!(mmc_driver_type_mask(intel_host->drv_strength) & card_drv))
-+		return 0;
+ 	/*
+@@ -10323,7 +10323,7 @@ int btrfs_remove_block_group(struct btrf
+ 		ret = btrfs_orphan_add(trans, BTRFS_I(inode));
+ 		if (ret) {
+ 			btrfs_add_delayed_iput(inode);
+-			goto out;
++			goto out_put_group;
+ 		}
+ 		clear_nlink(inode);
+ 		/* One for the block groups ref */
+@@ -10346,13 +10346,13 @@ int btrfs_remove_block_group(struct btrf
+ 
+ 	ret = btrfs_search_slot(trans, tree_root, &key, path, -1, 1);
+ 	if (ret < 0)
+-		goto out;
++		goto out_put_group;
+ 	if (ret > 0)
+ 		btrfs_release_path(path);
+ 	if (ret == 0) {
+ 		ret = btrfs_del_item(trans, tree_root, path);
+ 		if (ret)
+-			goto out;
++			goto out_put_group;
+ 		btrfs_release_path(path);
+ 	}
+ 
+@@ -10494,9 +10494,9 @@ int btrfs_remove_block_group(struct btrf
+ 
+ 	ret = remove_block_group_free_space(trans, block_group);
+ 	if (ret)
+-		goto out;
++		goto out_put_group;
+ 
+-	btrfs_put_block_group(block_group);
++	/* Once for the block groups rbtree */
+ 	btrfs_put_block_group(block_group);
+ 
+ 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+@@ -10524,6 +10524,10 @@ int btrfs_remove_block_group(struct btrf
+ 		/* once for the tree */
+ 		free_extent_map(em);
+ 	}
 +
- 	return intel_host->drv_strength;
- }
- 
++out_put_group:
++	/* Once for the lookup reference */
++	btrfs_put_block_group(block_group);
+ out:
+ 	btrfs_free_path(path);
+ 	return ret;
 
 
