@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D331C443F
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:06:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 487811C43B5
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:01:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730925AbgEDSFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:05:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35190 "EHLO mail.kernel.org"
+        id S1731068AbgEDSAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731808AbgEDSFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:05:24 -0400
+        id S1731030AbgEDSAr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:00:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84693206B8;
-        Mon,  4 May 2020 18:05:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BD75206B8;
+        Mon,  4 May 2020 18:00:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615524;
-        bh=YtQEHYARyOrdGFRJN/zgntJn5+hi7Pt8/Yuu+ZrkoMk=;
+        s=default; t=1588615246;
+        bh=JRI+s/MJvxQgPjjk3ThIsq+2F5UbE1gryeRxl+Ssht0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XU+YIjCQxjjMn6c/BhcRBd3RlrTVB/XwS5m62JbjatLquIQezSaOhf+5Mccb3rE4c
-         +0C+U4+DFBRCRxFIvFvMk9/sBwlbwbu7EEb6Wp32fDgv3ZiBotsfnVCHBztD3JHNp/
-         /LmCCHZ8Rq2pui4T8zL4oUB0qz4F4vXrMlTJRg8M=
+        b=EOTMQN5aCYNBesI9MjkJcGHEdk9BTmIoBy60iOpRuFNJrRMuxpvzLmgKOxzCCAmlE
+         YEfaDjsU8o1h9lUciCqawfkrKFU2LwOwVrg+aL/YKPMqQk65qLP9O1b3ld6MvWYQ5V
+         YJK4aLBcKtO+T10h7NdewYkHQAQuR8mw8f6j38Kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.6 16/73] mmc: cqhci: Avoid false "cqhci: CQE stuck on" by not open-coding timeout loop
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 4.14 05/26] drm/qxl: qxl_release use after free
 Date:   Mon,  4 May 2020 19:57:19 +0200
-Message-Id: <20200504165504.900869507@linuxfoundation.org>
+Message-Id: <20200504165443.562548757@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
+References: <20200504165442.494398840@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +43,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit b1ac62a7ac386d76968af5f374a4a7a82a35fe31 upstream.
+commit 933db73351d359f74b14f4af095808260aff11f9 upstream.
 
-Open-coding a timeout loop invariably leads to errors with handling
-the timeout properly in one corner case or another.  In the case of
-cqhci we might report "CQE stuck on" even if it wasn't stuck on.
-You'd just need this sequence of events to happen in cqhci_off():
+qxl_release should not be accesses after qxl_push_*_ring_release() calls:
+userspace driver can process submitted command quickly, move qxl_release
+into release_ring, generate interrupt and trigger garbage collector.
 
-1. Call ktime_get().
-2. Something happens to interrupt the CPU for > 100 us (context switch
-   or interrupt).
-3. Check time and; set "timed_out" to true since > 100 us.
-4. Read CQHCI_CTL.
-5. Both "reg & CQHCI_HALT" and "timed_out" are true, so break.
-6. Since "timed_out" is true, falsely print the error message.
+It can lead to crashes in qxl driver or trigger memory corruption
+in some kmalloc-192 slab object
 
-Rather than fixing the polling loop, use readx_poll_timeout() like
-many people do.  This has been time tested to handle the corner cases.
+Gerd Hoffmann proposes to swap the qxl_release_fence_buffer_objects() +
+qxl_push_{cursor,command}_ring_release() calls to close that race window.
 
-Fixes: a4080225f51d ("mmc: cqhci: support for command queue enabled host")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200413162717.1.Idece266f5c8793193b57a1ddb1066d030c6af8e0@changeid
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+cc: stable@vger.kernel.org
+Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/fa17b338-66ae-f299-68fe-8d32419d9071@virtuozzo.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+[backported to v4.14-stable]
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/cqhci.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/qxl/qxl_cmd.c     |    5 ++---
+ drivers/gpu/drm/qxl/qxl_display.c |    6 +++---
+ drivers/gpu/drm/qxl/qxl_draw.c    |    8 ++++----
+ drivers/gpu/drm/qxl/qxl_ioctl.c   |    5 +----
+ 4 files changed, 10 insertions(+), 14 deletions(-)
 
---- a/drivers/mmc/host/cqhci.c
-+++ b/drivers/mmc/host/cqhci.c
-@@ -5,6 +5,7 @@
- #include <linux/delay.h>
- #include <linux/highmem.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/module.h>
- #include <linux/dma-mapping.h>
- #include <linux/slab.h>
-@@ -343,12 +344,16 @@ static int cqhci_enable(struct mmc_host
- /* CQHCI is idle and should halt immediately, so set a small timeout */
- #define CQHCI_OFF_TIMEOUT 100
+--- a/drivers/gpu/drm/qxl/qxl_cmd.c
++++ b/drivers/gpu/drm/qxl/qxl_cmd.c
+@@ -533,8 +533,8 @@ int qxl_hw_surface_alloc(struct qxl_devi
+ 	/* no need to add a release to the fence for this surface bo,
+ 	   since it is only released when we ask to destroy the surface
+ 	   and it would never signal otherwise */
+-	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
+ 	qxl_release_fence_buffer_objects(release);
++	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
  
-+static u32 cqhci_read_ctl(struct cqhci_host *cq_host)
-+{
-+	return cqhci_readl(cq_host, CQHCI_CTL);
-+}
-+
- static void cqhci_off(struct mmc_host *mmc)
- {
- 	struct cqhci_host *cq_host = mmc->cqe_private;
--	ktime_t timeout;
--	bool timed_out;
- 	u32 reg;
-+	int err;
+ 	surf->hw_surf_alloc = true;
+ 	spin_lock(&qdev->surf_id_idr_lock);
+@@ -576,9 +576,8 @@ int qxl_hw_surface_dealloc(struct qxl_de
+ 	cmd->surface_id = id;
+ 	qxl_release_unmap(qdev, release, &cmd->release_info);
  
- 	if (!cq_host->enabled || !mmc->cqe_on || cq_host->recovery_halt)
- 		return;
-@@ -358,15 +363,9 @@ static void cqhci_off(struct mmc_host *m
- 
- 	cqhci_writel(cq_host, CQHCI_HALT, CQHCI_CTL);
- 
--	timeout = ktime_add_us(ktime_get(), CQHCI_OFF_TIMEOUT);
--	while (1) {
--		timed_out = ktime_compare(ktime_get(), timeout) > 0;
--		reg = cqhci_readl(cq_host, CQHCI_CTL);
--		if ((reg & CQHCI_HALT) || timed_out)
--			break;
--	}
+-	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
 -
--	if (timed_out)
-+	err = readx_poll_timeout(cqhci_read_ctl, cq_host, reg,
-+				 reg & CQHCI_HALT, 0, CQHCI_OFF_TIMEOUT);
-+	if (err < 0)
- 		pr_err("%s: cqhci: CQE stuck on\n", mmc_hostname(mmc));
- 	else
- 		pr_debug("%s: cqhci: CQE off\n", mmc_hostname(mmc));
+ 	qxl_release_fence_buffer_objects(release);
++	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
+ 
+ 	return 0;
+ }
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -533,8 +533,8 @@ static int qxl_primary_apply_cursor(stru
+ 	cmd->u.set.visible = 1;
+ 	qxl_release_unmap(qdev, release, &cmd->release_info);
+ 
+-	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+ 	qxl_release_fence_buffer_objects(release);
++	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+ 
+ 	return ret;
+ 
+@@ -701,8 +701,8 @@ static void qxl_cursor_atomic_update(str
+ 	cmd->u.position.y = plane->state->crtc_y + fb->hot_y;
+ 
+ 	qxl_release_unmap(qdev, release, &cmd->release_info);
+-	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+ 	qxl_release_fence_buffer_objects(release);
++	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+ 
+ 	if (old_cursor_bo)
+ 		qxl_bo_unref(&old_cursor_bo);
+@@ -747,8 +747,8 @@ static void qxl_cursor_atomic_disable(st
+ 	cmd->type = QXL_CURSOR_HIDE;
+ 	qxl_release_unmap(qdev, release, &cmd->release_info);
+ 
+-	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+ 	qxl_release_fence_buffer_objects(release);
++	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+ }
+ 
+ static int qxl_plane_prepare_fb(struct drm_plane *plane,
+--- a/drivers/gpu/drm/qxl/qxl_draw.c
++++ b/drivers/gpu/drm/qxl/qxl_draw.c
+@@ -241,8 +241,8 @@ void qxl_draw_opaque_fb(const struct qxl
+ 		qxl_bo_physical_address(qdev, dimage->bo, 0);
+ 	qxl_release_unmap(qdev, release, &drawable->release_info);
+ 
+-	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 	qxl_release_fence_buffer_objects(release);
++	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 
+ out_free_palette:
+ 	if (palette_bo)
+@@ -382,8 +382,8 @@ void qxl_draw_dirty_fb(struct qxl_device
+ 	}
+ 	qxl_bo_kunmap(clips_bo);
+ 
+-	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 	qxl_release_fence_buffer_objects(release);
++	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 
+ out_release_backoff:
+ 	if (ret)
+@@ -433,8 +433,8 @@ void qxl_draw_copyarea(struct qxl_device
+ 	drawable->u.copy_bits.src_pos.y = sy;
+ 	qxl_release_unmap(qdev, release, &drawable->release_info);
+ 
+-	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 	qxl_release_fence_buffer_objects(release);
++	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 
+ out_free_release:
+ 	if (ret)
+@@ -477,8 +477,8 @@ void qxl_draw_fill(struct qxl_draw_fill
+ 
+ 	qxl_release_unmap(qdev, release, &drawable->release_info);
+ 
+-	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 	qxl_release_fence_buffer_objects(release);
++	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 
+ out_free_release:
+ 	if (ret)
+--- a/drivers/gpu/drm/qxl/qxl_ioctl.c
++++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+@@ -257,11 +257,8 @@ static int qxl_process_single_command(st
+ 			apply_surf_reloc(qdev, &reloc_info[i]);
+ 	}
+ 
++	qxl_release_fence_buffer_objects(release);
+ 	ret = qxl_push_command_ring_release(qdev, release, cmd->type, true);
+-	if (ret)
+-		qxl_release_backoff_reserve_list(release);
+-	else
+-		qxl_release_fence_buffer_objects(release);
+ 
+ out_free_bos:
+ out_free_release:
 
 
