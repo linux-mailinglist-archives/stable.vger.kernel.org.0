@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8777B1C43C4
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:01:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC23A1C439D
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:00:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731159AbgEDSB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:01:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56950 "EHLO mail.kernel.org"
+        id S1730919AbgEDSAB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:00:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731156AbgEDSBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:01:25 -0400
+        id S1730912AbgEDSAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:00:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71E6920707;
-        Mon,  4 May 2020 18:01:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F89620663;
+        Mon,  4 May 2020 17:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615284;
-        bh=3yxTTUPjFSSAXYVpitcAhssTLaI/KWzFDPPA2e7jZiU=;
+        s=default; t=1588615199;
+        bh=BkzwvDJlqsTTEB9XFdtRjhRaxiHIQXYB+xJukHzcDzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L71JM8ZPZ2KzBIC1TlxaXGGrnTctoFR+V210OooN25ehv3Gyn8k2EiIV+4EdLLoNL
-         7wsr6wSo1eckxEtNefWfXWsLPSGAhlKTFU/7oTifchdSTLyRulW8RVZYizypZknYL/
-         OvLkTdMF1pvUK1KDCcFSM2M/2gjaa/H8RV3SciaM=
+        b=1pRtleXkeQCTh5T/nHFjVc/vwlerBFcGFQl6VB4IRxqjIfzaiSJbKGoz0wiCVWsOe
+         Dode9KLNFJEQChc4U1aFb48aca7NFfQUit7UvAsoo9Njox81aOGTCRAEhsZDz9komL
+         JsguVwLKM5bqgWuL1L6yxump880dAYlk4p2gc2ZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 14/37] dm multipath: use updated MPATHF_QUEUE_IO on mapping for bio-based mpath
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.9 17/18] selinux: properly handle multiple messages in selinux_netlink_send()
 Date:   Mon,  4 May 2020 19:57:27 +0200
-Message-Id: <20200504165450.028545641@linuxfoundation.org>
+Message-Id: <20200504165445.840542114@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165442.028485341@linuxfoundation.org>
+References: <20200504165442.028485341@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,99 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit 5686dee34dbfe0238c0274e0454fa0174ac0a57a upstream.
+commit fb73974172ffaaf57a7c42f35424d9aece1a5af6 upstream.
 
-When adding devices that don't have a scsi_dh on a BIO based multipath,
-I was able to consistently hit the warning below and lock-up the system.
-
-The problem is that __map_bio reads the flag before it potentially being
-modified by choose_pgpath, and ends up using the older value.
-
-The WARN_ON below is not trivially linked to the issue. It goes like
-this: The activate_path delayed_work is not initialized for non-scsi_dh
-devices, but we always set MPATHF_QUEUE_IO, asking for initialization.
-That is fine, since MPATHF_QUEUE_IO would be cleared in choose_pgpath.
-Nevertheless, only for BIO-based mpath, we cache the flag before calling
-choose_pgpath, and use the older version when deciding if we should
-initialize the path.  Therefore, we end up trying to initialize the
-paths, and calling the non-initialized activate_path work.
-
-[   82.437100] ------------[ cut here ]------------
-[   82.437659] WARNING: CPU: 3 PID: 602 at kernel/workqueue.c:1624
-  __queue_delayed_work+0x71/0x90
-[   82.438436] Modules linked in:
-[   82.438911] CPU: 3 PID: 602 Comm: systemd-udevd Not tainted 5.6.0-rc6+ #339
-[   82.439680] RIP: 0010:__queue_delayed_work+0x71/0x90
-[   82.440287] Code: c1 48 89 4a 50 81 ff 00 02 00 00 75 2a 4c 89 cf e9
-94 d6 07 00 e9 7f e9 ff ff 0f 0b eb c7 0f 0b 48 81 7a 58 40 74 a8 94 74
-a7 <0f> 0b 48 83 7a 48 00 74 a5 0f 0b eb a1 89 fe 4c 89 cf e9 c8 c4 07
-[   82.441719] RSP: 0018:ffffb738803977c0 EFLAGS: 00010007
-[   82.442121] RAX: ffffa086389f9740 RBX: 0000000000000002 RCX: 0000000000000000
-[   82.442718] RDX: ffffa086350dd930 RSI: ffffa0863d76f600 RDI: 0000000000000200
-[   82.443484] RBP: 0000000000000200 R08: 0000000000000000 R09: ffffa086350dd970
-[   82.444128] R10: 0000000000000000 R11: 0000000000000000 R12: ffffa086350dd930
-[   82.444773] R13: ffffa0863d76f600 R14: 0000000000000000 R15: ffffa08636738008
-[   82.445427] FS:  00007f6abfe9dd40(0000) GS:ffffa0863dd80000(0000) knlGS:00000
-[   82.446040] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   82.446478] CR2: 0000557d288db4e8 CR3: 0000000078b36000 CR4: 00000000000006e0
-[   82.447104] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   82.447561] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   82.448012] Call Trace:
-[   82.448164]  queue_delayed_work_on+0x6d/0x80
-[   82.448472]  __pg_init_all_paths+0x7b/0xf0
-[   82.448714]  pg_init_all_paths+0x26/0x40
-[   82.448980]  __multipath_map_bio.isra.0+0x84/0x210
-[   82.449267]  __map_bio+0x3c/0x1f0
-[   82.449468]  __split_and_process_non_flush+0x14a/0x1b0
-[   82.449775]  __split_and_process_bio+0xde/0x340
-[   82.450045]  ? dm_get_live_table+0x5/0xb0
-[   82.450278]  dm_process_bio+0x98/0x290
-[   82.450518]  dm_make_request+0x54/0x120
-[   82.450778]  generic_make_request+0xd2/0x3e0
-[   82.451038]  ? submit_bio+0x3c/0x150
-[   82.451278]  submit_bio+0x3c/0x150
-[   82.451492]  mpage_readpages+0x129/0x160
-[   82.451756]  ? bdev_evict_inode+0x1d0/0x1d0
-[   82.452033]  read_pages+0x72/0x170
-[   82.452260]  __do_page_cache_readahead+0x1ba/0x1d0
-[   82.452624]  force_page_cache_readahead+0x96/0x110
-[   82.452903]  generic_file_read_iter+0x84f/0xae0
-[   82.453192]  ? __seccomp_filter+0x7c/0x670
-[   82.453547]  new_sync_read+0x10e/0x190
-[   82.453883]  vfs_read+0x9d/0x150
-[   82.454172]  ksys_read+0x65/0xe0
-[   82.454466]  do_syscall_64+0x4e/0x210
-[   82.454828]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[...]
-[   82.462501] ---[ end trace bb39975e9cf45daa ]---
+Fix the SELinux netlink_send hook to properly handle multiple netlink
+messages in a single sk_buff; each message is parsed and subject to
+SELinux access control.  Prior to this patch, SELinux only inspected
+the first message in the sk_buff.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-mpath.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ security/selinux/hooks.c |   68 ++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 44 insertions(+), 24 deletions(-)
 
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -586,10 +586,12 @@ static struct pgpath *__map_bio(struct m
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5002,39 +5002,59 @@ static int selinux_tun_dev_open(void *se
  
- 	/* Do we need to select a new pgpath? */
- 	pgpath = READ_ONCE(m->current_pgpath);
--	queue_io = test_bit(MPATHF_QUEUE_IO, &m->flags);
--	if (!pgpath || !queue_io)
-+	if (!pgpath || !test_bit(MPATHF_QUEUE_IO, &m->flags))
- 		pgpath = choose_pgpath(m, bio->bi_iter.bi_size);
+ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+ {
+-	int err = 0;
+-	u32 perm;
++	int rc = 0;
++	unsigned int msg_len;
++	unsigned int data_len = skb->len;
++	unsigned char *data = skb->data;
+ 	struct nlmsghdr *nlh;
+ 	struct sk_security_struct *sksec = sk->sk_security;
++	u16 sclass = sksec->sclass;
++	u32 perm;
  
-+	/* MPATHF_QUEUE_IO might have been cleared by choose_pgpath. */
-+	queue_io = test_bit(MPATHF_QUEUE_IO, &m->flags);
+-	if (skb->len < NLMSG_HDRLEN) {
+-		err = -EINVAL;
+-		goto out;
+-	}
+-	nlh = nlmsg_hdr(skb);
++	while (data_len >= nlmsg_total_size(0)) {
++		nlh = (struct nlmsghdr *)data;
+ 
+-	err = selinux_nlmsg_lookup(sksec->sclass, nlh->nlmsg_type, &perm);
+-	if (err) {
+-		if (err == -EINVAL) {
++		/* NOTE: the nlmsg_len field isn't reliably set by some netlink
++		 *       users which means we can't reject skb's with bogus
++		 *       length fields; our solution is to follow what
++		 *       netlink_rcv_skb() does and simply skip processing at
++		 *       messages with length fields that are clearly junk
++		 */
++		if (nlh->nlmsg_len < NLMSG_HDRLEN || nlh->nlmsg_len > data_len)
++			return 0;
 +
- 	if ((pgpath && queue_io) ||
- 	    (!pgpath && test_bit(MPATHF_QUEUE_IF_NO_PATH, &m->flags))) {
- 		/* Queue for the daemon to resubmit */
++		rc = selinux_nlmsg_lookup(sclass, nlh->nlmsg_type, &perm);
++		if (rc == 0) {
++			rc = sock_has_perm(current, sk, perm);
++			if (rc)
++				return rc;
++		} else if (rc == -EINVAL) {
++			/* -EINVAL is a missing msg/perm mapping */
+ 			pr_warn_ratelimited("SELinux: unrecognized netlink"
+-			       " message: protocol=%hu nlmsg_type=%hu sclass=%s"
+-			       " pig=%d comm=%s\n",
+-			       sk->sk_protocol, nlh->nlmsg_type,
+-			       secclass_map[sksec->sclass - 1].name,
+-			       task_pid_nr(current), current->comm);
+-			if (!selinux_enforcing || security_get_allow_unknown())
+-				err = 0;
++				" message: protocol=%hu nlmsg_type=%hu sclass=%s"
++				" pid=%d comm=%s\n",
++				sk->sk_protocol, nlh->nlmsg_type,
++				secclass_map[sclass - 1].name,
++				task_pid_nr(current), current->comm);
++			if (selinux_enforcing && !security_get_allow_unknown())
++				return rc;
++			rc = 0;
++		} else if (rc == -ENOENT) {
++			/* -ENOENT is a missing socket/class mapping, ignore */
++			rc = 0;
++		} else {
++			return rc;
+ 		}
+ 
+-		/* Ignore */
+-		if (err == -ENOENT)
+-			err = 0;
+-		goto out;
++		/* move to the next message after applying netlink padding */
++		msg_len = NLMSG_ALIGN(nlh->nlmsg_len);
++		if (msg_len >= data_len)
++			return 0;
++		data_len -= msg_len;
++		data += msg_len;
+ 	}
+ 
+-	err = sock_has_perm(current, sk, perm);
+-out:
+-	return err;
++	return rc;
+ }
+ 
+ #ifdef CONFIG_NETFILTER
 
 
