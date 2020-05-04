@@ -2,183 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8683C1C3220
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 07:15:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC97F1C325E
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 07:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726770AbgEDFPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 01:15:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50664 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726578AbgEDFPw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 01:15:52 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F187CC061A41
-        for <stable@vger.kernel.org>; Sun,  3 May 2020 22:15:51 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id e25so8372705ljg.5
-        for <stable@vger.kernel.org>; Sun, 03 May 2020 22:15:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=cwqbllBIWL3ZExSh1bV8P6amAXmG3PGyqnfloiJkBps=;
-        b=PSY/c4MRDcZa0mLzcdxMiot+ZTyEBnoCvCmfgTsSx63WMVoB6NCbjyUBHgI/WxROL9
-         ffjJpUVVLfFULppbVbSaXlaLlVNO4Gqb70WUwR8ZkSB3bHdYoK4XzJG78DnzFj5EhXdz
-         pKn85G/45ndAPW4DavWkLHNzEbjA1PHWXGhg1Y+kebQtxFs1lsO2qXpYo0i67BVs1u26
-         jRc3AzAQ9LrGpswMEW07jAA4B8N6d6yDF74x4D8qmc+BPjvlAkTC6w8mqkhsgeNfa1fm
-         UWn+H+Jk1o0dCIUBwn0z56J/sqP2Y08p5Oll1MJVShInASW1uyqCelyglINvBIB2jU5u
-         9kFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=cwqbllBIWL3ZExSh1bV8P6amAXmG3PGyqnfloiJkBps=;
-        b=r2la11iXEEyD+HBDIOU1XBvd3DQ4/1KEh/K8kptQsFAEgW6Gs0wFZ3DI0chZ8b5lBm
-         qBESrRJ3sNoaIPP97pYCijHBSa7utm0Rolv3s3Iao1KPD8CYndvokBJq6qeRQFM2eL12
-         MNfWYRCHH5F50/rawfPrCh/itbkZxmUrB57c5e/W87l3S4lh+QEkJ3VSvxCuK6CLkh/a
-         bvuskoeMOgjpldbFAAsX5q5ldBTakb3cqL1H2KtKLYgJhcjvW8yNwRgrEYItINQgGKI/
-         aT732J1vUIEy35/mO7vQs99mNVtIUHy2v/7JEARqp5Q/KZVaDqGVq10PHGo0T9n1ovie
-         8njg==
-X-Gm-Message-State: AGi0PuZvz4vRT+DVVKhv69+WABMfVZ2Lj5q6e2efrHyL9YXvQLP0PDg7
-        1JAYCHaHPUmsQcqJ/cYHnmj8OAlHveurptGtaPEmTQ==
-X-Google-Smtp-Source: APiQypJjy6oTVTf76WpYVJapBiroQogllDrvOa/9zHpITjmJyd6cUOzE4du4O5GpNg8QYzFnjQqQkmb6ayHqEK8VWvg=
-X-Received: by 2002:a2e:8912:: with SMTP id d18mr9537411lji.123.1588569350005;
- Sun, 03 May 2020 22:15:50 -0700 (PDT)
+        id S1725928AbgEDFvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 01:51:35 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:49321 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725859AbgEDFvf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 01:51:35 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 09A0F5C00B0;
+        Mon,  4 May 2020 01:51:34 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 04 May 2020 01:51:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=fvVVdXz4Bm0BIR5jB0igXYKsM3W
+        4NkQQAY0YSQQpoe0=; b=hZObGZB4Vh8E+pm+VVyCOxuRQltsQJDcr3rs1CluCoq
+        kd+uCy2uswsKNF4S54IBq35N8eY6Ye6gbhRCNyXAvNfQGaqzZog6pZsvwoWw6umu
+        hPawfmLt/Fg7822k1PgWmtzRWBm3O9bKZMerEXHmQ45wzFgIrjKGIiG8dD7djP0r
+        DSxuBOgLYfJGdvuzqpPBwq9CK+/ts+zwVgWnmm+kRNMJmzAwfRaGAubQx7qmlk2l
+        oAOQBaHYbezzvD+MMo7jtR9RbomAopplpYBs8vnaMsGq9eCqIkMBbPDkHiHVWi6E
+        xBYkVo1n25r5Sg1ecKDzZxloEzT1COPPui0mQKDZYeg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fvVVdX
+        z4Bm0BIR5jB0igXYKsM3W4NkQQAY0YSQQpoe0=; b=bDvbyqK/vCrAf9pmkV3etd
+        ijPiUQT1kqNO+vBQAOFUl6ZaLEN9+0VpuJa91C+OVKLzbbVpaPKezoxtM8fo00zP
+        +vQNQQOq1I4Vmsqiyq3KiGWkhhg7hpv9upItK8C1MHXPFPGXF0VcwLfMADPlf8fl
+        PSU5LKtmyMf3EERSlqif8HW1+4pbQ6SX2Rbjmc86FzST8+ToHkL+PT03DyFgjfQU
+        Ua1bbVGPIm6FiS10w+od8O+/D4zglC6AvW/Z1nxxaOqRPo5KE2Ho62JkxUsIDzL1
+        naUhgZST6aZzwnICIkrOBOfJJxCqRTFOaL/rCnkyWD5jqaoJJd3zg/4PsT4HI50w
+        ==
+X-ME-Sender: <xms:Za2vXvKL_S4YAsC8DmiGS30j7H_z7ChE9d2hcoTHN5fHnS1GX7hb4Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrjeefgdeljecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
+    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
+    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhm
+X-ME-Proxy: <xmx:Za2vXvL_f42bR-zxvF-0YHSLI0JaGSDDvbwJ--ri79TEi15tlvGvrg>
+    <xmx:Za2vXp62TpHTRUJ547_dCvCjCkslUZukxdVdx7_1eQzRwO0jqXcHIg>
+    <xmx:Za2vXpeV8SZNjVEagLwnS4tCc9kk2Ry0RG3YKN3rll_qy_zycQ0vHg>
+    <xmx:Zq2vXtpVEtw4F1R8D6P4OVN21qglN96-QaTa4-ifIZhIDEBNyPKxWg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7A9933280064;
+        Mon,  4 May 2020 01:51:33 -0400 (EDT)
+Date:   Mon, 4 May 2020 07:51:28 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     stable <stable@vger.kernel.org>
+Subject: Re: DRM broke for AMDGPU in 5.6.10
+Message-ID: <20200504055128.GA730506@kroah.com>
+References: <CAHk-=wi6dw+Hu95GvcF=vdFbAp+H4NUWkUxG0N9VFRJBU0Xv=Q@mail.gmail.com>
 MIME-Version: 1.0
-References: <20200502064301.079843206@linuxfoundation.org>
-In-Reply-To: <20200502064301.079843206@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 4 May 2020 10:45:37 +0530
-Message-ID: <CA+G9fYuXkHZCb8xtyxyiQJvckyvgnXLZx_q=-r242n6Zc9jEmg@mail.gmail.com>
-Subject: Re: [PATCH 4.14 000/117] 4.14.178-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wi6dw+Hu95GvcF=vdFbAp+H4NUWkUxG0N9VFRJBU0Xv=Q@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 2 May 2020 at 12:17, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.178 release.
-> There are 117 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Mon, 04 May 2020 06:40:34 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.178-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Sun, May 03, 2020 at 02:49:04PM -0700, Linus Torvalds wrote:
+> See
+> 
+>     https://bugzilla.kernel.org/show_bug.cgi?id=207561
+> 
+> and the fix seems to be to back-port commit 8623b5255ae7
+> ("drm/scheduler: fix drm_sched_get_cleanup_job").
+> 
+> I think Artem will (has?) make a report too, but I thought I'd just
+> mention it to make sure since I was on the bugzilla.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Thanks, now queued up.
 
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.14.178
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: 773e2b1cd56a17bab4cdd4fe7db12f2140951668
-git describe: v4.14.178
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.178
-
-
-No regressions (compared to build v4.14.178)
-
-
-No fixes (compared to build v4.14.178)
-
-Ran 27517 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* kselftest/networking
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-sched-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-fs-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* ltp-hugetlb-tests
-* ltp-mm-tests
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-native/networking
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-* kselftest-vsyscall-mode-none/networking
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
