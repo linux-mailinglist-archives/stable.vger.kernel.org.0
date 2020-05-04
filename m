@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8E371C44EF
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E00251C44AA
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731659AbgEDSEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:04:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33732 "EHLO mail.kernel.org"
+        id S1731357AbgEDSJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:09:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731115AbgEDSEU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:04:20 -0400
+        id S1731459AbgEDSGm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:06:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F03CE205ED;
-        Mon,  4 May 2020 18:04:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4648C2073B;
+        Mon,  4 May 2020 18:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615459;
-        bh=nyuc0UrXFf+Y/rW8iOi/qOX3NRNEicLnLnbSzCvQ8As=;
+        s=default; t=1588615601;
+        bh=/8LCSKazyyYH+bHBxoSD6yfKYeJ3go/tsRUeaJ2kmjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2P2AtbyxKH9KV++v2BirvnB6djETebbWM2Srd98qFGCOj6niEvhXBmAJ6bzgZUgl
-         9wpgWSg0FftHulMj7BerxPMiH1KT3j5mUBoG5ZtA3PikWrb/BeKcQiOkI2ojWG7rQn
-         CZYn8+/mBQmrV7TZZZlXEdYkUBNEXhoIf7QExP/4=
+        b=A1m5Rm0JF/2x9aWnC6tnByPu9ty64JeQwqkEMdXNRd4uaUGUSGS216gKpQKk1gRCi
+         W9DLcDyLjYlP1rD5vlP5O9FVGVdXpTGSuoTtRAsaWHj1flzGJkPoM1KZ/doOG4o6S/
+         BoSlTr0qmYbgIbRciu6x4cg4IYsikrk8BdYko4PA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        David Disseldorp <ddiss@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 47/57] scsi: target/iblock: fix WRITE SAME zeroing
+        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.6 48/73] RDMA/core: Fix overwriting of uobj in case of error
 Date:   Mon,  4 May 2020 19:57:51 +0200
-Message-Id: <20200504165500.462575857@linuxfoundation.org>
+Message-Id: <20200504165508.991340794@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Leon Romanovsky <leonro@mellanox.com>
 
-commit 1d2ff149b263c9325875726a7804a0c75ef7112e upstream.
+commit 83a2670212215a569ed133efc10c92055c96cc8c upstream.
 
-SBC4 specifies that WRITE SAME requests with the UNMAP bit set to zero
-"shall perform the specified write operation to each LBA specified by the
-command".  Commit 2237498f0b5c ("target/iblock: Convert WRITE_SAME to
-blkdev_issue_zeroout") modified the iblock backend to call
-blkdev_issue_zeroout() when handling WRITE SAME requests with UNMAP=0 and a
-zero data segment.
+In case of failure to get file, the uobj is overwritten and causes to
+supply bad pointer as an input to uverbs_uobject_put().
 
-The iblock blkdev_issue_zeroout() call incorrectly provides a flags
-parameter of 0 (bool false), instead of BLKDEV_ZERO_NOUNMAP.  The bool
-false parameter reflects the blkdev_issue_zeroout() API prior to commit
-ee472d835c26 ("block: add a flags argument to (__)blkdev_issue_zeroout")
-which was merged shortly before 2237498f0b5c.
+  BUG: KASAN: null-ptr-deref in atomic_fetch_sub include/asm-generic/atomic-instrumented.h:199 [inline]
+  BUG: KASAN: null-ptr-deref in refcount_sub_and_test include/linux/refcount.h:253 [inline]
+  BUG: KASAN: null-ptr-deref in refcount_dec_and_test include/linux/refcount.h:281 [inline]
+  BUG: KASAN: null-ptr-deref in kref_put include/linux/kref.h:64 [inline]
+  BUG: KASAN: null-ptr-deref in uverbs_uobject_put+0x22/0x90 drivers/infiniband/core/rdma_core.c:57
+  Write of size 4 at addr 0000000000000030 by task syz-executor.4/1691
 
-Link: https://lore.kernel.org/r/20200419163109.11689-1-ddiss@suse.de
-Fixes: 2237498f0b5c ("target/iblock: Convert WRITE_SAME to blkdev_issue_zeroout")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  CPU: 1 PID: 1691 Comm: syz-executor.4 Not tainted 5.6.0 #17
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+  Call Trace:
+   __dump_stack lib/dump_stack.c:77 [inline]
+   dump_stack+0x94/0xce lib/dump_stack.c:118
+   __kasan_report+0x10c/0x190 mm/kasan/report.c:515
+   kasan_report+0x32/0x50 mm/kasan/common.c:625
+   check_memory_region_inline mm/kasan/generic.c:187 [inline]
+   check_memory_region+0x16d/0x1c0 mm/kasan/generic.c:193
+   atomic_fetch_sub include/asm-generic/atomic-instrumented.h:199 [inline]
+   refcount_sub_and_test include/linux/refcount.h:253 [inline]
+   refcount_dec_and_test include/linux/refcount.h:281 [inline]
+   kref_put include/linux/kref.h:64 [inline]
+   uverbs_uobject_put+0x22/0x90 drivers/infiniband/core/rdma_core.c:57
+   alloc_begin_fd_uobject+0x1d0/0x250 drivers/infiniband/core/rdma_core.c:486
+   rdma_alloc_begin_uobject+0xa8/0xf0 drivers/infiniband/core/rdma_core.c:509
+   __uobj_alloc include/rdma/uverbs_std_types.h:117 [inline]
+   ib_uverbs_create_comp_channel+0x16d/0x230 drivers/infiniband/core/uverbs_cmd.c:982
+   ib_uverbs_write+0xaa5/0xdf0 drivers/infiniband/core/uverbs_main.c:665
+   __vfs_write+0x7c/0x100 fs/read_write.c:494
+   vfs_write+0x168/0x4a0 fs/read_write.c:558
+   ksys_write+0xc8/0x200 fs/read_write.c:611
+   do_syscall_64+0x9c/0x390 arch/x86/entry/common.c:295
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x466479
+  Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+  RSP: 002b:00007efe9f6a7c48 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+  RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000466479
+  RDX: 0000000000000018 RSI: 0000000020000040 RDI: 0000000000000003
+  RBP: 00007efe9f6a86bc R08: 0000000000000000 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000005
+  R13: 0000000000000bf2 R14: 00000000004cb80a R15: 00000000006fefc0
+
+Fixes: 849e149063bd ("RDMA/core: Do not allow alloc_commit to fail")
+Link: https://lore.kernel.org/r/20200421082929.311931-3-leon@kernel.org
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/target/target_core_iblock.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/rdma_core.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/target/target_core_iblock.c
-+++ b/drivers/target/target_core_iblock.c
-@@ -432,7 +432,7 @@ iblock_execute_zero_out(struct block_dev
- 				target_to_linux_sector(dev, cmd->t_task_lba),
- 				target_to_linux_sector(dev,
- 					sbc_get_write_same_sectors(cmd)),
--				GFP_KERNEL, false);
-+				GFP_KERNEL, BLKDEV_ZERO_NOUNMAP);
- 	if (ret)
- 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
+--- a/drivers/infiniband/core/rdma_core.c
++++ b/drivers/infiniband/core/rdma_core.c
+@@ -474,16 +474,15 @@ alloc_begin_fd_uobject(const struct uver
+ 	filp = anon_inode_getfile(fd_type->name, fd_type->fops, NULL,
+ 				  fd_type->flags);
+ 	if (IS_ERR(filp)) {
++		uverbs_uobject_put(uobj);
+ 		uobj = ERR_CAST(filp);
+-		goto err_uobj;
++		goto err_fd;
+ 	}
+ 	uobj->object = filp;
  
+ 	uobj->id = new_fd;
+ 	return uobj;
+ 
+-err_uobj:
+-	uverbs_uobject_put(uobj);
+ err_fd:
+ 	put_unused_fd(new_fd);
+ 	return uobj;
 
 
