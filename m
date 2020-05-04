@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 529881C44D9
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:10:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 465E91C43D2
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:02:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730549AbgEDSFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34662 "EHLO mail.kernel.org"
+        id S1731246AbgEDSBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731756AbgEDSFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:05:01 -0400
+        id S1731239AbgEDSBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:01:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86816206B8;
-        Mon,  4 May 2020 18:05:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7332320707;
+        Mon,  4 May 2020 18:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615501;
-        bh=2r32fugBjwG8T40ehjInEQQbqeH50pAvIpYorokJkRk=;
+        s=default; t=1588615313;
+        bh=W6dS0v1cYhrT4LEbt0fg78g3V09ZN/LUD+MoQ0FGmz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLckBcNpyo7oviNpnBLD2VPhqRM7Xmt+bhWGdbCQNmc2izIS2ZoG+/mn1j9w5FQAK
-         10hAggZu2mAudEUU1rfrZh11guD+uJwAFnsO0Yd61kFFYlHHx0eox7eGIh5ciP+Rhh
-         GfIs80BaaBaHMjkauJ7CBqd//gqTdZ7zHArbVI0c=
+        b=qnNxWjEv53IiwEaWKE6s2f2HDgmjhp+NvUK9e+3PpsSHl8sPnhjkDgl9dxt6YhTa2
+         hJXOf6vEkIScD7y2eV+qGBmDFu8oNjxrtn69aJMHSDHUSUzWLCG6b+6tN7uKoQ4/Fq
+         OU/7EtOQ8rSG7eHmXxFYWiZ6C/wjL//3D7duNvok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Martin Wilck <mwilck@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 35/57] scsi: qla2xxx: check UNLOADING before posting async work
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 26/37] ALSA: opti9xx: shut up gcc-10 range warning
 Date:   Mon,  4 May 2020 19:57:39 +0200
-Message-Id: <20200504165459.394512123@linuxfoundation.org>
+Message-Id: <20200504165451.102084517@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 5a263892d7d0b4fe351363f8d1a14c6a75955475 upstream.
+commit 5ce00760a84848d008554c693ceb6286f4d9c509 upstream.
 
-qlt_free_session_done() tries to post async PRLO / LOGO, and waits for the
-completion of these async commands. If UNLOADING is set, this is doomed to
-timeout, because the async logout command will never complete.
+gcc-10 points out a few instances of suspicious integer arithmetic
+leading to value truncation:
 
-The only way to avoid waiting pointlessly is to fail posting these commands
-in the first place if the driver is in UNLOADING state.  In general,
-posting any command should be avoided when the driver is UNLOADING.
+sound/isa/opti9xx/opti92x-ad1848.c: In function 'snd_opti9xx_configure':
+sound/isa/opti9xx/opti92x-ad1848.c:322:43: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_opti9xx_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
+  322 |   (snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+sound/isa/opti9xx/opti92x-ad1848.c:351:3: note: in expansion of macro 'snd_opti9xx_write_mask'
+  351 |   snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+sound/isa/opti9xx/miro.c: In function 'snd_miro_configure':
+sound/isa/opti9xx/miro.c:873:40: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_miro_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
+  873 |   (snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+sound/isa/opti9xx/miro.c:1010:3: note: in expansion of macro 'snd_miro_write_mask'
+ 1010 |   snd_miro_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
+      |   ^~~~~~~~~~~~~~~~~~~
 
-With this patch, "rmmod qla2xxx" completes without noticeable delay.
+These are all harmless here as only the low 8 bit are passed down
+anyway. Change the macros to inline functions to make the code
+more readable and also avoid the warning.
 
-Link: https://lore.kernel.org/r/20200421204621.19228-3-mwilck@suse.com
-Fixes: 45235022da99 ("scsi: qla2xxx: Fix driver unload by shutting down chip")
-Acked-by: Arun Easi <aeasi@marvell.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Strictly speaking those functions also need locking to make the
+read/write pair atomic, but it seems unlikely that anyone would
+still run into that issue.
+
+Fixes: 1841f613fd2e ("[ALSA] Add snd-miro driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20200429190216.85919-1-arnd@arndb.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_os.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/isa/opti9xx/miro.c           |    9 ++++++---
+ sound/isa/opti9xx/opti92x-ad1848.c |    9 ++++++---
+ 2 files changed, 12 insertions(+), 6 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -4857,6 +4857,9 @@ qla2x00_alloc_work(struct scsi_qla_host
- 	struct qla_work_evt *e;
- 	uint8_t bail;
+--- a/sound/isa/opti9xx/miro.c
++++ b/sound/isa/opti9xx/miro.c
+@@ -880,10 +880,13 @@ static void snd_miro_write(struct snd_mi
+ 	spin_unlock_irqrestore(&chip->lock, flags);
+ }
  
-+	if (test_bit(UNLOADING, &vha->dpc_flags))
-+		return NULL;
-+
- 	QLA_VHA_MARK_BUSY(vha, bail);
- 	if (bail)
- 		return NULL;
++static inline void snd_miro_write_mask(struct snd_miro *chip,
++		unsigned char reg, unsigned char value, unsigned char mask)
++{
++	unsigned char oldval = snd_miro_read(chip, reg);
+ 
+-#define snd_miro_write_mask(chip, reg, value, mask)	\
+-	snd_miro_write(chip, reg,			\
+-		(snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
++	snd_miro_write(chip, reg, (oldval & ~mask) | (value & mask));
++}
+ 
+ /*
+  *  Proc Interface
+--- a/sound/isa/opti9xx/opti92x-ad1848.c
++++ b/sound/isa/opti9xx/opti92x-ad1848.c
+@@ -329,10 +329,13 @@ static void snd_opti9xx_write(struct snd
+ }
+ 
+ 
+-#define snd_opti9xx_write_mask(chip, reg, value, mask)	\
+-	snd_opti9xx_write(chip, reg,			\
+-		(snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
++static inline void snd_opti9xx_write_mask(struct snd_opti9xx *chip,
++		unsigned char reg, unsigned char value, unsigned char mask)
++{
++	unsigned char oldval = snd_opti9xx_read(chip, reg);
+ 
++	snd_opti9xx_write(chip, reg, (oldval & ~mask) | (value & mask));
++}
+ 
+ static int snd_opti9xx_configure(struct snd_opti9xx *chip,
+ 					   long port,
 
 
