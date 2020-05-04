@@ -2,89 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D8941C3687
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 12:13:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D05C1C3692
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 12:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727100AbgEDKNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 06:13:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40390 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726531AbgEDKNl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 06:13:41 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:3201:214:fdff:fe10:1be6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E24C061A0E;
-        Mon,  4 May 2020 03:13:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=HYr4jMG5Fx8z45ehq19JE5BB1pRtcqVpSSdsC2AjlhY=; b=CmgNscbfFaxys2H8sNgXEM5V5
-        OrhtGd/K3U7qiBY+teHpl2a1hL2ClrCNSK0sQ04G4yVN41oGPagC7WvFygQF0xfJGOBTvS/+MI0p0
-        Q9II8asQ3BfG/CVqj852mZXqJiIsyDfRVdauhJa3EYXQXpfubYmDrAsGoSxell4VJsZG6SMjFOHrE
-        1kW50x39XaHBdZBlGFqP0HMSqw8aDCiuEqcDlyZLgZnUbRXpuX1JnpuI9bYkv96s685LjcSnUkrPl
-        QDTcaDO8UONoJKSPLQnyE061fP56muBZ1+oYCkIOlTtTAQdq7vUzag30rgIOVM0v3WDHa0DD9BOvJ
-        6uTFYxwwA==;
-Received: from shell.armlinux.org.uk ([2001:4d48:ad52:3201:5054:ff:fe00:4ec]:35838)
-        by pandora.armlinux.org.uk with esmtpsa (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1jVY6L-0003zf-FE; Mon, 04 May 2020 11:13:29 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1jVY6K-00063o-Fg; Mon, 04 May 2020 11:13:28 +0100
-Date:   Mon, 4 May 2020 11:13:28 +0100
-From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
-To:     Greg KH <greg@kroah.com>
-Cc:     Miguel Borges de Freitas <miguelborgesdefreitas@gmail.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [Patch include request] ARM: dts: imx6qdl-sr-som-ti: indicate
- powering off wifi is safe
-Message-ID: <20200504101328.GC1551@shell.armlinux.org.uk>
-References: <CAC4G8N75VkqDug9AmhvMQnXr8bOvC9cu_jUwZVUKwpvWr6pO5A@mail.gmail.com>
- <20200504095832.GA1277837@kroah.com>
+        id S1727999AbgEDKPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 06:15:55 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:49592 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726531AbgEDKPy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 06:15:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1588587350; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=iAMvD4AOFiyNiGQjo6JeJKVv4xAdRKZUMhJN2Epwr2k=;
+        b=UrbW2A4nwL1bFKGDFE1I1i8N7cLMa7po2zmhqGrh0gIeffRnKbjGtVeMJmKGb/NmfJ+iJR
+        JaOk7J0E7m/0i5m17hU6vN2i85jZ+UR098T6tDTNZjhyWsLsPV0gtREwOhptja2SFD343R
+        xnlaraBEZl2T9l0nQSa5Q+voSBByMvI=
+Date:   Mon, 04 May 2020 12:15:37 +0200
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH] drm: ingenic-drm: add MODULE_DEVICE_TABLE
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     Paul Boddie <paul@boddie.org.uk>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        letux-kernel@openphoenux.org, stable@vger.kernel.org
+Message-Id: <1UXS9Q.L3SJ8WOQ2MPT1@crapouillou.net>
+In-Reply-To: <1694a29b7a3449b6b662cec33d1b33f2ee0b174a.1588574111.git.hns@goldelico.com>
+References: <1694a29b7a3449b6b662cec33d1b33f2ee0b174a.1588574111.git.hns@goldelico.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200504095832.GA1277837@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 04, 2020 at 11:58:32AM +0200, Greg KH wrote:
-> On Fri, May 01, 2020 at 09:23:49PM +0100, Miguel Borges de Freitas wrote:
-> > Dear all,
-> > 
-> > This is a request to backport b7dc7205b2ae6b6c9d9cfc3e47d6f08da8647b10
-> > (Arm: dts:  imx6qdl-sr-som-ti: indicate powering off wifi is safe),
-> > already in Linus tree
-> > (https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/arch/arm/boot/dts/imx6qdl-sr-som-ti.dtsi?h=v5.7-rc3&id=b7dc7205b2ae6b6c9d9cfc3e47d6f08da8647b10)
-> > to LTS kernel 5.4 and to stable 5.6.8.
-> > 
-> > Reasoning:
-> > 
-> > Changes to the wlcore driver during Kernel 5.x development, made the
-> > Cubox-i with the IMX SOM v1.5 (which includes.a TI Wilink 8 wifi
-> > chipset) not power the wireless interface on boot leaving it
-> > completely unusable. This happens since at least kernel 5.3 (older one
-> > I tested) and affects the current stable and LTS latest kernels. The
-> > linked commit, already in linux mainline, restores the wifi
-> > functionality.
-> > 
-> > Thanks in advance,
-> 
-> Now queued up, thanks.
+Hi Nikolaus,
 
-Just be aware that there's a good reason the patch was never marked
-with a Fixes: tag - that is because no one seems to know exactly which
-commit broke it, and hence it hasn't been clear which stable kernels
-it should be backported to.
 
-So, it's good that someone has put up this backport request.
+Le lun. 4 mai 2020 =E0 8:35, H. Nikolaus Schaller <hns@goldelico.com> a=20
+=E9crit :
+> so that the driver can load by matching the device tree
+> if compiled as module.
+>=20
+> Cc: stable@vger.kernel.org # v5.3+
+> Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx=20
+> SoCs")
+> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 10.2Mbps down 587kbps up
+Applied, thanks.
+
+-Paul
+
+> ---
+>  drivers/gpu/drm/ingenic/ingenic-drm.c | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c=20
+> b/drivers/gpu/drm/ingenic/ingenic-drm.c
+> index 9dfe7cb530e11..1754c05470690 100644
+> --- a/drivers/gpu/drm/ingenic/ingenic-drm.c
+> +++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
+> @@ -843,6 +843,7 @@ static const struct of_device_id=20
+> ingenic_drm_of_match[] =3D {
+>  	{ .compatible =3D "ingenic,jz4770-lcd", .data =3D &jz4770_soc_info },
+>  	{ /* sentinel */ },
+>  };
+> +MODULE_DEVICE_TABLE(of, ingenic_drm_of_match);
+>=20
+>  static struct platform_driver ingenic_drm_driver =3D {
+>  	.driver =3D {
+> --
+> 2.26.2
+>=20
+
+
