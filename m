@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155C61C442D
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA8C1C4517
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731742AbgEDSE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:04:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34490 "EHLO mail.kernel.org"
+        id S1731156AbgEDSMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:12:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731736AbgEDSEy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:04:54 -0400
+        id S1731350AbgEDSCk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:02:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 478BB205ED;
-        Mon,  4 May 2020 18:04:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AEE9206B8;
+        Mon,  4 May 2020 18:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615493;
-        bh=ZHtnQFJ+lqGpKKNHjCtg6qjhF4xGLauOI1g4qT/nly8=;
+        s=default; t=1588615359;
+        bh=veOsvRPlrvyCtf3q8/NNzUyaYKGJ9L/RP453UntgzHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lAT9vXZrcBTDfdNaBY5jzgOiq9y5GKHCGtmCF1Ktb5Vn4k7kHbB+PV2DDWJfzoW/I
-         tArPuDRVAyGOWWrhw5shWAt0sF1Dcwi9d+I974vKSwI2vc7OTUKY4e5P9B7ClavYip
-         PIjvE6eXVkT4kGLR80wpUeoDHFKgkj9jM1OCFkpM=
+        b=Y7rVKuR1zxu+rjgjiyjDgp1Dcsg7yf9ED0396Lj8wXNPGKUmE2ovge5DRehAUObjG
+         obkVhU5Ah5kw/8CLmQ4OGAagVZq5WoiKH3TPsZ/rxA9b9zuyqZCpj3+kIi6FpmUOQE
+         D6RythWsE/pYCnZuiCWos6bW8ESfcUAp3rSaK3RY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 32/57] dm multipath: use updated MPATHF_QUEUE_IO on mapping for bio-based mpath
-Date:   Mon,  4 May 2020 19:57:36 +0200
-Message-Id: <20200504165459.116465428@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        David Disseldorp <ddiss@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 24/37] scsi: target/iblock: fix WRITE SAME zeroing
+Date:   Mon,  4 May 2020 19:57:37 +0200
+Message-Id: <20200504165450.921397685@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,99 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: David Disseldorp <ddiss@suse.de>
 
-commit 5686dee34dbfe0238c0274e0454fa0174ac0a57a upstream.
+commit 1d2ff149b263c9325875726a7804a0c75ef7112e upstream.
 
-When adding devices that don't have a scsi_dh on a BIO based multipath,
-I was able to consistently hit the warning below and lock-up the system.
+SBC4 specifies that WRITE SAME requests with the UNMAP bit set to zero
+"shall perform the specified write operation to each LBA specified by the
+command".  Commit 2237498f0b5c ("target/iblock: Convert WRITE_SAME to
+blkdev_issue_zeroout") modified the iblock backend to call
+blkdev_issue_zeroout() when handling WRITE SAME requests with UNMAP=0 and a
+zero data segment.
 
-The problem is that __map_bio reads the flag before it potentially being
-modified by choose_pgpath, and ends up using the older value.
+The iblock blkdev_issue_zeroout() call incorrectly provides a flags
+parameter of 0 (bool false), instead of BLKDEV_ZERO_NOUNMAP.  The bool
+false parameter reflects the blkdev_issue_zeroout() API prior to commit
+ee472d835c26 ("block: add a flags argument to (__)blkdev_issue_zeroout")
+which was merged shortly before 2237498f0b5c.
 
-The WARN_ON below is not trivially linked to the issue. It goes like
-this: The activate_path delayed_work is not initialized for non-scsi_dh
-devices, but we always set MPATHF_QUEUE_IO, asking for initialization.
-That is fine, since MPATHF_QUEUE_IO would be cleared in choose_pgpath.
-Nevertheless, only for BIO-based mpath, we cache the flag before calling
-choose_pgpath, and use the older version when deciding if we should
-initialize the path.  Therefore, we end up trying to initialize the
-paths, and calling the non-initialized activate_path work.
-
-[   82.437100] ------------[ cut here ]------------
-[   82.437659] WARNING: CPU: 3 PID: 602 at kernel/workqueue.c:1624
-  __queue_delayed_work+0x71/0x90
-[   82.438436] Modules linked in:
-[   82.438911] CPU: 3 PID: 602 Comm: systemd-udevd Not tainted 5.6.0-rc6+ #339
-[   82.439680] RIP: 0010:__queue_delayed_work+0x71/0x90
-[   82.440287] Code: c1 48 89 4a 50 81 ff 00 02 00 00 75 2a 4c 89 cf e9
-94 d6 07 00 e9 7f e9 ff ff 0f 0b eb c7 0f 0b 48 81 7a 58 40 74 a8 94 74
-a7 <0f> 0b 48 83 7a 48 00 74 a5 0f 0b eb a1 89 fe 4c 89 cf e9 c8 c4 07
-[   82.441719] RSP: 0018:ffffb738803977c0 EFLAGS: 00010007
-[   82.442121] RAX: ffffa086389f9740 RBX: 0000000000000002 RCX: 0000000000000000
-[   82.442718] RDX: ffffa086350dd930 RSI: ffffa0863d76f600 RDI: 0000000000000200
-[   82.443484] RBP: 0000000000000200 R08: 0000000000000000 R09: ffffa086350dd970
-[   82.444128] R10: 0000000000000000 R11: 0000000000000000 R12: ffffa086350dd930
-[   82.444773] R13: ffffa0863d76f600 R14: 0000000000000000 R15: ffffa08636738008
-[   82.445427] FS:  00007f6abfe9dd40(0000) GS:ffffa0863dd80000(0000) knlGS:00000
-[   82.446040] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   82.446478] CR2: 0000557d288db4e8 CR3: 0000000078b36000 CR4: 00000000000006e0
-[   82.447104] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   82.447561] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   82.448012] Call Trace:
-[   82.448164]  queue_delayed_work_on+0x6d/0x80
-[   82.448472]  __pg_init_all_paths+0x7b/0xf0
-[   82.448714]  pg_init_all_paths+0x26/0x40
-[   82.448980]  __multipath_map_bio.isra.0+0x84/0x210
-[   82.449267]  __map_bio+0x3c/0x1f0
-[   82.449468]  __split_and_process_non_flush+0x14a/0x1b0
-[   82.449775]  __split_and_process_bio+0xde/0x340
-[   82.450045]  ? dm_get_live_table+0x5/0xb0
-[   82.450278]  dm_process_bio+0x98/0x290
-[   82.450518]  dm_make_request+0x54/0x120
-[   82.450778]  generic_make_request+0xd2/0x3e0
-[   82.451038]  ? submit_bio+0x3c/0x150
-[   82.451278]  submit_bio+0x3c/0x150
-[   82.451492]  mpage_readpages+0x129/0x160
-[   82.451756]  ? bdev_evict_inode+0x1d0/0x1d0
-[   82.452033]  read_pages+0x72/0x170
-[   82.452260]  __do_page_cache_readahead+0x1ba/0x1d0
-[   82.452624]  force_page_cache_readahead+0x96/0x110
-[   82.452903]  generic_file_read_iter+0x84f/0xae0
-[   82.453192]  ? __seccomp_filter+0x7c/0x670
-[   82.453547]  new_sync_read+0x10e/0x190
-[   82.453883]  vfs_read+0x9d/0x150
-[   82.454172]  ksys_read+0x65/0xe0
-[   82.454466]  do_syscall_64+0x4e/0x210
-[   82.454828]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[...]
-[   82.462501] ---[ end trace bb39975e9cf45daa ]---
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: https://lore.kernel.org/r/20200419163109.11689-1-ddiss@suse.de
+Fixes: 2237498f0b5c ("target/iblock: Convert WRITE_SAME to blkdev_issue_zeroout")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-mpath.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/target/target_core_iblock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -576,10 +576,12 @@ static struct pgpath *__map_bio(struct m
+--- a/drivers/target/target_core_iblock.c
++++ b/drivers/target/target_core_iblock.c
+@@ -445,7 +445,7 @@ iblock_execute_zero_out(struct block_dev
+ 				target_to_linux_sector(dev, cmd->t_task_lba),
+ 				target_to_linux_sector(dev,
+ 					sbc_get_write_same_sectors(cmd)),
+-				GFP_KERNEL, false);
++				GFP_KERNEL, BLKDEV_ZERO_NOUNMAP);
+ 	if (ret)
+ 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
  
- 	/* Do we need to select a new pgpath? */
- 	pgpath = READ_ONCE(m->current_pgpath);
--	queue_io = test_bit(MPATHF_QUEUE_IO, &m->flags);
--	if (!pgpath || !queue_io)
-+	if (!pgpath || !test_bit(MPATHF_QUEUE_IO, &m->flags))
- 		pgpath = choose_pgpath(m, bio->bi_iter.bi_size);
- 
-+	/* MPATHF_QUEUE_IO might have been cleared by choose_pgpath. */
-+	queue_io = test_bit(MPATHF_QUEUE_IO, &m->flags);
-+
- 	if ((pgpath && queue_io) ||
- 	    (!pgpath && test_bit(MPATHF_QUEUE_IF_NO_PATH, &m->flags))) {
- 		/* Queue for the daemon to resubmit */
 
 
