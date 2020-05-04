@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 291F11C4472
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8E151C44F6
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732148AbgEDSH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:07:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38282 "EHLO mail.kernel.org"
+        id S1731061AbgEDSD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:03:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731176AbgEDSH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:07:27 -0400
+        id S1731597AbgEDSDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:03:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CBBD206B8;
-        Mon,  4 May 2020 18:07:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D71772078C;
+        Mon,  4 May 2020 18:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615646;
-        bh=azMOu8EjMGDrE0P+u3NYrkPUjjB/EnRM97c2/Lsix7Y=;
+        s=default; t=1588615435;
+        bh=23r7fieUlnC6uLKY3WsafJurncmV9INLMJ5LgJujMXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BKLFIep++/qIE5wlYDAm8MEpdNKHsFWCe/xUEaEYNHe1FZuSdn4GIvBoTxvc/Asxn
-         24VQtAfGQaBeQgaon8zF1pDLtderO3HfI/z+ckoZdAb8/DBzCVLg4p8OcX85X5ASYv
-         SNoN1GkXBl0iylNLPZmN/zO62e6fHS0zfT6N3PLU=
+        b=IeJBxMt2DUTWqt2Hcm2/56+AY0zwC3egEgC7BMmMz16nNRV1dqDznfwlLMQjqW6YS
+         t3sgWQRS2KxLXt6n5/QkQZWC9awVhprs1ErpIdzUNjTfKytxVEB0lq9kzMOXM53/1O
+         CyQ8jy5JQ0rMN91s78DLsSmNliXDmCPQgeTotOjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Miguel Borges de Freitas <miguelborgesdefreitas@gmail.com>
-Subject: [PATCH 5.6 39/73] ARM: dts: imx6qdl-sr-som-ti: indicate powering off wifi is safe
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.4 38/57] RDMA/siw: Fix potential siw_mem refcnt leak in siw_fastreg_mr()
 Date:   Mon,  4 May 2020 19:57:42 +0200
-Message-Id: <20200504165507.928931479@linuxfoundation.org>
+Message-Id: <20200504165459.643685008@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-commit b7dc7205b2ae6b6c9d9cfc3e47d6f08da8647b10 upstream.
+commit 6e051971b0e2eeb0ce7ec65d3cc8180450512d36 upstream.
 
-We need to indicate that powering off the TI WiFi is safe, to avoid:
+siw_fastreg_mr() invokes siw_mem_id2obj(), which returns a local reference
+of the siw_mem object to "mem" with increased refcnt.  When
+siw_fastreg_mr() returns, "mem" becomes invalid, so the refcount should be
+decreased to keep refcount balanced.
 
-wl18xx_driver wl18xx.2.auto: Unbalanced pm_runtime_enable!
-wl1271_sdio mmc0:0001:2: wl12xx_sdio_power_on: failed to get_sync(-13)
+The issue happens in one error path of siw_fastreg_mr(). When "base_mr"
+equals to NULL but "mem" is not NULL, the function forgets to decrease the
+refcnt increased by siw_mem_id2obj() and causes a refcnt leak.
 
-which prevents the WiFi being functional.
+Reorganize the flow so that the goto unwind can be used as expected.
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Cc: Miguel Borges de Freitas <miguelborgesdefreitas@gmail.com>
+Fixes: b9be6f18cf9e ("rdma/siw: transmit path")
+Link: https://lore.kernel.org/r/1586939949-69856-1-git-send-email-xiyuyang19@fudan.edu.cn
+Reported-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/imx6qdl-sr-som-ti.dtsi |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/sw/siw/siw_qp_tx.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/arch/arm/boot/dts/imx6qdl-sr-som-ti.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-sr-som-ti.dtsi
-@@ -153,6 +153,7 @@
- 	bus-width = <4>;
- 	keep-power-in-suspend;
- 	mmc-pwrseq = <&pwrseq_ti_wifi>;
-+	cap-power-off-card;
- 	non-removable;
- 	vmmc-supply = <&vcc_3v3>;
- 	/* vqmmc-supply = <&nvcc_sd1>; - MMC layer doesn't like it! */
+--- a/drivers/infiniband/sw/siw/siw_qp_tx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_tx.c
+@@ -920,20 +920,27 @@ static int siw_fastreg_mr(struct ib_pd *
+ {
+ 	struct ib_mr *base_mr = (struct ib_mr *)(uintptr_t)sqe->base_mr;
+ 	struct siw_device *sdev = to_siw_dev(pd->device);
+-	struct siw_mem *mem = siw_mem_id2obj(sdev, sqe->rkey  >> 8);
++	struct siw_mem *mem;
+ 	int rv = 0;
+ 
+ 	siw_dbg_pd(pd, "STag 0x%08x\n", sqe->rkey);
+ 
+-	if (unlikely(!mem || !base_mr)) {
++	if (unlikely(!base_mr)) {
+ 		pr_warn("siw: fastreg: STag 0x%08x unknown\n", sqe->rkey);
+ 		return -EINVAL;
+ 	}
++
+ 	if (unlikely(base_mr->rkey >> 8 != sqe->rkey  >> 8)) {
+ 		pr_warn("siw: fastreg: STag 0x%08x: bad MR\n", sqe->rkey);
+-		rv = -EINVAL;
+-		goto out;
++		return -EINVAL;
++	}
++
++	mem = siw_mem_id2obj(sdev, sqe->rkey  >> 8);
++	if (unlikely(!mem)) {
++		pr_warn("siw: fastreg: STag 0x%08x unknown\n", sqe->rkey);
++		return -EINVAL;
+ 	}
++
+ 	if (unlikely(mem->pd != pd)) {
+ 		pr_warn("siw: fastreg: PD mismatch\n");
+ 		rv = -EINVAL;
 
 
