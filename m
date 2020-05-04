@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AA8C1C4517
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8F11C4430
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731156AbgEDSMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:12:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59186 "EHLO mail.kernel.org"
+        id S1731752AbgEDSFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:05:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731350AbgEDSCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:02:40 -0400
+        id S1731744AbgEDSE4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:04:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AEE9206B8;
-        Mon,  4 May 2020 18:02:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B37FA207DD;
+        Mon,  4 May 2020 18:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615359;
-        bh=veOsvRPlrvyCtf3q8/NNzUyaYKGJ9L/RP453UntgzHc=;
+        s=default; t=1588615496;
+        bh=azMOu8EjMGDrE0P+u3NYrkPUjjB/EnRM97c2/Lsix7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7rVKuR1zxu+rjgjiyjDgp1Dcsg7yf9ED0396Lj8wXNPGKUmE2ovge5DRehAUObjG
-         obkVhU5Ah5kw/8CLmQ4OGAagVZq5WoiKH3TPsZ/rxA9b9zuyqZCpj3+kIi6FpmUOQE
-         D6RythWsE/pYCnZuiCWos6bW8ESfcUAp3rSaK3RY=
+        b=P1si1RGvy0/sNE68cnE/5l6ENpRP5w5XhasKB5hgJ9xlkA7d/IS2ZRv5RvVh6yHy6
+         DolYo0VQ47szhaqbPZJs4/GWKvbXRKhAHY7hr3+V6P6vKqWlDdTznJKhNsX9nuv/Ki
+         eef8D2+O/g7J/kbKiVmrGuY6hP45cBne1jjGaS5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        David Disseldorp <ddiss@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 24/37] scsi: target/iblock: fix WRITE SAME zeroing
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Miguel Borges de Freitas <miguelborgesdefreitas@gmail.com>
+Subject: [PATCH 5.4 33/57] ARM: dts: imx6qdl-sr-som-ti: indicate powering off wifi is safe
 Date:   Mon,  4 May 2020 19:57:37 +0200
-Message-Id: <20200504165450.921397685@linuxfoundation.org>
+Message-Id: <20200504165459.203658645@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Disseldorp <ddiss@suse.de>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-commit 1d2ff149b263c9325875726a7804a0c75ef7112e upstream.
+commit b7dc7205b2ae6b6c9d9cfc3e47d6f08da8647b10 upstream.
 
-SBC4 specifies that WRITE SAME requests with the UNMAP bit set to zero
-"shall perform the specified write operation to each LBA specified by the
-command".  Commit 2237498f0b5c ("target/iblock: Convert WRITE_SAME to
-blkdev_issue_zeroout") modified the iblock backend to call
-blkdev_issue_zeroout() when handling WRITE SAME requests with UNMAP=0 and a
-zero data segment.
+We need to indicate that powering off the TI WiFi is safe, to avoid:
 
-The iblock blkdev_issue_zeroout() call incorrectly provides a flags
-parameter of 0 (bool false), instead of BLKDEV_ZERO_NOUNMAP.  The bool
-false parameter reflects the blkdev_issue_zeroout() API prior to commit
-ee472d835c26 ("block: add a flags argument to (__)blkdev_issue_zeroout")
-which was merged shortly before 2237498f0b5c.
+wl18xx_driver wl18xx.2.auto: Unbalanced pm_runtime_enable!
+wl1271_sdio mmc0:0001:2: wl12xx_sdio_power_on: failed to get_sync(-13)
 
-Link: https://lore.kernel.org/r/20200419163109.11689-1-ddiss@suse.de
-Fixes: 2237498f0b5c ("target/iblock: Convert WRITE_SAME to blkdev_issue_zeroout")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: David Disseldorp <ddiss@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+which prevents the WiFi being functional.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Cc: Miguel Borges de Freitas <miguelborgesdefreitas@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/target/target_core_iblock.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6qdl-sr-som-ti.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/target/target_core_iblock.c
-+++ b/drivers/target/target_core_iblock.c
-@@ -445,7 +445,7 @@ iblock_execute_zero_out(struct block_dev
- 				target_to_linux_sector(dev, cmd->t_task_lba),
- 				target_to_linux_sector(dev,
- 					sbc_get_write_same_sectors(cmd)),
--				GFP_KERNEL, false);
-+				GFP_KERNEL, BLKDEV_ZERO_NOUNMAP);
- 	if (ret)
- 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
- 
+--- a/arch/arm/boot/dts/imx6qdl-sr-som-ti.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sr-som-ti.dtsi
+@@ -153,6 +153,7 @@
+ 	bus-width = <4>;
+ 	keep-power-in-suspend;
+ 	mmc-pwrseq = <&pwrseq_ti_wifi>;
++	cap-power-off-card;
+ 	non-removable;
+ 	vmmc-supply = <&vcc_3v3>;
+ 	/* vqmmc-supply = <&nvcc_sd1>; - MMC layer doesn't like it! */
 
 
