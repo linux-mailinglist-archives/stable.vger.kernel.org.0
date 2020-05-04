@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 434AD1C4526
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 570241C448F
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731652AbgEDSMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:12:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58274 "EHLO mail.kernel.org"
+        id S1732212AbgEDSH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731284AbgEDSCJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:02:09 -0400
+        id S1732211AbgEDSH4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:07:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF61F20721;
-        Mon,  4 May 2020 18:02:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B198520721;
+        Mon,  4 May 2020 18:07:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615328;
-        bh=sKd4IOOd+1Slt8yImQ9WOxQZC4UE/kImsmCfjq/0hBQ=;
+        s=default; t=1588615676;
+        bh=ds1Jxau9BSf+D3cDbxpy7Qio3XbI/M2VHzL83wDBhyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUlNZuPdXQQdTDr5sWeDdhS9wdSACuCEuMMecZ4efz6NjrB5QOq3E3IeVOEJLTwyd
-         kBHtPByFTQpBoH+LEg0Gu+FF9oiBC5SRgd9SC0E7ZhLBioVK7GXs6QtUYoSz2kgpUO
-         k/dorYnfnYPQOP3mxl5BZDIdVL0zLEVU4vQRnfVM=
+        b=CF27ETN0+K5CB+5/e7HzDA5JQalgr4cY0s6NVjMoLtCSXp31YENK1fDNllkRHqbgt
+         N8k18Vsy1Mefu7xVBge5ZdeL4abVMq9s2Ac5pHvMbOAzKjmT4bangFYPJPi9BcOhvq
+         W7WG0DofW45djX1OmLaUI7xfMkpK0NJbcyNZbsKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 32/37] mmc: cqhci: Avoid false "cqhci: CQE stuck on" by not open-coding timeout loop
-Date:   Mon,  4 May 2020 19:57:45 +0200
-Message-Id: <20200504165451.529374240@linuxfoundation.org>
+        stable@vger.kernel.org, Aharon Landau <aharonl@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.6 43/73] RDMA/mlx5: Set GRH fields in query QP on RoCE
+Date:   Mon,  4 May 2020 19:57:46 +0200
+Message-Id: <20200504165508.641327076@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Aharon Landau <aharonl@mellanox.com>
 
-commit b1ac62a7ac386d76968af5f374a4a7a82a35fe31 upstream.
+commit 2d7e3ff7b6f2c614eb21d0dc348957a47eaffb57 upstream.
 
-Open-coding a timeout loop invariably leads to errors with handling
-the timeout properly in one corner case or another.  In the case of
-cqhci we might report "CQE stuck on" even if it wasn't stuck on.
-You'd just need this sequence of events to happen in cqhci_off():
+GRH fields such as sgid_index, hop limit, et. are set in the QP context
+when QP is created/modified.
 
-1. Call ktime_get().
-2. Something happens to interrupt the CPU for > 100 us (context switch
-   or interrupt).
-3. Check time and; set "timed_out" to true since > 100 us.
-4. Read CQHCI_CTL.
-5. Both "reg & CQHCI_HALT" and "timed_out" are true, so break.
-6. Since "timed_out" is true, falsely print the error message.
+Currently, when query QP is performed, we fill the GRH fields only if the
+GRH bit is set in the QP context, but this bit is not set for RoCE. Adjust
+the check so we will set all relevant data for the RoCE too.
 
-Rather than fixing the polling loop, use readx_poll_timeout() like
-many people do.  This has been time tested to handle the corner cases.
+Since this data is returned to userspace, the below is an ABI regression.
 
-Fixes: a4080225f51d ("mmc: cqhci: support for command queue enabled host")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200413162717.1.Idece266f5c8793193b57a1ddb1066d030c6af8e0@changeid
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: d8966fcd4c25 ("IB/core: Use rdma_ah_attr accessor functions")
+Link: https://lore.kernel.org/r/20200413132028.930109-1-leon@kernel.org
+Signed-off-by: Aharon Landau <aharonl@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/cqhci.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/cqhci.c
-+++ b/drivers/mmc/host/cqhci.c
-@@ -13,6 +13,7 @@
- #include <linux/delay.h>
- #include <linux/highmem.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/module.h>
- #include <linux/dma-mapping.h>
- #include <linux/slab.h>
-@@ -351,12 +352,16 @@ static int cqhci_enable(struct mmc_host
- /* CQHCI is idle and should halt immediately, so set a small timeout */
- #define CQHCI_OFF_TIMEOUT 100
- 
-+static u32 cqhci_read_ctl(struct cqhci_host *cq_host)
-+{
-+	return cqhci_readl(cq_host, CQHCI_CTL);
-+}
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -5545,7 +5545,9 @@ static void to_rdma_ah_attr(struct mlx5_
+ 	rdma_ah_set_path_bits(ah_attr, path->grh_mlid & 0x7f);
+ 	rdma_ah_set_static_rate(ah_attr,
+ 				path->static_rate ? path->static_rate - 5 : 0);
+-	if (path->grh_mlid & (1 << 7)) {
 +
- static void cqhci_off(struct mmc_host *mmc)
- {
- 	struct cqhci_host *cq_host = mmc->cqe_private;
--	ktime_t timeout;
--	bool timed_out;
- 	u32 reg;
-+	int err;
++	if (path->grh_mlid & (1 << 7) ||
++	    ah_attr->type == RDMA_AH_ATTR_TYPE_ROCE) {
+ 		u32 tc_fl = be32_to_cpu(path->tclass_flowlabel);
  
- 	if (!cq_host->enabled || !mmc->cqe_on || cq_host->recovery_halt)
- 		return;
-@@ -366,15 +371,9 @@ static void cqhci_off(struct mmc_host *m
- 
- 	cqhci_writel(cq_host, CQHCI_HALT, CQHCI_CTL);
- 
--	timeout = ktime_add_us(ktime_get(), CQHCI_OFF_TIMEOUT);
--	while (1) {
--		timed_out = ktime_compare(ktime_get(), timeout) > 0;
--		reg = cqhci_readl(cq_host, CQHCI_CTL);
--		if ((reg & CQHCI_HALT) || timed_out)
--			break;
--	}
--
--	if (timed_out)
-+	err = readx_poll_timeout(cqhci_read_ctl, cq_host, reg,
-+				 reg & CQHCI_HALT, 0, CQHCI_OFF_TIMEOUT);
-+	if (err < 0)
- 		pr_err("%s: cqhci: CQE stuck on\n", mmc_hostname(mmc));
- 	else
- 		pr_debug("%s: cqhci: CQE off\n", mmc_hostname(mmc));
+ 		rdma_ah_set_grh(ah_attr, NULL,
 
 
