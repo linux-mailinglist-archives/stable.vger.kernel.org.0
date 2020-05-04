@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BB101C43B7
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 885C21C452C
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731082AbgEDSAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:00:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55936 "EHLO mail.kernel.org"
+        id S1731215AbgEDSBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:01:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730575AbgEDSAy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:00:54 -0400
+        id S1731196AbgEDSBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:01:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6D0F2078C;
-        Mon,  4 May 2020 18:00:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB83820707;
+        Mon,  4 May 2020 18:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615253;
-        bh=w/JwMb7JVHqYplPPoNYvno00KImVTLDxu+5qtPyfeg0=;
+        s=default; t=1588615304;
+        bh=WOwYZ/09O3hRQvZRWnR5ibcSY9bduvtiBeCePotFWM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HmlMd9JOYay/mzFcDxHYvxfiY1iR5LVyQjTQqQvsJuJSPqSlTWjchCAvonTD8ZWEn
-         Gx9VIziShyDeraMFW48jLboF2p0pAYF5QR7h4sNyQtFKJ3JOSt1OXZnQ4uhiFHNkxz
-         kF8BzWx5EJtL05NB4veNrFkzMvuURANKUJqYnrLY=
+        b=efje+Cr25FXBnl3VYZbpAbCMkbcDPq4A7J8u+D55K7KD1KtYgB7kyEJCmAlGAx+Ti
+         pk0cwxyqq3IIZQp57qxGEeBIOomwbpuLnWx1uZKOkPzFH/7L08j91kTWqZiInTBFQQ
+         b+kFuOKCoF8y71EB2JTBCY52kQpe1XUPOZnxtfw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 08/26] mmc: sdhci-xenon: fix annoying 1.8V regulator warning
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 09/37] ALSA: pcm: oss: Place the plugin buffer overflow checks correctly
 Date:   Mon,  4 May 2020 19:57:22 +0200
-Message-Id: <20200504165444.563485569@linuxfoundation.org>
+Message-Id: <20200504165449.637077882@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
-References: <20200504165442.494398840@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +42,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <marek.behun@nic.cz>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit bb32e1987bc55ce1db400faf47d85891da3c9b9f upstream.
+commit 4285de0725b1bf73608abbcd35ad7fd3ddc0b61e upstream.
 
-For some reason the Host Control2 register of the Xenon SDHCI controller
-sometimes reports the bit representing 1.8V signaling as 0 when read
-after it was written as 1. Subsequent read reports 1.
+The checks of the plugin buffer overflow in the previous fix by commit
+  f2ecf903ef06 ("ALSA: pcm: oss: Avoid plugin buffer overflow")
+are put in the wrong places mistakenly, which leads to the expected
+(repeated) sound when the rate plugin is involved.  Fix in the right
+places.
 
-This causes the sdhci_start_signal_voltage_switch function to report
-  1.8V regulator output did not become stable
+Also, at those right places, the zero check is needed for the
+termination node, so added there as well, and let's get it done,
+finally.
 
-When CONFIG_PM is enabled, the host is suspended and resumend many
-times, and in each resume the switch to 1.8V is called, and so the
-kernel log reports this message annoyingly often.
-
-Do an empty read of the Host Control2 register in Xenon's
-.voltage_switch method to circumvent this.
-
-This patch fixes this particular problem on Turris MOX.
-
-Signed-off-by: Marek Behún <marek.behun@nic.cz>
-Fixes: 8d876bf472db ("mmc: sdhci-xenon: wait 5ms after set 1.8V...")
-Cc: stable@vger.kernel.org # v4.16+
-Link: https://lore.kernel.org/r/20200420080444.25242-1-marek.behun@nic.cz
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: f2ecf903ef06 ("ALSA: pcm: oss: Avoid plugin buffer overflow")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200424193350.19678-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-xenon.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/core/oss/pcm_plugin.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/drivers/mmc/host/sdhci-xenon.c
-+++ b/drivers/mmc/host/sdhci-xenon.c
-@@ -238,6 +238,16 @@ static void xenon_voltage_switch(struct
- {
- 	/* Wait for 5ms after set 1.8V signal enable bit */
- 	usleep_range(5000, 5500);
-+
-+	/*
-+	 * For some reason the controller's Host Control2 register reports
-+	 * the bit representing 1.8V signaling as 0 when read after it was
-+	 * written as 1. Subsequent read reports 1.
-+	 *
-+	 * Since this may cause some issues, do an empty read of the Host
-+	 * Control2 register here to circumvent this.
-+	 */
-+	sdhci_readw(host, SDHCI_HOST_CONTROL2);
- }
- 
- static const struct sdhci_ops sdhci_xenon_ops = {
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -211,21 +211,23 @@ static snd_pcm_sframes_t plug_client_siz
+ 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin && drv_frames > 0) {
+-			if (check_size && drv_frames > plugin->buf_frames)
+-				drv_frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames)
+ 				drv_frames = plugin->src_frames(plugin, drv_frames);
++			if (check_size && plugin->buf_frames &&
++			    drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			plugin = plugin_prev;
+ 		}
+ 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
+ 		plugin = snd_pcm_plug_first(plug);
+ 		while (plugin && drv_frames > 0) {
+ 			plugin_next = plugin->next;
++			if (check_size && plugin->buf_frames &&
++			    drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			if (plugin->dst_frames)
+ 				drv_frames = plugin->dst_frames(plugin, drv_frames);
+-			if (check_size && drv_frames > plugin->buf_frames)
+-				drv_frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else
+@@ -251,26 +253,28 @@ static snd_pcm_sframes_t plug_slave_size
+ 		plugin = snd_pcm_plug_first(plug);
+ 		while (plugin && frames > 0) {
+ 			plugin_next = plugin->next;
++			if (check_size && plugin->buf_frames &&
++			    frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			if (plugin->dst_frames) {
+ 				frames = plugin->dst_frames(plugin, frames);
+ 				if (frames < 0)
+ 					return frames;
+ 			}
+-			if (check_size && frames > plugin->buf_frames)
+-				frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin) {
+-			if (check_size && frames > plugin->buf_frames)
+-				frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames) {
+ 				frames = plugin->src_frames(plugin, frames);
+ 				if (frames < 0)
+ 					return frames;
+ 			}
++			if (check_size && plugin->buf_frames &&
++			    frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			plugin = plugin_prev;
+ 		}
+ 	} else
 
 
