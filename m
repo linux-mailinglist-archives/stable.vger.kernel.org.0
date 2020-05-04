@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD1211C4478
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:07:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DECD61C447D
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:08:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732180AbgEDSHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:07:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38678 "EHLO mail.kernel.org"
+        id S1731584AbgEDSHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:07:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732176AbgEDSHm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:07:42 -0400
+        id S1732181AbgEDSHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:07:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 278F320721;
-        Mon,  4 May 2020 18:07:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 871F62073B;
+        Mon,  4 May 2020 18:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615661;
-        bh=bJ2l/CHYhXqqCQmXxTph5G9oI6DoxV3kjVdO3Qi3s38=;
+        s=default; t=1588615664;
+        bh=tUHjouMIe2y5rFbeb+MgvQF2ue4Iw8BcFWPGcw8xtv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H9Cq5BuTeyKKghy+aCMQBB3+JBNn2GYhUZsOsolf29jWS0pdWH0io7nRtUiskmeRD
-         6UxEcmPo0c2ug3+6a4yDvh3tMXqeVks2S1tlMSTpUPL8dasD9jV9yE/7IlB8xI8gjI
-         doByrODGPO6/hil2Ma/aHtRyPEo0EJ+iOWzhXOhs=
+        b=afeLKSU3z5SQAd8kNAk5o1W/GaHSiigp17uFYldQB3TpZ6HmGD6G2m/P9dkmxxTAJ
+         r+yQoyZjyjhAPbmIc3nCmo8g+wF2pucvYhYv+PnRTKA5O9lPvK/s0JI2/CJt3QxV8D
+         9bPm715nwkrlYfQKblkkXn6wJWHf6AUKhizfyGiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seraj Alijan <seraj.alijan@sondrel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.6 71/73] dmaengine: dmatest: Fix process hang when reading wait parameter
-Date:   Mon,  4 May 2020 19:58:14 +0200
-Message-Id: <20200504165510.510085799@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Szabolcs Nagy <szabolcs.nagy@arm.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.6 72/73] arm64: vdso: Add -fasynchronous-unwind-tables to cflags
+Date:   Mon,  4 May 2020 19:58:15 +0200
+Message-Id: <20200504165510.575729659@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
 References: <20200504165501.781878940@linuxfoundation.org>
@@ -44,56 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-commit aa72f1d20ee973d68f26d46fce5e1cf6f9b7e1ca upstream.
+commit 1578e5d03112e3e9d37e1c4d95b6dfb734c73955 upstream.
 
-If we do
+On arm64 linux gcc uses -fasynchronous-unwind-tables -funwind-tables
+by default since gcc-8, so now the de facto platform ABI is to allow
+unwinding from async signal handlers.
 
-  % echo 1 > /sys/module/dmatest/parameters/run
-  [  115.851124] dmatest: Could not start test, no channels configured
+However on bare metal targets (aarch64-none-elf), and on old gcc,
+async and sync unwind tables are not enabled by default to avoid
+runtime memory costs.
 
-  % echo dma8chan7 > /sys/module/dmatest/parameters/channel
-  [  127.563872] dmatest: Added 1 threads using dma8chan7
+This means if linux is built with a baremetal toolchain the vdso.so
+may not have unwind tables which breaks the gcc platform ABI guarantee
+in userspace.
 
-  % cat /sys/module/dmatest/parameters/wait
-  ... !!! HANG !!! ...
+Add -fasynchronous-unwind-tables explicitly to the vgettimeofday.o
+cflags to address the ABI change.
 
-The culprit is the commit 6138f967bccc
-
-  ("dmaengine: dmatest: Use fixed point div to calculate iops")
-
-which makes threads not to run, but pending and being kicked off by writing
-to the 'run' node. However, it forgot to consider 'wait' routine to avoid
-above mentioned case.
-
-In order to fix this, check for really running threads, i.e. with pending
-and done flags unset.
-
-It's pity the culprit commit hadn't updated documentation and tested all
-possible scenarios.
-
-Fixes: 6138f967bccc ("dmaengine: dmatest: Use fixed point div to calculate iops")
-Cc: Seraj Alijan <seraj.alijan@sondrel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200428113518.70620-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 28b1a824a4f4 ("arm64: vdso: Substitute gettimeofday() with C implementation")
+Cc: Will Deacon <will@kernel.org>
+Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/dmatest.c |    2 +-
+ arch/arm64/kernel/vdso/Makefile |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/dmatest.c
-+++ b/drivers/dma/dmatest.c
-@@ -240,7 +240,7 @@ static bool is_threaded_test_run(struct
- 		struct dmatest_thread *thread;
+--- a/arch/arm64/kernel/vdso/Makefile
++++ b/arch/arm64/kernel/vdso/Makefile
+@@ -32,7 +32,7 @@ UBSAN_SANITIZE			:= n
+ OBJECT_FILES_NON_STANDARD	:= y
+ KCOV_INSTRUMENT			:= n
  
- 		list_for_each_entry(thread, &dtc->threads, node) {
--			if (!thread->done)
-+			if (!thread->done && !thread->pending)
- 				return true;
- 		}
- 	}
+-CFLAGS_vgettimeofday.o = -O2 -mcmodel=tiny
++CFLAGS_vgettimeofday.o = -O2 -mcmodel=tiny -fasynchronous-unwind-tables
+ 
+ ifneq ($(c-gettimeofday-y),)
+   CFLAGS_vgettimeofday.o += -include $(c-gettimeofday-y)
 
 
