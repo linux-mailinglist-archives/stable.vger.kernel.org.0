@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B731C43EB
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F34621C4448
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731374AbgEDSCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:02:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59256 "EHLO mail.kernel.org"
+        id S1730964AbgEDSFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:05:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731370AbgEDSCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:02:42 -0400
+        id S1731260AbgEDSFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:05:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFB8C2073E;
-        Mon,  4 May 2020 18:02:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAAEB206B8;
+        Mon,  4 May 2020 18:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615362;
-        bh=YMrD8pcg50reUIXVzF/igBtSXrGZ8Yfx4lDaYiEDGaM=;
+        s=default; t=1588615548;
+        bh=9d6Pvb4A4ksGSkUQd2jZmen4jVrxDFLyx/up/i+XRUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UpSFbNQLtg8QQ0hiKEX+ghIEcjplLKKytTHt6JUmP9/3aZQzhKRTSnSW95ABcVVb/
-         pNuLXbdHb1Rpw//PxCPpYyuupxCaJYn+1uAdC/T05KJ7FmLyd0D4FJOIavHks4vkGc
-         I/A/s0M86EKmFSC5fSldFl4thoaVyZm0N/rUmuq0=
+        b=TszJzj+wo9TZxTPkXNOBM7nZhG7wmT/SHdw/OPPSbmcIYSNm41bzDz98C3OBfjqSg
+         syNRB4Tn0s7N8a9c0cw8RQp8+uEXD7qwPoR3Tn93RAUg7d0PoZO07zeJv4dVOkSS/E
+         X6oOtqXZ1sro8kn45vpQRqhe5dMvIwDOQzhheM6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        Daniel Wagner <dwagner@suse.de>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Martin Wilck <mwilck@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 15/37] scsi: qla2xxx: set UNLOADING before waiting for session deletion
+        stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 25/73] ALSA: hda/hdmi: fix without unlocked before return
 Date:   Mon,  4 May 2020 19:57:28 +0200
-Message-Id: <20200504165450.106909524@linuxfoundation.org>
+Message-Id: <20200504165506.938836738@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,95 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Wu Bo <wubo40@huawei.com>
 
-commit 856e152a3c08bf7987cbd41900741d83d9cddc8e upstream.
+commit a2f647240998aa49632fb09b01388fdf2b87acfc upstream.
 
-The purpose of the UNLOADING flag is to avoid port login procedures to
-continue when a controller is in the process of shutting down.  It makes
-sense to set this flag before starting session teardown.
+Fix the following coccicheck warning:
+sound/pci/hda/patch_hdmi.c:1852:2-8: preceding lock on line 1846
 
-Furthermore, use atomic test_and_set_bit() to avoid the shutdown being run
-multiple times in parallel. In qla2x00_disable_board_on_pci_error(), the
-test for UNLOADING is postponed until after the check for an already
-disabled PCI board.
+After add sanity check to pass klockwork check,
+The spdif_mutex should be unlock before return true
+in check_non_pcm_per_cvt().
 
-Link: https://lore.kernel.org/r/20200421204621.19228-2-mwilck@suse.com
-Fixes: 45235022da99 ("scsi: qla2xxx: Fix driver unload by shutting down chip")
-Reviewed-by: Arun Easi <aeasi@marvell.com>
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 960a581e22d9 ("ALSA: hda: fix some klockwork scan warnings")
+Signed-off-by: Wu Bo <wubo40@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1587907042-694161-1-git-send-email-wubo40@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_os.c |   32 ++++++++++++++------------------
- 1 file changed, 14 insertions(+), 18 deletions(-)
+ sound/pci/hda/patch_hdmi.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -3654,6 +3654,13 @@ qla2x00_remove_one(struct pci_dev *pdev)
- 	}
- 	qla2x00_wait_for_hba_ready(base_vha);
- 
-+	/*
-+	 * if UNLOADING flag is already set, then continue unload,
-+	 * where it was set first.
-+	 */
-+	if (test_and_set_bit(UNLOADING, &base_vha->dpc_flags))
-+		return;
-+
- 	if (IS_QLA25XX(ha) || IS_QLA2031(ha) || IS_QLA27XX(ha)) {
- 		if (ha->flags.fw_started)
- 			qla2x00_abort_isp_cleanup(base_vha);
-@@ -3671,15 +3678,6 @@ qla2x00_remove_one(struct pci_dev *pdev)
- 
- 	qla2x00_wait_for_sess_deletion(base_vha);
- 
--	/*
--	 * if UNLOAD flag is already set, then continue unload,
--	 * where it was set first.
--	 */
--	if (test_bit(UNLOADING, &base_vha->dpc_flags))
--		return;
--
--	set_bit(UNLOADING, &base_vha->dpc_flags);
--
- 	qla_nvme_delete(base_vha);
- 
- 	dma_free_coherent(&ha->pdev->dev,
-@@ -5845,13 +5843,6 @@ qla2x00_disable_board_on_pci_error(struc
- 	struct pci_dev *pdev = ha->pdev;
- 	scsi_qla_host_t *base_vha = pci_get_drvdata(ha->pdev);
- 
--	/*
--	 * if UNLOAD flag is already set, then continue unload,
--	 * where it was set first.
--	 */
--	if (test_bit(UNLOADING, &base_vha->dpc_flags))
--		return;
--
- 	ql_log(ql_log_warn, base_vha, 0x015b,
- 	    "Disabling adapter.\n");
- 
-@@ -5862,9 +5853,14 @@ qla2x00_disable_board_on_pci_error(struc
- 		return;
- 	}
- 
--	qla2x00_wait_for_sess_deletion(base_vha);
-+	/*
-+	 * if UNLOADING flag is already set, then continue unload,
-+	 * where it was set first.
-+	 */
-+	if (test_and_set_bit(UNLOADING, &base_vha->dpc_flags))
-+		return;
- 
--	set_bit(UNLOADING, &base_vha->dpc_flags);
-+	qla2x00_wait_for_sess_deletion(base_vha);
- 
- 	qla2x00_delete_all_vps(ha, base_vha);
- 
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1934,8 +1934,10 @@ static bool check_non_pcm_per_cvt(struct
+ 	/* Add sanity check to pass klockwork check.
+ 	 * This should never happen.
+ 	 */
+-	if (WARN_ON(spdif == NULL))
++	if (WARN_ON(spdif == NULL)) {
++		mutex_unlock(&codec->spdif_mutex);
+ 		return true;
++	}
+ 	non_pcm = !!(spdif->status & IEC958_AES0_NONAUDIO);
+ 	mutex_unlock(&codec->spdif_mutex);
+ 	return non_pcm;
 
 
