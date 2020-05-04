@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAF0B1C4501
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6D681C44B1
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731511AbgEDSDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60694 "EHLO mail.kernel.org"
+        id S1731365AbgEDSGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731522AbgEDSD3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:03:29 -0400
+        id S1731939AbgEDSGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:06:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01733206B8;
-        Mon,  4 May 2020 18:03:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EF87206B8;
+        Mon,  4 May 2020 18:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615408;
-        bh=WNkK7zEmrEiC3i+WKeSmlKup4yKe2HW73FUu/vksXB0=;
+        s=default; t=1588615577;
+        bh=opWHiN36bSBUCMubKH5BnZnE+4487/van9i2mC6Pzns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HggCV9VUH9oNo6ZcjKqAdmQogjY7fNwO+b/x+5GKhl1aZYrKUB7ryD6c5HyrS3O8h
-         gf6NuQqgYr1XPH1XKZ81+XFOIFVHxJdTspwm97fd6MRrk3rmOmFde2CZGF595zuc0z
-         g7PkhQe0QVteBPFETP/DkutZrPXTf4XiXXpBRlME=
+        b=PdKYjviX1nKqPabf8887UG3AegFh0XVu2Sm9O3Zl1L+/K/fLCb/+R8U0tnl8NZ2IJ
+         1dQ4aIugZQ6GH0+GcvZ7Vbw94/Ak5Gpj7ee/BLFTS2cMI5OkOh8RTxEMyIGb7aBEfm
+         CywG85vVJ8NgIaO9vY9TUbqWTkl7Yf3+38UWYWrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 03/57] drm/amd/display: Fix green screen issue after suspend
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>
+Subject: [PATCH 5.6 04/73] drm/edid: Fix off-by-one in DispID DTD pixel clock
 Date:   Mon,  4 May 2020 19:57:07 +0200
-Message-Id: <20200504165456.965597414@linuxfoundation.org>
+Message-Id: <20200504165502.570021512@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,170 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 87b7ebc2e16c14d32a912f18206a4d6cc9abc3e8 upstream.
+commit 6292b8efe32e6be408af364132f09572aed14382 upstream.
 
-[why]
-We have seen a green screen after resume from suspend in a Raven system
-connected with two displays (HDMI and DP) on X based system. We noticed
-that this issue is related to bad DCC metadata from user space which may
-generate hangs and consequently an underflow on HUBP. After taking a
-deep look at the code path we realized that after resume we try to
-restore the commit with the DCC enabled framebuffer but the framebuffer
-is no longer valid.
+The DispID DTD pixel clock is documented as:
+"00 00 00 h → FF FF FF h | Pixel clock ÷ 10,000 0.01 → 167,772.16 Mega Pixels per Sec"
+Which seems to imply that we to add one to the raw value.
 
-[how]
-This problem was only reported on Raven based system and after suspend,
-for this reason, this commit adds a new parameter on
-fill_plane_dcc_attributes() to give the option of disabling DCC
-programmatically. In summary, for disabling DCC we first verify if is a
-Raven system and if it is in suspend; if both conditions are true we
-disable DCC temporarily, otherwise, it is enabled.
+Reality seems to agree as there are tiled displays in the wild
+which currently show a 10kHz difference in the pixel clock
+between the tiles (one tile gets its mode from the base EDID,
+the other from the DispID block).
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1099
-Co-developed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200423151743.18767-1-ville.syrjala@linux.intel.com
+Reviewed-by: Manasi Navare <manasi.d.navare@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   38 ++++++++++++++++------
- 1 file changed, 29 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/drm_edid.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2698,7 +2698,8 @@ fill_plane_dcc_attributes(struct amdgpu_
- 			  const union dc_tiling_info *tiling_info,
- 			  const uint64_t info,
- 			  struct dc_plane_dcc_param *dcc,
--			  struct dc_plane_address *address)
-+			  struct dc_plane_address *address,
-+			  bool force_disable_dcc)
- {
- 	struct dc *dc = adev->dm.dc;
- 	struct dc_dcc_surface_param input;
-@@ -2710,6 +2711,9 @@ fill_plane_dcc_attributes(struct amdgpu_
- 	memset(&input, 0, sizeof(input));
- 	memset(&output, 0, sizeof(output));
- 
-+	if (force_disable_dcc)
-+		return 0;
-+
- 	if (!offset)
- 		return 0;
- 
-@@ -2759,7 +2763,8 @@ fill_plane_buffer_attributes(struct amdg
- 			     union dc_tiling_info *tiling_info,
- 			     struct plane_size *plane_size,
- 			     struct dc_plane_dcc_param *dcc,
--			     struct dc_plane_address *address)
-+			     struct dc_plane_address *address,
-+			     bool force_disable_dcc)
- {
- 	const struct drm_framebuffer *fb = &afb->base;
- 	int ret;
-@@ -2869,7 +2874,8 @@ fill_plane_buffer_attributes(struct amdg
- 
- 		ret = fill_plane_dcc_attributes(adev, afb, format, rotation,
- 						plane_size, tiling_info,
--						tiling_flags, dcc, address);
-+						tiling_flags, dcc, address,
-+						force_disable_dcc);
- 		if (ret)
- 			return ret;
- 	}
-@@ -2961,7 +2967,8 @@ fill_dc_plane_info_and_addr(struct amdgp
- 			    const struct drm_plane_state *plane_state,
- 			    const uint64_t tiling_flags,
- 			    struct dc_plane_info *plane_info,
--			    struct dc_plane_address *address)
-+			    struct dc_plane_address *address,
-+			    bool force_disable_dcc)
- {
- 	const struct drm_framebuffer *fb = plane_state->fb;
- 	const struct amdgpu_framebuffer *afb =
-@@ -3040,7 +3047,8 @@ fill_dc_plane_info_and_addr(struct amdgp
- 					   plane_info->rotation, tiling_flags,
- 					   &plane_info->tiling_info,
- 					   &plane_info->plane_size,
--					   &plane_info->dcc, address);
-+					   &plane_info->dcc, address,
-+					   force_disable_dcc);
- 	if (ret)
- 		return ret;
- 
-@@ -3063,6 +3071,7 @@ static int fill_dc_plane_attributes(stru
- 	struct dc_plane_info plane_info;
- 	uint64_t tiling_flags;
- 	int ret;
-+	bool force_disable_dcc = false;
- 
- 	ret = fill_dc_scaling_info(plane_state, &scaling_info);
- 	if (ret)
-@@ -3077,9 +3086,11 @@ static int fill_dc_plane_attributes(stru
- 	if (ret)
- 		return ret;
- 
-+	force_disable_dcc = adev->asic_type == CHIP_RAVEN && adev->in_suspend;
- 	ret = fill_dc_plane_info_and_addr(adev, plane_state, tiling_flags,
- 					  &plane_info,
--					  &dc_plane_state->address);
-+					  &dc_plane_state->address,
-+					  force_disable_dcc);
- 	if (ret)
- 		return ret;
- 
-@@ -4481,6 +4492,7 @@ static int dm_plane_helper_prepare_fb(st
- 	uint64_t tiling_flags;
- 	uint32_t domain;
- 	int r;
-+	bool force_disable_dcc = false;
- 
- 	dm_plane_state_old = to_dm_plane_state(plane->state);
- 	dm_plane_state_new = to_dm_plane_state(new_state);
-@@ -4539,11 +4551,13 @@ static int dm_plane_helper_prepare_fb(st
- 			dm_plane_state_old->dc_state != dm_plane_state_new->dc_state) {
- 		struct dc_plane_state *plane_state = dm_plane_state_new->dc_state;
- 
-+		force_disable_dcc = adev->asic_type == CHIP_RAVEN && adev->in_suspend;
- 		fill_plane_buffer_attributes(
- 			adev, afb, plane_state->format, plane_state->rotation,
- 			tiling_flags, &plane_state->tiling_info,
- 			&plane_state->plane_size, &plane_state->dcc,
--			&plane_state->address);
-+			&plane_state->address,
-+			force_disable_dcc);
- 	}
- 
- 	return 0;
-@@ -5767,7 +5781,12 @@ static void amdgpu_dm_commit_planes(stru
- 		fill_dc_plane_info_and_addr(
- 			dm->adev, new_plane_state, tiling_flags,
- 			&bundle->plane_infos[planes_count],
--			&bundle->flip_addrs[planes_count].address);
-+			&bundle->flip_addrs[planes_count].address,
-+			false);
-+
-+		DRM_DEBUG_DRIVER("plane: id=%d dcc_en=%d\n",
-+				 new_plane_state->plane->index,
-+				 bundle->plane_infos[planes_count].dcc.enable);
- 
- 		bundle->surface_updates[planes_count].plane_info =
- 			&bundle->plane_infos[planes_count];
-@@ -7138,7 +7157,8 @@ dm_determine_update_type_for_commit(stru
- 				ret = fill_dc_plane_info_and_addr(
- 					dm->adev, new_plane_state, tiling_flags,
- 					&plane_info,
--					&flip_addr.address);
-+					&flip_addr.address,
-+					false);
- 				if (ret)
- 					goto cleanup;
- 
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -5009,7 +5009,7 @@ static struct drm_display_mode *drm_mode
+ 	struct drm_display_mode *mode;
+ 	unsigned pixel_clock = (timings->pixel_clock[0] |
+ 				(timings->pixel_clock[1] << 8) |
+-				(timings->pixel_clock[2] << 16));
++				(timings->pixel_clock[2] << 16)) + 1;
+ 	unsigned hactive = (timings->hactive[0] | timings->hactive[1] << 8) + 1;
+ 	unsigned hblank = (timings->hblank[0] | timings->hblank[1] << 8) + 1;
+ 	unsigned hsync = (timings->hsync[0] | (timings->hsync[1] & 0x7f) << 8) + 1;
 
 
