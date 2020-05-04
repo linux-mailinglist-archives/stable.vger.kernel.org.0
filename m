@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 415371C43EC
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:02:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A40921C44D1
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:10:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731376AbgEDSCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:02:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59306 "EHLO mail.kernel.org"
+        id S1732058AbgEDSKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:10:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731372AbgEDSCp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:02:45 -0400
+        id S1729762AbgEDSFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:05:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C16020721;
-        Mon,  4 May 2020 18:02:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04E9B206B8;
+        Mon,  4 May 2020 18:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615364;
+        s=default; t=1588615533;
         bh=N4i6e4VsODP2CW1mwqCEy5GnptRmE9Pa1G3YDTPyGAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EwlF4hdQ2WhT+nZuqQc7NYW+8JqniJEeuMwf5SKAgaJUIwtgwn8UdxTLhiHJK0GXo
-         uC8vXdwSIhqBVjLcv5s8OKbbILyEP3auDAnUzeN9IKmzI/V7sYrF8pYnIkdxxzfBTw
-         sBjwTOHN8/CNy/TUIIoIIWhbI+KQLKsXGOBehyOA=
+        b=f4u+y8YJ9bX6d9WDqeSG8tux7Z6MY/7mhKV4Xma6DF6w6Hoqha4LrWtw3BIHK0f2m
+         gSu/upXVb33+DAcfh2gbhWGF6TZa7Ld6DFa+WELlbtihVrapIiv4I9ChZ7tBVtWheB
+         sscq8YBJ3uqvm2DK5TvONKhIKRQ2QAZWk/SOJvZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -34,15 +34,13 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         minchan@kernel.org, surenb@google.com, jenhaochen@google.com,
         Martin Liu <liumartin@google.com>,
         Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH 5.4 01/57] dma-buf: Fix SET_NAME ioctl uapi
+Subject: [PATCH 5.6 02/73] dma-buf: Fix SET_NAME ioctl uapi
 Date:   Mon,  4 May 2020 19:57:05 +0200
-Message-Id: <20200504165456.862815638@linuxfoundation.org>
+Message-Id: <20200504165502.155875888@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
