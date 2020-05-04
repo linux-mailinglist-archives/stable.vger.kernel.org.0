@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38A611C450E
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0624B1C452D
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731447AbgEDSDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
+        id S1731213AbgEDSBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:01:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731426AbgEDSDE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:03:04 -0400
+        id S1731203AbgEDSBm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:01:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D16E2073E;
-        Mon,  4 May 2020 18:03:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DB90206B8;
+        Mon,  4 May 2020 18:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615384;
-        bh=m0NOQkhaDLLWHMFRUMofd+9PQkdwLZpGR0kbkLzWY9M=;
+        s=default; t=1588615301;
+        bh=PZfauH4491WPHaB4fDnCfLRZc8zUXeJQPOQuPy6eoM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHTTa15tkVhTawOhmrl2a+8R6gbMCeav2nTtMN2V9LF0J+v/Gtys+Wsm4JfHLV0hb
-         TNGcP0E5mooI0xNAfgK81l6/SCcmQ6gaB628ny8gGBWh2OtF0E2rKQxRMOkj9dqHDy
-         7mZ1CFyaHGcn60weHeeB//mR0awEN4/ya7KA6X94=
+        b=g515IMJfq3NafDF1B1Fzbx3YOtdc3cg8kpEsIxfRyLW3mb0ktP/GdxzSsF/fAf1lo
+         wx5HFsX4BLBhTtcMmp6LHyDX+Ibe3sn+vtA0vp+cvpPjDeGtWvbjJKLdB8BQi7ZyPG
+         nYLPWILiwtwpHEtgqqwTPl5ko+LXHgdXRt9xb2pk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 17/57] mmc: meson-mx-sdio: remove the broken ->card_busy() op
+        stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 08/37] ALSA: hda/hdmi: fix without unlocked before return
 Date:   Mon,  4 May 2020 19:57:21 +0200
-Message-Id: <20200504165457.896543710@linuxfoundation.org>
+Message-Id: <20200504165449.583755570@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Wu Bo <wubo40@huawei.com>
 
-commit ddca1092c4324c89cf692b5efe655aa251864b51 upstream.
+commit a2f647240998aa49632fb09b01388fdf2b87acfc upstream.
 
-The recent commit 0d84c3e6a5b2 ("mmc: core: Convert to
-mmc_poll_for_busy() for erase/trim/discard") makes use of the
-->card_busy() op for SD cards. This uncovered that the ->card_busy() op
-in the Meson SDIO driver was never working right:
-while polling the busy status with ->card_busy()
-meson_mx_mmc_card_busy() reads only one of the two MESON_MX_SDIO_IRQC
-register values 0x1f001f10 or 0x1f003f10. This translates to "three out
-of four DAT lines are HIGH" and "all four DAT lines are HIGH", which
-is interpreted as "the card is busy".
+Fix the following coccicheck warning:
+sound/pci/hda/patch_hdmi.c:1852:2-8: preceding lock on line 1846
 
-It turns out that no situation can be observed where all four DAT lines
-are LOW, meaning the card is not busy anymore. Upon further research the
-3.10 vendor driver for this controller does not implement the
-->card_busy() op.
+After add sanity check to pass klockwork check,
+The spdif_mutex should be unlock before return true
+in check_non_pcm_per_cvt().
 
-Remove the ->card_busy() op from the meson-mx-sdio driver since it is
-not working. At the time of writing this patch it is not clear what's
-needed to make the ->card_busy() implementation work with this specific
-controller hardware. For all use-cases which have previously worked the
-MMC_CAP_WAIT_WHILE_BUSY flag is now taking over, even if we don't have
-a ->card_busy() op anymore.
-
-Fixes: ed80a13bb4c4c9 ("mmc: meson-mx-sdio: Add a driver for the Amlogic Meson8 and Meson8b SoCs")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200416183513.993763-3-martin.blumenstingl@googlemail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 960a581e22d9 ("ALSA: hda: fix some klockwork scan warnings")
+Signed-off-by: Wu Bo <wubo40@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1587907042-694161-1-git-send-email-wubo40@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/meson-mx-sdio.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ sound/pci/hda/patch_hdmi.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/meson-mx-sdio.c
-+++ b/drivers/mmc/host/meson-mx-sdio.c
-@@ -357,14 +357,6 @@ static void meson_mx_mmc_request(struct
- 		meson_mx_mmc_start_cmd(mmc, mrq->cmd);
- }
- 
--static int meson_mx_mmc_card_busy(struct mmc_host *mmc)
--{
--	struct meson_mx_mmc_host *host = mmc_priv(mmc);
--	u32 irqc = readl(host->base + MESON_MX_SDIO_IRQC);
--
--	return !!(irqc & MESON_MX_SDIO_IRQC_FORCE_DATA_DAT_MASK);
--}
--
- static void meson_mx_mmc_read_response(struct mmc_host *mmc,
- 				       struct mmc_command *cmd)
- {
-@@ -506,7 +498,6 @@ static void meson_mx_mmc_timeout(struct
- static struct mmc_host_ops meson_mx_mmc_ops = {
- 	.request		= meson_mx_mmc_request,
- 	.set_ios		= meson_mx_mmc_set_ios,
--	.card_busy		= meson_mx_mmc_card_busy,
- 	.get_cd			= mmc_gpio_get_cd,
- 	.get_ro			= mmc_gpio_get_ro,
- };
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1848,8 +1848,10 @@ static bool check_non_pcm_per_cvt(struct
+ 	/* Add sanity check to pass klockwork check.
+ 	 * This should never happen.
+ 	 */
+-	if (WARN_ON(spdif == NULL))
++	if (WARN_ON(spdif == NULL)) {
++		mutex_unlock(&codec->spdif_mutex);
+ 		return true;
++	}
+ 	non_pcm = !!(spdif->status & IEC958_AES0_NONAUDIO);
+ 	mutex_unlock(&codec->spdif_mutex);
+ 	return non_pcm;
 
 
