@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF1D51C456F
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:15:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF751C4443
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:06:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730819AbgEDR7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 13:59:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53252 "EHLO mail.kernel.org"
+        id S1731808AbgEDSFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:05:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730812AbgEDR7d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 13:59:33 -0400
+        id S1731030AbgEDSFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:05:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B1D92073B;
-        Mon,  4 May 2020 17:59:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0820206B8;
+        Mon,  4 May 2020 18:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615172;
-        bh=wbkp8qqavz27ErAdxGpNXAyCPktsf8JUg0achhI6Gds=;
+        s=default; t=1588615538;
+        bh=m0NOQkhaDLLWHMFRUMofd+9PQkdwLZpGR0kbkLzWY9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njPO0UwQZs1hpwtY9untrJKI29DzTpitI2U+BXdsvSsO7ppFEaLzFkmlVdwqApKVl
-         9eQJjU3NHJJJqQUjgphpfGV/+R/BxmyvJjvaO4lMMEKe2Dk+OK7osArc5pfDWO1GGB
-         q2dl4nve/akRSszs2Em2iSvn6KEIAiHdY94ToWug=
+        b=WHBAKvjO/UgIvvlYFrGwB7MjGc974k+e0PKcuaN1bhLlSP3A2Oll2OsHpICazB61h
+         zwtQtFWfXKS72Y62pNn+kNKUSAIdJmFy4V/CSPQJz0RhpE6N7I5cZpN0nJnwofNmre
+         +NspUoW5oaD4JFbFt+LeO4u9eXJmKfsriwtlwR0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 14/18] ALSA: opti9xx: shut up gcc-10 range warning
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.6 21/73] mmc: meson-mx-sdio: remove the broken ->card_busy() op
 Date:   Mon,  4 May 2020 19:57:24 +0200
-Message-Id: <20200504165445.163833573@linuxfoundation.org>
+Message-Id: <20200504165505.612443779@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165442.028485341@linuxfoundation.org>
-References: <20200504165442.028485341@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit 5ce00760a84848d008554c693ceb6286f4d9c509 upstream.
+commit ddca1092c4324c89cf692b5efe655aa251864b51 upstream.
 
-gcc-10 points out a few instances of suspicious integer arithmetic
-leading to value truncation:
+The recent commit 0d84c3e6a5b2 ("mmc: core: Convert to
+mmc_poll_for_busy() for erase/trim/discard") makes use of the
+->card_busy() op for SD cards. This uncovered that the ->card_busy() op
+in the Meson SDIO driver was never working right:
+while polling the busy status with ->card_busy()
+meson_mx_mmc_card_busy() reads only one of the two MESON_MX_SDIO_IRQC
+register values 0x1f001f10 or 0x1f003f10. This translates to "three out
+of four DAT lines are HIGH" and "all four DAT lines are HIGH", which
+is interpreted as "the card is busy".
 
-sound/isa/opti9xx/opti92x-ad1848.c: In function 'snd_opti9xx_configure':
-sound/isa/opti9xx/opti92x-ad1848.c:322:43: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_opti9xx_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
-  322 |   (snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/opti92x-ad1848.c:351:3: note: in expansion of macro 'snd_opti9xx_write_mask'
-  351 |   snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
-      |   ^~~~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/miro.c: In function 'snd_miro_configure':
-sound/isa/opti9xx/miro.c:873:40: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_miro_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
-  873 |   (snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/miro.c:1010:3: note: in expansion of macro 'snd_miro_write_mask'
- 1010 |   snd_miro_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
-      |   ^~~~~~~~~~~~~~~~~~~
+It turns out that no situation can be observed where all four DAT lines
+are LOW, meaning the card is not busy anymore. Upon further research the
+3.10 vendor driver for this controller does not implement the
+->card_busy() op.
 
-These are all harmless here as only the low 8 bit are passed down
-anyway. Change the macros to inline functions to make the code
-more readable and also avoid the warning.
+Remove the ->card_busy() op from the meson-mx-sdio driver since it is
+not working. At the time of writing this patch it is not clear what's
+needed to make the ->card_busy() implementation work with this specific
+controller hardware. For all use-cases which have previously worked the
+MMC_CAP_WAIT_WHILE_BUSY flag is now taking over, even if we don't have
+a ->card_busy() op anymore.
 
-Strictly speaking those functions also need locking to make the
-read/write pair atomic, but it seems unlikely that anyone would
-still run into that issue.
-
-Fixes: 1841f613fd2e ("[ALSA] Add snd-miro driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200429190216.85919-1-arnd@arndb.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: ed80a13bb4c4c9 ("mmc: meson-mx-sdio: Add a driver for the Amlogic Meson8 and Meson8b SoCs")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200416183513.993763-3-martin.blumenstingl@googlemail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/isa/opti9xx/miro.c           |    9 ++++++---
- sound/isa/opti9xx/opti92x-ad1848.c |    9 ++++++---
- 2 files changed, 12 insertions(+), 6 deletions(-)
+ drivers/mmc/host/meson-mx-sdio.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
---- a/sound/isa/opti9xx/miro.c
-+++ b/sound/isa/opti9xx/miro.c
-@@ -875,10 +875,13 @@ static void snd_miro_write(struct snd_mi
- 	spin_unlock_irqrestore(&chip->lock, flags);
+--- a/drivers/mmc/host/meson-mx-sdio.c
++++ b/drivers/mmc/host/meson-mx-sdio.c
+@@ -357,14 +357,6 @@ static void meson_mx_mmc_request(struct
+ 		meson_mx_mmc_start_cmd(mmc, mrq->cmd);
  }
  
-+static inline void snd_miro_write_mask(struct snd_miro *chip,
-+		unsigned char reg, unsigned char value, unsigned char mask)
-+{
-+	unsigned char oldval = snd_miro_read(chip, reg);
- 
--#define snd_miro_write_mask(chip, reg, value, mask)	\
--	snd_miro_write(chip, reg,			\
--		(snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-+	snd_miro_write(chip, reg, (oldval & ~mask) | (value & mask));
-+}
- 
- /*
-  *  Proc Interface
---- a/sound/isa/opti9xx/opti92x-ad1848.c
-+++ b/sound/isa/opti9xx/opti92x-ad1848.c
-@@ -327,10 +327,13 @@ static void snd_opti9xx_write(struct snd
- }
- 
- 
--#define snd_opti9xx_write_mask(chip, reg, value, mask)	\
--	snd_opti9xx_write(chip, reg,			\
--		(snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-+static inline void snd_opti9xx_write_mask(struct snd_opti9xx *chip,
-+		unsigned char reg, unsigned char value, unsigned char mask)
-+{
-+	unsigned char oldval = snd_opti9xx_read(chip, reg);
- 
-+	snd_opti9xx_write(chip, reg, (oldval & ~mask) | (value & mask));
-+}
- 
- static int snd_opti9xx_configure(struct snd_opti9xx *chip,
- 					   long port,
+-static int meson_mx_mmc_card_busy(struct mmc_host *mmc)
+-{
+-	struct meson_mx_mmc_host *host = mmc_priv(mmc);
+-	u32 irqc = readl(host->base + MESON_MX_SDIO_IRQC);
+-
+-	return !!(irqc & MESON_MX_SDIO_IRQC_FORCE_DATA_DAT_MASK);
+-}
+-
+ static void meson_mx_mmc_read_response(struct mmc_host *mmc,
+ 				       struct mmc_command *cmd)
+ {
+@@ -506,7 +498,6 @@ static void meson_mx_mmc_timeout(struct
+ static struct mmc_host_ops meson_mx_mmc_ops = {
+ 	.request		= meson_mx_mmc_request,
+ 	.set_ios		= meson_mx_mmc_set_ios,
+-	.card_busy		= meson_mx_mmc_card_busy,
+ 	.get_cd			= mmc_gpio_get_cd,
+ 	.get_ro			= mmc_gpio_get_ro,
+ };
 
 
