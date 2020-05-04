@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 885C21C452C
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D851C44CF
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:10:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731215AbgEDSBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:01:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57420 "EHLO mail.kernel.org"
+        id S1731856AbgEDSFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:05:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731196AbgEDSBo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:01:44 -0400
+        id S1731808AbgEDSFb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:05:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB83820707;
-        Mon,  4 May 2020 18:01:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBD1020746;
+        Mon,  4 May 2020 18:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615304;
-        bh=WOwYZ/09O3hRQvZRWnR5ibcSY9bduvtiBeCePotFWM8=;
+        s=default; t=1588615531;
+        bh=UimvCBn9psmg95nF9nENjpcecV3G4CRP3EAeJJfvkms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=efje+Cr25FXBnl3VYZbpAbCMkbcDPq4A7J8u+D55K7KD1KtYgB7kyEJCmAlGAx+Ti
-         pk0cwxyqq3IIZQp57qxGEeBIOomwbpuLnWx1uZKOkPzFH/7L08j91kTWqZiInTBFQQ
-         b+kFuOKCoF8y71EB2JTBCY52kQpe1XUPOZnxtfw4=
+        b=VzkXM6DR1x+tufr4KViqsFPVeINUpiINFjMu4BYTwowm3EjO/Tsr/uhwBEUVu7RxY
+         hr9NgkWK/zudLphgeoCHuOxzGVKEkJwW7LLZ3y/6fjAPb8/pQPn8MbvsIKaN3UdQUs
+         IwKbUHO/HlNXSGdNMUlQ2xjclLvwJFSPXTYlS/Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 09/37] ALSA: pcm: oss: Place the plugin buffer overflow checks correctly
+        stable@vger.kernel.org,
+        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.6 19/73] mmc: sdhci-msm: Enable host capabilities pertains to R1b response
 Date:   Mon,  4 May 2020 19:57:22 +0200
-Message-Id: <20200504165449.637077882@linuxfoundation.org>
+Message-Id: <20200504165505.334804830@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,92 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
 
-commit 4285de0725b1bf73608abbcd35ad7fd3ddc0b61e upstream.
+commit 9d8cb58691f85cef687512262acb2c7109ee4868 upstream.
 
-The checks of the plugin buffer overflow in the previous fix by commit
-  f2ecf903ef06 ("ALSA: pcm: oss: Avoid plugin buffer overflow")
-are put in the wrong places mistakenly, which leads to the expected
-(repeated) sound when the rate plugin is involved.  Fix in the right
-places.
+MSM sd host controller is capable of HW busy detection of device busy
+signaling over DAT0 line. And it requires the R1B response for commands
+that have this response associated with them.
 
-Also, at those right places, the zero check is needed for the
-termination node, so added there as well, and let's get it done,
-finally.
+So set the below two host capabilities for qcom SDHC.
+ - MMC_CAP_WAIT_WHILE_BUSY
+ - MMC_CAP_NEED_RSP_BUSY
 
-Fixes: f2ecf903ef06 ("ALSA: pcm: oss: Avoid plugin buffer overflow")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200424193350.19678-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Recent development of the mmc core in regards to this, revealed this as
+being a potential bug, hence the stable tag.
+
+Cc: <stable@vger.kernel.org> # v4.19+
+Signed-off-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/1587363626-20413-2-git-send-email-vbadigan@codeaurora.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/oss/pcm_plugin.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/mmc/host/sdhci-msm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/core/oss/pcm_plugin.c
-+++ b/sound/core/oss/pcm_plugin.c
-@@ -211,21 +211,23 @@ static snd_pcm_sframes_t plug_client_siz
- 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
- 		plugin = snd_pcm_plug_last(plug);
- 		while (plugin && drv_frames > 0) {
--			if (check_size && drv_frames > plugin->buf_frames)
--				drv_frames = plugin->buf_frames;
- 			plugin_prev = plugin->prev;
- 			if (plugin->src_frames)
- 				drv_frames = plugin->src_frames(plugin, drv_frames);
-+			if (check_size && plugin->buf_frames &&
-+			    drv_frames > plugin->buf_frames)
-+				drv_frames = plugin->buf_frames;
- 			plugin = plugin_prev;
- 		}
- 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
- 		plugin = snd_pcm_plug_first(plug);
- 		while (plugin && drv_frames > 0) {
- 			plugin_next = plugin->next;
-+			if (check_size && plugin->buf_frames &&
-+			    drv_frames > plugin->buf_frames)
-+				drv_frames = plugin->buf_frames;
- 			if (plugin->dst_frames)
- 				drv_frames = plugin->dst_frames(plugin, drv_frames);
--			if (check_size && drv_frames > plugin->buf_frames)
--				drv_frames = plugin->buf_frames;
- 			plugin = plugin_next;
- 		}
- 	} else
-@@ -251,26 +253,28 @@ static snd_pcm_sframes_t plug_slave_size
- 		plugin = snd_pcm_plug_first(plug);
- 		while (plugin && frames > 0) {
- 			plugin_next = plugin->next;
-+			if (check_size && plugin->buf_frames &&
-+			    frames > plugin->buf_frames)
-+				frames = plugin->buf_frames;
- 			if (plugin->dst_frames) {
- 				frames = plugin->dst_frames(plugin, frames);
- 				if (frames < 0)
- 					return frames;
- 			}
--			if (check_size && frames > plugin->buf_frames)
--				frames = plugin->buf_frames;
- 			plugin = plugin_next;
- 		}
- 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
- 		plugin = snd_pcm_plug_last(plug);
- 		while (plugin) {
--			if (check_size && frames > plugin->buf_frames)
--				frames = plugin->buf_frames;
- 			plugin_prev = plugin->prev;
- 			if (plugin->src_frames) {
- 				frames = plugin->src_frames(plugin, frames);
- 				if (frames < 0)
- 					return frames;
- 			}
-+			if (check_size && plugin->buf_frames &&
-+			    frames > plugin->buf_frames)
-+				frames = plugin->buf_frames;
- 			plugin = plugin_prev;
- 		}
- 	} else
+--- a/drivers/mmc/host/sdhci-msm.c
++++ b/drivers/mmc/host/sdhci-msm.c
+@@ -2068,6 +2068,8 @@ static int sdhci_msm_probe(struct platfo
+ 		goto clk_disable;
+ 	}
+ 
++	msm_host->mmc->caps |= MMC_CAP_WAIT_WHILE_BUSY | MMC_CAP_NEED_RSP_BUSY;
++
+ 	pm_runtime_get_noresume(&pdev->dev);
+ 	pm_runtime_set_active(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
 
 
