@@ -2,30 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B981C3BB6
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 15:50:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2436F1C3CF6
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 16:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727831AbgEDNui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 09:50:38 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:62027 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726922AbgEDNui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 09:50:38 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21106861-1500050 
-        for multiple; Mon, 04 May 2020 14:50:34 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     tvrtko.ursulin@intel.com, lionel.g.landwerlin@intel.com,
-        kenneth@whitecape.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/6] drm/i915: Mark concurrent submissions with a weak-dependency
-Date:   Mon,  4 May 2020 14:50:25 +0100
-Message-Id: <20200504135030.19210-2-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200504135030.19210-1-chris@chris-wilson.co.uk>
-References: <20200504135030.19210-1-chris@chris-wilson.co.uk>
+        id S1728983AbgEDO1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 10:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51840 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728434AbgEDO1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 10:27:32 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB008C061A0E
+        for <stable@vger.kernel.org>; Mon,  4 May 2020 07:27:31 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id u16so9300733wmc.5
+        for <stable@vger.kernel.org>; Mon, 04 May 2020 07:27:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=monstr-eu.20150623.gappssmtp.com; s=20150623;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=R8hMysgCANDxPI0D+IpQRpi6VaDo+fsmsuFYs+cuTuA=;
+        b=sCyOY7cWz+Zih2Gcur3hgcfiu3oSiZBTIp0cZmq5uKEDB6IrRn9BCNvLxR0Y2FnQ75
+         J/sWlpL8ZM/H2nEmr1COYKz40Odhyre7AgPfsXQpuO/yVTvFrL7svixV/hPPXLFe76NL
+         a5ZxjdqpicIx5Ol0TULum1FfemlP16K3/LeIY6MvaApt2ME7+3l3YC+1xxuqIB3+2AXc
+         RgQkc912evPAICrllpKV+xm0uyGmeiHBUw2pviROwFNmFGQMeMlbHDH+To1RM+10fxCp
+         PtzF1sTkIAtzaTNVqC2EXQGruoXv5gwMTh5A5y1Jlrv5srccEch/nFZZN7jXn7v8L8r6
+         FHpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=R8hMysgCANDxPI0D+IpQRpi6VaDo+fsmsuFYs+cuTuA=;
+        b=OdlJdADKW6ggPvNTb9dXbh1DnGjSBHIF32b7nfjq/jO1dH2Pn3Az2yxsemTujzvYN/
+         RLn5wiVZPV0HXyXVJ1dhzUkFFpJvqbmXrMA0AhaDC7DqcgJDY+EqeW5oGwH1b1KXYyhQ
+         P8ns6UF3NXqxuu5DvDCPVtOc6YBtbfVvTyGcoBwvWz/nIwmLCmk74EhFJ6gszIW0ia+t
+         wnDhk35SK4+BYmYL2NesQlxc3UmF2SafL5JOra0BgvrZKJNtnzWL7WGuIjaAIWIH2cP3
+         /xwIHe4+ZhGw3AbKEkr7A9gWE1nCy8/5ts4mmN7QP3FZntZgvbhrX7XbPJr6Z1M0HAMH
+         fTiA==
+X-Gm-Message-State: AGi0PuamDqgHuY7BHz1i7VXPhotjPlX5KZFwM0v0cf98lq8JQD1j+AnB
+        bLe7xR8Q6eZKpGNt3Mg/rKw1Fw==
+X-Google-Smtp-Source: APiQypJvPehbbUthQvX9YGeEq+Ipj4rzULCq/PSfWLN7t0/wgJVu4JxunEJ5TD5rohgmepaA63orXw==
+X-Received: by 2002:a1c:1bcb:: with SMTP id b194mr15744884wmb.4.1588602450462;
+        Mon, 04 May 2020 07:27:30 -0700 (PDT)
+Received: from localhost (nat-35.starnet.cz. [178.255.168.35])
+        by smtp.gmail.com with ESMTPSA id g6sm19438716wrw.34.2020.05.04.07.27.29
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 04 May 2020 07:27:29 -0700 (PDT)
+From:   Michal Simek <michal.simek@xilinx.com>
+To:     linux-kernel@vger.kernel.org, monstr@monstr.eu,
+        michal.simek@xilinx.com, git@xilinx.com, stable@vger.kernel.org
+Cc:     Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        linux-arm-kernel@lists.infradead.org, linux-serial@vger.kernel.org
+Subject: [PATCH v2] tty: xilinx_uartps: Fix missing id assignment to the console
+Date:   Mon,  4 May 2020 16:27:28 +0200
+Message-Id: <ed3111533ef5bd342ee5ec504812240b870f0853.1588602446.git.michal.simek@xilinx.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -33,138 +65,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
-correctly perform priority inheritance from the parallel branches to the
-common trunk. However, for the purpose of timeslicing and reset
-handling, the dependency is weak -- as we the pair of requests are
-allowed to run in parallel and not in strict succession. So for example
-we do need to suspend one if the other hangs.
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 
-The real significance though is that this allows us to rearrange
-groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
-so can resolve user level inter-batch scheduling dependencies from user
-semaphores.
+When serial console has been assigned to ttyPS1 (which is serial1 alias)
+console index is not updated property and pointing to index -1 (statically
+initialized) which ends up in situation where nothing has been printed on
+the port.
 
-Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
+The commit 18cc7ac8a28e ("Revert "serial: uartps: Register own uart console
+and driver structures"") didn't contain this line which was removed by
+accident.
+
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 ---
- drivers/gpu/drm/i915/gt/intel_lrc.c         | 9 +++++++++
- drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
- drivers/gpu/drm/i915/i915_scheduler.c       | 4 +++-
- drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
- drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
- 5 files changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index d4ef344657b0..a47e4e15cbaa 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1883,6 +1883,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
+Changes in v2:
+- Do better commit description
+- Origin subject was "tty: xilinx_uartps: Add the id to the console"
+
+Greg: Would be good if you can take this patch to 5.7 and also to stable
+trees.
+
+---
+ drivers/tty/serial/xilinx_uartps.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
+index 672cfa075e28..b9d672af8b65 100644
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -1465,6 +1465,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
+ 		cdns_uart_uart_driver.nr = CDNS_UART_NR_PORTS;
+ #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
+ 		cdns_uart_uart_driver.cons = &cdns_uart_console;
++		cdns_uart_console.index = id;
+ #endif
  
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2729,6 +2732,9 @@ static void __execlists_hold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2853,6 +2859,9 @@ static void __execlists_unhold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Propagate any change in error status */
- 			if (rq->fence.error)
- 				i915_request_set_error_once(w, rq->fence.error);
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 22635bbabf06..95edc5523a01 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1038,7 +1038,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 		return 0;
- 
- 	if (to->engine->schedule) {
--		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		ret = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     0);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -1200,7 +1202,9 @@ __i915_request_await_execution(struct i915_request *to,
- 
- 	/* Couple the dependency tree for PI on this exposed to->fence */
- 	if (to->engine->schedule) {
--		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		err = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_WEAK);
- 		if (err < 0)
- 			return err;
- 	}
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
-index 37cfcf5b321b..5f4c1e49e974 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.c
-+++ b/drivers/gpu/drm/i915/i915_scheduler.c
-@@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- }
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal)
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags)
- {
- 	struct i915_dependency *dep;
- 
-@@ -473,6 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
- 	local_bh_disable();
- 
- 	if (!__i915_sched_node_add_dependency(node, signal, dep,
-+					      flags |
- 					      I915_DEPENDENCY_EXTERNAL |
- 					      I915_DEPENDENCY_ALLOC))
- 		i915_dependency_free(dep);
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
-index d1dc4efef77b..6f0bf00fc569 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler.h
-@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- 				      unsigned long flags);
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal);
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags);
- 
- void i915_sched_node_fini(struct i915_sched_node *node);
- 
-diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
-index d18e70550054..7186875088a0 100644
---- a/drivers/gpu/drm/i915/i915_scheduler_types.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
-@@ -78,6 +78,7 @@ struct i915_dependency {
- 	unsigned long flags;
- #define I915_DEPENDENCY_ALLOC		BIT(0)
- #define I915_DEPENDENCY_EXTERNAL	BIT(1)
-+#define I915_DEPENDENCY_WEAK		BIT(2)
- };
- 
- #endif /* _I915_SCHEDULER_TYPES_H_ */
+ 		rc = uart_register_driver(&cdns_uart_uart_driver);
 -- 
-2.20.1
+2.26.2
 
