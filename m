@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 883C61C451B
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0CBA1C4559
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:15:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731982AbgEDSMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:12:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59000 "EHLO mail.kernel.org"
+        id S1731026AbgEDSAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:00:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731345AbgEDSCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:02:33 -0400
+        id S1731028AbgEDSAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:00:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4ABD0206B8;
-        Mon,  4 May 2020 18:02:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D293320663;
+        Mon,  4 May 2020 18:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615352;
-        bh=2zBnnkOM1H+7bmygsb3P9WY2HQU87sUn/VQp+GBLkTk=;
+        s=default; t=1588615236;
+        bh=IfDLe6lN7eIdQXF70MOOOos/2QGEaSxCOrUAJ3Yl/j0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=atJj59x7jeYaPPWcjJu9LMq9EN2EuMTJxkejTmiJ5ePzxPImS3u+XJvHnAOiMtqG8
-         JRK4Q75Ms5s4ZOgL1/B4esYiRP9BoUmhp6G7jM6Npof3kjX7wX+AG0h/a4mORzbxrF
-         Zfrk7ZRe6rsn3PFLAEHO7alDU05IWJZ4JMbVmzio=
+        b=LGmOizahxryKy6uyfTpzI8EyrgOSGdB5Yb1Qu5bdZ14NtXX/zg8LTOtjsN/OzFHMK
+         ST9J4AtbVuwJQcUudQtF4ZDc84cxtfi3FrvdLnTyDMQkLb+GA9ohbiJD1KskZ3082t
+         jWaTCHC+r0/nq7Z35RFvwMJB3DC2fwckGYCIQY5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yan Zhao <yan.y.zhao@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 4.19 21/37] vfio: avoid possible overflow in vfio_iommu_type1_pin_pages
+        stable@vger.kernel.org, Tang Bin <tangbin@cmss.chinamobile.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.14 20/26] iommu/qcom: Fix local_base status check
 Date:   Mon,  4 May 2020 19:57:34 +0200
-Message-Id: <20200504165450.604878640@linuxfoundation.org>
+Message-Id: <20200504165447.052905233@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
+References: <20200504165442.494398840@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan Zhao <yan.y.zhao@intel.com>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-commit 0ea971f8dcd6dee78a9a30ea70227cf305f11ff7 upstream.
+commit b52649aee6243ea661905bdc5fbe28cc5f6dec76 upstream.
 
-add parentheses to avoid possible vaddr overflow.
+The function qcom_iommu_device_probe() does not perform sufficient
+error checking after executing devm_ioremap_resource(), which can
+result in crashes if a critical error path is encountered.
 
-Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
-Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 0ae349a0f33f ("iommu/qcom: Add qcom_iommu")
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20200418134703.1760-1-tangbin@cmss.chinamobile.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/vfio_iommu_type1.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/qcom_iommu.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -598,7 +598,7 @@ static int vfio_iommu_type1_pin_pages(vo
- 			continue;
- 		}
+--- a/drivers/iommu/qcom_iommu.c
++++ b/drivers/iommu/qcom_iommu.c
+@@ -775,8 +775,11 @@ static int qcom_iommu_device_probe(struc
+ 	qcom_iommu->dev = dev;
  
--		remote_vaddr = dma->vaddr + iova - dma->iova;
-+		remote_vaddr = dma->vaddr + (iova - dma->iova);
- 		ret = vfio_pin_page_external(dma, remote_vaddr, &phys_pfn[i],
- 					     do_accounting);
- 		if (ret)
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (res)
++	if (res) {
+ 		qcom_iommu->local_base = devm_ioremap_resource(dev, res);
++		if (IS_ERR(qcom_iommu->local_base))
++			return PTR_ERR(qcom_iommu->local_base);
++	}
+ 
+ 	qcom_iommu->iface_clk = devm_clk_get(dev, "iface");
+ 	if (IS_ERR(qcom_iommu->iface_clk)) {
 
 
