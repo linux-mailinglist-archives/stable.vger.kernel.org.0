@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C911C44A5
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67AF21C44EA
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730134AbgEDSJM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:09:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37486 "EHLO mail.kernel.org"
+        id S1731782AbgEDSLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:11:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732046AbgEDSGx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:06:53 -0400
+        id S1730738AbgEDSEf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:04:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02044207DD;
-        Mon,  4 May 2020 18:06:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EE0E20721;
+        Mon,  4 May 2020 18:04:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615613;
-        bh=5iJtVUZGNri3ZtPnoanSWCWu45x1GVw3xm+WfvF452w=;
+        s=default; t=1588615474;
+        bh=0iBARj4TxwISLi/XhODDCPesSt/fsZtgRkxuEPlml6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJigidKiU2/7pFHE+SDfbzuO35jY8zqGGKLu8MQ1xX0k7JkudTQWYJhz8Ov83TEie
-         izucoceROo5xiDoto5BpFw9HWBUcrUAKGc4L3ETuc6BTq2oBW101jJQ4BgkyH4agQ5
-         VXqRzsG7zOi2lF+lFbli+B9/Yf1fG59m+KdHQtbI=
+        b=C/WCFL8V958TwK1lcJ6BDFTsV/Rwv37nxBzTjvJ1GNdFV4HZpKmURfUbB+cdb892C
+         JzSGDlBTG2oBq9sHO6cTtrfRP4HrhY0nUseJN6HoF637A+0GiTVd7X+i/nOxklv8T8
+         BqfbqSUinuhW9AHUIdj8GumwkkHOUFfZ3NBAC6ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.6 53/73] dmaengine: hisilicon: Fix build error without PCI_MSI
-Date:   Mon,  4 May 2020 19:57:56 +0200
-Message-Id: <20200504165509.338062751@linuxfoundation.org>
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.4 53/57] nfs: Fix potential posix_acl refcnt leak in nfs3_set_acl
+Date:   Mon,  4 May 2020 19:57:57 +0200
+Message-Id: <20200504165501.373919057@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit ae148b43516d90756ff8255925fb7df142b0c76e upstream.
+commit 7648f939cb919b9d15c21fff8cd9eba908d595dc upstream.
 
-If PCI_MSI is not set, building fais:
+nfs3_set_acl keeps track of the acl it allocated locally to determine if an acl
+needs to be released at the end.  This results in a memory leak when the
+function allocates an acl as well as a default acl.  Fix by releasing acls
+that differ from the acl originally passed into nfs3_set_acl.
 
-drivers/dma/hisi_dma.c: In function ‘hisi_dma_free_irq_vectors’:
-drivers/dma/hisi_dma.c:138:2: error: implicit declaration of function ‘pci_free_irq_vectors’;
- did you mean ‘pci_alloc_irq_vectors’? [-Werror=implicit-function-declaration]
-  pci_free_irq_vectors(data);
-  ^~~~~~~~~~~~~~~~~~~~
-
-Make HISI_DMA depends on PCI_MSI to fix this.
-
-Fixes: e9f08b65250d ("dmaengine: hisilicon: Add Kunpeng DMA engine support")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20200328114133.17560-1-yuehaibing@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: b7fa0554cf1b ("[PATCH] NFS: Add support for NFSv3 ACLs")
+Reported-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/Kconfig |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/nfs3acl.c |   22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
---- a/drivers/dma/Kconfig
-+++ b/drivers/dma/Kconfig
-@@ -241,7 +241,8 @@ config FSL_RAID
+--- a/fs/nfs/nfs3acl.c
++++ b/fs/nfs/nfs3acl.c
+@@ -253,37 +253,45 @@ int nfs3_proc_setacls(struct inode *inod
  
- config HISI_DMA
- 	tristate "HiSilicon DMA Engine support"
--	depends on ARM64 || (COMPILE_TEST && PCI_MSI)
-+	depends on ARM64 || COMPILE_TEST
-+	depends on PCI_MSI
- 	select DMA_ENGINE
- 	select DMA_VIRTUAL_CHANNELS
- 	help
+ int nfs3_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+ {
+-	struct posix_acl *alloc = NULL, *dfacl = NULL;
++	struct posix_acl *orig = acl, *dfacl = NULL, *alloc;
+ 	int status;
+ 
+ 	if (S_ISDIR(inode->i_mode)) {
+ 		switch(type) {
+ 		case ACL_TYPE_ACCESS:
+-			alloc = dfacl = get_acl(inode, ACL_TYPE_DEFAULT);
++			alloc = get_acl(inode, ACL_TYPE_DEFAULT);
+ 			if (IS_ERR(alloc))
+ 				goto fail;
++			dfacl = alloc;
+ 			break;
+ 
+ 		case ACL_TYPE_DEFAULT:
+-			dfacl = acl;
+-			alloc = acl = get_acl(inode, ACL_TYPE_ACCESS);
++			alloc = get_acl(inode, ACL_TYPE_ACCESS);
+ 			if (IS_ERR(alloc))
+ 				goto fail;
++			dfacl = acl;
++			acl = alloc;
+ 			break;
+ 		}
+ 	}
+ 
+ 	if (acl == NULL) {
+-		alloc = acl = posix_acl_from_mode(inode->i_mode, GFP_KERNEL);
++		alloc = posix_acl_from_mode(inode->i_mode, GFP_KERNEL);
+ 		if (IS_ERR(alloc))
+ 			goto fail;
++		acl = alloc;
+ 	}
+ 	status = __nfs3_proc_setacls(inode, acl, dfacl);
+-	posix_acl_release(alloc);
++out:
++	if (acl != orig)
++		posix_acl_release(acl);
++	if (dfacl != orig)
++		posix_acl_release(dfacl);
+ 	return status;
+ 
+ fail:
+-	return PTR_ERR(alloc);
++	status = PTR_ERR(alloc);
++	goto out;
+ }
+ 
+ const struct xattr_handler *nfs3_xattr_handlers[] = {
 
 
