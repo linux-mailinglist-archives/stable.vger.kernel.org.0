@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E511C4415
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 434AD1C4526
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731621AbgEDSEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:04:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33258 "EHLO mail.kernel.org"
+        id S1731652AbgEDSMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:12:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731609AbgEDSED (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:04:03 -0400
+        id S1731284AbgEDSCJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:02:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12F01206B8;
-        Mon,  4 May 2020 18:04:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF61F20721;
+        Mon,  4 May 2020 18:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615442;
-        bh=le726E5NPR5DJLKT2A0s7mKCI1Oa8lsc7twTHpZNr6M=;
+        s=default; t=1588615328;
+        bh=sKd4IOOd+1Slt8yImQ9WOxQZC4UE/kImsmCfjq/0hBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHhf9k0ZtOZGndjKj/PXTiaPTknDY2QwLt38aIWynbi/+5EuUnxGXfAnVA0ZjhGrA
-         fa7vOjPfXEgM05DVLyqp0oQdQS+DlYW4gd/QLAYwDdagcEFTZ5Jvzubcw1wNjDXp3J
-         7SWHlraHBoMhhXFgo9QXb/VPbDpXjJPMlYNvQ6y0=
+        b=RUlNZuPdXQQdTDr5sWeDdhS9wdSACuCEuMMecZ4efz6NjrB5QOq3E3IeVOEJLTwyd
+         kBHtPByFTQpBoH+LEg0Gu+FF9oiBC5SRgd9SC0E7ZhLBioVK7GXs6QtUYoSz2kgpUO
+         k/dorYnfnYPQOP3mxl5BZDIdVL0zLEVU4vQRnfVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 41/57] RDMA/cm: Fix ordering of xa_alloc_cyclic() in ib_create_cm_id()
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 32/37] mmc: cqhci: Avoid false "cqhci: CQE stuck on" by not open-coding timeout loop
 Date:   Mon,  4 May 2020 19:57:45 +0200
-Message-Id: <20200504165459.892946324@linuxfoundation.org>
+Message-Id: <20200504165451.529374240@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit e8dc4e885c459343970b25acd9320fe9ee5492e7 upstream.
+commit b1ac62a7ac386d76968af5f374a4a7a82a35fe31 upstream.
 
-xa_alloc_cyclic() is a SMP release to be paired with some later acquire
-during xa_load() as part of cm_acquire_id().
+Open-coding a timeout loop invariably leads to errors with handling
+the timeout properly in one corner case or another.  In the case of
+cqhci we might report "CQE stuck on" even if it wasn't stuck on.
+You'd just need this sequence of events to happen in cqhci_off():
 
-As such, xa_alloc_cyclic() must be done after the cm_id is fully
-initialized, in particular, it absolutely must be after the
-refcount_set(), otherwise the refcount_inc() in cm_acquire_id() may not
-see the set.
+1. Call ktime_get().
+2. Something happens to interrupt the CPU for > 100 us (context switch
+   or interrupt).
+3. Check time and; set "timed_out" to true since > 100 us.
+4. Read CQHCI_CTL.
+5. Both "reg & CQHCI_HALT" and "timed_out" are true, so break.
+6. Since "timed_out" is true, falsely print the error message.
 
-As there are several cases where a reader will be able to use the
-id.local_id after cm_acquire_id in the IB_CM_IDLE state there needs to be
-an unfortunate split into a NULL allocate and a finalizing xa_store.
+Rather than fixing the polling loop, use readx_poll_timeout() like
+many people do.  This has been time tested to handle the corner cases.
 
-Fixes: a977049dacde ("[PATCH] IB: Add the kernel CM implementation")
-Link: https://lore.kernel.org/r/20200310092545.251365-2-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: a4080225f51d ("mmc: cqhci: support for command queue enabled host")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200413162717.1.Idece266f5c8793193b57a1ddb1066d030c6af8e0@changeid
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/cm.c |   27 +++++++++++----------------
- 1 file changed, 11 insertions(+), 16 deletions(-)
+ drivers/mmc/host/cqhci.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -597,18 +597,6 @@ static int cm_init_av_by_path(struct sa_
- 	return 0;
- }
+--- a/drivers/mmc/host/cqhci.c
++++ b/drivers/mmc/host/cqhci.c
+@@ -13,6 +13,7 @@
+ #include <linux/delay.h>
+ #include <linux/highmem.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
+ #include <linux/module.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/slab.h>
+@@ -351,12 +352,16 @@ static int cqhci_enable(struct mmc_host
+ /* CQHCI is idle and should halt immediately, so set a small timeout */
+ #define CQHCI_OFF_TIMEOUT 100
  
--static int cm_alloc_id(struct cm_id_private *cm_id_priv)
--{
--	int err;
--	u32 id;
--
--	err = xa_alloc_cyclic_irq(&cm.local_id_table, &id, cm_id_priv,
--			xa_limit_32b, &cm.local_id_next, GFP_KERNEL);
--
--	cm_id_priv->id.local_id = (__force __be32)id ^ cm.random_id_operand;
--	return err;
--}
--
- static u32 cm_local_id(__be32 local_id)
- {
- 	return (__force u32) (local_id ^ cm.random_id_operand);
-@@ -862,6 +850,7 @@ struct ib_cm_id *ib_create_cm_id(struct
- 				 void *context)
- {
- 	struct cm_id_private *cm_id_priv;
-+	u32 id;
- 	int ret;
- 
- 	cm_id_priv = kzalloc(sizeof *cm_id_priv, GFP_KERNEL);
-@@ -873,9 +862,6 @@ struct ib_cm_id *ib_create_cm_id(struct
- 	cm_id_priv->id.cm_handler = cm_handler;
- 	cm_id_priv->id.context = context;
- 	cm_id_priv->id.remote_cm_qpn = 1;
--	ret = cm_alloc_id(cm_id_priv);
--	if (ret)
--		goto error;
- 
- 	spin_lock_init(&cm_id_priv->lock);
- 	init_completion(&cm_id_priv->comp);
-@@ -884,11 +870,20 @@ struct ib_cm_id *ib_create_cm_id(struct
- 	INIT_LIST_HEAD(&cm_id_priv->altr_list);
- 	atomic_set(&cm_id_priv->work_count, -1);
- 	atomic_set(&cm_id_priv->refcount, 1);
++static u32 cqhci_read_ctl(struct cqhci_host *cq_host)
++{
++	return cqhci_readl(cq_host, CQHCI_CTL);
++}
 +
-+	ret = xa_alloc_cyclic_irq(&cm.local_id_table, &id, NULL, xa_limit_32b,
-+				  &cm.local_id_next, GFP_KERNEL);
-+	if (ret)
-+		goto error;
-+	cm_id_priv->id.local_id = (__force __be32)id ^ cm.random_id_operand;
-+	xa_store_irq(&cm.local_id_table, cm_local_id(cm_id_priv->id.local_id),
-+		     cm_id_priv, GFP_KERNEL);
-+
- 	return &cm_id_priv->id;
+ static void cqhci_off(struct mmc_host *mmc)
+ {
+ 	struct cqhci_host *cq_host = mmc->cqe_private;
+-	ktime_t timeout;
+-	bool timed_out;
+ 	u32 reg;
++	int err;
  
- error:
- 	kfree(cm_id_priv);
--	return ERR_PTR(-ENOMEM);
-+	return ERR_PTR(ret);
- }
- EXPORT_SYMBOL(ib_create_cm_id);
+ 	if (!cq_host->enabled || !mmc->cqe_on || cq_host->recovery_halt)
+ 		return;
+@@ -366,15 +371,9 @@ static void cqhci_off(struct mmc_host *m
  
+ 	cqhci_writel(cq_host, CQHCI_HALT, CQHCI_CTL);
+ 
+-	timeout = ktime_add_us(ktime_get(), CQHCI_OFF_TIMEOUT);
+-	while (1) {
+-		timed_out = ktime_compare(ktime_get(), timeout) > 0;
+-		reg = cqhci_readl(cq_host, CQHCI_CTL);
+-		if ((reg & CQHCI_HALT) || timed_out)
+-			break;
+-	}
+-
+-	if (timed_out)
++	err = readx_poll_timeout(cqhci_read_ctl, cq_host, reg,
++				 reg & CQHCI_HALT, 0, CQHCI_OFF_TIMEOUT);
++	if (err < 0)
+ 		pr_err("%s: cqhci: CQE stuck on\n", mmc_hostname(mmc));
+ 	else
+ 		pr_debug("%s: cqhci: CQE off\n", mmc_hostname(mmc));
 
 
