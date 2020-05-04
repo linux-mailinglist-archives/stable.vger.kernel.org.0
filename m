@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95A391C4459
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:06:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980261C440D
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:04:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731361AbgEDSGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36972 "EHLO mail.kernel.org"
+        id S1731572AbgEDSDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731972AbgEDSGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:06:33 -0400
+        id S1731567AbgEDSDq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:03:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80DDC20721;
-        Mon,  4 May 2020 18:06:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B0102073B;
+        Mon,  4 May 2020 18:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615592;
-        bh=0FY2azzaQnqyHeDagXFCT4b4FNHKuavAd56At7dPc+4=;
+        s=default; t=1588615425;
+        bh=YufbUZ9+K34XwftgAXsvCURg8v/qsmAD2SnmGxCtLIc=;
         h=From:To:Cc:Subject:Date:From;
-        b=n+dzJ9zm0/0Ul7PWq6Kq/KJljkmMgC7T2mr85lqPcNA298DkPS0gJnV2tvhtMQbDk
-         1nxe8Rq15SdfqDAASWdiKIYl7lmV3AQLzG2UENJMfXeDbPv5Mn0w0af7IFQEKKoS9O
-         VNSFMNmGP/+a0NzmVF9WE0FVfSrsFltbWWd8kjPI=
+        b=iLbxjYiIR/eYx4vKKlZ4O2ux7wTDDhjq7xIrYdjUndJ/UBhPdA18POR6mKhm+1oDG
+         b4jxdhZPG7m+A2RyhpaQ7c6H3BpAY6Nie7qSUBuQpXdBLyR8drPXhpvRKryhZ7n1Nk
+         +jLPIQxHfsVwHIQ8HPe0c4SdGb6JQCL+A296ncN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,19 +30,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH 5.6 00/73] 5.6.11-rc1 review
-Date:   Mon,  4 May 2020 19:57:03 +0200
-Message-Id: <20200504165501.781878940@linuxfoundation.org>
+Subject: [PATCH 5.4 00/57] 5.4.39-rc1 review
+Date:   Mon,  4 May 2020 19:57:04 +0200
+Message-Id: <20200504165456.783676004@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.6.11-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.39-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.6.y
+X-KernelTest-Branch: linux-5.4.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.6.11-rc1
+X-KernelTest-Version: 5.4.39-rc1
 X-KernelTest-Deadline: 2020-05-06T16:55+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,8 +51,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.6.11 release.
-There are 73 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 5.4.39 release.
+There are 57 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -60,9 +60,9 @@ Responses should be made by Wed, 06 May 2020 16:52:55 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.11-rc1.gz
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.39-rc1.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 and the diffstat can be found below.
 
 thanks,
@@ -73,10 +73,10 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.6.11-rc1
+    Linux 5.4.39-rc1
 
-Jens Axboe <axboe@kernel.dk>
-    io_uring: statx must grab the file table for valid fd
+Paul Moore <paul@paul-moore.com>
+    selinux: properly handle multiple messages in selinux_netlink_send()
 
 Vincenzo Frascino <vincenzo.frascino@arm.com>
     arm64: vdso: Add -fasynchronous-unwind-tables to cflags
@@ -84,17 +84,11 @@ Vincenzo Frascino <vincenzo.frascino@arm.com>
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
     dmaengine: dmatest: Fix process hang when reading 'wait' parameter
 
-Matt Roper <matthew.d.roper@intel.com>
-    drm/i915: Use proper fault mask in interrupt postinstall too
-
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
     dmaengine: dmatest: Fix iteration non-stop logic
 
 Andreas Gruenbacher <agruenba@redhat.com>
     nfs: Fix potential posix_acl refcnt leak in nfs3_set_acl
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    drm/i915/selftests: Fix i915_address_space refcnt leak
 
 Niklas Cassel <niklas.cassel@wdc.com>
     nvme: prevent double free in nvme_alloc_ns() error handling
@@ -111,20 +105,8 @@ ryan_chen <ryan_chen@aspeedtech.com>
 Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
     iommu/amd: Fix legacy interrupt remapping for x2APIC-enabled system
 
-Lu Baolu <baolu.lu@linux.intel.com>
-    iommu/vt-d: Use right Kconfig option name
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    iommu: Properly export iommu_group_get_for_dev()
-
 David Disseldorp <ddiss@suse.de>
     scsi: target/iblock: fix WRITE SAME zeroing
-
-Dave Jiang <dave.jiang@intel.com>
-    dmaengine: fix channel index enumeration
-
-Grygorii Strashko <grygorii.strashko@ti.com>
-    dmaengine: ti: k3-psil: fix deadlock on error path
 
 Tang Bin <tangbin@cmss.chinamobile.com>
     iommu/qcom: Fix local_base status check
@@ -134,9 +116,6 @@ Sean Christopherson <sean.j.christopherson@intel.com>
 
 Yan Zhao <yan.y.zhao@intel.com>
     vfio: avoid possible overflow in vfio_iommu_type1_pin_pages
-
-YueHaibing <yuehaibing@huawei.com>
-    dmaengine: hisilicon: Fix build error without PCI_MSI
 
 Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
     i2c: iproc: generate stop event for slave writes
@@ -151,9 +130,6 @@ Leon Romanovsky <leon@kernel.org>
     RDMA/core: Fix race between destroy and release FD object
 
 Leon Romanovsky <leon@kernel.org>
-    RDMA/core: Fix overwriting of uobj in case of error
-
-Leon Romanovsky <leon@kernel.org>
     RDMA/core: Prevent mixed use of FDs between shared ufiles
 
 Jason Gunthorpe <jgg@ziepe.ca>
@@ -161,9 +137,6 @@ Jason Gunthorpe <jgg@ziepe.ca>
 
 Alaa Hleihel <alaa@mellanox.com>
     RDMA/mlx4: Initialize ib_spec on the stack
-
-Jason Gunthorpe <jgg@ziepe.ca>
-    RDMA/uverbs: Fix a race with disassociate and exit_mmap()
 
 Aharon Landau <aharonl@mellanox.com>
     RDMA/mlx5: Set GRH fields in query QP on RoCE
@@ -173,9 +146,6 @@ Martin Wilck <mwilck@suse.com>
 
 Martin Wilck <mwilck@suse.com>
     scsi: qla2xxx: set UNLOADING before waiting for session deletion
-
-Christoph Hellwig <hch@lst.de>
-    block: remove the bd_openers checks in blk_drop_partitions
 
 Russell King <rmk+kernel@armlinux.org.uk>
     ARM: dts: imx6qdl-sr-som-ti: indicate powering off wifi is safe
@@ -198,17 +168,11 @@ Kai-Heng Feng <kai.heng.feng@canonical.com>
 Sudip Mukherjee <sudipm.mukherjee@gmail.com>
     IB/rdmavt: Always return ERR_PTR from rvt_create_mmap_info()
 
-Paul Moore <paul@paul-moore.com>
-    selinux: properly handle multiple messages in selinux_netlink_send()
-
 Al Viro <viro@zeniv.linux.org.uk>
     dlmfs_file_write(): fix the bogosity in handling non-zero *ppos
 
 Dexuan Cui <decui@microsoft.com>
     Drivers: hv: vmbus: Fix Suspend-to-Idle for Generation-2 VM
-
-Dexuan Cui <decui@microsoft.com>
-    x86/hyperv: Suspend/resume the VP assist page for hibernation
 
 Dan Carpenter <dan.carpenter@oracle.com>
     i2c: amd-mp2-pci: Fix Oops in amd_mp2_pci_init() error handling
@@ -273,26 +237,14 @@ Vasily Averin <vvs@virtuozzo.com>
 Vasily Averin <vvs@virtuozzo.com>
     drm/qxl: qxl_release leak in qxl_draw_dirty_fb()
 
-Chris Wilson <chris@chris-wilson.co.uk>
-    drm/i915/gt: Check cacheline is valid before acquiring
-
-Chris Wilson <chris@chris-wilson.co.uk>
-    drm/i915/gem: Hold obj->vma.lock over for_each_ggtt_vma()
-
 Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
     drm/amd/display: Fix green screen issue after suspend
 
 Ville Syrjälä <ville.syrjala@linux.intel.com>
     drm/edid: Fix off-by-one in DispID DTD pixel clock
 
-Marek Olšák <marek.olsak@amd.com>
-    drm/amdgpu: invalidate L2 before SDMA IBs (v2)
-
 Daniel Vetter <daniel.vetter@intel.com>
     dma-buf: Fix SET_NAME ioctl uapi
-
-Christian König <christian.koenig@amd.com>
-    drm/scheduler: fix drm_sched_get_cleanup_job
 
 
 -------------
@@ -302,36 +254,22 @@ Diffstat:
  Makefile                                          |  4 +-
  arch/arm/boot/dts/imx6qdl-sr-som-ti.dtsi          |  1 +
  arch/arm64/kernel/vdso/Makefile                   |  2 +-
- arch/x86/hyperv/hv_init.c                         | 12 +++-
- block/partition-generic.c                         |  2 +-
  drivers/acpi/device_pm.c                          |  4 +-
  drivers/crypto/caam/caamalg.c                     |  2 +-
  drivers/dma-buf/dma-buf.c                         |  3 +-
- drivers/dma/Kconfig                               |  3 +-
- drivers/dma/dmaengine.c                           | 60 +++++++++----------
  drivers/dma/dmatest.c                             |  6 +-
- drivers/dma/ti/k3-psil.c                          |  1 +
- drivers/gpu/drm/amd/amdgpu/navi10_sdma_pkt_open.h | 16 ++++++
- drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c            | 14 ++++-
  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 38 +++++++++---
  drivers/gpu/drm/drm_edid.c                        |  2 +-
- drivers/gpu/drm/i915/gem/i915_gem_tiling.c        | 20 ++++++-
- drivers/gpu/drm/i915/gem/selftests/huge_pages.c   | 12 ++--
- drivers/gpu/drm/i915/gt/intel_timeline.c          |  2 +
- drivers/gpu/drm/i915/i915_irq.c                   |  6 +-
- drivers/gpu/drm/i915/i915_vma.c                   | 10 ++--
  drivers/gpu/drm/qxl/qxl_cmd.c                     | 10 ++--
  drivers/gpu/drm/qxl/qxl_display.c                 |  6 +-
  drivers/gpu/drm/qxl/qxl_draw.c                    |  7 ++-
  drivers/gpu/drm/qxl/qxl_ioctl.c                   |  5 +-
- drivers/gpu/drm/scheduler/sched_main.c            |  2 +-
  drivers/hv/vmbus_drv.c                            | 43 +++++++++++---
  drivers/i2c/busses/i2c-amd-mp2-pci.c              |  2 +-
  drivers/i2c/busses/i2c-aspeed.c                   |  5 +-
  drivers/i2c/busses/i2c-bcm-iproc.c                |  3 +
  drivers/infiniband/core/cm.c                      | 27 ++++-----
- drivers/infiniband/core/rdma_core.c               |  9 ++-
- drivers/infiniband/core/uverbs_main.c             |  4 ++
+ drivers/infiniband/core/rdma_core.c               |  4 +-
  drivers/infiniband/hw/mlx4/main.c                 |  3 +-
  drivers/infiniband/hw/mlx5/qp.c                   |  4 +-
  drivers/infiniband/sw/rdmavt/cq.c                 |  4 +-
@@ -340,8 +278,6 @@ Diffstat:
  drivers/infiniband/sw/rdmavt/srq.c                |  4 +-
  drivers/infiniband/sw/siw/siw_qp_tx.c             | 15 +++--
  drivers/iommu/amd_iommu_init.c                    |  2 +-
- drivers/iommu/intel-iommu.c                       |  4 +-
- drivers/iommu/iommu.c                             |  2 +-
  drivers/iommu/qcom_iommu.c                        |  5 +-
  drivers/md/dm-mpath.c                             |  6 +-
  drivers/md/dm-verity-fec.c                        |  2 +-
@@ -359,12 +295,10 @@ Diffstat:
  fs/btrfs/relocation.c                             |  1 +
  fs/btrfs/transaction.c                            | 13 ++++-
  fs/btrfs/tree-log.c                               | 43 +++++++++++++-
- fs/io_uring.c                                     | 12 +++-
  fs/nfs/nfs3acl.c                                  | 22 ++++---
  fs/nfs/nfs4proc.c                                 |  8 +++
  fs/ocfs2/dlmfs/dlmfs.c                            | 27 ++++-----
  fs/super.c                                        |  2 +-
- include/linux/dmaengine.h                         |  4 +-
  include/linux/nfs_xdr.h                           |  2 +
  include/linux/sunrpc/clnt.h                       |  5 ++
  include/uapi/linux/dma-buf.h                      |  6 ++
@@ -377,6 +311,6 @@ Diffstat:
  sound/pci/hda/patch_realtek.c                     |  1 +
  sound/usb/line6/podhd.c                           | 22 ++-----
  sound/usb/quirks.c                                |  2 +-
- 78 files changed, 554 insertions(+), 297 deletions(-)
+ 60 files changed, 427 insertions(+), 233 deletions(-)
 
 
