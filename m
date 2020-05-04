@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B441C4412
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:04:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C074E1C4525
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731605AbgEDSEA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:04:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33154 "EHLO mail.kernel.org"
+        id S1731271AbgEDSCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:02:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731248AbgEDSD7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:03:59 -0400
+        id S1731267AbgEDSCE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:02:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46D38206B8;
-        Mon,  4 May 2020 18:03:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 202A720707;
+        Mon,  4 May 2020 18:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615437;
-        bh=weOp5lRMImzjIkZ/AdkR3ALQcAA4p+WjCCc80DbsP1Q=;
+        s=default; t=1588615323;
+        bh=wJZikCOwCgHtvasCHg+KWLI22Jg9cLD8ZEXCaOGAnRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ekKMfeggEdfIClbyoJCq573Qb1grBD2XTTy1E1DgWSFtLOGRixorxjnP2SBDpvHNP
-         IIbLPl2mEF3JzLBC0tELWvK7b+wpyxMgY98Lrw2xezfvDUt6S+1D+P1OAgXfdJ6TaW
-         cWnbrLTll8frNy7iU7pie6VC4fK9BAr1nkj+SNdA=
+        b=udOCnmHiy8zKkNbzIC/wIXexXlIH5g4wiHa6J1+EVppfGqGBPBjJpd+o0lluBkrAQ
+         8Km5XDmETjEmyxeJLHC5i1vY9eqCFiIWYNyfCzdlSEDborHBzyUDEJ8COsJaT44PpS
+         eQfcNetPfcoQ746Ty8TB9xvPnYiwpp+Ui8kGFg0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 5.4 39/57] RDMA/core: Prevent mixed use of FDs between shared ufiles
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 30/37] btrfs: fix partial loss of prealloc extent past i_size after fsync
 Date:   Mon,  4 May 2020 19:57:43 +0200
-Message-Id: <20200504165459.734622812@linuxfoundation.org>
+Message-Id: <20200504165451.410747989@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +43,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 0fb00941dc63990a10951146df216fc7b0e20bc2 upstream.
+commit f135cea30de5f74d5bfb5116682073841fb4af8f upstream.
 
-FDs can only be used on the ufile that created them, they cannot be mixed
-to other ufiles. We are lacking a check to prevent it.
+When we have an inode with a prealloc extent that starts at an offset
+lower than the i_size and there is another prealloc extent that starts at
+an offset beyond i_size, we can end up losing part of the first prealloc
+extent (the part that starts at i_size) and have an implicit hole if we
+fsync the file and then have a power failure.
 
-  BUG: KASAN: null-ptr-deref in atomic64_sub_and_test include/asm-generic/atomic-instrumented.h:1547 [inline]
-  BUG: KASAN: null-ptr-deref in atomic_long_sub_and_test include/asm-generic/atomic-long.h:460 [inline]
-  BUG: KASAN: null-ptr-deref in fput_many+0x1a/0x140 fs/file_table.c:336
-  Write of size 8 at addr 0000000000000038 by task syz-executor179/284
+Consider the following example with comments explaining how and why it
+happens.
 
-  CPU: 0 PID: 284 Comm: syz-executor179 Not tainted 5.5.0-rc5+ #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-   __dump_stack lib/dump_stack.c:77 [inline]
-   dump_stack+0x94/0xce lib/dump_stack.c:118
-   __kasan_report+0x18f/0x1b7 mm/kasan/report.c:510
-   kasan_report+0xe/0x20 mm/kasan/common.c:639
-   check_memory_region_inline mm/kasan/generic.c:185 [inline]
-   check_memory_region+0x15d/0x1b0 mm/kasan/generic.c:192
-   atomic64_sub_and_test include/asm-generic/atomic-instrumented.h:1547 [inline]
-   atomic_long_sub_and_test include/asm-generic/atomic-long.h:460 [inline]
-   fput_many+0x1a/0x140 fs/file_table.c:336
-   rdma_lookup_put_uobject+0x85/0x130 drivers/infiniband/core/rdma_core.c:692
-   uobj_put_read include/rdma/uverbs_std_types.h:96 [inline]
-   _ib_uverbs_lookup_comp_file drivers/infiniband/core/uverbs_cmd.c:198 [inline]
-   create_cq+0x375/0xba0 drivers/infiniband/core/uverbs_cmd.c:1006
-   ib_uverbs_create_cq+0x114/0x140 drivers/infiniband/core/uverbs_cmd.c:1089
-   ib_uverbs_write+0xaa5/0xdf0 drivers/infiniband/core/uverbs_main.c:769
-   __vfs_write+0x7c/0x100 fs/read_write.c:494
-   vfs_write+0x168/0x4a0 fs/read_write.c:558
-   ksys_write+0xc8/0x200 fs/read_write.c:611
-   do_syscall_64+0x9c/0x390 arch/x86/entry/common.c:294
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x44ef99
-  Code: 00 b8 00 01 00 00 eb e1 e8 74 1c 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c4 ff ff ff f7 d8 64 89 01 48
-  RSP: 002b:00007ffc0b74c028 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-  RAX: ffffffffffffffda RBX: 00007ffc0b74c030 RCX: 000000000044ef99
-  RDX: 0000000000000040 RSI: 0000000020000040 RDI: 0000000000000005
-  RBP: 00007ffc0b74c038 R08: 0000000000401830 R09: 0000000000401830
-  R10: 00007ffc0b74c038 R11: 0000000000000246 R12: 0000000000000000
-  R13: 0000000000000000 R14: 00000000006be018 R15: 0000000000000000
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
 
-Fixes: cf8966b3477d ("IB/core: Add support for fd objects")
-Link: https://lore.kernel.org/r/20200421082929.311931-2-leon@kernel.org
-Suggested-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+  # Create our test file with 2 consecutive prealloc extents, each with a
+  # size of 128Kb, and covering the range from 0 to 256Kb, with a file
+  # size of 0.
+  $ xfs_io -f -c "falloc -k 0 128K" /mnt/foo
+  $ xfs_io -c "falloc -k 128K 128K" /mnt/foo
+
+  # Fsync the file to record both extents in the log tree.
+  $ xfs_io -c "fsync" /mnt/foo
+
+  # Now do a redudant extent allocation for the range from 0 to 64Kb.
+  # This will merely increase the file size from 0 to 64Kb. Instead we
+  # could also do a truncate to set the file size to 64Kb.
+  $ xfs_io -c "falloc 0 64K" /mnt/foo
+
+  # Fsync the file, so we update the inode item in the log tree with the
+  # new file size (64Kb). This also ends up setting the number of bytes
+  # for the first prealloc extent to 64Kb. This is done by the truncation
+  # at btrfs_log_prealloc_extents().
+  # This means that if a power failure happens after this, a write into
+  # the file range 64Kb to 128Kb will not use the prealloc extent and
+  # will result in allocation of a new extent.
+  $ xfs_io -c "fsync" /mnt/foo
+
+  # Now set the file size to 256K with a truncate and then fsync the file.
+  # Since no changes happened to the extents, the fsync only updates the
+  # i_size in the inode item at the log tree. This results in an implicit
+  # hole for the file range from 64Kb to 128Kb, something which fsck will
+  # complain when not using the NO_HOLES feature if we replay the log
+  # after a power failure.
+  $ xfs_io -c "truncate 256K" -c "fsync" /mnt/foo
+
+So instead of always truncating the log to the inode's current i_size at
+btrfs_log_prealloc_extents(), check first if there's a prealloc extent
+that starts at an offset lower than the i_size and with a length that
+crosses the i_size - if there is one, just make sure we truncate to a
+size that corresponds to the end offset of that prealloc extent, so
+that we don't lose the part of that extent that starts at i_size if a
+power failure happens.
+
+A test case for fstests follows soon.
+
+Fixes: 31d11b83b96f ("Btrfs: fix duplicate extents after fsync of file with prealloc extents")
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/rdma_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/tree-log.c |   43 ++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 40 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/core/rdma_core.c
-+++ b/drivers/infiniband/core/rdma_core.c
-@@ -362,7 +362,7 @@ lookup_get_fd_uobject(const struct uverb
- 	 * and the caller is expected to ensure that uverbs_close_fd is never
- 	 * done while a call top lookup is possible.
- 	 */
--	if (f->f_op != fd_type->fops) {
-+	if (f->f_op != fd_type->fops || uobject->ufile != ufile) {
- 		fput(f);
- 		return ERR_PTR(-EBADF);
- 	}
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -4182,6 +4182,9 @@ static int btrfs_log_prealloc_extents(st
+ 	const u64 ino = btrfs_ino(inode);
+ 	struct btrfs_path *dst_path = NULL;
+ 	bool dropped_extents = false;
++	u64 truncate_offset = i_size;
++	struct extent_buffer *leaf;
++	int slot;
+ 	int ins_nr = 0;
+ 	int start_slot;
+ 	int ret;
+@@ -4196,9 +4199,43 @@ static int btrfs_log_prealloc_extents(st
+ 	if (ret < 0)
+ 		goto out;
+ 
++	/*
++	 * We must check if there is a prealloc extent that starts before the
++	 * i_size and crosses the i_size boundary. This is to ensure later we
++	 * truncate down to the end of that extent and not to the i_size, as
++	 * otherwise we end up losing part of the prealloc extent after a log
++	 * replay and with an implicit hole if there is another prealloc extent
++	 * that starts at an offset beyond i_size.
++	 */
++	ret = btrfs_previous_item(root, path, ino, BTRFS_EXTENT_DATA_KEY);
++	if (ret < 0)
++		goto out;
++
++	if (ret == 0) {
++		struct btrfs_file_extent_item *ei;
++
++		leaf = path->nodes[0];
++		slot = path->slots[0];
++		ei = btrfs_item_ptr(leaf, slot, struct btrfs_file_extent_item);
++
++		if (btrfs_file_extent_type(leaf, ei) ==
++		    BTRFS_FILE_EXTENT_PREALLOC) {
++			u64 extent_end;
++
++			btrfs_item_key_to_cpu(leaf, &key, slot);
++			extent_end = key.offset +
++				btrfs_file_extent_num_bytes(leaf, ei);
++
++			if (extent_end > i_size)
++				truncate_offset = extent_end;
++		}
++	} else {
++		ret = 0;
++	}
++
+ 	while (true) {
+-		struct extent_buffer *leaf = path->nodes[0];
+-		int slot = path->slots[0];
++		leaf = path->nodes[0];
++		slot = path->slots[0];
+ 
+ 		if (slot >= btrfs_header_nritems(leaf)) {
+ 			if (ins_nr > 0) {
+@@ -4236,7 +4273,7 @@ static int btrfs_log_prealloc_extents(st
+ 				ret = btrfs_truncate_inode_items(trans,
+ 							 root->log_root,
+ 							 &inode->vfs_inode,
+-							 i_size,
++							 truncate_offset,
+ 							 BTRFS_EXTENT_DATA_KEY);
+ 			} while (ret == -EAGAIN);
+ 			if (ret)
 
 
