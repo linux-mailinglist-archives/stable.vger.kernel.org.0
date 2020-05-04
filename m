@@ -2,158 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9315E1C3B9D
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 15:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B981C3BB6
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 15:50:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728233AbgEDNq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 09:46:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45408 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728116AbgEDNq7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 09:46:59 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B58EC061A0E
-        for <stable@vger.kernel.org>; Mon,  4 May 2020 06:46:58 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id s10so6800568plr.1
-        for <stable@vger.kernel.org>; Mon, 04 May 2020 06:46:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=XOQoC/vbYET30dfT5nVG1laoqEtme9wUqFZLMmsl0ZQ=;
-        b=sRZZ5C5ljYsLLIOKHTBYgV3FiyYX2JbF2qFg37/R4ezDTytIyeTNLx55x7UPxzLnNn
-         OViqK957RtitU0AOeXdzrTeCY1wtpbgOtJE9IPyY440/AIWirW7btXKaVOkUkXhcM+zH
-         VA+/rWcMuMc8aoANK1EOib8as4gioqxS637O5119qaHTd699sBuCFP8fEFXQHnpTQD+f
-         XD7Psa6wFpTUO4IurdnoX91dwEvyvQg3u8sIcqwte3Uj3kATLUlGGwlPC2uJp4Go+wSv
-         lAToEijJdI+6ds8B5P0tcHFdr/HEXt1sqzUQUV2g9wOM/mOWoA1VScObVJ/c09w+DFs0
-         1rGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=XOQoC/vbYET30dfT5nVG1laoqEtme9wUqFZLMmsl0ZQ=;
-        b=CJwW5ZHKK7b/zOT0E+dpD+f9CDoKHvNW12kFgoCJ5Ux2Snot7P9XXmi5BWN+hbonp6
-         DMqMvkIdQtOzWoJ8QxhY7tR+JxtIfTeJYZNa55cLZPvb9WEQGn0X5S9dlUd4QF+SjwR8
-         Q8kWy3DZzA0qr/dhlQYnTy0YyDt0p6FqtolI7y9Jks1CkKpEOvu+iasMxCrQEFywP9GC
-         6UIJP3N8vV9RrfEJjupruB4ZzJ93X99lHWCnsitRW2zI4xt4jGea8EQFkoUlIflsf0QS
-         yMUpYqcjwQj7WRHQbWTkuX7NGacXRhYnWAL+/X+inRdpCGdD8LnkM9hO/9S9JXjHJ6X1
-         aHYA==
-X-Gm-Message-State: AGi0PublmZGEI5RSumm4ZIpRJ9G7pLe+eKjAtGfEkhAZlP7hdGxp9o1N
-        sHkYXL3UI/WRrE/qE6cPaN0TkZMy6Car8w==
-X-Google-Smtp-Source: APiQypLCg+MZazJXA+Eu/sdo3z16q8gwOaI/fQxnAKosM/n8g/Ku0ChCYQoBFMSfhj8cseZyul7YTQ==
-X-Received: by 2002:a17:90a:3422:: with SMTP id o31mr17561234pjb.18.1588600017840;
-        Mon, 04 May 2020 06:46:57 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.145])
-        by smtp.gmail.com with ESMTPSA id m12sm3773181pgj.46.2020.05.04.06.46.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 May 2020 06:46:57 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] io_uring: statx must grab the file table
- for valid fd" failed to apply to 5.6-stable tree
-To:     gregkh@linuxfoundation.org, bugs@claycon.org
-Cc:     stable@vger.kernel.org
-References: <1588586161159248@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <a4390838-d86d-2b0e-ec18-12ee0b74ab7f@kernel.dk>
-Date:   Mon, 4 May 2020 07:46:56 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1727831AbgEDNui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 09:50:38 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:62027 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726922AbgEDNui (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 09:50:38 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21106861-1500050 
+        for multiple; Mon, 04 May 2020 14:50:34 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     tvrtko.ursulin@intel.com, lionel.g.landwerlin@intel.com,
+        kenneth@whitecape.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/6] drm/i915: Mark concurrent submissions with a weak-dependency
+Date:   Mon,  4 May 2020 14:50:25 +0100
+Message-Id: <20200504135030.19210-2-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200504135030.19210-1-chris@chris-wilson.co.uk>
+References: <20200504135030.19210-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-In-Reply-To: <1588586161159248@kroah.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/4/20 3:56 AM, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.6-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
+correctly perform priority inheritance from the parallel branches to the
+common trunk. However, for the purpose of timeslicing and reset
+handling, the dependency is weak -- as we the pair of requests are
+allowed to run in parallel and not in strict succession. So for example
+we do need to suspend one if the other hangs.
 
-Here's a 5.6 backport.
+The real significance though is that this allows us to rearrange
+groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
+so can resolve user level inter-batch scheduling dependencies from user
+semaphores.
 
-
-From 5b0bbee4732cbd58aa98213d4c11a366356bba3d Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Mon, 27 Apr 2020 10:41:22 -0600
-Subject: [PATCH] io_uring: statx must grab the file table for valid fd
-
-Clay reports that OP_STATX fails for a test case with a valid fd
-and empty path:
-
- -- Test 0: statx:fd 3: SUCCEED, file mode 100755
- -- Test 1: statx:path ./uring_statx: SUCCEED, file mode 100755
- -- Test 2: io_uring_statx:fd 3: FAIL, errno 9: Bad file descriptor
- -- Test 3: io_uring_statx:path ./uring_statx: SUCCEED, file mode 100755
-
-This is due to statx not grabbing the process file table, hence we can't
-lookup the fd in async context. If the fd is valid, ensure that we grab
-the file table so we can grab the file from async context.
-
-Cc: stable@vger.kernel.org # v5.6
-Reported-by: Clay Harris <bugs@claycon.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
+Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.6+
 ---
+ drivers/gpu/drm/i915/gt/intel_lrc.c         | 9 +++++++++
+ drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
+ drivers/gpu/drm/i915/i915_scheduler.c       | 4 +++-
+ drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
+ drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
+ 5 files changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a46de2cfc28e..38b25f599896 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -479,6 +479,7 @@ enum {
- 	REQ_F_COMP_LOCKED_BIT,
- 	REQ_F_NEED_CLEANUP_BIT,
- 	REQ_F_OVERFLOW_BIT,
-+	REQ_F_NO_FILE_TABLE_BIT,
- };
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index d4ef344657b0..a47e4e15cbaa 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1883,6 +1883,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
+ 			struct i915_request *w =
+ 				container_of(p->waiter, typeof(*w), sched);
  
- enum {
-@@ -521,6 +522,8 @@ enum {
- 	REQ_F_NEED_CLEANUP	= BIT(REQ_F_NEED_CLEANUP_BIT),
- 	/* in overflow list */
- 	REQ_F_OVERFLOW		= BIT(REQ_F_OVERFLOW_BIT),
-+	/* doesn't need file table for this request */
-+	REQ_F_NO_FILE_TABLE	= BIT(REQ_F_NO_FILE_TABLE_BIT),
- };
++			if (p->flags & I915_DEPENDENCY_WEAK)
++				continue;
++
+ 			/* Leave semaphores spinning on the other engines */
+ 			if (w->engine != rq->engine)
+ 				continue;
+@@ -2729,6 +2732,9 @@ static void __execlists_hold(struct i915_request *rq)
+ 			struct i915_request *w =
+ 				container_of(p->waiter, typeof(*w), sched);
  
- /*
-@@ -711,6 +714,7 @@ static const struct io_op_def io_op_defs[] = {
- 		.needs_file		= 1,
- 		.fd_non_neg		= 1,
- 		.needs_fs		= 1,
-+		.file_table		= 1,
- 	},
- 	[IORING_OP_READ] = {
- 		.needs_mm		= 1,
-@@ -2843,8 +2847,12 @@ static int io_statx(struct io_kiocb *req, struct io_kiocb **nxt,
- 	struct kstat stat;
- 	int ret;
++			if (p->flags & I915_DEPENDENCY_WEAK)
++				continue;
++
+ 			/* Leave semaphores spinning on the other engines */
+ 			if (w->engine != rq->engine)
+ 				continue;
+@@ -2853,6 +2859,9 @@ static void __execlists_unhold(struct i915_request *rq)
+ 			struct i915_request *w =
+ 				container_of(p->waiter, typeof(*w), sched);
  
--	if (force_nonblock)
-+	if (force_nonblock) {
-+		/* only need file table for an actual valid fd */
-+		if (ctx->dfd == -1 || ctx->dfd == AT_FDCWD)
-+			req->flags |= REQ_F_NO_FILE_TABLE;
- 		return -EAGAIN;
-+	}
- 
- 	if (vfs_stat_set_lookup_flags(&lookup_flags, ctx->how.flags))
- 		return -EINVAL;
-@@ -4632,7 +4640,7 @@ static int io_grab_files(struct io_kiocb *req)
- 	int ret = -EBADF;
- 	struct io_ring_ctx *ctx = req->ctx;
- 
--	if (req->work.files)
-+	if (req->work.files || (req->flags & REQ_F_NO_FILE_TABLE))
++			if (p->flags & I915_DEPENDENCY_WEAK)
++				continue;
++
+ 			/* Propagate any change in error status */
+ 			if (rq->fence.error)
+ 				i915_request_set_error_once(w, rq->fence.error);
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 22635bbabf06..95edc5523a01 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -1038,7 +1038,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
  		return 0;
- 	if (!ctx->ring_file)
- 		return -EBADF;
-
+ 
+ 	if (to->engine->schedule) {
+-		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
++		ret = i915_sched_node_add_dependency(&to->sched,
++						     &from->sched,
++						     0);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+@@ -1200,7 +1202,9 @@ __i915_request_await_execution(struct i915_request *to,
+ 
+ 	/* Couple the dependency tree for PI on this exposed to->fence */
+ 	if (to->engine->schedule) {
+-		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
++		err = i915_sched_node_add_dependency(&to->sched,
++						     &from->sched,
++						     I915_DEPENDENCY_WEAK);
+ 		if (err < 0)
+ 			return err;
+ 	}
+diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
+index 37cfcf5b321b..5f4c1e49e974 100644
+--- a/drivers/gpu/drm/i915/i915_scheduler.c
++++ b/drivers/gpu/drm/i915/i915_scheduler.c
+@@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
+ }
+ 
+ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+-				   struct i915_sched_node *signal)
++				   struct i915_sched_node *signal,
++				   unsigned long flags)
+ {
+ 	struct i915_dependency *dep;
+ 
+@@ -473,6 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+ 	local_bh_disable();
+ 
+ 	if (!__i915_sched_node_add_dependency(node, signal, dep,
++					      flags |
+ 					      I915_DEPENDENCY_EXTERNAL |
+ 					      I915_DEPENDENCY_ALLOC))
+ 		i915_dependency_free(dep);
+diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
+index d1dc4efef77b..6f0bf00fc569 100644
+--- a/drivers/gpu/drm/i915/i915_scheduler.h
++++ b/drivers/gpu/drm/i915/i915_scheduler.h
+@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
+ 				      unsigned long flags);
+ 
+ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+-				   struct i915_sched_node *signal);
++				   struct i915_sched_node *signal,
++				   unsigned long flags);
+ 
+ void i915_sched_node_fini(struct i915_sched_node *node);
+ 
+diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
+index d18e70550054..7186875088a0 100644
+--- a/drivers/gpu/drm/i915/i915_scheduler_types.h
++++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
+@@ -78,6 +78,7 @@ struct i915_dependency {
+ 	unsigned long flags;
+ #define I915_DEPENDENCY_ALLOC		BIT(0)
+ #define I915_DEPENDENCY_EXTERNAL	BIT(1)
++#define I915_DEPENDENCY_WEAK		BIT(2)
+ };
+ 
+ #endif /* _I915_SCHEDULER_TYPES_H_ */
 -- 
-Jens Axboe
+2.20.1
 
