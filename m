@@ -2,238 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AAAF1C3204
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 07:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0E9D1C321C
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 07:15:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726751AbgEDFAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 01:00:32 -0400
-Received: from mx0a-00190b01.pphosted.com ([67.231.149.131]:13652 "EHLO
-        mx0a-00190b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725859AbgEDFAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 01:00:31 -0400
-Received: from pps.filterd (m0050095.ppops.net [127.0.0.1])
-        by m0050095.ppops.net-00190b01. (8.16.0.42/8.16.0.42) with SMTP id 0444wakD003458;
-        Mon, 4 May 2020 05:59:27 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=subject : from : to :
- cc : references : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=jan2016.eng;
- bh=fmpig0yn0d2DMHi1ULj0wEL9TmtVthnvE+yUNwWMGJk=;
- b=UMUyvbIM0p5qqHL4U0JnKbcSSqKk+bVZ6jNe/Gkp0gTfI48jgnDCBGS6WvI9Jvghx8q3
- wuEWukcK3kYzvHNC3WxBQSiGu5ijr/Jmu7OXVdc4igAUy4frdI0pT9ZfQ6O6kbEM2uVt
- pdlprazMjtdOO3YoV2D4InfVOJJH0iss7y/TbjUEjdMuAyyclQLGZvJ/Ly00ihS3ymV7
- TNHOiqCPL+76CS6ieiNQTxkXhz71Zonsu8sio9H2RDtFJpNzrjgyLzqIu4s+pqrEWvXT
- x5cYq6zwxsMe2XDEEfJ8/2u0EYrWBj+IQ6m248mUrx87vfW+sDTjXiZPlo8i1bWjW3WQ 0g== 
-Received: from prod-mail-ppoint7 (a72-247-45-33.deploy.static.akamaitechnologies.com [72.247.45.33] (may be forged))
-        by m0050095.ppops.net-00190b01. with ESMTP id 30s0d6j3x6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 May 2020 05:59:27 +0100
-Received: from pps.filterd (prod-mail-ppoint7.akamai.com [127.0.0.1])
-        by prod-mail-ppoint7.akamai.com (8.16.0.27/8.16.0.27) with SMTP id 0444lcji031818;
-        Mon, 4 May 2020 00:59:26 -0400
-Received: from prod-mail-relay15.akamai.com ([172.27.17.40])
-        by prod-mail-ppoint7.akamai.com with ESMTP id 30t9u5gy17-1;
-        Mon, 04 May 2020 00:59:25 -0400
-Received: from [0.0.0.0] (prod-ssh-gw01.bos01.corp.akamai.com [172.27.119.138])
-        by prod-mail-relay15.akamai.com (Postfix) with ESMTP id 329B9230B2;
-        Mon,  4 May 2020 04:59:25 +0000 (GMT)
-Subject: Re: [PATCH] epoll: ensure ep_poll() doesn't miss wakeup events
-From:   Jason Baron <jbaron@akamai.com>
-To:     Roman Penyaev <rpenyaev@suse.de>
-Cc:     akpm@linux-foundation.org, linux-kernel@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Davidlohr Bueso <dbueso@suse.de>, stable@vger.kernel.org
-References: <1588360533-11828-1-git-send-email-jbaron@akamai.com>
- <930c565705249d2b6264a31f1be6529e@suse.de>
- <81612721-9448-83fa-4efe-603996d56b9a@akamai.com>
- <f3c2e63ec34a611ec256785ebfd39270@suse.de>
- <842aa331-b650-bf99-8ea9-b5d3e0866054@akamai.com>
-Message-ID: <8632df62-7475-3328-4a38-95462fbc410d@akamai.com>
-Date:   Mon, 4 May 2020 00:59:24 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1726635AbgEDFO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 01:14:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50520 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725956AbgEDFO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 01:14:57 -0400
+Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54126C061A0F
+        for <stable@vger.kernel.org>; Sun,  3 May 2020 22:14:57 -0700 (PDT)
+Received: by mail-lf1-x143.google.com with SMTP id j14so8582197lfg.9
+        for <stable@vger.kernel.org>; Sun, 03 May 2020 22:14:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=9nzgDEWH6ImkLnYSJ3bM0OeaWawCZqATcdJo5AhI5iw=;
+        b=UrYbd+ItU8UZTZCGOdlJqu9SK5CnqUpTadX1qm4yE1HQBwzJB3TsRjs1O+Zqo9Ea1m
+         DAkeALp1NgYhyz+KMKWDZqpSF4f08SaeI+p4oIoPiIG/CxTL1Zo6yIOKcCPy94a7CWqA
+         Hm0e/2K1lDfe7pQTADz6TidPKpfVVsZhOoq60RpHrZe1LrMBCqlTBSZqaxXIvRRSCH16
+         pNWEYNgbyLxqreNPkpMPTOVFfaklho3FGUxD8yLbsGljo5BAqGouoxCHC/ognRQkt2y/
+         yiMEHbFDntyZR69fGkFH3ymxiWipAxphWyZxc1HGBVMPvirubnQHD9TrRi0g74LsEnDw
+         Xwyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=9nzgDEWH6ImkLnYSJ3bM0OeaWawCZqATcdJo5AhI5iw=;
+        b=Z59iIAbYzANBUdQXoAO06nCXxQXtPqdvwe8ptMhTWC4NcN0ygF8OuHyha0PcoTqYum
+         xGZkdki0H4w2yzMMA/0KKzg5ND0n9wFhDkml1u2tOk5uCmDFufJmJ7uBWNi8XgG8jFk9
+         AW0CM0n38T0CudqR8c2KaF87WBZCYERsT7ngb70J2UkBjKeGlcIvydSxbrDQqxwr3don
+         YobtuogBpkXa3jAmJny5xlCU7A3cw/9utd51n+Te8pEKqogGYye7RQnYhUyz7INL+Nnb
+         Cq9TlnLCMUjVMFXDKw7874l4DV5HwNxwgyjS5jbUi+JktKVxpbtH4Xw+Pd1mhYP9OW6l
+         DIIw==
+X-Gm-Message-State: AGi0PuZ+eHirs5C8UAFkxNw4Qteh9lZgetukxPupYdPnlv99gtkzrCsJ
+        OqHvuujWkei2g57krGQa1Aq9bYnf2snCgTt89Z9JKg==
+X-Google-Smtp-Source: APiQypIfBTBj9zSfUgCJxCm8ewLxuAOCxL6IVRaKyx8Dozauou+uabe1f080+DzXfSj/QLmvjG7yLnUORjgBEa1BmqQ=
+X-Received: by 2002:a19:4883:: with SMTP id v125mr10222444lfa.95.1588569295652;
+ Sun, 03 May 2020 22:14:55 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <842aa331-b650-bf99-8ea9-b5d3e0866054@akamai.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-05-04_02:2020-05-01,2020-05-04 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-2002250000 definitions=main-2005040040
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-05-04_02:2020-05-01,2020-05-04 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1015 spamscore=0 bulkscore=0
- mlxlogscore=999 priorityscore=1501 mlxscore=0 malwarescore=0
- lowpriorityscore=0 adultscore=0 phishscore=0 suspectscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2005040041
+References: <20200502064235.767298413@linuxfoundation.org>
+In-Reply-To: <20200502064235.767298413@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 4 May 2020 10:44:44 +0530
+Message-ID: <CA+G9fYvreWQUzd3tu8yRADb5=zFs5eQ7kpHoMB+iHQg_kkL+BA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/47] 4.19.120-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, 2 May 2020 at 12:18, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.120 release.
+> There are 47 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Mon, 04 May 2020 06:40:34 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.120-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
 
-On 5/4/20 12:29 AM, Jason Baron wrote:
-> 
-> 
-> On 5/3/20 6:24 AM, Roman Penyaev wrote:
->> On 2020-05-02 00:09, Jason Baron wrote:
->>> On 5/1/20 5:02 PM, Roman Penyaev wrote:
->>>> Hi Jason,
->>>>
->>>> That is indeed a nice catch.
->>>> Seems we need smp_rmb() pair between list_empty_careful(&rp->rdllist) and
->>>> READ_ONCE(ep->ovflist) for ep_events_available(), do we?
->>>>
->>>
->>> Hi Roman,
->>>
->>> Good point, even if we order those reads its still racy, since the
->>> read of the ready list could come after its been cleared and the
->>> read of the overflow could again come after its been cleared.
->>
->> You mean the second chunk? True. Sigh.
->>
->>> So I'm afraid we might need instead something like this to make
->>> sure they are read together:
->>
->> No, impossible, I can't believe in that :) We can't give up.
->>
->> All we need is to keep a mark, that ep->rdllist is not empty,
->> even we've just spliced it.  ep_poll_callback() always takes
->> the ->ovflist path, if ->ovflist is not EP_UNACTIVE_PTR, but
->> ep_events_available() does not need to observe ->ovflist at
->> all, just a ->rdllist.
->>
->> Take a look at that, do I miss something? :
->>
->> diff --git a/fs/eventpoll.c b/fs/eventpoll.c
->> index aba03ee749f8..a8770f9a917e 100644
->> --- a/fs/eventpoll.c
->> +++ b/fs/eventpoll.c
->> @@ -376,8 +376,7 @@ static void ep_nested_calls_init(struct nested_calls *ncalls)
->>   */
->>  static inline int ep_events_available(struct eventpoll *ep)
->>  {
->> -       return !list_empty_careful(&ep->rdllist) ||
->> -               READ_ONCE(ep->ovflist) != EP_UNACTIVE_PTR;
->> +       return !list_empty_careful(&ep->rdllist);
->>  }
->>
->>  #ifdef CONFIG_NET_RX_BUSY_POLL
->> @@ -683,7 +682,8 @@ static __poll_t ep_scan_ready_list(struct eventpoll *ep,
->>  {
->>         __poll_t res;
->>         struct epitem *epi, *nepi;
->> -       LIST_HEAD(txlist);
->> +       LIST_HEAD(rdllist);
->> +       LIST_HEAD(ovflist);
->>
->>         lockdep_assert_irqs_enabled();
->>
->> @@ -704,14 +704,22 @@ static __poll_t ep_scan_ready_list(struct eventpoll *ep,
->>          * in a lockless way.
->>          */
->>         write_lock_irq(&ep->lock);
->> -       list_splice_init(&ep->rdllist, &txlist);
->> +       /*
->> +        * We do not call list_splice_init() because for lockless
->> +        * ep_events_available() ->rdllist is still "not empty".
->> +        * Otherwise the feature that there is something left in
->> +        * the list can be lost which causes missed wakeup.
->> +        */
->> +       list_splice(&ep->rdllist, &rdllist);
->> +       /*
->> +        * If ->rdllist was empty we should pretend it was not,
->> +        * because after the unlock ->ovflist comes into play,
->> +        * which is invisible for lockless ep_events_available().
->> +        */
->> +       ep->rdllist.next = LIST_POISON1;
->>         WRITE_ONCE(ep->ovflist, NULL);
->>         write_unlock_irq(&ep->lock);
->>
->>         /*
->>          * Now call the callback function.
->>          */
->> -       res = (*sproc)(ep, &txlist, priv);
->> +       res = (*sproc)(ep, &rdllist, priv);
->>
->>         write_lock_irq(&ep->lock);
->>         /*
->> @@ -724,7 +732,7 @@ static __poll_t ep_scan_ready_list(struct eventpoll *ep,
->>                 /*
->>                  * We need to check if the item is already in the list.
->>                  * During the "sproc" callback execution time, items are
->> -                * queued into ->ovflist but the "txlist" might already
->> +                * queued into ->ovflist but the "rdllist" might already
->>                  * contain them, and the list_splice() below takes care of them.
->>                  */
->>                 if (!ep_is_linked(epi)) {
->> @@ -732,7 +740,7 @@ static __poll_t ep_scan_ready_list(struct eventpoll *ep,
->>                          * ->ovflist is LIFO, so we have to reverse it in order
->>                          * to keep in FIFO.
->>                          */
->> -                       list_add(&epi->rdllink, &ep->rdllist);
->> +                       list_add(&epi->rdllink, &ovflist);
->>                         ep_pm_stay_awake(epi);
->>                 }
->>         }
->> @@ -743,10 +751,11 @@ static __poll_t ep_scan_ready_list(struct eventpoll *ep,
->>          */
->>         WRITE_ONCE(ep->ovflist, EP_UNACTIVE_PTR);
->>
->> -       /*
->> -        * Quickly re-inject items left on "txlist".
->> -        */
->> -       list_splice(&txlist, &ep->rdllist);
->> +       /* Events from ->ovflist happened later, thus splice to the tail */
->> +       list_splice_tail(&ovflist, &rdllist);
->> +       /* Just replace list */
->> +       list_replace(&rdllist, &ep->rdllist);
->> +
->>         __pm_relax(ep->ws);
->>         write_unlock_irq(&ep->lock);
->>
->> @@ -1763,13 +1772,13 @@ static __poll_t ep_send_events_proc(struct eventpoll *ep, struct list_head *head
->>                          * Trigger mode, we need to insert back inside
->>                          * the ready list, so that the next call to
->>                          * epoll_wait() will check again the events
->> -                        * availability. At this point, no one can insert
->> -                        * into ep->rdllist besides us. The epoll_ctl()
->> -                        * callers are locked out by
->> -                        * ep_scan_ready_list() holding "mtx" and the
->> -                        * poll callback will queue them in ep->ovflist.
->> +                        * availability. What we do here is simply
->> +                        * return the epi to the same position where
->> +                        * it was, the ep_scan_ready_list() will
->> +                        * re-inject the leftovers to the ->rdllist
->> +                        * under the proper lock.
->>                          */
->> -                       list_add_tail(&epi->rdllink, &ep->rdllist);
->> +                       list_add_tail(&epi->rdllink, &tmp->rdllink);
->>                         ep_pm_stay_awake(epi);
->>                 }
->>         }
->>
->>
->> -- 
->> Roman
->>
-> 
-> 
-> Hi Roman,
-> 
-> I think this misses an important case - the initial ep_poll_callback()
-> may queue to the overflow list. In this case ep_poll has no visibility
-> into the event since its only checking ep->rdllist.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Ok, my mistake - I see it sets: ep->rdllist.next = LIST_POISON1; for that
-case. Ok I think this approach makes sense then.
+Summary
+------------------------------------------------------------------------
 
-Thanks,
+kernel: 4.19.120
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: fdc072324f3c66190a20f57490b4842a391d8233
+git describe: v4.19.120
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.120
 
--Jason
+No regressions (compared to build v4.19.120)
+
+No fixes (compared to build v4.19.120)
+
+Ran 26686 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* kselftest/networking
+* linux-log-parser
+* perf
+* libhugetlbfs
+* ltp-commands-tests
+* ltp-cve-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* network-basic-tests
+* v4l2-compliance
+* ltp-cap_bounds-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fs-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-open-posix-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-native/networking
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+* kselftest-vsyscall-mode-none/networking
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
