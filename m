@@ -2,108 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2436F1C3CF6
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 16:27:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 728941C3DA8
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 16:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728983AbgEDO1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 10:27:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728434AbgEDO1c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 10:27:32 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB008C061A0E
-        for <stable@vger.kernel.org>; Mon,  4 May 2020 07:27:31 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id u16so9300733wmc.5
-        for <stable@vger.kernel.org>; Mon, 04 May 2020 07:27:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=monstr-eu.20150623.gappssmtp.com; s=20150623;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=R8hMysgCANDxPI0D+IpQRpi6VaDo+fsmsuFYs+cuTuA=;
-        b=sCyOY7cWz+Zih2Gcur3hgcfiu3oSiZBTIp0cZmq5uKEDB6IrRn9BCNvLxR0Y2FnQ75
-         J/sWlpL8ZM/H2nEmr1COYKz40Odhyre7AgPfsXQpuO/yVTvFrL7svixV/hPPXLFe76NL
-         a5ZxjdqpicIx5Ol0TULum1FfemlP16K3/LeIY6MvaApt2ME7+3l3YC+1xxuqIB3+2AXc
-         RgQkc912evPAICrllpKV+xm0uyGmeiHBUw2pviROwFNmFGQMeMlbHDH+To1RM+10fxCp
-         PtzF1sTkIAtzaTNVqC2EXQGruoXv5gwMTh5A5y1Jlrv5srccEch/nFZZN7jXn7v8L8r6
-         FHpg==
+        id S1728367AbgEDOzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 10:55:16 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:40509 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727819AbgEDOzP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 10:55:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588604113;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=3AdIoxC25r7jO/Pdtv3nZcFN5tMrEVw7Ox5wknWjVNE=;
+        b=gZn6RF7LuyR2tdhk2i3tMKrNA+Y7RV6k24K3xpXDW42LMF6MNRYW8JgRyIUtuqaNxusIeA
+        qq0SvtztLHj+zlqnxX48gb38gItILuJLpVD1B8McyhMMbmFJL/XxXfHYYAqLIpFg46A/VS
+        213xFNiodcpdlsQt9mdgApin3xmLx+E=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-103-yYK2rI9ENkmjvdrCxk6_og-1; Mon, 04 May 2020 10:55:11 -0400
+X-MC-Unique: yYK2rI9ENkmjvdrCxk6_og-1
+Received: by mail-wr1-f69.google.com with SMTP id p8so92284wrj.5
+        for <stable@vger.kernel.org>; Mon, 04 May 2020 07:55:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=R8hMysgCANDxPI0D+IpQRpi6VaDo+fsmsuFYs+cuTuA=;
-        b=OdlJdADKW6ggPvNTb9dXbh1DnGjSBHIF32b7nfjq/jO1dH2Pn3Az2yxsemTujzvYN/
-         RLn5wiVZPV0HXyXVJ1dhzUkFFpJvqbmXrMA0AhaDC7DqcgJDY+EqeW5oGwH1b1KXYyhQ
-         P8ns6UF3NXqxuu5DvDCPVtOc6YBtbfVvTyGcoBwvWz/nIwmLCmk74EhFJ6gszIW0ia+t
-         wnDhk35SK4+BYmYL2NesQlxc3UmF2SafL5JOra0BgvrZKJNtnzWL7WGuIjaAIWIH2cP3
-         /xwIHe4+ZhGw3AbKEkr7A9gWE1nCy8/5ts4mmN7QP3FZntZgvbhrX7XbPJr6Z1M0HAMH
-         fTiA==
-X-Gm-Message-State: AGi0PuamDqgHuY7BHz1i7VXPhotjPlX5KZFwM0v0cf98lq8JQD1j+AnB
-        bLe7xR8Q6eZKpGNt3Mg/rKw1Fw==
-X-Google-Smtp-Source: APiQypJvPehbbUthQvX9YGeEq+Ipj4rzULCq/PSfWLN7t0/wgJVu4JxunEJ5TD5rohgmepaA63orXw==
-X-Received: by 2002:a1c:1bcb:: with SMTP id b194mr15744884wmb.4.1588602450462;
-        Mon, 04 May 2020 07:27:30 -0700 (PDT)
-Received: from localhost (nat-35.starnet.cz. [178.255.168.35])
-        by smtp.gmail.com with ESMTPSA id g6sm19438716wrw.34.2020.05.04.07.27.29
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 04 May 2020 07:27:29 -0700 (PDT)
-From:   Michal Simek <michal.simek@xilinx.com>
-To:     linux-kernel@vger.kernel.org, monstr@monstr.eu,
-        michal.simek@xilinx.com, git@xilinx.com, stable@vger.kernel.org
-Cc:     Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        linux-arm-kernel@lists.infradead.org, linux-serial@vger.kernel.org
-Subject: [PATCH v2] tty: xilinx_uartps: Fix missing id assignment to the console
-Date:   Mon,  4 May 2020 16:27:28 +0200
-Message-Id: <ed3111533ef5bd342ee5ec504812240b870f0853.1588602446.git.michal.simek@xilinx.com>
-X-Mailer: git-send-email 2.26.2
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3AdIoxC25r7jO/Pdtv3nZcFN5tMrEVw7Ox5wknWjVNE=;
+        b=IAkHRch7mqKxNTbqFARu5p3xUb1tPMQOBBvdBPvhil0lvwpygb3ZslzYp66obAl3ex
+         Wd1pM58WZrrj47nE87UQXq4SzoVJS2j7g7WPM6xOAhfLfyE9+TbvZfD7LwGwdsFpUQf1
+         cRwXQvpoI7Do9a8b/cjp/KdUWy9OvIjdGTWvglzULPpyzBHuGz6JhoDm6hQZFT2n/cp7
+         06dJepeRxqR/xGY2w9pOSzT9W+zMwxfIgNJ3XzcAEmpudOIUrhCJNhYI6fAidTdeBir/
+         1i7HzFFyvp4NXlaYqAh/k/7iOixCSP0rBdFWQVd9cQnDgJFC7Bwjvc/xHS3ZAVQ7xi8+
+         5WPA==
+X-Gm-Message-State: AGi0PuYHL8g9MtwkhqxdPS+qZgZuBTKapbzpGXeZpmJBuKjw6ZZpBRIY
+        wLvAC7noSG21VIBRjDUolW0QCXD9ym0tzbmLQQUQr8Ee4017A6mnS1BiWecy9ebGEYm9DDIY4OB
+        H75aMKBZIs6/xW+29
+X-Received: by 2002:a5d:6584:: with SMTP id q4mr21448535wru.403.1588604109874;
+        Mon, 04 May 2020 07:55:09 -0700 (PDT)
+X-Google-Smtp-Source: APiQypJtCDadA0Me7xawY37NL+GzfwqqIbbwQSm4VPOWLLN2eI0jrq/ItNfvETO74HKCEfeCJH03kw==
+X-Received: by 2002:a5d:6584:: with SMTP id q4mr21448446wru.403.1588604109110;
+        Mon, 04 May 2020 07:55:09 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id k14sm19162025wrp.53.2020.05.04.07.55.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 04 May 2020 07:55:08 -0700 (PDT)
+Subject: Re: [PATCH] pinctrl: cherryview: Ensure _REG(ACPI_ADR_SPACE_GPIO, 1)
+ gets called
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20200429104651.63643-1-hdegoede@redhat.com>
+ <20200429142159.GJ185537@smile.fi.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <413bfc53-e3cb-aac1-2e3d-3eec9ed5a304@redhat.com>
+Date:   Mon, 4 May 2020 16:55:07 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200429142159.GJ185537@smile.fi.intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Hi,
 
-When serial console has been assigned to ttyPS1 (which is serial1 alias)
-console index is not updated property and pointing to index -1 (statically
-initialized) which ends up in situation where nothing has been printed on
-the port.
+On 4/29/20 4:21 PM, Andy Shevchenko wrote:
+> On Wed, Apr 29, 2020 at 12:46:51PM +0200, Hans de Goede wrote:
+>> On Cherry Trail devices there are 2 possible ACPI OpRegions for
+>> accessing GPIOs. The standard GeneralPurposeIo OpRegion and the Cherry
+>> Trail specific UserDefined 0x9X OpRegions.
+>>
+>> Having 2 different types of OpRegions leads to potential issues with
+>> checks for OpRegion availability, or in other words checks if _REG has
+>> been called for the OpRegion which the ACPI code wants to use.
+>>
+>> The ACPICA core does not call _REG on an ACPI node which does not
+>> define an OpRegion matching the type being registered; and the reference
+>> design DSDT, from which most Cherry Trail DSDTs are derived, does not
+>> define GeneralPurposeIo, nor UserDefined(0x93) OpRegions for the GPO2
+>> (UID 3) device, because no pins were assigned ACPI controlled functions
+>> in the reference design.
+>>
+>> Together this leads to the perfect storm, at least on the Cherry Trail
+>> based Medion Akayo E1239T. This design does use a GPO2 pin from its ACPI
+>> code and has added the Cherry Trail specific UserDefined(0x93) opregion
+>> to its GPO2 ACPI node to access this pin.
+>>
+>> But it uses a has _REG been called availability check for the standard
+>> GeneralPurposeIo OpRegion. This clearly is a bug in the DSDT, but this
+>> does work under Windows. This issue leads to the intel_vbtn driver
+>> reporting the device always being in tablet-mode at boot, even if it
+>> is in laptop mode. Which in turn causes userspace to ignore touchpad
+>> events. So iow this issues causes the touchpad to not work at boot.
+>>
+>> Since the bug in the DSDT stems from the confusion of having 2 different
+>> OpRegion types for accessing GPIOs on Cherry Trail devices, I believe
+>> that this is best fixed inside the cherryview pinctrl driver.
+>>
+>> This commit adds a workaround to the cherryview pinctrl driver so
+>> that the DSDT's expectations of _REG always getting called for the
+>> GeneralPurposeIo OpRegion are met.
+> 
+> s/cherryview/Cherryview/g
 
-The commit 18cc7ac8a28e ("Revert "serial: uartps: Register own uart console
-and driver structures"") didn't contain this line which was removed by
-accident.
+Fixed for v2.
 
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
----
+> 
+> ...
+> 
+>> +	if (acpi_has_method(adev->handle, "_REG")) {
+> 
+> And this check si redundant, you may call it as is (you didn't check for error
+> anyway), see also below.
 
-Changes in v2:
-- Do better commit description
-- Origin subject was "tty: xilinx_uartps: Add the id to the console"
+Good point, also dropped for v2.
 
-Greg: Would be good if you can take this patch to 5.7 and also to stable
-trees.
+>> +		struct acpi_object_list input;
+>> +		union acpi_object params[2];
+>> +
+>> +		input.count = 2;
+>> +		input.pointer = params;
+>> +		params[0].type = ACPI_TYPE_INTEGER;
+>> +		params[0].integer.value = ACPI_ADR_SPACE_GPIO;
+>> +		params[1].type = ACPI_TYPE_INTEGER;
+>> +		params[1].integer.value = 1;
+>> +		acpi_evaluate_object(adev->handle, "_REG", &input, NULL);
+>> +	}
+> 
+> Can you consider to unify this with one in drivers/pci/hotplug/acpiphp_glue.c,
+> so we will have some helper function at the end? (perhaps as separate changes
+> to make less burden on backporting this one)
 
----
- drivers/tty/serial/xilinx_uartps.c | 1 +
- 1 file changed, 1 insertion(+)
+I think that for backporting it is best to keep this patch as is
+(with your other comments addresed). Also this way this can hopefully
+be merged for a 5.7-rc# candidate.
 
-diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
-index 672cfa075e28..b9d672af8b65 100644
---- a/drivers/tty/serial/xilinx_uartps.c
-+++ b/drivers/tty/serial/xilinx_uartps.c
-@@ -1465,6 +1465,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 		cdns_uart_uart_driver.nr = CDNS_UART_NR_PORTS;
- #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
- 		cdns_uart_uart_driver.cons = &cdns_uart_console;
-+		cdns_uart_console.index = id;
- #endif
- 
- 		rc = uart_register_driver(&cdns_uart_uart_driver);
--- 
-2.26.2
+I will do a follow up series adding a helper and moving both cases
+over to the helper.
+
+Regards,
+
+Hans
 
