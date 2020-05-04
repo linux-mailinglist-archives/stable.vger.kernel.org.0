@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BBF51C4421
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:05:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ED0F1C4462
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:07:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730922AbgEDSE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:04:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33858 "EHLO mail.kernel.org"
+        id S1732039AbgEDSGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:06:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730994AbgEDSE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:04:27 -0400
+        id S1731519AbgEDSGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:06:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 315FA206B8;
-        Mon,  4 May 2020 18:04:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 962482073B;
+        Mon,  4 May 2020 18:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615466;
-        bh=1odbRtPdovn6YAvSWJSRCoNkGgKfG9Q4/MdEilrMUZ4=;
+        s=default; t=1588615611;
+        bh=RTv3fe9BdZNIW2EkAR6n7tLvr54BVsc+vkMbD+c/x5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zY8mzIwcLhK5LhFwRpVLmRHushy02635UHpbOaGpOlxSxqdyVLHQhU1c00Uxsw7k5
-         f9QZsGmnYXneq6jdX4DwPmSGLeJqrmL1YtnwP0up9G+m16ec9GtO1GOxdQNmzPWJqB
-         xVJkVs29+TflG3+p009fSU4aEO73/eT7y9PkJADA=
+        b=VIlTE51zOAKjCXX6Ny1AA5IJX/lfHGLXPoV86PySC/0uaQl2elB8ph0EtotqrfD/m
+         R0gaz2zIrr4GQlOOWtuS66zMX5uiT06Ub2xFgRcf0F71sDpVpxrcRHsrz77VI6pXRt
+         Hkx8NYvh1mx7v7TJEtGWHmF+BAKDDVI79bCANpBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 50/57] ALSA: opti9xx: shut up gcc-10 range warning
-Date:   Mon,  4 May 2020 19:57:54 +0200
-Message-Id: <20200504165500.964694955@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 5.6 52/73] i2c: iproc: generate stop event for slave writes
+Date:   Mon,  4 May 2020 19:57:55 +0200
+Message-Id: <20200504165509.271153097@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 
-commit 5ce00760a84848d008554c693ceb6286f4d9c509 upstream.
+commit 068143a8195fb0fdeea1f3ca430b3db0f6d04a53 upstream.
 
-gcc-10 points out a few instances of suspicious integer arithmetic
-leading to value truncation:
+When slave status is I2C_SLAVE_RX_END, generate I2C_SLAVE_STOP
+event to i2c_client.
 
-sound/isa/opti9xx/opti92x-ad1848.c: In function 'snd_opti9xx_configure':
-sound/isa/opti9xx/opti92x-ad1848.c:322:43: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_opti9xx_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
-  322 |   (snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/opti92x-ad1848.c:351:3: note: in expansion of macro 'snd_opti9xx_write_mask'
-  351 |   snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
-      |   ^~~~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/miro.c: In function 'snd_miro_configure':
-sound/isa/opti9xx/miro.c:873:40: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_miro_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
-  873 |   (snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/miro.c:1010:3: note: in expansion of macro 'snd_miro_write_mask'
- 1010 |   snd_miro_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
-      |   ^~~~~~~~~~~~~~~~~~~
-
-These are all harmless here as only the low 8 bit are passed down
-anyway. Change the macros to inline functions to make the code
-more readable and also avoid the warning.
-
-Strictly speaking those functions also need locking to make the
-read/write pair atomic, but it seems unlikely that anyone would
-still run into that issue.
-
-Fixes: 1841f613fd2e ("[ALSA] Add snd-miro driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200429190216.85919-1-arnd@arndb.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: c245d94ed106 ("i2c: iproc: Add multi byte read-write support for slave mode")
+Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/isa/opti9xx/miro.c           |    9 ++++++---
- sound/isa/opti9xx/opti92x-ad1848.c |    9 ++++++---
- 2 files changed, 12 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-bcm-iproc.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/isa/opti9xx/miro.c
-+++ b/sound/isa/opti9xx/miro.c
-@@ -867,10 +867,13 @@ static void snd_miro_write(struct snd_mi
- 	spin_unlock_irqrestore(&chip->lock, flags);
- }
- 
-+static inline void snd_miro_write_mask(struct snd_miro *chip,
-+		unsigned char reg, unsigned char value, unsigned char mask)
-+{
-+	unsigned char oldval = snd_miro_read(chip, reg);
- 
--#define snd_miro_write_mask(chip, reg, value, mask)	\
--	snd_miro_write(chip, reg,			\
--		(snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-+	snd_miro_write(chip, reg, (oldval & ~mask) | (value & mask));
-+}
- 
- /*
-  *  Proc Interface
---- a/sound/isa/opti9xx/opti92x-ad1848.c
-+++ b/sound/isa/opti9xx/opti92x-ad1848.c
-@@ -317,10 +317,13 @@ static void snd_opti9xx_write(struct snd
- }
- 
- 
--#define snd_opti9xx_write_mask(chip, reg, value, mask)	\
--	snd_opti9xx_write(chip, reg,			\
--		(snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-+static inline void snd_opti9xx_write_mask(struct snd_opti9xx *chip,
-+		unsigned char reg, unsigned char value, unsigned char mask)
-+{
-+	unsigned char oldval = snd_opti9xx_read(chip, reg);
- 
-+	snd_opti9xx_write(chip, reg, (oldval & ~mask) | (value & mask));
-+}
- 
- static int snd_opti9xx_configure(struct snd_opti9xx *chip,
- 					   long port,
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -360,6 +360,9 @@ static bool bcm_iproc_i2c_slave_isr(stru
+ 			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
+ 			i2c_slave_event(iproc_i2c->slave,
+ 					I2C_SLAVE_WRITE_RECEIVED, &value);
++			if (rx_status == I2C_SLAVE_RX_END)
++				i2c_slave_event(iproc_i2c->slave,
++						I2C_SLAVE_STOP, &value);
+ 		}
+ 	} else if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
+ 		/* Master read other than start */
 
 
