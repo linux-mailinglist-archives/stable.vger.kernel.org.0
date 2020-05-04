@@ -2,33 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10F101C361F
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 11:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CE8B1C3641
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 11:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728549AbgEDJux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 05:50:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56808 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728447AbgEDJux (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 05:50:53 -0400
+        id S1728440AbgEDJzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 05:55:37 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:60539 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726666AbgEDJzg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 05:55:36 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 7BE235CF;
+        Mon,  4 May 2020 05:55:35 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 04 May 2020 05:55:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ljnUdh
+        wsAaWyT4LYj+CjgFtQIe5Ix1wSclWuTuRN/6o=; b=1KlVyi5jucNg5hiZ2VHGLC
+        keBjSaJ7PXOKOpm1dcEbpBPjceZytZyEKX64u4eTGjdHXJT33bgc+x1jS5BcaHTD
+        C1HC+vZfwtM4LjlOs3Nwdzvd1nWaHq9pBHr790mGqBNzn7phqu/OMd+F9qfB/O2O
+        OthH5auhgJRpsHiKjAm+ksECWoohfew6syasbcFgFfDbfMXLZn0zBWlJiqw6Fdtc
+        GJ7Vryts1TEvhiABTQIDpmW0+1U+brdwpzFSkxh5Zsyf8tFSuL+AL11JS4bzL6Vd
+        lgCdhwXTik5TemOeRprqJEcS6SQrecsby77cVygjzXK92mu/SeRCYxRIL+G2HFOw
+        ==
+X-ME-Sender: <xms:l-avXjvjoIaP76KHhUwSR96jOFleuLSLOaVkI1H6Gn1GyzefocbT2w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrjeeggddvtdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:l-avXqdhn1srkZgfJ6h56uEfogbbX_n_jmkaceqc8--xtGxhZDiPpw>
+    <xmx:l-avXkaU1UCgcwXNL4MSwLlE1_Bydftwm6wVqRIYPdfB8avBGZncqw>
+    <xmx:l-avXtVOiQpDWP2BqFVkiyYbejn8qyQMPJgBuj5-iHDvNM1MBDjOwg>
+    <xmx:l-avXpS0ArNN66DFMozMZtK-WbmmbSyPNn9_4dSoxQkGD9_mEprKaJlZej4>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 723BB2073E;
-        Mon,  4 May 2020 09:50:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588585852;
-        bh=Dvv+dLFULWPh9ijI/eO2mOpSKVzGlGeQPeHA3s9r7oI=;
-        h=Subject:To:From:Date:From;
-        b=gq5G0P2dEfwlAGnQ5bHPKKrxks1Ti/VJSyMlpQJ3s654i3RDLTAlTkyfmakfAq+u0
-         EEri2tNGU/BydEEUXbfK0I0xLwOmAN1zvig5uQHTKP1Jc+6aMceC3ICgslmpd8V5xz
-         5fK+5tj8SpsS29tNFN/nozG0XEhwqfp91qYB8+A4=
-Subject: patch "vt: fix unicode console freeing with a common interface" added to tty-linus
-To:     nico@fluxnic.net, gregkh@linuxfoundation.org, sam@ravnborg.org,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id ADC483280060;
+        Mon,  4 May 2020 05:55:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] selinux: properly handle multiple messages in" failed to apply to 4.19-stable tree
+To:     paul@paul-moore.com, dvyukov@google.com,
+        stephen.smalley.work@gmail.com
+Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 May 2020 11:50:42 +0200
-Message-ID: <1588585842159116@kroah.com>
+Date:   Mon, 04 May 2020 11:55:24 +0200
+Message-ID: <158858612477103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -38,78 +59,121 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-    vt: fix unicode console freeing with a common interface
+thanks,
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
+greg k-h
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+------------------ original commit in Linus's tree ------------------
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+From fb73974172ffaaf57a7c42f35424d9aece1a5af6 Mon Sep 17 00:00:00 2001
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 28 Apr 2020 09:59:02 -0400
+Subject: [PATCH] selinux: properly handle multiple messages in
+ selinux_netlink_send()
 
-If you have any questions about this process, please let me know.
+Fix the SELinux netlink_send hook to properly handle multiple netlink
+messages in a single sk_buff; each message is parsed and subject to
+SELinux access control.  Prior to this patch, SELinux only inspected
+the first message in the sk_buff.
 
+Cc: stable@vger.kernel.org
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-From 57d38f26d81e4275748b69372f31df545dcd9b71 Mon Sep 17 00:00:00 2001
-From: Nicolas Pitre <nico@fluxnic.net>
-Date: Sat, 2 May 2020 11:01:07 -0400
-Subject: vt: fix unicode console freeing with a common interface
-
-By directly using kfree() in different places we risk missing one if
-it is switched to using vfree(), especially if the corresponding
-vmalloc() is hidden away within a common abstraction.
-
-Oh wait, that's exactly what happened here.
-
-So let's fix this by creating a common abstraction for the free case
-as well.
-
-Signed-off-by: Nicolas Pitre <nico@fluxnic.net>
-Reported-by: syzbot+0bfda3ade1ee9288a1be@syzkaller.appspotmail.com
-Fixes: 9a98e7a80f95 ("vt: don't use kmalloc() for the unicode screen buffer")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.2005021043110.2671@knanqh.ubzr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/vt/vt.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
-index e5ffed795e4c..48a8199f7845 100644
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -365,9 +365,14 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
- 	return uniscr;
- }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b8e09aedbc56..487d4df0e37c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5842,40 +5842,60 @@ static unsigned int selinux_ipv6_postroute(void *priv,
  
-+static void vc_uniscr_free(struct uni_screen *uniscr)
-+{
-+	vfree(uniscr);
-+}
-+
- static void vc_uniscr_set(struct vc_data *vc, struct uni_screen *new_uniscr)
+ static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
  {
--	vfree(vc->vc_uni_screen);
-+	vc_uniscr_free(vc->vc_uni_screen);
- 	vc->vc_uni_screen = new_uniscr;
- }
+-	int err = 0;
+-	u32 perm;
++	int rc = 0;
++	unsigned int msg_len;
++	unsigned int data_len = skb->len;
++	unsigned char *data = skb->data;
+ 	struct nlmsghdr *nlh;
+ 	struct sk_security_struct *sksec = sk->sk_security;
++	u16 sclass = sksec->sclass;
++	u32 perm;
  
-@@ -1230,7 +1235,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
- 	err = resize_screen(vc, new_cols, new_rows, user);
- 	if (err) {
- 		kfree(newscreen);
--		kfree(new_uniscr);
-+		vc_uniscr_free(new_uniscr);
- 		return err;
+-	if (skb->len < NLMSG_HDRLEN) {
+-		err = -EINVAL;
+-		goto out;
+-	}
+-	nlh = nlmsg_hdr(skb);
++	while (data_len >= nlmsg_total_size(0)) {
++		nlh = (struct nlmsghdr *)data;
++
++		/* NOTE: the nlmsg_len field isn't reliably set by some netlink
++		 *       users which means we can't reject skb's with bogus
++		 *       length fields; our solution is to follow what
++		 *       netlink_rcv_skb() does and simply skip processing at
++		 *       messages with length fields that are clearly junk
++		 */
++		if (nlh->nlmsg_len < NLMSG_HDRLEN || nlh->nlmsg_len > data_len)
++			return 0;
+ 
+-	err = selinux_nlmsg_lookup(sksec->sclass, nlh->nlmsg_type, &perm);
+-	if (err) {
+-		if (err == -EINVAL) {
++		rc = selinux_nlmsg_lookup(sclass, nlh->nlmsg_type, &perm);
++		if (rc == 0) {
++			rc = sock_has_perm(sk, perm);
++			if (rc)
++				return rc;
++		} else if (rc == -EINVAL) {
++			/* -EINVAL is a missing msg/perm mapping */
+ 			pr_warn_ratelimited("SELinux: unrecognized netlink"
+-			       " message: protocol=%hu nlmsg_type=%hu sclass=%s"
+-			       " pid=%d comm=%s\n",
+-			       sk->sk_protocol, nlh->nlmsg_type,
+-			       secclass_map[sksec->sclass - 1].name,
+-			       task_pid_nr(current), current->comm);
+-			if (!enforcing_enabled(&selinux_state) ||
+-			    security_get_allow_unknown(&selinux_state))
+-				err = 0;
++				" message: protocol=%hu nlmsg_type=%hu sclass=%s"
++				" pid=%d comm=%s\n",
++				sk->sk_protocol, nlh->nlmsg_type,
++				secclass_map[sclass - 1].name,
++				task_pid_nr(current), current->comm);
++			if (enforcing_enabled(&selinux_state) &&
++			    !security_get_allow_unknown(&selinux_state))
++				return rc;
++			rc = 0;
++		} else if (rc == -ENOENT) {
++			/* -ENOENT is a missing socket/class mapping, ignore */
++			rc = 0;
++		} else {
++			return rc;
+ 		}
+ 
+-		/* Ignore */
+-		if (err == -ENOENT)
+-			err = 0;
+-		goto out;
++		/* move to the next message after applying netlink padding */
++		msg_len = NLMSG_ALIGN(nlh->nlmsg_len);
++		if (msg_len >= data_len)
++			return 0;
++		data_len -= msg_len;
++		data += msg_len;
  	}
  
--- 
-2.26.2
-
+-	err = sock_has_perm(sk, perm);
+-out:
+-	return err;
++	return rc;
+ }
+ 
+ static void ipc_init_security(struct ipc_security_struct *isec, u16 sclass)
 
