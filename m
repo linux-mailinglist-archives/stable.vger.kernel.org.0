@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BB021C455E
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:15:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3981C451C
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731038AbgEDSO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:14:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55352 "EHLO mail.kernel.org"
+        id S1731806AbgEDSMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:12:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730997AbgEDSAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:00:32 -0400
+        id S1730828AbgEDSCa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:02:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1397B20663;
-        Mon,  4 May 2020 18:00:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9B042073E;
+        Mon,  4 May 2020 18:02:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615231;
-        bh=wUmm6LYoVcix7U/5shfK5nyIdmxpv81m6PDMQob0ne8=;
+        s=default; t=1588615350;
+        bh=p2lFW4EGbbv2BXqjl+0zAIJRmb6LhRC1mQBNqnySme8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VbsrAB7yj5+dSjux+gExnAO2Ibi59Hza2eIG/VOq6lS+83n8U2VNiRMg989WrPwcx
-         jJizSUZEYvK+U88E083/TCD987MAkIIiXEfmyUNQgYD+b7IVpd4h7Q6S8sfhShgt5c
-         eMGCWKzi/eDR/v4KFjApoCIwrXGVDOUbwdUtrCa4=
+        b=YSfU3DU7UjLo0og3FYFxcHVbK3iJ57zarWUdNdORXo4KbJh3RfbUYfFeD1LlBVF+p
+         TzeFkBG3kUtILzB3iUzbuecWG6zTLtnfJNTzF4oJ8qNaXpdPAUAfPNjwl1ifWWRKKU
+         PNGhd2gnz7bna8hUr3e08eVM3O9Jyh4usQcRvwKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 4.14 19/26] vfio/type1: Fix VA->PA translation for PFNMAP VMAs in vaddr_get_pfn()
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>
+Subject: [PATCH 4.19 20/37] RDMA/core: Fix race between destroy and release FD object
 Date:   Mon,  4 May 2020 19:57:33 +0200
-Message-Id: <20200504165446.668167398@linuxfoundation.org>
+Message-Id: <20200504165450.549963642@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
-References: <20200504165442.494398840@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Leon Romanovsky <leonro@mellanox.com>
 
-commit 5cbf3264bc715e9eb384e2b68601f8c02bb9a61d upstream.
+commit f0abc761bbb9418876cc4d1ebc473e4ea6352e42 upstream.
 
-Use follow_pfn() to get the PFN of a PFNMAP VMA instead of assuming that
-vma->vm_pgoff holds the base PFN of the VMA.  This fixes a bug where
-attempting to do VFIO_IOMMU_MAP_DMA on an arbitrary PFNMAP'd region of
-memory calculates garbage for the PFN.
+The call to ->lookup_put() was too early and it caused an unlock of the
+read/write protection of the uobject after the FD was put. This allows a
+race:
 
-Hilariously, this only got detected because the first "PFN" calculated
-by vaddr_get_pfn() is PFN 0 (vma->vm_pgoff==0), and iommu_iova_to_phys()
-uses PA==0 as an error, which triggers a WARN in vfio_unmap_unpin()
-because the translation "failed".  PFN 0 is now unconditionally reserved
-on x86 in order to mitigate L1TF, which causes is_invalid_reserved_pfn()
-to return true and in turns results in vaddr_get_pfn() returning success
-for PFN 0.  Eventually the bogus calculation runs into PFNs that aren't
-reserved and leads to failure in vfio_pin_map_dma().  The subsequent
-call to vfio_remove_dma() attempts to unmap PFN 0 and WARNs.
+     CPU1                                 CPU2
+ rdma_lookup_put_uobject()
+   lookup_put_fd_uobject()
+     fput()
+				   fput()
+				     uverbs_uobject_fd_release()
+				       WARN_ON(uverbs_try_lock_object(uobj,
+					       UVERBS_LOOKUP_WRITE));
+   atomic_dec(usecnt)
 
-  WARNING: CPU: 8 PID: 5130 at drivers/vfio/vfio_iommu_type1.c:750 vfio_unmap_unpin+0x2e1/0x310 [vfio_iommu_type1]
-  Modules linked in: vfio_pci vfio_virqfd vfio_iommu_type1 vfio ...
-  CPU: 8 PID: 5130 Comm: sgx Tainted: G        W         5.6.0-rc5-705d787c7fee-vfio+ #3
-  Hardware name: Intel Corporation Mehlow UP Server Platform/Moss Beach Server, BIOS CNLSE2R1.D00.X119.B49.1803010910 03/01/2018
-  RIP: 0010:vfio_unmap_unpin+0x2e1/0x310 [vfio_iommu_type1]
-  Code: <0f> 0b 49 81 c5 00 10 00 00 e9 c5 fe ff ff bb 00 10 00 00 e9 3d fe
-  RSP: 0018:ffffbeb5039ebda8 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffff9a55cbf8d480 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff9a52b771c200
-  RBP: 0000000000000000 R08: 0000000000000040 R09: 00000000fffffff2
-  R10: 0000000000000001 R11: ffff9a51fa896000 R12: 0000000184010000
-  R13: 0000000184000000 R14: 0000000000010000 R15: ffff9a55cb66ea08
-  FS:  00007f15d3830b40(0000) GS:ffff9a55d5600000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000561cf39429e0 CR3: 000000084f75f005 CR4: 00000000003626e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   vfio_remove_dma+0x17/0x70 [vfio_iommu_type1]
-   vfio_iommu_type1_ioctl+0x9e3/0xa7b [vfio_iommu_type1]
-   ksys_ioctl+0x92/0xb0
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x4c/0x180
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f15d04c75d7
-  Code: <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 81 48 2d 00 f7 d8 64 89 01 48
+Fix the code by changing the order, first unlock and call to
+->lookup_put() after that.
 
-Fixes: 73fa0d10d077 ("vfio: Type1 IOMMU implementation")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 3832125624b7 ("IB/core: Add support for idr types")
+Link: https://lore.kernel.org/r/20200423060122.6182-1-leon@kernel.org
+Suggested-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/vfio_iommu_type1.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/rdma_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -378,8 +378,8 @@ static int vaddr_get_pfn(struct mm_struc
- 	vma = find_vma_intersection(mm, vaddr, vaddr + 1);
- 
- 	if (vma && vma->vm_flags & VM_PFNMAP) {
--		*pfn = ((vaddr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
--		if (is_invalid_reserved_pfn(*pfn))
-+		if (!follow_pfn(vma, vaddr, pfn) &&
-+		    is_invalid_reserved_pfn(*pfn))
- 			ret = 0;
+--- a/drivers/infiniband/core/rdma_core.c
++++ b/drivers/infiniband/core/rdma_core.c
+@@ -697,7 +697,6 @@ void rdma_lookup_put_uobject(struct ib_u
+ 			     enum rdma_lookup_mode mode)
+ {
+ 	assert_uverbs_usecnt(uobj, mode);
+-	uobj->uapi_object->type_class->lookup_put(uobj, mode);
+ 	/*
+ 	 * In order to unlock an object, either decrease its usecnt for
+ 	 * read access or zero it in case of exclusive access. See
+@@ -714,6 +713,7 @@ void rdma_lookup_put_uobject(struct ib_u
+ 		break;
  	}
  
++	uobj->uapi_object->type_class->lookup_put(uobj, mode);
+ 	/* Pairs with the kref obtained by type->lookup_get */
+ 	uverbs_uobject_put(uobj);
+ }
 
 
