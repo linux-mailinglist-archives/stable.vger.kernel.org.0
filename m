@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8DFF1C4469
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:07:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA491C4429
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:05:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732089AbgEDSHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:07:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37788 "EHLO mail.kernel.org"
+        id S1731683AbgEDSEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:04:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731556AbgEDSHJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:07:09 -0400
+        id S1731124AbgEDSEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:04:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6D022073B;
-        Mon,  4 May 2020 18:07:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC08E2073E;
+        Mon,  4 May 2020 18:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615628;
-        bh=cNHYncv6nI3E1IZ9bJ2r7TR/o+trGDi/hKmbzKFpJPs=;
+        s=default; t=1588615486;
+        bh=sbRypDigKclKa92P4hT4T8OtlZ/9B4gGcCFTCSRH/Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CB7sDHtBI5D54JlB49Y62qyyFefygr1g4W8xPqQJxXX28aGI/fsqHwbZqO/EsSvQ4
-         VMEHCSHChv7JiYmxkPspIi6XhFPDs0hDqv4IWM6KBzcYlxZiykeFxy3WEPQTMe1JRS
-         jS7f6FwCYhoeDvs0ZhwBp2d2iCAFO69QWkKrvCz4=
+        b=ltA2ReOxYJzLvciMnat/7Tpk7CAnLIDz9agtEMu1wDdzRUnmDdvI6ptXvwqP1sCTR
+         NMX5xDbs8ilEGsFsDHWzT5O5caW28rgcl3x10C9p6bgkPoCdvTX0txRQkiSsRT9r1E
+         KkDyLx5IS3JH9jsplIBGZoETtbKfXWfGj9jXffZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yixin Zhang <yixin.zhang@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.6 58/73] dmaengine: fix channel index enumeration
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.4 57/57] selinux: properly handle multiple messages in selinux_netlink_send()
 Date:   Mon,  4 May 2020 19:58:01 +0200
-Message-Id: <20200504165509.665982542@linuxfoundation.org>
+Message-Id: <20200504165501.852418737@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,198 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit 0821009445a8261ac4d32a6df4b83938e007c765 upstream.
+commit fb73974172ffaaf57a7c42f35424d9aece1a5af6 upstream.
 
-When the channel register code was changed to allow hotplug operations,
-dynamic indexing wasn't taken into account. When channels are randomly
-plugged and unplugged out of order, the serial indexing breaks. Convert
-channel indexing to using IDA tracking in order to allow dynamic
-assignment. The previous code does not cause any regression bug for
-existing channel allocation besides idxd driver since the hotplug usage
-case is only used by idxd at this point.
+Fix the SELinux netlink_send hook to properly handle multiple netlink
+messages in a single sk_buff; each message is parsed and subject to
+SELinux access control.  Prior to this patch, SELinux only inspected
+the first message in the sk_buff.
 
-With this change, the chan->idr_ref is also not needed any longer. We can
-have a device with no channels registered due to hot plug. The channel
-device release code no longer should attempt to free the dma device id on
-the last channel release.
-
-Fixes: e81274cd6b52 ("dmaengine: add support to dynamic register/unregister of channels")
-
-Reported-by: Yixin Zhang <yixin.zhang@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Tested-by: Yixin Zhang <yixin.zhang@intel.com>
-Link: https://lore.kernel.org/r/158679961260.7674.8485924270472851852.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/dmaengine.c   |   60 +++++++++++++++++++---------------------------
- include/linux/dmaengine.h |    4 +--
- 2 files changed, 28 insertions(+), 36 deletions(-)
+ security/selinux/hooks.c |   70 ++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 45 insertions(+), 25 deletions(-)
 
---- a/drivers/dma/dmaengine.c
-+++ b/drivers/dma/dmaengine.c
-@@ -151,10 +151,6 @@ static void chan_dev_release(struct devi
- 	struct dma_chan_dev *chan_dev;
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5521,40 +5521,60 @@ static int selinux_tun_dev_open(void *se
  
- 	chan_dev = container_of(dev, typeof(*chan_dev), device);
--	if (atomic_dec_and_test(chan_dev->idr_ref)) {
--		ida_free(&dma_ida, chan_dev->dev_id);
--		kfree(chan_dev->idr_ref);
+ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+ {
+-	int err = 0;
+-	u32 perm;
++	int rc = 0;
++	unsigned int msg_len;
++	unsigned int data_len = skb->len;
++	unsigned char *data = skb->data;
+ 	struct nlmsghdr *nlh;
+ 	struct sk_security_struct *sksec = sk->sk_security;
++	u16 sclass = sksec->sclass;
++	u32 perm;
+ 
+-	if (skb->len < NLMSG_HDRLEN) {
+-		err = -EINVAL;
+-		goto out;
 -	}
- 	kfree(chan_dev);
- }
+-	nlh = nlmsg_hdr(skb);
++	while (data_len >= nlmsg_total_size(0)) {
++		nlh = (struct nlmsghdr *)data;
  
-@@ -952,27 +948,9 @@ static int get_dma_id(struct dma_device
- }
- 
- static int __dma_async_device_channel_register(struct dma_device *device,
--					       struct dma_chan *chan,
--					       int chan_id)
-+					       struct dma_chan *chan)
- {
- 	int rc = 0;
--	int chancnt = device->chancnt;
--	atomic_t *idr_ref;
--	struct dma_chan *tchan;
--
--	tchan = list_first_entry_or_null(&device->channels,
--					 struct dma_chan, device_node);
--	if (!tchan)
--		return -ENODEV;
--
--	if (tchan->dev) {
--		idr_ref = tchan->dev->idr_ref;
--	} else {
--		idr_ref = kmalloc(sizeof(*idr_ref), GFP_KERNEL);
--		if (!idr_ref)
--			return -ENOMEM;
--		atomic_set(idr_ref, 0);
--	}
- 
- 	chan->local = alloc_percpu(typeof(*chan->local));
- 	if (!chan->local)
-@@ -988,29 +966,36 @@ static int __dma_async_device_channel_re
- 	 * When the chan_id is a negative value, we are dynamically adding
- 	 * the channel. Otherwise we are static enumerating.
- 	 */
--	chan->chan_id = chan_id < 0 ? chancnt : chan_id;
-+	mutex_lock(&device->chan_mutex);
-+	chan->chan_id = ida_alloc(&device->chan_ida, GFP_KERNEL);
-+	mutex_unlock(&device->chan_mutex);
-+	if (chan->chan_id < 0) {
-+		pr_err("%s: unable to alloc ida for chan: %d\n",
-+		       __func__, chan->chan_id);
-+		goto err_out;
-+	}
+-	err = selinux_nlmsg_lookup(sksec->sclass, nlh->nlmsg_type, &perm);
+-	if (err) {
+-		if (err == -EINVAL) {
++		/* NOTE: the nlmsg_len field isn't reliably set by some netlink
++		 *       users which means we can't reject skb's with bogus
++		 *       length fields; our solution is to follow what
++		 *       netlink_rcv_skb() does and simply skip processing at
++		 *       messages with length fields that are clearly junk
++		 */
++		if (nlh->nlmsg_len < NLMSG_HDRLEN || nlh->nlmsg_len > data_len)
++			return 0;
 +
- 	chan->dev->device.class = &dma_devclass;
- 	chan->dev->device.parent = device->dev;
- 	chan->dev->chan = chan;
--	chan->dev->idr_ref = idr_ref;
- 	chan->dev->dev_id = device->dev_id;
--	atomic_inc(idr_ref);
- 	dev_set_name(&chan->dev->device, "dma%dchan%d",
- 		     device->dev_id, chan->chan_id);
--
- 	rc = device_register(&chan->dev->device);
- 	if (rc)
--		goto err_out;
-+		goto err_out_ida;
- 	chan->client_count = 0;
--	device->chancnt = chan->chan_id + 1;
-+	device->chancnt++;
++		rc = selinux_nlmsg_lookup(sclass, nlh->nlmsg_type, &perm);
++		if (rc == 0) {
++			rc = sock_has_perm(sk, perm);
++			if (rc)
++				return rc;
++		} else if (rc == -EINVAL) {
++			/* -EINVAL is a missing msg/perm mapping */
+ 			pr_warn_ratelimited("SELinux: unrecognized netlink"
+-			       " message: protocol=%hu nlmsg_type=%hu sclass=%s"
+-			       " pig=%d comm=%s\n",
+-			       sk->sk_protocol, nlh->nlmsg_type,
+-			       secclass_map[sksec->sclass - 1].name,
+-			       task_pid_nr(current), current->comm);
+-			if (!enforcing_enabled(&selinux_state) ||
+-			    security_get_allow_unknown(&selinux_state))
+-				err = 0;
++				" message: protocol=%hu nlmsg_type=%hu sclass=%s"
++				" pid=%d comm=%s\n",
++				sk->sk_protocol, nlh->nlmsg_type,
++				secclass_map[sclass - 1].name,
++				task_pid_nr(current), current->comm);
++			if (enforcing_enabled(&selinux_state) &&
++			    !security_get_allow_unknown(&selinux_state))
++				return rc;
++			rc = 0;
++		} else if (rc == -ENOENT) {
++			/* -ENOENT is a missing socket/class mapping, ignore */
++			rc = 0;
++		} else {
++			return rc;
+ 		}
  
- 	return 0;
- 
-+ err_out_ida:
-+	mutex_lock(&device->chan_mutex);
-+	ida_free(&device->chan_ida, chan->chan_id);
-+	mutex_unlock(&device->chan_mutex);
-  err_out:
- 	free_percpu(chan->local);
- 	kfree(chan->dev);
--	if (atomic_dec_return(idr_ref) == 0)
--		kfree(idr_ref);
- 	return rc;
- }
- 
-@@ -1019,7 +1004,7 @@ int dma_async_device_channel_register(st
- {
- 	int rc;
- 
--	rc = __dma_async_device_channel_register(device, chan, -1);
-+	rc = __dma_async_device_channel_register(device, chan);
- 	if (rc < 0)
- 		return rc;
- 
-@@ -1039,6 +1024,9 @@ static void __dma_async_device_channel_u
- 	device->chancnt--;
- 	chan->dev->chan = NULL;
- 	mutex_unlock(&dma_list_mutex);
-+	mutex_lock(&device->chan_mutex);
-+	ida_free(&device->chan_ida, chan->chan_id);
-+	mutex_unlock(&device->chan_mutex);
- 	device_unregister(&chan->dev->device);
- 	free_percpu(chan->local);
- }
-@@ -1061,7 +1049,7 @@ EXPORT_SYMBOL_GPL(dma_async_device_chann
-  */
- int dma_async_device_register(struct dma_device *device)
- {
--	int rc, i = 0;
-+	int rc;
- 	struct dma_chan* chan;
- 
- 	if (!device)
-@@ -1166,9 +1154,12 @@ int dma_async_device_register(struct dma
- 	if (rc != 0)
- 		return rc;
- 
-+	mutex_init(&device->chan_mutex);
-+	ida_init(&device->chan_ida);
-+
- 	/* represent channels in sysfs. Probably want devs too */
- 	list_for_each_entry(chan, &device->channels, device_node) {
--		rc = __dma_async_device_channel_register(device, chan, i++);
-+		rc = __dma_async_device_channel_register(device, chan);
- 		if (rc < 0)
- 			goto err_out;
+-		/* Ignore */
+-		if (err == -ENOENT)
+-			err = 0;
+-		goto out;
++		/* move to the next message after applying netlink padding */
++		msg_len = NLMSG_ALIGN(nlh->nlmsg_len);
++		if (msg_len >= data_len)
++			return 0;
++		data_len -= msg_len;
++		data += msg_len;
  	}
-@@ -1239,6 +1230,7 @@ void dma_async_device_unregister(struct
- 	 */
- 	dma_cap_set(DMA_PRIVATE, device->cap_mask);
- 	dma_channel_rebalance();
-+	ida_free(&dma_ida, device->dev_id);
- 	dma_device_put(device);
- 	mutex_unlock(&dma_list_mutex);
+ 
+-	err = sock_has_perm(sk, perm);
+-out:
+-	return err;
++	return rc;
  }
---- a/include/linux/dmaengine.h
-+++ b/include/linux/dmaengine.h
-@@ -336,13 +336,11 @@ struct dma_chan {
-  * @chan: driver channel device
-  * @device: sysfs device
-  * @dev_id: parent dma_device dev_id
-- * @idr_ref: reference count to gate release of dma_device dev_id
-  */
- struct dma_chan_dev {
- 	struct dma_chan *chan;
- 	struct device device;
- 	int dev_id;
--	atomic_t *idr_ref;
- };
  
- /**
-@@ -827,6 +825,8 @@ struct dma_device {
- 	int dev_id;
- 	struct device *dev;
- 	struct module *owner;
-+	struct ida chan_ida;
-+	struct mutex chan_mutex;	/* to protect chan_ida */
- 
- 	u32 src_addr_widths;
- 	u32 dst_addr_widths;
+ #ifdef CONFIG_NETFILTER
 
 
