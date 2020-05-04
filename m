@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DECD61C447D
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:08:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 467151C4491
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:08:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731584AbgEDSHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:07:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38732 "EHLO mail.kernel.org"
+        id S1732192AbgEDSHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732181AbgEDSHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:07:44 -0400
+        id S1732176AbgEDSHq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:07:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 871F62073B;
-        Mon,  4 May 2020 18:07:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 034E6206B8;
+        Mon,  4 May 2020 18:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615664;
-        bh=tUHjouMIe2y5rFbeb+MgvQF2ue4Iw8BcFWPGcw8xtv8=;
+        s=default; t=1588615666;
+        bh=r3c1iXelmmBrzj0DTZL4IUaoj5TuLR7/oHUZShSDMrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=afeLKSU3z5SQAd8kNAk5o1W/GaHSiigp17uFYldQB3TpZ6HmGD6G2m/P9dkmxxTAJ
-         r+yQoyZjyjhAPbmIc3nCmo8g+wF2pucvYhYv+PnRTKA5O9lPvK/s0JI2/CJt3QxV8D
-         9bPm715nwkrlYfQKblkkXn6wJWHf6AUKhizfyGiQ=
+        b=C3pK66oL+V2je3XUHuHIqIzfTqdANHvJT34CvSWIFbkk5k+ZUgjBT+fRuPXmLFE76
+         IWwO0ZZXp2MaA6KjbsfconSk4G5kFoqeetI8b1qpCgxhJJt/tnPQmqIiWm4iSE09pt
+         UyO9ZBDvd1lRR1PZ+EFM06HpdpTK0JHcEtn/UJDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Szabolcs Nagy <szabolcs.nagy@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.6 72/73] arm64: vdso: Add -fasynchronous-unwind-tables to cflags
-Date:   Mon,  4 May 2020 19:58:15 +0200
-Message-Id: <20200504165510.575729659@linuxfoundation.org>
+        stable@vger.kernel.org, Clay Harris <bugs@claycon.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.6 73/73] io_uring: statx must grab the file table for valid fd
+Date:   Mon,  4 May 2020 19:58:16 +0200
+Message-Id: <20200504165510.640529034@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
 References: <20200504165501.781878940@linuxfoundation.org>
@@ -45,46 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 1578e5d03112e3e9d37e1c4d95b6dfb734c73955 upstream.
+commit 5b0bbee4732cbd58aa98213d4c11a366356bba3d upstream.
 
-On arm64 linux gcc uses -fasynchronous-unwind-tables -funwind-tables
-by default since gcc-8, so now the de facto platform ABI is to allow
-unwinding from async signal handlers.
+Clay reports that OP_STATX fails for a test case with a valid fd
+and empty path:
 
-However on bare metal targets (aarch64-none-elf), and on old gcc,
-async and sync unwind tables are not enabled by default to avoid
-runtime memory costs.
+ -- Test 0: statx:fd 3: SUCCEED, file mode 100755
+ -- Test 1: statx:path ./uring_statx: SUCCEED, file mode 100755
+ -- Test 2: io_uring_statx:fd 3: FAIL, errno 9: Bad file descriptor
+ -- Test 3: io_uring_statx:path ./uring_statx: SUCCEED, file mode 100755
 
-This means if linux is built with a baremetal toolchain the vdso.so
-may not have unwind tables which breaks the gcc platform ABI guarantee
-in userspace.
+This is due to statx not grabbing the process file table, hence we can't
+lookup the fd in async context. If the fd is valid, ensure that we grab
+the file table so we can grab the file from async context.
 
-Add -fasynchronous-unwind-tables explicitly to the vgettimeofday.o
-cflags to address the ABI change.
-
-Fixes: 28b1a824a4f4 ("arm64: vdso: Substitute gettimeofday() with C implementation")
-Cc: Will Deacon <will@kernel.org>
-Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: stable@vger.kernel.org # v5.6
+Reported-by: Clay Harris <bugs@claycon.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/vdso/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/vdso/Makefile
-+++ b/arch/arm64/kernel/vdso/Makefile
-@@ -32,7 +32,7 @@ UBSAN_SANITIZE			:= n
- OBJECT_FILES_NON_STANDARD	:= y
- KCOV_INSTRUMENT			:= n
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -479,6 +479,7 @@ enum {
+ 	REQ_F_COMP_LOCKED_BIT,
+ 	REQ_F_NEED_CLEANUP_BIT,
+ 	REQ_F_OVERFLOW_BIT,
++	REQ_F_NO_FILE_TABLE_BIT,
+ };
  
--CFLAGS_vgettimeofday.o = -O2 -mcmodel=tiny
-+CFLAGS_vgettimeofday.o = -O2 -mcmodel=tiny -fasynchronous-unwind-tables
+ enum {
+@@ -521,6 +522,8 @@ enum {
+ 	REQ_F_NEED_CLEANUP	= BIT(REQ_F_NEED_CLEANUP_BIT),
+ 	/* in overflow list */
+ 	REQ_F_OVERFLOW		= BIT(REQ_F_OVERFLOW_BIT),
++	/* doesn't need file table for this request */
++	REQ_F_NO_FILE_TABLE	= BIT(REQ_F_NO_FILE_TABLE_BIT),
+ };
  
- ifneq ($(c-gettimeofday-y),)
-   CFLAGS_vgettimeofday.o += -include $(c-gettimeofday-y)
+ /*
+@@ -711,6 +714,7 @@ static const struct io_op_def io_op_defs
+ 		.needs_file		= 1,
+ 		.fd_non_neg		= 1,
+ 		.needs_fs		= 1,
++		.file_table		= 1,
+ 	},
+ 	[IORING_OP_READ] = {
+ 		.needs_mm		= 1,
+@@ -2843,8 +2847,12 @@ static int io_statx(struct io_kiocb *req
+ 	struct kstat stat;
+ 	int ret;
+ 
+-	if (force_nonblock)
++	if (force_nonblock) {
++		/* only need file table for an actual valid fd */
++		if (ctx->dfd == -1 || ctx->dfd == AT_FDCWD)
++			req->flags |= REQ_F_NO_FILE_TABLE;
+ 		return -EAGAIN;
++	}
+ 
+ 	if (vfs_stat_set_lookup_flags(&lookup_flags, ctx->how.flags))
+ 		return -EINVAL;
+@@ -4632,7 +4640,7 @@ static int io_grab_files(struct io_kiocb
+ 	int ret = -EBADF;
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
+-	if (req->work.files)
++	if (req->work.files || (req->flags & REQ_F_NO_FILE_TABLE))
+ 		return 0;
+ 	if (!ctx->ring_file)
+ 		return -EBADF;
 
 
