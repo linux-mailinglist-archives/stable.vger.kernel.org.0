@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E00251C44AA
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6851C44EC
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731357AbgEDSJX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:09:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37186 "EHLO mail.kernel.org"
+        id S1731662AbgEDSEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:04:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731459AbgEDSGm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:06:42 -0400
+        id S1731660AbgEDSEW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:04:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4648C2073B;
-        Mon,  4 May 2020 18:06:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CB28206B8;
+        Mon,  4 May 2020 18:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615601;
-        bh=/8LCSKazyyYH+bHBxoSD6yfKYeJ3go/tsRUeaJ2kmjs=;
+        s=default; t=1588615461;
+        bh=fyBOmnqKsuvNpxFwlXUHV4DLG7y2lqjw2zO/T3sFijI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A1m5Rm0JF/2x9aWnC6tnByPu9ty64JeQwqkEMdXNRd4uaUGUSGS216gKpQKk1gRCi
-         W9DLcDyLjYlP1rD5vlP5O9FVGVdXpTGSuoTtRAsaWHj1flzGJkPoM1KZ/doOG4o6S/
-         BoSlTr0qmYbgIbRciu6x4cg4IYsikrk8BdYko4PA=
+        b=d6Ra093W8+2ey56LWufxc4v/NMH7Cy+MYu4GroZ7hfmj9+MRtzugRLaNCFga/G9t/
+         pXDTlXfCXe9VVSI3IkWUvs73pvaLOAOjaTUleI5zBtXVHf91297t6bxnNZvwVnDKrR
+         r+1akX3w7Hi4wdRNplc0wxOtfEqZwlHv0SExO1jE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.6 48/73] RDMA/core: Fix overwriting of uobj in case of error
-Date:   Mon,  4 May 2020 19:57:51 +0200
-Message-Id: <20200504165508.991340794@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.4 48/57] iommu/amd: Fix legacy interrupt remapping for x2APIC-enabled system
+Date:   Mon,  4 May 2020 19:57:52 +0200
+Message-Id: <20200504165500.595704118@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,83 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-commit 83a2670212215a569ed133efc10c92055c96cc8c upstream.
+commit b74aa02d7a30ee5e262072a7d6e8deff10b37924 upstream.
 
-In case of failure to get file, the uobj is overwritten and causes to
-supply bad pointer as an input to uverbs_uobject_put().
+Currently, system fails to boot because the legacy interrupt remapping
+mode does not enable 128-bit IRTE (GA), which is required for x2APIC
+support.
 
-  BUG: KASAN: null-ptr-deref in atomic_fetch_sub include/asm-generic/atomic-instrumented.h:199 [inline]
-  BUG: KASAN: null-ptr-deref in refcount_sub_and_test include/linux/refcount.h:253 [inline]
-  BUG: KASAN: null-ptr-deref in refcount_dec_and_test include/linux/refcount.h:281 [inline]
-  BUG: KASAN: null-ptr-deref in kref_put include/linux/kref.h:64 [inline]
-  BUG: KASAN: null-ptr-deref in uverbs_uobject_put+0x22/0x90 drivers/infiniband/core/rdma_core.c:57
-  Write of size 4 at addr 0000000000000030 by task syz-executor.4/1691
+Fix by using AMD_IOMMU_GUEST_IR_LEGACY_GA mode when booting with
+kernel option amd_iommu_intr=legacy instead. The initialization
+logic will check GASup and automatically fallback to using
+AMD_IOMMU_GUEST_IR_LEGACY if GA mode is not supported.
 
-  CPU: 1 PID: 1691 Comm: syz-executor.4 Not tainted 5.6.0 #17
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-   __dump_stack lib/dump_stack.c:77 [inline]
-   dump_stack+0x94/0xce lib/dump_stack.c:118
-   __kasan_report+0x10c/0x190 mm/kasan/report.c:515
-   kasan_report+0x32/0x50 mm/kasan/common.c:625
-   check_memory_region_inline mm/kasan/generic.c:187 [inline]
-   check_memory_region+0x16d/0x1c0 mm/kasan/generic.c:193
-   atomic_fetch_sub include/asm-generic/atomic-instrumented.h:199 [inline]
-   refcount_sub_and_test include/linux/refcount.h:253 [inline]
-   refcount_dec_and_test include/linux/refcount.h:281 [inline]
-   kref_put include/linux/kref.h:64 [inline]
-   uverbs_uobject_put+0x22/0x90 drivers/infiniband/core/rdma_core.c:57
-   alloc_begin_fd_uobject+0x1d0/0x250 drivers/infiniband/core/rdma_core.c:486
-   rdma_alloc_begin_uobject+0xa8/0xf0 drivers/infiniband/core/rdma_core.c:509
-   __uobj_alloc include/rdma/uverbs_std_types.h:117 [inline]
-   ib_uverbs_create_comp_channel+0x16d/0x230 drivers/infiniband/core/uverbs_cmd.c:982
-   ib_uverbs_write+0xaa5/0xdf0 drivers/infiniband/core/uverbs_main.c:665
-   __vfs_write+0x7c/0x100 fs/read_write.c:494
-   vfs_write+0x168/0x4a0 fs/read_write.c:558
-   ksys_write+0xc8/0x200 fs/read_write.c:611
-   do_syscall_64+0x9c/0x390 arch/x86/entry/common.c:295
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x466479
-  Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-  RSP: 002b:00007efe9f6a7c48 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-  RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000466479
-  RDX: 0000000000000018 RSI: 0000000020000040 RDI: 0000000000000003
-  RBP: 00007efe9f6a86bc R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000005
-  R13: 0000000000000bf2 R14: 00000000004cb80a R15: 00000000006fefc0
-
-Fixes: 849e149063bd ("RDMA/core: Do not allow alloc_commit to fail")
-Link: https://lore.kernel.org/r/20200421082929.311931-3-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 3928aa3f5775 ("iommu/amd: Detect and enable guest vAPIC support")
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/1587562202-14183-1-git-send-email-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/rdma_core.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/iommu/amd_iommu_init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/core/rdma_core.c
-+++ b/drivers/infiniband/core/rdma_core.c
-@@ -474,16 +474,15 @@ alloc_begin_fd_uobject(const struct uver
- 	filp = anon_inode_getfile(fd_type->name, fd_type->fops, NULL,
- 				  fd_type->flags);
- 	if (IS_ERR(filp)) {
-+		uverbs_uobject_put(uobj);
- 		uobj = ERR_CAST(filp);
--		goto err_uobj;
-+		goto err_fd;
- 	}
- 	uobj->object = filp;
- 
- 	uobj->id = new_fd;
- 	return uobj;
- 
--err_uobj:
--	uverbs_uobject_put(uobj);
- err_fd:
- 	put_unused_fd(new_fd);
- 	return uobj;
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -2946,7 +2946,7 @@ static int __init parse_amd_iommu_intr(c
+ {
+ 	for (; *str; ++str) {
+ 		if (strncmp(str, "legacy", 6) == 0) {
+-			amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY;
++			amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY_GA;
+ 			break;
+ 		}
+ 		if (strncmp(str, "vapic", 5) == 0) {
 
 
