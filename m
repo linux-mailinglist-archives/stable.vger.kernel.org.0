@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63D2A1C4522
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956451C43A8
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731232AbgEDSBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:01:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57590 "EHLO mail.kernel.org"
+        id S1730981AbgEDSAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731224AbgEDSBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:01:49 -0400
+        id S1730986AbgEDSAV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:00:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A42E52073B;
-        Mon,  4 May 2020 18:01:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2229520721;
+        Mon,  4 May 2020 18:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615309;
-        bh=a5Q6ARFG+WGwfBrNNAer3kTu/FZ8YJRrxVocg0nPM7g=;
+        s=default; t=1588615221;
+        bh=fwR0V1cq/YSDhhql/2sy5/+ZtJJnxpF1Wz065Hb34Jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHaLLYv9EqvvcxyTL3j19nXvZszbPBDDkm60aGbGlMCeXo2NG6cb67OSvsdeUjoei
-         9hmO5Y4f8pMmiAIez7BFsNnyfGby6kgJIBrFi3qRqxkneiYFiNYNm184d40ZmHSQrk
-         lTjAtufZWP6DmrubAlHlB9+cFSTIKyyk9Pcgnq4Y=
+        b=IAwyvPz+t8nlWOELMhGSVQ0h9Aq6BaSEo82TwVkVilA/kuOagba428vY5d6rQ8l6v
+         waibYWMazrS/fr9W2xKR4Iv8n720tN/EVXoTI4F6f9lEc24gviLVVCVWc2w6zpiV8h
+         xbu1wuuXGVeCuyQX+SPhu85y6oYL1FvNX+uBsxXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arun Easi <aeasi@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Martin Wilck <mwilck@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 16/37] scsi: qla2xxx: check UNLOADING before posting async work
+        stable@vger.kernel.org, Sunwook Eom <speed.eom@samsung.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 15/26] dm verity fec: fix hash block number in verity_fec_decode
 Date:   Mon,  4 May 2020 19:57:29 +0200
-Message-Id: <20200504165450.158814908@linuxfoundation.org>
+Message-Id: <20200504165445.923422760@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
+References: <20200504165442.494398840@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Sunwook Eom <speed.eom@samsung.com>
 
-commit 5a263892d7d0b4fe351363f8d1a14c6a75955475 upstream.
+commit ad4e80a639fc61d5ecebb03caa5cdbfb91fcebfc upstream.
 
-qlt_free_session_done() tries to post async PRLO / LOGO, and waits for the
-completion of these async commands. If UNLOADING is set, this is doomed to
-timeout, because the async logout command will never complete.
+The error correction data is computed as if data and hash blocks
+were concatenated. But hash block number starts from v->hash_start.
+So, we have to calculate hash block number based on that.
 
-The only way to avoid waiting pointlessly is to fail posting these commands
-in the first place if the driver is in UNLOADING state.  In general,
-posting any command should be avoided when the driver is UNLOADING.
-
-With this patch, "rmmod qla2xxx" completes without noticeable delay.
-
-Link: https://lore.kernel.org/r/20200421204621.19228-3-mwilck@suse.com
-Fixes: 45235022da99 ("scsi: qla2xxx: Fix driver unload by shutting down chip")
-Acked-by: Arun Easi <aeasi@marvell.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: a739ff3f543af ("dm verity: add support for forward error correction")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sunwook Eom <speed.eom@samsung.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_os.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/md/dm-verity-fec.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -4645,6 +4645,9 @@ qla2x00_alloc_work(struct scsi_qla_host
- 	struct qla_work_evt *e;
- 	uint8_t bail;
+--- a/drivers/md/dm-verity-fec.c
++++ b/drivers/md/dm-verity-fec.c
+@@ -436,7 +436,7 @@ int verity_fec_decode(struct dm_verity *
+ 	fio->level++;
  
-+	if (test_bit(UNLOADING, &vha->dpc_flags))
-+		return NULL;
-+
- 	QLA_VHA_MARK_BUSY(vha, bail);
- 	if (bail)
- 		return NULL;
+ 	if (type == DM_VERITY_BLOCK_TYPE_METADATA)
+-		block += v->data_blocks;
++		block = block - v->hash_start + v->data_blocks;
+ 
+ 	/*
+ 	 * For RS(M, N), the continuous FEC data is divided into blocks of N
 
 
