@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F131C444B
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DACB1C4503
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731874AbgEDSF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:05:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36020 "EHLO mail.kernel.org"
+        id S1731386AbgEDSLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:11:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731884AbgEDSFz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:05:55 -0400
+        id S1730975AbgEDSDs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:03:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 239CA2073B;
-        Mon,  4 May 2020 18:05:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90A3520707;
+        Mon,  4 May 2020 18:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615555;
-        bh=2CO5k6vD6czG69Ma7ay0a21TfHP8pfcgA+9/BvVhWII=;
+        s=default; t=1588615428;
+        bh=tTx+X6ofM/0dXOC1QY/hOoerybTx5eC+WY95hSicXC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNkSM6sUKaGhjZq18nq/I2IH86R+LuLIsrKsX6I3AQFhRq/JX1HIANrJikdE6Qz/3
-         PfHzyxgOAdLHkV6GFIOvTiQiu2k27KbTqqKRMh9RenpBtwRa+7v1Lt/bWgt7iMddQy
-         VpuFY1+2E2j3aOR6YY+7tJPVq8X3LVYs8trwhvnM=
+        b=Ut2FRucAC9GScW9e61iNzQg9pmULyfaIkkEsYA7qzPl0lBITGqJ423zVXxE+Kgrsq
+         G70v9rCNzfiMp5jYECilT8+bE+A40GCfZT1ctuI4Gd8GL5sOPuiNocADIcEuS6wxoR
+         TmjQ3Fx7xpTT3RFA4cVpwxJ9qn0XO3DR2uiQkxH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
-Subject: [PATCH 5.6 28/73] i2c: amd-mp2-pci: Fix Oops in amd_mp2_pci_init() error handling
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.4 27/57] IB/rdmavt: Always return ERR_PTR from rvt_create_mmap_info()
 Date:   Mon,  4 May 2020 19:57:31 +0200
-Message-Id: <20200504165507.147011198@linuxfoundation.org>
+Message-Id: <20200504165458.696080500@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-commit ac2b0813fceaf7cb3d8d46c7b33c90bae9fa49db upstream.
+commit 47c370c1a5eea9b2f6f026d49e060c3748c89667 upstream.
 
-The problem is that we dereference "privdata->pci_dev" when we print
-the error messages in amd_mp2_pci_init():
+The commit below modified rvt_create_mmap_info() to return ERR_PTR's but
+didn't update the callers to handle them. Modify rvt_create_mmap_info() to
+only return ERR_PTR and fix all error checking after
+rvt_create_mmap_info() was called.
 
-	dev_err(ndev_dev(privdata), "Failed to enable MP2 PCI device\n");
-		^^^^^^^^^^^^^^^^^
-
-Fixes: 529766e0a011 ("i2c: Add drivers for the AMD PCIe MP2 I2C controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org
+Fixes: ff23dfa13457 ("IB: Pass only ib_udata in function prototypes")
+Link: https://lore.kernel.org/r/20200424173146.10970-1-sudipm.mukherjee@gmail.com
+Cc: stable@vger.kernel.org [5.4+]
+Tested-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Acked-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-amd-mp2-pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/rdmavt/cq.c   |    4 ++--
+ drivers/infiniband/sw/rdmavt/mmap.c |    4 ++--
+ drivers/infiniband/sw/rdmavt/qp.c   |    4 ++--
+ drivers/infiniband/sw/rdmavt/srq.c  |    4 ++--
+ 4 files changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/i2c/busses/i2c-amd-mp2-pci.c
-+++ b/drivers/i2c/busses/i2c-amd-mp2-pci.c
-@@ -349,12 +349,12 @@ static int amd_mp2_pci_probe(struct pci_
- 	if (!privdata)
- 		return -ENOMEM;
+--- a/drivers/infiniband/sw/rdmavt/cq.c
++++ b/drivers/infiniband/sw/rdmavt/cq.c
+@@ -248,8 +248,8 @@ int rvt_create_cq(struct ib_cq *ibcq, co
+ 	 */
+ 	if (udata && udata->outlen >= sizeof(__u64)) {
+ 		cq->ip = rvt_create_mmap_info(rdi, sz, udata, u_wc);
+-		if (!cq->ip) {
+-			err = -ENOMEM;
++		if (IS_ERR(cq->ip)) {
++			err = PTR_ERR(cq->ip);
+ 			goto bail_wc;
+ 		}
  
-+	privdata->pci_dev = pci_dev;
- 	rc = amd_mp2_pci_init(privdata, pci_dev);
- 	if (rc)
- 		return rc;
+--- a/drivers/infiniband/sw/rdmavt/mmap.c
++++ b/drivers/infiniband/sw/rdmavt/mmap.c
+@@ -154,7 +154,7 @@ done:
+  * @udata: user data (must be valid!)
+  * @obj: opaque pointer to a cq, wq etc
+  *
+- * Return: rvt_mmap struct on success
++ * Return: rvt_mmap struct on success, ERR_PTR on failure
+  */
+ struct rvt_mmap_info *rvt_create_mmap_info(struct rvt_dev_info *rdi, u32 size,
+ 					   struct ib_udata *udata, void *obj)
+@@ -166,7 +166,7 @@ struct rvt_mmap_info *rvt_create_mmap_in
  
- 	mutex_init(&privdata->c2p_lock);
--	privdata->pci_dev = pci_dev;
+ 	ip = kmalloc_node(sizeof(*ip), GFP_KERNEL, rdi->dparms.node);
+ 	if (!ip)
+-		return ip;
++		return ERR_PTR(-ENOMEM);
  
- 	pm_runtime_set_autosuspend_delay(&pci_dev->dev, 1000);
- 	pm_runtime_use_autosuspend(&pci_dev->dev);
+ 	size = PAGE_ALIGN(size);
+ 
+--- a/drivers/infiniband/sw/rdmavt/qp.c
++++ b/drivers/infiniband/sw/rdmavt/qp.c
+@@ -1244,8 +1244,8 @@ struct ib_qp *rvt_create_qp(struct ib_pd
+ 
+ 			qp->ip = rvt_create_mmap_info(rdi, s, udata,
+ 						      qp->r_rq.wq);
+-			if (!qp->ip) {
+-				ret = ERR_PTR(-ENOMEM);
++			if (IS_ERR(qp->ip)) {
++				ret = ERR_CAST(qp->ip);
+ 				goto bail_qpn;
+ 			}
+ 
+--- a/drivers/infiniband/sw/rdmavt/srq.c
++++ b/drivers/infiniband/sw/rdmavt/srq.c
+@@ -111,8 +111,8 @@ int rvt_create_srq(struct ib_srq *ibsrq,
+ 		u32 s = sizeof(struct rvt_rwq) + srq->rq.size * sz;
+ 
+ 		srq->ip = rvt_create_mmap_info(dev, s, udata, srq->rq.wq);
+-		if (!srq->ip) {
+-			ret = -ENOMEM;
++		if (IS_ERR(srq->ip)) {
++			ret = PTR_ERR(srq->ip);
+ 			goto bail_wq;
+ 		}
+ 
 
 
