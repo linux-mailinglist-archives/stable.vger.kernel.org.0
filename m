@@ -2,75 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D21F1C3F21
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 17:56:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 382D91C3F49
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 18:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729297AbgEDP4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 11:56:03 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:33584 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728967AbgEDP4D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 11:56:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588607762;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:in-reply-to:in-reply-to:references:references;
-        bh=OYHq7rOire7Ktnkt0RBpmRo6SGj1PKuzNi8M05DTLkI=;
-        b=Ha6TXSR1dk5kDe0nJ5LEmY8b36E9yU4aMBtrvNrdwojjsMm+W5NzOL3BNsywf8ZHANjcR7
-        h5IwIFBrdE5a4S6C/1zOxqJGkZcnlD5umQmqxIFuMcYsSnTOfHp7WOJAncBgocu0juS8gj
-        HcovR8DeL6p0SvHstSLpd13Yn7l7khI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-175-FAE15sngPOCntJdqAkUTZg-1; Mon, 04 May 2020 11:56:00 -0400
-X-MC-Unique: FAE15sngPOCntJdqAkUTZg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B279D800687;
-        Mon,  4 May 2020 15:55:59 +0000 (UTC)
-Received: from virtlab511.virt.lab.eng.bos.redhat.com (virtlab511.virt.lab.eng.bos.redhat.com [10.19.152.198])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2D75F57990;
-        Mon,  4 May 2020 15:55:59 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/3] KVM: SVM: fill in kvm_run->debug.arch.dr[67]
-Date:   Mon,  4 May 2020 11:55:56 -0400
-Message-Id: <20200504155558.401468-2-pbonzini@redhat.com>
-In-Reply-To: <20200504155558.401468-1-pbonzini@redhat.com>
-References: <20200504155558.401468-1-pbonzini@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+        id S1726578AbgEDQDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 12:03:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38476 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726551AbgEDQDR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 12:03:17 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71AA5C061A0E;
+        Mon,  4 May 2020 09:03:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=MJiG06idgkhQ7ETomKvk+pXIhWmcVzgg6Sh67pMiRa8=; b=KSO+cu4KS04f9QMSMnoEgpz4lP
+        xEUzzhMHMNy0nNQLb/oWLnGEmta0IgfeMaWPLFVU8v0KE5Q/SQ/kf7eZZQbtkWd1mh1jOtqlamJpr
+        YN+qE50vHOxXepS7SXteLP+Jz8YM7GoPnzdBjtA78HfjZE5ci7Ix61JXsgZmNOz3ITCwjRyIZY+8f
+        VyOZXfNmnntPRCfh/xfRBQBe6qX2/BPIpwkpCgcPE5LJxYzBjMyx5sO7eU8s1XolUvo0+SbSxsYHA
+        IxtQuHWPpYcGkzHJS2c5PU+nqLHZ77pbjoE7P9V0lYxoaoYguZ5auscSJkpBNu3v2LiCVcQSeLZB2
+        eIpOBNEQ==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jVdYo-0007fF-8J; Mon, 04 May 2020 16:03:14 +0000
+Date:   Mon, 4 May 2020 09:03:14 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, bigeasy@linutronix.de,
+        tglx@linutronix.de, stable@vger.kernel.org
+Subject: Re: [PATCH] drm/i915: check to see if SIMD registers are available
+ before using SIMD
+Message-ID: <20200504160314.GA26373@infradead.org>
+References: <20200430221016.3866-1-Jason@zx2c4.com>
+ <20200501180731.GA2485@infradead.org>
+ <158853721918.8377.18286963845226122104@build.alporthouse.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <158853721918.8377.18286963845226122104@build.alporthouse.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The corresponding code was added for VMX in commit 42dbaa5a057
-("KVM: x86: Virtualize debug registers, 2008-12-15) but never for AMD.
-Fix this.
+On Sun, May 03, 2020 at 09:20:19PM +0100, Chris Wilson wrote:
+> > Err, why does i915 implements its own uncached memcpy instead of relying
+> > on core functionality to start with?
+> 
+> What is this core functionality that provides movntqda?
 
-Cc: stable@vger.kernel.org
-Fixes: 42dbaa5a057 ("KVM: x86: Virtualize debug registers")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- arch/x86/kvm/svm/svm.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 8447ceb02c74..dbcf4198a9fe 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1732,6 +1732,8 @@ static int db_interception(struct vcpu_svm *svm)
- 	if (svm->vcpu.guest_debug &
- 	    (KVM_GUESTDBG_SINGLESTEP | KVM_GUESTDBG_USE_HW_BP)) {
- 		kvm_run->exit_reason = KVM_EXIT_DEBUG;
-+		kvm_run->debug.arch.dr6 = svm->vmcb->save.dr6;
-+		kvm_run->debug.arch.dr7 = svm->vmcb->save.dr7;
- 		kvm_run->debug.arch.pc =
- 			svm->vmcb->save.cs.base + svm->vmcb->save.rip;
- 		kvm_run->debug.arch.exception = DB_VECTOR;
--- 
-2.18.2
-
-
+A sensible name might be memcpy_uncached or mempcy_nontemporal.
+But the important point is that this should be arch code with a common
+fallback rather than hacking it up in drivers.
