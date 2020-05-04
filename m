@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEF4F1C44B3
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 924781C44B5
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731966AbgEDSG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:06:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36798 "EHLO mail.kernel.org"
+        id S1731980AbgEDSG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731958AbgEDSGZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:06:25 -0400
+        id S1731972AbgEDSG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:06:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A16D20721;
-        Mon,  4 May 2020 18:06:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADAF520746;
+        Mon,  4 May 2020 18:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615584;
-        bh=VbAQfR2M04RtC+waQITrYrcHnc8XtCKGxpNl6W13Eig=;
+        s=default; t=1588615587;
+        bh=5Ba3zmbe26PyiXUYcpJE1N44vRi1Et3FlZoBjwaufCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14Nb6ayWn8vdlRa6WodSMatGPvkAeqEwxo6YhLi+l2bF1xLun23y/Bc9H7HyaXuV7
-         3ZT+lyiW7PkI2ALXiCuXTPhkj70hqNtTmLNsrI05IFu36TSJgKmSI2xNraQR+gXTxF
-         9pMM42Qk7SDbdR/MeHrlK7GLSxGVBPBC9GqxMnbo=
+        b=B2hO/kvmT2XP37CAAP/Uxm6ytaGz+2eXdb+QAOlOQYyqkxbCAlV9FBqzVcCfC9KvS
+         InJm5/Bn+8+5Oaps4bU+XVUNKB/XNPulwvnjh53TkNylVs9lK7MfP3f5U2prjWStVa
+         7lhA3ETKsVfPgRJwVFpHc0UWUyUiIrkv4XRy2aGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.6 07/73] drm/i915/gt: Check cacheline is valid before acquiring
-Date:   Mon,  4 May 2020 19:57:10 +0200
-Message-Id: <20200504165503.252291539@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 5.6 08/73] drm/qxl: qxl_release leak in qxl_draw_dirty_fb()
+Date:   Mon,  4 May 2020 19:57:11 +0200
+Message-Id: <20200504165503.424748924@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
 References: <20200504165501.781878940@linuxfoundation.org>
@@ -44,76 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 2abaad4eb59d1cdc903ea84c06acb406e2fbb263 upstream.
+commit 85e9b88af1e6164f19ec71381efd5e2bcfc17620 upstream.
 
-The hwsp_cacheline pointer from i915_request is very, very flimsy. The
-i915_request.timeline (and the hwsp_cacheline) are lost upon retiring
-(after an RCU grace). Therefore we need to confirm that once we have the
-right pointer for the cacheline, it is not in the process of being
-retired and disposed of before we attempt to acquire a reference to the
-cacheline.
+ret should be changed to release allocated struct qxl_release
 
-<3>[  547.208237] BUG: KASAN: use-after-free in active_debug_hint+0x6a/0x70 [i915]
-<3>[  547.208366] Read of size 8 at addr ffff88822a0d2710 by task gem_exec_parall/2536
-
-<4>[  547.208547] CPU: 3 PID: 2536 Comm: gem_exec_parall Tainted: G     U            5.7.0-rc2-ged7a286b5d02d-kasan_117+ #1
-<4>[  547.208556] Hardware name: Dell Inc. XPS 13 9350/, BIOS 1.4.12 11/30/2016
-<4>[  547.208564] Call Trace:
-<4>[  547.208579]  dump_stack+0x96/0xdb
-<4>[  547.208707]  ? active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.208719]  print_address_description.constprop.6+0x16/0x310
-<4>[  547.208841]  ? active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.208963]  ? active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.208975]  __kasan_report+0x137/0x190
-<4>[  547.209106]  ? active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.209127]  kasan_report+0x32/0x50
-<4>[  547.209257]  ? i915_gemfs_fini+0x40/0x40 [i915]
-<4>[  547.209376]  active_debug_hint+0x6a/0x70 [i915]
-<4>[  547.209389]  debug_print_object+0xa7/0x220
-<4>[  547.209405]  ? lockdep_hardirqs_on+0x348/0x5f0
-<4>[  547.209426]  debug_object_assert_init+0x297/0x430
-<4>[  547.209449]  ? debug_object_free+0x360/0x360
-<4>[  547.209472]  ? lock_acquire+0x1ac/0x8a0
-<4>[  547.209592]  ? intel_timeline_read_hwsp+0x4f/0x840 [i915]
-<4>[  547.209737]  ? i915_active_acquire_if_busy+0x66/0x120 [i915]
-<4>[  547.209861]  i915_active_acquire_if_busy+0x66/0x120 [i915]
-<4>[  547.209990]  ? __live_alloc.isra.15+0xc0/0xc0 [i915]
-<4>[  547.210005]  ? rcu_read_lock_sched_held+0xd0/0xd0
-<4>[  547.210017]  ? print_usage_bug+0x580/0x580
-<4>[  547.210153]  intel_timeline_read_hwsp+0xbc/0x840 [i915]
-<4>[  547.210284]  __emit_semaphore_wait+0xd5/0x480 [i915]
-<4>[  547.210415]  ? i915_fence_get_timeline_name+0x110/0x110 [i915]
-<4>[  547.210428]  ? lockdep_hardirqs_on+0x348/0x5f0
-<4>[  547.210442]  ? _raw_spin_unlock_irq+0x2a/0x40
-<4>[  547.210567]  ? __await_execution.constprop.51+0x2e0/0x570 [i915]
-<4>[  547.210706]  i915_request_await_dma_fence+0x8f7/0xc70 [i915]
-
-Fixes: 85bedbf191e8 ("drm/i915/gt: Eliminate the trylock for reading a timeline's hwsp")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200427093038.29219-1-chris@chris-wilson.co.uk
-(cherry picked from commit 2759e395358b2b909577928894f856ab75bea41a)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: 8002db6336dd ("qxl: convert qxl driver to proper use for reservations")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/22cfd55f-07c8-95d0-a2f7-191b7153c3d4@virtuozzo.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gt/intel_timeline.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/qxl/qxl_draw.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_timeline.c
-+++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
-@@ -519,6 +519,8 @@ int intel_timeline_read_hwsp(struct i915
+--- a/drivers/gpu/drm/qxl/qxl_draw.c
++++ b/drivers/gpu/drm/qxl/qxl_draw.c
+@@ -209,9 +209,10 @@ void qxl_draw_dirty_fb(struct qxl_device
+ 		goto out_release_backoff;
  
- 	rcu_read_lock();
- 	cl = rcu_dereference(from->hwsp_cacheline);
-+	if (i915_request_completed(from)) /* confirm cacheline is valid */
-+		goto unlock;
- 	if (unlikely(!i915_active_acquire_if_busy(&cl->active)))
- 		goto unlock; /* seqno wrapped and completed! */
- 	if (unlikely(i915_request_completed(from)))
+ 	rects = drawable_set_clipping(qdev, num_clips, clips_bo);
+-	if (!rects)
++	if (!rects) {
++		ret = -EINVAL;
+ 		goto out_release_backoff;
+-
++	}
+ 	drawable = (struct qxl_drawable *)qxl_release_map(qdev, release);
+ 
+ 	drawable->clip.type = SPICE_CLIP_TYPE_RECTS;
 
 
