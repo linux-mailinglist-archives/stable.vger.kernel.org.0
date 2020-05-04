@@ -2,70 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 004571C4032
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 18:40:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C31D1C408E
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 18:55:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729876AbgEDQk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 12:40:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51572 "EHLO mail.kernel.org"
+        id S1729540AbgEDQzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 12:55:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729870AbgEDQk2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 12:40:28 -0400
+        id S1728655AbgEDQzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 12:55:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD85520705;
-        Mon,  4 May 2020 16:40:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4E4D206A4;
+        Mon,  4 May 2020 16:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588610428;
-        bh=me9A0Tsq6VCQ8gxrwVBkQw/zcs3fJgv1vR14/TqibgE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tY9DDj5Gm+JJR/3jU/lRQGC5IEcGPfnELoZb0vlZKISnu913IwjCfqHbHTruyNmKq
-         J8ikTNWJK6HpEZDDD2onnOm1d3PhB5jLceCNguHCZJpHo4/2ZxopB88yJb6HfOaRP0
-         NXpNMg9jIhOZQSb6OlIMYYVReiyCbkZJLTfgeaR8=
-Date:   Mon, 4 May 2020 18:40:26 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Vasily Averin <vvs@virtuozzo.com>
-Cc:     stable@vger.kernel.org, Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 4.14] drm/qxl: qxl_release use after free
-Message-ID: <20200504164026.GC2724164@kroah.com>
-References: <050bf096-986a-6ee8-7bef-37a532cc1fcd@virtuozzo.com>
+        s=default; t=1588611353;
+        bh=CH3GET+MG4Y29cr3xkdCRRrPdSC0SAx2z2zqZ8s3LWw=;
+        h=Subject:To:From:Date:From;
+        b=0VysZSaG2dZTwIPVSX+IXON0A9f+iEf81A0ijKr0YPvQTHr5njvw5KPcVPAj7HNsp
+         /W76Gz2ofG3TiuY6W5bUqivXHxATIHdq0YJmdaZ6VINSZPrfEMbOAS0Tg2cm1D2qaR
+         Qaaiv4/c9A6D3Gg1VqJXYusHRSQodVuvCaPFMetc=
+Subject: patch "tty: xilinx_uartps: Fix missing id assignment to the console" added to tty-linus
+To:     shubhrajyoti.datta@xilinx.com, gregkh@linuxfoundation.org,
+        michal.simek@xilinx.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 04 May 2020 18:55:51 +0200
+Message-ID: <158861135111318@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <050bf096-986a-6ee8-7bef-37a532cc1fcd@virtuozzo.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 04, 2020 at 02:38:18PM +0300, Vasily Averin wrote:
-> >>From 933db73351d359f74b14f4af095808260aff11f9 Mon Sep 17 00:00:00 2001
-> From: Vasily Averin <vvs@virtuozzo.com>
-> Date: Wed, 29 Apr 2020 12:01:24 +0300
-> Subject: drm/qxl: qxl_release use after free
-> 
-> From: Vasily Averin <vvs@virtuozzo.com>
-> 
-> commit 933db73351d359f74b14f4af095808260aff11f9 upstream.
-> qxl_release should not be accesses after qxl_push_*_ring_release() calls:
-> userspace driver can process submitted command quickly, move qxl_release
-> into release_ring, generate interrupt and trigger garbage collector.
-> 
-> It can lead to crashes in qxl driver or trigger memory corruption
-> in some kmalloc-192 slab object
-> 
-> Gerd Hoffmann proposes to swap the qxl_release_fence_buffer_objects() +
-> qxl_push_{cursor,command}_ring_release() calls to close that race window.
-> 
-> cc: stable@vger.kernel.org
-> Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
-> Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-> Link: http://patchwork.freedesktop.org/patch/msgid/fa17b338-66ae-f299-68fe-8d32419d9071@virtuozzo.com
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> 
-> backported to v4.14-stable
 
-Now replaced, thanks.
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    tty: xilinx_uartps: Fix missing id assignment to the console
+
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 2ae11c46d5fdc46cb396e35911c713d271056d35 Mon Sep 17 00:00:00 2001
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Date: Mon, 4 May 2020 16:27:28 +0200
+Subject: tty: xilinx_uartps: Fix missing id assignment to the console
+
+When serial console has been assigned to ttyPS1 (which is serial1 alias)
+console index is not updated property and pointing to index -1 (statically
+initialized) which ends up in situation where nothing has been printed on
+the port.
+
+The commit 18cc7ac8a28e ("Revert "serial: uartps: Register own uart console
+and driver structures"") didn't contain this line which was removed by
+accident.
+
+Fixes: 18cc7ac8a28e ("Revert "serial: uartps: Register own uart console and driver structures"")
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/ed3111533ef5bd342ee5ec504812240b870f0853.1588602446.git.michal.simek@xilinx.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/xilinx_uartps.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
+index ac137b6a1dc1..35e9e8faf8de 100644
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -1459,6 +1459,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
+ 		cdns_uart_uart_driver.nr = CDNS_UART_NR_PORTS;
+ #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
+ 		cdns_uart_uart_driver.cons = &cdns_uart_console;
++		cdns_uart_console.index = id;
+ #endif
+ 
+ 		rc = uart_register_driver(&cdns_uart_uart_driver);
+-- 
+2.26.2
+
+
