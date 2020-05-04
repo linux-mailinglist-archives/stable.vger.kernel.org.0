@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 507C11C4400
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:03:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FFF61C4560
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:15:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731504AbgEDSDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:03:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60526 "EHLO mail.kernel.org"
+        id S1730969AbgEDSOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:14:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731501AbgEDSDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:03:24 -0400
+        id S1730976AbgEDSAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:00:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 342CC24958;
-        Mon,  4 May 2020 18:03:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0C1120663;
+        Mon,  4 May 2020 18:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615403;
-        bh=2CO5k6vD6czG69Ma7ay0a21TfHP8pfcgA+9/BvVhWII=;
+        s=default; t=1588615219;
+        bh=YO4O5qk07yYWKRjbbepMU90BCfrnGSjV8Bk/NcGK8UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vw8dIc+q9ATiB3tceLYXjF1sLR7YpAixuPvsu60XmdtQov4au/23F7bBrV/erDW3C
-         CCqF0BRBdKm6bbLAZj+bThLgFIat38gRUKtAS/L0otyy6R0CwLHBIdXykjPtDaM7yu
-         LSBqzCLcbR8czJNgeDGucZAsErw3Bm3ZlzXT+LKU=
+        b=rFh9epYCR1uEqKPRBckN2RSG1ctGOFmL2KiviOPvwKU+lfWrOEJFtfC8fm3dXv/Tg
+         32pJVWw06McdvdQjd7LWLv6E9JJEPCnLJBbddh4t9/D1A6DJkmagyx15ZtHSUIJ+Kq
+         R/JX2BlFqv1B3RI+DlenJCA8f0W27mxAxRc1zoW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
-Subject: [PATCH 5.4 24/57] i2c: amd-mp2-pci: Fix Oops in amd_mp2_pci_init() error handling
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 14/26] PM: hibernate: Freeze kernel threads in software_resume()
 Date:   Mon,  4 May 2020 19:57:28 +0200
-Message-Id: <20200504165458.452156495@linuxfoundation.org>
+Message-Id: <20200504165445.797003904@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
+References: <20200504165442.494398840@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-commit ac2b0813fceaf7cb3d8d46c7b33c90bae9fa49db upstream.
+commit 2351f8d295ed63393190e39c2f7c1fee1a80578f upstream.
 
-The problem is that we dereference "privdata->pci_dev" when we print
-the error messages in amd_mp2_pci_init():
+Currently the kernel threads are not frozen in software_resume(), so
+between dpm_suspend_start(PMSG_QUIESCE) and resume_target_kernel(),
+system_freezable_power_efficient_wq can still try to submit SCSI
+commands and this can cause a panic since the low level SCSI driver
+(e.g. hv_storvsc) has quiesced the SCSI adapter and can not accept
+any SCSI commands: https://lkml.org/lkml/2020/4/10/47
 
-	dev_err(ndev_dev(privdata), "Failed to enable MP2 PCI device\n");
-		^^^^^^^^^^^^^^^^^
+At first I posted a fix (https://lkml.org/lkml/2020/4/21/1318) trying
+to resolve the issue from hv_storvsc, but with the help of
+Bart Van Assche, I realized it's better to fix software_resume(),
+since this looks like a generic issue, not only pertaining to SCSI.
 
-Fixes: 529766e0a011 ("i2c: Add drivers for the AMD PCIe MP2 I2C controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-amd-mp2-pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/power/hibernate.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/i2c/busses/i2c-amd-mp2-pci.c
-+++ b/drivers/i2c/busses/i2c-amd-mp2-pci.c
-@@ -349,12 +349,12 @@ static int amd_mp2_pci_probe(struct pci_
- 	if (!privdata)
- 		return -ENOMEM;
- 
-+	privdata->pci_dev = pci_dev;
- 	rc = amd_mp2_pci_init(privdata, pci_dev);
- 	if (rc)
- 		return rc;
- 
- 	mutex_init(&privdata->c2p_lock);
--	privdata->pci_dev = pci_dev;
- 
- 	pm_runtime_set_autosuspend_delay(&pci_dev->dev, 1000);
- 	pm_runtime_use_autosuspend(&pci_dev->dev);
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -892,6 +892,13 @@ static int software_resume(void)
+ 	error = freeze_processes();
+ 	if (error)
+ 		goto Close_Finish;
++
++	error = freeze_kernel_threads();
++	if (error) {
++		thaw_processes();
++		goto Close_Finish;
++	}
++
+ 	error = load_image_and_restore();
+ 	thaw_processes();
+  Finish:
 
 
