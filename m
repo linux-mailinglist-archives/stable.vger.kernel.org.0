@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F6D31C384A
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 13:36:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E77461C385D
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 13:38:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728592AbgEDLgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 07:36:36 -0400
-Received: from relay.sw.ru ([185.231.240.75]:47974 "EHLO relay.sw.ru"
+        id S1728665AbgEDLiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 07:38:22 -0400
+Received: from relay.sw.ru ([185.231.240.75]:48014 "EHLO relay.sw.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726445AbgEDLgf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 07:36:35 -0400
+        id S1728698AbgEDLiW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 07:38:22 -0400
 Received: from vvs-ws.sw.ru ([172.16.24.21])
         by relay.sw.ru with esmtp (Exim 4.92.3)
         (envelope-from <vvs@virtuozzo.com>)
-        id 1jVZOd-0002R4-JM; Mon, 04 May 2020 14:36:27 +0300
+        id 1jVZQQ-0002SH-QA; Mon, 04 May 2020 14:38:18 +0300
 From:   Vasily Averin <vvs@virtuozzo.com>
-Subject: [PATCH 4.19] drm/qxl: qxl_release use after free
+Subject: [PATCH 4.14] drm/qxl: qxl_release use after free
 To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     Gerd Hoffmann <kraxel@redhat.com>
-Message-ID: <7f93a18b-45de-457d-6901-f6babce1d56a@virtuozzo.com>
-Date:   Mon, 4 May 2020 14:36:27 +0300
+Message-ID: <050bf096-986a-6ee8-7bef-37a532cc1fcd@virtuozzo.com>
+Date:   Mon, 4 May 2020 14:38:18 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
@@ -40,7 +40,6 @@ Subject: drm/qxl: qxl_release use after free
 From: Vasily Averin <vvs@virtuozzo.com>
 
 commit 933db73351d359f74b14f4af095808260aff11f9 upstream.
-
 qxl_release should not be accesses after qxl_push_*_ring_release() calls:
 userspace driver can process submitted command quickly, move qxl_release
 into release_ring, generate interrupt and trigger garbage collector.
@@ -57,7 +56,8 @@ Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Link: http://patchwork.freedesktop.org/patch/msgid/fa17b338-66ae-f299-68fe-8d32419d9071@virtuozzo.com
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-backported to v.4.19 stable
+backported to v4.14-stable
+
 Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 ---
  drivers/gpu/drm/qxl/qxl_cmd.c     | 5 ++---
@@ -67,10 +67,10 @@ Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
  4 files changed, 10 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index 208af9f37914..be3eaf102fee 100644
+index 3eb920851141..31fbeba1494d 100644
 --- a/drivers/gpu/drm/qxl/qxl_cmd.c
 +++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -500,8 +500,8 @@ int qxl_hw_surface_alloc(struct qxl_device *qdev,
+@@ -532,8 +532,8 @@ int qxl_hw_surface_alloc(struct qxl_device *qdev,
  	/* no need to add a release to the fence for this surface bo,
  	   since it is only released when we ask to destroy the surface
  	   and it would never signal otherwise */
@@ -80,7 +80,7 @@ index 208af9f37914..be3eaf102fee 100644
  
  	surf->hw_surf_alloc = true;
  	spin_lock(&qdev->surf_id_idr_lock);
-@@ -543,9 +543,8 @@ int qxl_hw_surface_dealloc(struct qxl_device *qdev,
+@@ -575,9 +575,8 @@ int qxl_hw_surface_dealloc(struct qxl_device *qdev,
  	cmd->surface_id = id;
  	qxl_release_unmap(qdev, release, &cmd->release_info);
  
@@ -92,10 +92,10 @@ index 208af9f37914..be3eaf102fee 100644
  	return 0;
  }
 diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 0570c6826bff..769e12b4c13c 100644
+index 573bab222123..b209a25e307d 100644
 --- a/drivers/gpu/drm/qxl/qxl_display.c
 +++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -532,8 +532,8 @@ static int qxl_primary_apply_cursor(struct drm_plane *plane)
+@@ -533,8 +533,8 @@ static int qxl_primary_apply_cursor(struct drm_plane *plane)
  	cmd->u.set.visible = 1;
  	qxl_release_unmap(qdev, release, &cmd->release_info);
  
@@ -105,7 +105,7 @@ index 0570c6826bff..769e12b4c13c 100644
  
  	return ret;
  
-@@ -694,8 +694,8 @@ static void qxl_cursor_atomic_update(struct drm_plane *plane,
+@@ -701,8 +701,8 @@ static void qxl_cursor_atomic_update(struct drm_plane *plane,
  	cmd->u.position.y = plane->state->crtc_y + fb->hot_y;
  
  	qxl_release_unmap(qdev, release, &cmd->release_info);
@@ -115,7 +115,7 @@ index 0570c6826bff..769e12b4c13c 100644
  
  	if (old_cursor_bo)
  		qxl_bo_unref(&old_cursor_bo);
-@@ -740,8 +740,8 @@ static void qxl_cursor_atomic_disable(struct drm_plane *plane,
+@@ -747,8 +747,8 @@ static void qxl_cursor_atomic_disable(struct drm_plane *plane,
  	cmd->type = QXL_CURSOR_HIDE;
  	qxl_release_unmap(qdev, release, &cmd->release_info);
  
@@ -170,7 +170,7 @@ index 4d8681e84e68..958d0d870c99 100644
  out_free_release:
  	if (ret)
 diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
-index 6cc9f3367fa0..5536b2f7b7b0 100644
+index 31effed4a3c8..cede17585525 100644
 --- a/drivers/gpu/drm/qxl/qxl_ioctl.c
 +++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
 @@ -257,11 +257,8 @@ static int qxl_process_single_command(struct qxl_device *qdev,
