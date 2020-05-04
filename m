@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C73B1C44FE
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980211C4550
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730989AbgEDSDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:03:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60394 "EHLO mail.kernel.org"
+        id S1730906AbgEDR77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 13:59:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731481AbgEDSDT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:03:19 -0400
+        id S1730902AbgEDR76 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 13:59:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 597F4206B8;
-        Mon,  4 May 2020 18:03:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B69EC20663;
+        Mon,  4 May 2020 17:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615398;
-        bh=SsXvhzbB2jWYNJpRGiFkqDvIr0NI17B/xvS9oHi+tsM=;
+        s=default; t=1588615197;
+        bh=zpmXzaO6P1PeBJPtMvXhh7XEmu0fLIE1OTqr7nC/dcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yeUzbN1WANfZTtOO5hVeciHAk92+2+D2mG8VO82OE1bPHRn1Ns+ANks6j4NwLBABn
-         vXuzTvyQx5L6UHid7jeF2QKuN6dVdaBsHuSXjLwSBRfEPztnfOjD2uL32N3Rt59AKR
-         L81jnuyZ5Vs4K4K+IBHd8+OcuS7chWWqQqP8hXwI=
+        b=0g/2xQG/HSd3Pf+/JlXJ/sZ0ZvRiAZGq8xa1+VwPp4MuPBnApFPcq/ls2d837MT0f
+         aPSUJ3dcPP2i+KkBSBSdE5qcyuB0Awzr1ctEMZsog3Hsmqekk4LGC9VBm8wBJKkb/g
+         kBzvOw2uBh3/3yICs4KR4Iq7RX3pAGpG4diVair0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Khoruzhick <anarsoul@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 22/57] ALSA: line6: Fix POD HD500 audio playback
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.9 16/18] dmaengine: dmatest: Fix iteration non-stop logic
 Date:   Mon,  4 May 2020 19:57:26 +0200
-Message-Id: <20200504165458.292374352@linuxfoundation.org>
+Message-Id: <20200504165445.574061312@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165442.028485341@linuxfoundation.org>
+References: <20200504165442.028485341@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Khoruzhick <anarsoul@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit cc18b2f4f3f1d7ed3125ac1840794f9feab0325c upstream.
+commit b9f960201249f20deea586b4ec814669b4c6b1c0 upstream.
 
-Apparently interface 1 is control interface akin to HD500X,
-setting LINE6_CAP_CONTROL and choosing it as ctrl_if fixes
-audio playback on POD HD500.
+Under some circumstances, i.e. when test is still running and about to
+time out and user runs, for example,
 
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200425201115.3430-1-anarsoul@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+	grep -H . /sys/module/dmatest/parameters/*
+
+the iterations parameter is not respected and test is going on and on until
+user gives
+
+	echo 0 > /sys/module/dmatest/parameters/run
+
+This is not what expected.
+
+The history of this bug is interesting. I though that the commit
+  2d88ce76eb98 ("dmatest: add a 'wait' parameter")
+is a culprit, but looking closer to the code I think it simple revealed the
+broken logic from the day one, i.e. in the commit
+  0a2ff57d6fba ("dmaengine: dmatest: add a maximum number of test iterations")
+which adds iterations parameter.
+
+So, to the point, the conditional of checking the thread to be stopped being
+first part of conjunction logic prevents to check iterations. Thus, we have to
+always check both conditions to be able to stop after given iterations.
+
+Since it wasn't visible before second commit appeared, I add a respective
+Fixes tag.
+
+Fixes: 2d88ce76eb98 ("dmatest: add a 'wait' parameter")
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20200424161147.16895-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/line6/podhd.c |   22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+ drivers/dma/dmatest.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/usb/line6/podhd.c
-+++ b/sound/usb/line6/podhd.c
-@@ -21,8 +21,7 @@
- enum {
- 	LINE6_PODHD300,
- 	LINE6_PODHD400,
--	LINE6_PODHD500_0,
--	LINE6_PODHD500_1,
-+	LINE6_PODHD500,
- 	LINE6_PODX3,
- 	LINE6_PODX3LIVE,
- 	LINE6_PODHD500X,
-@@ -318,8 +317,7 @@ static const struct usb_device_id podhd_
- 	/* TODO: no need to alloc data interfaces when only audio is used */
- 	{ LINE6_DEVICE(0x5057),    .driver_info = LINE6_PODHD300 },
- 	{ LINE6_DEVICE(0x5058),    .driver_info = LINE6_PODHD400 },
--	{ LINE6_IF_NUM(0x414D, 0), .driver_info = LINE6_PODHD500_0 },
--	{ LINE6_IF_NUM(0x414D, 1), .driver_info = LINE6_PODHD500_1 },
-+	{ LINE6_IF_NUM(0x414D, 0), .driver_info = LINE6_PODHD500 },
- 	{ LINE6_IF_NUM(0x414A, 0), .driver_info = LINE6_PODX3 },
- 	{ LINE6_IF_NUM(0x414B, 0), .driver_info = LINE6_PODX3LIVE },
- 	{ LINE6_IF_NUM(0x4159, 0), .driver_info = LINE6_PODHD500X },
-@@ -352,23 +350,13 @@ static const struct line6_properties pod
- 		.ep_audio_r = 0x82,
- 		.ep_audio_w = 0x01,
- 	},
--	[LINE6_PODHD500_0] = {
-+	[LINE6_PODHD500] = {
- 		.id = "PODHD500",
- 		.name = "POD HD500",
--		.capabilities	= LINE6_CAP_PCM
-+		.capabilities	= LINE6_CAP_PCM | LINE6_CAP_CONTROL
- 				| LINE6_CAP_HWMON,
- 		.altsetting = 1,
--		.ep_ctrl_r = 0x81,
--		.ep_ctrl_w = 0x01,
--		.ep_audio_r = 0x86,
--		.ep_audio_w = 0x02,
--	},
--	[LINE6_PODHD500_1] = {
--		.id = "PODHD500",
--		.name = "POD HD500",
--		.capabilities	= LINE6_CAP_PCM
--				| LINE6_CAP_HWMON,
--		.altsetting = 0,
-+		.ctrl_if = 1,
- 		.ep_ctrl_r = 0x81,
- 		.ep_ctrl_w = 0x01,
- 		.ep_audio_r = 0x86,
+--- a/drivers/dma/dmatest.c
++++ b/drivers/dma/dmatest.c
+@@ -505,8 +505,8 @@ static int dmatest_func(void *data)
+ 	flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
+ 
+ 	ktime = ktime_get();
+-	while (!kthread_should_stop()
+-	       && !(params->iterations && total_tests >= params->iterations)) {
++	while (!(kthread_should_stop() ||
++	       (params->iterations && total_tests >= params->iterations))) {
+ 		struct dma_async_tx_descriptor *tx = NULL;
+ 		struct dmaengine_unmap_data *um;
+ 		dma_addr_t srcs[src_cnt];
 
 
