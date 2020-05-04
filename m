@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D47481C44EB
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 075F71C44A8
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731660AbgEDSEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:04:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33782 "EHLO mail.kernel.org"
+        id S1732030AbgEDSGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:06:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731670AbgEDSEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:04:24 -0400
+        id S1732024AbgEDSGt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:06:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE680205ED;
-        Mon,  4 May 2020 18:04:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E2C0206B8;
+        Mon,  4 May 2020 18:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615464;
-        bh=YkAKodN6UufF5X2rzXlFeZr6xUI5WiB5/Lb6gaqDR/c=;
+        s=default; t=1588615608;
+        bh=0+Wqi8i5cFJHZoi20Re0WmALTJjaX7zj9XsDPNl2Jts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ERJFvegprR+5K+vwLN71VhJ3lL0MFNSEYI5DGpu/pIRIkDStmEE0Zr+nzrzSjT5hP
-         4sk6fLdGYtIYeghBES3jTCaK9XtrcoaDDp5ReZwDsWUBH5ch79VuEC0v7GvnYeK7gV
-         0BB0Xx6vB3rn8hw2vuTTDjdjDsLIY8eB7tGXuSjg=
+        b=rAR1tXtUAQRNNZFAJChu2DY2sTgArDQrBfe+KRqHDio+VV3DF0IeZc3LgzyRFIJh8
+         eQ60usH9R4IR5zLV7a4bsFZmLvi1RvfnorS7OSXBzsA5DRbVwr1dDXMOF5OhO+q621
+         xaevUq5lh7ZNwTbE0GqIkFkcx3Qtl8hLlhifCl6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ryan_chen <ryan_chen@aspeedtech.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5.4 49/57] i2c: aspeed: Avoid i2c interrupt status clear race condition.
-Date:   Mon,  4 May 2020 19:57:53 +0200
-Message-Id: <20200504165500.835261420@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.6 51/73] RDMA/cm: Fix an error check in cm_alloc_id_priv()
+Date:   Mon,  4 May 2020 19:57:54 +0200
+Message-Id: <20200504165509.204224158@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ryan_chen <ryan_chen@aspeedtech.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit c926c87b8e36dcc0ea5c2a0a0227ed4f32d0516a upstream.
+commit 983653515849fb56b78ce55d349bb384d43030f6 upstream.
 
-In AST2600 there have a slow peripheral bus between CPU and i2c
-controller. Therefore GIC i2c interrupt status clear have delay timing,
-when CPU issue write clear i2c controller interrupt status. To avoid
-this issue, the driver need have read after write clear at i2c ISR.
+The xa_alloc_cyclic_irq() function returns either 0 or 1 on success and
+negatives on error.  This code treats 1 as an error and returns ERR_PTR(1)
+which will cause an Oops in the caller.
 
-Fixes: f327c686d3ba ("i2c: aspeed: added driver for Aspeed I2C")
-Signed-off-by: ryan_chen <ryan_chen@aspeedtech.com>
-Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-[wsa: added Fixes tag]
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Fixes: ae78ff3a0f0c ("RDMA/cm: Convert local_id_table to XArray")
+Link: https://lore.kernel.org/r/20200407093714.GA80285@mwanda
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-aspeed.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/cm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -603,6 +603,7 @@ static irqreturn_t aspeed_i2c_bus_irq(in
- 	/* Ack all interrupts except for Rx done */
- 	writel(irq_received & ~ASPEED_I2CD_INTR_RX_DONE,
- 	       bus->base + ASPEED_I2C_INTR_STS_REG);
-+	readl(bus->base + ASPEED_I2C_INTR_STS_REG);
- 	irq_remaining = irq_received;
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -836,7 +836,7 @@ struct ib_cm_id *ib_create_cm_id(struct
  
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
-@@ -645,9 +646,11 @@ static irqreturn_t aspeed_i2c_bus_irq(in
- 			irq_received, irq_handled);
- 
- 	/* Ack Rx done */
--	if (irq_received & ASPEED_I2CD_INTR_RX_DONE)
-+	if (irq_received & ASPEED_I2CD_INTR_RX_DONE) {
- 		writel(ASPEED_I2CD_INTR_RX_DONE,
- 		       bus->base + ASPEED_I2C_INTR_STS_REG);
-+		readl(bus->base + ASPEED_I2C_INTR_STS_REG);
-+	}
- 	spin_unlock(&bus->lock);
- 	return irq_remaining ? IRQ_NONE : IRQ_HANDLED;
- }
+ 	ret = xa_alloc_cyclic_irq(&cm.local_id_table, &id, NULL, xa_limit_32b,
+ 				  &cm.local_id_next, GFP_KERNEL);
+-	if (ret)
++	if (ret < 0)
+ 		goto error;
+ 	cm_id_priv->id.local_id = (__force __be32)id ^ cm.random_id_operand;
+ 	xa_store_irq(&cm.local_id_table, cm_local_id(cm_id_priv->id.local_id),
 
 
