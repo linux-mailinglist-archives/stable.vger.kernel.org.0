@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4D931C4433
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 415371C43EC
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:02:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731219AbgEDSFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34790 "EHLO mail.kernel.org"
+        id S1731376AbgEDSCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:02:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731773AbgEDSFH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:05:07 -0400
+        id S1731372AbgEDSCp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:02:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C92D2075A;
-        Mon,  4 May 2020 18:05:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C16020721;
+        Mon,  4 May 2020 18:02:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615506;
-        bh=W7UAXwWN98Y7sZvTBZNeOKlsGspGEzBV6VrCaOG4pXg=;
+        s=default; t=1588615364;
+        bh=N4i6e4VsODP2CW1mwqCEy5GnptRmE9Pa1G3YDTPyGAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqhFFbmpE5tx5Ij+mENJbTJoodQAoIMGl3eG54Q/Zk0OETw+4v7gGaTtUMWzK/S3u
-         o1GTbKEurkm0Y3uMS9pyNTBeV8nbHxXBWvyc8fOspSnsxmasFEkhZe1csfW70T5F1d
-         F5LQFj2D+djel2ND4M7XkbCR1eQeA77Nqi3VV2eo=
+        b=EwlF4hdQ2WhT+nZuqQc7NYW+8JqniJEeuMwf5SKAgaJUIwtgwn8UdxTLhiHJK0GXo
+         uC8vXdwSIhqBVjLcv5s8OKbbILyEP3auDAnUzeN9IKmzI/V7sYrF8pYnIkdxxzfBTw
+         sBjwTOHN8/CNy/TUIIoIIWhbI+KQLKsXGOBehyOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Kent Russell <kent.russell@amd.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 01/73] drm/scheduler: fix drm_sched_get_cleanup_job
-Date:   Mon,  4 May 2020 19:57:04 +0200
-Message-Id: <20200504165501.981305028@linuxfoundation.org>
+        stable@vger.kernel.org, Sumit Semwal <sumit.semwal@linaro.org>,
+        Chenbo Feng <fengc@google.com>,
+        Greg Hackmann <ghackmann@google.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
+        minchan@kernel.org, surenb@google.com, jenhaochen@google.com,
+        Martin Liu <liumartin@google.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: [PATCH 5.4 01/57] dma-buf: Fix SET_NAME ioctl uapi
+Date:   Mon,  4 May 2020 19:57:05 +0200
+Message-Id: <20200504165456.862815638@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -48,34 +51,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Daniel Vetter <daniel.vetter@intel.com>
 
-commit 8623b5255ae7ccaf276aac3920787bf575fa6b37 upstream.
+commit a5bff92eaac45bdf6221badf9505c26792fdf99e upstream.
 
-We are racing to initialize sched->thread here, just always check the
-current thread.
+The uapi is the same on 32 and 64 bit, but the number isn't. Everyone
+who botched this please re-read:
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Reviewed-by: Kent Russell <kent.russell@amd.com>
-Link: https://patchwork.freedesktop.org/patch/361303/
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
+https://www.kernel.org/doc/html/v5.4-preprc-cpu/ioctl/botching-up-ioctls.html
+
+Also, the type argument for the ioctl macros is for the type the void
+__user *arg pointer points at, which in this case would be the
+variable-sized char[] of a 0 terminated string. So this was botched in
+more than just the usual ways.
+
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Chenbo Feng <fengc@google.com>
+Cc: Greg Hackmann <ghackmann@google.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: linux-media@vger.kernel.org
+Cc: linaro-mm-sig@lists.linaro.org
+Cc: minchan@kernel.org
+Cc: surenb@google.com
+Cc: jenhaochen@google.com
+Cc: Martin Liu <liumartin@google.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Tested-by: Martin Liu <liumartin@google.com>
+Reviewed-by: Martin Liu <liumartin@google.com>
+Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
+  [sumits: updated some checkpatch fixes, corrected author email]
+Link: https://patchwork.freedesktop.org/patch/msgid/20200407133002.3486387-1-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/scheduler/sched_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma-buf/dma-buf.c    |    3 ++-
+ include/uapi/linux/dma-buf.h |    6 ++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/scheduler/sched_main.c
-+++ b/drivers/gpu/drm/scheduler/sched_main.c
-@@ -687,7 +687,7 @@ drm_sched_get_cleanup_job(struct drm_gpu
- 	 */
- 	if ((sched->timeout != MAX_SCHEDULE_TIMEOUT &&
- 	    !cancel_delayed_work(&sched->work_tdr)) ||
--	    __kthread_should_park(sched->thread))
-+	    kthread_should_park())
- 		return NULL;
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -388,7 +388,8 @@ static long dma_buf_ioctl(struct file *f
  
- 	spin_lock_irqsave(&sched->job_list_lock, flags);
+ 		return ret;
+ 
+-	case DMA_BUF_SET_NAME:
++	case DMA_BUF_SET_NAME_A:
++	case DMA_BUF_SET_NAME_B:
+ 		return dma_buf_set_name(dmabuf, (const char __user *)arg);
+ 
+ 	default:
+--- a/include/uapi/linux/dma-buf.h
++++ b/include/uapi/linux/dma-buf.h
+@@ -39,6 +39,12 @@ struct dma_buf_sync {
+ 
+ #define DMA_BUF_BASE		'b'
+ #define DMA_BUF_IOCTL_SYNC	_IOW(DMA_BUF_BASE, 0, struct dma_buf_sync)
++
++/* 32/64bitness of this uapi was botched in android, there's no difference
++ * between them in actual uapi, they're just different numbers.
++ */
+ #define DMA_BUF_SET_NAME	_IOW(DMA_BUF_BASE, 1, const char *)
++#define DMA_BUF_SET_NAME_A	_IOW(DMA_BUF_BASE, 1, u32)
++#define DMA_BUF_SET_NAME_B	_IOW(DMA_BUF_BASE, 1, u64)
+ 
+ #endif
 
 
