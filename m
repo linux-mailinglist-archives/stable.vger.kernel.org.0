@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42BCC1C43B1
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73DD11C43F2
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:03:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731047AbgEDSAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:00:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55592 "EHLO mail.kernel.org"
+        id S1731412AbgEDSC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:02:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731030AbgEDSAl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:00:41 -0400
+        id S1731410AbgEDSCy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:02:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A69E5206B8;
-        Mon,  4 May 2020 18:00:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF9BD206B8;
+        Mon,  4 May 2020 18:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615241;
-        bh=wRkYzBLk0vUVQRuUS+lFzvR6kc1EqVlOI6UkZWW2SN8=;
+        s=default; t=1588615374;
+        bh=bDrhjzhTskjV7kPXv5v9McXEoLe8VDFr0GW1kaT3njM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNrjxHt3aOkSS6CqgXI4nyIAXhESpGjKI9IPNl4/RxV5lE2IwQiTCCArqXiWlZ6Cp
-         7Fh2kJ76sxKG8XXszIFm/LeAxQdzVU+dggzojBMPzpav4xuGiwgQXqtiqeEhPD79UW
-         aF4btDvkryIHPDvV8wNsEFz0nJGN0Y1vWUzvZWMA=
+        b=cJ5+AZnB70uX8z4UYbFViJ36WHnYifuj4iSNB5g0CvLG88Ujxw12OCdlULQK49mmq
+         4P7j5zd4MXwvgUCPaMtTt4gMm0L3dwjvE2xWmdkCYQ7ixAs9H7D+GPpdayG8MIUiJV
+         PTqwE/Tt6jl28wY+lV8g/Lx9SDCdVt3uLqiNFFYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 4.14 03/26] drm/qxl: qxl_release leak in qxl_draw_dirty_fb()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 13/57] mmc: sdhci-xenon: fix annoying 1.8V regulator warning
 Date:   Mon,  4 May 2020 19:57:17 +0200
-Message-Id: <20200504165443.279359748@linuxfoundation.org>
+Message-Id: <20200504165457.600703012@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
-References: <20200504165442.494398840@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Marek Behún <marek.behun@nic.cz>
 
-commit 85e9b88af1e6164f19ec71381efd5e2bcfc17620 upstream.
+commit bb32e1987bc55ce1db400faf47d85891da3c9b9f upstream.
 
-ret should be changed to release allocated struct qxl_release
+For some reason the Host Control2 register of the Xenon SDHCI controller
+sometimes reports the bit representing 1.8V signaling as 0 when read
+after it was written as 1. Subsequent read reports 1.
 
-Cc: stable@vger.kernel.org
-Fixes: 8002db6336dd ("qxl: convert qxl driver to proper use for reservations")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/22cfd55f-07c8-95d0-a2f7-191b7153c3d4@virtuozzo.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+This causes the sdhci_start_signal_voltage_switch function to report
+  1.8V regulator output did not become stable
+
+When CONFIG_PM is enabled, the host is suspended and resumend many
+times, and in each resume the switch to 1.8V is called, and so the
+kernel log reports this message annoyingly often.
+
+Do an empty read of the Host Control2 register in Xenon's
+.voltage_switch method to circumvent this.
+
+This patch fixes this particular problem on Turris MOX.
+
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
+Fixes: 8d876bf472db ("mmc: sdhci-xenon: wait 5ms after set 1.8V...")
+Cc: stable@vger.kernel.org # v4.16+
+Link: https://lore.kernel.org/r/20200420080444.25242-1-marek.behun@nic.cz
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/qxl/qxl_draw.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-xenon.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/gpu/drm/qxl/qxl_draw.c
-+++ b/drivers/gpu/drm/qxl/qxl_draw.c
-@@ -348,9 +348,10 @@ void qxl_draw_dirty_fb(struct qxl_device
- 		goto out_release_backoff;
+--- a/drivers/mmc/host/sdhci-xenon.c
++++ b/drivers/mmc/host/sdhci-xenon.c
+@@ -235,6 +235,16 @@ static void xenon_voltage_switch(struct
+ {
+ 	/* Wait for 5ms after set 1.8V signal enable bit */
+ 	usleep_range(5000, 5500);
++
++	/*
++	 * For some reason the controller's Host Control2 register reports
++	 * the bit representing 1.8V signaling as 0 when read after it was
++	 * written as 1. Subsequent read reports 1.
++	 *
++	 * Since this may cause some issues, do an empty read of the Host
++	 * Control2 register here to circumvent this.
++	 */
++	sdhci_readw(host, SDHCI_HOST_CONTROL2);
+ }
  
- 	rects = drawable_set_clipping(qdev, num_clips, clips_bo);
--	if (!rects)
-+	if (!rects) {
-+		ret = -EINVAL;
- 		goto out_release_backoff;
--
-+	}
- 	drawable = (struct qxl_drawable *)qxl_release_map(qdev, release);
- 
- 	drawable->clip.type = SPICE_CLIP_TYPE_RECTS;
+ static const struct sdhci_ops sdhci_xenon_ops = {
 
 
