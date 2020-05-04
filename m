@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDC561C4496
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1971C44E0
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732083AbgEDSHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:07:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37686 "EHLO mail.kernel.org"
+        id S1731695AbgEDSEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732075AbgEDSHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:07:03 -0400
+        id S1731693AbgEDSEj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:04:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91BF32073E;
-        Mon,  4 May 2020 18:07:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF5E6205ED;
+        Mon,  4 May 2020 18:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615623;
-        bh=gGXcu90sfVkJx/BJqDr/e/JHVencP3rdv+IKK6gJMzY=;
+        s=default; t=1588615479;
+        bh=bJ2l/CHYhXqqCQmXxTph5G9oI6DoxV3kjVdO3Qi3s38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCGvCZPr1LbSpvA1JcV13UHkRodhVJWg4To2dd3GPWYL2ylwawVTtvRo1nhPvbppD
-         vF9OecM+Nny9vlY9KsF9mVTAttI3qKscwJzkMMzSaguy0GWhn3ocwjh+Iqg+fit6PZ
-         hUNPzOeq77RwBVmet/BeQO4oGghliSbmrOMsFAgU=
+        b=cHBqgI+0OkFMzZMSIPSqCBeA3ZVFIfX/LpJ5FI+V04oJddoYeN1fX1qJIMqQO3GId
+         cVFOpJFwyHrUfrMvT/4Czd/q8Q0mOJryKkfLdWUf2heVo9lsbRrv7DL2aLScT97vBw
+         ibbvU4e8rSrbsIfZpYU259ke6WJ0HUTztGZIu+EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tang Bin <tangbin@cmss.chinamobile.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.6 56/73] iommu/qcom: Fix local_base status check
+        stable@vger.kernel.org, Seraj Alijan <seraj.alijan@sondrel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 55/57] dmaengine: dmatest: Fix process hang when reading wait parameter
 Date:   Mon,  4 May 2020 19:57:59 +0200
-Message-Id: <20200504165509.536330675@linuxfoundation.org>
+Message-Id: <20200504165501.618491542@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tang Bin <tangbin@cmss.chinamobile.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit b52649aee6243ea661905bdc5fbe28cc5f6dec76 upstream.
+commit aa72f1d20ee973d68f26d46fce5e1cf6f9b7e1ca upstream.
 
-The function qcom_iommu_device_probe() does not perform sufficient
-error checking after executing devm_ioremap_resource(), which can
-result in crashes if a critical error path is encountered.
+If we do
 
-Fixes: 0ae349a0f33f ("iommu/qcom: Add qcom_iommu")
-Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20200418134703.1760-1-tangbin@cmss.chinamobile.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+  % echo 1 > /sys/module/dmatest/parameters/run
+  [  115.851124] dmatest: Could not start test, no channels configured
+
+  % echo dma8chan7 > /sys/module/dmatest/parameters/channel
+  [  127.563872] dmatest: Added 1 threads using dma8chan7
+
+  % cat /sys/module/dmatest/parameters/wait
+  ... !!! HANG !!! ...
+
+The culprit is the commit 6138f967bccc
+
+  ("dmaengine: dmatest: Use fixed point div to calculate iops")
+
+which makes threads not to run, but pending and being kicked off by writing
+to the 'run' node. However, it forgot to consider 'wait' routine to avoid
+above mentioned case.
+
+In order to fix this, check for really running threads, i.e. with pending
+and done flags unset.
+
+It's pity the culprit commit hadn't updated documentation and tested all
+possible scenarios.
+
+Fixes: 6138f967bccc ("dmaengine: dmatest: Use fixed point div to calculate iops")
+Cc: Seraj Alijan <seraj.alijan@sondrel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20200428113518.70620-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/qcom_iommu.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/dma/dmatest.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/qcom_iommu.c
-+++ b/drivers/iommu/qcom_iommu.c
-@@ -813,8 +813,11 @@ static int qcom_iommu_device_probe(struc
- 	qcom_iommu->dev = dev;
+--- a/drivers/dma/dmatest.c
++++ b/drivers/dma/dmatest.c
+@@ -240,7 +240,7 @@ static bool is_threaded_test_run(struct
+ 		struct dmatest_thread *thread;
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (res)
-+	if (res) {
- 		qcom_iommu->local_base = devm_ioremap_resource(dev, res);
-+		if (IS_ERR(qcom_iommu->local_base))
-+			return PTR_ERR(qcom_iommu->local_base);
-+	}
- 
- 	qcom_iommu->iface_clk = devm_clk_get(dev, "iface");
- 	if (IS_ERR(qcom_iommu->iface_clk)) {
+ 		list_for_each_entry(thread, &dtc->threads, node) {
+-			if (!thread->done)
++			if (!thread->done && !thread->pending)
+ 				return true;
+ 		}
+ 	}
 
 
