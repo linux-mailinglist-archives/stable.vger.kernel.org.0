@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C00311C44DA
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:10:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92B541C43AA
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:00:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729762AbgEDSKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:10:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34736 "EHLO mail.kernel.org"
+        id S1730990AbgEDSAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:00:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731207AbgEDSFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:05:03 -0400
+        id S1730978AbgEDSAY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:00:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6F022073E;
-        Mon,  4 May 2020 18:05:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93FE120663;
+        Mon,  4 May 2020 18:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615503;
-        bh=NlVxoTjNVIj7k425iDGce3uuUKxG2Mo4IPPMlgN5liw=;
+        s=default; t=1588615224;
+        bh=qjCwATvRfXp8NUlh9T/Ki+PpZcTrHI0PKcV5KoWNA0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNSXXKklWzKUgIWXXw3F4/3hgrP7QaL2KhUUhnHKT26f3MRchQ21PPY4ir6Ea7hng
-         Bh3Hhwm9LwuZamCmknRrA/SC56Eq3nFMZCBdKO8WvahK3Nrvpw+EunFPE4+h9AoHzL
-         qR0Oypm1T/iwuJXN/rK4niGWMCUbcHWmuYAUZHMc=
+        b=Due+JaErrcJdkVbXdUu5oEUn1XNh1vlMgurX8OZRomM+jtS2TOEFq6v2IxO8iQK0u
+         F9x+IOfSIBWaeTVGEoS8Ck6FnaIRhnYDIdFzbV7tHNPay/WNR+Qeo75N+WDmUslKXI
+         BGMcgm+CQMPoEWWF/cWUkvEqEKT671z9s1joVfME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.4 26/57] dlmfs_file_write(): fix the bogosity in handling non-zero *ppos
+        stable@vger.kernel.org, Aharon Landau <aharonl@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.14 16/26] RDMA/mlx5: Set GRH fields in query QP on RoCE
 Date:   Mon,  4 May 2020 19:57:30 +0200
-Message-Id: <20200504165458.613322756@linuxfoundation.org>
+Message-Id: <20200504165446.098741711@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-References: <20200504165456.783676004@linuxfoundation.org>
+In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
+References: <20200504165442.494398840@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,75 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Aharon Landau <aharonl@mellanox.com>
 
-commit 3815f1be546e752327b5868af103ccdddcc4db77 upstream.
+commit 2d7e3ff7b6f2c614eb21d0dc348957a47eaffb57 upstream.
 
-'count' is how much you want written, not the final position.
-Moreover, it can legitimately be less than the current position...
+GRH fields such as sgid_index, hop limit, et. are set in the QP context
+when QP is created/modified.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Currently, when query QP is performed, we fill the GRH fields only if the
+GRH bit is set in the QP context, but this bit is not set for RoCE. Adjust
+the check so we will set all relevant data for the RoCE too.
+
+Since this data is returned to userspace, the below is an ABI regression.
+
+Fixes: d8966fcd4c25 ("IB/core: Use rdma_ah_attr accessor functions")
+Link: https://lore.kernel.org/r/20200413132028.930109-1-leon@kernel.org
+Signed-off-by: Aharon Landau <aharonl@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ocfs2/dlmfs/dlmfs.c |   27 ++++++++++++---------------
- 1 file changed, 12 insertions(+), 15 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/ocfs2/dlmfs/dlmfs.c
-+++ b/fs/ocfs2/dlmfs/dlmfs.c
-@@ -275,7 +275,6 @@ static ssize_t dlmfs_file_write(struct f
- 				loff_t *ppos)
- {
- 	int bytes_left;
--	ssize_t writelen;
- 	char *lvb_buf;
- 	struct inode *inode = file_inode(filp);
- 
-@@ -285,32 +284,30 @@ static ssize_t dlmfs_file_write(struct f
- 	if (*ppos >= i_size_read(inode))
- 		return -ENOSPC;
- 
-+	/* don't write past the lvb */
-+	if (count > i_size_read(inode) - *ppos)
-+		count = i_size_read(inode) - *ppos;
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -4362,7 +4362,9 @@ static void to_rdma_ah_attr(struct mlx5_
+ 	rdma_ah_set_path_bits(ah_attr, path->grh_mlid & 0x7f);
+ 	rdma_ah_set_static_rate(ah_attr,
+ 				path->static_rate ? path->static_rate - 5 : 0);
+-	if (path->grh_mlid & (1 << 7)) {
 +
- 	if (!count)
- 		return 0;
++	if (path->grh_mlid & (1 << 7) ||
++	    ah_attr->type == RDMA_AH_ATTR_TYPE_ROCE) {
+ 		u32 tc_fl = be32_to_cpu(path->tclass_flowlabel);
  
- 	if (!access_ok(buf, count))
- 		return -EFAULT;
- 
--	/* don't write past the lvb */
--	if ((count + *ppos) > i_size_read(inode))
--		writelen = i_size_read(inode) - *ppos;
--	else
--		writelen = count - *ppos;
--
--	lvb_buf = kmalloc(writelen, GFP_NOFS);
-+	lvb_buf = kmalloc(count, GFP_NOFS);
- 	if (!lvb_buf)
- 		return -ENOMEM;
- 
--	bytes_left = copy_from_user(lvb_buf, buf, writelen);
--	writelen -= bytes_left;
--	if (writelen)
--		user_dlm_write_lvb(inode, lvb_buf, writelen);
-+	bytes_left = copy_from_user(lvb_buf, buf, count);
-+	count -= bytes_left;
-+	if (count)
-+		user_dlm_write_lvb(inode, lvb_buf, count);
- 
- 	kfree(lvb_buf);
- 
--	*ppos = *ppos + writelen;
--	mlog(0, "wrote %zd bytes\n", writelen);
--	return writelen;
-+	*ppos = *ppos + count;
-+	mlog(0, "wrote %zu bytes\n", count);
-+	return count;
- }
- 
- static void dlmfs_init_once(void *foo)
+ 		rdma_ah_set_grh(ah_attr, NULL,
 
 
