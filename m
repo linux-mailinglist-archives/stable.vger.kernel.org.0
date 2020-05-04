@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9B361C43BE
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:01:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2B11C4489
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:08:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731119AbgEDSBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:01:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56318 "EHLO mail.kernel.org"
+        id S1730645AbgEDSIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:08:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731110AbgEDSBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:01:06 -0400
+        id S1731703AbgEDSIE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:08:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A716206B8;
-        Mon,  4 May 2020 18:01:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40947205ED;
+        Mon,  4 May 2020 18:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615265;
-        bh=KM+5ik6RLQBZbsV7DlMlXyXPAZX07Hbs70ZHx00bSTg=;
+        s=default; t=1588615683;
+        bh=G65lQelbqc4i5B5KqVbnSIKD0TuyLLjRWtqcJAfC5cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D0yF1WF3J8AKFoNAg5vH4GpuQAHG4fcPq2RiQ0JbvQvTKWwe2dz+kVjYhaLXr6Yrj
-         tqRlZ9Qh1apafm6je4emYe1mxBEvdq8Pm/E9/yF3/dFaHDJm4qkQpT2PfXybbmOPbb
-         xlvntyBNZHt3tEKAyDNSFaRlrHVLcYl1RfCwNYUk=
+        b=JT9AnEes4HGS6vQJSlwWnb4b4c75epFKTO5fd4c3LznSOG3Lvr46z1RmsiO7LexiP
+         CT+zh++DjYhApyid69hPFhgGgJtCNkb+pkMq+IYp8F9IucbHpYCUWfbqMg++pcnKgE
+         beAuM5guvb1ZFpKT8EHRFDbPgP+iX1bQssgs7flE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.14 25/26] dmaengine: dmatest: Fix iteration non-stop logic
+        stable@vger.kernel.org, Sunwook Eom <speed.eom@samsung.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.6 36/73] dm verity fec: fix hash block number in verity_fec_decode
 Date:   Mon,  4 May 2020 19:57:39 +0200
-Message-Id: <20200504165447.975455737@linuxfoundation.org>
+Message-Id: <20200504165507.677813409@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
-References: <20200504165442.494398840@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Sunwook Eom <speed.eom@samsung.com>
 
-commit b9f960201249f20deea586b4ec814669b4c6b1c0 upstream.
+commit ad4e80a639fc61d5ecebb03caa5cdbfb91fcebfc upstream.
 
-Under some circumstances, i.e. when test is still running and about to
-time out and user runs, for example,
+The error correction data is computed as if data and hash blocks
+were concatenated. But hash block number starts from v->hash_start.
+So, we have to calculate hash block number based on that.
 
-	grep -H . /sys/module/dmatest/parameters/*
-
-the iterations parameter is not respected and test is going on and on until
-user gives
-
-	echo 0 > /sys/module/dmatest/parameters/run
-
-This is not what expected.
-
-The history of this bug is interesting. I though that the commit
-  2d88ce76eb98 ("dmatest: add a 'wait' parameter")
-is a culprit, but looking closer to the code I think it simple revealed the
-broken logic from the day one, i.e. in the commit
-  0a2ff57d6fba ("dmaengine: dmatest: add a maximum number of test iterations")
-which adds iterations parameter.
-
-So, to the point, the conditional of checking the thread to be stopped being
-first part of conjunction logic prevents to check iterations. Thus, we have to
-always check both conditions to be able to stop after given iterations.
-
-Since it wasn't visible before second commit appeared, I add a respective
-Fixes tag.
-
-Fixes: 2d88ce76eb98 ("dmatest: add a 'wait' parameter")
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20200424161147.16895-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: a739ff3f543af ("dm verity: add support for forward error correction")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sunwook Eom <speed.eom@samsung.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/dmatest.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/dm-verity-fec.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/dmatest.c
-+++ b/drivers/dma/dmatest.c
-@@ -552,8 +552,8 @@ static int dmatest_func(void *data)
- 	flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
+--- a/drivers/md/dm-verity-fec.c
++++ b/drivers/md/dm-verity-fec.c
+@@ -435,7 +435,7 @@ int verity_fec_decode(struct dm_verity *
+ 	fio->level++;
  
- 	ktime = ktime_get();
--	while (!kthread_should_stop()
--	       && !(params->iterations && total_tests >= params->iterations)) {
-+	while (!(kthread_should_stop() ||
-+	       (params->iterations && total_tests >= params->iterations))) {
- 		struct dma_async_tx_descriptor *tx = NULL;
- 		struct dmaengine_unmap_data *um;
- 		dma_addr_t srcs[src_cnt];
+ 	if (type == DM_VERITY_BLOCK_TYPE_METADATA)
+-		block += v->data_blocks;
++		block = block - v->hash_start + v->data_blocks;
+ 
+ 	/*
+ 	 * For RS(M, N), the continuous FEC data is divided into blocks of N
 
 
