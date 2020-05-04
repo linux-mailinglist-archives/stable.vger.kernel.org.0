@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A2B41C4572
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5DF91C450F
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730801AbgEDR7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 13:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53118 "EHLO mail.kernel.org"
+        id S1731454AbgEDSDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:03:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730794AbgEDR73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 13:59:29 -0400
+        id S1731450AbgEDSDG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:03:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FB0820746;
-        Mon,  4 May 2020 17:59:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4B09206B8;
+        Mon,  4 May 2020 18:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615167;
-        bh=6Rv8g7Pik3o5TY+Aa2mrVyiSSrcmj02o9OfxZPNwV/A=;
+        s=default; t=1588615386;
+        bh=ytZwgFE7cLPXO0eUnNw0mcP7f4wwPBF7aiAhnHM+Z90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gkL70LFyQIzAzxDLQhcxeUK9isBGoXP+38Uns2NyA/SSHbd3xDO1V+7mfhFN6ULMn
-         EdEW5zzWy/KtIo5dva7S14gVOnjRaNC4RNgFTndHUDyikgD5Ha58E/uwDdPzLBydyU
-         K+6Lcd3ZEANl0uZCYhmJvDtVpCo/goWfrmJWO5aM=
+        b=d/CI2agnHHFi9sOZ9T0MOlbLia24Yd6igtcMsPgjjD6qTADf0PzBzACsK9+RNO21n
+         3bovQk09+pl4RioBiCDlnydXR0IOe3Y/w32FMeeAYiPIGK2ke1iX03aWFttyLOSuUH
+         9MGtKrbQLAivHOIRJKLc2jBNEbV4x6taxrO4KZN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 4.9 12/18] vfio/type1: Fix VA->PA translation for PFNMAP VMAs in vaddr_get_pfn()
+        stable@vger.kernel.org, Iuliana Prodan <iuliana.prodan@nxp.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 18/57] crypto: caam - fix the address of the last entry of S/G
 Date:   Mon,  4 May 2020 19:57:22 +0200
-Message-Id: <20200504165444.661937255@linuxfoundation.org>
+Message-Id: <20200504165457.965888549@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165442.028485341@linuxfoundation.org>
-References: <20200504165442.028485341@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Iuliana Prodan <iuliana.prodan@nxp.com>
 
-commit 5cbf3264bc715e9eb384e2b68601f8c02bb9a61d upstream.
+commit 55b3209acbb01cb02b1ee6b1afe80d83b1aab36d upstream.
 
-Use follow_pfn() to get the PFN of a PFNMAP VMA instead of assuming that
-vma->vm_pgoff holds the base PFN of the VMA.  This fixes a bug where
-attempting to do VFIO_IOMMU_MAP_DMA on an arbitrary PFNMAP'd region of
-memory calculates garbage for the PFN.
+For skcipher algorithms, the input, output HW S/G tables
+look like this: [IV, src][dst, IV]
+Now, we can have 2 conditions here:
+- there is no IV;
+- src and dst are equal (in-place encryption) and scattered
+and the error is an "off-by-one" in the HW S/G table.
 
-Hilariously, this only got detected because the first "PFN" calculated
-by vaddr_get_pfn() is PFN 0 (vma->vm_pgoff==0), and iommu_iova_to_phys()
-uses PA==0 as an error, which triggers a WARN in vfio_unmap_unpin()
-because the translation "failed".  PFN 0 is now unconditionally reserved
-on x86 in order to mitigate L1TF, which causes is_invalid_reserved_pfn()
-to return true and in turns results in vaddr_get_pfn() returning success
-for PFN 0.  Eventually the bogus calculation runs into PFNs that aren't
-reserved and leads to failure in vfio_pin_map_dma().  The subsequent
-call to vfio_remove_dma() attempts to unmap PFN 0 and WARNs.
+This issue was seen with KASAN:
+BUG: KASAN: slab-out-of-bounds in skcipher_edesc_alloc+0x95c/0x1018
 
-  WARNING: CPU: 8 PID: 5130 at drivers/vfio/vfio_iommu_type1.c:750 vfio_unmap_unpin+0x2e1/0x310 [vfio_iommu_type1]
-  Modules linked in: vfio_pci vfio_virqfd vfio_iommu_type1 vfio ...
-  CPU: 8 PID: 5130 Comm: sgx Tainted: G        W         5.6.0-rc5-705d787c7fee-vfio+ #3
-  Hardware name: Intel Corporation Mehlow UP Server Platform/Moss Beach Server, BIOS CNLSE2R1.D00.X119.B49.1803010910 03/01/2018
-  RIP: 0010:vfio_unmap_unpin+0x2e1/0x310 [vfio_iommu_type1]
-  Code: <0f> 0b 49 81 c5 00 10 00 00 e9 c5 fe ff ff bb 00 10 00 00 e9 3d fe
-  RSP: 0018:ffffbeb5039ebda8 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffff9a55cbf8d480 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff9a52b771c200
-  RBP: 0000000000000000 R08: 0000000000000040 R09: 00000000fffffff2
-  R10: 0000000000000001 R11: ffff9a51fa896000 R12: 0000000184010000
-  R13: 0000000184000000 R14: 0000000000010000 R15: ffff9a55cb66ea08
-  FS:  00007f15d3830b40(0000) GS:ffff9a55d5600000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000561cf39429e0 CR3: 000000084f75f005 CR4: 00000000003626e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   vfio_remove_dma+0x17/0x70 [vfio_iommu_type1]
-   vfio_iommu_type1_ioctl+0x9e3/0xa7b [vfio_iommu_type1]
-   ksys_ioctl+0x92/0xb0
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x4c/0x180
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f15d04c75d7
-  Code: <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 81 48 2d 00 f7 d8 64 89 01 48
+Read of size 4 at addr ffff000022a02958 by task cryptomgr_test/321
 
-Fixes: 73fa0d10d077 ("vfio: Type1 IOMMU implementation")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+CPU: 2 PID: 321 Comm: cryptomgr_test Not tainted
+5.6.0-rc1-00165-ge4ef8383-dirty #4
+Hardware name: LS1046A RDB Board (DT)
+Call trace:
+ dump_backtrace+0x0/0x260
+ show_stack+0x14/0x20
+ dump_stack+0xe8/0x144
+ print_address_description.isra.11+0x64/0x348
+ __kasan_report+0x11c/0x230
+ kasan_report+0xc/0x18
+ __asan_load4+0x90/0xb0
+ skcipher_edesc_alloc+0x95c/0x1018
+ skcipher_encrypt+0x84/0x150
+ crypto_skcipher_encrypt+0x50/0x68
+ test_skcipher_vec_cfg+0x4d4/0xc10
+ test_skcipher_vec+0x178/0x1d8
+ alg_test_skcipher+0xec/0x230
+ alg_test.part.44+0x114/0x4a0
+ alg_test+0x1c/0x60
+ cryptomgr_test+0x34/0x58
+ kthread+0x1b8/0x1c0
+ ret_from_fork+0x10/0x18
+
+Allocated by task 321:
+ save_stack+0x24/0xb0
+ __kasan_kmalloc.isra.10+0xc4/0xe0
+ kasan_kmalloc+0xc/0x18
+ __kmalloc+0x178/0x2b8
+ skcipher_edesc_alloc+0x21c/0x1018
+ skcipher_encrypt+0x84/0x150
+ crypto_skcipher_encrypt+0x50/0x68
+ test_skcipher_vec_cfg+0x4d4/0xc10
+ test_skcipher_vec+0x178/0x1d8
+ alg_test_skcipher+0xec/0x230
+ alg_test.part.44+0x114/0x4a0
+ alg_test+0x1c/0x60
+ cryptomgr_test+0x34/0x58
+ kthread+0x1b8/0x1c0
+ ret_from_fork+0x10/0x18
+
+Freed by task 0:
+(stack is not available)
+
+The buggy address belongs to the object at ffff000022a02800
+ which belongs to the cache dma-kmalloc-512 of size 512
+The buggy address is located 344 bytes inside of
+ 512-byte region [ffff000022a02800, ffff000022a02a00)
+The buggy address belongs to the page:
+page:fffffe00006a8000 refcount:1 mapcount:0 mapping:ffff00093200c400
+index:0x0 compound_mapcount: 0
+flags: 0xffff00000010200(slab|head)
+raw: 0ffff00000010200 dead000000000100 dead000000000122 ffff00093200c400
+raw: 0000000000000000 0000000080100010 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff000022a02800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff000022a02880: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff000022a02900: 00 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc
+                                                    ^
+ ffff000022a02980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff000022a02a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+
+Fixes: 334d37c9e263 ("crypto: caam - update IV using HW support")
+Cc: <stable@vger.kernel.org> # v5.3+
+Signed-off-by: Iuliana Prodan <iuliana.prodan@nxp.com>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/vfio_iommu_type1.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/caam/caamalg.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -229,8 +229,8 @@ static int vaddr_get_pfn(unsigned long v
- 	vma = find_vma_intersection(current->mm, vaddr, vaddr + 1);
+--- a/drivers/crypto/caam/caamalg.c
++++ b/drivers/crypto/caam/caamalg.c
+@@ -1810,7 +1810,7 @@ static struct skcipher_edesc *skcipher_e
  
- 	if (vma && vma->vm_flags & VM_PFNMAP) {
--		*pfn = ((vaddr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
--		if (is_invalid_reserved_pfn(*pfn))
-+		if (!follow_pfn(vma, vaddr, pfn) &&
-+		    is_invalid_reserved_pfn(*pfn))
- 			ret = 0;
- 	}
+ 	if (ivsize || mapped_dst_nents > 1)
+ 		sg_to_sec4_set_last(edesc->sec4_sg + dst_sg_idx +
+-				    mapped_dst_nents);
++				    mapped_dst_nents - 1 + !!ivsize);
  
+ 	if (sec4_sg_bytes) {
+ 		edesc->sec4_sg_dma = dma_map_single(jrdev, edesc->sec4_sg,
 
 
