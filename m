@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 570241C448F
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:08:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4B01C44F5
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732212AbgEDSH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:07:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39070 "EHLO mail.kernel.org"
+        id S1731626AbgEDSEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:04:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732211AbgEDSH4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:07:56 -0400
+        id S1731622AbgEDSEF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:04:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B198520721;
-        Mon,  4 May 2020 18:07:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E13C2073B;
+        Mon,  4 May 2020 18:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615676;
-        bh=ds1Jxau9BSf+D3cDbxpy7Qio3XbI/M2VHzL83wDBhyg=;
+        s=default; t=1588615444;
+        bh=ci47eiWNLUFZvk28Ty4nu5g7RfATAgZzgBWRl7eZKRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CF27ETN0+K5CB+5/e7HzDA5JQalgr4cY0s6NVjMoLtCSXp31YENK1fDNllkRHqbgt
-         N8k18Vsy1Mefu7xVBge5ZdeL4abVMq9s2Ac5pHvMbOAzKjmT4bangFYPJPi9BcOhvq
-         W7WG0DofW45djX1OmLaUI7xfMkpK0NJbcyNZbsKQ=
+        b=sCT+9u6P7EANU8vVlUm7kScI3m1yj3t+xpCIiYjyVbyOfLFuyCumWd0cwcnMmjriF
+         vw6oCX/p3j3zNTFyweT4TJ9JPpDrkUwGAsNgcDSAekuZpYPvYt+wunG/G60zaKtk1r
+         2n9bV+QNorG1l3z08UUdyJSo1x/Sh2q3H7CuQ1ME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aharon Landau <aharonl@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.6 43/73] RDMA/mlx5: Set GRH fields in query QP on RoCE
+Subject: [PATCH 5.4 42/57] RDMA/cm: Fix an error check in cm_alloc_id_priv()
 Date:   Mon,  4 May 2020 19:57:46 +0200
-Message-Id: <20200504165508.641327076@linuxfoundation.org>
+Message-Id: <20200504165459.974554129@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aharon Landau <aharonl@mellanox.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 2d7e3ff7b6f2c614eb21d0dc348957a47eaffb57 upstream.
+commit 983653515849fb56b78ce55d349bb384d43030f6 upstream.
 
-GRH fields such as sgid_index, hop limit, et. are set in the QP context
-when QP is created/modified.
+The xa_alloc_cyclic_irq() function returns either 0 or 1 on success and
+negatives on error.  This code treats 1 as an error and returns ERR_PTR(1)
+which will cause an Oops in the caller.
 
-Currently, when query QP is performed, we fill the GRH fields only if the
-GRH bit is set in the QP context, but this bit is not set for RoCE. Adjust
-the check so we will set all relevant data for the RoCE too.
-
-Since this data is returned to userspace, the below is an ABI regression.
-
-Fixes: d8966fcd4c25 ("IB/core: Use rdma_ah_attr accessor functions")
-Link: https://lore.kernel.org/r/20200413132028.930109-1-leon@kernel.org
-Signed-off-by: Aharon Landau <aharonl@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Fixes: ae78ff3a0f0c ("RDMA/cm: Convert local_id_table to XArray")
+Link: https://lore.kernel.org/r/20200407093714.GA80285@mwanda
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/qp.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/cm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -5545,7 +5545,9 @@ static void to_rdma_ah_attr(struct mlx5_
- 	rdma_ah_set_path_bits(ah_attr, path->grh_mlid & 0x7f);
- 	rdma_ah_set_static_rate(ah_attr,
- 				path->static_rate ? path->static_rate - 5 : 0);
--	if (path->grh_mlid & (1 << 7)) {
-+
-+	if (path->grh_mlid & (1 << 7) ||
-+	    ah_attr->type == RDMA_AH_ATTR_TYPE_ROCE) {
- 		u32 tc_fl = be32_to_cpu(path->tclass_flowlabel);
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -873,7 +873,7 @@ struct ib_cm_id *ib_create_cm_id(struct
  
- 		rdma_ah_set_grh(ah_attr, NULL,
+ 	ret = xa_alloc_cyclic_irq(&cm.local_id_table, &id, NULL, xa_limit_32b,
+ 				  &cm.local_id_next, GFP_KERNEL);
+-	if (ret)
++	if (ret < 0)
+ 		goto error;
+ 	cm_id_priv->id.local_id = (__force __be32)id ^ cm.random_id_operand;
+ 	xa_store_irq(&cm.local_id_table, cm_local_id(cm_id_priv->id.local_id),
 
 
