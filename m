@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A3F1C361E
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 11:50:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F101C361F
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 11:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727824AbgEDJup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 05:50:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56694 "EHLO mail.kernel.org"
+        id S1728549AbgEDJux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 05:50:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727108AbgEDJup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 05:50:45 -0400
+        id S1728447AbgEDJux (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 05:50:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 336872073B;
-        Mon,  4 May 2020 09:50:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 723BB2073E;
+        Mon,  4 May 2020 09:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588585844;
-        bh=4iFMgh/e/RR5jvrP+xm/xxysXxlQwFy4kaX+yjqLG+c=;
+        s=default; t=1588585852;
+        bh=Dvv+dLFULWPh9ijI/eO2mOpSKVzGlGeQPeHA3s9r7oI=;
         h=Subject:To:From:Date:From;
-        b=L6o0wxpAkxzQYiIE6uqGAeThE67KWBRjcUIN5LAScyaI9MCJ7L0qln193/fVxbbCG
-         l9QmY17eyYa6O0CW0AHwpTVTdYDLusdSY+F8X1SSi8So9HO501fFYV+ykFYKyXvEg+
-         f9mm0HxN7lHWAugfLbgK/zrQWvHBSndpzWAzCpDE=
-Subject: patch "Revert "tty: serial: bcm63xx: fix missing clk_put() in bcm63xx_uart"" added to tty-linus
-To:     f.fainelli@gmail.com, gregkh@linuxfoundation.org,
+        b=gq5G0P2dEfwlAGnQ5bHPKKrxks1Ti/VJSyMlpQJ3s654i3RDLTAlTkyfmakfAq+u0
+         EEri2tNGU/BydEEUXbfK0I0xLwOmAN1zvig5uQHTKP1Jc+6aMceC3ICgslmpd8V5xz
+         5fK+5tj8SpsS29tNFN/nozG0XEhwqfp91qYB8+A4=
+Subject: patch "vt: fix unicode console freeing with a common interface" added to tty-linus
+To:     nico@fluxnic.net, gregkh@linuxfoundation.org, sam@ravnborg.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 04 May 2020 11:50:42 +0200
-Message-ID: <158858584223618@kroah.com>
+Message-ID: <1588585842159116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    Revert "tty: serial: bcm63xx: fix missing clk_put() in bcm63xx_uart"
+    vt: fix unicode console freeing with a common interface
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -55,41 +55,60 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 092a9f59bc05904d4555fa012db12e768734ba1a Mon Sep 17 00:00:00 2001
-From: Florian Fainelli <f.fainelli@gmail.com>
-Date: Thu, 30 Apr 2020 18:39:04 -0700
-Subject: Revert "tty: serial: bcm63xx: fix missing clk_put() in bcm63xx_uart"
+From 57d38f26d81e4275748b69372f31df545dcd9b71 Mon Sep 17 00:00:00 2001
+From: Nicolas Pitre <nico@fluxnic.net>
+Date: Sat, 2 May 2020 11:01:07 -0400
+Subject: vt: fix unicode console freeing with a common interface
 
-This reverts commit 580d952e44de5509c69c8f9346180ecaa78ebeec ("tty:
-serial: bcm63xx: fix missing clk_put() in bcm63xx_uart") because we
-should not be doing a clk_put() if we were not successful in getting a
-valid clock reference via clk_get() in the first place.
+By directly using kfree() in different places we risk missing one if
+it is switched to using vfree(), especially if the corresponding
+vmalloc() is hidden away within a common abstraction.
 
-Fixes: 580d952e44de ("tty: serial: bcm63xx: fix missing clk_put() in bcm63xx_uart")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200501013904.1394-1-f.fainelli@gmail.com
+Oh wait, that's exactly what happened here.
+
+So let's fix this by creating a common abstraction for the free case
+as well.
+
+Signed-off-by: Nicolas Pitre <nico@fluxnic.net>
+Reported-by: syzbot+0bfda3ade1ee9288a1be@syzkaller.appspotmail.com
+Fixes: 9a98e7a80f95 ("vt: don't use kmalloc() for the unicode screen buffer")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.2005021043110.2671@knanqh.ubzr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/bcm63xx_uart.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/tty/vt/vt.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/bcm63xx_uart.c b/drivers/tty/serial/bcm63xx_uart.c
-index ed0aa5c0d9b7..5674da2b76f0 100644
---- a/drivers/tty/serial/bcm63xx_uart.c
-+++ b/drivers/tty/serial/bcm63xx_uart.c
-@@ -843,10 +843,8 @@ static int bcm_uart_probe(struct platform_device *pdev)
- 	if (IS_ERR(clk) && pdev->dev.of_node)
- 		clk = of_clk_get(pdev->dev.of_node, 0);
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index e5ffed795e4c..48a8199f7845 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -365,9 +365,14 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
+ 	return uniscr;
+ }
  
--	if (IS_ERR(clk)) {
--		clk_put(clk);
-+	if (IS_ERR(clk))
- 		return -ENODEV;
--	}
++static void vc_uniscr_free(struct uni_screen *uniscr)
++{
++	vfree(uniscr);
++}
++
+ static void vc_uniscr_set(struct vc_data *vc, struct uni_screen *new_uniscr)
+ {
+-	vfree(vc->vc_uni_screen);
++	vc_uniscr_free(vc->vc_uni_screen);
+ 	vc->vc_uni_screen = new_uniscr;
+ }
  
- 	port->iotype = UPIO_MEM;
- 	port->irq = res_irq->start;
+@@ -1230,7 +1235,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	err = resize_screen(vc, new_cols, new_rows, user);
+ 	if (err) {
+ 		kfree(newscreen);
+-		kfree(new_uniscr);
++		vc_uniscr_free(new_uniscr);
+ 		return err;
+ 	}
+ 
 -- 
 2.26.2
 
