@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F281C4567
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 988931C43C2
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731165AbgEDSOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:14:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54466 "EHLO mail.kernel.org"
+        id S1731139AbgEDSBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:01:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730912AbgEDSAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:00:05 -0400
+        id S1731137AbgEDSBV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:01:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D84220663;
-        Mon,  4 May 2020 18:00:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AFF120707;
+        Mon,  4 May 2020 18:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615204;
-        bh=PLcg8nMAWsaFrwBBCy/ig/9EhHyL5vPB69f2ovNqveo=;
+        s=default; t=1588615279;
+        bh=fwR0V1cq/YSDhhql/2sy5/+ZtJJnxpF1Wz065Hb34Jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0XhUjpKYilYyeMR+qw3ikIzS8qEpa2fdilm2dTz9wpKMznTArXlYgu2N7D8VHLR7a
-         qzl5qXk2vRHNaG2qYHOsd/qC+BZcE9MnMLbS6WYYxX23SwH/p7Hers5rHelt+g5+yP
-         8thaF5tRB1EUiU+z6vqxVQaVG3rEC4cvdjo+8iow=
+        b=UMvF3Z8+uD4ciKawNHd6Z3igzFj01+8tBuKFbt8vTKXiGvj4DypuKfR2D5B8WaNP1
+         zNNTYQO7xDaRVSyB8Otde/hgMBQBNq7YM09Ih4CCUofZ1rqkqtnSXyfXKi4Imm8pxY
+         tD/Ied6C7mrEhNkzG5AWKhzJtzpCrjkg3UQVbPJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.9 15/18] nfs: Fix potential posix_acl refcnt leak in nfs3_set_acl
+        stable@vger.kernel.org, Sunwook Eom <speed.eom@samsung.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 12/37] dm verity fec: fix hash block number in verity_fec_decode
 Date:   Mon,  4 May 2020 19:57:25 +0200
-Message-Id: <20200504165445.398976381@linuxfoundation.org>
+Message-Id: <20200504165449.793743944@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165442.028485341@linuxfoundation.org>
-References: <20200504165442.028485341@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Sunwook Eom <speed.eom@samsung.com>
 
-commit 7648f939cb919b9d15c21fff8cd9eba908d595dc upstream.
+commit ad4e80a639fc61d5ecebb03caa5cdbfb91fcebfc upstream.
 
-nfs3_set_acl keeps track of the acl it allocated locally to determine if an acl
-needs to be released at the end.  This results in a memory leak when the
-function allocates an acl as well as a default acl.  Fix by releasing acls
-that differ from the acl originally passed into nfs3_set_acl.
+The error correction data is computed as if data and hash blocks
+were concatenated. But hash block number starts from v->hash_start.
+So, we have to calculate hash block number based on that.
 
-Fixes: b7fa0554cf1b ("[PATCH] NFS: Add support for NFSv3 ACLs")
-Reported-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: a739ff3f543af ("dm verity: add support for forward error correction")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sunwook Eom <speed.eom@samsung.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/nfs3acl.c |   22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/md/dm-verity-fec.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/nfs3acl.c
-+++ b/fs/nfs/nfs3acl.c
-@@ -252,37 +252,45 @@ int nfs3_proc_setacls(struct inode *inod
+--- a/drivers/md/dm-verity-fec.c
++++ b/drivers/md/dm-verity-fec.c
+@@ -436,7 +436,7 @@ int verity_fec_decode(struct dm_verity *
+ 	fio->level++;
  
- int nfs3_set_acl(struct inode *inode, struct posix_acl *acl, int type)
- {
--	struct posix_acl *alloc = NULL, *dfacl = NULL;
-+	struct posix_acl *orig = acl, *dfacl = NULL, *alloc;
- 	int status;
+ 	if (type == DM_VERITY_BLOCK_TYPE_METADATA)
+-		block += v->data_blocks;
++		block = block - v->hash_start + v->data_blocks;
  
- 	if (S_ISDIR(inode->i_mode)) {
- 		switch(type) {
- 		case ACL_TYPE_ACCESS:
--			alloc = dfacl = get_acl(inode, ACL_TYPE_DEFAULT);
-+			alloc = get_acl(inode, ACL_TYPE_DEFAULT);
- 			if (IS_ERR(alloc))
- 				goto fail;
-+			dfacl = alloc;
- 			break;
- 
- 		case ACL_TYPE_DEFAULT:
--			dfacl = acl;
--			alloc = acl = get_acl(inode, ACL_TYPE_ACCESS);
-+			alloc = get_acl(inode, ACL_TYPE_ACCESS);
- 			if (IS_ERR(alloc))
- 				goto fail;
-+			dfacl = acl;
-+			acl = alloc;
- 			break;
- 		}
- 	}
- 
- 	if (acl == NULL) {
--		alloc = acl = posix_acl_from_mode(inode->i_mode, GFP_KERNEL);
-+		alloc = posix_acl_from_mode(inode->i_mode, GFP_KERNEL);
- 		if (IS_ERR(alloc))
- 			goto fail;
-+		acl = alloc;
- 	}
- 	status = __nfs3_proc_setacls(inode, acl, dfacl);
--	posix_acl_release(alloc);
-+out:
-+	if (acl != orig)
-+		posix_acl_release(acl);
-+	if (dfacl != orig)
-+		posix_acl_release(dfacl);
- 	return status;
- 
- fail:
--	return PTR_ERR(alloc);
-+	status = PTR_ERR(alloc);
-+	goto out;
- }
- 
- const struct xattr_handler *nfs3_xattr_handlers[] = {
+ 	/*
+ 	 * For RS(M, N), the continuous FEC data is divided into blocks of N
 
 
