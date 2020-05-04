@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 842771C43DE
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:02:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F02661C4555
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:15:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731300AbgEDSCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:02:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58472 "EHLO mail.kernel.org"
+        id S1731003AbgEDSAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:00:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731296AbgEDSCQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:02:16 -0400
+        id S1730994AbgEDSA1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:00:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D893206B8;
-        Mon,  4 May 2020 18:02:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09B21206B8;
+        Mon,  4 May 2020 18:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615335;
-        bh=IyWikRPAmGkpyNvQjXnK+KtXGbUYDRLOITjbFS7aCqY=;
+        s=default; t=1588615226;
+        bh=k62scmE/GZiKnp3l2l7zkJn0NgOpPJlV7ZzvKqtdrZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/FYt1HkBIf7e2LU4Qh+WHzYZyOApCVWwcv/XKj2tmYRqM58gV8St5Qo68KGhVLCm
-         6ac7mJU2KOyVuTw6wWNo+7f9rk2SOo3X+08TRJmAxa8NKw7HDCsO016+dkNTQtz/OQ
-         X3PLH0ilVh/1/YX6Jz3R7xLFc19grMZiFFwrbDEw=
+        b=ArYokJSnEAO/l9xmqSkTUcPAp6tiaYDDmjqCNlfT+dzyCmPNYV8s3z+9g0VyXPkfm
+         9UVqv1iAXnn2iawZdCbakBnl3mP8CN2EH05UrTD7Xfo9L+VVL/SCSTNSc7RcyBZgxt
+         pgRZSZHJSEcJ5ObXhkNQ2ny0RzR7dDEULus/+I2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aharon Landau <aharonl@mellanox.com>,
+        stable@vger.kernel.org, Alaa Hleihel <alaa@mellanox.com>,
         Maor Gottlieb <maorg@mellanox.com>,
         Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.19 17/37] RDMA/mlx5: Set GRH fields in query QP on RoCE
-Date:   Mon,  4 May 2020 19:57:30 +0200
-Message-Id: <20200504165450.213048797@linuxfoundation.org>
+Subject: [PATCH 4.14 17/26] RDMA/mlx4: Initialize ib_spec on the stack
+Date:   Mon,  4 May 2020 19:57:31 +0200
+Message-Id: <20200504165446.326630840@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
+References: <20200504165442.494398840@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aharon Landau <aharonl@mellanox.com>
+From: Alaa Hleihel <alaa@mellanox.com>
 
-commit 2d7e3ff7b6f2c614eb21d0dc348957a47eaffb57 upstream.
+commit c08cfb2d8d78bfe81b37cc6ba84f0875bddd0d5c upstream.
 
-GRH fields such as sgid_index, hop limit, et. are set in the QP context
-when QP is created/modified.
+Initialize ib_spec on the stack before using it, otherwise we will have
+garbage values that will break creating default rules with invalid parsing
+error.
 
-Currently, when query QP is performed, we fill the GRH fields only if the
-GRH bit is set in the QP context, but this bit is not set for RoCE. Adjust
-the check so we will set all relevant data for the RoCE too.
-
-Since this data is returned to userspace, the below is an ABI regression.
-
-Fixes: d8966fcd4c25 ("IB/core: Use rdma_ah_attr accessor functions")
-Link: https://lore.kernel.org/r/20200413132028.930109-1-leon@kernel.org
-Signed-off-by: Aharon Landau <aharonl@mellanox.com>
+Fixes: a37a1a428431 ("IB/mlx4: Add mechanism to support flow steering over IB links")
+Link: https://lore.kernel.org/r/20200413132235.930642-1-leon@kernel.org
+Signed-off-by: Alaa Hleihel <alaa@mellanox.com>
 Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
 Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/qp.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx4/main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -4887,7 +4887,9 @@ static void to_rdma_ah_attr(struct mlx5_
- 	rdma_ah_set_path_bits(ah_attr, path->grh_mlid & 0x7f);
- 	rdma_ah_set_static_rate(ah_attr,
- 				path->static_rate ? path->static_rate - 5 : 0);
--	if (path->grh_mlid & (1 << 7)) {
-+
-+	if (path->grh_mlid & (1 << 7) ||
-+	    ah_attr->type == RDMA_AH_ATTR_TYPE_ROCE) {
- 		u32 tc_fl = be32_to_cpu(path->tclass_flowlabel);
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -1614,8 +1614,9 @@ static int __mlx4_ib_create_default_rule
+ 	int i;
  
- 		rdma_ah_set_grh(ah_attr, NULL,
+ 	for (i = 0; i < ARRAY_SIZE(pdefault_rules->rules_create_list); i++) {
++		union ib_flow_spec ib_spec = {};
+ 		int ret;
+-		union ib_flow_spec ib_spec;
++
+ 		switch (pdefault_rules->rules_create_list[i]) {
+ 		case 0:
+ 			/* no rule */
 
 
