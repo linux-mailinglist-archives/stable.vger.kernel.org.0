@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A001C387B
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 13:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3DA1C3887
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 13:44:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726797AbgEDLmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 07:42:47 -0400
-Received: from relay.sw.ru ([185.231.240.75]:48206 "EHLO relay.sw.ru"
+        id S1728617AbgEDLou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 07:44:50 -0400
+Received: from relay.sw.ru ([185.231.240.75]:48228 "EHLO relay.sw.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726756AbgEDLmq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 07:42:46 -0400
+        id S1726782AbgEDLou (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 07:44:50 -0400
 Received: from vvs-ws.sw.ru ([172.16.24.21])
         by relay.sw.ru with esmtp (Exim 4.92.3)
         (envelope-from <vvs@virtuozzo.com>)
-        id 1jVZUf-0002UU-7Z; Mon, 04 May 2020 14:42:41 +0300
+        id 1jVZWh-0002V8-3X; Mon, 04 May 2020 14:44:47 +0300
 From:   Vasily Averin <vvs@virtuozzo.com>
-Subject: [PATCH 4.9] drm/qxl: qxl_release use after free
+Subject: [PATCH 4.4] drm/qxl: qxl_release use after free
 To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     Gerd Hoffmann <kraxel@redhat.com>
-Message-ID: <b0c274a5-7e6e-d489-86e8-d34304ea1987@virtuozzo.com>
-Date:   Mon, 4 May 2020 14:42:40 +0300
+Message-ID: <1c34b110-e1a4-bd21-56e5-8334e048515f@virtuozzo.com>
+Date:   Mon, 4 May 2020 14:44:46 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
@@ -53,18 +53,18 @@ Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Link: http://patchwork.freedesktop.org/patch/msgid/fa17b338-66ae-f299-68fe-8d32419d9071@virtuozzo.com
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-backported to v4.9-stable
+backported to v4.4-stable
 
 Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 ---
  drivers/gpu/drm/qxl/qxl_cmd.c     | 5 ++---
- drivers/gpu/drm/qxl/qxl_display.c | 8 ++++----
+ drivers/gpu/drm/qxl/qxl_display.c | 6 +++---
  drivers/gpu/drm/qxl/qxl_draw.c    | 8 ++++----
  drivers/gpu/drm/qxl/qxl_ioctl.c   | 5 +----
- 4 files changed, 11 insertions(+), 15 deletions(-)
+ 4 files changed, 10 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
-index 04270f5d110c..91774756ae99 100644
+index fdc1833b1af8..45e08a685102 100644
 --- a/drivers/gpu/drm/qxl/qxl_cmd.c
 +++ b/drivers/gpu/drm/qxl/qxl_cmd.c
 @@ -528,8 +528,8 @@ int qxl_hw_surface_alloc(struct qxl_device *qdev,
@@ -89,7 +89,7 @@ index 04270f5d110c..91774756ae99 100644
  	return 0;
  }
 diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index a61c0d460ec2..f8a1f84c8838 100644
+index 5edebf495c07..0d6cc396cc16 100644
 --- a/drivers/gpu/drm/qxl/qxl_display.c
 +++ b/drivers/gpu/drm/qxl/qxl_display.c
 @@ -292,8 +292,8 @@ qxl_hide_cursor(struct qxl_device *qdev)
@@ -102,17 +102,7 @@ index a61c0d460ec2..f8a1f84c8838 100644
  	return 0;
  }
  
-@@ -333,8 +333,8 @@ static int qxl_crtc_apply_cursor(struct drm_crtc *crtc)
- 	cmd->u.set.visible = 1;
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
- 
--	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 
- 	return ret;
- 
-@@ -436,8 +436,8 @@ static int qxl_crtc_cursor_set2(struct drm_crtc *crtc,
+@@ -390,8 +390,8 @@ static int qxl_crtc_cursor_set2(struct drm_crtc *crtc,
  	cmd->u.set.visible = 1;
  	qxl_release_unmap(qdev, release, &cmd->release_info);
  
@@ -122,7 +112,7 @@ index a61c0d460ec2..f8a1f84c8838 100644
  
  	/* finish with the userspace bo */
  	ret = qxl_bo_reserve(user_bo, false);
-@@ -497,8 +497,8 @@ static int qxl_crtc_cursor_move(struct drm_crtc *crtc,
+@@ -450,8 +450,8 @@ static int qxl_crtc_cursor_move(struct drm_crtc *crtc,
  	cmd->u.position.y = qcrtc->cur_y + qcrtc->hot_spot_y;
  	qxl_release_unmap(qdev, release, &cmd->release_info);
  
@@ -133,10 +123,10 @@ index a61c0d460ec2..f8a1f84c8838 100644
  	return 0;
  }
 diff --git a/drivers/gpu/drm/qxl/qxl_draw.c b/drivers/gpu/drm/qxl/qxl_draw.c
-index 9b728edf1b49..f32b663e5bbc 100644
+index c8ccb3765597..47da124b7ebf 100644
 --- a/drivers/gpu/drm/qxl/qxl_draw.c
 +++ b/drivers/gpu/drm/qxl/qxl_draw.c
-@@ -241,8 +241,8 @@ void qxl_draw_opaque_fb(const struct qxl_fb_image *qxl_fb_image,
+@@ -245,8 +245,8 @@ void qxl_draw_opaque_fb(const struct qxl_fb_image *qxl_fb_image,
  		qxl_bo_physical_address(qdev, dimage->bo, 0);
  	qxl_release_unmap(qdev, release, &drawable->release_info);
  
@@ -146,7 +136,7 @@ index 9b728edf1b49..f32b663e5bbc 100644
  
  out_free_palette:
  	if (palette_bo)
-@@ -381,8 +381,8 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
+@@ -386,8 +386,8 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
  	}
  	qxl_bo_kunmap(clips_bo);
  
@@ -156,7 +146,7 @@ index 9b728edf1b49..f32b663e5bbc 100644
  
  out_release_backoff:
  	if (ret)
-@@ -432,8 +432,8 @@ void qxl_draw_copyarea(struct qxl_device *qdev,
+@@ -437,8 +437,8 @@ void qxl_draw_copyarea(struct qxl_device *qdev,
  	drawable->u.copy_bits.src_pos.y = sy;
  	qxl_release_unmap(qdev, release, &drawable->release_info);
  
@@ -166,7 +156,7 @@ index 9b728edf1b49..f32b663e5bbc 100644
  
  out_free_release:
  	if (ret)
-@@ -476,8 +476,8 @@ void qxl_draw_fill(struct qxl_draw_fill *qxl_draw_fill_rec)
+@@ -481,8 +481,8 @@ void qxl_draw_fill(struct qxl_draw_fill *qxl_draw_fill_rec)
  
  	qxl_release_unmap(qdev, release, &drawable->release_info);
  
@@ -177,10 +167,10 @@ index 9b728edf1b49..f32b663e5bbc 100644
  out_free_release:
  	if (ret)
 diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
-index 5a4c8c492683..db0afb0613c9 100644
+index 7c2e78201ead..4d852449a7d1 100644
 --- a/drivers/gpu/drm/qxl/qxl_ioctl.c
 +++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-@@ -256,11 +256,8 @@ static int qxl_process_single_command(struct qxl_device *qdev,
+@@ -257,11 +257,8 @@ static int qxl_process_single_command(struct qxl_device *qdev,
  			apply_surf_reloc(qdev, &reloc_info[i]);
  	}
  
