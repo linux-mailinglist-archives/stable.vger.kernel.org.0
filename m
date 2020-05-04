@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E361C43E9
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 304D31C44E1
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731353AbgEDSCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:02:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59050 "EHLO mail.kernel.org"
+        id S1731124AbgEDSEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:04:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731350AbgEDSCg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:02:36 -0400
+        id S1731724AbgEDSEw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:04:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAF2620721;
-        Mon,  4 May 2020 18:02:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC58724957;
+        Mon,  4 May 2020 18:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615355;
-        bh=mE/sYWgXPIp4AbOTkequVWThX26dgVQKrnppDC79Ko4=;
+        s=default; t=1588615491;
+        bh=g7KtWtbUzXxt0Cfs7sicut6krvWw6UQmyNyj8ocRw4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZV3FjkfC3ChVxsJ+B3mipUS2XISXvc27yrr9HCzh43+quWKrHU/sCbkjhB4uLOHHo
-         XjO1XD/d5pdRWY+LKulMTsBhrweybxw7Ky9u9jaGiUYJS0t3mIrzpoxee60hHUkrLi
-         6eR/AirtH3YId2RBBILJmnqrA/jZFzjRBozODx2Y=
+        b=KWeUMCHl2ECxRcKAoobuyfLU8HISyOh/W2arI9I1JuNlMDOBcJdSiwYJyeH0p+O41
+         wmEOBTenTSCmB57wrmNhOaBY4XvHxzwg34jPdyqveFFZNGmHPfTFc7dlDCNOrrI9aB
+         gZriyFOqm+dohmfp2Y9HUe+fHyoJHBM4SvB54U8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 4.19 22/37] vfio/type1: Fix VA->PA translation for PFNMAP VMAs in vaddr_get_pfn()
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 31/57] dm writecache: fix data corruption when reloading the target
 Date:   Mon,  4 May 2020 19:57:35 +0200
-Message-Id: <20200504165450.668045868@linuxfoundation.org>
+Message-Id: <20200504165459.033141220@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +43,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 5cbf3264bc715e9eb384e2b68601f8c02bb9a61d upstream.
+commit 31b22120194b5c0d460f59e0c98504de1d3f1f14 upstream.
 
-Use follow_pfn() to get the PFN of a PFNMAP VMA instead of assuming that
-vma->vm_pgoff holds the base PFN of the VMA.  This fixes a bug where
-attempting to do VFIO_IOMMU_MAP_DMA on an arbitrary PFNMAP'd region of
-memory calculates garbage for the PFN.
+The dm-writecache reads metadata in the target constructor. However, when
+we reload the target, there could be another active instance running on
+the same device. This is the sequence of operations when doing a reload:
 
-Hilariously, this only got detected because the first "PFN" calculated
-by vaddr_get_pfn() is PFN 0 (vma->vm_pgoff==0), and iommu_iova_to_phys()
-uses PA==0 as an error, which triggers a WARN in vfio_unmap_unpin()
-because the translation "failed".  PFN 0 is now unconditionally reserved
-on x86 in order to mitigate L1TF, which causes is_invalid_reserved_pfn()
-to return true and in turns results in vaddr_get_pfn() returning success
-for PFN 0.  Eventually the bogus calculation runs into PFNs that aren't
-reserved and leads to failure in vfio_pin_map_dma().  The subsequent
-call to vfio_remove_dma() attempts to unmap PFN 0 and WARNs.
+1. construct new target
+2. suspend old target
+3. resume new target
+4. destroy old target
 
-  WARNING: CPU: 8 PID: 5130 at drivers/vfio/vfio_iommu_type1.c:750 vfio_unmap_unpin+0x2e1/0x310 [vfio_iommu_type1]
-  Modules linked in: vfio_pci vfio_virqfd vfio_iommu_type1 vfio ...
-  CPU: 8 PID: 5130 Comm: sgx Tainted: G        W         5.6.0-rc5-705d787c7fee-vfio+ #3
-  Hardware name: Intel Corporation Mehlow UP Server Platform/Moss Beach Server, BIOS CNLSE2R1.D00.X119.B49.1803010910 03/01/2018
-  RIP: 0010:vfio_unmap_unpin+0x2e1/0x310 [vfio_iommu_type1]
-  Code: <0f> 0b 49 81 c5 00 10 00 00 e9 c5 fe ff ff bb 00 10 00 00 e9 3d fe
-  RSP: 0018:ffffbeb5039ebda8 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffff9a55cbf8d480 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff9a52b771c200
-  RBP: 0000000000000000 R08: 0000000000000040 R09: 00000000fffffff2
-  R10: 0000000000000001 R11: ffff9a51fa896000 R12: 0000000184010000
-  R13: 0000000184000000 R14: 0000000000010000 R15: ffff9a55cb66ea08
-  FS:  00007f15d3830b40(0000) GS:ffff9a55d5600000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000561cf39429e0 CR3: 000000084f75f005 CR4: 00000000003626e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   vfio_remove_dma+0x17/0x70 [vfio_iommu_type1]
-   vfio_iommu_type1_ioctl+0x9e3/0xa7b [vfio_iommu_type1]
-   ksys_ioctl+0x92/0xb0
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x4c/0x180
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f15d04c75d7
-  Code: <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 81 48 2d 00 f7 d8 64 89 01 48
+Metadata that were written by the old target between steps 1 and 2 would
+not be visible by the new target.
 
-Fixes: 73fa0d10d077 ("vfio: Type1 IOMMU implementation")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fix the data corruption by loading the metadata in the resume handler.
+
+Also, validate block_size is at least as large as both the devices'
+logical block size and only read 1 block from the metadata during
+target constructor -- no need to read entirety of metadata now that it
+is done during resume.
+
+Fixes: 48debafe4f2f ("dm: add writecache target")
+Cc: stable@vger.kernel.org # v4.18+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/vfio_iommu_type1.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/dm-writecache.c |   52 ++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 37 insertions(+), 15 deletions(-)
 
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -385,8 +385,8 @@ static int vaddr_get_pfn(struct mm_struc
- 	vma = find_vma_intersection(mm, vaddr, vaddr + 1);
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -878,6 +878,24 @@ static int writecache_alloc_entries(stru
+ 	return 0;
+ }
  
- 	if (vma && vma->vm_flags & VM_PFNMAP) {
--		*pfn = ((vaddr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
--		if (is_invalid_reserved_pfn(*pfn))
-+		if (!follow_pfn(vma, vaddr, pfn) &&
-+		    is_invalid_reserved_pfn(*pfn))
- 			ret = 0;
++static int writecache_read_metadata(struct dm_writecache *wc, sector_t n_sectors)
++{
++	struct dm_io_region region;
++	struct dm_io_request req;
++
++	region.bdev = wc->ssd_dev->bdev;
++	region.sector = wc->start_sector;
++	region.count = n_sectors;
++	req.bi_op = REQ_OP_READ;
++	req.bi_op_flags = REQ_SYNC;
++	req.mem.type = DM_IO_VMA;
++	req.mem.ptr.vma = (char *)wc->memory_map;
++	req.client = wc->dm_io;
++	req.notify.fn = NULL;
++
++	return dm_io(&req, 1, &region, NULL);
++}
++
+ static void writecache_resume(struct dm_target *ti)
+ {
+ 	struct dm_writecache *wc = ti->private;
+@@ -888,8 +906,18 @@ static void writecache_resume(struct dm_
+ 
+ 	wc_lock(wc);
+ 
+-	if (WC_MODE_PMEM(wc))
++	if (WC_MODE_PMEM(wc)) {
+ 		persistent_memory_invalidate_cache(wc->memory_map, wc->memory_map_size);
++	} else {
++		r = writecache_read_metadata(wc, wc->metadata_sectors);
++		if (r) {
++			size_t sb_entries_offset;
++			writecache_error(wc, r, "unable to read metadata: %d", r);
++			sb_entries_offset = offsetof(struct wc_memory_superblock, entries);
++			memset((char *)wc->memory_map + sb_entries_offset, -1,
++			       (wc->metadata_sectors << SECTOR_SHIFT) - sb_entries_offset);
++		}
++	}
+ 
+ 	wc->tree = RB_ROOT;
+ 	INIT_LIST_HEAD(&wc->lru);
+@@ -1984,6 +2012,12 @@ static int writecache_ctr(struct dm_targ
+ 		ti->error = "Invalid block size";
+ 		goto bad;
  	}
++	if (wc->block_size < bdev_logical_block_size(wc->dev->bdev) ||
++	    wc->block_size < bdev_logical_block_size(wc->ssd_dev->bdev)) {
++		r = -EINVAL;
++		ti->error = "Block size is smaller than device logical block size";
++		goto bad;
++	}
+ 	wc->block_size_bits = __ffs(wc->block_size);
  
+ 	wc->max_writeback_jobs = MAX_WRITEBACK_JOBS;
+@@ -2072,8 +2106,6 @@ invalid_optional:
+ 			goto bad;
+ 		}
+ 	} else {
+-		struct dm_io_region region;
+-		struct dm_io_request req;
+ 		size_t n_blocks, n_metadata_blocks;
+ 		uint64_t n_bitmap_bits;
+ 
+@@ -2130,19 +2162,9 @@ invalid_optional:
+ 			goto bad;
+ 		}
+ 
+-		region.bdev = wc->ssd_dev->bdev;
+-		region.sector = wc->start_sector;
+-		region.count = wc->metadata_sectors;
+-		req.bi_op = REQ_OP_READ;
+-		req.bi_op_flags = REQ_SYNC;
+-		req.mem.type = DM_IO_VMA;
+-		req.mem.ptr.vma = (char *)wc->memory_map;
+-		req.client = wc->dm_io;
+-		req.notify.fn = NULL;
+-
+-		r = dm_io(&req, 1, &region, NULL);
++		r = writecache_read_metadata(wc, wc->block_size >> SECTOR_SHIFT);
+ 		if (r) {
+-			ti->error = "Unable to read metadata";
++			ti->error = "Unable to read first block of metadata";
+ 			goto bad;
+ 		}
+ 	}
 
 
