@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 272411C454A
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:14:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A9B1C44CA
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:10:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731753AbgEDSN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:13:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56000 "EHLO mail.kernel.org"
+        id S1731303AbgEDSKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:10:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731084AbgEDSA4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:00:56 -0400
+        id S1731867AbgEDSFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:05:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7183E2073B;
-        Mon,  4 May 2020 18:00:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 671E72073E;
+        Mon,  4 May 2020 18:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615255;
-        bh=u1eRWLzcSsHvN8fzxr/uCnaS7bnXn9sRpbs/0zvLWHM=;
+        s=default; t=1588615535;
+        bh=RxKI3HmtbFCU5whBuk1UGXWl7irueBTgvhGXEXqY8l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWCZUQ1m/edPpmXWt6tee3yajjLc7I2aPfl335/fY0pv/QY2lO50Y41WV2knBjKu2
-         U7olG2VwaSr4mLju00SbymHliqM9v5GqHhGEc+oPvJuaNRf5t4lZ7PFqquu0fO/YX5
-         XNGVACKJyCAen7v1hvSvQbVop21o7JqPXwdlYTpg=
+        b=FzdSwzzlpq2pfABJ64QMmI9cMHLJcaUTowKAuyUsCD20AZ6GYw8KOWf/Qfg5pG0Nq
+         dspHsSRLK106GeY0dJyuxyd4IT9zFZGzyU+kaWz0A6fpB+7IPLEEpye1PBqE1Quypb
+         pIRdhKy/QKkleN2eHj7QaVOTMHmZ319/UlOXTtHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 09/26] mmc: sdhci-pci: Fix eMMC driver strength for BYT-based controllers
+Subject: [PATCH 5.6 20/73] mmc: meson-mx-sdio: Set MMC_CAP_WAIT_WHILE_BUSY
 Date:   Mon,  4 May 2020 19:57:23 +0200
-Message-Id: <20200504165444.899552282@linuxfoundation.org>
+Message-Id: <20200504165505.460694614@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
-References: <20200504165442.494398840@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit 1a8eb6b373c2af6533c13d1ea11f504e5010ed9a upstream.
+commit e53b868b3cf5beeaa2f851ec6740112bf4d6a8cb upstream.
 
-BIOS writers have begun the practice of setting 40 ohm eMMC driver strength
-even though the eMMC may not support it, on the assumption that the kernel
-will validate the value against the eMMC (Extended CSD DRIVER_STRENGTH
-[offset 197]) and revert to the default 50 ohm value if 40 ohm is invalid.
+The Meson SDIO controller uses the DAT0 lane for hardware busy
+detection. Set MMC_CAP_WAIT_WHILE_BUSY accordingly. This fixes
+the following error observed with Linux 5.7 (pre-rc-1):
+  mmc1: Card stuck being busy! __mmc_poll_for_busy
+  blk_update_request: I/O error, dev mmcblk1, sector 17111080 op
+   0x3:(DISCARD) flags 0x0 phys_seg 1 prio class 0
 
-This is done to avoid changing the value for different boards.
-
-Putting aside the merits of this approach, it is clear the eMMC's mask
-of supported driver strengths is more reliable than the value provided
-by BIOS. Add validation accordingly.
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 51ced59cc02e ("mmc: sdhci-pci: Use ACPI DSM to get driver strength for some Intel devices")
+Fixes: ed80a13bb4c4c9 ("mmc: meson-mx-sdio: Add a driver for the Amlogic Meson8 and Meson8b SoCs")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200422111629.4899-1-adrian.hunter@intel.com
+Link: https://lore.kernel.org/r/20200416183513.993763-2-martin.blumenstingl@googlemail.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-pci-core.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mmc/host/meson-mx-sdio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -490,6 +490,9 @@ static int intel_select_drive_strength(s
- 	struct sdhci_pci_slot *slot = sdhci_priv(host);
- 	struct intel_host *intel_host = sdhci_pci_priv(slot);
+--- a/drivers/mmc/host/meson-mx-sdio.c
++++ b/drivers/mmc/host/meson-mx-sdio.c
+@@ -570,7 +570,7 @@ static int meson_mx_mmc_add_host(struct
+ 	mmc->f_max = clk_round_rate(host->cfg_div_clk,
+ 				    clk_get_rate(host->parent_clk));
  
-+	if (!(mmc_driver_type_mask(intel_host->drv_strength) & card_drv))
-+		return 0;
-+
- 	return intel_host->drv_strength;
- }
+-	mmc->caps |= MMC_CAP_ERASE | MMC_CAP_CMD23;
++	mmc->caps |= MMC_CAP_ERASE | MMC_CAP_CMD23 | MMC_CAP_WAIT_WHILE_BUSY;
+ 	mmc->ops = &meson_mx_mmc_ops;
  
+ 	ret = mmc_of_parse(mmc);
 
 
