@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 075F71C44A8
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BBF51C4421
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:05:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732030AbgEDSGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:06:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37372 "EHLO mail.kernel.org"
+        id S1730922AbgEDSE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:04:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732024AbgEDSGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:06:49 -0400
+        id S1730994AbgEDSE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:04:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E2C0206B8;
-        Mon,  4 May 2020 18:06:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 315FA206B8;
+        Mon,  4 May 2020 18:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615608;
-        bh=0+Wqi8i5cFJHZoi20Re0WmALTJjaX7zj9XsDPNl2Jts=;
+        s=default; t=1588615466;
+        bh=1odbRtPdovn6YAvSWJSRCoNkGgKfG9Q4/MdEilrMUZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAR1tXtUAQRNNZFAJChu2DY2sTgArDQrBfe+KRqHDio+VV3DF0IeZc3LgzyRFIJh8
-         eQ60usH9R4IR5zLV7a4bsFZmLvi1RvfnorS7OSXBzsA5DRbVwr1dDXMOF5OhO+q621
-         xaevUq5lh7ZNwTbE0GqIkFkcx3Qtl8hLlhifCl6c=
+        b=zY8mzIwcLhK5LhFwRpVLmRHushy02635UHpbOaGpOlxSxqdyVLHQhU1c00Uxsw7k5
+         f9QZsGmnYXneq6jdX4DwPmSGLeJqrmL1YtnwP0up9G+m16ec9GtO1GOxdQNmzPWJqB
+         xVJkVs29+TflG3+p009fSU4aEO73/eT7y9PkJADA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.6 51/73] RDMA/cm: Fix an error check in cm_alloc_id_priv()
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 50/57] ALSA: opti9xx: shut up gcc-10 range warning
 Date:   Mon,  4 May 2020 19:57:54 +0200
-Message-Id: <20200504165509.204224158@linuxfoundation.org>
+Message-Id: <20200504165500.964694955@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
+References: <20200504165456.783676004@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 983653515849fb56b78ce55d349bb384d43030f6 upstream.
+commit 5ce00760a84848d008554c693ceb6286f4d9c509 upstream.
 
-The xa_alloc_cyclic_irq() function returns either 0 or 1 on success and
-negatives on error.  This code treats 1 as an error and returns ERR_PTR(1)
-which will cause an Oops in the caller.
+gcc-10 points out a few instances of suspicious integer arithmetic
+leading to value truncation:
 
-Fixes: ae78ff3a0f0c ("RDMA/cm: Convert local_id_table to XArray")
-Link: https://lore.kernel.org/r/20200407093714.GA80285@mwanda
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+sound/isa/opti9xx/opti92x-ad1848.c: In function 'snd_opti9xx_configure':
+sound/isa/opti9xx/opti92x-ad1848.c:322:43: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_opti9xx_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
+  322 |   (snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+sound/isa/opti9xx/opti92x-ad1848.c:351:3: note: in expansion of macro 'snd_opti9xx_write_mask'
+  351 |   snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+sound/isa/opti9xx/miro.c: In function 'snd_miro_configure':
+sound/isa/opti9xx/miro.c:873:40: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_miro_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
+  873 |   (snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+sound/isa/opti9xx/miro.c:1010:3: note: in expansion of macro 'snd_miro_write_mask'
+ 1010 |   snd_miro_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
+      |   ^~~~~~~~~~~~~~~~~~~
+
+These are all harmless here as only the low 8 bit are passed down
+anyway. Change the macros to inline functions to make the code
+more readable and also avoid the warning.
+
+Strictly speaking those functions also need locking to make the
+read/write pair atomic, but it seems unlikely that anyone would
+still run into that issue.
+
+Fixes: 1841f613fd2e ("[ALSA] Add snd-miro driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20200429190216.85919-1-arnd@arndb.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/core/cm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/isa/opti9xx/miro.c           |    9 ++++++---
+ sound/isa/opti9xx/opti92x-ad1848.c |    9 ++++++---
+ 2 files changed, 12 insertions(+), 6 deletions(-)
 
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -836,7 +836,7 @@ struct ib_cm_id *ib_create_cm_id(struct
+--- a/sound/isa/opti9xx/miro.c
++++ b/sound/isa/opti9xx/miro.c
+@@ -867,10 +867,13 @@ static void snd_miro_write(struct snd_mi
+ 	spin_unlock_irqrestore(&chip->lock, flags);
+ }
  
- 	ret = xa_alloc_cyclic_irq(&cm.local_id_table, &id, NULL, xa_limit_32b,
- 				  &cm.local_id_next, GFP_KERNEL);
--	if (ret)
-+	if (ret < 0)
- 		goto error;
- 	cm_id_priv->id.local_id = (__force __be32)id ^ cm.random_id_operand;
- 	xa_store_irq(&cm.local_id_table, cm_local_id(cm_id_priv->id.local_id),
++static inline void snd_miro_write_mask(struct snd_miro *chip,
++		unsigned char reg, unsigned char value, unsigned char mask)
++{
++	unsigned char oldval = snd_miro_read(chip, reg);
+ 
+-#define snd_miro_write_mask(chip, reg, value, mask)	\
+-	snd_miro_write(chip, reg,			\
+-		(snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
++	snd_miro_write(chip, reg, (oldval & ~mask) | (value & mask));
++}
+ 
+ /*
+  *  Proc Interface
+--- a/sound/isa/opti9xx/opti92x-ad1848.c
++++ b/sound/isa/opti9xx/opti92x-ad1848.c
+@@ -317,10 +317,13 @@ static void snd_opti9xx_write(struct snd
+ }
+ 
+ 
+-#define snd_opti9xx_write_mask(chip, reg, value, mask)	\
+-	snd_opti9xx_write(chip, reg,			\
+-		(snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
++static inline void snd_opti9xx_write_mask(struct snd_opti9xx *chip,
++		unsigned char reg, unsigned char value, unsigned char mask)
++{
++	unsigned char oldval = snd_opti9xx_read(chip, reg);
+ 
++	snd_opti9xx_write(chip, reg, (oldval & ~mask) | (value & mask));
++}
+ 
+ static int snd_opti9xx_configure(struct snd_opti9xx *chip,
+ 					   long port,
 
 
