@@ -2,60 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 382D91C3F49
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 18:03:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7D91C3F7B
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 18:12:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726578AbgEDQDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 12:03:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726551AbgEDQDR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 12:03:17 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71AA5C061A0E;
-        Mon,  4 May 2020 09:03:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=MJiG06idgkhQ7ETomKvk+pXIhWmcVzgg6Sh67pMiRa8=; b=KSO+cu4KS04f9QMSMnoEgpz4lP
-        xEUzzhMHMNy0nNQLb/oWLnGEmta0IgfeMaWPLFVU8v0KE5Q/SQ/kf7eZZQbtkWd1mh1jOtqlamJpr
-        YN+qE50vHOxXepS7SXteLP+Jz8YM7GoPnzdBjtA78HfjZE5ci7Ix61JXsgZmNOz3ITCwjRyIZY+8f
-        VyOZXfNmnntPRCfh/xfRBQBe6qX2/BPIpwkpCgcPE5LJxYzBjMyx5sO7eU8s1XolUvo0+SbSxsYHA
-        IxtQuHWPpYcGkzHJS2c5PU+nqLHZ77pbjoE7P9V0lYxoaoYguZ5auscSJkpBNu3v2LiCVcQSeLZB2
-        eIpOBNEQ==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jVdYo-0007fF-8J; Mon, 04 May 2020 16:03:14 +0000
-Date:   Mon, 4 May 2020 09:03:14 -0700
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, bigeasy@linutronix.de,
-        tglx@linutronix.de, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915: check to see if SIMD registers are available
- before using SIMD
-Message-ID: <20200504160314.GA26373@infradead.org>
-References: <20200430221016.3866-1-Jason@zx2c4.com>
- <20200501180731.GA2485@infradead.org>
- <158853721918.8377.18286963845226122104@build.alporthouse.com>
+        id S1729297AbgEDQMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 12:12:19 -0400
+Received: from mga04.intel.com ([192.55.52.120]:42892 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729207AbgEDQMS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 12:12:18 -0400
+IronPort-SDR: GaO8djqiS2pGiJ4VEzK21OfRR+p9GR/H1OOoiF1LyDWwe8m9F4UWF+CgXZu/iEGTLYCSBEzCzW
+ f95LkA7L/isQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 May 2020 09:12:18 -0700
+IronPort-SDR: NjIs5eVckiefVYzs1nbR8TZZP08x1SCNuBp/AYXeYKVd5KTbFssOqilwxELtBYPR4imLSjI+d2
+ TGTnF4ViDebw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,352,1583222400"; 
+   d="scan'208";a="262866242"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga006.jf.intel.com with SMTP; 04 May 2020 09:12:14 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Mon, 04 May 2020 19:12:13 +0300
+Date:   Mon, 4 May 2020 19:12:13 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Sultan Alsawaf <sultan@kerneltoast.com>
+Cc:     stable@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drm/i915: Don't enable WaIncreaseLatencyIPCEnabled when
+ IPC is disabled
+Message-ID: <20200504161213.GD6112@intel.com>
+References: <20200430214654.51314-1-sultan@kerneltoast.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <158853721918.8377.18286963845226122104@build.alporthouse.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200430214654.51314-1-sultan@kerneltoast.com>
+X-Patchwork-Hint: comment
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 03, 2020 at 09:20:19PM +0100, Chris Wilson wrote:
-> > Err, why does i915 implements its own uncached memcpy instead of relying
-> > on core functionality to start with?
+On Thu, Apr 30, 2020 at 02:46:54PM -0700, Sultan Alsawaf wrote:
+> From: Sultan Alsawaf <sultan@kerneltoast.com>
 > 
-> What is this core functionality that provides movntqda?
+> In commit 5a7d202b1574, a logical AND was erroneously changed to an OR,
+> causing WaIncreaseLatencyIPCEnabled to be enabled unconditionally for
+> kabylake and coffeelake, even when IPC is disabled. Fix the logic so
+> that WaIncreaseLatencyIPCEnabled is only used when IPC is enabled.
+> 
+> Fixes: 5a7d202b1574 ("drm/i915: Drop WaIncreaseLatencyIPCEnabled/1140 for cnl")
+> Cc: stable@vger.kernel.org # 5.3.x+
+> Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+> ---
+>  drivers/gpu/drm/i915/intel_pm.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+> index 8375054ba27d..a52986a9e7a6 100644
+> --- a/drivers/gpu/drm/i915/intel_pm.c
+> +++ b/drivers/gpu/drm/i915/intel_pm.c
+> @@ -4992,7 +4992,7 @@ static void skl_compute_plane_wm(const struct intel_crtc_state *crtc_state,
+>  	 * WaIncreaseLatencyIPCEnabled: kbl,cfl
+>  	 * Display WA #1141: kbl,cfl
+>  	 */
+> -	if ((IS_KABYLAKE(dev_priv) || IS_COFFEELAKE(dev_priv)) ||
+> +	if ((IS_KABYLAKE(dev_priv) || IS_COFFEELAKE(dev_priv)) &&
 
-A sensible name might be memcpy_uncached or mempcy_nontemporal.
-But the important point is that this should be arch code with a common
-fallback rather than hacking it up in drivers.
+Whoops. Thanks for the fix. Pushed.
+
+>  	    dev_priv->ipc_enabled)
+>  		latency += 4;
+>  
+> -- 
+> 2.26.2
+
+-- 
+Ville Syrjälä
+Intel
