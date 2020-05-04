@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8AC51C44BC
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:09:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACAFD1C4380
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 19:59:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730501AbgEDSJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:09:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36616 "EHLO mail.kernel.org"
+        id S1730636AbgEDR67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 13:58:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731943AbgEDSGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:06:20 -0400
+        id S1730627AbgEDR67 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 13:58:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71CA2206B8;
-        Mon,  4 May 2020 18:06:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36F1920707;
+        Mon,  4 May 2020 17:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615579;
-        bh=UEsvsLFY7/HtXESKZ/Exh6Pru9+fDNYrBHmBwGsyn5A=;
+        s=default; t=1588615138;
+        bh=RMLWuBEV/LmPOhN8ZRn45upPYmqFgDB4TZ1V9KzBJGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPjP6RwRclPi4AwUY2iER14MUhFpzBzRookvrz2p2dc4NpMGOVDQ+KHfCtS6NLjYr
-         hDrJOtSJEvFaZDwLbVEFehwFQIIzOrrbb5iuNOToQo8rLvBIvShiuJvWsBSpL+rmfx
-         Gqad5/ufl207Byhht4yEramHCuaHUJYKABWITvq0=
+        b=LcKsGtsIQJzrbzlBtaJetA0ySu1kbo/eYXnQ0C3HikA3U15VkK168ZffRimZ2Ic0w
+         yqJxc+Zj9WkOvOBQ4lzhip1UCahQLs+cIlsPJbex3swfTN2KBbvhcRx1Or0ZKpMLXA
+         qZ7zXrtt8oDuoR5U091L4dp83R3qNisWmB+IdWCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.6 05/73] drm/amd/display: Fix green screen issue after suspend
-Date:   Mon,  4 May 2020 19:57:08 +0200
-Message-Id: <20200504165502.808824161@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        David Ahern <dsahern@gmail.com>,
+        Don Zickus <dzickus@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.4 11/18] perf hists: Fix HISTC_MEM_DCACHELINE width setting
+Date:   Mon,  4 May 2020 19:57:09 +0200
+Message-Id: <20200504165443.876938763@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
-References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165441.533160703@linuxfoundation.org>
+References: <20200504165441.533160703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,170 +47,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-commit 87b7ebc2e16c14d32a912f18206a4d6cc9abc3e8 upstream.
+commit 0805909f59e02036a4e2660159f27dbf8b6084ac upstream.
 
-[why]
-We have seen a green screen after resume from suspend in a Raven system
-connected with two displays (HDMI and DP) on X based system. We noticed
-that this issue is related to bad DCC metadata from user space which may
-generate hangs and consequently an underflow on HUBP. After taking a
-deep look at the code path we realized that after resume we try to
-restore the commit with the DCC enabled framebuffer but the framebuffer
-is no longer valid.
+Set correct width for unresolved mem_dcacheline addr.
 
-[how]
-This problem was only reported on Raven based system and after suspend,
-for this reason, this commit adds a new parameter on
-fill_plane_dcc_attributes() to give the option of disabling DCC
-programmatically. In summary, for disabling DCC we first verify if is a
-Raven system and if it is in suspend; if both conditions are true we
-disable DCC temporarily, otherwise, it is enabled.
-
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1099
-Co-developed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Don Zickus <dzickus@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Fixes: 9b32ba71ba90 ("perf tools: Add dcacheline sort")
+Link: http://lkml.kernel.org/r/1453290995-18485-3-git-send-email-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   38 ++++++++++++++++------
- 1 file changed, 29 insertions(+), 9 deletions(-)
+ tools/perf/util/hist.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -3212,7 +3212,8 @@ fill_plane_dcc_attributes(struct amdgpu_
- 			  const union dc_tiling_info *tiling_info,
- 			  const uint64_t info,
- 			  struct dc_plane_dcc_param *dcc,
--			  struct dc_plane_address *address)
-+			  struct dc_plane_address *address,
-+			  bool force_disable_dcc)
- {
- 	struct dc *dc = adev->dm.dc;
- 	struct dc_dcc_surface_param input;
-@@ -3224,6 +3225,9 @@ fill_plane_dcc_attributes(struct amdgpu_
- 	memset(&input, 0, sizeof(input));
- 	memset(&output, 0, sizeof(output));
+--- a/tools/perf/util/hist.c
++++ b/tools/perf/util/hist.c
+@@ -131,6 +131,8 @@ void hists__calc_col_len(struct hists *h
+ 			symlen = unresolved_col_width + 4 + 2;
+ 			hists__new_col_len(hists, HISTC_MEM_DADDR_SYMBOL,
+ 					   symlen);
++			hists__new_col_len(hists, HISTC_MEM_DCACHELINE,
++					   symlen);
+ 		}
  
-+	if (force_disable_dcc)
-+		return 0;
-+
- 	if (!offset)
- 		return 0;
- 
-@@ -3273,7 +3277,8 @@ fill_plane_buffer_attributes(struct amdg
- 			     union dc_tiling_info *tiling_info,
- 			     struct plane_size *plane_size,
- 			     struct dc_plane_dcc_param *dcc,
--			     struct dc_plane_address *address)
-+			     struct dc_plane_address *address,
-+			     bool force_disable_dcc)
- {
- 	const struct drm_framebuffer *fb = &afb->base;
- 	int ret;
-@@ -3379,7 +3384,8 @@ fill_plane_buffer_attributes(struct amdg
- 
- 		ret = fill_plane_dcc_attributes(adev, afb, format, rotation,
- 						plane_size, tiling_info,
--						tiling_flags, dcc, address);
-+						tiling_flags, dcc, address,
-+						force_disable_dcc);
- 		if (ret)
- 			return ret;
- 	}
-@@ -3471,7 +3477,8 @@ fill_dc_plane_info_and_addr(struct amdgp
- 			    const struct drm_plane_state *plane_state,
- 			    const uint64_t tiling_flags,
- 			    struct dc_plane_info *plane_info,
--			    struct dc_plane_address *address)
-+			    struct dc_plane_address *address,
-+			    bool force_disable_dcc)
- {
- 	const struct drm_framebuffer *fb = plane_state->fb;
- 	const struct amdgpu_framebuffer *afb =
-@@ -3550,7 +3557,8 @@ fill_dc_plane_info_and_addr(struct amdgp
- 					   plane_info->rotation, tiling_flags,
- 					   &plane_info->tiling_info,
- 					   &plane_info->plane_size,
--					   &plane_info->dcc, address);
-+					   &plane_info->dcc, address,
-+					   force_disable_dcc);
- 	if (ret)
- 		return ret;
- 
-@@ -3573,6 +3581,7 @@ static int fill_dc_plane_attributes(stru
- 	struct dc_plane_info plane_info;
- 	uint64_t tiling_flags;
- 	int ret;
-+	bool force_disable_dcc = false;
- 
- 	ret = fill_dc_scaling_info(plane_state, &scaling_info);
- 	if (ret)
-@@ -3587,9 +3596,11 @@ static int fill_dc_plane_attributes(stru
- 	if (ret)
- 		return ret;
- 
-+	force_disable_dcc = adev->asic_type == CHIP_RAVEN && adev->in_suspend;
- 	ret = fill_dc_plane_info_and_addr(adev, plane_state, tiling_flags,
- 					  &plane_info,
--					  &dc_plane_state->address);
-+					  &dc_plane_state->address,
-+					  force_disable_dcc);
- 	if (ret)
- 		return ret;
- 
-@@ -5171,6 +5182,7 @@ static int dm_plane_helper_prepare_fb(st
- 	uint64_t tiling_flags;
- 	uint32_t domain;
- 	int r;
-+	bool force_disable_dcc = false;
- 
- 	dm_plane_state_old = to_dm_plane_state(plane->state);
- 	dm_plane_state_new = to_dm_plane_state(new_state);
-@@ -5229,11 +5241,13 @@ static int dm_plane_helper_prepare_fb(st
- 			dm_plane_state_old->dc_state != dm_plane_state_new->dc_state) {
- 		struct dc_plane_state *plane_state = dm_plane_state_new->dc_state;
- 
-+		force_disable_dcc = adev->asic_type == CHIP_RAVEN && adev->in_suspend;
- 		fill_plane_buffer_attributes(
- 			adev, afb, plane_state->format, plane_state->rotation,
- 			tiling_flags, &plane_state->tiling_info,
- 			&plane_state->plane_size, &plane_state->dcc,
--			&plane_state->address);
-+			&plane_state->address,
-+			force_disable_dcc);
- 	}
- 
- 	return 0;
-@@ -6514,7 +6528,12 @@ static void amdgpu_dm_commit_planes(stru
- 		fill_dc_plane_info_and_addr(
- 			dm->adev, new_plane_state, tiling_flags,
- 			&bundle->plane_infos[planes_count],
--			&bundle->flip_addrs[planes_count].address);
-+			&bundle->flip_addrs[planes_count].address,
-+			false);
-+
-+		DRM_DEBUG_DRIVER("plane: id=%d dcc_en=%d\n",
-+				 new_plane_state->plane->index,
-+				 bundle->plane_infos[planes_count].dcc.enable);
- 
- 		bundle->surface_updates[planes_count].plane_info =
- 			&bundle->plane_infos[planes_count];
-@@ -7935,7 +7954,8 @@ dm_determine_update_type_for_commit(stru
- 				ret = fill_dc_plane_info_and_addr(
- 					dm->adev, new_plane_state, tiling_flags,
- 					plane_info,
--					&flip_addr->address);
-+					&flip_addr->address,
-+					false);
- 				if (ret)
- 					goto cleanup;
- 
+ 		if (h->mem_info->iaddr.sym) {
 
 
