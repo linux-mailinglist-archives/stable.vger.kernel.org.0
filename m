@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 487811C43B5
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1DFC1C4531
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731068AbgEDSAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:00:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
+        id S1731043AbgEDSNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:13:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731030AbgEDSAr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:00:47 -0400
+        id S1730622AbgEDSBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:01:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BD75206B8;
-        Mon,  4 May 2020 18:00:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 748ED2073B;
+        Mon,  4 May 2020 18:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615246;
-        bh=JRI+s/MJvxQgPjjk3ThIsq+2F5UbE1gryeRxl+Ssht0=;
+        s=default; t=1588615296;
+        bh=QJ0rWBAoFE5MoYuFJCDgwB55xyI0vhTojmmngfGzXCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EOTMQN5aCYNBesI9MjkJcGHEdk9BTmIoBy60iOpRuFNJrRMuxpvzLmgKOxzCCAmlE
-         YEfaDjsU8o1h9lUciCqawfkrKFU2LwOwVrg+aL/YKPMqQk65qLP9O1b3ld6MvWYQ5V
-         YJK4aLBcKtO+T10h7NdewYkHQAQuR8mw8f6j38Kk=
+        b=MDBM3vDHAkpZXJP9uUO3GK0FpZNTEJhpAJNxq8klCMpVAsBb3DWJvbmD1DydZboTA
+         S7n87alPdSI0fjopUafuPeCU117Lj+uLO9sMjaitEU6wRp6428N8GKwpkaNKX8awQE
+         yDPnIYPfImQLzv6MBfb5N6qNd/enPNWC75FydXnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 4.14 05/26] drm/qxl: qxl_release use after free
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 06/37] ALSA: hda/realtek - Two front mics on a Lenovo ThinkCenter
 Date:   Mon,  4 May 2020 19:57:19 +0200
-Message-Id: <20200504165443.562548757@linuxfoundation.org>
+Message-Id: <20200504165449.283669241@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
-References: <20200504165442.494398840@linuxfoundation.org>
+In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
+References: <20200504165448.264746645@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,147 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 933db73351d359f74b14f4af095808260aff11f9 upstream.
+commit ef0b3203c758b6b8abdb5dca651880347eae6b8c upstream.
 
-qxl_release should not be accesses after qxl_push_*_ring_release() calls:
-userspace driver can process submitted command quickly, move qxl_release
-into release_ring, generate interrupt and trigger garbage collector.
+This new Lenovo ThinkCenter has two front mics which can't be handled
+by PA so far, so apply the fixup ALC283_FIXUP_HEADSET_MIC to change
+the location for one of the mics.
 
-It can lead to crashes in qxl driver or trigger memory corruption
-in some kmalloc-192 slab object
-
-Gerd Hoffmann proposes to swap the qxl_release_fence_buffer_objects() +
-qxl_push_{cursor,command}_ring_release() calls to close that race window.
-
-cc: stable@vger.kernel.org
-Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/fa17b338-66ae-f299-68fe-8d32419d9071@virtuozzo.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-[backported to v4.14-stable]
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20200427030039.10121-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/qxl/qxl_cmd.c     |    5 ++---
- drivers/gpu/drm/qxl/qxl_display.c |    6 +++---
- drivers/gpu/drm/qxl/qxl_draw.c    |    8 ++++----
- drivers/gpu/drm/qxl/qxl_ioctl.c   |    5 +----
- 4 files changed, 10 insertions(+), 14 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -533,8 +533,8 @@ int qxl_hw_surface_alloc(struct qxl_devi
- 	/* no need to add a release to the fence for this surface bo,
- 	   since it is only released when we ask to destroy the surface
- 	   and it would never signal otherwise */
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
- 
- 	surf->hw_surf_alloc = true;
- 	spin_lock(&qdev->surf_id_idr_lock);
-@@ -576,9 +576,8 @@ int qxl_hw_surface_dealloc(struct qxl_de
- 	cmd->surface_id = id;
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
- 
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
--
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
- 
- 	return 0;
- }
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -533,8 +533,8 @@ static int qxl_primary_apply_cursor(stru
- 	cmd->u.set.visible = 1;
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
- 
--	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 
- 	return ret;
- 
-@@ -701,8 +701,8 @@ static void qxl_cursor_atomic_update(str
- 	cmd->u.position.y = plane->state->crtc_y + fb->hot_y;
- 
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
--	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 
- 	if (old_cursor_bo)
- 		qxl_bo_unref(&old_cursor_bo);
-@@ -747,8 +747,8 @@ static void qxl_cursor_atomic_disable(st
- 	cmd->type = QXL_CURSOR_HIDE;
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
- 
--	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- }
- 
- static int qxl_plane_prepare_fb(struct drm_plane *plane,
---- a/drivers/gpu/drm/qxl/qxl_draw.c
-+++ b/drivers/gpu/drm/qxl/qxl_draw.c
-@@ -241,8 +241,8 @@ void qxl_draw_opaque_fb(const struct qxl
- 		qxl_bo_physical_address(qdev, dimage->bo, 0);
- 	qxl_release_unmap(qdev, release, &drawable->release_info);
- 
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 
- out_free_palette:
- 	if (palette_bo)
-@@ -382,8 +382,8 @@ void qxl_draw_dirty_fb(struct qxl_device
- 	}
- 	qxl_bo_kunmap(clips_bo);
- 
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 
- out_release_backoff:
- 	if (ret)
-@@ -433,8 +433,8 @@ void qxl_draw_copyarea(struct qxl_device
- 	drawable->u.copy_bits.src_pos.y = sy;
- 	qxl_release_unmap(qdev, release, &drawable->release_info);
- 
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 
- out_free_release:
- 	if (ret)
-@@ -477,8 +477,8 @@ void qxl_draw_fill(struct qxl_draw_fill
- 
- 	qxl_release_unmap(qdev, release, &drawable->release_info);
- 
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 
- out_free_release:
- 	if (ret)
---- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-+++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-@@ -257,11 +257,8 @@ static int qxl_process_single_command(st
- 			apply_surf_reloc(qdev, &reloc_info[i]);
- 	}
- 
-+	qxl_release_fence_buffer_objects(release);
- 	ret = qxl_push_command_ring_release(qdev, release, cmd->type, true);
--	if (ret)
--		qxl_release_backoff_reserve_list(release);
--	else
--		qxl_release_fence_buffer_objects(release);
- 
- out_free_bos:
- out_free_release:
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6991,6 +6991,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1558, 0x8560, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8561, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x1036, "Lenovo P520", ALC233_FIXUP_LENOVO_MULTI_CODECS),
++	SND_PCI_QUIRK(0x17aa, 0x1048, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x20f2, "Thinkpad SL410/510", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x215e, "Thinkpad L512", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x21b8, "Thinkpad Edge 14", ALC269_FIXUP_SKU_IGNORE),
 
 
