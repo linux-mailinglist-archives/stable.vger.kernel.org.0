@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9F41C452F
-	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:13:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ABB81C44F0
+	for <lists+stable@lfdr.de>; Mon,  4 May 2020 20:11:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730681AbgEDSNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 14:13:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
+        id S1730937AbgEDSFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 14:05:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731193AbgEDSBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 14:01:39 -0400
+        id S1731817AbgEDSF2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 14:05:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF2BA206B8;
-        Mon,  4 May 2020 18:01:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C86D206B8;
+        Mon,  4 May 2020 18:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588615299;
-        bh=PyIQ4kK76SdPKTkL4N7bmlzScORWQ5LQBKoJEDlI3Rc=;
+        s=default; t=1588615526;
+        bh=bDrhjzhTskjV7kPXv5v9McXEoLe8VDFr0GW1kaT3njM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erIAyu8CC901XdRictSRhuAAQcSVdbkdsoR7f1T3Xt6j65O1FQOrB4VY/WlGGtnZf
-         LjxtL4By+cAhoMhx3ekk8DHZl1X2s3MDCBagl0tosiQub6p5lhv6YB+D+Plf99tZ4R
-         tAUWWosg5RlFjqemKQVC+fVgBsPnhQ2CWEaCLcn8=
+        b=X5p8PIEcDvAAJnJ1SFXFtupV754GQrJp7V1nokR2Af1sleQif55KEKdAMIhedn+kk
+         MlU5JmJk4U66uUiZh9ytrwlIY1uCOme4Jkx883Nyx9QJpcB9haRAXkOTWV3q5cDqK3
+         usThdjeRBA54e720pLpTJM4inhWl64ayn61apDq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 07/37] ALSA: usb-audio: Correct a typo of NuPrime DAC-10 USB ID
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.6 17/73] mmc: sdhci-xenon: fix annoying 1.8V regulator warning
 Date:   Mon,  4 May 2020 19:57:20 +0200
-Message-Id: <20200504165449.465263927@linuxfoundation.org>
+Message-Id: <20200504165505.044101855@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-References: <20200504165448.264746645@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+References: <20200504165501.781878940@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Marek Behún <marek.behun@nic.cz>
 
-commit 547d2c9cf4f1f72adfecacbd5b093681fb0e8b3e upstream.
+commit bb32e1987bc55ce1db400faf47d85891da3c9b9f upstream.
 
-The USB vendor ID of NuPrime DAC-10 is not 16b0 but 16d0.
+For some reason the Host Control2 register of the Xenon SDHCI controller
+sometimes reports the bit representing 1.8V signaling as 0 when read
+after it was written as 1. Subsequent read reports 1.
 
-Fixes: f656891c6619 ("ALSA: usb-audio: add more quirks for DSD interfaces")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200430124755.15940-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This causes the sdhci_start_signal_voltage_switch function to report
+  1.8V regulator output did not become stable
+
+When CONFIG_PM is enabled, the host is suspended and resumend many
+times, and in each resume the switch to 1.8V is called, and so the
+kernel log reports this message annoyingly often.
+
+Do an empty read of the Host Control2 register in Xenon's
+.voltage_switch method to circumvent this.
+
+This patch fixes this particular problem on Turris MOX.
+
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
+Fixes: 8d876bf472db ("mmc: sdhci-xenon: wait 5ms after set 1.8V...")
+Cc: stable@vger.kernel.org # v4.16+
+Link: https://lore.kernel.org/r/20200420080444.25242-1-marek.behun@nic.cz
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/quirks.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-xenon.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1385,7 +1385,7 @@ u64 snd_usb_interface_dsd_format_quirks(
+--- a/drivers/mmc/host/sdhci-xenon.c
++++ b/drivers/mmc/host/sdhci-xenon.c
+@@ -235,6 +235,16 @@ static void xenon_voltage_switch(struct
+ {
+ 	/* Wait for 5ms after set 1.8V signal enable bit */
+ 	usleep_range(5000, 5500);
++
++	/*
++	 * For some reason the controller's Host Control2 register reports
++	 * the bit representing 1.8V signaling as 0 when read after it was
++	 * written as 1. Subsequent read reports 1.
++	 *
++	 * Since this may cause some issues, do an empty read of the Host
++	 * Control2 register here to circumvent this.
++	 */
++	sdhci_readw(host, SDHCI_HOST_CONTROL2);
+ }
  
- 	case USB_ID(0x0d8c, 0x0316): /* Hegel HD12 DSD */
- 	case USB_ID(0x10cb, 0x0103): /* The Bit Opus #3; with fp->dsd_raw */
--	case USB_ID(0x16b0, 0x06b2): /* NuPrime DAC-10 */
-+	case USB_ID(0x16d0, 0x06b2): /* NuPrime DAC-10 */
- 	case USB_ID(0x16d0, 0x09dd): /* Encore mDSD */
- 	case USB_ID(0x16d0, 0x0733): /* Furutech ADL Stratos */
- 	case USB_ID(0x16d0, 0x09db): /* NuPrime Audio DAC-9 */
+ static const struct sdhci_ops sdhci_xenon_ops = {
 
 
