@@ -2,116 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 275251C54D0
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 13:54:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EDEC1C5514
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 14:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728703AbgEELyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 07:54:40 -0400
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:11182 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725766AbgEELyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 07:54:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1588679679; x=1620215679;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   mime-version;
-  bh=8BQjmnGt09a7PAHU18wEkeIfDAmDAJHpQTHJEnn6w0k=;
-  b=aUUbOoS2RtAtpHXKclGfaQLW6yeqezbmLc+xAOZADImRYqhuXlfysdcB
-   DbKzin9MwuUY68ikfclv0PQHuf9nT7iXe8hGrqJPtTQiou6LarrqFPTh8
-   7TpMroLAXhXLwllHhN0h78QiX22+f8v324m//4UsmIMjXt2GQVjjgjRci
-   g=;
-IronPort-SDR: FZlmZwqxqqUZrb6JmIrTHUBiXbJoSIHpzmQ1GRvTLuYiD3jqOlzFxcoLjShd7Mzo8yVjiLfolf
- NMGkI93GDOTw==
-X-IronPort-AV: E=Sophos;i="5.73,354,1583193600"; 
-   d="scan'208";a="28942070"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2a-69849ee2.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 05 May 2020 11:54:25 +0000
-Received: from EX13MTAUEA002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan2.pdx.amazon.com [10.170.41.162])
-        by email-inbound-relay-2a-69849ee2.us-west-2.amazon.com (Postfix) with ESMTPS id A54A5A22CE;
-        Tue,  5 May 2020 11:54:24 +0000 (UTC)
-Received: from EX13D31EUA001.ant.amazon.com (10.43.165.15) by
- EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 5 May 2020 11:54:24 +0000
-Received: from u886c93fd17d25d.ant.amazon.com (10.43.161.204) by
- EX13D31EUA001.ant.amazon.com (10.43.165.15) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 5 May 2020 11:54:18 +0000
-From:   SeongJae Park <sjpark@amazon.com>
-To:     SeongJae Park <sjpark@amazon.com>
-CC:     <davem@davemloft.net>, <viro@zeniv.linux.org.uk>,
-        <kuba@kernel.org>, <gregkh@linuxfoundation.org>,
-        <edumazet@google.com>, <sj38.park@gmail.com>,
-        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        SeongJae Park <sjpark@amazon.de>, <snu@amazon.com>,
-        <amit@kernel.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
-Date:   Tue, 5 May 2020 13:54:02 +0200
-Message-ID: <20200505115402.25768-1-sjpark@amazon.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200505081035.7436-1-sjpark@amazon.com> (raw)
+        id S1728268AbgEEMJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 08:09:59 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:39056 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728660AbgEEMJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 08:09:59 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 3ABF11C022C; Tue,  5 May 2020 14:09:57 +0200 (CEST)
+Date:   Tue, 5 May 2020 14:09:56 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dexuan Cui <decui@microsoft.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: Re: [PATCH 4.19 11/37] PM: hibernate: Freeze kernel threads in
+ software_resume()
+Message-ID: <20200505120956.GA28722@amd>
+References: <20200504165448.264746645@linuxfoundation.org>
+ <20200504165449.741334238@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.43.161.204]
-X-ClientProxiedBy: EX13D06UWC004.ant.amazon.com (10.43.162.97) To
- EX13D31EUA001.ant.amazon.com (10.43.165.15)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Disposition: inline
+In-Reply-To: <20200504165449.741334238@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-CC-ing stable@vger.kernel.org and adding some more explanations.
 
-On Tue, 5 May 2020 10:10:33 +0200 SeongJae Park <sjpark@amazon.com> wrote:
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> From: SeongJae Park <sjpark@amazon.de>
-> 
-> The commit 6d7855c54e1e ("sockfs: switch to ->free_inode()") made the
-> deallocation of 'socket_alloc' to be done asynchronously using RCU, as
-> same to 'sock.wq'.  And the following commit 333f7909a857 ("coallocate
-> socket_sq with socket itself") made those to have same life cycle.
-> 
-> The changes made the code much more simple, but also made 'socket_alloc'
-> live longer than before.  For the reason, user programs intensively
-> repeating allocations and deallocations of sockets could cause memory
-> pressure on recent kernels.
+Hi!
 
-I found this problem on a production virtual machine utilizing 4GB memory while
-running lebench[1].  The 'poll big' test of lebench opens 1000 sockets, polls
-and closes those.  This test is repeated 10,000 times.  Therefore it should
-consume only 1000 'socket_alloc' objects at once.  As size of socket_alloc is
-about 800 Bytes, it's only 800 KiB.  However, on the recent kernels, it could
-consume up to 10,000,000 objects (about 8 GiB).  On the test machine, I
-confirmed it consuming about 4GB of the system memory and results in OOM.
+> commit 2351f8d295ed63393190e39c2f7c1fee1a80578f upstream.
+>=20
+> Currently the kernel threads are not frozen in software_resume(), so
+> between dpm_suspend_start(PMSG_QUIESCE) and resume_target_kernel(),
+> system_freezable_power_efficient_wq can still try to submit SCSI
+> commands and this can cause a panic since the low level SCSI driver
+> (e.g. hv_storvsc) has quiesced the SCSI adapter and can not accept
+> any SCSI commands: https://lkml.org/lkml/2020/4/10/47
+>=20
+> At first I posted a fix (https://lkml.org/lkml/2020/4/21/1318) trying
+> to resolve the issue from hv_storvsc, but with the help of
+> Bart Van Assche, I realized it's better to fix software_resume(),
+> since this looks like a generic issue, not only pertaining to SCSI.
 
-[1] https://github.com/LinuxPerfStudy/LEBench
+I believe it is too soon to merge this into stable. It is rather big
+hammer. Yes, it is right thing to do. But I'd wait for 5.7 to be
+released before merging it to stable.
 
-> 
-> To avoid the problem, this commit reverts the changes.
+It needs some testing and it did not get any.
 
-I also tried to make fixup rather than reverts, but I couldn't easily find
-simple fixup.  As the commits 6d7855c54e1e and 333f7909a857 were for code
-refactoring rather than performance optimization, I thought introducing complex
-fixup for this problem would make no sense.  Meanwhile, the memory pressure
-regression could affect real machines.  To this end, I decided to quickly
-revert the commits first and consider better refactoring later.
+Best regards,
+							Pavel
 
+> Cc: All applicable <stable@vger.kernel.org>
+> Signed-off-by: Dexuan Cui <decui@microsoft.com>
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>=20
+> ---
+>  kernel/power/hibernate.c |    7 +++++++
+>  1 file changed, 7 insertions(+)
+>=20
+> --- a/kernel/power/hibernate.c
+> +++ b/kernel/power/hibernate.c
+> @@ -901,6 +901,13 @@ static int software_resume(void)
+>  	error =3D freeze_processes();
+>  	if (error)
+>  		goto Close_Finish;
+> +
+> +	error =3D freeze_kernel_threads();
+> +	if (error) {
+> +		thaw_processes();
+> +		goto Close_Finish;
+> +	}
+> +
+>  	error =3D load_image_and_restore();
+>  	thaw_processes();
+>   Finish:
+>=20
 
-Thanks,
-SeongJae Park
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-> 
-> SeongJae Park (2):
->   Revert "coallocate socket_wq with socket itself"
->   Revert "sockfs: switch to ->free_inode()"
-> 
->  drivers/net/tap.c      |  5 +++--
->  drivers/net/tun.c      |  8 +++++---
->  include/linux/if_tap.h |  1 +
->  include/linux/net.h    |  4 ++--
->  include/net/sock.h     |  4 ++--
->  net/core/sock.c        |  2 +-
->  net/socket.c           | 23 ++++++++++++++++-------
->  7 files changed, 30 insertions(+), 17 deletions(-)
-> 
-> -- 
-> 2.17.1
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl6xV5QACgkQMOfwapXb+vLdngCfWXiRv6+x3tG+LpFhumaMbyZq
+ek4An1F4jv81BEgOsgETKkkyu5eN7pM9
+=FCx7
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--
