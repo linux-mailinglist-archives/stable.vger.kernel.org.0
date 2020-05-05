@@ -2,119 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 224711C5ECD
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 19:30:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 595D91C5F22
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 19:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729697AbgEERai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 13:30:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35174 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729654AbgEERah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 May 2020 13:30:37 -0400
-Received: from paulmck-ThinkPad-P72.home (50-39-105-78.bvtn.or.frontiernet.net [50.39.105.78])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DD13206CC;
-        Tue,  5 May 2020 17:30:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588699837;
-        bh=MouvZdHsdnjyis+tScVss79YLBC0aL95s0sk0aJMFZI=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=fm3MM3+NNfbcyRavzlXSx/Pw2qaXkwRr1YZ96Xvb+3a7EFCTzLxkAutGjtD19No4Y
-         P1BQ1Fy12LLVUAmG2vdeq2ENsdUefItrE8mD/lLpXPBi6Htx9KdI+mfTSFG/vW3YCW
-         zJMV/+9ALDR30YQuZRLaUsbWPZeqWtYzxvRT3rdA=
-Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
-        id E1D4E3522F5F; Tue,  5 May 2020 10:30:36 -0700 (PDT)
-Date:   Tue, 5 May 2020 10:30:36 -0700
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     SeongJae Park <sjpark@amazon.com>
-Cc:     Eric Dumazet <eric.dumazet@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        David Miller <davem@davemloft.net>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        sj38.park@gmail.com, netdev <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        SeongJae Park <sjpark@amazon.de>, snu@amazon.com,
-        amit@kernel.org, stable@vger.kernel.org
-Subject: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle
- change
-Message-ID: <20200505173036.GE2869@paulmck-ThinkPad-P72>
-Reply-To: paulmck@kernel.org
-References: <67bdfac9-0d7d-0bbe-dc7a-d73979fd8ed9@gmail.com>
- <20200505170553.24056-1-sjpark@amazon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200505170553.24056-1-sjpark@amazon.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        id S1730282AbgEERod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 13:44:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53760 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729380AbgEERod (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 13:44:33 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFDEC061A0F
+        for <stable@vger.kernel.org>; Tue,  5 May 2020 10:44:32 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id o134so3150295yba.18
+        for <stable@vger.kernel.org>; Tue, 05 May 2020 10:44:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=Xw/XeQONehgAZgmp50DsvTIx8rMMLD3xww9tGSOkTsA=;
+        b=lneA14fzuFIhvEyDZhEZTjVIaajfkM2Z7jKfKmPgQ32k4DXwTcL6jmrVG9lLKS/STZ
+         i1h5X98Rgd/oyrVzCu4ccHiaoXOVE6pNfPXCDw1dC27kWhnuB24Pl6NHQejX1rAOoNob
+         uxdOxtVcR57USHxeCw39W3UFF68ZmyFXSDnrkcblxXwOTZLZ1A7k1FPLtWM2C8QUxQRM
+         tYj7uyH/RRNIV5aGL8nNs6qF8M0ghJZznLP795RJ0up2LeIE9E1JVbtTNqrD5gB7fVKk
+         hDPTWVoBA5rqaknUJTuYGNajFguFjI3/Vrg/I4l5PVV3wBXe82Wjjvio1muWO7wBehvL
+         heZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=Xw/XeQONehgAZgmp50DsvTIx8rMMLD3xww9tGSOkTsA=;
+        b=WDHDakXxm2BTrx0dW6FXTb4Skf7xCSmScgXZB1C4iiFYoPkQ4UHbUH7qTfhsnDIAM3
+         aFXdSdJs7q+ysyNuhG86i9yyhO8FvpKjaU/AFvVoJbOTFekqzBnF+GmHUqpMfDTm4841
+         JewFTUNqe4Br25eViRG/tzgj0j7aCO9ygjgO7H4hzsQY3uOYFn4MHEOHbDcqwzlsdyay
+         2FtOH04qLDviMfMxdGFNoZIjMoCf7TIkcjSVeM535XL2caf8i410XcyDPWTD7fuBz+b4
+         8wnUIThMP95P89WnbXlOW0k3Vw23lFT+WgJEUvQesMuhfiB2R2Peor5m1LBaNMi9yqTa
+         0eVQ==
+X-Gm-Message-State: AGi0Pub2shBpl669DqU/4eTpNHTZ9VRfjVL4kQ8HuYsbZf0xpza/a77c
+        nJVn4m6oDhvui+iHMSXo/HC27OhanXduMeE+nBo=
+X-Google-Smtp-Source: APiQypIX//cgIeEKcfL0yb8zr5R8ZbH/uRJM3Yv5sXuOog51eI5PRryDXtV3TYrJvL5SfnLEbSZi5o6qlXlDHTWTyWM=
+X-Received: by 2002:a25:9a47:: with SMTP id r7mr6630305ybo.7.1588700672013;
+ Tue, 05 May 2020 10:44:32 -0700 (PDT)
+Date:   Tue,  5 May 2020 10:44:22 -0700
+Message-Id: <20200505174423.199985-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.26.2.526.g744177e7f7-goog
+Subject: [PATCH] x86: bitops: fix build regression
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc:     Sedat Dilek <sedat.dilek@gmail.com>, stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 05, 2020 at 07:05:53PM +0200, SeongJae Park wrote:
-> On Tue, 5 May 2020 09:37:42 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
-> 
-> > 
-> > 
-> > On 5/5/20 9:31 AM, Eric Dumazet wrote:
-> > > 
-> > > 
-> > > On 5/5/20 9:25 AM, Eric Dumazet wrote:
-> > >>
-> > >>
-> > >> On 5/5/20 9:13 AM, SeongJae Park wrote:
-> > >>> On Tue, 5 May 2020 09:00:44 -0700 Eric Dumazet <edumazet@google.com> wrote:
-> > >>>
-> > >>>> On Tue, May 5, 2020 at 8:47 AM SeongJae Park <sjpark@amazon.com> wrote:
-> > >>>>>
-> > >>>>> On Tue, 5 May 2020 08:20:50 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
-> > >>>>>
-> > >>>>>>
-> > >>>>>>
-> > >>>>>> On 5/5/20 8:07 AM, SeongJae Park wrote:
-> > >>>>>>> On Tue, 5 May 2020 07:53:39 -0700 Eric Dumazet <edumazet@google.com> wrote:
-> > >>>>>>>
-> > >>>>>>
-> [...]
-> > >>
-> > >> I would ask Paul opinion on this issue, because we have many objects
-> > >> being freed after RCU grace periods.
-> > >>
-> > >> If RCU subsystem can not keep-up, I guess other workloads will also suffer.
-> > >>
-> > >> Sure, we can revert patches there and there trying to work around the issue,
-> > >> but for objects allocated from process context, we should not have these problems.
-> > >>
-> > > 
-> > > I wonder if simply adjusting rcu_divisor to 6 or 5 would help 
-> > > 
-> > > diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-> > > index d9a49cd6065a20936edbda1b334136ab597cde52..fde833bac0f9f81e8536211b4dad6e7575c1219a 100644
-> > > --- a/kernel/rcu/tree.c
-> > > +++ b/kernel/rcu/tree.c
-> > > @@ -427,7 +427,7 @@ module_param(qovld, long, 0444);
-> > >  static ulong jiffies_till_first_fqs = ULONG_MAX;
-> > >  static ulong jiffies_till_next_fqs = ULONG_MAX;
-> > >  static bool rcu_kick_kthreads;
-> > > -static int rcu_divisor = 7;
-> > > +static int rcu_divisor = 6;
-> > >  module_param(rcu_divisor, int, 0644);
-> > >  
-> > >  /* Force an exit from rcu_do_batch() after 3 milliseconds. */
-> > > 
-> > 
-> > To be clear, you can adjust the value without building a new kernel.
-> > 
-> > echo 6 >/sys/module/rcutree/parameters/rcu_divisor
-> 
-> I tried value 6, 5, and 4, but none of those removed the problem.
+From: Sedat Dilek <sedat.dilek@gmail.com>
 
-Thank you for checking this!
+It turns out that if your config tickles __builtin_constant_p via
+differences in choices to inline or not, this now produces invalid
+assembly:
 
-Was your earlier discussion on long RCU readers speculation, or do you
-have measurements?
+$ cat foo.c
+long a(long b, long c) {
+  asm("orb\t%1, %0" : "+q"(c): "r"(b));
+  return c;
+}
+$ gcc foo.c
+foo.c: Assembler messages:
+foo.c:2: Error: `%rax' not allowed with `orb'
 
-							Thanx, Paul
+The "q" constraint only has meanting on -m32 otherwise is treated as
+"r".
+
+This is easily reproducible via Clang+CONFIG_STAGING=y+CONFIG_VT6656=m,
+or Clang+allyesconfig.
+
+Keep the masking operation to appease sparse (`make C=1`), add back the
+cast in order to properly select the proper 8b register alias.
+
+ [Nick: reworded]
+
+Cc: stable@vger.kernel.org
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/961
+Link: https://lore.kernel.org/lkml/20200504193524.GA221287@google.com/
+Fixes: 1651e700664b4 ("x86: Fix bitops.h warning with a moved cast")
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Reported-by: kernelci.org bot <bot@kernelci.org>
+Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+Suggested-by: Ilie Halip <ilie.halip@gmail.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ arch/x86/include/asm/bitops.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/include/asm/bitops.h b/arch/x86/include/asm/bitops.h
+index b392571c1f1d..139122e5b25b 100644
+--- a/arch/x86/include/asm/bitops.h
++++ b/arch/x86/include/asm/bitops.h
+@@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long *addr)
+ 	if (__builtin_constant_p(nr)) {
+ 		asm volatile(LOCK_PREFIX "orb %1,%0"
+ 			: CONST_MASK_ADDR(nr, addr)
+-			: "iq" (CONST_MASK(nr) & 0xff)
++			: "iq" ((u8)(CONST_MASK(nr) & 0xff))
+ 			: "memory");
+ 	} else {
+ 		asm volatile(LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
+@@ -74,7 +74,7 @@ arch_clear_bit(long nr, volatile unsigned long *addr)
+ 	if (__builtin_constant_p(nr)) {
+ 		asm volatile(LOCK_PREFIX "andb %1,%0"
+ 			: CONST_MASK_ADDR(nr, addr)
+-			: "iq" (CONST_MASK(nr) ^ 0xff));
++			: "iq" ((u8)(CONST_MASK(nr) ^ 0xff)));
+ 	} else {
+ 		asm volatile(LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
+ 			: : RLONG_ADDR(addr), "Ir" (nr) : "memory");
+-- 
+2.26.2.526.g744177e7f7-goog
+
