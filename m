@@ -2,134 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79F591C5FA5
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 20:08:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 226B41C5FC1
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 20:11:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730595AbgEESIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 14:08:11 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:57697 "EHLO
-        mail.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729315AbgEESIL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 May 2020 14:08:11 -0400
-Received: from [172.27.9.0] (c-73-231-201-241.hsd1.ca.comcast.net [73.231.201.241])
-        (authenticated bits=0)
-        by mail.zytor.com (8.15.2/8.15.2) with ESMTPSA id 045I7QkG2666886
-        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-        Tue, 5 May 2020 11:07:27 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 045I7QkG2666886
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2020042201; t=1588702047;
-        bh=4cVMSAo5+1hI6OdDCminTspOqusfTES7OMmVmqp4XjQ=;
-        h=Date:In-Reply-To:References:Subject:To:CC:From:From;
-        b=Nhf5+JWvcVJBl3eGfQramD8sznodcvqRcLHWQ0zVAir5IoZp+WIZPnToDoDHsX//n
-         SsX499ThiXg4yy82lq+kfDM5g/TOw+rMstw1/3So72et/eB1Y698rxsg85FJ8Xt+KA
-         0rmUPKiYleJp4G4EUCJq0EbQbYQtjnioah8uauPjrrhCy1lw53QU9NFgpvA5aOGcqc
-         o7r6z6jh9H49TzsFT1P7VRnDP/5aBzkcu7CCAwWcZPGCAc56Fc54R8AlHYtq/QhA+h
-         SnPob6TTm7PQsUen9kZJSMVkhc8mMlnpz89ymMzf0xc5zPGrNOkuueiQLhobKEPiMD
-         B15Jhs20yU7AA==
-Date:   Tue, 05 May 2020 11:07:24 -0700
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20200505174423.199985-1-ndesaulniers@google.com>
-References: <20200505174423.199985-1-ndesaulniers@google.com>
+        id S1730785AbgEESLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 14:11:31 -0400
+Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:59334 "EHLO
+        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730184AbgEESLb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 14:11:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1588702291; x=1620238291;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   mime-version;
+  bh=+821Wwf5AYr1K8nxKevr7tEFWbfM2VMfbVR0LMsRGRU=;
+  b=Fw32OJqkT9B3700Rs9H3z7XRNZaGo9VPDnYN9pLA8pm3reLQ5fTsrUeM
+   Bv9j2h5CYdOgZLqHcCRJEyZt3/ZAeZQtbUn7MOG6BzHH2jIzXftcNDnXk
+   vyQDA8dAvqjrC6U8NUcRZuAtulPeewL+/1qgwLIPWpnTtV6UEFaHlBNBq
+   Y=;
+IronPort-SDR: EW34MZA2llje8LI32uObFMWC21OA8p4OnrRx9nolhn7kb7tsekUE0ly/Qhvy52SivyxEb2Z0jP
+ dGTlwrxrmSBw==
+X-IronPort-AV: E=Sophos;i="5.73,356,1583193600"; 
+   d="scan'208";a="42850494"
+Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-2c-397e131e.us-west-2.amazon.com) ([10.47.23.38])
+  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 05 May 2020 18:11:29 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
+        by email-inbound-relay-2c-397e131e.us-west-2.amazon.com (Postfix) with ESMTPS id A6856A21CC;
+        Tue,  5 May 2020 18:11:27 +0000 (UTC)
+Received: from EX13D31EUA001.ant.amazon.com (10.43.165.15) by
+ EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 5 May 2020 18:11:27 +0000
+Received: from u886c93fd17d25d.ant.amazon.com (10.43.162.200) by
+ EX13D31EUA001.ant.amazon.com (10.43.165.15) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 5 May 2020 18:11:16 +0000
+From:   SeongJae Park <sjpark@amazon.com>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+CC:     Eric Dumazet <eric.dumazet@gmail.com>,
+        SeongJae Park <sjpark@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
+        David Miller <davem@davemloft.net>,
+        "Al Viro" <viro@zeniv.linux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        <sj38.park@gmail.com>, netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        SeongJae Park <sjpark@amazon.de>, <snu@amazon.com>,
+        <amit@kernel.org>, <stable@vger.kernel.org>
+Subject: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
+Date:   Tue, 5 May 2020 20:11:01 +0200
+Message-ID: <20200505181101.16384-1-sjpark@amazon.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200505172850.GD2869@paulmck-ThinkPad-P72> (raw)
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH] x86: bitops: fix build regression
-To:     Nick Desaulniers <ndesaulniers@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
-CC:     Sedat Dilek <sedat.dilek@gmail.com>, stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Ilie Halip <ilie.halip@gmail.com>, x86@kernel.org,
-        Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-From:   hpa@zytor.com
-Message-ID: <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com>
+Content-Type: text/plain
+X-Originating-IP: [10.43.162.200]
+X-ClientProxiedBy: EX13D06UWA004.ant.amazon.com (10.43.160.164) To
+ EX13D31EUA001.ant.amazon.com (10.43.165.15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On May 5, 2020 10:44:22 AM PDT, Nick Desaulniers <ndesaulniers@google=2Ecom=
-> wrote:
->From: Sedat Dilek <sedat=2Edilek@gmail=2Ecom>
->
->It turns out that if your config tickles __builtin_constant_p via
->differences in choices to inline or not, this now produces invalid
->assembly:
->
->$ cat foo=2Ec
->long a(long b, long c) {
->  asm("orb\t%1, %0" : "+q"(c): "r"(b));
->  return c;
->}
->$ gcc foo=2Ec
->foo=2Ec: Assembler messages:
->foo=2Ec:2: Error: `%rax' not allowed with `orb'
->
->The "q" constraint only has meanting on -m32 otherwise is treated as
->"r"=2E
->
->This is easily reproducible via Clang+CONFIG_STAGING=3Dy+CONFIG_VT6656=3D=
-m,
->or Clang+allyesconfig=2E
->
->Keep the masking operation to appease sparse (`make C=3D1`), add back the
->cast in order to properly select the proper 8b register alias=2E
->
-> [Nick: reworded]
->
->Cc: stable@vger=2Ekernel=2Eorg
->Cc: Jesse Brandeburg <jesse=2Ebrandeburg@intel=2Ecom>
->Link: https://github=2Ecom/ClangBuiltLinux/linux/issues/961
->Link: https://lore=2Ekernel=2Eorg/lkml/20200504193524=2EGA221287@google=
-=2Ecom/
->Fixes: 1651e700664b4 ("x86: Fix bitops=2Eh warning with a moved cast")
->Reported-by: Sedat Dilek <sedat=2Edilek@gmail=2Ecom>
->Reported-by: kernelci=2Eorg bot <bot@kernelci=2Eorg>
->Suggested-by: Andy Shevchenko <andriy=2Eshevchenko@intel=2Ecom>
->Suggested-by: Ilie Halip <ilie=2Ehalip@gmail=2Ecom>
->Tested-by: Sedat Dilek <sedat=2Edilek@gmail=2Ecom>
->Signed-off-by: Sedat Dilek <sedat=2Edilek@gmail=2Ecom>
->Signed-off-by: Nick Desaulniers <ndesaulniers@google=2Ecom>
->---
-> arch/x86/include/asm/bitops=2Eh | 4 ++--
-> 1 file changed, 2 insertions(+), 2 deletions(-)
->
->diff --git a/arch/x86/include/asm/bitops=2Eh
->b/arch/x86/include/asm/bitops=2Eh
->index b392571c1f1d=2E=2E139122e5b25b 100644
->--- a/arch/x86/include/asm/bitops=2Eh
->+++ b/arch/x86/include/asm/bitops=2Eh
->@@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long *addr)
-> 	if (__builtin_constant_p(nr)) {
-> 		asm volatile(LOCK_PREFIX "orb %1,%0"
-> 			: CONST_MASK_ADDR(nr, addr)
->-			: "iq" (CONST_MASK(nr) & 0xff)
->+			: "iq" ((u8)(CONST_MASK(nr) & 0xff))
-> 			: "memory");
-> 	} else {
-> 		asm volatile(LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
->@@ -74,7 +74,7 @@ arch_clear_bit(long nr, volatile unsigned long *addr)
-> 	if (__builtin_constant_p(nr)) {
-> 		asm volatile(LOCK_PREFIX "andb %1,%0"
-> 			: CONST_MASK_ADDR(nr, addr)
->-			: "iq" (CONST_MASK(nr) ^ 0xff));
->+			: "iq" ((u8)(CONST_MASK(nr) ^ 0xff)));
-> 	} else {
-> 		asm volatile(LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
-> 			: : RLONG_ADDR(addr), "Ir" (nr) : "memory");
+On Tue, 5 May 2020 10:28:50 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
 
-Drop & 0xff and change ^ 0xff to ~=2E
+> On Tue, May 05, 2020 at 09:37:42AM -0700, Eric Dumazet wrote:
+> > 
+> > 
+> > On 5/5/20 9:31 AM, Eric Dumazet wrote:
+> > > 
+> > > 
+> > > On 5/5/20 9:25 AM, Eric Dumazet wrote:
+> > >>
+> > >>
+> > >> On 5/5/20 9:13 AM, SeongJae Park wrote:
+> > >>> On Tue, 5 May 2020 09:00:44 -0700 Eric Dumazet <edumazet@google.com> wrote:
+> > >>>
+> > >>>> On Tue, May 5, 2020 at 8:47 AM SeongJae Park <sjpark@amazon.com> wrote:
+> > >>>>>
+> > >>>>> On Tue, 5 May 2020 08:20:50 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
+> > >>>>>
+> > >>>>>>
+> > >>>>>>
+> > >>>>>> On 5/5/20 8:07 AM, SeongJae Park wrote:
+> > >>>>>>> On Tue, 5 May 2020 07:53:39 -0700 Eric Dumazet <edumazet@google.com> wrote:
+> > >>>>>>>
+> > >>>>>>
+> > >>>>>>>> Why do we have 10,000,000 objects around ? Could this be because of
+> > >>>>>>>> some RCU problem ?
+> > >>>>>>>
+> > >>>>>>> Mainly because of a long RCU grace period, as you guess.  I have no idea how
+> > >>>>>>> the grace period became so long in this case.
+> > >>>>>>>
+> > >>>>>>> As my test machine was a virtual machine instance, I guess RCU readers
+> > >>>>>>> preemption[1] like problem might affected this.
+> > >>>>>>>
+> > >>>>>>> [1] https://www.usenix.org/system/files/conference/atc17/atc17-prasad.pdf
+> > >>>>>>>
+> > >>>>>>>>
+> > >>>>>>>> Once Al patches reverted, do you have 10,000,000 sock_alloc around ?
+> > >>>>>>>
+> > >>>>>>> Yes, both the old kernel that prior to Al's patches and the recent kernel
+> > >>>>>>> reverting the Al's patches didn't reproduce the problem.
+> > >>>>>>>
+> > >>>>>>
+> > >>>>>> I repeat my question : Do you have 10,000,000 (smaller) objects kept in slab caches ?
+> > >>>>>>
+> > >>>>>> TCP sockets use the (very complex, error prone) SLAB_TYPESAFE_BY_RCU, but not the struct socket_wq
+> > >>>>>> object that was allocated in sock_alloc_inode() before Al patches.
+> > >>>>>>
+> > >>>>>> These objects should be visible in kmalloc-64 kmem cache.
+> > >>>>>
+> > >>>>> Not exactly the 10,000,000, as it is only the possible highest number, but I
+> > >>>>> was able to observe clear exponential increase of the number of the objects
+> > >>>>> using slabtop.  Before the start of the problematic workload, the number of
+> > >>>>> objects of 'kmalloc-64' was 5760, but I was able to observe the number increase
+> > >>>>> to 1,136,576.
+> > >>>>>
+> > >>>>>           OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME
+> > >>>>> before:   5760   5088  88%    0.06K     90       64       360K kmalloc-64
+> > >>>>> after:  1136576 1136576 100%    0.06K  17759       64     71036K kmalloc-64
+> > >>>>>
+> > >>>>
+> > >>>> Great, thanks.
+> > >>>>
+> > >>>> How recent is the kernel you are running for your experiment ?
+> > >>>
+> > >>> It's based on 5.4.35.
+> > >>>
+> > >>>>
+> > >>>> Let's make sure the bug is not in RCU.
+> > >>>
+> > >>> One thing I can currently say is that the grace period passes at last.  I
+> > >>> modified the benchmark to repeat not 10,000 times but only 5,000 times to run
+> > >>> the test without OOM but easily observable memory pressure.  As soon as the
+> > >>> benchmark finishes, the memory were freed.
+> > >>>
+> > >>> If you need more tests, please let me know.
+> > >>>
+> > >>
+> > >> I would ask Paul opinion on this issue, because we have many objects
+> > >> being freed after RCU grace periods.
+> > >>
+> > >> If RCU subsystem can not keep-up, I guess other workloads will also suffer.
+> > >>
+> > >> Sure, we can revert patches there and there trying to work around the issue,
+> > >> but for objects allocated from process context, we should not have these problems.
+> > >>
+> > > 
+> > > I wonder if simply adjusting rcu_divisor to 6 or 5 would help 
+> > > 
+> > > diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+> > > index d9a49cd6065a20936edbda1b334136ab597cde52..fde833bac0f9f81e8536211b4dad6e7575c1219a 100644
+> > > --- a/kernel/rcu/tree.c
+> > > +++ b/kernel/rcu/tree.c
+> > > @@ -427,7 +427,7 @@ module_param(qovld, long, 0444);
+> > >  static ulong jiffies_till_first_fqs = ULONG_MAX;
+> > >  static ulong jiffies_till_next_fqs = ULONG_MAX;
+> > >  static bool rcu_kick_kthreads;
+> > > -static int rcu_divisor = 7;
+> > > +static int rcu_divisor = 6;
+> > >  module_param(rcu_divisor, int, 0644);
+> > >  
+> > >  /* Force an exit from rcu_do_batch() after 3 milliseconds. */
+> > > 
+> > 
+> > To be clear, you can adjust the value without building a new kernel.
+> > 
+> > echo 6 >/sys/module/rcutree/parameters/rcu_divisor
+> 
+> Worth a try!  If that helps significantly, I have some ideas for updating
+> that heuristic, such as checking for sudden increases in the number of
+> pending callbacks.
+> 
+> But I would really also like to know whether there are long readers and
+> whether v5.6 fares better.
 
-The redundancy is confusing=2E
---=20
-Sent from my Android device with K-9 Mail=2E Please excuse my brevity=2E
+I will share the results as soon as possible :)
+
+
+Thanks,
+SeongJae Park
+
+> 
+> 							Thanx, Paul
