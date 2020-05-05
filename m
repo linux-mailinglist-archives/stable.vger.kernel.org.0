@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EDEC1C5514
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 14:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D9E1C554A
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 14:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728268AbgEEMJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 08:09:59 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:39056 "EHLO
+        id S1728627AbgEEMRy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 08:17:54 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:41262 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728660AbgEEMJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 08:09:59 -0400
+        with ESMTP id S1728819AbgEEMRy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 08:17:54 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 3ABF11C022C; Tue,  5 May 2020 14:09:57 +0200 (CEST)
-Date:   Tue, 5 May 2020 14:09:56 +0200
+        id 2D53C1C0225; Tue,  5 May 2020 14:17:53 +0200 (CEST)
+Date:   Tue, 5 May 2020 14:17:52 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dexuan Cui <decui@microsoft.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: Re: [PATCH 4.19 11/37] PM: hibernate: Freeze kernel threads in
- software_resume()
-Message-ID: <20200505120956.GA28722@amd>
+        Yan Zhao <yan.y.zhao@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [PATCH 4.19 21/37] vfio: avoid possible overflow in
+ vfio_iommu_type1_pin_pages
+Message-ID: <20200505121752.GB28722@amd>
 References: <20200504165448.264746645@linuxfoundation.org>
- <20200504165449.741334238@linuxfoundation.org>
+ <20200504165450.604878640@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+        protocol="application/pgp-signature"; boundary="CUfgB8w4ZwR/yMy5"
 Content-Disposition: inline
-In-Reply-To: <20200504165449.741334238@linuxfoundation.org>
+In-Reply-To: <20200504165450.604878640@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -36,61 +36,45 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---tThc/1wpZn/ma/RB
+--CUfgB8w4ZwR/yMy5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
-
-> commit 2351f8d295ed63393190e39c2f7c1fee1a80578f upstream.
+On Mon 2020-05-04 19:57:34, Greg Kroah-Hartman wrote:
+> From: Yan Zhao <yan.y.zhao@intel.com>
 >=20
-> Currently the kernel threads are not frozen in software_resume(), so
-> between dpm_suspend_start(PMSG_QUIESCE) and resume_target_kernel(),
-> system_freezable_power_efficient_wq can still try to submit SCSI
-> commands and this can cause a panic since the low level SCSI driver
-> (e.g. hv_storvsc) has quiesced the SCSI adapter and can not accept
-> any SCSI commands: https://lkml.org/lkml/2020/4/10/47
+> commit 0ea971f8dcd6dee78a9a30ea70227cf305f11ff7 upstream.
 >=20
-> At first I posted a fix (https://lkml.org/lkml/2020/4/21/1318) trying
-> to resolve the issue from hv_storvsc, but with the help of
-> Bart Van Assche, I realized it's better to fix software_resume(),
-> since this looks like a generic issue, not only pertaining to SCSI.
+> add parentheses to avoid possible vaddr overflow.
 
-I believe it is too soon to merge this into stable. It is rather big
-hammer. Yes, it is right thing to do. But I'd wait for 5.7 to be
-released before merging it to stable.
-
-It needs some testing and it did not get any.
+AFAICT the values are unsigned, so yes, this is nice cleanup, but it
+does not really fix any problem, right? IOW it overflows, then
+underflows, but the result is still correct...
 
 Best regards,
-							Pavel
+								Pavel
 
-> Cc: All applicable <stable@vger.kernel.org>
-> Signed-off-by: Dexuan Cui <decui@microsoft.com>
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
+> Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
+> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 >=20
 > ---
->  kernel/power/hibernate.c |    7 +++++++
->  1 file changed, 7 insertions(+)
+>  drivers/vfio/vfio_iommu_type1.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >=20
-> --- a/kernel/power/hibernate.c
-> +++ b/kernel/power/hibernate.c
-> @@ -901,6 +901,13 @@ static int software_resume(void)
->  	error =3D freeze_processes();
->  	if (error)
->  		goto Close_Finish;
-> +
-> +	error =3D freeze_kernel_threads();
-> +	if (error) {
-> +		thaw_processes();
-> +		goto Close_Finish;
-> +	}
-> +
->  	error =3D load_image_and_restore();
->  	thaw_processes();
->   Finish:
+> --- a/drivers/vfio/vfio_iommu_type1.c
+> +++ b/drivers/vfio/vfio_iommu_type1.c
+> @@ -598,7 +598,7 @@ static int vfio_iommu_type1_pin_pages(vo
+>  			continue;
+>  		}
+> =20
+> -		remote_vaddr =3D dma->vaddr + iova - dma->iova;
+> +		remote_vaddr =3D dma->vaddr + (iova - dma->iova);
+>  		ret =3D vfio_pin_page_external(dma, remote_vaddr, &phys_pfn[i],
+>  					     do_accounting);
+>  		if (ret)
 >=20
 
 --=20
@@ -98,16 +82,16 @@ Best regards,
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---tThc/1wpZn/ma/RB
+--CUfgB8w4ZwR/yMy5
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAl6xV5QACgkQMOfwapXb+vLdngCfWXiRv6+x3tG+LpFhumaMbyZq
-ek4An1F4jv81BEgOsgETKkkyu5eN7pM9
-=FCx7
+iEYEARECAAYFAl6xWXAACgkQMOfwapXb+vK7bQCbBvZQDzcjZdosrXP+fk2XRmmv
+dtoAoJtNLoHV7yoyx/gKlXEIwkLI2ehi
+=LUUN
 -----END PGP SIGNATURE-----
 
---tThc/1wpZn/ma/RB--
+--CUfgB8w4ZwR/yMy5--
