@@ -2,95 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 211A51C535E
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 12:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AEAE1C53C7
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 12:56:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725766AbgEEKgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 06:36:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52172 "EHLO mail.kernel.org"
+        id S1728826AbgEEK4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 06:56:07 -0400
+Received: from mga18.intel.com ([134.134.136.126]:20635 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728180AbgEEKgZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 May 2020 06:36:25 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66863206A4;
-        Tue,  5 May 2020 10:36:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588674984;
-        bh=e+tWOjX0VPMXml/v9ASJXl7HxrbuF6E/zocubjeoAJI=;
-        h=Subject:To:From:Date:From;
-        b=zJfJ7dADYR3HjM3qDvqL5NEkRYlQHx3MGYFdn8iuYesWnYskTZ/9m60RyYWZRLuwW
-         ADShRyXGVCQfeenJR8bd6UGYRlCc1GihEQ4lCbO98nvfRhd4K0N4dRpmaj7TCKrvM3
-         79zfWhYPtI3EVDkNOe2Jdj3DMCmW0KKkDovEVHfY=
-Subject: patch "staging: gasket: Check the return value of gasket_get_bar_index()" added to staging-linus
-To:     oscar.carter@gmx.com, gregkh@linuxfoundation.org, rcy@google.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 05 May 2020 12:36:14 +0200
-Message-ID: <1588674974148122@kroah.com>
+        id S1728180AbgEEK4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 May 2020 06:56:07 -0400
+IronPort-SDR: RHTDSQ7I/FoAfb+V0Xei8u4JlOX+e6tuN2rOnyly5Kr0BHokOjbIutizt+fH0g0y6CkHQk7vjX
+ vLSjNdnJ5p6A==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 May 2020 03:56:05 -0700
+IronPort-SDR: dl27Vn5cETOm+BoL2MlEDQ51JdoA44Iyq1m1W5mcKp/A+2Lx2hNvlhqvnEFprj+/vhNXoo87ZB
+ W1686/pREE6Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,354,1583222400"; 
+   d="scan'208";a="460997403"
+Received: from gem-build.fi.intel.com (HELO localhost) ([10.237.72.180])
+  by fmsmga005.fm.intel.com with ESMTP; 05 May 2020 03:56:03 -0700
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     gfx-internal-devel@eclists.intel.com
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Francisco Jerez <currojerez@riseup.net>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Andi Shyti <andi.shyti@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 02/55] drm/i915/gt: Update PMINTRMSK holding fw
+Date:   Tue,  5 May 2020 10:55:04 +0000
+Message-Id: <20200505105558.127979-3-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200505105558.127979-1-chris@chris-wilson.co.uk>
+References: <20200505105558.127979-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+If we use a non-forcewaked write to PMINTRMSK, it does not take effect
+until much later, if at all, causing a loss of RPS interrupts and no GPU
+reclocking, leaving the GPU running at the wrong frequency for long
+periods of time.
 
-This is a note to let you know that I've just added the patch titled
-
-    staging: gasket: Check the return value of gasket_get_bar_index()
-
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 769acc3656d93aaacada814939743361d284fd87 Mon Sep 17 00:00:00 2001
-From: Oscar Carter <oscar.carter@gmx.com>
-Date: Fri, 1 May 2020 17:51:18 +0200
-Subject: staging: gasket: Check the return value of gasket_get_bar_index()
-
-Check the return value of gasket_get_bar_index function as it can return
-a negative one (-EINVAL). If this happens, a negative index is used in
-the "gasket_dev->bar_data" array.
-
-Addresses-Coverity-ID: 1438542 ("Negative array index read")
-Fixes: 9a69f5087ccc2 ("drivers/staging: Gasket driver framework + Apex driver")
-Signed-off-by: Oscar Carter <oscar.carter@gmx.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Richard Yeh <rcy@google.com>
-Link: https://lore.kernel.org/r/20200501155118.13380-1-oscar.carter@gmx.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Francisco Jerez <currojerez@riseup.net>
+Suggested-by: Francisco Jerez <currojerez@riseup.net>
+Fixes: 35cc7f32c298 ("drm/i915/gt: Use non-forcewake writes for RPS")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Francisco Jerez <currojerez@riseup.net>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Andi Shyti <andi.shyti@intel.com>
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@intel.com>
+Reviewed-by: Francisco Jerez <currojerez@riseup.net>
+Cc: <stable@vger.kernel.org> # v5.6+
+Link: https://patchwork.freedesktop.org/patch/msgid/20200415170318.16771-2-chris@chris-wilson.co.uk
+(cherry picked from commit a080bd994c4023042a2b605c65fa10a25933f636)
 ---
- drivers/staging/gasket/gasket_core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/i915/gt/intel_rps.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/gasket/gasket_core.c b/drivers/staging/gasket/gasket_core.c
-index 8e0575fcb4c8..67325fbaf760 100644
---- a/drivers/staging/gasket/gasket_core.c
-+++ b/drivers/staging/gasket/gasket_core.c
-@@ -925,6 +925,10 @@ do_map_region(const struct gasket_dev *gasket_dev, struct vm_area_struct *vma,
- 		gasket_get_bar_index(gasket_dev,
- 				     (vma->vm_pgoff << PAGE_SHIFT) +
- 				     driver_desc->legacy_mmap_address_offset);
-+
-+	if (bar_index < 0)
-+		return DO_MAP_REGION_INVALID;
-+
- 	phys_base = gasket_dev->bar_data[bar_index].phys_base + phys_offset;
- 	while (mapped_bytes < map_length) {
- 		/*
--- 
-2.26.2
+diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
+index d2a3d935d186..3a3f49a71974 100644
+--- a/drivers/gpu/drm/i915/gt/intel_rps.c
++++ b/drivers/gpu/drm/i915/gt/intel_rps.c
+@@ -83,7 +83,8 @@ static void rps_enable_interrupts(struct intel_rps *rps)
+ 	gen6_gt_pm_enable_irq(gt, rps->pm_events);
+ 	spin_unlock_irq(&gt->irq_lock);
+ 
+-	set(gt->uncore, GEN6_PMINTRMSK, rps_pm_mask(rps, rps->cur_freq));
++	intel_uncore_write(gt->uncore,
++			   GEN6_PMINTRMSK, rps_pm_mask(rps, rps->last_freq));
+ }
+ 
+ static void gen6_rps_reset_interrupts(struct intel_rps *rps)
+@@ -117,7 +118,8 @@ static void rps_disable_interrupts(struct intel_rps *rps)
+ 
+ 	rps->pm_events = 0;
+ 
+-	set(gt->uncore, GEN6_PMINTRMSK, rps_pm_sanitize_mask(rps, ~0u));
++	intel_uncore_write(gt->uncore,
++			   GEN6_PMINTRMSK, rps_pm_sanitize_mask(rps, ~0u));
+ 
+ 	spin_lock_irq(&gt->irq_lock);
+ 	gen6_gt_pm_disable_irq(gt, GEN6_PM_RPS_EVENTS);
+---------------------------------------------------------------------
+Intel Corporation (UK) Limited
+Registered No. 1134945 (England)
+Registered Office: Pipers Way, Swindon SN3 1RJ
+VAT No: 860 2173 47
 
+This e-mail and any attachments may contain confidential material for
+the sole use of the intended recipient(s). Any review or distribution
+by others is strictly prohibited. If you are not the intended
+recipient, please contact the sender and delete all copies.
 
