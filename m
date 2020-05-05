@@ -2,77 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B49A1C5FC8
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 20:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BC331C5FDF
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 20:17:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730505AbgEESMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 14:12:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57962 "EHLO mail.kernel.org"
+        id S1730701AbgEESRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 14:17:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730184AbgEESMd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 May 2020 14:12:33 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1730334AbgEESRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 May 2020 14:17:08 -0400
+Received: from paulmck-ThinkPad-P72.home (50-39-105-78.bvtn.or.frontiernet.net [50.39.105.78])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E16B206B8;
-        Tue,  5 May 2020 18:12:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03C1E20663;
+        Tue,  5 May 2020 18:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588702353;
-        bh=cfXlHUhlmzsnbp3xF7JwuyNyI7Wa9u8sBDQfEmOeyaA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RyqF5+Lg1iiVjMeCf/WXQEowUJtq/smJx++54IgjL5ZF5PcGvlPXfm8Gj5k++IfDL
-         JHXg84yPl9TjggqZAJ8tiTAjuSra1fxZRfhuXxCV/XpfsSjf9D44DaIgTrJG+t8ezX
-         Whsn0yIUJgZEo4wgm06dulszFvNUS5GblhlHMURk=
-Date:   Tue, 5 May 2020 20:12:30 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.6 00/73] 5.6.11-rc1 review
-Message-ID: <20200505181230.GB1210667@kroah.com>
-References: <20200504165501.781878940@linuxfoundation.org>
- <CA+G9fYtwpo01W30vF8PRNrDOxVgyVwyViC5RCmLvLu04t98u4Q@mail.gmail.com>
+        s=default; t=1588702628;
+        bh=bRKHqVtZZy3s0CV+bqbA3cR1nIgDpsK/suTlUu5Jacw=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=wXZ3e5nUNdk+37vbIr6V99Ka+VeRWm8SrCdR+v5lTp/MaQHRFurtZYjN82+Xe9eK4
+         nYdwh7LgQ5UmgNeQOw3rOKss4edzuRimvuyGGmgNy6pbHGCRUYar+kWjSAC6+y+sTr
+         yC+5oo9T1fIWw+Xl8fY8E6S/JVOOV2IgnhBhnMTI=
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id D7D973523039; Tue,  5 May 2020 11:17:07 -0700 (PDT)
+Date:   Tue, 5 May 2020 11:17:07 -0700
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     SeongJae Park <sjpark@amazon.com>
+Cc:     Eric Dumazet <eric.dumazet@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        David Miller <davem@davemloft.net>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        sj38.park@gmail.com, netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        SeongJae Park <sjpark@amazon.de>, snu@amazon.com,
+        amit@kernel.org, stable@vger.kernel.org
+Subject: Re: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle
+ change
+Message-ID: <20200505181707.GJ2869@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20200505173036.GE2869@paulmck-ThinkPad-P72>
+ <20200505175605.12015-1-sjpark@amazon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYtwpo01W30vF8PRNrDOxVgyVwyViC5RCmLvLu04t98u4Q@mail.gmail.com>
+In-Reply-To: <20200505175605.12015-1-sjpark@amazon.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 05, 2020 at 07:57:55PM +0530, Naresh Kamboju wrote:
-> On Mon, 4 May 2020 at 23:36, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.6.11 release.
-> > There are 73 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Wed, 06 May 2020 16:52:55 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.11-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On Tue, May 05, 2020 at 07:56:05PM +0200, SeongJae Park wrote:
+> On Tue, 5 May 2020 10:30:36 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
 > 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+> > On Tue, May 05, 2020 at 07:05:53PM +0200, SeongJae Park wrote:
+> > > On Tue, 5 May 2020 09:37:42 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
+> > > 
+> > > > 
+> > > > 
+> > > > On 5/5/20 9:31 AM, Eric Dumazet wrote:
+> > > > > 
+> > > > > 
+> > > > > On 5/5/20 9:25 AM, Eric Dumazet wrote:
+> > > > >>
+> > > > >>
+> > > > >> On 5/5/20 9:13 AM, SeongJae Park wrote:
+> > > > >>> On Tue, 5 May 2020 09:00:44 -0700 Eric Dumazet <edumazet@google.com> wrote:
+> > > > >>>
+> > > > >>>> On Tue, May 5, 2020 at 8:47 AM SeongJae Park <sjpark@amazon.com> wrote:
+> > > > >>>>>
+> > > > >>>>> On Tue, 5 May 2020 08:20:50 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
+> > > > >>>>>
+> > > > >>>>>>
+> > > > >>>>>>
+> > > > >>>>>> On 5/5/20 8:07 AM, SeongJae Park wrote:
+> > > > >>>>>>> On Tue, 5 May 2020 07:53:39 -0700 Eric Dumazet <edumazet@google.com> wrote:
+> > > > >>>>>>>
+> > > > >>>>>>
+> > > [...]
+> > > > >>
+> > > > >> I would ask Paul opinion on this issue, because we have many objects
+> > > > >> being freed after RCU grace periods.
+> > > > >>
+> > > > >> If RCU subsystem can not keep-up, I guess other workloads will also suffer.
+> > > > >>
+> > > > >> Sure, we can revert patches there and there trying to work around the issue,
+> > > > >> but for objects allocated from process context, we should not have these problems.
+> > > > >>
+> > > > > 
+> > > > > I wonder if simply adjusting rcu_divisor to 6 or 5 would help 
+> > > > > 
+> > > > > diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+> > > > > index d9a49cd6065a20936edbda1b334136ab597cde52..fde833bac0f9f81e8536211b4dad6e7575c1219a 100644
+> > > > > --- a/kernel/rcu/tree.c
+> > > > > +++ b/kernel/rcu/tree.c
+> > > > > @@ -427,7 +427,7 @@ module_param(qovld, long, 0444);
+> > > > >  static ulong jiffies_till_first_fqs = ULONG_MAX;
+> > > > >  static ulong jiffies_till_next_fqs = ULONG_MAX;
+> > > > >  static bool rcu_kick_kthreads;
+> > > > > -static int rcu_divisor = 7;
+> > > > > +static int rcu_divisor = 6;
+> > > > >  module_param(rcu_divisor, int, 0644);
+> > > > >  
+> > > > >  /* Force an exit from rcu_do_batch() after 3 milliseconds. */
+> > > > > 
+> > > > 
+> > > > To be clear, you can adjust the value without building a new kernel.
+> > > > 
+> > > > echo 6 >/sys/module/rcutree/parameters/rcu_divisor
+> > > 
+> > > I tried value 6, 5, and 4, but none of those removed the problem.
+> > 
+> > Thank you for checking this!
+> > 
+> > Was your earlier discussion on long RCU readers speculation, or do you
+> > have measurements?
+> 
+> It was just a guess without any measurement or dedicated investigation.
 
-Thanks for testing all of these and letting me know.
+OK, another thing to check is the duration of the low-memory episode.
+Does this duration exceed the RCU CPU stall warning time?  (21 seconds
+in mainline, 60 in many distros, but check rcupdate.rcu_cpu_stall_timeout
+to be sure.)
 
-greg k-h
+Also, any chance of a .config?  Or at least the RCU portions?  I am
+guessing CONFIG_PREEMPT=n, for example.
+
+							Thanx, Paul
