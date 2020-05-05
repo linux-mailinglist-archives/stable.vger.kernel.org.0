@@ -2,105 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C401B1C557A
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 14:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A86D21C55CA
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 14:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728885AbgEEMcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 08:32:02 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:44628 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728804AbgEEMcB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 08:32:01 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 96A681C0225; Tue,  5 May 2020 14:31:59 +0200 (CEST)
-Date:   Tue, 5 May 2020 14:31:59 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dan Williams <dan.j.williams@intel.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: Re: [PATCH 4.19 28/37] dmaengine: dmatest: Fix iteration non-stop
- logic
-Message-ID: <20200505123159.GC28722@amd>
-References: <20200504165448.264746645@linuxfoundation.org>
- <20200504165451.307643203@linuxfoundation.org>
+        id S1728512AbgEEMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 08:40:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33840 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728627AbgEEMkU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 08:40:20 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC5FC061A0F
+        for <stable@vger.kernel.org>; Tue,  5 May 2020 05:40:19 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id y3so2594393wrt.1
+        for <stable@vger.kernel.org>; Tue, 05 May 2020 05:40:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=mrjbcYIstFUYdIKT7W4vXIKRiqhKmb5C1fAHjTQNfVo=;
+        b=CU7Qaj91TaqIfoaVzIWSCKc3X/S+5tyYSgQTuHl3cO/SxsgNxaeiwol16n3BAm+HAu
+         XFzNq+YUfgP2KfL89z6aICa7p2oqSQRE2z0w24A++2WEmFpspqAgt5EbaLsJAU8hhV1X
+         9ItVXkZ+GxnZzz+nE3NjYf4KwLLAqP7xx9uqzyoSugDqJmHqyVe3DTlPdeWERPIPwcMH
+         FaEuMIJEIoWGVyg9jqzxM280fsbHNp7DRIVJEjtf/meXzufzQpefl+X1w/9PYXOvxUJp
+         YIYEKErbUwQ/mHhV9lx7V8aP0HaiLzaFORRmNGjxIXsHKHeUPC2M6RnHoZa7FQYnbMCd
+         J7rw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=mrjbcYIstFUYdIKT7W4vXIKRiqhKmb5C1fAHjTQNfVo=;
+        b=las6LfBN/8Cxv+RTzYkrAH3eM/hBo7wZemdEDXUc+e54VDVi2BBegWwLS3t7u+eiJl
+         k5IN1+yq87o+fxmm06Ul5T/wjTv5GT5E9+q3BtTMOm0Yxws9nhcy3OPQl+heTeJbs+aH
+         GCLp6XtPCDscYMk3wE8R2B2UH9CHiOofrFoS91zvyWOP0vAcNn4N1WoQDskQz02O+8xf
+         juuxZy0Pka8nYo2tTuPpkJgAl1qitmL8bHP10kuneJbH5bZmOi5h/hHwtQouDHB/GIOr
+         /iR/YBUHgXMzoJoFFLXFfD35EEa4cSw6XJKJze66FEvsxN96ma9dmYdcazWZg7IrxH/s
+         pXXw==
+X-Gm-Message-State: AGi0PuYHH9T0m9Z0nURF4AHdKOLOBID6UxVVpjo2S30zh4ec3EsKCrEO
+        g9DjLfDEUq3K7ApmM8jzvIatDm642fQrPuYxenA=
+X-Google-Smtp-Source: APiQypIBhCuIMyMOIywqYSjI6kUVAusvhZ+0ZLXXytcVe0uMwdY6p24OQQDY7pIy6CFV/daJ7FziZDWYWED9EwBOJ+8=
+X-Received: by 2002:adf:9793:: with SMTP id s19mr3252418wrb.147.1588682417616;
+ Tue, 05 May 2020 05:40:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="6zdv2QT/q3FMhpsV"
-Content-Disposition: inline
-In-Reply-To: <20200504165451.307643203@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Received: by 2002:a7b:c7c4:0:0:0:0:0 with HTTP; Tue, 5 May 2020 05:40:17 -0700 (PDT)
+Reply-To: msjilmike101@gmail.com
+From:   Jillrita Mike <spa.rosa.mrs@gmail.com>
+Date:   Tue, 5 May 2020 14:40:17 +0200
+Message-ID: <CAPFFY3fijeUrY4uuRE3wc+iatBV+3JXrWTNd+xM+ho6dyevRcA@mail.gmail.com>
+Subject: Dear Friend.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear Friend.
 
---6zdv2QT/q3FMhpsV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ My  name is Jillrita Mike Riddering,  I am sending this brief letter
+to solicit your support and partnership to transfer $5.5 million US
+Dollars. This money belongs to my late father Mike Riddering,my father
+and my mother were among those that were killed on 2016 terrorist
+attack at Splendid Hotel Ouagadougou Burkina Faso, my mother did not
+die instantly but she later gave up at the hospital. we are from USA
+but
+reside in Burkina Faso, my father is An American missionary,
+before my father died with my mother at Splendid hotel,
 
-Hi!
-
-> So, to the point, the conditional of checking the thread to be stopped be=
-ing
-> first part of conjunction logic prevents to check iterations. Thus, we ha=
-ve to
-> always check both conditions to be able to stop after given
-> iterations.
-
-I ... don't understand. AFAICT the code is equivalent. Both && and ||
-operators permit "short" execution... but second part of expression
-has no sideeffects, so...
-
-> @@ -567,8 +567,8 @@ static int dmatest_func(void *data)
->  	flags =3D DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
-> =20
->  	ktime =3D ktime_get();
-> -	while (!kthread_should_stop()
-> -	       && !(params->iterations && total_tests >=3D params->iterations))=
- {
-> +	while (!(kthread_should_stop() ||
-> +	       (params->iterations && total_tests >=3D params->iterations))) {
->  		struct dma_async_tx_descriptor *tx =3D NULL;
->  		struct dmaengine_unmap_data *um;
->  		dma_addr_t *dsts;
-
-let a =3D kthread_should_stop()
-let b =3D (params->iterations && total_tests >=3D params->iterations)
-
-You are changing !a & !b into !(a | b). But that's equivalent
-expression. I hate to admit, but I had to draw truth table to prove
-that.
-
-!a & !b   0 0 -> 1
-       	  else -> 0
-
-!(a | b)  0 0 -> 1
-     	   else -> 0
-	  =20
-What am I missing?
-
-Best regards,
-								Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---6zdv2QT/q3FMhpsV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl6xXL4ACgkQMOfwapXb+vJIvQCgwg/672KLMZ1Cjt4fjfpDJNIl
-u4YAoIuFw3pH/JnK7hMHG1ueLt3qm8V0
-=w4yg
------END PGP SIGNATURE-----
-
---6zdv2QT/q3FMhpsV--
+Check out the web; (https://www.bbc.com/news/world-africa-35332792)
+for more understanding, I shall send you more information and
+the bank details  when I receive positive response from you to follow up.
+contact my E-mail;
+msjilmike101@gmail.com
+Thanks
+Jillrita Mike
