@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D05581C4A99
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 01:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 184371C4B22
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 02:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728192AbgEDXuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 19:50:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55320 "EHLO
+        id S1726864AbgEEAng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 20:43:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728182AbgEDXuu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 19:50:50 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07CE1C061A0E
-        for <stable@vger.kernel.org>; Mon,  4 May 2020 16:50:50 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id 207so172653pgc.6
-        for <stable@vger.kernel.org>; Mon, 04 May 2020 16:50:50 -0700 (PDT)
+        with ESMTP id S1726635AbgEEAng (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 20:43:36 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC760C061A0E
+        for <stable@vger.kernel.org>; Mon,  4 May 2020 17:43:35 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id x77so47271pfc.0
+        for <stable@vger.kernel.org>; Mon, 04 May 2020 17:43:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=BA4JbaJGo+sZnmLCaYR27neH2rpI7rmom8IMa+3x0GQ=;
-        b=V9zJ8Rxo/1q4pl5rauFEITA6M8nRlaJ6FDpAR1JCUB9gqNI34/INmuNL9Q1K46baBY
-         trVS0w50omGD2wVOo8Rg8Yki033xxRVzGk7CQR79Ht+vDj4QGJQuxpL2R1GmrkFQDJv0
-         s/BHZpF4JdRA3z/qq0a9oM53REWZlbBuXBU/VkACsVAmmoTnWFUq3FnHBB7UBm4ASmfw
-         7x/zs+1kO1fZKgOQUCRZ+7/poqfjaeh0tEz/JY1QK9ApwGCrtJcXo3n33YGWMooXEY4i
-         9dL7v7WCNV5s9LruSxKMfS+Bs7N75Nfm1xlGQfQBD7k5Lv3IJWUAFwEAmTiFZ+KiEAXY
-         QTYg==
+        bh=lEeFUCzOxVEBFo87KyjNr3s+/BWcZh0V9fGHd3tmscQ=;
+        b=Gw26IHTivuqzwDAVPgmykrbd9W2e9HohPSsPLBDD+PhWR+lPlGC4HqhyNh/g1S01Qr
+         HrKfPp9jnL9Nr3E/bNKsBPU1O7UmWcUKNlDfg8cy6up+RoaBvZO8nEbi/skTn3ml+TH3
+         /i7Jhtw7Rp8CSiynukme0f/bmv8c+G8f7JNUk1QdcJV7ITM8sUfwQ8ct+PfW9CqR8NuX
+         AhQoFQWpE1JIlW/w4mV7C0HbTtVe1qPqA1+ortmR2zexawS8xR6d/tOCoMNdDM+esqWD
+         LPWtyRwQ4O0cM2cVB8iw8R4uDZkaFutfiqGZz4RFA+eGuYeMaZKId3Oe61E9z5w1xZ0j
+         92hA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=BA4JbaJGo+sZnmLCaYR27neH2rpI7rmom8IMa+3x0GQ=;
-        b=cjDUK8sxVrULVFMPuYBYDhHob55wN0W6ftD3SD9QX2XVkdb93vJZzdpclnaPToRBKq
-         B+OGLz9ow+MGimeEfkrdVj1JE4f7v338NK6tl23fjAo4Db8z7Pq1hHbIeOUx3YXNAKzQ
-         ofe2KwCFthJs7iDJjR5jgjQAvMiw/LlXJybxLu/2zxJpGdbiNtFMdJa8bHrzX+8HaTNS
-         SqxfvofCTn+1QBsC7/DMp+DqDpzgBDz8rKl95VimizPmMAQbLP7zk4abPuxvxZoBPEAY
-         YMyszbRFaVI4i775c9mIJuToe5CqyGm2U1J7iDxY7mwHnCIGE+6VHfn45FUFu6/21rT4
-         +qWQ==
-X-Gm-Message-State: AGi0PuYIrtdpHLr5+lqRlwMHMXPkGGOw1bWSB/jI6ImeRo5OIxNL2dPM
-        GY6FHnFlZ39WejCwh+Jy2yvT/ZYn/Bw=
-X-Google-Smtp-Source: APiQypKoSGx2wZkW1vNYFSDpnP1lu8x4O1581hTepUBD6sYNijw6znLOH5FK93Qk7me/XJei0oVxaA==
-X-Received: by 2002:aa7:9246:: with SMTP id 6mr396759pfp.131.1588636249187;
-        Mon, 04 May 2020 16:50:49 -0700 (PDT)
+        bh=lEeFUCzOxVEBFo87KyjNr3s+/BWcZh0V9fGHd3tmscQ=;
+        b=c8oNzqcsFfk/hUAnlts2kHyjWzZak07f84Wj3FurSYfgtSnB2/AM9YHzDgwD52MdNY
+         ArUjAeC0Tcem06sQVUGPbPRZzHlX5IYrCzNRtOp3iUq+InXqkg0SAdRiewhSu1B9s4Fw
+         sHhHpROKMx65SZ/OM6v7ueE7HSI7pDaDeZlQqH40Vk22nHEF3d59UJy3I/IIvMhuda73
+         7rlEx7/pzzrqOkzyn/t9rLjUqBCuVD39evnNHiCW1t8SdX+wj/e3TezSEWlcBCMVHaOy
+         t07iKaUtNsqI9WzfoZWpFqy+PR0fEfEe5kFN9ECqBBh8jMGLrboL7qBVWV873S5mpe29
+         iq7w==
+X-Gm-Message-State: AGi0PuazXDSvD0z0YREhUio5tIQhAFdWQbUNgrTsuN4+phhxNzYeqwqF
+        S6ygmxSm4P8JiZMzQUgIWqTjTBsszic=
+X-Google-Smtp-Source: APiQypKIcrfXcfOIxPuyhbzgUvQkfxY2U6hR5aLQQOKaBKQh+FdvjDuDja/OX8+EseoVtnHzQJ/dcA==
+X-Received: by 2002:a63:7745:: with SMTP id s66mr818741pgc.340.1588639415086;
+        Mon, 04 May 2020 17:43:35 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m63sm204702pfb.101.2020.05.04.16.50.48
+        by smtp.gmail.com with ESMTPSA id r28sm255479pfg.186.2020.05.04.17.43.33
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 May 2020 16:50:48 -0700 (PDT)
-Message-ID: <5eb0aa58.1c69fb81.e10ec.0f0f@mx.google.com>
-Date:   Mon, 04 May 2020 16:50:48 -0700 (PDT)
+        Mon, 04 May 2020 17:43:34 -0700 (PDT)
+Message-ID: <5eb0b6b6.1c69fb81.3a91c.1336@mx.google.com>
+Date:   Mon, 04 May 2020 17:43:34 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.6.y
+X-Kernelci-Branch: linux-4.14.y
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.6.10-74-g6cd4bcd666cd
+X-Kernelci-Kernel: v4.14.178-27-g6d39cf919746
 X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.6.y boot: 156 boots: 1 failed,
- 143 passed with 5 offline, 5 untried/unknown,
- 2 conflicts (v5.6.10-74-g6cd4bcd666cd)
+Subject: stable-rc/linux-4.14.y boot: 126 boots: 1 failed,
+ 114 passed with 5 offline, 5 untried/unknown,
+ 1 conflict (v4.14.178-27-g6d39cf919746)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -67,28 +67,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.6.y boot: 156 boots: 1 failed, 143 passed with 5 offline,=
- 5 untried/unknown, 2 conflicts (v5.6.10-74-g6cd4bcd666cd)
+stable-rc/linux-4.14.y boot: 126 boots: 1 failed, 114 passed with 5 offline=
+, 5 untried/unknown, 1 conflict (v4.14.178-27-g6d39cf919746)
 
 Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.6.y/kernel/v5.6.10-74-g6cd4bcd666cd/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
-/kernel/v5.6.10-74-g6cd4bcd666cd/
+-4.14.y/kernel/v4.14.178-27-g6d39cf919746/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.178-27-g6d39cf919746/
 
 Tree: stable-rc
-Branch: linux-5.6.y
-Git Describe: v5.6.10-74-g6cd4bcd666cd
-Git Commit: 6cd4bcd666cd831acf192bd7350b94121469ebcb
+Branch: linux-4.14.y
+Git Describe: v4.14.178-27-g6d39cf919746
+Git Commit: 6d39cf91974673a74d6d976ecc107e43bb5c3eb4
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Tested: 97 unique boards, 25 SoC families, 21 builds out of 200
+Tested: 72 unique boards, 20 SoC families, 17 builds out of 201
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 86 days (last pass: v4.14=
+.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.14.178)
 
 Boot Failure Detected:
 
-arm:
-    multi_v7_defconfig:
+arm64:
+    defconfig:
         gcc-8:
-            bcm2836-rpi-2-b: 1 failed lab
+            meson-gxbb-p200: 1 failed lab
 
 Offline Platforms:
 
@@ -108,14 +123,8 @@ arm:
         gcc-8
             exynos5800-peach-pi: 1 offline lab
 
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-baylibre: PASS (gcc-8)
-            lab-collabora: FAIL (gcc-8)
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
 x86_64:
     x86_64_defconfig:
