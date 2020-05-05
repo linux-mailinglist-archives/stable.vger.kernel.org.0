@@ -2,151 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1171C5A92
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 17:08:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4BB1C5ABA
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 17:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730105AbgEEPIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 11:08:16 -0400
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:45492 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729571AbgEEPIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 11:08:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1588691295; x=1620227295;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   mime-version;
-  bh=IAgZZDQAgmaOCAEF+gMgVxcblMlmWcnuMZ5A1KV3daA=;
-  b=UIWX9QriVhXaUgff+rXR8CA9p3BYxPpUa+3orOtDkb6FXERDofUChTKC
-   8MUSyAGmNNqx4e362Ei3lvfT5hIds/3aVLJVM9f6g/2h3xKC2V+KhEaIz
-   ivDgJKOUSjafjb7ELC0Gws+PdjFwiEyBfNvWkQUC7kzCCxOajjI9ZcNow
-   w=;
-IronPort-SDR: kyd4994nfXuQCwn5F4nNpODgpRWvzpQJ2KEhGPjS9GIDWdfh2joXL/vSHZCx1BE9ajvdBjCf9k
- VpSuB92/uMKw==
-X-IronPort-AV: E=Sophos;i="5.73,355,1583193600"; 
-   d="scan'208";a="28970664"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2a-d0be17ee.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 05 May 2020 15:08:00 +0000
-Received: from EX13MTAUEA002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
-        by email-inbound-relay-2a-d0be17ee.us-west-2.amazon.com (Postfix) with ESMTPS id 994FBA1F77;
-        Tue,  5 May 2020 15:07:59 +0000 (UTC)
-Received: from EX13D31EUA001.ant.amazon.com (10.43.165.15) by
- EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 5 May 2020 15:07:59 +0000
-Received: from u886c93fd17d25d.ant.amazon.com (10.43.162.38) by
- EX13D31EUA001.ant.amazon.com (10.43.165.15) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 5 May 2020 15:07:50 +0000
-From:   SeongJae Park <sjpark@amazon.com>
-To:     Eric Dumazet <edumazet@google.com>
-CC:     SeongJae Park <sjpark@amazon.com>,
-        David Miller <davem@davemloft.net>,
-        "Al Viro" <viro@zeniv.linux.org.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        <sj38.park@gmail.com>, netdev <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        SeongJae Park <sjpark@amazon.de>, <snu@amazon.com>,
-        <amit@kernel.org>, <stable@vger.kernel.org>
-Subject: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
-Date:   Tue, 5 May 2020 17:07:17 +0200
-Message-ID: <20200505150717.5688-1-sjpark@amazon.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <CANn89iJ6f=x9XSfjSCFc0KNcjSXop3QMEgAfh9PLJ6khTbXrnQ@mail.gmail.com> (raw)
+        id S1729530AbgEEPMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 11:12:23 -0400
+Received: from mout.gmx.net ([212.227.17.20]:33091 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729332AbgEEPMW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 May 2020 11:12:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1588691536;
+        bh=rP2jwm5r1DSsgQcMQyTdDXK8vZHVg6r+l7O9JIrJHNM=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=iDiXTUjqdcI/8c04L3AeaCi0hUu+fW5bzn8Lw4h2BNmoYekmHUUNpNyynneYirP4I
+         ejhAYNpUIKvarVuvfzOVFmgq/e4a2eCCD67GDUtUNBZwHyFYFS9S5zyZh1kKq2yLOJ
+         N68KyFNHiO+7DYQHkXgbrJCLYYrmUqUoJsXacW9Y=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from localhost.localdomain ([212.114.250.16]) by mail.gmx.com
+ (mrgmx105 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 1N3KTy-1j66P743ve-010L62; Tue, 05 May 2020 17:12:16 +0200
+From:   Julian Sax <jsbc@gmx.de>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Julian Sax <jsbc@gmx.de>,
+        stable@vger.kernel.org
+Subject: [PATCH] HID: i2c-hid: add Schneider SCL142ALM to descriptor override
+Date:   Tue,  5 May 2020 17:10:42 +0200
+Message-Id: <20200505151042.122157-1-jsbc@gmx.de>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.43.162.38]
-X-ClientProxiedBy: EX13D28UWB004.ant.amazon.com (10.43.161.56) To
- EX13D31EUA001.ant.amazon.com (10.43.165.15)
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:1xGtNobj9IeDfNsT7NU9grJu6PKvdVE4rsepR8eiLGugWh9vK2t
+ X374UBlmCSX1GJbm+Vis111h+wVie9BpMQt/QVPyEle8yJRHGLsRFSWerk7KbU6rVgUvIFI
+ iAWMmR2+Uc6cv2jSLm5zlwA17JdxerpnOfDqMP+nvCIIxJN+KQVpbLT9zHR6KCEhjGo6+15
+ HEuZ7/ugGknrEmahEJBWw==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:2vDpBxRuuzs=:ODep58ZEW2ncfPvvDJi5tC
+ KL9PsAJNtm8M0ZjM7nSNLCYSMoUA1kAX/neIPBo9QgiAl13fMvPwwVTC68yN0HiG8Wcn7DHmX
+ iqHtyYzhvCFBhmzOPbAW6dFZcYh6tHZPIlhVZPphak/q6qFlSY1+iRuqrfiN3f5Rp5s9dTcOw
+ cYpu1DsEwF69JLQv7xMv1XnnGmlQBqZIaLTpTMKsX4XHhL4eNtCqHDj2suDAwBMk/L0JCfivW
+ 0FCZSlrpaQBJCUU6Ff6YfqtTn26Fz3pjyaUmYgokiUv2ac2dCqvXGqICT1bJFZhyaoo/IFapW
+ /AJ1GHc6cG3zbUHr48mZ0gz/YVpVhDPiPV1vPnKWSFTnXQ58OMpJHcQF4quJ+wP/P/jROPGxc
+ 6YFGIUKl5s4QYXw5enkFxNYAun4Bz4QHLCwDNNSqADTlXC+wsH/Apw8fNoyABI+mAlIXy8Q/A
+ fVlkhrvah+AWOoWNcfiRGYrjy9E7iiJlGrgzJGIkw34O9OKYxUVFeL0iEu87BgJcLRS9TyITO
+ i+6N5+3jA+AwGS4Ki0LZBPgoMKVR/ystVB+HD48lCw9tqcuNDRKo1BbOmAVC9c+YZtvw9yiFv
+ K07vr/tc9EBUul93FH0L6BsWKp1S+8iJWURuRpar8Fsf9ym3619gH8Wk/t808bQiHBMa1brzs
+ cnfs5SOJ65s3jYKP2ud2+fMuUf6M2/WSC5T4/oDBXLF3F/gSp7AMIwNpbyx5hZ3EmJmquQhUN
+ dLndPl4d6cJtHT3sVmfxxYhjzasfbyutv637HYfOyJkUJ4nB1M62CfqrwCsCxg3mENqdQXxOP
+ 1qP34DZX0l6QKNUJawGoxqmO6A3/+zNREdZXeiqPnKrMaaKVx6YrshgnbK7+0pS+CaIRq+jIY
+ 7ojY9RriOyfuMGozeSbYmz1kht2bgJ1Wm2NgODVJ0F71bDPCq6MCYnt63UT8Su6NUnQIUvZD3
+ G9SZfA91TW+3oi96CV6fal2HIzOssG8L/WXMp2VocqSK6ONIDIIQxqu1evZ0lUiMDXkxWc99N
+ +TeBgs1F73WyuHNEouvbKlhISKb0SIxs8kCRpSVLWKQ16cpkMzVKKv6sD2ULsOy8qaXE0p216
+ 3jfx5YJIx/iQE6tyywDpzw9dU8stKpM3lYIU2KJXImZxBBbjymbKAjVOfPmLRy4BmpH1RSrs2
+ hDBj8K6suxsSgAmlyQfiSvAqlQgaJXv/wP5ohNmL6TzcXwWKFoAoyUf6ISrUrQfelH97c=
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 5 May 2020 07:53:39 -0700 Eric Dumazet <edumazet@google.com> wrote:
+This device uses the SIPODEV SP1064 touchpad, which does not
+supply descriptors, so it has to be added to the override list.
 
-> On Tue, May 5, 2020 at 4:54 AM SeongJae Park <sjpark@amazon.com> wrote:
-> >
-> > CC-ing stable@vger.kernel.org and adding some more explanations.
-> >
-> > On Tue, 5 May 2020 10:10:33 +0200 SeongJae Park <sjpark@amazon.com> wrote:
-> >
-> > > From: SeongJae Park <sjpark@amazon.de>
-> > >
-> > > The commit 6d7855c54e1e ("sockfs: switch to ->free_inode()") made the
-> > > deallocation of 'socket_alloc' to be done asynchronously using RCU, as
-> > > same to 'sock.wq'.  And the following commit 333f7909a857 ("coallocate
-> > > socket_sq with socket itself") made those to have same life cycle.
-> > >
-> > > The changes made the code much more simple, but also made 'socket_alloc'
-> > > live longer than before.  For the reason, user programs intensively
-> > > repeating allocations and deallocations of sockets could cause memory
-> > > pressure on recent kernels.
-> >
-> > I found this problem on a production virtual machine utilizing 4GB memory while
-> > running lebench[1].  The 'poll big' test of lebench opens 1000 sockets, polls
-> > and closes those.  This test is repeated 10,000 times.  Therefore it should
-> > consume only 1000 'socket_alloc' objects at once.  As size of socket_alloc is
-> > about 800 Bytes, it's only 800 KiB.  However, on the recent kernels, it could
-> > consume up to 10,000,000 objects (about 8 GiB).  On the test machine, I
-> > confirmed it consuming about 4GB of the system memory and results in OOM.
-> >
-> > [1] https://github.com/LinuxPerfStudy/LEBench
-> 
-> To be fair, I have not backported Al patches to Google production
-> kernels, nor I have tried this benchmark.
-> 
-> Why do we have 10,000,000 objects around ? Could this be because of
-> some RCU problem ?
+Cc: stable@vger.kernel.org
+Signed-off-by: Julian Sax <jsbc@gmx.de>
+=2D--
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Mainly because of a long RCU grace period, as you guess.  I have no idea how
-the grace period became so long in this case.
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hi=
+d/i2c-hid-dmi-quirks.c
+index a66f08041a1a..ec142bc8c1da 100644
+=2D-- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -389,6 +389,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_ov=
+erride_table[] =3D {
+ 		},
+ 		.driver_data =3D (void *)&sipodev_desc
+ 	},
++	{
++		.ident =3D "Schneider SCL142ALM",
++		.matches =3D {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SCHNEIDER"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SCL142ALM"),
++		},
++		.driver_data =3D (void *)&sipodev_desc
++	},
+ 	{ }	/* Terminate list */
+ };
 
-As my test machine was a virtual machine instance, I guess RCU readers
-preemption[1] like problem might affected this.
+=2D-
+2.26.2
 
-[1] https://www.usenix.org/system/files/conference/atc17/atc17-prasad.pdf
-
-> 
-> Once Al patches reverted, do you have 10,000,000 sock_alloc around ?
-
-Yes, both the old kernel that prior to Al's patches and the recent kernel
-reverting the Al's patches didn't reproduce the problem.
-
-
-Thanks,
-SeongJae Park
-
-> 
-> Thanks.
-> 
-> >
-> > >
-> > > To avoid the problem, this commit reverts the changes.
-> >
-> > I also tried to make fixup rather than reverts, but I couldn't easily find
-> > simple fixup.  As the commits 6d7855c54e1e and 333f7909a857 were for code
-> > refactoring rather than performance optimization, I thought introducing complex
-> > fixup for this problem would make no sense.  Meanwhile, the memory pressure
-> > regression could affect real machines.  To this end, I decided to quickly
-> > revert the commits first and consider better refactoring later.
-> >
-> >
-> > Thanks,
-> > SeongJae Park
-> >
-> > >
-> > > SeongJae Park (2):
-> > >   Revert "coallocate socket_wq with socket itself"
-> > >   Revert "sockfs: switch to ->free_inode()"
-> > >
-> > >  drivers/net/tap.c      |  5 +++--
-> > >  drivers/net/tun.c      |  8 +++++---
-> > >  include/linux/if_tap.h |  1 +
-> > >  include/linux/net.h    |  4 ++--
-> > >  include/net/sock.h     |  4 ++--
-> > >  net/core/sock.c        |  2 +-
-> > >  net/socket.c           | 23 ++++++++++++++++-------
-> > >  7 files changed, 30 insertions(+), 17 deletions(-)
-> > >
-> > > --
-> > > 2.17.1
