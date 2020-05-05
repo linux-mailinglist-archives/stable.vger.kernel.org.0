@@ -2,78 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C99AF1C4B7A
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 03:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A11411C4B88
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 03:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728025AbgEEBXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 21:23:51 -0400
-Received: from mga07.intel.com ([134.134.136.100]:22407 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726516AbgEEBXv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 May 2020 21:23:51 -0400
-IronPort-SDR: sunHmm+kiGumHcZf9ajMrfRs7nKkGdpMiDTlUNrV5tY9j85bg5fEpn26+A/ZdLczaoL2bTqo4k
- 6WJUwC3a7MuA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 May 2020 18:23:50 -0700
-IronPort-SDR: 4vpPMRE6u3zAj2xA5lVwirll6SiYnhFEoN9EnQ9bsPkIXfQ3NOGjz9eRpRCdH3vtB7gi6ca927
- Njn5U3VDZ3aw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,354,1583222400"; 
-   d="scan'208";a="406663375"
-Received: from sjchrist-coffee.jf.intel.com ([10.54.74.152])
-  by orsmga004.jf.intel.com with ESMTP; 04 May 2020 18:23:49 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
-        Tobias Urdin <tobias.urdin@binero.com>
-Subject: [PATCH 4.19 STABLE 2/2] KVM: VMX: Mark RCX, RDX and RSI as clobbered in vmx_vcpu_run()'s asm blob
-Date:   Mon,  4 May 2020 18:23:48 -0700
-Message-Id: <20200505012348.17099-3-sean.j.christopherson@intel.com>
-X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200505012348.17099-1-sean.j.christopherson@intel.com>
-References: <20200505012348.17099-1-sean.j.christopherson@intel.com>
+        id S1726516AbgEEBba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 21:31:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42806 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726482AbgEEBba (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 21:31:30 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C6ABC061A0F
+        for <stable@vger.kernel.org>; Mon,  4 May 2020 18:31:30 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id s8so347570pgq.1
+        for <stable@vger.kernel.org>; Mon, 04 May 2020 18:31:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vKs0EaFdBB+kxh8SmDzxW4DxiE1VWluAo8ftFu3RhOA=;
+        b=kr8M0JhyFcB7jNArN5e6q+vHOMSgEX4XKPG87x3HdEdBOOzyk1tdPpLmwJZ5vr5sNy
+         b34/PBZF138T3Nt//YRb2AvvSNoqHfXGtUIHwsZ515tTTcKV5gech5GP504f8v8bZkC5
+         19ri6pm0LYOmAbirqheCkX0X/TXgZruWjp4I3uKqKuu6q2XmV5w2BJGpfKv4siPf8uN4
+         BxEgMn732sjXwUlzwqeFXj0qT5Nyy1jLYcgH1Lhup3GL4tGrEHcQVBYNTS2Utir5o9zO
+         JuljG+C26Jmzc58QMwW/KWdzq4HFyXeM6YBpH9FXfprGlNg81guNvInEh1pPUEOeD4Sf
+         qIlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vKs0EaFdBB+kxh8SmDzxW4DxiE1VWluAo8ftFu3RhOA=;
+        b=E/hl2wKT4dhWDGHNuajT+LfZRSCJaYJgVNn4d2eaR64s460lvpFhRRy5sJA2gaJ9OW
+         nG8bNhurKztEe66EQ3hdaRXR+0DXMr9Jg4PuG6BG0UlMsdl50j8ZRhXh3l+8vwGbyCR0
+         pEvgUJNiJEQ1atBI1bDj0PTcIr+E0uWmpr+tYC/zCHQLyMRPqW/A7ebcsfjEscx4dbaT
+         yGolKmBbcfLxl2umA3B1FXiAqCZvz3jhrL5C4/6T611D9k2NxxYSY0EeLHU5fCPgyHXK
+         mRorRhz/wHKC7y1EjAY9zUSuxRY83ZhFn+H28Uck0Zm5xoEwBEyltUx9pfe74RDhSJJQ
+         pWQw==
+X-Gm-Message-State: AGi0PuZWfuOhsTC93XpSwHwydkQc/TUK4ciqjYGuK/gaUiiwyW5XKW06
+        hl6WmGasteHhbBA1TerdMcCo3jqaNuM=
+X-Google-Smtp-Source: APiQypK6Cf7Gz96HYHpbe73Qbq9IZ/8sybEnJghaLhLB5s04k/VPvFJevrK63lKvDDxf6TjN6e5/jg==
+X-Received: by 2002:aa7:8b0a:: with SMTP id f10mr801397pfd.268.1588642288999;
+        Mon, 04 May 2020 18:31:28 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u9sm309695pfn.197.2020.05.04.18.31.28
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 May 2020 18:31:28 -0700 (PDT)
+Message-ID: <5eb0c1f0.1c69fb81.b173c.16eb@mx.google.com>
+Date:   Mon, 04 May 2020 18:31:28 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.120-38-g2e3613309d93
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.19.y boot: 138 boots: 0 failed,
+ 127 passed with 5 offline, 5 untried/unknown,
+ 1 conflict (v4.19.120-38-g2e3613309d93)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Save RCX, RDX and RSI to fake outputs to coerce the compiler into
-treating them as clobbered.  RCX in particular is likely to be reused by
-the compiler to dereference the 'struct vcpu_vmx' pointer, which will
-result in a null pointer dereference now that RCX is zeroed by the asm
-blob.
+stable-rc/linux-4.19.y boot: 138 boots: 0 failed, 127 passed with 5 offline=
+, 5 untried/unknown, 1 conflict (v4.19.120-38-g2e3613309d93)
 
-Add ASM_CALL_CONSTRAINT to fudge around an issue where <something>
-during modpost can't find vmx_return when specifying output constraints.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.120-38-g2e3613309d93/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.120-38-g2e3613309d93/
 
-Reported-by: Tobias Urdin <tobias.urdin@binero.com>
-Fixes: b4be98039a92 ("KVM: VMX: Zero out *all* general purpose registers after VM-Exit")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.120-38-g2e3613309d93
+Git Commit: 2e3613309d936ae445288baa881ca1775f300f6f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 81 unique boards, 22 SoC families, 19 builds out of 206
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 86 days (last pass: v4.19=
+.101 - first fail: v4.19.102-96-g0632821fe218)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.19.120)
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: PASS (gcc-8)
+            lab-collabora: FAIL (gcc-8)
+
 ---
- arch/x86/kvm/vmx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-index 5b06a98ffd4c..54c8b4dc750d 100644
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -10882,7 +10882,8 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
- 		".global vmx_return \n\t"
- 		"vmx_return: " _ASM_PTR " 2b \n\t"
- 		".popsection"
--	      : : "c"(vmx), "d"((unsigned long)HOST_RSP), "S"(evmcs_rsp),
-+	      : ASM_CALL_CONSTRAINT, "=c"((int){0}), "=d"((int){0}), "=S"((int){0})
-+	      : "c"(vmx), "d"((unsigned long)HOST_RSP), "S"(evmcs_rsp),
- 		[launched]"i"(offsetof(struct vcpu_vmx, __launched)),
- 		[fail]"i"(offsetof(struct vcpu_vmx, fail)),
- 		[host_rsp]"i"(offsetof(struct vcpu_vmx, host_rsp)),
--- 
-2.26.0
-
+For more info write to <info@kernelci.org>
