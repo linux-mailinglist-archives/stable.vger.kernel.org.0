@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7585F1C602B
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 20:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF9B21C604B
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 20:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728356AbgEESfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 14:35:05 -0400
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:24477 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726618AbgEESfE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 14:35:04 -0400
+        id S1728947AbgEESlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 14:41:08 -0400
+Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:56894 "EHLO
+        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728773AbgEESlI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 14:41:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1588703704; x=1620239704;
+  t=1588704066; x=1620240066;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    mime-version;
-  bh=+yD817Ceo4htuXp5Qfj9nfPNfFFZZ68WXswqd/tAUZk=;
-  b=VJdZkGjvMbGABSLpAovhfjBZA53Ec5JO42T0qSNBaMf5qjYtcUB9QErZ
-   sJal/rPIktb7Hi3EfOGZmydMSaqwYXkbs93oCms3lxLQddsAlfsuR64s5
-   zNRDNGTdjqfkSspOHRLDq15h0wuca4tGY4aK+FZlkY9sXXiiEx7C/mOKl
-   8=;
-IronPort-SDR: RPQb8hctXlkWW7Jaw8MfFAq5p78DqW4wIQyRJJBG4unWZb9xCIXtjLUmx/w1+W1TBnEAY3FHlo
- 53I2fDpQ89pg==
+  bh=Pmhdl+F9svMgg/hZ96GUzX/sEAZ5CZ9xQymQDln6EcE=;
+  b=Bh/7dMlLhqRw1hP7Lz12on+4UT7RhbvJRSve1xF3LhyEyLBYqcL63ipa
+   tl8XgzHqsRtyKBlcNsUDohr0qwdjNArceZ/+6tcRtcP0ZQzS5NH4eOAYS
+   iEpQwFyu+ZHjNiIOyM7oHJMDwRAX8uqtNRJ1ZNvLnYOKBBvLJNTSH1lCP
+   Y=;
+IronPort-SDR: EravTbAVmLBHkSx3lQpiDnReknjtBUi+w6EnsSH8gkf4h6qN5dvTqYW/g/7T88MBe550S83Rwj
+ PYJfL+L0Gayg==
 X-IronPort-AV: E=Sophos;i="5.73,356,1583193600"; 
-   d="scan'208";a="29008117"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1e-a70de69e.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 05 May 2020 18:34:51 +0000
-Received: from EX13MTAUEA002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan2.iad.amazon.com [10.40.159.162])
-        by email-inbound-relay-1e-a70de69e.us-east-1.amazon.com (Postfix) with ESMTPS id C5D02A2071;
-        Tue,  5 May 2020 18:34:47 +0000 (UTC)
+   d="scan'208";a="30184771"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1d-9ec21598.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 05 May 2020 18:40:53 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
+        by email-inbound-relay-1d-9ec21598.us-east-1.amazon.com (Postfix) with ESMTPS id 5FB8EA2335;
+        Tue,  5 May 2020 18:40:50 +0000 (UTC)
 Received: from EX13D31EUA001.ant.amazon.com (10.43.165.15) by
  EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 5 May 2020 18:34:46 +0000
-Received: from u886c93fd17d25d.ant.amazon.com (10.43.162.200) by
+ id 15.0.1497.2; Tue, 5 May 2020 18:40:49 +0000
+Received: from u886c93fd17d25d.ant.amazon.com (10.43.160.180) by
  EX13D31EUA001.ant.amazon.com (10.43.165.15) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 5 May 2020 18:34:39 +0000
+ id 15.0.1497.2; Tue, 5 May 2020 18:40:41 +0000
 From:   SeongJae Park <sjpark@amazon.com>
 To:     "Paul E. McKenney" <paulmck@kernel.org>
 CC:     SeongJae Park <sjpark@amazon.com>,
@@ -49,110 +49,129 @@ CC:     SeongJae Park <sjpark@amazon.com>,
         LKML <linux-kernel@vger.kernel.org>,
         SeongJae Park <sjpark@amazon.de>, <snu@amazon.com>,
         <amit@kernel.org>, <stable@vger.kernel.org>
-Subject: Re: Re: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
-Date:   Tue, 5 May 2020 20:34:02 +0200
-Message-ID: <20200505183402.2021-1-sjpark@amazon.com>
+Subject: Re: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
+Date:   Tue, 5 May 2020 20:40:07 +0200
+Message-ID: <20200505184007.3562-1-sjpark@amazon.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200505181707.GJ2869@paulmck-ThinkPad-P72> (raw)
+In-Reply-To: <20200505182720.GK2869@paulmck-ThinkPad-P72> (raw)
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Originating-IP: [10.43.162.200]
-X-ClientProxiedBy: EX13D02UWB001.ant.amazon.com (10.43.161.240) To
+X-Originating-IP: [10.43.160.180]
+X-ClientProxiedBy: EX13D02UWB004.ant.amazon.com (10.43.161.11) To
  EX13D31EUA001.ant.amazon.com (10.43.165.15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 5 May 2020 11:17:07 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
+On Tue, 5 May 2020 11:27:20 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
 
-> On Tue, May 05, 2020 at 07:56:05PM +0200, SeongJae Park wrote:
-> > On Tue, 5 May 2020 10:30:36 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
+> On Tue, May 05, 2020 at 07:49:43PM +0200, SeongJae Park wrote:
+> > On Tue, 5 May 2020 10:23:58 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
 > > 
-> > > On Tue, May 05, 2020 at 07:05:53PM +0200, SeongJae Park wrote:
-> > > > On Tue, 5 May 2020 09:37:42 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
+> > > On Tue, May 05, 2020 at 09:25:06AM -0700, Eric Dumazet wrote:
 > > > > 
-> > > > > 
-> > > > > 
-> > > > > On 5/5/20 9:31 AM, Eric Dumazet wrote:
-> > > > > > 
-> > > > > > 
-> > > > > > On 5/5/20 9:25 AM, Eric Dumazet wrote:
-> > > > > >>
-> > > > > >>
-> > > > > >> On 5/5/20 9:13 AM, SeongJae Park wrote:
-> > > > > >>> On Tue, 5 May 2020 09:00:44 -0700 Eric Dumazet <edumazet@google.com> wrote:
-> > > > > >>>
-> > > > > >>>> On Tue, May 5, 2020 at 8:47 AM SeongJae Park <sjpark@amazon.com> wrote:
-> > > > > >>>>>
-> > > > > >>>>> On Tue, 5 May 2020 08:20:50 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
-> > > > > >>>>>
-> > > > > >>>>>>
-> > > > > >>>>>>
-> > > > > >>>>>> On 5/5/20 8:07 AM, SeongJae Park wrote:
-> > > > > >>>>>>> On Tue, 5 May 2020 07:53:39 -0700 Eric Dumazet <edumazet@google.com> wrote:
-> > > > > >>>>>>>
-> > > > > >>>>>>
-> > > > [...]
-> > > > > >>
-> > > > > >> I would ask Paul opinion on this issue, because we have many objects
-> > > > > >> being freed after RCU grace periods.
-> > > > > >>
-> > > > > >> If RCU subsystem can not keep-up, I guess other workloads will also suffer.
-> > > > > >>
-> > > > > >> Sure, we can revert patches there and there trying to work around the issue,
-> > > > > >> but for objects allocated from process context, we should not have these problems.
-> > > > > >>
-> > > > > > 
-> > > > > > I wonder if simply adjusting rcu_divisor to 6 or 5 would help 
-> > > > > > 
-> > > > > > diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-> > > > > > index d9a49cd6065a20936edbda1b334136ab597cde52..fde833bac0f9f81e8536211b4dad6e7575c1219a 100644
-> > > > > > --- a/kernel/rcu/tree.c
-> > > > > > +++ b/kernel/rcu/tree.c
-> > > > > > @@ -427,7 +427,7 @@ module_param(qovld, long, 0444);
-> > > > > >  static ulong jiffies_till_first_fqs = ULONG_MAX;
-> > > > > >  static ulong jiffies_till_next_fqs = ULONG_MAX;
-> > > > > >  static bool rcu_kick_kthreads;
-> > > > > > -static int rcu_divisor = 7;
-> > > > > > +static int rcu_divisor = 6;
-> > > > > >  module_param(rcu_divisor, int, 0644);
-> > > > > >  
-> > > > > >  /* Force an exit from rcu_do_batch() after 3 milliseconds. */
-> > > > > > 
-> > > > > 
-> > > > > To be clear, you can adjust the value without building a new kernel.
-> > > > > 
-> > > > > echo 6 >/sys/module/rcutree/parameters/rcu_divisor
 > > > > 
-> > > > I tried value 6, 5, and 4, but none of those removed the problem.
+> > > > On 5/5/20 9:13 AM, SeongJae Park wrote:
+> > > > > On Tue, 5 May 2020 09:00:44 -0700 Eric Dumazet <edumazet@google.com> wrote:
+> > > > > 
+> > > > >> On Tue, May 5, 2020 at 8:47 AM SeongJae Park <sjpark@amazon.com> wrote:
+> > > > >>>
+> > > > >>> On Tue, 5 May 2020 08:20:50 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
+> > > > >>>
+> > > > >>>>
+> > > > >>>>
+> > > > >>>> On 5/5/20 8:07 AM, SeongJae Park wrote:
+> > > > >>>>> On Tue, 5 May 2020 07:53:39 -0700 Eric Dumazet <edumazet@google.com> wrote:
+> > > > >>>>>
+> > > > >>>>
+> > > > >>>>>> Why do we have 10,000,000 objects around ? Could this be because of
+> > > > >>>>>> some RCU problem ?
+> > > > >>>>>
+> > > > >>>>> Mainly because of a long RCU grace period, as you guess.  I have no idea how
+> > > > >>>>> the grace period became so long in this case.
+> > > > >>>>>
+> > > > >>>>> As my test machine was a virtual machine instance, I guess RCU readers
+> > > > >>>>> preemption[1] like problem might affected this.
+> > > > >>>>>
+> > > > >>>>> [1] https://www.usenix.org/system/files/conference/atc17/atc17-prasad.pdf
 > > > 
-> > > Thank you for checking this!
+> > > If this is the root cause of the problem, then it will be necessary to
+> > > provide a hint to the hypervisor.  Or, in the near term, avoid loading
+> > > the hypervisor the point that vCPU preemption is so lengthy.
 > > > 
-> > > Was your earlier discussion on long RCU readers speculation, or do you
-> > > have measurements?
+> > > RCU could also provide some sort of pre-stall-warning notification that
+> > > some of the CPUs aren't passing through quiescent states, which might
+> > > allow the guest OS's userspace to take corrective action.
+> > > 
+> > > But first, what are you doing to either confirm or invalidate the
+> > > hypothesis that this might be due to vCPU preemption?
 > > 
-> > It was just a guess without any measurement or dedicated investigation.
+> > Nothing, I was just guessing.  Sorry if this made you confused.
+> > 
+> > > 
+> > > > >>>>>> Once Al patches reverted, do you have 10,000,000 sock_alloc around ?
+> > > > >>>>>
+> > > > >>>>> Yes, both the old kernel that prior to Al's patches and the recent kernel
+> > > > >>>>> reverting the Al's patches didn't reproduce the problem.
+> > > > >>>>>
+> > > > >>>>
+> > > > >>>> I repeat my question : Do you have 10,000,000 (smaller) objects kept in slab caches ?
+> > > > >>>>
+> > > > >>>> TCP sockets use the (very complex, error prone) SLAB_TYPESAFE_BY_RCU, but not the struct socket_wq
+> > > > >>>> object that was allocated in sock_alloc_inode() before Al patches.
+> > > > >>>>
+> > > > >>>> These objects should be visible in kmalloc-64 kmem cache.
+> > > > >>>
+> > > > >>> Not exactly the 10,000,000, as it is only the possible highest number, but I
+> > > > >>> was able to observe clear exponential increase of the number of the objects
+> > > > >>> using slabtop.  Before the start of the problematic workload, the number of
+> > > > >>> objects of 'kmalloc-64' was 5760, but I was able to observe the number increase
+> > > > >>> to 1,136,576.
+> > > > >>>
+> > > > >>>           OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME
+> > > > >>> before:   5760   5088  88%    0.06K     90       64       360K kmalloc-64
+> > > > >>> after:  1136576 1136576 100%    0.06K  17759       64     71036K kmalloc-64
+> > > > >>>
+> > > > >>
+> > > > >> Great, thanks.
+> > > > >>
+> > > > >> How recent is the kernel you are running for your experiment ?
+> > > > > 
+> > > > > It's based on 5.4.35.
+> > > 
+> > > Is it possible to retest on v5.6?  I have been adding various mechanisms
+> > > to make RCU keep up better with heavy callback overload.
+> > 
+> > I will try soon!
+> > 
+> > > 
+> > > Also, could you please provide the .config?  If either NO_HZ_FULL or
+> > > RCU_NOCB_CPU, please also provide the kernel boot parameters.
+> > 
+> > NO_HZ_FULL is not set, but RCU_NOCB_CPU is y.
 > 
-> OK, another thing to check is the duration of the low-memory episode.
-> Does this duration exceed the RCU CPU stall warning time?  (21 seconds
-> in mainline, 60 in many distros, but check rcupdate.rcu_cpu_stall_timeout
-> to be sure.)
-
-The benchmark takes about 36 seconds for 10,000 repeats of the test.
-
-The value on the test machine is 60.
-
-So the duration would not exceeded the warning time and therefore I haven't
-seen the warning message.
-
-As told in other mail, I will also adjust this value to shorter one.
-
+> OK, this is important information.
 > 
-> Also, any chance of a .config?  Or at least the RCU portions?  I am
-> guessing CONFIG_PREEMPT=n, for example.
+> > I think I should check whether it's ok to share the full config and boot
+> > parameters.  Please wait this.
+> 
+> I probably don't need the whole thing.  So, if it makes it easier to
+> gain approval...
+> 
+> The main thing I need are CONFIG_PREEMPT and the various Kconfig options
+> having "RCU" in their names.  For example, I have no need for any of the
+> options pertaining to device drivers.  (As far as I know at the moment,
+> anyway!)
+> 
+> For the boot parameters, I am very interested in rcu_nocbs=.  Along with
+> any other boot parameters whose names contain "rcu".
 
 I guess this would be ok.
+
+It uses no 'rcu_nocbs=' boot parameter.  
+
+The configs you asked are as below:
 
     # CONFIG_PREEMPT is not set
     
@@ -170,6 +189,72 @@ I guess this would be ok.
     # CONFIG_RCU_FAST_NO_HZ is not set
     CONFIG_RCU_NOCB_CPU=y
     # end of RCU Subsystem
+
+> 
+> If rcu_nocbs does designate have any CPUs listed, another thing to check
+> is where the rcuo kthreads are permitted to run.  The reason that this
+> is important is that any CPU listed in the rcu_nocbs= boot parameter
+> has its RCU callbacks invoked by one of the rcuo kthreads.  If you have
+> booted with (say) "rcu_nocbs=1,63" and then bound all of the resulting
+> rcuo kthreads to CPU 0, you just tied RCU's hands, making it unable to
+> keep up with any reasonable RCU callback load.
+> 
+> This sort of configuration is permitted, but it is intended for tightly
+> controlled real-time or HPC systems whose configurations and workloads
+> avoid tossing out large numbers of callbacks.  Which might not be the
+> case for your workload.
+> 
+> > > > >> Let's make sure the bug is not in RCU.
+> > > > > 
+> > > > > One thing I can currently say is that the grace period passes at last.  I
+> > > > > modified the benchmark to repeat not 10,000 times but only 5,000 times to run
+> > > > > the test without OOM but easily observable memory pressure.  As soon as the
+> > > > > benchmark finishes, the memory were freed.
+> > > > > 
+> > > > > If you need more tests, please let me know.
+> > > > 
+> > > > I would ask Paul opinion on this issue, because we have many objects
+> > > > being freed after RCU grace periods.
+> > > 
+> > > As always, "It depends."
+> > > 
+> > > o	If the problem is a too-long RCU reader, RCU is prohibited from
+> > > 	ending the grace period.  The reader duration must be shortened,
+> > > 	and until it is shortened, there is nothing RCU can do.
+> > > 
+> > > o	In some special cases of the above, RCU can and does help, for
+> > > 	example, by enlisting the aid of cond_resched().  So perhaps
+> > > 	there is a long in-kernel loop that needs a cond_resched().
+> > > 
+> > > 	And perhaps RCU can help for some types of vCPU preemption.
+> > > 
+> > > o	As Al suggested offline and as has been discussed in the past,
+> > > 	it would not be hard to cause RCU to burn CPU to attain faster
+> > > 	grace periods during OOM events.  This could be helpful, but only
+> > > 	given that RCU readers are completing in reasonable timeframes.
+> > 
+> > Totally agreed.
+> > 
+> > > > If RCU subsystem can not keep-up, I guess other workloads will also suffer.
+> > > 
+> > > If readers are not excessively long, RCU should be able to keep up.
+> > > (In the absence of misconfigurations, for example, both NO_HZ_FULL and
+> > > then binding all the rcuo kthreads to a single CPU on a 100-CPU system
+> > > or some such.)
+> > > 
+> > > > Sure, we can revert patches there and there trying to work around the issue,
+> > > > but for objects allocated from process context, we should not have these problems.
+> > > 
+> > > Agreed, let's get more info on what is happening to RCU.
+> > > 
+> > > One approach is to shorten the RCU CPU stall warning timeout
+> > > (rcupdate.rcu_cpu_stall_timeout=10 for 10 seconds).
+> > 
+> > I will also try this and let you know the results.
+> 
+> Sounds good, thank you!
+
+:)
 
 
 Thanks,
