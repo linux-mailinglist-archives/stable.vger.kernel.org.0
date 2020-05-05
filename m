@@ -2,69 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 890E41C4FF2
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 10:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2A0A1C4EAE
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 08:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726337AbgEEIMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 04:12:00 -0400
-Received: from mail.madryn.gov.ar ([200.5.115.165]:32906 "EHLO
-        mail.madryn.gob.ar" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725915AbgEEIMA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 04:12:00 -0400
-X-Greylist: delayed 3401 seconds by postgrey-1.27 at vger.kernel.org; Tue, 05 May 2020 04:11:58 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by mail.madryn.gob.ar (Postfix) with ESMTP id 737B97E4CE7;
-        Tue,  5 May 2020 04:02:20 -0300 (-03)
-Received: from mail.madryn.gob.ar ([127.0.0.1])
-        by localhost (mail.madryn.gob.ar [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id znVhdvyr-M5v; Tue,  5 May 2020 04:02:18 -0300 (-03)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.madryn.gob.ar (Postfix) with ESMTP id 8F3D37E469C;
-        Tue,  5 May 2020 03:54:41 -0300 (-03)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.madryn.gob.ar 8F3D37E469C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=madryn.gob.ar;
-        s=48E2B73A-1B19-11E9-B2D2-5A1F04F096D9; t=1588661684;
-        bh=PF2LvLIx/RYE8kgr4ObHyD9OxxjyyRl/B5f99sJr7l0=;
-        h=MIME-Version:To:From:Date:Message-Id;
-        b=Yd0FJ0IrcaXoR9sJhtoEFmqIDSHtvJxgVc7TlNY1LFiTf5+77YxzgG0RG71CXLqLp
-         cH4MyLPIgfhSzg3u0MgjBBcgW2CrizzavgJRSibyvxTemuHUTtLJY0JfIjg4L7fjsX
-         V3biyv2TJvuuPxBVE0GycOLUKdEqCwvI57jUO+MNdKWaqY6+CF0YMjtLB9HRC6xs8+
-         pXBU5hYhOCNTTZyIjHQdmy6z8Tm1uSgWbfxzulILS+Ya3lq1ZTrVqQ7dt9sc7zb9EM
-         zJRHZF5SamhQD05lycoXnor1/z8IcfUJJSkgToa0ap66dn+vR3LH4ZeAHRUOw1X51q
-         zuVRZewMfdPng==
-X-Virus-Scanned: amavisd-new at madryn.gob.ar
-Received: from mail.madryn.gob.ar ([127.0.0.1])
-        by localhost (mail.madryn.gob.ar [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id clBFeT7XX7Qj; Tue,  5 May 2020 03:54:40 -0300 (-03)
-Received: from [10.102.7.88] (unknown [105.12.1.129])
-        by mail.madryn.gob.ar (Postfix) with ESMTPSA id 8637A7E43CD;
-        Tue,  5 May 2020 03:52:08 -0300 (-03)
-Content-Type: text/plain; charset="utf-8"
+        id S1725768AbgEEG7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 02:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37164 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725320AbgEEG7u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 02:59:50 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C011C061A0F
+        for <stable@vger.kernel.org>; Mon,  4 May 2020 23:59:50 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id e17so1141772qtp.7
+        for <stable@vger.kernel.org>; Mon, 04 May 2020 23:59:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=Zc4NW5LbX5Omv8+qXvrQPIp0KEE4o2h/xC8hgiHZVzA=;
+        b=f9777US5IbYU2J5QnaocmFEb2rUTPjEiE3nImtJIuBe1D8NYFcuwcQSXNzbAMx0H1Z
+         4l1SgOliCOr6t3NYCmkxAgPWCn7NfQvO9egwwyEB65Fct1qbvcKUf8qEc7TSZi9Unmc/
+         4yr7wOABmdFgbI17ScMeq7g9w41jeff2GCJ5pevnoAUVjconp35UeQ+wrifvqiq3ukSQ
+         B/NwkvAXupn2vfvaM779fWAIR1AOMauDf/kIarFub5VM2WdPUyN1flYU+jRBIkquYd6q
+         n0LnRMqz8I45phtC50LCZtdMft2J9dFjNzeTAv8kZ7ldtGxC9pvSd0l5EjqV9cQamcE/
+         27vA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=Zc4NW5LbX5Omv8+qXvrQPIp0KEE4o2h/xC8hgiHZVzA=;
+        b=ZcXInFfukwZe0bGbJ7/7J+xOAt7yQtRheidwioqS1a+zUjOrDMG5ctL1sjm6T7lgO4
+         ONMFaJ1gm8bHHHBPbTCZXtar0B9CjCkuM3wqyhaYOLt8YmcvVYJydoZrgx2EHuyHh7nd
+         c1Y1kh4PXAFVCgCFBTltYZXGL8tw3Ha8R0ptuu8e/zrGgeEyEuqq99EFivVd1hyHRO19
+         QhFAyEfeuPah8+5VOZSZeGL24zWeFyKmS24Fb6V8NRorashVHiryp/+qT8TVbD49Q/FX
+         OHGI+6wPSkPByvRqyfRVXZNfTJ4PBsFutfZultkg5eX1GDxLPRToYLzJGrnJpCuAHVEt
+         /Drg==
+X-Gm-Message-State: AGi0PuaBnN9UJQe6bYJxR+LQ6WgPgTx8jclxuwfrhi7NcljDHQI45pm1
+        bYoyaapCdmvbCRd8xKYwroy7jZPDt08oDUQVcoA=
+X-Google-Smtp-Source: APiQypIVtnqQdOsLMO7FZhoOWPq8w+RPtu8bAKAS4E5SD0uf3MM5o789iyOyOSxhU9dDhX88y811EcXkiLQmHH/yVXE=
+X-Received: by 2002:ac8:33d9:: with SMTP id d25mr1124710qtb.346.1588661989463;
+ Mon, 04 May 2020 23:59:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: =?utf-8?b?SGVyemxpY2hlIEdsw7xja3fDvG5zY2hlOiDigqwgMiwwMDAsMDAwLjAwIEV1?=
- =?utf-8?q?ro?=
-To:     Recipients <dconsumidor@madryn.gob.ar>
-From:   "Jeff Lindsay" <dconsumidor@madryn.gob.ar>
-Date:   Mon, 04 May 2020 23:51:46 -0700
-Reply-To: povertyreductionorg@gmail.com
-Message-Id: <20200505065210.8637A7E43CD@mail.madryn.gob.ar>
+Reply-To: mrsaishagaddafi16@gmail.com
+Received: by 2002:a0c:a8c9:0:0:0:0:0 with HTTP; Mon, 4 May 2020 23:59:48 -0700 (PDT)
+From:   Mrs Aisha Gaddafi <mrsaishagaddafi16@gmail.com>
+Date:   Tue, 5 May 2020 08:59:48 +0200
+X-Google-Sender-Auth: fiSCah3LKVGjmJdgkTV-LkHYxVA
+Message-ID: <CAGw5zV3kR6PqAUYADf_aTcgiG75n5QMv95Jo0jcq=KXW9BLQNA@mail.gmail.com>
+Subject: Hello,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ich bin Jeff Lindsay, ein =C3=A4lterer B=C3=BCrger aus Kalifornien, USA. Ic=
-h habe einen Jackpot von 447,8 Millionen Dollar gewonnen, der gr=C3=B6=C3=
-=9Fte Lotterie-Jackpot. Im Namen meiner Familie und aus gutem Willen spende=
-n wir Ihnen und Ihrer Familie einen Betrag von (=E2=82=AC 2.000.000,00 EUR)=
-. Ich versuche, die =C3=B6ffentlichen Waisenh=C3=A4user zu erreichen. Trage=
-n Sie zur Armutsbek=C3=A4mpfung bei und sorgen Sie f=C3=BCr eine angemessen=
-e Gesundheitsversorgung f=C3=BCr Einzelpersonen, insbesondere w=C3=A4hrend =
-dieser Welt. Pandemic Covid 19. Ich m=C3=B6chte auch, dass Sie einen Teil d=
-ieser Spende in die =C3=B6ffentliche Infrastruktur investieren, um Arbeitsl=
-osen in Ihrem Land Arbeitspl=C3=A4tze zu bieten. Ich habe dich gew=C3=A4hlt=
-, weil ich an dich glaube. Ich brauche Ihre uneingeschr=C3=A4nkte Mitarbeit=
- in Bezug auf diese Spende. Bitte kontaktieren Sie mich hier zur=C3=BCck un=
-ter meiner privaten E-Mail: povertyreductionorg@gmail.com
+My Dear Friend
+
+I came across your e-mail contact prior a private search while in need
+of your assistance. My name is Aisha Gaddafi a single Mother and a
+Widow with three Children. I am the only biological Daughter of late
+Libyan President (Late Colonel Muammar Gaddafi).Please Reply me in my
+box. (mrsaishagaddafi16@gmail.com)
+
+I have an investment funds worth Twenty Seven Million Five Hundred
+Thousand United State Dollar ($27.500.000.00 ) and i need an
+investment Manager/Partner and because of the asylum status i will
+authorize you the ownership of the funds, however, I am interested in
+you for investment project assistance in your country, may be from
+there, we can build a business relationship in the near future.
+
+I am willing to negotiate investment/business profit sharing ratio
+with you base on the future investment earning profits.
+
+If you are willing to handle this project kindly reply urgent to
+enable me provide you more information about the investment funds.
+Your Urgent Reply Will Be Appreciated Please Reply me in my box.
+(mrsaishagaddafi16@gmail.com)
+
+Best Regards
+Mrs Aisha Gaddafi,
