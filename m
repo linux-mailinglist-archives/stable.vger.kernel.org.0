@@ -2,132 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 872A01C5BF7
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 17:43:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033981C5C0E
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 17:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730532AbgEEPno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 11:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729665AbgEEPno (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 11:43:44 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F1CCC061A0F;
-        Tue,  5 May 2020 08:43:42 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id 18so1047450pfv.8;
-        Tue, 05 May 2020 08:43:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=pSiRjHBCQon7aW38qSozoIejTP66Szi6q2hqtGnqU9A=;
-        b=YVkiIdRBYcGYIxzTAFc0JKaE4tXJkxWobOKiyI+vYqdJGngod88DzHKpACrLV26v/o
-         AuIyQI+rOgaXy+jzhV0422gqK/0LgstOVlawMfzXOQuFqLS0eolXpSsfHk+AHHxatEil
-         ISAwTGICX3cQXlU/5PKtNbHzx9jTpnHA2uqIGJxKDOvdLmTSXOqu59ez8b2UbZCbGxee
-         onNKrNeC75ZrnF9ZXdEGtGcYMU2YTdqogxUCKyZ19UzOQ+TudeMd6N5T0WFBj05z/GTu
-         8i+1ldXpZR72QSx11RYJMfubOKaE4lQNqYPdjpYjL3lJbIETeJyDRUVTfpz1ccPy0V+d
-         L6bA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=pSiRjHBCQon7aW38qSozoIejTP66Szi6q2hqtGnqU9A=;
-        b=B5gDJKkk3gP1w4G/DG6iNqriq1AFi4dkwrJXZbuWEAhSxSByUieIPBKv0ZR18xc7dc
-         tWHjcyvlfKzND8/bCSiksjJfDFz04KDKK538FrzQHbtFuJFNibjEvTk3RfgBVDW8sdsi
-         N9Ck18W3KirSsFy73pgkNiydLOWkr1w6pzZaIi0mq6xgLIfUrAVYSyu+gP7rLbTB7xBk
-         fIxfB5KQMC0g2xAgJZ1SkOekrtVoZ81TsCKtl/QlajczQS+/gjU1Q/pHboIjeNjc2nE9
-         r6U5ws5Z1tCqtUIW1gMIrlGVIJovlwwphsF82QcXzJkxjT22cNg0HhR+2Qzc8jEG5ijn
-         5cvA==
-X-Gm-Message-State: AGi0Pub3xqB/i7PuKc3iiYGPeRaGXogMfankOCp3wlLRxG1b1QfKAHBw
-        jRXUSNrT6nnZ73dwHOUeVF2GVzGT
-X-Google-Smtp-Source: APiQypLWxnOPkWsq6rb/aG3tLWHwZooS/dXIJFWF6zegOrL4GqXX+zKrAnfSbeHlsgNKVAY1V0k/pg==
-X-Received: by 2002:aa7:8ecd:: with SMTP id b13mr3767255pfr.191.1588693421976;
-        Tue, 05 May 2020 08:43:41 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d8sm2334643pfd.159.2020.05.05.08.43.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 May 2020 08:43:41 -0700 (PDT)
-Subject: Re: [PATCH 5.4 00/57] 5.4.39-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200504165456.783676004@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <4135ae28-30d1-b858-ae53-8a88e9d3fc0c@roeck-us.net>
-Date:   Tue, 5 May 2020 08:43:40 -0700
+        id S1730596AbgEEPn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 11:43:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49164 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730542AbgEEPn4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 May 2020 11:43:56 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D30E7206B9;
+        Tue,  5 May 2020 15:43:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588693435;
+        bh=TxnOYoONYUB46J1H+7fQDHT62rFdwOCUNjdJs3RRW/M=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=cxnJWq7yXPZpmKMuJcZ/0dguQcZPjQmN4tT8R+lEMFn00JQwVe3veXHFxk1easiUR
+         wtOHdz+YfQ8bASxL2HtLtTYhGSnYHYkfbvvp09cw7xF+dcVno8lOdvbtesrUOJI3D/
+         czuRozy3ZPw0IUkhrMceT3nbnLdAsuBsutNf4mv4=
+Subject: Re: [PATCH 5.6 00/73] 5.6.11-rc1 review
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        shuah <shuah@kernel.org>
+References: <20200504165501.781878940@linuxfoundation.org>
+ <3366716c-3a30-033d-4df6-4183eb262208@kernel.org>
+ <82eb8f25-4e15-001a-1c4f-5f59400d352b@kernel.org>
+ <s5h4ksubdh8.wl-tiwai@suse.de>
+From:   shuah <shuah@kernel.org>
+Message-ID: <e7326300-faad-df0e-1918-a36b5be4b078@kernel.org>
+Date:   Tue, 5 May 2020 09:43:54 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20200504165456.783676004@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <s5h4ksubdh8.wl-tiwai@suse.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/4/20 10:57 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.39 release.
-> There are 57 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 5/5/20 9:36 AM, Takashi Iwai wrote:
+> On Tue, 05 May 2020 17:30:07 +0200,
+> shuah wrote:
+>>
+>> On 5/5/20 9:25 AM, shuah wrote:
+>>> On 5/4/20 11:57 AM, Greg Kroah-Hartman wrote:
+>>>> This is the start of the stable review cycle for the 5.6.11 release.
+>>>> There are 73 patches in this series, all will be posted as a response
+>>>> to this one.  If anyone has any issues with these being applied, please
+>>>> let me know.
+>>>>
+>>>> Responses should be made by Wed, 06 May 2020 16:52:55 +0000.
+>>>> Anything received after that time might be too late.
+>>>>
+>>>> The whole patch series can be found in one patch at:
+>>>>      https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.11-rc1.gz
+>>>>
+>>>> or in the git tree and branch at:
+>>>>      git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>>>> linux-5.6.y
+>>>> and the diffstat can be found below.
+>>>>
+>>>> thanks,
+>>>>
+>>>> greg k-h
+>>>>
+>>>> -------------
+>>>> Pseudo-Shortlog of commits:
+>>>>
+>>>> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>>>       Linux 5.6.11-rc1
+>>>>
+>>>
+>>>> Takashi Iwai <tiwai@suse.de>
+>>>>       ALSA: pcm: oss: Place the plugin buffer overflow checks correctly
+>>>>
+>>>> Vasily Khoruzhick <anarsoul@gmail.com>
+>>>>       ALSA: line6: Fix POD HD500 audio playback
+>>>>
+>>>> Wu Bo <wubo40@huawei.com>
+>>>>       ALSA: hda/hdmi: fix without unlocked before return
+>>>>
+>>>> Takashi Iwai <tiwai@suse.de>
+>>>>       ALSA: usb-audio: Correct a typo of NuPrime DAC-10 USB ID
+>>>>
+>>>> Hui Wang <hui.wang@canonical.com>
+>>>>       ALSA: hda/realtek - Two front mics on a Lenovo ThinkCenter
+>>>>
+>>>
+>>>>    sound/core/oss/pcm_plugin.c                       | 20 ++++---
+>>>>    sound/isa/opti9xx/miro.c                          |  9 ++-
+>>>>    sound/isa/opti9xx/opti92x-ad1848.c                |  9 ++-
+>>>>    sound/pci/hda/patch_hdmi.c                        |  4 +-
+>>>>    sound/pci/hda/patch_realtek.c                     |  1 +
+>>>>    sound/usb/line6/podhd.c                           | 22 ++-----
+>>>>    sound/usb/quirks.c                                |  2 +-
+>>>>    78 files changed, 554 insertions(+), 297 deletions(-)
+>>>>
+>>>>
+>>>>
+>>>
+>>> Compiled and booted on my test system. Tons of the of following
+>>> errors in dmesg
+>>>
+>>> Adding Takashi Iwai
+>>>
+>>> [   33.980302] usb 2-2.4: 1:1: cannot set freq 48000 to ep 0x1
+>>> [   49.340581] usb 2-2.4: 2:1: cannot set freq 48000 to ep 0x82
+>>> [   59.580511] usb 2-2.4: 13:0: cannot get min/max values for
+>>> control 2 (id 13)
+>>> [   64.700532] usb 2-2.4: 9:0: cannot get min/max values for control
+>>> 2 (id 9)
+>>> [   69.792257] usb 2-2.4: 10:0: cannot get min/max values for
+>>> control 2 (id 10)
+>>> [   69.792736] usbcore: registered new interface driver snd-usb-audio
+>>> [   74.871038] usb 2-2.4: 9:0: cannot get min/max values for control
+>>> 2 (id 9)
+>>> [   79.967099] usb 2-2.4: 9:0: cannot get min/max values for control
+>>> 2 (id 9)
+>>> [   85.076961] usb 2-2.4: 9:0: cannot get min/max values for control
+>>> 2 (id 9)
+>>> [   90.191415] usb 2-2.4: 9:0: cannot get min/max values for control
+>>> 2 (id 9)
+>>> [   95.308843] usb 2-2.4: 9:0: cannot get min/max values for control
+>>> 2 (id 9)
+>>>
+>>> followed by
+>>>
+>>> [  131.172280] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+>>> [  136.259909] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+>>> [  141.380345] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+>>> [  146.500227] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+>>> [  151.620227] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+>>> [  156.739899] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+>>> [  161.859999] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+>>>
+>>>
+>>> I have audio on that port. I haven't tried yet reverting these
+>>> sound patches yet. demsg is filling up with these messages for
+>>> sure.
+>>>
+>>
+>> I just tried Linux 5.7-rc4 and it also has this problem. New in rc4 as
+>> far as I can tell.
 > 
-> Responses should be made by Wed, 06 May 2020 16:52:55 +0000.
-> Anything received after that time might be too late.
+> Then it's unlikely from the changes in sound/*, but I'd suspect rather
+> USB core side.  There is only one change for USB-audio driver and it's
+> a correction of USB device ID.
+> 
 > 
 
-Build results:
-	total: 157 pass: 157 fail: 0
-Qemu test results:
-	total: 426 pass: 426 fail: 0
+For what its worth not seeing this on 5.4.39-rc1 with the same set of
+sound changes. I will start bisect on 5.6.11-rc1
 
-Guenter
+thanks,
+-- Shuah
+
