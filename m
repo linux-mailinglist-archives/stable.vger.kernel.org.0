@@ -2,153 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B981C5A2E
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 16:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCFE11C5A38
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 16:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729235AbgEEO4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 10:56:20 -0400
-Received: from mx2.suse.de ([195.135.220.15]:38030 "EHLO mx2.suse.de"
+        id S1729371AbgEEO5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 10:57:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729123AbgEEO4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 May 2020 10:56:19 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id A71F4ABCF;
-        Tue,  5 May 2020 14:56:20 +0000 (UTC)
-From:   Roman Penyaev <rpenyaev@suse.de>
-Cc:     Roman Penyaev <rpenyaev@suse.de>, Jason Baron <jbaron@akamai.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S1729123AbgEEO5u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 May 2020 10:57:50 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B189A206B9;
+        Tue,  5 May 2020 14:57:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588690668;
+        bh=ANLUBQ9MsdN2ljU55kYAyOZmO27gOvI8pJTYjtwPqOc=;
+        h=Subject:To:From:Date:From;
+        b=DrKQ7nI5D2BTrMswiGLdB3fdK/uexCKXC6Tv9dKRDEeFRyXS/mA853hpKeBcy1Dhj
+         cZyZYTDhurOibjyXwi8//Pw168yRiZd6V+HJ0jHIHXCAmHoUABT86ndah6RLz3djPP
+         jAU7tf9zRkn4mP6b2fL0Hu+iYthNm1a0ArEnL0is=
+Subject: patch "mei: me: disable mei interface on LBG servers." added to char-misc-linus
+To:     tomas.winkler@intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: [PATCH v2] epoll: call final ep_events_available() check under the lock
-Date:   Tue,  5 May 2020 16:56:09 +0200
-Message-Id: <20200505145609.1865152-1-rpenyaev@suse.de>
-X-Mailer: git-send-email 2.24.1
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 05 May 2020 16:57:46 +0200
+Message-ID: <1588690666203210@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is a possible race when ep_scan_ready_list() leaves ->rdllist
-and ->obflist empty for a short period of time although some events
-are pending. It is quite likely that ep_events_available() observes
-empty lists and goes to sleep. Since 339ddb53d373 ("fs/epoll: remove
-unnecessary wakeups of nested epoll") we are conservative in wakeups
-(there is only one place for wakeup and this is ep_poll_callback()),
-thus ep_events_available() must always observe correct state of
-two lists. The easiest and correct way is to do the final check
-under the lock. This does not impact the performance, since lock
-is taken anyway for adding a wait entry to the wait queue.
 
-The discussion of the problem can be found here:
-   https://lore.kernel.org/linux-fsdevel/a2f22c3c-c25a-4bda-8339-a7bdaf17849e@akamai.com/
+This is a note to let you know that I've just added the patch titled
 
-In this patch barrierless __set_current_state() is used. This is
-safe since waitqueue_active() is called under the same lock on wakeup
-side.
+    mei: me: disable mei interface on LBG servers.
 
-Short-circuit for fatal signals (i.e. fatal_signal_pending() check)
-is moved to the line just before actual events harvesting routine.
-This is fully compliant to what is said in the comment of the patch
-where the actual fatal_signal_pending() check was added:
-c257a340ede0 ("fs, epoll: short circuit fetching events if thread
-has been killed").
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
-Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
-Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
-Reported-by: Jason Baron <jbaron@akamai.com>
-Reviewed-by: Jason Baron <jbaron@akamai.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Khazhismel Kumykov <khazhy@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From d76bc8200f9cf8b6746e66b37317ba477eda25c4 Mon Sep 17 00:00:00 2001
+From: Tomas Winkler <tomas.winkler@intel.com>
+Date: Wed, 29 Apr 2020 00:12:00 +0300
+Subject: mei: me: disable mei interface on LBG servers.
+
+Disable the MEI driver on LBG SPS (server) platforms, some corner
+flows such as recovery mode does not work, and the driver
+doesn't have working use cases.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20200428211200.12200-1-tomas.winkler@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-v2: minor comments tweaks
+ drivers/misc/mei/hw-me.c  | 8 ++++++++
+ drivers/misc/mei/hw-me.h  | 4 ++++
+ drivers/misc/mei/pci-me.c | 2 +-
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
- fs/eventpoll.c | 48 ++++++++++++++++++++++++++++--------------------
- 1 file changed, 28 insertions(+), 20 deletions(-)
-
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index aba03ee749f8..12eebcdea9c8 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1879,34 +1879,33 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
- 		 * event delivery.
- 		 */
- 		init_wait(&wait);
--		write_lock_irq(&ep->lock);
--		__add_wait_queue_exclusive(&ep->wq, &wait);
--		write_unlock_irq(&ep->lock);
+diff --git a/drivers/misc/mei/hw-me.c b/drivers/misc/mei/hw-me.c
+index 668418d7ea77..f620442addf5 100644
+--- a/drivers/misc/mei/hw-me.c
++++ b/drivers/misc/mei/hw-me.c
+@@ -1465,6 +1465,13 @@ static const struct mei_cfg mei_me_pch12_cfg = {
+ 	MEI_CFG_DMA_128,
+ };
  
-+		write_lock_irq(&ep->lock);
- 		/*
--		 * We don't want to sleep if the ep_poll_callback() sends us
--		 * a wakeup in between. That's why we set the task state
--		 * to TASK_INTERRUPTIBLE before doing the checks.
-+		 * Barrierless variant, waitqueue_active() is called under
-+		 * the same lock on wakeup ep_poll_callback() side, so it
-+		 * is safe to avoid an explicit barrier.
- 		 */
--		set_current_state(TASK_INTERRUPTIBLE);
-+		__set_current_state(TASK_INTERRUPTIBLE);
++/* LBG with quirk for SPS Firmware exclusion */
++static const struct mei_cfg mei_me_pch12_sps_cfg = {
++	MEI_CFG_PCH8_HFS,
++	MEI_CFG_FW_VER_SUPP,
++	MEI_CFG_FW_SPS,
++};
 +
- 		/*
--		 * Always short-circuit for fatal signals to allow
--		 * threads to make a timely exit without the chance of
--		 * finding more events available and fetching
--		 * repeatedly.
-+		 * Do the final check under the lock. ep_scan_ready_list()
-+		 * plays with two lists (->rdllist and ->ovflist) and there
-+		 * is always a race when both lists are empty for short
-+		 * period of time although events are pending, so lock is
-+		 * important.
- 		 */
--		if (fatal_signal_pending(current)) {
--			res = -EINTR;
--			break;
-+		eavail = ep_events_available(ep);
-+		if (!eavail) {
-+			if (signal_pending(current))
-+				res = -EINTR;
-+			else
-+				__add_wait_queue_exclusive(&ep->wq, &wait);
- 		}
-+		write_unlock_irq(&ep->lock);
+ /* Tiger Lake and newer devices */
+ static const struct mei_cfg mei_me_pch15_cfg = {
+ 	MEI_CFG_PCH8_HFS,
+@@ -1487,6 +1494,7 @@ static const struct mei_cfg *const mei_cfg_list[] = {
+ 	[MEI_ME_PCH8_CFG] = &mei_me_pch8_cfg,
+ 	[MEI_ME_PCH8_SPS_CFG] = &mei_me_pch8_sps_cfg,
+ 	[MEI_ME_PCH12_CFG] = &mei_me_pch12_cfg,
++	[MEI_ME_PCH12_SPS_CFG] = &mei_me_pch12_sps_cfg,
+ 	[MEI_ME_PCH15_CFG] = &mei_me_pch15_cfg,
+ };
  
--		eavail = ep_events_available(ep);
--		if (eavail)
--			break;
--		if (signal_pending(current)) {
--			res = -EINTR;
-+		if (eavail || res)
- 			break;
--		}
+diff --git a/drivers/misc/mei/hw-me.h b/drivers/misc/mei/hw-me.h
+index 4a8d4dcd5a91..b6b94e211464 100644
+--- a/drivers/misc/mei/hw-me.h
++++ b/drivers/misc/mei/hw-me.h
+@@ -80,6 +80,9 @@ struct mei_me_hw {
+  *                         servers platforms with quirk for
+  *                         SPS firmware exclusion.
+  * @MEI_ME_PCH12_CFG:      Platform Controller Hub Gen12 and newer
++ * @MEI_ME_PCH12_SPS_CFG:  Platform Controller Hub Gen12 and newer
++ *                         servers platforms with quirk for
++ *                         SPS firmware exclusion.
+  * @MEI_ME_PCH15_CFG:      Platform Controller Hub Gen15 and newer
+  * @MEI_ME_NUM_CFG:        Upper Sentinel.
+  */
+@@ -93,6 +96,7 @@ enum mei_cfg_idx {
+ 	MEI_ME_PCH8_CFG,
+ 	MEI_ME_PCH8_SPS_CFG,
+ 	MEI_ME_PCH12_CFG,
++	MEI_ME_PCH12_SPS_CFG,
+ 	MEI_ME_PCH15_CFG,
+ 	MEI_ME_NUM_CFG,
+ };
+diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
+index 0c390fe421ad..a1ed375fed37 100644
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -70,7 +70,7 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_SPT_2, MEI_ME_PCH8_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_SPT_H, MEI_ME_PCH8_SPS_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_SPT_H_2, MEI_ME_PCH8_SPS_CFG)},
+-	{MEI_PCI_DEVICE(MEI_DEV_ID_LBG, MEI_ME_PCH12_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_LBG, MEI_ME_PCH12_SPS_CFG)},
  
- 		if (!schedule_hrtimeout_range(to, slack, HRTIMER_MODE_ABS)) {
- 			timed_out = 1;
-@@ -1927,6 +1926,15 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
- 	}
- 
- send_events:
-+	if (fatal_signal_pending(current)) {
-+		/*
-+		 * Always short-circuit for fatal signals to allow
-+		 * threads to make a timely exit without the chance of
-+		 * finding more events available and fetching
-+		 * repeatedly.
-+		 */
-+		res = -EINTR;
-+	}
- 	/*
- 	 * Try to transfer events to user space. In case we get 0 events and
- 	 * there's still timeout left over, we go trying again in search of
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_BXT_M, MEI_ME_PCH8_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_APL_I, MEI_ME_PCH8_CFG)},
 -- 
-2.24.1
+2.26.2
+
 
