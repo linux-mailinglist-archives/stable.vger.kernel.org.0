@@ -2,120 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF6D1C5814
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 16:05:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BDC71C597C
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 16:28:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729182AbgEEOFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 10:05:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47260 "EHLO
+        id S1729095AbgEEO2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 10:28:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728707AbgEEOFo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 10:05:44 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39D56C061A0F;
-        Tue,  5 May 2020 07:05:44 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id h11so851797plr.11;
-        Tue, 05 May 2020 07:05:44 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1729256AbgEEO2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 10:28:10 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE9CC061A10
+        for <stable@vger.kernel.org>; Tue,  5 May 2020 07:28:09 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id x73so1532984lfa.2
+        for <stable@vger.kernel.org>; Tue, 05 May 2020 07:28:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Q8WIz3FHXamstQ5RROHKWV22yynOgMb/3OWiPvwcH58=;
-        b=tQWT+am+PDIVhoLRtKQN601nKRhuHxjkHmD2ua/WG/JmA/HfvqnGjf2gnt42shavh1
-         gO0jskK+eEDNeD4EKB2n5QkqloIcRL5XyP6XMUwEDDpl7S0LefZj4R+NN/GsGOjwSxBt
-         ZQDznhzLfiSqR5I7HEeaFW6K2ImpedhcAof1XmLedvomwktlLT/WLz0cjwhCsafUytbS
-         zzQOwGZtIpoGUSZHcn9biw61unvfFzzrTI5Slx9pSvPLBBZUJYJEN/7x36Srcr1M47YG
-         N+iES3xdTY/ge8TVqkVEEs4BtREh8KJEfYXsS2Mm0HgLjr+/6fl7/N8qLI7ZkJh4VdIH
-         jxGA==
+         :cc:content-transfer-encoding;
+        bh=+uAwrnVW9vl6fCjTny0Qx0tOY7EJAzfPhuaRYgJwZTI=;
+        b=u5hW8PHzJahWFyul2XkcmX+OO4CaXeWzoWY71xAAYmRT12aQyNIVWRm61Sg1OYvSf2
+         SXDHU6P+/AZ6P+IrR77i8+e4ShQn5nCWn31kFTm22XQOkX3bir+LrMU5Dm+GzmR6znCb
+         kFR3n96RxsBGnFs1v1TSrySHtsXKm9K39n9LPPcS8e5DJ1u7BcUJlCNrah3etkMMEjO1
+         Ri4jVv7NoGM7XiJOvtIU3Wcoj5OClz5aWRUkcmxCJ86QqXZgqnGSpmRXT+NjoMGAt9wo
+         Z4yM6y/P+HmRlZuo7/ePTArkmoi0e8NaaRyvMgHkIG8H3WKzopcgJrITlazuhtvK7rgh
+         3img==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Q8WIz3FHXamstQ5RROHKWV22yynOgMb/3OWiPvwcH58=;
-        b=Dpd4mi1c+PDQU76Q9mipmGpuiY2wHHLwb7nim0kvIqAePGK8sbyrVAlJWNG/7Qu3ZK
-         1uMvB2IYRFA1GtEyNKoUfNcc1SmxLeh9cxHBePvfoum8pIjbIyHNT+nUUWNJTixXb0PO
-         T91AF/giaoFzkcuzbCwckol38lp5Z/MMBOhiyMM8IOoHgcO45ifV+HZZgWObseteQL/m
-         HsgFwQmSILAF0Do6aI9QQmSLrCFEw5fiKshfA6gn2IqEjdLoPxh65D4gCzHANkbHCR19
-         HLvPBkGui93mUvi+Cel+wwMtdENIl7wwAiK3ZnIDlGkrJ+X6zjvyHC/WRdB9qNpR4ufM
-         VEWQ==
-X-Gm-Message-State: AGi0PuZU2SxL4oJIKbnUT3afIvnsKAxDwOD6ZDNowGsFRPLxnhQKETw7
-        zy48bBLuiuP3mWxDXbpmSBycpZMlj+jOSU5Rjvg=
-X-Google-Smtp-Source: APiQypJ62mwSQkFfLZx/rBqZHd6X5lul6H7QgfJRLPEdsV/Il7XmM4/gfZ8p9W1VY92PM68a4Y7lh17/kbNHBRZQoo4=
-X-Received: by 2002:a17:90a:fa81:: with SMTP id cu1mr3316017pjb.25.1588687543700;
- Tue, 05 May 2020 07:05:43 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=+uAwrnVW9vl6fCjTny0Qx0tOY7EJAzfPhuaRYgJwZTI=;
+        b=mcRjXSaLNHUnxC8YNU8gefSPzS3J54EZvy+SkA2YpD83YWcV3dmyK+7A5Od21CcgPy
+         voDeHG/3ipGS79fuUPKmwos8Xm97Yh1PCkwrCA/Sb/QBzxoV5+9OJK/eX34AkQpAsvYK
+         nhJ/BYJSq9meWhKcl+kAjWgp0DeaYpHjA2ynWWCRVjf4SYEL3TlRG83pVeqhrJF2Pe5u
+         1lim8kYG6pxr5s8Yjq2U5eJgvhtnIvsXsY+UE8sG5DY+s7ZcnjC4YqeLIIc/JdJT3sV0
+         MyXelrMj6HqnHQppihkvPqyzJiCR3F1kuXLa1PvQd8M/bqRXlPpbLpPyVxlBJuTgiWy+
+         HOvw==
+X-Gm-Message-State: AGi0PuYkmUcpsHerwPEz6JFevisc9KDx+kaxfRFq3KWrk8xQcruwUPjN
+        rjhROEeaBtOmWPW3mD2FI5e4wSo/8UQ5j/C8lJl+/A==
+X-Google-Smtp-Source: APiQypKlYrUPwwfMUuA8+0KSmGw0C746f6/PsmNEXiY4KhylVTyFuq1tsKFUBFmRIwZhzKUqk3m2th9smiFVOhmyM4k=
+X-Received: by 2002:a19:3817:: with SMTP id f23mr1863422lfa.6.1588688887748;
+ Tue, 05 May 2020 07:28:07 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200504165448.264746645@linuxfoundation.org> <20200504165451.307643203@linuxfoundation.org>
- <20200505123159.GC28722@amd> <CAHp75VeM+qwh5rHL7RDdacru0jPSB9me2aTs__jdy749dTKRng@mail.gmail.com>
- <20200505125818.GA31126@amd> <CAHp75VcKreeQpjROdL23XGqgVu+F_0eL5DsJ=5APEQUO9V69EQ@mail.gmail.com>
- <20200505133700.GA31753@amd>
-In-Reply-To: <20200505133700.GA31753@amd>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Tue, 5 May 2020 17:05:37 +0300
-Message-ID: <CAHp75Ve+pzhamZXiKxHF+VD8yfsjRF2coattHyiD+0aa7Fy2DA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 28/37] dmaengine: dmatest: Fix iteration non-stop logic
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>
+References: <20200504165501.781878940@linuxfoundation.org>
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 5 May 2020 19:57:55 +0530
+Message-ID: <CA+G9fYtwpo01W30vF8PRNrDOxVgyVwyViC5RCmLvLu04t98u4Q@mail.gmail.com>
+Subject: Re: [PATCH 5.6 00/73] 5.6.11-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 5, 2020 at 4:37 PM Pavel Machek <pavel@denx.de> wrote:
-> On Tue 2020-05-05 16:19:11, Andy Shevchenko wrote:
-> > On Tue, May 5, 2020 at 3:58 PM Pavel Machek <pavel@denx.de> wrote:
-> > > On Tue 2020-05-05 15:51:16, Andy Shevchenko wrote:
-> > > > On Tue, May 5, 2020 at 3:37 PM Pavel Machek <pavel@denx.de> wrote:
-> > > > > > So, to the point, the conditional of checking the thread to be stopped being
-> > > > > > first part of conjunction logic prevents to check iterations. Thus, we have to
-> > > > > > always check both conditions
-
-vvv
->>>>>> to be able to stop after given iterations.
-^^^
-
-...
-
-> > > Yeah, I pointed that out above. Both && and || permit short
-> > > execution. But that does not matter, as neither "params->iterations"
-> > > nor "total_tests >= params->iterations" have side effects.
-> > >
-> > > Where is the runtime difference?
-> >
-> > We have to check *both* conditions. If we don't check iterations, we
-> > just wait indefinitely until somebody tells us to stop.
-> > Everything in the commit message and mentioned there commit IDs which
-> > you may check.
+On Mon, 4 May 2020 at 23:36, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> No.
-
-Yes. Please, read carefully the commit message (for your convenience I
-emphasized above). I don't want to spend time on this basics stuff
-anymore.
-
-> If kthread_should_stop() is true, we break the loop. Both old code and
-> new code does that. Neither old nor new code checks the
-> "params->iterations && total_tests >=dparams->iterations" condition,
-> as both && and || do short execution).
+> This is the start of the stable review cycle for the 5.6.11 release.
+> There are 73 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> If you wanted both conditions to always evaluate, you'd have to do
+> Responses should be made by Wed, 06 May 2020 16:52:55 +0000.
+> Anything received after that time might be too late.
 >
-> #       while (!kthread_should_stop()
-> #              & !(params->iterations && total_tests >=
-> #              params->iterations)) {
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.6.11-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.6.y
+> and the diffstat can be found below.
 >
-> (note && -> &). But, again, there's no reason to do that, as second
-> part of expression does not have side effects.
+> thanks,
+>
+> greg k-h
 
-It fixes a bug in the code, try with and without this change. (I can
-reproduce it here)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
--- 
-With Best Regards,
-Andy Shevchenko
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.6.11-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.6.y
+git commit: 6cd4bcd666cd831acf192bd7350b94121469ebcb
+git describe: v5.6.10-74-g6cd4bcd666cd
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.6-oe/bui=
+ld/v5.6.10-74-g6cd4bcd666cd
+
+No regressions (compared to build v5.6.10)
+
+No fixes (compared to build v5.6.10)
+
+Ran 29045 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* libgpiod
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* kvm-unit-tests
+* libhugetlbfs
+* ltp-containers-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* perf
+* kselftest/net
+* kselftest/networking
+* ltp-commands-tests
+* ltp-cve-tests
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-open-posix-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* v4l2-compliance
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-native/networking
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+* kselftest-vsyscall-mode-none/networking
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
