@@ -2,111 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C60EA1C59C9
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 16:37:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE82B1C5A17
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 16:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729780AbgEEOhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 10:37:38 -0400
-Received: from mga01.intel.com ([192.55.52.88]:10359 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729655AbgEEOhi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 May 2020 10:37:38 -0400
-IronPort-SDR: c7mVXymgyCuTT3yEx3yfApVcnpA64Gb8ifxR28Hc6rDLg8ktitS3lh9b/g2JYWAgMs5DfeXgR9
- 2drt0ukraPdg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 May 2020 07:37:38 -0700
-IronPort-SDR: 8cr/r1XXx9rKSwajuR49YSmVXs3JrR9O09d+1PzA4Qu0PZcL89JViUrxAK5XnvZiQI9m5NJQcW
- 5KdLYetjy5oQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,355,1583222400"; 
-   d="scan'208";a="369432314"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.152])
-  by fmsmga001.fm.intel.com with ESMTP; 05 May 2020 07:37:37 -0700
-Date:   Tue, 5 May 2020 07:37:37 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        linux-kernel@vger.kernel.org,
-        Tobias Urdin <tobias.urdin@binero.com>
-Subject: Re: [PATCH 4.19 STABLE 2/2] KVM: VMX: Mark RCX, RDX and RSI as
- clobbered in vmx_vcpu_run()'s asm blob
-Message-ID: <20200505143737.GA18282@linux.intel.com>
-References: <20200505012348.17099-1-sean.j.christopherson@intel.com>
- <20200505012348.17099-3-sean.j.christopherson@intel.com>
- <20200505061502.GA3874653@kroah.com>
- <20200505062731.GA17313@linux.intel.com>
- <20200505070259.GA3946129@kroah.com>
+        id S1729065AbgEEOxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 10:53:20 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:52394 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729201AbgEEOxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 10:53:20 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id AAC611C0224; Tue,  5 May 2020 16:53:18 +0200 (CEST)
+Date:   Tue, 5 May 2020 16:53:18 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: Re: [PATCH 4.19 28/37] dmaengine: dmatest: Fix iteration non-stop
+ logic
+Message-ID: <20200505145317.GA2834@amd>
+References: <20200504165448.264746645@linuxfoundation.org>
+ <20200504165451.307643203@linuxfoundation.org>
+ <20200505123159.GC28722@amd>
+ <CAHp75VeM+qwh5rHL7RDdacru0jPSB9me2aTs__jdy749dTKRng@mail.gmail.com>
+ <20200505125818.GA31126@amd>
+ <CAHp75VcKreeQpjROdL23XGqgVu+F_0eL5DsJ=5APEQUO9V69EQ@mail.gmail.com>
+ <20200505133700.GA31753@amd>
+ <CAHp75Ve+pzhamZXiKxHF+VD8yfsjRF2coattHyiD+0aa7Fy2DA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
 Content-Disposition: inline
-In-Reply-To: <20200505070259.GA3946129@kroah.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <CAHp75Ve+pzhamZXiKxHF+VD8yfsjRF2coattHyiD+0aa7Fy2DA@mail.gmail.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 05, 2020 at 09:02:59AM +0200, Greg Kroah-Hartman wrote:
-> On Mon, May 04, 2020 at 11:27:31PM -0700, Sean Christopherson wrote:
-> > On Tue, May 05, 2020 at 08:15:02AM +0200, Greg Kroah-Hartman wrote:
-> > > On Mon, May 04, 2020 at 06:23:48PM -0700, Sean Christopherson wrote:
-> > > > Save RCX, RDX and RSI to fake outputs to coerce the compiler into
-> > > > treating them as clobbered.  RCX in particular is likely to be reused by
-> > > > the compiler to dereference the 'struct vcpu_vmx' pointer, which will
-> > > > result in a null pointer dereference now that RCX is zeroed by the asm
-> > > > blob.
-> > > > 
-> > > > Add ASM_CALL_CONSTRAINT to fudge around an issue where <something>
-> > > > during modpost can't find vmx_return when specifying output constraints.
-> > > > 
-> > > > Reported-by: Tobias Urdin <tobias.urdin@binero.com>
-> > > > Fixes: b4be98039a92 ("KVM: VMX: Zero out *all* general purpose registers after VM-Exit")
-> > > > Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-> > > > ---
-> > > >  arch/x86/kvm/vmx.c | 3 ++-
-> > > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > > 
-> > > > diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-> > > > index 5b06a98ffd4c..54c8b4dc750d 100644
-> > > > --- a/arch/x86/kvm/vmx.c
-> > > > +++ b/arch/x86/kvm/vmx.c
-> > > > @@ -10882,7 +10882,8 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
-> > > >  		".global vmx_return \n\t"
-> > > >  		"vmx_return: " _ASM_PTR " 2b \n\t"
-> > > >  		".popsection"
-> > > > -	      : : "c"(vmx), "d"((unsigned long)HOST_RSP), "S"(evmcs_rsp),
-> > > > +	      : ASM_CALL_CONSTRAINT, "=c"((int){0}), "=d"((int){0}), "=S"((int){0})
-> > > > +	      : "c"(vmx), "d"((unsigned long)HOST_RSP), "S"(evmcs_rsp),
-> > > >  		[launched]"i"(offsetof(struct vcpu_vmx, __launched)),
-> > > >  		[fail]"i"(offsetof(struct vcpu_vmx, fail)),
-> > > >  		[host_rsp]"i"(offsetof(struct vcpu_vmx, host_rsp)),
-> > > > -- 
-> > > > 2.26.0
-> > > > 
-> > > 
-> > > What is the git commit id of this patch in Linus's tree?
-> > 
-> > There is none.  In upstream at the time of the offending commit (b4be98039a92
-> > in 4.19, 0e0ab73c9a024 upstream), the inline asm blob had previously been
-> > moved to a dedicated helper, __vmx_vcpu_run(), that was intentionally put
-> > into a separate compilation unit, i.e. consuming the clobbered register
-> > was effectively impossible because %rcx is volatile and __vmx_vcpu_run()
-> > couldn't itself be inlined.
-> > 
-> > To make things more confusing, the inline asm blob got moved into a proper
-> > asm subroutine shortly thereafter.  Things really start to diverge from
-> > current upstream right around the time of this commit.
-> 
-> Then you need to document the heck out of the fact that this is not
-> upstream, why it is different from upstream, and why we can't just take
-> what upstream did instead in the changelog.  That way, when this patch
-> turns out to be buggy (hint, 90% of the times they are), we know why
-> this was done the way it was so we can revert it and know who to
-> complain to :)
 
-Will do.
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue 2020-05-05 17:05:37, Andy Shevchenko wrote:
+> On Tue, May 5, 2020 at 4:37 PM Pavel Machek <pavel@denx.de> wrote:
+> > On Tue 2020-05-05 16:19:11, Andy Shevchenko wrote:
+> > > On Tue, May 5, 2020 at 3:58 PM Pavel Machek <pavel@denx.de> wrote:
+> > > > On Tue 2020-05-05 15:51:16, Andy Shevchenko wrote:
+> > > > > On Tue, May 5, 2020 at 3:37 PM Pavel Machek <pavel@denx.de> wrote:
+> > > > > > > So, to the point, the conditional of checking the thread to b=
+e stopped being
+> > > > > > > first part of conjunction logic prevents to check iterations.=
+ Thus, we have to
+> > > > > > > always check both conditions
+>=20
+> vvv
+> >>>>>> to be able to stop after given iterations.
+> ^^^
+
+_If_ you are already stopping due to kthread_should_stop(), you don't
+need to check iterations.
+
+If you are not stopping, iterations are always checked.
+
+No, the new code does not "always check both conditions" as you claim.
+
+> Yes. Please, read carefully the commit message (for your convenience I
+> emphasized above). I don't want to spend time on this basics stuff
+> anymore.
+
+You may want to go through the basics once more. The change clearly
+does not do what you said it does; in fact, it does not do anything.
+
+> > If you wanted both conditions to always evaluate, you'd have to do
+> >
+> > #       while (!kthread_should_stop()
+> > #              & !(params->iterations && total_tests >=3D
+> > #              params->iterations)) {
+> >
+> > (note && -> &). But, again, there's no reason to do that, as second
+> > part of expression does not have side effects.
+>=20
+> It fixes a bug in the code, try with and without this change. (I can
+> reproduce it here)
+
+I'm not sure if you made mistake during testing, or if you have buggy
+compiler or what...
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl6xfd0ACgkQMOfwapXb+vIEDgCgqysFldRlePOGBpziHUZEVK/5
+KvsAoKAGNxqP2ZKLJqJLvA/wW6+FbHe9
+=BnUQ
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--
