@@ -2,195 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 494CD1C5AFF
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 17:25:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297D91C5B00
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 17:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729544AbgEEPZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 11:25:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729437AbgEEPZH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 11:25:07 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F29D8C061A10
-        for <stable@vger.kernel.org>; Tue,  5 May 2020 08:25:05 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id z22so1707883lfd.0
-        for <stable@vger.kernel.org>; Tue, 05 May 2020 08:25:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=J81iVlUhIvyatMmRwxzUMXaJb0pLdaqKSdM5bNfAaIk=;
-        b=Q4SrV2Zbs6qOTX5X3znnPe1LmgiKGGUdvhgMsKxVtGP7E8b4PW0LmNEOLqeDKKX+nX
-         ww3akYS/734SFNsrtn4qmlv0nVzoAR2MvVpSXyADL4n2ki6e/dLwLniSMuqRm3FhjfR9
-         A5VlZDuXQxKuqnABG8XU4k1SskP+w0vly9ysT/UVtkQd/QvMkMij9dPiyJtzVbhHbexm
-         WVjd12qtZvoHhwdf1xZphSz6Bznc+bpcV34qp8qF7nas5Ub6AJFxDcpoZwfdmAza+wXs
-         p1crHGAsCzsvw4qecX0SwohV5tcnBRzg7POYETXK4qumcA3+flaYbJKHe87uXkBP7Rv1
-         p7kQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=J81iVlUhIvyatMmRwxzUMXaJb0pLdaqKSdM5bNfAaIk=;
-        b=G9hFGRgTd5cASRwvXnPa/0EUm981OQlBMJkZfEmlHETSx7JxyyMriP1k7Ubmo78p6U
-         Ua6eNO+rRoT5v4Ss6/2d3kZsC3aOQgYRLK7bJIbCa/AmmX/GAEt2qJw3nT4xC8WsQ8KL
-         BOIql6FsK4camDlqczPYVvl8IG+q975usWlHH22wgCYkjC/1i+VzU25CayLhAmsAe4cw
-         Zj0F4PO4L+3hUc4Ic15+drRtAJuvsAsCskDTKpyYK2ZaoiPPSztPYANz8cI1vCibE5XT
-         +DUGniDhxJ7ttTdXXS7may5SRnEstMxmSM9aK8e0YpSEg+3fpQ12KEq1aDYmdKjBBWNq
-         MMDg==
-X-Gm-Message-State: AGi0PubJmhw62ENE/GoQ4Am/OcwltELtVMSykqNxM6UazCgAq0xNKWId
-        e1TvbYYmrLYwSURXRjmqQDEMNNf0YcZj0/VqmnsxCA==
-X-Google-Smtp-Source: APiQypKaRjJ2sNzhMfa96iWw2PhBxaUs8+uF4/HkoKZjdlzRn9i/hpxcvyagt62n8Ns948aVGS1/pINMYcRJcEbBHxo=
-X-Received: by 2002:a19:d:: with SMTP id 13mr2061183lfa.167.1588692304320;
- Tue, 05 May 2020 08:25:04 -0700 (PDT)
+        id S1729845AbgEEPZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 11:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50708 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729437AbgEEPZR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 May 2020 11:25:17 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A620A20746;
+        Tue,  5 May 2020 15:25:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588692317;
+        bh=nEVTPX1Ti510v2Vk56/kYiYij7Hvm4d4ZxDOiBNInMc=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=yJswox5zEC6UXr1OZRTh7/JRVkn4RqlY2pKtx41nUaQeFkn3+59tUzvgqyxhTdzZJ
+         VMJJsE+9XIx3yVdBjf5NUeV6AqkEMV3uUX1URfDF8gcAk6bTt/ZF44ggziEaGMnHQS
+         IcAjE9lh91JNm7VoB2TAuSK3fcWNpSGnOJz/e4HQ=
+Subject: Re: [PATCH 5.6 00/73] 5.6.11-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200504165501.781878940@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <3366716c-3a30-033d-4df6-4183eb262208@kernel.org>
+Date:   Tue, 5 May 2020 09:25:15 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <20200504165448.264746645@linuxfoundation.org>
-In-Reply-To: <20200504165448.264746645@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 5 May 2020 20:54:52 +0530
-Message-ID: <CA+G9fYvnZrQo9yiBFLHQCZjSgxzmcEphS0bxyy-xx4txPYfzDg@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/37] 4.19.121-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200504165501.781878940@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 4 May 2020 at 23:32, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.121 release.
-> There are 37 patches in this series, all will be posted as a response
+On 5/4/20 11:57 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.6.11 release.
+> There are 73 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
+> 
 > Responses should be made by Wed, 06 May 2020 16:52:55 +0000.
 > Anything received after that time might be too late.
->
+> 
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.121-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.11-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
 > and the diffstat can be found below.
->
+> 
 > thanks,
->
+> 
 > greg k-h
->
+> 
+> -------------
+> Pseudo-Shortlog of commits:
+> 
+> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>      Linux 5.6.11-rc1
+> 
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> Takashi Iwai <tiwai@suse.de>
+>      ALSA: pcm: oss: Place the plugin buffer overflow checks correctly
+> 
+> Vasily Khoruzhick <anarsoul@gmail.com>
+>      ALSA: line6: Fix POD HD500 audio playback
+> 
+> Wu Bo <wubo40@huawei.com>
+>      ALSA: hda/hdmi: fix without unlocked before return
+> 
+> Takashi Iwai <tiwai@suse.de>
+>      ALSA: usb-audio: Correct a typo of NuPrime DAC-10 USB ID
+> 
+> Hui Wang <hui.wang@canonical.com>
+>      ALSA: hda/realtek - Two front mics on a Lenovo ThinkCenter
+> 
 
-NOTE:
-kernel warning noticed on stable rc 4.19 and 5.4 while running
-selftest bpf test cases on arm64 devices.
+>   sound/core/oss/pcm_plugin.c                       | 20 ++++---
+>   sound/isa/opti9xx/miro.c                          |  9 ++-
+>   sound/isa/opti9xx/opti92x-ad1848.c                |  9 ++-
+>   sound/pci/hda/patch_hdmi.c                        |  4 +-
+>   sound/pci/hda/patch_realtek.c                     |  1 +
+>   sound/usb/line6/podhd.c                           | 22 ++-----
+>   sound/usb/quirks.c                                |  2 +-
+>   78 files changed, 554 insertions(+), 297 deletions(-)
+> 
+> 
+> 
 
-NETDEV WATCHDOG: eth0 (asix): transmit queue 0 timed out
-- net/sched/sch_generic.c:466 dev_watchdog
+Compiled and booted on my test system. Tons of the of following
+errors in dmesg
 
-ref:
-https://lore.kernel.org/stable/CA+G9fYu4gE2vqSmgyYMfdMS-ZDfQiY1vhk2Jbni+wDJ=
-FjLHVKg@mail.gmail.com/T/#u
+Adding Takashi Iwai
 
-Summary
-------------------------------------------------------------------------
+[   33.980302] usb 2-2.4: 1:1: cannot set freq 48000 to ep 0x1
+[   49.340581] usb 2-2.4: 2:1: cannot set freq 48000 to ep 0x82
+[   59.580511] usb 2-2.4: 13:0: cannot get min/max values for control 2 
+(id 13)
+[   64.700532] usb 2-2.4: 9:0: cannot get min/max values for control 2 
+(id 9)
+[   69.792257] usb 2-2.4: 10:0: cannot get min/max values for control 2 
+(id 10)
+[   69.792736] usbcore: registered new interface driver snd-usb-audio
+[   74.871038] usb 2-2.4: 9:0: cannot get min/max values for control 2 
+(id 9)
+[   79.967099] usb 2-2.4: 9:0: cannot get min/max values for control 2 
+(id 9)
+[   85.076961] usb 2-2.4: 9:0: cannot get min/max values for control 2 
+(id 9)
+[   90.191415] usb 2-2.4: 9:0: cannot get min/max values for control 2 
+(id 9)
+[   95.308843] usb 2-2.4: 9:0: cannot get min/max values for control 2 
+(id 9)
 
-kernel: 4.19.121-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: 2e3613309d936ae445288baa881ca1775f300f6f
-git describe: v4.19.120-38-g2e3613309d93
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.120-38-g2e3613309d93
+followed by
+
+[  131.172280] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+[  136.259909] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+[  141.380345] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+[  146.500227] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+[  151.620227] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+[  156.739899] usb 2-2.4: 1:1: usb_set_interface failed (-110)
+[  161.859999] usb 2-2.4: 1:1: usb_set_interface failed (-110)
 
 
-No regressions (compared to build v4.19.120)
+I have audio on that port. I haven't tried yet reverting these
+sound patches yet. demsg is filling up with these messages for
+sure.
 
-No fixes (compared to build v4.19.120)
+thanks,
+-- Shuah
 
-Ran 28318 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-ipc-tests
-* perf
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* v4l2-compliance
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* kselftest/networking
-* libhugetlbfs
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fs-tests
-* ltp-io-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-native/networking
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-* kselftest-vsyscall-mode-none/networking
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
