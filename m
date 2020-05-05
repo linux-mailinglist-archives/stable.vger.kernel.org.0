@@ -2,136 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 595D91C5F22
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 19:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D6371C5F42
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 19:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730282AbgEERod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 13:44:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53760 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729380AbgEERod (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 13:44:33 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFDEC061A0F
-        for <stable@vger.kernel.org>; Tue,  5 May 2020 10:44:32 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id o134so3150295yba.18
-        for <stable@vger.kernel.org>; Tue, 05 May 2020 10:44:32 -0700 (PDT)
+        id S1730093AbgEERuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 13:50:15 -0400
+Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:54327 "EHLO
+        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728804AbgEERuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 13:50:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=Xw/XeQONehgAZgmp50DsvTIx8rMMLD3xww9tGSOkTsA=;
-        b=lneA14fzuFIhvEyDZhEZTjVIaajfkM2Z7jKfKmPgQ32k4DXwTcL6jmrVG9lLKS/STZ
-         i1h5X98Rgd/oyrVzCu4ccHiaoXOVE6pNfPXCDw1dC27kWhnuB24Pl6NHQejX1rAOoNob
-         uxdOxtVcR57USHxeCw39W3UFF68ZmyFXSDnrkcblxXwOTZLZ1A7k1FPLtWM2C8QUxQRM
-         tYj7uyH/RRNIV5aGL8nNs6qF8M0ghJZznLP795RJ0up2LeIE9E1JVbtTNqrD5gB7fVKk
-         hDPTWVoBA5rqaknUJTuYGNajFguFjI3/Vrg/I4l5PVV3wBXe82Wjjvio1muWO7wBehvL
-         heZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=Xw/XeQONehgAZgmp50DsvTIx8rMMLD3xww9tGSOkTsA=;
-        b=WDHDakXxm2BTrx0dW6FXTb4Skf7xCSmScgXZB1C4iiFYoPkQ4UHbUH7qTfhsnDIAM3
-         aFXdSdJs7q+ysyNuhG86i9yyhO8FvpKjaU/AFvVoJbOTFekqzBnF+GmHUqpMfDTm4841
-         JewFTUNqe4Br25eViRG/tzgj0j7aCO9ygjgO7H4hzsQY3uOYFn4MHEOHbDcqwzlsdyay
-         2FtOH04qLDviMfMxdGFNoZIjMoCf7TIkcjSVeM535XL2caf8i410XcyDPWTD7fuBz+b4
-         8wnUIThMP95P89WnbXlOW0k3Vw23lFT+WgJEUvQesMuhfiB2R2Peor5m1LBaNMi9yqTa
-         0eVQ==
-X-Gm-Message-State: AGi0Pub2shBpl669DqU/4eTpNHTZ9VRfjVL4kQ8HuYsbZf0xpza/a77c
-        nJVn4m6oDhvui+iHMSXo/HC27OhanXduMeE+nBo=
-X-Google-Smtp-Source: APiQypIX//cgIeEKcfL0yb8zr5R8ZbH/uRJM3Yv5sXuOog51eI5PRryDXtV3TYrJvL5SfnLEbSZi5o6qlXlDHTWTyWM=
-X-Received: by 2002:a25:9a47:: with SMTP id r7mr6630305ybo.7.1588700672013;
- Tue, 05 May 2020 10:44:32 -0700 (PDT)
-Date:   Tue,  5 May 2020 10:44:22 -0700
-Message-Id: <20200505174423.199985-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.26.2.526.g744177e7f7-goog
-Subject: [PATCH] x86: bitops: fix build regression
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
-Cc:     Sedat Dilek <sedat.dilek@gmail.com>, stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1588701015; x=1620237015;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   mime-version;
+  bh=OkQZKUOL3TTS+35wtst/9Q/Kbx4xZMSPgBdO3UWtrDI=;
+  b=h7XoXfr7OEYevH3TcLIA64yTN9/GszX9QE4Bp5CCaacvSnOmvBZ9ZuYx
+   TjK7xyXfshKk2ke5wiRK4FrMcUpZmjrzAYHhSTOZiT2+cyXwWMPa3M3mF
+   J3eFL6BGoxLArt2hA4PyOO/FX7+NWQWVXS81+mmZov7rgcRK6X/UoBXJH
+   I=;
+IronPort-SDR: fZ94NPI2OGn9+nPA+DbNVxEwsi5oqRpaYYiR5zqP9WHcx2DkpumUAWvkI4STMUWfS2UWtKLH/F
+ +YOI3eBjhJrA==
+X-IronPort-AV: E=Sophos;i="5.73,356,1583193600"; 
+   d="scan'208";a="42845175"
+Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1e-27fb8269.us-east-1.amazon.com) ([10.47.23.38])
+  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 05 May 2020 17:50:13 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
+        by email-inbound-relay-1e-27fb8269.us-east-1.amazon.com (Postfix) with ESMTPS id 2C961A1CE1;
+        Tue,  5 May 2020 17:50:08 +0000 (UTC)
+Received: from EX13D31EUA001.ant.amazon.com (10.43.165.15) by
+ EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 5 May 2020 17:50:08 +0000
+Received: from u886c93fd17d25d.ant.amazon.com (10.43.160.92) by
+ EX13D31EUA001.ant.amazon.com (10.43.165.15) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 5 May 2020 17:50:00 +0000
+From:   SeongJae Park <sjpark@amazon.com>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+CC:     Eric Dumazet <eric.dumazet@gmail.com>,
+        SeongJae Park <sjpark@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
+        David Miller <davem@davemloft.net>,
+        "Al Viro" <viro@zeniv.linux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        <sj38.park@gmail.com>, netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        SeongJae Park <sjpark@amazon.de>, <snu@amazon.com>,
+        <amit@kernel.org>, <stable@vger.kernel.org>
+Subject: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
+Date:   Tue, 5 May 2020 19:49:43 +0200
+Message-ID: <20200505174943.10384-1-sjpark@amazon.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200505172358.GC2869@paulmck-ThinkPad-P72> (raw)
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.43.160.92]
+X-ClientProxiedBy: EX13D43UWC001.ant.amazon.com (10.43.162.69) To
+ EX13D31EUA001.ant.amazon.com (10.43.165.15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sedat Dilek <sedat.dilek@gmail.com>
+On Tue, 5 May 2020 10:23:58 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
 
-It turns out that if your config tickles __builtin_constant_p via
-differences in choices to inline or not, this now produces invalid
-assembly:
+> On Tue, May 05, 2020 at 09:25:06AM -0700, Eric Dumazet wrote:
+> > 
+> > 
+> > On 5/5/20 9:13 AM, SeongJae Park wrote:
+> > > On Tue, 5 May 2020 09:00:44 -0700 Eric Dumazet <edumazet@google.com> wrote:
+> > > 
+> > >> On Tue, May 5, 2020 at 8:47 AM SeongJae Park <sjpark@amazon.com> wrote:
+> > >>>
+> > >>> On Tue, 5 May 2020 08:20:50 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
+> > >>>
+> > >>>>
+> > >>>>
+> > >>>> On 5/5/20 8:07 AM, SeongJae Park wrote:
+> > >>>>> On Tue, 5 May 2020 07:53:39 -0700 Eric Dumazet <edumazet@google.com> wrote:
+> > >>>>>
+> > >>>>
+> > >>>>>> Why do we have 10,000,000 objects around ? Could this be because of
+> > >>>>>> some RCU problem ?
+> > >>>>>
+> > >>>>> Mainly because of a long RCU grace period, as you guess.  I have no idea how
+> > >>>>> the grace period became so long in this case.
+> > >>>>>
+> > >>>>> As my test machine was a virtual machine instance, I guess RCU readers
+> > >>>>> preemption[1] like problem might affected this.
+> > >>>>>
+> > >>>>> [1] https://www.usenix.org/system/files/conference/atc17/atc17-prasad.pdf
+> 
+> If this is the root cause of the problem, then it will be necessary to
+> provide a hint to the hypervisor.  Or, in the near term, avoid loading
+> the hypervisor the point that vCPU preemption is so lengthy.
+> 
+> RCU could also provide some sort of pre-stall-warning notification that
+> some of the CPUs aren't passing through quiescent states, which might
+> allow the guest OS's userspace to take corrective action.
+> 
+> But first, what are you doing to either confirm or invalidate the
+> hypothesis that this might be due to vCPU preemption?
 
-$ cat foo.c
-long a(long b, long c) {
-  asm("orb\t%1, %0" : "+q"(c): "r"(b));
-  return c;
-}
-$ gcc foo.c
-foo.c: Assembler messages:
-foo.c:2: Error: `%rax' not allowed with `orb'
+Nothing, I was just guessing.  Sorry if this made you confused.
 
-The "q" constraint only has meanting on -m32 otherwise is treated as
-"r".
+> 
+> > >>>>>> Once Al patches reverted, do you have 10,000,000 sock_alloc around ?
+> > >>>>>
+> > >>>>> Yes, both the old kernel that prior to Al's patches and the recent kernel
+> > >>>>> reverting the Al's patches didn't reproduce the problem.
+> > >>>>>
+> > >>>>
+> > >>>> I repeat my question : Do you have 10,000,000 (smaller) objects kept in slab caches ?
+> > >>>>
+> > >>>> TCP sockets use the (very complex, error prone) SLAB_TYPESAFE_BY_RCU, but not the struct socket_wq
+> > >>>> object that was allocated in sock_alloc_inode() before Al patches.
+> > >>>>
+> > >>>> These objects should be visible in kmalloc-64 kmem cache.
+> > >>>
+> > >>> Not exactly the 10,000,000, as it is only the possible highest number, but I
+> > >>> was able to observe clear exponential increase of the number of the objects
+> > >>> using slabtop.  Before the start of the problematic workload, the number of
+> > >>> objects of 'kmalloc-64' was 5760, but I was able to observe the number increase
+> > >>> to 1,136,576.
+> > >>>
+> > >>>           OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME
+> > >>> before:   5760   5088  88%    0.06K     90       64       360K kmalloc-64
+> > >>> after:  1136576 1136576 100%    0.06K  17759       64     71036K kmalloc-64
+> > >>>
+> > >>
+> > >> Great, thanks.
+> > >>
+> > >> How recent is the kernel you are running for your experiment ?
+> > > 
+> > > It's based on 5.4.35.
+> 
+> Is it possible to retest on v5.6?  I have been adding various mechanisms
+> to make RCU keep up better with heavy callback overload.
 
-This is easily reproducible via Clang+CONFIG_STAGING=y+CONFIG_VT6656=m,
-or Clang+allyesconfig.
+I will try soon!
 
-Keep the masking operation to appease sparse (`make C=1`), add back the
-cast in order to properly select the proper 8b register alias.
+> 
+> Also, could you please provide the .config?  If either NO_HZ_FULL or
+> RCU_NOCB_CPU, please also provide the kernel boot parameters.
 
- [Nick: reworded]
+NO_HZ_FULL is not set, but RCU_NOCB_CPU is y.
 
-Cc: stable@vger.kernel.org
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/961
-Link: https://lore.kernel.org/lkml/20200504193524.GA221287@google.com/
-Fixes: 1651e700664b4 ("x86: Fix bitops.h warning with a moved cast")
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Reported-by: kernelci.org bot <bot@kernelci.org>
-Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-Suggested-by: Ilie Halip <ilie.halip@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
----
- arch/x86/include/asm/bitops.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I think I should check whether it's ok to share the full config and boot
+parameters.  Please wait this.
 
-diff --git a/arch/x86/include/asm/bitops.h b/arch/x86/include/asm/bitops.h
-index b392571c1f1d..139122e5b25b 100644
---- a/arch/x86/include/asm/bitops.h
-+++ b/arch/x86/include/asm/bitops.h
-@@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long *addr)
- 	if (__builtin_constant_p(nr)) {
- 		asm volatile(LOCK_PREFIX "orb %1,%0"
- 			: CONST_MASK_ADDR(nr, addr)
--			: "iq" (CONST_MASK(nr) & 0xff)
-+			: "iq" ((u8)(CONST_MASK(nr) & 0xff))
- 			: "memory");
- 	} else {
- 		asm volatile(LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
-@@ -74,7 +74,7 @@ arch_clear_bit(long nr, volatile unsigned long *addr)
- 	if (__builtin_constant_p(nr)) {
- 		asm volatile(LOCK_PREFIX "andb %1,%0"
- 			: CONST_MASK_ADDR(nr, addr)
--			: "iq" (CONST_MASK(nr) ^ 0xff));
-+			: "iq" ((u8)(CONST_MASK(nr) ^ 0xff)));
- 	} else {
- 		asm volatile(LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
- 			: : RLONG_ADDR(addr), "Ir" (nr) : "memory");
--- 
-2.26.2.526.g744177e7f7-goog
+> 
+> > >> Let's make sure the bug is not in RCU.
+> > > 
+> > > One thing I can currently say is that the grace period passes at last.  I
+> > > modified the benchmark to repeat not 10,000 times but only 5,000 times to run
+> > > the test without OOM but easily observable memory pressure.  As soon as the
+> > > benchmark finishes, the memory were freed.
+> > > 
+> > > If you need more tests, please let me know.
+> > 
+> > I would ask Paul opinion on this issue, because we have many objects
+> > being freed after RCU grace periods.
+> 
+> As always, "It depends."
+> 
+> o	If the problem is a too-long RCU reader, RCU is prohibited from
+> 	ending the grace period.  The reader duration must be shortened,
+> 	and until it is shortened, there is nothing RCU can do.
+> 
+> o	In some special cases of the above, RCU can and does help, for
+> 	example, by enlisting the aid of cond_resched().  So perhaps
+> 	there is a long in-kernel loop that needs a cond_resched().
+> 
+> 	And perhaps RCU can help for some types of vCPU preemption.
+> 
+> o	As Al suggested offline and as has been discussed in the past,
+> 	it would not be hard to cause RCU to burn CPU to attain faster
+> 	grace periods during OOM events.  This could be helpful, but only
+> 	given that RCU readers are completing in reasonable timeframes.
 
+Totally agreed.
+
+> 
+> > If RCU subsystem can not keep-up, I guess other workloads will also suffer.
+> 
+> If readers are not excessively long, RCU should be able to keep up.
+> (In the absence of misconfigurations, for example, both NO_HZ_FULL and
+> then binding all the rcuo kthreads to a single CPU on a 100-CPU system
+> or some such.)
+> 
+> > Sure, we can revert patches there and there trying to work around the issue,
+> > but for objects allocated from process context, we should not have these problems.
+> 
+> Agreed, let's get more info on what is happening to RCU.
+> 
+> One approach is to shorten the RCU CPU stall warning timeout
+> (rcupdate.rcu_cpu_stall_timeout=10 for 10 seconds).
+
+I will also try this and let you know the results.
+
+
+Thanks,
+SeongJae Park
+
+> 
+> 							Thanx, Paul
