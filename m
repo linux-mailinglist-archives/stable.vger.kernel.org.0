@@ -2,132 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5131C5C66
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 17:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 408D81C5C88
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 17:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730417AbgEEPsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 11:48:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35474 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730237AbgEEPsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 11:48:05 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C12C061A0F;
-        Tue,  5 May 2020 08:48:05 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id x10so982243plr.4;
-        Tue, 05 May 2020 08:48:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=5hnSK5yMIZveBHgRyIeI/O9W/01p4/6QyCkngBAgTVU=;
-        b=uz1KDuEN6NwT2efBrIhzKThQKQUcAHxyw+G/fvkxc4eu8eTiFNHkWdalc7P33sIMEM
-         8O/wBEPUYNsCYfdUjCuu/gW/oPBGqJAlCTW9ZXajpxwue3hUOx+COn7MlXOhOo850CM0
-         o/ulCudog7pUs7h0g/c33pxls+LtCXT4GmbOz0fLkgsmJc3s3w933WIQ2XzzYO2kQXQV
-         gFA2V8rFD4WLrec3i2V4bAuQihuLAqrV6vuEQgNiRy3hKswuVxtcI9KPckQTuvd7zzUJ
-         LYKHSAucylE4yPSZUYIOH4cY943PBkdIRq50UoaNccJ2lJjwNOLW5mYMlO8XPb0pdy+r
-         jIHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=5hnSK5yMIZveBHgRyIeI/O9W/01p4/6QyCkngBAgTVU=;
-        b=qmbdTVctmGLOuYuD7sdo63oKPdhNSQzAN2EduD4zVxDQ2Bkx0GEBHpL8gF5Woc8dro
-         Rs3eVKsRbxYAvcq/jgwr+NrmSzPkFsg7mswbxCgdEIG7cGe13SmjUV/m6SwU6lg7I/Fw
-         FrygQxUDQMac804c0MyL1LqLn8bKToB7zfE3K3/fSfb/K07JZ3VeR/VhSGnaP+/sI5pV
-         nXQKX7rSKbYUYOdYrVvjA2XvJx+CH04rdwu1kmQ/F1RRdMtEZAGE8DPOWAk2zT5oAS9w
-         5J0GrfA9vnMR17NTvJcnhISAFQlPtTDoDcxAL1WaZRmZJ0fwm83jM7dCtcVE/+hQ/Uwr
-         OmlQ==
-X-Gm-Message-State: AGi0PubtBqYplnwTPowUnD8Qja4EixDhv6vRjHoVkxUXDEfmjJcqvI0L
-        TDG8YgZ8G/klYw3w7q2ZMVykWp5T
-X-Google-Smtp-Source: APiQypLPzx8qcKu+BEISmn+bwuEjVIA+so8e8ZLsTRunLu7DNg2vlmCDrSEGQXkKEMdQWrbyuCFR3A==
-X-Received: by 2002:a17:90b:3443:: with SMTP id lj3mr3855310pjb.38.1588693684733;
-        Tue, 05 May 2020 08:48:04 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id f64sm2438988pjd.5.2020.05.05.08.48.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 May 2020 08:48:04 -0700 (PDT)
-Subject: Re: [PATCH 4.14 00/26] 4.14.179-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200504165442.494398840@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <bdbe61cd-227c-df0b-b4c6-ddc37d50ce05@roeck-us.net>
-Date:   Tue, 5 May 2020 08:48:03 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1730251AbgEEPul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 11:50:41 -0400
+Received: from sonic317-32.consmr.mail.ne1.yahoo.com ([66.163.184.43]:36486
+        "EHLO sonic317-32.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729516AbgEEPuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 11:50:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1588693839; bh=+NKq2YP/4c3bLm2HmGhxa/KCZOXr0NIUKHs/ECuC0yk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=XeckbLYFLESY2/ClhkzF05PQnGmGoYBDhbiQf29lzxkZFDoHs3lfZozcCMvDpCiABPvHPZTPwtz67w/9fuK24GqqBv3teMUuvYkjgZ82nvZA2uvDSct3I4b05aoPtktdvrV6Nj8QPxtu3ymkXfHIX8RkIVKdqat+ekoysudDSUH+x6HcaZrqaZHA2Qp57p11H+NHPiQPNZ1ROGX5HYPjk8nCz+Hk+zp5n+/J33Mv20wUdkn3XaBpYT1gb/DyE7nZ7c2WOOawboDn1LhFkomxdt52oHayJ5BXFsEBbdTJcNHSSeIIRLU8eC6StkHcVP7AFAfrofTIDlLm2Dd/kr4+GQ==
+X-YMail-OSG: XnYkUUEVM1le3keDa3ZcFeKFJ7hlq2rV2fDTWz1wHa0lcAZr_eOGcDc5BFI4R3R
+ 9Le.d4AyxBUAdXQZzBH4ukoAH8LUJJADdovVZbgCYByLJuJXrrdkAWfYUckwUD8LzQzajjKpdrPp
+ pnWyw06dzyH.sFEyWCxLwXGjswqb8WgwGGj.70pdPKItXUMYWBw5AmZ2ZTUUGJG_07b27HvRASXy
+ SkgAlTryRR3pGzlWWtGt2ScfrOnp3jPv2YKVy2JQBgtv09x8HWXYst_0KBbSSap42TB19IR8OVwa
+ ehQsU2_DUpqzTPlfeS6UFZL86xZYgKYxUfFvTaW1bkLoNEr4JxCFF3KlBs9U.UWsZnNdMR083flT
+ 5Qr5GHCnqI33GxiCnpRnUzN6cYOqtaMWCuYICeeaybazhD8ByBoUb6mdGGQ9kUsn_ppZD0HCmfiu
+ 13DuqavN33C60I4am8nBYGrLOZsyAhWtXOW07tP3dZp_BfkzNU.iqmpbhGSPbdryqmIxe0Uj5M8Y
+ h._hmdz6iF2TjHh_VvEt2ymoMrRy2CsAPQd_y92aM.6PyrILpFZeTROle8AnJDX25tShNgE0GyGe
+ endnJL7vrvB6Y19AyUchnU2uMblNr627cDMbIV9iwify_ix364SrNuaHZO2do8p21Ho4Uip8O5mw
+ gAGkOnrJZ.pbqUjXfR95L2I0xR6h9b9l51jXs7_9dMg1TNuL_hmV_JFPrym.FXGuQWc1kFHoAfVY
+ UZmOhSHnDKMEJy5g37OtP9O34wo1_JMXFnELN2OEUJZLQ7Yr3CSEcs9aboT9G1v__NCJow2YTbT6
+ RjDDYlULBzbWKd9hrIz2EWMFtx3CjpSyDCd3KF.Gr1tkpdGqStzt5r7AxbLVKDPNwfY0d8AEsN_q
+ Ynl7E3mLHRz5.Q0zGKs58plKlT6u45oQqEI7vSglDnhZT2S8qs4OIhpO6hsIpUE_CdhoIgAYmaV4
+ 1sLrfxOXxOGI8QMUYUWqfYfOLIZuCEl13fmXIgCRm_ZyLNyixmow9V2aeJ38Uc_OBDKz9wRtEXkV
+ BAlKbRjPg2XagerV6US2VIK6t_Lw59M9xGRBdGbqWZgzktNfGxgCdo0nrK.eSKUFLRmDf.m9Pmfg
+ L47blin9H5gi5yS0GEwdgT_19ZCq2pizie9ciGt8aoHZUhdKX8tcmeq5MkR9BcV9WrYQQMnsNJHj
+ 1nJWn8hgZJsZtAPJn5uxb4tskD2TDG9fKW5J8xaU.zuFcbBEzwKV.Tq8iSHm5hOV6_8N_sZvjDRB
+ dG9Nnb_0gfO_9Sdd62bAqtbazIvdWx1wgx23axGeeOE3P6ygkuONnvUMtbu2ld3tQhX20
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Tue, 5 May 2020 15:50:39 +0000
+Date:   Tue, 5 May 2020 15:50:35 +0000 (UTC)
+From:   "Mrs. Mina A. Brunel" <mrs.mainaabrunel126@gmail.com>
+Reply-To: mrs.minaabrunel30@gmail.com
+Message-ID: <677767966.1603621.1588693835581@mail.yahoo.com>
+Subject: My Dear in the lord
 MIME-Version: 1.0
-In-Reply-To: <20200504165442.494398840@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <677767966.1603621.1588693835581.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.15756 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/4/20 10:57 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.179 release.
-> There are 26 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 06 May 2020 16:52:55 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 171 pass: 171 fail: 0
-Qemu test results:
-	total: 404 pass: 404 fail: 0
 
-Guenter
+My Dear in the lord
+
+
+My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
+na Faso, I am married to Mr. Brunel Patrice, a politician who owns a small =
+gold company in Burkina Faso; He died of Leprosy and Radesyge, in the year =
+February 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Mi=
+llion Euro) Eight million, Five hundred thousand Euros in a bank in Ouagado=
+ugou the capital city of Burkina Faso in West Africa. The money was from th=
+e sale of his company and death benefits payment and entitlements of my dec=
+eased husband by his company.
+
+I am sending you this message with heavy tears in my eyes and great sorrow =
+in my heart, and also praying that it will reach you in good health because=
+ I am not in good health, I sleep every night without knowing if I may be a=
+live to see the next day. I am suffering from long time cancer and presentl=
+y I am partially suffering from Leprosy, which has become difficult for me =
+to move around. I was married to my late husband for more than 6 years with=
+out having a child and my doctor confided that I have less chance to live, =
+having to know when the cup of death will come, I decided to contact you to=
+ claim the fund since I don't have any relation I grew up from an orphanage=
+ home.
+
+I have decided to donate this money for the support of helping Motherless b=
+abies/Less privileged/Widows and churches also to build the house of God be=
+cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
+cided to donate from what I have inherited from my late husband to you for =
+the good work of Almighty God; I will be going in for an operation surgery =
+soon.
+
+Now I want you to stand as my next of kin to claim the funds for charity pu=
+rposes. Because of this money remains unclaimed after my death, the bank ex=
+ecutives or the government will take the money as unclaimed fund and maybe =
+use it for selfishness and worthless ventures, I need a very honest person =
+who can claim this money and use it for Charity works, for orphanages, wido=
+ws and also build schools and churches for less privilege that will be name=
+d after my late husband and my name.
+
+I need your urgent answer to know if you will be able to execute this proje=
+ct, and I will give you more information on how the fund will be transferre=
+d to your bank account or online banking.
+
+Thanks
+Mrs. Mina A. Brunel
