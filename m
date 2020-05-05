@@ -2,153 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0C41C5CB7
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 17:57:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D331C5CCE
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 18:01:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730408AbgEEP5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 11:57:37 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:38058 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729892AbgEEP5h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 11:57:37 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 0CBCB1C023E; Tue,  5 May 2020 17:57:35 +0200 (CEST)
-Date:   Tue, 5 May 2020 17:57:34 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: Re: [PATCH 4.19 28/37] dmaengine: dmatest: Fix iteration non-stop
- logic
-Message-ID: <20200505155734.GA10069@duo.ucw.cz>
-References: <20200504165448.264746645@linuxfoundation.org>
- <20200504165451.307643203@linuxfoundation.org>
- <20200505123159.GC28722@amd>
- <CAHp75VeM+qwh5rHL7RDdacru0jPSB9me2aTs__jdy749dTKRng@mail.gmail.com>
- <20200505125818.GA31126@amd>
- <CAHp75VcKreeQpjROdL23XGqgVu+F_0eL5DsJ=5APEQUO9V69EQ@mail.gmail.com>
- <20200505133700.GA31753@amd>
- <CAHp75Ve+pzhamZXiKxHF+VD8yfsjRF2coattHyiD+0aa7Fy2DA@mail.gmail.com>
- <20200505153227.GI13035@sasha-vm>
+        id S1730337AbgEEQA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 12:00:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37512 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729777AbgEEQA5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 12:00:57 -0400
+Received: from mail-yb1-xb44.google.com (mail-yb1-xb44.google.com [IPv6:2607:f8b0:4864:20::b44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4AF1C061A10
+        for <stable@vger.kernel.org>; Tue,  5 May 2020 09:00:57 -0700 (PDT)
+Received: by mail-yb1-xb44.google.com with SMTP id o198so1524905ybg.10
+        for <stable@vger.kernel.org>; Tue, 05 May 2020 09:00:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ORJwrAAwnpoHqLqwdK95lxsUlCDtaaRCVzNicAVFK9Q=;
+        b=nhNrbnjfR6QYiydMzB+2Zg1gss9xSUkVPcDk/hIKxB3JreekfD7jPisLqPr+ZtnhtY
+         vFBPr83g2DbXb387d3P4r0hJMkdiSUfwXrQHjAm9su6PU0iELhjn5hfh0cTDdSgbAzW+
+         UH0SRMil6UjWMRGp+yBxX7aFGMOa3j8dNLGXoYo8YHR/jlZQGyY8Jn4m32kpkh1vZDUP
+         RLtmV63YHi+ooBlWy7erEOR0taKW4UTSKF3AAN+Ij6RVd10rzTtDzrsqOyWNDHod91aq
+         +pBHCr7jx1Fsu7ZzCrPY7FJRIfh4H9zrQS+t56Ohxb92FBiRDH9NJ2dXq++AC5MwDTH/
+         FLcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ORJwrAAwnpoHqLqwdK95lxsUlCDtaaRCVzNicAVFK9Q=;
+        b=I48BczzXITPkZQXaHDpJIDYfyHLlLabNHW0fo6mXQSuxxY0/fzVKaN+VGupqwLqY5d
+         9g3NOPF4rT57V97PRoWSrRjX+qxYSTUo7D5lRs7/Ry/+omd8zGkEsWx+wWOUxOv/nh/e
+         x28B8RjxrwtxvdKXetRlkWg7Mi6VsKIXJ9yY8IazO+ZkS6qmRawxDwdKA6S5F/nWB8mP
+         R2nKocPuBWp+xHs+mOWkXmmh9ZQaGNJFpGgNuw9D19UqgSWLytbU/XF3r3xjLEtxwkIj
+         n72sH4bEu474uia6bXC6iRL3ixhyc6/95pAgqRsrR3vhy1TlfX6h76vPYNknjU6+RPvQ
+         5miQ==
+X-Gm-Message-State: AGi0PuYDl6RhpGlFybiAOaBM85mhiYQIJjsl2YzncRoetsxK/oEesYP1
+        OwG3RbEn1Hddfhm8FokQ1RDZtGtO6yVk5+5LjtoI/w==
+X-Google-Smtp-Source: APiQypIMaAW9Xq0PmO+ItBBc/hPsz72qqCag9yC+T74EMR2STsOZlVRrHFkAljXR65MPzOEFNwalv+CLofTDx8F+C4c=
+X-Received: by 2002:a25:6f86:: with SMTP id k128mr5689837ybc.520.1588694455583;
+ Tue, 05 May 2020 09:00:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
-Content-Disposition: inline
-In-Reply-To: <20200505153227.GI13035@sasha-vm>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <a8510327-d4f0-1207-1342-d688e9d5b8c3@gmail.com> <20200505154644.18997-1-sjpark@amazon.com>
+In-Reply-To: <20200505154644.18997-1-sjpark@amazon.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Tue, 5 May 2020 09:00:44 -0700
+Message-ID: <CANn89iLHV2wyhk6-d6j_4=Ns01AEE5HSA4Qu3LO0gqKgcG81vQ@mail.gmail.com>
+Subject: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
+To:     SeongJae Park <sjpark@amazon.com>
+Cc:     Eric Dumazet <eric.dumazet@gmail.com>,
+        David Miller <davem@davemloft.net>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        sj38.park@gmail.com, netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        SeongJae Park <sjpark@amazon.de>, snu@amazon.com,
+        amit@kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, May 5, 2020 at 8:47 AM SeongJae Park <sjpark@amazon.com> wrote:
+>
+> On Tue, 5 May 2020 08:20:50 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
+>
+> >
+> >
+> > On 5/5/20 8:07 AM, SeongJae Park wrote:
+> > > On Tue, 5 May 2020 07:53:39 -0700 Eric Dumazet <edumazet@google.com> wrote:
+> > >
+> >
+> > >> Why do we have 10,000,000 objects around ? Could this be because of
+> > >> some RCU problem ?
+> > >
+> > > Mainly because of a long RCU grace period, as you guess.  I have no idea how
+> > > the grace period became so long in this case.
+> > >
+> > > As my test machine was a virtual machine instance, I guess RCU readers
+> > > preemption[1] like problem might affected this.
+> > >
+> > > [1] https://www.usenix.org/system/files/conference/atc17/atc17-prasad.pdf
+> > >
+> > >>
+> > >> Once Al patches reverted, do you have 10,000,000 sock_alloc around ?
+> > >
+> > > Yes, both the old kernel that prior to Al's patches and the recent kernel
+> > > reverting the Al's patches didn't reproduce the problem.
+> > >
+> >
+> > I repeat my question : Do you have 10,000,000 (smaller) objects kept in slab caches ?
+> >
+> > TCP sockets use the (very complex, error prone) SLAB_TYPESAFE_BY_RCU, but not the struct socket_wq
+> > object that was allocated in sock_alloc_inode() before Al patches.
+> >
+> > These objects should be visible in kmalloc-64 kmem cache.
+>
+> Not exactly the 10,000,000, as it is only the possible highest number, but I
+> was able to observe clear exponential increase of the number of the objects
+> using slabtop.  Before the start of the problematic workload, the number of
+> objects of 'kmalloc-64' was 5760, but I was able to observe the number increase
+> to 1,136,576.
+>
+>           OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME
+> before:   5760   5088  88%    0.06K     90       64       360K kmalloc-64
+> after:  1136576 1136576 100%    0.06K  17759       64     71036K kmalloc-64
+>
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Great, thanks.
 
-On Tue 2020-05-05 11:32:27, Sasha Levin wrote:
-> On Tue, May 05, 2020 at 05:05:37PM +0300, Andy Shevchenko wrote:
-> > On Tue, May 5, 2020 at 4:37 PM Pavel Machek <pavel@denx.de> wrote:
-> > > On Tue 2020-05-05 16:19:11, Andy Shevchenko wrote:
-> > > > On Tue, May 5, 2020 at 3:58 PM Pavel Machek <pavel@denx.de> wrote:
-> > > > > On Tue 2020-05-05 15:51:16, Andy Shevchenko wrote:
-> > > > > > On Tue, May 5, 2020 at 3:37 PM Pavel Machek <pavel@denx.de> wro=
-te:
-> > > > > Yeah, I pointed that out above. Both && and || permit short
-> > > > > execution. But that does not matter, as neither "params->iteratio=
-ns"
-> > > > > nor "total_tests >=3D params->iterations" have side effects.
-> > > > >
-> > > > > Where is the runtime difference?
-> > > >
-> > > > We have to check *both* conditions. If we don't check iterations, we
-> > > > just wait indefinitely until somebody tells us to stop.
-> > > > Everything in the commit message and mentioned there commit IDs whi=
-ch
-> > > > you may check.
-> > >=20
-> > > No.
-> >=20
-> > Yes. Please, read carefully the commit message (for your convenience I
-> > emphasized above). I don't want to spend time on this basics stuff
-> > anymore.
->=20
-> I'm a bit confused about this too. Maybe it's too early in the morning,
-> so I wrote this little test program:
->=20
-> #include <stdio.h>
-> #include <stdlib.h>
->=20
-> int main(int argc, char *argv[])
-> {
->        int a =3D atoi(argv[1]);
->        int b =3D atoi(argv[2]);
->=20
->        if (!a && !b)
->                printf("A");
->        else
->                printf("B");
->=20
->        if (!(a || b))
->                printf("A");
->        else
->                printf("B");
->=20
->        printf("\n");
->=20
->        return 0;
-> }
->=20
-> Andy, could you give an example of two values which will print something
-> other than "AA" or "BB"?
+How recent is the kernel you are running for your experiment ?
 
-The issue here is "sideffects". Does b have to be evaluated at all?
-There is no difference between
+Let's make sure the bug is not in RCU.
 
-      int a, b;
-      if (a && b)
-
-and
-
-	if ((!!a) & (!!b))
-=2E
-
-But there would be difference between
-
-      int a, b;
-        if (a && b++)
-
-and
-	if ((!!a) & (!!(b++)))
-
-But:
-
-1) && and || behave same way w.r.t. side effects
-
-2) in the patch we are talking about b has no important side effects
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---17pEHd4RhPHOinZp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXrGM7gAKCRAw5/Bqldv6
-8ieJAJ4v4FEtbiT64CSr1N7iWJDlt5yAyQCgt4ofhBcePU1F0Lwfl6ckQtbf7gc=
-=NMSn
------END PGP SIGNATURE-----
-
---17pEHd4RhPHOinZp--
+After Al changes, RCU got slightly better under stress.
