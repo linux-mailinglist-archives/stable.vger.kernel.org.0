@@ -2,135 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 184371C4B22
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 02:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 482831C4B78
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 03:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726864AbgEEAng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 May 2020 20:43:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35316 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726635AbgEEAng (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 May 2020 20:43:36 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC760C061A0E
-        for <stable@vger.kernel.org>; Mon,  4 May 2020 17:43:35 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id x77so47271pfc.0
-        for <stable@vger.kernel.org>; Mon, 04 May 2020 17:43:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lEeFUCzOxVEBFo87KyjNr3s+/BWcZh0V9fGHd3tmscQ=;
-        b=Gw26IHTivuqzwDAVPgmykrbd9W2e9HohPSsPLBDD+PhWR+lPlGC4HqhyNh/g1S01Qr
-         HrKfPp9jnL9Nr3E/bNKsBPU1O7UmWcUKNlDfg8cy6up+RoaBvZO8nEbi/skTn3ml+TH3
-         /i7Jhtw7Rp8CSiynukme0f/bmv8c+G8f7JNUk1QdcJV7ITM8sUfwQ8ct+PfW9CqR8NuX
-         AhQoFQWpE1JIlW/w4mV7C0HbTtVe1qPqA1+ortmR2zexawS8xR6d/tOCoMNdDM+esqWD
-         LPWtyRwQ4O0cM2cVB8iw8R4uDZkaFutfiqGZz4RFA+eGuYeMaZKId3Oe61E9z5w1xZ0j
-         92hA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lEeFUCzOxVEBFo87KyjNr3s+/BWcZh0V9fGHd3tmscQ=;
-        b=c8oNzqcsFfk/hUAnlts2kHyjWzZak07f84Wj3FurSYfgtSnB2/AM9YHzDgwD52MdNY
-         ArUjAeC0Tcem06sQVUGPbPRZzHlX5IYrCzNRtOp3iUq+InXqkg0SAdRiewhSu1B9s4Fw
-         sHhHpROKMx65SZ/OM6v7ueE7HSI7pDaDeZlQqH40Vk22nHEF3d59UJy3I/IIvMhuda73
-         7rlEx7/pzzrqOkzyn/t9rLjUqBCuVD39evnNHiCW1t8SdX+wj/e3TezSEWlcBCMVHaOy
-         t07iKaUtNsqI9WzfoZWpFqy+PR0fEfEe5kFN9ECqBBh8jMGLrboL7qBVWV873S5mpe29
-         iq7w==
-X-Gm-Message-State: AGi0PuazXDSvD0z0YREhUio5tIQhAFdWQbUNgrTsuN4+phhxNzYeqwqF
-        S6ygmxSm4P8JiZMzQUgIWqTjTBsszic=
-X-Google-Smtp-Source: APiQypKIcrfXcfOIxPuyhbzgUvQkfxY2U6hR5aLQQOKaBKQh+FdvjDuDja/OX8+EseoVtnHzQJ/dcA==
-X-Received: by 2002:a63:7745:: with SMTP id s66mr818741pgc.340.1588639415086;
-        Mon, 04 May 2020 17:43:35 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r28sm255479pfg.186.2020.05.04.17.43.33
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 May 2020 17:43:34 -0700 (PDT)
-Message-ID: <5eb0b6b6.1c69fb81.3a91c.1336@mx.google.com>
-Date:   Mon, 04 May 2020 17:43:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726549AbgEEBXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 May 2020 21:23:50 -0400
+Received: from mga07.intel.com ([134.134.136.100]:22407 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726449AbgEEBXu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 May 2020 21:23:50 -0400
+IronPort-SDR: 35XBgMbZdnob1TeKL78eUbvQNqq6dA3mZg8ppHC1N87086UkX2ztrnyc/dw3STS3IMPhCyOkWG
+ U6Vj7MHsqHUw==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 May 2020 18:23:50 -0700
+IronPort-SDR: 1glRIAMBxjR87TBrN1TQRXqyzviknoC4M8eozyI6AfggyydRFJEd5rAbb7qMuS/IE4ot6j5OSf
+ HolbMofOg+1A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,354,1583222400"; 
+   d="scan'208";a="406663372"
+Received: from sjchrist-coffee.jf.intel.com ([10.54.74.152])
+  by orsmga004.jf.intel.com with ESMTP; 04 May 2020 18:23:49 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
+        Tobias Urdin <tobias.urdin@binero.com>
+Subject: [PATCH 4.19 STABLE 0/2] KVM: VMX: Fix null pointer dereference
+Date:   Mon,  4 May 2020 18:23:46 -0700
+Message-Id: <20200505012348.17099-1-sean.j.christopherson@intel.com>
+X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.178-27-g6d39cf919746
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.14.y boot: 126 boots: 1 failed,
- 114 passed with 5 offline, 5 untried/unknown,
- 1 conflict (v4.14.178-27-g6d39cf919746)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 126 boots: 1 failed, 114 passed with 5 offline=
-, 5 untried/unknown, 1 conflict (v4.14.178-27-g6d39cf919746)
+A simple fix for a null pointer dereference in vmx_vcpu_run() with an
+ugly-but-safe prereq patch.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.178-27-g6d39cf919746/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.178-27-g6d39cf919746/
+The fix also has a wart/hack where it marks RSP as clobbered using
+ASM_CALL_CONSTRAINT to workaround an issue where the VM-Exit label isn't
+found by _something_ during modpost.  I vaguely recall seeing the same
+issue when I first worked on this code a few years back.  I think it was
+objtool that was confused, but I can't remember the details for the life
+of me.  I don't have more cycles to throw at deciphering the thing, and
+marking RSP as clobbered is safe, so I went with the hack.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.178-27-g6d39cf919746
-Git Commit: 6d39cf91974673a74d6d976ecc107e43bb5c3eb4
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 72 unique boards, 20 SoC families, 17 builds out of 201
+Alternatively, reverting the offending commit (added in v4.19.119) would
+fix the immediate issue, but RDX and RSI technically need to be marked as
+clobbered even though it's extremely unlikely the compiler will consume
+their bad value.  All of the above ugliness seems preferable to leaving a
+known bug in place.
 
-Boot Regressions Detected:
+Sean Christopherson (2):
+  KVM: VMX: Explicitly reference RCX as the vmx_vcpu pointer in asm
+    blobs
+  KVM: VMX: Mark RCX, RDX and RSI as clobbered in vmx_vcpu_run()'s asm
+    blob
 
-arm:
+ arch/x86/kvm/vmx.c | 89 +++++++++++++++++++++++++---------------------
+ 1 file changed, 49 insertions(+), 40 deletions(-)
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 86 days (last pass: v4.14=
-.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
+-- 
+2.26.0
 
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.14.178)
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxbb-p200: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-baylibre: PASS (gcc-8)
-            lab-collabora: FAIL (gcc-8)
-
----
-For more info write to <info@kernelci.org>
