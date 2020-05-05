@@ -2,144 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA1631C5460
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 13:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 275251C54D0
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 13:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728565AbgEELcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 07:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51348 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728422AbgEELcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 07:32:04 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 574EFC0610D5
-        for <stable@vger.kernel.org>; Tue,  5 May 2020 04:32:02 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id j3so1217382ljg.8
-        for <stable@vger.kernel.org>; Tue, 05 May 2020 04:32:02 -0700 (PDT)
+        id S1728703AbgEELyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 07:54:40 -0400
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:11182 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725766AbgEELyj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 07:54:39 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=6Kw2yA9CUSLvugQxqJYorOBTA6l0idW5kKDVSxAH/kE=;
-        b=coAZ8iVOFWOOomoiqm+wZLKCpH4mndA9QXaPX2ELit9fUmObsX+ixV/xRXnEZRzD4Y
-         Gdf2oirbDBqp9LrsFvFeOy/7SgPA9OO0FyuyFFEVgPdvyyhrLfSreBUyPcWw5ns3tuf+
-         anzwvmSxbwTnUT/6PyAyyOzSYi2xsd5oM07WEAKBs4ofvOr8F6Xgvty2BrOsW9j2onbq
-         eoRRyFRlAAPqm3e1sBLaKSqejYgJsl6VCtMiETpa+ZccVmcQ5wwLgx6INRCJqTSAAgtx
-         WgwQETURYW0oU/XwYggKOPKfZExvecXyZLcNegkwd3GBLxNUTm/1uBMJJMFJl3x8PK4o
-         LQjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=6Kw2yA9CUSLvugQxqJYorOBTA6l0idW5kKDVSxAH/kE=;
-        b=A9x/yr4vIqN8hGRqMVBkUbnpTCZZJH63UjduDGlIEBIWQDDPqTey2F0GN1HsKHItoT
-         Hux8G6vlZLVA55flwjgDAib4/ALYIy+J8t/zqr7T/i0X99ISyifVBvVfdjYoSX4Mm3pR
-         DfxX6fPf4mEVj5UXvS8PViSNfbRWVgFICIYglNo9d8Bj2XR2byGXbDH4pSKst1QN/5+B
-         uaykecDw7g1t432oGL9+p2i27DqXeE2UfcGnOWTYrq/ImDLpCA/BAoXulXTrKs1UK1NE
-         CQeMMVzD9fsS7aiOdq7Hke3vuvxcONTjMICk0umn6FMnvaJkx/CQHIeNr8KfvpnLkxIS
-         CqPw==
-X-Gm-Message-State: AGi0PuaS0mE7GyuItse7lIuYivcZqs9AFMtYX8W0OeOKe+w28HvI7wrV
-        uFEwgUAxhp1qxxE91cOrhdg2DghTaksoy3f7Hj7KoQ==
-X-Google-Smtp-Source: APiQypJxsh7E9ZcxUHOPMgujnzqqC41844Pwzmz3J7Msos8vsl6HqgNVKyuYrUnd1CeV9mqGhR7zuEr6aFQB69MShAs=
-X-Received: by 2002:a2e:8999:: with SMTP id c25mr1573219lji.73.1588678320503;
- Tue, 05 May 2020 04:32:00 -0700 (PDT)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1588679679; x=1620215679;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   mime-version;
+  bh=8BQjmnGt09a7PAHU18wEkeIfDAmDAJHpQTHJEnn6w0k=;
+  b=aUUbOoS2RtAtpHXKclGfaQLW6yeqezbmLc+xAOZADImRYqhuXlfysdcB
+   DbKzin9MwuUY68ikfclv0PQHuf9nT7iXe8hGrqJPtTQiou6LarrqFPTh8
+   7TpMroLAXhXLwllHhN0h78QiX22+f8v324m//4UsmIMjXt2GQVjjgjRci
+   g=;
+IronPort-SDR: FZlmZwqxqqUZrb6JmIrTHUBiXbJoSIHpzmQ1GRvTLuYiD3jqOlzFxcoLjShd7Mzo8yVjiLfolf
+ NMGkI93GDOTw==
+X-IronPort-AV: E=Sophos;i="5.73,354,1583193600"; 
+   d="scan'208";a="28942070"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2a-69849ee2.us-west-2.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 05 May 2020 11:54:25 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan2.pdx.amazon.com [10.170.41.162])
+        by email-inbound-relay-2a-69849ee2.us-west-2.amazon.com (Postfix) with ESMTPS id A54A5A22CE;
+        Tue,  5 May 2020 11:54:24 +0000 (UTC)
+Received: from EX13D31EUA001.ant.amazon.com (10.43.165.15) by
+ EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 5 May 2020 11:54:24 +0000
+Received: from u886c93fd17d25d.ant.amazon.com (10.43.161.204) by
+ EX13D31EUA001.ant.amazon.com (10.43.165.15) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Tue, 5 May 2020 11:54:18 +0000
+From:   SeongJae Park <sjpark@amazon.com>
+To:     SeongJae Park <sjpark@amazon.com>
+CC:     <davem@davemloft.net>, <viro@zeniv.linux.org.uk>,
+        <kuba@kernel.org>, <gregkh@linuxfoundation.org>,
+        <edumazet@google.com>, <sj38.park@gmail.com>,
+        <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        SeongJae Park <sjpark@amazon.de>, <snu@amazon.com>,
+        <amit@kernel.org>, <stable@vger.kernel.org>
+Subject: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
+Date:   Tue, 5 May 2020 13:54:02 +0200
+Message-ID: <20200505115402.25768-1-sjpark@amazon.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200505081035.7436-1-sjpark@amazon.com> (raw)
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 5 May 2020 17:01:49 +0530
-Message-ID: <CA+G9fYu4gE2vqSmgyYMfdMS-ZDfQiY1vhk2Jbni+wDJFjLHVKg@mail.gmail.com>
-Subject: stable-rc 4.19: NETDEV WATCHDOG: eth0 (asix): transmit queue 0 timed
- out - net/sched/sch_generic.c:466 dev_watchdog
-To:     Netdev <netdev@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Cc:     Eric Dumazet <edumazet@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        lkft-triage@lists.linaro.org,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>, Jakub Kicinski <kuba@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Originating-IP: [10.43.161.204]
+X-ClientProxiedBy: EX13D06UWC004.ant.amazon.com (10.43.162.97) To
+ EX13D31EUA001.ant.amazon.com (10.43.165.15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While running selftests bpf test_sysctl on stable rc 4.19 branch kernel
-on arm64 hikey device. The following warning was noticed.
+CC-ing stable@vger.kernel.org and adding some more explanations.
 
-[  118.957395] test_bpf: #296 BPF_MAXINSNS: exec all MSH
-[  148.966435] ------------[ cut here ]------------
-[  148.988349] NETDEV WATCHDOG: eth0 (asix): transmit queue 0 timed out
-[  149.000832] WARNING: CPU: 0 PID: 0 at
-/usr/src/kernel/net/sched/sch_generic.c:466 dev_watchdog+0x2b4/0x2c0
-[  149.016470] Modules linked in: test_bpf(+) wl18xx wlcore mac80211
-cfg80211 crc32_ce hci_uart crct10dif_ce btbcm snd_soc_audio_graph_card
-bluetooth snd_soc_simple_card_utils adv7511 cec wlcore_sdio kirin_drm
-dw_drm_dsi rfkill drm_kms_helper drm drm_panel_orientation_quirks fuse
-[last unloaded: test_bpf]
-[  149.056507] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.121-rc1 #1
-[  149.069594] Hardware name: HiKey Development Board (DT)
-[  149.081514] pstate: 80000005 (Nzcv daif -PAN -UAO)
-[  149.093062] pc : dev_watchdog+0x2b4/0x2c0
-[  149.103862] lr : dev_watchdog+0x2b4/0x2c0
-[  149.114575] sp : ffff000008003d10
-[  149.124613] x29: ffff000008003d10 x28: 0000000000000002
-[  149.136698] x27: 0000000000000001 x26: 00000000ffffffff
-[  149.148810] x25: 0000000000000180 x24: ffff800074c654b8
-[  149.160891] x23: ffff800074c65460 x22: ffff8000748dd680
-[  149.172993] x21: ffff00000974a000 x20: ffff800074c65000
-[  149.185065] x19: 0000000000000000 x18: ffffffffffffffff
-[  149.197172] x17: 0000000000000000 x16: 0000000000000000
-[  149.209243] x15: 0000000000000001 x14: ffff000009062cd8
-[  149.221234] x13: 0000000045a6fc2a x12: ffff00000975b630
-[  149.233166] x11: 00000000ffffffff x10: ffff00000974fa48
-[  149.245023] x9 : ffff0000097e3000 x8 : ffff00000974fa48
-[  149.256818] x7 : ffff000008173694 x6 : ffff800077ee62d0
-[  149.268639] x5 : ffff800077ee62d0 x4 : 0000000000000000
-[  149.280412] x3 : ffff800077eef6c8 x2 : 0000000000000103
-[  149.292120] x1 : d13523b333b73d00 x0 : 0000000000000000
-[  149.303783] Call trace:
-[  149.312481]  dev_watchdog+0x2b4/0x2c0
-[  149.322463]  call_timer_fn+0xbc/0x3f0
-[  149.332463]  expire_timers+0x104/0x220
-[  149.342493]  run_timer_softirq+0xec/0x1a8
-[  149.352784]  __do_softirq+0x114/0x554
-[  149.362668]  irq_exit+0x144/0x150
-[  149.372235]  __handle_domain_irq+0x6c/0xc0
-[  149.382633]  gic_handle_irq+0x60/0xb0
-[  149.392606]  el1_irq+0xb4/0x130
-[  149.402031]  cpuidle_enter_state+0xbc/0x3f0
-[  149.412572]  cpuidle_enter+0x34/0x48
-[  149.422539]  call_cpuidle+0x44/0x78
-[  149.432410]  do_idle+0x228/0x2a8
-[  149.441959]  cpu_startup_entry+0x2c/0x30
-[  149.452185]  rest_init+0x25c/0x270
-[  149.461821]  start_kernel+0x468/0x494
-[  149.471659] irq event stamp: 5706193
-[  149.481376] hardirqs last  enabled at (5706192):
-[<ffff00000817376c>] console_unlock+0x424/0x638
-[  149.496628] hardirqs last disabled at (5706193):
-[<ffff000008081490>] do_debug_exception+0xf8/0x1d0
-[  149.512207] softirqs last  enabled at (5706160):
-[<ffff0000080f94a8>] _local_bh_enable+0x28/0x48
-[  149.527590] softirqs last disabled at (5706161):
-[<ffff0000080f9bb4>] irq_exit+0x144/0x150
-[  149.542410] ---[ end trace 4c7bd8e08a6a3d65 ]---
-[  177.828500] jited:1 1366234 PASS
+On Tue, 5 May 2020 10:10:33 +0200 SeongJae Park <sjpark@amazon.com> wrote:
 
-ref:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/build/v4.19.120-38-g2e3613309d93/testrun/1415357/log
+> From: SeongJae Park <sjpark@amazon.de>
+> 
+> The commit 6d7855c54e1e ("sockfs: switch to ->free_inode()") made the
+> deallocation of 'socket_alloc' to be done asynchronously using RCU, as
+> same to 'sock.wq'.  And the following commit 333f7909a857 ("coallocate
+> socket_sq with socket itself") made those to have same life cycle.
+> 
+> The changes made the code much more simple, but also made 'socket_alloc'
+> live longer than before.  For the reason, user programs intensively
+> repeating allocations and deallocations of sockets could cause memory
+> pressure on recent kernels.
 
-metadata:
-  git branch: linux-4.19.y
-  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-  make_kernelversion: 4.19.121-rc1
-  kernel-config:
-http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/hikey/lkft/linux-stable-rc-4.19/530/config
+I found this problem on a production virtual machine utilizing 4GB memory while
+running lebench[1].  The 'poll big' test of lebench opens 1000 sockets, polls
+and closes those.  This test is repeated 10,000 times.  Therefore it should
+consume only 1000 'socket_alloc' objects at once.  As size of socket_alloc is
+about 800 Bytes, it's only 800 KiB.  However, on the recent kernels, it could
+consume up to 10,000,000 objects (about 8 GiB).  On the test machine, I
+confirmed it consuming about 4GB of the system memory and results in OOM.
 
--- 
-Linaro LKFT
-https://lkft.linaro.org
+[1] https://github.com/LinuxPerfStudy/LEBench
+
+> 
+> To avoid the problem, this commit reverts the changes.
+
+I also tried to make fixup rather than reverts, but I couldn't easily find
+simple fixup.  As the commits 6d7855c54e1e and 333f7909a857 were for code
+refactoring rather than performance optimization, I thought introducing complex
+fixup for this problem would make no sense.  Meanwhile, the memory pressure
+regression could affect real machines.  To this end, I decided to quickly
+revert the commits first and consider better refactoring later.
+
+
+Thanks,
+SeongJae Park
+
+> 
+> SeongJae Park (2):
+>   Revert "coallocate socket_wq with socket itself"
+>   Revert "sockfs: switch to ->free_inode()"
+> 
+>  drivers/net/tap.c      |  5 +++--
+>  drivers/net/tun.c      |  8 +++++---
+>  include/linux/if_tap.h |  1 +
+>  include/linux/net.h    |  4 ++--
+>  include/net/sock.h     |  4 ++--
+>  net/core/sock.c        |  2 +-
+>  net/socket.c           | 23 ++++++++++++++++-------
+>  7 files changed, 30 insertions(+), 17 deletions(-)
+> 
+> -- 
+> 2.17.1
