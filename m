@@ -2,167 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCBC41C636B
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 23:52:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B4B1C644C
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 01:12:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728356AbgEEVwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 17:52:21 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:61500 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728135AbgEEVwV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 17:52:21 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21124363-1500050 
-        for multiple; Tue, 05 May 2020 22:52:18 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 01/14] drm/i915: Mark concurrent submissions with a weak-dependency
-Date:   Tue,  5 May 2020 22:52:01 +0100
-Message-Id: <20200505215214.9690-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1729159AbgEEXMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 19:12:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48564 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727089AbgEEXMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 19:12:12 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9830CC061A0F;
+        Tue,  5 May 2020 16:12:11 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id e16so4691924wra.7;
+        Tue, 05 May 2020 16:12:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=5nCJ70q6OrlsQs6J0gSq3Rwu8I1zCE+Jl2YwAdQlPNo=;
+        b=jhRV68V1BWkaeYFDVHBkeAYHqLuJC0/f4h1ReJijnx+ZItov5jdwfT05XcBfcUetfv
+         PXYO2+tbZCam9dqETbyWzBUoUONNo3kfSBZ2dxujzNJh0MZvSs2yQEPSFXqk6gLTHtSN
+         LRKkuaER46B8ADSCjz3pUbfNx0rnqxjbcXJwtmHrcz74h87/tXPzZbij0McQDXTXoFFP
+         0Gv9MWevJDZVHQZfruUjJFDVNP+/9K/8jLc2fGbEJwdD/0QqhMzNFWK9q0XZcSGoXiLS
+         V9L2F0oFuvY6d0DzlcSv5z1uQ8w9YjNroxEBzN5sdIi3+iN7WNTuhg1+mkuInifqLtDy
+         Z0DA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=5nCJ70q6OrlsQs6J0gSq3Rwu8I1zCE+Jl2YwAdQlPNo=;
+        b=Kl8yWbLqldZVSDCqSTFG9sDnNl8MsptJUiq3c2wz6CMoE4m05sDgk+Q/dZ1WsS/CUq
+         gGTNQ8fPIVy2lqDVjf6BjfC0cQ8oGQ0nMzt9d/Ne4RT3MkTWMCGyPZvX/w4yVzEy0vWk
+         5O/wBKhqwBix/iwpQIJ2qCuZUVm7TjTETWufqN1LAkKXN0ZVmOB+CikE9LMoQcN8cWDb
+         iwA4mFbCEsTZsPbBSYfRFfjDWknNN5vlyEVQ0jGIuYVOQoJu2cOld5rv/8nhqKMse0U7
+         aNniukCP5RteKQkM1jILcdZ8zUkw/2WBDfa68Y5a7fwYNKh8Oj+mwvTlD+w8l9MBhNC4
+         qQmg==
+X-Gm-Message-State: AGi0PuY3/N96yNFlGNkXW5VeQotgGpZBGeO+8XUC9BFBer9DJ17Dg4Ok
+        go36lfhVA43dFKCFxEaIwuo=
+X-Google-Smtp-Source: APiQypLVljBZkbjWKlDFFTM1aT8j4lcKSwyon9q9hMwYVKmrIlQZFEqUiRoqJmuhy2mjP/qcKlYT9Q==
+X-Received: by 2002:adf:dfcd:: with SMTP id q13mr4933591wrn.22.1588720329521;
+        Tue, 05 May 2020 16:12:09 -0700 (PDT)
+Received: from localhost (p2E5BE57B.dip0.t-ipconnect.de. [46.91.229.123])
+        by smtp.gmail.com with ESMTPSA id w6sm106310wrt.39.2020.05.05.16.12.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 May 2020 16:12:07 -0700 (PDT)
+Date:   Wed, 6 May 2020 01:12:05 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
+        Peter Robinson <pbrobinson@redhat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] arm64: tegra: Fix ethernet phy-mode for Jetson Xavier
+Message-ID: <20200505231205.GA2682073@ulmo>
+References: <20200501072756.25348-1-jonathanh@nvidia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
+Content-Disposition: inline
+In-Reply-To: <20200501072756.25348-1-jonathanh@nvidia.com>
+User-Agent: Mutt/1.13.1 (2019-12-14)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
-correctly perform priority inheritance from the parallel branches to the
-common trunk. However, for the purpose of timeslicing and reset
-handling, the dependency is weak -- as we the pair of requests are
-allowed to run in parallel and not in strict succession. So for example
-we do need to suspend one if the other hangs.
 
-The real significance though is that this allows us to rearrange
-groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
-so can resolve user level inter-batch scheduling dependencies from user
-semaphores.
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
----
- drivers/gpu/drm/i915/gt/intel_lrc.c         | 9 +++++++++
- drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
- drivers/gpu/drm/i915/i915_scheduler.c       | 4 +++-
- drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
- drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
- 5 files changed, 21 insertions(+), 4 deletions(-)
+On Fri, May 01, 2020 at 08:27:56AM +0100, Jon Hunter wrote:
+> The 'phy-mode' property is currently defined as 'rgmii' for Jetson
+> Xavier. This indicates that the RGMII RX and TX delays are set by the
+> MAC and the internal delays set by the PHY are not used.
+>=20
+> If the Marvell PHY driver is enabled, such that it is used and not the
+> generic PHY, ethernet failures are seen (DHCP is failing to obtain an
+> IP address) and this is caused because the Marvell PHY driver is
+> disabling the internal RX and TX delays. For Jetson Xavier the internal
+> PHY RX and TX delay should be used and so fix this by setting the
+> 'phy-mode' to 'rgmii-id' and not 'rgmii'.
+>=20
+> Cc: stable@vger.kernel.org
+>=20
+> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+> ---
+>  arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index dc3f2ee7136d..10109f661bcb 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1880,6 +1880,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2726,6 +2729,9 @@ static void __execlists_hold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2850,6 +2856,9 @@ static void __execlists_unhold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Propagate any change in error status */
- 			if (rq->fence.error)
- 				i915_request_set_error_once(w, rq->fence.error);
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 22635bbabf06..95edc5523a01 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1038,7 +1038,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 		return 0;
- 
- 	if (to->engine->schedule) {
--		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		ret = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     0);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -1200,7 +1202,9 @@ __i915_request_await_execution(struct i915_request *to,
- 
- 	/* Couple the dependency tree for PI on this exposed to->fence */
- 	if (to->engine->schedule) {
--		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		err = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_WEAK);
- 		if (err < 0)
- 			return err;
- 	}
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
-index 37cfcf5b321b..5f4c1e49e974 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.c
-+++ b/drivers/gpu/drm/i915/i915_scheduler.c
-@@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- }
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal)
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags)
- {
- 	struct i915_dependency *dep;
- 
-@@ -473,6 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
- 	local_bh_disable();
- 
- 	if (!__i915_sched_node_add_dependency(node, signal, dep,
-+					      flags |
- 					      I915_DEPENDENCY_EXTERNAL |
- 					      I915_DEPENDENCY_ALLOC))
- 		i915_dependency_free(dep);
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
-index d1dc4efef77b..6f0bf00fc569 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler.h
-@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- 				      unsigned long flags);
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal);
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags);
- 
- void i915_sched_node_fini(struct i915_sched_node *node);
- 
-diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
-index d18e70550054..7186875088a0 100644
---- a/drivers/gpu/drm/i915/i915_scheduler_types.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
-@@ -78,6 +78,7 @@ struct i915_dependency {
- 	unsigned long flags;
- #define I915_DEPENDENCY_ALLOC		BIT(0)
- #define I915_DEPENDENCY_EXTERNAL	BIT(1)
-+#define I915_DEPENDENCY_WEAK		BIT(2)
- };
- 
- #endif /* _I915_SCHEDULER_TYPES_H_ */
--- 
-2.20.1
+Added a Fixes: tag and applied to for-5.8/arm64/dt, thanks.
 
+Thierry
+
+--liOOAslEiF7prFVr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl6x8q4ACgkQ3SOs138+
+s6Hj4A//bZzyUQMMk8z/OhSarJzGUzrOqlYlezjQWrmfuCIkygHuWvV/VxPmaHPK
+PHCC9sdUBqlv2ZLRSlOxwMDYiZGCI8cht26eZwYSteHvaVm/IbIPs24y/nLf+FDB
+GXAN0dGim6OwcwHvJ1UiGzSbmwvp51YIdqTujH8UgQgjfUjHcf5ZQZ95cmXLi6gd
+RSSVQ5Pmmk/FG2wYq9y8w/wgBP0NQXegb0wsQ8U4AMP9EetQL1k+L5BlBIEvhCrp
+9NHvPovmlyzCPic7qEPD637LNJViCT+It7lE46V2y1FWlKeFdFPwwmzipDwxX6i5
+wKGx9x9QMCcg9s50uRRtbSrN81PNUZfR8bE2AITRqrLMF1i1u4wd9ERveLq3qMla
+c2WxvcfTOA2/MCHj62Qq+/WglXw31bzm7FbJyjIdjIz5jNM8oK5E15TWJShSc0MN
+/DGt0YQkZeoeqlzlyYsr1UMeAi087ToBvxA4KgfIX9kx093kM/YOUIvllqUn3GD7
+eqYaoygiMJSQIHLqvHvpPvMLuS3PLBHucJozOjL7E47yzPrkuOZ8rWIQTQZiI4d6
+g1Iyt5CSG5ZZ+XJUpTYuVMPdcTnBp0bdo+AmS6U3sVnpwT22Dr6BnsHKYyweci2A
+c89pQBxfY3quf7jj9XmPX2d8Zf0nQjDkoqAxQbP12CgD5UCUQr0=
+=dj8D
+-----END PGP SIGNATURE-----
+
+--liOOAslEiF7prFVr--
