@@ -2,260 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF9B21C604B
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 20:41:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A0C81C605B
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 20:43:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728947AbgEESlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 14:41:08 -0400
-Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:56894 "EHLO
-        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728773AbgEESlI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 14:41:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1588704066; x=1620240066;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   mime-version;
-  bh=Pmhdl+F9svMgg/hZ96GUzX/sEAZ5CZ9xQymQDln6EcE=;
-  b=Bh/7dMlLhqRw1hP7Lz12on+4UT7RhbvJRSve1xF3LhyEyLBYqcL63ipa
-   tl8XgzHqsRtyKBlcNsUDohr0qwdjNArceZ/+6tcRtcP0ZQzS5NH4eOAYS
-   iEpQwFyu+ZHjNiIOyM7oHJMDwRAX8uqtNRJ1ZNvLnYOKBBvLJNTSH1lCP
-   Y=;
-IronPort-SDR: EravTbAVmLBHkSx3lQpiDnReknjtBUi+w6EnsSH8gkf4h6qN5dvTqYW/g/7T88MBe550S83Rwj
- PYJfL+L0Gayg==
-X-IronPort-AV: E=Sophos;i="5.73,356,1583193600"; 
-   d="scan'208";a="30184771"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1d-9ec21598.us-east-1.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 05 May 2020 18:40:53 +0000
-Received: from EX13MTAUEA002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
-        by email-inbound-relay-1d-9ec21598.us-east-1.amazon.com (Postfix) with ESMTPS id 5FB8EA2335;
-        Tue,  5 May 2020 18:40:50 +0000 (UTC)
-Received: from EX13D31EUA001.ant.amazon.com (10.43.165.15) by
- EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 5 May 2020 18:40:49 +0000
-Received: from u886c93fd17d25d.ant.amazon.com (10.43.160.180) by
- EX13D31EUA001.ant.amazon.com (10.43.165.15) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 5 May 2020 18:40:41 +0000
-From:   SeongJae Park <sjpark@amazon.com>
-To:     "Paul E. McKenney" <paulmck@kernel.org>
-CC:     SeongJae Park <sjpark@amazon.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        David Miller <davem@davemloft.net>,
-        "Al Viro" <viro@zeniv.linux.org.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        <sj38.park@gmail.com>, netdev <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        SeongJae Park <sjpark@amazon.de>, <snu@amazon.com>,
-        <amit@kernel.org>, <stable@vger.kernel.org>
-Subject: Re: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
-Date:   Tue, 5 May 2020 20:40:07 +0200
-Message-ID: <20200505184007.3562-1-sjpark@amazon.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200505182720.GK2869@paulmck-ThinkPad-P72> (raw)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.43.160.180]
-X-ClientProxiedBy: EX13D02UWB004.ant.amazon.com (10.43.161.11) To
- EX13D31EUA001.ant.amazon.com (10.43.165.15)
+        id S1728660AbgEESnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 14:43:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46982 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728135AbgEESnF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 May 2020 14:43:05 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE3A320721;
+        Tue,  5 May 2020 18:43:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588704184;
+        bh=iUijfZGtWFgaeu5AM4sQX3So+e8YwUKs/nlxJ+7mmoY=;
+        h=Date:From:To:Subject:From;
+        b=oWQ5qbTacml+1RTLGzoguJQ/L6gILzN0nf3X6kolH54n7Pdrb0uSU2qg9TdvYlttv
+         XbNUI+bflTLHmTIrV4JIbQZ7GrL29r1tDs5ZmdPElprTqeq6OA17s1Idf9IIrwMBm8
+         utFp18k9pLWHEOwjr4ulKfMvMJ5VUmJiPG2oiex8=
+Date:   Tue, 05 May 2020 11:43:04 -0700
+From:   akpm@linux-foundation.org
+To:     jbaron@akamai.com, khazhy@google.com, mm-commits@vger.kernel.org,
+        rpenyaev@suse.de, stable@vger.kernel.org, viro@zeniv.linux.org.uk
+Subject:  +
+ epoll-call-final-ep_events_available-check-under-the-lock.patch added to
+ -mm tree
+Message-ID: <20200505184304.mOo7THuYh%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 5 May 2020 11:27:20 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
 
-> On Tue, May 05, 2020 at 07:49:43PM +0200, SeongJae Park wrote:
-> > On Tue, 5 May 2020 10:23:58 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
-> > 
-> > > On Tue, May 05, 2020 at 09:25:06AM -0700, Eric Dumazet wrote:
-> > > > 
-> > > > 
-> > > > On 5/5/20 9:13 AM, SeongJae Park wrote:
-> > > > > On Tue, 5 May 2020 09:00:44 -0700 Eric Dumazet <edumazet@google.com> wrote:
-> > > > > 
-> > > > >> On Tue, May 5, 2020 at 8:47 AM SeongJae Park <sjpark@amazon.com> wrote:
-> > > > >>>
-> > > > >>> On Tue, 5 May 2020 08:20:50 -0700 Eric Dumazet <eric.dumazet@gmail.com> wrote:
-> > > > >>>
-> > > > >>>>
-> > > > >>>>
-> > > > >>>> On 5/5/20 8:07 AM, SeongJae Park wrote:
-> > > > >>>>> On Tue, 5 May 2020 07:53:39 -0700 Eric Dumazet <edumazet@google.com> wrote:
-> > > > >>>>>
-> > > > >>>>
-> > > > >>>>>> Why do we have 10,000,000 objects around ? Could this be because of
-> > > > >>>>>> some RCU problem ?
-> > > > >>>>>
-> > > > >>>>> Mainly because of a long RCU grace period, as you guess.  I have no idea how
-> > > > >>>>> the grace period became so long in this case.
-> > > > >>>>>
-> > > > >>>>> As my test machine was a virtual machine instance, I guess RCU readers
-> > > > >>>>> preemption[1] like problem might affected this.
-> > > > >>>>>
-> > > > >>>>> [1] https://www.usenix.org/system/files/conference/atc17/atc17-prasad.pdf
-> > > 
-> > > If this is the root cause of the problem, then it will be necessary to
-> > > provide a hint to the hypervisor.  Or, in the near term, avoid loading
-> > > the hypervisor the point that vCPU preemption is so lengthy.
-> > > 
-> > > RCU could also provide some sort of pre-stall-warning notification that
-> > > some of the CPUs aren't passing through quiescent states, which might
-> > > allow the guest OS's userspace to take corrective action.
-> > > 
-> > > But first, what are you doing to either confirm or invalidate the
-> > > hypothesis that this might be due to vCPU preemption?
-> > 
-> > Nothing, I was just guessing.  Sorry if this made you confused.
-> > 
-> > > 
-> > > > >>>>>> Once Al patches reverted, do you have 10,000,000 sock_alloc around ?
-> > > > >>>>>
-> > > > >>>>> Yes, both the old kernel that prior to Al's patches and the recent kernel
-> > > > >>>>> reverting the Al's patches didn't reproduce the problem.
-> > > > >>>>>
-> > > > >>>>
-> > > > >>>> I repeat my question : Do you have 10,000,000 (smaller) objects kept in slab caches ?
-> > > > >>>>
-> > > > >>>> TCP sockets use the (very complex, error prone) SLAB_TYPESAFE_BY_RCU, but not the struct socket_wq
-> > > > >>>> object that was allocated in sock_alloc_inode() before Al patches.
-> > > > >>>>
-> > > > >>>> These objects should be visible in kmalloc-64 kmem cache.
-> > > > >>>
-> > > > >>> Not exactly the 10,000,000, as it is only the possible highest number, but I
-> > > > >>> was able to observe clear exponential increase of the number of the objects
-> > > > >>> using slabtop.  Before the start of the problematic workload, the number of
-> > > > >>> objects of 'kmalloc-64' was 5760, but I was able to observe the number increase
-> > > > >>> to 1,136,576.
-> > > > >>>
-> > > > >>>           OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME
-> > > > >>> before:   5760   5088  88%    0.06K     90       64       360K kmalloc-64
-> > > > >>> after:  1136576 1136576 100%    0.06K  17759       64     71036K kmalloc-64
-> > > > >>>
-> > > > >>
-> > > > >> Great, thanks.
-> > > > >>
-> > > > >> How recent is the kernel you are running for your experiment ?
-> > > > > 
-> > > > > It's based on 5.4.35.
-> > > 
-> > > Is it possible to retest on v5.6?  I have been adding various mechanisms
-> > > to make RCU keep up better with heavy callback overload.
-> > 
-> > I will try soon!
-> > 
-> > > 
-> > > Also, could you please provide the .config?  If either NO_HZ_FULL or
-> > > RCU_NOCB_CPU, please also provide the kernel boot parameters.
-> > 
-> > NO_HZ_FULL is not set, but RCU_NOCB_CPU is y.
-> 
-> OK, this is important information.
-> 
-> > I think I should check whether it's ok to share the full config and boot
-> > parameters.  Please wait this.
-> 
-> I probably don't need the whole thing.  So, if it makes it easier to
-> gain approval...
-> 
-> The main thing I need are CONFIG_PREEMPT and the various Kconfig options
-> having "RCU" in their names.  For example, I have no need for any of the
-> options pertaining to device drivers.  (As far as I know at the moment,
-> anyway!)
-> 
-> For the boot parameters, I am very interested in rcu_nocbs=.  Along with
-> any other boot parameters whose names contain "rcu".
+The patch titled
+     Subject: epoll: call final ep_events_available() check under the lock
+has been added to the -mm tree.  Its filename is
+     epoll-call-final-ep_events_available-check-under-the-lock.patch
 
-I guess this would be ok.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/epoll-call-final-ep_events_available-check-under-the-lock.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/epoll-call-final-ep_events_available-check-under-the-lock.patch
 
-It uses no 'rcu_nocbs=' boot parameter.  
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-The configs you asked are as below:
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-    # CONFIG_PREEMPT is not set
-    
-    #
-    # RCU Subsystem
-    #
-    CONFIG_TREE_RCU=y
-    CONFIG_RCU_EXPERT=y
-    CONFIG_SRCU=y
-    CONFIG_TREE_SRCU=y
-    CONFIG_RCU_STALL_COMMON=y
-    CONFIG_RCU_NEED_SEGCBLIST=y
-    CONFIG_RCU_FANOUT=64
-    CONFIG_RCU_FANOUT_LEAF=16
-    # CONFIG_RCU_FAST_NO_HZ is not set
-    CONFIG_RCU_NOCB_CPU=y
-    # end of RCU Subsystem
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-> 
-> If rcu_nocbs does designate have any CPUs listed, another thing to check
-> is where the rcuo kthreads are permitted to run.  The reason that this
-> is important is that any CPU listed in the rcu_nocbs= boot parameter
-> has its RCU callbacks invoked by one of the rcuo kthreads.  If you have
-> booted with (say) "rcu_nocbs=1,63" and then bound all of the resulting
-> rcuo kthreads to CPU 0, you just tied RCU's hands, making it unable to
-> keep up with any reasonable RCU callback load.
-> 
-> This sort of configuration is permitted, but it is intended for tightly
-> controlled real-time or HPC systems whose configurations and workloads
-> avoid tossing out large numbers of callbacks.  Which might not be the
-> case for your workload.
-> 
-> > > > >> Let's make sure the bug is not in RCU.
-> > > > > 
-> > > > > One thing I can currently say is that the grace period passes at last.  I
-> > > > > modified the benchmark to repeat not 10,000 times but only 5,000 times to run
-> > > > > the test without OOM but easily observable memory pressure.  As soon as the
-> > > > > benchmark finishes, the memory were freed.
-> > > > > 
-> > > > > If you need more tests, please let me know.
-> > > > 
-> > > > I would ask Paul opinion on this issue, because we have many objects
-> > > > being freed after RCU grace periods.
-> > > 
-> > > As always, "It depends."
-> > > 
-> > > o	If the problem is a too-long RCU reader, RCU is prohibited from
-> > > 	ending the grace period.  The reader duration must be shortened,
-> > > 	and until it is shortened, there is nothing RCU can do.
-> > > 
-> > > o	In some special cases of the above, RCU can and does help, for
-> > > 	example, by enlisting the aid of cond_resched().  So perhaps
-> > > 	there is a long in-kernel loop that needs a cond_resched().
-> > > 
-> > > 	And perhaps RCU can help for some types of vCPU preemption.
-> > > 
-> > > o	As Al suggested offline and as has been discussed in the past,
-> > > 	it would not be hard to cause RCU to burn CPU to attain faster
-> > > 	grace periods during OOM events.  This could be helpful, but only
-> > > 	given that RCU readers are completing in reasonable timeframes.
-> > 
-> > Totally agreed.
-> > 
-> > > > If RCU subsystem can not keep-up, I guess other workloads will also suffer.
-> > > 
-> > > If readers are not excessively long, RCU should be able to keep up.
-> > > (In the absence of misconfigurations, for example, both NO_HZ_FULL and
-> > > then binding all the rcuo kthreads to a single CPU on a 100-CPU system
-> > > or some such.)
-> > > 
-> > > > Sure, we can revert patches there and there trying to work around the issue,
-> > > > but for objects allocated from process context, we should not have these problems.
-> > > 
-> > > Agreed, let's get more info on what is happening to RCU.
-> > > 
-> > > One approach is to shorten the RCU CPU stall warning timeout
-> > > (rcupdate.rcu_cpu_stall_timeout=10 for 10 seconds).
-> > 
-> > I will also try this and let you know the results.
-> 
-> Sounds good, thank you!
+------------------------------------------------------
+From: Roman Penyaev <rpenyaev@suse.de>
+Subject: epoll: call final ep_events_available() check under the lock
 
-:)
+There is a possible race when ep_scan_ready_list() leaves ->rdllist and
+->obflist empty for a short period of time although some events are
+pending.  It is quite likely that ep_events_available() observes empty
+lists and goes to sleep.  Since 339ddb53d373 ("fs/epoll: remove
+unnecessary wakeups of nested epoll") we are conservative in wakeups
+(there is only one place for wakeup and this is ep_poll_callback()), thus
+ep_events_available() must always observe correct state of two lists.  The
+easiest and correct way is to do the final check under the lock.  This
+does not impact the performance, since lock is taken anyway for adding a
+wait entry to the wait queue.
 
+The discussion of the problem can be found here:
+   https://lore.kernel.org/linux-fsdevel/a2f22c3c-c25a-4bda-8339-a7bdaf17849e@akamai.com/
 
-Thanks,
-SeongJae Park
+In this patch barrierless __set_current_state() is used.  This is safe
+since waitqueue_active() is called under the same lock on wakeup side.
+
+Short-circuit for fatal signals (i.e.  fatal_signal_pending() check) is
+moved to the line just before actual events harvesting routine.  This is
+fully compliant to what is said in the comment of the patch where the
+actual fatal_signal_pending() check was added: c257a340ede0 ("fs, epoll:
+short circuit fetching events if thread has been killed").
+
+Link: http://lkml.kernel.org/r/20200505145609.1865152-1-rpenyaev@suse.de
+Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
+Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
+Reported-by: Jason Baron <jbaron@akamai.com>
+Reviewed-by: Jason Baron <jbaron@akamai.com>
+Cc: Khazhismel Kumykov <khazhy@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/eventpoll.c |   48 +++++++++++++++++++++++++++--------------------
+ 1 file changed, 28 insertions(+), 20 deletions(-)
+
+--- a/fs/eventpoll.c~epoll-call-final-ep_events_available-check-under-the-lock
++++ a/fs/eventpoll.c
+@@ -1890,34 +1890,33 @@ fetch_events:
+ 		 * event delivery.
+ 		 */
+ 		init_wait(&wait);
+-		write_lock_irq(&ep->lock);
+-		__add_wait_queue_exclusive(&ep->wq, &wait);
+-		write_unlock_irq(&ep->lock);
+ 
++		write_lock_irq(&ep->lock);
+ 		/*
+-		 * We don't want to sleep if the ep_poll_callback() sends us
+-		 * a wakeup in between. That's why we set the task state
+-		 * to TASK_INTERRUPTIBLE before doing the checks.
++		 * Barrierless variant, waitqueue_active() is called under
++		 * the same lock on wakeup ep_poll_callback() side, so it
++		 * is safe to avoid an explicit barrier.
+ 		 */
+-		set_current_state(TASK_INTERRUPTIBLE);
++		__set_current_state(TASK_INTERRUPTIBLE);
++
+ 		/*
+-		 * Always short-circuit for fatal signals to allow
+-		 * threads to make a timely exit without the chance of
+-		 * finding more events available and fetching
+-		 * repeatedly.
++		 * Do the final check under the lock. ep_scan_ready_list()
++		 * plays with two lists (->rdllist and ->ovflist) and there
++		 * is always a race when both lists are empty for short
++		 * period of time although events are pending, so lock is
++		 * important.
+ 		 */
+-		if (fatal_signal_pending(current)) {
+-			res = -EINTR;
+-			break;
++		eavail = ep_events_available(ep);
++		if (!eavail) {
++			if (signal_pending(current))
++				res = -EINTR;
++			else
++				__add_wait_queue_exclusive(&ep->wq, &wait);
+ 		}
++		write_unlock_irq(&ep->lock);
+ 
+-		eavail = ep_events_available(ep);
+-		if (eavail)
+-			break;
+-		if (signal_pending(current)) {
+-			res = -EINTR;
++		if (eavail || res)
+ 			break;
+-		}
+ 
+ 		if (!schedule_hrtimeout_range(to, slack, HRTIMER_MODE_ABS)) {
+ 			timed_out = 1;
+@@ -1938,6 +1937,15 @@ fetch_events:
+ 	}
+ 
+ send_events:
++	if (fatal_signal_pending(current)) {
++		/*
++		 * Always short-circuit for fatal signals to allow
++		 * threads to make a timely exit without the chance of
++		 * finding more events available and fetching
++		 * repeatedly.
++		 */
++		res = -EINTR;
++	}
+ 	/*
+ 	 * Try to transfer events to user space. In case we get 0 events and
+ 	 * there's still timeout left over, we go trying again in search of
+_
+
+Patches currently in -mm which might be from rpenyaev@suse.de are
+
+kselftests-introduce-new-epoll60-testcase-for-catching-lost-wakeups.patch
+epoll-atomically-remove-wait-entry-on-wake-up.patch
+epoll-call-final-ep_events_available-check-under-the-lock.patch
+
