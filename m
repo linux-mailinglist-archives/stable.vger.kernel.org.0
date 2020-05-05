@@ -2,167 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A33EB1C5684
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 15:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC8291C5698
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 15:19:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728608AbgEENPX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 09:15:23 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:50051 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728497AbgEENPX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 09:15:23 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21119200-1500050 
-        for multiple; Tue, 05 May 2020 14:15:20 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] drm/i915: Mark concurrent submissions with a weak-dependency
-Date:   Tue,  5 May 2020 14:15:15 +0100
-Message-Id: <20200505131516.12466-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1728969AbgEENTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 09:19:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39904 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728892AbgEENTS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 09:19:18 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 674F2C061A0F;
+        Tue,  5 May 2020 06:19:18 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id r4so1019107pgg.4;
+        Tue, 05 May 2020 06:19:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nP+h9rY3+UG7ZYxe1kNna18+qrm6TYtkYOmTToZPCDE=;
+        b=nfvbpWwH9vuDUkcdFjxQdJU0pMZPtshr09ot9N82zDb4eOMMsz6BXTIi7HSLwc1ks/
+         IIJxEgb/TGiMlhHoPRE+MvOVJ5fX2OQnFUhD0rzVH0pJMqfk9apjvmjjX89ZgAplApLO
+         jWgHhatAid0eNGJHm4QhfyHrZfeEgDY6MpKmYHWz4jXSIsLWYGw8JG95JTDDUHh7/JT8
+         klXw5qoGl9c9bbC7kQB5sWU56B9JtPXf5hhDFcdDLqIAUPM39+EYWUDY4IdHdPjX30fV
+         AgFvYcDSNlP2DUNM2xJ1NR+wboxqohxovk9dkiBY7wfoyl9E/nD+uffjXxaJvfqR9h2M
+         pgPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nP+h9rY3+UG7ZYxe1kNna18+qrm6TYtkYOmTToZPCDE=;
+        b=hxEG9go9wSa6zc59EY89ajxr3aUY3iHmr0NnkuacHktqvMIGSnU5W2+k5UM7SxJRde
+         tiHRF8e4XgwGay7b4CpARbH9AEV4s9Gx14ATvXtwCsvOHUbs/VTeP9p42sZXpVMqhLGn
+         YPFF5C7jGrWnuo3bhHkM/4q4WhgFnEuvzXsdGorlHeeHZ8My+b3cNbbePQGYrEFB+0Hh
+         jD9IUXQ6V+JhNZ2tWTohBVF9IGJo8R1Rly63uU3nO4kBL4HxU4ovbaoV5Z0zDQG3qo2u
+         7noypvLh3n4FZs/U2M4R1lNj+mLMvR5apGeB0hvFIYg380P4HGzgBr8Q+XqsfvXAAVU/
+         lCTA==
+X-Gm-Message-State: AGi0PubfSo/L1OWw/oLLjwv+oWV9qZfL7NlciQuFZwivNsShxHEMpAwn
+        rSD3D7QLZIobAXlWnm/XJ65Dlu45SBxTIm2RzCfGZ3VI
+X-Google-Smtp-Source: APiQypL8Bm0VqoCM4pLnLqGVc88hkFYgTJ4LK51MTY1l2+cMHuLiSHywjAV9S5SjtU06WA1ltRKVmh1oVoTrNfiiCgc=
+X-Received: by 2002:a62:5ec7:: with SMTP id s190mr3045321pfb.130.1588684757877;
+ Tue, 05 May 2020 06:19:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200504165448.264746645@linuxfoundation.org> <20200504165451.307643203@linuxfoundation.org>
+ <20200505123159.GC28722@amd> <CAHp75VeM+qwh5rHL7RDdacru0jPSB9me2aTs__jdy749dTKRng@mail.gmail.com>
+ <20200505125818.GA31126@amd>
+In-Reply-To: <20200505125818.GA31126@amd>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Tue, 5 May 2020 16:19:11 +0300
+Message-ID: <CAHp75VcKreeQpjROdL23XGqgVu+F_0eL5DsJ=5APEQUO9V69EQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 28/37] dmaengine: dmatest: Fix iteration non-stop logic
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
-correctly perform priority inheritance from the parallel branches to the
-common trunk. However, for the purpose of timeslicing and reset
-handling, the dependency is weak -- as we the pair of requests are
-allowed to run in parallel and not in strict succession. So for example
-we do need to suspend one if the other hangs.
+On Tue, May 5, 2020 at 3:58 PM Pavel Machek <pavel@denx.de> wrote:
+> On Tue 2020-05-05 15:51:16, Andy Shevchenko wrote:
+> > On Tue, May 5, 2020 at 3:37 PM Pavel Machek <pavel@denx.de> wrote:
+> > > > So, to the point, the conditional of checking the thread to be stopped being
+> > > > first part of conjunction logic prevents to check iterations. Thus, we have to
+> > > > always check both conditions to be able to stop after given
+> > > > iterations.
+> > >
+> > > I ... don't understand. AFAICT the code is equivalent. Both && and ||
+> > > operators permit "short" execution... but second part of expression
+> > > has no sideeffects, so...
+> >
+> > ..
+> >
+> > > You are changing !a & !b into !(a | b). But that's equivalent
+> > > expression. I hate to admit, but I had to draw truth table to prove
+> > > that.
+> ...
+> > > What am I missing?
+> >
+> > Basic stuff. Compiler doesn't consider second part of conjunction when
+> > first one (see operator precedence) is already false, so, it means:
+> >
+> > a & b
+> > 0   x -> false
+> > 1   0 -> false
+> > 1   1 -> true
+> >
+> > x is not being considered at all. So, logically it's equivalent,
+> > run-time it's not.
+>
+> Yeah, I pointed that out above. Both && and || permit short
+> execution. But that does not matter, as neither "params->iterations"
+> nor "total_tests >= params->iterations" have side effects.
+>
+> Where is the runtime difference?
 
-The real significance though is that this allows us to rearrange
-groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
-so can resolve user level inter-batch scheduling dependencies from user
-semaphores.
+We have to check *both* conditions. If we don't check iterations, we
+just wait indefinitely until somebody tells us to stop.
+Everything in the commit message and mentioned there commit IDs which
+you may check.
 
-Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
----
- drivers/gpu/drm/i915/gt/intel_lrc.c         | 9 +++++++++
- drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
- drivers/gpu/drm/i915/i915_scheduler.c       | 4 +++-
- drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
- drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
- 5 files changed, 21 insertions(+), 4 deletions(-)
+> -       while (!kthread_should_stop()
+> -              && !(params->iterations && total_tests >=
+> -              params->iterations)) {
+> +       while (!(kthread_should_stop() ||
+> +              (params->iterations && total_tests >= params->iterations))) {
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index dc3f2ee7136d..10109f661bcb 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1880,6 +1880,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2726,6 +2729,9 @@ static void __execlists_hold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2850,6 +2856,9 @@ static void __execlists_unhold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Propagate any change in error status */
- 			if (rq->fence.error)
- 				i915_request_set_error_once(w, rq->fence.error);
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 22635bbabf06..95edc5523a01 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1038,7 +1038,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 		return 0;
- 
- 	if (to->engine->schedule) {
--		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		ret = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     0);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -1200,7 +1202,9 @@ __i915_request_await_execution(struct i915_request *to,
- 
- 	/* Couple the dependency tree for PI on this exposed to->fence */
- 	if (to->engine->schedule) {
--		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		err = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_WEAK);
- 		if (err < 0)
- 			return err;
- 	}
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
-index 37cfcf5b321b..5f4c1e49e974 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.c
-+++ b/drivers/gpu/drm/i915/i915_scheduler.c
-@@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- }
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal)
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags)
- {
- 	struct i915_dependency *dep;
- 
-@@ -473,6 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
- 	local_bh_disable();
- 
- 	if (!__i915_sched_node_add_dependency(node, signal, dep,
-+					      flags |
- 					      I915_DEPENDENCY_EXTERNAL |
- 					      I915_DEPENDENCY_ALLOC))
- 		i915_dependency_free(dep);
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
-index d1dc4efef77b..6f0bf00fc569 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler.h
-@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- 				      unsigned long flags);
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal);
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags);
- 
- void i915_sched_node_fini(struct i915_sched_node *node);
- 
-diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
-index d18e70550054..7186875088a0 100644
---- a/drivers/gpu/drm/i915/i915_scheduler_types.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
-@@ -78,6 +78,7 @@ struct i915_dependency {
- 	unsigned long flags;
- #define I915_DEPENDENCY_ALLOC		BIT(0)
- #define I915_DEPENDENCY_EXTERNAL	BIT(1)
-+#define I915_DEPENDENCY_WEAK		BIT(2)
- };
- 
- #endif /* _I915_SCHEDULER_TYPES_H_ */
 -- 
-2.20.1
-
+With Best Regards,
+Andy Shevchenko
