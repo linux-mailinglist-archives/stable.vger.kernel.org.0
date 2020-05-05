@@ -2,204 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32CCF1C5997
-	for <lists+stable@lfdr.de>; Tue,  5 May 2020 16:31:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C60EA1C59C9
+	for <lists+stable@lfdr.de>; Tue,  5 May 2020 16:37:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729322AbgEEObU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 May 2020 10:31:20 -0400
-Received: from mx0a-00190b01.pphosted.com ([67.231.149.131]:58246 "EHLO
-        mx0a-00190b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729148AbgEEObU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 May 2020 10:31:20 -0400
-Received: from pps.filterd (m0122332.ppops.net [127.0.0.1])
-        by mx0a-00190b01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 045EQvdd006869;
-        Tue, 5 May 2020 15:30:13 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=jan2016.eng;
- bh=03Nwu6JjsT0rWT9gfDoCTWuSbxK/L+5JpaoujUtPskc=;
- b=fMoPDURtC80n7ph2QV4yAIERO5C+rKNaDjq+l09ixrHP5odJVwy4iL4ZmCD4WEmBSVzk
- u9vvcq60GfdxR2RZtvqUPkK98WfodF7zdQjFus1XVwL+1TZvT2VMzQ3COnv6rd6AWzBk
- JtJdtuQrj4bZpGYPO7gTmn9F9FcVuG7mHMBTekRklJRGFtG/usVv9c811CTumFRvos6n
- yux7ZSOv2LL8KWYRYubKYyVsEb/cg+bYxd4AFgtKoTeKNWF2xuh9jlKdEQQWWYIAI22Y
- s5DmiAsxeBAtNYF6SKkuhxt+pu5P3hIfEPRk8V0XvXW2ZX/mSgqoWW68sIrgEDKp1hMr /g== 
-Received: from prod-mail-ppoint1 (prod-mail-ppoint1.akamai.com [184.51.33.18] (may be forged))
-        by mx0a-00190b01.pphosted.com with ESMTP id 30s0wmmw7h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 05 May 2020 15:30:12 +0100
-Received: from pps.filterd (prod-mail-ppoint1.akamai.com [127.0.0.1])
-        by prod-mail-ppoint1.akamai.com (8.16.0.27/8.16.0.27) with SMTP id 045E2jt8016968;
-        Tue, 5 May 2020 10:30:03 -0400
-Received: from prod-mail-relay10.akamai.com ([172.27.118.251])
-        by prod-mail-ppoint1.akamai.com with ESMTP id 30s46wjr5a-1;
-        Tue, 05 May 2020 10:30:03 -0400
-Received: from [0.0.0.0] (prod-ssh-gw01.bos01.corp.akamai.com [172.27.119.138])
-        by prod-mail-relay10.akamai.com (Postfix) with ESMTP id 2FCDF34952;
-        Tue,  5 May 2020 14:30:03 +0000 (GMT)
-Subject: Re: [PATCH 1/1] epoll: call final ep_events_available() check under
- the lock
-To:     Roman Penyaev <rpenyaev@suse.de>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20200505084049.1779243-1-rpenyaev@suse.de>
-From:   Jason Baron <jbaron@akamai.com>
-Message-ID: <52b58e34-8c2c-9d3f-65f9-3807810c6b69@akamai.com>
-Date:   Tue, 5 May 2020 10:30:03 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1729780AbgEEOhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 May 2020 10:37:38 -0400
+Received: from mga01.intel.com ([192.55.52.88]:10359 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729655AbgEEOhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 May 2020 10:37:38 -0400
+IronPort-SDR: c7mVXymgyCuTT3yEx3yfApVcnpA64Gb8ifxR28Hc6rDLg8ktitS3lh9b/g2JYWAgMs5DfeXgR9
+ 2drt0ukraPdg==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 May 2020 07:37:38 -0700
+IronPort-SDR: 8cr/r1XXx9rKSwajuR49YSmVXs3JrR9O09d+1PzA4Qu0PZcL89JViUrxAK5XnvZiQI9m5NJQcW
+ 5KdLYetjy5oQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,355,1583222400"; 
+   d="scan'208";a="369432314"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.152])
+  by fmsmga001.fm.intel.com with ESMTP; 05 May 2020 07:37:37 -0700
+Date:   Tue, 5 May 2020 07:37:37 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        linux-kernel@vger.kernel.org,
+        Tobias Urdin <tobias.urdin@binero.com>
+Subject: Re: [PATCH 4.19 STABLE 2/2] KVM: VMX: Mark RCX, RDX and RSI as
+ clobbered in vmx_vcpu_run()'s asm blob
+Message-ID: <20200505143737.GA18282@linux.intel.com>
+References: <20200505012348.17099-1-sean.j.christopherson@intel.com>
+ <20200505012348.17099-3-sean.j.christopherson@intel.com>
+ <20200505061502.GA3874653@kroah.com>
+ <20200505062731.GA17313@linux.intel.com>
+ <20200505070259.GA3946129@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20200505084049.1779243-1-rpenyaev@suse.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-05-05_08:2020-05-04,2020-05-05 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-2002250000 definitions=main-2005050114
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-05-05_08:2020-05-04,2020-05-05 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1015 mlxlogscore=999
- mlxscore=0 malwarescore=0 spamscore=0 suspectscore=0 priorityscore=1501
- bulkscore=0 adultscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2005050117
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200505070259.GA3946129@kroah.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 5/5/20 4:40 AM, Roman Penyaev wrote:
-> The original problem was described here:
->    https://lkml.org/lkml/2020/4/27/1121
+On Tue, May 05, 2020 at 09:02:59AM +0200, Greg Kroah-Hartman wrote:
+> On Mon, May 04, 2020 at 11:27:31PM -0700, Sean Christopherson wrote:
+> > On Tue, May 05, 2020 at 08:15:02AM +0200, Greg Kroah-Hartman wrote:
+> > > On Mon, May 04, 2020 at 06:23:48PM -0700, Sean Christopherson wrote:
+> > > > Save RCX, RDX and RSI to fake outputs to coerce the compiler into
+> > > > treating them as clobbered.  RCX in particular is likely to be reused by
+> > > > the compiler to dereference the 'struct vcpu_vmx' pointer, which will
+> > > > result in a null pointer dereference now that RCX is zeroed by the asm
+> > > > blob.
+> > > > 
+> > > > Add ASM_CALL_CONSTRAINT to fudge around an issue where <something>
+> > > > during modpost can't find vmx_return when specifying output constraints.
+> > > > 
+> > > > Reported-by: Tobias Urdin <tobias.urdin@binero.com>
+> > > > Fixes: b4be98039a92 ("KVM: VMX: Zero out *all* general purpose registers after VM-Exit")
+> > > > Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> > > > ---
+> > > >  arch/x86/kvm/vmx.c | 3 ++-
+> > > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> > > > index 5b06a98ffd4c..54c8b4dc750d 100644
+> > > > --- a/arch/x86/kvm/vmx.c
+> > > > +++ b/arch/x86/kvm/vmx.c
+> > > > @@ -10882,7 +10882,8 @@ static void __noclone vmx_vcpu_run(struct kvm_vcpu *vcpu)
+> > > >  		".global vmx_return \n\t"
+> > > >  		"vmx_return: " _ASM_PTR " 2b \n\t"
+> > > >  		".popsection"
+> > > > -	      : : "c"(vmx), "d"((unsigned long)HOST_RSP), "S"(evmcs_rsp),
+> > > > +	      : ASM_CALL_CONSTRAINT, "=c"((int){0}), "=d"((int){0}), "=S"((int){0})
+> > > > +	      : "c"(vmx), "d"((unsigned long)HOST_RSP), "S"(evmcs_rsp),
+> > > >  		[launched]"i"(offsetof(struct vcpu_vmx, __launched)),
+> > > >  		[fail]"i"(offsetof(struct vcpu_vmx, fail)),
+> > > >  		[host_rsp]"i"(offsetof(struct vcpu_vmx, host_rsp)),
+> > > > -- 
+> > > > 2.26.0
+> > > > 
+> > > 
+> > > What is the git commit id of this patch in Linus's tree?
+> > 
+> > There is none.  In upstream at the time of the offending commit (b4be98039a92
+> > in 4.19, 0e0ab73c9a024 upstream), the inline asm blob had previously been
+> > moved to a dedicated helper, __vmx_vcpu_run(), that was intentionally put
+> > into a separate compilation unit, i.e. consuming the clobbered register
+> > was effectively impossible because %rcx is volatile and __vmx_vcpu_run()
+> > couldn't itself be inlined.
+> > 
+> > To make things more confusing, the inline asm blob got moved into a proper
+> > asm subroutine shortly thereafter.  Things really start to diverge from
+> > current upstream right around the time of this commit.
 > 
-> There is a possible race when ep_scan_ready_list() leaves ->rdllist
-> and ->obflist empty for a short period of time although some events
-> are pending. It is quite likely that ep_events_available() observes
-> empty lists and goes to sleep. Since 339ddb53d373 ("fs/epoll: remove
-> unnecessary wakeups of nested epoll") we are conservative in wakeups
-> (there is only one place for wakeup and this is ep_poll_callback()),
-> thus ep_events_available() must always observe correct state of
-> two lists. The easiest and correct way is to do the final check
-> under the lock. This does not impact the performance, since lock
-> is taken anyway for adding a wait entry to the wait queue.
-> 
-> In this patch barrierless __set_current_state() is used. This is
-> safe since waitqueue_active() is called under the same lock on wakeup
-> side.
-> 
-> Short-circuit for fatal signals (i.e. fatal_signal_pending() check)
-> is moved to the line just before actual events harvesting routine.
-> This is fully compliant to what is said in the comment of the patch
-> where the actual fatal_signal_pending() check was added:
-> c257a340ede0 ("fs, epoll: short circuit fetching events if thread
-> has been killed").
-> 
-> Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
-> Reported-by: Jason Baron <jbaron@akamai.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Khazhismel Kumykov <khazhy@google.com>
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: linux-fsdevel@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> ---
->  fs/eventpoll.c | 48 ++++++++++++++++++++++++++++--------------------
->  1 file changed, 28 insertions(+), 20 deletions(-)
-> 
-> diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-> index aba03ee749f8..8453e5403283 100644
-> --- a/fs/eventpoll.c
-> +++ b/fs/eventpoll.c
-> @@ -1879,34 +1879,33 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
->  		 * event delivery.
->  		 */
->  		init_wait(&wait);
-> -		write_lock_irq(&ep->lock);
-> -		__add_wait_queue_exclusive(&ep->wq, &wait);
-> -		write_unlock_irq(&ep->lock);
->  
-> +		write_lock_irq(&ep->lock);
->  		/*
-> -		 * We don't want to sleep if the ep_poll_callback() sends us
-> -		 * a wakeup in between. That's why we set the task state
-> -		 * to TASK_INTERRUPTIBLE before doing the checks.
-> +		 * Barrierless variant, waitqueue_active() is called under
-> +		 * the same lock on wakeup ep_poll_callback() side, so it
-> +		 * is safe to avoid an explicit barrier.
->  		 */
-> -		set_current_state(TASK_INTERRUPTIBLE);
-> +		__set_current_state(TASK_INTERRUPTIBLE);
-> +
->  		/*
-> -		 * Always short-circuit for fatal signals to allow
-> -		 * threads to make a timely exit without the chance of
-> -		 * finding more events available and fetching
-> -		 * repeatedly.
-> +		 * Do the final check under the lock. ep_scan_ready_list()
-> +		 * plays with two lists (->rdllist and ->ovflist) and there
-> +		 * is always a race when both lists are empty for short
-> +		 * period of time although events are pending, so lock is
-> +		 * important.
->  		 */
-> -		if (fatal_signal_pending(current)) {
-> -			res = -EINTR;
-> -			break;
-> +		eavail = ep_events_available(ep);
-> +		if (!eavail) {
-> +			if (signal_pending(current))
-> +				res = -EINTR;
-> +			else
-> +				__add_wait_queue_exclusive(&ep->wq, &wait);
->  		}
-> +		write_unlock_irq(&ep->lock);
->  
-> -		eavail = ep_events_available(ep);
-> -		if (eavail)
-> -			break;
-> -		if (signal_pending(current)) {
-> -			res = -EINTR;
-> +		if (eavail || res)
->  			break;
-> -		}
->  
->  		if (!schedule_hrtimeout_range(to, slack, HRTIMER_MODE_ABS)) {
->  			timed_out = 1;
-> @@ -1927,6 +1926,15 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
->  	}
->  
->  send_events:
-> +	if (fatal_signal_pending(current))
-> +		/*
-> +		 * Always short-circuit for fatal signals to allow
-> +		 * threads to make a timely exit without the chance of
-> +		 * finding more events available and fetching
-> +		 * repeatedly.
-> +		 */
-> +		res = -EINTR;
-> +
->  	/*
->  	 * Try to transfer events to user space. In case we get 0 events and
->  	 * there's still timeout left over, we go trying again in search of
-> 
+> Then you need to document the heck out of the fact that this is not
+> upstream, why it is different from upstream, and why we can't just take
+> what upstream did instead in the changelog.  That way, when this patch
+> turns out to be buggy (hint, 90% of the times they are), we know why
+> this was done the way it was so we can revert it and know who to
+> complain to :)
 
-
-
-Hi Roman,
-
-Looks good feel free to add:
-Reviewed-by: Jason Baron <jbaron@akamai.com>
-
-I think we should also add the fixes tag to assist stable backports:
-Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
-
-Thanks,
-
--Jason
-
+Will do.
