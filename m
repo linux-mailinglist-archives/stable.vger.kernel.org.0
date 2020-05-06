@@ -2,170 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B761C7BAF
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 22:59:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 023E71C7C12
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 23:13:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727772AbgEFU7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 16:59:25 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:64094 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726815AbgEFU7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 16:59:24 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21131955-1500050 
-        for multiple; Wed, 06 May 2020 21:59:25 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 01/15] drm/i915: Mark concurrent submissions with a weak-dependency
-Date:   Wed,  6 May 2020 21:59:06 +0100
-Message-Id: <20200506205920.24233-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1728888AbgEFVNm convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 6 May 2020 17:13:42 -0400
+Received: from mail.eul.edu.tr ([95.0.141.23]:57517 "EHLO mail.eul.edu.tr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728878AbgEFVNl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 May 2020 17:13:41 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.eul.edu.tr (Postfix) with ESMTP id 72E9166301F;
+        Thu,  7 May 2020 00:13:04 +0300 (EEST)
+Received: from mail.eul.edu.tr ([127.0.0.1])
+        by localhost (mail.eul.edu.tr [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id cr-0LVZM_Im6; Thu,  7 May 2020 00:13:04 +0300 (EEST)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.eul.edu.tr (Postfix) with ESMTP id ED515662E9A;
+        Thu,  7 May 2020 00:13:03 +0300 (EEST)
+X-Virus-Scanned: amavisd-new at eul.edu.tr
+Received: from mail.eul.edu.tr ([127.0.0.1])
+        by localhost (mail.eul.edu.tr [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id eYGGtL2hyK2j; Thu,  7 May 2020 00:13:03 +0300 (EEST)
+Received: from [100.90.241.128] (unknown [10.10.10.1])
+        by mail.eul.edu.tr (Postfix) with ESMTPSA id 40C87663017;
+        Thu,  7 May 2020 00:12:29 +0300 (EEST)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: =?utf-8?b?QVRFTsOHw4NP?=
+To:     Recipients <administrator@ancol.com>
+From:   Administrador de Sistemas <administrator@ancol.com>
+Date:   Thu, 07 May 2020 02:41:53 +0530
+Reply-To: mailsss@mail2world.com
+Message-Id: <20200506211230.40C87663017@mail.eul.edu.tr>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
-correctly perform priority inheritance from the parallel branches to the
-common trunk. However, for the purpose of timeslicing and reset
-handling, the dependency is weak -- as we the pair of requests are
-allowed to run in parallel and not in strict succession. So for example
-we do need to suspend one if the other hangs.
+ATENÇÃO;
 
-The real significance though is that this allows us to rearrange
-groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
-so can resolve user level inter-batch scheduling dependencies from user
-semaphores.
+Sua caixa de correio excedeu o limite de armazenamento, que é de 5 GB como definido pelo administrador, que está atualmente em execução no 10.9GB, você pode não ser capaz de enviar ou receber novas mensagens até que você re-validar a sua caixa de correio. Para revalidar sua caixa de correio, envie os seguintes dados abaixo:
 
-Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
-Testcase: igt/gem_exec_fence/submit
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
----
- drivers/gpu/drm/i915/gt/intel_lrc.c         | 9 +++++++++
- drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
- drivers/gpu/drm/i915/i915_scheduler.c       | 6 +++---
- drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
- drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
- 5 files changed, 21 insertions(+), 6 deletions(-)
+nome:
+Nome de usuário:
+senha:
+Confirme a Senha :
+Endereço de e-mail:
+Telefone:
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index dc3f2ee7136d..10109f661bcb 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1880,6 +1880,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2726,6 +2729,9 @@ static void __execlists_hold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2850,6 +2856,9 @@ static void __execlists_unhold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Propagate any change in error status */
- 			if (rq->fence.error)
- 				i915_request_set_error_once(w, rq->fence.error);
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 4d18f808fda2..3c38d61c90f8 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1040,7 +1040,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 	}
- 
- 	if (to->engine->schedule) {
--		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		ret = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_EXTERNAL);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -1202,7 +1204,9 @@ __i915_request_await_execution(struct i915_request *to,
- 
- 	/* Couple the dependency tree for PI on this exposed to->fence */
- 	if (to->engine->schedule) {
--		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		err = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_WEAK);
- 		if (err < 0)
- 			return err;
- 	}
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
-index 37cfcf5b321b..6e2d4190099f 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.c
-+++ b/drivers/gpu/drm/i915/i915_scheduler.c
-@@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- }
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal)
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags)
- {
- 	struct i915_dependency *dep;
- 
-@@ -473,8 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
- 	local_bh_disable();
- 
- 	if (!__i915_sched_node_add_dependency(node, signal, dep,
--					      I915_DEPENDENCY_EXTERNAL |
--					      I915_DEPENDENCY_ALLOC))
-+					      flags | I915_DEPENDENCY_ALLOC))
- 		i915_dependency_free(dep);
- 
- 	local_bh_enable(); /* kick submission tasklet */
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
-index d1dc4efef77b..6f0bf00fc569 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler.h
-@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- 				      unsigned long flags);
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal);
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags);
- 
- void i915_sched_node_fini(struct i915_sched_node *node);
- 
-diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
-index d18e70550054..7186875088a0 100644
---- a/drivers/gpu/drm/i915/i915_scheduler_types.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
-@@ -78,6 +78,7 @@ struct i915_dependency {
- 	unsigned long flags;
- #define I915_DEPENDENCY_ALLOC		BIT(0)
- #define I915_DEPENDENCY_EXTERNAL	BIT(1)
-+#define I915_DEPENDENCY_WEAK		BIT(2)
- };
- 
- #endif /* _I915_SCHEDULER_TYPES_H_ */
--- 
-2.20.1
+Se você não conseguir revalidar sua caixa de correio, sua caixa postal vai ser desativado!
 
+Lamentamos o inconveniente.
+Código de verificação: pt:p9uyba98139>2020 Correio Técnico Suporte ©2020
+
+obrigado
+Administrador de Sistemas
