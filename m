@@ -2,95 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 599341C7614
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 18:18:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 472751C76AD
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 18:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729405AbgEFQSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 12:18:13 -0400
-Received: from sonic310-24.consmr.mail.ne1.yahoo.com ([66.163.186.205]:39457
-        "EHLO sonic310-24.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729479AbgEFQSN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 12:18:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1588781892; bh=+NKq2YP/4c3bLm2HmGhxa/KCZOXr0NIUKHs/ECuC0yk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=ft5PkWMl17ue89Yf6+JsWFiGyrVC5JLzK0gAwmNtdODFBkPqX0Cw4jxNq/Xy4S+vLQxTVyCteoCvLJ9RnludXFSHZsDEfMlayG+W0MyttCHn3gEBevY0zJj8AG/b0sSQU2ztg+76P9sfqJrcmcItUbq5aJd8D18oWVHU9MSLST9AkFAJb3HPm17TeD6/4hBEq+1aG6RS7MKZVYEC8sUfcdbnmz1YDqdEdw20jR8PxXvrYn72ceF7xYXBChEU5R8ChAgG1H03yGgQVEl6VTV4KTqlig0fLcjWGy2e7ujTRFCzz8FQFtnbGCh2V2N6ej7pJQ55PNVL8aBDRwcUopmnQQ==
-X-YMail-OSG: OO1O0lAVM1lwwMPIyRpnNj1seDHGXckr1jgkOigIyamE6xNFqVLYjaY0BurFOa4
- unO5JEQOKwj7wMIFGkAkK0ia5WDcRDZXULwIQCz9jWm1rpPyt2xu1eYkjVVOiRbWiX9fox.fOaV6
- vrY8oY9pVRBNbgv59HNS_3c2CKe0y1506DA4XOAqbn.W1YilzUi8nI1Ussy.pestC35ZJAwezs1N
- Axw3BggVBxUw0yhDjYwoyUJaNoehaRXFBDgrcrwvqC_tfXfAeDa3cMw7aVAVUd8.jEb.1v7SDOEz
- 10NwNnDO6MSGDC.xtmZnMpaVhyHlHpfJ5wbzZOJbaoXLdOIOKGYHo1zA7nydobpVacN3n906UUVx
- IKITo00rftGStf8bmL06hXjlfY6Spe6009duo0atcIkVM24YB01C3AK.ctP3DJrP2GHtqy._tkkG
- Bm2nsFw0jX3S_xpz9UnXFKYNAhn7xmf.dj6MrdQCjFc48hioaYW0YvvHWJxVFARNvNrf0kqf7DBH
- wvpLfeIa5zngs4Jc6LU4UlfXKaFcaOkyCmBLm_3ikAxt4AzCCSHQJFG5sYKSQgAnKyny938NlhHM
- RmBMmEGla8.XlkfoVQCyajtRaMkfGv8Yz3WJq0cR7MjTCdDIQU0ziNcFo3W5B.cISu13aaFQfPHj
- oQRlpgJ3h67l81o6LfMuNYEicWOEGig5Q8lXayy3rxZCkRO6sS9gHWShaKeGWCfAIqc7MkJ08HEr
- vtxfQWIhl_f.xs9avZP7cVuVfvY1Xm2zExJBKs7KdJ07S4lI.FSqEhE5ZHNtJxY6ID8IkXwCqv29
- XS.ftUhXT5m77UC77WfYisdyOYDdXph8eeURQKbVZcnAFcDEhn9BXcgHae0umtyapzTOpRkXJyKw
- BWA3NIvBzXf4aPKg_mdtM2ttfeWKjLNGnYsxNXv45Nqm.3_jZTXKYuDSCvjxcNhce3MamCCuRAbk
- 86qSpNnHaW4XJ5nP7ItKTSx08ojisry3TVoQw.zew1mxaC54gUKt_vAnqPxHUpp1Q8NWrlJQiwx7
- 7WAt_tRm7ZDotLBfmH0KZ489O0wirldvl40Yubs5aLOf8kziHyFSD7xBGTnFOQe___dxm2m0q0ck
- MawMIlpfHV34IWhwUMb4M8E57YNQEV7neB_PjWp4YU2XsCZl5rUPzcXRAAOffT7vrQyKIdfkvZWz
- JKcXW93ZYC4nLJkwTbGcp7LDGHWXYv3.UKcLAAdh8lWQyEIYZ3fqptOanJ3gz9tWlzV0LfQVm8yD
- N.R6Fb85Bb4WLoKynnMBd6gdYnKutQYRgprjevqUwVkYOftehA3_BH1oZY12EYIZXvGjqO.LO9g-
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Wed, 6 May 2020 16:18:12 +0000
-Date:   Wed, 6 May 2020 16:18:06 +0000 (UTC)
-From:   "Mrs. Mina A. Brunel" <mrs.minaabrunel209@gmail.com>
-Reply-To: mrs.minaabrunel30@gmail.com
-Message-ID: <1132585358.2245311.1588781886890@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1730290AbgEFQh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 12:37:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42024 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730059AbgEFQh2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 12:37:28 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B5DC061A10
+        for <stable@vger.kernel.org>; Wed,  6 May 2020 09:37:28 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id mq3so1168843pjb.1
+        for <stable@vger.kernel.org>; Wed, 06 May 2020 09:37:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Ysv40NaU9cEolxDMZqydkRSPfnO+SbJ9aiL7qpGqadk=;
+        b=pa20bAfVRZUvdO8iDKo0HP0uESvPxFamQ8qQl2Y+ujvPMYLAdFgicmQu61BZQtSZF5
+         Yu0yL61S71Z8xhwSqi35WXiRAfAeEEOUdzLkEHPIOaAHp/YAIYOVg5rhrLSyeU5phZ4+
+         XYTl+ImQT73uQLwlOFFh3G+Fnd4CqaWLhhftoQ3lWSKRtJcv1RyBPvS40bpea0X4XGkk
+         1VfkYGDMRNqzNVyL87G50HRwF7SRN678+j1Zhgho847nBKXFKx0zeNnQKmDMshWxTRzj
+         8JO3gJH1nmgyQnLGGrQ++GaVtXvCtXWULdqf1Yb8msUVutrU2A344XDMZ9H8OQtaDz12
+         GmXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Ysv40NaU9cEolxDMZqydkRSPfnO+SbJ9aiL7qpGqadk=;
+        b=kj3oB7MV6w2dtafajcqYX9UPqh7GD/u4rjWM56kV8YaQT1CFGHnSbM8/I1bMB+joiw
+         0ER2Iorfm3CEfZ2NvaZs8D40/qoI8SVbqSHJuct5V4ekGoY4VNxLvKNG9w9LGQD9JIHk
+         Q7eb0HNq3QJDUf6Cq6kwNb0uEU9NYZ6O7Yz3/E42o2jHlMpdqoZxRpPJYt2nUwE7nzU6
+         uE+aMaJtBDyjK9UaJdA9X02XsynBiwFdEngQDu97WvO5xTOBqxACCCFjuw78cMRYaRoN
+         5NXxtwtB4IAECdRrhaLTl+hgeLFaksVvq9rN3hH5nIglsAeO2qeyzMXrPwSHzQlGC7km
+         S/NA==
+X-Gm-Message-State: AGi0PuZshQ1E+/U0/+2ptin4g1JkqcERwkr3Z/CpinvvlE8tLHCllCFl
+        wcXZOaHERYfj9FAoWv8YY6AVfJpVpe4s0fo/2R6Z6A==
+X-Google-Smtp-Source: APiQypL+VLGyDbHfWNP94AkI45jpXipxlhQDoleAxIXnmYyDvKmCBhXFalFgr9V24lJblYMKQmHk5zPcydpw/zN6AEA=
+X-Received: by 2002:a17:90a:8c85:: with SMTP id b5mr10152416pjo.187.1588783047869;
+ Wed, 06 May 2020 09:37:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <1132585358.2245311.1588781886890.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15756 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0
-To:     unlisted-recipients:; (no To-header on input)
+References: <20200505174423.199985-1-ndesaulniers@google.com> <20200506043028.GA663805@ubuntu-s3-xlarge-x86>
+In-Reply-To: <20200506043028.GA663805@ubuntu-s3-xlarge-x86>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Wed, 6 May 2020 09:37:16 -0700
+Message-ID: <CAKwvOd=c6gzpUsRgh-XmKEh0xHkZUWfXNW52EpqfrbH+XhH5fQ@mail.gmail.com>
+Subject: Re: [PATCH] x86: bitops: fix build regression
+To:     Nathan Chancellor <natechancellor@gmail.com>,
+        Ilie Halip <ilie.halip@gmail.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, May 5, 2020 at 9:30 PM Nathan Chancellor
+<natechancellor@gmail.com> wrote:
+>
+> On Tue, May 05, 2020 at 10:44:22AM -0700, Nick Desaulniers wrote:
+> > This is easily reproducible via Clang+CONFIG_STAGING=y+CONFIG_VT6656=m,
+> > or Clang+allyesconfig.
+>
+> For what it's worth, I don't see this with allyesconfig.
 
+Oops, ok, I'll drop that from the commit message in v2.  I was testing
+with the former.
 
-My Dear in the lord
+>
+> > Keep the masking operation to appease sparse (`make C=1`), add back the
+> > cast in order to properly select the proper 8b register alias.
+> >
+> >  [Nick: reworded]
+> >
+> > Cc: stable@vger.kernel.org
+>
+> The offending commit was added in 5.7-rc1; we shouldn't need to
+> Cc stable since this should be picked up as an -rc fix.
 
+Got it, will drop in v2.
 
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politician who owns a small =
-gold company in Burkina Faso; He died of Leprosy and Radesyge, in the year =
-February 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Mi=
-llion Euro) Eight million, Five hundred thousand Euros in a bank in Ouagado=
-ugou the capital city of Burkina Faso in West Africa. The money was from th=
-e sale of his company and death benefits payment and entitlements of my dec=
-eased husband by his company.
+>
+> > Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+> > Link: https://github.com/ClangBuiltLinux/linux/issues/961
+> > Link: https://lore.kernel.org/lkml/20200504193524.GA221287@google.com/
+> > Fixes: 1651e700664b4 ("x86: Fix bitops.h warning with a moved cast")
+> > Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+> > Reported-by: kernelci.org bot <bot@kernelci.org>
+> > Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+> > Suggested-by: Ilie Halip <ilie.halip@gmail.com>
+>
+> Not to split hairs but this is Ilie's diff, he should probably be the
+> author with Sedat's Reported-by/Tested-by.
+>
+> https://github.com/ClangBuiltLinux/linux/issues/961#issuecomment-608239458
 
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
+Ooh, you're right. Sorry about that Ilie.  I'm usually pretty pedantic
+about getting that right; my mistake.  I'll fix that in v2.  As Sedat
+noted, the issue tracker has been a little quiet on this issue, but
+I'll note that there are extraordinary circumstances going on in the
+world these days (COVID) so delays should be anticipated.
 
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
+Ilie, may I put your authorship and signed off by tag on the V2?
 
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
-
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
-
-Thanks
-Mrs. Mina A. Brunel
+>
+> But eh, it's all a team effort plus that can only happen with Ilie's
+> explicit consent for a Signed-off-by.
+-- 
+Thanks,
+~Nick Desaulniers
