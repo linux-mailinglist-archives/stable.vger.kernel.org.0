@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F1FD1C7E03
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 01:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 934D91C7E05
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 01:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728120AbgEFXmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 19:42:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55442 "EHLO mail.kernel.org"
+        id S1728146AbgEFXmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 19:42:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728105AbgEFXmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 May 2020 19:42:08 -0400
+        id S1728105AbgEFXmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 May 2020 19:42:09 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 847C620735;
-        Wed,  6 May 2020 23:42:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B4F22075E;
+        Wed,  6 May 2020 23:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588808527;
-        bh=rODOhhP48oDvPlU2Gdll8Paz0KB3qB8SejLcL6MQODo=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=cZEpJTdE/o3XHZfJSi111Npy6pcpzRu7Fk2gN4AedfhpMy2XqVluah8ZsFN7FmtDn
-         j+riWhmpHy8NPbuZUGe1Xcfl7pFbAiR+ZUoD3Po31e04y0p5VTHBNo3QoQbihRBMmG
-         OZP0X+Gol3yUC5vuMrxB6YET5D86kGk4Cs0iTW0Y=
-Date:   Wed, 06 May 2020 23:42:06 +0000
+        s=default; t=1588808528;
+        bh=xE5UCydrZdLXC/0XxDrxTwDC9mtYeBtrSi/8/nUIkvM=;
+        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=nqe9SqGytaIBBrEi3MDQGKxroo/OKW/2JmNAyJIHcPryUGOWIr63DUKGCW/iQk9Yd
+         agccir07kwNrVdVwW4xcx6WmJ5x322ePsd+SbNlHmQlQmAkH2Jc4078ORCGR587uM4
+         IdZ12TBrplw6jl8uVj+nU7QF80br7AXhdYjlvu6I=
+Date:   Wed, 06 May 2020 23:42:07 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Julian Sax <jsbc@gmx.de>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+To:     Michal Simek <michal.simek@xilinx.com>
+To:     Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+To:     linux-kernel@vger.kernel.org, monstr@monstr.eu
+Cc:     Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Cc:     stable <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] HID: i2c-hid: add Schneider SCL142ALM to descriptor override
-In-Reply-To: <20200505151042.122157-1-jsbc@gmx.de>
-References: <20200505151042.122157-1-jsbc@gmx.de>
-Message-Id: <20200506234207.847C620735@mail.kernel.org>
+Subject: Re: [PATCH v2] tty: xilinx_uartps: Fix missing id assignment to the console
+In-Reply-To: <ed3111533ef5bd342ee5ec504812240b870f0853.1588602446.git.michal.simek@xilinx.com>
+References: <ed3111533ef5bd342ee5ec504812240b870f0853.1588602446.git.michal.simek@xilinx.com>
+Message-Id: <20200506234208.9B4F22075E@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -52,37 +54,71 @@ The bot has tested the following trees: v5.6.10, v5.4.38, v4.19.120, v4.14.178, 
 v5.6.10: Build OK!
 v5.4.38: Build OK!
 v4.19.120: Failed to apply! Possible dependencies:
-    eb6964fa6509 ("HID: i2c-hid: add iBall Aer3 to descriptor override")
+    024ca329bfb9 ("serial: uartps: Register own uart console and driver structures")
+    10a5315b47b0 ("serial: uartps: Fill struct uart_driver in probe()")
+    14090ad1805f ("serial: uartps: Move alias reading higher in probe()")
+    18cc7ac8a28e ("Revert "serial: uartps: Register own uart console and driver structures"")
+    427c8ae9bebc ("serial: uartps: Change logic how console_port is setup")
+    46a460f0150a ("serial: uartps: Do not use static struct uart_driver out of probe()")
+    8da1a3940da4 ("Revert "serial: uartps: Use the same dynamic major number for all ports"")
+    ab262666018d ("serial: uartps: Use the same dynamic major number for all ports")
+    bed25ac0e2b6 ("serial: uartps: Move Port ID to device data structure")
+    e4bbb5194ea3 ("serial: uartps: Move register to probe based on run time detection")
 
 v4.14.178: Failed to apply! Possible dependencies:
-    eb6964fa6509 ("HID: i2c-hid: add iBall Aer3 to descriptor override")
+    024ca329bfb9 ("serial: uartps: Register own uart console and driver structures")
+    0413fe045dda ("serial: uartps: Use dynamic array for console port")
+    0a84bae7edfb ("serial: uartps: Remove static port array")
+    10a5315b47b0 ("serial: uartps: Fill struct uart_driver in probe()")
+    14090ad1805f ("serial: uartps: Move alias reading higher in probe()")
+    18cc7ac8a28e ("Revert "serial: uartps: Register own uart console and driver structures"")
+    1f2107223e5b ("serial: uartps: Move cnds_uart_get_port to probe")
+    427c8ae9bebc ("serial: uartps: Change logic how console_port is setup")
+    46a460f0150a ("serial: uartps: Do not use static struct uart_driver out of probe()")
+    8da1a3940da4 ("Revert "serial: uartps: Use the same dynamic major number for all ports"")
+    ab262666018d ("serial: uartps: Use the same dynamic major number for all ports")
+    e4bbb5194ea3 ("serial: uartps: Move register to probe based on run time detection")
 
 v4.9.221: Failed to apply! Possible dependencies:
-    eb6964fa6509 ("HID: i2c-hid: add iBall Aer3 to descriptor override")
+    024ca329bfb9 ("serial: uartps: Register own uart console and driver structures")
+    0413fe045dda ("serial: uartps: Use dynamic array for console port")
+    0a84bae7edfb ("serial: uartps: Remove static port array")
+    10a5315b47b0 ("serial: uartps: Fill struct uart_driver in probe()")
+    14090ad1805f ("serial: uartps: Move alias reading higher in probe()")
+    18cc7ac8a28e ("Revert "serial: uartps: Register own uart console and driver structures"")
+    1f2107223e5b ("serial: uartps: Move cnds_uart_get_port to probe")
+    46a460f0150a ("serial: uartps: Do not use static struct uart_driver out of probe()")
+    4b9d33c6a306 ("serial: uartps: Fix suspend functionality")
+    81e33b51ed69 ("serial: xuartps: Cleanup the clock enable")
+    8da1a3940da4 ("Revert "serial: uartps: Use the same dynamic major number for all ports"")
+    ab262666018d ("serial: uartps: Use the same dynamic major number for all ports")
+    d62100f1aac2 ("serial: xilinx_uartps: Add pm runtime support")
+    d653c43aefed ("serial: xilinx_uartps: Fix the error path")
+    e4bbb5194ea3 ("serial: uartps: Move register to probe based on run time detection")
+    ecfc5771ef06 ("serial: xuartps: Enable clocks in the pm disable case also")
 
 v4.4.221: Failed to apply! Possible dependencies:
-    00f7fea5da49 ("HID: i2c-hid: force the IRQ level trigger only when not set")
-    01714a6f5fa5 ("HID: i2c-hid: Fix suspend/resume when already runtime suspended")
-    070b9637dd8f ("HID: i2c-hid: Add RESEND_REPORT_DESCR quirk for Toshiba Click Mini L9W-B")
-    2dcc8197fefc ("HID: i2c-hid: Silently fail probe for CHPN0001 touchscreen")
-    3e83eda46705 ("HID: i2c-hid: Fix resume issue on Raydium touchscreen device")
-    402946a8ef71 ("HID: i2c-hid: Add no-irq-after-reset quirk for 0911:5288 device")
-    572d3c644497 ("HID: i2c-hid: support regulator power on/off")
-    71af01a8c85a ("HID: i2c-hid: add a simple quirk to fix device defects")
-    85ae91133152 ("HID: i2c-hid: remove custom locking from i2c_hid_open/close")
-    8cd16166b000 ("HID: fix missing irq field")
-    91b9ae48aadd ("HID: i2c-hid: move header file out of I2C realm")
-    94116f8126de ("ACPI: Switch to use generic guid_t in acpi_evaluate_dsm()")
-    9a327405014f ("HID: i2c-hid: Prevent sending reports from racing with device reset")
-    9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
-    b59dfdaef173 ("i2c-hid: properly terminate i2c_hid_dmi_desc_override_table[] array")
-    b7fe92999a98 ("ACPI / extlog: Switch to use new generic UUID API")
-    ba1660f1791f ("HID: i2c-hid: fix build")
-    ba18a9314a94 ("Revert "HID: i2c-hid: Add support for ACPI GPIO interrupts"")
-    d46ddc593f4d ("HID: i2c-hid: Disable IRQ before freeing buffers")
-    eb6964fa6509 ("HID: i2c-hid: add iBall Aer3 to descriptor override")
-    f8f807441eef ("HID: i2c-hid: Add Odys Winbook 13 to descriptor override")
-    fc2237a724a9 ("HID: introduce hid_is_using_ll_driver")
+    024ca329bfb9 ("serial: uartps: Register own uart console and driver structures")
+    10a5315b47b0 ("serial: uartps: Fill struct uart_driver in probe()")
+    14090ad1805f ("serial: uartps: Move alias reading higher in probe()")
+    18cc7ac8a28e ("Revert "serial: uartps: Register own uart console and driver structures"")
+    354fb1a7d7e5 ("tty: xuartps: Cleanup: Reformat if-else")
+    373e882f9ecf ("tty: xuartps: Refactor IRQ handling")
+    3816b2f886d0 ("serial: xuartps: Adds RXBS register support for zynqmp")
+    46a460f0150a ("serial: uartps: Do not use static struct uart_driver out of probe()")
+    4b9d33c6a306 ("serial: uartps: Fix suspend functionality")
+    55861d11c5c8 ("tty: xuartps: Move request_irq to after setting up the HW")
+    5ede4a5cde27 ("tty: xuartps: Move RX path into helper function")
+    6e14f7c1f2c2 ("tty: xuartps: Improve startup function")
+    81e33b51ed69 ("serial: xuartps: Cleanup the clock enable")
+    8da1a3940da4 ("Revert "serial: uartps: Use the same dynamic major number for all ports"")
+    a19eda0f49e5 ("tty: xuartps: Acquire port lock for shutdown")
+    a8df6a51600a ("tty: xuartps: Remove '_OFFSET' suffix from #defines")
+    ab262666018d ("serial: uartps: Use the same dynamic major number for all ports")
+    aea8f3ddcf5d ("tty: xuartps: Clear interrupt status register in shutdown")
+    e3538c37ee38 ("tty: xuartps: Beautify read-modify writes")
+    e4bbb5194ea3 ("serial: uartps: Move register to probe based on run time detection")
+    ea8dd8e58576 ("tty: xuartps: Don't consider circular buffer when enabling transmitter")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
