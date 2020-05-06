@@ -2,132 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A52381C7428
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 17:21:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 147021C7461
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 17:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729165AbgEFPU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 11:20:59 -0400
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:38474 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728821AbgEFPU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 11:20:59 -0400
+        id S1729693AbgEFPXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 11:23:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729704AbgEFPXd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 11:23:33 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C89AFC061A0F
+        for <stable@vger.kernel.org>; Wed,  6 May 2020 08:23:33 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id s18so909289pgl.12
+        for <stable@vger.kernel.org>; Wed, 06 May 2020 08:23:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1588778458; x=1620314458;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   mime-version;
-  bh=Qxz8YBQJMe0tFK5dHJ7HQYaq14w58zhXEZxLWPuYNeE=;
-  b=BC/sLKzDzARc1pQD/WzENadvk+JG4VV1rJZFWINw4+iGfN/1vkBz/vXW
-   RPsmLPCiyKzkOtQYD7r+1hTMugPzpgq6r+HHWSA5tpD7a7scq7OCXGetp
-   jrZxMWGf2f4vl/Mvy8pOTbTxTgEM8rrW/oJ4xb+uFBWzSWwhea76UzLDx
-   o=;
-IronPort-SDR: Ld8GMMi8Y88G+q0R5NC/a+LOiUcKRXJWMBHS1Vb9+4Qrjo2+QlB9FolQxA3SnFKWn7ta1QRKpi
- +ozPwuTuHyJA==
-X-IronPort-AV: E=Sophos;i="5.73,359,1583193600"; 
-   d="scan'208";a="43082169"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1d-38ae4ad2.us-east-1.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 06 May 2020 15:20:56 +0000
-Received: from EX13MTAUEA002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
-        by email-inbound-relay-1d-38ae4ad2.us-east-1.amazon.com (Postfix) with ESMTPS id A05A4A2171;
-        Wed,  6 May 2020 15:20:52 +0000 (UTC)
-Received: from EX13D31EUA001.ant.amazon.com (10.43.165.15) by
- EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 6 May 2020 15:20:51 +0000
-Received: from u886c93fd17d25d.ant.amazon.com (10.43.162.37) by
- EX13D31EUA001.ant.amazon.com (10.43.165.15) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 6 May 2020 15:20:43 +0000
-From:   SeongJae Park <sjpark@amazon.com>
-To:     "Paul E. McKenney" <paulmck@kernel.org>
-CC:     SeongJae Park <sjpark@amazon.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        David Miller <davem@davemloft.net>,
-        "Al Viro" <viro@zeniv.linux.org.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        <sj38.park@gmail.com>, netdev <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        SeongJae Park <sjpark@amazon.de>, <snu@amazon.com>,
-        <amit@kernel.org>, <stable@vger.kernel.org>
-Subject: Re: Re: Re: Re: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life cycle change
-Date:   Wed, 6 May 2020 17:20:25 +0200
-Message-ID: <20200506152025.22085-1-sjpark@amazon.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200506144151.GZ2869@paulmck-ThinkPad-P72> (raw)
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=RNJricoYk+i9m84RJzbJAB8gJIwOz2Zkm/krTZQILPU=;
+        b=QSO8513lb0eUBxnR5Egko4DsN9Xidugcc2RLhgxvBy8iazJvvcSMoebio2y+Nae0Ar
+         ITpME67tURk1Nvy06Vanv3PnEitfF19jL8CiinDyM9y5Bf7eqCsvsdf83rD2eB5Msd38
+         9EXZ9stb3dT/MLd3fUkTm0zMdbEJRB51DYm8tMP2osxk1JUE8LVryizbRt++EIDMFqhF
+         SBPTkPRaEIma9zrPvYuT7Rx5ZqQRXkaTNx+hoeUXw17neVkckZK7zZ/5+LMBC6roWsYr
+         HH7MjCNApgm+ZOxqYGM+hlBoortcUWI8ws/oDoKUuC7qzhGWIlshg2KxbuNuDHN14kU+
+         22NA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=RNJricoYk+i9m84RJzbJAB8gJIwOz2Zkm/krTZQILPU=;
+        b=HeNKxNsWiK+WCqe5Or1pB8YLx4R5NUEpPEh6MziDyPBKhF0UTR9HdWNcSSa+b6ql1e
+         QMbQntUaFL3o+NKkiTI29+MCQ/FnD2f+5z/oofxfbkjxdZp/gI2IxI8w1iGQc3YwOLyJ
+         VUxSCQnF4pMcd698ZoznEfNz1Z+1oKR7gpHA2QE9EZUA45pXZ+96fQGMjuO700Jc36mW
+         lsvYy7lgW03rFsKvzroyk/lLCA0u+zwr7VlM0s6u1NXm8OSbZus1IKWpYilFJMcB9gvx
+         ZkUbZ+Mov8g9ZR7LDRmORSU5tEUsWIyD2Z7lyeZFJL1RVNPJvowRb6S+2DDiCvlkyMdt
+         oBiw==
+X-Gm-Message-State: AGi0Pub790zqkfjSDq0ejOUwnBYq5zszdJs0ZdUsCN1aCtDQjKaRSsQ8
+        x4nb30WOvfQvjAjwymZ2+WRRCh0WKrbt/g==
+X-Google-Smtp-Source: APiQypIC2pjgK5VIYtPbAVs7qP+vJ7aqCfaFk5M5zEiqgWUZZgziTnegTPYZT3QjpJBjCXl2W94f6w==
+X-Received: by 2002:a62:35c1:: with SMTP id c184mr8093955pfa.120.1588778612946;
+        Wed, 06 May 2020 08:23:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c124sm2081600pfb.187.2020.05.06.08.23.31
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 May 2020 08:23:32 -0700 (PDT)
+Message-ID: <5eb2d674.1c69fb81.112bc.68cd@mx.google.com>
+Date:   Wed, 06 May 2020 08:23:32 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.43.162.37]
-X-ClientProxiedBy: EX13d09UWC004.ant.amazon.com (10.43.162.114) To
- EX13D31EUA001.ant.amazon.com (10.43.165.15)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.6.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.6.11
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.6.y boot: 140 boots: 2 failed,
+ 131 passed with 5 offline, 2 untried/unknown (v5.6.11)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 6 May 2020 07:41:51 -0700 "Paul E. McKenney" <paulmck@kernel.org> wrote:
+stable-rc/linux-5.6.y boot: 140 boots: 2 failed, 131 passed with 5 offline,=
+ 2 untried/unknown (v5.6.11)
 
-> On Wed, May 06, 2020 at 02:59:26PM +0200, SeongJae Park wrote:
-> > TL; DR: It was not kernel's fault, but the benchmark program.
-> > 
-> > So, the problem is reproducible using the lebench[1] only.  I carefully read
-> > it's code again.
-> > 
-> > Before running the problem occurred "poll big" sub test, lebench executes
-> > "context switch" sub test.  For the test, it sets the cpu affinity[2] and
-> > process priority[3] of itself to '0' and '-20', respectively.  However, it
-> > doesn't restore the values to original value even after the "context switch" is
-> > finished.  For the reason, "select big" sub test also run binded on CPU 0 and
-> > has lowest nice value.  Therefore, it can disturb the RCU callback thread for
-> > the CPU 0, which processes the deferred deallocations of the sockets, and as a
-> > result it triggers the OOM.
-> > 
-> > We confirmed the problem disappears by offloading the RCU callbacks from the
-> > CPU 0 using rcu_nocbs=0 boot parameter or simply restoring the affinity and/or
-> > priority.
-> > 
-> > Someone _might_ still argue that this is kernel problem because the problem
-> > didn't occur on the old kernels prior to the Al's patches.  However, setting
-> > the affinity and priority was available because the program received the
-> > permission.  Therefore, it would be reasonable to blame the system
-> > administrators rather than the kernel.
-> > 
-> > So, please ignore this patchset, apology for making confuse.  If you still has
-> > some doubts or need more tests, please let me know.
-> > 
-> > [1] https://github.com/LinuxPerfStudy/LEBench
-> > [2] https://github.com/LinuxPerfStudy/LEBench/blob/master/TEST_DIR/OS_Eval.c#L820
-> > [3] https://github.com/LinuxPerfStudy/LEBench/blob/master/TEST_DIR/OS_Eval.c#L822
-> 
-> Thank you for chasing this down!
-> 
-> I have had this sort of thing on my list as a potential issue, but given
-> that it is now really showing up, it sounds like it is time to bump
-> up its priority a bit.  Of course there are limits, so if userspace is
-> running at any of the real-time priorities, making sufficient CPU time
-> available to RCU's kthreads becomes userspace's responsibility.  But if
-> everything is running at SCHED_OTHER (which is this case here, correct?),
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.6.y/kernel/v5.6.11/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
+/kernel/v5.6.11/
 
-Correct.
+Tree: stable-rc
+Branch: linux-5.6.y
+Git Describe: v5.6.11
+Git Commit: aabff12c5db172e726716cdf22c3c55a87a81e2f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 94 unique boards, 24 SoC families, 21 builds out of 200
 
-> then it is reasonable for RCU to do some work to avoid this situation.
+Boot Regressions Detected:
 
-That would be also great!
+arm64:
 
-> 
-> But still, yes, the immediate job is fixing the benchmark.  ;-)
+    defconfig:
+        gcc-8:
+          sun50i-a64-pine64-plus:
+              lab-baylibre: new failure (last pass: v5.6.10-74-g6cd4bcd666c=
+d)
 
-Totally agreed.
+Boot Failures Detected:
 
-> 
-> 							Thanx, Paul
-> 
-> PS.  Why not just attack all potential issues on my list?  Because I
->      usually learn quite a bit from seeing the problem actually happen.
->      And sometimes other changes in RCU eliminate the potential issue
->      before it has a chance to happen.
+arm64:
+    defconfig:
+        gcc-8:
+            sun50i-a64-pine64-plus: 1 failed lab
 
-Sounds interesting, I will try some of those in my spare time ;)
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
+Offline Platforms:
 
-Thanks,
-SeongJae Park
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
