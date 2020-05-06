@@ -2,129 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 472751C76AD
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 18:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DADD1C76CB
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 18:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730290AbgEFQh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 12:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42024 "EHLO
+        id S1729596AbgEFQoN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 12:44:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730059AbgEFQh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 12:37:28 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B5DC061A10
-        for <stable@vger.kernel.org>; Wed,  6 May 2020 09:37:28 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id mq3so1168843pjb.1
-        for <stable@vger.kernel.org>; Wed, 06 May 2020 09:37:28 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1727984AbgEFQoM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 12:44:12 -0400
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87B11C061A0F;
+        Wed,  6 May 2020 09:44:12 -0700 (PDT)
+Received: by mail-qt1-x842.google.com with SMTP id o16so1542270qtb.13;
+        Wed, 06 May 2020 09:44:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ysv40NaU9cEolxDMZqydkRSPfnO+SbJ9aiL7qpGqadk=;
-        b=pa20bAfVRZUvdO8iDKo0HP0uESvPxFamQ8qQl2Y+ujvPMYLAdFgicmQu61BZQtSZF5
-         Yu0yL61S71Z8xhwSqi35WXiRAfAeEEOUdzLkEHPIOaAHp/YAIYOVg5rhrLSyeU5phZ4+
-         XYTl+ImQT73uQLwlOFFh3G+Fnd4CqaWLhhftoQ3lWSKRtJcv1RyBPvS40bpea0X4XGkk
-         1VfkYGDMRNqzNVyL87G50HRwF7SRN678+j1Zhgho847nBKXFKx0zeNnQKmDMshWxTRzj
-         8JO3gJH1nmgyQnLGGrQ++GaVtXvCtXWULdqf1Yb8msUVutrU2A344XDMZ9H8OQtaDz12
-         GmXg==
+        d=gmail.com; s=20161025;
+        h=from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=t7CgGDakZ6HBwLoyEuXzHSsFPvnCyBpRS/YoqjnzK6M=;
+        b=N5lLph8jiTGnSBatLuURZEb4yy06JEJ+bZRmXyC1PWnHC8sDPqjgr3/SqpyoJZA1DC
+         oV9HWnMj/XijqO2WVyWHSfC72ZE3oPq2liwvU6O39+3dbXsr/JLoSGjs9t5KtgrlUi+a
+         iPqZtalYYRB58LucAh7ylY2zUFmfXyAtWTi+8Tr9RwLiO8ZkXzqwXmv9t2NA1xdqQLR9
+         h5pd0V50OWPI4ALsdQJFxYQ1uiqLAbRnHTCIv6FtAHsewcu7DjA1HNpPDiNsRI0GbKOL
+         ox4FgFawO0NA0InSmxWKyAoSWFW02HC5ivRfLwXYYOjSL4CkC4oKilvcQReqotv0gNCo
+         tn6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ysv40NaU9cEolxDMZqydkRSPfnO+SbJ9aiL7qpGqadk=;
-        b=kj3oB7MV6w2dtafajcqYX9UPqh7GD/u4rjWM56kV8YaQT1CFGHnSbM8/I1bMB+joiw
-         0ER2Iorfm3CEfZ2NvaZs8D40/qoI8SVbqSHJuct5V4ekGoY4VNxLvKNG9w9LGQD9JIHk
-         Q7eb0HNq3QJDUf6Cq6kwNb0uEU9NYZ6O7Yz3/E42o2jHlMpdqoZxRpPJYt2nUwE7nzU6
-         uE+aMaJtBDyjK9UaJdA9X02XsynBiwFdEngQDu97WvO5xTOBqxACCCFjuw78cMRYaRoN
-         5NXxtwtB4IAECdRrhaLTl+hgeLFaksVvq9rN3hH5nIglsAeO2qeyzMXrPwSHzQlGC7km
-         S/NA==
-X-Gm-Message-State: AGi0PuZshQ1E+/U0/+2ptin4g1JkqcERwkr3Z/CpinvvlE8tLHCllCFl
-        wcXZOaHERYfj9FAoWv8YY6AVfJpVpe4s0fo/2R6Z6A==
-X-Google-Smtp-Source: APiQypL+VLGyDbHfWNP94AkI45jpXipxlhQDoleAxIXnmYyDvKmCBhXFalFgr9V24lJblYMKQmHk5zPcydpw/zN6AEA=
-X-Received: by 2002:a17:90a:8c85:: with SMTP id b5mr10152416pjo.187.1588783047869;
- Wed, 06 May 2020 09:37:27 -0700 (PDT)
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=t7CgGDakZ6HBwLoyEuXzHSsFPvnCyBpRS/YoqjnzK6M=;
+        b=TOXu13XYGRhWBKMSf6l4pexBZ0UbgXRJTm6+N6Y15d7nyJmbYPmbBjQJErUR/Jc6as
+         anVJ7RqEB4FROLIhgU9FCuGUHrldwwrPRXIWJDradlj16pZKTecNITZ3/eX6GZ+mjEPN
+         Dikz8SDOk/rg61ltsVp/X5xF43zo5AkWBSIQwujYXdamKV3ANPSMy9/Bu7A7xzDVcC5A
+         2NNHXAGwgPIApqqw6yWyQHAjAsd3FYZF9GulYhWO5GUzImCuK5teu5zchnv8lATn0Wbc
+         XS3mHpWDa48+Lwr05QYNAawNqirJxIkqQ8DOf72+NB6zB0vrqH4oewKpJrJgmtFia9nL
+         nnXA==
+X-Gm-Message-State: AGi0PuZHb6r510KrrnQfrn6SrbR1ZDOSsgf40JQiOQbI0rhF/xO1GOyA
+        0399zB/isACZ5luB+NegEBFHxW2TCbA=
+X-Google-Smtp-Source: APiQypLpWj1Wxz1UeUcc7dMbxUPCp3rCGxhahy7fC/kMvfQlUpBR02ObZReFLwHMP51ydu8/wM5n2g==
+X-Received: by 2002:ac8:2783:: with SMTP id w3mr8989034qtw.265.1588783451454;
+        Wed, 06 May 2020 09:44:11 -0700 (PDT)
+Received: from quaco.ghostprotocols.net ([179.97.37.151])
+        by smtp.gmail.com with ESMTPSA id c7sm2031704qko.55.2020.05.06.09.44.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 May 2020 09:44:10 -0700 (PDT)
+From:   Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
+X-Google-Original-From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
+        id CBE2A409A3; Wed,  6 May 2020 13:44:08 -0300 (-03)
+Date:   Wed, 6 May 2020 13:44:08 -0300
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] perf-probe: Fix to check blacklist address correctly
+Message-ID: <20200506164408.GA4323@kernel.org>
+References: <158763965400.30755.14484569071233923742.stgit@devnote2>
+ <158763966411.30755.5882376357738273695.stgit@devnote2>
 MIME-Version: 1.0
-References: <20200505174423.199985-1-ndesaulniers@google.com> <20200506043028.GA663805@ubuntu-s3-xlarge-x86>
-In-Reply-To: <20200506043028.GA663805@ubuntu-s3-xlarge-x86>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 6 May 2020 09:37:16 -0700
-Message-ID: <CAKwvOd=c6gzpUsRgh-XmKEh0xHkZUWfXNW52EpqfrbH+XhH5fQ@mail.gmail.com>
-Subject: Re: [PATCH] x86: bitops: fix build regression
-To:     Nathan Chancellor <natechancellor@gmail.com>,
-        Ilie Halip <ilie.halip@gmail.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <158763966411.30755.5882376357738273695.stgit@devnote2>
+X-Url:  http://acmel.wordpress.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 5, 2020 at 9:30 PM Nathan Chancellor
-<natechancellor@gmail.com> wrote:
->
-> On Tue, May 05, 2020 at 10:44:22AM -0700, Nick Desaulniers wrote:
-> > This is easily reproducible via Clang+CONFIG_STAGING=y+CONFIG_VT6656=m,
-> > or Clang+allyesconfig.
->
-> For what it's worth, I don't see this with allyesconfig.
+Em Thu, Apr 23, 2020 at 08:01:04PM +0900, Masami Hiramatsu escreveu:
+> Fix to check kprobe blacklist address correctly with
+> relocated address by adjusting debuginfo address.
+> 
+> Since the address in the debuginfo is same as objdump,
+> it is different from relocated kernel address with KASLR.
+> Thus, the perf-probe always misses to catch the
+> blacklisted addresses.
 
-Oops, ok, I'll drop that from the commit message in v2.  I was testing
-with the former.
+Thanks, applied, sorry for the delay,
 
->
-> > Keep the masking operation to appease sparse (`make C=1`), add back the
-> > cast in order to properly select the proper 8b register alias.
-> >
-> >  [Nick: reworded]
-> >
-> > Cc: stable@vger.kernel.org
->
-> The offending commit was added in 5.7-rc1; we shouldn't need to
-> Cc stable since this should be picked up as an -rc fix.
+- Arnaldo
+ 
+> Without this patch, perf probe can not detect the blacklist
+> addresses on KASLR enabled kernel.
+> 
+> =========
+>   # perf probe kprobe_dispatcher
+>   Failed to write event: Invalid argument
+>     Error: Failed to add events.
+> =========
+> 
+> With this patch, it correctly shows the error message.
+> 
+> =========
+>   # perf probe kprobe_dispatcher
+>   kprobe_dispatcher is blacklisted function, skip it.
+>   Probe point 'kprobe_dispatcher' not found.
+>     Error: Failed to add events.
+> =========
+> 
+> Fixes: 9aaf5a5f479b ("perf probe: Check kprobes blacklist when adding new events")
+> Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  tools/perf/util/probe-event.c |   21 +++++++++++++++------
+>  1 file changed, 15 insertions(+), 6 deletions(-)
+> 
+> diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
+> index eea132f512b0..f75df63309be 100644
+> --- a/tools/perf/util/probe-event.c
+> +++ b/tools/perf/util/probe-event.c
+> @@ -102,7 +102,7 @@ void exit_probe_symbol_maps(void)
+>  	symbol__exit();
+>  }
+>  
+> -static struct ref_reloc_sym *kernel_get_ref_reloc_sym(void)
+> +static struct ref_reloc_sym *kernel_get_ref_reloc_sym(struct map **pmap)
+>  {
+>  	/* kmap->ref_reloc_sym should be set if host_machine is initialized */
+>  	struct kmap *kmap;
+> @@ -114,6 +114,10 @@ static struct ref_reloc_sym *kernel_get_ref_reloc_sym(void)
+>  	kmap = map__kmap(map);
+>  	if (!kmap)
+>  		return NULL;
+> +
+> +	if (pmap)
+> +		*pmap = map;
+> +
+>  	return kmap->ref_reloc_sym;
+>  }
+>  
+> @@ -125,7 +129,7 @@ static int kernel_get_symbol_address_by_name(const char *name, u64 *addr,
+>  	struct map *map;
+>  
+>  	/* ref_reloc_sym is just a label. Need a special fix*/
+> -	reloc_sym = kernel_get_ref_reloc_sym();
+> +	reloc_sym = kernel_get_ref_reloc_sym(NULL);
+>  	if (reloc_sym && strcmp(name, reloc_sym->name) == 0)
+>  		*addr = (reloc) ? reloc_sym->addr : reloc_sym->unrelocated_addr;
+>  	else {
+> @@ -745,6 +749,7 @@ post_process_kernel_probe_trace_events(struct probe_trace_event *tevs,
+>  				       int ntevs)
+>  {
+>  	struct ref_reloc_sym *reloc_sym;
+> +	struct map *map;
+>  	char *tmp;
+>  	int i, skipped = 0;
+>  
+> @@ -753,7 +758,7 @@ post_process_kernel_probe_trace_events(struct probe_trace_event *tevs,
+>  		return post_process_offline_probe_trace_events(tevs, ntevs,
+>  						symbol_conf.vmlinux_name);
+>  
+> -	reloc_sym = kernel_get_ref_reloc_sym();
+> +	reloc_sym = kernel_get_ref_reloc_sym(&map);
+>  	if (!reloc_sym) {
+>  		pr_warning("Relocated base symbol is not found!\n");
+>  		return -EINVAL;
+> @@ -764,9 +769,13 @@ post_process_kernel_probe_trace_events(struct probe_trace_event *tevs,
+>  			continue;
+>  		if (tevs[i].point.retprobe && !kretprobe_offset_is_supported())
+>  			continue;
+> -		/* If we found a wrong one, mark it by NULL symbol */
+> +		/*
+> +		 * If we found a wrong one, mark it by NULL symbol.
+> +		 * Since addresses in debuginfo is same as objdump, we need
+> +		 * to convert it to addresses on memory.
+> +		 */
+>  		if (kprobe_warn_out_range(tevs[i].point.symbol,
+> -					  tevs[i].point.address)) {
+> +			map__objdump_2mem(map, tevs[i].point.address))) {
+>  			tmp = NULL;
+>  			skipped++;
+>  		} else {
+> @@ -2936,7 +2945,7 @@ static int find_probe_trace_events_from_map(struct perf_probe_event *pev,
+>  	/* Note that the symbols in the kmodule are not relocated */
+>  	if (!pev->uprobes && !pev->target &&
+>  			(!pp->retprobe || kretprobe_offset_is_supported())) {
+> -		reloc_sym = kernel_get_ref_reloc_sym();
+> +		reloc_sym = kernel_get_ref_reloc_sym(NULL);
+>  		if (!reloc_sym) {
+>  			pr_warning("Relocated base symbol is not found!\n");
+>  			ret = -EINVAL;
+> 
 
-Got it, will drop in v2.
-
->
-> > Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
-> > Link: https://github.com/ClangBuiltLinux/linux/issues/961
-> > Link: https://lore.kernel.org/lkml/20200504193524.GA221287@google.com/
-> > Fixes: 1651e700664b4 ("x86: Fix bitops.h warning with a moved cast")
-> > Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-> > Reported-by: kernelci.org bot <bot@kernelci.org>
-> > Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> > Suggested-by: Ilie Halip <ilie.halip@gmail.com>
->
-> Not to split hairs but this is Ilie's diff, he should probably be the
-> author with Sedat's Reported-by/Tested-by.
->
-> https://github.com/ClangBuiltLinux/linux/issues/961#issuecomment-608239458
-
-Ooh, you're right. Sorry about that Ilie.  I'm usually pretty pedantic
-about getting that right; my mistake.  I'll fix that in v2.  As Sedat
-noted, the issue tracker has been a little quiet on this issue, but
-I'll note that there are extraordinary circumstances going on in the
-world these days (COVID) so delays should be anticipated.
-
-Ilie, may I put your authorship and signed off by tag on the V2?
-
->
-> But eh, it's all a team effort plus that can only happen with Ilie's
-> explicit consent for a Signed-off-by.
 -- 
-Thanks,
-~Nick Desaulniers
+
+- Arnaldo
