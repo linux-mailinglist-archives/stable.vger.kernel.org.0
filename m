@@ -2,112 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EBAB1C6A1F
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 09:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09FD11C6B8B
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 10:23:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728201AbgEFHfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 03:35:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37220 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728069AbgEFHfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 May 2020 03:35:32 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B997420753;
-        Wed,  6 May 2020 07:35:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588750527;
-        bh=wJB7AVgD0h7fCY7ouJXiaTz3ZITva1KOZ+RtXVFf+gI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R3i+qZy5IfS2N3VlFHdc2WEfSK/bY6El8PmmoTZ6sXyW50BL/Zu6sCFbupelNktoI
-         5Wftdz5V8zLoFsrrbwz1aVv5OdSjBVYpJp9r9E3bqg3V9zyq/Gy82ypV+g733qeEQU
-         cUA7bOsbPwJNorsKbfq7frvec8s1Ohp7BwhzxJ24=
-Date:   Wed, 6 May 2020 09:35:25 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Justin He <Justin.He@arm.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "ldigby@redhat.com" <ldigby@redhat.com>,
-        "n.b@live.com" <n.b@live.com>,
-        "stefanha@redhat.com" <stefanha@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [GIT PULL] vhost: fixes
-Message-ID: <20200506073525.GC2336830@kroah.com>
-References: <20200504081540-mutt-send-email-mst@kernel.org>
- <AM6PR08MB40696EFF8BE389C134AC04F6F7A40@AM6PR08MB4069.eurprd08.prod.outlook.com>
- <20200506031918-mutt-send-email-mst@kernel.org>
+        id S1728853AbgEFIX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 04:23:27 -0400
+Received: from mail2.directv.syn-alias.com ([69.168.106.50]:58477 "EHLO
+        mail.directv.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728349AbgEFIX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 04:23:26 -0400
+X-Greylist: delayed 1201 seconds by postgrey-1.27 at vger.kernel.org; Wed, 06 May 2020 04:23:26 EDT
+DKIM-Signature: v=1; a=rsa-sha1; d=wildblue.net; s=20170921; c=relaxed/simple;
+        q=dns/txt; i=@wildblue.net; t=1588752205;
+        h=From:Subject:Date:To:MIME-Version:Content-Type;
+        bh=ScPHAubar7JxpdvuhxDCe+MpZ58=;
+        b=IHCnldO00FwnO0/FicXUD+l1907HVk5H1RUVLHGWNxVpwI83GdiAJ5gGTWvyMCXD
+        8Ytbv6vMf/cjTtYyTFsJ855OYRWpo3wLTEZCX0OLNVV33sopYaen5Sff1++7W2Xk
+        rpGHduMLp1Y5POOvkd4ppRUg/cQabyE7UL/5pMeLv4kMUHstv5iMHX3nadvW0yPG
+        GVtognpZ4TIfhXhYp96YLLSx5ymxI6zcQWLxcMdlu1KoYFkgYBzb3cdygFEMVXpp
+        AhW8J07KPnvx0a8IP6psnBCEeliRlocXKee5K6j+E606s9OrToVKBBmoAXnEKZeA
+        gOoqkVpWEMQFx8m/PwVvVQ==;
+X_CMAE_Category: , ,
+X-CNFS-Analysis: v=2.3 cv=INt89TnG c=1 sm=1 tr=0 a=uzScQWnHooYk8thlE1zPqQ==:117 a=9cW_t1CCXrUA:10 a=KGjhK52YXX0A:10 a=FKkrIqjQGGEA:10 a=U1LvN0eiR6gA:10 a=Xkwcji8a03AA:10 a=IkcTkHD0fZMA:10 a=x7bEGLp0ZPQA:10 a=sTwFKg_x9MkA:10 a=RSjPm4NjnBEA:10 a=eLYakDAOiCcA:10 a=WnP6hqLIoXLXs4n8bs0A:9 a=QEXdDO2ut3YA:10 a=KFuBUW0-ljYt10Gn79EV:22
+X-CM-Score: 0
+X-Scanned-by: Cloudmark Authority Engine
+X-Authed-Username: bWlzc3NhbGx5MUB3aWxkYmx1ZS5uZXQ=
+Received: from [10.80.118.24] ([10.80.118.24:37734] helo=md01.jasper.bos.sync.lan)
+        by mail2.directv.syn-alias.com (envelope-from <misssally1@wildblue.net>)
+        (ecelerity 3.6.25.56547 r(Core:3.6.25.0)) with ESMTP
+        id DB/76-19995-C4F62BE5; Wed, 06 May 2020 04:03:24 -0400
+Date:   Wed, 6 May 2020 04:03:24 -0400 (EDT)
+From:   George <misssally1@wildblue.net>
+Reply-To: geow1901@gmail.com
+Message-ID: <191653996.20006998.1588752204082.JavaMail.zimbra@wildblue.net>
+Subject: Re
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200506031918-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [104.140.53.75]
+X-Mailer: Zimbra 8.7.6_GA_1776 (zclient/8.7.6_GA_1776)
+Thread-Index: zAUiGVVrz19EhFI/5YNnlcHNFZ+fOQ==
+Thread-Topic: Re
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 06, 2020 at 03:19:55AM -0400, Michael S. Tsirkin wrote:
-> On Wed, May 06, 2020 at 03:28:47AM +0000, Justin He wrote:
-> > Hi Michael
-> > 
-> > > -----Original Message-----
-> > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > Sent: Monday, May 4, 2020 8:16 PM
-> > > To: Linus Torvalds <torvalds@linux-foundation.org>
-> > > Cc: kvm@vger.kernel.org; virtualization@lists.linux-foundation.org;
-> > > netdev@vger.kernel.org; linux-kernel@vger.kernel.org; Justin He
-> > > <Justin.He@arm.com>; ldigby@redhat.com; mst@redhat.com; n.b@live.com;
-> > > stefanha@redhat.com
-> > > Subject: [GIT PULL] vhost: fixes
-> > >
-> > > The following changes since commit
-> > > 6a8b55ed4056ea5559ebe4f6a4b247f627870d4c:
-> > >
-> > >   Linux 5.7-rc3 (2020-04-26 13:51:02 -0700)
-> > >
-> > > are available in the Git repository at:
-> > >
-> > >   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-> > >
-> > > for you to fetch changes up to
-> > > 0b841030625cde5f784dd62aec72d6a766faae70:
-> > >
-> > >   vhost: vsock: kick send_pkt worker once device is started (2020-05-02
-> > > 10:28:21 -0400)
-> > >
-> > > ----------------------------------------------------------------
-> > > virtio: fixes
-> > >
-> > > A couple of bug fixes.
-> > >
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > >
-> > > ----------------------------------------------------------------
-> > > Jia He (1):
-> > >       vhost: vsock: kick send_pkt worker once device is started
-> > 
-> > Should this fix also be CC-ed to stable? Sorry I forgot to cc it to stable.
-> > 
-> > --
-> > Cheers,
-> > Justin (Jia He)
-> 
-> 
-> Go ahead, though recently just including Fixes seems to be enough.
-
-You are getting lucky if you only apply a "Fixes:" tag, as that is much
-lower down our list of things to look at.  We are forced to do that
-because of subsystems and maintainers that do not use the cc: stable
-tag, as has been documented for the patch 15+ years :(
-
-So please be explicit if you know you want it merged to the stable
-trees, otherwise it is not a guarantee at all if you only use "fixes:".
-
-thanks,
-
-greg k-h
+Do you get my message
