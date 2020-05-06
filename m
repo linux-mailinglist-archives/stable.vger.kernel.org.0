@@ -2,92 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E9BC1C74CC
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 17:29:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D60411C74AD
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 17:27:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729972AbgEFPZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 11:25:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58772 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729965AbgEFPZK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 11:25:10 -0400
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A066C061A0F
-        for <stable@vger.kernel.org>; Wed,  6 May 2020 08:25:10 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id fu13so1031832pjb.5
-        for <stable@vger.kernel.org>; Wed, 06 May 2020 08:25:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=tqOaOqcgJ5B7q7yxOLmkCyA2cbSH3uXXvo8YvOrS2IE=;
-        b=n07tyaYvUhv1aZWLupY/OBST5kMpD6LF0N8aAI8jURl9LL+eNKxoNQu76+RsBFJZvW
-         XWEihBjHiBuYYQQBR3h4jn7LmwWZr8oNrDtqgBSoCsvxPd51EruPeAYkmFLuO7SAZi1K
-         xz+/Ynkt/emFOFBI3DjXggdZn+SugmuIlwYc/29xpV6UtDs9/RQktSKSbJ0GtVs7PxFO
-         /YpkLOgZTR/jZu0CLTta49Y1w+Yw/oFRmvlGgS5tOfn74yaLcaNf8Eh/nKvAO1hTzn9x
-         mhUijLJ5JC2CigJGxHRSo7en+AvZpmCDXdWAVERAa1ob9zLj4ei1J4kb+dfOQ4Zz0p6V
-         0XHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=tqOaOqcgJ5B7q7yxOLmkCyA2cbSH3uXXvo8YvOrS2IE=;
-        b=A7ae+y4EjWYeasLbB3BdXu1pyQa5k88KUy8jPbJNOVDD9lWxWPfrCZg/5m6a3ze9/r
-         j0IaQgJEuUveF7n1zo51NnuJaik8+U/t+VRTnWdFETLDmoE+pqFukIVWzrB6N4+glAR8
-         04ouXMzNswd9W9ITtIOFyhLE/df/fE3DXZkV/iEiTGIA+kHXBaUa81oYyGfiaSM+uDjK
-         YlOhYVYWNYZ7EOUogtNzZ7HI2kZ67SfiqMSp8RnmmIIu6dts3eYulQrjB+ZIy4u5ZlKT
-         ScpKJQRduOBZeQU75hMH/mwswXTWzL/S+avYpemmebbK1yc8COOYJAlajWbgiPmVXX7d
-         OaUQ==
-X-Gm-Message-State: AGi0PuYOxRed6YsyeYH/pCeG/hY42ImHDReEP3xUfC+tkDZkqoo8/u3c
-        90ubIWFDJ1pOvNXnS+MlaluyLKEM9TiePg==
-X-Google-Smtp-Source: APiQypJjjjEqV2WR/FFWTjksDJFeSDFcVjeA2vSweCntk39hj6q0dDKolhmVYOUGm7Tzttw0CffmBw==
-X-Received: by 2002:a17:90a:8c9:: with SMTP id 9mr10253636pjn.183.1588778709356;
-        Wed, 06 May 2020 08:25:09 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t3sm2105445pfq.110.2020.05.06.08.25.08
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 May 2020 08:25:08 -0700 (PDT)
-Message-ID: <5eb2d6d4.1c69fb81.89a40.683a@mx.google.com>
-Date:   Wed, 06 May 2020 08:25:08 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1730310AbgEFP1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 11:27:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50754 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730305AbgEFP1O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 May 2020 11:27:14 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C1472068E;
+        Wed,  6 May 2020 15:27:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588778834;
+        bh=xScnzIDvRD60xUyR/pyixQ1/r75Pu+K/MwlIc5PWwos=;
+        h=Subject:To:From:Date:From;
+        b=zmrCIaElO2xM1DxlAgi5RFhTCSmCUYRANcegBHzadvO50nNbvHqhLFASNln/zW54u
+         /Ofj8RedetPpYPlUB+0i5U16oajQ4R9Vi/Fkw+nfx7xZar3SYuqsSMDLV3CuF0C3Oe
+         qYBmZ/Od2Y9G09eUhpCo/WC5UkFx8rGOfZw0NmgU=
+Subject: patch "USB: serial: qcserial: Add DW5816e support" added to usb-linus
+To:     Kangie@footclan.ninja, johan@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 06 May 2020 17:27:04 +0200
+Message-ID: <158877882415660@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.4.39
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-5.4.y boot: 99 boots: 1 failed,
- 96 passed with 2 untried/unknown (v5.4.39)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y boot: 99 boots: 1 failed, 96 passed with 2 untried/unkno=
-wn (v5.4.39)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-4.y/kernel/v5.4.39/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
-rnel/v5.4.39/
+This is a note to let you know that I've just added the patch titled
 
-Tree: stable
-Branch: linux-5.4.y
-Git Describe: v5.4.39
-Git Commit: 592465e6a54ba8104969f3b73b58df262c5be5f5
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 71 unique boards, 18 SoC families, 17 builds out of 200
+    USB: serial: qcserial: Add DW5816e support
 
-Boot Failure Detected:
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 78d6de3cfbd342918d31cf68d0d2eda401338aef Mon Sep 17 00:00:00 2001
+From: Matt Jolly <Kangie@footclan.ninja>
+Date: Sun, 3 May 2020 01:03:47 +1000
+Subject: USB: serial: qcserial: Add DW5816e support
+
+Add support for Dell Wireless 5816e to drivers/usb/serial/qcserial.c
+
+Signed-off-by: Matt Jolly <Kangie@footclan.ninja>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/usb/serial/qcserial.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/usb/serial/qcserial.c b/drivers/usb/serial/qcserial.c
+index 613f91add03d..ce0401d3137f 100644
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -173,6 +173,7 @@ static const struct usb_device_id id_table[] = {
+ 	{DEVICE_SWI(0x413c, 0x81b3)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
+ 	{DEVICE_SWI(0x413c, 0x81b5)},	/* Dell Wireless 5811e QDL */
+ 	{DEVICE_SWI(0x413c, 0x81b6)},	/* Dell Wireless 5811e QDL */
++	{DEVICE_SWI(0x413c, 0x81cc)},	/* Dell Wireless 5816e */
+ 	{DEVICE_SWI(0x413c, 0x81cf)},   /* Dell Wireless 5819 */
+ 	{DEVICE_SWI(0x413c, 0x81d0)},   /* Dell Wireless 5819 */
+ 	{DEVICE_SWI(0x413c, 0x81d1)},   /* Dell Wireless 5818 */
+-- 
+2.26.2
+
+
