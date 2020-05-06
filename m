@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4380F1C7BA4
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 22:58:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B761C7BAF
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 22:59:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729358AbgEFU6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 16:58:05 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:64065 "EHLO
+        id S1727772AbgEFU7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 16:59:25 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:64094 "EHLO
         fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726815AbgEFU6F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 16:58:05 -0400
+        with ESMTP id S1726815AbgEFU7Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 16:59:24 -0400
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21131940-1500050 
-        for multiple; Wed, 06 May 2020 21:58:03 +0100
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21131955-1500050 
+        for multiple; Wed, 06 May 2020 21:59:25 +0100
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
         Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH 1/3] drm/i915: Mark concurrent submissions with a weak-dependency
-Date:   Wed,  6 May 2020 21:57:56 +0100
-Message-Id: <20200506205758.14689-1-chris@chris-wilson.co.uk>
+Subject: [PATCH 01/15] drm/i915: Mark concurrent submissions with a weak-dependency
+Date:   Wed,  6 May 2020 21:59:06 +0100
+Message-Id: <20200506205920.24233-1-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
