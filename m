@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0403A1C7E07
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 01:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D89841C7E0D
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 01:42:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728105AbgEFXmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 19:42:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55714 "EHLO mail.kernel.org"
+        id S1728079AbgEFXmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 19:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728079AbgEFXmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 May 2020 19:42:11 -0400
+        id S1728182AbgEFXmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 May 2020 19:42:12 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D15FA20735;
-        Wed,  6 May 2020 23:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBA5D2076D;
+        Wed,  6 May 2020 23:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588808531;
-        bh=KBnO5Y8ohQ5TuAhfpgnGvmGyceSpfMTr78jQxuP6tkU=;
+        s=default; t=1588808532;
+        bh=CrL0vY8NzNe+Jnr1Alkh1Cnhdd78xGVrP+CFWalWXyo=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=q04wHOEDNAmFU41H+m9Ca5/b+t0BqbA2tBFTz0wwEEvOeN/5DIz3HKAeSboh/pK9d
-         Xzw7+APVtUxfX63/pSz8SjCqb1Zy06EBVyd9zrHnQLagiMH4OInohtnObgBrljTlOt
-         ogWsuRktU1mkTwWYnHLfczF2tfV6TTmXDzdtyzyk=
-Date:   Wed, 06 May 2020 23:42:10 +0000
+        b=ruquXAZzhXmj9ypRdl1IIVXjYGUvKM9XDqkHbXx7aVNiMy1aEnsU+HEikHfH+Q/Mq
+         NL6+ikdZiJ9M1cbDyQs9DuLxjkL3rPoLPsi6SoHHfSpdh1KyFIBEO6X3M5LrWeQRCY
+         uasujcTleIdKBWXcocTN9m0zgtQCrfFDnivV/QRk=
+Date:   Wed, 06 May 2020 23:42:11 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-To:     Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-acpi@vger.kernel.org
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2] pinctrl: cherryview: Ensure _REG(ACPI_ADR_SPACE_GPIO, 1) gets called
-In-Reply-To: <20200504145957.480418-1-hdegoede@redhat.com>
-References: <20200504145957.480418-1-hdegoede@redhat.com>
-Message-Id: <20200506234210.D15FA20735@mail.kernel.org>
+Subject: Re: [PATCH 1/2] drm/i915: Mark concurrent submissions with a weak-dependency
+In-Reply-To: <20200505131516.12466-1-chris@chris-wilson.co.uk>
+References: <20200505131516.12466-1-chris@chris-wilson.co.uk>
+Message-Id: <20200506234211.EBA5D2076D@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,19 +44,14 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences").
 
-The bot has tested the following trees: v5.6.10, v5.4.38, v4.19.120, v4.14.178, v4.9.221, v4.4.221.
+The bot has tested the following trees: v5.6.10.
 
-v5.6.10: Build OK!
-v5.4.38: Build OK!
-v4.19.120: Build OK!
-v4.14.178: Build OK!
-v4.9.221: Failed to apply! Possible dependencies:
-    a0b028597d59 ("pinctrl: cherryview: Add support for GMMR GPIO opregion")
+v5.6.10: Failed to apply! Possible dependencies:
+    8e9f84cf5cac ("drm/i915/gt: Propagate change in error status to children on unhold")
 
-v4.4.221: Build OK!
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
 
