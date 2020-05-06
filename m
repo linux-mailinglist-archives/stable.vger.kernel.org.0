@@ -2,90 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D8B1C74A7
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 17:27:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A1B1C7531
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 17:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730288AbgEFP1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 11:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50320 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730283AbgEFP1H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 May 2020 11:27:07 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2680420A8B;
-        Wed,  6 May 2020 15:27:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588778826;
-        bh=tq0zDJN1uUafbY21zuUhY3aF+EoubSO5Ny2LXvGM7AM=;
-        h=Subject:To:From:Date:From;
-        b=gicrV9gQNwOd+Zq8aGLsDneyhEbJTX/230euVhsVmTYlcBgVkWhh7tLDvZhe/z0xh
-         7lamcDjEyOR8l6lI/eTYWU6VwReM+bykREkE+H0LiCRG8fNzbxUoaJBNKzVq4kkwrD
-         SNkD5Np00PJ2Dmi81rKCHjiZCXPyHYNldECaoFy0=
-Subject: patch "USB: serial: garmin_gps: add sanity checking for data length" added to usb-linus
-To:     oneukum@suse.com, johan@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 06 May 2020 17:27:04 +0200
-Message-ID: <158877882416649@kroah.com>
+        id S1729749AbgEFPl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 11:41:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33176 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729668AbgEFPlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 11:41:52 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B828BC061A0F;
+        Wed,  6 May 2020 08:41:51 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id e20so1695319otk.12;
+        Wed, 06 May 2020 08:41:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=/4Bf7uYJizHHCHu/IYW7D03zmrwhqK6qEQ4Buf+txbw=;
+        b=O41+Bmx8B9NB10qlOMxkKc0/Rv3M6Si5CS/dzS1zYHq3s3oh4P78J7myxdWBSa8y7s
+         TD5F8clLMBWSS1ZLwUnEC80SEY2vxP/eG5egZesXB3oTOocuQV8YKmYGSHFexTzy0lQA
+         x6c14L+ldRqF5Nd/eK3gLz7QSa2FI5PiEnU0D8seFKuPxVS/oBHGIha5cS/7p9Mouuqe
+         THcE6aPAzEfYI65zy/Ffx4s5unLOIJsNqQTlboU+HHBE1Grx2Ouxkr8TIdBtuUd2PCjM
+         4f0tdzFCeGgvCPpfNRoGlgdhQY/+lGA6IoNjql+Ks0i2xqgQYonpZV09sQOuXW/qsynV
+         NnqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/4Bf7uYJizHHCHu/IYW7D03zmrwhqK6qEQ4Buf+txbw=;
+        b=snOQJvCxRngpebz6HC0Kjk20I6iK1mEENBfM+7I0Xv/ZOP3lbGcEdUM6kv850bBhRe
+         wHIMNFK3G8ZaQJQuxLUqWWtVhTCmnyt2Pu/mL0S+UUMOgZLpun3p4hXni5rGP7JoQMx+
+         gXexA82wr1Vn+/vaZNabk8RR3Zx2+iHLig8q8STf/lFqxIfkEczJCE8WhM0EG4NfOKkW
+         d6R174ZVXwiWbhPsstmLxLa2/noMcxCcVhfMaVP9G7ZD8pxQwtXRGO8hq/50Z+tqtCbr
+         y6AK4JT8uL/y8eaHh0fA2rE8qTCUOLkcxPNKXKDjb84IGMRrIJMTezD4rxxy+56TKORm
+         sgSA==
+X-Gm-Message-State: AGi0Puay2YBpaucN9nnfhh0zgdkwwXKX0n0qEuc4d9XhGHzjtFsaJNyP
+        wmLj9RWaTJzwTY+6rbzr5gk=
+X-Google-Smtp-Source: APiQypII0o5v6UpXX6yiU/YBF8h71UF/2SWu7x/H3RFRnCZA7CNKMbDeTyEgZQ762wQ2tp22LhtsWQ==
+X-Received: by 2002:a9d:569:: with SMTP id 96mr6710053otw.59.1588779710938;
+        Wed, 06 May 2020 08:41:50 -0700 (PDT)
+Received: from ubuntu-s3-xlarge-x86 ([2604:1380:4111:8b00::1])
+        by smtp.gmail.com with ESMTPSA id k19sm655259oof.33.2020.05.06.08.41.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 May 2020 08:41:50 -0700 (PDT)
+Date:   Wed, 6 May 2020 08:41:48 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>, stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: Re: [PATCH] x86: bitops: fix build regression
+Message-ID: <20200506154148.GC1213645@ubuntu-s3-xlarge-x86>
+References: <20200505174423.199985-1-ndesaulniers@google.com>
+ <20200506043028.GA663805@ubuntu-s3-xlarge-x86>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200506043028.GA663805@ubuntu-s3-xlarge-x86>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, May 05, 2020 at 09:30:28PM -0700, Nathan Chancellor wrote:
+> On Tue, May 05, 2020 at 10:44:22AM -0700, Nick Desaulniers wrote:
+> > From: Sedat Dilek <sedat.dilek@gmail.com>
+> > 
+> > It turns out that if your config tickles __builtin_constant_p via
+> > differences in choices to inline or not, this now produces invalid
+> > assembly:
+> > 
+> > $ cat foo.c
+> > long a(long b, long c) {
+> >   asm("orb\t%1, %0" : "+q"(c): "r"(b));
+> >   return c;
+> > }
+> > $ gcc foo.c
+> > foo.c: Assembler messages:
+> > foo.c:2: Error: `%rax' not allowed with `orb'
+> > 
+> > The "q" constraint only has meanting on -m32 otherwise is treated as
+> > "r".
+> > 
+> > This is easily reproducible via Clang+CONFIG_STAGING=y+CONFIG_VT6656=m,
+> > or Clang+allyesconfig.
+> 
+> For what it's worth, I don't see this with allyesconfig.
+> 
+> > Keep the masking operation to appease sparse (`make C=1`), add back the
+> > cast in order to properly select the proper 8b register alias.
+> > 
+> >  [Nick: reworded]
+> > 
+> > Cc: stable@vger.kernel.org
+> 
+> The offending commit was added in 5.7-rc1; we shouldn't need to
+> Cc stable since this should be picked up as an -rc fix.
+> 
+> > Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+> > Link: https://github.com/ClangBuiltLinux/linux/issues/961
+> > Link: https://lore.kernel.org/lkml/20200504193524.GA221287@google.com/
+> > Fixes: 1651e700664b4 ("x86: Fix bitops.h warning with a moved cast")
+> > Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+> > Reported-by: kernelci.org bot <bot@kernelci.org>
+> > Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+> > Suggested-by: Ilie Halip <ilie.halip@gmail.com>
+> 
+> Not to split hairs but this is Ilie's diff, he should probably be the
+> author with Sedat's Reported-by/Tested-by.
+> 
+> https://github.com/ClangBuiltLinux/linux/issues/961#issuecomment-608239458
+> 
+> But eh, it's all a team effort plus that can only happen with Ilie's
+> explicit consent for a Signed-off-by.
+> 
+> I am currently doing a set of builds with clang-11 with this patch on
+> top of 5.7-rc4 to make sure that all of the cases I have found work.
+> Once that is done, I'll comment back with a tag.
 
-This is a note to let you know that I've just added the patch titled
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com> # build
 
-    USB: serial: garmin_gps: add sanity checking for data length
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From e9b3c610a05c1cdf8e959a6d89c38807ff758ee6 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Wed, 15 Apr 2020 16:03:04 +0200
-Subject: USB: serial: garmin_gps: add sanity checking for data length
-
-We must not process packets shorter than a packet ID
-
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-and-tested-by: syzbot+d29e9263e13ce0b9f4fd@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/garmin_gps.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/serial/garmin_gps.c b/drivers/usb/serial/garmin_gps.c
-index ffd984142171..d63072fee099 100644
---- a/drivers/usb/serial/garmin_gps.c
-+++ b/drivers/usb/serial/garmin_gps.c
-@@ -1138,8 +1138,8 @@ static void garmin_read_process(struct garmin_data *garmin_data_p,
- 		   send it directly to the tty port */
- 		if (garmin_data_p->flags & FLAGS_QUEUING) {
- 			pkt_add(garmin_data_p, data, data_length);
--		} else if (bulk_data ||
--			   getLayerId(data) == GARMIN_LAYERID_APPL) {
-+		} else if (bulk_data || (data_length >= sizeof(u32) &&
-+				getLayerId(data) == GARMIN_LAYERID_APPL)) {
- 
- 			spin_lock_irqsave(&garmin_data_p->lock, flags);
- 			garmin_data_p->flags |= APP_RESP_SEEN;
--- 
-2.26.2
-
-
+> > Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+> > Signed-off-by: Sedat Dilek <sedat.dilek@gmail.com>
+> > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> > ---
+> >  arch/x86/include/asm/bitops.h | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/x86/include/asm/bitops.h b/arch/x86/include/asm/bitops.h
+> > index b392571c1f1d..139122e5b25b 100644
+> > --- a/arch/x86/include/asm/bitops.h
+> > +++ b/arch/x86/include/asm/bitops.h
+> > @@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long *addr)
+> >  	if (__builtin_constant_p(nr)) {
+> >  		asm volatile(LOCK_PREFIX "orb %1,%0"
+> >  			: CONST_MASK_ADDR(nr, addr)
+> > -			: "iq" (CONST_MASK(nr) & 0xff)
+> > +			: "iq" ((u8)(CONST_MASK(nr) & 0xff))
+> >  			: "memory");
+> >  	} else {
+> >  		asm volatile(LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
+> > @@ -74,7 +74,7 @@ arch_clear_bit(long nr, volatile unsigned long *addr)
+> >  	if (__builtin_constant_p(nr)) {
+> >  		asm volatile(LOCK_PREFIX "andb %1,%0"
+> >  			: CONST_MASK_ADDR(nr, addr)
+> > -			: "iq" (CONST_MASK(nr) ^ 0xff));
+> > +			: "iq" ((u8)(CONST_MASK(nr) ^ 0xff)));
+> >  	} else {
+> >  		asm volatile(LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
+> >  			: : RLONG_ADDR(addr), "Ir" (nr) : "memory");
+> > -- 
+> > 2.26.2.526.g744177e7f7-goog
+> > 
+> 
+> Cheers,
+> Nathan
