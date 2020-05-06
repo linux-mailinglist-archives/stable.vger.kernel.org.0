@@ -2,107 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 614171C72E6
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 16:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE23A1C72F1
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 16:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728897AbgEFOdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 10:33:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50740 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725915AbgEFOdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 10:33:54 -0400
-Received: from mail-yb1-xb44.google.com (mail-yb1-xb44.google.com [IPv6:2607:f8b0:4864:20::b44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13299C061A0F
-        for <stable@vger.kernel.org>; Wed,  6 May 2020 07:33:54 -0700 (PDT)
-Received: by mail-yb1-xb44.google.com with SMTP id o198so1079307ybg.10
-        for <stable@vger.kernel.org>; Wed, 06 May 2020 07:33:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XbqSj0zLlZxwhc6FbfH4AgPdBJNe+u7Ez5XFOAJ4dlE=;
-        b=sMK2gxKz00XlJrqT2IQRh3RVnLny1lQB0H+zg4sYGFloaiAo/v9DJLCWh3yavgGR9t
-         c9UH85bbgwNnZ8rYaAmhkL9RXQ0ojcvHwdGPEORoemyMdhnQh1F34HjrbRUWcPnC06if
-         XXQz6FU/rVCvlSYCU7ys0+0E0Twdld4F+lZM4DENbx1STo8XrEe+V2fdFnCkStrpVY/p
-         AtTCq68fOOYR2goQGPNTKBBoBU+ce30sIhhZuhLPmFihWqnJd1lOneugUIJwibLPGWmh
-         wHKs3CJjA3fRLTTjL74ocbYlbKhUsFm/Mv/m6kMUuQOJXTxOg2QqsPJd/cn1IoG3HMml
-         gn/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XbqSj0zLlZxwhc6FbfH4AgPdBJNe+u7Ez5XFOAJ4dlE=;
-        b=j/s40Y1uENxDj2PNniTHbow/fF1Ux3y0O4QaUi/V/9QoSIQ8WiiB4s2+uiqnDeWkv0
-         47/yN10akQ4rEwMPSrtnVLsMCkabVLDrhl7mVyezC1mIiy0nfd+skcSCqL66dpDe7MM9
-         9tc21LbxyGoIejLt6veXMC/fe2Rp87KxiTicF/Ou1EEi8SnJA1EGn0WgGeLUhDVhkNx0
-         YRk9xRM+yBOLo3RHpuXfHiNeqYVKRxZW+EnpotHSk9nQoXgM3nvalv7XOBdi7Fu2jmSn
-         pPJCWjFLmKUCMVp4txJ8lz02IKtQagcTVzmWRPuIdGbKzU4HlEB0fFmVoxYHXM/AkL/r
-         w2rA==
-X-Gm-Message-State: AGi0PubUOYUqNg8aOklI/yK6wn2qgxaFVEs9I4e26sKB+vqhHMczHntd
-        SZi1+Wl4zoKSDind2WlQHexz69OZRV0+LArpeJ/f0w==
-X-Google-Smtp-Source: APiQypLa55+6CY2rDCiL0pAlUnndI/LxWB5VFYnf5D/Y4Vob6Fja7SVSAFXSw3DhrjJqMzyBFM1EmuD9ZAmaq6mtXSQ=
-X-Received: by 2002:a25:bc53:: with SMTP id d19mr13792238ybk.395.1588775632988;
- Wed, 06 May 2020 07:33:52 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200505184955.GO2869@paulmck-ThinkPad-P72> <20200506125926.29844-1-sjpark@amazon.com>
-In-Reply-To: <20200506125926.29844-1-sjpark@amazon.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Wed, 6 May 2020 07:33:41 -0700
-Message-ID: <CANn89iL2ZRa9CtypuZXL_+aGQmiqxP9q7eutozJ6G8b=QWjZKw@mail.gmail.com>
-Subject: Re: Re: Re: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc' life
- cycle change
-To:     SeongJae Park <sjpark@amazon.com>
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        David Miller <davem@davemloft.net>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        sj38.park@gmail.com, netdev <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        SeongJae Park <sjpark@amazon.de>, snu@amazon.com,
-        amit@kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1729110AbgEFOfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 10:35:06 -0400
+Received: from mail26.static.mailgun.info ([104.130.122.26]:14636 "EHLO
+        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729062AbgEFOfD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 10:35:03 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1588775703; h=References: In-Reply-To: Message-Id: Date:
+ Subject: Cc: To: From: Sender;
+ bh=VGWu+jgcC6PXT/LdkNQ8zizPYREz2ezvMgLbsLUy08w=; b=W86F9Y1qwuQC0lYSd3l2oav9CeFhlcLzdJrEQIlo56vtS7TAX8joHYEuQ1vdo0PM6CeKb/rJ
+ ej4/uTbsXqvNkJnlx5pghp9Shyq/Ci683mb7tEeTH37+ngUZtZW9qsaAGi/QBCopnE+LFZaZ
+ JP3AKV+JTFu6rwNuEVIUFeB2/lo=
+X-Mailgun-Sending-Ip: 104.130.122.26
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5eb2cb0d.7f424385a068-smtp-out-n02;
+ Wed, 06 May 2020 14:34:53 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id A5B50C43637; Wed,  6 May 2020 14:34:52 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from vbadigan-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: vbadigan)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 6F57CC433D2;
+        Wed,  6 May 2020 14:34:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 6F57CC433D2
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=vbadigan@codeaurora.org
+From:   Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+To:     adrian.hunter@intel.com, ulf.hansson@linaro.org
+Cc:     stummala@codeaurora.org, linux-mmc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        <stable@vger.kernel.org>, Baolin Wang <baolin.wang@linaro.org>,
+        Avri Altman <avri.altman@wdc.com>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH V1 1/2] mmc: core: Check request type before completing the request
+Date:   Wed,  6 May 2020 20:04:02 +0530
+Message-Id: <1588775643-18037-2-git-send-email-vbadigan@codeaurora.org>
+X-Mailer: git-send-email 1.9.1
+In-Reply-To: <1588775643-18037-1-git-send-email-vbadigan@codeaurora.org>
+References: <1588775643-18037-1-git-send-email-vbadigan@codeaurora.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 6, 2020 at 5:59 AM SeongJae Park <sjpark@amazon.com> wrote:
->
-> TL; DR: It was not kernel's fault, but the benchmark program.
->
-> So, the problem is reproducible using the lebench[1] only.  I carefully read
-> it's code again.
->
-> Before running the problem occurred "poll big" sub test, lebench executes
-> "context switch" sub test.  For the test, it sets the cpu affinity[2] and
-> process priority[3] of itself to '0' and '-20', respectively.  However, it
-> doesn't restore the values to original value even after the "context switch" is
-> finished.  For the reason, "select big" sub test also run binded on CPU 0 and
-> has lowest nice value.  Therefore, it can disturb the RCU callback thread for
-> the CPU 0, which processes the deferred deallocations of the sockets, and as a
-> result it triggers the OOM.
->
-> We confirmed the problem disappears by offloading the RCU callbacks from the
-> CPU 0 using rcu_nocbs=0 boot parameter or simply restoring the affinity and/or
-> priority.
->
-> Someone _might_ still argue that this is kernel problem because the problem
-> didn't occur on the old kernels prior to the Al's patches.  However, setting
-> the affinity and priority was available because the program received the
-> permission.  Therefore, it would be reasonable to blame the system
-> administrators rather than the kernel.
->
-> So, please ignore this patchset, apology for making confuse.  If you still has
-> some doubts or need more tests, please let me know.
->
-> [1] https://github.com/LinuxPerfStudy/LEBench
-> [2] https://github.com/LinuxPerfStudy/LEBench/blob/master/TEST_DIR/OS_Eval.c#L820
-> [3] https://github.com/LinuxPerfStudy/LEBench/blob/master/TEST_DIR/OS_Eval.c#L822
->
->
-> Thanks,
-> SeongJae Park
+In the request completion path with CQE, request type is being checked
+after the request is getting completed. This is resulting in returning
+the wrong request type and leading to the IO hang issue.
 
-No harm done, thanks for running more tests and root-causing the issue !
+ASYNC request type is getting returned for DCMD type requests.
+Because of this mismatch, mq->cqe_busy flag is never getting cleared
+and the driver is not invoking blk_mq_hw_run_queue. So requests are not
+getting dispatched to the LLD from the block layer.
+
+All these eventually leading to IO hang issues.
+So, get the request type before completing the request.
+
+Cc: <stable@vger.kernel.org> # v4.19+
+Signed-off-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+---
+ drivers/mmc/core/block.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index 8499b56..c5367e2 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -1370,6 +1370,7 @@ static void mmc_blk_cqe_complete_rq(struct mmc_queue *mq, struct request *req)
+ 	struct mmc_request *mrq = &mqrq->brq.mrq;
+ 	struct request_queue *q = req->q;
+ 	struct mmc_host *host = mq->card->host;
++	enum mmc_issue_type issue_type = mmc_issue_type(mq, req);
+ 	unsigned long flags;
+ 	bool put_card;
+ 	int err;
+@@ -1399,7 +1400,7 @@ static void mmc_blk_cqe_complete_rq(struct mmc_queue *mq, struct request *req)
+ 
+ 	spin_lock_irqsave(&mq->lock, flags);
+ 
+-	mq->in_flight[mmc_issue_type(mq, req)] -= 1;
++	mq->in_flight[issue_type] -= 1;
+ 
+ 	put_card = (mmc_tot_in_flight(mq) == 0);
+ 
+-- 
+Qualcomm India Private Limited, on behalf of Qualcomm Innovation Center, Inc., is a member of Code Aurora Forum, a Linux Foundation Collaborative Project
