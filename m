@@ -2,170 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3B81C72F9
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 16:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AEC51C7319
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 16:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729140AbgEFOgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 10:36:24 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:54585 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728712AbgEFOgX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 10:36:23 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21127925-1500050 
-        for multiple; Wed, 06 May 2020 15:36:21 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/2] drm/i915: Mark concurrent submissions with a weak-dependency
-Date:   Wed,  6 May 2020 15:36:15 +0100
-Message-Id: <20200506143616.19925-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1729210AbgEFOlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 10:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43626 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729181AbgEFOlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 May 2020 10:41:52 -0400
+Received: from paulmck-ThinkPad-P72.home (50-39-105-78.bvtn.or.frontiernet.net [50.39.105.78])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 002D920836;
+        Wed,  6 May 2020 14:41:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588776112;
+        bh=O3LspY81ApWe1Iq+AqJ0X2EUV2ZVKqQhPFqaiCs4ILI=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=Ek/Ios8sbnUGAl4FTAV3pJyGZgasnE9YxGPtG+67Q0R7KYyZMJukCv+ENy9bLUZFQ
+         bhKpISS+lmAXCIODlGZBWXZSSd4TteVaO/KWFz8KhcVBNNFXO2qv9G5cAtM+zoGdwU
+         +y9UJXxGWC2L/q0AUGWLIPzDmmD97n0QjFL1iIJI=
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id DCDEA35227D0; Wed,  6 May 2020 07:41:51 -0700 (PDT)
+Date:   Wed, 6 May 2020 07:41:51 -0700
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     SeongJae Park <sjpark@amazon.com>
+Cc:     Eric Dumazet <eric.dumazet@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        David Miller <davem@davemloft.net>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        sj38.park@gmail.com, netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        SeongJae Park <sjpark@amazon.de>, snu@amazon.com,
+        amit@kernel.org, stable@vger.kernel.org
+Subject: Re: Re: Re: Re: Re: [PATCH net v2 0/2] Revert the 'socket_alloc'
+ life cycle change
+Message-ID: <20200506144151.GZ2869@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20200505184955.GO2869@paulmck-ThinkPad-P72>
+ <20200506125926.29844-1-sjpark@amazon.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200506125926.29844-1-sjpark@amazon.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
-correctly perform priority inheritance from the parallel branches to the
-common trunk. However, for the purpose of timeslicing and reset
-handling, the dependency is weak -- as we the pair of requests are
-allowed to run in parallel and not in strict succession. So for example
-we do need to suspend one if the other hangs.
+On Wed, May 06, 2020 at 02:59:26PM +0200, SeongJae Park wrote:
+> TL; DR: It was not kernel's fault, but the benchmark program.
+> 
+> So, the problem is reproducible using the lebench[1] only.  I carefully read
+> it's code again.
+> 
+> Before running the problem occurred "poll big" sub test, lebench executes
+> "context switch" sub test.  For the test, it sets the cpu affinity[2] and
+> process priority[3] of itself to '0' and '-20', respectively.  However, it
+> doesn't restore the values to original value even after the "context switch" is
+> finished.  For the reason, "select big" sub test also run binded on CPU 0 and
+> has lowest nice value.  Therefore, it can disturb the RCU callback thread for
+> the CPU 0, which processes the deferred deallocations of the sockets, and as a
+> result it triggers the OOM.
+> 
+> We confirmed the problem disappears by offloading the RCU callbacks from the
+> CPU 0 using rcu_nocbs=0 boot parameter or simply restoring the affinity and/or
+> priority.
+> 
+> Someone _might_ still argue that this is kernel problem because the problem
+> didn't occur on the old kernels prior to the Al's patches.  However, setting
+> the affinity and priority was available because the program received the
+> permission.  Therefore, it would be reasonable to blame the system
+> administrators rather than the kernel.
+> 
+> So, please ignore this patchset, apology for making confuse.  If you still has
+> some doubts or need more tests, please let me know.
+> 
+> [1] https://github.com/LinuxPerfStudy/LEBench
+> [2] https://github.com/LinuxPerfStudy/LEBench/blob/master/TEST_DIR/OS_Eval.c#L820
+> [3] https://github.com/LinuxPerfStudy/LEBench/blob/master/TEST_DIR/OS_Eval.c#L822
 
-The real significance though is that this allows us to rearrange
-groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
-so can resolve user level inter-batch scheduling dependencies from user
-semaphores.
+Thank you for chasing this down!
 
-Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
-Testcase: igt/gem_exec_fence/submit
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
----
- drivers/gpu/drm/i915/gt/intel_lrc.c         | 9 +++++++++
- drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
- drivers/gpu/drm/i915/i915_scheduler.c       | 6 +++---
- drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
- drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
- 5 files changed, 21 insertions(+), 6 deletions(-)
+I have had this sort of thing on my list as a potential issue, but given
+that it is now really showing up, it sounds like it is time to bump
+up its priority a bit.  Of course there are limits, so if userspace is
+running at any of the real-time priorities, making sufficient CPU time
+available to RCU's kthreads becomes userspace's responsibility.  But if
+everything is running at SCHED_OTHER (which is this case here, correct?),
+then it is reasonable for RCU to do some work to avoid this situation.
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index dc3f2ee7136d..10109f661bcb 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1880,6 +1880,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2726,6 +2729,9 @@ static void __execlists_hold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-@@ -2850,6 +2856,9 @@ static void __execlists_unhold(struct i915_request *rq)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Propagate any change in error status */
- 			if (rq->fence.error)
- 				i915_request_set_error_once(w, rq->fence.error);
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 22635bbabf06..02a5644ae105 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1038,7 +1038,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 		return 0;
- 
- 	if (to->engine->schedule) {
--		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		ret = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_EXTERNAL);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -1200,7 +1202,9 @@ __i915_request_await_execution(struct i915_request *to,
- 
- 	/* Couple the dependency tree for PI on this exposed to->fence */
- 	if (to->engine->schedule) {
--		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		err = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_WEAK);
- 		if (err < 0)
- 			return err;
- 	}
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
-index 37cfcf5b321b..6e2d4190099f 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.c
-+++ b/drivers/gpu/drm/i915/i915_scheduler.c
-@@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- }
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal)
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags)
- {
- 	struct i915_dependency *dep;
- 
-@@ -473,8 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
- 	local_bh_disable();
- 
- 	if (!__i915_sched_node_add_dependency(node, signal, dep,
--					      I915_DEPENDENCY_EXTERNAL |
--					      I915_DEPENDENCY_ALLOC))
-+					      flags | I915_DEPENDENCY_ALLOC))
- 		i915_dependency_free(dep);
- 
- 	local_bh_enable(); /* kick submission tasklet */
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
-index d1dc4efef77b..6f0bf00fc569 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler.h
-@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- 				      unsigned long flags);
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal);
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags);
- 
- void i915_sched_node_fini(struct i915_sched_node *node);
- 
-diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
-index d18e70550054..7186875088a0 100644
---- a/drivers/gpu/drm/i915/i915_scheduler_types.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
-@@ -78,6 +78,7 @@ struct i915_dependency {
- 	unsigned long flags;
- #define I915_DEPENDENCY_ALLOC		BIT(0)
- #define I915_DEPENDENCY_EXTERNAL	BIT(1)
-+#define I915_DEPENDENCY_WEAK		BIT(2)
- };
- 
- #endif /* _I915_SCHEDULER_TYPES_H_ */
--- 
-2.20.1
+But still, yes, the immediate job is fixing the benchmark.  ;-)
 
+							Thanx, Paul
+
+PS.  Why not just attack all potential issues on my list?  Because I
+     usually learn quite a bit from seeing the problem actually happen.
+     And sometimes other changes in RCU eliminate the potential issue
+     before it has a chance to happen.
