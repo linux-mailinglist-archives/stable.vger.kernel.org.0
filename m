@@ -2,125 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02CB31C79BF
-	for <lists+stable@lfdr.de>; Wed,  6 May 2020 20:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9991C7A75
+	for <lists+stable@lfdr.de>; Wed,  6 May 2020 21:47:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730452AbgEFS6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 May 2020 14:58:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35912 "EHLO
+        id S1727984AbgEFTrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 May 2020 15:47:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728102AbgEFS6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 14:58:07 -0400
-Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18942C061A0F
-        for <stable@vger.kernel.org>; Wed,  6 May 2020 11:58:07 -0700 (PDT)
-Received: by mail-lf1-x141.google.com with SMTP id a9so2266507lfb.8
-        for <stable@vger.kernel.org>; Wed, 06 May 2020 11:58:07 -0700 (PDT)
+        with ESMTP id S1725799AbgEFTrS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 May 2020 15:47:18 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23EC8C061A0F
+        for <stable@vger.kernel.org>; Wed,  6 May 2020 12:47:18 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id f8so965095plt.2
+        for <stable@vger.kernel.org>; Wed, 06 May 2020 12:47:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2hhU7YC1mHWJXOQCa9/YtvMX0AvTF/51BQ11Lkp2if0=;
-        b=ENs11Z2E6PTphR/O7XEptV9DrkitQZwLiWGfUE3J1NThoeRLPWDK4tDps5BoTcWit1
-         zxwc6iaDbar5hppPTNmyGg+DQIeMEcKomHQdFBhyU8VETMfHL8W2a1Jd5FtPT4MSFPlx
-         pW5uAwDfiblCrXtvPdUyMV5XllzXhrrMlu3/oW6uuJTz36qgimok4gbXBH4xnjVurcCX
-         lcUe+U7g7T87tsCxaKgUy1ztqhvZkOlPI1dRGORUz42KQ/uPPuoOll0V3+DBw/rjO1OW
-         I1Q/zUwoATalGf6bzwzmulWBAfKNsUBbxb1ZM1A5ACSkMtfwmtHD9gRLESdsOugAfng+
-         xmww==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=IR61ICoe2OoMM6s2fXAmZ+++7bDOLrow07DqcRgfzuo=;
+        b=GfrVKTPCd+asrAFcDuEbx07xegGIgI/fN0Vw6MSUZ9tKCo3ZtAxNEI1hzkNf/KRzXb
+         UUbGY4NKinl2neKCOQcMwFGuSZkYkxQKOVfymbV2c6iwccuv9rKdApSURysDu6W9NwR8
+         GzjL1q3XsQ/B0X0cJVG2gCLrW5E7leBbfovfiAkIvHSxigc5e4syvrql6/JCslfHfXzj
+         U0e7nAJzA3u3iTDm2DW8h13ue0jWx4HDAKpiCidQ4ckKe2dhi7czKWc7sjq0fGM4FH2G
+         mzihDjhzhOJiPckYwekirTOf5qLGRHI4WDcbFz/NrNXP0cdQAZ0sT8UjH6nbFZmx6UQz
+         4Q+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2hhU7YC1mHWJXOQCa9/YtvMX0AvTF/51BQ11Lkp2if0=;
-        b=mO1uYDaVG8gMSfnFdjBwZTIIUXSWHUU/PV0fguBdbgbx0h798qodWnQVeRMiyxShOn
-         una9B+JLYjZCHR4D7mNLddCkbt9/GwbV+a4UK0IvrO2AOLlVY9lK/w+m7i3QQpuivTyL
-         xFaHdJRfNbYa2oBCo4OtHU/CLqxRTD250RSW6cB5nCKS5J1YxjVCV2WnFi6ItRcaDkcK
-         4tO2EBDshyR2PuWxXgCOpj2WIdrw3x16FnQPEIyzhWsSLGdperoOw21K8G/pfFgcuw+c
-         do/87ERHB6ZUVR/zmL5Q8d8mxWeqrUIBWsGk59Ldi97plSXIXviOlFj4T1BWvJaWUYSX
-         aoCQ==
-X-Gm-Message-State: AGi0Pubyjfnq61DnfUf/PBZh2bPl6Uw7H+Tpfkr2z1cjTYcPhBmcvVLy
-        iaBSfh7Rufw/A0NMWIp9zbZt74qG/BJ8SL+vjNJKmw==
-X-Google-Smtp-Source: APiQypK2/BS9DNLQgUdve0DnZIP+ggCdF8l9P6mtknH7uy4q8+KLPietCh0cyMKc+/gJFltqkIhzsPf/UxXxP4Q5v8I=
-X-Received: by 2002:a19:40d2:: with SMTP id n201mr6168784lfa.82.1588791485423;
- Wed, 06 May 2020 11:58:05 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=IR61ICoe2OoMM6s2fXAmZ+++7bDOLrow07DqcRgfzuo=;
+        b=WOsrUEygzbHfkQAk1R06/DtrXoTGV5Y0Ji87wUDPqbLBc1M9WjxxjXUtfYKbzL6Lbl
+         Bz+CAQiV6AP5rp4PXpWFdV//F+vRZoujIulBU7TgOltdhUfFoSTj/TpmUk7fDuKr4SDs
+         icSJ/0+zEdRVEj7pF3Q4XC0ZjQJIY/9qkHiUhng8ij/eUP5Ms6XtCWjzDansBCaUKnTJ
+         q+IhVKPaFlGMA48iuFUtlwzEDRhL0gqv3fdKm0fo7qDisEUDXRhe3xYspTO7LJdOvl9d
+         4pNPFyAhlFIQriPZX5CP8t/dPSZjelO3AydwKlrCFhLdTtGIspCUFHN51lQNreok3PQN
+         S4MA==
+X-Gm-Message-State: AGi0PubmA3rpPLQ01qCrVZe2r/eotWc5LwpHtO8wkUTDArXq6Nxc55ZT
+        +GcbVr9okO3F7hSKTAspmGfDUOM/KTfB8A==
+X-Google-Smtp-Source: APiQypKDUOHUepSCfHMWmUSVe8nD/nTwkqp6ycgvCfZlpzjh6qrfLtLJUBEJQvzOX1gDchaRgV1p2w==
+X-Received: by 2002:a17:902:7c97:: with SMTP id y23mr9047913pll.231.1588794436641;
+        Wed, 06 May 2020 12:47:16 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id fy21sm5364406pjb.25.2020.05.06.12.47.15
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 May 2020 12:47:16 -0700 (PDT)
+Message-ID: <5eb31444.1c69fb81.25cf3.2d73@mx.google.com>
+Date:   Wed, 06 May 2020 12:47:16 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <1480357509-28074-1-git-send-email-johan@kernel.org> <1480357509-28074-12-git-send-email-johan@kernel.org>
-In-Reply-To: <1480357509-28074-12-git-send-email-johan@kernel.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 7 May 2020 00:27:53 +0530
-Message-ID: <CA+G9fYvBjUVkVhtRHVm6xXcKe2+tZN4rGdB9FzmpcfpaLhY1+g@mail.gmail.com>
-Subject: Re: [PATCH net 11/16] net: ethernet: marvell: mvneta: fix fixed-link
- phydev leaks
-To:     Johan Hovold <johan@kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Vince Bridgers <vbridger@opensource.altera.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Fugang Duan <fugang.duan@nxp.com>,
-        Pantelis Antoniou <pantelis.antoniou@gmail.com>,
-        Vitaly Bordug <vbordug@ru.mvista.com>,
-        Claudiu Manoil <claudiu.manoil@freescale.com>,
-        Li Yang <leoli@freescale.com>,
-        Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-        Felix Fietkau <nbd@openwrt.org>,
-        John Crispin <blogic@openwrt.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Lars Persson <lars.persson@axis.com>,
-        Mugunthan V N <mugunthanvnm@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Netdev <netdev@vger.kernel.org>,
-        nios2-dev@lists.rocketboards.org,
-        open list <linux-kernel@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-mediatek@lists.infradead.org,
-        linux-renesas-soc@vger.kernel.org, linux-omap@vger.kernel.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, lkft-triage@lists.linaro.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.39
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.4.y boot: 164 boots: 1 failed,
+ 151 passed with 5 offline, 5 untried/unknown, 2 conflicts (v5.4.39)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 29 Nov 2016 at 00:00, Johan Hovold <johan@kernel.org> wrote:
->
-> Make sure to deregister and free any fixed-link PHY registered using
-> of_phy_register_fixed_link() on probe errors and on driver unbind.
->
-> Fixes: 83895bedeee6 ("net: mvneta: add support for fixed links")
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
->  drivers/net/ethernet/marvell/mvneta.c | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-> index 0c0a45af950f..707bc4680b9b 100644
-> --- a/drivers/net/ethernet/marvell/mvneta.c
-> +++ b/drivers/net/ethernet/marvell/mvneta.c
-> @@ -4191,6 +4191,8 @@ static int mvneta_probe(struct platform_device *pdev)
->         clk_disable_unprepare(pp->clk);
->  err_put_phy_node:
->         of_node_put(phy_node);
-> +       if (of_phy_is_fixed_link(dn))
-> +               of_phy_deregister_fixed_link(dn);
+stable-rc/linux-5.4.y boot: 164 boots: 1 failed, 151 passed with 5 offline,=
+ 5 untried/unknown, 2 conflicts (v5.4.39)
 
-While building kernel Image for arm architecture on stable-rc 4.4 branch
-the following build error found.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.39/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.39/
 
-drivers/net/ethernet/marvell/mvneta.c:3442:3: error: implicit
-declaration of function 'of_phy_deregister_fixed_link'; did you mean
-'of_phy_register_fixed_link'? [-Werror=implicit-function-declaration]
-|    of_phy_deregister_fixed_link(dn);
-|    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|    of_phy_register_fixed_link
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.39
+Git Commit: 592465e6a54ba8104969f3b73b58df262c5be5f5
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 98 unique boards, 25 SoC families, 20 builds out of 200
 
-ref:
-https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/541374729
+Boot Regressions Detected:
 
-- Naresh
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 88 days (last pass: v5.4.=
+17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 28 days (last pass: v5.4.30-37-g4=
+0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.4.38-58-g29ca49e024=
+3b)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-baylibre: PASS (gcc-8)
+            lab-collabora: FAIL (gcc-8)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: PASS (gcc-8)
+            lab-collabora: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
