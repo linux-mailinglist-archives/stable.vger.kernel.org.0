@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E7D1C8FEB
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:37:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7306D1C8FE0
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727869AbgEGOgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55064 "EHLO mail.kernel.org"
+        id S1728695AbgEGOfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728094AbgEGO2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:28:24 -0400
+        id S1728102AbgEGO2Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:28:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE88924959;
-        Thu,  7 May 2020 14:28:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F3B6218AC;
+        Thu,  7 May 2020 14:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861703;
-        bh=vvdSzbEpBcmS5iWnBqJ8Fdmt3xvKYr6xWdUdjkVYuFA=;
+        s=default; t=1588861704;
+        bh=o6PaR1/R/MRl/FjFPECd7AUCCz6IqqoI0ngS/aGTPEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTaPbQ2esZeZ03s0hxjNpTWqFu3VjjOck5+xb8HmulnMSOG4voI3Vn3x6rStl2Laf
-         TMviOW3k3OD3itDIUgjH9/o+Q+cIm7J18jvjX9LpvwWs8Fp/HPZ6+V0T6NE0uT2eMg
-         HOSv1ak5JdQhF5bE0/qVfspJkC54nmMH8cy53PAY=
+        b=xRz9wuoOEq8P0Yd4U/uQMToNKjwATxaobLbZP46O4yqR0IYplVS50NxQI1BdvCU0u
+         dFxH6t0C2pKD6beYl13OWLhJ4WdquyTw1on/bjYSEr0Y1SELochzanzUUHyBZ8y3EF
+         CtkIyhU0Ce5RobohesEBQFtS/ICAZnLyKBBf7vQk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Szabolcs Nagy <szabolcs.nagy@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 44/50] arm64: vdso: Add -fasynchronous-unwind-tables to cflags
-Date:   Thu,  7 May 2020 10:27:20 -0400
-Message-Id: <20200507142726.25751-44-sashal@kernel.org>
+Cc:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 45/50] io_uring: use cond_resched() in io_ring_ctx_wait_and_kill()
+Date:   Thu,  7 May 2020 10:27:21 -0400
+Message-Id: <20200507142726.25751-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142726.25751-1-sashal@kernel.org>
 References: <20200507142726.25751-1-sashal@kernel.org>
@@ -46,48 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
 
-[ Upstream commit 1578e5d03112e3e9d37e1c4d95b6dfb734c73955 ]
+[ Upstream commit 3fd44c86711f71156b586c22b0495c58f69358bb ]
 
-On arm64 linux gcc uses -fasynchronous-unwind-tables -funwind-tables
-by default since gcc-8, so now the de facto platform ABI is to allow
-unwinding from async signal handlers.
+While working on to make io_uring sqpoll mode support syscalls that need
+struct files_struct, I got cpu soft lockup in io_ring_ctx_wait_and_kill(),
 
-However on bare metal targets (aarch64-none-elf), and on old gcc,
-async and sync unwind tables are not enabled by default to avoid
-runtime memory costs.
+    while (ctx->sqo_thread && !wq_has_sleeper(&ctx->sqo_wait))
+        cpu_relax();
 
-This means if linux is built with a baremetal toolchain the vdso.so
-may not have unwind tables which breaks the gcc platform ABI guarantee
-in userspace.
+above loop never has an chance to exit, it's because preempt isn't enabled
+in the kernel, and the context calling io_ring_ctx_wait_and_kill() and
+io_sq_thread() run in the same cpu, if io_sq_thread calls a cond_resched()
+yield cpu and another context enters above loop, then io_sq_thread() will
+always in runqueue and never exit.
 
-Add -fasynchronous-unwind-tables explicitly to the vgettimeofday.o
-cflags to address the ABI change.
+Use cond_resched() can fix this issue.
 
-Fixes: 28b1a824a4f4 ("arm64: vdso: Substitute gettimeofday() with C implementation")
-Cc: Will Deacon <will@kernel.org>
-Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+ Reported-by: syzbot+66243bb7126c410cefe6@syzkaller.appspotmail.com
+Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/vdso/Makefile | 2 +-
+ fs/io_uring.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
-index dd2514bb1511f..3862cad2410cf 100644
---- a/arch/arm64/kernel/vdso/Makefile
-+++ b/arch/arm64/kernel/vdso/Makefile
-@@ -32,7 +32,7 @@ UBSAN_SANITIZE			:= n
- OBJECT_FILES_NON_STANDARD	:= y
- KCOV_INSTRUMENT			:= n
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index a46de2cfc28e8..b5ade01379029 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6449,7 +6449,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ 	 * it could cause shutdown to hang.
+ 	 */
+ 	while (ctx->sqo_thread && !wq_has_sleeper(&ctx->sqo_wait))
+-		cpu_relax();
++		cond_resched();
  
--CFLAGS_vgettimeofday.o = -O2 -mcmodel=tiny
-+CFLAGS_vgettimeofday.o = -O2 -mcmodel=tiny -fasynchronous-unwind-tables
- 
- ifneq ($(c-gettimeofday-y),)
-   CFLAGS_vgettimeofday.o += -include $(c-gettimeofday-y)
+ 	io_kill_timeouts(ctx);
+ 	io_poll_remove_all(ctx);
 -- 
 2.20.1
 
