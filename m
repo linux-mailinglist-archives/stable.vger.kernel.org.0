@@ -2,71 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 756831C82FE
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 09:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5471C83B4
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 09:46:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725783AbgEGHDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 03:03:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43504 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725440AbgEGHDU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 03:03:20 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A466D208CA;
-        Thu,  7 May 2020 07:03:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588835000;
-        bh=XCPVdF3UwFxMM7odgf8RikTO6HE0wV4OoOQhYLN1XBg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ghg81mVHuXO2uoxyREOLSiLc+KRtQwvsXMUpEAMp/g3Uu6c5P0DBFvRcZ2RuyaZLK
-         si8DHJApvFlm25F+EGnD8bNMz6iU2iHcC4y5w2Cii2BXXfQbvnnIoM6MNR3quvD1Zr
-         7+xCZbSWX8gQdronDHsJfpS3Kq2o7VBKwdsVbz/Q=
-Date:   Thu, 7 May 2020 09:03:17 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sagi Grimberg <sagi@grimberg.me>
-Cc:     stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>
-Subject: Re: [PATCH stable 5.4+] nvme: fix possible hang when ns scanning
- fails during error recovery
-Message-ID: <20200507070317.GB841650@kroah.com>
-References: <20200506231451.23145-1-sagi@grimberg.me>
+        id S1726382AbgEGHqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 03:46:03 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:58860 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725809AbgEGHqC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 03:46:02 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-77-_HkJ_npmPTubAUZ7vouWDg-1; Thu, 07 May 2020 08:44:45 +0100
+X-MC-Unique: _HkJ_npmPTubAUZ7vouWDg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Thu, 7 May 2020 08:44:44 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Thu, 7 May 2020 08:44:44 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Brian Gerst' <brgerst@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+CC:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        "Luc Van Oostenryck" <luc.vanoostenryck@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "clang-built-linux@googlegroups.com" 
+        <clang-built-linux@googlegroups.com>
+Subject: RE: [PATCH] x86: bitops: fix build regression
+Thread-Topic: [PATCH] x86: bitops: fix build regression
+Thread-Index: AQHWJDdSnFcKS0TA9USbY8l3s67J1qicPRAA
+Date:   Thu, 7 May 2020 07:44:44 +0000
+Message-ID: <60b16c05ca9e4954a7e4fcdd3075e23d@AcuMS.aculab.com>
+References: <20200505174423.199985-1-ndesaulniers@google.com>
+ <CAMzpN2idWF2_4wtPebM2B2HVyksknr9hAqK8HJi_vjQ06bgu2g@mail.gmail.com>
+In-Reply-To: <CAMzpN2idWF2_4wtPebM2B2HVyksknr9hAqK8HJi_vjQ06bgu2g@mail.gmail.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200506231451.23145-1-sagi@grimberg.me>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 06, 2020 at 04:14:51PM -0700, Sagi Grimberg wrote:
-> When the controller is reconnecting, the host fails I/O and admin
-> commands as the host cannot reach the controller. ns scanning may
-> revalidate namespaces during that period and it is wrong to remove
-> namespaces due to these failures as we may hang (see 205da2434301).
-> 
-> One command that may fail is nvme_identify_ns_descs. Since we return
-> success due to having ns descriptor list optional, we continue to
-> validate ns identifiers in nvme_revalidate_disk, obviously fail and
-> return -ENODEV to nvme_validate_ns, which will remove the namespace.
-> 
-> Exactly what we don't want to happen.
-> 
-> Fixes: 22802bf742c2 ("nvme: Namepace identification descriptor list is optional")
-> Tested-by: Anton Eidelman <anton@lightbitslabs.com>
-> Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-> 
-> Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-> ---
->  drivers/nvme/host/core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+RnJvbTogQnJpYW4gR2Vyc3QNCj4gU2VudDogMDcgTWF5IDIwMjAgMDc6MTgNCi4uLg0KPiA+IC0t
+LSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2JpdG9wcy5oDQo+ID4gKysrIGIvYXJjaC94ODYvaW5j
+bHVkZS9hc20vYml0b3BzLmgNCj4gPiBAQCAtNTQsNyArNTQsNyBAQCBhcmNoX3NldF9iaXQobG9u
+ZyBuciwgdm9sYXRpbGUgdW5zaWduZWQgbG9uZyAqYWRkcikNCj4gPiAgICAgICAgIGlmIChfX2J1
+aWx0aW5fY29uc3RhbnRfcChucikpIHsNCj4gPiAgICAgICAgICAgICAgICAgYXNtIHZvbGF0aWxl
+KExPQ0tfUFJFRklYICJvcmIgJTEsJTAiDQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgOiBD
+T05TVF9NQVNLX0FERFIobnIsIGFkZHIpDQo+ID4gLSAgICAgICAgICAgICAgICAgICAgICAgOiAi
+aXEiIChDT05TVF9NQVNLKG5yKSAmIDB4ZmYpDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAg
+OiAiaXEiICgodTgpKENPTlNUX01BU0sobnIpICYgMHhmZikpDQo+IA0KPiBJIHRoaW5rIGEgYmV0
+dGVyIGZpeCB3b3VsZCBiZSB0byBtYWtlIENPTlNUX01BU0soKSByZXR1cm4gYSB1OCB2YWx1ZQ0K
+PiByYXRoZXIgdGhhbiBoYXZlIHRvIGNhc3Qgb24gZXZlcnkgdXNlLg0KDQpPciBhc3NpZ24gdG8g
+YSBsb2NhbCB2YXJpYWJsZSAtIHRoZW4gaXQgZG9lc24ndCBtYXR0ZXIgaG93DQp0aGUgdmFsdWUg
+aXMgYWN0dWFsbHkgY2FsY3VsYXRlZC4gU286DQoJCQl1OCBtYXNrID0gQ09OU1RfTUFTSyhucik7
+DQoJCQlhc20gdm9sYXRpbGUoTE9DS19QUkVGSVggIm9yYiAlMSwlMCINCgkJCQk6IENPTlNUX01B
+U0tfQUREUihuciwgYWRkcikNCgkJCQk6ICJpcSIgbWFzaw0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0
+ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBL
+ZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
 
-What is the git commit id of this patch in Linus's tree?
-
-And why sign-off on a patch twice with a blank line?
-
-thanks,
-
-greg k-h
