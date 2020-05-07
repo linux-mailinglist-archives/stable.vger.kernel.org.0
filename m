@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 632F31C8E79
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:29:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DEE91C9036
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726843AbgEGO1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:27:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53312 "EHLO mail.kernel.org"
+        id S1727072AbgEGO1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:27:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726774AbgEGO1f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:27:35 -0400
+        id S1726809AbgEGO1g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:27:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D96EB208DB;
-        Thu,  7 May 2020 14:27:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 149052084D;
+        Thu,  7 May 2020 14:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861654;
-        bh=1gc/ZJjQLoxuABNwrGqSR1gLScz4TYvEcE6/5csEEiQ=;
+        s=default; t=1588861655;
+        bh=3l+OqPkT9XKfyeX0lxDdjvyXUc/liQWx6S4UZK0lAMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jRlH0xFn8jVk2yNCGN6KuMcfIWJbq6tat+v73vu4T8/xFwCUe8JeHBmr65MoPsuCk
-         TCaRLg4FavdgnILBasOzkXUlTZ+tDus+sAoqeRn02vavT/nuARapxrgM+0oP7wlUKH
-         PZX0F2q7huLODb9Y225wqtq2/ycOl1ZDhnAAdBOs=
+        b=sAzc/daYx15gUcN9WkSaK1Gz0Gr5ooelVbEm3dw2WM/SC41pg2CV1wJpvtqvlHtpW
+         OOIPgDtvlVXvoNb9JFVX2t3f/ju1bFByMUMQNjNl+nVqQeNBJxZzO3fkCJ4Xa4CjJf
+         G0G8trW4hXfH/Uoe1H4Ng6eTpfinn43EYIrO6/VM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 06/50] nfs: Fix potential posix_acl refcnt leak in nfs3_set_acl
-Date:   Thu,  7 May 2020 10:26:42 -0400
-Message-Id: <20200507142726.25751-6-sashal@kernel.org>
+Cc:     Yan Zhao <yan.y.zhao@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 07/50] vfio: avoid possible overflow in vfio_iommu_type1_pin_pages
+Date:   Thu,  7 May 2020 10:26:43 -0400
+Message-Id: <20200507142726.25751-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142726.25751-1-sashal@kernel.org>
 References: <20200507142726.25751-1-sashal@kernel.org>
@@ -44,81 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Yan Zhao <yan.y.zhao@intel.com>
 
-[ Upstream commit 7648f939cb919b9d15c21fff8cd9eba908d595dc ]
+[ Upstream commit 0ea971f8dcd6dee78a9a30ea70227cf305f11ff7 ]
 
-nfs3_set_acl keeps track of the acl it allocated locally to determine if an acl
-needs to be released at the end.  This results in a memory leak when the
-function allocates an acl as well as a default acl.  Fix by releasing acls
-that differ from the acl originally passed into nfs3_set_acl.
+add parentheses to avoid possible vaddr overflow.
 
-Fixes: b7fa0554cf1b ("[PATCH] NFS: Add support for NFSv3 ACLs")
-Reported-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
+Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs3acl.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/vfio/vfio_iommu_type1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs3acl.c b/fs/nfs/nfs3acl.c
-index c5c3fc6e6c600..26c94b32d6f49 100644
---- a/fs/nfs/nfs3acl.c
-+++ b/fs/nfs/nfs3acl.c
-@@ -253,37 +253,45 @@ int nfs3_proc_setacls(struct inode *inode, struct posix_acl *acl,
- 
- int nfs3_set_acl(struct inode *inode, struct posix_acl *acl, int type)
- {
--	struct posix_acl *alloc = NULL, *dfacl = NULL;
-+	struct posix_acl *orig = acl, *dfacl = NULL, *alloc;
- 	int status;
- 
- 	if (S_ISDIR(inode->i_mode)) {
- 		switch(type) {
- 		case ACL_TYPE_ACCESS:
--			alloc = dfacl = get_acl(inode, ACL_TYPE_DEFAULT);
-+			alloc = get_acl(inode, ACL_TYPE_DEFAULT);
- 			if (IS_ERR(alloc))
- 				goto fail;
-+			dfacl = alloc;
- 			break;
- 
- 		case ACL_TYPE_DEFAULT:
--			dfacl = acl;
--			alloc = acl = get_acl(inode, ACL_TYPE_ACCESS);
-+			alloc = get_acl(inode, ACL_TYPE_ACCESS);
- 			if (IS_ERR(alloc))
- 				goto fail;
-+			dfacl = acl;
-+			acl = alloc;
- 			break;
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index a177bf2c66834..ec9be79ba2d79 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -554,7 +554,7 @@ static int vfio_iommu_type1_pin_pages(void *iommu_data,
+ 			continue;
  		}
- 	}
  
- 	if (acl == NULL) {
--		alloc = acl = posix_acl_from_mode(inode->i_mode, GFP_KERNEL);
-+		alloc = posix_acl_from_mode(inode->i_mode, GFP_KERNEL);
- 		if (IS_ERR(alloc))
- 			goto fail;
-+		acl = alloc;
- 	}
- 	status = __nfs3_proc_setacls(inode, acl, dfacl);
--	posix_acl_release(alloc);
-+out:
-+	if (acl != orig)
-+		posix_acl_release(acl);
-+	if (dfacl != orig)
-+		posix_acl_release(dfacl);
- 	return status;
- 
- fail:
--	return PTR_ERR(alloc);
-+	status = PTR_ERR(alloc);
-+	goto out;
- }
- 
- const struct xattr_handler *nfs3_xattr_handlers[] = {
+-		remote_vaddr = dma->vaddr + iova - dma->iova;
++		remote_vaddr = dma->vaddr + (iova - dma->iova);
+ 		ret = vfio_pin_page_external(dma, remote_vaddr, &phys_pfn[i],
+ 					     do_accounting);
+ 		if (ret)
 -- 
 2.20.1
 
