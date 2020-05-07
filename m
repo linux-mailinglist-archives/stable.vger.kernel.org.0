@@ -2,264 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83EB61C8B2A
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 14:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1059C1C8C69
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 15:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726625AbgEGMjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 08:39:42 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:32180 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726074AbgEGMjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 08:39:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588855180;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ntf0QyX0BU/jQwJHm1o8WV+b6h8+3RcDttRoj+JU/S4=;
-        b=UQO6mKx1cY0TZ24XbNSVIF7FpmohqMMp459jgxBa7HLuh9zoLoihxj/KIGi24Xi+z8ERGW
-        +Ait4bszqLgu/v8fT80tkIvEHewrRcjfMX0T3PelIn87NMigXH9dkXg8I7tkLS7mAHxMBS
-        kPV26ZZwGftAcl0HnSSoMMcbx1pjVYM=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-500-4km1-mHlM-6GauRs1g110w-1; Thu, 07 May 2020 08:39:24 -0400
-X-MC-Unique: 4km1-mHlM-6GauRs1g110w-1
-Received: by mail-wr1-f72.google.com with SMTP id z8so3336226wrp.7
-        for <stable@vger.kernel.org>; Thu, 07 May 2020 05:39:24 -0700 (PDT)
+        id S1726093AbgEGNci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 09:32:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40262 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725848AbgEGNch (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 09:32:37 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7A2C05BD43;
+        Thu,  7 May 2020 06:32:37 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id 19so454755ioz.10;
+        Thu, 07 May 2020 06:32:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=IWNT0grjCY4sGAusEiDjhM/Qhpke9FBN+ida4mrV6O0=;
+        b=cK5Jj4DLgzKQcXk2KuajxjCOogoztYExUvzMIIBEZmHQsdfJxe0mhLJuderGZR8ucu
+         JfAHoC1OoXxpuWwsy5afVZB/dLh92gN01aasrHoRyJJ1ZmD8+3Q3JnLkqtNzjoduOrEv
+         Wk6lkpBhKTthGUcxXcYO6RvwKBQ3bQdK7Uhthl9D1/9ClA2VbzmALiQS77JEqxKARK+H
+         MjQBY6v1Ic8GyMLPbUQcD0UYzroJgI9rpUkERaZZhADvtEKKcBXo6cpZhMCmNMVKEqEH
+         x26OyvQlgvDDdt77/bfWT8ZQW7e3PMC3EKSFa5MgSaa606Kb3hyrIoWxapnxqGwh3OaM
+         s7kQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ntf0QyX0BU/jQwJHm1o8WV+b6h8+3RcDttRoj+JU/S4=;
-        b=DQiBqx8jQDHHsNnKUY6Yqi2BmQBxtRI9taw8m+S12voof0w0hqJBX3QaGzs5jcfgKz
-         mUdjda2P1/04g+6NBxsBU93X3/d4l6L6v8VzVBkCYyNxQXWDuG/KNW8VMHJ6uJAefHDw
-         GnhUkLY33iu8DidAEL+yYpCmcffqu/1bCc/lYxWykLD4F0XKjvmNUvRh1ZlQ7pvx9MRY
-         qRK7XHVyOvR1jrRz/tSaTh9Tf+/8buq0pFqcTi53dd+ZcYqc0Pc/SHOX3PTPRXkHPBcn
-         u4naBAWd0V4sZzq6L3llvwiTFmSkzdmKLIVH3UDdWwTmYzOG+8tkmmqYACkZ+LCUR4Lo
-         hNXw==
-X-Gm-Message-State: AGi0PuY1JsoaGeImkeLxoI92XH9T47DEnjS4vxp9TkHiGgKWUU5ASVT9
-        SpMgzlV2zdK+9xMGaaif5z8cynpeVL4VHa4/eq9g6oZjiinkISVfOePXNN4ssc6v6PF4NdjEyLf
-        jcoRp13Qb5g6/xxIj
-X-Received: by 2002:a5d:5082:: with SMTP id a2mr14988101wrt.224.1588855162895;
-        Thu, 07 May 2020 05:39:22 -0700 (PDT)
-X-Google-Smtp-Source: APiQypJEvhU0y/fabTixBZU6fhhN1flqngIAUN2zIOtCrBPqqaLJ0vTeP2U861tuRYyYPLtI9rFxEA==
-X-Received: by 2002:a5d:5082:: with SMTP id a2mr14988077wrt.224.1588855162562;
-        Thu, 07 May 2020 05:39:22 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id p8sm7823688wre.11.2020.05.07.05.39.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 07 May 2020 05:39:21 -0700 (PDT)
-Subject: Re: [PATCH v2] pinctrl: cherryview: Ensure _REG(ACPI_ADR_SPACE_GPIO,
- 1) gets called
-To:     Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-acpi@vger.kernel.org, linux-gpio@vger.kernel.org,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
-        Erik Kaneda <erik.kaneda@intel.com>
-References: <20200504145957.480418-1-hdegoede@redhat.com>
- <20200506064057.GU487496@lahna.fi.intel.com>
- <f7ebb693-94ec-fd9f-c0a8-cfe8f9d4e9bf@redhat.com>
- <20200507123025.GR487496@lahna.fi.intel.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <3c509026-7d4f-9915-1c5e-dd6002042d92@redhat.com>
-Date:   Thu, 7 May 2020 14:39:21 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IWNT0grjCY4sGAusEiDjhM/Qhpke9FBN+ida4mrV6O0=;
+        b=iwqaREHAmU1XdmsjthOJacxeb+AmUktYOiVyQKIdIvpSWoQNtu5rIwLG0/w1i4R5LU
+         tD6wi9mYkuSLN8nmzUoMJ2rKVgf122P5eR/eA4drtkZh9GMaGkkzBbxDEMFZoTUMWh5Q
+         /MaqLOZmPEUQhhNJu7tqoLv4qNESrvAHPGFZyeviai4yvpV9/ennGuQxVut4lZ3Emzp+
+         tb8JubdkNPD8pHO4k9Y+pj1PloDiVC/PwcSAsAdvO4z6jbqhzT3aI8oA1xVW92WIYgVJ
+         7VFu88dB3eChTQaQlnOWH2qeUk/H5aaUXBHPJfOkO1FriOWHItAPiW4VgnvXCnzKWigR
+         dYBQ==
+X-Gm-Message-State: AGi0PuaDd8PNShVFECH1/ywM10ivBGK9DP0U8qeyYFTHOGlhK69/xaCr
+        W1c5ySgWvUNTkv5YL1sop2Ab//hBhJPwMKOq7g==
+X-Google-Smtp-Source: APiQypJhkcqztWnOBj46QXVCRxQvm/I8L1W+CisoDNHysHqgOJRcDYbzVE/PTx5OmxqWs5cCPu5ghWvZZ+ikI0Qywf0=
+X-Received: by 2002:a05:6638:f0f:: with SMTP id h15mr14334812jas.142.1588858355459;
+ Thu, 07 May 2020 06:32:35 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200507123025.GR487496@lahna.fi.intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200505174423.199985-1-ndesaulniers@google.com>
+ <CAMzpN2idWF2_4wtPebM2B2HVyksknr9hAqK8HJi_vjQ06bgu2g@mail.gmail.com> <6A99766A-59FB-42DF-9350-80EA671A42B0@zytor.com>
+In-Reply-To: <6A99766A-59FB-42DF-9350-80EA671A42B0@zytor.com>
+From:   Brian Gerst <brgerst@gmail.com>
+Date:   Thu, 7 May 2020 09:32:24 -0400
+Message-ID: <CAMzpN2iCgr0rb=MCYPGMx8tcfLq2qdzv0h7YnX5hkzBB+O7JJQ@mail.gmail.com>
+Subject: Re: [PATCH] x86: bitops: fix build regression
+To:     "H. Peter Anvin" <hpa@zytor.com>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        clang-built-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Thu, May 7, 2020 at 3:02 AM <hpa@zytor.com> wrote:
+>
+> On May 6, 2020 11:18:09 PM PDT, Brian Gerst <brgerst@gmail.com> wrote:
+> >On Tue, May 5, 2020 at 1:47 PM Nick Desaulniers
+> ><ndesaulniers@google.com> wrote:
+> >>
+> >> From: Sedat Dilek <sedat.dilek@gmail.com>
+> >>
+> >> It turns out that if your config tickles __builtin_constant_p via
+> >> differences in choices to inline or not, this now produces invalid
+> >> assembly:
+> >>
+> >> $ cat foo.c
+> >> long a(long b, long c) {
+> >>   asm("orb\t%1, %0" : "+q"(c): "r"(b));
+> >>   return c;
+> >> }
+> >> $ gcc foo.c
+> >> foo.c: Assembler messages:
+> >> foo.c:2: Error: `%rax' not allowed with `orb'
+> >>
+> >> The "q" constraint only has meanting on -m32 otherwise is treated as
+> >> "r".
+> >>
+> >> This is easily reproducible via
+> >Clang+CONFIG_STAGING=y+CONFIG_VT6656=m,
+> >> or Clang+allyesconfig.
+> >>
+> >> Keep the masking operation to appease sparse (`make C=1`), add back
+> >the
+> >> cast in order to properly select the proper 8b register alias.
+> >>
+> >>  [Nick: reworded]
+> >>
+> >> Cc: stable@vger.kernel.org
+> >> Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+> >> Link: https://github.com/ClangBuiltLinux/linux/issues/961
+> >> Link:
+> >https://lore.kernel.org/lkml/20200504193524.GA221287@google.com/
+> >> Fixes: 1651e700664b4 ("x86: Fix bitops.h warning with a moved cast")
+> >> Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+> >> Reported-by: kernelci.org bot <bot@kernelci.org>
+> >> Suggested-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+> >> Suggested-by: Ilie Halip <ilie.halip@gmail.com>
+> >> Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+> >> Signed-off-by: Sedat Dilek <sedat.dilek@gmail.com>
+> >> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> >> ---
+> >>  arch/x86/include/asm/bitops.h | 4 ++--
+> >>  1 file changed, 2 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/arch/x86/include/asm/bitops.h
+> >b/arch/x86/include/asm/bitops.h
+> >> index b392571c1f1d..139122e5b25b 100644
+> >> --- a/arch/x86/include/asm/bitops.h
+> >> +++ b/arch/x86/include/asm/bitops.h
+> >> @@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long *addr)
+> >>         if (__builtin_constant_p(nr)) {
+> >>                 asm volatile(LOCK_PREFIX "orb %1,%0"
+> >>                         : CONST_MASK_ADDR(nr, addr)
+> >> -                       : "iq" (CONST_MASK(nr) & 0xff)
+> >> +                       : "iq" ((u8)(CONST_MASK(nr) & 0xff))
+> >
+> >I think a better fix would be to make CONST_MASK() return a u8 value
+> >rather than have to cast on every use.
+> >
+> >Also I question the need for the "q" constraint.  It was added in
+> >commit 437a0a54 as a workaround for GCC 3.4.4.  Now that the minimum
+> >GCC version is 4.6, is this still necessary?
+> >
+> >--
+> >Brian Gerst
+>
+> Yes, "q" is needed on i386.
 
-On 5/7/20 2:30 PM, Mika Westerberg wrote:
-> On Thu, May 07, 2020 at 12:15:09PM +0200, Hans de Goede wrote:
->> Hi,
->>
->> On 5/6/20 8:40 AM, Mika Westerberg wrote:
->>> +Rafael and ACPICA folks.
->>>
->>> On Mon, May 04, 2020 at 04:59:57PM +0200, Hans de Goede wrote:
->>>> On Cherry Trail devices there are 2 possible ACPI OpRegions for
->>>> accessing GPIOs. The standard GeneralPurposeIo OpRegion and the Cherry
->>>> Trail specific UserDefined 0x9X OpRegions.
->>>>
->>>> Having 2 different types of OpRegions leads to potential issues with
->>>> checks for OpRegion availability, or in other words checks if _REG has
->>>> been called for the OpRegion which the ACPI code wants to use.
->>>>
->>>> The ACPICA core does not call _REG on an ACPI node which does not
->>>> define an OpRegion matching the type being registered; and the reference
->>>> design DSDT, from which most Cherry Trail DSDTs are derived, does not
->>>> define GeneralPurposeIo, nor UserDefined(0x93) OpRegions for the GPO2
->>>> (UID 3) device, because no pins were assigned ACPI controlled functions
->>>> in the reference design.
->>>>
->>>> Together this leads to the perfect storm, at least on the Cherry Trail
->>>> based Medion Akayo E1239T. This design does use a GPO2 pin from its ACPI
->>>> code and has added the Cherry Trail specific UserDefined(0x93) opregion
->>>> to its GPO2 ACPI node to access this pin.
->>>>
->>>> But it uses a has _REG been called availability check for the standard
->>>> GeneralPurposeIo OpRegion. This clearly is a bug in the DSDT, but this
->>>> does work under Windows.
->>>
->>> Do we know why this works under Windows? I mean if possible we should do
->>> the same and I kind of suspect that they forcibly call _REG in their
->>> GPIO driver.
->>
->> Windows has its own ACPI implementation, so it could also be that their
->> equivalent of the:
->>
->>          status = acpi_install_address_space_handler(handle, ACPI_ADR_SPACE_GPIO,
->>                                                      acpi_gpio_adr_space_handler,
->>                                                      NULL, achip);
->>
->> Call from drivers/gpio/gpiolib-acpi.c indeed always calls _REG on the handle
->> without checking that there is an actual OpRegion with a space-id
->> of ACPI_ADR_SPACE_GPIO defined, as the ACPICA code does.  Note that the
->> current ACPICA code would require significant rework to allow this, or
->> it would need to add a _REG call at the end of acpi_install_address_space_handler(),
->> potentially calling _REG twice in many cases.
-> 
-> I actually think this is the correct solution. Reading ACPI spec it say
-> this:
-> 
->    Once _REG has been executed for a particular operation region,
->    indicating that the operation region handler is ready, a control
->    method can access fields in the operation region
-> 
-> You can interpret it so that _REG gets called when operation region
-> handler is ready. It does not say that there needs to be an actual
-> operation region even though the examples following all have operation
-> region.
-> 
-> I wonder what our ACPICA gurus think about this? Rafael, Bob, Erik?
-> 
->> We could move the manual _REG call I'm adding to pinctrl-cherry-view.c
->> but that has the same issue of calling _REG twice in many cases.
->>
->> Most (all?) _REG implementations are fine with that, as they just set a
->> variable to 1 (to the Arg1 value). Still calling _REG twice is something
->> which we might want to avoid.
->>
->> As a compromise I've chosen to add the extra unconditional _REG call
->> to pinctrl-cherryview.c because:
->>
->> 1. The problem in the DSDT in question stems from there being 2
->> different OpRegions for accessing GPIOs which AFAIK is unique to
->> cherryview
->>
->> 2. I've seen many many cherryview DSDT-s and as such I'm confident
->> that calling _REG twice is not an issue on cherryview.
->>
->>> Are the ACPI tables from this system available somewhere?
->>
->> Here you go:
->> https://fedorapeople.org/~jwrdegoede/medion-e1239t-dsdt.dsl
-> 
-> Thanks for sharing!
-> 
->> The problem is that on line 12624 there is a GPO2.AVBL == One
->> check, before GPO2.DCDT is used. If you then look at line
->> 17688 you see that _REG for the GPO2 device checkes for a
->> space-id of 8 (ACPI_ADR_SPACE_GPIO) to set AVBL
->>
->> But the only OpRegion defined for the GPO2 device, and the
->> OpRegion to which GPO2.DCDT is mapped is the cherryview
->> UserDefined 0x93 GPIO access OpRegion, see line 17760.
->> Since there is no OpRegion for the ACPI_ADR_SPACE_GPIO
->> space-id, ACPICA never calls _REG with Arg0 == 8.
-> 
-> Indeed, I see the issue now. I guess calling _REG always when there is
-> handler installed would solve this as well?
+I think the bug this worked around was that the compiler didn't detect
+that CONST_MASK(nr) was also constant and doesn't need to be put into
+a register.  The question is does that bug still exist on compiler
+versions we care about?
 
-Yes that should solve the issue, that is actualy more or less
-what my patch does, but my patch only does it for the
-pinctrl-cherryview.c case.
-
-Regards,
-
-Hans
-
-
-
-
-
-
-
-
-
->>>> This issue leads to the intel_vbtn driver
->>>> reporting the device always being in tablet-mode at boot, even if it
->>>> is in laptop mode. Which in turn causes userspace to ignore touchpad
->>>> events. So iow this issues causes the touchpad to not work at boot.
->>>>
->>>> Since the bug in the DSDT stems from the confusion of having 2 different
->>>> OpRegion types for accessing GPIOs on Cherry Trail devices, I believe
->>>> that this is best fixed inside the Cherryview pinctrl driver.
->>>>
->>>> This commit adds a workaround to the Cherryview pinctrl driver so
->>>> that the DSDT's expectations of _REG always getting called for the
->>>> GeneralPurposeIo OpRegion are met.
->>>
->>> I would like to understand the issue bit better before we do this.
->>>
->>>> Cc: stable@vger.kernel.org
->>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>>> ---
->>>> Changes in v2:
->>>> - Drop unnecessary if (acpi_has_method(adev->handle, "_REG")) check
->>>> - Fix Cherryview spelling in the commit message
->>>> ---
->>>>    drivers/pinctrl/intel/pinctrl-cherryview.c | 18 ++++++++++++++++++
->>>>    1 file changed, 18 insertions(+)
->>>>
->>>> diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
->>>> index 4c74fdde576d..4817aec114d6 100644
->>>> --- a/drivers/pinctrl/intel/pinctrl-cherryview.c
->>>> +++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
->>>> @@ -1693,6 +1693,8 @@ static acpi_status chv_pinctrl_mmio_access_handler(u32 function,
->>>>    static int chv_pinctrl_probe(struct platform_device *pdev)
->>>>    {
->>>> +	struct acpi_object_list input;
->>>> +	union acpi_object params[2];
->>>>    	struct chv_pinctrl *pctrl;
->>>>    	struct acpi_device *adev;
->>>>    	acpi_status status;
->>>> @@ -1755,6 +1757,22 @@ static int chv_pinctrl_probe(struct platform_device *pdev)
->>>>    	if (ACPI_FAILURE(status))
->>>>    		dev_err(&pdev->dev, "failed to install ACPI addr space handler\n");
->>>> +	/*
->>>> +	 * Some DSDT-s use the chv_pinctrl_mmio_access_handler while checking
->>>> +	 * for the regular GeneralPurposeIo OpRegion availability, mixed with
->>>> +	 * the DSDT not defining a GeneralPurposeIo OpRegion at all. In this
->>>> +	 * case the ACPICA code will not call _REG to signal availability of
->>>> +	 * the GeneralPurposeIo OpRegion. Manually call _REG here so that
->>>> +	 * the DSDT-s GeneralPurposeIo availability checks will succeed.
->>>> +	 */
->>>> +	params[0].type = ACPI_TYPE_INTEGER;
->>>> +	params[0].integer.value = ACPI_ADR_SPACE_GPIO;
->>>> +	params[1].type = ACPI_TYPE_INTEGER;
->>>> +	params[1].integer.value = 1;
->>>> +	input.count = 2;
->>>> +	input.pointer = params;
->>>> +	acpi_evaluate_object(adev->handle, "_REG", &input, NULL);
->>>> +
->>>>    	platform_set_drvdata(pdev, pctrl);
->>>>    	return 0;
->>>> -- 
->>>> 2.26.0
->>>
-> 
-
+--
+Brian Gerst
