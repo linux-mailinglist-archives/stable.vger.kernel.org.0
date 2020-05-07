@@ -2,179 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D232C1C9D17
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 23:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC441C9D20
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 23:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726320AbgEGVTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 17:19:03 -0400
-Received: from mx2.suse.de ([195.135.220.15]:50014 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726218AbgEGVTD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 17:19:03 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 4D2F5ACFE;
-        Thu,  7 May 2020 21:19:03 +0000 (UTC)
-From:   NeilBrown <neilb@suse.de>
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Date:   Fri, 08 May 2020 07:18:53 +1000
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.4 26/35] SUNRPC: defer slow parts of rpc_free_client() to a workqueue.
-In-Reply-To: <20200507142830.26239-26-sashal@kernel.org>
-References: <20200507142830.26239-1-sashal@kernel.org> <20200507142830.26239-26-sashal@kernel.org>
-Message-ID: <878si3cuki.fsf@notabene.neil.brown.name>
+        id S1726771AbgEGVUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 17:20:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726542AbgEGVUn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 17:20:43 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2743C05BD09
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 14:20:42 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id w2so6700059edx.4
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 14:20:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=PHG6yTghcibf497dWa0jTcy5wb1cOxvUkXcsCAAAnu0=;
+        b=hhdJwocmiOmhRbStlbTJF+p2HOJLzKjtHBW7/pWc2QtLmrhNBExIXrUO2uQY5aJFic
+         NPqwRqO/FhcKBHF/m/7sj8CrG7BnmqViC07cpNI3aHZjYqvifvmstOVxRyhtVNXzcaw/
+         odCvKvCvH1ts+K/benGuSU6XoYNbAe9XYRePBEsMfRJi35r79vMwY/Cf/d9exGoIO/cM
+         i0K74AdGR8TY4T7Qk9WwZjhxA1Y5OmygaBA8PACbgoOiEb3IK8NwuA9XAFhB6Kl4J0w5
+         r81WRBbrVsb5OZs5KYgcZZylE6FCNIL9AkQr2yo6e9K3nuwFOmCkxlf5SdIXs7sUpoAI
+         LMRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PHG6yTghcibf497dWa0jTcy5wb1cOxvUkXcsCAAAnu0=;
+        b=J6Cd5jzEDJ62wKKrvE2z0LCuMPlHd6ZPbm6Ylehkp4Up8Qq3Qf9tm2Un0R8xCoTMYl
+         Ghr59+acY76Yg+Kh1zOZB313gPHR4hZBoKG/eZ0HT7g+rAdNjFiTIy2xZAztwT8PaUIi
+         mwVBqEMqVdBiJJptO3vj+R2pGF+KzzOwqu8oPe2sjbTu+i3yQUNXzWqMxJBZ3rfs8LT3
+         cnLDDBhVIFeYnY4WxnpyI3L7suY8oZSuBsg+ysGHy6G2U69mvjYS2sjkEZ5Xz8LaO8TY
+         AmoGfeiqZPDwQiNSj+Gzb7i8Hok7R8ZJZPHP8M6X4bKQmS9fxALBEkrnWEtAR7ucCxoh
+         KcMw==
+X-Gm-Message-State: AGi0PubfdfrtcG3ftJGG5U6tnEQlv3ZT2knc4YSZUqHiP6qn4yNm6jpP
+        6E5k8RCWbNY8ouicZoQnOHmwFJhu/xy6FXiahNAOtA==
+X-Google-Smtp-Source: APiQypIDiQajRa4tQ5UpB7rmME33WGj2fRXc8YbBkxmSYjWsrm7ee61hgisYO4/M3hOn/3+7xRKMFnT6KU6LZryG7mc=
+X-Received: by 2002:aa7:c643:: with SMTP id z3mr13702521edr.154.1588886441435;
+ Thu, 07 May 2020 14:20:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+References: <158880834905.2183490.15616329469420234017.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <bd3963f3-c6d6-f138-331c-9ac065633491@intel.com>
+In-Reply-To: <bd3963f3-c6d6-f138-331c-9ac065633491@intel.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Thu, 7 May 2020 14:20:30 -0700
+Message-ID: <CAPcyv4ikWy9E8ScM2k1wdxUuPegftvOFwyLr86MupYpHsmxnUg@mail.gmail.com>
+Subject: Re: [PATCH] ACPI: Drop rcu usage for MMIO mappings
+To:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc:     stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        Myron Stowe <myron.stowe@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Thu, May 7, 2020 at 9:43 AM Rafael J. Wysocki
+<rafael.j.wysocki@intel.com> wrote:
+>
+> On 5/7/2020 1:39 AM, Dan Williams wrote:
+> > Recently a performance problem was reported for a process invoking a
+> > non-trival ASL program. The method call in this case ends up
+> > repetitively triggering a call path like:
+> >
+> >      acpi_ex_store
+> >      acpi_ex_store_object_to_node
+> >      acpi_ex_write_data_to_field
+> >      acpi_ex_insert_into_field
+> >      acpi_ex_write_with_update_rule
+> >      acpi_ex_field_datum_io
+> >      acpi_ex_access_region
+> >      acpi_ev_address_space_dispatch
+> >      acpi_ex_system_memory_space_handler
+> >      acpi_os_map_cleanup.part.14
+> >      _synchronize_rcu_expedited.constprop.89
+> >      schedule
+> >
+> > The end result of frequent synchronize_rcu_expedited() invocation is
+> > tiny sub-millisecond spurts of execution where the scheduler freely
+> > migrates this apparently sleepy task. The overhead of frequent scheduler
+> > invocation multiplies the execution time by a factor of 2-3X.
+> >
+> > For example, performance improves from 16 minutes to 7 minutes for a
+> > firmware update procedure across 24 devices.
+> >
+> > Perhaps the rcu usage was intended to allow for not taking a sleeping
+> > lock in the acpi_os_{read,write}_memory() path which ostensibly could be
+> > called from an APEI NMI error interrupt? Neither rcu_read_lock() nor
+> > ioremap() are interrupt safe, so add a WARN_ONCE() to validate that rcu
+> > was not serving as a mechanism to avoid direct calls to ioremap(). Even
+> > the original implementation had a spin_lock_irqsave(), but that is not
+> > NMI safe.
+> >
+> > APEI itself already has some concept of avoiding ioremap() from
+> > interrupt context (see erst_exec_move_data()), if the new warning
+> > triggers it means that APEI either needs more instrumentation like that
+> > to pre-emptively fail, or more infrastructure to arrange for pre-mapping
+> > the resources it needs in NMI context.
+> >
+> > Cc: <stable@vger.kernel.org>
+> > Fixes: 620242ae8c3d ("ACPI: Maintain a list of ACPI memory mapped I/O remappings")
+> > Cc: Len Brown <lenb@kernel.org>
+> > Cc: Borislav Petkov <bp@alien8.de>
+> > Cc: Ira Weiny <ira.weiny@intel.com>
+> > Cc: James Morse <james.morse@arm.com>
+> > Cc: Erik Kaneda <erik.kaneda@intel.com>
+> > Cc: Myron Stowe <myron.stowe@redhat.com>
+> > Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+> > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+>
+> linux-acpi is kind of relevant for this too, so please CC it.
 
-On Thu, May 07 2020, Sasha Levin wrote:
-
-> From: NeilBrown <neilb@suse.de>
->
-> [ Upstream commit 7c4310ff56422ea43418305d22bbc5fe19150ec4 ]
-
-This one is buggy - it introduces a use-after-free.  Best delay it for
-now.
-
-NeilBrown
-
->
-> The rpciod workqueue is on the write-out path for freeing dirty memory,
-> so it is important that it never block waiting for memory to be
-> allocated - this can lead to a deadlock.
->
-> rpc_execute() - which is often called by an rpciod work item - calls
-> rcp_task_release_client() which can lead to rpc_free_client().
->
-> rpc_free_client() makes two calls which could potentially block wating
-> for memory allocation.
->
-> rpc_clnt_debugfs_unregister() calls into debugfs and will block while
-> any of the debugfs files are being accessed.  In particular it can block
-> while any of the 'open' methods are being called and all of these use
-> malloc for one thing or another.  So this can deadlock if the memory
-> allocation waits for NFS to complete some writes via rpciod.
->
-> rpc_clnt_remove_pipedir() can take the inode_lock() and while it isn't
-> obvious that memory allocations can happen while the lock it held, it is
-> safer to assume they might and to not let rpciod call
-> rpc_clnt_remove_pipedir().
->
-> So this patch moves these two calls (together with the final kfree() and
-> rpciod_down()) into a work-item to be run from the system work-queue.
-> rpciod can continue its important work, and the final stages of the free
-> can happen whenever they happen.
->
-> I have seen this deadlock on a 4.12 based kernel where debugfs used
-> synchronize_srcu() when removing objects.  synchronize_srcu() requires a
-> workqueue and there were no free workther threads and none could be
-> allocated.  While debugsfs no longer uses SRCU, I believe the deadlock
-> is still possible.
->
-> Signed-off-by: NeilBrown <neilb@suse.de>
-> Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  include/linux/sunrpc/clnt.h |  8 +++++++-
->  net/sunrpc/clnt.c           | 21 +++++++++++++++++----
->  2 files changed, 24 insertions(+), 5 deletions(-)
->
-> diff --git a/include/linux/sunrpc/clnt.h b/include/linux/sunrpc/clnt.h
-> index abc63bd1be2b5..d99d39d45a494 100644
-> --- a/include/linux/sunrpc/clnt.h
-> +++ b/include/linux/sunrpc/clnt.h
-> @@ -71,7 +71,13 @@ struct rpc_clnt {
->  #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
->  	struct dentry		*cl_debugfs;	/* debugfs directory */
->  #endif
-> -	struct rpc_xprt_iter	cl_xpi;
-> +	/* cl_work is only needed after cl_xpi is no longer used,
-> +	 * and that are of similar size
-> +	 */
-> +	union {
-> +		struct rpc_xprt_iter	cl_xpi;
-> +		struct work_struct	cl_work;
-> +	};
->  	const struct cred	*cl_cred;
->  };
->=20=20
-> diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-> index f7f78566be463..a7430b66c7389 100644
-> --- a/net/sunrpc/clnt.c
-> +++ b/net/sunrpc/clnt.c
-> @@ -877,6 +877,20 @@ EXPORT_SYMBOL_GPL(rpc_shutdown_client);
->  /*
->   * Free an RPC client
->   */
-> +static void rpc_free_client_work(struct work_struct *work)
-> +{
-> +	struct rpc_clnt *clnt =3D container_of(work, struct rpc_clnt, cl_work);
-> +
-> +	/* These might block on processes that might allocate memory,
-> +	 * so they cannot be called in rpciod, so they are handled separately
-> +	 * here.
-> +	 */
-> +	rpc_clnt_debugfs_unregister(clnt);
-> +	rpc_clnt_remove_pipedir(clnt);
-> +
-> +	kfree(clnt);
-> +	rpciod_down();
-> +}
->  static struct rpc_clnt *
->  rpc_free_client(struct rpc_clnt *clnt)
->  {
-> @@ -887,17 +901,16 @@ rpc_free_client(struct rpc_clnt *clnt)
->  			rcu_dereference(clnt->cl_xprt)->servername);
->  	if (clnt->cl_parent !=3D clnt)
->  		parent =3D clnt->cl_parent;
-> -	rpc_clnt_debugfs_unregister(clnt);
-> -	rpc_clnt_remove_pipedir(clnt);
->  	rpc_unregister_client(clnt);
->  	rpc_free_iostats(clnt->cl_metrics);
->  	clnt->cl_metrics =3D NULL;
->  	xprt_put(rcu_dereference_raw(clnt->cl_xprt));
->  	xprt_iter_destroy(&clnt->cl_xpi);
-> -	rpciod_down();
->  	put_cred(clnt->cl_cred);
->  	rpc_free_clid(clnt);
-> -	kfree(clnt);
-> +
-> +	INIT_WORK(&clnt->cl_work, rpc_free_client_work);
-> +	schedule_work(&clnt->cl_work);
->  	return parent;
->  }
->=20=20
-> --=20
-> 2.20.1
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAl60ez0ACgkQOeye3VZi
-gbkTlxAAhHKw2SYW5PnmU2uD/cyIddjxyuhSkumoo6COwdVY0602KufdxCiP5mfe
-vSOjHjYICTnZMcbaSYEd3PHZEzezAh3DZggn7sXc+8I3cJb1JU2EcZeVArClZv0n
-b/5jvqW525cmCpg1XIUGwbOZcgMsSVE4N6FmfMD/JMNrp3pA/k4NLvyS//Qd+/8P
-OG+TPIljq8lermJmhVyckBVSBojXtUuEkR9kG0+o87JJwR8JaeIKeR+CFTKuIMub
-E9ql7aDYQrPQzfKiiE4jPNSl1cqO5qQUkuEIsc/ziKHdRJR1E8txD2IvKsL6zL2y
-yV9ptqTmDT+o7M2qf7irjxamriaPM5xUMPibHUSOhdVILPY6strqeWSRqblf8C+D
-9DLpk3KM0t9oeQwiG2ODLImkzZJ3SdXXKH2oL0HwFdl/GYqb6pY5xbSF2QbX6uda
-+52AZka4B4TxIwe+SBi5W0jh6wrrJqWL02djWQWLFT2WXwVgh2gSgstUwD1+y0hg
-BvAcs8Zj+RXFq1/yUz5JSQ6EbjQaMSXD7hZ6ponFXLlODy8YkesWvsHLJVDoFu+v
-3okAx1WOUgSqujM/qeWzrYKYEYopi14fhlJeN7qY2vaSKCAJUGxChMC314nGLHrH
-unLW37ThQF4XTp9LhwgaIj9LVNhzkWHPlN5L88ff5Ai/q5XhkIk=
-=cDQC
------END PGP SIGNATURE-----
---=-=-=--
+Whoops, my bad. Will resend with some of Andy's cleanup suggestions.
