@@ -2,96 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B387A1C9A22
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 20:58:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169361C9A2B
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 20:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728390AbgEGS5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 14:57:47 -0400
-Received: from nibbler.cm4all.net ([82.165.145.151]:58142 "EHLO
-        nibbler.cm4all.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728371AbgEGS5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 14:57:47 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by nibbler.cm4all.net (Postfix) with ESMTP id 2D054C023F
-        for <stable@vger.kernel.org>; Thu,  7 May 2020 20:57:42 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at nibbler.cm4all.net
-Received: from nibbler.cm4all.net ([127.0.0.1])
-        by localhost (nibbler.cm4all.net [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id wLP7bDcBTtuK for <stable@vger.kernel.org>;
-        Thu,  7 May 2020 20:57:42 +0200 (CEST)
-Received: from zero.intern.cm-ag (zero.intern.cm-ag [172.30.16.10])
-        by nibbler.cm4all.net (Postfix) with SMTP id 0B01FC0215
-        for <stable@vger.kernel.org>; Thu,  7 May 2020 20:57:42 +0200 (CEST)
-Received: (qmail 2040 invoked from network); 7 May 2020 22:13:59 +0200
-Received: from unknown (HELO rabbit.intern.cm-ag) (172.30.3.1)
-  by zero.intern.cm-ag with SMTP; 7 May 2020 22:13:59 +0200
-Received: by rabbit.intern.cm-ag (Postfix, from userid 1023)
-        id D022A461450; Thu,  7 May 2020 20:57:41 +0200 (CEST)
-From:   Max Kellermann <mk@cm4all.com>
-To:     axboe@kernel.dk, linux-fsdevel@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Max Kellermann <mk@cm4all.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] fs/io_uring: fix O_PATH fds in openat, openat2, statx
-Date:   Thu,  7 May 2020 20:57:25 +0200
-Message-Id: <20200507185725.15840-1-mk@cm4all.com>
-X-Mailer: git-send-email 2.20.1
+        id S1726926AbgEGS6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 14:58:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34878 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727889AbgEGS6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 14:58:53 -0400
+Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A48C05BD0A
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 11:58:53 -0700 (PDT)
+Received: by mail-io1-xd44.google.com with SMTP id y26so2470617ioj.2
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 11:58:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=X06gQhxNuqNC0FB5uh4LFKI+uUsgLH7IELkz/3JNWnI=;
+        b=yVZIlWrdh9uyveIkGpKsIFZio5/7W9X57tsGyag7WPhT84Xn10Dm7l1E2gxJsCPI8/
+         CPepTbjA5RftqJkhZmxP47Pe4UZASvjtz8oJqGiALj5nsjPSe+iRqAwLPST3+LHZ4lzD
+         S0xTTOVBK37ZkTHPRgiPXXVLsXfUvi7TF0ez4pgWTWqKyjBBLzn2N+Ss9nORekhp2L0x
+         tiZzM0mqXZboUxiluSs1yElFyJhTnt7snX9yeftY7wBd1GNcRU7Rt6e/yI5FJg1SHGqA
+         qngqM+I6y+2G/sC86VRnOi9Imz0e7iZOTtlo0TvQIc1z1rs+0Z/nstLroceqd+gO+vdO
+         Go9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=X06gQhxNuqNC0FB5uh4LFKI+uUsgLH7IELkz/3JNWnI=;
+        b=jan1HOBMkPNp0bCUK9qbc6SubVGB2vlWvweB+SUiRwA73l2PaJDdsE3g4yBSamGg9e
+         a2wTR2ebt8FFeWWtczJKKok/tonC/xtBbVB6WKMG9y+0UBy4f4ezJQLbdOYX+yg1Rxe9
+         TaoqNOLRyJXYDMN4d9PkB7xRnM3OyeAAl1Uup/wJbxHcnqU12IiYADUBr3aSiTtPXqFU
+         TigUwVKWLhTDL6JUlk0sHsw+f3EKoj481+9ZMkY28qn2Sm50yVXNGSCoxINK/SobEYH0
+         /5K5ZlUCbqWfIEfVxrj2WRxwDlyLp1isb++LaI6Kw4qsZzGKJjqnKlQEFQqgmB1aZZAI
+         2P9w==
+X-Gm-Message-State: AGi0PuZC/PjguswB6IKcSMITN5ggt5QW3gJUxn+cngr4/VE0r1HZ76gA
+        45Y+uP/HrjV95uLgJhBPIWCM638i8QY=
+X-Google-Smtp-Source: APiQypLKj9rERGXnwSxHGoeKcyPtXyMeD5lEx3YG7RLuJaR44rMQRzpnWHbj/jf6H0x74lZ8l+ciHg==
+X-Received: by 2002:a05:6602:2e0b:: with SMTP id o11mr14921537iow.94.1588877932759;
+        Thu, 07 May 2020 11:58:52 -0700 (PDT)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id z2sm3085748ilz.88.2020.05.07.11.58.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 May 2020 11:58:51 -0700 (PDT)
+Subject: Re: [PATCH] fs/io_uring: fix O_PATH fds in openat, openat2, statx
+To:     Max Kellermann <mk@cm4all.com>, linux-fsdevel@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20200507185725.15840-1-mk@cm4all.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <a048108e-67e0-b261-ab56-312a98045255@kernel.dk>
+Date:   Thu, 7 May 2020 12:58:50 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200507185725.15840-1-mk@cm4all.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If an operation's flag `needs_file` is set, the function
-io_req_set_file() calls io_file_get() to obtain a `struct file*`.
+On 5/7/20 12:57 PM, Max Kellermann wrote:
+> If an operation's flag `needs_file` is set, the function
+> io_req_set_file() calls io_file_get() to obtain a `struct file*`.
+> 
+> This fails for `O_PATH` file descriptors, because those have no
+> `struct file*`, causing io_req_set_file() to throw `-EBADF`.  This
+> breaks the operations `openat`, `openat2` and `statx`, where `O_PATH`
+> file descriptors are commonly used.
+> 
+> The solution is to simply remove `needs_file` (and the accompanying
+> flag `fd_non_reg`).  This flag was never needed because those
+> operations use numeric file descriptor and don't use the `struct
+> file*` obtained by io_req_set_file().
 
-This fails for `O_PATH` file descriptors, because those have no
-`struct file*`, causing io_req_set_file() to throw `-EBADF`.  This
-breaks the operations `openat`, `openat2` and `statx`, where `O_PATH`
-file descriptors are commonly used.
+Do you happen to have a liburing test addition for this as well?
 
-The solution is to simply remove `needs_file` (and the accompanying
-flag `fd_non_reg`).  This flag was never needed because those
-operations use numeric file descriptor and don't use the `struct
-file*` obtained by io_req_set_file().
-
-Signed-off-by: Max Kellermann <mk@cm4all.com>
-Cc: stable@vger.kernel.org
----
- fs/io_uring.c | 6 ------
- 1 file changed, 6 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a46de2cfc28e..d24f8e33323c 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -693,8 +693,6 @@ static const struct io_op_def io_op_defs[] = {
- 		.needs_file		= 1,
- 	},
- 	[IORING_OP_OPENAT] = {
--		.needs_file		= 1,
--		.fd_non_neg		= 1,
- 		.file_table		= 1,
- 		.needs_fs		= 1,
- 	},
-@@ -708,8 +706,6 @@ static const struct io_op_def io_op_defs[] = {
- 	},
- 	[IORING_OP_STATX] = {
- 		.needs_mm		= 1,
--		.needs_file		= 1,
--		.fd_non_neg		= 1,
- 		.needs_fs		= 1,
- 	},
- 	[IORING_OP_READ] = {
-@@ -739,8 +735,6 @@ static const struct io_op_def io_op_defs[] = {
- 		.unbound_nonreg_file	= 1,
- 	},
- 	[IORING_OP_OPENAT2] = {
--		.needs_file		= 1,
--		.fd_non_neg		= 1,
- 		.file_table		= 1,
- 		.needs_fs		= 1,
- 	},
 -- 
-2.20.1
+Jens Axboe
 
