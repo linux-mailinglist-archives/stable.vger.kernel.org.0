@@ -2,92 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C25891C8864
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 13:35:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F036B1C88CA
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 13:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726742AbgEGLfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 07:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50006 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726736AbgEGLfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 07:35:09 -0400
-Received: from merlin.infradead.org (unknown [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E60D3C05BD43;
-        Thu,  7 May 2020 04:35:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=S7/JCtjp/SFUzAPa+/rhOyd9q2ucCeuwYbzZwtk3H3w=; b=ZRgcchoyg6EsthP9pkro1DG0Nd
-        f7Gtmf+9Shucas54O6gS/KuQTS8EQrU7opCy8i9yZDOyQ5up59Z3yP3cPxL6RA/IAtfmMlWfEFoZd
-        B1jCZIJeAvtsrjFuujNO7MnhzQk8K32l+XVvRyYTm/Nq3YEAdxn3P9831zP5Eh/2Zaoq+4QS5fbNJ
-        gKlxe5KsI/vJkstVx81c0RwvkLGjSeHAfwuGDRYCTwD5NfR0LRuNtOHrogJO9c/UG/s4MHI4GZaqc
-        zc8wy5g95ZFNJUWneDKJdBKq6FLcGr5Uyl8OkwCcJ+5zuVdLlMrbl+v+9Ma0xZabnob/hU6+VHHzU
-        8CBkhYTQ==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jWenK-0007kR-AC; Thu, 07 May 2020 11:34:26 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 22976303DA8;
-        Thu,  7 May 2020 13:34:23 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 00BCA2B51366A; Thu,  7 May 2020 13:34:22 +0200 (CEST)
-Date:   Thu, 7 May 2020 13:34:22 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     hpa@zytor.com
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Sedat Dilek <sedat.dilek@gmail.com>, stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Ilie Halip <ilie.halip@gmail.com>, x86@kernel.org,
-        Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: Re: [PATCH] x86: bitops: fix build regression
-Message-ID: <20200507113422.GA3762@hirez.programming.kicks-ass.net>
-References: <20200505174423.199985-1-ndesaulniers@google.com>
- <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com>
+        id S1725900AbgEGLs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 07:48:27 -0400
+Received: from mga06.intel.com ([134.134.136.31]:64619 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725903AbgEGLs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 07:48:26 -0400
+IronPort-SDR: 0WDD4SYlelv/CMqDGbsa+Qd1M0WI661zriOKiJ/LvooJuDx2HTCleMYzxo4s8Xh6kVqvsU8E99
+ JqfAMf+jr5cw==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2020 04:48:24 -0700
+IronPort-SDR: i8kWrQpgWn75L4Fe2QfqwBPYtA7TVrOdZfwcIB8+RUtpWKVTAnVGtzTQxXUsavF0TyDLC53E6+
+ 81IX49BuWPHQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,363,1583222400"; 
+   d="scan'208";a="339328430"
+Received: from ahunter-desktop.fi.intel.com (HELO [10.237.72.157]) ([10.237.72.157])
+  by orsmga001.jf.intel.com with ESMTP; 07 May 2020 04:48:21 -0700
+Subject: Re: [PATCH V1 2/2] mmc: core: Fix recursive locking issue in CQE
+ recovery path
+To:     Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        ulf.hansson@linaro.org
+Cc:     stummala@codeaurora.org, linux-mmc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        Sarthak Garg <sartgarg@codeaurora.org>, stable@vger.kernel.org,
+        Baolin Wang <baolin.wang@linaro.org>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Andreas Koop <andreas.koop@zf.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+References: <1588775643-18037-1-git-send-email-vbadigan@codeaurora.org>
+ <1588775643-18037-3-git-send-email-vbadigan@codeaurora.org>
+From:   Adrian Hunter <adrian.hunter@intel.com>
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
+ Business Identity Code: 0357606 - 4, Domiciled in Helsinki
+Message-ID: <b4a01f2c-479a-2a23-58b7-64f16cbc17a2@intel.com>
+Date:   Thu, 7 May 2020 14:48:42 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com>
+In-Reply-To: <1588775643-18037-3-git-send-email-vbadigan@codeaurora.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 05, 2020 at 11:07:24AM -0700, hpa@zytor.com wrote:
-> On May 5, 2020 10:44:22 AM PDT, Nick Desaulniers <ndesaulniers@google.com> wrote:
-
-> >@@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long *addr)
-> > 	if (__builtin_constant_p(nr)) {
-> > 		asm volatile(LOCK_PREFIX "orb %1,%0"
-> > 			: CONST_MASK_ADDR(nr, addr)
-> >-			: "iq" (CONST_MASK(nr) & 0xff)
-> >+			: "iq" ((u8)(CONST_MASK(nr) & 0xff))
-> > 			: "memory");
-> > 	} else {
-> > 		asm volatile(LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
-> >@@ -74,7 +74,7 @@ arch_clear_bit(long nr, volatile unsigned long *addr)
-> > 	if (__builtin_constant_p(nr)) {
-> > 		asm volatile(LOCK_PREFIX "andb %1,%0"
-> > 			: CONST_MASK_ADDR(nr, addr)
-> >-			: "iq" (CONST_MASK(nr) ^ 0xff));
-> >+			: "iq" ((u8)(CONST_MASK(nr) ^ 0xff)));
-> > 	} else {
-> > 		asm volatile(LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
-> > 			: : RLONG_ADDR(addr), "Ir" (nr) : "memory");
+On 6/05/20 5:34 pm, Veerabhadrarao Badiganti wrote:
+> From: Sarthak Garg <sartgarg@codeaurora.org>
 > 
-> Drop & 0xff and change ^ 0xff to ~.
+> Consider the following stack trace
+> 
+> -001|raw_spin_lock_irqsave
+> -002|mmc_blk_cqe_complete_rq
+> -003|__blk_mq_complete_request(inline)
+> -003|blk_mq_complete_request(rq)
+> -004|mmc_cqe_timed_out(inline)
+> -004|mmc_mq_timed_out
+> 
+> mmc_mq_timed_out acquires the queue_lock for the first
+> time. The mmc_blk_cqe_complete_rq function also tries to acquire
+> the same queue lock resulting in recursive locking where the task
+> is spinning for the same lock which it has already acquired leading
+> to watchdog bark.
+> 
+> Fix this issue with the lock only for the required critical section.
+> 
+> Cc: <stable@vger.kernel.org> # v4.19+
+> Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
+> Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
+> ---
+>  drivers/mmc/core/queue.c | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+> index 25bee3d..72bef39 100644
+> --- a/drivers/mmc/core/queue.c
+> +++ b/drivers/mmc/core/queue.c
+> @@ -107,7 +107,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
+>  	case MMC_ISSUE_DCMD:
+>  		if (host->cqe_ops->cqe_timeout(host, mrq, &recovery_needed)) {
+>  			if (recovery_needed)
+> -				__mmc_cqe_recovery_notifier(mq);
+> +				mmc_cqe_recovery_notifier(mrq);
+>  			return BLK_EH_RESET_TIMER;
+>  		}
+>  		/* No timeout (XXX: huh? comment doesn't make much sense) */
+> @@ -131,12 +131,13 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
+>  
+>  	spin_lock_irqsave(&mq->lock, flags);
+>  
+> -	if (mq->recovery_needed || !mq->use_cqe || host->hsq_enabled)
+> +	if (mq->recovery_needed || !mq->use_cqe || host->hsq_enabled) {
+>  		ret = BLK_EH_RESET_TIMER;
+> -	else
+> +		spin_unlock_irqrestore(&mq->lock, flags);
+> +	} else {
+> +		spin_unlock_irqrestore(&mq->lock, flags);
+>  		ret = mmc_cqe_timed_out(req);
+> -
+> -	spin_unlock_irqrestore(&mq->lock, flags);
+> +	}
 
-But then we're back to sparse being unhappy, no? The thing with ~ is
-that it will set high bits which will be truncated, which makes sparse
-sad.
+This looks good, but I think there needs to be another change also.  I will
+send a patch for that, but in the meantime maybe you could straighten up the
+code flow through the spinlock e.g.
+
+	spin_lock_irqsave(&mq->lock, flags);
+	ignore = mq->recovery_needed || !mq->use_cqe || host->hsq_enabled;
+	spin_unlock_irqrestore(&mq->lock, flags);
+
+	return ignore ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
+
+And add a fixes tag.
+
+>  
+>  	return ret;
+>  }
+> 
+
