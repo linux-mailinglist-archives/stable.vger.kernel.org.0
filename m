@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DEE91C9036
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 054731C9051
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727072AbgEGO1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:27:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53344 "EHLO mail.kernel.org"
+        id S1728985AbgEGOia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:38:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726809AbgEGO1g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:27:36 -0400
+        id S1726913AbgEGO1h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:27:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 149052084D;
-        Thu,  7 May 2020 14:27:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2245620A8B;
+        Thu,  7 May 2020 14:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861655;
-        bh=3l+OqPkT9XKfyeX0lxDdjvyXUc/liQWx6S4UZK0lAMI=;
+        s=default; t=1588861657;
+        bh=8ZRbF1oT0PlniE7k0j5hKHHVmF3lXbnS8elI06OuwuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sAzc/daYx15gUcN9WkSaK1Gz0Gr5ooelVbEm3dw2WM/SC41pg2CV1wJpvtqvlHtpW
-         OOIPgDtvlVXvoNb9JFVX2t3f/ju1bFByMUMQNjNl+nVqQeNBJxZzO3fkCJ4Xa4CjJf
-         G0G8trW4hXfH/Uoe1H4Ng6eTpfinn43EYIrO6/VM=
+        b=0Hs8RtFL+nelHp6LYR2kDy/C9CFbHWZPBdfc20zOhGeuf9H/YYMxfyVsN8H7goGEc
+         H6V08hldxtNaPO8iqpCBQ4qrOuUilkQy3LQ+LVCVICPcdCGk0JeglZSgJTwy7KcLzB
+         fSnSUg/P1zpNM6ei1vSkrbJTkNgBSRNaGvALmRy8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yan Zhao <yan.y.zhao@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 07/50] vfio: avoid possible overflow in vfio_iommu_type1_pin_pages
-Date:   Thu,  7 May 2020 10:26:43 -0400
-Message-Id: <20200507142726.25751-7-sashal@kernel.org>
+Cc:     Ilie Halip <ilie.halip@gmail.com>,
+        Dmitry Golovin <dima@golovin.in>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Fangrui Song <maskray@google.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.6 08/50] riscv: fix vdso build with lld
+Date:   Thu,  7 May 2020 10:26:44 -0400
+Message-Id: <20200507142726.25751-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142726.25751-1-sashal@kernel.org>
 References: <20200507142726.25751-1-sashal@kernel.org>
@@ -43,33 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan Zhao <yan.y.zhao@intel.com>
+From: Ilie Halip <ilie.halip@gmail.com>
 
-[ Upstream commit 0ea971f8dcd6dee78a9a30ea70227cf305f11ff7 ]
+[ Upstream commit 3c1918c8f54166598195d938564072664a8275b1 ]
 
-add parentheses to avoid possible vaddr overflow.
+When building with the LLVM linker this error occurrs:
+    LD      arch/riscv/kernel/vdso/vdso-syms.o
+  ld.lld: error: no input files
 
-Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
-Signed-off-by: Yan Zhao <yan.y.zhao@intel.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+This happens because the lld treats -R as an alias to -rpath, as opposed
+to ld where -R means --just-symbols.
+
+Use the long option name for compatibility between the two.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/805
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/vfio_iommu_type1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/kernel/vdso/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index a177bf2c66834..ec9be79ba2d79 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -554,7 +554,7 @@ static int vfio_iommu_type1_pin_pages(void *iommu_data,
- 			continue;
- 		}
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index 33b16f4212f7a..a4ee3a0e7d20d 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -33,15 +33,15 @@ $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
+ 	$(call if_changed,vdsold)
  
--		remote_vaddr = dma->vaddr + iova - dma->iova;
-+		remote_vaddr = dma->vaddr + (iova - dma->iova);
- 		ret = vfio_pin_page_external(dma, remote_vaddr, &phys_pfn[i],
- 					     do_accounting);
- 		if (ret)
+ # We also create a special relocatable object that should mirror the symbol
+-# table and layout of the linked DSO.  With ld -R we can then refer to
+-# these symbols in the kernel code rather than hand-coded addresses.
++# table and layout of the linked DSO. With ld --just-symbols we can then
++# refer to these symbols in the kernel code rather than hand-coded addresses.
+ 
+ SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
+ 	-Wl,--build-id -Wl,--hash-style=both
+ $(obj)/vdso-dummy.o: $(src)/vdso.lds $(obj)/rt_sigreturn.o FORCE
+ 	$(call if_changed,vdsold)
+ 
+-LDFLAGS_vdso-syms.o := -r -R
++LDFLAGS_vdso-syms.o := -r --just-symbols
+ $(obj)/vdso-syms.o: $(obj)/vdso-dummy.o FORCE
+ 	$(call if_changed,ld)
+ 
 -- 
 2.20.1
 
