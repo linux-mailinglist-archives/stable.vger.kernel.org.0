@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4421C8E77
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:29:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 632F31C8E79
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:29:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726515AbgEGO1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:27:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53284 "EHLO mail.kernel.org"
+        id S1726843AbgEGO1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:27:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726742AbgEGO1e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:27:34 -0400
+        id S1726774AbgEGO1f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:27:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 798162083B;
-        Thu,  7 May 2020 14:27:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D96EB208DB;
+        Thu,  7 May 2020 14:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861653;
-        bh=nldiJ+MHYYN+kjgAX5mo6jUIk7pC/Xc/j4g2G7Uco6Y=;
+        s=default; t=1588861654;
+        bh=1gc/ZJjQLoxuABNwrGqSR1gLScz4TYvEcE6/5csEEiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0s4o+5EI+KKTv1EgVraZSnAfNcypP9onwpJf01GmePNVCzCRa9kHDOdp2JmKvYAR
-         QtzvVzwnfVW3XUo6M556Gizb5EI8oMj9cvYjDBNL59gnAAmOwQK3XM/R7wVj+WZJUZ
-         eA8cU4ZevAU/7OzP0/EfaWKkx4XzjRT8pJYN7l+g=
+        b=jRlH0xFn8jVk2yNCGN6KuMcfIWJbq6tat+v73vu4T8/xFwCUe8JeHBmr65MoPsuCk
+         TCaRLg4FavdgnILBasOzkXUlTZ+tDus+sAoqeRn02vavT/nuARapxrgM+0oP7wlUKH
+         PZX0F2q7huLODb9Y225wqtq2/ycOl1ZDhnAAdBOs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian von Ohr <vonohr@smaract.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 05/50] dmaengine: xilinx_dma: Add missing check for empty list
-Date:   Thu,  7 May 2020 10:26:41 -0400
-Message-Id: <20200507142726.25751-5-sashal@kernel.org>
+Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 06/50] nfs: Fix potential posix_acl refcnt leak in nfs3_set_acl
+Date:   Thu,  7 May 2020 10:26:42 -0400
+Message-Id: <20200507142726.25751-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142726.25751-1-sashal@kernel.org>
 References: <20200507142726.25751-1-sashal@kernel.org>
@@ -44,57 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian von Ohr <vonohr@smaract.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit b269426011bcfd97b7c3101abfe1a99147b6f40b ]
+[ Upstream commit 7648f939cb919b9d15c21fff8cd9eba908d595dc ]
 
-The DMA transfer might finish just after checking the state with
-dma_cookie_status, but before the lock is acquired. Not checking
-for an empty list in xilinx_dma_tx_status may result in reading
-random data or data corruption when desc is written to. This can
-be reliably triggered by using dma_sync_wait to wait for DMA
-completion.
+nfs3_set_acl keeps track of the acl it allocated locally to determine if an acl
+needs to be released at the end.  This results in a memory leak when the
+function allocates an acl as well as a default acl.  Fix by releasing acls
+that differ from the acl originally passed into nfs3_set_acl.
 
-Signed-off-by: Sebastian von Ohr <vonohr@smaract.com>
-Tested-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/20200303130518.333-1-vonohr@smaract.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: b7fa0554cf1b ("[PATCH] NFS: Add support for NFSv3 ACLs")
+Reported-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ fs/nfs/nfs3acl.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index a9c5d5cc9f2bd..5d5f1d0ce16cb 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -1229,16 +1229,16 @@ static enum dma_status xilinx_dma_tx_status(struct dma_chan *dchan,
- 		return ret;
+diff --git a/fs/nfs/nfs3acl.c b/fs/nfs/nfs3acl.c
+index c5c3fc6e6c600..26c94b32d6f49 100644
+--- a/fs/nfs/nfs3acl.c
++++ b/fs/nfs/nfs3acl.c
+@@ -253,37 +253,45 @@ int nfs3_proc_setacls(struct inode *inode, struct posix_acl *acl,
  
- 	spin_lock_irqsave(&chan->lock, flags);
--
--	desc = list_last_entry(&chan->active_list,
--			       struct xilinx_dma_tx_descriptor, node);
--	/*
--	 * VDMA and simple mode do not support residue reporting, so the
--	 * residue field will always be 0.
--	 */
--	if (chan->has_sg && chan->xdev->dma_config->dmatype != XDMA_TYPE_VDMA)
--		residue = xilinx_dma_get_residue(chan, desc);
--
-+	if (!list_empty(&chan->active_list)) {
-+		desc = list_last_entry(&chan->active_list,
-+				       struct xilinx_dma_tx_descriptor, node);
-+		/*
-+		 * VDMA and simple mode do not support residue reporting, so the
-+		 * residue field will always be 0.
-+		 */
-+		if (chan->has_sg && chan->xdev->dma_config->dmatype != XDMA_TYPE_VDMA)
-+			residue = xilinx_dma_get_residue(chan, desc);
-+	}
- 	spin_unlock_irqrestore(&chan->lock, flags);
+ int nfs3_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+ {
+-	struct posix_acl *alloc = NULL, *dfacl = NULL;
++	struct posix_acl *orig = acl, *dfacl = NULL, *alloc;
+ 	int status;
  
- 	dma_set_residue(txstate, residue);
+ 	if (S_ISDIR(inode->i_mode)) {
+ 		switch(type) {
+ 		case ACL_TYPE_ACCESS:
+-			alloc = dfacl = get_acl(inode, ACL_TYPE_DEFAULT);
++			alloc = get_acl(inode, ACL_TYPE_DEFAULT);
+ 			if (IS_ERR(alloc))
+ 				goto fail;
++			dfacl = alloc;
+ 			break;
+ 
+ 		case ACL_TYPE_DEFAULT:
+-			dfacl = acl;
+-			alloc = acl = get_acl(inode, ACL_TYPE_ACCESS);
++			alloc = get_acl(inode, ACL_TYPE_ACCESS);
+ 			if (IS_ERR(alloc))
+ 				goto fail;
++			dfacl = acl;
++			acl = alloc;
+ 			break;
+ 		}
+ 	}
+ 
+ 	if (acl == NULL) {
+-		alloc = acl = posix_acl_from_mode(inode->i_mode, GFP_KERNEL);
++		alloc = posix_acl_from_mode(inode->i_mode, GFP_KERNEL);
+ 		if (IS_ERR(alloc))
+ 			goto fail;
++		acl = alloc;
+ 	}
+ 	status = __nfs3_proc_setacls(inode, acl, dfacl);
+-	posix_acl_release(alloc);
++out:
++	if (acl != orig)
++		posix_acl_release(acl);
++	if (dfacl != orig)
++		posix_acl_release(dfacl);
+ 	return status;
+ 
+ fail:
+-	return PTR_ERR(alloc);
++	status = PTR_ERR(alloc);
++	goto out;
+ }
+ 
+ const struct xattr_handler *nfs3_xattr_handlers[] = {
 -- 
 2.20.1
 
