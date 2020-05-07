@@ -2,131 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55D981C82B9
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 08:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D731C82CA
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 08:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726222AbgEGGo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 02:44:26 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:43318 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725809AbgEGGoZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 02:44:25 -0400
-Received: by mail-lj1-f196.google.com with SMTP id l19so5036779lje.10;
-        Wed, 06 May 2020 23:44:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=KPHo05lQ60Sgmm/o6B6Lw5R77cey+JqtyoXZZ3TP7Og=;
-        b=e7wVI36Rf4fqtU7WJhW0eNhiOoR9qLs5D7mo3cKZhnru4fOU0GoxY1Rs35zvmMqf/I
-         DkA2PrCvpIxoe8AfSXOlVr+ta+B03ZyC68RXZWbovm0bXaTIDEVnnMfW7e3g0LHXY1CO
-         dPAfTAx0ObfeW2JzcLmANRpukFCj7UGfD4Dz2qmu6JNdWZwEYji98uT+Ag8c7vkY0qce
-         qtMr9FwgibLoP97IsmB2khr0BBtNp/Qixd3dkDjNqYPewll+e1NSw/I9TxqrYAUhMlLu
-         BkNL9gdlG3oZnUJUNlWttddZNuu/RiSzOPza0L/9JzUYBSWiPbMzjI9KczuLwh2Lg/MD
-         6zVA==
-X-Gm-Message-State: AGi0PuZ8NNXts1Z10rRrfQ3AGOIxTdtR0oFmdemBYWnHfBdILxspxbN5
-        lBIIvmnMYJZKmHoYdPPk508=
-X-Google-Smtp-Source: APiQypIpQr2fTJp7sK/Z45NvIbcu6kYbSACpGgviZMKo6vxLEoYdxdc72K9eQNDS8kRJ9TzuUBJ2bQ==
-X-Received: by 2002:a2e:b44c:: with SMTP id o12mr6880195ljm.240.1588833860796;
-        Wed, 06 May 2020 23:44:20 -0700 (PDT)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id o20sm3131820lfc.39.2020.05.06.23.44.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 May 2020 23:44:19 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@kernel.org>)
-        id 1jWaGS-0008Rt-A0; Thu, 07 May 2020 08:44:12 +0200
-Date:   Thu, 7 May 2020 08:44:12 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Johan Hovold <johan@kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Vince Bridgers <vbridger@opensource.altera.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Fugang Duan <fugang.duan@nxp.com>,
-        Pantelis Antoniou <pantelis.antoniou@gmail.com>,
-        Vitaly Bordug <vbordug@ru.mvista.com>,
-        Claudiu Manoil <claudiu.manoil@freescale.com>,
-        Li Yang <leoli@freescale.com>,
-        Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-        Felix Fietkau <nbd@openwrt.org>,
-        John Crispin <blogic@openwrt.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Lars Persson <lars.persson@axis.com>,
-        Mugunthan V N <mugunthanvnm@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Netdev <netdev@vger.kernel.org>,
-        nios2-dev@lists.rocketboards.org,
-        open list <linux-kernel@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-mediatek@lists.infradead.org,
-        linux-renesas-soc@vger.kernel.org, linux-omap@vger.kernel.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, lkft-triage@lists.linaro.org
-Subject: Re: [PATCH net 11/16] net: ethernet: marvell: mvneta: fix fixed-link
- phydev leaks
-Message-ID: <20200507064412.GL2042@localhost>
-References: <1480357509-28074-1-git-send-email-johan@kernel.org>
- <1480357509-28074-12-git-send-email-johan@kernel.org>
- <CA+G9fYvBjUVkVhtRHVm6xXcKe2+tZN4rGdB9FzmpcfpaLhY1+g@mail.gmail.com>
+        id S1725903AbgEGGrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 02:47:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35868 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725763AbgEGGrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 02:47:09 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA99C2078C;
+        Thu,  7 May 2020 06:47:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588834029;
+        bh=geGACQaBSSROJ58ok/zaq3G8YsTOzXTgyW3PlPEYALg=;
+        h=Subject:To:From:Date:From;
+        b=JOV9BXKeEqt7GqN5bJlWUIeKAxVp/hUD0vLa5NUp+wPfbFRoQxSVUkAbKJ3mT5k2y
+         VKszepNAd3qKdcn4HW87WdRGQ0wuMBaq03zkN8lAByFMwj6Y+Y99AmLzznRCuaPFA6
+         S00TNUjBTZYRCknaJrHpKstiCU+fw+rjE/wgQJFg=
+Subject: patch "usb: chipidea: msm: Ensure proper controller reset using role switch" added to usb-linus
+To:     bryan.odonoghue@linaro.org, gregkh@linuxfoundation.org,
+        p.zabel@pengutronix.de, peter.chen@nxp.com, stable@vger.kernel.org,
+        swboyd@chromium.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 07 May 2020 08:47:07 +0200
+Message-ID: <1588834027155128@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYvBjUVkVhtRHVm6xXcKe2+tZN4rGdB9FzmpcfpaLhY1+g@mail.gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 07, 2020 at 12:27:53AM +0530, Naresh Kamboju wrote:
-> On Tue, 29 Nov 2016 at 00:00, Johan Hovold <johan@kernel.org> wrote:
-> >
-> > Make sure to deregister and free any fixed-link PHY registered using
-> > of_phy_register_fixed_link() on probe errors and on driver unbind.
-> >
-> > Fixes: 83895bedeee6 ("net: mvneta: add support for fixed links")
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> >  drivers/net/ethernet/marvell/mvneta.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> >
-> > diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-> > index 0c0a45af950f..707bc4680b9b 100644
-> > --- a/drivers/net/ethernet/marvell/mvneta.c
-> > +++ b/drivers/net/ethernet/marvell/mvneta.c
-> > @@ -4191,6 +4191,8 @@ static int mvneta_probe(struct platform_device *pdev)
-> >         clk_disable_unprepare(pp->clk);
-> >  err_put_phy_node:
-> >         of_node_put(phy_node);
-> > +       if (of_phy_is_fixed_link(dn))
-> > +               of_phy_deregister_fixed_link(dn);
-> 
-> While building kernel Image for arm architecture on stable-rc 4.4 branch
-> the following build error found.
-> 
-> drivers/net/ethernet/marvell/mvneta.c:3442:3: error: implicit
-> declaration of function 'of_phy_deregister_fixed_link'; did you mean
-> 'of_phy_register_fixed_link'? [-Werror=implicit-function-declaration]
-> |    of_phy_deregister_fixed_link(dn);
-> |    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> |    of_phy_register_fixed_link
-> 
-> ref:
-> https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/541374729
 
-Greg, 3f65047c853a ("of_mdio: add helper to deregister fixed-link
-PHYs") needs to be backported as well for these.
+This is a note to let you know that I've just added the patch titled
 
-Original series can be found here:
+    usb: chipidea: msm: Ensure proper controller reset using role switch
 
-	https://lkml.kernel.org/r/1480357509-28074-1-git-send-email-johan@kernel.org
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-Johan
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 91edf63d5022bd0464788ffb4acc3d5febbaf81d Mon Sep 17 00:00:00 2001
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Date: Thu, 7 May 2020 08:49:18 +0800
+Subject: usb: chipidea: msm: Ensure proper controller reset using role switch
+ API
+
+Currently we check to make sure there is no error state on the extcon
+handle for VBUS when writing to the HS_PHY_GENCONFIG_2 register. When using
+the USB role-switch API we still need to write to this register absent an
+extcon handle.
+
+This patch makes the appropriate update to ensure the write happens if
+role-switching is true.
+
+Fixes: 05559f10ed79 ("usb: chipidea: add role switch class support")
+Cc: stable <stable@vger.kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: linux-usb@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20200507004918.25975-2-peter.chen@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/chipidea/ci_hdrc_msm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/chipidea/ci_hdrc_msm.c b/drivers/usb/chipidea/ci_hdrc_msm.c
+index af648ba6544d..46105457e1ca 100644
+--- a/drivers/usb/chipidea/ci_hdrc_msm.c
++++ b/drivers/usb/chipidea/ci_hdrc_msm.c
+@@ -114,7 +114,7 @@ static int ci_hdrc_msm_notify_event(struct ci_hdrc *ci, unsigned event)
+ 			hw_write_id_reg(ci, HS_PHY_GENCONFIG_2,
+ 					HS_PHY_ULPI_TX_PKT_EN_CLR_FIX, 0);
+ 
+-		if (!IS_ERR(ci->platdata->vbus_extcon.edev)) {
++		if (!IS_ERR(ci->platdata->vbus_extcon.edev) || ci->role_switch) {
+ 			hw_write_id_reg(ci, HS_PHY_GENCONFIG_2,
+ 					HS_PHY_SESS_VLD_CTRL_EN,
+ 					HS_PHY_SESS_VLD_CTRL_EN);
+-- 
+2.26.2
+
+
