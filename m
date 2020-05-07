@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E2601C9058
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB4421C8E77
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727801AbgEGOiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:38:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53226 "EHLO mail.kernel.org"
+        id S1726515AbgEGO1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:27:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726661AbgEGO1c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:27:32 -0400
+        id S1726742AbgEGO1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:27:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53B362084D;
-        Thu,  7 May 2020 14:27:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 798162083B;
+        Thu,  7 May 2020 14:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861652;
-        bh=qLMtgJ8/c8TWxpBnHlwaeabkMU4VuzzyZFVVfNFrxxM=;
+        s=default; t=1588861653;
+        bh=nldiJ+MHYYN+kjgAX5mo6jUIk7pC/Xc/j4g2G7Uco6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqEKIpu7v7wHdJl4Zjv6W9EdmzWExlFLABijIF/AdIZLjyPQTBcA867VAGWZdbJBg
-         I+naw1oUVVBs2eQ6CLdB4bSzjZ/AGlO14Qc7ii6dwA5IYpswVukwFGHoSfNB9//y1m
-         r0m9jmhp5BbnAhmzWOXGN7hhymBaxhw+PgH0GOHA=
+        b=e0s4o+5EI+KKTv1EgVraZSnAfNcypP9onwpJf01GmePNVCzCRa9kHDOdp2JmKvYAR
+         QtzvVzwnfVW3XUo6M556Gizb5EI8oMj9cvYjDBNL59gnAAmOwQK3XM/R7wVj+WZJUZ
+         eA8cU4ZevAU/7OzP0/EfaWKkx4XzjRT8pJYN7l+g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+Cc:     Sebastian von Ohr <vonohr@smaract.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 04/50] dmaengine: ti: k3-psil: fix deadlock on error path
-Date:   Thu,  7 May 2020 10:26:40 -0400
-Message-Id: <20200507142726.25751-4-sashal@kernel.org>
+        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 05/50] dmaengine: xilinx_dma: Add missing check for empty list
+Date:   Thu,  7 May 2020 10:26:41 -0400
+Message-Id: <20200507142726.25751-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142726.25751-1-sashal@kernel.org>
 References: <20200507142726.25751-1-sashal@kernel.org>
@@ -44,35 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Sebastian von Ohr <vonohr@smaract.com>
 
-[ Upstream commit 172d59ecd61b89f535ad99a7e531c0f111453b9a ]
+[ Upstream commit b269426011bcfd97b7c3101abfe1a99147b6f40b ]
 
-The mutex_unlock() is missed on error path of psil_get_ep_config()
-which causes deadlock, so add missed mutex_unlock().
+The DMA transfer might finish just after checking the state with
+dma_cookie_status, but before the lock is acquired. Not checking
+for an empty list in xilinx_dma_tx_status may result in reading
+random data or data corruption when desc is written to. This can
+be reliably triggered by using dma_sync_wait to wait for DMA
+completion.
 
-Fixes: 8c6bb62f6b4a ("dmaengine: ti: k3 PSI-L remote endpoint configuration")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200408185501.30776-1-grygorii.strashko@ti.com
+Signed-off-by: Sebastian von Ohr <vonohr@smaract.com>
+Tested-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/20200303130518.333-1-vonohr@smaract.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/k3-psil.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/xilinx/xilinx_dma.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/dma/ti/k3-psil.c b/drivers/dma/ti/k3-psil.c
-index d7b965049ccb1..fb7c8150b0d1d 100644
---- a/drivers/dma/ti/k3-psil.c
-+++ b/drivers/dma/ti/k3-psil.c
-@@ -27,6 +27,7 @@ struct psil_endpoint_config *psil_get_ep_config(u32 thread_id)
- 			soc_ep_map = &j721e_ep_map;
- 		} else {
- 			pr_err("PSIL: No compatible machine found for map\n");
-+			mutex_unlock(&ep_map_mutex);
- 			return ERR_PTR(-ENOTSUPP);
- 		}
- 		pr_debug("%s: Using map for %s\n", __func__, soc_ep_map->name);
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index a9c5d5cc9f2bd..5d5f1d0ce16cb 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -1229,16 +1229,16 @@ static enum dma_status xilinx_dma_tx_status(struct dma_chan *dchan,
+ 		return ret;
+ 
+ 	spin_lock_irqsave(&chan->lock, flags);
+-
+-	desc = list_last_entry(&chan->active_list,
+-			       struct xilinx_dma_tx_descriptor, node);
+-	/*
+-	 * VDMA and simple mode do not support residue reporting, so the
+-	 * residue field will always be 0.
+-	 */
+-	if (chan->has_sg && chan->xdev->dma_config->dmatype != XDMA_TYPE_VDMA)
+-		residue = xilinx_dma_get_residue(chan, desc);
+-
++	if (!list_empty(&chan->active_list)) {
++		desc = list_last_entry(&chan->active_list,
++				       struct xilinx_dma_tx_descriptor, node);
++		/*
++		 * VDMA and simple mode do not support residue reporting, so the
++		 * residue field will always be 0.
++		 */
++		if (chan->has_sg && chan->xdev->dma_config->dmatype != XDMA_TYPE_VDMA)
++			residue = xilinx_dma_get_residue(chan, desc);
++	}
+ 	spin_unlock_irqrestore(&chan->lock, flags);
+ 
+ 	dma_set_residue(txstate, residue);
 -- 
 2.20.1
 
