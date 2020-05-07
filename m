@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5C51C8F9A
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 999C41C8F1F
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728131AbgEGOdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:33:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57400 "EHLO mail.kernel.org"
+        id S1728607AbgEGO3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:29:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728591AbgEGO3e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:29:34 -0400
+        id S1728600AbgEGO3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:29:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5BBE2083B;
-        Thu,  7 May 2020 14:29:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C59312073A;
+        Thu,  7 May 2020 14:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861774;
-        bh=KFbd1vMPx1N9D3//2dkbNX6qzqR1HhfZr1JgaPOh90s=;
+        s=default; t=1588861775;
+        bh=NJnIPsUNgepc+7l9lgm1dKrdXXcK8bic9NjDWIBu+Uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smsOevBPoj8WDiBMED7akYMYW8QF88yXYmIPzv4yu55ZcXGITmF4obecpLmKzvOBd
-         bAmCy+BZNRR4a5ydLersgz1Sbas32E3J5Uh9zQ/J3x5ZYR8MyDYWI32lnNLATS3CYY
-         u0j7AOYiTtOAkuYtYJ02SgPGJmyyoHxN6o8kjC9Y=
+        b=MlGKB68ooxY/0xvGX2kFDA8wUuI4EL78qIYF5m5z9in+YP9z/3sjI7C+ca/DQ2i/t
+         7yjD6VBx72eeoAciKZT27rBBAjAIh5NZo6NMIgTvSgpVtmqorvC/neReDrQ8UZu9jU
+         Ye6YNZcxQRq9nlc6SsVJIBzB851JxkTEEdC3WYVo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/20] cpufreq: intel_pstate: Only mention the BIOS disabling turbo mode once
-Date:   Thu,  7 May 2020 10:29:10 -0400
-Message-Id: <20200507142917.26612-14-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 15/20] dmaengine: dmatest: Fix iteration non-stop logic
+Date:   Thu,  7 May 2020 10:29:11 -0400
+Message-Id: <20200507142917.26612-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142917.26612-1-sashal@kernel.org>
 References: <20200507142917.26612-1-sashal@kernel.org>
@@ -43,34 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 8c539776ac83c0857395e1ccc9c6b516521a2d32 ]
+[ Upstream commit b9f960201249f20deea586b4ec814669b4c6b1c0 ]
 
-Make a note of the first time we discover the turbo mode has been
-disabled by the BIOS, as otherwise we complain every time we try to
-update the mode.
+Under some circumstances, i.e. when test is still running and about to
+time out and user runs, for example,
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+	grep -H . /sys/module/dmatest/parameters/*
+
+the iterations parameter is not respected and test is going on and on until
+user gives
+
+	echo 0 > /sys/module/dmatest/parameters/run
+
+This is not what expected.
+
+The history of this bug is interesting. I though that the commit
+  2d88ce76eb98 ("dmatest: add a 'wait' parameter")
+is a culprit, but looking closer to the code I think it simple revealed the
+broken logic from the day one, i.e. in the commit
+  0a2ff57d6fba ("dmaengine: dmatest: add a maximum number of test iterations")
+which adds iterations parameter.
+
+So, to the point, the conditional of checking the thread to be stopped being
+first part of conjunction logic prevents to check iterations. Thus, we have to
+always check both conditions to be able to stop after given iterations.
+
+Since it wasn't visible before second commit appeared, I add a respective
+Fixes tag.
+
+Fixes: 2d88ce76eb98 ("dmatest: add a 'wait' parameter")
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20200424161147.16895-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/dmatest.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 29f25d5d65e00..e7b3d4ed8eff4 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -957,7 +957,7 @@ static ssize_t store_no_turbo(struct kobject *a, struct kobj_attribute *b,
+diff --git a/drivers/dma/dmatest.c b/drivers/dma/dmatest.c
+index 7b7fba0c92532..e38a653dd208f 100644
+--- a/drivers/dma/dmatest.c
++++ b/drivers/dma/dmatest.c
+@@ -567,8 +567,8 @@ static int dmatest_func(void *data)
+ 	flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
  
- 	update_turbo_state();
- 	if (global.turbo_disabled) {
--		pr_warn("Turbo disabled by BIOS or unavailable on processor\n");
-+		pr_notice_once("Turbo disabled by BIOS or unavailable on processor\n");
- 		mutex_unlock(&intel_pstate_limits_lock);
- 		mutex_unlock(&intel_pstate_driver_lock);
- 		return -EPERM;
+ 	ktime = ktime_get();
+-	while (!kthread_should_stop()
+-	       && !(params->iterations && total_tests >= params->iterations)) {
++	while (!(kthread_should_stop() ||
++	       (params->iterations && total_tests >= params->iterations))) {
+ 		struct dma_async_tx_descriptor *tx = NULL;
+ 		struct dmaengine_unmap_data *um;
+ 		dma_addr_t *dsts;
 -- 
 2.20.1
 
