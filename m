@@ -2,85 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D5471C83B4
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 09:46:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC1F61C8422
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 10:02:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726382AbgEGHqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 03:46:03 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:58860 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725809AbgEGHqC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 03:46:02 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-77-_HkJ_npmPTubAUZ7vouWDg-1; Thu, 07 May 2020 08:44:45 +0100
-X-MC-Unique: _HkJ_npmPTubAUZ7vouWDg-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Thu, 7 May 2020 08:44:44 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Thu, 7 May 2020 08:44:44 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Brian Gerst' <brgerst@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-CC:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        "Luc Van Oostenryck" <luc.vanoostenryck@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "clang-built-linux@googlegroups.com" 
-        <clang-built-linux@googlegroups.com>
-Subject: RE: [PATCH] x86: bitops: fix build regression
-Thread-Topic: [PATCH] x86: bitops: fix build regression
-Thread-Index: AQHWJDdSnFcKS0TA9USbY8l3s67J1qicPRAA
-Date:   Thu, 7 May 2020 07:44:44 +0000
-Message-ID: <60b16c05ca9e4954a7e4fcdd3075e23d@AcuMS.aculab.com>
-References: <20200505174423.199985-1-ndesaulniers@google.com>
- <CAMzpN2idWF2_4wtPebM2B2HVyksknr9hAqK8HJi_vjQ06bgu2g@mail.gmail.com>
-In-Reply-To: <CAMzpN2idWF2_4wtPebM2B2HVyksknr9hAqK8HJi_vjQ06bgu2g@mail.gmail.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1726074AbgEGICG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 04:02:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46808 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725802AbgEGICG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 04:02:06 -0400
+Received: from sol.hsd1.ca.comcast.net (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 789012083B;
+        Thu,  7 May 2020 08:02:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588838525;
+        bh=5KW/p1GbhRBZezjeN6Jxtl3o/jDLJ8jnDdhbn7WS9zI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SUI0uGI4UpXv2rTaeWxVIAmqMXoCfCwc+fCMmUclotlv9JZ167jjDT8HxOo4WNyGT
+         WaZijTF07p1quUYHyyg8X5af/6RawBkPjtrC5l97K0yz7hZW0CZMn6ChGBhKpHVyrR
+         r80zLDH/MSgNwOLAUJahxyoPU5u6SKiElgcwXrgo=
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-f2fs-devel@lists.sourceforge.net
+Cc:     linux-fscrypt@vger.kernel.org,
+        Daniel Rosenberg <drosen@google.com>,
+        Gabriel Krisman Bertazi <krisman@collabora.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/4] f2fs: don't leak filename in f2fs_try_convert_inline_dir()
+Date:   Thu,  7 May 2020 00:59:02 -0700
+Message-Id: <20200507075905.953777-2-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200507075905.953777-1-ebiggers@kernel.org>
+References: <20200507075905.953777-1-ebiggers@kernel.org>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogQnJpYW4gR2Vyc3QNCj4gU2VudDogMDcgTWF5IDIwMjAgMDc6MTgNCi4uLg0KPiA+IC0t
-LSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2JpdG9wcy5oDQo+ID4gKysrIGIvYXJjaC94ODYvaW5j
-bHVkZS9hc20vYml0b3BzLmgNCj4gPiBAQCAtNTQsNyArNTQsNyBAQCBhcmNoX3NldF9iaXQobG9u
-ZyBuciwgdm9sYXRpbGUgdW5zaWduZWQgbG9uZyAqYWRkcikNCj4gPiAgICAgICAgIGlmIChfX2J1
-aWx0aW5fY29uc3RhbnRfcChucikpIHsNCj4gPiAgICAgICAgICAgICAgICAgYXNtIHZvbGF0aWxl
-KExPQ0tfUFJFRklYICJvcmIgJTEsJTAiDQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgOiBD
-T05TVF9NQVNLX0FERFIobnIsIGFkZHIpDQo+ID4gLSAgICAgICAgICAgICAgICAgICAgICAgOiAi
-aXEiIChDT05TVF9NQVNLKG5yKSAmIDB4ZmYpDQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAg
-OiAiaXEiICgodTgpKENPTlNUX01BU0sobnIpICYgMHhmZikpDQo+IA0KPiBJIHRoaW5rIGEgYmV0
-dGVyIGZpeCB3b3VsZCBiZSB0byBtYWtlIENPTlNUX01BU0soKSByZXR1cm4gYSB1OCB2YWx1ZQ0K
-PiByYXRoZXIgdGhhbiBoYXZlIHRvIGNhc3Qgb24gZXZlcnkgdXNlLg0KDQpPciBhc3NpZ24gdG8g
-YSBsb2NhbCB2YXJpYWJsZSAtIHRoZW4gaXQgZG9lc24ndCBtYXR0ZXIgaG93DQp0aGUgdmFsdWUg
-aXMgYWN0dWFsbHkgY2FsY3VsYXRlZC4gU286DQoJCQl1OCBtYXNrID0gQ09OU1RfTUFTSyhucik7
-DQoJCQlhc20gdm9sYXRpbGUoTE9DS19QUkVGSVggIm9yYiAlMSwlMCINCgkJCQk6IENPTlNUX01B
-U0tfQUREUihuciwgYWRkcikNCgkJCQk6ICJpcSIgbWFzaw0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0
-ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBL
-ZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
+From: Eric Biggers <ebiggers@google.com>
+
+We need to call fscrypt_free_filename() to free the memory allocated by
+fscrypt_setup_filename().
+
+Fixes: b06af2aff28b ("f2fs: convert inline_dir early before starting rename")
+Cc: <stable@vger.kernel.org> # v5.6+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ fs/f2fs/inline.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
+index 4167e540815185..59a4b7ff11e17a 100644
+--- a/fs/f2fs/inline.c
++++ b/fs/f2fs/inline.c
+@@ -559,12 +559,12 @@ int f2fs_try_convert_inline_dir(struct inode *dir, struct dentry *dentry)
+ 	ipage = f2fs_get_node_page(sbi, dir->i_ino);
+ 	if (IS_ERR(ipage)) {
+ 		err = PTR_ERR(ipage);
+-		goto out;
++		goto out_fname;
+ 	}
+ 
+ 	if (f2fs_has_enough_room(dir, ipage, &fname)) {
+ 		f2fs_put_page(ipage, 1);
+-		goto out;
++		goto out_fname;
+ 	}
+ 
+ 	inline_dentry = inline_data_addr(dir, ipage);
+@@ -572,6 +572,8 @@ int f2fs_try_convert_inline_dir(struct inode *dir, struct dentry *dentry)
+ 	err = do_convert_inline_dir(dir, ipage, inline_dentry);
+ 	if (!err)
+ 		f2fs_put_page(ipage, 1);
++out_fname:
++	fscrypt_free_filename(&fname);
+ out:
+ 	f2fs_unlock_op(sbi);
+ 	return err;
+-- 
+2.26.2
 
