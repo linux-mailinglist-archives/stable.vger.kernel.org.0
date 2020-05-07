@@ -2,128 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB86B1C8F4B
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E81E1C90CF
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728847AbgEGOaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59430 "EHLO mail.kernel.org"
+        id S1726308AbgEGOxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:53:16 -0400
+Received: from mga04.intel.com ([192.55.52.120]:49967 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728845AbgEGOa3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:30:29 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AF482073A;
-        Thu,  7 May 2020 14:30:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861829;
-        bh=nJmfhY9D/0skg46TMs3g17rdzK0TZirhJxFZH/IWd0s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G148YOHdMoAxOApMwbg4GlRwHZKC6eaQa5M6WvLx/pbZK3Hidd1ZXLhWdhX8pWdLo
-         BTAnqf9V8E2Ug0HWxpqE9GLqrAsxDlD4z+xcv3Vory96OBhPobC+ubCtMYemuY9w8T
-         uJXTnQ8xphjaYYPyN+WJEJPFQvYhKK96KLJEb22c=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.4 9/9] ALSA: opti9xx: shut up gcc-10 range warning
-Date:   Thu,  7 May 2020 10:30:18 -0400
-Message-Id: <20200507143018.27195-9-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200507143018.27195-1-sashal@kernel.org>
-References: <20200507143018.27195-1-sashal@kernel.org>
+        id S1726074AbgEGOxQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:53:16 -0400
+IronPort-SDR: tT6LnkNvSXQ7W5M2KLa2sG7JPkH0lwneoKy29oMuXkzjkM9gFrsbxkOm2kSRWRv+7TGAHhTtQr
+ Gp1wEUQlnDtA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2020 07:53:11 -0700
+IronPort-SDR: xX5myfNg2xcWuVqMj7JYMsVeqFZtsEdPS3GtknWHHc4j8OfoqmhcfunRFpT+082geT19b+dkAL
+ p9NCBYPx0lOw==
+X-IronPort-AV: E=Sophos;i="5.73,364,1583222400"; 
+   d="scan'208";a="435312396"
+Received: from nstgemme-mobl1.ger.corp.intel.com (HELO [10.252.42.100]) ([10.252.42.100])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2020 07:53:10 -0700
+Subject: Re: [Intel-gfx] [PATCH 1/3] drm/i915: Mark concurrent submissions
+ with a weak-dependency
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20200507082124.1673-1-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <f5d72c82-7a9e-3142-f297-b2231f2e9b9f@linux.intel.com>
+Date:   Thu, 7 May 2020 15:53:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200507082124.1673-1-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 5ce00760a84848d008554c693ceb6286f4d9c509 ]
+On 07/05/2020 09:21, Chris Wilson wrote:
+> We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
+> correctly perform priority inheritance from the parallel branches to the
+> common trunk. However, for the purpose of timeslicing and reset
+> handling, the dependency is weak -- as we the pair of requests are
+> allowed to run in parallel and not in strict succession. So for example
+> we do need to suspend one if the other hangs.
+> 
+> The real significance though is that this allows us to rearrange
+> groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
+> so can resolve user level inter-batch scheduling dependencies from user
+> semaphores.
+> 
+> Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
+> Testcase: igt/gem_exec_fence/submit
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.6+
+> ---
+>   drivers/gpu/drm/i915/gt/intel_lrc.c         | 9 +++++++++
+>   drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
+>   drivers/gpu/drm/i915/i915_scheduler.c       | 6 +++---
+>   drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
+>   drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
+>   5 files changed, 21 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> index dc3f2ee7136d..10109f661bcb 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> @@ -1880,6 +1880,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
+>   			struct i915_request *w =
+>   				container_of(p->waiter, typeof(*w), sched);
+>   
+> +			if (p->flags & I915_DEPENDENCY_WEAK)
+> +				continue;
+> +
 
-gcc-10 points out a few instances of suspicious integer arithmetic
-leading to value truncation:
+I did not quite get it - submit fence dependency would mean different 
+engines, so the below check (w->engine != rq->engine) would effectively 
+have the same effect. What am I missing?
 
-sound/isa/opti9xx/opti92x-ad1848.c: In function 'snd_opti9xx_configure':
-sound/isa/opti9xx/opti92x-ad1848.c:322:43: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_opti9xx_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
-  322 |   (snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/opti92x-ad1848.c:351:3: note: in expansion of macro 'snd_opti9xx_write_mask'
-  351 |   snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
-      |   ^~~~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/miro.c: In function 'snd_miro_configure':
-sound/isa/opti9xx/miro.c:873:40: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_miro_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
-  873 |   (snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/miro.c:1010:3: note: in expansion of macro 'snd_miro_write_mask'
- 1010 |   snd_miro_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
-      |   ^~~~~~~~~~~~~~~~~~~
+Regards,
 
-These are all harmless here as only the low 8 bit are passed down
-anyway. Change the macros to inline functions to make the code
-more readable and also avoid the warning.
+Tvrtko
 
-Strictly speaking those functions also need locking to make the
-read/write pair atomic, but it seems unlikely that anyone would
-still run into that issue.
-
-Fixes: 1841f613fd2e ("[ALSA] Add snd-miro driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200429190216.85919-1-arnd@arndb.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- sound/isa/opti9xx/miro.c           | 9 ++++++---
- sound/isa/opti9xx/opti92x-ad1848.c | 9 ++++++---
- 2 files changed, 12 insertions(+), 6 deletions(-)
-
-diff --git a/sound/isa/opti9xx/miro.c b/sound/isa/opti9xx/miro.c
-index 3a9067db1a842..7fbac24607bcf 100644
---- a/sound/isa/opti9xx/miro.c
-+++ b/sound/isa/opti9xx/miro.c
-@@ -875,10 +875,13 @@ static void snd_miro_write(struct snd_miro *chip, unsigned char reg,
- 	spin_unlock_irqrestore(&chip->lock, flags);
- }
- 
-+static inline void snd_miro_write_mask(struct snd_miro *chip,
-+		unsigned char reg, unsigned char value, unsigned char mask)
-+{
-+	unsigned char oldval = snd_miro_read(chip, reg);
- 
--#define snd_miro_write_mask(chip, reg, value, mask)	\
--	snd_miro_write(chip, reg,			\
--		(snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-+	snd_miro_write(chip, reg, (oldval & ~mask) | (value & mask));
-+}
- 
- /*
-  *  Proc Interface
-diff --git a/sound/isa/opti9xx/opti92x-ad1848.c b/sound/isa/opti9xx/opti92x-ad1848.c
-index 0a52660037866..6777ae84b59e8 100644
---- a/sound/isa/opti9xx/opti92x-ad1848.c
-+++ b/sound/isa/opti9xx/opti92x-ad1848.c
-@@ -327,10 +327,13 @@ static void snd_opti9xx_write(struct snd_opti9xx *chip, unsigned char reg,
- }
- 
- 
--#define snd_opti9xx_write_mask(chip, reg, value, mask)	\
--	snd_opti9xx_write(chip, reg,			\
--		(snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-+static inline void snd_opti9xx_write_mask(struct snd_opti9xx *chip,
-+		unsigned char reg, unsigned char value, unsigned char mask)
-+{
-+	unsigned char oldval = snd_opti9xx_read(chip, reg);
- 
-+	snd_opti9xx_write(chip, reg, (oldval & ~mask) | (value & mask));
-+}
- 
- static int snd_opti9xx_configure(struct snd_opti9xx *chip,
- 					   long port,
--- 
-2.20.1
-
+>   			/* Leave semaphores spinning on the other engines */
+>   			if (w->engine != rq->engine)
+>   				continue;
+> @@ -2726,6 +2729,9 @@ static void __execlists_hold(struct i915_request *rq)
+>   			struct i915_request *w =
+>   				container_of(p->waiter, typeof(*w), sched);
+>   
+> +			if (p->flags & I915_DEPENDENCY_WEAK)
+> +				continue;
+> +
+>   			/* Leave semaphores spinning on the other engines */
+>   			if (w->engine != rq->engine)
+>   				continue;
+> @@ -2850,6 +2856,9 @@ static void __execlists_unhold(struct i915_request *rq)
+>   			struct i915_request *w =
+>   				container_of(p->waiter, typeof(*w), sched);
+>   
+> +			if (p->flags & I915_DEPENDENCY_WEAK)
+> +				continue;
+> +
+>   			/* Propagate any change in error status */
+>   			if (rq->fence.error)
+>   				i915_request_set_error_once(w, rq->fence.error);
+> diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+> index 4d18f808fda2..3c38d61c90f8 100644
+> --- a/drivers/gpu/drm/i915/i915_request.c
+> +++ b/drivers/gpu/drm/i915/i915_request.c
+> @@ -1040,7 +1040,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
+>   	}
+>   
+>   	if (to->engine->schedule) {
+> -		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
+> +		ret = i915_sched_node_add_dependency(&to->sched,
+> +						     &from->sched,
+> +						     I915_DEPENDENCY_EXTERNAL);
+>   		if (ret < 0)
+>   			return ret;
+>   	}
+> @@ -1202,7 +1204,9 @@ __i915_request_await_execution(struct i915_request *to,
+>   
+>   	/* Couple the dependency tree for PI on this exposed to->fence */
+>   	if (to->engine->schedule) {
+> -		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
+> +		err = i915_sched_node_add_dependency(&to->sched,
+> +						     &from->sched,
+> +						     I915_DEPENDENCY_WEAK);
+>   		if (err < 0)
+>   			return err;
+>   	}
+> diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
+> index 37cfcf5b321b..6e2d4190099f 100644
+> --- a/drivers/gpu/drm/i915/i915_scheduler.c
+> +++ b/drivers/gpu/drm/i915/i915_scheduler.c
+> @@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
+>   }
+>   
+>   int i915_sched_node_add_dependency(struct i915_sched_node *node,
+> -				   struct i915_sched_node *signal)
+> +				   struct i915_sched_node *signal,
+> +				   unsigned long flags)
+>   {
+>   	struct i915_dependency *dep;
+>   
+> @@ -473,8 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+>   	local_bh_disable();
+>   
+>   	if (!__i915_sched_node_add_dependency(node, signal, dep,
+> -					      I915_DEPENDENCY_EXTERNAL |
+> -					      I915_DEPENDENCY_ALLOC))
+> +					      flags | I915_DEPENDENCY_ALLOC))
+>   		i915_dependency_free(dep);
+>   
+>   	local_bh_enable(); /* kick submission tasklet */
+> diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
+> index d1dc4efef77b..6f0bf00fc569 100644
+> --- a/drivers/gpu/drm/i915/i915_scheduler.h
+> +++ b/drivers/gpu/drm/i915/i915_scheduler.h
+> @@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
+>   				      unsigned long flags);
+>   
+>   int i915_sched_node_add_dependency(struct i915_sched_node *node,
+> -				   struct i915_sched_node *signal);
+> +				   struct i915_sched_node *signal,
+> +				   unsigned long flags);
+>   
+>   void i915_sched_node_fini(struct i915_sched_node *node);
+>   
+> diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
+> index d18e70550054..7186875088a0 100644
+> --- a/drivers/gpu/drm/i915/i915_scheduler_types.h
+> +++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
+> @@ -78,6 +78,7 @@ struct i915_dependency {
+>   	unsigned long flags;
+>   #define I915_DEPENDENCY_ALLOC		BIT(0)
+>   #define I915_DEPENDENCY_EXTERNAL	BIT(1)
+> +#define I915_DEPENDENCY_WEAK		BIT(2)
+>   };
+>   
+>   #endif /* _I915_SCHEDULER_TYPES_H_ */
+> 
