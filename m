@@ -2,182 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E0B61C9D84
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 23:38:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D6911C9E29
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 00:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726690AbgEGVij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 17:38:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59734 "EHLO
+        id S1726437AbgEGWFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 18:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726445AbgEGVij (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 17:38:39 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50B6AC05BD43
-        for <stable@vger.kernel.org>; Thu,  7 May 2020 14:38:39 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id u10so2607108pls.8
-        for <stable@vger.kernel.org>; Thu, 07 May 2020 14:38:39 -0700 (PDT)
+        with ESMTP id S1726579AbgEGWFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 18:05:18 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43378C05BD0C
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 15:05:16 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id e25so8040964ljg.5
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 15:05:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fTS201rL0eXI40/c/DQs4xE8yn6MhGTjoR5UjIZWa7o=;
-        b=B9v9qg3GNkmjkBustQU5jlDULK9JMpNWjlhGzrI3+mssg8vcLfiPvb9TnMmLlj3aN4
-         s+LI/XP/GwVMLi/XUDYRWmwIhFoqVXs7ybfE4JijhbD3UsSTKiQeIktZIIYorXGocWSK
-         wpZkAOI1rEAQv+YccTvU+0LJ2vvAFNFhMH7Bt1X3OAZDAqbu0oC+B20Lqu5hYZ1umVCr
-         TiHgj/AlNuuU1BBM0uZJsjnOKNoDemtpCs8Xxeu1FMu0diH1N8TALuhMO0cFOtCAsFtn
-         y/UrtfzJVCltlrn5PYXBCvezQzTRv4pDqn/UYq5PRVKnsjPAyXDqI3kg4TBRbxvPX7ck
-         sDAQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=nPPvWhYSDBZH/W9ZzOHKWz2UFG4yFEnZgxOOVnctufk=;
+        b=kOcLODoKztByz0UBmzjXeqlmhusevIjl+c2HbLw3k5rPnNKk0UOKclN/cgZBe7f2BE
+         KEqsud4Rf5RdhjLb6rTlhUM5ds3Xzk7FnKfAsKFuTOitseFo/B4W7DCsQHn6MIDZOtdM
+         XpjV+SB82Z1h1ka5YTJZ7+6LcnBoSsPmQiuy7w3g1RSKnALtjhnggH/JTqnX8Bs27TGN
+         ood1tyTML/spLGCWlwrocHp6j+kCbFQp1TxUGnP/5eZHSKTDWrjMVOJMV0mMmz5OWK8f
+         xD7VPnGMNREiVpMw0n8DDrvcOIkqDBd0J/2WjILG0vEpGGnV+iSSQP4JFsm6KT8nJ2Q/
+         xEMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fTS201rL0eXI40/c/DQs4xE8yn6MhGTjoR5UjIZWa7o=;
-        b=aHna2cAr74pjmFpaJz4pWA5D3m82uwms2vK6TOUNzMYhd+osSWVtZ9PqGoOjyt98vq
-         rDTlDYxd3z8LIsWpmea4JpAo6qipsP8m77xs+VSh1x1hJEK7vkpEPCm0id/N1uqSaObS
-         wfT/jWTzd3f6ilcJziwS9v43tWIX9Cyo0qqhqXmQvrLJPawg8nnJqNcYIlKZGKRG2wU3
-         tnvPAApoPBsIJj8LfAkkw0zL8pF5HKTBd1YMWi+6Wj7X8A+f/siKGFPy42iF7TwLhMzw
-         IoJjywYsed9Ip+v+arsp11d0opgnRDj4PP5DTEBYr9XWa/KhSd5GSa1W+6r2/QUdsfGw
-         sD3g==
-X-Gm-Message-State: AGi0PuaMblwhKaCbmPixF/hi7MvTLDdI/MfR/UchxsIPFMdfm5sE8nDg
-        6cn+JHFM2Ys87i8YVQSKjmmDcz1BmUo=
-X-Google-Smtp-Source: APiQypJqpOR+P3Rl4NNnPb0usT0O/jF4aJiNXkZTMgNUddfZS5GecWX2ItoCU25d+QTrPOFeyC1+Vg==
-X-Received: by 2002:a17:902:8601:: with SMTP id f1mr15805132plo.122.1588887518437;
-        Thu, 07 May 2020 14:38:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r26sm5950380pfq.75.2020.05.07.14.38.37
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2020 14:38:37 -0700 (PDT)
-Message-ID: <5eb47fdd.1c69fb81.cc1b2.3d05@mx.google.com>
-Date:   Thu, 07 May 2020 14:38:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=nPPvWhYSDBZH/W9ZzOHKWz2UFG4yFEnZgxOOVnctufk=;
+        b=UdS3YBPL32EWUc2NqLjv8gPreC2uzJdSK7ivHLUNSugeT4H04uu4HOaFslmsUPxro8
+         NpqefBpRlll6iGezLDfBKj2JvLGFHlXjJSPWelHPMoUmZeX+oafPmOFdEJG02vF+KGOo
+         ZC0y7btaKEiCyS6hRscMVn6kyUwwSt/Rlk5hLX0/wbI+TVAQk3T+2ihvPtgqp8vwwvDh
+         TGmDjxTX3lOH25HAnxxG9aC/6plvyyW1rNxaOxmeT3MYFAXZNvT1BORkkzeqn+wxuZHB
+         8DlcaZfXcwqdAjhW1rRLeUIiwKptTII++B2WjjjKohnLSxrCCwxR8Oybpv2LL0LIQGvN
+         adOg==
+X-Gm-Message-State: AGi0Pubh35A5szXiTMNP4SjHmqZ48WmXCd/xokmo57KXocI02r46t+BK
+        xKdzQysrPTnvF1vv/6cb16Jz/S4Xcfsh5C5qelfIEA==
+X-Google-Smtp-Source: APiQypKNdCY3OtiIkeJWX0PcE2nxNIMwzLCH+DsayspwmtDmIkVB8t6LffEY5ZO8WubCZPRo18ZG04Dd+peMVypsg08=
+X-Received: by 2002:a2e:2e16:: with SMTP id u22mr10215821lju.243.1588889114309;
+ Thu, 07 May 2020 15:05:14 -0700 (PDT)
 MIME-Version: 1.0
+References: <1480357509-28074-1-git-send-email-johan@kernel.org>
+ <1480357509-28074-12-git-send-email-johan@kernel.org> <CA+G9fYvBjUVkVhtRHVm6xXcKe2+tZN4rGdB9FzmpcfpaLhY1+g@mail.gmail.com>
+ <20200507064412.GL2042@localhost> <20200507064734.GA798308@kroah.com> <20200507111312.GA1497799@kroah.com>
+In-Reply-To: <20200507111312.GA1497799@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 8 May 2020 03:35:02 +0530
+Message-ID: <CA+G9fYu2SrkEHyAzF57xJz5WjgHv361qdL2wPqON_pGS4Vtxmw@mail.gmail.com>
+Subject: Re: [PATCH net 11/16] net: ethernet: marvell: mvneta: fix fixed-link
+ phydev leaks
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Johan Hovold <johan@kernel.org>
+Cc:     linux- stable <stable@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Fugang Duan <fugang.duan@nxp.com>,
+        Pantelis Antoniou <pantelis.antoniou@gmail.com>,
+        Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Lars Persson <lars.persson@axis.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>, Netdev <netdev@vger.kernel.org>,
+        nios2-dev@lists.rocketboards.org,
+        open list <linux-kernel@vger.kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-mediatek@lists.infradead.org,
+        linux-renesas-soc@vger.kernel.org, linux-omap@vger.kernel.org,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.222-321-gb1cd678a0c39
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 42 boots: 9 failed,
- 23 passed with 5 offline, 5 untried/unknown (v4.4.222-321-gb1cd678a0c39)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 42 boots: 9 failed, 23 passed with 5 offline, 5=
- untried/unknown (v4.4.222-321-gb1cd678a0c39)
+On Thu, 7 May 2020 at 16:43, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+<trim>
+> > >
+> > > Greg, 3f65047c853a ("of_mdio: add helper to deregister fixed-link
+> > > PHYs") needs to be backported as well for these.
+> > >
+> > > Original series can be found here:
+> > >
+> > >     https://lkml.kernel.org/r/1480357509-28074-1-git-send-email-johan=
+@kernel.org
+> >
+> > Ah, thanks for that, I thought I dropped all of the ones that caused
+> > build errors, but missed the above one.  I'll go take the whole series
+> > instead.
+>
+> This should now all be fixed up, thanks.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.222-321-gb1cd678a0c39/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.222-321-gb1cd678a0c39/
+While building kernel Image for arm architecture on stable-rc 4.4 branch
+the following build error found.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.222-321-gb1cd678a0c39
-Git Commit: b1cd678a0c3999314bdefe2f279faaa2d2ef5c01
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 33 unique boards, 9 SoC families, 14 builds out of 190
+of_mdio: add helper to deregister fixed-link PHYs
+commit 3f65047c853a2a5abcd8ac1984af3452b5df4ada upstream.
 
-Boot Regressions Detected:
+Add helper to deregister fixed-link PHYs registered using
+of_phy_register_fixed_link().
 
-arm:
+Convert the two drivers that care to deregister their fixed-link PHYs to
+use the new helper, but note that most drivers currently fail to do so.
 
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
-ab45cabed0b)
-          dm365evm,legacy:
-              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
-ab45cabed0b)
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[only take helper function for 4.4.y - gregkh]
 
-    imx_v6_v7_defconfig:
-        gcc-8:
-          imx6dl-riotboard:
-              lab-pengutronix: new failure (last pass: v4.4.222-166-g7ab45c=
-abed0b)
-          imx6dl-wandboard_dual:
-              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
-ab45cabed0b)
-          imx6dl-wandboard_solo:
-              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
-ab45cabed0b)
+ # make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j16 ARCH=3Darm
+CROSS_COMPILE=3Darm-linux-gnueabihf- HOSTCC=3Dgcc CC=3D"sccache
+arm-linux-gnueabihf-gcc" O=3Dbuild zImage
+70 #
+71 ../drivers/of/of_mdio.c: In function =E2=80=98of_phy_deregister_fixed_li=
+nk=E2=80=99:
+72 ../drivers/of/of_mdio.c:379:2: error: implicit declaration of
+function =E2=80=98fixed_phy_unregister=E2=80=99; did you mean =E2=80=98fixe=
+d_phy_register=E2=80=99?
+[-Werror=3Dimplicit-function-declaration]
+73  379 | fixed_phy_unregister(phydev);
+74  | ^~~~~~~~~~~~~~~~~~~~
+75  | fixed_phy_register
+76 ../drivers/of/of_mdio.c:381:22: error: =E2=80=98struct phy_device=E2=80=
+=99 has no
+member named =E2=80=98mdio=E2=80=99; did you mean =E2=80=98mdix=E2=80=99?
+77  381 | put_device(&phydev->mdio.dev); /* of_phy_find_device() */
+78  | ^~~~
+79  | mdix
 
-    omap2plus_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-baylibre: new failure (last pass: v4.4.222-166-g7ab45cabe=
-d0b)
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 89 days (last pass: v4.4.=
-212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
-
-    sunxi_defconfig:
-        gcc-8:
-          sun4i-a10-cubieboard:
-              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
-ab45cabed0b)
-          sun4i-a10-olinuxino-lime:
-              lab-baylibre: new failure (last pass: v4.4.222-166-g7ab45cabe=
-d0b)
-          sun7i-a20-cubieboard2:
-              lab-clabbe: new failure (last pass: v4.4.222-166-g7ab45cabed0=
-b)
-          sun7i-a20-olinuxino-lime2:
-              lab-baylibre: new failure (last pass: v4.4.222-166-g7ab45cabe=
-d0b)
-
-Boot Failures Detected:
-
-arm:
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    sunxi_defconfig:
-        gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-            sun4i-a10-olinuxino-lime: 1 failed lab
-            sun7i-a20-cubieboard2: 1 failed lab
-            sun7i-a20-olinuxino-lime2: 1 failed lab
-
-    imx_v6_v7_defconfig:
-        gcc-8:
-            imx6dl-riotboard: 1 failed lab
-            imx6dl-wandboard_dual: 1 failed lab
-            imx6dl-wandboard_solo: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6q-wandboard: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+>
+> greg k-h
