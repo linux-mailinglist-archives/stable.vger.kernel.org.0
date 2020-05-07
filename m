@@ -2,140 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D6911C9E29
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 00:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 601921C9E37
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 00:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726437AbgEGWFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 18:05:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35644 "EHLO
+        id S1727105AbgEGWGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 18:06:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726579AbgEGWFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 18:05:18 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43378C05BD0C
-        for <stable@vger.kernel.org>; Thu,  7 May 2020 15:05:16 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id e25so8040964ljg.5
-        for <stable@vger.kernel.org>; Thu, 07 May 2020 15:05:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=nPPvWhYSDBZH/W9ZzOHKWz2UFG4yFEnZgxOOVnctufk=;
-        b=kOcLODoKztByz0UBmzjXeqlmhusevIjl+c2HbLw3k5rPnNKk0UOKclN/cgZBe7f2BE
-         KEqsud4Rf5RdhjLb6rTlhUM5ds3Xzk7FnKfAsKFuTOitseFo/B4W7DCsQHn6MIDZOtdM
-         XpjV+SB82Z1h1ka5YTJZ7+6LcnBoSsPmQiuy7w3g1RSKnALtjhnggH/JTqnX8Bs27TGN
-         ood1tyTML/spLGCWlwrocHp6j+kCbFQp1TxUGnP/5eZHSKTDWrjMVOJMV0mMmz5OWK8f
-         xD7VPnGMNREiVpMw0n8DDrvcOIkqDBd0J/2WjILG0vEpGGnV+iSSQP4JFsm6KT8nJ2Q/
-         xEMQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=nPPvWhYSDBZH/W9ZzOHKWz2UFG4yFEnZgxOOVnctufk=;
-        b=UdS3YBPL32EWUc2NqLjv8gPreC2uzJdSK7ivHLUNSugeT4H04uu4HOaFslmsUPxro8
-         NpqefBpRlll6iGezLDfBKj2JvLGFHlXjJSPWelHPMoUmZeX+oafPmOFdEJG02vF+KGOo
-         ZC0y7btaKEiCyS6hRscMVn6kyUwwSt/Rlk5hLX0/wbI+TVAQk3T+2ihvPtgqp8vwwvDh
-         TGmDjxTX3lOH25HAnxxG9aC/6plvyyW1rNxaOxmeT3MYFAXZNvT1BORkkzeqn+wxuZHB
-         8DlcaZfXcwqdAjhW1rRLeUIiwKptTII++B2WjjjKohnLSxrCCwxR8Oybpv2LL0LIQGvN
-         adOg==
-X-Gm-Message-State: AGi0Pubh35A5szXiTMNP4SjHmqZ48WmXCd/xokmo57KXocI02r46t+BK
-        xKdzQysrPTnvF1vv/6cb16Jz/S4Xcfsh5C5qelfIEA==
-X-Google-Smtp-Source: APiQypKNdCY3OtiIkeJWX0PcE2nxNIMwzLCH+DsayspwmtDmIkVB8t6LffEY5ZO8WubCZPRo18ZG04Dd+peMVypsg08=
-X-Received: by 2002:a2e:2e16:: with SMTP id u22mr10215821lju.243.1588889114309;
- Thu, 07 May 2020 15:05:14 -0700 (PDT)
+        with ESMTP id S1726636AbgEGWGn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 18:06:43 -0400
+Received: from ZenIV.linux.org.uk (zeniv.linux.org.uk [IPv6:2002:c35c:fd02::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08152C05BD43;
+        Thu,  7 May 2020 15:06:43 -0700 (PDT)
+Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jWof7-003GTu-PA; Thu, 07 May 2020 22:06:38 +0000
+Date:   Thu, 7 May 2020 23:06:37 +0100
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Max Kellermann <mk@cm4all.com>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] fs/io_uring: fix O_PATH fds in openat, openat2, statx
+Message-ID: <20200507220637.GH23230@ZenIV.linux.org.uk>
+References: <20200507185725.15840-1-mk@cm4all.com>
+ <20200507190131.GF23230@ZenIV.linux.org.uk>
+ <4cac0e53-656c-50f0-3766-ae3cc6c0310a@kernel.dk>
+ <20200507192903.GG23230@ZenIV.linux.org.uk>
+ <8e3c88cc-027b-4f90-b4f8-a20d11d35c4b@kernel.dk>
 MIME-Version: 1.0
-References: <1480357509-28074-1-git-send-email-johan@kernel.org>
- <1480357509-28074-12-git-send-email-johan@kernel.org> <CA+G9fYvBjUVkVhtRHVm6xXcKe2+tZN4rGdB9FzmpcfpaLhY1+g@mail.gmail.com>
- <20200507064412.GL2042@localhost> <20200507064734.GA798308@kroah.com> <20200507111312.GA1497799@kroah.com>
-In-Reply-To: <20200507111312.GA1497799@kroah.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 8 May 2020 03:35:02 +0530
-Message-ID: <CA+G9fYu2SrkEHyAzF57xJz5WjgHv361qdL2wPqON_pGS4Vtxmw@mail.gmail.com>
-Subject: Re: [PATCH net 11/16] net: ethernet: marvell: mvneta: fix fixed-link
- phydev leaks
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Johan Hovold <johan@kernel.org>
-Cc:     linux- stable <stable@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Fugang Duan <fugang.duan@nxp.com>,
-        Pantelis Antoniou <pantelis.antoniou@gmail.com>,
-        Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Lars Persson <lars.persson@axis.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Netdev <netdev@vger.kernel.org>,
-        nios2-dev@lists.rocketboards.org,
-        open list <linux-kernel@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-mediatek@lists.infradead.org,
-        linux-renesas-soc@vger.kernel.org, linux-omap@vger.kernel.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, lkft-triage@lists.linaro.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8e3c88cc-027b-4f90-b4f8-a20d11d35c4b@kernel.dk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 7 May 2020 at 16:43, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-<trim>
-> > >
-> > > Greg, 3f65047c853a ("of_mdio: add helper to deregister fixed-link
-> > > PHYs") needs to be backported as well for these.
-> > >
-> > > Original series can be found here:
-> > >
-> > >     https://lkml.kernel.org/r/1480357509-28074-1-git-send-email-johan=
-@kernel.org
-> >
-> > Ah, thanks for that, I thought I dropped all of the ones that caused
-> > build errors, but missed the above one.  I'll go take the whole series
-> > instead.
->
-> This should now all be fixed up, thanks.
+On Thu, May 07, 2020 at 02:53:30PM -0600, Jens Axboe wrote:
 
-While building kernel Image for arm architecture on stable-rc 4.4 branch
-the following build error found.
+> I think the patch is correct as-is, I took a good look at how we're
+> currently handling it. None of those three ops should fiddle with
+> the fd at all, and all of them do forbid the use of fixed files (the
+> descriptor table look-alikes), so that part is fine, too.
+> 
+> There's some low hanging fruit around optimizing and improving it,
+> I'm including an updated version below. Max, can you double check
+> with your testing?
 
-of_mdio: add helper to deregister fixed-link PHYs
-commit 3f65047c853a2a5abcd8ac1984af3452b5df4ada upstream.
+<looks>
 
-Add helper to deregister fixed-link PHYs registered using
-of_phy_register_fixed_link().
-
-Convert the two drivers that care to deregister their fixed-link PHYs to
-use the new helper, but note that most drivers currently fail to do so.
-
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[only take helper function for 4.4.y - gregkh]
-
- # make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j16 ARCH=3Darm
-CROSS_COMPILE=3Darm-linux-gnueabihf- HOSTCC=3Dgcc CC=3D"sccache
-arm-linux-gnueabihf-gcc" O=3Dbuild zImage
-70 #
-71 ../drivers/of/of_mdio.c: In function =E2=80=98of_phy_deregister_fixed_li=
-nk=E2=80=99:
-72 ../drivers/of/of_mdio.c:379:2: error: implicit declaration of
-function =E2=80=98fixed_phy_unregister=E2=80=99; did you mean =E2=80=98fixe=
-d_phy_register=E2=80=99?
-[-Werror=3Dimplicit-function-declaration]
-73  379 | fixed_phy_unregister(phydev);
-74  | ^~~~~~~~~~~~~~~~~~~~
-75  | fixed_phy_register
-76 ../drivers/of/of_mdio.c:381:22: error: =E2=80=98struct phy_device=E2=80=
-=99 has no
-member named =E2=80=98mdio=E2=80=99; did you mean =E2=80=98mdix=E2=80=99?
-77  381 | put_device(&phydev->mdio.dev); /* of_phy_find_device() */
-78  | ^~~~
-79  | mdix
-
->
-> greg k-h
+Could you explain WTF is io_issue_sqe() doing in case of IORING_OP_CLOSE?
+Specifically, what is the value of
+        req->close.fd = READ_ONCE(sqe->fd);
+        if (req->file->f_op == &io_uring_fops ||
+            req->close.fd == req->ctx->ring_fd)
+                return -EBADF;
+in io_close_prep()?  And what does happen if some joker does dup2()
+of something with io_uring_fops into our slot right after that check?
+Before the subsequent
+        ret = __close_fd_get_file(req->close.fd, &req->close.put_file);
+that is.
