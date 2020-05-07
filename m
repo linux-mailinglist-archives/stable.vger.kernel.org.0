@@ -2,130 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7801C8676
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 12:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 782D81C86D4
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 12:35:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726074AbgEGKPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 06:15:31 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:38746 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725948AbgEGKPb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 06:15:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588846529;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=A+jh5pN6NKDoDRaUFFxRu2RRzvKqaD7ThAzjRQGAp3Y=;
-        b=hmnYQEbY8s3VmTecUMtKkOmlusl/A/a9eLWDnQkxrJrYsMrQQJebwbo8RwXIuuTBy2BgNH
-        kPiln3sMZYAFTQQVCSlEX8xPg7jIeyYBTqfh+Y7q8pYJd/eSUgJSgT4eaZgICWJDQCgOVL
-        cgsVGJKDA9OSjR8+UkEYtCrx1v5stkM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-318-hjGq-kPwPFm1R0h_2ZbcTg-1; Thu, 07 May 2020 06:15:25 -0400
-X-MC-Unique: hjGq-kPwPFm1R0h_2ZbcTg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8A74745F;
-        Thu,  7 May 2020 10:15:23 +0000 (UTC)
-Received: from krava (unknown [10.40.194.212])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7893B61100;
-        Thu,  7 May 2020 10:15:20 +0000 (UTC)
-Date:   Thu, 7 May 2020 12:15:17 +0200
-From:   Jiri Olsa <jolsa@redhat.com>
-To:     Masami Hiramatsu <mhiramat@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     Ingo Molnar <mingo@elte.hu>, Ingo Molnar <mingo@kernel.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        id S1726555AbgEGKcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 06:32:23 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:46313 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725939AbgEGKcW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 06:32:22 -0400
+Received: from ip5f5af183.dynamic.kabel-deutschland.de ([95.90.241.131] helo=wittgenstein.fritz.box)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jWdpC-0007oF-Oi; Thu, 07 May 2020 10:32:18 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
         Peter Zijlstra <peterz@infradead.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "bibo,mao" <bibo.mao@intel.com>,
-        "Ziqian SUN (Zamir)" <zsun@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCHv2] kretprobe: Prevent triggering kretprobe from within
- kprobe_flush_task
-Message-ID: <20200507101517.GB2447905@krava>
-References: <20200410093159.0d7000a08fd76c2eaf1398f8@kernel.org>
- <20200414160338.GE208694@krava>
- <20200415090507.GG208694@krava>
- <20200416105506.904b7847a1b621b75463076d@kernel.org>
- <20200416091320.GA322899@krava>
- <20200416224250.7a53fb581e50aa32df75a0cf@kernel.org>
- <20200416143104.GA400699@krava>
- <20200417163810.ffe5c9145eae281fc493932c@kernel.org>
- <20200428213627.GI1476763@krava>
- <20200501110107.bc859c6603704c0bcdb8889a@kernel.org>
+        Ingo Molnar <mingo@kernel.org>,
+        Eugene Syromiatnikov <esyr@redhat.com>,
+        Christian Kellner <christian@kellner.me>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        Arnd Bergmann <arnd@arndb.de>, Serge Hallyn <serge@hallyn.com>,
+        Tejun Heo <tj@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+        Joe Perches <joe@perches.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        Andreas Schwab <schwab@linux-m68k.org>,
+        Florian Weimer <fw@deneb.enyo.de>, libc-alpha@sourceware.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2] fork: prevent accidental access to clone3 features
+Date:   Thu,  7 May 2020 12:32:14 +0200
+Message-Id: <20200507103214.77218-1-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200501110107.bc859c6603704c0bcdb8889a@kernel.org>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 01, 2020 at 11:01:07AM +0900, Masami Hiramatsu wrote:
-> On Tue, 28 Apr 2020 23:36:27 +0200
-> Jiri Olsa <jolsa@redhat.com> wrote:
-> 
-> > On Fri, Apr 17, 2020 at 04:38:10PM +0900, Masami Hiramatsu wrote:
-> > 
-> > SNIP
-> > 
-> > > > 
-> > > > The code within the kretprobe handler checks for probe reentrancy,
-> > > > so we won't trigger any _raw_spin_lock_irqsave probe in there.
-> > > > 
-> > > > The problem is in outside kprobe_flush_task, where we call:
-> > > > 
-> > > >   kprobe_flush_task
-> > > >     kretprobe_table_lock
-> > > >       raw_spin_lock_irqsave
-> > > >         _raw_spin_lock_irqsave
-> > > > 
-> > > > where _raw_spin_lock_irqsave triggers the kretprobe and installs
-> > > > kretprobe_trampoline handler on _raw_spin_lock_irqsave return.
-> > > > 
-> > > > The kretprobe_trampoline handler is then executed with already
-> > > > locked kretprobe_table_locks, and first thing it does is to
-> > > > lock kretprobe_table_locks ;-) the whole lockup path like:
-> > > > 
-> > > >   kprobe_flush_task
-> > > >     kretprobe_table_lock
-> > > >       raw_spin_lock_irqsave
-> > > >         _raw_spin_lock_irqsave ---> probe triggered, kretprobe_trampoline installed
-> > > > 
-> > > >         ---> kretprobe_table_locks locked
-> > > > 
-> > > >         kretprobe_trampoline
-> > > >           trampoline_handler
-> > > >             kretprobe_hash_lock(current, &head, &flags);  <--- deadlock
-> > > > 
-> > > > Adding kprobe_busy_begin/end helpers that mark code with fake
-> > > > probe installed to prevent triggering of another kprobe within
-> > > > this code.
-> > > > 
-> > > > Using these helpers in kprobe_flush_task, so the probe recursion
-> > > > protection check is hit and the probe is never set to prevent
-> > > > above lockup.
-> > > > 
-> > > 
-> > > Thanks Jiri!
-> > > 
-> > > Ingo, could you pick this up?
-> > 
-> > Ingo, any chance you could take this one?
-> 
-> Hi Ingo,
-> 
-> Should I make a pull request for all kprobes related patches to you?
+Jan reported an issue where an interaction between sign-extending clone's
+flag argument on ppc64le and the new CLONE_INTO_CGROUP feature causes
+clone() to consistently fail with EBADF.
 
-looks like Ingo is offline, Thomas, could you please pull this one?
+The whole story is a little longer. The legacy clone() syscall is odd in a
+bunch of ways and here two things interact. First, legacy clone's flag
+argument is word-size dependent, i.e. it's an unsigned long whereas most
+system calls with flag arguments use int or unsigned int. Second, legacy
+clone() ignores unknown and deprecated flags. The two of them taken
+together means that users on 64bit systems can pass garbage for the upper
+32bit of the clone() syscall since forever and things would just work fine.
+Just try this on a 64bit kernel prior to v5.7-rc1 where this will succeed
+and on v5.7-rc1 where this will fail with EBADF:
 
-thanks,
-jirka
+int main(int argc, char *argv[])
+{
+        pid_t pid;
+
+        /* Note that legacy clone() has different argument ordering on
+         * different architectures so this won't work everywhere.
+         *
+         * Only set the upper 32 bits.
+         */
+        pid = syscall(__NR_clone, 0xffffffff00000000 | SIGCHLD,
+                      NULL, NULL, NULL, NULL);
+        if (pid < 0)
+                exit(EXIT_FAILURE);
+        if (pid == 0)
+                exit(EXIT_SUCCESS);
+        if (wait(NULL) != pid)
+                exit(EXIT_FAILURE);
+
+        exit(EXIT_SUCCESS);
+}
+
+Since legacy clone() couldn't be extended this was not a problem so far and
+nobody really noticed or cared since nothing in the kernel ever bothered to
+look at the upper 32 bits.
+
+But once we introduced clone3() and expanded the flag argument in struct
+clone_args to 64 bit we opened this can of worms. With the first flag-based
+extension to clone3() making use of the upper 32 bits of the flag argument
+we've effectively made it possible for the legacy clone() syscall to reach
+clone3() only flags. The sign extension scenario is just the odd
+corner-case that we needed to figure this out.
+
+The reason we just realized this now and not already when we introduced
+CLONE_CLEAR_SIGHAND was that CLONE_INTO_CGROUP assumes that a valid cgroup
+file descriptor has been given. So the sign extension (or the user
+accidently passing garbage for the upper 32 bits) caused the
+CLONE_INTO_CGROUP bit to be raised and the kernel to error out when it
+didn't find a valid cgroup file descriptor.
+
+Let's fix this by always capping the upper 32 bits for all codepaths that
+are not aware of clone3() features. This ensures that we can't reach
+clone3() only features by accident via legacy clone as with the sign
+extension case and also that legacy clone() works exactly like before, i.e.
+ignoring any unknown flags.  This solution risks no regressions and is also
+pretty clean.
+
+Reported-by: Jan Stancek <jstancek@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dmitry V. Levin <ldv@altlinux.org>
+Cc: Andreas Schwab <schwab@linux-m68k.org>
+Cc: Florian Weimer <fw@deneb.enyo.de>
+Cc: libc-alpha@sourceware.org
+Link: https://sourceware.org/pipermail/libc-alpha/2020-May/113596.html
+Fixes: 7f192e3cd316 ("fork: add clone3")
+Fixes: ef2c41cf38a7 ("clone3: allow spawning processes into cgroups")
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+/* v2 */
+- Joe Perches <joe@perches.com>:
+  - Use lower_32_bit() macro.
+- Christian Brauner <christian.brauner@ubuntu.com>:
+  - Cap flag argument to 32 bits in every place that is not clone3()
+    feature aware.
+  - Cc stable.
+---
+ kernel/fork.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 8c700f881d92..48ed22774efa 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2486,11 +2486,11 @@ long do_fork(unsigned long clone_flags,
+ 	      int __user *child_tidptr)
+ {
+ 	struct kernel_clone_args args = {
+-		.flags		= (clone_flags & ~CSIGNAL),
++		.flags		= (lower_32_bits(clone_flags) & ~CSIGNAL),
+ 		.pidfd		= parent_tidptr,
+ 		.child_tid	= child_tidptr,
+ 		.parent_tid	= parent_tidptr,
+-		.exit_signal	= (clone_flags & CSIGNAL),
++		.exit_signal	= (lower_32_bits(clone_flags) & CSIGNAL),
+ 		.stack		= stack_start,
+ 		.stack_size	= stack_size,
+ 	};
+@@ -2508,8 +2508,9 @@ long do_fork(unsigned long clone_flags,
+ pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags)
+ {
+ 	struct kernel_clone_args args = {
+-		.flags		= ((flags | CLONE_VM | CLONE_UNTRACED) & ~CSIGNAL),
+-		.exit_signal	= (flags & CSIGNAL),
++		.flags		= ((lower_32_bits(flags) | CLONE_VM |
++				    CLONE_UNTRACED) & ~CSIGNAL),
++		.exit_signal	= (lower_32_bits(flags) & CSIGNAL),
+ 		.stack		= (unsigned long)fn,
+ 		.stack_size	= (unsigned long)arg,
+ 	};
+@@ -2570,11 +2571,11 @@ SYSCALL_DEFINE5(clone, unsigned long, clone_flags, unsigned long, newsp,
+ #endif
+ {
+ 	struct kernel_clone_args args = {
+-		.flags		= (clone_flags & ~CSIGNAL),
++		.flags		= (lower_32_bits(clone_flags) & ~CSIGNAL),
+ 		.pidfd		= parent_tidptr,
+ 		.child_tid	= child_tidptr,
+ 		.parent_tid	= parent_tidptr,
+-		.exit_signal	= (clone_flags & CSIGNAL),
++		.exit_signal	= (lower_32_bits(clone_flags) & CSIGNAL),
+ 		.stack		= newsp,
+ 		.tls		= tls,
+ 	};
+
+base-commit: 0e698dfa282211e414076f9dc7e83c1c288314fd
+-- 
+2.26.2
 
