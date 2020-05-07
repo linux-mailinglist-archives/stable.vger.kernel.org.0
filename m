@@ -2,154 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E39FD1C859D
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 11:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF8A81C8660
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 12:05:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725809AbgEGJZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 05:25:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57866 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725857AbgEGJZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 05:25:02 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF64CC061A10;
-        Thu,  7 May 2020 02:25:01 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id z6so1838853plk.10;
-        Thu, 07 May 2020 02:25:01 -0700 (PDT)
+        id S1726531AbgEGKFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 06:05:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35886 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725985AbgEGKFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 06:05:06 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B07B9C061A10;
+        Thu,  7 May 2020 03:05:05 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id h9so5645385wrt.0;
+        Thu, 07 May 2020 03:05:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=GySnMOCjEwjmYKLw1ybYlhgVtoYAht9uSjW2oEXIKIo=;
-        b=AfOowyx/OkmjNQUa65VECiO/+/o4o6RBP4CsdAGU1pv7F5oGZguv4qpvECbO2DsLRm
-         /s+Bawlqy3JPH7s9dsf8VqDxrucmGUm+2Kyf8MK45fdwAfHl9v1UM8gil57A6xVFFZ/1
-         74/V0q4KY50NRk/mssMxuQM4RWJ5NkkymbfmzPa7uvMJ2kVpyC5JjC0qNfEJ5G4AujYo
-         uY1Dlv7PsEC5GoglrLdQucCkcXNh80X3UDShw6LeDf1nEBzbfIVPMkI2kMq+l/JQ8Azq
-         gA3FCW4SWsn8juJT+7kj68gwXc4uP+CFPTHLZR+OmCl6soyeziW+7XyxLKo/CXURipft
-         DmuQ==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=I3XEZEir8mjaU7+45jVwuKvE1Mu0PTN/zTUIAubFKCI=;
+        b=sW4R2D6NmQc/uUkzHBPZ4dq0iO4vvS8WsupKHd3y24pQe39FsaJwi6QzwL7xoDmw2h
+         XBHYToik/4pPr6d6Lp7QWkXuNvqEVqW9pHIfEboU3Hbj2TkLLTi2hLU3dz8qitlVWd+8
+         D/QvAn3tPNshlPruWsw8B37XSzmQHFNLKAV+kH1x0U2ja6VDNaab7EhOxyUiEq7F+DV0
+         hxTgXO98fnmMWf2HeasuQ9AFhPP39Pp8F8woB6fhf4d02R0oqU3TZkPMutliFV6SCPs9
+         jhATiucY8rroK5dkA4OImXdOsJclFSJUWSW4+6YoRZMmwlBpEWk5h23c0z08ru1RGf+G
+         lbMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=GySnMOCjEwjmYKLw1ybYlhgVtoYAht9uSjW2oEXIKIo=;
-        b=ADsx8JvuuU/MJOaYD8V+6qGKl3JmDj1hz7agYhT6JVDYzJ2GHlnkL3lt2Ebz8V7AYr
-         0ElsFocJLnfZ0AS4MHnwE/+6XimOSkbfpjquVasiqaP0xZBaMoorPkcAzCN3OTZV1elY
-         ySQEHBrBarI9QOqCEi+G+6eHTsynHx4ZX2d4S9VtR/szoQCsNEJ5Iam44XANEaOHMD7v
-         F0B183MD+jvVnNaQxx3v4xdu4QqwFSSrPo166Nno5rG3aD+yHtg3X4VurJ4Pdr0ERNJv
-         w+MyZxA/qkZjDaoDOhJbelx2MkGVpMlGkOfPtIPZusKFl85+x54CVvnShTdC9AqarGvC
-         ZLPA==
-X-Gm-Message-State: AGi0PuZ3Nt8Yf1PcB62x//iTPHW2jOMzkjfPL1asixer7d+1wmDUzvTQ
-        JLQEfHLSlytDn8BciNQgq6uL9Nzpl+92Oe6MEGY=
-X-Google-Smtp-Source: APiQypLCo11VtyxLxVipMJet+Uc/jH+bliGdPTuMeaMs+hQVOZgfSQlXQ/Vm47iIhfVrJzInVwy52114mBZs8kv8eGk=
-X-Received: by 2002:a17:90a:fa81:: with SMTP id cu1mr14771332pjb.25.1588843501300;
- Thu, 07 May 2020 02:25:01 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=I3XEZEir8mjaU7+45jVwuKvE1Mu0PTN/zTUIAubFKCI=;
+        b=Gn4dSavsbetfZQOmlHuLoTu3rF3cnOgySgFpPZt347WTifDfbKYlGCDeRY9cZ1Y4iG
+         VBjBjtDnMVSkItJos7Oi6LdoZWG1XFKEpvrHLuXqrbw2Re6U19+WBrRzmIPMXy/sIVCV
+         +gSI2VQD4Ut2HKSHCy2rtOHlEeNBEnAEsmNHXrRb8vIEk3rwLwhBMopdJxTUVNKHw437
+         K8JFRbWyeFztVcW5VSmk1Q4+LvLHOmBQezW0Iu5WXQu4HX4ZkzqzSXSUG02tJCLEzYPF
+         kp1p56xViy4pIt9tpjhvW+tM45RyqKYh6uepLsshedirxQsi/xBa7V1UwxJVOb9g1fKP
+         u1EA==
+X-Gm-Message-State: AGi0PubmUWZxZarzZ5BEx8sh8moi7zQoLA6TqWPfPNR78OQa7NSS6tYF
+        3pecC41yYy4x5mW/mO8WOXc=
+X-Google-Smtp-Source: APiQypL85Rp4PcfWy+llAW584pUmkpqwuyGQDd09cVbrIG6suk/obuRQvQYjV9Xq1ENcCd2K0dt0pg==
+X-Received: by 2002:adf:ed0f:: with SMTP id a15mr1871371wro.320.1588845904337;
+        Thu, 07 May 2020 03:05:04 -0700 (PDT)
+Received: from localhost (p2E5BE57B.dip0.t-ipconnect.de. [46.91.229.123])
+        by smtp.gmail.com with ESMTPSA id w6sm7594181wrt.39.2020.05.07.03.05.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 May 2020 03:05:03 -0700 (PDT)
+Date:   Thu, 7 May 2020 12:05:02 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Jon Hunter <jonathanh@nvidia.com>, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] arm64: tegra: Fix ethernet phy-mode for Jetson Xavier
+Message-ID: <20200507100502.GB2890327@ulmo>
+References: <20200501072756.25348-1-jonathanh@nvidia.com>
+ <20200506234218.4E11D2082E@mail.kernel.org>
 MIME-Version: 1.0
-References: <158880834905.2183490.15616329469420234017.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <158880834905.2183490.15616329469420234017.stgit@dwillia2-desk3.amr.corp.intel.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Thu, 7 May 2020 12:24:49 +0300
-Message-ID: <CAHp75Vf0zBnwHubK+C265M9nh3Y5K2K=8ck61HQtnW+021bgwQ@mail.gmail.com>
-Subject: Re: [PATCH] ACPI: Drop rcu usage for MMIO mappings
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Ira Weiny <ira.weiny@intel.com>,
-        James Morse <james.morse@arm.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-nvdimm@lists.01.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="f2QGlHpHGjS2mn6Y"
+Content-Disposition: inline
+In-Reply-To: <20200506234218.4E11D2082E@mail.kernel.org>
+User-Agent: Mutt/1.13.1 (2019-12-14)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 7, 2020 at 3:21 AM Dan Williams <dan.j.williams@intel.com> wrote:
->
-> Recently a performance problem was reported for a process invoking a
-> non-trival ASL program. The method call in this case ends up
-> repetitively triggering a call path like:
->
->     acpi_ex_store
->     acpi_ex_store_object_to_node
->     acpi_ex_write_data_to_field
->     acpi_ex_insert_into_field
->     acpi_ex_write_with_update_rule
->     acpi_ex_field_datum_io
->     acpi_ex_access_region
->     acpi_ev_address_space_dispatch
->     acpi_ex_system_memory_space_handler
->     acpi_os_map_cleanup.part.14
->     _synchronize_rcu_expedited.constprop.89
->     schedule
->
-> The end result of frequent synchronize_rcu_expedited() invocation is
-> tiny sub-millisecond spurts of execution where the scheduler freely
-> migrates this apparently sleepy task. The overhead of frequent scheduler
-> invocation multiplies the execution time by a factor of 2-3X.
->
-> For example, performance improves from 16 minutes to 7 minutes for a
-> firmware update procedure across 24 devices.
->
-> Perhaps the rcu usage was intended to allow for not taking a sleeping
-> lock in the acpi_os_{read,write}_memory() path which ostensibly could be
-> called from an APEI NMI error interrupt? Neither rcu_read_lock() nor
-> ioremap() are interrupt safe, so add a WARN_ONCE() to validate that rcu
-> was not serving as a mechanism to avoid direct calls to ioremap(). Even
-> the original implementation had a spin_lock_irqsave(), but that is not
-> NMI safe.
->
-> APEI itself already has some concept of avoiding ioremap() from
-> interrupt context (see erst_exec_move_data()), if the new warning
-> triggers it means that APEI either needs more instrumentation like that
-> to pre-emptively fail, or more infrastructure to arrange for pre-mapping
-> the resources it needs in NMI context.
 
-...
+--f2QGlHpHGjS2mn6Y
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +static void __iomem *acpi_os_rw_map(acpi_physical_address phys_addr,
-> +                                   unsigned int size, bool *did_fallback)
-> +{
-> +       void __iomem *virt_addr = NULL;
+On Wed, May 06, 2020 at 11:42:17PM +0000, Sasha Levin wrote:
+> Hi
+>=20
+> [This is an automated email]
+>=20
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+>=20
+> The bot has tested the following trees: v5.6.8, v5.4.36, v4.19.119, v4.14=
+=2E177, v4.9.220, v4.4.220.
+>=20
+> v5.6.8: Build OK!
+> v5.4.36: Build OK!
+> v4.19.119: Build OK!
+> v4.14.177: Failed to apply! Possible dependencies:
+>     5425fb15d8ee ("arm64: tegra: Add Tegra194 chip device tree")
+>     b8656c673a6b ("arm64: tegra: Add device tree for the Tegra194 P2972-0=
+000 board")
+>     f69ce393ec48 ("arm64: tegra: Add GPIO controller on Tegra194")
+>     f89b58ce71a9 ("arm64: tegra: Add ethernet controller on Tegra194")
+>=20
+> v4.9.220: Failed to apply! Possible dependencies:
+>     5425fb15d8ee ("arm64: tegra: Add Tegra194 chip device tree")
+>     99575bceebd6 ("arm64: tegra: Add NVIDIA P2771 board support")
+>     b8656c673a6b ("arm64: tegra: Add device tree for the Tegra194 P2972-0=
+000 board")
+>     f69ce393ec48 ("arm64: tegra: Add GPIO controller on Tegra194")
+>     f89b58ce71a9 ("arm64: tegra: Add ethernet controller on Tegra194")
+>=20
+> v4.4.220: Failed to apply! Possible dependencies:
+>     0f279ebdf3ce ("arm64: tegra: Add NVIDIA Tegra132 Norrin support")
+>     2cc85bd90337 ("arm64: tegra: Add NVIDIA P2571 board support")
+>     34b4f6d0599e ("arm64: tegra: Add Tegra132 support")
+>     5425fb15d8ee ("arm64: tegra: Add Tegra194 chip device tree")
+>     5d17ba6e638e ("arm64: tegra: Add support for Google Pixel C")
+>     63023e95bec0 ("arm64: tegra: Add NVIDIA P2371 board support")
+>     99575bceebd6 ("arm64: tegra: Add NVIDIA P2771 board support")
+>     b8656c673a6b ("arm64: tegra: Add device tree for the Tegra194 P2972-0=
+000 board")
+>     f69ce393ec48 ("arm64: tegra: Add GPIO controller on Tegra194")
+>     f89b58ce71a9 ("arm64: tegra: Add ethernet controller on Tegra194")
+>=20
+>=20
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>=20
+> How should we proceed with this patch?
 
-Assignment is not needed as far as I can see.
+Tegra194 support was merged into v4.17, so it doesn't make backport this
+to any stable kernels prior to that.
 
-> +       if (WARN_ONCE(in_interrupt(), "ioremap in interrupt context\n"))
-> +               return NULL;
-> +
-> +       /* Try to use a cached mapping and fallback otherwise */
-> +       *did_fallback = false;
-> +       mutex_lock(&acpi_ioremap_lock);
-> +       virt_addr = acpi_map_vaddr_lookup(phys_addr, size);
-> +       if (virt_addr)
-> +               return virt_addr;
-> +       mutex_unlock(&acpi_ioremap_lock);
-> +
-> +       virt_addr = acpi_os_ioremap(phys_addr, size);
-> +       *did_fallback = true;
-> +
-> +       return virt_addr;
-> +}
+Thierry
 
-I'm wondering if Sparse is okay with this...
+--f2QGlHpHGjS2mn6Y
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> +static void acpi_os_rw_unmap(void __iomem *virt_addr, bool did_fallback)
-> +{
-> +       if (did_fallback) {
-> +               /* in the fallback case no lock is held */
-> +               iounmap(virt_addr);
-> +               return;
-> +       }
-> +
-> +       mutex_unlock(&acpi_ioremap_lock);
-> +}
+-----BEGIN PGP SIGNATURE-----
 
-...and this functions from locking perspective.
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl6z3U4ACgkQ3SOs138+
+s6ERdQ/+M8e+Pq//sHoBLsVfspJENeX9JUSLVqTVsXEnHTxnv0Ri/qKuRYOzWcgU
+zktBmBWHxJt8UPlgxRqL9rcRHBf2mXRu7QsRSvBozLOuszdbp2pDq8dKGO1TgBKm
+ZQJekFzhEeWm8JAQiDlHjMfqwtPNXhRefl+gyRvWjOsTlROipbcm7Qr/RmztNmWJ
+73p4lkUcZ6BuRQoZgn9JDIBhDK3v02DwlJHAUjdYjRt6n4Wh39D4bllyi0JAw6FG
+4zV9fLL+PY9ie6ZtRiA3ACmjc9I28UiCMs4/VXnXVxGK+L9UjjrKvONaZtQ+aPDS
+wP9P9jihX6wcYOEPSoIvNBw4ne1eyWIOCdDjM0PjtYVov73xoseYv1OQGPfFdR6T
+77SWjnbppJNjA1IuV1adwWBJrY8w8jxdXLTXNehURSAc+ve6WOQ725kxIRZ2HAeL
+AVZb7nUI/+TiAZVYP4dntzk6rzZsQx4JhyKgYF9yVQ1NANw6QAog+RIc+4KOW+Ee
+0bLJeNRNoCvAlJdwaynn6gVXNmgF3jQeMHoLpVWPwDu2ARN1vhcwYmoVC4xtdPaY
+V0Eb1gORelEyYb1HwVN446IjAse8ex9wvAMPKu59l7PrbonEO8ismM2tx+8/7bkJ
+9ChG18/p+Ln1yUybHvHR+FGTYdBJriPZ33rcLZ1wSkzmbnFAcA4=
+=+6E+
+-----END PGP SIGNATURE-----
 
--- 
-With Best Regards,
-Andy Shevchenko
+--f2QGlHpHGjS2mn6Y--
