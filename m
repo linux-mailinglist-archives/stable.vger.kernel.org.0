@@ -2,95 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 311991C9B23
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 21:31:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 481541C9B3C
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 21:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726491AbgEGTbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 15:31:55 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:45865 "EHLO
-        mail.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726367AbgEGTby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 15:31:54 -0400
-Received: from [IPv6:2601:646:8600:3281:6547:66ee:1a90:d675] ([IPv6:2601:646:8600:3281:6547:66ee:1a90:d675])
-        (authenticated bits=0)
-        by mail.zytor.com (8.15.2/8.15.2) with ESMTPSA id 047JVQfh3526709
-        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-        Thu, 7 May 2020 12:31:27 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 047JVQfh3526709
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2020042201; t=1588879887;
-        bh=KE1Z5fw6ohOckf8wSoQnCowGQBds5ZKNZR3BEwYeyEg=;
-        h=Date:In-Reply-To:References:Subject:To:CC:From:From;
-        b=diBzyttgruastg6TqrrbhDE00dWFbIySD01pQ8S1/yuYc48lvPH0h95qvE8Na0EeT
-         WIvVKOdl6tfwQxaOlytjPfXBCqE2cR/9MWiJo13OLHGJNn1eQHxUMF70yBFfAswzEL
-         CQzbPbrzUgKPsimuMEHvACZonqqamq5JZay7lBTrRC/2K4SnruCL1Wr8CMBfzR5pEI
-         x2fdERyhHJ3Gc2Ad/nImKmU5w8UsiPQXz4XqCBwAPUpfM7bkpYv5emzH9OojYdLlai
-         wbi6skR+XQ2U/UAYiMZxNkzp29SXGcB6XWJK/46XiT/1ZIPZmfNhGrZEy2EslrSeHL
-         7UX1/YpAbBcNQ==
-Date:   Thu, 07 May 2020 12:31:19 -0700
-User-Agent: K-9 Mail for Android
-In-Reply-To: <9c701ca55bc442c1899a70896f3ea73e@AcuMS.aculab.com>
-References: <20200505174423.199985-1-ndesaulniers@google.com> <CAMzpN2idWF2_4wtPebM2B2HVyksknr9hAqK8HJi_vjQ06bgu2g@mail.gmail.com> <6A99766A-59FB-42DF-9350-80EA671A42B0@zytor.com> <CAMzpN2iCgr0rb=MCYPGMx8tcfLq2qdzv0h7YnX5hkzBB+O7JJQ@mail.gmail.com> <9c701ca55bc442c1899a70896f3ea73e@AcuMS.aculab.com>
+        id S1728445AbgEGThG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 15:37:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40824 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728451AbgEGThF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 15:37:05 -0400
+Received: from nibbler.cm4all.net (nibbler.cm4all.net [IPv6:2001:8d8:970:e500:82:165:145:151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 992EFC05BD09
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 12:37:05 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by nibbler.cm4all.net (Postfix) with ESMTP id 59F0EC0280
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 21:37:04 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at nibbler.cm4all.net
+Received: from nibbler.cm4all.net ([127.0.0.1])
+        by localhost (nibbler.cm4all.net [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id 8nk1PbkjERdc for <stable@vger.kernel.org>;
+        Thu,  7 May 2020 21:37:04 +0200 (CEST)
+Received: from zero.intern.cm-ag (zero.intern.cm-ag [172.30.16.10])
+        by nibbler.cm4all.net (Postfix) with SMTP id 38BB9C0240
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 21:37:04 +0200 (CEST)
+Received: (qmail 6409 invoked from network); 7 May 2020 22:53:21 +0200
+Received: from unknown (HELO rabbit.intern.cm-ag) (172.30.3.1)
+  by zero.intern.cm-ag with SMTP; 7 May 2020 22:53:21 +0200
+Received: by rabbit.intern.cm-ag (Postfix, from userid 1023)
+        id 052D9461450; Thu,  7 May 2020 21:37:04 +0200 (CEST)
+Date:   Thu, 7 May 2020 21:37:03 +0200
+From:   Max Kellermann <mk@cm4all.com>
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Jens Axboe <axboe@kernel.dk>, Max Kellermann <mk@cm4all.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] fs/io_uring: fix O_PATH fds in openat, openat2, statx
+Message-ID: <20200507193703.GA16367@rabbit.intern.cm-ag>
+References: <20200507185725.15840-1-mk@cm4all.com>
+ <20200507190131.GF23230@ZenIV.linux.org.uk>
+ <4cac0e53-656c-50f0-3766-ae3cc6c0310a@kernel.dk>
+ <20200507192903.GG23230@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Subject: RE: [PATCH] x86: bitops: fix build regression
-To:     David Laight <David.Laight@ACULAB.COM>,
-        "'Brian Gerst'" <brgerst@gmail.com>
-CC:     Nick Desaulniers <ndesaulniers@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "clang-built-linux@googlegroups.com" 
-        <clang-built-linux@googlegroups.com>
-From:   hpa@zytor.com
-Message-ID: <A6FD91D2-8D3A-4767-B6AD-D35B056C58C4@zytor.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200507192903.GG23230@ZenIV.linux.org.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On May 7, 2020 8:09:35 AM PDT, David Laight <David=2ELaight@ACULAB=2ECOM> w=
-rote:
->From: Brian Gerst
->> Sent: 07 May 2020 14:32
->=2E=2E=2E
->> I think the bug this worked around was that the compiler didn't
->detect
->> that CONST_MASK(nr) was also constant and doesn't need to be put into
->> a register=2E  The question is does that bug still exist on compiler
->> versions we care about?
->
->Hmmm=2E=2E=2E
->That ought to have been fixed instead of worrying about the fact
->that an invalid register was used=2E
->
->Alternatively is there any reason not to use the bts/btc instructions?
->Yes, I know they'll do wider accesses, but variable bit numbers do=2E
->It is also possible that the assembler will support constant bit
->numbers >=3D 32 by adding to the address offset=2E
->
->	David
->
->-
->Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes,
->MK1 1PT, UK
->Registration No: 1397386 (Wales)
+On 2020/05/07 21:29, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> Again, resolving the descriptor more than once in course of syscall
+> is almost always a serious bug;
 
-They're slower, and for unaligned locked fields can be severely so=2E
---=20
-Sent from my Android device with K-9 Mail=2E Please excuse my brevity=2E
+.. and that is what Linux currently does for those three operation,
+and yes, it's buggy.  The generic preparation code looks up the fd,
+but later in the implementation, only the numeric fd is used.
+
+My patch removes this duplication, by removing the first lookup.
+
+Max
