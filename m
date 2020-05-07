@@ -2,79 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB6D1C87DB
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 13:16:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C25891C8864
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 13:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726963AbgEGLQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 07:16:01 -0400
-Received: from sonic303-21.consmr.mail.ne1.yahoo.com ([66.163.188.147]:35049
-        "EHLO sonic303-21.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726514AbgEGLQA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 07:16:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1588850159; bh=TYgdp/zNeW9P5rVjVpFopjba7a+Fm8hxyemx2bQVZd8=; h=Date:From:Reply-To:Subject:References:From:Subject; b=MqelGNtJCVzjE/+ycb5pigdhlqSaYKVR7ElyruoLuhSn3lWgOFGz3yZhkJvPUR3Vu882k85hWjwM7OOO5vWc2wizDh53yrvk25g55KdP0vHPjxSsGwWZPsyIJGwNr1UQiFmrpxAozQKyo5yhgDyLa+TW4dxCebZ4sQ9gVwjNHSKLVpHRAc9RqxIf4piexTFcGy4L/TJqD+K5M4w0f9JloMuX6qJ7qwh7+mZnlneRvemdfAvfOg5j4WYI0jBpUV7PiqavznD+CFki7DKWpdr8p72NRZqzAGFwx15kJ06aGI2FyobZfZebZ42qG+n1j9ErA3BGNeIgZPFw+kzUq7RiJQ==
-X-YMail-OSG: 9XMnjMUVM1ldicnI9_eU7Xe3U8QV0k0qFQG.hVPR1VuRz5ZNT0eNFtuwDRK5l1C
- e4808l2plev1D2p1acew5TNKconFw7G80p1rXfCPhBTgI96.6Hq66SpZb1RHOj8irf0hvZ1SwaE0
- yJTavZKN.QCMCMpWuL1982HKkN5JDtbqMh2Va2rcs5t5u9zy6gSE.3y6E7B8TpCq6EgjLQ9ugGtc
- wCs9G.MdIOwP0BfElzpejYk8qzfPVSj7qdHYv0nDSp7W6I449Iwo2S.g1Q8uy4yy8aWmQUk_BXDu
- OJ9_OC0OdDnUSLd.Y7Ch11KCV.RL0sJC_gP8LL6ecPhYsU7k3QJ5mocdqYf3AwAZ_6GFl1tjPBkQ
- WJ0nxIIKq74Uto0ESFn_ngDbxK5a9F.pzyQvYX0P94VszqRgti8G4xltS0FB4VLOAVzUl.FlSYeO
- 2PwT2xLXQMpQ_maQ3ISmBlZg4BiwGsG5yfX6dqAZzls9hHMP0iz6M42zPafjOBvTB50jFHiHXpvX
- xlq0VhBNXFf_w7JP756WY72zIuaCLbIwe57xbvrf8jytIBqTlMWNQqySlbC1xk6NwABJPs2mRJEh
- on9x3TdYUcDu2UOr7fmWPab1pH06jlMJ9j5AFfW8_zdXDQAazYznhQ.YPB8y1.zf49byICVx55.C
- 6yErjkDjHVXEWFviVRiuDurx_4qZDlEASPz3VfjzW.QIYAMDWPwDfVBBolKJZRn29XtrYQFiqcBD
- i08dDwIZy9Y4IVZCax8LKnQaeUxTVgKGFkrEI719aNj3dy5vfxMHl5acCFnjvf6WBqE3hWVWGNeX
- p6NVgTmbCUni_Nb6ORHzQo0eV6Hw5XcANyCcXKCmdI3owKHAnP3jwbIs5tcbR8Clvt.E1D8VGAuS
- Ypq3cPFeZGP4hsUXkK_02DmLS0X9Zw.dmhLnNzb57X4ZJU8Espi7XTJh1P81FnvJljKcy2hGxvwO
- 1pXI0DHC6PkADhvr.23wSjVZaJrURzQeubwBVUD.BFEfpAvYknN8EdsZjocNjQuvylvRLu10ACpd
- aurkD5_jiAWCl3N28nFvaMrnaaLB7Xn3DISXyt0hBsH5e0Y7WH_ZQE0ydrzmH4NZVGnopU_S4qVV
- a1pJG50FPEcaiejgN6MghuM8ijYpQElmmY7MM69sZlWe5rAoZTZvw5jTNSEf1BE.iZbSMgS6Ly5F
- 9BsdIh0hW7B8N0OZ3BADzDQFii9MHjKE2HBdm3I7EKt8SFZV7c57P1yE9x59bylMWIcMcAWOB5M.
- U.v3KTL3p2ECNHNhkePgzRa2zU3KbpZFO_jnCmZ1Gil.RXFqC0EDUPvfvpxkPE_DUFdWsbOl1wyU
- lxh20vpgE7gL4pE1hkLVoDw7b6dTX5Hhg
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Thu, 7 May 2020 11:15:59 +0000
-Date:   Thu, 7 May 2020 11:15:59 +0000 (UTC)
-From:   Mrs m compola <mmrsgrorvinte@gmail.com>
-Reply-To: mcompola444@gmail.com
-Message-ID: <742590058.2692410.1588850159186@mail.yahoo.com>
-Subject: Dear Friend, My present internet connection is very slow in case
- you
+        id S1726742AbgEGLfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 07:35:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50006 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726736AbgEGLfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 07:35:09 -0400
+Received: from merlin.infradead.org (unknown [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E60D3C05BD43;
+        Thu,  7 May 2020 04:35:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=S7/JCtjp/SFUzAPa+/rhOyd9q2ucCeuwYbzZwtk3H3w=; b=ZRgcchoyg6EsthP9pkro1DG0Nd
+        f7Gtmf+9Shucas54O6gS/KuQTS8EQrU7opCy8i9yZDOyQ5up59Z3yP3cPxL6RA/IAtfmMlWfEFoZd
+        B1jCZIJeAvtsrjFuujNO7MnhzQk8K32l+XVvRyYTm/Nq3YEAdxn3P9831zP5Eh/2Zaoq+4QS5fbNJ
+        gKlxe5KsI/vJkstVx81c0RwvkLGjSeHAfwuGDRYCTwD5NfR0LRuNtOHrogJO9c/UG/s4MHI4GZaqc
+        zc8wy5g95ZFNJUWneDKJdBKq6FLcGr5Uyl8OkwCcJ+5zuVdLlMrbl+v+9Ma0xZabnob/hU6+VHHzU
+        8CBkhYTQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jWenK-0007kR-AC; Thu, 07 May 2020 11:34:26 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 22976303DA8;
+        Thu,  7 May 2020 13:34:23 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 00BCA2B51366A; Thu,  7 May 2020 13:34:22 +0200 (CEST)
+Date:   Thu, 7 May 2020 13:34:22 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     hpa@zytor.com
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>, stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>, x86@kernel.org,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: Re: [PATCH] x86: bitops: fix build regression
+Message-ID: <20200507113422.GA3762@hirez.programming.kicks-ass.net>
+References: <20200505174423.199985-1-ndesaulniers@google.com>
+ <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <742590058.2692410.1588850159186.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15756 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, May 05, 2020 at 11:07:24AM -0700, hpa@zytor.com wrote:
+> On May 5, 2020 10:44:22 AM PDT, Nick Desaulniers <ndesaulniers@google.com> wrote:
 
+> >@@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long *addr)
+> > 	if (__builtin_constant_p(nr)) {
+> > 		asm volatile(LOCK_PREFIX "orb %1,%0"
+> > 			: CONST_MASK_ADDR(nr, addr)
+> >-			: "iq" (CONST_MASK(nr) & 0xff)
+> >+			: "iq" ((u8)(CONST_MASK(nr) & 0xff))
+> > 			: "memory");
+> > 	} else {
+> > 		asm volatile(LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
+> >@@ -74,7 +74,7 @@ arch_clear_bit(long nr, volatile unsigned long *addr)
+> > 	if (__builtin_constant_p(nr)) {
+> > 		asm volatile(LOCK_PREFIX "andb %1,%0"
+> > 			: CONST_MASK_ADDR(nr, addr)
+> >-			: "iq" (CONST_MASK(nr) ^ 0xff));
+> >+			: "iq" ((u8)(CONST_MASK(nr) ^ 0xff)));
+> > 	} else {
+> > 		asm volatile(LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
+> > 			: : RLONG_ADDR(addr), "Ir" (nr) : "memory");
+> 
+> Drop & 0xff and change ^ 0xff to ~.
 
-Dear Friend, My present internet connection is very slow in case you
-received my email in your spam
-
-How are you today?.With due respect to your person and much sincerity
-of purpose,Well it is a pleasure to contact you on this regard and i
-pray that this will turn out to be everlasting relationship for both
-of us. However it's just my urgent need for a Foreign partner that
-made me to contact you for this Transaction,I got your contact from
-internet, while searching for a reliable someone that I can go into
-partnership with. I am Mrs.mcompola, from BURKINA FASO, West
-Africa .Presently i work in the Bank as bill and exchange manager.
-
-I have the opportunity of transferring the left over fund $5.4 Million
-us dollars of one of my Bank clients who died in the collapsing of the
-world trade center on september 11th 2001.I have placed this fund to
-and escrow account without name of beneficiary.i will use my position
-here in the bank to effect a hitch free transfer of the fund to your
-bank account and there will be no trace.
-
-I agree that 40% of this money will be for you as my foriegn
-partner,50% for me while 10% will be for the expenses that will occur
-in this transaction .If you are really interested in my proposal
-further details of the Transfer will be forwarded unto you as soon as
-I receive your willingness mail for successful transfer.
-
-Yours Faithfully,
-Mrs.mcompola444@gmail.com
+But then we're back to sparse being unhappy, no? The thing with ~ is
+that it will set high bits which will be truncated, which makes sparse
+sad.
