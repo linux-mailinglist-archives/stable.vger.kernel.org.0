@@ -2,236 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 006221C9EE0
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 01:03:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E4191C9EFF
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 01:13:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbgEGXDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 19:03:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44614 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727099AbgEGXDX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 19:03:23 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B888C05BD43
-        for <stable@vger.kernel.org>; Thu,  7 May 2020 16:03:21 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id n11so3170036pgl.9
-        for <stable@vger.kernel.org>; Thu, 07 May 2020 16:03:21 -0700 (PDT)
+        id S1726946AbgEGXNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 19:13:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726744AbgEGXNK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 19:13:10 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA73C05BD09
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 16:13:09 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id r7so6893377edo.11
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 16:13:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=QSHssQjKD6+vYMmq/gxw+OjPipIa2F9Y4+vFL26ooGI=;
-        b=lQLfQGLzYXAlL8dJX5jl559roV3lhBENjWgWt4fbxsf1RmSYMZCU+el0VVO9T+0FiC
-         c8pZKsm+RwuijEVirPevAoquCHjBi24Cnw/I/VPkgUT7hF8pH3ZOrZNMWHVdI2J74gr4
-         ll/a1QfmqtjnCH5ncjYKRJ/wa2SCEYZfNEgBWPI5u4rY+YFGanCcD83VRoPeno5hm5qA
-         KB1DB05IosCcEQBt8x0WABe6eDaRjA8dN3iAM6dVgQqFqsiJPRwzLH4+jOJBBXbrzDGL
-         bJQ8EiNFqcd0jxu/s366TT/u3FPHT9JbejK/tVslMtIIl74v2PPdHQQvx4ZpU35iHot7
-         Q7oQ==
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hOgoGFfrQiuxoVLXtR6ns0cA7T4PnQXjD00h0lBOWe4=;
+        b=hrgYnUmsGdoaS3xDvgxUWyQB+Y5ou6argIEx1l1Kr98VcT/PuZNB21w7VF4wNyOf3b
+         ZTR3HijaDV+aYn7AVymILBM1HG6SsF3OBVQw+NaTDBW7yCAUHp+xDTo+d2HF2cWV62Kx
+         J0RHUmvKSo3QkxABUHofYEIYdck5hZ1pQ6TIdTqfGuRxHAfc9lc9WoKNSXaf5jd4sGH6
+         5zsj2CdRwbHBtEc5v/2QRCkRx3FkrQQQfcWJEBhPumdfcYetulcFpdZ2IUdvb+Ej1ldh
+         tWc0dThiiOgWTKPjGS8u0xo8v7dsvuhAFMjWHTib/xrlps+UHajnDWMLelWRkA9TeCdP
+         2JmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QSHssQjKD6+vYMmq/gxw+OjPipIa2F9Y4+vFL26ooGI=;
-        b=epDkt2ZZ6RfFYyN6viXHMJEp06TzMa8bIpbVykGUGRk9PjeGhS+8I7vhsBEyhyc4us
-         9kslF4hdjL6jTtH4nJau7Y8O57Iq2lePt2iV+EexzXyYjuBwjDN5Gbr1BpST9xhjjI0O
-         y8ySsbLf8/P1sqI3tYpnAx7hRK1Xus5aoy5UydmAhxgRXRZBAYlnpZ8sKRBNgkNuR5ur
-         KnHOjHwD4NA1YOWeuS8pYZCuxFP4ICkPkHGfvsVNBX+s/eNCtnGv90GQL9eAX+ytiyOM
-         XiCQ/4ATUt97tjNfbPK0iZTbmDpcKwqWMEq1CRx4HS4cG58bmplSLNh5QfT9K4dvJtwh
-         v0Vw==
-X-Gm-Message-State: AGi0PuYTlzPMUHjbQx1UfIUKkokXbGH2zGyo1P5R4AeJW+nX5LBqKmF/
-        e888lEHfeV6z0VQfv7LsQg3nE+tIrI8=
-X-Google-Smtp-Source: APiQypKwoJfk4HPHvT4IexdeCehxEsTZnAGLXVeoookLh5pz2Z0Qh+aUk2uqWMm7ZmzGofBDoD932g==
-X-Received: by 2002:a63:c306:: with SMTP id c6mr13444816pgd.311.1588892600499;
-        Thu, 07 May 2020 16:03:20 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.145])
-        by smtp.gmail.com with ESMTPSA id f9sm4477969pgj.2.2020.05.07.16.03.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 07 May 2020 16:03:19 -0700 (PDT)
-Subject: Re: [PATCH] fs/io_uring: fix O_PATH fds in openat, openat2, statx
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Max Kellermann <mk@cm4all.com>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20200507185725.15840-1-mk@cm4all.com>
- <20200507190131.GF23230@ZenIV.linux.org.uk>
- <4cac0e53-656c-50f0-3766-ae3cc6c0310a@kernel.dk>
- <20200507192903.GG23230@ZenIV.linux.org.uk>
- <8e3c88cc-027b-4f90-b4f8-a20d11d35c4b@kernel.dk>
- <20200507220637.GH23230@ZenIV.linux.org.uk>
- <283c8edb-fea2-5192-f1d6-3cc57815b1e2@kernel.dk>
- <20200507224447.GI23230@ZenIV.linux.org.uk>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <e16125f2-c3ec-f029-c607-19bede54fa17@kernel.dk>
-Date:   Thu, 7 May 2020 17:03:17 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hOgoGFfrQiuxoVLXtR6ns0cA7T4PnQXjD00h0lBOWe4=;
+        b=I+9O0SzR2OrmSvvamfeI8Qzrg5lIVBZL3F+TTt2pm0hUWaiJwvgINhA9Fb+tsGEJi3
+         pP2iXhJboV/qWqIeI2ZLB4O2Ld8/J6d3Pqy2jAV5dw4Qh64tutOQ5GIRfWgm7399qZKK
+         CZ2+4OJTH+PiC0bNFAdjGymmAsJB58O7OnjcCIsxImwIn9s2MU30hlRkCk8Ep4zuzRqB
+         V0Gghn4WG7hVKDR7NJpAyFEEoEzf5YVWk+6tANap7+eOkG9Rpf5UPpH8VB3Fbo2aU0z7
+         juUD8X74M3QyTlUo3UpSwWBuIUemLfXt3mbzHgmBF4r7fZyynAloY4O4GdVZdjTlTJxw
+         nLkw==
+X-Gm-Message-State: AGi0PuY6linBXf77Wp3Qf4WUfvk/1a5gVOAlBbDe7vH8xOBLRCSfDV0v
+        PWg4pK9XZeTwMa1XGvk4zdDV6lZpt1Us680gvVY9nA==
+X-Google-Smtp-Source: APiQypLKOsixtTx2ArZFZo5Vte0u7Uot4DdFVW14d0f8hZF71PsBU1ityGME4xeFTnZmsoCmyniMyBMwVkOsZylK9MA=
+X-Received: by 2002:a05:6402:3136:: with SMTP id dd22mr13983824edb.165.1588893188370;
+ Thu, 07 May 2020 16:13:08 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200507224447.GI23230@ZenIV.linux.org.uk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <158880834905.2183490.15616329469420234017.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <CAHp75Vf0zBnwHubK+C265M9nh3Y5K2K=8ck61HQtnW+021bgwQ@mail.gmail.com>
+In-Reply-To: <CAHp75Vf0zBnwHubK+C265M9nh3Y5K2K=8ck61HQtnW+021bgwQ@mail.gmail.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Thu, 7 May 2020 16:12:57 -0700
+Message-ID: <CAPcyv4gOxrOZUKfA4cObKUaZRkkjRyQFkS+=Q9FXziK00CE8yA@mail.gmail.com>
+Subject: Re: [PATCH] ACPI: Drop rcu usage for MMIO mappings
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        Myron Stowe <myron.stowe@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/7/20 4:44 PM, Al Viro wrote:
-> On Thu, May 07, 2020 at 04:25:24PM -0600, Jens Axboe wrote:
-> 
->>  static int io_close(struct io_kiocb *req, bool force_nonblock)
->>  {
->> +	struct files_struct *files = current->files;
->>  	int ret;
->>  
->>  	req->close.put_file = NULL;
->> -	ret = __close_fd_get_file(req->close.fd, &req->close.put_file);
->> +	spin_lock(&files->file_lock);
->> +	if (req->file->f_op == &io_uring_fops ||
->> +	    req->close.fd == req->ctx->ring_fd) {
->> +		spin_unlock(&files->file_lock);
->> +		return -EBADF;
->> +	}
->> +
->> +	ret = __close_fd_get_file_locked(files, req->close.fd,
->> +						&req->close.put_file);
-> 
-> Pointless.  By that point req->file might have nothing in common with
-> anything in any descriptor table.
+On Thu, May 7, 2020 at 2:25 AM Andy Shevchenko
+<andy.shevchenko@gmail.com> wrote:
+>
+> On Thu, May 7, 2020 at 3:21 AM Dan Williams <dan.j.williams@intel.com> wrote:
+> >
+> > Recently a performance problem was reported for a process invoking a
+> > non-trival ASL program. The method call in this case ends up
+> > repetitively triggering a call path like:
+> >
+> >     acpi_ex_store
+> >     acpi_ex_store_object_to_node
+> >     acpi_ex_write_data_to_field
+> >     acpi_ex_insert_into_field
+> >     acpi_ex_write_with_update_rule
+> >     acpi_ex_field_datum_io
+> >     acpi_ex_access_region
+> >     acpi_ev_address_space_dispatch
+> >     acpi_ex_system_memory_space_handler
+> >     acpi_os_map_cleanup.part.14
+> >     _synchronize_rcu_expedited.constprop.89
+> >     schedule
+> >
+> > The end result of frequent synchronize_rcu_expedited() invocation is
+> > tiny sub-millisecond spurts of execution where the scheduler freely
+> > migrates this apparently sleepy task. The overhead of frequent scheduler
+> > invocation multiplies the execution time by a factor of 2-3X.
+> >
+> > For example, performance improves from 16 minutes to 7 minutes for a
+> > firmware update procedure across 24 devices.
+> >
+> > Perhaps the rcu usage was intended to allow for not taking a sleeping
+> > lock in the acpi_os_{read,write}_memory() path which ostensibly could be
+> > called from an APEI NMI error interrupt? Neither rcu_read_lock() nor
+> > ioremap() are interrupt safe, so add a WARN_ONCE() to validate that rcu
+> > was not serving as a mechanism to avoid direct calls to ioremap(). Even
+> > the original implementation had a spin_lock_irqsave(), but that is not
+> > NMI safe.
+> >
+> > APEI itself already has some concept of avoiding ioremap() from
+> > interrupt context (see erst_exec_move_data()), if the new warning
+> > triggers it means that APEI either needs more instrumentation like that
+> > to pre-emptively fail, or more infrastructure to arrange for pre-mapping
+> > the resources it needs in NMI context.
+>
+> ...
+>
+> > +static void __iomem *acpi_os_rw_map(acpi_physical_address phys_addr,
+> > +                                   unsigned int size, bool *did_fallback)
+> > +{
+> > +       void __iomem *virt_addr = NULL;
+>
+> Assignment is not needed as far as I can see.
 
-How about the below then? Stop using req->file, defer the lookup until
-we're in the handler instead. Not sure the 'fd' check makes sense
-at this point, but at least we should be consistent in terms of
-once we lookup the file and check the f_op.
+True, holdover from a previous version, will drop.
 
-> Al, carefully _not_ saying anything about the taste and style of the
-> entire thing...
+>
+> > +       if (WARN_ONCE(in_interrupt(), "ioremap in interrupt context\n"))
+> > +               return NULL;
+> > +
+> > +       /* Try to use a cached mapping and fallback otherwise */
+> > +       *did_fallback = false;
+> > +       mutex_lock(&acpi_ioremap_lock);
+> > +       virt_addr = acpi_map_vaddr_lookup(phys_addr, size);
+> > +       if (virt_addr)
+> > +               return virt_addr;
+> > +       mutex_unlock(&acpi_ioremap_lock);
+> > +
+> > +       virt_addr = acpi_os_ioremap(phys_addr, size);
+> > +       *did_fallback = true;
+> > +
+> > +       return virt_addr;
+> > +}
+>
+> I'm wondering if Sparse is okay with this...
 
-It's just a quickie, didn't put much concern into the style and naming
-of the locked helper. What do you prefer there? Normally I'd do __,
-but it's already that, so... There's only one other user of it, so
-we could just make the regular one be close_fd_get_file() and use
-the __ prefix for the new locked variant.
+Seems like it is:
 
-But I figured it was more important to get the details right first,
-the style is easier to polish.
+$ sparse --version
+v0.6.1-191-gc51a0382202e
 
+$ cat out | grep osl\.c
+  CHECK   drivers/acpi/osl.c
+drivers/acpi/osl.c:373:17: warning: cast removes address space
+'<asn:2>' of expression
 
-diff --git a/fs/file.c b/fs/file.c
-index c8a4e4c86e55..50ee73b76d17 100644
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -646,18 +646,13 @@ int __close_fd(struct files_struct *files, unsigned fd)
- }
- EXPORT_SYMBOL(__close_fd); /* for ksys_close() */
- 
--/*
-- * variant of __close_fd that gets a ref on the file for later fput.
-- * The caller must ensure that filp_close() called on the file, and then
-- * an fput().
-- */
--int __close_fd_get_file(unsigned int fd, struct file **res)
-+int __close_fd_get_file_locked(struct files_struct *files, unsigned int fd,
-+			       struct file **res)
-+	__releases(&files->file_lock)
- {
--	struct files_struct *files = current->files;
- 	struct file *file;
- 	struct fdtable *fdt;
- 
--	spin_lock(&files->file_lock);
- 	fdt = files_fdtable(files);
- 	if (fd >= fdt->max_fds)
- 		goto out_unlock;
-@@ -677,6 +672,19 @@ int __close_fd_get_file(unsigned int fd, struct file **res)
- 	return -ENOENT;
- }
- 
-+/*
-+ * variant of __close_fd that gets a ref on the file for later fput.
-+ * The caller must ensure that filp_close() called on the file, and then
-+ * an fput().
-+ */
-+int __close_fd_get_file(unsigned int fd, struct file **res)
-+{
-+	struct files_struct *files = current->files;
-+
-+	spin_lock(&files->file_lock);
-+	return __close_fd_get_file_locked(files, fd, res);
-+}
-+
- void do_close_on_exec(struct files_struct *files)
- {
- 	unsigned i;
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 979d9f977409..54ef10240bf3 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -786,7 +786,6 @@ static const struct io_op_def io_op_defs[] = {
- 		.needs_fs		= 1,
- 	},
- 	[IORING_OP_CLOSE] = {
--		.needs_file		= 1,
- 		.file_table		= 1,
- 	},
- 	[IORING_OP_FILES_UPDATE] = {
-@@ -3399,10 +3398,6 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 		return -EBADF;
- 
- 	req->close.fd = READ_ONCE(sqe->fd);
--	if (req->file->f_op == &io_uring_fops ||
--	    req->close.fd == req->ctx->ring_fd)
--		return -EBADF;
--
- 	return 0;
- }
- 
-@@ -3430,10 +3425,21 @@ static void io_close_finish(struct io_wq_work **workptr)
- 
- static int io_close(struct io_kiocb *req, bool force_nonblock)
- {
-+	struct files_struct *files = current->files;
-+	struct file *file;
- 	int ret;
- 
- 	req->close.put_file = NULL;
--	ret = __close_fd_get_file(req->close.fd, &req->close.put_file);
-+	spin_lock(&files->file_lock);
-+	if (req->close.fd == req->ctx->ring_fd)
-+		goto badf;
-+
-+	file = fcheck_files(files, req->close.fd);
-+	if (!file || file->f_op == &io_uring_fops)
-+		goto badf;
-+
-+	ret = __close_fd_get_file_locked(files, req->close.fd,
-+						&req->close.put_file);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -3458,6 +3464,9 @@ static int io_close(struct io_kiocb *req, bool force_nonblock)
- 	 */
- 	__io_close_finish(req);
- 	return 0;
-+badf:
-+	spin_unlock(&files->file_lock);
-+	return -EBADF;
- }
- 
- static int io_prep_sfr(struct io_kiocb *req, const struct io_uring_sqe *sqe)
-diff --git a/include/linux/fdtable.h b/include/linux/fdtable.h
-index f07c55ea0c22..11d19303af46 100644
---- a/include/linux/fdtable.h
-+++ b/include/linux/fdtable.h
-@@ -122,6 +122,8 @@ extern void __fd_install(struct files_struct *files,
- extern int __close_fd(struct files_struct *files,
- 		      unsigned int fd);
- extern int __close_fd_get_file(unsigned int fd, struct file **res);
-+extern int __close_fd_get_file_locked(struct files_struct *files,
-+				      unsigned int fd, struct file **res);
- 
- extern struct kmem_cache *files_cachep;
- 
-
--- 
-Jens Axboe
-
+...was the only warning I got.
