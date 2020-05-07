@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F39F51C8F74
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE9741C8F30
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728326AbgEGOcK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:32:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58444 "EHLO mail.kernel.org"
+        id S1726942AbgEGOaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:30:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728740AbgEGOaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:30:01 -0400
+        id S1728743AbgEGOaC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:30:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76FF4215A4;
-        Thu,  7 May 2020 14:30:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FE5024953;
+        Thu,  7 May 2020 14:30:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861801;
-        bh=NnK6ivh0d7WHcvsydRV6sCDQMhKbRNxv2tnVmCzdjG8=;
+        s=default; t=1588861802;
+        bh=esUhlF+uB8ANdHPzxeuK+vw4vjfe+BKm5c7xYKPBzco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MnIm04Z56m+xAvfk/xzndmZ7p3yRCiGEYgFQNXM7e6sANUvqaMGeAvcP9sCwTGIZc
-         B6y2hZ9mw1gpM5+C93k0zn8zsdeca4MiQOjr1EmD3TJ6Nq+zRMXZk0tRYUP41k6aLy
-         KKpeYyA/nC2qkMB7LINVhRYkleh/y4e3iLKcTaeU=
+        b=bWiTVCSpaqG0Fh8Bhhrh4O8h+TQPuHi9lr2zpgM6I2s8lxEWDr0jeFQwBtN/7d9ed
+         30zNHzKJ3yoTUb78yKcbsUemkyTucZ0JgOEdG576eI0bj5KfoB0blapEo4EPmbNuwx
+         L2nwlfu0UWUzb0Ha28btvn3MUP1B7eCjX7bq4WyA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+Cc:     Tang Bin <tangbin@cmss.chinamobile.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
         iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.14 15/16] iommu/amd: Fix legacy interrupt remapping for x2APIC-enabled system
-Date:   Thu,  7 May 2020 10:29:42 -0400
-Message-Id: <20200507142943.26848-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 16/16] iommu/qcom: Fix local_base status check
+Date:   Thu,  7 May 2020 10:29:43 -0400
+Message-Id: <20200507142943.26848-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142943.26848-1-sashal@kernel.org>
 References: <20200507142943.26848-1-sashal@kernel.org>
@@ -44,41 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-[ Upstream commit b74aa02d7a30ee5e262072a7d6e8deff10b37924 ]
+[ Upstream commit b52649aee6243ea661905bdc5fbe28cc5f6dec76 ]
 
-Currently, system fails to boot because the legacy interrupt remapping
-mode does not enable 128-bit IRTE (GA), which is required for x2APIC
-support.
+The function qcom_iommu_device_probe() does not perform sufficient
+error checking after executing devm_ioremap_resource(), which can
+result in crashes if a critical error path is encountered.
 
-Fix by using AMD_IOMMU_GUEST_IR_LEGACY_GA mode when booting with
-kernel option amd_iommu_intr=legacy instead. The initialization
-logic will check GASup and automatically fallback to using
-AMD_IOMMU_GUEST_IR_LEGACY if GA mode is not supported.
-
-Fixes: 3928aa3f5775 ("iommu/amd: Detect and enable guest vAPIC support")
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Link: https://lore.kernel.org/r/1587562202-14183-1-git-send-email-suravee.suthikulpanit@amd.com
+Fixes: 0ae349a0f33f ("iommu/qcom: Add qcom_iommu")
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20200418134703.1760-1-tangbin@cmss.chinamobile.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/qcom_iommu.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
-index 4d2920988d607..6c228144b3da5 100644
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -2809,7 +2809,7 @@ static int __init parse_amd_iommu_intr(char *str)
- {
- 	for (; *str; ++str) {
- 		if (strncmp(str, "legacy", 6) == 0) {
--			amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY;
-+			amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY_GA;
- 			break;
- 		}
- 		if (strncmp(str, "vapic", 5) == 0) {
+diff --git a/drivers/iommu/qcom_iommu.c b/drivers/iommu/qcom_iommu.c
+index b08002851e068..920a5df319bc4 100644
+--- a/drivers/iommu/qcom_iommu.c
++++ b/drivers/iommu/qcom_iommu.c
+@@ -775,8 +775,11 @@ static int qcom_iommu_device_probe(struct platform_device *pdev)
+ 	qcom_iommu->dev = dev;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (res)
++	if (res) {
+ 		qcom_iommu->local_base = devm_ioremap_resource(dev, res);
++		if (IS_ERR(qcom_iommu->local_base))
++			return PTR_ERR(qcom_iommu->local_base);
++	}
+ 
+ 	qcom_iommu->iface_clk = devm_clk_get(dev, "iface");
+ 	if (IS_ERR(qcom_iommu->iface_clk)) {
 -- 
 2.20.1
 
