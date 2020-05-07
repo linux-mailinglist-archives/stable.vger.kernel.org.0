@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7941E1C8FB3
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:37:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D591C8F1A
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:35:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725969AbgEGOeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:34:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57062 "EHLO mail.kernel.org"
+        id S1728549AbgEGO31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:29:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728534AbgEGO3Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:29:24 -0400
+        id S1728540AbgEGO30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:29:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75AFA20936;
-        Thu,  7 May 2020 14:29:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1D742083B;
+        Thu,  7 May 2020 14:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861764;
-        bh=7MP8dOvGoboeGuCIoqthEgIp6BxobZuNk6QpcuAufpE=;
+        s=default; t=1588861765;
+        bh=ZfiDHdEWc5i37C86ooZPCz3v4KBAAVaiq6/gYNMCDtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxfIYwoRpt25BT2XWH3BnFCeVgD3MHPxOMom0WR6NUXvMUDaOlM/BXuJbA+6SZf75
-         ZX7T+QiQeNgn7FHFsMmiuP4EGmbCRHXz1l+drjXzJhighiqhUpO7k9FslZCeyOgx4r
-         B+uQlX8YF+cy+ks7s/VCHtn0LRwySl2aws3TIfg0=
+        b=R/VWRSv1YqINTob+xWDed1NHIto4UP1+K1WrTELMgyWqQQJI2yz53coSi4WvkzN/D
+         W04tdP4TbfDvEi/SjGgcQjroP74F0G6eO+Zl7+Ebu8g2ZqiyD8ZmndzOWtawKaGZ98
+         m98+GlLi0i0pTfqhUzAbyyKn1eT+s6B5u+pTzqZ4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Wilck <mwilck@suse.com>, Arun Easi <aeasi@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
+Cc:     David Disseldorp <ddiss@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 05/20] scsi: qla2xxx: check UNLOADING before posting async work
-Date:   Thu,  7 May 2020 10:29:01 -0400
-Message-Id: <20200507142917.26612-5-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 06/20] scsi: target/iblock: fix WRITE SAME zeroing
+Date:   Thu,  7 May 2020 10:29:02 -0400
+Message-Id: <20200507142917.26612-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142917.26612-1-sashal@kernel.org>
 References: <20200507142917.26612-1-sashal@kernel.org>
@@ -44,45 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit 5a263892d7d0b4fe351363f8d1a14c6a75955475 ]
+[ Upstream commit 1d2ff149b263c9325875726a7804a0c75ef7112e ]
 
-qlt_free_session_done() tries to post async PRLO / LOGO, and waits for the
-completion of these async commands. If UNLOADING is set, this is doomed to
-timeout, because the async logout command will never complete.
+SBC4 specifies that WRITE SAME requests with the UNMAP bit set to zero
+"shall perform the specified write operation to each LBA specified by the
+command".  Commit 2237498f0b5c ("target/iblock: Convert WRITE_SAME to
+blkdev_issue_zeroout") modified the iblock backend to call
+blkdev_issue_zeroout() when handling WRITE SAME requests with UNMAP=0 and a
+zero data segment.
 
-The only way to avoid waiting pointlessly is to fail posting these commands
-in the first place if the driver is in UNLOADING state.  In general,
-posting any command should be avoided when the driver is UNLOADING.
+The iblock blkdev_issue_zeroout() call incorrectly provides a flags
+parameter of 0 (bool false), instead of BLKDEV_ZERO_NOUNMAP.  The bool
+false parameter reflects the blkdev_issue_zeroout() API prior to commit
+ee472d835c26 ("block: add a flags argument to (__)blkdev_issue_zeroout")
+which was merged shortly before 2237498f0b5c.
 
-With this patch, "rmmod qla2xxx" completes without noticeable delay.
-
-Link: https://lore.kernel.org/r/20200421204621.19228-3-mwilck@suse.com
-Fixes: 45235022da99 ("scsi: qla2xxx: Fix driver unload by shutting down chip")
-Acked-by: Arun Easi <aeasi@marvell.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
+Link: https://lore.kernel.org/r/20200419163109.11689-1-ddiss@suse.de
+Fixes: 2237498f0b5c ("target/iblock: Convert WRITE_SAME to blkdev_issue_zeroout")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/target/target_core_iblock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index fff20a3707677..d08635203c8a4 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -4647,6 +4647,9 @@ qla2x00_alloc_work(struct scsi_qla_host *vha, enum qla_work_type type)
- 	struct qla_work_evt *e;
- 	uint8_t bail;
+diff --git a/drivers/target/target_core_iblock.c b/drivers/target/target_core_iblock.c
+index 854b2bcca7c1a..5668d02de10b0 100644
+--- a/drivers/target/target_core_iblock.c
++++ b/drivers/target/target_core_iblock.c
+@@ -445,7 +445,7 @@ iblock_execute_zero_out(struct block_device *bdev, struct se_cmd *cmd)
+ 				target_to_linux_sector(dev, cmd->t_task_lba),
+ 				target_to_linux_sector(dev,
+ 					sbc_get_write_same_sectors(cmd)),
+-				GFP_KERNEL, false);
++				GFP_KERNEL, BLKDEV_ZERO_NOUNMAP);
+ 	if (ret)
+ 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
  
-+	if (test_bit(UNLOADING, &vha->dpc_flags))
-+		return NULL;
-+
- 	QLA_VHA_MARK_BUSY(vha, bail);
- 	if (bail)
- 		return NULL;
 -- 
 2.20.1
 
