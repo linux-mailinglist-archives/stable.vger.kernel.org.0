@@ -2,100 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEAD61C8413
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 09:59:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 303621C84AB
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 10:21:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726625AbgEGH7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 03:59:41 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:41511 "EHLO
-        mail.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725969AbgEGH7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 03:59:41 -0400
-Received: from [IPv6:2601:646:8600:3281:d918:a6fd:d52c:4754] ([IPv6:2601:646:8600:3281:d918:a6fd:d52c:4754])
-        (authenticated bits=0)
-        by mail.zytor.com (8.15.2/8.15.2) with ESMTPSA id 0477xAJT3336894
-        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-        Thu, 7 May 2020 00:59:10 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 0477xAJT3336894
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2020042201; t=1588838351;
-        bh=QcutLOCTnJxVMrJr2hvrS8R5JE5w+xhrOu5seWrSXig=;
-        h=Date:In-Reply-To:References:Subject:To:CC:From:From;
-        b=edDncOw6ExGuJsk6POL7egz6dy6fPWjFEWh3td3E9oMv5SXP0TJbKzQatvtT4mA/j
-         FIW8/LpQww4n+9WGTUWqSD2T0iWg4UjNAE4DsNqkc/mf0UV8BDhUqPBwsKqMo8R2AM
-         /PTK+lZWRYBujbzoOQIPodZXEvkh9sty32cJT/KBGuBA8xPCyX2CdzirMHzK0f+rfy
-         0hwDI7S6Mq6sAVqr6gwuogD8Y6ZN4V2SvhbMUtya6HiJ06MbItx1CqUemLfdJvNpYB
-         urzr+rNBVisCE/9E879nByfmNSPBNjvZX7mduX3QwON++dhPNTNACREVYz/i1RqVqa
-         8pnWGB4jymFKw==
-Date:   Thu, 07 May 2020 00:59:03 -0700
-User-Agent: K-9 Mail for Android
-In-Reply-To: <60b16c05ca9e4954a7e4fcdd3075e23d@AcuMS.aculab.com>
-References: <20200505174423.199985-1-ndesaulniers@google.com> <CAMzpN2idWF2_4wtPebM2B2HVyksknr9hAqK8HJi_vjQ06bgu2g@mail.gmail.com> <60b16c05ca9e4954a7e4fcdd3075e23d@AcuMS.aculab.com>
+        id S1725819AbgEGIVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 04:21:35 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:64891 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725809AbgEGIVf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 04:21:35 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21135437-1500050 
+        for multiple; Thu, 07 May 2020 09:21:26 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3] drm/i915: Mark concurrent submissions with a weak-dependency
+Date:   Thu,  7 May 2020 09:21:22 +0100
+Message-Id: <20200507082124.1673-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Subject: RE: [PATCH] x86: bitops: fix build regression
-To:     David Laight <David.Laight@ACULAB.COM>,
-        "'Brian Gerst'" <brgerst@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-CC:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "clang-built-linux@googlegroups.com" 
-        <clang-built-linux@googlegroups.com>
-From:   hpa@zytor.com
-Message-ID: <7C32CF96-0519-4C32-B66B-23AD9C1F1F52@zytor.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On May 7, 2020 12:44:44 AM PDT, David Laight <David=2ELaight@ACULAB=2ECOM> =
-wrote:
->From: Brian Gerst
->> Sent: 07 May 2020 07:18
->=2E=2E=2E
->> > --- a/arch/x86/include/asm/bitops=2Eh
->> > +++ b/arch/x86/include/asm/bitops=2Eh
->> > @@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long
->*addr)
->> >         if (__builtin_constant_p(nr)) {
->> >                 asm volatile(LOCK_PREFIX "orb %1,%0"
->> >                         : CONST_MASK_ADDR(nr, addr)
->> > -                       : "iq" (CONST_MASK(nr) & 0xff)
->> > +                       : "iq" ((u8)(CONST_MASK(nr) & 0xff))
->>=20
->> I think a better fix would be to make CONST_MASK() return a u8 value
->> rather than have to cast on every use=2E
->
->Or assign to a local variable - then it doesn't matter how
->the value is actually calculated=2E So:
->			u8 mask =3D CONST_MASK(nr);
->			asm volatile(LOCK_PREFIX "orb %1,%0"
->				: CONST_MASK_ADDR(nr, addr)
->				: "iq" mask
->
->	David
->
->-
->Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes,
->MK1 1PT, UK
->Registration No: 1397386 (Wales)
+We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
+correctly perform priority inheritance from the parallel branches to the
+common trunk. However, for the purpose of timeslicing and reset
+handling, the dependency is weak -- as we the pair of requests are
+allowed to run in parallel and not in strict succession. So for example
+we do need to suspend one if the other hangs.
 
-"const u8" please=2E=2E=2E
---=20
-Sent from my Android device with K-9 Mail=2E Please excuse my brevity=2E
+The real significance though is that this allows us to rearrange
+groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
+so can resolve user level inter-batch scheduling dependencies from user
+semaphores.
+
+Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
+Testcase: igt/gem_exec_fence/submit
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.6+
+---
+ drivers/gpu/drm/i915/gt/intel_lrc.c         | 9 +++++++++
+ drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
+ drivers/gpu/drm/i915/i915_scheduler.c       | 6 +++---
+ drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
+ drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
+ 5 files changed, 21 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index dc3f2ee7136d..10109f661bcb 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1880,6 +1880,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
+ 			struct i915_request *w =
+ 				container_of(p->waiter, typeof(*w), sched);
+ 
++			if (p->flags & I915_DEPENDENCY_WEAK)
++				continue;
++
+ 			/* Leave semaphores spinning on the other engines */
+ 			if (w->engine != rq->engine)
+ 				continue;
+@@ -2726,6 +2729,9 @@ static void __execlists_hold(struct i915_request *rq)
+ 			struct i915_request *w =
+ 				container_of(p->waiter, typeof(*w), sched);
+ 
++			if (p->flags & I915_DEPENDENCY_WEAK)
++				continue;
++
+ 			/* Leave semaphores spinning on the other engines */
+ 			if (w->engine != rq->engine)
+ 				continue;
+@@ -2850,6 +2856,9 @@ static void __execlists_unhold(struct i915_request *rq)
+ 			struct i915_request *w =
+ 				container_of(p->waiter, typeof(*w), sched);
+ 
++			if (p->flags & I915_DEPENDENCY_WEAK)
++				continue;
++
+ 			/* Propagate any change in error status */
+ 			if (rq->fence.error)
+ 				i915_request_set_error_once(w, rq->fence.error);
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 4d18f808fda2..3c38d61c90f8 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -1040,7 +1040,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
+ 	}
+ 
+ 	if (to->engine->schedule) {
+-		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
++		ret = i915_sched_node_add_dependency(&to->sched,
++						     &from->sched,
++						     I915_DEPENDENCY_EXTERNAL);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+@@ -1202,7 +1204,9 @@ __i915_request_await_execution(struct i915_request *to,
+ 
+ 	/* Couple the dependency tree for PI on this exposed to->fence */
+ 	if (to->engine->schedule) {
+-		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
++		err = i915_sched_node_add_dependency(&to->sched,
++						     &from->sched,
++						     I915_DEPENDENCY_WEAK);
+ 		if (err < 0)
+ 			return err;
+ 	}
+diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
+index 37cfcf5b321b..6e2d4190099f 100644
+--- a/drivers/gpu/drm/i915/i915_scheduler.c
++++ b/drivers/gpu/drm/i915/i915_scheduler.c
+@@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
+ }
+ 
+ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+-				   struct i915_sched_node *signal)
++				   struct i915_sched_node *signal,
++				   unsigned long flags)
+ {
+ 	struct i915_dependency *dep;
+ 
+@@ -473,8 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+ 	local_bh_disable();
+ 
+ 	if (!__i915_sched_node_add_dependency(node, signal, dep,
+-					      I915_DEPENDENCY_EXTERNAL |
+-					      I915_DEPENDENCY_ALLOC))
++					      flags | I915_DEPENDENCY_ALLOC))
+ 		i915_dependency_free(dep);
+ 
+ 	local_bh_enable(); /* kick submission tasklet */
+diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
+index d1dc4efef77b..6f0bf00fc569 100644
+--- a/drivers/gpu/drm/i915/i915_scheduler.h
++++ b/drivers/gpu/drm/i915/i915_scheduler.h
+@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
+ 				      unsigned long flags);
+ 
+ int i915_sched_node_add_dependency(struct i915_sched_node *node,
+-				   struct i915_sched_node *signal);
++				   struct i915_sched_node *signal,
++				   unsigned long flags);
+ 
+ void i915_sched_node_fini(struct i915_sched_node *node);
+ 
+diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
+index d18e70550054..7186875088a0 100644
+--- a/drivers/gpu/drm/i915/i915_scheduler_types.h
++++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
+@@ -78,6 +78,7 @@ struct i915_dependency {
+ 	unsigned long flags;
+ #define I915_DEPENDENCY_ALLOC		BIT(0)
+ #define I915_DEPENDENCY_EXTERNAL	BIT(1)
++#define I915_DEPENDENCY_WEAK		BIT(2)
+ };
+ 
+ #endif /* _I915_SCHEDULER_TYPES_H_ */
+-- 
+2.20.1
+
