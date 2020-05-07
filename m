@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 054731C9051
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C75B1C904F
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:44:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728985AbgEGOia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:38:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53372 "EHLO mail.kernel.org"
+        id S1728303AbgEGOi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:38:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726913AbgEGO1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:27:37 -0400
+        id S1726974AbgEGO1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:27:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2245620A8B;
-        Thu,  7 May 2020 14:27:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A66032145D;
+        Thu,  7 May 2020 14:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861657;
-        bh=8ZRbF1oT0PlniE7k0j5hKHHVmF3lXbnS8elI06OuwuY=;
+        s=default; t=1588861658;
+        bh=wMn0nLYrfQZRRSOMcfXwLIs27DIUrEvIxmjxL1td6J8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Hs8RtFL+nelHp6LYR2kDy/C9CFbHWZPBdfc20zOhGeuf9H/YYMxfyVsN8H7goGEc
-         H6V08hldxtNaPO8iqpCBQ4qrOuUilkQy3LQ+LVCVICPcdCGk0JeglZSgJTwy7KcLzB
-         fSnSUg/P1zpNM6ei1vSkrbJTkNgBSRNaGvALmRy8=
+        b=VQ1j6v2lPD4TOvL3JgPYV76xYNvjh3uVRKLsKG+f6xITxKKpX/jo4Js6euh6KUPi+
+         IBv/6rhZO095ghriPfzlxf99LblNtc9M1m4mQfrIEOk0nvrpyqLUnHvXncePN4RpLa
+         L76fyKYCMgkaoxkyAxie2+C/kThhN2SFRjBDjGic=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilie Halip <ilie.halip@gmail.com>,
-        Dmitry Golovin <dima@golovin.in>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.6 08/50] riscv: fix vdso build with lld
-Date:   Thu,  7 May 2020 10:26:44 -0400
-Message-Id: <20200507142726.25751-8-sashal@kernel.org>
+Cc:     Martin Wilck <mwilck@suse.com>, Arun Easi <aeasi@marvell.com>,
+        Daniel Wagner <dwagner@suse.de>,
+        Roman Bolshakov <r.bolshakov@yadro.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 09/50] scsi: qla2xxx: set UNLOADING before waiting for session deletion
+Date:   Thu,  7 May 2020 10:26:45 -0400
+Message-Id: <20200507142726.25751-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142726.25751-1-sashal@kernel.org>
 References: <20200507142726.25751-1-sashal@kernel.org>
@@ -47,52 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilie Halip <ilie.halip@gmail.com>
+From: Martin Wilck <mwilck@suse.com>
 
-[ Upstream commit 3c1918c8f54166598195d938564072664a8275b1 ]
+[ Upstream commit 856e152a3c08bf7987cbd41900741d83d9cddc8e ]
 
-When building with the LLVM linker this error occurrs:
-    LD      arch/riscv/kernel/vdso/vdso-syms.o
-  ld.lld: error: no input files
+The purpose of the UNLOADING flag is to avoid port login procedures to
+continue when a controller is in the process of shutting down.  It makes
+sense to set this flag before starting session teardown.
 
-This happens because the lld treats -R as an alias to -rpath, as opposed
-to ld where -R means --just-symbols.
+Furthermore, use atomic test_and_set_bit() to avoid the shutdown being run
+multiple times in parallel. In qla2x00_disable_board_on_pci_error(), the
+test for UNLOADING is postponed until after the check for an already
+disabled PCI board.
 
-Use the long option name for compatibility between the two.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/805
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Link: https://lore.kernel.org/r/20200421204621.19228-2-mwilck@suse.com
+Fixes: 45235022da99 ("scsi: qla2xxx: Fix driver unload by shutting down chip")
+Reviewed-by: Arun Easi <aeasi@marvell.com>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/vdso/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c | 32 ++++++++++++++------------------
+ 1 file changed, 14 insertions(+), 18 deletions(-)
 
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index 33b16f4212f7a..a4ee3a0e7d20d 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -33,15 +33,15 @@ $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
- 	$(call if_changed,vdsold)
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 7a94e1171c726..4a89202115521 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -3720,6 +3720,13 @@ qla2x00_remove_one(struct pci_dev *pdev)
+ 	}
+ 	qla2x00_wait_for_hba_ready(base_vha);
  
- # We also create a special relocatable object that should mirror the symbol
--# table and layout of the linked DSO.  With ld -R we can then refer to
--# these symbols in the kernel code rather than hand-coded addresses.
-+# table and layout of the linked DSO. With ld --just-symbols we can then
-+# refer to these symbols in the kernel code rather than hand-coded addresses.
++	/*
++	 * if UNLOADING flag is already set, then continue unload,
++	 * where it was set first.
++	 */
++	if (test_and_set_bit(UNLOADING, &base_vha->dpc_flags))
++		return;
++
+ 	if (IS_QLA25XX(ha) || IS_QLA2031(ha) || IS_QLA27XX(ha) ||
+ 	    IS_QLA28XX(ha)) {
+ 		if (ha->flags.fw_started)
+@@ -3738,15 +3745,6 @@ qla2x00_remove_one(struct pci_dev *pdev)
  
- SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
- 	-Wl,--build-id -Wl,--hash-style=both
- $(obj)/vdso-dummy.o: $(src)/vdso.lds $(obj)/rt_sigreturn.o FORCE
- 	$(call if_changed,vdsold)
+ 	qla2x00_wait_for_sess_deletion(base_vha);
  
--LDFLAGS_vdso-syms.o := -r -R
-+LDFLAGS_vdso-syms.o := -r --just-symbols
- $(obj)/vdso-syms.o: $(obj)/vdso-dummy.o FORCE
- 	$(call if_changed,ld)
+-	/*
+-	 * if UNLOAD flag is already set, then continue unload,
+-	 * where it was set first.
+-	 */
+-	if (test_bit(UNLOADING, &base_vha->dpc_flags))
+-		return;
+-
+-	set_bit(UNLOADING, &base_vha->dpc_flags);
+-
+ 	qla_nvme_delete(base_vha);
+ 
+ 	dma_free_coherent(&ha->pdev->dev,
+@@ -6044,13 +6042,6 @@ qla2x00_disable_board_on_pci_error(struct work_struct *work)
+ 	struct pci_dev *pdev = ha->pdev;
+ 	scsi_qla_host_t *base_vha = pci_get_drvdata(ha->pdev);
+ 
+-	/*
+-	 * if UNLOAD flag is already set, then continue unload,
+-	 * where it was set first.
+-	 */
+-	if (test_bit(UNLOADING, &base_vha->dpc_flags))
+-		return;
+-
+ 	ql_log(ql_log_warn, base_vha, 0x015b,
+ 	    "Disabling adapter.\n");
+ 
+@@ -6061,9 +6052,14 @@ qla2x00_disable_board_on_pci_error(struct work_struct *work)
+ 		return;
+ 	}
+ 
+-	qla2x00_wait_for_sess_deletion(base_vha);
++	/*
++	 * if UNLOADING flag is already set, then continue unload,
++	 * where it was set first.
++	 */
++	if (test_and_set_bit(UNLOADING, &base_vha->dpc_flags))
++		return;
+ 
+-	set_bit(UNLOADING, &base_vha->dpc_flags);
++	qla2x00_wait_for_sess_deletion(base_vha);
+ 
+ 	qla2x00_delete_all_vps(ha, base_vha);
  
 -- 
 2.20.1
