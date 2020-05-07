@@ -2,147 +2,235 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF8A81C8660
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 12:05:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF3F1C8675
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 12:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726531AbgEGKFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 06:05:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35886 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725985AbgEGKFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 06:05:06 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B07B9C061A10;
-        Thu,  7 May 2020 03:05:05 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id h9so5645385wrt.0;
-        Thu, 07 May 2020 03:05:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=I3XEZEir8mjaU7+45jVwuKvE1Mu0PTN/zTUIAubFKCI=;
-        b=sW4R2D6NmQc/uUkzHBPZ4dq0iO4vvS8WsupKHd3y24pQe39FsaJwi6QzwL7xoDmw2h
-         XBHYToik/4pPr6d6Lp7QWkXuNvqEVqW9pHIfEboU3Hbj2TkLLTi2hLU3dz8qitlVWd+8
-         D/QvAn3tPNshlPruWsw8B37XSzmQHFNLKAV+kH1x0U2ja6VDNaab7EhOxyUiEq7F+DV0
-         hxTgXO98fnmMWf2HeasuQ9AFhPP39Pp8F8woB6fhf4d02R0oqU3TZkPMutliFV6SCPs9
-         jhATiucY8rroK5dkA4OImXdOsJclFSJUWSW4+6YoRZMmwlBpEWk5h23c0z08ru1RGf+G
-         lbMQ==
+        id S1725893AbgEGKPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 06:15:30 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:50370 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725879AbgEGKPa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 06:15:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588846527;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=28J0wM8FSO+gLlCMWFny6wSN2sJ0Eg75ZijOfB4R940=;
+        b=B5QYluKJS6X49b7fIIO2GeuXEVIneLUcmrF2AjZsp3wWy/Kz9eafomixZr734HSNnqciEo
+        jwKflSrw3arVtCR/QtTBy+f/14mS9Z26GlahkHEmrOp6sUluLk6gRBhM+p/i4eO66Vi24W
+        OsYTS51Bvv7F+fBn5mRgQa4HpBJo1Is=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-508-X8sj_PfZPee6goDxWqAbSQ-1; Thu, 07 May 2020 06:15:12 -0400
+X-MC-Unique: X8sj_PfZPee6goDxWqAbSQ-1
+Received: by mail-wr1-f70.google.com with SMTP id d16so2145236wrv.18
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 03:15:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=I3XEZEir8mjaU7+45jVwuKvE1Mu0PTN/zTUIAubFKCI=;
-        b=Gn4dSavsbetfZQOmlHuLoTu3rF3cnOgySgFpPZt347WTifDfbKYlGCDeRY9cZ1Y4iG
-         VBjBjtDnMVSkItJos7Oi6LdoZWG1XFKEpvrHLuXqrbw2Re6U19+WBrRzmIPMXy/sIVCV
-         +gSI2VQD4Ut2HKSHCy2rtOHlEeNBEnAEsmNHXrRb8vIEk3rwLwhBMopdJxTUVNKHw437
-         K8JFRbWyeFztVcW5VSmk1Q4+LvLHOmBQezW0Iu5WXQu4HX4ZkzqzSXSUG02tJCLEzYPF
-         kp1p56xViy4pIt9tpjhvW+tM45RyqKYh6uepLsshedirxQsi/xBa7V1UwxJVOb9g1fKP
-         u1EA==
-X-Gm-Message-State: AGi0PubmUWZxZarzZ5BEx8sh8moi7zQoLA6TqWPfPNR78OQa7NSS6tYF
-        3pecC41yYy4x5mW/mO8WOXc=
-X-Google-Smtp-Source: APiQypL85Rp4PcfWy+llAW584pUmkpqwuyGQDd09cVbrIG6suk/obuRQvQYjV9Xq1ENcCd2K0dt0pg==
-X-Received: by 2002:adf:ed0f:: with SMTP id a15mr1871371wro.320.1588845904337;
-        Thu, 07 May 2020 03:05:04 -0700 (PDT)
-Received: from localhost (p2E5BE57B.dip0.t-ipconnect.de. [46.91.229.123])
-        by smtp.gmail.com with ESMTPSA id w6sm7594181wrt.39.2020.05.07.03.05.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2020 03:05:03 -0700 (PDT)
-Date:   Thu, 7 May 2020 12:05:02 +0200
-From:   Thierry Reding <thierry.reding@gmail.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Jon Hunter <jonathanh@nvidia.com>, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: tegra: Fix ethernet phy-mode for Jetson Xavier
-Message-ID: <20200507100502.GB2890327@ulmo>
-References: <20200501072756.25348-1-jonathanh@nvidia.com>
- <20200506234218.4E11D2082E@mail.kernel.org>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=28J0wM8FSO+gLlCMWFny6wSN2sJ0Eg75ZijOfB4R940=;
+        b=EbZQzQVo3IAFv5rkIu+yVPYT1fMkY8tF98pvkMABxii8UkeaBaeE/NwbBRbBuOyRmz
+         JIqPHyqRzsUJOVgMnGYunKia7mosN4ASS7Is16luKTMxr+7bN/87CGAgYTlVEW4aPhL0
+         WKlrSlZco+yIFtUboF6I7PQ7WVlZPjCC9oWL4qsQiHe5uOj+FpOLuy318iNGiykxb2Cr
+         u2MnY8c4SIUQOZ3MxwdQiEPvpQDfc86560jQ+fW6Vd6dj0RNgDpkp1ca/4wsAmJuiLex
+         +4qAQE19Rsp8Ws8/66Np6YuJTL5jKOwamu7iq3vNEGzdxM3jm4QA39AlKypdA4ZhA3nF
+         t3lg==
+X-Gm-Message-State: AGi0PuaGOLfBxzxHZgkqzKF6seEl7awVaSQesi2k9YyqyK54sz6jn9Ma
+        UFUsOaHR81cSqPbi5O+85FTMJuZIAZvpTpjvUold5tWo7opR/CjKa+rAGhFado1hRUhhXWcFcB8
+        aWS9S85fzuTuB7t1s
+X-Received: by 2002:a5d:5646:: with SMTP id j6mr15696579wrw.207.1588846510766;
+        Thu, 07 May 2020 03:15:10 -0700 (PDT)
+X-Google-Smtp-Source: APiQypK2xT6JtFSwdPS8WS/+fUDarjawSg9Ssq0Uu6J56P4ODn9Q1qqkNllbI6Px2XrTjWeSd+Qr0A==
+X-Received: by 2002:a5d:5646:: with SMTP id j6mr15696553wrw.207.1588846510476;
+        Thu, 07 May 2020 03:15:10 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id 92sm7314402wrm.71.2020.05.07.03.15.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 May 2020 03:15:09 -0700 (PDT)
+Subject: Re: [PATCH v2] pinctrl: cherryview: Ensure _REG(ACPI_ADR_SPACE_GPIO,
+ 1) gets called
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-acpi@vger.kernel.org, linux-gpio@vger.kernel.org,
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Bob Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>
+References: <20200504145957.480418-1-hdegoede@redhat.com>
+ <20200506064057.GU487496@lahna.fi.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <f7ebb693-94ec-fd9f-c0a8-cfe8f9d4e9bf@redhat.com>
+Date:   Thu, 7 May 2020 12:15:09 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="f2QGlHpHGjS2mn6Y"
-Content-Disposition: inline
-In-Reply-To: <20200506234218.4E11D2082E@mail.kernel.org>
-User-Agent: Mutt/1.13.1 (2019-12-14)
+In-Reply-To: <20200506064057.GU487496@lahna.fi.intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
---f2QGlHpHGjS2mn6Y
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 5/6/20 8:40 AM, Mika Westerberg wrote:
+> +Rafael and ACPICA folks.
+> 
+> On Mon, May 04, 2020 at 04:59:57PM +0200, Hans de Goede wrote:
+>> On Cherry Trail devices there are 2 possible ACPI OpRegions for
+>> accessing GPIOs. The standard GeneralPurposeIo OpRegion and the Cherry
+>> Trail specific UserDefined 0x9X OpRegions.
+>>
+>> Having 2 different types of OpRegions leads to potential issues with
+>> checks for OpRegion availability, or in other words checks if _REG has
+>> been called for the OpRegion which the ACPI code wants to use.
+>>
+>> The ACPICA core does not call _REG on an ACPI node which does not
+>> define an OpRegion matching the type being registered; and the reference
+>> design DSDT, from which most Cherry Trail DSDTs are derived, does not
+>> define GeneralPurposeIo, nor UserDefined(0x93) OpRegions for the GPO2
+>> (UID 3) device, because no pins were assigned ACPI controlled functions
+>> in the reference design.
+>>
+>> Together this leads to the perfect storm, at least on the Cherry Trail
+>> based Medion Akayo E1239T. This design does use a GPO2 pin from its ACPI
+>> code and has added the Cherry Trail specific UserDefined(0x93) opregion
+>> to its GPO2 ACPI node to access this pin.
+>>
+>> But it uses a has _REG been called availability check for the standard
+>> GeneralPurposeIo OpRegion. This clearly is a bug in the DSDT, but this
+>> does work under Windows.
+> 
+> Do we know why this works under Windows? I mean if possible we should do
+> the same and I kind of suspect that they forcibly call _REG in their
+> GPIO driver.
 
-On Wed, May 06, 2020 at 11:42:17PM +0000, Sasha Levin wrote:
-> Hi
->=20
-> [This is an automated email]
->=20
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->=20
-> The bot has tested the following trees: v5.6.8, v5.4.36, v4.19.119, v4.14=
-=2E177, v4.9.220, v4.4.220.
->=20
-> v5.6.8: Build OK!
-> v5.4.36: Build OK!
-> v4.19.119: Build OK!
-> v4.14.177: Failed to apply! Possible dependencies:
->     5425fb15d8ee ("arm64: tegra: Add Tegra194 chip device tree")
->     b8656c673a6b ("arm64: tegra: Add device tree for the Tegra194 P2972-0=
-000 board")
->     f69ce393ec48 ("arm64: tegra: Add GPIO controller on Tegra194")
->     f89b58ce71a9 ("arm64: tegra: Add ethernet controller on Tegra194")
->=20
-> v4.9.220: Failed to apply! Possible dependencies:
->     5425fb15d8ee ("arm64: tegra: Add Tegra194 chip device tree")
->     99575bceebd6 ("arm64: tegra: Add NVIDIA P2771 board support")
->     b8656c673a6b ("arm64: tegra: Add device tree for the Tegra194 P2972-0=
-000 board")
->     f69ce393ec48 ("arm64: tegra: Add GPIO controller on Tegra194")
->     f89b58ce71a9 ("arm64: tegra: Add ethernet controller on Tegra194")
->=20
-> v4.4.220: Failed to apply! Possible dependencies:
->     0f279ebdf3ce ("arm64: tegra: Add NVIDIA Tegra132 Norrin support")
->     2cc85bd90337 ("arm64: tegra: Add NVIDIA P2571 board support")
->     34b4f6d0599e ("arm64: tegra: Add Tegra132 support")
->     5425fb15d8ee ("arm64: tegra: Add Tegra194 chip device tree")
->     5d17ba6e638e ("arm64: tegra: Add support for Google Pixel C")
->     63023e95bec0 ("arm64: tegra: Add NVIDIA P2371 board support")
->     99575bceebd6 ("arm64: tegra: Add NVIDIA P2771 board support")
->     b8656c673a6b ("arm64: tegra: Add device tree for the Tegra194 P2972-0=
-000 board")
->     f69ce393ec48 ("arm64: tegra: Add GPIO controller on Tegra194")
->     f89b58ce71a9 ("arm64: tegra: Add ethernet controller on Tegra194")
->=20
->=20
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->=20
-> How should we proceed with this patch?
+Windows has its own ACPI implementation, so it could also be that their
+equivalent of the:
 
-Tegra194 support was merged into v4.17, so it doesn't make backport this
-to any stable kernels prior to that.
+         status = acpi_install_address_space_handler(handle, ACPI_ADR_SPACE_GPIO,
+                                                     acpi_gpio_adr_space_handler,
+                                                     NULL, achip);
 
-Thierry
+Call from drivers/gpio/gpiolib-acpi.c indeed always calls _REG on the handle
+without checking that there is an actual OpRegion with a space-id
+of ACPI_ADR_SPACE_GPIO defined, as the ACPICA code does.  Note that the
+current ACPICA code would require significant rework to allow this, or
+it would need to add a _REG call at the end of acpi_install_address_space_handler(),
+potentially calling _REG twice in many cases.
 
---f2QGlHpHGjS2mn6Y
-Content-Type: application/pgp-signature; name="signature.asc"
+We could move the manual _REG call I'm adding to pinctrl-cherry-view.c
+but that has the same issue of calling _REG twice in many cases.
 
------BEGIN PGP SIGNATURE-----
+Most (all?) _REG implementations are fine with that, as they just set a
+variable to 1 (to the Arg1 value). Still calling _REG twice is something
+which we might want to avoid.
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl6z3U4ACgkQ3SOs138+
-s6ERdQ/+M8e+Pq//sHoBLsVfspJENeX9JUSLVqTVsXEnHTxnv0Ri/qKuRYOzWcgU
-zktBmBWHxJt8UPlgxRqL9rcRHBf2mXRu7QsRSvBozLOuszdbp2pDq8dKGO1TgBKm
-ZQJekFzhEeWm8JAQiDlHjMfqwtPNXhRefl+gyRvWjOsTlROipbcm7Qr/RmztNmWJ
-73p4lkUcZ6BuRQoZgn9JDIBhDK3v02DwlJHAUjdYjRt6n4Wh39D4bllyi0JAw6FG
-4zV9fLL+PY9ie6ZtRiA3ACmjc9I28UiCMs4/VXnXVxGK+L9UjjrKvONaZtQ+aPDS
-wP9P9jihX6wcYOEPSoIvNBw4ne1eyWIOCdDjM0PjtYVov73xoseYv1OQGPfFdR6T
-77SWjnbppJNjA1IuV1adwWBJrY8w8jxdXLTXNehURSAc+ve6WOQ725kxIRZ2HAeL
-AVZb7nUI/+TiAZVYP4dntzk6rzZsQx4JhyKgYF9yVQ1NANw6QAog+RIc+4KOW+Ee
-0bLJeNRNoCvAlJdwaynn6gVXNmgF3jQeMHoLpVWPwDu2ARN1vhcwYmoVC4xtdPaY
-V0Eb1gORelEyYb1HwVN446IjAse8ex9wvAMPKu59l7PrbonEO8ismM2tx+8/7bkJ
-9ChG18/p+Ln1yUybHvHR+FGTYdBJriPZ33rcLZ1wSkzmbnFAcA4=
-=+6E+
------END PGP SIGNATURE-----
+As a compromise I've chosen to add the extra unconditional _REG call
+to pinctrl-cherryview.c because:
 
---f2QGlHpHGjS2mn6Y--
+1. The problem in the DSDT in question stems from there being 2
+different OpRegions for accessing GPIOs which AFAIK is unique to
+cherryview
+
+2. I've seen many many cherryview DSDT-s and as such I'm confident
+that calling _REG twice is not an issue on cherryview.
+
+> Are the ACPI tables from this system available somewhere?
+
+Here you go:
+https://fedorapeople.org/~jwrdegoede/medion-e1239t-dsdt.dsl
+
+The problem is that on line 12624 there is a GPO2.AVBL == One
+check, before GPO2.DCDT is used. If you then look at line
+17688 you see that _REG for the GPO2 device checkes for a
+space-id of 8 (ACPI_ADR_SPACE_GPIO) to set AVBL
+
+But the only OpRegion defined for the GPO2 device, and the
+OpRegion to which GPO2.DCDT is mapped is the cherryview
+UserDefined 0x93 GPIO access OpRegion, see line 17760.
+Since there is no OpRegion for the ACPI_ADR_SPACE_GPIO
+space-id, ACPICA never calls _REG with Arg0 == 8.
+
+So as already mentioned the problem stems from the confusion
+of there being 2 different OpRegions for accessing GPIOs
+on cherryview.
+
+Regards,
+
+Hans
+
+
+
+>> This issue leads to the intel_vbtn driver
+>> reporting the device always being in tablet-mode at boot, even if it
+>> is in laptop mode. Which in turn causes userspace to ignore touchpad
+>> events. So iow this issues causes the touchpad to not work at boot.
+>>
+>> Since the bug in the DSDT stems from the confusion of having 2 different
+>> OpRegion types for accessing GPIOs on Cherry Trail devices, I believe
+>> that this is best fixed inside the Cherryview pinctrl driver.
+>>
+>> This commit adds a workaround to the Cherryview pinctrl driver so
+>> that the DSDT's expectations of _REG always getting called for the
+>> GeneralPurposeIo OpRegion are met.
+> 
+> I would like to understand the issue bit better before we do this.
+> 
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>> Changes in v2:
+>> - Drop unnecessary if (acpi_has_method(adev->handle, "_REG")) check
+>> - Fix Cherryview spelling in the commit message
+>> ---
+>>   drivers/pinctrl/intel/pinctrl-cherryview.c | 18 ++++++++++++++++++
+>>   1 file changed, 18 insertions(+)
+>>
+>> diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
+>> index 4c74fdde576d..4817aec114d6 100644
+>> --- a/drivers/pinctrl/intel/pinctrl-cherryview.c
+>> +++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
+>> @@ -1693,6 +1693,8 @@ static acpi_status chv_pinctrl_mmio_access_handler(u32 function,
+>>   
+>>   static int chv_pinctrl_probe(struct platform_device *pdev)
+>>   {
+>> +	struct acpi_object_list input;
+>> +	union acpi_object params[2];
+>>   	struct chv_pinctrl *pctrl;
+>>   	struct acpi_device *adev;
+>>   	acpi_status status;
+>> @@ -1755,6 +1757,22 @@ static int chv_pinctrl_probe(struct platform_device *pdev)
+>>   	if (ACPI_FAILURE(status))
+>>   		dev_err(&pdev->dev, "failed to install ACPI addr space handler\n");
+>>   
+>> +	/*
+>> +	 * Some DSDT-s use the chv_pinctrl_mmio_access_handler while checking
+>> +	 * for the regular GeneralPurposeIo OpRegion availability, mixed with
+>> +	 * the DSDT not defining a GeneralPurposeIo OpRegion at all. In this
+>> +	 * case the ACPICA code will not call _REG to signal availability of
+>> +	 * the GeneralPurposeIo OpRegion. Manually call _REG here so that
+>> +	 * the DSDT-s GeneralPurposeIo availability checks will succeed.
+>> +	 */
+>> +	params[0].type = ACPI_TYPE_INTEGER;
+>> +	params[0].integer.value = ACPI_ADR_SPACE_GPIO;
+>> +	params[1].type = ACPI_TYPE_INTEGER;
+>> +	params[1].integer.value = 1;
+>> +	input.count = 2;
+>> +	input.pointer = params;
+>> +	acpi_evaluate_object(adev->handle, "_REG", &input, NULL);
+>> +
+>>   	platform_set_drvdata(pdev, pctrl);
+>>   
+>>   	return 0;
+>> -- 
+>> 2.26.0
+> 
+
