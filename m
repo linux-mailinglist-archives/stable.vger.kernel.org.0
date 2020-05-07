@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 999C41C8F1F
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AF591C8F97
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:36:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728607AbgEGO3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:29:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
+        id S1727981AbgEGOdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:33:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728600AbgEGO3g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:29:36 -0400
+        id S1728609AbgEGO3h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:29:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C59312073A;
-        Thu,  7 May 2020 14:29:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B58821473;
+        Thu,  7 May 2020 14:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861775;
-        bh=NJnIPsUNgepc+7l9lgm1dKrdXXcK8bic9NjDWIBu+Uo=;
+        s=default; t=1588861776;
+        bh=InpgCrl0ZmFQ6cqF9rBCEKiWlii8yN9qHDzH+ijmEqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MlGKB68ooxY/0xvGX2kFDA8wUuI4EL78qIYF5m5z9in+YP9z/3sjI7C+ca/DQ2i/t
-         7yjD6VBx72eeoAciKZT27rBBAjAIh5NZo6NMIgTvSgpVtmqorvC/neReDrQ8UZu9jU
-         Ye6YNZcxQRq9nlc6SsVJIBzB851JxkTEEdC3WYVo=
+        b=W6RGLRp9noyqn8ifQbeh0ZEaddezXpzNnLq5oDg6SCEsirZuQ5RoCq9sSA7+2w7eK
+         A7dQVBdh7ne/Hm+a7uJerVsxzXT2mt6e6meIV8bqVxY+1sFK8c4xejVbV0Wcs1m5+0
+         7W0+69zexKkDUOm2Zy1GAcrnkg1hciVTB4FdDENk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 15/20] dmaengine: dmatest: Fix iteration non-stop logic
-Date:   Thu,  7 May 2020 10:29:11 -0400
-Message-Id: <20200507142917.26612-15-sashal@kernel.org>
+Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 16/20] ALSA: hda/hdmi: fix race in monitor detection during probe
+Date:   Thu,  7 May 2020 10:29:12 -0400
+Message-Id: <20200507142917.26612-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142917.26612-1-sashal@kernel.org>
 References: <20200507142917.26612-1-sashal@kernel.org>
@@ -45,63 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit b9f960201249f20deea586b4ec814669b4c6b1c0 ]
+[ Upstream commit ca76282b6faffc83601c25bd2a95f635c03503ef ]
 
-Under some circumstances, i.e. when test is still running and about to
-time out and user runs, for example,
+A race exists between build_pcms() and build_controls() phases of codec
+setup. Build_pcms() sets up notifier for jack events. If a monitor event
+is received before build_controls() is run, the initial jack state is
+lost and never reported via mixer controls.
 
-	grep -H . /sys/module/dmatest/parameters/*
+The problem can be hit at least with SOF as the controller driver. SOF
+calls snd_hda_codec_build_controls() in its workqueue-based probe and
+this can be delayed enough to hit the race condition.
 
-the iterations parameter is not respected and test is going on and on until
-user gives
+Fix the issue by invalidating the per-pin ELD information when
+build_controls() is called. The existing call to hdmi_present_sense()
+will update the ELD contents. This ensures initial monitor state is
+correctly reflected via mixer controls.
 
-	echo 0 > /sys/module/dmatest/parameters/run
-
-This is not what expected.
-
-The history of this bug is interesting. I though that the commit
-  2d88ce76eb98 ("dmatest: add a 'wait' parameter")
-is a culprit, but looking closer to the code I think it simple revealed the
-broken logic from the day one, i.e. in the commit
-  0a2ff57d6fba ("dmaengine: dmatest: add a maximum number of test iterations")
-which adds iterations parameter.
-
-So, to the point, the conditional of checking the thread to be stopped being
-first part of conjunction logic prevents to check iterations. Thus, we have to
-always check both conditions to be able to stop after given iterations.
-
-Since it wasn't visible before second commit appeared, I add a respective
-Fixes tag.
-
-Fixes: 2d88ce76eb98 ("dmatest: add a 'wait' parameter")
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20200424161147.16895-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+BugLink: https://github.com/thesofproject/linux/issues/1687
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200428123836.24512-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dmatest.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_hdmi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/dma/dmatest.c b/drivers/dma/dmatest.c
-index 7b7fba0c92532..e38a653dd208f 100644
---- a/drivers/dma/dmatest.c
-+++ b/drivers/dma/dmatest.c
-@@ -567,8 +567,8 @@ static int dmatest_func(void *data)
- 	flags = DMA_CTRL_ACK | DMA_PREP_INTERRUPT;
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index c67fadd5aae53..b77cded6457a8 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2209,7 +2209,9 @@ static int generic_hdmi_build_controls(struct hda_codec *codec)
  
- 	ktime = ktime_get();
--	while (!kthread_should_stop()
--	       && !(params->iterations && total_tests >= params->iterations)) {
-+	while (!(kthread_should_stop() ||
-+	       (params->iterations && total_tests >= params->iterations))) {
- 		struct dma_async_tx_descriptor *tx = NULL;
- 		struct dmaengine_unmap_data *um;
- 		dma_addr_t *dsts;
+ 	for (pin_idx = 0; pin_idx < spec->num_pins; pin_idx++) {
+ 		struct hdmi_spec_per_pin *per_pin = get_pin(spec, pin_idx);
++		struct hdmi_eld *pin_eld = &per_pin->sink_eld;
+ 
++		pin_eld->eld_valid = false;
+ 		hdmi_present_sense(per_pin, 0);
+ 	}
+ 
 -- 
 2.20.1
 
