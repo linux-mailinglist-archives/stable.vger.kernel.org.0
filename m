@@ -2,122 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F94D1C82CC
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 08:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10C211C82FF
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 09:03:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726519AbgEGGrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 02:47:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36338 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725763AbgEGGrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 02:47:37 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D794F2078C;
-        Thu,  7 May 2020 06:47:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588834056;
-        bh=hUD5exA4dNKvCcKV83BYNh5VFO685TqU5GU5ToDg3us=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dCZ6mLUcN1lIcruUpjFnEcOhlyrmSgxjeyHHlnFw/4co12Hwb9W/Qsgzq6nZ+HnJp
-         DibKlr9P4RQGxGYL3/8X8BfHpXRz53ezegCOp/1lVZvRByJvVXChNS4+D1DL4tpB3T
-         fOVh6T5cCACfVwnSp8ZDtkKBDaj/Y7C6rRFAF5rg=
-Date:   Thu, 7 May 2020 08:47:34 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Vince Bridgers <vbridger@opensource.altera.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Fugang Duan <fugang.duan@nxp.com>,
-        Pantelis Antoniou <pantelis.antoniou@gmail.com>,
-        Vitaly Bordug <vbordug@ru.mvista.com>,
-        Claudiu Manoil <claudiu.manoil@freescale.com>,
-        Li Yang <leoli@freescale.com>,
-        Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
-        Felix Fietkau <nbd@openwrt.org>,
-        John Crispin <blogic@openwrt.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Lars Persson <lars.persson@axis.com>,
-        Mugunthan V N <mugunthanvnm@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Netdev <netdev@vger.kernel.org>,
-        nios2-dev@lists.rocketboards.org,
-        open list <linux-kernel@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-mediatek@lists.infradead.org,
-        linux-renesas-soc@vger.kernel.org, linux-omap@vger.kernel.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, lkft-triage@lists.linaro.org
-Subject: Re: [PATCH net 11/16] net: ethernet: marvell: mvneta: fix fixed-link
- phydev leaks
-Message-ID: <20200507064734.GA798308@kroah.com>
-References: <1480357509-28074-1-git-send-email-johan@kernel.org>
- <1480357509-28074-12-git-send-email-johan@kernel.org>
- <CA+G9fYvBjUVkVhtRHVm6xXcKe2+tZN4rGdB9FzmpcfpaLhY1+g@mail.gmail.com>
- <20200507064412.GL2042@localhost>
+        id S1725802AbgEGHDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 03:03:25 -0400
+Received: from terminus.zytor.com ([198.137.202.136]:47801 "EHLO
+        mail.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725440AbgEGHDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 03:03:25 -0400
+Received: from [IPv6:2601:646:8600:3281:4d3d:6b02:5dfa:3aaf] ([IPv6:2601:646:8600:3281:4d3d:6b02:5dfa:3aaf])
+        (authenticated bits=0)
+        by mail.zytor.com (8.15.2/8.15.2) with ESMTPSA id 04772eAl3323914
+        (version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+        Thu, 7 May 2020 00:02:40 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 04772eAl3323914
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+        s=2020042201; t=1588834961;
+        bh=yYx5yVXM/i8u2Dcnj45uR/2GtUdPJmvTI047oSKF4iM=;
+        h=Date:In-Reply-To:References:Subject:To:CC:From:From;
+        b=imHsOD4Y6qsqkdhfMCipORSZWoJqF36aJ4Dq+99WOmUL8aWgKJa1velt6bpsIz/DG
+         XytmGISZTPw33c1GhyGUJ1vXV13cBu5Pl7nqvn+/WKwpvvtqihOB88LHozmj9CDWlY
+         x06BQ0x6i4Pzo/sSrDTHBXyM6GdZnRqNwmm0YbGEeB+r5cshEGbj9oBMeSNC73UE0D
+         rOvURVrH7qWNApnY7TGtGwq2Jl7Bl5D9sE3gk9+ww2QD+6kg5wuLmA/BUmuzBFc4/b
+         NFHd05JQSMTBDa23NrfHOoq2vL42qbKpEsbxVGMhayGF6a8CPq0w3KAeKSgI4HWFoh
+         WcAOln+n5wBnQ==
+Date:   Thu, 07 May 2020 00:02:32 -0700
+User-Agent: K-9 Mail for Android
+In-Reply-To: <CAMzpN2idWF2_4wtPebM2B2HVyksknr9hAqK8HJi_vjQ06bgu2g@mail.gmail.com>
+References: <20200505174423.199985-1-ndesaulniers@google.com> <CAMzpN2idWF2_4wtPebM2B2HVyksknr9hAqK8HJi_vjQ06bgu2g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200507064412.GL2042@localhost>
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] x86: bitops: fix build regression
+To:     Brian Gerst <brgerst@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+CC:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        clang-built-linux@googlegroups.com
+From:   hpa@zytor.com
+Message-ID: <6A99766A-59FB-42DF-9350-80EA671A42B0@zytor.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 07, 2020 at 08:44:12AM +0200, Johan Hovold wrote:
-> On Thu, May 07, 2020 at 12:27:53AM +0530, Naresh Kamboju wrote:
-> > On Tue, 29 Nov 2016 at 00:00, Johan Hovold <johan@kernel.org> wrote:
-> > >
-> > > Make sure to deregister and free any fixed-link PHY registered using
-> > > of_phy_register_fixed_link() on probe errors and on driver unbind.
-> > >
-> > > Fixes: 83895bedeee6 ("net: mvneta: add support for fixed links")
-> > > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > > ---
-> > >  drivers/net/ethernet/marvell/mvneta.c | 5 +++++
-> > >  1 file changed, 5 insertions(+)
-> > >
-> > > diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-> > > index 0c0a45af950f..707bc4680b9b 100644
-> > > --- a/drivers/net/ethernet/marvell/mvneta.c
-> > > +++ b/drivers/net/ethernet/marvell/mvneta.c
-> > > @@ -4191,6 +4191,8 @@ static int mvneta_probe(struct platform_device *pdev)
-> > >         clk_disable_unprepare(pp->clk);
-> > >  err_put_phy_node:
-> > >         of_node_put(phy_node);
-> > > +       if (of_phy_is_fixed_link(dn))
-> > > +               of_phy_deregister_fixed_link(dn);
-> > 
-> > While building kernel Image for arm architecture on stable-rc 4.4 branch
-> > the following build error found.
-> > 
-> > drivers/net/ethernet/marvell/mvneta.c:3442:3: error: implicit
-> > declaration of function 'of_phy_deregister_fixed_link'; did you mean
-> > 'of_phy_register_fixed_link'? [-Werror=implicit-function-declaration]
-> > |    of_phy_deregister_fixed_link(dn);
-> > |    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > |    of_phy_register_fixed_link
-> > 
-> > ref:
-> > https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/541374729
-> 
-> Greg, 3f65047c853a ("of_mdio: add helper to deregister fixed-link
-> PHYs") needs to be backported as well for these.
-> 
-> Original series can be found here:
-> 
-> 	https://lkml.kernel.org/r/1480357509-28074-1-git-send-email-johan@kernel.org
+On May 6, 2020 11:18:09 PM PDT, Brian Gerst <brgerst@gmail=2Ecom> wrote:
+>On Tue, May 5, 2020 at 1:47 PM Nick Desaulniers
+><ndesaulniers@google=2Ecom> wrote:
+>>
+>> From: Sedat Dilek <sedat=2Edilek@gmail=2Ecom>
+>>
+>> It turns out that if your config tickles __builtin_constant_p via
+>> differences in choices to inline or not, this now produces invalid
+>> assembly:
+>>
+>> $ cat foo=2Ec
+>> long a(long b, long c) {
+>>   asm("orb\t%1, %0" : "+q"(c): "r"(b));
+>>   return c;
+>> }
+>> $ gcc foo=2Ec
+>> foo=2Ec: Assembler messages:
+>> foo=2Ec:2: Error: `%rax' not allowed with `orb'
+>>
+>> The "q" constraint only has meanting on -m32 otherwise is treated as
+>> "r"=2E
+>>
+>> This is easily reproducible via
+>Clang+CONFIG_STAGING=3Dy+CONFIG_VT6656=3Dm,
+>> or Clang+allyesconfig=2E
+>>
+>> Keep the masking operation to appease sparse (`make C=3D1`), add back
+>the
+>> cast in order to properly select the proper 8b register alias=2E
+>>
+>>  [Nick: reworded]
+>>
+>> Cc: stable@vger=2Ekernel=2Eorg
+>> Cc: Jesse Brandeburg <jesse=2Ebrandeburg@intel=2Ecom>
+>> Link: https://github=2Ecom/ClangBuiltLinux/linux/issues/961
+>> Link:
+>https://lore=2Ekernel=2Eorg/lkml/20200504193524=2EGA221287@google=2Ecom/
+>> Fixes: 1651e700664b4 ("x86: Fix bitops=2Eh warning with a moved cast")
+>> Reported-by: Sedat Dilek <sedat=2Edilek@gmail=2Ecom>
+>> Reported-by: kernelci=2Eorg bot <bot@kernelci=2Eorg>
+>> Suggested-by: Andy Shevchenko <andriy=2Eshevchenko@intel=2Ecom>
+>> Suggested-by: Ilie Halip <ilie=2Ehalip@gmail=2Ecom>
+>> Tested-by: Sedat Dilek <sedat=2Edilek@gmail=2Ecom>
+>> Signed-off-by: Sedat Dilek <sedat=2Edilek@gmail=2Ecom>
+>> Signed-off-by: Nick Desaulniers <ndesaulniers@google=2Ecom>
+>> ---
+>>  arch/x86/include/asm/bitops=2Eh | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/arch/x86/include/asm/bitops=2Eh
+>b/arch/x86/include/asm/bitops=2Eh
+>> index b392571c1f1d=2E=2E139122e5b25b 100644
+>> --- a/arch/x86/include/asm/bitops=2Eh
+>> +++ b/arch/x86/include/asm/bitops=2Eh
+>> @@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long *addr)
+>>         if (__builtin_constant_p(nr)) {
+>>                 asm volatile(LOCK_PREFIX "orb %1,%0"
+>>                         : CONST_MASK_ADDR(nr, addr)
+>> -                       : "iq" (CONST_MASK(nr) & 0xff)
+>> +                       : "iq" ((u8)(CONST_MASK(nr) & 0xff))
+>
+>I think a better fix would be to make CONST_MASK() return a u8 value
+>rather than have to cast on every use=2E
+>
+>Also I question the need for the "q" constraint=2E  It was added in
+>commit 437a0a54 as a workaround for GCC 3=2E4=2E4=2E  Now that the minimu=
+m
+>GCC version is 4=2E6, is this still necessary?
+>
+>--
+>Brian Gerst
 
-Ah, thanks for that, I thought I dropped all of the ones that caused
-build errors, but missed the above one.  I'll go take the whole series
-instead.
-
-greg k-h
+Yes, "q" is needed on i386=2E
+--=20
+Sent from my Android device with K-9 Mail=2E Please excuse my brevity=2E
