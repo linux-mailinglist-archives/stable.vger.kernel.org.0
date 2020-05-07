@@ -2,128 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F036B1C88CA
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 13:48:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96DA81C8A27
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 14:11:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725900AbgEGLs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 07:48:27 -0400
-Received: from mga06.intel.com ([134.134.136.31]:64619 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725903AbgEGLs0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 07:48:26 -0400
-IronPort-SDR: 0WDD4SYlelv/CMqDGbsa+Qd1M0WI661zriOKiJ/LvooJuDx2HTCleMYzxo4s8Xh6kVqvsU8E99
- JqfAMf+jr5cw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2020 04:48:24 -0700
-IronPort-SDR: i8kWrQpgWn75L4Fe2QfqwBPYtA7TVrOdZfwcIB8+RUtpWKVTAnVGtzTQxXUsavF0TyDLC53E6+
- 81IX49BuWPHQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,363,1583222400"; 
-   d="scan'208";a="339328430"
-Received: from ahunter-desktop.fi.intel.com (HELO [10.237.72.157]) ([10.237.72.157])
-  by orsmga001.jf.intel.com with ESMTP; 07 May 2020 04:48:21 -0700
-Subject: Re: [PATCH V1 2/2] mmc: core: Fix recursive locking issue in CQE
- recovery path
-To:     Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
-        ulf.hansson@linaro.org
-Cc:     stummala@codeaurora.org, linux-mmc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        Sarthak Garg <sartgarg@codeaurora.org>, stable@vger.kernel.org,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Andreas Koop <andreas.koop@zf.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-References: <1588775643-18037-1-git-send-email-vbadigan@codeaurora.org>
- <1588775643-18037-3-git-send-email-vbadigan@codeaurora.org>
-From:   Adrian Hunter <adrian.hunter@intel.com>
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
- Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-Message-ID: <b4a01f2c-479a-2a23-58b7-64f16cbc17a2@intel.com>
-Date:   Thu, 7 May 2020 14:48:42 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1726134AbgEGMLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 08:11:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55692 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725903AbgEGMLS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 08:11:18 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68CBAC05BD43;
+        Thu,  7 May 2020 05:11:18 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id h4so6237658wmb.4;
+        Thu, 07 May 2020 05:11:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=wFVKzsYazuYKj9heOP0kOc+xOXwZKNaQI+1syNAe7nw=;
+        b=I6aWz9PinYdDL2Xq1qEgKDQ/b/d3dIjL+jTkyjvbBUGSvPWEJa3WrLKsomaQZmIQZ6
+         q6GOJVMlzDXjjZqfu+p/mcA3bPpg7OyDDYU0Ybmh3ADqy7B4C9ooE4ylTcVngppiecPU
+         p53doAurX4EcwJC1lOQ+FlA/AjRACV0R2JhEuLpxKdO3OlcaDBJrE96Lcx4Q11Hq4ojT
+         kRN73rNpgIOrz1aunSJZ2dsjId17C8YrLH+3AYqKJPdRBHQc2k5gnnq0SwzIUinf5flk
+         EINaCym/k8kiybNxkE+Pg6xs99GIplZLQ8ZRyZIOHnHktX/gW/j5D2EWf7Q8PhOw+6fJ
+         8wFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=wFVKzsYazuYKj9heOP0kOc+xOXwZKNaQI+1syNAe7nw=;
+        b=Dq6p5a5zg0bdTNv5WIMHoOXNFzGoeqR0qb78lugcdMHGqfCM9JDnXtCf3apjtCsZTl
+         TSf/6KwId3SVH3eYNKQdjNFuLMVJOIO8d3KDuHlP0qPzxTGGjVu8CiXlXnHYdHVq1++K
+         MX3XxjVIr6ulHtbwjZqhg0U2P8qBKci6rwShP9rkd0M3jCDeB8p42oP+koZ/HWw4gNbH
+         nwJQnI1fmVmgM6hR0mvu5AUZzL0klYQEvIxjWkdzhh/Fj8xO7jRljRTrIaH+gdQNBZrc
+         7R9VLFFqT0W1vXsfySN1UW/vfVn3gojbLHWVdO3VK+hgdgB2iug7DVCqaOi8F3pwa0u8
+         p6cQ==
+X-Gm-Message-State: AGi0Puap8GpAFJjbg+cNtwXjSwjJY7tqRr5TUGIQXVYBc2223bxwt0s8
+        pZKRJ3hVIXpiS+dxUDunj2FiVQEKQEw8I8VQbHHSf6qX
+X-Google-Smtp-Source: APiQypIrutgCXbulDuAlppfAP6QmfR1GsEMUzPJyU74jqdfzmnkrsibTkvJbih7/k7aJeZ7N5jQMz0hzTsZIfDhSnEg=
+X-Received: by 2002:a7b:c74d:: with SMTP id w13mr9755931wmk.36.1588853477169;
+ Thu, 07 May 2020 05:11:17 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1588775643-18037-3-git-send-email-vbadigan@codeaurora.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <1588500367-1056-2-git-send-email-chenhc@lemote.com> <20200506234214.2887220735@mail.kernel.org>
+In-Reply-To: <20200506234214.2887220735@mail.kernel.org>
+From:   Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
+Date:   Thu, 7 May 2020 14:10:55 +0200
+Message-ID: <CAHiYmc4u6iM8BsEX-bHgFk6eD36FcE=_P-n29U0P=51Cyb5YVA@mail.gmail.com>
+Subject: Re: [PATCH V3 01/14] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Huacai Chen <chenhc@lemote.com>, Xing Li <lixing@loongson.cn>,
+        Paolo Bonzini <pbonzini@redhat.com>, stable@vger.kernel.org,
+        QEMU Developers <qemu-devel@nongnu.org>, kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/05/20 5:34 pm, Veerabhadrarao Badiganti wrote:
-> From: Sarthak Garg <sartgarg@codeaurora.org>
-> 
-> Consider the following stack trace
-> 
-> -001|raw_spin_lock_irqsave
-> -002|mmc_blk_cqe_complete_rq
-> -003|__blk_mq_complete_request(inline)
-> -003|blk_mq_complete_request(rq)
-> -004|mmc_cqe_timed_out(inline)
-> -004|mmc_mq_timed_out
-> 
-> mmc_mq_timed_out acquires the queue_lock for the first
-> time. The mmc_blk_cqe_complete_rq function also tries to acquire
-> the same queue lock resulting in recursive locking where the task
-> is spinning for the same lock which it has already acquired leading
-> to watchdog bark.
-> 
-> Fix this issue with the lock only for the required critical section.
-> 
-> Cc: <stable@vger.kernel.org> # v4.19+
-> Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
-> Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
-> ---
->  drivers/mmc/core/queue.c | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
-> index 25bee3d..72bef39 100644
-> --- a/drivers/mmc/core/queue.c
-> +++ b/drivers/mmc/core/queue.c
-> @@ -107,7 +107,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
->  	case MMC_ISSUE_DCMD:
->  		if (host->cqe_ops->cqe_timeout(host, mrq, &recovery_needed)) {
->  			if (recovery_needed)
-> -				__mmc_cqe_recovery_notifier(mq);
-> +				mmc_cqe_recovery_notifier(mrq);
->  			return BLK_EH_RESET_TIMER;
->  		}
->  		/* No timeout (XXX: huh? comment doesn't make much sense) */
-> @@ -131,12 +131,13 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
->  
->  	spin_lock_irqsave(&mq->lock, flags);
->  
-> -	if (mq->recovery_needed || !mq->use_cqe || host->hsq_enabled)
-> +	if (mq->recovery_needed || !mq->use_cqe || host->hsq_enabled) {
->  		ret = BLK_EH_RESET_TIMER;
-> -	else
-> +		spin_unlock_irqrestore(&mq->lock, flags);
-> +	} else {
-> +		spin_unlock_irqrestore(&mq->lock, flags);
->  		ret = mmc_cqe_timed_out(req);
-> -
-> -	spin_unlock_irqrestore(&mq->lock, flags);
-> +	}
+=D1=87=D0=B5=D1=82, 7. =D0=BC=D0=B0=D1=98 2020. =D1=83 01:43 Sasha Levin <s=
+ashal@kernel.org> =D1=98=D0=B5 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BE/=
+=D0=BB=D0=B0:
+>
+> Hi
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+>
+> The bot has tested the following trees: v5.6.10, v5.4.38, v4.19.120, v4.1=
+4.178, v4.9.221, v4.4.221.
+>
+> v5.6.10: Build OK!
+> v5.4.38: Build OK!
+> v4.19.120: Build OK!
+> v4.14.178: Build OK!
+> v4.9.221: Build OK!
+> v4.4.221: Failed to apply! Possible dependencies:
+>     029499b47738 ("KVM: x86: MMU: Make mmu_set_spte() return emulate valu=
+e")
+>     19d194c62b25 ("MIPS: KVM: Simplify TLB_* macros")
+>     403015b323a2 ("MIPS: KVM: Move non-TLB handling code out of tlb.c")
+>     7ee0e5b29d27 ("KVM: x86: MMU: Remove unused parameter of __direct_map=
+()")
+>     9fbfb06a4065 ("MIPS: KVM: Arrayify struct kvm_mips_tlb::tlb_lo*")
+>     ba049e93aef7 ("kvm: rename pfn_t to kvm_pfn_t")
+>     bdb7ed8608f8 ("MIPS: KVM: Convert headers to kernel sized types")
+>     ca64c2beecd4 ("MIPS: KVM: Abstract guest ASID mask")
+>     caa1faa7aba6 ("MIPS: KVM: Trivial whitespace and style fixes")
+>     e6207bbea16c ("MIPS: KVM: Use MIPS_ENTRYLO_* defs from mipsregs.h")
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
+>
 
-This looks good, but I think there needs to be another change also.  I will
-send a patch for that, but in the meantime maybe you could straighten up the
-code flow through the spinlock e.g.
+Hi, Sasha.
 
-	spin_lock_irqsave(&mq->lock, flags);
-	ignore = mq->recovery_needed || !mq->use_cqe || host->hsq_enabled;
-	spin_unlock_irqrestore(&mq->lock, flags);
+Please wait for the the review of the whole series. It might also be
+the case that this patch will be upstreamed before the whole series,
+but please do not rush or skip regular review process.
 
-	return ignore ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
+Thanks for you involvement and efforts!
 
-And add a fixes tag.
+Aleksandar
 
->  
->  	return ret;
->  }
-> 
-
+> --
+> Thanks
+> Sasha
+>
