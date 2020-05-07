@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8509A1C8F0F
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA02D1C8FC1
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728398AbgEGO3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:29:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56214 "EHLO mail.kernel.org"
+        id S1727825AbgEGOel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:34:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728390AbgEGO3D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:29:03 -0400
+        id S1728404AbgEGO3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:29:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B195E20838;
-        Thu,  7 May 2020 14:29:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB87C20870;
+        Thu,  7 May 2020 14:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861743;
-        bh=8hdS+zn0szNmoYXCOAEWvvvEI600objqG6lSWWGUNso=;
+        s=default; t=1588861744;
+        bh=ouyLlWBbNH0FtRmGq8YsQpE51svtNoNQQcK8Lbax6W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JhVCVSZIvXTeLrqmxBV31C6ha7OgozBaalp9siCDHg6wpdwikOCX+tnRIKp6YIbHY
-         JUVksnliMBFw7/C9weZG6uUOa0noK0NK1LF2zn4r3tppel8au95gTB2bbaQoH1TBZ4
-         DXlFgW3if3fckEBzUk5fck1yMyulpMSzGdNpZaP4=
+        b=ApLcOZ21TZ6IOABX38Bhu7Q+xmbH3E3KyziLom22UbK2uFgfQ7/O9V/oz+/hS3w1R
+         /+L2s+sVqPOs9uWoWcwSuf2Ude1R6CTREUSSM8Q/SwDQyUWVRrVTzE7eKqhwGws6x4
+         HBC7+ys3TcUW+1t8RRiP8Pebl0zDKrrwckkBIydw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 26/35] SUNRPC: defer slow parts of rpc_free_client() to a workqueue.
-Date:   Thu,  7 May 2020 10:28:20 -0400
-Message-Id: <20200507142830.26239-26-sashal@kernel.org>
+Cc:     Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Eric Bernstein <Eric.Bernstein@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 27/35] drm/amd/display: check if REFCLK_CNTL register is present
+Date:   Thu,  7 May 2020 10:28:21 -0400
+Message-Id: <20200507142830.26239-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142830.26239-1-sashal@kernel.org>
 References: <20200507142830.26239-1-sashal@kernel.org>
@@ -44,114 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
 
-[ Upstream commit 7c4310ff56422ea43418305d22bbc5fe19150ec4 ]
+[ Upstream commit 3159d41db3a04330c31ece32f8b29752fc114848 ]
 
-The rpciod workqueue is on the write-out path for freeing dirty memory,
-so it is important that it never block waiting for memory to be
-allocated - this can lead to a deadlock.
+Check before programming the register since it isn't present on
+all IPs using this code.
 
-rpc_execute() - which is often called by an rpciod work item - calls
-rcp_task_release_client() which can lead to rpc_free_client().
-
-rpc_free_client() makes two calls which could potentially block wating
-for memory allocation.
-
-rpc_clnt_debugfs_unregister() calls into debugfs and will block while
-any of the debugfs files are being accessed.  In particular it can block
-while any of the 'open' methods are being called and all of these use
-malloc for one thing or another.  So this can deadlock if the memory
-allocation waits for NFS to complete some writes via rpciod.
-
-rpc_clnt_remove_pipedir() can take the inode_lock() and while it isn't
-obvious that memory allocations can happen while the lock it held, it is
-safer to assume they might and to not let rpciod call
-rpc_clnt_remove_pipedir().
-
-So this patch moves these two calls (together with the final kfree() and
-rpciod_down()) into a work-item to be run from the system work-queue.
-rpciod can continue its important work, and the final stages of the free
-can happen whenever they happen.
-
-I have seen this deadlock on a 4.12 based kernel where debugfs used
-synchronize_srcu() when removing objects.  synchronize_srcu() requires a
-workqueue and there were no free workther threads and none could be
-allocated.  While debugsfs no longer uses SRCU, I believe the deadlock
-is still possible.
-
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Reviewed-by: Eric Bernstein <Eric.Bernstein@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/clnt.h |  8 +++++++-
- net/sunrpc/clnt.c           | 21 +++++++++++++++++----
- 2 files changed, 24 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/sunrpc/clnt.h b/include/linux/sunrpc/clnt.h
-index abc63bd1be2b5..d99d39d45a494 100644
---- a/include/linux/sunrpc/clnt.h
-+++ b/include/linux/sunrpc/clnt.h
-@@ -71,7 +71,13 @@ struct rpc_clnt {
- #if IS_ENABLED(CONFIG_SUNRPC_DEBUG)
- 	struct dentry		*cl_debugfs;	/* debugfs directory */
- #endif
--	struct rpc_xprt_iter	cl_xpi;
-+	/* cl_work is only needed after cl_xpi is no longer used,
-+	 * and that are of similar size
-+	 */
-+	union {
-+		struct rpc_xprt_iter	cl_xpi;
-+		struct work_struct	cl_work;
-+	};
- 	const struct cred	*cl_cred;
- };
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+index e933f6a369f92..083c42e521f5c 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -2015,7 +2015,8 @@ static void dcn20_fpga_init_hw(struct dc *dc)
  
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index f7f78566be463..a7430b66c7389 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -877,6 +877,20 @@ EXPORT_SYMBOL_GPL(rpc_shutdown_client);
- /*
-  * Free an RPC client
-  */
-+static void rpc_free_client_work(struct work_struct *work)
-+{
-+	struct rpc_clnt *clnt = container_of(work, struct rpc_clnt, cl_work);
-+
-+	/* These might block on processes that might allocate memory,
-+	 * so they cannot be called in rpciod, so they are handled separately
-+	 * here.
-+	 */
-+	rpc_clnt_debugfs_unregister(clnt);
-+	rpc_clnt_remove_pipedir(clnt);
-+
-+	kfree(clnt);
-+	rpciod_down();
-+}
- static struct rpc_clnt *
- rpc_free_client(struct rpc_clnt *clnt)
- {
-@@ -887,17 +901,16 @@ rpc_free_client(struct rpc_clnt *clnt)
- 			rcu_dereference(clnt->cl_xprt)->servername);
- 	if (clnt->cl_parent != clnt)
- 		parent = clnt->cl_parent;
--	rpc_clnt_debugfs_unregister(clnt);
--	rpc_clnt_remove_pipedir(clnt);
- 	rpc_unregister_client(clnt);
- 	rpc_free_iostats(clnt->cl_metrics);
- 	clnt->cl_metrics = NULL;
- 	xprt_put(rcu_dereference_raw(clnt->cl_xprt));
- 	xprt_iter_destroy(&clnt->cl_xpi);
--	rpciod_down();
- 	put_cred(clnt->cl_cred);
- 	rpc_free_clid(clnt);
--	kfree(clnt);
-+
-+	INIT_WORK(&clnt->cl_work, rpc_free_client_work);
-+	schedule_work(&clnt->cl_work);
- 	return parent;
- }
+ 	REG_UPDATE(DCHUBBUB_GLOBAL_TIMER_CNTL, DCHUBBUB_GLOBAL_TIMER_REFDIV, 2);
+ 	REG_UPDATE(DCHUBBUB_GLOBAL_TIMER_CNTL, DCHUBBUB_GLOBAL_TIMER_ENABLE, 1);
+-	REG_WRITE(REFCLK_CNTL, 0);
++	if (REG(REFCLK_CNTL))
++		REG_WRITE(REFCLK_CNTL, 0);
+ 	//
+ 
  
 -- 
 2.20.1
