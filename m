@@ -2,130 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 222831C8C92
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 15:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4771C8D2C
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725985AbgEGNj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 09:39:28 -0400
-Received: from mga17.intel.com ([192.55.52.151]:61782 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725969AbgEGNj2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 09:39:28 -0400
-IronPort-SDR: BaOkAkWH0bPNZN1dpjY2kGotFMhheGPnEVnT1wkZyauY2c8NMOGMPsgX0jCvPAt0EXLoTgxAnl
- awKBWMX3zWFw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2020 06:39:27 -0700
-IronPort-SDR: NiB7rUwXSpY33D9VbpkLHQnGePzLCLwJkXYQ5PrCr6JN8/14HnLoKby+No6kqXkWf7iR6PWN7N
- JNq972iYTKtw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,363,1583222400"; 
-   d="scan'208";a="461849302"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga005.fm.intel.com with ESMTP; 07 May 2020 06:39:25 -0700
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1jWgkK-005Dlq-Og; Thu, 07 May 2020 16:39:28 +0300
-Date:   Thu, 7 May 2020 16:39:28 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-acpi@vger.kernel.org, linux-gpio@vger.kernel.org,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
-        Erik Kaneda <erik.kaneda@intel.com>
-Subject: Re: [PATCH v2] pinctrl: cherryview: Ensure _REG(ACPI_ADR_SPACE_GPIO,
- 1) gets called
-Message-ID: <20200507133928.GW185537@smile.fi.intel.com>
-References: <20200504145957.480418-1-hdegoede@redhat.com>
- <20200506064057.GU487496@lahna.fi.intel.com>
- <f7ebb693-94ec-fd9f-c0a8-cfe8f9d4e9bf@redhat.com>
- <20200507123025.GR487496@lahna.fi.intel.com>
- <3c509026-7d4f-9915-1c5e-dd6002042d92@redhat.com>
+        id S1726320AbgEGOA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:00:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44636 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725947AbgEGOA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 10:00:28 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2125EC05BD43;
+        Thu,  7 May 2020 07:00:28 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id 19so552928ioz.10;
+        Thu, 07 May 2020 07:00:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=qCROg/3G32jM70VIbenT2kiJn/D6JsTc3S4qZv2ZxH8=;
+        b=JC3IYpfpubvJXlRItx/zmIvRRqwTzlqF/cOmXZ/39Q+O7RJzOJ9fvlLax/MlV9RWgK
+         ObH+uqTxqr6B0vhElIBX7EN7KCL87xUdIED9r4OQpGaQ2bFe3i9FDcRoITmVgNM9cF4Y
+         8+W2fjWtOs95m/giIJ7gjcdHVZz/rQKk68kY+Q23Q86w46tEPDRQE3SN/ekxvf6ybcah
+         3QFwghREZ+vHDgQcWWdF4aou0SAS0BAckUOQ8anWppBNm04IJj6WyZECXA1JgwpwwyP3
+         63GaU9YpWFw8BGqQd+4GJrNdKO8lf2dz/Xp9aDsC0CnDhhTZU8id5hr8JtCnr+uWIXmk
+         jJEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=qCROg/3G32jM70VIbenT2kiJn/D6JsTc3S4qZv2ZxH8=;
+        b=PalSGVpu/MizOWSE4yQ+GwAw+39KysNPbpF5MUjr8Nq2mReHgSrND8EkSmSu221c2I
+         AcBpN63jJwx0lMrAWYFIXAXtzB2ytL6bsVxVA/KsSRbUEFePiwHVU+sBQxK494w3BUwO
+         YxatGr6+bkrb0nVY2tL+/3sqFbEDKhy7DupZ93Cw416IYY/ERoDvM2cE2aemLa2mFD6O
+         hQGlMdLo6f6MWltTDku/jPW5lMj/4L0Na2a6R+aVskzTlFhv4fy+He2V6xZWTJBn0gpG
+         MdiHbfOXcD5FZeLAAfma0+M7I4/51gqdVxtVLEgX3IznhvMzviHFXHUrE1xHlfnz1jRZ
+         UdJA==
+X-Gm-Message-State: AGi0PubJUIWRaAzcC7eQAOLEnNHVWpmSRM2Q4Ijs8PaWiKeCbj7o48xe
+        WpIPMyEVLetzcyDId/2pez5BTAArhorQ5TmZEw==
+X-Google-Smtp-Source: APiQypIddVNoTzv/ukfpHVvhlTFaZAP2vxu5rWiEOp+1F0cYyz3qV3uMxPi6BT0C/CHWNpnFHhfiorelfIVgCzsriyI=
+X-Received: by 2002:a05:6638:f0f:: with SMTP id h15mr14465368jas.142.1588860027498;
+ Thu, 07 May 2020 07:00:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3c509026-7d4f-9915-1c5e-dd6002042d92@redhat.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <20200505174423.199985-1-ndesaulniers@google.com>
+ <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com> <20200507113422.GA3762@hirez.programming.kicks-ass.net>
+In-Reply-To: <20200507113422.GA3762@hirez.programming.kicks-ass.net>
+From:   Brian Gerst <brgerst@gmail.com>
+Date:   Thu, 7 May 2020 10:00:16 -0400
+Message-ID: <CAMzpN2hXUYvLuTA63N56ef4DEzyWXt_uVVq6PV0r8YQT-YN42g@mail.gmail.com>
+Subject: Re: [PATCH] x86: bitops: fix build regression
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     "H. Peter Anvin" <hpa@zytor.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        clang-built-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 07, 2020 at 02:39:21PM +0200, Hans de Goede wrote:
-> On 5/7/20 2:30 PM, Mika Westerberg wrote:
-> > On Thu, May 07, 2020 at 12:15:09PM +0200, Hans de Goede wrote:
-> > > On 5/6/20 8:40 AM, Mika Westerberg wrote:
+On Thu, May 7, 2020 at 7:38 AM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> On Tue, May 05, 2020 at 11:07:24AM -0700, hpa@zytor.com wrote:
+> > On May 5, 2020 10:44:22 AM PDT, Nick Desaulniers <ndesaulniers@google.com> wrote:
+>
+> > >@@ -54,7 +54,7 @@ arch_set_bit(long nr, volatile unsigned long *addr)
+> > >     if (__builtin_constant_p(nr)) {
+> > >             asm volatile(LOCK_PREFIX "orb %1,%0"
+> > >                     : CONST_MASK_ADDR(nr, addr)
+> > >-                    : "iq" (CONST_MASK(nr) & 0xff)
+> > >+                    : "iq" ((u8)(CONST_MASK(nr) & 0xff))
+> > >                     : "memory");
+> > >     } else {
+> > >             asm volatile(LOCK_PREFIX __ASM_SIZE(bts) " %1,%0"
+> > >@@ -74,7 +74,7 @@ arch_clear_bit(long nr, volatile unsigned long *addr)
+> > >     if (__builtin_constant_p(nr)) {
+> > >             asm volatile(LOCK_PREFIX "andb %1,%0"
+> > >                     : CONST_MASK_ADDR(nr, addr)
+> > >-                    : "iq" (CONST_MASK(nr) ^ 0xff));
+> > >+                    : "iq" ((u8)(CONST_MASK(nr) ^ 0xff)));
+> > >     } else {
+> > >             asm volatile(LOCK_PREFIX __ASM_SIZE(btr) " %1,%0"
+> > >                     : : RLONG_ADDR(addr), "Ir" (nr) : "memory");
+> >
+> > Drop & 0xff and change ^ 0xff to ~.
+>
+> But then we're back to sparse being unhappy, no? The thing with ~ is
+> that it will set high bits which will be truncated, which makes sparse
+> sad.
 
-+Rafael and ACPICA folks.
+This change will make sparse happy and allow these cleanups:
+#define CONST_MASK(nr)                 ((u8)1 << ((nr) & 7))
 
-...
+Tested with GCC 9.3.1.
 
-> > I actually think this is the correct solution. Reading ACPI spec it say
-> > this:
-> > 
-> >    Once _REG has been executed for a particular operation region,
-> >    indicating that the operation region handler is ready, a control
-> >    method can access fields in the operation region
-> > 
-> > You can interpret it so that _REG gets called when operation region
-> > handler is ready. It does not say that there needs to be an actual
-> > operation region even though the examples following all have operation
-> > region.
-> > 
-> > I wonder what our ACPICA gurus think about this? Rafael, Bob, Erik?
-> > 
-> > > We could move the manual _REG call I'm adding to pinctrl-cherry-view.c
-> > > but that has the same issue of calling _REG twice in many cases.
-> > > 
-> > > Most (all?) _REG implementations are fine with that, as they just set a
-> > > variable to 1 (to the Arg1 value). Still calling _REG twice is something
-> > > which we might want to avoid.
-> > > 
-> > > As a compromise I've chosen to add the extra unconditional _REG call
-> > > to pinctrl-cherryview.c because:
-> > > 
-> > > 1. The problem in the DSDT in question stems from there being 2
-> > > different OpRegions for accessing GPIOs which AFAIK is unique to
-> > > cherryview
-> > > 
-> > > 2. I've seen many many cherryview DSDT-s and as such I'm confident
-> > > that calling _REG twice is not an issue on cherryview.
-> > > 
-> > > > Are the ACPI tables from this system available somewhere?
-> > > 
-> > > Here you go:
-> > > https://fedorapeople.org/~jwrdegoede/medion-e1239t-dsdt.dsl
-> > 
-> > Thanks for sharing!
-> > 
-> > > The problem is that on line 12624 there is a GPO2.AVBL == One
-> > > check, before GPO2.DCDT is used. If you then look at line
-> > > 17688 you see that _REG for the GPO2 device checkes for a
-> > > space-id of 8 (ACPI_ADR_SPACE_GPIO) to set AVBL
-> > > 
-> > > But the only OpRegion defined for the GPO2 device, and the
-> > > OpRegion to which GPO2.DCDT is mapped is the cherryview
-> > > UserDefined 0x93 GPIO access OpRegion, see line 17760.
-> > > Since there is no OpRegion for the ACPI_ADR_SPACE_GPIO
-> > > space-id, ACPICA never calls _REG with Arg0 == 8.
-> > 
-> > Indeed, I see the issue now. I guess calling _REG always when there is
-> > handler installed would solve this as well?
-> 
-> Yes that should solve the issue, that is actualy more or less
-> what my patch does, but my patch only does it for the
-> pinctrl-cherryview.c case.
-
-And ACPICA guys, in case of thinking about generic solution there, can also
-have a look into ACPI hotplug code. Something tells me that there may be the
-very same root cause.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+--
+Brian Gerst
