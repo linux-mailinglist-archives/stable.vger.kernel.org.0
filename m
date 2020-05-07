@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 213A71C8E9B
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:29:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90E7D1C8FEB
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728090AbgEGO2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:28:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        id S1727869AbgEGOgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:36:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728083AbgEGO2W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:28:22 -0400
+        id S1728094AbgEGO2Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:28:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81CEC20870;
-        Thu,  7 May 2020 14:28:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE88924959;
+        Thu,  7 May 2020 14:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861702;
-        bh=8Shtm4idk430UQGobbDZvLe300fCi968VhfPAQDmda0=;
+        s=default; t=1588861703;
+        bh=vvdSzbEpBcmS5iWnBqJ8Fdmt3xvKYr6xWdUdjkVYuFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FSS6IB43nfDsPmrtIIJXbfp2WdFI1JdPblqaYOB5s1xcjQGthFlO8rtuZCCxvnBgK
-         krjn1v9je9JcLexujuoaolQnQTyH6aoMEGxqdbJJtKo98hB1p+vxO/BJUhpiKiiDzu
-         l8UkH3tG/9u8J1TuVShCF88P3krDVAJ04+G4i++o=
+        b=iTaPbQ2esZeZ03s0hxjNpTWqFu3VjjOck5+xb8HmulnMSOG4voI3Vn3x6rStl2Laf
+         TMviOW3k3OD3itDIUgjH9/o+Q+cIm7J18jvjX9LpvwWs8Fp/HPZ6+V0T6NE0uT2eMg
+         HOSv1ak5JdQhF5bE0/qVfspJkC54nmMH8cy53PAY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Yang Xu <xuyang2018.jy@cn.fujitsu.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 43/50] block: remove the bd_openers checks in blk_drop_partitions
-Date:   Thu,  7 May 2020 10:27:19 -0400
-Message-Id: <20200507142726.25751-43-sashal@kernel.org>
+Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Szabolcs Nagy <szabolcs.nagy@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 44/50] arm64: vdso: Add -fasynchronous-unwind-tables to cflags
+Date:   Thu,  7 May 2020 10:27:20 -0400
+Message-Id: <20200507142726.25751-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142726.25751-1-sashal@kernel.org>
 References: <20200507142726.25751-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,43 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-[ Upstream commit 10c70d95c0f2f9a6f52d0e33243d2877370cef51 ]
+[ Upstream commit 1578e5d03112e3e9d37e1c4d95b6dfb734c73955 ]
 
-When replacing the bd_super check with a bd_openers I followed a logical
-conclusion, which turns out to be utterly wrong.  When a block device has
-bd_super sets it has a mount file system on it (although not every
-mounted file system sets bd_super), but that also implies it doesn't even
-have partitions to start with.
+On arm64 linux gcc uses -fasynchronous-unwind-tables -funwind-tables
+by default since gcc-8, so now the de facto platform ABI is to allow
+unwinding from async signal handlers.
 
-So instead of trying to come up with a logical check for all openers,
-just remove the check entirely.
+However on bare metal targets (aarch64-none-elf), and on old gcc,
+async and sync unwind tables are not enabled by default to avoid
+runtime memory costs.
 
-Fixes: d3ef5536274f ("block: fix busy device checking in blk_drop_partitions")
-Fixes: cb6b771b05c3 ("block: fix busy device checking in blk_drop_partitions again")
-Reported-by: Michal Koutný <mkoutny@suse.com>
-Reported-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This means if linux is built with a baremetal toolchain the vdso.so
+may not have unwind tables which breaks the gcc platform ABI guarantee
+in userspace.
+
+Add -fasynchronous-unwind-tables explicitly to the vgettimeofday.o
+cflags to address the ABI change.
+
+Fixes: 28b1a824a4f4 ("arm64: vdso: Substitute gettimeofday() with C implementation")
+Cc: Will Deacon <will@kernel.org>
+Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/partition-generic.c | 2 +-
+ arch/arm64/kernel/vdso/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/partition-generic.c b/block/partition-generic.c
-index ebe4c2e9834bd..8a7906fa96fd6 100644
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -468,7 +468,7 @@ int blk_drop_partitions(struct gendisk *disk, struct block_device *bdev)
+diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
+index dd2514bb1511f..3862cad2410cf 100644
+--- a/arch/arm64/kernel/vdso/Makefile
++++ b/arch/arm64/kernel/vdso/Makefile
+@@ -32,7 +32,7 @@ UBSAN_SANITIZE			:= n
+ OBJECT_FILES_NON_STANDARD	:= y
+ KCOV_INSTRUMENT			:= n
  
- 	if (!disk_part_scan_enabled(disk))
- 		return 0;
--	if (bdev->bd_part_count || bdev->bd_openers > 1)
-+	if (bdev->bd_part_count)
- 		return -EBUSY;
- 	res = invalidate_partition(disk, 0);
- 	if (res)
+-CFLAGS_vgettimeofday.o = -O2 -mcmodel=tiny
++CFLAGS_vgettimeofday.o = -O2 -mcmodel=tiny -fasynchronous-unwind-tables
+ 
+ ifneq ($(c-gettimeofday-y),)
+   CFLAGS_vgettimeofday.o += -include $(c-gettimeofday-y)
 -- 
 2.20.1
 
