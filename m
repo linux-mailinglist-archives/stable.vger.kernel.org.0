@@ -2,157 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3DC41C9D31
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 23:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E0B61C9D84
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 23:38:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726533AbgEGVWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 17:22:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45772 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726218AbgEGVWI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 17:22:08 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C644820731;
-        Thu,  7 May 2020 21:22:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588886527;
-        bh=FTITSTKPQuycySM9HS4+Xt+5yD+fEP6AjWs4CJ3BF14=;
-        h=Date:From:To:Subject:From;
-        b=YFe60Y13rDB9RXwjoTWB4gW2N9apraAxhmtVGUbSQ7Y7rPQbtWehLqXRFOQdYAavV
-         9/FVOUO5TVAVmi/Cz0kX2czuSJoAXt6VDvmw2lI6vln7hgCVdKNYwDv1w1UpC3qMOR
-         GMXl4hbFYv9itpIjZgmDwfo0Sm/fj4T1Q4snlgOc=
-Date:   Thu, 07 May 2020 14:22:06 -0700
-From:   akpm@linux-foundation.org
-To:     dave.rodgman@arm.com, mark.rutland@arm.com, markus@oberhumer.com,
-        minchan@kernel.org, mm-commits@vger.kernel.org, ngupta@vflare.org,
-        sergey.senozhatsky.work@gmail.com, stable@vger.kernel.org,
-        w@1wt.eu, yuchao0@huawei.com
-Subject:  + lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle.patch
- added to -mm tree
-Message-ID: <20200507212206.wBl9QmMsn%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726690AbgEGVij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 17:38:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726445AbgEGVij (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 17:38:39 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50B6AC05BD43
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 14:38:39 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id u10so2607108pls.8
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 14:38:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fTS201rL0eXI40/c/DQs4xE8yn6MhGTjoR5UjIZWa7o=;
+        b=B9v9qg3GNkmjkBustQU5jlDULK9JMpNWjlhGzrI3+mssg8vcLfiPvb9TnMmLlj3aN4
+         s+LI/XP/GwVMLi/XUDYRWmwIhFoqVXs7ybfE4JijhbD3UsSTKiQeIktZIIYorXGocWSK
+         wpZkAOI1rEAQv+YccTvU+0LJ2vvAFNFhMH7Bt1X3OAZDAqbu0oC+B20Lqu5hYZ1umVCr
+         TiHgj/AlNuuU1BBM0uZJsjnOKNoDemtpCs8Xxeu1FMu0diH1N8TALuhMO0cFOtCAsFtn
+         y/UrtfzJVCltlrn5PYXBCvezQzTRv4pDqn/UYq5PRVKnsjPAyXDqI3kg4TBRbxvPX7ck
+         sDAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fTS201rL0eXI40/c/DQs4xE8yn6MhGTjoR5UjIZWa7o=;
+        b=aHna2cAr74pjmFpaJz4pWA5D3m82uwms2vK6TOUNzMYhd+osSWVtZ9PqGoOjyt98vq
+         rDTlDYxd3z8LIsWpmea4JpAo6qipsP8m77xs+VSh1x1hJEK7vkpEPCm0id/N1uqSaObS
+         wfT/jWTzd3f6ilcJziwS9v43tWIX9Cyo0qqhqXmQvrLJPawg8nnJqNcYIlKZGKRG2wU3
+         tnvPAApoPBsIJj8LfAkkw0zL8pF5HKTBd1YMWi+6Wj7X8A+f/siKGFPy42iF7TwLhMzw
+         IoJjywYsed9Ip+v+arsp11d0opgnRDj4PP5DTEBYr9XWa/KhSd5GSa1W+6r2/QUdsfGw
+         sD3g==
+X-Gm-Message-State: AGi0PuaMblwhKaCbmPixF/hi7MvTLDdI/MfR/UchxsIPFMdfm5sE8nDg
+        6cn+JHFM2Ys87i8YVQSKjmmDcz1BmUo=
+X-Google-Smtp-Source: APiQypJqpOR+P3Rl4NNnPb0usT0O/jF4aJiNXkZTMgNUddfZS5GecWX2ItoCU25d+QTrPOFeyC1+Vg==
+X-Received: by 2002:a17:902:8601:: with SMTP id f1mr15805132plo.122.1588887518437;
+        Thu, 07 May 2020 14:38:38 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id r26sm5950380pfq.75.2020.05.07.14.38.37
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 May 2020 14:38:37 -0700 (PDT)
+Message-ID: <5eb47fdd.1c69fb81.cc1b2.3d05@mx.google.com>
+Date:   Thu, 07 May 2020 14:38:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.222-321-gb1cd678a0c39
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 42 boots: 9 failed,
+ 23 passed with 5 offline, 5 untried/unknown (v4.4.222-321-gb1cd678a0c39)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 42 boots: 9 failed, 23 passed with 5 offline, 5=
+ untried/unknown (v4.4.222-321-gb1cd678a0c39)
 
-The patch titled
-     Subject: lib/lzo: fix ambiguous encoding bug in lzo-rle
-has been added to the -mm tree.  Its filename is
-     lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.222-321-gb1cd678a0c39/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.222-321-gb1cd678a0c39/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle.patch
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.222-321-gb1cd678a0c39
+Git Commit: b1cd678a0c3999314bdefe2f279faaa2d2ef5c01
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 33 unique boards, 9 SoC families, 14 builds out of 190
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Boot Regressions Detected:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+arm:
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
+ab45cabed0b)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
+ab45cabed0b)
 
-------------------------------------------------------
-From: Dave Rodgman <dave.rodgman@arm.com>
-Subject: lib/lzo: fix ambiguous encoding bug in lzo-rle
+    imx_v6_v7_defconfig:
+        gcc-8:
+          imx6dl-riotboard:
+              lab-pengutronix: new failure (last pass: v4.4.222-166-g7ab45c=
+abed0b)
+          imx6dl-wandboard_dual:
+              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
+ab45cabed0b)
+          imx6dl-wandboard_solo:
+              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
+ab45cabed0b)
 
-In some rare cases, for input data over 32 KB, lzo-rle could encode two
-different inputs to the same compressed representation, so that
-decompression is then ambiguous (i.e.  data may be corrupted - although
-zram is not affected because it operates over 4 KB pages).
+    omap2plus_defconfig:
+        gcc-8:
+          am335x-boneblack:
+              lab-baylibre: new failure (last pass: v4.4.222-166-g7ab45cabe=
+d0b)
 
-This modifies the compressor without changing the decompressor or the
-bitstream format, such that:
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 89 days (last pass: v4.4.=
+212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
 
-- there is no change to how data produced by the old compressor is
-  decompressed
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-cubieboard:
+              lab-baylibre-seattle: new failure (last pass: v4.4.222-166-g7=
+ab45cabed0b)
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v4.4.222-166-g7ab45cabe=
+d0b)
+          sun7i-a20-cubieboard2:
+              lab-clabbe: new failure (last pass: v4.4.222-166-g7ab45cabed0=
+b)
+          sun7i-a20-olinuxino-lime2:
+              lab-baylibre: new failure (last pass: v4.4.222-166-g7ab45cabe=
+d0b)
 
-- an old decompressor will correctly decode data from the updated
-  compressor
+Boot Failures Detected:
 
-- performance and compression ratio are not affected
+arm:
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
 
-- we avoid introducing a new bitstream format
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
 
-In testing over 12.8M real-world files totalling 903 GB, three files were
-affected by this bug.  I also constructed 37M semi-random 64 KB files
-totalling 2.27 TB, and saw no affected files.  Finally I tested over files
-constructed to contain each of the ~1024 possible bad input sequences; for
-all of these cases, updated lzo-rle worked correctly.
+    sunxi_defconfig:
+        gcc-8:
+            sun4i-a10-cubieboard: 1 failed lab
+            sun4i-a10-olinuxino-lime: 1 failed lab
+            sun7i-a20-cubieboard2: 1 failed lab
+            sun7i-a20-olinuxino-lime2: 1 failed lab
 
-There is no significant impact to performance or compression ratio.
+    imx_v6_v7_defconfig:
+        gcc-8:
+            imx6dl-riotboard: 1 failed lab
+            imx6dl-wandboard_dual: 1 failed lab
+            imx6dl-wandboard_solo: 1 failed lab
 
-Link: http://lkml.kernel.org/r/20200507100203.29785-1-dave.rodgman@arm.com
-Signed-off-by: Dave Rodgman <dave.rodgman@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Dave Rodgman <dave.rodgman@arm.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Markus F.X.J. Oberhumer <markus@oberhumer.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Nitin Gupta <ngupta@vflare.org>
-Cc: Chao Yu <yuchao0@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    imx_v6_v7_defconfig:
+        gcc-8
+            imx6q-wandboard: 1 offline lab
+
 ---
-
- Documentation/lzo.txt    |    8 ++++++--
- lib/lzo/lzo1x_compress.c |   13 +++++++++++++
- 2 files changed, 19 insertions(+), 2 deletions(-)
-
---- a/Documentation/lzo.txt~lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle
-+++ a/Documentation/lzo.txt
-@@ -159,11 +159,15 @@ Byte sequences
-            distance = 16384 + (H << 14) + D
-            state = S (copy S literals after this block)
-            End of stream is reached if distance == 16384
-+           In version 1 only, to prevent ambiguity with the RLE case when
-+           ((distance & 0x803f) == 0x803f) && (261 <= length <= 264), the
-+           compressor must not emit block copies where distance and length
-+           meet these conditions.
- 
-         In version 1 only, this instruction is also used to encode a run of
--        zeros if distance = 0xbfff, i.e. H = 1 and the D bits are all 1.
-+           zeros if distance = 0xbfff, i.e. H = 1 and the D bits are all 1.
-            In this case, it is followed by a fourth byte, X.
--           run length = ((X << 3) | (0 0 0 0 0 L L L)) + 4.
-+           run length = ((X << 3) | (0 0 0 0 0 L L L)) + 4
- 
-       0 0 1 L L L L L  (32..63)
-            Copy of small block within 16kB distance (preferably less than 34B)
---- a/lib/lzo/lzo1x_compress.c~lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle
-+++ a/lib/lzo/lzo1x_compress.c
-@@ -268,6 +268,19 @@ m_len_done:
- 				*op++ = (M4_MARKER | ((m_off >> 11) & 8)
- 						| (m_len - 2));
- 			else {
-+				if (unlikely(((m_off & 0x403f) == 0x403f)
-+						&& (m_len >= 261)
-+						&& (m_len <= 264))
-+						&& likely(bitstream_version)) {
-+					// Under lzo-rle, block copies
-+					// for 261 <= length <= 264 and
-+					// (distance & 0x80f3) == 0x80f3
-+					// can result in ambiguous
-+					// output. Adjust length
-+					// to 260 to prevent ambiguity.
-+					ip -= m_len - 260;
-+					m_len = 260;
-+				}
- 				m_len -= M4_MAX_LEN;
- 				*op++ = (M4_MARKER | ((m_off >> 11) & 8));
- 				while (unlikely(m_len > 255)) {
-_
-
-Patches currently in -mm which might be from dave.rodgman@arm.com are
-
-lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle.patch
-
+For more info write to <info@kernelci.org>
