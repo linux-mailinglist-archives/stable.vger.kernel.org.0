@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF591C8F97
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:36:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEABF1C8ECB
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:29:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727981AbgEGOdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57462 "EHLO mail.kernel.org"
+        id S1728626AbgEGO3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:29:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728609AbgEGO3h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:29:37 -0400
+        id S1728618AbgEGO3i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:29:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B58821473;
-        Thu,  7 May 2020 14:29:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D3F220838;
+        Thu,  7 May 2020 14:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861776;
-        bh=InpgCrl0ZmFQ6cqF9rBCEKiWlii8yN9qHDzH+ijmEqA=;
+        s=default; t=1588861778;
+        bh=hrN4jo85YX8bUHMiL0SJw51uMtj6bE77uz+J0atkXvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6RGLRp9noyqn8ifQbeh0ZEaddezXpzNnLq5oDg6SCEsirZuQ5RoCq9sSA7+2w7eK
-         A7dQVBdh7ne/Hm+a7uJerVsxzXT2mt6e6meIV8bqVxY+1sFK8c4xejVbV0Wcs1m5+0
-         7W0+69zexKkDUOm2Zy1GAcrnkg1hciVTB4FdDENk=
+        b=slr2g7Cagc1liVqlVFosb/vpwckkCxlsPBwCMhj9/PikACaCpmV/XlQwEQS/o4M+Q
+         kp+bFy/a2U5zyaVJLqshujpj3I4FJ2YqeM1DFadhtFJKH8cAsTiHq2AVLvSEzCZIjV
+         hTYftuPjZh1vYyg/LOpZf08jobCl+xEWs8E6jM1M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 16/20] ALSA: hda/hdmi: fix race in monitor detection during probe
-Date:   Thu,  7 May 2020 10:29:12 -0400
-Message-Id: <20200507142917.26612-16-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@virtuozzo.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 17/20] drm/qxl: lost qxl_bo_kunmap_atomic_page in qxl_image_init_helper()
+Date:   Thu,  7 May 2020 10:29:13 -0400
+Message-Id: <20200507142917.26612-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507142917.26612-1-sashal@kernel.org>
 References: <20200507142917.26612-1-sashal@kernel.org>
@@ -43,47 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit ca76282b6faffc83601c25bd2a95f635c03503ef ]
+[ Upstream commit 5b5703dbafae74adfbe298a56a81694172caf5e6 ]
 
-A race exists between build_pcms() and build_controls() phases of codec
-setup. Build_pcms() sets up notifier for jack events. If a monitor event
-is received before build_controls() is run, the initial jack state is
-lost and never reported via mixer controls.
+v2: removed TODO reminder
 
-The problem can be hit at least with SOF as the controller driver. SOF
-calls snd_hda_codec_build_controls() in its workqueue-based probe and
-this can be delayed enough to hit the race condition.
-
-Fix the issue by invalidating the per-pin ELD information when
-build_controls() is called. The existing call to hdmi_present_sense()
-will update the ELD contents. This ensures initial monitor state is
-correctly reflected via mixer controls.
-
-BugLink: https://github.com/thesofproject/linux/issues/1687
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200428123836.24512-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/a4e0ae09-a73c-1c62-04ef-3f990d41bea9@virtuozzo.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/qxl/qxl_image.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index c67fadd5aae53..b77cded6457a8 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2209,7 +2209,9 @@ static int generic_hdmi_build_controls(struct hda_codec *codec)
- 
- 	for (pin_idx = 0; pin_idx < spec->num_pins; pin_idx++) {
- 		struct hdmi_spec_per_pin *per_pin = get_pin(spec, pin_idx);
-+		struct hdmi_eld *pin_eld = &per_pin->sink_eld;
- 
-+		pin_eld->eld_valid = false;
- 		hdmi_present_sense(per_pin, 0);
+diff --git a/drivers/gpu/drm/qxl/qxl_image.c b/drivers/gpu/drm/qxl/qxl_image.c
+index 7fbcc35e8ad35..c89c10055641e 100644
+--- a/drivers/gpu/drm/qxl/qxl_image.c
++++ b/drivers/gpu/drm/qxl/qxl_image.c
+@@ -210,7 +210,8 @@ qxl_image_init_helper(struct qxl_device *qdev,
+ 		break;
+ 	default:
+ 		DRM_ERROR("unsupported image bit depth\n");
+-		return -EINVAL; /* TODO: cleanup */
++		qxl_bo_kunmap_atomic_page(qdev, image_bo, ptr);
++		return -EINVAL;
  	}
- 
+ 	image->u.bitmap.flags = QXL_BITMAP_TOP_DOWN;
+ 	image->u.bitmap.x = width;
 -- 
 2.20.1
 
