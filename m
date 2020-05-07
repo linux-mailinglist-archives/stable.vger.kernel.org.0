@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 051F91C8F3E
+	by mail.lfdr.de (Postfix) with ESMTP id 7337F1C8F3F
 	for <lists+stable@lfdr.de>; Thu,  7 May 2020 16:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728799AbgEGOaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 10:30:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58938 "EHLO mail.kernel.org"
+        id S1728804AbgEGOaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 10:30:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728794AbgEGOaQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 10:30:16 -0400
+        id S1728798AbgEGOaR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 10:30:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42C2E20870;
-        Thu,  7 May 2020 14:30:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59CE820936;
+        Thu,  7 May 2020 14:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588861815;
-        bh=nJmfhY9D/0skg46TMs3g17rdzK0TZirhJxFZH/IWd0s=;
+        s=default; t=1588861817;
+        bh=CO+uLJ9HtvcYQ6CT6nxFh7UjZ++6KERn7qAMs6zWCrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4ImiiXD2aUMh/dNgkfPhm9XNOoiV0HN/qKUbbgDLHrielzarkM3WzlRyIO8qRe+a
-         ZYBMVk2714LX55raxyAVdKmUj4Y21WQj0DgLu+16OlHhWGCMssegxVkOS0V4FOK0uT
-         NXZq34ylBCAY0J97tC/BQCGIS3QmiF0HjYXWWYYA=
+        b=lxUEcEC5E933FDW5SWaXIBvoiaxEggsarmRaOfOf4uECEA5GJXe3VxUSQSoPZkS0n
+         74pc7Q6WTr6sDMpQe5hsZxxVQis2zrxj92EfQi6M9yXh+xUOeMK3fEo3wh+3xHSe86
+         qXDsneHyfW8P/yL/fEJqrAaqeFDPq9Adw1ItQ1+4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 10/11] ALSA: opti9xx: shut up gcc-10 range warning
-Date:   Thu,  7 May 2020 10:30:02 -0400
-Message-Id: <20200507143003.27047-10-sashal@kernel.org>
+Cc:     Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.9 11/11] iommu/amd: Fix legacy interrupt remapping for x2APIC-enabled system
+Date:   Thu,  7 May 2020 10:30:03 -0400
+Message-Id: <20200507143003.27047-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200507143003.27047-1-sashal@kernel.org>
 References: <20200507143003.27047-1-sashal@kernel.org>
@@ -42,88 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit 5ce00760a84848d008554c693ceb6286f4d9c509 ]
+[ Upstream commit b74aa02d7a30ee5e262072a7d6e8deff10b37924 ]
 
-gcc-10 points out a few instances of suspicious integer arithmetic
-leading to value truncation:
+Currently, system fails to boot because the legacy interrupt remapping
+mode does not enable 128-bit IRTE (GA), which is required for x2APIC
+support.
 
-sound/isa/opti9xx/opti92x-ad1848.c: In function 'snd_opti9xx_configure':
-sound/isa/opti9xx/opti92x-ad1848.c:322:43: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_opti9xx_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
-  322 |   (snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/opti92x-ad1848.c:351:3: note: in expansion of macro 'snd_opti9xx_write_mask'
-  351 |   snd_opti9xx_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
-      |   ^~~~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/miro.c: In function 'snd_miro_configure':
-sound/isa/opti9xx/miro.c:873:40: error: overflow in conversion from 'int' to 'unsigned char' changes value from '(int)snd_miro_read(chip, 3) & -256 | 240' to '240' [-Werror=overflow]
-  873 |   (snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
-sound/isa/opti9xx/miro.c:1010:3: note: in expansion of macro 'snd_miro_write_mask'
- 1010 |   snd_miro_write_mask(chip, OPTi9XX_MC_REG(3), 0xf0, 0xff);
-      |   ^~~~~~~~~~~~~~~~~~~
+Fix by using AMD_IOMMU_GUEST_IR_LEGACY_GA mode when booting with
+kernel option amd_iommu_intr=legacy instead. The initialization
+logic will check GASup and automatically fallback to using
+AMD_IOMMU_GUEST_IR_LEGACY if GA mode is not supported.
 
-These are all harmless here as only the low 8 bit are passed down
-anyway. Change the macros to inline functions to make the code
-more readable and also avoid the warning.
-
-Strictly speaking those functions also need locking to make the
-read/write pair atomic, but it seems unlikely that anyone would
-still run into that issue.
-
-Fixes: 1841f613fd2e ("[ALSA] Add snd-miro driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20200429190216.85919-1-arnd@arndb.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 3928aa3f5775 ("iommu/amd: Detect and enable guest vAPIC support")
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/1587562202-14183-1-git-send-email-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/opti9xx/miro.c           | 9 ++++++---
- sound/isa/opti9xx/opti92x-ad1848.c | 9 ++++++---
- 2 files changed, 12 insertions(+), 6 deletions(-)
+ drivers/iommu/amd_iommu_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/isa/opti9xx/miro.c b/sound/isa/opti9xx/miro.c
-index 3a9067db1a842..7fbac24607bcf 100644
---- a/sound/isa/opti9xx/miro.c
-+++ b/sound/isa/opti9xx/miro.c
-@@ -875,10 +875,13 @@ static void snd_miro_write(struct snd_miro *chip, unsigned char reg,
- 	spin_unlock_irqrestore(&chip->lock, flags);
- }
- 
-+static inline void snd_miro_write_mask(struct snd_miro *chip,
-+		unsigned char reg, unsigned char value, unsigned char mask)
-+{
-+	unsigned char oldval = snd_miro_read(chip, reg);
- 
--#define snd_miro_write_mask(chip, reg, value, mask)	\
--	snd_miro_write(chip, reg,			\
--		(snd_miro_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-+	snd_miro_write(chip, reg, (oldval & ~mask) | (value & mask));
-+}
- 
- /*
-  *  Proc Interface
-diff --git a/sound/isa/opti9xx/opti92x-ad1848.c b/sound/isa/opti9xx/opti92x-ad1848.c
-index 0a52660037866..6777ae84b59e8 100644
---- a/sound/isa/opti9xx/opti92x-ad1848.c
-+++ b/sound/isa/opti9xx/opti92x-ad1848.c
-@@ -327,10 +327,13 @@ static void snd_opti9xx_write(struct snd_opti9xx *chip, unsigned char reg,
- }
- 
- 
--#define snd_opti9xx_write_mask(chip, reg, value, mask)	\
--	snd_opti9xx_write(chip, reg,			\
--		(snd_opti9xx_read(chip, reg) & ~(mask)) | ((value) & (mask)))
-+static inline void snd_opti9xx_write_mask(struct snd_opti9xx *chip,
-+		unsigned char reg, unsigned char value, unsigned char mask)
-+{
-+	unsigned char oldval = snd_opti9xx_read(chip, reg);
- 
-+	snd_opti9xx_write(chip, reg, (oldval & ~mask) | (value & mask));
-+}
- 
- static int snd_opti9xx_configure(struct snd_opti9xx *chip,
- 					   long port,
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index c113e46fdc3ab..e6ae8d1239842 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -2574,7 +2574,7 @@ static int __init parse_amd_iommu_intr(char *str)
+ {
+ 	for (; *str; ++str) {
+ 		if (strncmp(str, "legacy", 6) == 0) {
+-			amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY;
++			amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY_GA;
+ 			break;
+ 		}
+ 		if (strncmp(str, "vapic", 5) == 0) {
 -- 
 2.20.1
 
