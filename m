@@ -2,76 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 165AF1C9A91
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 21:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 189CE1C9ACB
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 21:19:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbgEGTMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 15:12:34 -0400
-Received: from nibbler.cm4all.net ([82.165.145.151]:33077 "EHLO
-        nibbler.cm4all.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728212AbgEGTM3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 15:12:29 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by nibbler.cm4all.net (Postfix) with ESMTP id 9B75EC022E
-        for <stable@vger.kernel.org>; Thu,  7 May 2020 21:12:27 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at nibbler.cm4all.net
-Received: from nibbler.cm4all.net ([127.0.0.1])
-        by localhost (nibbler.cm4all.net [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id auhR1r0P9nq1 for <stable@vger.kernel.org>;
-        Thu,  7 May 2020 21:12:27 +0200 (CEST)
-Received: from zero.intern.cm-ag (zero.intern.cm-ag [172.30.16.10])
-        by nibbler.cm4all.net (Postfix) with SMTP id 7ADA0C01F8
-        for <stable@vger.kernel.org>; Thu,  7 May 2020 21:12:27 +0200 (CEST)
-Received: (qmail 3684 invoked from network); 7 May 2020 22:28:44 +0200
-Received: from unknown (HELO rabbit.intern.cm-ag) (172.30.3.1)
-  by zero.intern.cm-ag with SMTP; 7 May 2020 22:28:44 +0200
-Received: by rabbit.intern.cm-ag (Postfix, from userid 1023)
-        id 4E1C8461450; Thu,  7 May 2020 21:12:27 +0200 (CEST)
-Date:   Thu, 7 May 2020 21:12:27 +0200
-From:   Max Kellermann <mk@cm4all.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Max Kellermann <mk@cm4all.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] fs/io_uring: fix O_PATH fds in openat, openat2, statx
-Message-ID: <20200507191227.GA16101@rabbit.intern.cm-ag>
-References: <20200507185725.15840-1-mk@cm4all.com>
- <20200507190131.GF23230@ZenIV.linux.org.uk>
- <4cac0e53-656c-50f0-3766-ae3cc6c0310a@kernel.dk>
+        id S1726367AbgEGTTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 15:19:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726558AbgEGTTl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 15:19:41 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B35DEC05BD09
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 12:19:41 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id t11so3252129pgg.2
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 12:19:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mB3v+OVcFtBZ7ZxmBQPRfPvGnWMyHqtj7wSU+ZXJm/Y=;
+        b=ot3OCpEta1bUGj7Eyn/O2BM3DsKQSlfuMJA0kfWjwta8wQItirdklq4ghFKJtmG5D+
+         tqhEah0MMH9Y7EUmZlL0zvlUaAgXCc54VBnexdTL6xeTSjrMLEqZjLyesOtnn5M24XY5
+         MMMaeJgNx4pIdqR58iZZK84+fVcbfbW6PVJCqvEP/s8Lm3Rbo6zb9Yh6Mbi1UjxsAa6I
+         QKy5btjVyumIOTJs+2LESxx92KAaDF8ohkvVgrklotjnOoE1W8mm2CD5YP94A5vrn1Bw
+         YVmmjLVNoGMNdY1mhSyfsRaFkHkLZvkA4l04C27gesBHsdKuMmfarNQqcQFAd82vY6Fu
+         XTeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mB3v+OVcFtBZ7ZxmBQPRfPvGnWMyHqtj7wSU+ZXJm/Y=;
+        b=tu/AL4e4900O9SZnnWQ5n3TQc7v6OIz5st7y6qA9WC3iz6OEs7p2JIjMTp8uwgU3tS
+         8tAMZIkcO/R20qjl2iVvTCQLH89FgCNa4msvUGuwPubrf8DmcxWGx2cXSbOVyKKJWeEo
+         cCP1K3xVtCOZeZQsq4tI4UygmYeCHSV1Kt0VRg7gJD48gHOMDEQItdGU5Y6SnEvAIFcr
+         Q5eRTEpRItZjMxT3B+p/8sxxKoF+HvrDdAJVLrDEOqbM/VlC/yZNbXxOBPxuZTVaTeLa
+         zLqWce0GiZeToHzTpJqoMeJE+fjOcU9DEEqwdQswDyEJMrFODkNAFW0dI5/Y5vPChVOQ
+         UORA==
+X-Gm-Message-State: AGi0Puborf/X8DS/LAoO9dpq6xk4gpGm6tGHAHPOUhI1q/UM+45n9J0T
+        ix2fMaTS+P8nLIiFCViI/bwfhKh7L5zMlbg24qlC5g==
+X-Google-Smtp-Source: APiQypJwDIl+NGSGeTeV9dzXBlAr5vo7snEgRhPkTUModDNer2LwguSt79l/UTDkVHvA/eFy0BCX/S1m9RhMme3bqlo=
+X-Received: by 2002:a62:146:: with SMTP id 67mr15430634pfb.169.1588879180828;
+ Thu, 07 May 2020 12:19:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4cac0e53-656c-50f0-3766-ae3cc6c0310a@kernel.dk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20200505174423.199985-1-ndesaulniers@google.com>
+ <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com> <20200507113422.GA3762@hirez.programming.kicks-ass.net>
+ <CAMzpN2hXUYvLuTA63N56ef4DEzyWXt_uVVq6PV0r8YQT-YN42g@mail.gmail.com>
+In-Reply-To: <CAMzpN2hXUYvLuTA63N56ef4DEzyWXt_uVVq6PV0r8YQT-YN42g@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Thu, 7 May 2020 12:19:30 -0700
+Message-ID: <CAKwvOd=a3MR7osKBpbq=d41ieo7G9FtOp5Kok5por1P5ZS9s4g@mail.gmail.com>
+Subject: Re: [PATCH] x86: bitops: fix build regression
+To:     Brian Gerst <brgerst@gmail.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/05/07 21:05, Jens Axboe <axboe@kernel.dk> wrote:
-> On 5/7/20 1:01 PM, Al Viro wrote:
-> > On Thu, May 07, 2020 at 08:57:25PM +0200, Max Kellermann wrote:
-> >> If an operation's flag `needs_file` is set, the function
-> >> io_req_set_file() calls io_file_get() to obtain a `struct file*`.
-> >>
-> >> This fails for `O_PATH` file descriptors, because those have no
-> >> `struct file*`
-> > 
-> > O_PATH descriptors most certainly *do* have that.  What the hell
-> > are you talking about?
-> 
-> Yeah, hence I was interested in the test case. Since this is
-> bypassing that part, was assuming we'd have some logic error
-> that attempted a file grab for a case where we shouldn't.
+On Thu, May 7, 2020 at 7:00 AM Brian Gerst <brgerst@gmail.com> wrote:
+>
+> This change will make sparse happy and allow these cleanups:
+> #define CONST_MASK(nr)                 ((u8)1 << ((nr) & 7))
 
-Reproduce this by patching liburing/test/lfs-openat.c:
+yep, this is more elegant, IMO.  Will send a v3 later with this
+change.  Looking at the uses of CONST_MASK, I noticed
+arch_change_bit() currently has the (u8) cast from commit
+838e8bb71dc0c ("x86: Implement change_bit with immediate operand as
+"lock xorb""), so that instance can get cleaned up with the above
+suggestion.
 
--       int dfd = open("/tmp", O_RDONLY | O_DIRECTORY);
-+       int dfd = open("/tmp", O_PATH);
-
- $ ./test/lfs-openat
- io_uring openat failed: Bad file descriptor
-
-GH PR: https://github.com/axboe/liburing/pull/130
-
-Max
+-- 
+Thanks,
+~Nick Desaulniers
