@@ -2,151 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70A811C956E
-	for <lists+stable@lfdr.de>; Thu,  7 May 2020 17:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8A161C9637
+	for <lists+stable@lfdr.de>; Thu,  7 May 2020 18:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726627AbgEGPvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 11:51:15 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:61665 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726616AbgEGPvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 11:51:15 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21140761-1500050 
-        for multiple; Thu, 07 May 2020 16:51:12 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] drm/i915: Mark concurrent submissions with a weak-dependency
-Date:   Thu,  7 May 2020 16:51:09 +0100
-Message-Id: <20200507155109.8892-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200507152338.7452-1-chris@chris-wilson.co.uk>
-References: <20200507152338.7452-1-chris@chris-wilson.co.uk>
+        id S1726470AbgEGQSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 12:18:02 -0400
+Received: from mail.netline.ch ([148.251.143.178]:33051 "EHLO
+        netline-mail3.netline.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726393AbgEGQSC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 12:18:02 -0400
+X-Greylist: delayed 400 seconds by postgrey-1.27 at vger.kernel.org; Thu, 07 May 2020 12:18:00 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by netline-mail3.netline.ch (Postfix) with ESMTP id B4E2B2A6176;
+        Thu,  7 May 2020 18:11:18 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at netline-mail3.netline.ch
+Received: from netline-mail3.netline.ch ([127.0.0.1])
+        by localhost (netline-mail3.netline.ch [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id ahgL4LOqw5AX; Thu,  7 May 2020 18:11:18 +0200 (CEST)
+Received: from thor (252.80.76.83.dynamic.wline.res.cust.swisscom.ch [83.76.80.252])
+        by netline-mail3.netline.ch (Postfix) with ESMTPSA id 380502A60F7;
+        Thu,  7 May 2020 18:11:18 +0200 (CEST)
+Received: from localhost ([::1])
+        by thor with esmtp (Exim 4.93)
+        (envelope-from <michel@daenzer.net>)
+        id 1jWj7F-001f40-F2; Thu, 07 May 2020 18:11:17 +0200
+Subject: Re: [PATCH AUTOSEL 5.6 33/50] drm/amdgpu: bump version for invalidate
+ L2 before SDMA IBs
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+        =?UTF-8?B?TWFyZWsgT2zFocOhaw==?= <marek.olsak@amd.com>,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+References: <20200507142726.25751-1-sashal@kernel.org>
+ <20200507142726.25751-33-sashal@kernel.org>
+From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
+Message-ID: <349b2cb9-71f9-a0cd-aceb-308512d7501a@daenzer.net>
+Date:   Thu, 7 May 2020 18:11:17 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
+In-Reply-To: <20200507142726.25751-33-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-CA
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
-correctly perform priority inheritance from the parallel branches to the
-common trunk. However, for the purpose of timeslicing and reset
-handling, the dependency is weak -- as we the pair of requests are
-allowed to run in parallel and not in strict succession.
+On 2020-05-07 4:27 p.m., Sasha Levin wrote:
+> From: Marek Olšák <marek.olsak@amd.com>
+> 
+> [ Upstream commit 9017a4897a20658f010bebea825262963c10afa6 ]
+> 
+> This fixes GPU hangs due to cache coherency issues.
+> Bump the driver version. Split out from the original patch.
+> 
+> Signed-off-by: Marek Olšák <marek.olsak@amd.com>
+> Reviewed-by: Christian König <christian.koenig@amd.com>
+> Tested-by: Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>
+> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+> index 42f4febe24c6d..8d45a2b662aeb 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+> @@ -85,9 +85,10 @@
+>   * - 3.34.0 - Non-DC can flip correctly between buffers with different pitches
+>   * - 3.35.0 - Add drm_amdgpu_info_device::tcc_disabled_mask
+>   * - 3.36.0 - Allow reading more status registers on si/cik
+> + * - 3.37.0 - L2 is invalidated before SDMA IBs, needed for correctness
+>   */
+>  #define KMS_DRIVER_MAJOR	3
+> -#define KMS_DRIVER_MINOR	36
+> +#define KMS_DRIVER_MINOR	37
+>  #define KMS_DRIVER_PATCHLEVEL	0
+>  
+>  int amdgpu_vram_limit = 0;
+> 
 
-The real significance though is that this allows us to rearrange
-groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
-so can resolve user level inter-batch scheduling dependencies from user
-semaphores.
+This requires the parent commit fdf83646c0542ecfb9adc4db8f741a1f43dca058
+"drm/amdgpu: invalidate L2 before SDMA IBs (v2)". KMS_DRIVER_MINOR is
+bumped to signal to userspace the fix in that commit is present.
 
-Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
-Testcase: igt/gem_exec_fence/submit
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
----
- drivers/gpu/drm/i915/gt/intel_lrc.c         | 3 +++
- drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
- drivers/gpu/drm/i915/i915_scheduler.c       | 6 +++---
- drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
- drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
- 5 files changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index bbdb0e2a4571..dd0fd4c4cf32 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1880,6 +1880,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 4d18f808fda2..3c38d61c90f8 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1040,7 +1040,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 	}
- 
- 	if (to->engine->schedule) {
--		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		ret = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_EXTERNAL);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -1202,7 +1204,9 @@ __i915_request_await_execution(struct i915_request *to,
- 
- 	/* Couple the dependency tree for PI on this exposed to->fence */
- 	if (to->engine->schedule) {
--		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		err = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_WEAK);
- 		if (err < 0)
- 			return err;
- 	}
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
-index 37cfcf5b321b..6e2d4190099f 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.c
-+++ b/drivers/gpu/drm/i915/i915_scheduler.c
-@@ -462,7 +462,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- }
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal)
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags)
- {
- 	struct i915_dependency *dep;
- 
-@@ -473,8 +474,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
- 	local_bh_disable();
- 
- 	if (!__i915_sched_node_add_dependency(node, signal, dep,
--					      I915_DEPENDENCY_EXTERNAL |
--					      I915_DEPENDENCY_ALLOC))
-+					      flags | I915_DEPENDENCY_ALLOC))
- 		i915_dependency_free(dep);
- 
- 	local_bh_enable(); /* kick submission tasklet */
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
-index d1dc4efef77b..6f0bf00fc569 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler.h
-@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- 				      unsigned long flags);
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal);
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags);
- 
- void i915_sched_node_fini(struct i915_sched_node *node);
- 
-diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
-index d18e70550054..7186875088a0 100644
---- a/drivers/gpu/drm/i915/i915_scheduler_types.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
-@@ -78,6 +78,7 @@ struct i915_dependency {
- 	unsigned long flags;
- #define I915_DEPENDENCY_ALLOC		BIT(0)
- #define I915_DEPENDENCY_EXTERNAL	BIT(1)
-+#define I915_DEPENDENCY_WEAK		BIT(2)
- };
- 
- #endif /* _I915_SCHEDULER_TYPES_H_ */
 -- 
-2.20.1
-
+Earthling Michel Dänzer               |               https://redhat.com
+Libre software enthusiast             |             Mesa and X developer
