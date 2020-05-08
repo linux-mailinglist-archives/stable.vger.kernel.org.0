@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD3CE1CAD74
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 368FC1CAC37
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727088AbgEHMvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59954 "EHLO mail.kernel.org"
+        id S1729880AbgEHMvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:51:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729601AbgEHMvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:08 -0400
+        id S1729877AbgEHMvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:51:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15663218AC;
-        Fri,  8 May 2020 12:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7774D24954;
+        Fri,  8 May 2020 12:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942267;
-        bh=zTXCidyF3h1FOA71xWqDYf/8fU7YbPSRgGWTDwl3/IU=;
+        s=default; t=1588942269;
+        bh=POwLX1SmMFcQfjvzYyCJqlQaSBoWeieD5GSTE2vxqa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+tw2k3knGKz2n8fiCh7wpwWUp5hr0zO71/4EVzmSsu4tSYsH3whwOD9aRdyfFPs+
-         hkCH/uQPmSQ2Y3rdfUBUOjyD92p6hKnkkWFqk0NF+9FKZ7gtPDChu+2nyrDL/1yhNV
-         kWbouCsGGW7HGapUWzc4Qya/hM/GiqrzDefWfAL8=
+        b=NLnYKjzJqFwRqQj1A8HxVnH8cqozV2Ts7DrhDvaTZ4ZWAWVasanYraDKEDSNRnetL
+         bGgNa/M6nnLUh1x1JbJ383DSCfKyWN2n8gLpycn4f8yYKEDwSQZEN5eUar/KQA16nZ
+         T6hA0fR2+kvg25eItCIOjIf5lQ7OuO6BUYriz6RI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sandeep Raghuraman <sandy.8925@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/32] drm/amdgpu: Correctly initialize thermal controller for GPUs with Powerplay table v0 (e.g Hawaii)
-Date:   Fri,  8 May 2020 14:35:23 +0200
-Message-Id: <20200508123036.210403530@linuxfoundation.org>
+Subject: [PATCH 4.19 11/32] wimax/i2400m: Fix potential urb refcnt leak
+Date:   Fri,  8 May 2020 14:35:24 +0200
+Message-Id: <20200508123036.302330740@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
 References: <20200508123034.886699170@linuxfoundation.org>
@@ -44,57 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandeep Raghuraman <sandy.8925@gmail.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit bbc25dadc7ed19f9d6b2e30980f0eb4c741bb8bf ]
+[ Upstream commit 7717cbec172c3554d470023b4020d5781961187e ]
 
-Initialize thermal controller fields in the PowerPlay table for Hawaii
-GPUs, so that fan speeds are reported.
+i2400mu_bus_bm_wait_for_ack() invokes usb_get_urb(), which increases the
+refcount of the "notif_urb".
 
-Signed-off-by: Sandeep Raghuraman <sandy.8925@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+When i2400mu_bus_bm_wait_for_ack() returns, local variable "notif_urb"
+becomes invalid, so the refcount should be decreased to keep refcount
+balanced.
+
+The issue happens in all paths of i2400mu_bus_bm_wait_for_ack(), which
+forget to decrease the refcnt increased by usb_get_urb(), causing a
+refcnt leak.
+
+Fix this issue by calling usb_put_urb() before the
+i2400mu_bus_bm_wait_for_ack() returns.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/powerplay/hwmgr/processpptables.c | 26 +++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/net/wimax/i2400m/usb-fw.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/processpptables.c b/drivers/gpu/drm/amd/powerplay/hwmgr/processpptables.c
-index 925e17104f909..b9e08b06ed5db 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/processpptables.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/processpptables.c
-@@ -983,6 +983,32 @@ static int init_thermal_controller(
- 			struct pp_hwmgr *hwmgr,
- 			const ATOM_PPLIB_POWERPLAYTABLE *powerplay_table)
- {
-+	hwmgr->thermal_controller.ucType =
-+			powerplay_table->sThermalController.ucType;
-+	hwmgr->thermal_controller.ucI2cLine =
-+			powerplay_table->sThermalController.ucI2cLine;
-+	hwmgr->thermal_controller.ucI2cAddress =
-+			powerplay_table->sThermalController.ucI2cAddress;
-+
-+	hwmgr->thermal_controller.fanInfo.bNoFan =
-+		(0 != (powerplay_table->sThermalController.ucFanParameters &
-+			ATOM_PP_FANPARAMETERS_NOFAN));
-+
-+	hwmgr->thermal_controller.fanInfo.ucTachometerPulsesPerRevolution =
-+		powerplay_table->sThermalController.ucFanParameters &
-+		ATOM_PP_FANPARAMETERS_TACHOMETER_PULSES_PER_REVOLUTION_MASK;
-+
-+	hwmgr->thermal_controller.fanInfo.ulMinRPM
-+		= powerplay_table->sThermalController.ucFanMinRPM * 100UL;
-+	hwmgr->thermal_controller.fanInfo.ulMaxRPM
-+		= powerplay_table->sThermalController.ucFanMaxRPM * 100UL;
-+
-+	set_hw_cap(hwmgr,
-+		   ATOM_PP_THERMALCONTROLLER_NONE != hwmgr->thermal_controller.ucType,
-+		   PHM_PlatformCaps_ThermalController);
-+
-+	hwmgr->thermal_controller.use_hw_fan_control = 1;
-+
- 	return 0;
- }
+diff --git a/drivers/net/wimax/i2400m/usb-fw.c b/drivers/net/wimax/i2400m/usb-fw.c
+index 529ebca1e9e13..1f7709d24f352 100644
+--- a/drivers/net/wimax/i2400m/usb-fw.c
++++ b/drivers/net/wimax/i2400m/usb-fw.c
+@@ -354,6 +354,7 @@ ssize_t i2400mu_bus_bm_wait_for_ack(struct i2400m *i2400m,
+ 		usb_autopm_put_interface(i2400mu->usb_iface);
+ 	d_fnend(8, dev, "(i2400m %p ack %p size %zu) = %ld\n",
+ 		i2400m, ack, ack_size, (long) result);
++	usb_put_urb(&notif_urb);
+ 	return result;
  
+ error_exceeded:
 -- 
 2.20.1
 
