@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 064761CAD23
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46DB31CAC1F
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726751AbgEHMwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:52:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33144 "EHLO mail.kernel.org"
+        id S1728280AbgEHMuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:50:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729005AbgEHMwG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:52:06 -0400
+        id S1729825AbgEHMuK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:50:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6489224964;
-        Fri,  8 May 2020 12:52:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17EE7218AC;
+        Fri,  8 May 2020 12:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942322;
-        bh=jLd/m6vXXjMduVePN9+R0gj6Wj03nfzM/HiOjiE5sA4=;
+        s=default; t=1588942210;
+        bh=FoaQyXCTpiF64dTsxTeMg1cZZGMD44nMvDekcFHo3/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfBj2IjdnY7fhj71tzvhObOrt7dijjQTTTBNixynbLY0C2+1XnkDvTX1Gye4EbI1U
-         /VADLPZUco1jHELPmnfhM4UR/xvEMJUUuimCt5BbY26nmCteTwMVXOyAgR3RyrS4Cy
-         sQlx9y5zpXySnSuHqIMo2WJxqLdp2eB8QTx5gETQ=
+        b=qTGkCnKU39smYNmKlZfCZXS8RRzr9oiLFYMQVrZCqLyCb5RR5kPp9k2byqfeVuw5L
+         t9sET6xWT7s3fbDoM8a6ejHY8QZ3PwAEyo0U3hc/K6tnH34vEugbabwgpLlvgUbSyV
+         QpTxA9DoisSyD8KhHo3Y2bYkZRxZA1nsOLEdfQhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Julien Beraud <julien.beraud@orolia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/32] ASoC: codecs: hdac_hdmi: Fix incorrect use of list_for_each_entry
+Subject: [PATCH 4.14 10/22] net: stmmac: Fix sub-second increment
 Date:   Fri,  8 May 2020 14:35:22 +0200
-Message-Id: <20200508123036.041556222@linuxfoundation.org>
+Message-Id: <20200508123035.160984554@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
+References: <20200508123033.915895060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Julien Beraud <julien.beraud@orolia.com>
 
-[ Upstream commit 326b509238171d37402dbe308e154cc234ed1960 ]
+[ Upstream commit 91a2559c1dc5b0f7e1256d42b1508935e8eabfbf ]
 
-If we don't find any pcm, pcm will point at address at an offset from
-the the list head and not a meaningful structure. Fix this by returning
-correct pcm if found and NULL if not. Found with coccinelle.
+In fine adjustement mode, which is the current default, the sub-second
+    increment register is the number of nanoseconds that will be added to
+    the clock when the accumulator overflows. At each clock cycle, the
+    value of the addend register is added to the accumulator.
+    Currently, we use 20ns = 1e09ns / 50MHz as this value whatever the
+    frequency of the ptp clock actually is.
+    The adjustment is then done on the addend register, only incrementing
+    every X clock cycles X being the ratio between 50MHz and ptp_clock_rate
+    (addend = 2^32 * 50MHz/ptp_clock_rate).
+    This causes the following issues :
+    - In case the frequency of the ptp clock is inferior or equal to 50MHz,
+      the addend value calculation will overflow and the default
+      addend value will be set to 0, causing the clock to not work at
+      all. (For instance, for ptp_clock_rate = 50MHz, addend = 2^32).
+    - The resolution of the timestamping clock is limited to 20ns while it
+      is not needed, thus limiting the accuracy of the timestamping to
+      20ns.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20200415162849.308-1-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+    Fix this by setting sub-second increment to 2e09ns / ptp_clock_rate.
+    It will allow to reach the minimum possible frequency for
+    ptp_clk_ref, which is 5MHz for GMII 1000Mps Full-Duplex by setting the
+    sub-second-increment to a higher value. For instance, for 25MHz, it
+    gives ssinc = 80ns and default_addend = 2^31.
+    It will also allow to use a lower value for sub-second-increment, thus
+    improving the timestamping accuracy with frequencies higher than
+    100MHz, for instance, for 200MHz, ssinc = 10ns and default_addend =
+    2^31.
+
+v1->v2:
+ - Remove modifications to the calculation of default addend, which broke
+ compatibility with clock frequencies for which 2000000000 / ptp_clk_freq
+ is not an integer.
+ - Modify description according to discussions.
+
+Signed-off-by: Julien Beraud <julien.beraud@orolia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hdmi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c    | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/codecs/hdac_hdmi.c b/sound/soc/codecs/hdac_hdmi.c
-index be2473166bfaf..4594b1447900a 100644
---- a/sound/soc/codecs/hdac_hdmi.c
-+++ b/sound/soc/codecs/hdac_hdmi.c
-@@ -148,14 +148,14 @@ static struct hdac_hdmi_pcm *
- hdac_hdmi_get_pcm_from_cvt(struct hdac_hdmi_priv *hdmi,
- 			   struct hdac_hdmi_cvt *cvt)
- {
--	struct hdac_hdmi_pcm *pcm = NULL;
-+	struct hdac_hdmi_pcm *pcm;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+index 41d528fbebb41..ccf7381c8baec 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+@@ -36,12 +36,16 @@ static u32 stmmac_config_sub_second_increment(void __iomem *ioaddr,
+ 	unsigned long data;
+ 	u32 reg_value;
  
- 	list_for_each_entry(pcm, &hdmi->pcm_list, head) {
- 		if (pcm->cvt == cvt)
--			break;
-+			return pcm;
- 	}
+-	/* For GMAC3.x, 4.x versions, convert the ptp_clock to nano second
+-	 *	formula = (1/ptp_clock) * 1000000000
+-	 * where ptp_clock is 50MHz if fine method is used to update system
++	/* For GMAC3.x, 4.x versions, in "fine adjustement mode" set sub-second
++	 * increment to twice the number of nanoseconds of a clock cycle.
++	 * The calculation of the default_addend value by the caller will set it
++	 * to mid-range = 2^31 when the remainder of this division is zero,
++	 * which will make the accumulator overflow once every 2 ptp_clock
++	 * cycles, adding twice the number of nanoseconds of a clock cycle :
++	 * 2000000000ULL / ptp_clock.
+ 	 */
+ 	if (value & PTP_TCR_TSCFUPDT)
+-		data = (1000000000ULL / 50000000);
++		data = (2000000000ULL / ptp_clock);
+ 	else
+ 		data = (1000000000ULL / ptp_clock);
  
--	return pcm;
-+	return NULL;
- }
- 
- static void hdac_hdmi_jack_report(struct hdac_hdmi_pcm *pcm,
 -- 
 2.20.1
 
