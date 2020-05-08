@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EDDE1CAC0B
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32C8B1CAD1F
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728559AbgEHMtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:49:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55256 "EHLO mail.kernel.org"
+        id S1729434AbgEHMvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:51:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729751AbgEHMtb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:49:31 -0400
+        id S1729921AbgEHMvu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:51:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 458B521473;
-        Fri,  8 May 2020 12:49:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F96024964;
+        Fri,  8 May 2020 12:51:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942170;
-        bh=Hl1LxDpnfMYnR22dTbVNhRHjrc+J+pqClyoq8nfljSU=;
+        s=default; t=1588942309;
+        bh=/pCLZHYr2OmVi2mS3ZUGZ80/NyMpK1+qw2ThEw/BWPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JngP224gWiYOxuEeV/wLTAohkOqUzyELVnUKnPsLAaewvGbxFT/Y4B3pzKVow+Rg6
-         UrlJ21MfVV6JynVD8Gq0BdPSruPgBLCQpZlFktIoJLMApICg5yQNfHWB7FHigQ++Wp
-         hXwMgVhVXkD86xnhSCWdkk66ytiJ/YP7qlQDIv50=
+        b=tA42iEqhjWArKnA9r7VDCNHKfuEqVbaU8kqlOnG2FHbC3Yy27TLkoaIGMIQUaGeZH
+         mfLQVkToaOHYiF4SGcKfReW3lT1ZuztTJqGxiHaotG69KwXYgcIkGlDJRuoopDSpZL
+         XgJILUSF/JDuW2owwYGNcKQPKAFLl6Tt5rTpcV2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/18] net: systemport: suppress warnings on failed Rx SKB allocations
-Date:   Fri,  8 May 2020 14:35:16 +0200
-Message-Id: <20200508123033.662294858@linuxfoundation.org>
+Subject: [PATCH 4.19 04/32] selftests/ipc: Fix test failure seen after initial test run
+Date:   Fri,  8 May 2020 14:35:17 +0200
+Message-Id: <20200508123035.369367672@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
-References: <20200508123030.497793118@linuxfoundation.org>
+In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
+References: <20200508123034.886699170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-[ Upstream commit 3554e54a46125030c534820c297ed7f6c3907e24 ]
+[ Upstream commit b87080eab4c1377706c113fc9c0157f19ea8fed1 ]
 
-The driver is designed to drop Rx packets and reclaim the buffers
-when an allocation fails, and the network interface needs to safely
-handle this packet loss. Therefore, an allocation failure of Rx
-SKBs is relatively benign.
+After successfully running the IPC msgque test once, subsequent runs
+result in a test failure:
 
-However, the output of the warning message occurs with a high
-scheduling priority that can cause excessive jitter/latency for
-other high priority processing.
+  $ sudo ./run_kselftest.sh
+  TAP version 13
+  1..1
+  # selftests: ipc: msgque
+  # Failed to get stats for IPC queue with id 0
+  # Failed to dump queue: -22
+  # Bail out!
+  # # Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
+  not ok 1 selftests: ipc: msgque # exit=1
 
-This commit suppresses the warning messages to prevent scheduling
-problems while retaining the failure count in the statistics of
-the network interface.
+The dump_queue() function loops through the possible message queue index
+values using calls to msgctl(kern_id, MSG_STAT, ...) where kern_id
+represents the index value. The first time the test is ran, the initial
+index value of 0 is valid and the test is able to complete. The index
+value of 0 is not valid in subsequent test runs and the loop attempts to
+try index values of 1, 2, 3, and so on until a valid index value is
+found that corresponds to the message queue created earlier in the test.
 
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The msgctl() syscall returns -1 and sets errno to EINVAL when invalid
+index values are used. The test failure is caused by incorrectly
+comparing errno to -EINVAL when cycling through possible index values.
+
+Fix invalid test failures on subsequent runs of the msgque test by
+correctly comparing errno values to a non-negated EINVAL.
+
+Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/ipc/msgque.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -504,7 +504,8 @@ static struct sk_buff *bcm_sysport_rx_re
- 	dma_addr_t mapping;
- 
- 	/* Allocate a new SKB for a new packet */
--	skb = netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH);
-+	skb = __netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH,
-+				 GFP_ATOMIC | __GFP_NOWARN);
- 	if (!skb) {
- 		priv->mib.alloc_rx_buff_failed++;
- 		netif_err(priv, rx_err, ndev, "SKB alloc failed\n");
+diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
+index 4c156aeab6b80..5ec4d9e18806c 100644
+--- a/tools/testing/selftests/ipc/msgque.c
++++ b/tools/testing/selftests/ipc/msgque.c
+@@ -137,7 +137,7 @@ int dump_queue(struct msgque_data *msgque)
+ 	for (kern_id = 0; kern_id < 256; kern_id++) {
+ 		ret = msgctl(kern_id, MSG_STAT, &ds);
+ 		if (ret < 0) {
+-			if (errno == -EINVAL)
++			if (errno == EINVAL)
+ 				continue;
+ 			printf("Failed to get stats for IPC queue with id %d\n",
+ 					kern_id);
+-- 
+2.20.1
+
 
 
