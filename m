@@ -2,128 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD781CA271
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 06:54:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 528001CA2A2
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 07:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725959AbgEHEyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 00:54:19 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:27997 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725891AbgEHEyT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 00:54:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588913657;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=W+BH4TenlCplFqY4LfV4/xPxDpNHfh9hRZl8/P0YOWA=;
-        b=jMu44hv/uGIfGIacGSfHEyXuTB/MXfdqWW+fQcJOhyWmWsqRgt2An/7IBXhtQ3Fc6TTbIH
-        4m6J46b92hsiiGD1X8LKXuuimKhIqWcJNusLrByB942DV6iT3UVxjTmuI3jQK1kVOlzcDf
-        CCjrktvvFhzQM4XZviiWZQ418CevwOQ=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-207-3ahq_wBKPLuXWJwrAyF8bg-1; Fri, 08 May 2020 00:54:14 -0400
-X-MC-Unique: 3ahq_wBKPLuXWJwrAyF8bg-1
-Received: by mail-qk1-f197.google.com with SMTP id r124so776550qkf.1
-        for <stable@vger.kernel.org>; Thu, 07 May 2020 21:54:14 -0700 (PDT)
+        id S1725681AbgEHF0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 01:26:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47738 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725812AbgEHF0g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 01:26:36 -0400
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF1FC05BD0B
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 22:26:35 -0700 (PDT)
+Received: by mail-vs1-xe43.google.com with SMTP id s11so358509vsq.13
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 22:26:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=jgXEH2RG1EUF/osFI6e00b26mIaF+BkthMPU4Amf75U=;
+        b=aQxYapeY3RhEj3QL+T0cTy4xQcneFUuBAt8xTEY2IXRwEOOVRYsKFr1vFpbknIr7TQ
+         Dt6Sg0Y7pSFJBAiB17pgomIr28oE2tVknu4W9Kv7SKPx0Su1+iO83SgeJib8yog72aod
+         CYvnQHz6m0I97taYXOmH/9t8sac2Mj9xpoRaiRC7Urd2KbpcB6xMFeq4JWglybksHYae
+         0suCF36vSePFEYyetLKwBK08CUFHmo/nPc8dhhqiCEotWsV4V70GtePv6YmEp6G/d/E0
+         hk2LE8bxRcbIcDeUCNSa0nnVBqLEDSenIS60AyrCG2rp0clckoQmFtpu/VhJKE7OD5HT
+         5wVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to;
-        bh=W+BH4TenlCplFqY4LfV4/xPxDpNHfh9hRZl8/P0YOWA=;
-        b=SpjpA9TuxTQltvA/NgYQu6JDPVBm/4wiC1jcYvnZ6dfjJS1WKAxx0QumPUSXjHBkGS
-         sO0CU+p9SqEE7bZQU1FY5Y18xWL1TngvziRnsmUsZoB18lELGMfSOcXwUxtP1R2+RJvh
-         X2FFDoDl8wQbD+leZFPoC8QvJjAzr4LG8iKkPNte6+YyFyoy+z61uzXf34eIisG6qw51
-         R+6rTJ7TC8UUQC8pYRWxPQcVEApP3zQVD/Vea3vwvaHuCZDSYfGw+Y5YePr9bq2ZMgOt
-         6T+U+Yu5KlRiW8en7aFsdJvtWB8kkLIDML4gXDNcyIM6uK1EozEXMCBe6EB+UYqHFIMY
-         3o3Q==
-X-Gm-Message-State: AGi0PuZstIhanchET9nHmoNMSzQA3FtmRnvpKmc+oXTYMxWt9oYIOeiv
-        /Mp/jQRH0UtCJTBuzVlZ11CQlWEmFuUxTd7EnpRxztmYIPGGOs1rE+ZLGnjLDNd+NfkCKuHXMRq
-        LA/06B/O9otU48kyo
-X-Received: by 2002:a05:620a:137a:: with SMTP id d26mr981424qkl.326.1588913653470;
-        Thu, 07 May 2020 21:54:13 -0700 (PDT)
-X-Google-Smtp-Source: APiQypKpCzh7dC75r/MEmmnhuO4dvSN1lWqIA2UHRHPDduq9JF8X3WqJrMJ1jfKbHh4DRXapi4o3bQ==
-X-Received: by 2002:a05:620a:137a:: with SMTP id d26mr981403qkl.326.1588913653191;
-        Thu, 07 May 2020 21:54:13 -0700 (PDT)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id j20sm565484qtr.5.2020.05.07.21.54.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2020 21:54:12 -0700 (PDT)
-Date:   Thu, 7 May 2020 21:54:10 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Roberto Sassu <roberto.sassu@huawei.com>,
-        James.Bottomley@hansenpartnership.com,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4 1/7] ima: Switch to ima_hash_algo for boot aggregate
-Message-ID: <20200508045410.t7gawyklyecupe2u@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: Mimi Zohar <zohar@linux.ibm.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        James.Bottomley@hansenpartnership.com,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-        silviu.vlasceanu@huawei.com, stable@vger.kernel.org
-References: <20200325104712.25694-1-roberto.sassu@huawei.com>
- <20200325104712.25694-2-roberto.sassu@huawei.com>
- <1585871617.7311.5.camel@linux.ibm.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jgXEH2RG1EUF/osFI6e00b26mIaF+BkthMPU4Amf75U=;
+        b=r2uRbGWd/s5R2h8tmHfeCOj47MLUL0kIa7jTpJPDmqI/c29qj24ejLVE7JYyKorSOj
+         o+a9dp33ShsnHXZ++9pakJ97I61mrkY4mospz4O8WS0HQtGg9p6yrYsaqy1aUTuDRpyD
+         wo1H0VzaiUpUacYgFPr8tMkDCJm6T0n/LgIXqIt7OWRZAti6OD1JTaepLY37v6I+KTnK
+         kTAsLDzbqPxIPrGocvWqZO6UVYSY7oNiUog0LPf6zT3+3NdObEy5BfFwz9qabNMpct52
+         ZqQvc0nfUeXpcHbN2pFlWckHa9JwZeKFnFBhlMlWnSkvPddqTGjsCUHBYyYnbQT6XMls
+         0cyA==
+X-Gm-Message-State: AGi0PuYGZtQkIg6MmDQZTJiL4mJhIL4Q9WKXqbygVdnOTpOD0eGXv0zV
+        91EW6R0xAbhG4RGrjI7dDDQhOAOU/f4Yba8GWORnkw==
+X-Google-Smtp-Source: APiQypIrnxR8E4rtJEWtj/6ZH8t5DZDcf7RygyXFGfVM1Io8rU8yL+5jnboGDWJNeT0QTfXFiWaC/4h8RJ4VKlAz4Go=
+X-Received: by 2002:a67:8b46:: with SMTP id n67mr567817vsd.35.1588915594812;
+ Thu, 07 May 2020 22:26:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1585871617.7311.5.camel@linux.ibm.com>
+References: <1588775643-18037-1-git-send-email-vbadigan@codeaurora.org>
+ <1588775643-18037-3-git-send-email-vbadigan@codeaurora.org>
+ <b4a01f2c-479a-2a23-58b7-64f16cbc17a2@intel.com> <66747f4c-e61f-509f-a3cc-7e3499a844e4@intel.com>
+In-Reply-To: <66747f4c-e61f-509f-a3cc-7e3499a844e4@intel.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Fri, 8 May 2020 07:25:58 +0200
+Message-ID: <CAPDyKFo10JFbe7ZFnRBE2e55eGs-odAWYxU+Ep0S74003aLGpg@mail.gmail.com>
+Subject: Re: [PATCH] mmc: block: Fix request completion in the CQE timeout path
+To:     Adrian Hunter <adrian.hunter@intel.com>
+Cc:     Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        Sahitya Tummala <stummala@codeaurora.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        Sarthak Garg <sartgarg@codeaurora.org>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Baolin Wang <baolin.wang@linaro.org>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Christoph Hellwig <hch@lst.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu Apr 02 20, Mimi Zohar wrote:
->Hi Roberto,
+On Thu, 7 May 2020 at 16:06, Adrian Hunter <adrian.hunter@intel.com> wrote:
 >
->On Wed, 2020-03-25 at 11:47 +0100, Roberto Sassu wrote:
->> boot_aggregate is the first entry of IMA measurement list. Its purpose is
->> to link pre-boot measurements to IMA measurements. As IMA was designed to
->> work with a TPM 1.2, the SHA1 PCR bank was always selected even if a
->> TPM 2.0 with support for stronger hash algorithms is available.
->>
->> This patch first tries to find a PCR bank with the IMA default hash
->> algorithm. If it does not find it, it selects the SHA256 PCR bank for
->> TPM 2.0 and SHA1 for TPM 1.2. Ultimately, it selects SHA1 also for TPM 2.0
->> if the SHA256 PCR bank is not found.
->>
->> If none of the PCR banks above can be found, boot_aggregate file digest is
->> filled with zeros, as for TPM bypass, making it impossible to perform a
->> remote attestation of the system.
->>
->> Cc: stable@vger.kernel.org # 5.1.x
->> Fixes: 879b589210a9 ("tpm: retrieve digest size of unknown algorithms with PCR read")
->> Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
->> Suggested-by: James Bottomley <James.Bottomley@HansenPartnership.com>
->> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> First, it should be noted that the CQE timeout (60 seconds) is substantial
+> so a CQE request that times out is really stuck, and the race between
+> timeout and completion is extremely unlikely. Nevertheless this patch
+> fixes an issue with it.
 >
->Thank you!  This patch set is now queued in next-integrity-testing
->during the open window.  Jerry, I assume this works for you.  Could we
->get your tag?
+> Commit ad73d6feadbd7b ("mmc: complete requests from ->timeout")
+> preserved the existing functionality, to complete the request.
+> However that had only been necessary because the block layer
+> timeout handler had been marking the request to prevent it from being
+> completed normally. That restriction was removed at the same time, the
+> result being that a request that has gone will have been completed anyway.
+> That is, the completion in the timeout handler became unnecessary.
 >
->thanks!
+> At the time, the unnecessary completion was harmless because the block
+> layer would ignore it, although that changed in kernel v5.0.
 >
->Mimi
+> Note for stable, this patch will not apply cleanly without patch "mmc:
+> core: Fix recursive locking issue in CQE recovery path"
 >
+> Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+> Fixes: ad73d6feadbd7b ("mmc: complete requests from ->timeout")
+> Cc: stable@vger.kernel.org
+> ---
+>
+>
+> This is the patch I alluded to when replying to "mmc: core: Fix recursive
+> locking issue in CQE recovery path"
 
-Hi Mimi,
+Looks like the patch got corrupted, I was trying to fix it, but just
+couldn't figure it out.
 
-Yes, I no longer get the errors with this patch.
+Can you please re-format and do a repost?
 
+Kind regards
+Uffe
 
-Tested-by: Jerry Snitselaar <jsnitsel@redhat.com>
-
-
-Regards,
-Jerry
-
+>
+>
+>  drivers/mmc/core/queue.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+> index 72bef39d7011..10ea67892b5f 100644
+> --- a/drivers/mmc/core/queue.c
+> +++ b/drivers/mmc/core/queue.c
+> @@ -110,8 +110,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct
+> request *req)
+>                                 mmc_cqe_recovery_notifier(mrq);
+>                         return BLK_EH_RESET_TIMER;
+>                 }
+> -               /* No timeout (XXX: huh? comment doesn't make much sense) */
+> -               blk_mq_complete_request(req);
+> +               /* The request has gone already */
+>                 return BLK_EH_DONE;
+>         default:
+>                 /* Timeout is handled by mmc core */
+> --
+> 2.17.1
+>
