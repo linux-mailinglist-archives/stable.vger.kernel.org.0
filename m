@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 148FE1CACF1
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AA101CAC7C
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729484AbgEHM5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:57:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38410 "EHLO mail.kernel.org"
+        id S1730114AbgEHMxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:53:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730330AbgEHMzZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:55:25 -0400
+        id S1730087AbgEHMxq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:53:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD01824981;
-        Fri,  8 May 2020 12:55:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDC0624953;
+        Fri,  8 May 2020 12:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942525;
-        bh=4ixHUeGpe00TRaEH2g0lDSvOlSg909bS7BXXCPO/Xqo=;
+        s=default; t=1588942426;
+        bh=W3z8GpEqUg7Gwz4mNu6eXk9h4W8cmjS7GxG53neu7o8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sE7iw4t9NkV16I0baqXPWmabRhu+HeyY7wsLLaJLbJhUdLe9FAt6OtsWdWE8mflYs
-         rjO+tc/OqiITnanbji+v5YXxvY5ElKgoUVw3eTmpQgAIfbRBlSA9k6KekSKPmd0wiH
-         IplFId+2Oass7Jt8upQScUgpeC/3jPZ9cEJioKGU=
+        b=RRj3VQXb6V4Ea1xzfpcGNI5mayh50EgROeGlnJCa4JXTVk1jf+b2E2GiGzKpVFuuM
+         tQRLgtZkgun2UKjP3gGkreIVnjLIT6jU3GMyq6ebC0WYmDz1u9Tgyr9FpC5ynPSVA/
+         HQ+3UktRSMwEnRJe4qH6fdOm1rOZg+x12UU0MJz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 30/49] cifs: protect updating server->dstaddr with a spinlock
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 41/50] platform/x86: GPD pocket fan: Fix error message when temp-limits are out of range
 Date:   Fri,  8 May 2020 14:35:47 +0200
-Message-Id: <20200508123047.247086833@linuxfoundation.org>
+Message-Id: <20200508123048.829805838@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
-References: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit fada37f6f62995cc449b36ebba1220594bfe55fe ]
+commit 1d6f8c5bac93cceb2d4ac8e6331050652004d802 upstream.
 
-We use a spinlock while we are reading and accessing the destination address for a server.
-We need to also use this spinlock to protect when we are modifying this address from
-reconn_set_ipaddr().
+Commit 1f27dbd8265d ("platform/x86: GPD pocket fan: Allow somewhat
+lower/higher temperature limits") changed the module-param sanity check
+to accept temperature limits between 20 and 90 degrees celcius.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But the error message printed when the module params are outside this
+range was not updated. This commit updates the error message to match
+the new min and max value for the temp-limits.
+
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/cifs/connect.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/x86/gpd-pocket-fan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 4804d1df8c1cf..d4a23b48e24d8 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -375,8 +375,10 @@ static int reconn_set_ipaddr(struct TCP_Server_Info *server)
- 		return rc;
- 	}
+--- a/drivers/platform/x86/gpd-pocket-fan.c
++++ b/drivers/platform/x86/gpd-pocket-fan.c
+@@ -128,7 +128,7 @@ static int gpd_pocket_fan_probe(struct p
  
-+	spin_lock(&cifs_tcp_ses_lock);
- 	rc = cifs_convert_address((struct sockaddr *)&server->dstaddr, ipaddr,
- 				  strlen(ipaddr));
-+	spin_unlock(&cifs_tcp_ses_lock);
- 	kfree(ipaddr);
- 
- 	return !rc ? -1 : 0;
--- 
-2.20.1
-
+ 	for (i = 0; i < ARRAY_SIZE(temp_limits); i++) {
+ 		if (temp_limits[i] < 20000 || temp_limits[i] > 90000) {
+-			dev_err(&pdev->dev, "Invalid temp-limit %d (must be between 40000 and 70000)\n",
++			dev_err(&pdev->dev, "Invalid temp-limit %d (must be between 20000 and 90000)\n",
+ 				temp_limits[i]);
+ 			temp_limits[0] = TEMP_LIMIT0_DEFAULT;
+ 			temp_limits[1] = TEMP_LIMIT1_DEFAULT;
 
 
