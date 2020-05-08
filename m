@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A5C51CAB35
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE3041CAF8D
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728822AbgEHMl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36304 "EHLO mail.kernel.org"
+        id S1727801AbgEHMlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:41:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728820AbgEHMl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:41:26 -0400
+        id S1727094AbgEHMla (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:41:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E15FB2495F;
-        Fri,  8 May 2020 12:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5E3920731;
+        Fri,  8 May 2020 12:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941685;
-        bh=AaVBMed/jK2tTG+Zl65dMFrH0jP3Wozb96iodgcBeLQ=;
+        s=default; t=1588941690;
+        bh=q+u+Ooo9X2BXKnDKEMm+z9vr/5/zeJ8JyneIAjRTENw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqt18IfLeao4MTKZ/+gAq0xrwJwyi4r+K3kLC1a/YpUhji2TFlXwFHbQOlYxwehM0
-         GqTjYEhMPcJMpofYitve6iNFFgGTGwWosFWIWqQn+uD9Kwx3z5xCQUuJTGR7AtGdGP
-         YREFPklQqfedKgoaLcPqbAgiaFWUZXrfqYIbSNbk=
+        b=aBMcBpAQvem86GY7eGEZ5UG7KC9d424dJQiwHHhX0uy7v9s6bIbme/4Y8pS4zLowx
+         46ruUVAhRyimysOWXrppNES2r0wh4pPXeF5GXHD+UGwhXq+MF0oovEwMhuZuWLPhc/
+         KsUyAcM1KQkaZeA1rGa66X+xBADe24waHm7tohMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 131/312] net: get rid of an signed integer overflow in ip_idents_reserve()
-Date:   Fri,  8 May 2020 14:32:02 +0200
-Message-Id: <20200508123133.721321591@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@free-electrons.com>,
+        Dinh Nguyen <dinguyen@opensource.altera.com>,
+        Brian Norris <computersforpeace@gmail.com>
+Subject: [PATCH 4.4 132/312] mtd: nand: denali: add missing nand_release() call in denali_remove()
+Date:   Fri,  8 May 2020 14:32:03 +0200
+Message-Id: <20200508123133.790481132@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,51 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
 
-commit adb03115f4590baa280ddc440a8eff08a6be0cb7 upstream.
+commit 320092a05dab2f44819c42f33d6b51efb6c474f2 upstream.
 
-Jiri Pirko reported an UBSAN warning happening in ip_idents_reserve()
+Unregister the NAND device from the NAND subsystem when removing a denali
+NAND controller, otherwise the MTD attached to the NAND device is still
+exposed by the MTD layer, and accesses to this device will likely crash
+the system.
 
-[] UBSAN: Undefined behaviour in ./arch/x86/include/asm/atomic.h:156:11
-[] signed integer overflow:
-[] -2117905507 + -695755206 cannot be represented in type 'int'
-
-Since we do not have uatomic_add_return() yet, use atomic_cmpxchg()
-so that the arithmetics can be done using unsigned int.
-
-Fixes: 04ca6973f7c1 ("ip: make IP identifiers less predictable")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2a0a288ec258 ("mtd: denali: split the generic driver and PCI layer")
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+Acked-by: Dinh Nguyen <dinguyen@opensource.altera.com>
+Signed-off-by: Brian Norris <computersforpeace@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/route.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/denali.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -477,12 +477,18 @@ u32 ip_idents_reserve(u32 hash, int segs
- 	atomic_t *p_id = ip_idents + hash % IP_IDENTS_SZ;
- 	u32 old = ACCESS_ONCE(*p_tstamp);
- 	u32 now = (u32)jiffies;
--	u32 delta = 0;
-+	u32 new, delta = 0;
- 
- 	if (old != now && cmpxchg(p_tstamp, old, now) == old)
- 		delta = prandom_u32_max(now - old);
- 
--	return atomic_add_return(segs + delta, p_id) - segs;
-+	/* Do not use atomic_add_return() as it makes UBSAN unhappy */
-+	do {
-+		old = (u32)atomic_read(p_id);
-+		new = old + delta + segs;
-+	} while (atomic_cmpxchg(p_id, old, new) != old);
+--- a/drivers/mtd/nand/denali.c
++++ b/drivers/mtd/nand/denali.c
+@@ -1622,9 +1622,16 @@ EXPORT_SYMBOL(denali_init);
+ /* driver exit point */
+ void denali_remove(struct denali_nand_info *denali)
+ {
++	/*
++	 * Pre-compute DMA buffer size to avoid any problems in case
++	 * nand_release() ever changes in a way that mtd->writesize and
++	 * mtd->oobsize are not reliable after this call.
++	 */
++	int bufsize = denali->mtd.writesize + denali->mtd.oobsize;
 +
-+	return new - segs;
++	nand_release(&denali->mtd);
+ 	denali_irq_cleanup(denali->irq, denali);
+-	dma_unmap_single(denali->dev, denali->buf.dma_buf,
+-			 denali->mtd.writesize + denali->mtd.oobsize,
++	dma_unmap_single(denali->dev, denali->buf.dma_buf, bufsize,
+ 			 DMA_BIDIRECTIONAL);
  }
- EXPORT_SYMBOL(ip_idents_reserve);
- 
+ EXPORT_SYMBOL(denali_remove);
 
 
