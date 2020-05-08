@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F30D1CACE0
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF921CAD35
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730462AbgEHM4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:56:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40124 "EHLO mail.kernel.org"
+        id S1728011AbgEHM7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:59:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730455AbgEHM4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:56:33 -0400
+        id S1729576AbgEHMxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:53:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC04424958;
-        Fri,  8 May 2020 12:56:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EABEA2054F;
+        Fri,  8 May 2020 12:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942592;
-        bh=MPyBt+js+ZFj7/UkvTMgEb63O/0/GYa3hNOG0libZHE=;
+        s=default; t=1588942421;
+        bh=ggRepalI9rxSZiHeWYpAhYBIqtEyUblOEGC0s7+G0Lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BlncBiulb5SjdVi+zDlBdCpm59N3mh+5uklsDCXleB0VBEXkLPmdacwDoSdejIZ8W
-         qzXkt8ky2SNugH0k3ozZZ4U6JivuzX88fNsJMwQBp0WmcKjq4SGz1juCDbNn15iqRE
-         pkYIp5HdkzIGWV0Nn3yXdAHPJlGA/mDyYBw3y0E4=
+        b=qhtQhW+JsZSozGGQqqiJNscx16zmlwcP8AQ8oOphssscJtYIdw3qcAvdfRoZklBBR
+         wdnpveAEgnRMEVy2y2DK0BuI+hZcWnQh8OoXQ2ZR0MIMneYH9M5a/BREefzaXrU7By
+         m6GYSNlma+L28rRv5Uhq8vDGBckK5bLfwOz4HLyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Blankertz <matthias.blankertz@cetitec.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 28/49] ASoC: rsnd: Dont treat master SSI in multi SSI setup as parent
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 39/50] x86/kvm: fix a missing-prototypes "vmread_error"
 Date:   Fri,  8 May 2020 14:35:45 +0200
-Message-Id: <20200508123046.996330044@linuxfoundation.org>
+Message-Id: <20200508123048.626812096@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
-References: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,85 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Blankertz <matthias.blankertz@cetitec.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 0c258657ddfe81b4fc0183378d800c97ba0b7cdd ]
+commit 514ccc194971d0649e4e7ec8a9b3a6e33561d7bf upstream.
 
-The master SSI of a multi-SSI setup was attached both to the
-RSND_MOD_SSI slot and the RSND_MOD_SSIP slot of the rsnd_dai_stream.
-This is not correct wrt. the meaning of being "parent" in the rest of
-the SSI code, where it seems to indicate an SSI that provides clock and
-word sync but is not transmitting/receiving audio data.
+The commit 842f4be95899 ("KVM: VMX: Add a trampoline to fix VMREAD error
+handling") removed the declaration of vmread_error() causes a W=1 build
+failure with KVM_WERROR=y. Fix it by adding it back.
 
-Not treating the multi-SSI master as parent allows removal of various
-special cases to the rsnd_ssi_is_parent conditions introduced in commit
-a09fb3f28a60 ("ASoC: rsnd: Fix parent SSI start/stop in multi-SSI mode").
-It also fixes the issue that operations performed via rsnd_dai_call()
-were performed twice for the master SSI. This caused some "status check
-failed" spam when stopping a multi-SSI stream as the driver attempted to
-stop the master SSI twice.
+arch/x86/kvm/vmx/vmx.c:359:17: error: no previous prototype for 'vmread_error' [-Werror=missing-prototypes]
+ asmlinkage void vmread_error(unsigned long field, bool fault)
+                 ^~~~~~~~~~~~
 
-Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20200417153017.1744454-2-matthias.blankertz@cetitec.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Message-Id: <20200402153955.1695-1-cai@lca.pw>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/sh/rcar/ssi.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/x86/kvm/vmx/ops.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index d51fb3a394486..9900a4f6f4e53 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -407,7 +407,7 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
- 	 * We shouldn't exchange SWSP after running.
- 	 * This means, parent needs to care it.
- 	 */
--	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
-+	if (rsnd_ssi_is_parent(mod, io))
- 		goto init_end;
+--- a/arch/x86/kvm/vmx/ops.h
++++ b/arch/x86/kvm/vmx/ops.h
+@@ -12,6 +12,7 @@
  
- 	if (rsnd_io_is_play(io))
-@@ -559,7 +559,7 @@ static int rsnd_ssi_start(struct rsnd_mod *mod,
- 	 * EN is for data output.
- 	 * SSI parent EN is not needed.
- 	 */
--	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
-+	if (rsnd_ssi_is_parent(mod, io))
- 		return 0;
+ #define __ex(x) __kvm_handle_fault_on_reboot(x)
  
- 	ssi->cr_en = EN;
-@@ -582,7 +582,7 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
- 	if (!rsnd_ssi_is_run_mods(mod, io))
- 		return 0;
- 
--	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
-+	if (rsnd_ssi_is_parent(mod, io))
- 		return 0;
- 
- 	cr  =	ssi->cr_own	|
-@@ -620,7 +620,7 @@ static int rsnd_ssi_irq(struct rsnd_mod *mod,
- 	if (rsnd_is_gen1(priv))
- 		return 0;
- 
--	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
-+	if (rsnd_ssi_is_parent(mod, io))
- 		return 0;
- 
- 	if (!rsnd_ssi_is_run_mods(mod, io))
-@@ -737,6 +737,9 @@ static void rsnd_ssi_parent_attach(struct rsnd_mod *mod,
- 	if (!rsnd_rdai_is_clk_master(rdai))
- 		return;
- 
-+	if (rsnd_ssi_is_multi_slave(mod, io))
-+		return;
-+
- 	switch (rsnd_mod_id(mod)) {
- 	case 1:
- 	case 2:
--- 
-2.20.1
-
++asmlinkage void vmread_error(unsigned long field, bool fault);
+ __attribute__((regparm(0))) void vmread_error_trampoline(unsigned long field,
+ 							 bool fault);
+ void vmwrite_error(unsigned long field, unsigned long value);
 
 
