@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFFE1CAB82
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24F491CAF5A
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727970AbgEHMoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:44:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42490 "EHLO mail.kernel.org"
+        id S1728814AbgEHNRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:17:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729163AbgEHMoM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:44:12 -0400
+        id S1729171AbgEHMoP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:44:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFD5B206B8;
-        Fri,  8 May 2020 12:44:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 973BF206B8;
+        Fri,  8 May 2020 12:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941852;
-        bh=zleLaBM0XPingcVsYTc+5kLlHBiQnOAVwWkAMGN0/Pw=;
+        s=default; t=1588941855;
+        bh=TvfbYBTLe48ezPCa92LcT/+8D3hZGY64cqarCQCTxXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qy3BiNyv5icMfm6+daafLmlETh3dyntaxnmAbMuFWtlZWx1wm+ELGzmA9B8ELwEz/
-         QWi/B2z+2CR+84vFyOhVPbO9iv7TfHZiqsWZGUCAyXhjeelLJtKOnlXhZp0CbvbXB/
-         Y3bQf4Kj0mSLdL33rGFdRHx65HwxqmqTscIp6KVE=
+        b=zgyhs0BQUhlpesc1EM5pZ+kFF1glK8/XWDo6J5McBsFdD7zss8PpXVCCJ49ckVDfC
+         zVt2cVg4hqvIlv105hiXSxMHzWS5o5Q35oSdS7llpOUQJktGLS59KJEqzR0tTXDug5
+         UIKpk2vCp3FS6Ve3hvj+M1gApoi+YNBSco32+D5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liping Zhang <zlpnobody@gmail.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.4 199/312] netfilter: nf_tables: destroy the set if fail to add transaction
-Date:   Fri,  8 May 2020 14:33:10 +0200
-Message-Id: <20200508123138.434155611@linuxfoundation.org>
+Subject: [PATCH 4.4 200/312] netfilter: nft_dup: do not use sreg_dev if the user doesnt specify it
+Date:   Fri,  8 May 2020 14:33:11 +0200
+Message-Id: <20200508123138.502362323@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,37 +45,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liping Zhang <zlpnobody@gmail.com>
 
-commit c17c3cdff10b9f59ef1244a14604f10949f17117 upstream.
+commit b73b8a1ba598236296a46103d81c10d629d9a470 upstream.
 
-When the memory is exhausted, then we will fail to add the NFT_MSG_NEWSET
-transaction. In such case, we should destroy the set before we free it.
+The NFTA_DUP_SREG_DEV attribute is not a must option, so we should use it
+in routing lookup only when the user specify it.
 
-Fixes: 958bee14d071 ("netfilter: nf_tables: use new transaction infrastructure to handle sets")
+Fixes: d877f07112f1 ("netfilter: nf_tables: add nft_dup expression")
 Signed-off-by: Liping Zhang <zlpnobody@gmail.com>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nf_tables_api.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/netfilter/nft_dup_ipv4.c |    6 ++++--
+ net/ipv6/netfilter/nft_dup_ipv6.c |    6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2849,12 +2849,14 @@ static int nf_tables_newset(struct net *
+--- a/net/ipv4/netfilter/nft_dup_ipv4.c
++++ b/net/ipv4/netfilter/nft_dup_ipv4.c
+@@ -28,7 +28,7 @@ static void nft_dup_ipv4_eval(const stru
+ 	struct in_addr gw = {
+ 		.s_addr = (__force __be32)regs->data[priv->sreg_addr],
+ 	};
+-	int oif = regs->data[priv->sreg_dev];
++	int oif = priv->sreg_dev ? regs->data[priv->sreg_dev] : -1;
  
- 	err = nft_trans_set_add(&ctx, NFT_MSG_NEWSET, set);
- 	if (err < 0)
--		goto err2;
-+		goto err3;
+ 	nf_dup_ipv4(pkt->net, pkt->skb, pkt->hook, &gw, oif);
+ }
+@@ -59,7 +59,9 @@ static int nft_dup_ipv4_dump(struct sk_b
+ {
+ 	struct nft_dup_ipv4 *priv = nft_expr_priv(expr);
  
- 	list_add_tail_rcu(&set->list, &table->sets);
- 	table->use++;
- 	return 0;
+-	if (nft_dump_register(skb, NFTA_DUP_SREG_ADDR, priv->sreg_addr) ||
++	if (nft_dump_register(skb, NFTA_DUP_SREG_ADDR, priv->sreg_addr))
++		goto nla_put_failure;
++	if (priv->sreg_dev &&
+ 	    nft_dump_register(skb, NFTA_DUP_SREG_DEV, priv->sreg_dev))
+ 		goto nla_put_failure;
  
-+err3:
-+	ops->destroy(set);
- err2:
- 	kfree(set);
- err1:
+--- a/net/ipv6/netfilter/nft_dup_ipv6.c
++++ b/net/ipv6/netfilter/nft_dup_ipv6.c
+@@ -26,7 +26,7 @@ static void nft_dup_ipv6_eval(const stru
+ {
+ 	struct nft_dup_ipv6 *priv = nft_expr_priv(expr);
+ 	struct in6_addr *gw = (struct in6_addr *)&regs->data[priv->sreg_addr];
+-	int oif = regs->data[priv->sreg_dev];
++	int oif = priv->sreg_dev ? regs->data[priv->sreg_dev] : -1;
+ 
+ 	nf_dup_ipv6(pkt->net, pkt->skb, pkt->hook, gw, oif);
+ }
+@@ -57,7 +57,9 @@ static int nft_dup_ipv6_dump(struct sk_b
+ {
+ 	struct nft_dup_ipv6 *priv = nft_expr_priv(expr);
+ 
+-	if (nft_dump_register(skb, NFTA_DUP_SREG_ADDR, priv->sreg_addr) ||
++	if (nft_dump_register(skb, NFTA_DUP_SREG_ADDR, priv->sreg_addr))
++		goto nla_put_failure;
++	if (priv->sreg_dev &&
+ 	    nft_dump_register(skb, NFTA_DUP_SREG_DEV, priv->sreg_dev))
+ 		goto nla_put_failure;
+ 
 
 
