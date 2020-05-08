@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B771CB035
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA1A1CAAC5
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728102AbgEHNY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:24:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50294 "EHLO mail.kernel.org"
+        id S1727882AbgEHMgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727834AbgEHMgn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:36:43 -0400
+        id S1727874AbgEHMgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:36:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D793B21582;
-        Fri,  8 May 2020 12:36:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A351215A4;
+        Fri,  8 May 2020 12:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941402;
-        bh=4+dF0MoF2Yn0zjVZA8KyJ1Sam41xz6ts58v5B6sDwDs=;
+        s=default; t=1588941404;
+        bh=Xn3k7UEywTsUTymnZFS2Row9nainfZSZeQKKehGLm/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=emHt4fLUc4qSHFxsGLQCkpdXunOxDd7EBKzN4nAvi9cfszO5u/72y8kqc4HtdERym
-         70OWxArBl8v7FPiKgT8NlxM7WJLlwUUP4AzHn2DsPG97lsVUjuSM/49WiLnMA7cY8Z
-         d8FpvoFbl7J19UsJ95h6KGCf9qyK8CtjIRE8Hrz0=
+        b=Il7nD4X3Bu5CqgpxKWVGDTjQ6DxwcornlXq1WM72KhwAhz+wAO+Cfq7XGQiHqTkKi
+         t3jIMMj8yKEFtQSLCNCoWLazGwAagZu/05dICiT3a4SqbuYugi7fShiYhsdghga2L/
+         L96utPmcWVrF6dddu6Kp6bNzGG4MkWzGOPiwuwcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
         Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 4.4 002/312] drm/qxl: qxl_release use after free
-Date:   Fri,  8 May 2020 14:29:53 +0200
-Message-Id: <20200508123124.719884469@linuxfoundation.org>
+Subject: [PATCH 4.4 003/312] drm/qxl: qxl_release leak in qxl_draw_dirty_fb()
+Date:   Fri,  8 May 2020 14:29:54 +0200
+Message-Id: <20200508123124.779056518@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,143 +45,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 933db73351d359f74b14f4af095808260aff11f9 upstream.
+commit 85e9b88af1e6164f19ec71381efd5e2bcfc17620 upstream.
 
-qxl_release should not be accesses after qxl_push_*_ring_release() calls:
-userspace driver can process submitted command quickly, move qxl_release
-into release_ring, generate interrupt and trigger garbage collector.
+ret should be changed to release allocated struct qxl_release
 
-It can lead to crashes in qxl driver or trigger memory corruption
-in some kmalloc-192 slab object
-
-Gerd Hoffmann proposes to swap the qxl_release_fence_buffer_objects() +
-qxl_push_{cursor,command}_ring_release() calls to close that race window.
-
-cc: stable@vger.kernel.org
-Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+Cc: stable@vger.kernel.org
+Fixes: 8002db6336dd ("qxl: convert qxl driver to proper use for reservations")
 Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/fa17b338-66ae-f299-68fe-8d32419d9071@virtuozzo.com
+Link: http://patchwork.freedesktop.org/patch/msgid/22cfd55f-07c8-95d0-a2f7-191b7153c3d4@virtuozzo.com
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/qxl/qxl_cmd.c     |    5 ++---
- drivers/gpu/drm/qxl/qxl_display.c |    6 +++---
- drivers/gpu/drm/qxl/qxl_draw.c    |    8 ++++----
- drivers/gpu/drm/qxl/qxl_ioctl.c   |    5 +----
- 4 files changed, 10 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/qxl/qxl_draw.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/qxl/qxl_cmd.c
-+++ b/drivers/gpu/drm/qxl/qxl_cmd.c
-@@ -529,8 +529,8 @@ int qxl_hw_surface_alloc(struct qxl_devi
- 	/* no need to add a release to the fence for this surface bo,
- 	   since it is only released when we ask to destroy the surface
- 	   and it would never signal otherwise */
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
- 
- 	surf->hw_surf_alloc = true;
- 	spin_lock(&qdev->surf_id_idr_lock);
-@@ -572,9 +572,8 @@ int qxl_hw_surface_dealloc(struct qxl_de
- 	cmd->surface_id = id;
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
- 
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
--
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
- 
- 	return 0;
- }
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -292,8 +292,8 @@ qxl_hide_cursor(struct qxl_device *qdev)
- 	cmd->type = QXL_CURSOR_HIDE;
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
- 
--	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 	return 0;
- }
- 
-@@ -390,8 +390,8 @@ static int qxl_crtc_cursor_set2(struct d
- 	cmd->u.set.visible = 1;
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
- 
--	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 
- 	/* finish with the userspace bo */
- 	ret = qxl_bo_reserve(user_bo, false);
-@@ -450,8 +450,8 @@ static int qxl_crtc_cursor_move(struct d
- 	cmd->u.position.y = qcrtc->cur_y + qcrtc->hot_spot_y;
- 	qxl_release_unmap(qdev, release, &cmd->release_info);
- 
--	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
- 
- 	return 0;
- }
 --- a/drivers/gpu/drm/qxl/qxl_draw.c
 +++ b/drivers/gpu/drm/qxl/qxl_draw.c
-@@ -245,8 +245,8 @@ void qxl_draw_opaque_fb(const struct qxl
- 		qxl_bo_physical_address(qdev, dimage->bo, 0);
- 	qxl_release_unmap(qdev, release, &drawable->release_info);
+@@ -352,9 +352,10 @@ void qxl_draw_dirty_fb(struct qxl_device
+ 		goto out_release_backoff;
  
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 	rects = drawable_set_clipping(qdev, drawable, num_clips, clips_bo);
+-	if (!rects)
++	if (!rects) {
++		ret = -EINVAL;
+ 		goto out_release_backoff;
+-
++	}
+ 	drawable = (struct qxl_drawable *)qxl_release_map(qdev, release);
  
- out_free_palette:
- 	if (palette_bo)
-@@ -385,8 +385,8 @@ void qxl_draw_dirty_fb(struct qxl_device
- 	}
- 	qxl_bo_kunmap(clips_bo);
- 
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 
- out_release_backoff:
- 	if (ret)
-@@ -436,8 +436,8 @@ void qxl_draw_copyarea(struct qxl_device
- 	drawable->u.copy_bits.src_pos.y = sy;
- 	qxl_release_unmap(qdev, release, &drawable->release_info);
- 
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 
- out_free_release:
- 	if (ret)
-@@ -480,8 +480,8 @@ void qxl_draw_fill(struct qxl_draw_fill
- 
- 	qxl_release_unmap(qdev, release, &drawable->release_info);
- 
--	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 	qxl_release_fence_buffer_objects(release);
-+	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
- 
- out_free_release:
- 	if (ret)
---- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-+++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-@@ -257,11 +257,8 @@ static int qxl_process_single_command(st
- 			apply_surf_reloc(qdev, &reloc_info[i]);
- 	}
- 
-+	qxl_release_fence_buffer_objects(release);
- 	ret = qxl_push_command_ring_release(qdev, release, cmd->type, true);
--	if (ret)
--		qxl_release_backoff_reserve_list(release);
--	else
--		qxl_release_fence_buffer_objects(release);
- 
- out_free_bos:
- out_free_release:
+ 	drawable->clip.type = SPICE_CLIP_TYPE_RECTS;
 
 
