@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B55761CAEAA
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:16:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72BEE1CABA2
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729289AbgEHMpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:45:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44898 "EHLO mail.kernel.org"
+        id S1729303AbgEHMp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:45:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728697AbgEHMpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:45:23 -0400
+        id S1729028AbgEHMp2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:45:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25A22208D6;
-        Fri,  8 May 2020 12:45:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21424208D6;
+        Fri,  8 May 2020 12:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941922;
-        bh=KwyJlyh8TSrt9jjm908nE7DOnSvlPz4pBNo4ppNNUbU=;
+        s=default; t=1588941927;
+        bh=k+uF28bM3EYqbE1z4cQO2hhX68Gskq36OmYNkk2t11E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6VWqnpA9d3SqcVHVmWsce/OBFuzeaI4O8ceKQ4WqNHDocK0dQ4rGUJrHoV4YifD7
-         qrzDcY4/pxREoHxIrf/Kqg2KcWt9W1RDLUwI7Fxs7euneFbSv5BIfhR8zVQMeLdk2n
-         CXCPww8Hk7nFKsPNUE0xHIFeqRhZMAAu58r4+yyo=
+        b=okOnPnqOfuQbhA2nq9wqxpkxXFuS4zmW3KgLB8rYre3j+0uwz/uXZEzaLss189Ene
+         djMsM8g9rDzeQ1jYslK9jviSiNzFrp37sWKVr7CxzjivwvQUHD2PHpFlxh1q14IS8t
+         dKQr6fF4cTh7T8qw4J8bII5mybvFlDfLveHnTB60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hadar Hen Zion <hadarh@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 225/312] net_sched: flower: Avoid dissection of unmasked keys
-Date:   Fri,  8 May 2020 14:33:36 +0200
-Message-Id: <20200508123140.279796079@linuxfoundation.org>
+Subject: [PATCH 4.4 226/312] pkt_sched: fq: use proper locking in fq_dump_stats()
+Date:   Fri,  8 May 2020 14:33:37 +0200
+Message-Id: <20200508123140.348222796@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,83 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hadar Hen Zion <hadarh@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 339ba878cfb01b68de3d281ba33fd5e4c9f76546 upstream.
+commit 695b4ec0f0a9cf29deabd3ac075911d58b31f42b upstream.
 
-The current flower implementation checks the mask range and set all the
-keys included in that range as "used_keys", even if a specific key in
-the range has a zero mask.
+When fq is used on 32bit kernels, we need to lock the qdisc before
+copying 64bit fields.
 
-This behavior can cause a false positive return value of
-dissector_uses_key function and unnecessary dissection in
-__skb_flow_dissect.
+Otherwise "tc -s qdisc ..." might report bogus values.
 
-This patch checks explicitly the mask of each key and "used_keys" will
-be set accordingly.
-
-Fixes: 77b9900ef53a ('tc: introduce Flower classifier')
-Signed-off-by: Hadar Hen Zion <hadarh@mellanox.com>
-Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+Fixes: afe4fd062416 ("pkt_sched: fq: Fair Queue packet scheduler")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sched/cls_flower.c |   28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ net/sched/sch_fq.c |   32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
---- a/net/sched/cls_flower.c
-+++ b/net/sched/cls_flower.c
-@@ -351,12 +351,10 @@ static int fl_init_hashtable(struct cls_
+--- a/net/sched/sch_fq.c
++++ b/net/sched/sch_fq.c
+@@ -830,20 +830,24 @@ nla_put_failure:
+ static int fq_dump_stats(struct Qdisc *sch, struct gnet_dump *d)
+ {
+ 	struct fq_sched_data *q = qdisc_priv(sch);
+-	u64 now = ktime_get_ns();
+-	struct tc_fq_qd_stats st = {
+-		.gc_flows		= q->stat_gc_flows,
+-		.highprio_packets	= q->stat_internal_packets,
+-		.tcp_retrans		= q->stat_tcp_retrans,
+-		.throttled		= q->stat_throttled,
+-		.flows_plimit		= q->stat_flows_plimit,
+-		.pkts_too_long		= q->stat_pkts_too_long,
+-		.allocation_errors	= q->stat_allocation_errors,
+-		.flows			= q->flows,
+-		.inactive_flows		= q->inactive_flows,
+-		.throttled_flows	= q->throttled_flows,
+-		.time_next_delayed_flow	= q->time_next_delayed_flow - now,
+-	};
++	struct tc_fq_qd_stats st;
++
++	sch_tree_lock(sch);
++
++	st.gc_flows		  = q->stat_gc_flows;
++	st.highprio_packets	  = q->stat_internal_packets;
++	st.tcp_retrans		  = q->stat_tcp_retrans;
++	st.throttled		  = q->stat_throttled;
++	st.flows_plimit		  = q->stat_flows_plimit;
++	st.pkts_too_long	  = q->stat_pkts_too_long;
++	st.allocation_errors	  = q->stat_allocation_errors;
++	st.time_next_delayed_flow = q->time_next_delayed_flow - ktime_get_ns();
++	st.flows		  = q->flows;
++	st.inactive_flows	  = q->inactive_flows;
++	st.throttled_flows	  = q->throttled_flows;
++	st.pad			  = 0;
++
++	sch_tree_unlock(sch);
  
- #define FL_KEY_MEMBER_OFFSET(member) offsetof(struct fl_flow_key, member)
- #define FL_KEY_MEMBER_SIZE(member) (sizeof(((struct fl_flow_key *) 0)->member))
--#define FL_KEY_MEMBER_END_OFFSET(member)					\
--	(FL_KEY_MEMBER_OFFSET(member) + FL_KEY_MEMBER_SIZE(member))
- 
--#define FL_KEY_IN_RANGE(mask, member)						\
--        (FL_KEY_MEMBER_OFFSET(member) <= (mask)->range.end &&			\
--         FL_KEY_MEMBER_END_OFFSET(member) >= (mask)->range.start)
-+#define FL_KEY_IS_MASKED(mask, member)						\
-+	memchr_inv(((char *)mask) + FL_KEY_MEMBER_OFFSET(member),		\
-+		   0, FL_KEY_MEMBER_SIZE(member))				\
- 
- #define FL_KEY_SET(keys, cnt, id, member)					\
- 	do {									\
-@@ -365,9 +363,9 @@ static int fl_init_hashtable(struct cls_
- 		cnt++;								\
- 	} while(0);
- 
--#define FL_KEY_SET_IF_IN_RANGE(mask, keys, cnt, id, member)			\
-+#define FL_KEY_SET_IF_MASKED(mask, keys, cnt, id, member)			\
- 	do {									\
--		if (FL_KEY_IN_RANGE(mask, member))				\
-+		if (FL_KEY_IS_MASKED(mask, member))				\
- 			FL_KEY_SET(keys, cnt, id, member);			\
- 	} while(0);
- 
-@@ -379,14 +377,14 @@ static void fl_init_dissector(struct cls
- 
- 	FL_KEY_SET(keys, cnt, FLOW_DISSECTOR_KEY_CONTROL, control);
- 	FL_KEY_SET(keys, cnt, FLOW_DISSECTOR_KEY_BASIC, basic);
--	FL_KEY_SET_IF_IN_RANGE(mask, keys, cnt,
--			       FLOW_DISSECTOR_KEY_ETH_ADDRS, eth);
--	FL_KEY_SET_IF_IN_RANGE(mask, keys, cnt,
--			       FLOW_DISSECTOR_KEY_IPV4_ADDRS, ipv4);
--	FL_KEY_SET_IF_IN_RANGE(mask, keys, cnt,
--			       FLOW_DISSECTOR_KEY_IPV6_ADDRS, ipv6);
--	FL_KEY_SET_IF_IN_RANGE(mask, keys, cnt,
--			       FLOW_DISSECTOR_KEY_PORTS, tp);
-+	FL_KEY_SET_IF_MASKED(&mask->key, keys, cnt,
-+			     FLOW_DISSECTOR_KEY_ETH_ADDRS, eth);
-+	FL_KEY_SET_IF_MASKED(&mask->key, keys, cnt,
-+			     FLOW_DISSECTOR_KEY_IPV4_ADDRS, ipv4);
-+	FL_KEY_SET_IF_MASKED(&mask->key, keys, cnt,
-+			     FLOW_DISSECTOR_KEY_IPV6_ADDRS, ipv6);
-+	FL_KEY_SET_IF_MASKED(&mask->key, keys, cnt,
-+			     FLOW_DISSECTOR_KEY_PORTS, tp);
- 
- 	skb_flow_dissector_init(&head->dissector, keys, cnt);
+ 	return gnet_stats_copy_app(d, &st, sizeof(st));
  }
 
 
