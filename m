@@ -2,119 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EED421CB5BC
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 19:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E44EB1CB5FB
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 19:30:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727104AbgEHRWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 13:22:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727030AbgEHRWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 13:22:00 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8023C061A0C
-        for <stable@vger.kernel.org>; Fri,  8 May 2020 10:22:00 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id a5so4609094pjh.2
-        for <stable@vger.kernel.org>; Fri, 08 May 2020 10:22:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=FDmOxQMCuaw5F6/Weoldmrv8lAutINkccOcvV//08Lo=;
-        b=uz6CQxh4gx44MIkOb4uoPsulQcoadM4lvLN8PW4twq6GXEyiBPwb4BpfSqGisSWHU8
-         KgUz23Sy4OHg4McVtDGkn1shgfffYfuSoTyYAp3cSjJqjMzB/uChi69dqKS3z0+CIhSX
-         DpqZWBMvLuY6Yy9OqKHgQOFn+0nNEXzJKOl4XRO+5kH9YpeoVN2u+KziL+wT3kg7kobt
-         8HspgqpP3STPysPB9h+RHLEusRGic/V2t62HNpOYC6ZiqEU3ZLZp0oRdcKkmTrdWrNjD
-         yEU6b7VACRfdgG7SsFhLBl9kmiNt3HJy5MaLxj3VP16jk5qCLTutzRyTzSlcDNAOnAEQ
-         qndw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FDmOxQMCuaw5F6/Weoldmrv8lAutINkccOcvV//08Lo=;
-        b=PvavZ+Panl1TvtMH5EOEbBwtjhwf8OZ1sz01QCOZF/WhmIa3r4tAXBaWvj7O7Pjn65
-         /DqCxpnBPj11ZLenbPFt46m3ugv1H1k/Sl2t/3EI1YB20gcPX9ne9Sp1x/VwRnDrPgHd
-         gnPV4dq9Ha1dFFuKa4ucZjupNpX486+R3KWMWRmhUWVkOsX4qNn3UoceAsN+iTGjAvQe
-         tN1Wvcur0n159uffgAcVMqYDq3pmbpZ0RGJJPuoPC1AjvuH2VNemM4lxZaiUsGwwkFY7
-         I3nulZGVKGQ7oUgQzdpRMPyxGNR2bqxL8APz2ZfrufB0hTaPsEMOwzRTQQTUdpKFhPrY
-         chDQ==
-X-Gm-Message-State: AGi0PuYBKuiBpoSXbUu6vPxjqpFvoYe79ZivvRf0Wfq7J1dYKgZHb4bd
-        x1ibWiUa7TNeBN1sYMAZnQglFcRqaUL3YdD0G+pTgA==
-X-Google-Smtp-Source: APiQypISgtnD5NDGHv3g6yn5klP9hv3kXnvW9OyaSiLskvc+++YwjPnOVL60aWHLauimVX8osi0SRQ8ElmR15zyuNn0=
-X-Received: by 2002:a17:90b:2302:: with SMTP id mt2mr3301097pjb.25.1588958519887;
- Fri, 08 May 2020 10:21:59 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200505174423.199985-1-ndesaulniers@google.com>
- <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com> <20200507113422.GA3762@hirez.programming.kicks-ass.net>
- <CAMzpN2hXUYvLuTA63N56ef4DEzyWXt_uVVq6PV0r8YQT-YN42g@mail.gmail.com>
- <CAKwvOd=a3MR7osKBpbq=d41ieo7G9FtOp5Kok5por1P5ZS9s4g@mail.gmail.com>
- <CAKwvOd=Ogbp0oVgmF2B9cePjyWnvLLFRSp2EnaonA-ZFN3K7Dg@mail.gmail.com> <CAMzpN2gu4stkRKTsMTVxyzckO3SMhfA+dmCnSu6-aMg5QAA_JQ@mail.gmail.com>
-In-Reply-To: <CAMzpN2gu4stkRKTsMTVxyzckO3SMhfA+dmCnSu6-aMg5QAA_JQ@mail.gmail.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Fri, 8 May 2020 10:21:48 -0700
-Message-ID: <CAKwvOd=hVKrFU+imSGeX+MEKMpW97gE7bzn1C637qdns9KSnUA@mail.gmail.com>
-Subject: Re: [PATCH] x86: bitops: fix build regression
-To:     Brian Gerst <brgerst@gmail.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Daniel Axtens <dja@axtens.net>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>
+        id S1726817AbgEHR3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 13:29:53 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7586 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726767AbgEHR3x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 13:29:53 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 048H2EhP128834;
+        Fri, 8 May 2020 13:29:43 -0400
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30vtsgud79-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 May 2020 13:29:42 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 048HTCHp116150;
+        Fri, 8 May 2020 13:29:42 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30vtsgud61-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 May 2020 13:29:42 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 048H4rFB032591;
+        Fri, 8 May 2020 17:29:40 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04ams.nl.ibm.com with ESMTP id 30s0g5wtd9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 08 May 2020 17:29:39 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 048HTbZO44695568
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 8 May 2020 17:29:37 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A8924A405B;
+        Fri,  8 May 2020 17:29:37 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8765EA4054;
+        Fri,  8 May 2020 17:29:36 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.85.139.55])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  8 May 2020 17:29:36 +0000 (GMT)
+Message-ID: <1588958976.5146.83.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 1/7] ima: Switch to ima_hash_algo for boot aggregate
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Jerry Snitselaar <jsnitsel@redhat.com>
+Cc:     Roberto Sassu <roberto.sassu@huawei.com>,
+        James.Bottomley@hansenpartnership.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Date:   Fri, 08 May 2020 13:29:36 -0400
+In-Reply-To: <20200508045410.t7gawyklyecupe2u@cantor>
+References: <20200325104712.25694-1-roberto.sassu@huawei.com>
+         <20200325104712.25694-2-roberto.sassu@huawei.com>
+         <1585871617.7311.5.camel@linux.ibm.com>
+         <20200508045410.t7gawyklyecupe2u@cantor>
 Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.676
+ definitions=2020-05-08_15:2020-05-08,2020-05-08 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxscore=0
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=999
+ spamscore=0 phishscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2005080142
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 7, 2020 at 6:57 PM Brian Gerst <brgerst@gmail.com> wrote:
->
-> On Thu, May 7, 2020 at 6:29 PM Nick Desaulniers <ndesaulniers@google.com> wrote:
+On Thu, 2020-05-07 at 21:54 -0700, Jerry Snitselaar wrote:
+> On Thu Apr 02 20, Mimi Zohar wrote:
+> >Hi Roberto,
 > >
-> > On Thu, May 7, 2020 at 12:19 PM Nick Desaulniers
-> > <ndesaulniers@google.com> wrote:
-> > >
-> > > On Thu, May 7, 2020 at 7:00 AM Brian Gerst <brgerst@gmail.com> wrote:
-> > > >
-> > > > This change will make sparse happy and allow these cleanups:
-> > > > #define CONST_MASK(nr)                 ((u8)1 << ((nr) & 7))
-> > >
-> > > yep, this is more elegant, IMO.  Will send a v3 later with this
-> > > change.  Looking at the uses of CONST_MASK, I noticed
-> > > arch_change_bit() currently has the (u8) cast from commit
-> > > 838e8bb71dc0c ("x86: Implement change_bit with immediate operand as
-> > > "lock xorb""), so that instance can get cleaned up with the above
-> > > suggestion.
+> >On Wed, 2020-03-25 at 11:47 +0100, Roberto Sassu wrote:
+> >> boot_aggregate is the first entry of IMA measurement list. Its purpose is
+> >> to link pre-boot measurements to IMA measurements. As IMA was designed to
+> >> work with a TPM 1.2, the SHA1 PCR bank was always selected even if a
+> >> TPM 2.0 with support for stronger hash algorithms is available.
+> >>
+> >> This patch first tries to find a PCR bank with the IMA default hash
+> >> algorithm. If it does not find it, it selects the SHA256 PCR bank for
+> >> TPM 2.0 and SHA1 for TPM 1.2. Ultimately, it selects SHA1 also for TPM 2.0
+> >> if the SHA256 PCR bank is not found.
+> >>
+> >> If none of the PCR banks above can be found, boot_aggregate file digest is
+> >> filled with zeros, as for TPM bypass, making it impossible to perform a
+> >> remote attestation of the system.
+> >>
+> >> Cc: stable@vger.kernel.org # 5.1.x
+> >> Fixes: 879b589210a9 ("tpm: retrieve digest size of unknown algorithms with PCR read")
+> >> Reported-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> >> Suggested-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+> >> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 > >
-> > Oh, we need the cast to be the final operation.  The binary AND and
-> > XOR in 2 of the 3 uses of CONST_MASK implicitly promote the operands
-> > of the binary operand to int, so the type of the evaluated
-> > subexpression is int.
-> > https://wiki.sei.cmu.edu/confluence/display/c/EXP14-C.+Beware+of+integer+promotion+when+performing+bitwise+operations+on+integer+types+smaller+than+int
-> > So I think this version (v2) is most precise fix, and would be better
-> > than defining more macros or (worse) using metaprogramming.
->
-> One last suggestion.  Add the "b" modifier to the mask operand: "orb
-> %b1, %0".  That forces the compiler to use the 8-bit register name
-> instead of trying to deduce the width from the input.
+> >Thank you!  This patch set is now queued in next-integrity-testing
+> >during the open window.  Jerry, I assume this works for you.  Could we
+> >get your tag?
+> >
+> 
+> Yes, I no longer get the errors with this patch.
+> 
+> 
+> Tested-by: Jerry Snitselaar <jsnitsel@redhat.com>
 
-Ah right: https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#x86Operandmodifiers
+Thanks, Jerry.  I really do appreciate receiving your tag.
 
-Looks like that works for both compilers.  In that case, we can likely
-drop the `& 0xff`, too.  Let me play with that, then I'll hopefully
-send a v3 today.
--- 
-Thanks,
-~Nick Desaulniers
+Not all, but a lot of subsystems, do not rebase their branch, at least
+once it is in linux-next.  Adding tags is considered rebasing.  For
+this reason, I've started staging patches in the next-integrity-
+testing branch, before moving them to next-integrity.
+
+thanks,
+
+Mimi
