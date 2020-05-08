@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68DD41CACCB
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 563651CACCD
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730393AbgEHM4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:56:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39342 "EHLO mail.kernel.org"
+        id S1730391AbgEHM4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:56:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730391AbgEHM4C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:56:02 -0400
+        id S1730399AbgEHM4F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:56:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D9282054F;
-        Fri,  8 May 2020 12:56:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A28224958;
+        Fri,  8 May 2020 12:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942562;
-        bh=ggRepalI9rxSZiHeWYpAhYBIqtEyUblOEGC0s7+G0Lw=;
+        s=default; t=1588942565;
+        bh=W3z8GpEqUg7Gwz4mNu6eXk9h4W8cmjS7GxG53neu7o8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WW4cRIDJJ6wiH5Oh9FAOFGJvrk3rRUfunoBdUIVbWoY+WxAkHY4BlD3SbWICiiZ8f
-         HClrEL0yfv0OgkVakmp1cKH42mBLb3Oe0dBvuAD/yCGpdyc5MfZVEFXYj9SAlfWHMd
-         8dxS91qXbtORLFUUn6xFOpe54nVaLlbVPWRJGdnE=
+        b=GNbR7qkZ6UWA8jIe+N7N9yS9d2FSpHOLDUz475KBLLToX69hSjqcG8+P/7iLpPQQa
+         8iYB8Ce4y0jtB0SHLccSjHl/cdIck24gx7ifHUYynEwJW1k5ws5rE7rC6yxZHkOT0I
+         LhOtdZEeDbwZ6sFgSTqFLab9BOcJgmAR8I5N1v64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.6 44/49] x86/kvm: fix a missing-prototypes "vmread_error"
-Date:   Fri,  8 May 2020 14:36:01 +0200
-Message-Id: <20200508123049.001191211@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.6 45/49] platform/x86: GPD pocket fan: Fix error message when temp-limits are out of range
+Date:   Fri,  8 May 2020 14:36:02 +0200
+Message-Id: <20200508123049.121731315@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
 References: <20200508123042.775047422@linuxfoundation.org>
@@ -43,36 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 514ccc194971d0649e4e7ec8a9b3a6e33561d7bf upstream.
+commit 1d6f8c5bac93cceb2d4ac8e6331050652004d802 upstream.
 
-The commit 842f4be95899 ("KVM: VMX: Add a trampoline to fix VMREAD error
-handling") removed the declaration of vmread_error() causes a W=1 build
-failure with KVM_WERROR=y. Fix it by adding it back.
+Commit 1f27dbd8265d ("platform/x86: GPD pocket fan: Allow somewhat
+lower/higher temperature limits") changed the module-param sanity check
+to accept temperature limits between 20 and 90 degrees celcius.
 
-arch/x86/kvm/vmx/vmx.c:359:17: error: no previous prototype for 'vmread_error' [-Werror=missing-prototypes]
- asmlinkage void vmread_error(unsigned long field, bool fault)
-                 ^~~~~~~~~~~~
+But the error message printed when the module params are outside this
+range was not updated. This commit updates the error message to match
+the new min and max value for the temp-limits.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Message-Id: <20200402153955.1695-1-cai@lca.pw>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/ops.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/gpd-pocket-fan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/ops.h
-+++ b/arch/x86/kvm/vmx/ops.h
-@@ -12,6 +12,7 @@
+--- a/drivers/platform/x86/gpd-pocket-fan.c
++++ b/drivers/platform/x86/gpd-pocket-fan.c
+@@ -128,7 +128,7 @@ static int gpd_pocket_fan_probe(struct p
  
- #define __ex(x) __kvm_handle_fault_on_reboot(x)
- 
-+asmlinkage void vmread_error(unsigned long field, bool fault);
- __attribute__((regparm(0))) void vmread_error_trampoline(unsigned long field,
- 							 bool fault);
- void vmwrite_error(unsigned long field, unsigned long value);
+ 	for (i = 0; i < ARRAY_SIZE(temp_limits); i++) {
+ 		if (temp_limits[i] < 20000 || temp_limits[i] > 90000) {
+-			dev_err(&pdev->dev, "Invalid temp-limit %d (must be between 40000 and 70000)\n",
++			dev_err(&pdev->dev, "Invalid temp-limit %d (must be between 20000 and 90000)\n",
+ 				temp_limits[i]);
+ 			temp_limits[0] = TEMP_LIMIT0_DEFAULT;
+ 			temp_limits[1] = TEMP_LIMIT1_DEFAULT;
 
 
