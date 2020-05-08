@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF9751CAF14
+	by mail.lfdr.de (Postfix) with ESMTP id 114BF1CAF12
 	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729205AbgEHNOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:14:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49596 "EHLO mail.kernel.org"
+        id S1729986AbgEHNOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:14:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728365AbgEHMrQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:47:16 -0400
+        id S1729527AbgEHMrT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:47:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B58C22145D;
-        Fri,  8 May 2020 12:47:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CE492495E;
+        Fri,  8 May 2020 12:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942036;
-        bh=2hNUwwDf2Ia5fvc6hr/O4FylkL379FZKlUpR4j/MaSQ=;
+        s=default; t=1588942038;
+        bh=52sRnx/F4rTKmyY1npITnTBQxNE4Fpn1v2z+q26zue0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ttoJELWeu6FskRIzIcuuTmbu3WMITnxngR1SRz/glPkGsxXB/iHFq8RyIV0fsNOJK
-         2HsaEk8JgGz6UfKj9P+cUVCCg1DsZaH59FdQaTDxSU/hf1A4VtL9b5Cwllm0Y6VlYm
-         KaxjUnxKhLKd2dpDaPoKJ6ldOL4f8batgkvdL3V4=
+        b=oVMZ2juUDV6zEG63DnZvra6Lyzss2nUXXS1zSJWQz3bfUsOthSKwXTmIcy+hKwkzv
+         7reTkhCcg9JQeo7wBy+BOiKooUounjBVOZh9maxlXkjS/TvBRKpErQwwOHyHp1Ps3j
+         3FeiRh1zMgUTEP+dewn4lyd1K4ns0ASJTDJ81zyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        John Fastabend <john.r.fastabend@intel.com>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 269/312] fq_codel: return non zero qlen in class dumps
-Date:   Fri,  8 May 2020 14:34:20 +0200
-Message-Id: <20200508123143.352128332@linuxfoundation.org>
+Subject: [PATCH 4.4 270/312] net: ethernet: stmmac: dwmac-generic: fix probe error path
+Date:   Fri,  8 May 2020 14:34:21 +0200
+Message-Id: <20200508123143.425078077@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,35 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit aafddbf0cffeb790f919436285328c762279b5d4 upstream.
+commit 939b20022765bc338b0f72cbf1eed60a907398d7 upstream.
 
-We properly scan the flow list to count number of packets,
-but John passed 0 to gnet_stats_copy_queue() so we report
-a zero value to user space instead of the result.
+Make sure to call any exit() callback to undo the effect of init()
+before returning on late probe errors.
 
-Fixes: 640158536632 ("net: sched: restrict use of qstats qlen")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: John Fastabend <john.r.fastabend@intel.com>
-Acked-by: John Fastabend <john.r.fastabend@intel.com>
+Fixes: cf3f047b9af4 ("stmmac: move hw init in the probe (v2)")
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sched/sch_fq_codel.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/net/sched/sch_fq_codel.c
-+++ b/net/sched/sch_fq_codel.c
-@@ -588,7 +588,7 @@ static int fq_codel_dump_class_stats(str
- 		qs.backlog = q->backlogs[idx];
- 		qs.drops = flow->dropped;
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.c
+@@ -53,7 +53,17 @@ static int dwmac_generic_probe(struct pl
+ 			return ret;
  	}
--	if (gnet_stats_copy_queue(d, NULL, &qs, 0) < 0)
-+	if (gnet_stats_copy_queue(d, NULL, &qs, qs.qlen) < 0)
- 		return -1;
- 	if (idx < q->flows_cnt)
- 		return gnet_stats_copy_app(d, &xstats, sizeof(xstats));
+ 
+-	return stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
++	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
++	if (ret)
++		goto err_exit;
++
++	return 0;
++
++err_exit:
++	if (plat_dat->exit)
++		plat_dat->exit(pdev, plat_dat->bsp_priv);
++
++	return ret;
+ }
+ 
+ static const struct of_device_id dwmac_generic_match[] = {
 
 
