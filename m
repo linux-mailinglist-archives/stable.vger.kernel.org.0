@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A159E1CAB87
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:44:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A811CAB8A
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:44:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728566AbgEHMo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:44:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42914 "EHLO mail.kernel.org"
+        id S1727104AbgEHMoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:44:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727104AbgEHMo2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:44:28 -0400
+        id S1729198AbgEHMod (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:44:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57B152145D;
-        Fri,  8 May 2020 12:44:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 436CF208D6;
+        Fri,  8 May 2020 12:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941867;
-        bh=ntFx9cisOC5WEGR9NgoQJkp5UtAujJ3Z17jpEpWqYz4=;
+        s=default; t=1588941872;
+        bh=+paItO5s4jfSbClbx7dPMpQsd3fzWtEyPMi442+bDpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQKrmklLuJ3wHhF7BU8GQb99vahwrEgnEZ78m8cvQISomyobjrQnaSlclIa1W9xMF
-         btxQQLr+aqXO45ez21BORlEPqAdNdPDQApjn6GxlIpa5kgUFqYB5Xj7SFm5hmYGgb+
-         oChVCBO5MKW7whA+GGf9RCMUl39piB0EXnRDNxyE=
+        b=YZzPISnW6X4f6KLTFqW+lrBBrXNlhMj/hFX96CKGffTVAJLifduGvxr5RI2TzPgAX
+         QqEh8i1hg6ceXsS2lYLxZ5FR5wG0vbE0uCvc+JFgSAkqvK2ydlhKOv4geqFv4MI0Od
+         /sHTkevuJX3MNAzc+74OZodJngKxsvn/Uf2Hcesg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maxime Ripard <maxime.ripard@free-electrons.com>,
-        Michael Turquette <mturquette@baylibre.com>
-Subject: [PATCH 4.4 205/312] clk: multiplier: Prevent the multiplier from under / over flowing
-Date:   Fri,  8 May 2020 14:33:16 +0200
-Message-Id: <20200508123138.843408939@linuxfoundation.org>
+        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.4 206/312] clk: imx: clk-pllv3: fix incorrect handle of enet powerdown bit
+Date:   Fri,  8 May 2020 14:33:17 +0200
+Message-Id: <20200508123138.910534395@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,61 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
+From: Dong Aisheng <aisheng.dong@nxp.com>
 
-commit 25f77a3aa4cb948666bf8e7fd972533ea487c3bd upstream.
+commit b3e76bdc0b2190e67427d31cd740debd01c03631 upstream.
 
-In the current multiplier base clock implementation, if the
-CLK_SET_RATE_PARENT flag isn't set, the code will not make sure that the
-multiplier computed remains within the boundaries of our clock.
+After commit f53947456f98 ("ARM: clk: imx: update pllv3 to support imx7"),
+the former used BM_PLL_POWER bit is not correct anymore for IMX7 ENET.
+Instead, pll->powerdown holds the correct bit, so using powerdown bit
+in clk_pllv3_{prepare | unprepare} functions.
 
-This means that if the clock we want to reach is below the parent rate,
-or if the multiplier is above the maximum that we can reach, we will end up
-with a completely bogus one that the clock cannot achieve.
-
-Fixes: f2e0a53271a4 ("clk: Add a basic multiplier clock")
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-Signed-off-by: Michael Turquette <mturquette@baylibre.com>
-Link: lkml.kernel.org/r/1463402840-17062-3-git-send-email-maxime.ripard@free-electrons.com
+Fixes: f53947456f98 ("ARM: clk: imx: update pllv3 to support imx7")
+Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/clk-multiplier.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/clk/imx/clk-pllv3.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/clk/clk-multiplier.c
-+++ b/drivers/clk/clk-multiplier.c
-@@ -54,14 +54,28 @@ static unsigned long __bestmult(struct c
- 				unsigned long *best_parent_rate,
- 				u8 width, unsigned long flags)
- {
-+	struct clk_multiplier *mult = to_clk_multiplier(hw);
- 	unsigned long orig_parent_rate = *best_parent_rate;
- 	unsigned long parent_rate, current_rate, best_rate = ~0;
- 	unsigned int i, bestmult = 0;
-+	unsigned int maxmult = (1 << width) - 1;
+--- a/drivers/clk/imx/clk-pllv3.c
++++ b/drivers/clk/imx/clk-pllv3.c
+@@ -76,9 +76,9 @@ static int clk_pllv3_prepare(struct clk_
  
--	if (!(clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT))
--		return rate / *best_parent_rate;
-+	if (!(clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT)) {
-+		bestmult = rate / orig_parent_rate;
+ 	val = readl_relaxed(pll->base);
+ 	if (pll->powerup_set)
+-		val |= BM_PLL_POWER;
++		val |= pll->powerdown;
+ 	else
+-		val &= ~BM_PLL_POWER;
++		val &= ~pll->powerdown;
+ 	writel_relaxed(val, pll->base);
  
--	for (i = 1; i < ((1 << width) - 1); i++) {
-+		/* Make sure we don't end up with a 0 multiplier */
-+		if ((bestmult == 0) &&
-+		    !(mult->flags & CLK_MULTIPLIER_ZERO_BYPASS))
-+			bestmult = 1;
-+
-+		/* Make sure we don't overflow the multiplier */
-+		if (bestmult > maxmult)
-+			bestmult = maxmult;
-+
-+		return bestmult;
-+	}
-+
-+	for (i = 1; i < maxmult; i++) {
- 		if (rate == orig_parent_rate * i) {
- 			/*
- 			 * This is the best case for us if we have a
+ 	return clk_pllv3_wait_lock(pll);
+@@ -91,9 +91,9 @@ static void clk_pllv3_unprepare(struct c
+ 
+ 	val = readl_relaxed(pll->base);
+ 	if (pll->powerup_set)
+-		val &= ~BM_PLL_POWER;
++		val &= ~pll->powerdown;
+ 	else
+-		val |= BM_PLL_POWER;
++		val |= pll->powerdown;
+ 	writel_relaxed(val, pll->base);
+ }
+ 
 
 
