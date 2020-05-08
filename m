@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EF51CAD25
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 045541CAC12
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:50:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729962AbgEHMw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:52:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33652 "EHLO mail.kernel.org"
+        id S1729779AbgEHMtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:49:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729319AbgEHMw2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:52:28 -0400
+        id S1729770AbgEHMtv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:49:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE69924959;
-        Fri,  8 May 2020 12:52:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4358A2495C;
+        Fri,  8 May 2020 12:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942347;
-        bh=jWot4m4mxpf9/pZ5DNn1nyy/ItK9M0Sdv4/SH8DJw+8=;
+        s=default; t=1588942190;
+        bh=iKLOjbISfSmx+ATUFlxMQc5jsMELnFldoSD6Jp2nEvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+3vSl2ZiRfgg1m3X2h+n6ZqAzlFlZSki2j562QUzIvNsAf8SK153ykWURnTwRxO1
-         fHNvjetb6pRktQtd18GK0EZfpHSKPl3XXYzf+N0qt13L5kxqMCTTLkH3P4i/x0c85k
-         fbHS002Un7q5ACYsEwhGYHEYzjURJPVfTpM7RiRE=
+        b=Qct83M+Z8JcqQuGBg1hXskD7s6b6TihmnjPHPiJksQGT9cb83EVOb6NzfPZ9X3DzY
+         /aTHmrzm7UtlWt/3KCgoSsX9pekO6wSfOEvLyNaG46qC+/0fnwlGrWrKqtOFR7uiSf
+         m21TSi/S9dwV9qj8MC4P3Q4qoj2MKfQXAFshpOfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ning Bo <n.b@live.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jia He <justin.he@arm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.4 01/50] vhost: vsock: kick send_pkt worker once device is started
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 04/18] selftests/ipc: Fix test failure seen after initial test run
 Date:   Fri,  8 May 2020 14:35:07 +0200
-Message-Id: <20200508123043.374747222@linuxfoundation.org>
+Message-Id: <20200508123032.136536893@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
+References: <20200508123030.497793118@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,72 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia He <justin.he@arm.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-commit 0b841030625cde5f784dd62aec72d6a766faae70 upstream.
+[ Upstream commit b87080eab4c1377706c113fc9c0157f19ea8fed1 ]
 
-Ning Bo reported an abnormal 2-second gap when booting Kata container [1].
-The unconditional timeout was caused by VSOCK_DEFAULT_CONNECT_TIMEOUT of
-connecting from the client side. The vhost vsock client tries to connect
-an initializing virtio vsock server.
+After successfully running the IPC msgque test once, subsequent runs
+result in a test failure:
 
-The abnormal flow looks like:
-host-userspace           vhost vsock                       guest vsock
-==============           ===========                       ============
-connect()     -------->  vhost_transport_send_pkt_work()   initializing
-   |                     vq->private_data==NULL
-   |                     will not be queued
-   V
-schedule_timeout(2s)
-                         vhost_vsock_start()  <---------   device ready
-                         set vq->private_data
+  $ sudo ./run_kselftest.sh
+  TAP version 13
+  1..1
+  # selftests: ipc: msgque
+  # Failed to get stats for IPC queue with id 0
+  # Failed to dump queue: -22
+  # Bail out!
+  # # Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
+  not ok 1 selftests: ipc: msgque # exit=1
 
-wait for 2s and failed
-connect() again          vq->private_data!=NULL         recv connecting pkt
+The dump_queue() function loops through the possible message queue index
+values using calls to msgctl(kern_id, MSG_STAT, ...) where kern_id
+represents the index value. The first time the test is ran, the initial
+index value of 0 is valid and the test is able to complete. The index
+value of 0 is not valid in subsequent test runs and the loop attempts to
+try index values of 1, 2, 3, and so on until a valid index value is
+found that corresponds to the message queue created earlier in the test.
 
-Details:
-1. Host userspace sends a connect pkt, at that time, guest vsock is under
-   initializing, hence the vhost_vsock_start has not been called. So
-   vq->private_data==NULL, and the pkt is not been queued to send to guest
-2. Then it sleeps for 2s
-3. After guest vsock finishes initializing, vq->private_data is set
-4. When host userspace wakes up after 2s, send connecting pkt again,
-   everything is fine.
+The msgctl() syscall returns -1 and sets errno to EINVAL when invalid
+index values are used. The test failure is caused by incorrectly
+comparing errno to -EINVAL when cycling through possible index values.
 
-As suggested by Stefano Garzarella, this fixes it by additional kicking the
-send_pkt worker in vhost_vsock_start once the virtio device is started. This
-makes the pending pkt sent again.
+Fix invalid test failures on subsequent runs of the msgque test by
+correctly comparing errno values to a non-negated EINVAL.
 
-After this patch, kata-runtime (with vsock enabled) boot time is reduced
-from 3s to 1s on a ThunderX2 arm64 server.
-
-[1] https://github.com/kata-containers/runtime/issues/1917
-
-Reported-by: Ning Bo <n.b@live.com>
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jia He <justin.he@arm.com>
-Link: https://lore.kernel.org/r/20200501043840.186557-1-justin.he@arm.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vsock.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ tools/testing/selftests/ipc/msgque.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -500,6 +500,11 @@ static int vhost_vsock_start(struct vhos
- 		mutex_unlock(&vq->mutex);
- 	}
- 
-+	/* Some packets may have been queued before the device was started,
-+	 * let's kick the send worker to send them.
-+	 */
-+	vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
-+
- 	mutex_unlock(&vsock->dev.mutex);
- 	return 0;
- 
+diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
+index 1b2ce334bb3f0..47c074d73e610 100644
+--- a/tools/testing/selftests/ipc/msgque.c
++++ b/tools/testing/selftests/ipc/msgque.c
+@@ -135,7 +135,7 @@ int dump_queue(struct msgque_data *msgque)
+ 	for (kern_id = 0; kern_id < 256; kern_id++) {
+ 		ret = msgctl(kern_id, MSG_STAT, &ds);
+ 		if (ret < 0) {
+-			if (errno == -EINVAL)
++			if (errno == EINVAL)
+ 				continue;
+ 			printf("Failed to get stats for IPC queue with id %d\n",
+ 					kern_id);
+-- 
+2.20.1
+
 
 
