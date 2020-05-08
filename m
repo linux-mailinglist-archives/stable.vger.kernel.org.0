@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F5091CAC84
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0630F1CAC86
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730141AbgEHMyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:54:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36090 "EHLO mail.kernel.org"
+        id S1729236AbgEHMyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:54:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730149AbgEHMyB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:54:01 -0400
+        id S1728746AbgEHMyD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:54:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A183524967;
-        Fri,  8 May 2020 12:54:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24ACA2496A;
+        Fri,  8 May 2020 12:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942441;
-        bh=f0xr2TAEkyL4kye8GmlZwNW+yvmgzpgCK7AqH3ydBQA=;
+        s=default; t=1588942443;
+        bh=zFkS2/g/Apr0wc4izu9ZFX09jKuGiQjn4auE0yk/aQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rc0qYP6qoegmrh/wKpNEfeGKdZwm4XHdJhectAjOA6mbucznc1qVowYJBQxfHgYr3
-         AtIj/1PQ1BFdxAuEnDjv6z9CjNlA+cMS7rmhafWi+Vo25zJHI/Kyr69czfTT8Gaao6
-         vd5igqx27cdJki7omZKWVtUlPTfvKy6PclBKrKaw=
+        b=SaVNFmDD3c3W0Hlzy+pNT6YDKg46Z1F5ngYJEujFBuZ46KY6kJl5/P4nMsrfF1wJk
+         0is3RM96IItgXgcBPlgAhgXIaSaIIatp4IyEihxOHwTt7+qLzT5n9J4VtMB0Uy344o
+         1zyiNDq3oZCzTzqDD5kaScUZ4DK5urTwyJYsZ8bg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.4 46/50] mm/mremap: Add comment explaining the untagging behaviour of mremap()
-Date:   Fri,  8 May 2020 14:35:52 +0200
-Message-Id: <20200508123049.388415423@linuxfoundation.org>
+        stable@vger.kernel.org, Zhan Liu <zhan.liu@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 47/50] Revert "drm/amd/display: setting the DIG_MODE to the correct value."
+Date:   Fri,  8 May 2020 14:35:53 +0200
+Message-Id: <20200508123049.498428983@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
 References: <20200508123043.085296641@linuxfoundation.org>
@@ -45,47 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Zhan Liu <Zhan.Liu@amd.com>
 
-commit b2a84de2a2deb76a6a51609845341f508c518c03 upstream.
+commit b73b7f48895a6a944a76a2d8cdd7feee72bb1f0b upstream.
 
-Commit dcde237319e6 ("mm: Avoid creating virtual address aliases in
-brk()/mmap()/mremap()") changed mremap() so that only the 'old' address
-is untagged, leaving the 'new' address in the form it was passed from
-userspace. This prevents the unexpected creation of aliasing virtual
-mappings in userspace, but looks a bit odd when you read the code.
+This reverts commit 967a3b85bac91c55eff740e61bf270c2732f48b2.
 
-Add a comment justifying the untagging behaviour in mremap().
+Reason for revert: Root cause of this issue is found. The workaround is not needed anymore.
 
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Zhan Liu <zhan.liu@amd.com>
+Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/mremap.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -606,6 +606,16 @@ SYSCALL_DEFINE5(mremap, unsigned long, a
- 	LIST_HEAD(uf_unmap_early);
- 	LIST_HEAD(uf_unmap);
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -2768,15 +2768,6 @@ void core_link_enable_stream(
+ 					CONTROLLER_DP_TEST_PATTERN_VIDEOMODE,
+ 					COLOR_DEPTH_UNDEFINED);
  
-+	/*
-+	 * There is a deliberate asymmetry here: we strip the pointer tag
-+	 * from the old address but leave the new address alone. This is
-+	 * for consistency with mmap(), where we prevent the creation of
-+	 * aliasing mappings in userspace by leaving the tag bits of the
-+	 * mapping address intact. A non-zero tag will cause the subsequent
-+	 * range checks to reject the address as invalid.
-+	 *
-+	 * See Documentation/arm64/tagged-address-abi.rst for more information.
-+	 */
- 	addr = untagged_addr(addr);
- 
- 	if (flags & ~(MREMAP_FIXED | MREMAP_MAYMOVE))
+-		/* This second call is needed to reconfigure the DIG
+-		 * as a workaround for the incorrect value being applied
+-		 * from transmitter control.
+-		 */
+-		if (!dc_is_virtual_signal(pipe_ctx->stream->signal))
+-			stream->link->link_enc->funcs->setup(
+-				stream->link->link_enc,
+-				pipe_ctx->stream->signal);
+-
+ #ifdef CONFIG_DRM_AMD_DC_DSC_SUPPORT
+ 		if (pipe_ctx->stream->timing.flags.DSC) {
+ 			if (dc_is_dp_signal(pipe_ctx->stream->signal) ||
 
 
