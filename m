@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ECF51CABAF
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:46:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4FE1CAEB2
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:16:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729372AbgEHMp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:45:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46438 "EHLO mail.kernel.org"
+        id S1729377AbgEHMqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:46:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729013AbgEHMp7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:45:59 -0400
+        id S1728581AbgEHMqB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:46:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D2302497E;
-        Fri,  8 May 2020 12:45:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7B8621974;
+        Fri,  8 May 2020 12:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941958;
-        bh=zUnkXcQRBvuYJ0/G7/p5WFW1qIEpPSAVojHP16/RYtc=;
+        s=default; t=1588941961;
+        bh=vT1ohDLykskvWR62HNatjxD7VTjctg1pSVYPi9mKQjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tf6q72dS1HrQmsBBrZSpO8KYGp1Trvo7W9Wg0hqONDnoB751Thm4c5NX/xPZ2RZK7
-         bm7L6jddxpNbDp8wQr52l980HCpP+WzDjQrhqiSETiSnYJ5WDeDBmUlX4ML/VIpQcQ
-         VfKSJNwFIYyvnUdpNCLNt8O0gTZzwhViFTPeCn1Q=
+        b=KSYI1U9r1fyxBczuqey9W+6lrGTbhBMCBrmqrGkssyl+8a2qvEpPtMAHBgnFErSIG
+         6q8yt7JQENr/01fIh36NuN/d2uFYxS2RUclivXmdIHnsk/nvI8xnphtpryjR4MNJt3
+         sQIJja6uo0KrD9WoAD3e+NKlUFDjt7aGpQ6+3QC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcin Nowakowski <marcin.nowakowski@imgtec.com>,
-        linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>
-Subject: [PATCH 4.4 241/312] MIPS: perf: Remove incorrect odd/even counter handling for I6400
-Date:   Fri,  8 May 2020 14:33:52 +0200
-Message-Id: <20200508123141.375764266@linuxfoundation.org>
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        Juri Lelli <juri.lelli@arm.com>,
+        Shilpasri G Bhat <shilpa.bhat@linux.vnet.ibm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.4 242/312] Revert "cpufreq: Drop rwsem lock around CPUFREQ_GOV_POLICY_EXIT"
+Date:   Fri,  8 May 2020 14:33:53 +0200
+Message-Id: <20200508123141.444339553@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,47 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-commit f7a31b5e7874f77464a4eae0a8ba84b9ae0b3a54 upstream.
+commit 68e80dae09033d778b98dc88e5bfe8fdade188e5 upstream.
 
-All performance counters on I6400 (odd and even) are capable of counting
-any of the available events, so drop current logic of using the extra
-bit to determine which counter to use.
+Earlier, when the struct freq-attr was used to represent governor
+attributes, the standard cpufreq show/store sysfs attribute callbacks
+were applied to the governor tunable attributes and they always acquire
+the policy->rwsem lock before carrying out the operation.  That could
+have resulted in an ABBA deadlock if governor tunable attributes are
+removed under policy->rwsem while one of them is being accessed
+concurrently (if sysfs attributes removal wins the race, it will wait
+for the access to complete with policy->rwsem held while the attribute
+callback will block on policy->rwsem indefinitely).
 
-Signed-off-by: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
-Fixes: 4e88a8621301 ("MIPS: Add cases for CPU_I6400")
-Fixes: fd716fca10fc ("MIPS: perf: Fix I6400 event numbers")
-Cc: linux-mips@linux-mips.org
-Patchwork: https://patchwork.linux-mips.org/patch/15991/
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+We attempted to address this issue by dropping policy->rwsem around
+governor tunable attributes removal (that is, around invocations of the
+->governor callback with the event arg equal to CPUFREQ_GOV_POLICY_EXIT)
+in cpufreq_set_policy(), but that opened up race conditions that had not
+been possible with policy->rwsem held all the time.
+
+The previous commit, "cpufreq: governor: New sysfs show/store callbacks
+for governor tunables", fixed the original ABBA deadlock by adding new
+governor specific show/store callbacks.
+
+We don't have to drop rwsem around invocations of governor event
+CPUFREQ_GOV_POLICY_EXIT anymore, and original fix can be reverted now.
+
+Fixes: 955ef4833574 (cpufreq: Drop rwsem lock around CPUFREQ_GOV_POLICY_EXIT)
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reported-by: Juri Lelli <juri.lelli@arm.com>
+Tested-by: Juri Lelli <juri.lelli@arm.com>
+Tested-by: Shilpasri G Bhat <shilpa.bhat@linux.vnet.ibm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/kernel/perf_event_mipsxx.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq.c |    5 -----
+ include/linux/cpufreq.h   |    4 ----
+ 2 files changed, 9 deletions(-)
 
---- a/arch/mips/kernel/perf_event_mipsxx.c
-+++ b/arch/mips/kernel/perf_event_mipsxx.c
-@@ -1606,7 +1606,6 @@ static const struct mips_perf_event *mip
- #endif
- 		break;
- 	case CPU_P5600:
--	case CPU_I6400:
- 		/* 8-bit event numbers */
- 		raw_id = config & 0x1ff;
- 		base_id = raw_id & 0xff;
-@@ -1619,6 +1618,11 @@ static const struct mips_perf_event *mip
- 		raw_event.range = P;
- #endif
- 		break;
-+	case CPU_I6400:
-+		/* 8-bit event numbers */
-+		base_id = config & 0xff;
-+		raw_event.cntr_mask = CNTR_EVEN | CNTR_ODD;
-+		break;
- 	case CPU_1004K:
- 		if (IS_BOTH_COUNTERS_1004K_EVENT(base_id))
- 			raw_event.cntr_mask = CNTR_EVEN | CNTR_ODD;
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2171,10 +2171,7 @@ static int cpufreq_set_policy(struct cpu
+ 			return ret;
+ 		}
+ 
+-		up_write(&policy->rwsem);
+ 		ret = __cpufreq_governor(policy, CPUFREQ_GOV_POLICY_EXIT);
+-		down_write(&policy->rwsem);
+-
+ 		if (ret) {
+ 			pr_err("%s: Failed to Exit Governor: %s (%d)\n",
+ 			       __func__, old_gov->name, ret);
+@@ -2190,9 +2187,7 @@ static int cpufreq_set_policy(struct cpu
+ 		if (!ret)
+ 			goto out;
+ 
+-		up_write(&policy->rwsem);
+ 		__cpufreq_governor(policy, CPUFREQ_GOV_POLICY_EXIT);
+-		down_write(&policy->rwsem);
+ 	}
+ 
+ 	/* new governor failed, so re-start old one */
+--- a/include/linux/cpufreq.h
++++ b/include/linux/cpufreq.h
+@@ -100,10 +100,6 @@ struct cpufreq_policy {
+ 	 * - Any routine that will write to the policy structure and/or may take away
+ 	 *   the policy altogether (eg. CPU hotplug), will hold this lock in write
+ 	 *   mode before doing so.
+-	 *
+-	 * Additional rules:
+-	 * - Lock should not be held across
+-	 *     __cpufreq_governor(data, CPUFREQ_GOV_POLICY_EXIT);
+ 	 */
+ 	struct rw_semaphore	rwsem;
+ 
 
 
