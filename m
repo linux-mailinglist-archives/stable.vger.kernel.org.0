@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 775B51CAF31
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A7391CAF5F
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728049AbgEHNPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:15:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45904 "EHLO mail.kernel.org"
+        id S1729142AbgEHMoD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:44:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728963AbgEHMpq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:45:46 -0400
+        id S1729139AbgEHMoC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:44:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 636332495A;
-        Fri,  8 May 2020 12:45:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CF68206B8;
+        Fri,  8 May 2020 12:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941945;
-        bh=j86P8k+g1afCoj1GO37lmRvusAWBC1GoGPfUwLbH1M4=;
+        s=default; t=1588941842;
+        bh=VRxS27w5NyBSYvgCdwjl39Uzk3T+kmTZHMYCVLkfnd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLmrNanVvmxSzELAE3N0frzVUSiMQREqM/wic3OvMo4CmoaFMXadgrn8yDFVpyFRI
-         Q71EcQfUc72YkbsLyMJktBj/OjYo0p0sMS1ma2Kcmi2yKCY5cACcj3gBrI+iH9yEbz
-         vF1sBlK2AFCleLcuPz7MUyp4MQ/K+MVkA8j/KWus=
+        b=pNszuIjG8ZA7JZS0ToAYbKQjycEcKktlAXYj/COKZMNk8r6GNPUCNcsQpmFau4Ks4
+         BitQ7fFWu71BL7eFO83rc7Rz1vjTaRKGKfUFlm6tqZRACIukNJedsIaS/PFzXqFECD
+         m4Q74vqNYyusopbEsOuOt0roDNzAJGMUQ/XtK6sY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Douglas Miller <dougmill@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Alexander Duyck <alexander.h.duyck@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 186/312] be2net: Dont leak iomapped memory on removal.
-Date:   Fri,  8 May 2020 14:32:57 +0200
-Message-Id: <20200508123137.559477603@linuxfoundation.org>
+Subject: [PATCH 4.4 187/312] ipv4: Fix memory leak in exception case for splitting tries
+Date:   Fri,  8 May 2020 14:32:58 +0200
+Message-Id: <20200508123137.627141891@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,59 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Miller <dougmill@linux.vnet.ibm.com>
+From: Alexander Duyck <alexander.h.duyck@intel.com>
 
-commit a69bf3c5b49ef488970c74e26ba0ec12f08491c2 upstream.
+commit 3114cdfe66c156345b0ae34e2990472f277e0c1b upstream.
 
-The adapter->pcicfg resource is either mapped via pci_iomap() or
-derived from adapter->db. During be_remove() this resource was ignored
-and so could remain mapped after remove.
+Fix a small memory leak that can occur where we leak a fib_alias in the
+event of us not being able to insert it into the local table.
 
-Add a flag to track whether adapter->pcicfg was mapped or not, then
-use that flag in be_unmap_pci_bars() to unmap if required.
-
-Fixes: 25848c901 ("use PCI MMIO read instead of config read for errors")
-
-Signed-off-by: Douglas Miller <dougmill@linux.vnet.ibm.com>
+Fixes: 0ddcf43d5d4a0 ("ipv4: FIB Local/MAIN table collapse")
+Reported-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Alexander Duyck <alexander.h.duyck@intel.com>
+Acked-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/emulex/benet/be.h      |    1 +
- drivers/net/ethernet/emulex/benet/be_main.c |    4 ++++
- 2 files changed, 5 insertions(+)
+ net/ipv4/fib_trie.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/emulex/benet/be.h
-+++ b/drivers/net/ethernet/emulex/benet/be.h
-@@ -531,6 +531,7 @@ struct be_adapter {
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -1714,8 +1714,10 @@ struct fib_table *fib_trie_unmerge(struc
+ 				local_l = fib_find_node(lt, &local_tp, l->key);
  
- 	struct delayed_work be_err_detection_work;
- 	u8 err_flags;
-+	bool pcicfg_mapped;	/* pcicfg obtained via pci_iomap() */
- 	u32 flags;
- 	u32 cmd_privileges;
- 	/* Ethtool knobs and info */
---- a/drivers/net/ethernet/emulex/benet/be_main.c
-+++ b/drivers/net/ethernet/emulex/benet/be_main.c
-@@ -5526,6 +5526,8 @@ static void be_unmap_pci_bars(struct be_
- 		pci_iounmap(adapter->pdev, adapter->csr);
- 	if (adapter->db)
- 		pci_iounmap(adapter->pdev, adapter->db);
-+	if (adapter->pcicfg && adapter->pcicfg_mapped)
-+		pci_iounmap(adapter->pdev, adapter->pcicfg);
- }
- 
- static int db_bar(struct be_adapter *adapter)
-@@ -5577,8 +5579,10 @@ static int be_map_pci_bars(struct be_ada
- 			if (!addr)
- 				goto pci_map_err;
- 			adapter->pcicfg = addr;
-+			adapter->pcicfg_mapped = true;
- 		} else {
- 			adapter->pcicfg = adapter->db + SRIOV_VF_PCICFG_OFFSET;
-+			adapter->pcicfg_mapped = false;
+ 			if (fib_insert_alias(lt, local_tp, local_l, new_fa,
+-					     NULL, l->key))
++					     NULL, l->key)) {
++				kmem_cache_free(fn_alias_kmem, new_fa);
+ 				goto out;
++			}
  		}
- 	}
  
+ 		/* stop loop if key wrapped back to 0 */
 
 
