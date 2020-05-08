@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B04B1CAB5F
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:43:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B881CAFA3
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728602AbgEHMnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:43:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40552 "EHLO mail.kernel.org"
+        id S1726770AbgEHNSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:18:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729027AbgEHMnB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:43:01 -0400
+        id S1729030AbgEHMnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:43:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9D4624968;
-        Fri,  8 May 2020 12:43:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23C532495F;
+        Fri,  8 May 2020 12:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941781;
-        bh=SRf+a/x2mhrkqpjLlCdHr3nnCS44RaW/UzT8W01MYRg=;
+        s=default; t=1588941783;
+        bh=OEOXJp0GplwOqua4HXBdjeGkIycP+sjXal95fZYY9Dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFCb9n2p6d/y31bWDYTlVom7hJN2miTZt+WC3uZQ7wW4R0jdD9ji3mW6q0kuHWMzP
-         tezzwmfAOc3NgI5N6ND493tcj2vLqg76BL47HLXulOjUVTjRFJINrS+ux1f0SfFNSh
-         bLwZqAeACGEa6xlqalxcCoFwgLotWnOd6sDRjd5k=
+        b=WtZ41GTfTlqVC3Jg2mPu2sm0OqYI98vlB30T/cA5gJikR1IEqNUnk/coxVpKfrPsk
+         QzK2RKdyW0bc5RkW4AdrRLJ3weELwN0PFMGxzUHvVb/8qAxPy32g+vKRQr2IeRm4c4
+         p/c1Cm/GeS/BFNt2RPZLiFrwVu2G53/wQvzqJ9l4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@arm.linux.org.uk>,
+        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
         Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-Subject: [PATCH 4.4 169/312] [media] rc: allow rc modules to be loaded if rc-main is not a module
-Date:   Fri,  8 May 2020 14:32:40 +0200
-Message-Id: <20200508123136.366163122@linuxfoundation.org>
+Subject: [PATCH 4.4 170/312] [media] lirc_imon: do not leave imon_probe() with mutex held
+Date:   Fri,  8 May 2020 14:32:41 +0200
+Message-Id: <20200508123136.454970850@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -43,37 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@arm.linux.org.uk>
+From: Alexey Khoroshilov <khoroshilov@ispras.ru>
 
-commit 2ff56fadd94cdaeeaeccbc0a9b703a0101ada128 upstream.
+commit b833d0df943d70682e288c38c96b8e7bfff4023a upstream.
 
-rc-main mistakenly uses #ifdef MODULE to determine whether it should
-load the rc keymap modules.  This symbol is only defined if rc-main
-is being built as a module itself, and bears no relation to whether
-the rc keymaps are modules.
+Commit af8a819a2513 ("[media] lirc_imon: simplify error handling code")
+lost mutex_unlock(&context->ctx_lock), so imon_probe() exits with
+the context->ctx_lock mutex acquired.
 
-Fix this to use CONFIG_MODULES instead.
+The patch adds mutex_unlock(&context->ctx_lock) back.
 
-Fixes: 631493ecacd8 ("[media] rc-core: merge rc-map.c into rc-main.c")
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Fixes: af8a819a2513 ("[media] lirc_imon: simplify error handling code")
+
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/rc/rc-main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/media/lirc/lirc_imon.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/media/rc/rc-main.c
-+++ b/drivers/media/rc/rc-main.c
-@@ -61,7 +61,7 @@ struct rc_map *rc_map_get(const char *na
- 	struct rc_map_list *map;
+--- a/drivers/staging/media/lirc/lirc_imon.c
++++ b/drivers/staging/media/lirc/lirc_imon.c
+@@ -885,12 +885,14 @@ static int imon_probe(struct usb_interfa
+ 		vendor, product, ifnum, usbdev->bus->busnum, usbdev->devnum);
  
- 	map = seek_rc_map(name);
--#ifdef MODULE
-+#ifdef CONFIG_MODULES
- 	if (!map) {
- 		int rc = request_module("%s", name);
- 		if (rc < 0) {
+ 	/* Everything went fine. Just unlock and return retval (with is 0) */
++	mutex_unlock(&context->ctx_lock);
+ 	goto driver_unlock;
+ 
+ unregister_lirc:
+ 	lirc_unregister_driver(driver->minor);
+ 
+ free_tx_urb:
++	mutex_unlock(&context->ctx_lock);
+ 	usb_free_urb(tx_urb);
+ 
+ free_rx_urb:
 
 
