@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6214C1CAFDF
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D56761CAAFF
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729203AbgEHNVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:21:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34042 "EHLO mail.kernel.org"
+        id S1728470AbgEHMiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:38:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728660AbgEHMk3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:40:29 -0400
+        id S1728479AbgEHMit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:38:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7EE021835;
-        Fri,  8 May 2020 12:40:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84BCE2495F;
+        Fri,  8 May 2020 12:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941628;
-        bh=TFNhKuLpw3OQr4b7CKnFUrnR9pkd+mWFol/OPa/GFEo=;
+        s=default; t=1588941529;
+        bh=dH39vX1jFQ/TFkb+BTCWZyIAmD9Vcg+f2I8YszPGVZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aIK+ThjVq19+DbRItrzImuEO/MATno+Eiv0iXjVTZhZsesmaZL95a9RNjaD7U9MZQ
-         VIMd5b/81JHRmUXjUy5x0eovmjzsv6R+LUHEbbp23G6/T5/621udL7MyadCd2SGCF9
-         d07jpamDbH5CYQXAxiwxtPg2Js1hpJorMQdGnXjQ=
+        b=mzUFFMlHhbVwyZ17tHLluL05vAdum7e9jA6gse5WBFK4xpYwvrGlu3CnVJS4fgO6r
+         joiCkPYfDBZP45akVXnPO+7FFG3noKAwS9MxOQzKb3rttl8oJZgO9dFz2OcAUriCry
+         1lgJFJNr+ocW3GqW4IjZioDE4aW8ZcqUglMtsL14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Duyck <aduyck@mirantis.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 068/312] GRE: Disable segmentation offloads w/ CSUM and we are encapsulated via FOU
-Date:   Fri,  8 May 2020 14:30:59 +0200
-Message-Id: <20200508123129.332155925@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 069/312] powerpc/pci/of: Parse unassigned resources
+Date:   Fri,  8 May 2020 14:31:00 +0200
+Message-Id: <20200508123129.400872881@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -43,119 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Duyck <aduyck@mirantis.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit a0ca153f98db8cf25298565a09e11fe9d82846ad upstream.
+commit dead1c845dbe97e0061dae2017eaf3bd8f8f06ee upstream.
 
-This patch fixes an issue I found in which we were dropping frames if we
-had enabled checksums on GRE headers that were encapsulated by either FOU
-or GUE.  Without this patch I was barely able to get 1 Gb/s of throughput.
-With this patch applied I am now at least getting around 6 Gb/s.
+The pseries platform uses the PCI_PROBE_DEVTREE method of PCI probing
+which reads "assigned-addresses" of every PCI device and initializes
+the device resources. However if the property is missing or zero sized,
+then there is no fallback of any kind and the PCI resources remain
+undiscovered, i.e. pdev->resource[] array remains empty.
 
-The issue is due to the fact that with FOU or GUE applied we do not provide
-a transport offset pointing to the GRE header, nor do we offload it in
-software as the GRE header is completely skipped by GSO and treated like a
-VXLAN or GENEVE type header.  As such we need to prevent the stack from
-generating it and also prevent GRE from generating it via any interface we
-create.
+This adds a fallback which parses the "reg" property in pretty much same
+way except it marks resources as "unset" which later make Linux assign
+those resources proper addresses.
 
-Fixes: c3483384ee511 ("gro: Allow tunnel stacking in the case of FOU/GUE")
-Signed-off-by: Alexander Duyck <aduyck@mirantis.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This has an effect when:
+1. a hypervisor failed to assign any resource for a device;
+2. /chosen/linux,pci-probe-only=0 is in the DT so the system may try
+assigning a resource.
+Neither is likely to happen under PowerVM.
+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/netdevice.h |    5 ++++-
- net/core/dev.c            |    1 +
- net/ipv4/fou.c            |    6 ++++++
- net/ipv4/gre_offload.c    |    8 ++++++++
- net/ipv4/ip_gre.c         |   13 ++++++++++---
- 5 files changed, 29 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/pci_of_scan.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -2013,7 +2013,10 @@ struct napi_gro_cb {
- 	/* Number of gro_receive callbacks this packet already went through */
- 	u8 recursion_counter:4;
+--- a/arch/powerpc/kernel/pci_of_scan.c
++++ b/arch/powerpc/kernel/pci_of_scan.c
+@@ -82,10 +82,16 @@ static void of_pci_parse_addrs(struct de
+ 	const __be32 *addrs;
+ 	u32 i;
+ 	int proplen;
++	bool mark_unset = false;
  
--	/* 3 bit hole */
-+	/* Used in GRE, set in fou/gue_gro_receive */
-+	u8	is_fou:1;
+ 	addrs = of_get_property(node, "assigned-addresses", &proplen);
+-	if (!addrs)
+-		return;
++	if (!addrs || !proplen) {
++		addrs = of_get_property(node, "reg", &proplen);
++		if (!addrs || !proplen)
++			return;
++		mark_unset = true;
++	}
 +
-+	/* 2 bit hole */
- 
- 	/* used to support CHECKSUM_COMPLETE for tunneling protocols */
- 	__wsum	csum;
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4320,6 +4320,7 @@ static enum gro_result dev_gro_receive(s
- 		NAPI_GRO_CB(skb)->free = 0;
- 		NAPI_GRO_CB(skb)->encap_mark = 0;
- 		NAPI_GRO_CB(skb)->recursion_counter = 0;
-+		NAPI_GRO_CB(skb)->is_fou = 0;
- 		NAPI_GRO_CB(skb)->gro_remcsum_start = 0;
- 
- 		/* Setup for GRO checksum validation */
---- a/net/ipv4/fou.c
-+++ b/net/ipv4/fou.c
-@@ -205,6 +205,9 @@ static struct sk_buff **fou_gro_receive(
- 	 */
- 	NAPI_GRO_CB(skb)->encap_mark = 0;
- 
-+	/* Flag this frame as already having an outer encap header */
-+	NAPI_GRO_CB(skb)->is_fou = 1;
-+
- 	rcu_read_lock();
- 	offloads = NAPI_GRO_CB(skb)->is_ipv6 ? inet6_offloads : inet_offloads;
- 	ops = rcu_dereference(offloads[proto]);
-@@ -372,6 +375,9 @@ static struct sk_buff **gue_gro_receive(
- 	 */
- 	NAPI_GRO_CB(skb)->encap_mark = 0;
- 
-+	/* Flag this frame as already having an outer encap header */
-+	NAPI_GRO_CB(skb)->is_fou = 1;
-+
- 	rcu_read_lock();
- 	offloads = NAPI_GRO_CB(skb)->is_ipv6 ? inet6_offloads : inet_offloads;
- 	ops = rcu_dereference(offloads[guehdr->proto_ctype]);
---- a/net/ipv4/gre_offload.c
-+++ b/net/ipv4/gre_offload.c
-@@ -151,6 +151,14 @@ static struct sk_buff **gre_gro_receive(
- 	if ((greh->flags & ~(GRE_KEY|GRE_CSUM)) != 0)
- 		goto out;
- 
-+	/* We can only support GRE_CSUM if we can track the location of
-+	 * the GRE header.  In the case of FOU/GUE we cannot because the
-+	 * outer UDP header displaces the GRE header leaving us in a state
-+	 * of limbo.
-+	 */
-+	if ((greh->flags & GRE_CSUM) && NAPI_GRO_CB(skb)->is_fou)
-+		goto out;
-+
- 	type = greh->protocol;
- 
- 	rcu_read_lock();
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -851,9 +851,16 @@ static void __gre_tunnel_init(struct net
- 	dev->hw_features	|= GRE_FEATURES;
- 
- 	if (!(tunnel->parms.o_flags & TUNNEL_SEQ)) {
--		/* TCP offload with GRE SEQ is not supported. */
--		dev->features    |= NETIF_F_GSO_SOFTWARE;
--		dev->hw_features |= NETIF_F_GSO_SOFTWARE;
-+		/* TCP offload with GRE SEQ is not supported, nor
-+		 * can we support 2 levels of outer headers requiring
-+		 * an update.
-+		 */
-+		if (!(tunnel->parms.o_flags & TUNNEL_CSUM) ||
-+		    (tunnel->encap.type == TUNNEL_ENCAP_NONE)) {
-+			dev->features    |= NETIF_F_GSO_SOFTWARE;
-+			dev->hw_features |= NETIF_F_GSO_SOFTWARE;
-+		}
-+
- 		/* Can use a lockless transmit, unless we generate
- 		 * output sequences
- 		 */
+ 	pr_debug("    parse addresses (%d bytes) @ %p\n", proplen, addrs);
+ 	for (; proplen >= 20; proplen -= 20, addrs += 5) {
+ 		flags = pci_parse_of_flags(of_read_number(addrs, 1), 0);
+@@ -110,6 +116,8 @@ static void of_pci_parse_addrs(struct de
+ 			continue;
+ 		}
+ 		res->flags = flags;
++		if (mark_unset)
++			res->flags |= IORESOURCE_UNSET;
+ 		res->name = pci_name(dev);
+ 		region.start = base;
+ 		region.end = base + size - 1;
 
 
