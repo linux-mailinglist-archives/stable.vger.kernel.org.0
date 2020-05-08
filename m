@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B7B11CABE9
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8545E1CABEB
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729642AbgEHMsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:48:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51482 "EHLO mail.kernel.org"
+        id S1729108AbgEHMsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:48:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729635AbgEHMsH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:48:07 -0400
+        id S1729269AbgEHMsJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:48:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43B6E2145D;
-        Fri,  8 May 2020 12:48:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A538321473;
+        Fri,  8 May 2020 12:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942086;
-        bh=riBXK0KZYBwehtc18Vx1x5TT8z5aF7XvhRxqXWTNihE=;
+        s=default; t=1588942089;
+        bh=bowaRiHwIq+KBj4KPgpBFge6RdbJxJTdfm47V3GMM0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mlbv2WubWKeSD+/nfqS+I7CSkD7q/+wmP/8+CzkeuuNyDnCz+PMnfO5JcESU8HMSR
-         9c5scDQ1jKPZkKLMsx8ZPYOzD7oRufuepHq2MIOjnT/bidiMLUxBvvInHV8d6FinUQ
-         m3T9Y153q0m52kFsISAsVt679rKHeNeEtiIKpBCU=
+        b=UmNOcgPoD2vxHgd18A93+Zv91yqzSw2n4RKv9odBu4SoeT9gTEL9x18hqquR8uNSa
+         44WgbfWwL81mZMT9ALsT8SPNrgA246Z7jY9z4Ctp1vx4T6jonVOqZ5HIfx+7OqChya
+         r/D7cmSSunjBjvoWpn1Ma90SxetRjZhBXoovUDf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Libosvar <jlibosva@redhat.com>,
-        Pravin B Shelar <pshelar@ovn.org>,
-        Jiri Benc <jbenc@redhat.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 291/312] net: vxlan: lwt: Fix vxlan local traffic.
-Date:   Fri,  8 May 2020 14:34:42 +0200
-Message-Id: <20200508123144.843469094@linuxfoundation.org>
+Subject: [PATCH 4.4 292/312] net: ethoc: Fix early error paths
+Date:   Fri,  8 May 2020 14:34:43 +0200
+Message-Id: <20200508123144.909944189@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,46 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: pravin shelar <pshelar@ovn.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit bbec7802c6948c8626b71a4fe31283cb4691c358 upstream.
+commit 386512d18b268c6182903239f9f3390f03ce4c7b upstream.
 
-vxlan driver has bypass for local vxlan traffic, but that
-depends on information about all VNIs on local system in
-vxlan driver. This is not available in case of LWT.
-Therefore following patch disable encap bypass for LWT
-vxlan traffic.
+In case any operation fails before we can successfully go the point
+where we would register a MDIO bus, we would be going to an error label
+which involves unregistering then freeing this yet to be created MDIO
+bus. Update all error paths to go to label free which is the only one
+valid until either the clock is enabled, or the MDIO bus is allocated
+and registered. This fixes kernel oops observed while trying to
+dereference the MDIO bus structure which is not yet allocated.
 
-Fixes: ee122c79d42 ("vxlan: Flow based tunneling").
-Reported-by: Jakub Libosvar <jlibosva@redhat.com>
-Signed-off-by: Pravin B Shelar <pshelar@ovn.org>
-Acked-by: Jiri Benc <jbenc@redhat.com>
+Fixes: a1702857724f ("net: Add support for the OpenCores 10/100 Mbps Ethernet MAC.")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/vxlan.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ethoc.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -2054,7 +2054,7 @@ static void vxlan_xmit_one(struct sk_buf
+--- a/drivers/net/ethernet/ethoc.c
++++ b/drivers/net/ethernet/ethoc.c
+@@ -1088,7 +1088,7 @@ static int ethoc_probe(struct platform_d
+ 	if (!priv->iobase) {
+ 		dev_err(&pdev->dev, "cannot remap I/O memory space\n");
+ 		ret = -ENXIO;
+-		goto error;
++		goto free;
+ 	}
+ 
+ 	if (netdev->mem_end) {
+@@ -1097,7 +1097,7 @@ static int ethoc_probe(struct platform_d
+ 		if (!priv->membase) {
+ 			dev_err(&pdev->dev, "cannot remap memory space\n");
+ 			ret = -ENXIO;
+-			goto error;
++			goto free;
  		}
+ 	} else {
+ 		/* Allocate buffer memory */
+@@ -1108,7 +1108,7 @@ static int ethoc_probe(struct platform_d
+ 			dev_err(&pdev->dev, "cannot allocate %dB buffer\n",
+ 				buffer_size);
+ 			ret = -ENOMEM;
+-			goto error;
++			goto free;
+ 		}
+ 		netdev->mem_end = netdev->mem_start + buffer_size;
+ 		priv->dma_alloc = buffer_size;
+@@ -1122,7 +1122,7 @@ static int ethoc_probe(struct platform_d
+ 		128, (netdev->mem_end - netdev->mem_start + 1) / ETHOC_BUFSIZ);
+ 	if (num_bd < 4) {
+ 		ret = -ENODEV;
+-		goto error;
++		goto free;
+ 	}
+ 	priv->num_bd = num_bd;
+ 	/* num_tx must be a power of two */
+@@ -1135,7 +1135,7 @@ static int ethoc_probe(struct platform_d
+ 	priv->vma = devm_kzalloc(&pdev->dev, num_bd*sizeof(void *), GFP_KERNEL);
+ 	if (!priv->vma) {
+ 		ret = -ENOMEM;
+-		goto error;
++		goto free;
+ 	}
  
- 		/* Bypass encapsulation if the destination is local */
--		if (rt->rt_flags & RTCF_LOCAL &&
-+		if (!info && rt->rt_flags & RTCF_LOCAL &&
- 		    !(rt->rt_flags & (RTCF_BROADCAST | RTCF_MULTICAST))) {
- 			struct vxlan_dev *dst_vxlan;
- 
-@@ -2112,7 +2112,7 @@ static void vxlan_xmit_one(struct sk_buf
- 
- 		/* Bypass encapsulation if the destination is local */
- 		rt6i_flags = ((struct rt6_info *)ndst)->rt6i_flags;
--		if (rt6i_flags & RTF_LOCAL &&
-+		if (!info && rt6i_flags & RTF_LOCAL &&
- 		    !(rt6i_flags & (RTCF_BROADCAST | RTCF_MULTICAST))) {
- 			struct vxlan_dev *dst_vxlan;
- 
+ 	/* Allow the platform setup code to pass in a MAC address. */
 
 
