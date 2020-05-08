@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3853B1CABAD
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ECF51CABAF
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728304AbgEHMp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:45:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46288 "EHLO mail.kernel.org"
+        id S1729372AbgEHMp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:45:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729363AbgEHMp4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:45:56 -0400
+        id S1729013AbgEHMp7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:45:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCCA121974;
-        Fri,  8 May 2020 12:45:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D2302497E;
+        Fri,  8 May 2020 12:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941956;
-        bh=KW6y5wmFLfiHusJt9VH5WdPcHaNDUYH9sRQ8FBD/nDA=;
+        s=default; t=1588941958;
+        bh=zUnkXcQRBvuYJ0/G7/p5WFW1qIEpPSAVojHP16/RYtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRCeBPrUd68D6OUIU7bgvhpwsG/Z/4yiDcENcWoY/BBG3VkEdSCvDj4P+Xdd0f2E2
-         uq6diLjtBciIuey4Lo4OU2t/6AnrqxaBuOGnqqzCbqtG6r3Ga/26Pc1I/8uM2cvN5M
-         m9wtBCmqIq4mkE2n5p4lHd1iaENsYC7RCXyvbAj0=
+        b=Tf6q72dS1HrQmsBBrZSpO8KYGp1Trvo7W9Wg0hqONDnoB751Thm4c5NX/xPZ2RZK7
+         bm7L6jddxpNbDp8wQr52l980HCpP+WzDjQrhqiSETiSnYJ5WDeDBmUlX4ML/VIpQcQ
+         VfKSJNwFIYyvnUdpNCLNt8O0gTZzwhViFTPeCn1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Jungel <tobias.jungel@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 240/312] bonding: fix length of actor system
-Date:   Fri,  8 May 2020 14:33:51 +0200
-Message-Id: <20200508123141.304323372@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marcin Nowakowski <marcin.nowakowski@imgtec.com>,
+        linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>
+Subject: [PATCH 4.4 241/312] MIPS: perf: Remove incorrect odd/even counter handling for I6400
+Date:   Fri,  8 May 2020 14:33:52 +0200
+Message-Id: <20200508123141.375764266@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -43,35 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Jungel <tobias.jungel@gmail.com>
+From: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
 
-commit 414dd6fb9a1a1b59983aea7bf0f79f0085ecc5b8 upstream.
+commit f7a31b5e7874f77464a4eae0a8ba84b9ae0b3a54 upstream.
 
-The attribute IFLA_BOND_AD_ACTOR_SYSTEM is sent to user space having the
-length of sizeof(bond->params.ad_actor_system) which is 8 byte. This
-patch aligns the length to ETH_ALEN to have the same MAC address exposed
-as using sysfs.
+All performance counters on I6400 (odd and even) are capable of counting
+any of the available events, so drop current logic of using the extra
+bit to determine which counter to use.
 
-Fixes: f87fda00b6ed2 ("bonding: prevent out of bound accesses")
-Signed-off-by: Tobias Jungel <tobias.jungel@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
+Fixes: 4e88a8621301 ("MIPS: Add cases for CPU_I6400")
+Fixes: fd716fca10fc ("MIPS: perf: Fix I6400 event numbers")
+Cc: linux-mips@linux-mips.org
+Patchwork: https://patchwork.linux-mips.org/patch/15991/
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/bonding/bond_netlink.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/mips/kernel/perf_event_mipsxx.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/bonding/bond_netlink.c
-+++ b/drivers/net/bonding/bond_netlink.c
-@@ -628,8 +628,7 @@ static int bond_fill_info(struct sk_buff
- 				goto nla_put_failure;
- 
- 			if (nla_put(skb, IFLA_BOND_AD_ACTOR_SYSTEM,
--				    sizeof(bond->params.ad_actor_system),
--				    &bond->params.ad_actor_system))
-+				    ETH_ALEN, &bond->params.ad_actor_system))
- 				goto nla_put_failure;
- 		}
- 		if (!bond_3ad_get_active_agg_info(bond, &info)) {
+--- a/arch/mips/kernel/perf_event_mipsxx.c
++++ b/arch/mips/kernel/perf_event_mipsxx.c
+@@ -1606,7 +1606,6 @@ static const struct mips_perf_event *mip
+ #endif
+ 		break;
+ 	case CPU_P5600:
+-	case CPU_I6400:
+ 		/* 8-bit event numbers */
+ 		raw_id = config & 0x1ff;
+ 		base_id = raw_id & 0xff;
+@@ -1619,6 +1618,11 @@ static const struct mips_perf_event *mip
+ 		raw_event.range = P;
+ #endif
+ 		break;
++	case CPU_I6400:
++		/* 8-bit event numbers */
++		base_id = config & 0xff;
++		raw_event.cntr_mask = CNTR_EVEN | CNTR_ODD;
++		break;
+ 	case CPU_1004K:
+ 		if (IS_BOTH_COUNTERS_1004K_EVENT(base_id))
+ 			raw_event.cntr_mask = CNTR_EVEN | CNTR_ODD;
 
 
