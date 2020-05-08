@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 982361CB02C
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:24:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13A0F1CAAD3
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728000AbgEHMhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:37:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51228 "EHLO mail.kernel.org"
+        id S1727991AbgEHMhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:37:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727994AbgEHMhH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:37:07 -0400
+        id S1728018AbgEHMhK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:37:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A21E7207DD;
-        Fri,  8 May 2020 12:37:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 721CD21835;
+        Fri,  8 May 2020 12:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941427;
-        bh=pfASahavKa16Lvl68B6Op42wIy+UUATPo81BC8/T67M=;
+        s=default; t=1588941429;
+        bh=rBlSr5NBHfZ/N935rLEslrLFisg4sr5EccNQDxUtH+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSxgoUjUxwxxXY4jPcgK+wkjssOnMPyXckgnLsqpFMWj2N6peXL3ccgk6IFSs0yww
-         2P10El7tXp37GVPsYiCieGkoPw4Z2AtjjI7nSMcvrHIlFIp0CshDBBu63UX4VeQ+d8
-         zvhT3ZPb9DtlRZZwn8CE8nmZZB4ylbMrazYHN7S4=
+        b=S9IbPLXKtSNk20Ao7Q5HByk0DowwFdXMH9u5wIYHKZ66jx/vxt/1KyGfzoeHOs8qE
+         M27TNaSRMnzfsifmdLa2ZBWHkvG4qSWmRDHvZO5P0uRbCJLPBeqeSufFxu0PZ/2dEM
+         JNKQGEWVdP/DCl2pJadMK6mhUPp7SoBVth0WxAfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hogan <james.hogan@imgtec.com>,
-        Leonid Yegoshin <leonid.yegoshin@imgtec.com>,
-        linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>
-Subject: [PATCH 4.4 028/312] MIPS: c-r4k: Fix protected_writeback_scache_line for EVA
-Date:   Fri,  8 May 2020 14:30:19 +0200
-Message-Id: <20200508123126.462083642@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        David Daney <david.daney@cavium.com>,
+        Rob Herring <robh@kernel.org>,
+        Marc Zyngier <marc.zyngier@arm.com>, linux-mips@linux-mips.org,
+        kernel-janitors@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>
+Subject: [PATCH 4.4 029/312] MIPS: Octeon: Off by one in octeon_irq_gpio_map()
+Date:   Fri,  8 May 2020 14:30:20 +0200
+Message-Id: <20200508123126.529643159@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,57 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hogan <james.hogan@imgtec.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 0758b116b4080d9a2a2a715bec6eee2cbd828215 upstream.
+commit 008d0cf1ec69ec6d2c08f2d23aff2b67cbe5d2af upstream.
 
-The protected_writeback_scache_line() function is used by
-local_r4k_flush_cache_sigtramp() to flush an FPU delay slot emulation
-trampoline on the userland stack from the caches so it is visible to
-subsequent instruction fetches.
+It should be >= ARRAY_SIZE() instead of > ARRAY_SIZE().
 
-Commit de8974e3f76c ("MIPS: asm: r4kcache: Add EVA cache flushing
-functions") updated some protected_ cache flush functions to use EVA
-CACHEE instructions via protected_cachee_op(), and commit 83fd43449baa
-("MIPS: r4kcache: Add EVA case for protected_writeback_dcache_line") did
-the same thing for protected_writeback_dcache_line(), but
-protected_writeback_scache_line() never got updated. Lets fix that now
-to flush the right user address from the secondary cache rather than
-some arbitrary kernel unmapped address.
-
-This issue was spotted through code inspection, and it seems unlikely to
-be possible to hit this in practice. It theoretically affect EVA kernels
-on EVA capable cores with an L2 cache, where the icache fetches straight
-from RAM (cpu_icache_snoops_remote_store == 0), running a hard float
-userland with FPU disabled (nofpu). That both Malta and Boston platforms
-override cpu_icache_snoops_remote_store to 1 suggests that all MIPS
-cores fetch instructions into icache straight from L2 rather than RAM.
-
-Fixes: de8974e3f76c ("MIPS: asm: r4kcache: Add EVA cache flushing functions")
-Signed-off-by: James Hogan <james.hogan@imgtec.com>
-Cc: Leonid Yegoshin <leonid.yegoshin@imgtec.com>
+Fixes: 64b139f97c01 ('MIPS: OCTEON: irq: add CIB and other fixes')
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: David Daney <david.daney@cavium.com>
+Cc: Rob Herring <robh@kernel.org>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
 Cc: linux-mips@linux-mips.org
-Patchwork: https://patchwork.linux-mips.org/patch/13800/
+Cc: kernel-janitors@vger.kernel.org
+Patchwork: https://patchwork.linux-mips.org/patch/13813/
 Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/include/asm/r4kcache.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/mips/cavium-octeon/octeon-irq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/include/asm/r4kcache.h
-+++ b/arch/mips/include/asm/r4kcache.h
-@@ -210,7 +210,11 @@ static inline void protected_writeback_d
+--- a/arch/mips/cavium-octeon/octeon-irq.c
++++ b/arch/mips/cavium-octeon/octeon-irq.c
+@@ -1220,7 +1220,7 @@ static int octeon_irq_gpio_map(struct ir
  
- static inline void protected_writeback_scache_line(unsigned long addr)
- {
-+#ifdef CONFIG_EVA
-+	protected_cachee_op(Hit_Writeback_Inv_SD, addr);
-+#else
- 	protected_cache_op(Hit_Writeback_Inv_SD, addr);
-+#endif
- }
+ 	line = (hw + gpiod->base_hwirq) >> 6;
+ 	bit = (hw + gpiod->base_hwirq) & 63;
+-	if (line > ARRAY_SIZE(octeon_irq_ciu_to_irq) ||
++	if (line >= ARRAY_SIZE(octeon_irq_ciu_to_irq) ||
+ 		octeon_irq_ciu_to_irq[line][bit] != 0)
+ 		return -EINVAL;
  
- /*
 
 
