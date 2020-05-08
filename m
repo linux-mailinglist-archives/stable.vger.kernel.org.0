@@ -2,56 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5671CAD34
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FDC01CACDC
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728388AbgEHM7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:59:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35506 "EHLO mail.kernel.org"
+        id S1730189AbgEHM42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:56:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730084AbgEHMxh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:53:37 -0400
+        id S1729593AbgEHM42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:56:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CF722495A;
-        Fri,  8 May 2020 12:53:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFE75218AC;
+        Fri,  8 May 2020 12:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942416;
-        bh=NacUilbJsspXNe7yDzY1W+BGrDLiyEUkAsS1AsJcq4Q=;
+        s=default; t=1588942587;
+        bh=SD7T60NTWAwj0y0ioejAXYqLHyACuAREGqmS+ToUxjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYUEDV0KMnp/0l7pJlIZ4SVIz50yU9RaW8Olb0waQurVsLl/7feLH8gR9BCr6eBiM
-         cj2RDPO+yNoWCiCRaM9R3mlr0N037qzBUYzVRowk3sY/yIYMyM7b9ViDes+VMKy+LY
-         ech5lH+pSKXDRXKYjqyuWI/QcN/d6Vf15fcdB6Kg=
+        b=zBsi8w7ca60Z6nW9ITB1tfSLgrTSVSxai2xaIdMkttjly4lsJb8fsB3P8lJJbzMkw
+         Q9N4NIuljcU8s2KG8xnX0OIR1QsunaJq+MTlT+zAzl/mfLIyPKT6GLVqm9ElWkz84h
+         kyNSGIdHmHxZSd2gfL5fW7+GMfNygGgb7NJAcgiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Brian Cain <bcain@codeaurora.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Tuowen Zhao <ztuowen@gmail.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Allison Randal <allison@lohutok.net>,
-        Will Deacon <will@kernel.org>,
-        Richard Fontana <rfontana@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 37/50] hexagon: define ioremap_uc
+        stable@vger.kernel.org, Julien Beraud <julien.beraud@orolia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 26/49] net: stmmac: fix enabling socfpgas ptp_ref_clock
 Date:   Fri,  8 May 2020 14:35:43 +0200
-Message-Id: <20200508123048.435279467@linuxfoundation.org>
+Message-Id: <20200508123046.754664307@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,53 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Julien Beraud <julien.beraud@orolia.com>
 
-commit 7312b70699252074d753c5005fc67266c547bbe3 upstream.
+[ Upstream commit 15ce30609d1e88d42fb1cd948f453e6d5f188249 ]
 
-Similar to commit 38e45d81d14e ("sparc64: implement ioremap_uc") define
-ioremap_uc for hexagon to avoid errors from
--Wimplicit-function-definition.
+There are 2 registers to write to enable a ptp ref clock coming from the
+fpga.
+One that enables the usage of the clock from the fpga for emac0 and emac1
+as a ptp ref clock, and the other to allow signals from the fpga to reach
+emac0 and emac1.
+Currently, if the dwmac-socfpga has phymode set to PHY_INTERFACE_MODE_MII,
+PHY_INTERFACE_MODE_GMII, or PHY_INTERFACE_MODE_SGMII, both registers will
+be written and the ptp ref clock will be set as coming from the fpga.
+Separate the 2 register writes to only enable signals from the fpga to
+reach emac0 or emac1 when ptp ref clock is not coming from the fpga.
 
-Link: http://lkml.kernel.org/r/20191209222956.239798-2-ndesaulniers@google.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/797
-Fixes: e537654b7039 ("lib: devres: add a helper function for ioremap_uc")
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Tuowen Zhao <ztuowen@gmail.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
-Cc: Allison Randal <allison@lohutok.net>
-Cc: Will Deacon <will@kernel.org>
-Cc: Richard Fontana <rfontana@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Julien Beraud <julien.beraud@orolia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/hexagon/include/asm/io.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -173,6 +173,7 @@ static inline void writel(u32 data, vola
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
+index fa32cd5b418ef..70d41783329dd 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
+@@ -291,16 +291,19 @@ static int socfpga_gen5_set_phy_mode(struct socfpga_dwmac *dwmac)
+ 	    phymode == PHY_INTERFACE_MODE_MII ||
+ 	    phymode == PHY_INTERFACE_MODE_GMII ||
+ 	    phymode == PHY_INTERFACE_MODE_SGMII) {
+-		ctrl |= SYSMGR_EMACGRP_CTRL_PTP_REF_CLK_MASK << (reg_shift / 2);
+ 		regmap_read(sys_mgr_base_addr, SYSMGR_FPGAGRP_MODULE_REG,
+ 			    &module);
+ 		module |= (SYSMGR_FPGAGRP_MODULE_EMAC << (reg_shift / 2));
+ 		regmap_write(sys_mgr_base_addr, SYSMGR_FPGAGRP_MODULE_REG,
+ 			     module);
+-	} else {
+-		ctrl &= ~(SYSMGR_EMACGRP_CTRL_PTP_REF_CLK_MASK << (reg_shift / 2));
+ 	}
  
- void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
- #define ioremap_nocache ioremap
-+#define ioremap_uc(X, Y) ioremap((X), (Y))
++	if (dwmac->f2h_ptp_ref_clk)
++		ctrl |= SYSMGR_EMACGRP_CTRL_PTP_REF_CLK_MASK << (reg_shift / 2);
++	else
++		ctrl &= ~(SYSMGR_EMACGRP_CTRL_PTP_REF_CLK_MASK <<
++			  (reg_shift / 2));
++
+ 	regmap_write(sys_mgr_base_addr, reg_offset, ctrl);
  
- 
- static inline void iounmap(volatile void __iomem *addr)
+ 	/* Deassert reset for the phy configuration to be sampled by
+-- 
+2.20.1
+
 
 
