@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F7401CAC3B
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BAC01CAC22
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729889AbgEHMvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:51:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60256 "EHLO mail.kernel.org"
+        id S1728117AbgEHMuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:50:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729688AbgEHMvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:18 -0400
+        id S1729248AbgEHMuY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:50:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11C8924959;
-        Fri,  8 May 2020 12:51:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A631721473;
+        Fri,  8 May 2020 12:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942277;
-        bh=TlCukOa8yANpfdLwZWlHbhSZsVt3aKYiyQN5uYYyX74=;
+        s=default; t=1588942223;
+        bh=FUdsD2vebhAd1eNJ+Evte29+cETCgh/IN/PwJdEDKaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e07Yr7emMsqMW5NWPuSv24mmjPIHfrV4IZvN26XA3q55mHuoyJQs+1qzP8405vHv+
-         EJKlEV7cUDFZmHJMEIXBiyJwRWGYKh+d3G/YxNT8biVlImXk5FsURuH0RuAtJiBzCq
-         RXKeHVW0FH2IlD753BLsrXEgrorB5MHS8YvCCs3E=
+        b=lytGVgzO4Ho07MmPbM0ya3NRRG8BNhp0GL3DOU6YEVJQ0B0XWc4tHmwJfBm12K341
+         6RS3jl1aWGQLhmXER70JkSiRTnO+ENGnuFvohGO61dPYWBxIfVQDgVaCHhNXkKNwiq
+         r0XWSAdc2yzTR6ScCuWKAvGlY3qK59Bgq+GfPOXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Blankertz <matthias.blankertz@cetitec.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/32] ASoC: rsnd: Dont treat master SSI in multi SSI setup as parent
+Subject: [PATCH 4.14 15/22] lib/mpi: Fix building for powerpc with clang
 Date:   Fri,  8 May 2020 14:35:27 +0200
-Message-Id: <20200508123036.669828519@linuxfoundation.org>
+Message-Id: <20200508123035.757505988@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
+References: <20200508123033.915895060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,83 +46,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Blankertz <matthias.blankertz@cetitec.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 0c258657ddfe81b4fc0183378d800c97ba0b7cdd ]
+[ Upstream commit 5990cdee689c6885b27c6d969a3d58b09002b0bc ]
 
-The master SSI of a multi-SSI setup was attached both to the
-RSND_MOD_SSI slot and the RSND_MOD_SSIP slot of the rsnd_dai_stream.
-This is not correct wrt. the meaning of being "parent" in the rest of
-the SSI code, where it seems to indicate an SSI that provides clock and
-word sync but is not transmitting/receiving audio data.
+0day reports over and over on an powerpc randconfig with clang:
 
-Not treating the multi-SSI master as parent allows removal of various
-special cases to the rsnd_ssi_is_parent conditions introduced in commit
-a09fb3f28a60 ("ASoC: rsnd: Fix parent SSI start/stop in multi-SSI mode").
-It also fixes the issue that operations performed via rsnd_dai_call()
-were performed twice for the master SSI. This caused some "status check
-failed" spam when stopping a multi-SSI stream as the driver attempted to
-stop the master SSI twice.
+lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
+inline asm context requiring an l-value: remove the cast or build with
+-fheinous-gnu-extensions
 
-Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20200417153017.1744454-2-matthias.blankertz@cetitec.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Remove the superfluous casts, which have been done previously for x86
+and arm32 in commit dea632cadd12 ("lib/mpi: fix build with clang") and
+commit 7b7c1df2883d ("lib/mpi/longlong.h: fix building with 32-bit
+x86").
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/991
+Link: https://lore.kernel.org/r/20200413195041.24064-1-natechancellor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/ssi.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ lib/mpi/longlong.h | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index 3fe88f7743824..d5f663bb965f1 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -375,7 +375,7 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
- 	 * We shouldn't exchange SWSP after running.
- 	 * This means, parent needs to care it.
- 	 */
--	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
-+	if (rsnd_ssi_is_parent(mod, io))
- 		goto init_end;
- 
- 	if (rsnd_io_is_play(io))
-@@ -531,7 +531,7 @@ static int rsnd_ssi_start(struct rsnd_mod *mod,
- 	 * EN is for data output.
- 	 * SSI parent EN is not needed.
- 	 */
--	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
-+	if (rsnd_ssi_is_parent(mod, io))
- 		return 0;
- 
- 	ssi->cr_en = EN;
-@@ -554,7 +554,7 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
- 	if (!rsnd_ssi_is_run_mods(mod, io))
- 		return 0;
- 
--	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
-+	if (rsnd_ssi_is_parent(mod, io))
- 		return 0;
- 
- 	cr  =	ssi->cr_own	|
-@@ -592,7 +592,7 @@ static int rsnd_ssi_irq(struct rsnd_mod *mod,
- 	if (rsnd_is_gen1(priv))
- 		return 0;
- 
--	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
-+	if (rsnd_ssi_is_parent(mod, io))
- 		return 0;
- 
- 	if (!rsnd_ssi_is_run_mods(mod, io))
-@@ -674,6 +674,9 @@ static void rsnd_ssi_parent_attach(struct rsnd_mod *mod,
- 	if (!rsnd_rdai_is_clk_master(rdai))
- 		return;
- 
-+	if (rsnd_ssi_is_multi_slave(mod, io))
-+		return;
-+
- 	switch (rsnd_mod_id(mod)) {
- 	case 1:
- 	case 2:
+diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
+index 08c60d10747fd..e01b705556aa6 100644
+--- a/lib/mpi/longlong.h
++++ b/lib/mpi/longlong.h
+@@ -756,22 +756,22 @@ do {									\
+ do { \
+ 	if (__builtin_constant_p(bh) && (bh) == 0) \
+ 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "%r" ((USItype)(ah)), \
+ 		"%r" ((USItype)(al)), \
+ 		"rI" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
+ 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "%r" ((USItype)(ah)), \
+ 		"%r" ((USItype)(al)), \
+ 		"rI" ((USItype)(bl))); \
+ 	else \
+ 		__asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "%r" ((USItype)(ah)), \
+ 		"r" ((USItype)(bh)), \
+ 		"%r" ((USItype)(al)), \
+@@ -781,36 +781,36 @@ do { \
+ do { \
+ 	if (__builtin_constant_p(ah) && (ah) == 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(bh)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(ah) && (ah) == ~(USItype) 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(bh)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(bh) && (bh) == 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(ah)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(ah)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else \
+ 		__asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(ah)), \
+ 		"r" ((USItype)(bh)), \
+ 		"rI" ((USItype)(al)), \
+@@ -821,7 +821,7 @@ do { \
+ do { \
+ 	USItype __m0 = (m0), __m1 = (m1); \
+ 	__asm__ ("mulhwu %0,%1,%2" \
+-	: "=r" ((USItype) ph) \
++	: "=r" (ph) \
+ 	: "%r" (__m0), \
+ 	"r" (__m1)); \
+ 	(pl) = __m0 * __m1; \
 -- 
 2.20.1
 
