@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C53311CAB16
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C9271CAFEC
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728599AbgEHMjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:39:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59768 "EHLO mail.kernel.org"
+        id S1728633AbgEHNVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727946AbgEHMjl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:39:41 -0400
+        id S1728654AbgEHMkJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:40:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9ACEE20731;
-        Fri,  8 May 2020 12:39:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9A1D2496A;
+        Fri,  8 May 2020 12:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941581;
-        bh=+Sp64hyyp7pP9nnZlHmICQofI6C8aT+oJZ9LVNIVlbw=;
+        s=default; t=1588941608;
+        bh=D3MJC+2qPG1IavHeiaYeHNHbRpFemYPUFUrOQDJhJm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIh4urFKjbQtSzUTMOHxI1Msq22eOAXB6WkeS+qjD1ztFqt16XyMV05vc+ap9dnqy
-         6WsWmkPZ87E2GroePFjWQmbW0YlpubZUIYLmy6TtGNQHsu40StUWidttKVr60dEpW7
-         85HxC+uaaOCl3XPJJDbNa2K0rIP9BRSjWXgJpyBg=
+        b=zeoI24jafYN4IIz/Hnrq3/8jeIWyXFb2N1dTJJgTcZu4RNfVusBuIgeANg+mTAwDx
+         1S0TWK4uGra10Z/3PUZDu2y7j446zcOqWIvsZu6hS//z6jl+pzTXT23PYyZZBq5dBk
+         PrEQdQQZUKkuu3utiQAbuXQhXNYvSHNNHTIDKTCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Subject: [PATCH 4.4 062/312] alpha/PCI: Call iomem_is_exclusive() for IORESOURCE_MEM, but not IORESOURCE_IO
-Date:   Fri,  8 May 2020 14:30:53 +0200
-Message-Id: <20200508123128.913524348@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 4.4 063/312] vfio/pci: Allow VPD short read
+Date:   Fri,  8 May 2020 14:30:54 +0200
+Message-Id: <20200508123128.982023141@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -43,40 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-commit c20e128030caf0537d5e906753eac1c28fefdb75 upstream.
+commit ce7585f3c4d76bca1dff4b66ae1ea32552954f9e upstream.
 
-The alpha pci_mmap_resource() is used for both IORESOURCE_MEM and
-IORESOURCE_IO resources, but iomem_is_exclusive() is only applicable for
-IORESOURCE_MEM.
+The size of the VPD area is not necessarily 4-byte aligned, so a
+pci_vpd_read() might return less than 4 bytes.  Zero our buffer and
+accept anything other than an error.  Intel X710 NICs exercise this.
 
-Call iomem_is_exclusive() only for IORESOURCE_MEM resources, and do it
-earlier to match the generic version of pci_mmap_resource().
-
-Fixes: 10a0ef39fbd1 ("PCI/alpha: pci sysfs resources")
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Fixes: 4e1a635552d3 ("vfio/pci: Use kernel VPD access functions")
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/alpha/kernel/pci-sysfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/vfio/pci/vfio_pci_config.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/alpha/kernel/pci-sysfs.c
-+++ b/arch/alpha/kernel/pci-sysfs.c
-@@ -77,10 +77,10 @@ static int pci_mmap_resource(struct kobj
- 	if (i >= PCI_ROM_RESOURCE)
- 		return -ENODEV;
- 
--	if (!__pci_mmap_fits(pdev, i, vma, sparse))
-+	if (res->flags & IORESOURCE_MEM && iomem_is_exclusive(res->start))
- 		return -EINVAL;
- 
--	if (iomem_is_exclusive(res->start))
-+	if (!__pci_mmap_fits(pdev, i, vma, sparse))
- 		return -EINVAL;
- 
- 	pcibios_resource_to_bus(pdev->bus, &bar, res);
+--- a/drivers/vfio/pci/vfio_pci_config.c
++++ b/drivers/vfio/pci/vfio_pci_config.c
+@@ -698,7 +698,8 @@ static int vfio_vpd_config_write(struct
+ 		if (pci_write_vpd(pdev, addr & ~PCI_VPD_ADDR_F, 4, &data) != 4)
+ 			return count;
+ 	} else {
+-		if (pci_read_vpd(pdev, addr, 4, &data) != 4)
++		data = 0;
++		if (pci_read_vpd(pdev, addr, 4, &data) < 0)
+ 			return count;
+ 		*pdata = cpu_to_le32(data);
+ 	}
 
 
