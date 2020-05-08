@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08C911CAC48
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0ACA1CACFD
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729529AbgEHMwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:52:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32904 "EHLO mail.kernel.org"
+        id S1729969AbgEHMye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:54:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729502AbgEHMvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:53 -0400
+        id S1730218AbgEHMye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:54:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3939A218AC;
-        Fri,  8 May 2020 12:51:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC4E724958;
+        Fri,  8 May 2020 12:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942312;
-        bh=hdhau5x237LBx7BVJYuRDozB3xA1U7LTwu5kqngl8TY=;
+        s=default; t=1588942473;
+        bh=5M9/i+sHmIz8sIvRvyAC4vBnfJk2Ljuv92Rsyc2GraY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d37ZXudMAtG7cbwrQji6niJhmVDV2GxDpUalgpVjNdNbRzk2k7pD0qeqD3BS/4ZZL
-         1fYBc/wjiHdQgXwWRStzyQ4gAi5B5z0pJyRhzZv0OyyB9B5LU8YbwY1DZufJQU70V8
-         bVCGbyZ2wHTMQBOVQnSPfFqWOKeWJquGBcl96edc=
+        b=UkZuAPeEkdPbt1IwvzJTDI2Bjw3li3dFw6Aipu/CWbpnNV0PjdHbJNyQxfWiGLkgo
+         mi5BXYz4aFc/leDecxmN3lporc0k63RqGLkzjLgOwpeBxEytUE98OwbPzR9frwozT0
+         2A2sJRr9TZaCQwWVRNb8/ewr6SJXckwhIWkzQO/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Fabio Estevam <festivem@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/32] ASoC: sgtl5000: Fix VAG power-on handling
+        stable@vger.kernel.org, Ning Bo <n.b@live.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jia He <justin.he@arm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.6 01/49] vhost: vsock: kick send_pkt worker once device is started
 Date:   Fri,  8 May 2020 14:35:18 +0200
-Message-Id: <20200508123035.505300470@linuxfoundation.org>
+Message-Id: <20200508123043.013091973@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,89 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Jia He <justin.he@arm.com>
 
-[ Upstream commit aa7812737f2877e192d57626cbe8825cc7cf6de9 ]
+commit 0b841030625cde5f784dd62aec72d6a766faae70 upstream.
 
-As mentioned slightly out of patch context in the code, there
-is no reset routine for the chip. On boards where the chip is
-supplied by a fixed regulator, it might not even be resetted
-during (e.g. watchdog) reboot and can be in any state.
+Ning Bo reported an abnormal 2-second gap when booting Kata container [1].
+The unconditional timeout was caused by VSOCK_DEFAULT_CONNECT_TIMEOUT of
+connecting from the client side. The vhost vsock client tries to connect
+an initializing virtio vsock server.
 
-If the device is probed with VAG enabled, the driver's probe
-routine will generate a loud pop sound when ANA_POWER is
-being programmed. Avoid this by properly disabling just the
-VAG bit and waiting the required power down time.
+The abnormal flow looks like:
+host-userspace           vhost vsock                       guest vsock
+==============           ===========                       ============
+connect()     -------->  vhost_transport_send_pkt_work()   initializing
+   |                     vq->private_data==NULL
+   |                     will not be queued
+   V
+schedule_timeout(2s)
+                         vhost_vsock_start()  <---------   device ready
+                         set vq->private_data
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Reviewed-by: Fabio Estevam <festivem@gmail.com>
-Link: https://lore.kernel.org/r/20200414181140.145825-1-sebastian.reichel@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+wait for 2s and failed
+connect() again          vq->private_data!=NULL         recv connecting pkt
+
+Details:
+1. Host userspace sends a connect pkt, at that time, guest vsock is under
+   initializing, hence the vhost_vsock_start has not been called. So
+   vq->private_data==NULL, and the pkt is not been queued to send to guest
+2. Then it sleeps for 2s
+3. After guest vsock finishes initializing, vq->private_data is set
+4. When host userspace wakes up after 2s, send connecting pkt again,
+   everything is fine.
+
+As suggested by Stefano Garzarella, this fixes it by additional kicking the
+send_pkt worker in vhost_vsock_start once the virtio device is started. This
+makes the pending pkt sent again.
+
+After this patch, kata-runtime (with vsock enabled) boot time is reduced
+from 3s to 1s on a ThunderX2 arm64 server.
+
+[1] https://github.com/kata-containers/runtime/issues/1917
+
+Reported-by: Ning Bo <n.b@live.com>
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Jia He <justin.he@arm.com>
+Link: https://lore.kernel.org/r/20200501043840.186557-1-justin.he@arm.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/codecs/sgtl5000.c | 34 ++++++++++++++++++++++++++++++++++
- sound/soc/codecs/sgtl5000.h |  1 +
- 2 files changed, 35 insertions(+)
+ drivers/vhost/vsock.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index 896412d11a31c..7c0a06b487f74 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1633,6 +1633,40 @@ static int sgtl5000_i2c_probe(struct i2c_client *client,
- 		dev_err(&client->dev,
- 			"Error %d initializing CHIP_CLK_CTRL\n", ret);
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -543,6 +543,11 @@ static int vhost_vsock_start(struct vhos
+ 		mutex_unlock(&vq->mutex);
+ 	}
  
-+	/* Mute everything to avoid pop from the following power-up */
-+	ret = regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_CTRL,
-+			   SGTL5000_CHIP_ANA_CTRL_DEFAULT);
-+	if (ret) {
-+		dev_err(&client->dev,
-+			"Error %d muting outputs via CHIP_ANA_CTRL\n", ret);
-+		goto disable_clk;
-+	}
-+
-+	/*
-+	 * If VAG is powered-on (e.g. from previous boot), it would be disabled
-+	 * by the write to ANA_POWER in later steps of the probe code. This
-+	 * may create a loud pop even with all outputs muted. The proper way
-+	 * to circumvent this is disabling the bit first and waiting the proper
-+	 * cool-down time.
++	/* Some packets may have been queued before the device was started,
++	 * let's kick the send worker to send them.
 +	 */
-+	ret = regmap_read(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, &value);
-+	if (ret) {
-+		dev_err(&client->dev, "Failed to read ANA_POWER: %d\n", ret);
-+		goto disable_clk;
-+	}
-+	if (value & SGTL5000_VAG_POWERUP) {
-+		ret = regmap_update_bits(sgtl5000->regmap,
-+					 SGTL5000_CHIP_ANA_POWER,
-+					 SGTL5000_VAG_POWERUP,
-+					 0);
-+		if (ret) {
-+			dev_err(&client->dev, "Error %d disabling VAG\n", ret);
-+			goto disable_clk;
-+		}
++	vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
 +
-+		msleep(SGTL5000_VAG_POWERDOWN_DELAY);
-+	}
-+
- 	/* Follow section 2.2.1.1 of AN3663 */
- 	ana_pwr = SGTL5000_ANA_POWER_DEFAULT;
- 	if (sgtl5000->num_supplies <= VDDD) {
-diff --git a/sound/soc/codecs/sgtl5000.h b/sound/soc/codecs/sgtl5000.h
-index 18cae08bbd3a6..066517e352a70 100644
---- a/sound/soc/codecs/sgtl5000.h
-+++ b/sound/soc/codecs/sgtl5000.h
-@@ -233,6 +233,7 @@
- /*
-  * SGTL5000_CHIP_ANA_CTRL
-  */
-+#define SGTL5000_CHIP_ANA_CTRL_DEFAULT		0x0133
- #define SGTL5000_LINE_OUT_MUTE			0x0100
- #define SGTL5000_HP_SEL_MASK			0x0040
- #define SGTL5000_HP_SEL_SHIFT			6
--- 
-2.20.1
-
+ 	mutex_unlock(&vsock->dev.mutex);
+ 	return 0;
+ 
 
 
