@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A7B01CAD02
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 368B71CADA5
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730211AbgEHMyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:54:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36868 "EHLO mail.kernel.org"
+        id S1729256AbgEHNDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:03:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730198AbgEHMyb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:54:31 -0400
+        id S1729553AbgEHMud (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:50:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A04B2495A;
-        Fri,  8 May 2020 12:54:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 524C624959;
+        Fri,  8 May 2020 12:50:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942470;
-        bh=uYDz60v5LTGoxlNQT418XjQi9htRM1lYd0mtAyncrJg=;
+        s=default; t=1588942232;
+        bh=qMWxE2EfYOhqlgoLvRG1U4MWq/4ftK5fTVTdxu9bbNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xqlr6AbxdESXLF7RcCCtYlHzeu2cgQsQU1RSUysk2TUq7vccZL/zXeFDyTyPv7ZNS
-         1VISFjV3BwQs6EY3vyBf3gDz4QseYN5hMoADod3tfEztx9t1cDVMg+9Dm81k5FxXJd
-         gBMJw0qwzRW6rMde/7mkyr5rCUKvABswLklZE2Q8=
+        b=CR5QQBIgH9po7yMWs3pcfTflE+YXXo8dtWSxSyxsdAy28+spS5oQthNvV9etCZFsj
+         LJUAsRcdx0DVvtsziorKzxQGidAXTkSy6vLCOdj0SQ8EWbSi37NhLD/PfdG58FB1KS
+         9/fLWCj5He9bMXsP5GCH+cGHvm6s5qHrOc3C4wEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
+        stable@vger.kernel.org, Tom Zanussi <tom.zanussi@linux.intel.com>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 25/50] tracing: Fix memory leaks in trace_events_hist.c
+        =?UTF-8?q?Andress=20Kuo=20 ?= <Andress.Kuo@mediatek.com>
+Subject: [PATCH 4.14 19/22] tracing: Reverse the order of trace_types_lock and event_mutex
 Date:   Fri,  8 May 2020 14:35:31 +0200
-Message-Id: <20200508123046.898308901@linuxfoundation.org>
+Message-Id: <20200508123036.277013811@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
+References: <20200508123033.915895060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,108 +44,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 9da73974eb9c965dd9989befb593b8c8da9e4bdc ]
+commit 12ecef0cb12102d8c034770173d2d1363cb97d52 upstream.
 
-kmemleak report 1:
-    [<9092c50b>] kmem_cache_alloc_trace+0x138/0x270
-    [<05a2c9ed>] create_field_var+0xcf/0x180
-    [<528a2d68>] action_create+0xe2/0xc80
-    [<63f50b61>] event_hist_trigger_func+0x15b5/0x1920
-    [<28ea5d3d>] trigger_process_regex+0x7b/0xc0
-    [<3138e86f>] event_trigger_write+0x4d/0xb0
-    [<ffd66c19>] __vfs_write+0x30/0x200
-    [<4f424a0d>] vfs_write+0x96/0x1b0
-    [<da59a290>] ksys_write+0x53/0xc0
-    [<3717101a>] __ia32_sys_write+0x15/0x20
-    [<c5f23497>] do_fast_syscall_32+0x70/0x250
-    [<46e2629c>] entry_SYSENTER_32+0xaf/0x102
+In order to make future changes where we need to call
+tracing_set_clock() from within an event command, the order of
+trace_types_lock and event_mutex must be reversed, as the event command
+will hold event_mutex and the trace_types_lock is taken from within
+tracing_set_clock().
 
-This is because save_vars[] of struct hist_trigger_data are
-not destroyed
+Link: http://lkml.kernel.org/r/20170921162249.0dde3dca@gandalf.local.home
 
-kmemleak report 2:
-    [<9092c50b>] kmem_cache_alloc_trace+0x138/0x270
-    [<6e5e97c5>] create_var+0x3c/0x110
-    [<de82f1b9>] create_field_var+0xaf/0x180
-    [<528a2d68>] action_create+0xe2/0xc80
-    [<63f50b61>] event_hist_trigger_func+0x15b5/0x1920
-    [<28ea5d3d>] trigger_process_regex+0x7b/0xc0
-    [<3138e86f>] event_trigger_write+0x4d/0xb0
-    [<ffd66c19>] __vfs_write+0x30/0x200
-    [<4f424a0d>] vfs_write+0x96/0x1b0
-    [<da59a290>] ksys_write+0x53/0xc0
-    [<3717101a>] __ia32_sys_write+0x15/0x20
-    [<c5f23497>] do_fast_syscall_32+0x70/0x250
-    [<46e2629c>] entry_SYSENTER_32+0xaf/0x102
-
-struct hist_field allocated through create_var() do not initialize
-"ref" field to 1. The code in __destroy_hist_field() does not destroy
-object if "ref" is initialized to zero, the condition
-if (--hist_field->ref > 1) always passes since unsigned int wraps.
-
-kmemleak report 3:
-    [<f8666fcc>] __kmalloc_track_caller+0x139/0x2b0
-    [<bb7f80a5>] kstrdup+0x27/0x50
-    [<39d70006>] init_var_ref+0x58/0xd0
-    [<8ca76370>] create_var_ref+0x89/0xe0
-    [<f045fc39>] action_create+0x38f/0xc80
-    [<7c146821>] event_hist_trigger_func+0x15b5/0x1920
-    [<07de3f61>] trigger_process_regex+0x7b/0xc0
-    [<e87daf8f>] event_trigger_write+0x4d/0xb0
-    [<19bf1512>] __vfs_write+0x30/0x200
-    [<64ce4d27>] vfs_write+0x96/0x1b0
-    [<a6f34170>] ksys_write+0x53/0xc0
-    [<7d4230cd>] __ia32_sys_write+0x15/0x20
-    [<8eadca00>] do_fast_syscall_32+0x70/0x250
-    [<235cf985>] entry_SYSENTER_32+0xaf/0x102
-
-hist_fields (system & event_name) are not freed
-
-Link: http://lkml.kernel.org/r/20200422061503.GA5151@cosmos
-
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+Requested-by: Tom Zanussi <tom.zanussi@linux.intel.com>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Andress Kuo (郭孟修) <Andress.Kuo@mediatek.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/trace/trace_events_hist.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/trace/trace.c        |    5 +++++
+ kernel/trace/trace_events.c |   31 +++++++++++++++----------------
+ 2 files changed, 20 insertions(+), 16 deletions(-)
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 6495800fb92a1..8107574e8af9d 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2466,6 +2466,9 @@ static void __destroy_hist_field(struct hist_field *hist_field)
- 	kfree(hist_field->name);
- 	kfree(hist_field->type);
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -7720,6 +7720,7 @@ static int instance_mkdir(const char *na
+ 	struct trace_array *tr;
+ 	int ret;
  
-+	kfree(hist_field->system);
-+	kfree(hist_field->event_name);
-+
- 	kfree(hist_field);
++	mutex_lock(&event_mutex);
+ 	mutex_lock(&trace_types_lock);
+ 
+ 	ret = -EEXIST;
+@@ -7775,6 +7776,7 @@ static int instance_mkdir(const char *na
+ 	list_add(&tr->list, &ftrace_trace_arrays);
+ 
+ 	mutex_unlock(&trace_types_lock);
++	mutex_unlock(&event_mutex);
+ 
+ 	return 0;
+ 
+@@ -7786,6 +7788,7 @@ static int instance_mkdir(const char *na
+ 
+  out_unlock:
+ 	mutex_unlock(&trace_types_lock);
++	mutex_unlock(&event_mutex);
+ 
+ 	return ret;
+ 
+@@ -7798,6 +7801,7 @@ static int instance_rmdir(const char *na
+ 	int ret;
+ 	int i;
+ 
++	mutex_lock(&event_mutex);
+ 	mutex_lock(&trace_types_lock);
+ 
+ 	ret = -ENODEV;
+@@ -7843,6 +7847,7 @@ static int instance_rmdir(const char *na
+ 
+  out_unlock:
+ 	mutex_unlock(&trace_types_lock);
++	mutex_unlock(&event_mutex);
+ 
+ 	return ret;
  }
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -1403,8 +1403,8 @@ static int subsystem_open(struct inode *
+ 		return -ENODEV;
  
-@@ -3528,6 +3531,7 @@ static struct hist_field *create_var(struct hist_trigger_data *hist_data,
- 		goto out;
+ 	/* Make sure the system still exists */
+-	mutex_lock(&trace_types_lock);
+ 	mutex_lock(&event_mutex);
++	mutex_lock(&trace_types_lock);
+ 	list_for_each_entry(tr, &ftrace_trace_arrays, list) {
+ 		list_for_each_entry(dir, &tr->systems, list) {
+ 			if (dir == inode->i_private) {
+@@ -1418,8 +1418,8 @@ static int subsystem_open(struct inode *
+ 		}
  	}
+  exit_loop:
+-	mutex_unlock(&event_mutex);
+ 	mutex_unlock(&trace_types_lock);
++	mutex_unlock(&event_mutex);
  
-+	var->ref = 1;
- 	var->flags = HIST_FIELD_FL_VAR;
- 	var->var.idx = idx;
- 	var->var.hist_data = var->hist_data = hist_data;
-@@ -4157,6 +4161,9 @@ static void destroy_field_vars(struct hist_trigger_data *hist_data)
+ 	if (!system)
+ 		return -ENODEV;
+@@ -2305,15 +2305,15 @@ static void __add_event_to_tracers(struc
+ int trace_add_event_call(struct trace_event_call *call)
+ {
+ 	int ret;
+-	mutex_lock(&trace_types_lock);
+ 	mutex_lock(&event_mutex);
++	mutex_lock(&trace_types_lock);
  
- 	for (i = 0; i < hist_data->n_field_vars; i++)
- 		destroy_field_var(hist_data->field_vars[i]);
-+
-+	for (i = 0; i < hist_data->n_save_vars; i++)
-+		destroy_field_var(hist_data->save_vars[i]);
+ 	ret = __register_event(call, NULL);
+ 	if (ret >= 0)
+ 		__add_event_to_tracers(call);
+ 
+-	mutex_unlock(&event_mutex);
+ 	mutex_unlock(&trace_types_lock);
++	mutex_unlock(&event_mutex);
+ 	return ret;
  }
  
- static void save_field_var(struct hist_trigger_data *hist_data,
--- 
-2.20.1
-
+@@ -2367,13 +2367,13 @@ int trace_remove_event_call(struct trace
+ {
+ 	int ret;
+ 
+-	mutex_lock(&trace_types_lock);
+ 	mutex_lock(&event_mutex);
++	mutex_lock(&trace_types_lock);
+ 	down_write(&trace_event_sem);
+ 	ret = probe_remove_event_call(call);
+ 	up_write(&trace_event_sem);
+-	mutex_unlock(&event_mutex);
+ 	mutex_unlock(&trace_types_lock);
++	mutex_unlock(&event_mutex);
+ 
+ 	return ret;
+ }
+@@ -2435,8 +2435,8 @@ static int trace_module_notify(struct no
+ {
+ 	struct module *mod = data;
+ 
+-	mutex_lock(&trace_types_lock);
+ 	mutex_lock(&event_mutex);
++	mutex_lock(&trace_types_lock);
+ 	switch (val) {
+ 	case MODULE_STATE_COMING:
+ 		trace_module_add_events(mod);
+@@ -2445,8 +2445,8 @@ static int trace_module_notify(struct no
+ 		trace_module_remove_events(mod);
+ 		break;
+ 	}
+-	mutex_unlock(&event_mutex);
+ 	mutex_unlock(&trace_types_lock);
++	mutex_unlock(&event_mutex);
+ 
+ 	return 0;
+ }
+@@ -2961,24 +2961,24 @@ create_event_toplevel_files(struct dentr
+  * creates the event hierachry in the @parent/events directory.
+  *
+  * Returns 0 on success.
++ *
++ * Must be called with event_mutex held.
+  */
+ int event_trace_add_tracer(struct dentry *parent, struct trace_array *tr)
+ {
+ 	int ret;
+ 
+-	mutex_lock(&event_mutex);
++	lockdep_assert_held(&event_mutex);
+ 
+ 	ret = create_event_toplevel_files(parent, tr);
+ 	if (ret)
+-		goto out_unlock;
++		goto out;
+ 
+ 	down_write(&trace_event_sem);
+ 	__trace_add_event_dirs(tr);
+ 	up_write(&trace_event_sem);
+ 
+- out_unlock:
+-	mutex_unlock(&event_mutex);
+-
++ out:
+ 	return ret;
+ }
+ 
+@@ -3007,9 +3007,10 @@ early_event_add_tracer(struct dentry *pa
+ 	return ret;
+ }
+ 
++/* Must be called with event_mutex held */
+ int event_trace_del_tracer(struct trace_array *tr)
+ {
+-	mutex_lock(&event_mutex);
++	lockdep_assert_held(&event_mutex);
+ 
+ 	/* Disable any event triggers and associated soft-disabled events */
+ 	clear_event_triggers(tr);
+@@ -3030,8 +3031,6 @@ int event_trace_del_tracer(struct trace_
+ 
+ 	tr->event_dir = NULL;
+ 
+-	mutex_unlock(&event_mutex);
+-
+ 	return 0;
+ }
+ 
 
 
