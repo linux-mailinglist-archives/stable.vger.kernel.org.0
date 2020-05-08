@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 589C11CAECF
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B551CAEF8
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729057AbgEHMs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:48:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52114 "EHLO mail.kernel.org"
+        id S1728183AbgEHNM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729669AbgEHMsY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:48:24 -0400
+        id S1728557AbgEHMs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:48:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 581A12145D;
-        Fri,  8 May 2020 12:48:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C168721473;
+        Fri,  8 May 2020 12:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942103;
-        bh=AAeV4GeEnJgXtRjAjYtvSoUzsCDgz5TClALxpSv5FcU=;
+        s=default; t=1588942106;
+        bh=QF5IDSTZsGg8+KtyRcK9yV+Y7rlVcpSFWAYA2ll7Ufo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7XHrxYHPan1z06SifvcN8Xeqm3JXxwyjOTOLO6i/iA12mPdpfelBNw71DmFVzsP/
-         ZfYOfIwwjp7wH+1a2PofBzyrevM+JBxF/Bch8Q0tf1Jck4/g2Rwp1PnO6sbUG26r5D
-         cGwlEbSt4cfIxd5zTTIW7WMPL6LfPPdR57+pwzic=
+        b=hwfm3rqVREDPtCMoxnRxN9y/oFG8Y/NsDkRFJAwX2HO5l5r+fF3ztVD03Iyi2dfIv
+         eFc4Mc29J4XLRYvxI/rJB6uuM6jgXiYXu5c/rHu3jOOIt0rv5+KOJzRMTVM5G4Da20
+         NilZch0r6HFAPsJ9egsddKLLX6ZvSUKyCotkLooM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH 4.4 298/312] regulator: Try to resolve regulators supplies on registration
-Date:   Fri,  8 May 2020 14:34:49 +0200
-Message-Id: <20200508123145.337797569@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andrew Donnellan <andrew.donnellan@au1.ibm.com>,
+        Ian Munsie <imunsie@au1.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 299/312] cxl: Fix DAR check & use REGION_ID instead of opencoding
+Date:   Fri,  8 May 2020 14:34:50 +0200
+Message-Id: <20200508123145.425312028@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -43,68 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javier@osg.samsung.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
 
-commit 5e3ca2b349b1e2c80b060b51bbf2af37448fad85 upstream.
+commit 3b1dbfa14f97188ec33fdfc7acb66bea59a3bb21 upstream.
 
-Commit 6261b06de565 ("regulator: Defer lookup of supply to regulator_get")
-moved the regulator supplies lookup logic from the regulators registration
-to the regulators get time.
+The current code will set _PAGE_USER to the access flags for any
+fault address, because the ~ operation will be true for all address we
+take a fault on. But setting _PAGE_USER also means that the fault will
+be handled only if the page table have _PAGE_USER set. Hence there is
+no security hole with the current code.
 
-Unfortunately, that changed the behavior of the regulator core since now a
-parent supply with a child regulator marked as always-on, won't be enabled
-unless a client driver attempts to get the child regulator during boot.
+Now if it is an user space access, then the change in this patch really
+don't have an impact because we have (!ctx->kernel) set true
+and we take the if condition true.
 
-This patch tries to resolve the parent supply for the already registered
-regulators each time that a new regulator is registered. So the regulators
-that have child regulators marked as always on will be enabled regardless
-if a driver gets the child regulator or not.
+Now kernel context created fault on an address in the kernel range
+will result in a fault loop because we will not insert the
+hash pte due to access and pte permission mismatch. This patch fix
+the above issue.
 
-That was the behavior before the mentioned commit, since parent supplies
-were looked up at regulator registration time instead of during child get.
-
-Since regulator_resolve_supply() checks for rdev->supply, most of the times
-it will be a no-op. Errors aren't checked to keep the possible out of order
-dependencies which was the motivation for the mentioned commit.
-
-Also, the supply being available will be enforced on regulator get anyways
-in case the resolve fails on regulators registration.
-
-Fixes: 6261b06de565 ("regulator: Defer lookup of supply to regulator_get")
-Suggested-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: <stable@vger.kernel.org> # 4.1+
+Fixes: f204e0b8cedd ("cxl: Driver code for powernv PCIe based cards for userspace access")
+Reviewed-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
+Acked-by: Ian Munsie <imunsie@au1.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/core.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/misc/cxl/fault.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -3822,6 +3822,11 @@ static void rdev_init_debugfs(struct reg
- 			   &rdev->bypass_count);
- }
+--- a/drivers/misc/cxl/fault.c
++++ b/drivers/misc/cxl/fault.c
+@@ -152,7 +152,7 @@ static void cxl_handle_page_fault(struct
+ 	access = _PAGE_PRESENT;
+ 	if (dsisr & CXL_PSL_DSISR_An_S)
+ 		access |= _PAGE_RW;
+-	if ((!ctx->kernel) || ~(dar & (1ULL << 63)))
++	if ((!ctx->kernel) || (REGION_ID(dar) == USER_REGION_ID))
+ 		access |= _PAGE_USER;
  
-+static int regulator_register_resolve_supply(struct device *dev, void *data)
-+{
-+	return regulator_resolve_supply(dev_to_rdev(dev));
-+}
-+
- /**
-  * regulator_register - register regulator
-  * @regulator_desc: regulator to register
-@@ -3968,6 +3973,10 @@ regulator_register(const struct regulato
- 	}
- 
- 	rdev_init_debugfs(rdev);
-+
-+	/* try to resolve regulators supply since a new one was registered */
-+	class_for_each_device(&regulator_class, NULL, NULL,
-+			      regulator_register_resolve_supply);
- out:
- 	mutex_unlock(&regulator_list_mutex);
- 	kfree(config);
+ 	if (dsisr & DSISR_NOHPTE)
 
 
