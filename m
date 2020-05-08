@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EDAB1CAFDD
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE3441CAFCC
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727915AbgEHNVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:21:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34226 "EHLO mail.kernel.org"
+        id S1728451AbgEHNU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:20:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728716AbgEHMkd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:40:33 -0400
+        id S1728174AbgEHMlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:41:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A578C20731;
-        Fri,  8 May 2020 12:40:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2401F20731;
+        Fri,  8 May 2020 12:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941633;
-        bh=CKEsIwLKe5KKKWEEfVgThjd/Hwwpw3XCwsiFwR5ZEB4=;
+        s=default; t=1588941660;
+        bh=pS2MkzUVTHGK2IXgWPKz/863sTdQ694vuAWFOZaRb2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYQZ0qTsbox8rK1Z4nY40N2DOXpQ7xljirVcujvtE1ca0c+VKC08mm7xTo2DEZhyw
-         UcRpzA4cmBKxuO86m45ZpoD1FMJCV62n2UAbn2fTwu48he6zntcqJdsM25MP+hjRwh
-         DOpd7ts0bQUVqkC25Bs7qvLP1HCbQRrGoF5YbW3o=
+        b=bgfk6fMiHAYviya0YvyS/+iLE2gn134lixM5PugEiM2hrHr9Ilbj6v3MinsDEbfzj
+         6p2qr2SNjEzhpwjAkgtVmuQKLYWFGO+cRDf+OVBKWIg8NagIBAaxedUfl3Xc0aHsmq
+         pZ0MJrJrL8FP5r5yAyszTnICSBw9cUkTqSGvIJVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.4 103/312] xprtrdma: rpcrdma_bc_receive_call() should init rq_private_buf.len
-Date:   Fri,  8 May 2020 14:31:34 +0200
-Message-Id: <20200508123131.756381617@linuxfoundation.org>
+        stable@vger.kernel.org, Honggang Li <honli@redhat.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Steve Wise <swise@opengridcomputing.com>,
+        Doug Ledford <dledford@redhat.com>
+Subject: [PATCH 4.4 104/312] RDMA/cxgb3: device driver frees DMA memory with different size
+Date:   Fri,  8 May 2020 14:31:35 +0200
+Message-Id: <20200508123131.823296116@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -43,40 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Honggang Li <honli@redhat.com>
 
-commit 9f74660bcf1e4cca577be99e54bc77b5df62b508 upstream.
+commit 0de4cbb3dddca35ecd06b95918f38439c9c6401f upstream.
 
-Some NFSv4.1 OPEN requests were hanging waiting for the NFS server
-to finish recalling delegations. Turns out that each NFSv4.1 CB
-request on RDMA gets a GARBAGE_ARGS reply from the Linux client.
+[  598.852037] ------------[ cut here ]------------
+[  598.856698] WARNING: at lib/dma-debug.c:887 check_unmap+0xf8/0x920()
+[  598.863079] cxgb3 0000:01:00.0: DMA-API: device driver frees DMA memory with different size [device address=0x0000000003310000] [map size=17 bytes] [unmap size=16 bytes]
+[  598.878265] Modules linked in: xprtrdma ib_isert iscsi_target_mod ib_iser libiscsi scsi_transport_iscsi ib_srpt target_core_mod ib_srp scsi_transport_srp scsi_tgt ib_ipoib rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_sa ib_mad kvm_amd kvm ipmi_devintf ipmi_ssif dcdbas pcspkr ipmi_si sg ipmi_msghandler acpi_power_meter amd64_edac_mod shpchp edac_core sp5100_tco k10temp edac_mce_amd i2c_piix4 acpi_cpufreq nfsd auth_rpcgss nfs_acl lockd grace sunrpc ip_tables xfs libcrc32c sd_mod crc_t10dif crct10dif_generic crct10dif_common ata_generic iw_cxgb3 pata_acpi ib_core ib_addr mgag200 syscopyarea sysfillrect sysimgblt i2c_algo_bit drm_kms_helper ttm pata_atiixp drm ahci libahci serio_raw i2c_core cxgb3 libata bnx2 mdio dm_mirror dm_region_hash dm_log dm_mod
+[  598.946822] CPU: 3 PID: 11820 Comm: cmtime Not tainted 3.10.0-327.el7.x86_64.debug #1
+[  598.954681] Hardware name: Dell Inc. PowerEdge R415/0GXH08, BIOS 2.0.2 10/22/2012
+[  598.962193]  ffff8808077479a8 000000000381a432 ffff880807747960 ffffffff81700918
+[  598.969663]  ffff880807747998 ffffffff8108b6c0 ffff880807747a80 ffff8808063f55c0
+[  598.977132]  ffffffff833ca850 0000000000000282 ffff88080b1bb800 ffff880807747a00
+[  598.984602] Call Trace:
+[  598.987062]  [<ffffffff81700918>] dump_stack+0x19/0x1b
+[  598.992224]  [<ffffffff8108b6c0>] warn_slowpath_common+0x70/0xb0
+[  598.998254]  [<ffffffff8108b75c>] warn_slowpath_fmt+0x5c/0x80
+[  599.004033]  [<ffffffff813903b8>] check_unmap+0xf8/0x920
+[  599.009369]  [<ffffffff81025959>] ? sched_clock+0x9/0x10
+[  599.014702]  [<ffffffff81390cee>] debug_dma_free_coherent+0x7e/0xa0
+[  599.021008]  [<ffffffffa01ece2c>] cxio_destroy_cq+0xcc/0x160 [iw_cxgb3]
+[  599.027654]  [<ffffffffa01e8da0>] iwch_destroy_cq+0xf0/0x140 [iw_cxgb3]
+[  599.034307]  [<ffffffffa01c4bfe>] ib_destroy_cq+0x1e/0x30 [ib_core]
+[  599.040601]  [<ffffffffa04ff2d2>] ib_uverbs_close+0x302/0x4d0 [ib_uverbs]
+[  599.047417]  [<ffffffff812335a2>] __fput+0x102/0x310
+[  599.052401]  [<ffffffff8123388e>] ____fput+0xe/0x10
+[  599.057297]  [<ffffffff810bbde4>] task_work_run+0xb4/0xe0
+[  599.062719]  [<ffffffff81092a84>] do_exit+0x304/0xc60
+[  599.067789]  [<ffffffff81025905>] ? native_sched_clock+0x35/0x80
+[  599.073820]  [<ffffffff81025959>] ? sched_clock+0x9/0x10
+[  599.079153]  [<ffffffff8170a49c>] ? _raw_spin_unlock_irq+0x2c/0x50
+[  599.085358]  [<ffffffff8109346c>] do_group_exit+0x4c/0xc0
+[  599.090779]  [<ffffffff810a8661>] get_signal_to_deliver+0x2e1/0x960
+[  599.097071]  [<ffffffff8101c497>] do_signal+0x57/0x6e0
+[  599.102229]  [<ffffffff81714bd1>] ? sysret_signal+0x5/0x4e
+[  599.107738]  [<ffffffff8101cb7f>] do_notify_resume+0x5f/0xb0
+[  599.113418]  [<ffffffff81714e7d>] int_signal+0x12/0x17
+[  599.118576] ---[ end trace 1e4653102e7e7019 ]---
+[  599.123211] Mapped at:
+[  599.125577]  [<ffffffff8138ed8b>] debug_dma_alloc_coherent+0x2b/0x80
+[  599.131968]  [<ffffffffa01ec862>] cxio_create_cq+0xf2/0x1f0 [iw_cxgb3]
+[  599.139920]  [<ffffffffa01e9c05>] iwch_create_cq+0x105/0x4e0 [iw_cxgb3]
+[  599.147895]  [<ffffffffa0500584>] create_cq.constprop.14+0x184/0x2e0 [ib_uverbs]
+[  599.156649]  [<ffffffffa05027fb>] ib_uverbs_create_cq+0x10b/0x140 [ib_uverbs]
 
-Commit 756b9b37cfb2e3dc added a line in bc_svc_process that
-overwrites the incoming rq_rcv_buf's length with the value in
-rq_private_buf.len. But rpcrdma_bc_receive_call() does not invoke
-xprt_complete_bc_request(), thus rq_private_buf.len is not
-initialized. svc_process_common() is invoked with a zero-length
-RPC message, and fails.
-
-Fixes: 756b9b37cfb2e3dc ('SUNRPC: Fix callback channel')
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: b955150ea784 ('RDMA/cxgb3: When a user QP is marked in error, also mark the CQs in error')
+Signed-off-by: Honggang Li <honli@redhat.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Steve Wise <swise@opengridcomputing.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/xprtrdma/backchannel.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/hw/cxgb3/cxio_hal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sunrpc/xprtrdma/backchannel.c
-+++ b/net/sunrpc/xprtrdma/backchannel.c
-@@ -337,6 +337,8 @@ void rpcrdma_bc_receive_call(struct rpcr
- 	rqst->rq_reply_bytes_recvd = 0;
- 	rqst->rq_bytes_sent = 0;
- 	rqst->rq_xid = headerp->rm_xid;
-+
-+	rqst->rq_private_buf.len = size;
- 	set_bit(RPC_BC_PA_IN_USE, &rqst->rq_bc_pa_state);
- 
- 	buf = &rqst->rq_rcv_buf;
+--- a/drivers/infiniband/hw/cxgb3/cxio_hal.c
++++ b/drivers/infiniband/hw/cxgb3/cxio_hal.c
+@@ -327,7 +327,7 @@ int cxio_destroy_cq(struct cxio_rdev *rd
+ 	kfree(cq->sw_queue);
+ 	dma_free_coherent(&(rdev_p->rnic_info.pdev->dev),
+ 			  (1UL << (cq->size_log2))
+-			  * sizeof(struct t3_cqe), cq->queue,
++			  * sizeof(struct t3_cqe) + 1, cq->queue,
+ 			  dma_unmap_addr(cq, mapping));
+ 	cxio_hal_put_cqid(rdev_p->rscp, cq->cqid);
+ 	return err;
 
 
