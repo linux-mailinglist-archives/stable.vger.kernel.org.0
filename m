@@ -2,178 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19FF81CA3CB
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 08:24:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 377FF1CA423
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 08:38:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726612AbgEHGYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 02:24:05 -0400
-Received: from mail26.static.mailgun.info ([104.130.122.26]:22758 "EHLO
-        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725897AbgEHGYF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 02:24:05 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1588919044; h=Message-Id: Date: Subject: Cc: To: From:
- Sender; bh=JGbArbE31FgJMYaWjsdsGR2edFKZOM0SJ0pUFigb4cY=; b=IVhBO5XTK2bjQCRuYqykKVqu7sSpvcoYy5VYbtzD7Su5WLkg/ppB2OAMBrVEz+UPkAZm0FyE
- sIWOt/uqu8cF+jCsfBh3ZiAS39G/wKqWG74/iifpxnjy08UxrDVZN/iN6DmMZ6WuXp/sBfin
- Lv97z2mbpWMCVjyVnoiyeqpTQkw=
-X-Mailgun-Sending-Ip: 104.130.122.26
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5eb4fafa.7fa7bfa056f8-smtp-out-n03;
- Fri, 08 May 2020 06:23:54 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 4D9D3C433BA; Fri,  8 May 2020 06:23:53 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from charante-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        id S1725991AbgEHGie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 02:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58538 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725988AbgEHGie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 02:38:34 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: charante)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id A6E4CC433D2;
-        Fri,  8 May 2020 06:23:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org A6E4CC433D2
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=charante@codeaurora.org
-From:   Charan Teja Reddy <charante@codeaurora.org>
-To:     charante@qti.qualcomm.com
-Cc:     Charan Teja Reddy <charante@codeaurora.org>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] dma-buf: fix use-after-free in dmabuffs_dname
-Date:   Fri,  8 May 2020 11:53:41 +0530
-Message-Id: <1588919021-15510-1-git-send-email-charante@codeaurora.org>
-X-Mailer: git-send-email 1.9.1
+        by mail.kernel.org (Postfix) with ESMTPSA id A2FFC20735;
+        Fri,  8 May 2020 06:38:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588919914;
+        bh=QdUNDQQ9WYRs8wGhUIVb1h0rwxMrSfxItzMhT+O1Qmw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vFgDSfBHKUuDhvb1ox9+HtZEie5wPLJmEB/sepcDgEXrjtNrmjGD786Gs7/egAVr0
+         fJdVpztWKf63xKWZAPVWYGAaEZE9b5PbuIUEDMxn/F1zJgRKWNh1YBd+EIHb8TiQmi
+         2hxHlCXGx80RVQD5J3QzBtLdO2oyb015jK9Aash8=
+Date:   Fri, 8 May 2020 08:38:32 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Tuowen Zhao <ztuowen@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        acelan.kao@canonical.com, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com, subdiff@gmail.com, hch@lst.de,
+        akpm@linux-foundation.org, alexios.zavras@intel.com,
+        allison@lohutok.net, bcain@codeaurora.org, boqun.feng@gmail.com,
+        geert@linux-m68k.org, lee.jones@linaro.org, mcgrof@kernel.org,
+        mingo@redhat.com, natechancellor@gmail.com,
+        ndesaulniers@google.com, peterz@infradead.org, rfontana@redhat.com,
+        tglx@linutronix.de, will@kernel.org
+Subject: Re: Patch "lib: devres: add a helper function for ioremap_uc" has
+ been added to the 4.19-stable tree
+Message-ID: <20200508063832.GA3120556@kroah.com>
+References: <20200508005104.CDBDD208CA@mail.kernel.org>
+ <f86e1777b6ca07ea496079fe96c5e5934b9e3a99.camel@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f86e1777b6ca07ea496079fe96c5e5934b9e3a99.camel@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following race occurs while accessing the dmabuf object exported as
-file:
-P1				P2
-dma_buf_release()          dmabuffs_dname()
-			   [say lsof reading /proc/<P1 pid>/fd/<num>]
+On Thu, May 07, 2020 at 07:47:44PM -0600, Tuowen Zhao wrote:
+> Hi,
+> 
+> I believe some patches are needed to fix build issues on Hexagon:
+> 
+> ac32292c8552f7e8517be184e65dd09786e991f9 hexagon: clean up ioremap
+> 7312b70699252074d753c5005fc67266c547bbe3 hexagon: define ioremap_uc
+> 
+> The same is for stable v5.4.
 
-			   read dmabuf stored in dentry->d_fsdata
-Free the dmabuf object
-			   Start accessing the dmabuf structure
+Thanks, both now queued up.
 
-In the above description, the dmabuf object freed in P1 is being
-accessed from P2 which is resulting into the use-after-free. Below is
-the dump stack reported.
-
-We are reading the dmabuf object stored in the dentry->d_fsdata but
-there is no binding between the dentry and the dmabuf which means that
-the dmabuf can be freed while it is being read from ->d_fsdata and
-inuse. Reviews on the patch V1 says that protecting the dmabuf inuse
-with an extra refcount is not a viable solution as the exported dmabuf
-is already under file's refcount and keeping the multiple refcounts on
-the same object coordinated is not possible.
-
-As we are reading the dmabuf in ->d_fsdata just to get the user passed
-name, we can directly store the name in d_fsdata thus can avoid the
-reading of dmabuf altogether.
-
-Call Trace:
- kasan_report+0x12/0x20
- __asan_report_load8_noabort+0x14/0x20
- dmabuffs_dname+0x4f4/0x560
- tomoyo_realpath_from_path+0x165/0x660
- tomoyo_get_realpath
- tomoyo_check_open_permission+0x2a3/0x3e0
- tomoyo_file_open
- tomoyo_file_open+0xa9/0xd0
- security_file_open+0x71/0x300
- do_dentry_open+0x37a/0x1380
- vfs_open+0xa0/0xd0
- path_openat+0x12ee/0x3490
- do_filp_open+0x192/0x260
- do_sys_openat2+0x5eb/0x7e0
- do_sys_open+0xf2/0x180
-
-Fixes: bb2bb9030425 ("dma-buf: add DMA_BUF_SET_NAME ioctls")
-Reported-by: syzbot+3643a18836bce555bff6@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org> [5.3+]
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
----
-
-Changes in v2: 
-
-- Pass the user passed name in ->d_fsdata instead of dmabuf
-- Improve the commit message
-
-Changes in v1: (https://patchwork.kernel.org/patch/11514063/)
-
- drivers/dma-buf/dma-buf.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index 01ce125..0071f7d 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -25,6 +25,7 @@
- #include <linux/mm.h>
- #include <linux/mount.h>
- #include <linux/pseudo_fs.h>
-+#include <linux/dcache.h>
- 
- #include <uapi/linux/dma-buf.h>
- #include <uapi/linux/magic.h>
-@@ -40,15 +41,13 @@ struct dma_buf_list {
- 
- static char *dmabuffs_dname(struct dentry *dentry, char *buffer, int buflen)
- {
--	struct dma_buf *dmabuf;
- 	char name[DMA_BUF_NAME_LEN];
- 	size_t ret = 0;
- 
--	dmabuf = dentry->d_fsdata;
--	dma_resv_lock(dmabuf->resv, NULL);
--	if (dmabuf->name)
--		ret = strlcpy(name, dmabuf->name, DMA_BUF_NAME_LEN);
--	dma_resv_unlock(dmabuf->resv);
-+	spin_lock(&dentry->d_lock);
-+	if (dentry->d_fsdata)
-+		ret = strlcpy(name, dentry->d_fsdata, DMA_BUF_NAME_LEN);
-+	spin_unlock(&dentry->d_lock);
- 
- 	return dynamic_dname(dentry, buffer, buflen, "/%s:%s",
- 			     dentry->d_name.name, ret > 0 ? name : "");
-@@ -80,12 +79,16 @@ static int dma_buf_fs_init_context(struct fs_context *fc)
- static int dma_buf_release(struct inode *inode, struct file *file)
- {
- 	struct dma_buf *dmabuf;
-+	struct dentry *dentry = file->f_path.dentry;
- 
- 	if (!is_dma_buf_file(file))
- 		return -EINVAL;
- 
- 	dmabuf = file->private_data;
- 
-+	spin_lock(&dentry->d_lock);
-+	dentry->d_fsdata = NULL;
-+	spin_unlock(&dentry->d_lock);
- 	BUG_ON(dmabuf->vmapping_counter);
- 
- 	/*
-@@ -343,6 +346,7 @@ static long dma_buf_set_name(struct dma_buf *dmabuf, const char __user *buf)
- 	}
- 	kfree(dmabuf->name);
- 	dmabuf->name = name;
-+	dmabuf->file->f_path.dentry->d_fsdata = name;
- 
- out_unlock:
- 	dma_resv_unlock(dmabuf->resv);
-@@ -446,7 +450,6 @@ static struct file *dma_buf_getfile(struct dma_buf *dmabuf, int flags)
- 		goto err_alloc_file;
- 	file->f_flags = flags & (O_ACCMODE | O_NONBLOCK);
- 	file->private_data = dmabuf;
--	file->f_path.dentry->d_fsdata = dmabuf;
- 
- 	return file;
- 
--- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a
-member of the Code Aurora Forum, hosted by The Linux Foundation
+greg k-h
