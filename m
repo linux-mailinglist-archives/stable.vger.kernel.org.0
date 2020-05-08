@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B27F1CAB8D
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95E391CAF4B
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728079AbgEHMoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:44:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43186 "EHLO mail.kernel.org"
+        id S1729215AbgEHMol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:44:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729210AbgEHMoi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:44:38 -0400
+        id S1729202AbgEHMok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:44:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2969524958;
-        Fri,  8 May 2020 12:44:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A174A208D6;
+        Fri,  8 May 2020 12:44:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941877;
-        bh=QYHEIKYh0tEZd9a6ZA7grFSKnkw7CeRQNV1c80ry/8I=;
+        s=default; t=1588941880;
+        bh=1o0gSLN65wnBazfUXKQMQspxu1GQn+XKikflHRodYxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQFrvN+cenBESZliFY1ATSfGTc6/m1TFVXxkMMU9GG7fU7wp56lBc2qLumHcVYmGw
-         u+kqgAx+pQtg0Bkj2LtpzS+1Luvi1dFIxkgtHFIU6hUH2ar2fFd/2PCkyVYGYsvjN/
-         9GGJu66dq92bJl3jTdNlWVJn+LxIAfPc9yrePkLM=
+        b=i8zn79nSSqkld8jKcZwafPW5byxD2kQtcglSQebkylxcdSUokhkeGyj317B0kmvQJ
+         g6cyH0IoVJmckqN6DxYtU326JHEWKMNTQFBN1+m19OpjRQsprrzOgIGO/dJPNEPdvM
+         k1noeB9qJVdgkvkt8nR6CymRVHmueyuDxMJsfSno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Zi Shen Lim <zlim.lnx@gmail.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Yang Shi <yang.shi@linaro.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 208/312] cls_bpf: reset class and reuse major in da
-Date:   Fri,  8 May 2020 14:33:19 +0200
-Message-Id: <20200508123139.042836532@linuxfoundation.org>
+Subject: [PATCH 4.4 209/312] arm64: bpf: jit JMP_JSET_{X,K}
+Date:   Fri,  8 May 2020 14:33:20 +0200
+Message-Id: <20200508123139.110546969@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,66 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Zi Shen Lim <zlim.lnx@gmail.com>
 
-commit 3a461da1d03e7a857edfa6a002040d07e118c639 upstream.
+commit 98397fc547e3f4553553a30ea56fa34d613f0a4c upstream.
 
-There are two issues with the current code. First one is that we need
-to set res->class to 0 in case we use non-default classid matching.
+Original implementation commit e54bcde3d69d ("arm64: eBPF JIT compiler")
+had the relevant code paths, but due to an oversight always fail jiting.
 
-This is important for the case where cls_bpf was initially set up with
-an optional binding to a default class with tcf_bind_filter(), where
-the underlying qdisc implements bind_tcf() that fills res->class and
-tests for it later on when doing the classification. Convention for
-these cases is that after tc_classify() was called, such qdiscs (atm,
-drr, qfq, cbq, hfsc, htb) first test class, and if 0, then they lookup
-based on classid.
+As a result, we had been falling back to BPF interpreter whenever a BPF
+program has JMP_JSET_{X,K} instructions.
 
-Second, there's a bug with da mode, where res->classid is only assigned
-a 16 bit minor, but it needs to expand to the full 32 bit major/minor
-combination instead, therefore we need to expand with the bound major.
-This is fine as classes belonging to a classful qdisc must share the
-same major.
+With this fix, we confirm that the corresponding tests in lib/test_bpf
+continue to pass, and also jited.
 
-Fixes: 045efa82ff56 ("cls_bpf: introduce integrated actions")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+...
+[    2.784553] test_bpf: #30 JSET jited:1 188 192 197 PASS
+[    2.791373] test_bpf: #31 tcpdump port 22 jited:1 325 677 625 PASS
+[    2.808800] test_bpf: #32 tcpdump complex jited:1 323 731 991 PASS
+...
+[    3.190759] test_bpf: #237 JMP_JSET_K: if (0x3 & 0x2) return 1 jited:1 110 PASS
+[    3.192524] test_bpf: #238 JMP_JSET_K: if (0x3 & 0xffffffff) return 1 jited:1 98 PASS
+[    3.211014] test_bpf: #249 JMP_JSET_X: if (0x3 & 0x2) return 1 jited:1 120 PASS
+[    3.212973] test_bpf: #250 JMP_JSET_X: if (0x3 & 0xffffffff) return 1 jited:1 89 PASS
+...
+
+Fixes: e54bcde3d69d ("arm64: eBPF JIT compiler")
+Signed-off-by: Zi Shen Lim <zlim.lnx@gmail.com>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Acked-by: Yang Shi <yang.shi@linaro.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sched/cls_bpf.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/net/bpf_jit_comp.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/sched/cls_bpf.c
-+++ b/net/sched/cls_bpf.c
-@@ -107,8 +107,9 @@ static int cls_bpf_classify(struct sk_bu
- 		}
- 
- 		if (prog->exts_integrated) {
--			res->class = prog->res.class;
--			res->classid = qdisc_skb_cb(skb)->tc_classid;
-+			res->class   = 0;
-+			res->classid = TC_H_MAJ(prog->res.classid) |
-+				       qdisc_skb_cb(skb)->tc_classid;
- 
- 			ret = cls_bpf_exec_opcode(filter_res);
- 			if (ret == TC_ACT_UNSPEC)
-@@ -118,10 +119,12 @@ static int cls_bpf_classify(struct sk_bu
- 
- 		if (filter_res == 0)
- 			continue;
--
--		*res = prog->res;
--		if (filter_res != -1)
-+		if (filter_res != -1) {
-+			res->class   = 0;
- 			res->classid = filter_res;
-+		} else {
-+			*res = prog->res;
-+		}
- 
- 		ret = tcf_exts_exec(skb, &prog->exts, res);
- 		if (ret < 0)
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -482,6 +482,7 @@ emit_cond_jmp:
+ 		case BPF_JGE:
+ 			jmp_cond = A64_COND_CS;
+ 			break;
++		case BPF_JSET:
+ 		case BPF_JNE:
+ 			jmp_cond = A64_COND_NE;
+ 			break;
 
 
