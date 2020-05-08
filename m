@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D91E81CACD9
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB73C1CAD4C
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730435AbgEHM4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:56:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39918 "EHLO mail.kernel.org"
+        id S1728436AbgEHNAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:00:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728270AbgEHM4Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:56:24 -0400
+        id S1728311AbgEHMwR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:52:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28B8024963;
-        Fri,  8 May 2020 12:56:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC77524959;
+        Fri,  8 May 2020 12:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942584;
-        bh=POwLX1SmMFcQfjvzYyCJqlQaSBoWeieD5GSTE2vxqa0=;
+        s=default; t=1588942337;
+        bh=JHAyR1rXewyMOi4+Su+aR4P3GSO/D2yYLZmakxJMl5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRgUdIDfT4JfuTeFLyTvx9uSxCYM5PUQBsiigR5FLmVgwbrTmlw9ZcytRWSvE4UP0
-         Huwbinl2sFV1bcT7eGxo8csvoJ9Nrgx2K2nMq1YsXS1N41StZSSCYovR3lg4yDphMy
-         XNQD7YXKBpV3VR6NkDJxPrlphhjPjPycZWWlEN48=
+        b=Fu/qfTUTLs54uI9fbvMlr+LVZj4myJLhQqbqDSomrs/FhtjWvnFs/FCVQtFs2YiOG
+         EiBFtbMOGfx+/Khf3BHuNH0smceIHsd3muM066wseklHh3WXl9H46NZFMCMGTrMHgO
+         9jlVz+XUSXiyb+Z10JpsU/qsuEU9s7NG2tyyQWVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 25/49] wimax/i2400m: Fix potential urb refcnt leak
-Date:   Fri,  8 May 2020 14:35:42 +0200
-Message-Id: <20200508123046.609841073@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Pedersen <thomas@adapt-ip.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 30/32] mac80211: add ieee80211_is_any_nullfunc()
+Date:   Fri,  8 May 2020 14:35:43 +0200
+Message-Id: <20200508123039.379703489@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
-References: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
+References: <20200508123034.886699170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +43,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Thomas Pedersen <thomas@adapt-ip.com>
 
-[ Upstream commit 7717cbec172c3554d470023b4020d5781961187e ]
+commit 30b2f0be23fb40e58d0ad2caf8702c2a44cda2e1 upstream.
 
-i2400mu_bus_bm_wait_for_ack() invokes usb_get_urb(), which increases the
-refcount of the "notif_urb".
+commit 08a5bdde3812 ("mac80211: consider QoS Null frames for STA_NULLFUNC_ACKED")
+Fixed a bug where we failed to take into account a
+nullfunc frame can be either non-QoS or QoS. It turns out
+there is at least one more bug in
+ieee80211_sta_tx_notify(), introduced in
+commit 7b6ddeaf27ec ("mac80211: use QoS NDP for AP probing"),
+where we forgot to check for the QoS variant and so
+assumed the QoS nullfunc frame never went out
 
-When i2400mu_bus_bm_wait_for_ack() returns, local variable "notif_urb"
-becomes invalid, so the refcount should be decreased to keep refcount
-balanced.
+Fix this by adding a helper ieee80211_is_any_nullfunc()
+which consolidates the check for non-QoS and QoS nullfunc
+frames. Replace existing compound conditionals and add a
+couple more missing checks for QoS variant.
 
-The issue happens in all paths of i2400mu_bus_bm_wait_for_ack(), which
-forget to decrease the refcnt increased by usb_get_urb(), causing a
-refcnt leak.
+Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
+Link: https://lore.kernel.org/r/20200114055940.18502-3-thomas@adapt-ip.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix this issue by calling usb_put_urb() before the
-i2400mu_bus_bm_wait_for_ack() returns.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wimax/i2400m/usb-fw.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/ieee80211.h |    9 +++++++++
+ net/mac80211/mlme.c       |    2 +-
+ net/mac80211/rx.c         |    8 +++-----
+ net/mac80211/status.c     |    5 ++---
+ net/mac80211/tx.c         |    2 +-
+ 5 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wimax/i2400m/usb-fw.c b/drivers/net/wimax/i2400m/usb-fw.c
-index 529ebca1e9e13..1f7709d24f352 100644
---- a/drivers/net/wimax/i2400m/usb-fw.c
-+++ b/drivers/net/wimax/i2400m/usb-fw.c
-@@ -354,6 +354,7 @@ ssize_t i2400mu_bus_bm_wait_for_ack(struct i2400m *i2400m,
- 		usb_autopm_put_interface(i2400mu->usb_iface);
- 	d_fnend(8, dev, "(i2400m %p ack %p size %zu) = %ld\n",
- 		i2400m, ack, ack_size, (long) result);
-+	usb_put_urb(&notif_urb);
- 	return result;
+--- a/include/linux/ieee80211.h
++++ b/include/linux/ieee80211.h
+@@ -623,6 +623,15 @@ static inline bool ieee80211_is_qos_null
+ }
  
- error_exceeded:
--- 
-2.20.1
-
+ /**
++ * ieee80211_is_any_nullfunc - check if frame is regular or QoS nullfunc frame
++ * @fc: frame control bytes in little-endian byteorder
++ */
++static inline bool ieee80211_is_any_nullfunc(__le16 fc)
++{
++	return (ieee80211_is_nullfunc(fc) || ieee80211_is_qos_nullfunc(fc));
++}
++
++/**
+  * ieee80211_is_bufferable_mmpdu - check if frame is bufferable MMPDU
+  * @fc: frame control field in little-endian byteorder
+  */
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2384,7 +2384,7 @@ void ieee80211_sta_tx_notify(struct ieee
+ 	if (!ieee80211_is_data(hdr->frame_control))
+ 	    return;
+ 
+-	if (ieee80211_is_nullfunc(hdr->frame_control) &&
++	if (ieee80211_is_any_nullfunc(hdr->frame_control) &&
+ 	    sdata->u.mgd.probe_send_count > 0) {
+ 		if (ack)
+ 			ieee80211_sta_reset_conn_monitor(sdata);
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -1373,8 +1373,7 @@ ieee80211_rx_h_check_dup(struct ieee8021
+ 		return RX_CONTINUE;
+ 
+ 	if (ieee80211_is_ctl(hdr->frame_control) ||
+-	    ieee80211_is_nullfunc(hdr->frame_control) ||
+-	    ieee80211_is_qos_nullfunc(hdr->frame_control) ||
++	    ieee80211_is_any_nullfunc(hdr->frame_control) ||
+ 	    is_multicast_ether_addr(hdr->addr1))
+ 		return RX_CONTINUE;
+ 
+@@ -1753,8 +1752,7 @@ ieee80211_rx_h_sta_process(struct ieee80
+ 	 * Drop (qos-)data::nullfunc frames silently, since they
+ 	 * are used only to control station power saving mode.
+ 	 */
+-	if (ieee80211_is_nullfunc(hdr->frame_control) ||
+-	    ieee80211_is_qos_nullfunc(hdr->frame_control)) {
++	if (ieee80211_is_any_nullfunc(hdr->frame_control)) {
+ 		I802_DEBUG_INC(rx->local->rx_handlers_drop_nullfunc);
+ 
+ 		/*
+@@ -2244,7 +2242,7 @@ static int ieee80211_drop_unencrypted(st
+ 
+ 	/* Drop unencrypted frames if key is set. */
+ 	if (unlikely(!ieee80211_has_protected(fc) &&
+-		     !ieee80211_is_nullfunc(fc) &&
++		     !ieee80211_is_any_nullfunc(fc) &&
+ 		     ieee80211_is_data(fc) && rx->key))
+ 		return -EACCES;
+ 
+--- a/net/mac80211/status.c
++++ b/net/mac80211/status.c
+@@ -487,8 +487,7 @@ static void ieee80211_report_ack_skb(str
+ 		rcu_read_lock();
+ 		sdata = ieee80211_sdata_from_skb(local, skb);
+ 		if (sdata) {
+-			if (ieee80211_is_nullfunc(hdr->frame_control) ||
+-			    ieee80211_is_qos_nullfunc(hdr->frame_control))
++			if (ieee80211_is_any_nullfunc(hdr->frame_control))
+ 				cfg80211_probe_status(sdata->dev, hdr->addr1,
+ 						      cookie, acked,
+ 						      info->status.ack_signal,
+@@ -867,7 +866,7 @@ static void __ieee80211_tx_status(struct
+ 			I802_DEBUG_INC(local->dot11FailedCount);
+ 	}
+ 
+-	if ((ieee80211_is_nullfunc(fc) || ieee80211_is_qos_nullfunc(fc)) &&
++	if (ieee80211_is_any_nullfunc(fc) &&
+ 	    ieee80211_has_pm(fc) &&
+ 	    ieee80211_hw_check(&local->hw, REPORTS_TX_ACK_STATUS) &&
+ 	    !(info->flags & IEEE80211_TX_CTL_INJECTED) &&
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -300,7 +300,7 @@ ieee80211_tx_h_check_assoc(struct ieee80
+ 	if (unlikely(test_bit(SCAN_SW_SCANNING, &tx->local->scanning)) &&
+ 	    test_bit(SDATA_STATE_OFFCHANNEL, &tx->sdata->state) &&
+ 	    !ieee80211_is_probe_req(hdr->frame_control) &&
+-	    !ieee80211_is_nullfunc(hdr->frame_control))
++	    !ieee80211_is_any_nullfunc(hdr->frame_control))
+ 		/*
+ 		 * When software scanning only nullfunc frames (to notify
+ 		 * the sleep state to the AP) and probe requests (for the
 
 
