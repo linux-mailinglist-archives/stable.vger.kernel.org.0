@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 280C01CADBE
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2BE01CAC05
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727923AbgEHNEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:04:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54230 "EHLO mail.kernel.org"
+        id S1729706AbgEHMtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:49:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728905AbgEHMtJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:49:09 -0400
+        id S1729692AbgEHMtL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:49:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1AF721473;
-        Fri,  8 May 2020 12:49:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 964432495C;
+        Fri,  8 May 2020 12:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942148;
-        bh=pizm5190yqEzNfwvsx7bXg5xW4jY2Iiy10XBwxmLmXg=;
+        s=default; t=1588942151;
+        bh=SbeMZvBA0eJK7/TX5gEO/2xhRpT05ICuzaksMey8lCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DcWbVQN36j0VS0GUZLdG9MI52xW4Iss2boT6ddkOxua5ZiXBq7HLrU2ASf/4VlAJz
-         3vTWRxY9p4F4bZX9WslWT8RbuCpVTntZoEOXEQSNvBr4WZzLiBijDmxNa6W4bH0oAB
-         ebigjr+aZbbfjl17mE7s0lwPpYHWxz7X9CLHReE8=
+        b=QBCshXrKJ6YNO7gy828VWvcW/P91o2Jv36yEKgbyR4pSoB2eTO2BemK+8zI3AKK4Q
+         SpmbWuzl/ZTzHEUu7d6Nfk0RIB50Y/fm2Gb/9+ZRZRK/5M4QFUeGzmnzpXGmolcfXZ
+         GaE5hE6pwZek2wg3e4EWr6e0JHhton52w3RxSJmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Mugunthan V N <mugunthanvnm@ti.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        linux-omap@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 277/312] net: ethernet: mvneta: Remove IFF_UNICAST_FLT which is not implemented
-Date:   Fri,  8 May 2020 14:34:28 +0200
-Message-Id: <20200508123143.908731565@linuxfoundation.org>
+Subject: [PATCH 4.4 278/312] net: ethernet: ti: cpsw: fix device and of_node leaks
+Date:   Fri,  8 May 2020 14:34:29 +0200
+Message-Id: <20200508123143.975041602@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -43,34 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Johan Hovold <johan@kernel.org>
 
-commit 97db8afa2ab919fc400fe982f5054060868bdf07 upstream.
+commit c7262aaace1b17a650598063e3b9ee1785fde377 upstream.
 
-The mvneta driver advertises it supports IFF_UNICAST_FLT. However, it
-actually does not. The hardware probably does support it, but there is
-no code to configure the filter. As a quick and simple fix, remove the
-flag. This will cause the core to fall back to promiscuous mode.
+Make sure to drop the references taken by of_get_child_by_name() and
+bus_find_device() before returning from cpsw_phy_sel().
 
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Fixes: b50b72de2f2f ("net: mvneta: enable features before registering the driver")
+Note that holding a reference to the cpsw-phy-sel device does not
+prevent the devres-managed private data from going away.
+
+Fixes: 5892cd135e16 ("drivers: net: cpsw-phy-sel: Add new driver...")
+Cc: Mugunthan V N <mugunthanvnm@ti.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: linux-omap@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/marvell/mvneta.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ti/cpsw-phy-sel.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -3406,7 +3406,7 @@ static int mvneta_probe(struct platform_
- 	dev->features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO;
- 	dev->hw_features |= dev->features;
- 	dev->vlan_features |= dev->features;
--	dev->priv_flags |= IFF_UNICAST_FLT | IFF_LIVE_ADDR_CHANGE;
-+	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
- 	dev->gso_max_segs = MVNETA_MAX_TSO_SEGS;
+--- a/drivers/net/ethernet/ti/cpsw-phy-sel.c
++++ b/drivers/net/ethernet/ti/cpsw-phy-sel.c
+@@ -154,9 +154,12 @@ void cpsw_phy_sel(struct device *dev, ph
+ 	}
  
- 	err = register_netdev(dev);
+ 	dev = bus_find_device(&platform_bus_type, NULL, node, match);
++	of_node_put(node);
+ 	priv = dev_get_drvdata(dev);
+ 
+ 	priv->cpsw_phy_sel(priv, phy_mode, slave);
++
++	put_device(dev);
+ }
+ EXPORT_SYMBOL_GPL(cpsw_phy_sel);
+ 
 
 
