@@ -2,87 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09F371CA049
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 03:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF791CA064
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 03:57:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbgEHBrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 21:47:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42056 "EHLO
+        id S1726751AbgEHB5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 21:57:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726514AbgEHBrt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 21:47:49 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411FDC05BD43
-        for <stable@vger.kernel.org>; Thu,  7 May 2020 18:47:49 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id y6so3510416pjc.4
-        for <stable@vger.kernel.org>; Thu, 07 May 2020 18:47:49 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726701AbgEHB5T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 21:57:19 -0400
+Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89957C05BD43;
+        Thu,  7 May 2020 18:57:19 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id f82so7228095ilh.8;
+        Thu, 07 May 2020 18:57:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=f9eiMDw+TYT+YpY+WIf+wyHCcdJr+jALbf8pRs9wo94=;
-        b=ALo96trml03jRans8W1z9pGzbrEDgDqHsar9PVW4R9ptwxsp3Ejhh1nFeyi1xKQfHI
-         uRYYY300AT5z9eiRP64Tzt5i6e6FslcrJfbe0pFMXs6nY7RYE7h2em9rK6wd8Gj+Gj82
-         AXiPHSV65NzOwb1esK3cqIvxlC8Vnh0hN/n57EPgEsUMrXfc50shuJzHnwNEuq2hdIXu
-         js7ZeBi9WuijaRUVpU6Kwtu+28RK1OuLhRjceEkWDMMCYJRXmdSGdb0aDV9zLksMmeZB
-         zIFLZ2u6Nw9bvwWnahBsQtkyhJafTiv7nLp5zeQgjpcKPVnkHLE1VtibIJZmD/RdKAVp
-         tLbQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+69UJCHoe33EYwKtcLPJBKj4jo21jYdcKYJIlnvd2X8=;
+        b=HxLwCwC8TRx/pKBzQSsc2fiNwMwDc9+bgoY7gJqpJTyWUYCEYxLSNXjYBMU1WlMMU1
+         109Uro6fOh3DUUSImAi1lOYUPpmgHp20jHMZKrX/FmKUO1+CkjNUtV7Ju/1BOvwEJTR2
+         Evsp+jKx8u/4qxSbQncZ0RtkPFVJ1E0wdtsRYjaXhh0HHuNs0aL0bL0G/Inace3dcL3C
+         MH4xy3WeTngVzK7YrwKUf9d1WT6IEhsHHJ2GYtQUZE1noaxK8YyVi6A168uohdV5b6/t
+         UadQyk5VJ4yeGpXeDkjHfgnfhAnkkavDKvHRTJvXmv9RA/R0POqqu+hSmbX3yHjMHf5w
+         6RvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=f9eiMDw+TYT+YpY+WIf+wyHCcdJr+jALbf8pRs9wo94=;
-        b=drSiPofZax++P0aJhAmlllpy2tfPtaFfHkNzkbeZk4MJndGEVo/D6klF1mBHpDC8Ni
-         eFdsR+bFnpbWzHkhh+1QQLvfxkN1wzdP8i9fnTaFl8Q09IMYsA+KpdxzSR9b3t4oe3D7
-         GIDWWR00s77UMfL7C/VZYswSYMvW9djKEWJ3BoyfBehDwGtNJRgbv4aBcAenPENoWjLw
-         GtxK4MfZir8G+FiIi4M9h/aNTfhiMimSX+uSv0TUwETpmd20Qu+81qfSft2ZTBTyw6QM
-         hAMl9Kx4NMgwafQY2PVR+LoSmyKvClgxv+abKuM1OfmqLuYe6jeKCtcnQEAl8Ue9wsRk
-         /DHw==
-X-Gm-Message-State: AGi0PuYpnyWKdF+foANdx52rT5Q1Ly9D9G6lzlC3VLXvrXwmcDy72txc
-        Vk3SylSlJNkNJNAwipwASrI=
-X-Google-Smtp-Source: APiQypLU7dd0pYeDOpbH0cHb2maPxLv5siGqT00cQQrFQLZiF1iP/PvsQgp85GEEtH9epZiWocxiig==
-X-Received: by 2002:a17:90a:252f:: with SMTP id j44mr3313706pje.9.1588902468645;
-        Thu, 07 May 2020 18:47:48 -0700 (PDT)
-Received: from iclxps (155-97-232-235.usahousing.utah.edu. [155.97.232.235])
-        by smtp.gmail.com with ESMTPSA id a196sm49243pfd.184.2020.05.07.18.47.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2020 18:47:47 -0700 (PDT)
-Message-ID: <f86e1777b6ca07ea496079fe96c5e5934b9e3a99.camel@gmail.com>
-Subject: Re: Patch "lib: devres: add a helper function for ioremap_uc" has
- been added to the 4.19-stable tree
-From:   Tuowen Zhao <ztuowen@gmail.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        acelan.kao@canonical.com, andriy.shevchenko@linux.intel.com,
-        gregkh@linuxfoundation.org, mika.westerberg@linux.intel.com,
-        subdiff@gmail.com, hch@lst.de, akpm@linux-foundation.org,
-        alexios.zavras@intel.com, allison@lohutok.net,
-        bcain@codeaurora.org, boqun.feng@gmail.com, geert@linux-m68k.org,
-        gregkh@linuxfoundation.org, lee.jones@linaro.org,
-        mcgrof@kernel.org, mingo@redhat.com, natechancellor@gmail.com,
-        ndesaulniers@google.com, peterz@infradead.org, rfontana@redhat.com,
-        tglx@linutronix.de, will@kernel.org
-Date:   Thu, 07 May 2020 19:47:44 -0600
-In-Reply-To: <20200508005104.CDBDD208CA@mail.kernel.org>
-References: <20200508005104.CDBDD208CA@mail.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.2 
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+69UJCHoe33EYwKtcLPJBKj4jo21jYdcKYJIlnvd2X8=;
+        b=Fc3sdkmC4eor9G1jJrCGnn5Jd9MIOf8FhVwa/ECFKlzc+FUFovyw5jywiZvuFwph8i
+         sLzhzW773SI8ARdwZkNoVbNuMcHKCC8AMs8sxWB9MsydEjTCZ3i/hOy75cbZUAB938Dr
+         39lcNtJDedTZ9uJ4Q57kx2sRPhNU+OYN+tBjE06hE+Lwn4kZfgYGB4HEGJXiBbNDPS8m
+         80Sd1mDTPfC6RMB6qoQVAj9B7OhE2ZCoW72yNtc1FzhqUQ3zw0YQWoeN7oLo1gWyUF70
+         K6w+8oKg2DD1ow5UdlLqTmO+wYrabHutOgxsZBkclpmBdCJjrng9XsVPgyz1vuTr3AA2
+         NzAQ==
+X-Gm-Message-State: AGi0PuY6nZpzGRcaj/BU0JHJ+LIiySa+MF3iXe9bI3fbP1gmUslJajCh
+        rklpZlnPJlvI4LH2wdVmTqV3ARVJ+NlDhI9J0Q==
+X-Google-Smtp-Source: APiQypJWgXolt6buxgHn27fREaAUO11sgbKKU6WxrPa7V4fVSJ37lIGvSJS8RzOTTePKUgZ+xK4d0el86IGIGtmBvx8=
+X-Received: by 2002:a05:6e02:d0c:: with SMTP id g12mr245188ilj.27.1588903038948;
+ Thu, 07 May 2020 18:57:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+References: <20200505174423.199985-1-ndesaulniers@google.com>
+ <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com> <20200507113422.GA3762@hirez.programming.kicks-ass.net>
+ <CAMzpN2hXUYvLuTA63N56ef4DEzyWXt_uVVq6PV0r8YQT-YN42g@mail.gmail.com>
+ <CAKwvOd=a3MR7osKBpbq=d41ieo7G9FtOp5Kok5por1P5ZS9s4g@mail.gmail.com> <CAKwvOd=Ogbp0oVgmF2B9cePjyWnvLLFRSp2EnaonA-ZFN3K7Dg@mail.gmail.com>
+In-Reply-To: <CAKwvOd=Ogbp0oVgmF2B9cePjyWnvLLFRSp2EnaonA-ZFN3K7Dg@mail.gmail.com>
+From:   Brian Gerst <brgerst@gmail.com>
+Date:   Thu, 7 May 2020 21:57:07 -0400
+Message-ID: <CAMzpN2gu4stkRKTsMTVxyzckO3SMhfA+dmCnSu6-aMg5QAA_JQ@mail.gmail.com>
+Subject: Re: [PATCH] x86: bitops: fix build regression
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Thu, May 7, 2020 at 6:29 PM Nick Desaulniers <ndesaulniers@google.com> wrote:
+>
+> On Thu, May 7, 2020 at 12:19 PM Nick Desaulniers
+> <ndesaulniers@google.com> wrote:
+> >
+> > On Thu, May 7, 2020 at 7:00 AM Brian Gerst <brgerst@gmail.com> wrote:
+> > >
+> > > This change will make sparse happy and allow these cleanups:
+> > > #define CONST_MASK(nr)                 ((u8)1 << ((nr) & 7))
+> >
+> > yep, this is more elegant, IMO.  Will send a v3 later with this
+> > change.  Looking at the uses of CONST_MASK, I noticed
+> > arch_change_bit() currently has the (u8) cast from commit
+> > 838e8bb71dc0c ("x86: Implement change_bit with immediate operand as
+> > "lock xorb""), so that instance can get cleaned up with the above
+> > suggestion.
+>
+> Oh, we need the cast to be the final operation.  The binary AND and
+> XOR in 2 of the 3 uses of CONST_MASK implicitly promote the operands
+> of the binary operand to int, so the type of the evaluated
+> subexpression is int.
+> https://wiki.sei.cmu.edu/confluence/display/c/EXP14-C.+Beware+of+integer+promotion+when+performing+bitwise+operations+on+integer+types+smaller+than+int
+> So I think this version (v2) is most precise fix, and would be better
+> than defining more macros or (worse) using metaprogramming.
 
-I believe some patches are needed to fix build issues on Hexagon:
+One last suggestion.  Add the "b" modifier to the mask operand: "orb
+%b1, %0".  That forces the compiler to use the 8-bit register name
+instead of trying to deduce the width from the input.
 
-ac32292c8552f7e8517be184e65dd09786e991f9 hexagon: clean up ioremap
-7312b70699252074d753c5005fc67266c547bbe3 hexagon: define ioremap_uc
-
-The same is for stable v5.4.
-
-Best,
-Tuowen
-
+--
+Brian Gerst
