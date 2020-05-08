@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD921CAF02
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F1491CAEC9
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728740AbgEHNN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:13:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50836 "EHLO mail.kernel.org"
+        id S1729218AbgEHMrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:47:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729594AbgEHMrt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:47:49 -0400
+        id S1728970AbgEHMrw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:47:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CFD021473;
-        Fri,  8 May 2020 12:47:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 024E7221F7;
+        Fri,  8 May 2020 12:47:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942069;
-        bh=3x4YvyiJI3iSiS8ZYzwqW7VtbS7yPmj7iAdexXHtaqI=;
+        s=default; t=1588942071;
+        bh=nwlzXYC+UHKQNyuU/Ac8698iQoeR5eSXGmmZcPzFB50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+8rZm4r/aRe6tYKp6k9njEtGnZuiP55PtSoCxMr/aj3/5Cz6YznPZfUtw5F8JIAH
-         eU8eeekv51dHbI8vBVUCI4uwaDRQli8i+6JMUIpAxoX4/sLF7pG5KNl8Tqa7fNSP/j
-         9jR4XHG40eGFmUDX/Iyw3fOmTBRb/p1MF5rHypwE=
+        b=XEX8vDxVRMh/55yPkNsCE2lYHJNZ5PFrXJdeHGgQ8fuoIdaDhM1Ky/lFLh704P45p
+         auYwW2LnAHrmDsWwOoNpstQ6F8ITcP2HJl3E2Bn5B06qxbdH8R1HOEWBYfX+yp2Yu/
+         jwB6Lb1o9lHxjHlflTMqi42yssKoK5ey9zMRVBUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <k.kozlowski@samsung.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4 285/312] hwrng: exynos - Disable runtime PM on driver unbind
-Date:   Fri,  8 May 2020 14:34:36 +0200
-Message-Id: <20200508123144.443758651@linuxfoundation.org>
+        stable@vger.kernel.org, David Ahern <dsa@cumulusnetworks.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 286/312] net: icmp_route_lookup should use rt dev to determine L3 domain
+Date:   Fri,  8 May 2020 14:34:37 +0200
+Message-Id: <20200508123144.510017235@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,47 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+From: David Ahern <dsa@cumulusnetworks.com>
 
-commit 27d80fa8bccf8d28bef4f89709638efc624fef9a upstream.
+commit 9d1a6c4ea43e48c7880c85971c17939b56832d8a upstream.
 
-Driver enabled runtime PM but did not revert this on removal. Re-binding
-of a device triggered warning:
-	exynos-rng 10830400.rng: Unbalanced pm_runtime_enable!
+icmp_send is called in response to some event. The skb may not have
+the device set (skb->dev is NULL), but it is expected to have an rt.
+Update icmp_route_lookup to use the rt on the skb to determine L3
+domain.
 
-Fixes: b329669ea0b5 ("hwrng: exynos - Add support for Exynos random number generator")
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 613d09b30f8b ("net: Use VRF device index for lookups on TX")
+Signed-off-by: David Ahern <dsa@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/hw_random/exynos-rng.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/ipv4/icmp.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/char/hw_random/exynos-rng.c
-+++ b/drivers/char/hw_random/exynos-rng.c
-@@ -155,6 +155,14 @@ static int exynos_rng_probe(struct platf
- 	return ret;
- }
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -478,7 +478,7 @@ static struct rtable *icmp_route_lookup(
+ 	fl4->flowi4_proto = IPPROTO_ICMP;
+ 	fl4->fl4_icmp_type = type;
+ 	fl4->fl4_icmp_code = code;
+-	fl4->flowi4_oif = l3mdev_master_ifindex(skb_in->dev);
++	fl4->flowi4_oif = l3mdev_master_ifindex(skb_dst(skb_in)->dev);
  
-+static int exynos_rng_remove(struct platform_device *pdev)
-+{
-+	pm_runtime_dont_use_autosuspend(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
-+	return 0;
-+}
-+
- static int __maybe_unused exynos_rng_runtime_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
-@@ -212,6 +220,7 @@ static struct platform_driver exynos_rng
- 		.of_match_table = exynos_rng_dt_match,
- 	},
- 	.probe		= exynos_rng_probe,
-+	.remove		= exynos_rng_remove,
- };
+ 	security_skb_classify_flow(skb_in, flowi4_to_flowi(fl4));
+ 	rt = __ip_route_output_key_hash(net, fl4,
+@@ -503,7 +503,7 @@ static struct rtable *icmp_route_lookup(
+ 	if (err)
+ 		goto relookup_failed;
  
- module_platform_driver(exynos_rng_driver);
+-	if (inet_addr_type_dev_table(net, skb_in->dev,
++	if (inet_addr_type_dev_table(net, skb_dst(skb_in)->dev,
+ 				     fl4_dec.saddr) == RTN_LOCAL) {
+ 		rt2 = __ip_route_output_key(net, &fl4_dec);
+ 		if (IS_ERR(rt2))
 
 
