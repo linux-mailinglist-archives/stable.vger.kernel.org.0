@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF8B81CAEC5
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68C361CAECD
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:16:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728810AbgEHMrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:47:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50450 "EHLO mail.kernel.org"
+        id S1729252AbgEHMsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:48:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729560AbgEHMrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:47:37 -0400
+        id S1729012AbgEHMsE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:48:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0873224969;
-        Fri,  8 May 2020 12:47:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C0D1221F7;
+        Fri,  8 May 2020 12:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942056;
-        bh=pnh/ll8ERzz4v1Jqn1vEW7QrDYbv7ESzpKqHvw/5Nlw=;
+        s=default; t=1588942083;
+        bh=qzYNDhtpLuwueXHwvbGyvraMwYzkwZnlwdpOq893pAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cx2lucbFz2mGl0rSFfOwj7rUIR/Mz4Rm8Nel+ZJL2jdjw52AsgExKo2QNVYrIVSj7
-         z497+N3MtHOLQiRnrWA8teAbTuyp4Hg4H+7GAqTkWj6hf1pwJPqZ+nV53so5/H7g9H
-         XTbK3adbYl2ZvdF77RKm2StKughz+JeYfVlRRfoY=
+        b=ACcwdd9aPbyEU0tZMo+ShQiOFEaUlBP1Qu1HkwelWJoCGV7WDAupTvvyooU9rvedV
+         bkoTJuR4fCdlFloKqao7/mkAL6EDd5E1MVXXq3eNR3exBE80qfSlPWMSjIDu8/OtU5
+         f9hVwOoDffg0W+db/KhpZDveUFaI6TQyyW5USb6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        John Fastabend <john.r.fastabend@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 272/312] bnxt: add a missing rcu synchronization
-Date:   Fri,  8 May 2020 14:34:23 +0200
-Message-Id: <20200508123143.565452279@linuxfoundation.org>
+Subject: [PATCH 4.4 273/312] qdisc: fix a module refcount leak in qdisc_create_dflt()
+Date:   Fri,  8 May 2020 14:34:24 +0200
+Message-Id: <20200508123143.633410338@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -46,35 +46,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit e5f6f564fd191d365fcd775c06a732a488205588 upstream.
+commit 166ee5b87866de07a3e56c1b757f2b5cabba72a5 upstream.
 
-Add a missing synchronize_net() call to avoid potential use after free,
-since we explicitly call napi_hash_del() to factorize the RCU grace
-period.
+Should qdisc_alloc() fail, we must release the module refcount
+we got right before.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Fixes: 6da7c8fcbcbd ("qdisc: allow setting default queuing discipline")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Michael Chan <michael.chan@broadcom.com>
-Acked-by: Michael Chan <michael.chan@broadcom.com>
+Acked-by: John Fastabend <john.r.fastabend@intel.com>
+Acked-by: John Fastabend <john.r.fastabend@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/sched/sch_generic.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -4250,6 +4250,10 @@ static void bnxt_del_napi(struct bnxt *b
- 		napi_hash_del(&bnapi->napi);
- 		netif_napi_del(&bnapi->napi);
- 	}
-+	/* We called napi_hash_del() before netif_napi_del(), we need
-+	 * to respect an RCU grace period before freeing napi structures.
-+	 */
-+	synchronize_net();
- }
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -626,18 +626,19 @@ struct Qdisc *qdisc_create_dflt(struct n
+ 	struct Qdisc *sch;
  
- static void bnxt_init_napi(struct bnxt *bp)
+ 	if (!try_module_get(ops->owner))
+-		goto errout;
++		return NULL;
+ 
+ 	sch = qdisc_alloc(dev_queue, ops);
+-	if (IS_ERR(sch))
+-		goto errout;
++	if (IS_ERR(sch)) {
++		module_put(ops->owner);
++		return NULL;
++	}
+ 	sch->parent = parentid;
+ 
+ 	if (!ops->init || ops->init(sch, NULL) == 0)
+ 		return sch;
+ 
+ 	qdisc_destroy(sch);
+-errout:
+ 	return NULL;
+ }
+ EXPORT_SYMBOL(qdisc_create_dflt);
 
 
