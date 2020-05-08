@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E01531CAC3F
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A7B01CAD02
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729432AbgEHMv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60478 "EHLO mail.kernel.org"
+        id S1730211AbgEHMyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:54:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729910AbgEHMv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:26 -0400
+        id S1730198AbgEHMyb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:54:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B17EE24958;
-        Fri,  8 May 2020 12:51:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A04B2495A;
+        Fri,  8 May 2020 12:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942285;
-        bh=jlxp6bHqaL5SLGNE4+p8W1vuvAGZv7qXffR7022qqeU=;
+        s=default; t=1588942470;
+        bh=uYDz60v5LTGoxlNQT418XjQi9htRM1lYd0mtAyncrJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDfL2/52IUsEKcQMz34xoyPGJPvHDiQyFPsZgsw/dcneufsmIgSqbxQyY9/NaJVj6
-         fj2XavLa4mZbxEPgEyMIfRESgJyyyaVzLuycxibp88b7WWP+IGRcm91zLNnqcPMlHE
-         7imSglbigrHPX1X5CFgw23o/0AtJ2LoFgSBiDt6c=
+        b=Xqlr6AbxdESXLF7RcCCtYlHzeu2cgQsQU1RSUysk2TUq7vccZL/zXeFDyTyPv7ZNS
+         1VISFjV3BwQs6EY3vyBf3gDz4QseYN5hMoADod3tfEztx9t1cDVMg+9Dm81k5FxXJd
+         gBMJw0qwzRW6rMde/7mkyr5rCUKvABswLklZE2Q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/32] s390/ftrace: fix potential crashes when switching tracers
-Date:   Fri,  8 May 2020 14:35:30 +0200
-Message-Id: <20200508123037.116783881@linuxfoundation.org>
+Subject: [PATCH 5.4 25/50] tracing: Fix memory leaks in trace_events_hist.c
+Date:   Fri,  8 May 2020 14:35:31 +0200
+Message-Id: <20200508123046.898308901@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Rudo <prudo@linux.ibm.com>
+From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
 
-[ Upstream commit 8ebf6da9db1b2a20bb86cc1bee2552e894d03308 ]
+[ Upstream commit 9da73974eb9c965dd9989befb593b8c8da9e4bdc ]
 
-Switching tracers include instruction patching. To prevent that a
-instruction is patched while it's read the instruction patching is done
-in stop_machine 'context'. This also means that any function called
-during stop_machine must not be traced. Thus add 'notrace' to all
-functions called within stop_machine.
+kmemleak report 1:
+    [<9092c50b>] kmem_cache_alloc_trace+0x138/0x270
+    [<05a2c9ed>] create_field_var+0xcf/0x180
+    [<528a2d68>] action_create+0xe2/0xc80
+    [<63f50b61>] event_hist_trigger_func+0x15b5/0x1920
+    [<28ea5d3d>] trigger_process_regex+0x7b/0xc0
+    [<3138e86f>] event_trigger_write+0x4d/0xb0
+    [<ffd66c19>] __vfs_write+0x30/0x200
+    [<4f424a0d>] vfs_write+0x96/0x1b0
+    [<da59a290>] ksys_write+0x53/0xc0
+    [<3717101a>] __ia32_sys_write+0x15/0x20
+    [<c5f23497>] do_fast_syscall_32+0x70/0x250
+    [<46e2629c>] entry_SYSENTER_32+0xaf/0x102
 
-Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
-Fixes: 38f2c691a4b3 ("s390: improve wait logic of stop_machine")
-Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
-Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+This is because save_vars[] of struct hist_trigger_data are
+not destroyed
+
+kmemleak report 2:
+    [<9092c50b>] kmem_cache_alloc_trace+0x138/0x270
+    [<6e5e97c5>] create_var+0x3c/0x110
+    [<de82f1b9>] create_field_var+0xaf/0x180
+    [<528a2d68>] action_create+0xe2/0xc80
+    [<63f50b61>] event_hist_trigger_func+0x15b5/0x1920
+    [<28ea5d3d>] trigger_process_regex+0x7b/0xc0
+    [<3138e86f>] event_trigger_write+0x4d/0xb0
+    [<ffd66c19>] __vfs_write+0x30/0x200
+    [<4f424a0d>] vfs_write+0x96/0x1b0
+    [<da59a290>] ksys_write+0x53/0xc0
+    [<3717101a>] __ia32_sys_write+0x15/0x20
+    [<c5f23497>] do_fast_syscall_32+0x70/0x250
+    [<46e2629c>] entry_SYSENTER_32+0xaf/0x102
+
+struct hist_field allocated through create_var() do not initialize
+"ref" field to 1. The code in __destroy_hist_field() does not destroy
+object if "ref" is initialized to zero, the condition
+if (--hist_field->ref > 1) always passes since unsigned int wraps.
+
+kmemleak report 3:
+    [<f8666fcc>] __kmalloc_track_caller+0x139/0x2b0
+    [<bb7f80a5>] kstrdup+0x27/0x50
+    [<39d70006>] init_var_ref+0x58/0xd0
+    [<8ca76370>] create_var_ref+0x89/0xe0
+    [<f045fc39>] action_create+0x38f/0xc80
+    [<7c146821>] event_hist_trigger_func+0x15b5/0x1920
+    [<07de3f61>] trigger_process_regex+0x7b/0xc0
+    [<e87daf8f>] event_trigger_write+0x4d/0xb0
+    [<19bf1512>] __vfs_write+0x30/0x200
+    [<64ce4d27>] vfs_write+0x96/0x1b0
+    [<a6f34170>] ksys_write+0x53/0xc0
+    [<7d4230cd>] __ia32_sys_write+0x15/0x20
+    [<8eadca00>] do_fast_syscall_32+0x70/0x250
+    [<235cf985>] entry_SYSENTER_32+0xaf/0x102
+
+hist_fields (system & event_name) are not freed
+
+Link: http://lkml.kernel.org/r/20200422061503.GA5151@cosmos
+
+Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/diag.c  | 2 +-
- arch/s390/kernel/smp.c   | 4 ++--
- arch/s390/kernel/trace.c | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ kernel/trace/trace_events_hist.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/s390/kernel/diag.c b/arch/s390/kernel/diag.c
-index 35c842aa87058..4c7cf8787a848 100644
---- a/arch/s390/kernel/diag.c
-+++ b/arch/s390/kernel/diag.c
-@@ -128,7 +128,7 @@ void diag_stat_inc(enum diag_stat_enum nr)
- }
- EXPORT_SYMBOL(diag_stat_inc);
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index 6495800fb92a1..8107574e8af9d 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2466,6 +2466,9 @@ static void __destroy_hist_field(struct hist_field *hist_field)
+ 	kfree(hist_field->name);
+ 	kfree(hist_field->type);
  
--void diag_stat_inc_norecursion(enum diag_stat_enum nr)
-+void notrace diag_stat_inc_norecursion(enum diag_stat_enum nr)
- {
- 	this_cpu_inc(diag_stat.counter[nr]);
- 	trace_s390_diagnose_norecursion(diag_map[nr].code);
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index ecd24711f3aa9..8e31dfd85de32 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -393,7 +393,7 @@ int smp_find_processor_id(u16 address)
- 	return -1;
++	kfree(hist_field->system);
++	kfree(hist_field->event_name);
++
+ 	kfree(hist_field);
  }
  
--bool arch_vcpu_is_preempted(int cpu)
-+bool notrace arch_vcpu_is_preempted(int cpu)
- {
- 	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
- 		return false;
-@@ -403,7 +403,7 @@ bool arch_vcpu_is_preempted(int cpu)
+@@ -3528,6 +3531,7 @@ static struct hist_field *create_var(struct hist_trigger_data *hist_data,
+ 		goto out;
+ 	}
+ 
++	var->ref = 1;
+ 	var->flags = HIST_FIELD_FL_VAR;
+ 	var->var.idx = idx;
+ 	var->var.hist_data = var->hist_data = hist_data;
+@@ -4157,6 +4161,9 @@ static void destroy_field_vars(struct hist_trigger_data *hist_data)
+ 
+ 	for (i = 0; i < hist_data->n_field_vars; i++)
+ 		destroy_field_var(hist_data->field_vars[i]);
++
++	for (i = 0; i < hist_data->n_save_vars; i++)
++		destroy_field_var(hist_data->save_vars[i]);
  }
- EXPORT_SYMBOL(arch_vcpu_is_preempted);
  
--void smp_yield_cpu(int cpu)
-+void notrace smp_yield_cpu(int cpu)
- {
- 	if (MACHINE_HAS_DIAG9C) {
- 		diag_stat_inc_norecursion(DIAG_STAT_X09C);
-diff --git a/arch/s390/kernel/trace.c b/arch/s390/kernel/trace.c
-index 490b52e850145..11a669f3cc93c 100644
---- a/arch/s390/kernel/trace.c
-+++ b/arch/s390/kernel/trace.c
-@@ -14,7 +14,7 @@ EXPORT_TRACEPOINT_SYMBOL(s390_diagnose);
- 
- static DEFINE_PER_CPU(unsigned int, diagnose_trace_depth);
- 
--void trace_s390_diagnose_norecursion(int diag_nr)
-+void notrace trace_s390_diagnose_norecursion(int diag_nr)
- {
- 	unsigned long flags;
- 	unsigned int *depth;
+ static void save_field_var(struct hist_trigger_data *hist_data,
 -- 
 2.20.1
 
