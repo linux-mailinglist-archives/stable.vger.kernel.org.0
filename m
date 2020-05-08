@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3041CAF8D
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B901CAB38
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:41:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727801AbgEHMlf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:41:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36534 "EHLO mail.kernel.org"
+        id S1728835AbgEHMle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:41:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727094AbgEHMla (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:41:30 -0400
+        id S1728833AbgEHMld (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:41:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5E3920731;
-        Fri,  8 May 2020 12:41:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 568D12495F;
+        Fri,  8 May 2020 12:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941690;
-        bh=q+u+Ooo9X2BXKnDKEMm+z9vr/5/zeJ8JyneIAjRTENw=;
+        s=default; t=1588941692;
+        bh=TWVZp//Y38gc0wX2cTOnRapUQ18gETsH64Rw0nidY3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBMcBpAQvem86GY7eGEZ5UG7KC9d424dJQiwHHhX0uy7v9s6bIbme/4Y8pS4zLowx
-         46ruUVAhRyimysOWXrppNES2r0wh4pPXeF5GXHD+UGwhXq+MF0oovEwMhuZuWLPhc/
-         KsUyAcM1KQkaZeA1rGa66X+xBADe24waHm7tohMM=
+        b=Pqu2TBbRKtdQLyRLJXak81fou9Ek+OsXg8F2d84AZ/7KbpMR1WoDcPufIehe0RWCC
+         B5m4zQ0bJ3eX0RZWiu0FGWmR+TJvqqNOXvsSzApHTgGQoOr5oaAT/Z1d2gJeYBCvhw
+         Qc9mwU5RLzcYLArVtRt9oKoMsd1Nep7xD4RXWwNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@free-electrons.com>,
-        Dinh Nguyen <dinguyen@opensource.altera.com>,
+        stable@vger.kernel.org, Robert Jarzmik <robert.jarzmik@free.fr>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
         Brian Norris <computersforpeace@gmail.com>
-Subject: [PATCH 4.4 132/312] mtd: nand: denali: add missing nand_release() call in denali_remove()
-Date:   Fri,  8 May 2020 14:32:03 +0200
-Message-Id: <20200508123133.790481132@linuxfoundation.org>
+Subject: [PATCH 4.4 133/312] mtd: nand: pxa3xx_nand: fix dmaengine initialization
+Date:   Fri,  8 May 2020 14:32:04 +0200
+Message-Id: <20200508123133.859362525@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,45 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
 
-commit 320092a05dab2f44819c42f33d6b51efb6c474f2 upstream.
+commit 9097103f06332d099c5ab06d1e7f22f4bcaca6e2 upstream.
 
-Unregister the NAND device from the NAND subsystem when removing a denali
-NAND controller, otherwise the MTD attached to the NAND device is still
-exposed by the MTD layer, and accesses to this device will likely crash
-the system.
+When the driver is initialized in a pure device-tree platform, the
+driver's probe fails allocating the dma channel :
+[  525.624435] pxa3xx-nand 43100000.nand: no resource defined for data DMA
+[  525.632088] pxa3xx-nand 43100000.nand: alloc nand resource failed
 
-Fixes: 2a0a288ec258 ("mtd: denali: split the generic driver and PCI layer")
-Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-Acked-by: Dinh Nguyen <dinguyen@opensource.altera.com>
+The reason is that the DMA IO resource is not acquired through platform
+resources but by OF bindings.
+
+Fix this by ensuring that DMA IO resources are only queried in the non
+device-tree case.
+
+Fixes: 8f5ba31aa565 ("mtd: nand: pxa3xx-nand: switch to dmaengine")
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Acked-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
 Signed-off-by: Brian Norris <computersforpeace@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/denali.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/pxa3xx_nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/denali.c
-+++ b/drivers/mtd/nand/denali.c
-@@ -1622,9 +1622,16 @@ EXPORT_SYMBOL(denali_init);
- /* driver exit point */
- void denali_remove(struct denali_nand_info *denali)
- {
-+	/*
-+	 * Pre-compute DMA buffer size to avoid any problems in case
-+	 * nand_release() ever changes in a way that mtd->writesize and
-+	 * mtd->oobsize are not reliable after this call.
-+	 */
-+	int bufsize = denali->mtd.writesize + denali->mtd.oobsize;
-+
-+	nand_release(&denali->mtd);
- 	denali_irq_cleanup(denali->irq, denali);
--	dma_unmap_single(denali->dev, denali->buf.dma_buf,
--			 denali->mtd.writesize + denali->mtd.oobsize,
-+	dma_unmap_single(denali->dev, denali->buf.dma_buf, bufsize,
- 			 DMA_BIDIRECTIONAL);
- }
- EXPORT_SYMBOL(denali_remove);
+--- a/drivers/mtd/nand/pxa3xx_nand.c
++++ b/drivers/mtd/nand/pxa3xx_nand.c
+@@ -1750,7 +1750,7 @@ static int alloc_nand_resource(struct pl
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (use_dma) {
++	if (!np && use_dma) {
+ 		r = platform_get_resource(pdev, IORESOURCE_DMA, 0);
+ 		if (r == NULL) {
+ 			dev_err(&pdev->dev,
 
 
