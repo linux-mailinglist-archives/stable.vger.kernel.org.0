@@ -2,386 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 230C11CAD77
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C54FE1CAFCA
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728021AbgEHNCY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:02:24 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:40295 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728288AbgEHNCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 09:02:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588942941;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=MJ3x7e7NNjXU6Z5ZTnN6Vf5kZV+sFfvdSobc/6kuZyc=;
-        b=QEIIZZ6fUwe4GNZfLsA3R4P3j9gIlNluDwgKQPt/im6poR2pQU/Xx6fJ/ks0H2K3mWNi/L
-        MpKuhgBi/phojRGb5DMqQpWI2482iy+qLKgxMOyV9oqOzdLOfqrKDsuOv5MlKubOtZ9/rF
-        XmjY+JihMeBvPLG7KSJCZzHC8Ja9cOw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-70-Hy_IM7h1PUSI0PTZ7SOYNQ-1; Fri, 08 May 2020 09:02:11 -0400
-X-MC-Unique: Hy_IM7h1PUSI0PTZ7SOYNQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A5841107ACCA
-        for <stable@vger.kernel.org>; Fri,  8 May 2020 13:02:10 +0000 (UTC)
-Received: from [172.54.77.132] (cpt-1034.paas.prod.upshift.rdu2.redhat.com [10.0.19.60])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4D9D75C1B0;
-        Fri,  8 May 2020 13:02:04 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1728115AbgEHNUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:20:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728776AbgEHNUS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 09:20:18 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52549C05BD09
+        for <stable@vger.kernel.org>; Fri,  8 May 2020 06:20:17 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id b26so1392769lfa.5
+        for <stable@vger.kernel.org>; Fri, 08 May 2020 06:20:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=u8FtxFi4ImqEzH02SMGCC236F+wFyRG7A3MxBfNg3s0=;
+        b=TDv0SpIue2QxC7unchMyXqFEK8r7oapDU9UBp2j4+t89IjjwDhQ9qDfD/biu9wffz/
+         X/1a3inPWoDwY1clp/1T+oBVdWqJZ0vdETgFdpn9yzLujGSd/hFaxmxywBtPJaIC1v5h
+         Etft4Tv4neM1WItafES7bps9WHiT650OzbBU7j4H3+TCbyj4IjYoS8y5JLI/BhQf/XuO
+         XkvAYhEJevE1urfEdGghqrPEdsH5GkJfAWoQtq8WMY2XlM7opp/qOK6oJz/+HL8PIF/P
+         jpXppeorxhB7qC1MUhdO0lhhW8e/V7oVkzwI2ZnOpQQeRdN3hrBtzxSfBGhL9aNpV+sR
+         H79Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=u8FtxFi4ImqEzH02SMGCC236F+wFyRG7A3MxBfNg3s0=;
+        b=I/n236W9ASqr4Zc01D/8cP7af/fdWPNLW+HaPOBATJZNcuKL+XgzVgzhkCG+wpbZBP
+         LqDlpUYSZQjArHTTEqRGD6cGy/DV5Wf0u4R0Q3+gcYc6hVY+e7sHYB1Xf54UDlste+/6
+         EnTutngKMoaqUIMkQvMNzsmff0G9HAeqCU09ZdasJv5c8zNwf67UbqlNQ8dIqqB3sykE
+         Sjt8fhu1UV+Ca6O7V+YpG/ka9r6Ut1EAGQSt4ac4JAMoeOtQbMY5KqCcBAiCtQfjuT91
+         RAdM4KI49AlRySAGW3hAcKlZqtpssnZ76Cx6FOm7O44xzIyUntfodkwMAr6sywok5Orf
+         tqLQ==
+X-Gm-Message-State: AOAM532pCmZACO9hdTwR7AmX+xEACPzfMfiCsdaI2cHL9VSndkBCGvs/
+        96ANGUIpGF4Shk+gc7WNxCwxO+IUHIrLqcdaL0Dnjg==
+X-Google-Smtp-Source: ABdhPJxVBwaJ7zK9WTEeKLTQ0XSgK/4I/baCCn4iGk3YjLC+G05WM2jnBd/mLDOXbcka8Elh8IXAtcRZnSPrfdy7ARI=
+X-Received: by 2002:ac2:4436:: with SMTP id w22mr1844442lfl.55.1588944015621;
+ Fri, 08 May 2020 06:20:15 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.6.11-90bb031.cki
- (stable-queue)
-Date:   Fri, 08 May 2020 13:02:04 -0000
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        Ondrej Moris <omoris@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Message-ID: <cki.C4AF4ED4BF.LSPZ378EWR@redhat.com>
-X-Gitlab-Pipeline-ID: 561202
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/561202
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+References: <20200508123043.085296641@linuxfoundation.org> <20200508123048.730720753@linuxfoundation.org>
+In-Reply-To: <20200508123048.730720753@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 8 May 2020 18:50:02 +0530
+Message-ID: <CA+G9fYvdD3dhMhGL5=nfT+7xTEdD36zUtceF2fROPF4OQQZbLQ@mail.gmail.com>
+Subject: Re: [PATCH 5.4 40/50] dma-direct: exclude dma_direct_map_resource
+ from the min_low_pfn check
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Christoph Hellwig <hch@lst.de>, m.szyprowski@samsung.com
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 8 May 2020 at 18:23, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> From: Christoph Hellwig <hch@lst.de>
+>
+> commit 68a33b1794665ba8a1d1ef1d3bfcc7c587d380a6 upstream.
+>
+> The valid memory address check in dma_capable only makes sense when mappi=
+ng
+> normal memory, not when using dma_map_resource to map a device resource.
+> Add a new boolean argument to dma_capable to exclude that check for the
+> dma_map_resource case.
+>
+> Fixes: b12d66278dd6 ("dma-direct: check for overflows on 32 bit DMA addre=
+sses")
+> Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+<trim>
+>
+> --- a/kernel/dma/direct.c
+> +++ b/kernel/dma/direct.c
+> @@ -327,7 +327,7 @@ static inline bool dma_direct_possible(s
+>                 size_t size)
+>  {
+>         return swiotlb_force !=3D SWIOTLB_FORCE &&
+> -               dma_capable(dev, dma_addr, size);
+> +               dma_capable(dev, dma_addr, size, true);
 
-Hello,
+While building kernel Image for arm architecture the following error notice=
+d
+on stale-rc 5.4 kernel branch.
 
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 90bb031aed1c - tools/runqslower: Ensure own vmlinux.h is =
-picked up first
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/05/07/561202
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9D=8C LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  s390x:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9D=8C LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 3:
-       =E2=8F=B1  Boot test
-       =E2=8F=B1  selinux-policy: serge-testsuite
-       =E2=8F=B1  stress: stress-ng
-       =E2=8F=B1  Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas_gen1
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 4:
-       =E2=8F=B1  Boot test
-       =E2=8F=B1  Storage SAN device stress - megaraid_sas
-
-    Host 5:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - qedf driver
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
-
+ # make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j16 ARCH=3Darm
+CROSS_COMPILE=3Darm-linux-gnueabihf- HOSTCC=3Dgcc CC=3D"sccache
+arm-linux-gnueabihf-gcc" O=3Dbuild zImage
+ #
+ ../kernel/dma/direct.c: In function =E2=80=98dma_direct_possible=E2=80=99:
+ ../kernel/dma/direct.c:330:3: error: too many arguments to function
+=E2=80=98dma_capable=E2=80=99
+   330 |   dma_capable(dev, dma_addr, size, true);
+       |   ^~~~~~~~~~~
+ In file included from ../include/linux/dma-direct.h:12,
+                  from ../kernel/dma/direct.c:10:
+ ../arch/arm/include/asm/dma-direct.h:17:20: note: declared here
+    17 | static inline bool dma_capable(struct device *dev, dma_addr_t
+addr, size_t size)
+       |                    ^~~~~~~~~~~
+ In file included from ../include/linux/init.h:5,
+                  from ../include/linux/memblock.h:12,
+                  from ../kernel/dma/direct.c:7:
+ ../kernel/dma/direct.c: In function =E2=80=98dma_direct_map_resource=E2=80=
+=99:
+ ../kernel/dma/direct.c:379:16: error: too many arguments to function
+=E2=80=98dma_capable=E2=80=99
+   379 |  if (unlikely(!dma_capable(dev, dma_addr, size, false))) {
+       |                ^~~~~~~~~~~
+ ../include/linux/compiler.h:78:42: note: in definition of macro =E2=80=98u=
+nlikely=E2=80=99
+    78 | # define unlikely(x) __builtin_expect(!!(x), 0)
+       |                                          ^
+ In file included from ../include/linux/dma-direct.h:12,
+                  from ../kernel/dma/direct.c:10:
+ ../arch/arm/include/asm/dma-direct.h:17:20: note: declared here
+    17 | static inline bool dma_capable(struct device *dev, dma_addr_t
+addr, size_t size)
+       |                    ^~~~~~~~~~~
+ make[3]: *** [../scripts/Makefile.build:266: kernel/dma/direct.o] Error 1
+ In file included from ../include/linux/string.h:6,
+                  from ../include/linux/dma-mapping.h:6,
+                  from ../include/linux/dma-direct.h:5,
+                  from ../kernel/dma/swiotlb.c:24:
+ ../kernel/dma/swiotlb.c: In function =E2=80=98swiotlb_map=E2=80=99:
+ ../kernel/dma/swiotlb.c:681:16: error: too many arguments to function
+=E2=80=98dma_capable=E2=80=99
+   681 |  if (unlikely(!dma_capable(dev, *dma_addr, size, true))) {
+       |                ^~~~~~~~~~~
+ ../include/linux/compiler.h:78:42: note: in definition of macro =E2=80=98u=
+nlikely=E2=80=99
+    78 | # define unlikely(x) __builtin_expect(!!(x), 0)
+       |                                          ^
+ In file included from ../include/linux/dma-direct.h:12,
+                  from ../kernel/dma/swiotlb.c:24:
+ ../arch/arm/include/asm/dma-direct.h:17:20: note: declared here
+    17 | static inline bool dma_capable(struct device *dev, dma_addr_t
+addr, size_t size)
+       |                    ^~~~~~~~~~~
