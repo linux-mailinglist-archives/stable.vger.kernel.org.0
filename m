@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 015F01CAF70
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F251CAF77
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728486AbgEHMix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:38:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56190 "EHLO mail.kernel.org"
+        id S1728498AbgEHMi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:38:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727779AbgEHMiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:38:52 -0400
+        id S1728489AbgEHMiz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:38:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05F6F21BE5;
-        Fri,  8 May 2020 12:38:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71393215A4;
+        Fri,  8 May 2020 12:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941531;
-        bh=zd30pyKJBfnRE7pqLT6zUQQDWQQCHCXPALI+Wp+aPKE=;
+        s=default; t=1588941533;
+        bh=xKYlgra1bjz4M+bEPOOEvT6lJyexDCQK/RPwfLRVI/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+WaMcvVNyrdzs/SNPK+lBsJh4J/nWj9g1Bh2W1ogM4CLxvNTp0M5dpoBpStbIHUG
-         7Yp+SBZxF54sVgPnX7aGxcoCpq8zweUgL3B//y8NJUFsjHj7WqOZ/0y7IGXtHMHjJ2
-         vCmYhUXDmehCVD/u6a5aM0UIH1bzSWL4L0tHv8hs=
+        b=he4J6LqiZB9wzP+Nesa1v8zPvADzboLSxXCT9fat51fC048KRzahru3Y3pC+PN+wt
+         HjsqsOhSBn+uVbVEapY/4bnQnaFOyEVTlnW4iA905uVbIZUaR3m98HNAgr1lVG/cjc
+         8FlidofO7Xkiu7dv4J5qmIsIS3s2V5MZ3E7amn+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <computersforpeace@gmail.com>,
-        Ming Lei <ming.lei@canonical.com>,
-        Kees Cook <keescook@chromium.org>,
-        Shuah Khan <shuahkh@osg.samsung.com>
-Subject: [PATCH 4.4 070/312] firmware: actually return NULL on failed request_firmware_nowait()
-Date:   Fri,  8 May 2020 14:31:01 +0200
-Message-Id: <20200508123129.466971917@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Griffin <peter.griffin@linaro.org>,
+        Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Subject: [PATCH 4.4 071/312] [media] c8sectpfe: Rework firmware loading mechanism
+Date:   Fri,  8 May 2020 14:31:02 +0200
+Message-Id: <20200508123129.537219276@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,110 +43,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <computersforpeace@gmail.com>
+From: Peter Griffin <peter.griffin@linaro.org>
 
-commit 715780ae4bb76d6fd2f20eb78e2a9ba9769a6cdc upstream.
+commit c23ac90f78aa9190643c82c1975a0cfe480d7c60 upstream.
 
-The kerneldoc for request_firmware_nowait() says that it may call the
-provided cont() callback with @fw == NULL, if the firmware request
-fails. However, this is not the case when called with an empty string
-(""). This case is short-circuited by the 'name[0] == '\0'' check
-introduced in commit 471b095dfe0d ("firmware_class: make sure fw requests
-contain a name"), so _request_firmware() never gets to set the fw to
-NULL.
+c8sectpfe driver relied on CONFIG_FW_LOADER_USER_HELPER_FALLBACK option
+for loading its xp70 firmware. A previous commit removed this Kconfig
+option, as it is apparently harmful, but did not update the driver
+code which relied on it.
 
-Noticed while using the new 'trigger_async_request' testing hook:
+This patch reworks the firmware loading into the start_feed callback.
+At this point we can be sure the rootfs is present, thereby removing
+the depedency on CONFIG_FW_LOADER_USER_HELPER_FALLBACK.
 
-    # printf '\x00' > /sys/devices/virtual/misc/test_firmware/trigger_async_request
-    [10553.726178] test_firmware: loading ''
-    [10553.729859] test_firmware: loaded: 995209091
-    # printf '\x00' > /sys/devices/virtual/misc/test_firmware/trigger_async_request
-    [10733.676184] test_firmware: loading ''
-    [10733.679855] Unable to handle kernel NULL pointer dereference at virtual address 00000004
-    [10733.687951] pgd = ec188000
-    [10733.690655] [00000004] *pgd=00000000
-    [10733.694240] Internal error: Oops: 5 [#1] SMP ARM
-    [10733.698847] Modules linked in: btmrvl_sdio btmrvl bluetooth sbs_battery nf_conntrack_ipv6 nf_defrag_ipv6 ip6table_filter ip6_tables asix usbnet mwifiex_sdio mwifiex cfg80211 jitterentropy_rng drbg joydev snd_seq_midi snd_seq_midi_event snd_rawmidi snd_seq snd_seq_device ppp_async ppp_generic slhc tun
-    [10733.725670] CPU: 0 PID: 6600 Comm: bash Not tainted 4.4.0-rc4-00351-g63d0877 #178
-    [10733.733137] Hardware name: Rockchip (Device Tree)
-    [10733.737831] task: ed24f6c0 ti: ee322000 task.ti: ee322000
-    [10733.743222] PC is at do_raw_spin_lock+0x18/0x1a0
-    [10733.747831] LR is at _raw_spin_lock+0x18/0x1c
-    [10733.752180] pc : [<c00653a0>]    lr : [<c054c204>]    psr: a00d0013
-    [10733.752180] sp : ee323df8  ip : ee323e20  fp : ee323e1c
-    [10733.763634] r10: 00000051  r9 : b6f18000  r8 : ee323f80
-    [10733.768847] r7 : c089cebc  r6 : 00000001  r5 : 00000000  r4 : ec0e6000
-    [10733.775360] r3 : dead4ead  r2 : c06bd140  r1 : eef913b4  r0 : 00000000
-    [10733.781874] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-    [10733.788995] Control: 10c5387d  Table: 2c18806a  DAC: 00000051
-    [10733.794728] Process bash (pid: 6600, stack limit = 0xee322218)
-    [10733.800549] Stack: (0xee323df8 to 0xee324000)
-    [10733.804896] 3de0:                                                       ec0e6000 00000000
-    [10733.813059] 3e00: 00000001 c089cebc ee323f80 b6f18000 ee323e2c ee323e20 c054c204 c0065394
-    [10733.821221] 3e20: ee323e44 ee323e30 c02fec60 c054c1f8 ec0e7ec0 ec3fcfc0 ee323e5c ee323e48
-    [10733.829384] 3e40: c02fed08 c02fec48 c07dbf74 eeb05a00 ee323e8c ee323e60 c0253828 c02fecac
-    [10733.837547] 3e60: 00000001 c0116950 ee323eac ee323e78 00000001 ec3fce00 ed2d9700 ed2d970c
-    [10733.845710] 3e80: ee323e9c ee323e90 c02e873c c02537d4 ee323eac ee323ea0 c017bd40 c02e8720
-    [10733.853873] 3ea0: ee323ee4 ee323eb0 c017b250 c017bd00 00000000 00000000 f3e47a54 ec128b00
-    [10733.862035] 3ec0: c017b10c ee323f80 00000001 c000f504 ee322000 00000000 ee323f4c ee323ee8
-    [10733.870197] 3ee0: c011b71c c017b118 ee323fb0 c011bc90 becfa8d9 00000001 ec128b00 00000001
-    [10733.878359] 3f00: b6f18000 ee323f80 ee323f4c ee323f18 c011bc90 c0063950 ee323f3c ee323f28
-    [10733.886522] 3f20: c0063950 c0549138 00000001 ec128b00 00000001 ec128b00 b6f18000 ee323f80
-    [10733.894684] 3f40: ee323f7c ee323f50 c011bed8 c011b6ec c0135fb8 c0135f24 ec128b00 ec128b00
-    [10733.902847] 3f60: 00000001 b6f18000 c000f504 ee322000 ee323fa4 ee323f80 c011c664 c011be24
-    [10733.911009] 3f80: 00000000 00000000 00000001 b6f18000 b6e79be0 00000004 00000000 ee323fa8
-    [10733.919172] 3fa0: c000f340 c011c618 00000001 b6f18000 00000001 b6f18000 00000001 00000000
-    [10733.927334] 3fc0: 00000001 b6f18000 b6e79be0 00000004 00000001 00000001 8068a3f1 b6e79c84
-    [10733.935496] 3fe0: 00000000 becfa7dc b6de194d b6e20246 400d0030 00000001 7a4536e8 49bda390
-    [10733.943664] [<c00653a0>] (do_raw_spin_lock) from [<c054c204>] (_raw_spin_lock+0x18/0x1c)
-    [10733.951743] [<c054c204>] (_raw_spin_lock) from [<c02fec60>] (fw_free_buf+0x24/0x64)
-    [10733.959388] [<c02fec60>] (fw_free_buf) from [<c02fed08>] (release_firmware+0x68/0x74)
-    [10733.967207] [<c02fed08>] (release_firmware) from [<c0253828>] (trigger_async_request_store+0x60/0x124)
-    [10733.976501] [<c0253828>] (trigger_async_request_store) from [<c02e873c>] (dev_attr_store+0x28/0x34)
-    [10733.985533] [<c02e873c>] (dev_attr_store) from [<c017bd40>] (sysfs_kf_write+0x4c/0x58)
-    [10733.993437] [<c017bd40>] (sysfs_kf_write) from [<c017b250>] (kernfs_fop_write+0x144/0x1a8)
-    [10734.001689] [<c017b250>] (kernfs_fop_write) from [<c011b71c>] (__vfs_write+0x3c/0xe4)
+Fixes: 79f5b6ae960d ('[media] c8sectpfe: Remove select on CONFIG_FW_LOADER_USER_HELPER_FALLBACK')
 
-After this patch:
-
-    # printf '\x00' > /sys/devices/virtual/misc/test_firmware/trigger_async_request
-    [   32.126322] test_firmware: loading ''
-    [   32.129995] test_firmware: failed to async load firmware
-    -bash: printf: write error: No such device
-
-Fixes: 471b095dfe0d ("firmware_class: make sure fw requests contain a name")
-Signed-off-by: Brian Norris <computersforpeace@gmail.com>
-Acked-by: Ming Lei <ming.lei@canonical.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Shuah Khan <shuahkh@osg.samsung.com>
+Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/firmware_class.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c |   65 ++++++------------
+ 1 file changed, 22 insertions(+), 43 deletions(-)
 
---- a/drivers/base/firmware_class.c
-+++ b/drivers/base/firmware_class.c
-@@ -1119,15 +1119,17 @@ static int
- _request_firmware(const struct firmware **firmware_p, const char *name,
- 		  struct device *device, unsigned int opt_flags)
- {
--	struct firmware *fw;
-+	struct firmware *fw = NULL;
- 	long timeout;
- 	int ret;
+--- a/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c
++++ b/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c
+@@ -49,7 +49,7 @@ MODULE_FIRMWARE(FIRMWARE_MEMDMA);
+ #define PID_TABLE_SIZE 1024
+ #define POLL_MSECS 50
  
- 	if (!firmware_p)
+-static int load_c8sectpfe_fw_step1(struct c8sectpfei *fei);
++static int load_c8sectpfe_fw(struct c8sectpfei *fei);
+ 
+ #define TS_PKT_SIZE 188
+ #define HEADER_SIZE (4)
+@@ -143,6 +143,7 @@ static int c8sectpfe_start_feed(struct d
+ 	struct channel_info *channel;
+ 	u32 tmp;
+ 	unsigned long *bitmap;
++	int ret;
+ 
+ 	switch (dvbdmxfeed->type) {
+ 	case DMX_TYPE_TS:
+@@ -171,8 +172,9 @@ static int c8sectpfe_start_feed(struct d
+ 	}
+ 
+ 	if (!atomic_read(&fei->fw_loaded)) {
+-		dev_err(fei->dev, "%s: c8sectpfe fw not loaded\n", __func__);
+-		return -EINVAL;
++		ret = load_c8sectpfe_fw(fei);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	mutex_lock(&fei->lock);
+@@ -267,8 +269,9 @@ static int c8sectpfe_stop_feed(struct dv
+ 	unsigned long *bitmap;
+ 
+ 	if (!atomic_read(&fei->fw_loaded)) {
+-		dev_err(fei->dev, "%s: c8sectpfe fw not loaded\n", __func__);
+-		return -EINVAL;
++		ret = load_c8sectpfe_fw(fei);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	mutex_lock(&fei->lock);
+@@ -882,13 +885,6 @@ static int c8sectpfe_probe(struct platfo
+ 		goto err_clk_disable;
+ 	}
+ 
+-	/* ensure all other init has been done before requesting firmware */
+-	ret = load_c8sectpfe_fw_step1(fei);
+-	if (ret) {
+-		dev_err(dev, "Couldn't load slim core firmware\n");
+-		goto err_clk_disable;
+-	}
+-
+ 	c8sectpfe_debugfs_init(fei);
+ 
+ 	return 0;
+@@ -1093,15 +1089,14 @@ static void load_dmem_segment(struct c8s
+ 		phdr->p_memsz - phdr->p_filesz);
+ }
+ 
+-static int load_slim_core_fw(const struct firmware *fw, void *context)
++static int load_slim_core_fw(const struct firmware *fw, struct c8sectpfei *fei)
+ {
+-	struct c8sectpfei *fei = context;
+ 	Elf32_Ehdr *ehdr;
+ 	Elf32_Phdr *phdr;
+ 	u8 __iomem *dst;
+ 	int err = 0, i;
+ 
+-	if (!fw || !context)
++	if (!fw || !fei)
  		return -EINVAL;
  
--	if (!name || name[0] == '\0')
--		return -EINVAL;
-+	if (!name || name[0] == '\0') {
-+		ret = -EINVAL;
-+		goto out;
-+	}
+ 	ehdr = (Elf32_Ehdr *)fw->data;
+@@ -1153,29 +1148,35 @@ static int load_slim_core_fw(const struc
+ 	return err;
+ }
  
- 	ret = _request_firmware_prepare(&fw, name, device);
- 	if (ret <= 0) /* error or already assigned */
+-static void load_c8sectpfe_fw_cb(const struct firmware *fw, void *context)
++static int load_c8sectpfe_fw(struct c8sectpfei *fei)
+ {
+-	struct c8sectpfei *fei = context;
++	const struct firmware *fw;
+ 	int err;
+ 
++	dev_info(fei->dev, "Loading firmware: %s\n", FIRMWARE_MEMDMA);
++
++	err = request_firmware(&fw, FIRMWARE_MEMDMA, fei->dev);
++	if (err)
++		return err;
++
+ 	err = c8sectpfe_elf_sanity_check(fei, fw);
+ 	if (err) {
+ 		dev_err(fei->dev, "c8sectpfe_elf_sanity_check failed err=(%d)\n"
+ 			, err);
+-		goto err;
++		return err;
+ 	}
+ 
+-	err = load_slim_core_fw(fw, context);
++	err = load_slim_core_fw(fw, fei);
+ 	if (err) {
+ 		dev_err(fei->dev, "load_slim_core_fw failed err=(%d)\n", err);
+-		goto err;
++		return err;
+ 	}
+ 
+ 	/* now the firmware is loaded configure the input blocks */
+ 	err = configure_channels(fei);
+ 	if (err) {
+ 		dev_err(fei->dev, "configure_channels failed err=(%d)\n", err);
+-		goto err;
++		return err;
+ 	}
+ 
+ 	/*
+@@ -1188,28 +1189,6 @@ static void load_c8sectpfe_fw_cb(const s
+ 	writel(0x1,  fei->io + DMA_CPU_RUN);
+ 
+ 	atomic_set(&fei->fw_loaded, 1);
+-err:
+-	complete_all(&fei->fw_ack);
+-}
+-
+-static int load_c8sectpfe_fw_step1(struct c8sectpfei *fei)
+-{
+-	int err;
+-
+-	dev_info(fei->dev, "Loading firmware: %s\n", FIRMWARE_MEMDMA);
+-
+-	init_completion(&fei->fw_ack);
+-	atomic_set(&fei->fw_loaded, 0);
+-
+-	err = request_firmware_nowait(THIS_MODULE, FW_ACTION_HOTPLUG,
+-				FIRMWARE_MEMDMA, fei->dev, GFP_KERNEL, fei,
+-				load_c8sectpfe_fw_cb);
+-
+-	if (err) {
+-		dev_err(fei->dev, "request_firmware_nowait err: %d.\n", err);
+-		complete_all(&fei->fw_ack);
+-		return err;
+-	}
+ 
+ 	return 0;
+ }
 
 
