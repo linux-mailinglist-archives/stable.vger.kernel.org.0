@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE99C1CAFA5
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B04B1CAB5F
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:43:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728626AbgEHNS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:18:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40486 "EHLO mail.kernel.org"
+        id S1728602AbgEHMnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:43:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727853AbgEHMm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:42:59 -0400
+        id S1729027AbgEHMnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:43:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B3682495F;
-        Fri,  8 May 2020 12:42:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9D4624968;
+        Fri,  8 May 2020 12:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941778;
-        bh=bVOLY6qCCBKUOcXkUwFbnUT2UzHZrxXpjThWje4InnE=;
+        s=default; t=1588941781;
+        bh=SRf+a/x2mhrkqpjLlCdHr3nnCS44RaW/UzT8W01MYRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yoEkbBydgTjXZUV7J2F0wetuV/zw3RW4I8QD5NszK/zPy2vN6QRAempPD8Y+jbPok
-         IL+qhOcZAyzseTR4BWea0sjrnRBbJ1iAyAqbrG/p51Hu4Yjro6EHGfgzO8lTO1NdGd
-         T8kVk3v7PSLGJJ13672+uizgjCn6CtmwodLdUPag=
+        b=fFCb9n2p6d/y31bWDYTlVom7hJN2miTZt+WC3uZQ7wW4R0jdD9ji3mW6q0kuHWMzP
+         tezzwmfAOc3NgI5N6ND493tcj2vLqg76BL47HLXulOjUVTjRFJINrS+ux1f0SfFNSh
+         bLwZqAeACGEa6xlqalxcCoFwgLotWnOd6sDRjd5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 168/312] net: systemport: suppress warnings on failed Rx SKB allocations
-Date:   Fri,  8 May 2020 14:32:39 +0200
-Message-Id: <20200508123136.293229477@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@arm.linux.org.uk>,
+        Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Subject: [PATCH 4.4 169/312] [media] rc: allow rc modules to be loaded if rc-main is not a module
+Date:   Fri,  8 May 2020 14:32:40 +0200
+Message-Id: <20200508123136.366163122@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,47 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Russell King <rmk+kernel@arm.linux.org.uk>
 
-[ Upstream commit 3554e54a46125030c534820c297ed7f6c3907e24 ]
+commit 2ff56fadd94cdaeeaeccbc0a9b703a0101ada128 upstream.
 
-The driver is designed to drop Rx packets and reclaim the buffers
-when an allocation fails, and the network interface needs to safely
-handle this packet loss. Therefore, an allocation failure of Rx
-SKBs is relatively benign.
+rc-main mistakenly uses #ifdef MODULE to determine whether it should
+load the rc keymap modules.  This symbol is only defined if rc-main
+is being built as a module itself, and bears no relation to whether
+the rc keymaps are modules.
 
-However, the output of the warning message occurs with a high
-scheduling priority that can cause excessive jitter/latency for
-other high priority processing.
+Fix this to use CONFIG_MODULES instead.
 
-This commit suppresses the warning messages to prevent scheduling
-problems while retaining the failure count in the statistics of
-the network interface.
+Fixes: 631493ecacd8 ("[media] rc-core: merge rc-map.c into rc-main.c")
 
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/rc/rc-main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
-index 3cb99ce7325b7..d46ea7a5e0886 100644
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -526,7 +526,8 @@ static struct sk_buff *bcm_sysport_rx_refill(struct bcm_sysport_priv *priv,
- 	dma_addr_t mapping;
+--- a/drivers/media/rc/rc-main.c
++++ b/drivers/media/rc/rc-main.c
+@@ -61,7 +61,7 @@ struct rc_map *rc_map_get(const char *na
+ 	struct rc_map_list *map;
  
- 	/* Allocate a new SKB for a new packet */
--	skb = netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH);
-+	skb = __netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH,
-+				 GFP_ATOMIC | __GFP_NOWARN);
- 	if (!skb) {
- 		priv->mib.alloc_rx_buff_failed++;
- 		netif_err(priv, rx_err, ndev, "SKB alloc failed\n");
--- 
-2.20.1
-
+ 	map = seek_rc_map(name);
+-#ifdef MODULE
++#ifdef CONFIG_MODULES
+ 	if (!map) {
+ 		int rc = request_module("%s", name);
+ 		if (rc < 0) {
 
 
