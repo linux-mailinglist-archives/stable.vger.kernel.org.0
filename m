@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B881CAE4C
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EE851CAB62
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:43:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729780AbgEHNIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:08:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53104 "EHLO mail.kernel.org"
+        id S1728190AbgEHMnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:43:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729269AbgEHNF2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 09:05:28 -0400
+        id S1729039AbgEHMnI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:43:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC3B9249EA;
-        Fri,  8 May 2020 13:05:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C2BA24971;
+        Fri,  8 May 2020 12:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588943128;
-        bh=r7PKOH3bBleIWEyK3BOCDG/z9KsJ9MtNZcsioTG9Qp4=;
+        s=default; t=1588941788;
+        bh=zqQDo8kzp6NEGA2JyNikZe5le3hBvC/lDrV5X0I49l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=juVFALqDYnsyEZ7offl6bx4BpFVLKxbD5W7+iixXyVcyAlw1MYncutM5sKwwj+5GK
-         sU911r66JA9/DeFvbA3civihsKBtI69a5RJMQjmdUAgtDBbXbiOLrbS2wNJlWh5K+N
-         2JXo21K5C7+wJW5KzFhbpw2wh/v5XR3ovC+EDrxk=
+        b=bhZSqZzzSyWC4anx/7fADtt8O51rbpG3qBDBY9r2q1NE2/PhlT3IHinyjWXvdcHWa
+         iwqwXRbnd9GqxA0++C+JPjwSmg/X9Z+MIkJjsRzeENcW98DFHOt1uzUsAlILuTuV7N
+         FuqZeQhQ8+khzM+T1trP3kd1RunBMtVLZmssDMq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
         Hans Verkuil <hans.verkuil@cisco.com>,
         Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-Subject: [PATCH 4.4 171/312] [media] am437x-vpfe: fix an uninitialized variable bug
-Date:   Fri,  8 May 2020 14:32:42 +0200
-Message-Id: <20200508123136.527536560@linuxfoundation.org>
+Subject: [PATCH 4.4 172/312] [media] cx23885: uninitialized variable in cx23885_av_work_handler()
+Date:   Fri,  8 May 2020 14:32:43 +0200
+Message-Id: <20200508123136.598357947@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -47,32 +46,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit e4bccada44c177cde31b9a236b7dfd7f76d403ed upstream.
+commit 60587bd0680507f48ae3a7360983228fd207de8a upstream.
 
-If we are doing V4L2_FIELD_NONE then "ret" is used uninitialized.
+The "handled" variable could be uninitialized if the
+interrupt_service_routine() call back hasn't been implimented or if it
+has been implemented but doesn't initialize "handled" to zero at the
+start.  For example, adv76xx_isr() only sets "handled" to true.
 
-Fixes: 417d2e507edc ('[media] media: platform: add VPFE capture driver support for AM437X')
+Fixes: 44b153ca639f ('[media] m5mols: Add ISO sensitivity controls')
 
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/am437x/am437x-vpfe.c |    2 +-
+ drivers/media/pci/cx23885/cx23885-av.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/platform/am437x/am437x-vpfe.c
-+++ b/drivers/media/platform/am437x/am437x-vpfe.c
-@@ -1047,7 +1047,7 @@ static int vpfe_get_ccdc_image_format(st
- static int vpfe_config_ccdc_image_format(struct vpfe_device *vpfe)
+--- a/drivers/media/pci/cx23885/cx23885-av.c
++++ b/drivers/media/pci/cx23885/cx23885-av.c
+@@ -24,7 +24,7 @@ void cx23885_av_work_handler(struct work
  {
- 	enum ccdc_frmfmt frm_fmt = CCDC_FRMFMT_INTERLACED;
--	int ret;
-+	int ret = 0;
+ 	struct cx23885_dev *dev =
+ 			   container_of(work, struct cx23885_dev, cx25840_work);
+-	bool handled;
++	bool handled = false;
  
- 	vpfe_dbg(2, vpfe, "vpfe_config_ccdc_image_format\n");
- 
+ 	v4l2_subdev_call(dev->sd_cx25840, core, interrupt_service_routine,
+ 			 PCI_MSK_AV_CORE, &handled);
 
 
