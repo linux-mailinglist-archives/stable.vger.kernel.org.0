@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46DB31CAC1F
+	by mail.lfdr.de (Postfix) with ESMTP id B50C21CAC20
 	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728280AbgEHMuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:50:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57414 "EHLO mail.kernel.org"
+        id S1728690AbgEHMuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:50:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729825AbgEHMuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:50:10 -0400
+        id S1729138AbgEHMuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:50:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17EE7218AC;
-        Fri,  8 May 2020 12:50:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9164124958;
+        Fri,  8 May 2020 12:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942210;
-        bh=FoaQyXCTpiF64dTsxTeMg1cZZGMD44nMvDekcFHo3/c=;
+        s=default; t=1588942213;
+        bh=0x3kQkUa8Zh85K1c8F16CnNNrJ+HlYowwG8mn5Ij7sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qTGkCnKU39smYNmKlZfCZXS8RRzr9oiLFYMQVrZCqLyCb5RR5kPp9k2byqfeVuw5L
-         t9sET6xWT7s3fbDoM8a6ejHY8QZ3PwAEyo0U3hc/K6tnH34vEugbabwgpLlvgUbSyV
-         QpTxA9DoisSyD8KhHo3Y2bYkZRxZA1nsOLEdfQhM=
+        b=kBf8kPXFtA/75qngUfP7xuhEWCuwSUNlvclFBd2LPwz+NG/OyDYY42Way/7cassuO
+         Br8tAH+qzVHaGKoXfPrHMinu9+2PH0xZfvSNESjHBMMABl+4J0SIWohXv2cnVcjdDH
+         UsXzXYro0jNr2eEzVhjlcYwJB6tCOMtbpyW4FPrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Beraud <julien.beraud@orolia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/22] net: stmmac: Fix sub-second increment
-Date:   Fri,  8 May 2020 14:35:22 +0200
-Message-Id: <20200508123035.160984554@linuxfoundation.org>
+Subject: [PATCH 4.14 11/22] cifs: protect updating server->dstaddr with a spinlock
+Date:   Fri,  8 May 2020 14:35:23 +0200
+Message-Id: <20200508123035.271450729@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
 References: <20200508123033.915895060@linuxfoundation.org>
@@ -44,76 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julien Beraud <julien.beraud@orolia.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 91a2559c1dc5b0f7e1256d42b1508935e8eabfbf ]
+[ Upstream commit fada37f6f62995cc449b36ebba1220594bfe55fe ]
 
-In fine adjustement mode, which is the current default, the sub-second
-    increment register is the number of nanoseconds that will be added to
-    the clock when the accumulator overflows. At each clock cycle, the
-    value of the addend register is added to the accumulator.
-    Currently, we use 20ns = 1e09ns / 50MHz as this value whatever the
-    frequency of the ptp clock actually is.
-    The adjustment is then done on the addend register, only incrementing
-    every X clock cycles X being the ratio between 50MHz and ptp_clock_rate
-    (addend = 2^32 * 50MHz/ptp_clock_rate).
-    This causes the following issues :
-    - In case the frequency of the ptp clock is inferior or equal to 50MHz,
-      the addend value calculation will overflow and the default
-      addend value will be set to 0, causing the clock to not work at
-      all. (For instance, for ptp_clock_rate = 50MHz, addend = 2^32).
-    - The resolution of the timestamping clock is limited to 20ns while it
-      is not needed, thus limiting the accuracy of the timestamping to
-      20ns.
+We use a spinlock while we are reading and accessing the destination address for a server.
+We need to also use this spinlock to protect when we are modifying this address from
+reconn_set_ipaddr().
 
-    Fix this by setting sub-second increment to 2e09ns / ptp_clock_rate.
-    It will allow to reach the minimum possible frequency for
-    ptp_clk_ref, which is 5MHz for GMII 1000Mps Full-Duplex by setting the
-    sub-second-increment to a higher value. For instance, for 25MHz, it
-    gives ssinc = 80ns and default_addend = 2^31.
-    It will also allow to use a lower value for sub-second-increment, thus
-    improving the timestamping accuracy with frequencies higher than
-    100MHz, for instance, for 200MHz, ssinc = 10ns and default_addend =
-    2^31.
-
-v1->v2:
- - Remove modifications to the calculation of default addend, which broke
- compatibility with clock frequencies for which 2000000000 / ptp_clk_freq
- is not an integer.
- - Modify description according to discussions.
-
-Signed-off-by: Julien Beraud <julien.beraud@orolia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c    | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ fs/cifs/connect.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
-index 41d528fbebb41..ccf7381c8baec 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
-@@ -36,12 +36,16 @@ static u32 stmmac_config_sub_second_increment(void __iomem *ioaddr,
- 	unsigned long data;
- 	u32 reg_value;
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 697edc92dff27..58e7288e5151c 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -348,8 +348,10 @@ static int reconn_set_ipaddr(struct TCP_Server_Info *server)
+ 		return rc;
+ 	}
  
--	/* For GMAC3.x, 4.x versions, convert the ptp_clock to nano second
--	 *	formula = (1/ptp_clock) * 1000000000
--	 * where ptp_clock is 50MHz if fine method is used to update system
-+	/* For GMAC3.x, 4.x versions, in "fine adjustement mode" set sub-second
-+	 * increment to twice the number of nanoseconds of a clock cycle.
-+	 * The calculation of the default_addend value by the caller will set it
-+	 * to mid-range = 2^31 when the remainder of this division is zero,
-+	 * which will make the accumulator overflow once every 2 ptp_clock
-+	 * cycles, adding twice the number of nanoseconds of a clock cycle :
-+	 * 2000000000ULL / ptp_clock.
- 	 */
- 	if (value & PTP_TCR_TSCFUPDT)
--		data = (1000000000ULL / 50000000);
-+		data = (2000000000ULL / ptp_clock);
- 	else
- 		data = (1000000000ULL / ptp_clock);
++	spin_lock(&cifs_tcp_ses_lock);
+ 	rc = cifs_convert_address((struct sockaddr *)&server->dstaddr, ipaddr,
+ 				  strlen(ipaddr));
++	spin_unlock(&cifs_tcp_ses_lock);
+ 	kfree(ipaddr);
  
+ 	return !rc ? -1 : 0;
 -- 
 2.20.1
 
