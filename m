@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB2151CAC41
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F10C1CAC98
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729709AbgEHMvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:51:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60612 "EHLO mail.kernel.org"
+        id S1730246AbgEHMys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:54:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728823AbgEHMvb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:31 -0400
+        id S1729660AbgEHMys (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:54:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC03624958;
-        Fri,  8 May 2020 12:51:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 650462495C;
+        Fri,  8 May 2020 12:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942290;
-        bh=FUdsD2vebhAd1eNJ+Evte29+cETCgh/IN/PwJdEDKaM=;
+        s=default; t=1588942487;
+        bh=vEhVLLwSFyJhdLX9Pt2w9y/nEjjsIQJj5jJiyTA4d3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9iQO2lYdr+zQZc3r2IdliC1EaZ5Dg4E0pnj1n6f9omon50XoM2cp1I4zlkbn9i+d
-         z63KNlVbnd180nl4frv9ZF+bFnIs4XepO591uo2BGmMkA11DsYHQXvlqWMYOEI4sCG
-         xk8n+KuxcKL39iZf39VGUoDTd7LwZyBnmaJ8O9ZI=
+        b=BSvBAxbguu2BiBqlCpoNS24XzG0IcugL70sZBuozbR2K3SnXJWTLP0Vw4pj9/qt9A
+         6wOBznglO1i/cd9N1zcVisZU6+6t14FSxbWSoX4yaYM4nX38/CeIQg0TM/tX3jJSDL
+         UbVQ2JvyxrFtLyd83eNmJeZhjE56/cSVgd7MSXc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
+        Wu Bo <wubo40@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/32] lib/mpi: Fix building for powerpc with clang
+Subject: [PATCH 5.6 15/49] scsi: sg: add sg_remove_request in sg_write
 Date:   Fri,  8 May 2020 14:35:32 +0200
-Message-Id: <20200508123037.476030370@linuxfoundation.org>
+Message-Id: <20200508123045.161722497@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,121 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Wu Bo <wubo40@huawei.com>
 
-[ Upstream commit 5990cdee689c6885b27c6d969a3d58b09002b0bc ]
+[ Upstream commit 83c6f2390040f188cc25b270b4befeb5628c1aee ]
 
-0day reports over and over on an powerpc randconfig with clang:
+If the __copy_from_user function failed we need to call sg_remove_request
+in sg_write.
 
-lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast or build with
--fheinous-gnu-extensions
-
-Remove the superfluous casts, which have been done previously for x86
-and arm32 in commit dea632cadd12 ("lib/mpi: fix build with clang") and
-commit 7b7c1df2883d ("lib/mpi/longlong.h: fix building with 32-bit
-x86").
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/991
-Link: https://lore.kernel.org/r/20200413195041.24064-1-natechancellor@gmail.com
+Link: https://lore.kernel.org/r/610618d9-e983-fd56-ed0f-639428343af7@huawei.com
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Wu Bo <wubo40@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/longlong.h | 34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ drivers/scsi/sg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
-index 08c60d10747fd..e01b705556aa6 100644
---- a/lib/mpi/longlong.h
-+++ b/lib/mpi/longlong.h
-@@ -756,22 +756,22 @@ do {									\
- do { \
- 	if (__builtin_constant_p(bh) && (bh) == 0) \
- 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"%r" ((USItype)(al)), \
- 		"rI" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
- 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"%r" ((USItype)(al)), \
- 		"rI" ((USItype)(bl))); \
- 	else \
- 		__asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"r" ((USItype)(bh)), \
- 		"%r" ((USItype)(al)), \
-@@ -781,36 +781,36 @@ do { \
- do { \
- 	if (__builtin_constant_p(ah) && (ah) == 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(ah) && (ah) == ~(USItype) 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else \
- 		__asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
-@@ -821,7 +821,7 @@ do { \
- do { \
- 	USItype __m0 = (m0), __m1 = (m1); \
- 	__asm__ ("mulhwu %0,%1,%2" \
--	: "=r" ((USItype) ph) \
-+	: "=r" (ph) \
- 	: "%r" (__m0), \
- 	"r" (__m1)); \
- 	(pl) = __m0 * __m1; \
+diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
+index 9c0ee192f0f9c..20472aaaf630a 100644
+--- a/drivers/scsi/sg.c
++++ b/drivers/scsi/sg.c
+@@ -685,8 +685,10 @@ sg_write(struct file *filp, const char __user *buf, size_t count, loff_t * ppos)
+ 	hp->flags = input_size;	/* structure abuse ... */
+ 	hp->pack_id = old_hdr.pack_id;
+ 	hp->usr_ptr = NULL;
+-	if (copy_from_user(cmnd, buf, cmd_size))
++	if (copy_from_user(cmnd, buf, cmd_size)) {
++		sg_remove_request(sfp, srp);
+ 		return -EFAULT;
++	}
+ 	/*
+ 	 * SG_DXFER_TO_FROM_DEV is functionally equivalent to SG_DXFER_FROM_DEV,
+ 	 * but is is possible that the app intended SG_DXFER_TO_DEV, because there
 -- 
 2.20.1
 
