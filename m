@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F41181CAC91
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F7401CAC3B
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730229AbgEHMyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:54:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36986 "EHLO mail.kernel.org"
+        id S1729889AbgEHMvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:51:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730223AbgEHMyg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:54:36 -0400
+        id S1729688AbgEHMvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:51:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BE132495C;
-        Fri,  8 May 2020 12:54:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11C8924959;
+        Fri,  8 May 2020 12:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942475;
-        bh=w+CRxr9kY4K+9b8jpYJdkDCWoR7oDk9596EFqhXzsvI=;
+        s=default; t=1588942277;
+        bh=TlCukOa8yANpfdLwZWlHbhSZsVt3aKYiyQN5uYYyX74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AdyYxYH1xmw6kYanqV22Ih59AYBDJbkdnLgsALj3UT8mIB7hBNGlg25PgpuoOIRMA
-         TTCPSHtGu//z4dTJWiyIz9VloGSvaQ6VuU6wJ3MUAZN/m7xGP8V0zVVNkqetOMsuLt
-         u581T73NIKIJFCY6paQvMCi2e0Fx3d0/yEEvOZLU=
+        b=e07Yr7emMsqMW5NWPuSv24mmjPIHfrV4IZvN26XA3q55mHuoyJQs+1qzP8405vHv+
+         EJKlEV7cUDFZmHJMEIXBiyJwRWGYKh+d3G/YxNT8biVlImXk5FsURuH0RuAtJiBzCq
+         RXKeHVW0FH2IlD753BLsrXEgrorB5MHS8YvCCs3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sandipan Das <sandipan@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Matthias Blankertz <matthias.blankertz@cetitec.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 10/49] selftests: vm: Do not override definition of ARCH
+Subject: [PATCH 4.19 14/32] ASoC: rsnd: Dont treat master SSI in multi SSI setup as parent
 Date:   Fri,  8 May 2020 14:35:27 +0200
-Message-Id: <20200508123044.428448691@linuxfoundation.org>
+Message-Id: <20200508123036.669828519@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
-References: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
+References: <20200508123034.886699170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan@linux.ibm.com>
+From: Matthias Blankertz <matthias.blankertz@cetitec.com>
 
-[ Upstream commit 24c3f063c57b2a8ae21b259bcfa7690e2eb56dd9 ]
+[ Upstream commit 0c258657ddfe81b4fc0183378d800c97ba0b7cdd ]
 
-Independent builds of the vm selftests is currently broken because
-commit 7549b3364201 ("selftests: vm: Build/Run 64bit tests only on
-64bit arch") overrides the value of ARCH with the machine name from
-uname. This does not always match the architecture names used for
-tasks like header installation.
+The master SSI of a multi-SSI setup was attached both to the
+RSND_MOD_SSI slot and the RSND_MOD_SSIP slot of the rsnd_dai_stream.
+This is not correct wrt. the meaning of being "parent" in the rest of
+the SSI code, where it seems to indicate an SSI that provides clock and
+word sync but is not transmitting/receiving audio data.
 
-E.g. for building tests on powerpc64, we need ARCH=powerpc
-and not ARCH=ppc64 or ARCH=ppc64le. Otherwise, the build
-fails as shown below.
+Not treating the multi-SSI master as parent allows removal of various
+special cases to the rsnd_ssi_is_parent conditions introduced in commit
+a09fb3f28a60 ("ASoC: rsnd: Fix parent SSI start/stop in multi-SSI mode").
+It also fixes the issue that operations performed via rsnd_dai_call()
+were performed twice for the master SSI. This caused some "status check
+failed" spam when stopping a multi-SSI stream as the driver attempted to
+stop the master SSI twice.
 
-  $ uname -m
-  ppc64le
-
-  $ make -C tools/testing/selftests/vm
-  make: Entering directory '/home/sandipan/linux/tools/testing/selftests/vm'
-  make --no-builtin-rules ARCH=ppc64le -C ../../../.. headers_install
-  make[1]: Entering directory '/home/sandipan/linux'
-  Makefile:653: arch/ppc64le/Makefile: No such file or directory
-  make[1]: *** No rule to make target 'arch/ppc64le/Makefile'.  Stop.
-  make[1]: Leaving directory '/home/sandipan/linux'
-  ../lib.mk:50: recipe for target 'khdr' failed
-  make: *** [khdr] Error 2
-  make: Leaving directory '/home/sandipan/linux/tools/testing/selftests/vm'
-
-Fixes: 7549b3364201 ("selftests: vm: Build/Run 64bit tests only on 64bit arch")
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
-Tested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/20200417153017.1744454-2-matthias.blankertz@cetitec.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/sh/rcar/ssi.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
-index 7f9a8a8c31da9..3f2e2f0ccbc9a 100644
---- a/tools/testing/selftests/vm/Makefile
-+++ b/tools/testing/selftests/vm/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for vm selftests
- uname_M := $(shell uname -m 2>/dev/null || echo not)
--ARCH ?= $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/')
-+MACHINE ?= $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/')
+diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
+index 3fe88f7743824..d5f663bb965f1 100644
+--- a/sound/soc/sh/rcar/ssi.c
++++ b/sound/soc/sh/rcar/ssi.c
+@@ -375,7 +375,7 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
+ 	 * We shouldn't exchange SWSP after running.
+ 	 * This means, parent needs to care it.
+ 	 */
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		goto init_end;
  
- CFLAGS = -Wall -I ../../../../usr/include $(EXTRA_CFLAGS)
- LDLIBS = -lrt
-@@ -19,7 +19,7 @@ TEST_GEN_FILES += thuge-gen
- TEST_GEN_FILES += transhuge-stress
- TEST_GEN_FILES += userfaultfd
+ 	if (rsnd_io_is_play(io))
+@@ -531,7 +531,7 @@ static int rsnd_ssi_start(struct rsnd_mod *mod,
+ 	 * EN is for data output.
+ 	 * SSI parent EN is not needed.
+ 	 */
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		return 0;
  
--ifneq (,$(filter $(ARCH),arm64 ia64 mips64 parisc64 ppc64 riscv64 s390x sh64 sparc64 x86_64))
-+ifneq (,$(filter $(MACHINE),arm64 ia64 mips64 parisc64 ppc64 riscv64 s390x sh64 sparc64 x86_64))
- TEST_GEN_FILES += va_128TBswitch
- TEST_GEN_FILES += virtual_address_range
- endif
+ 	ssi->cr_en = EN;
+@@ -554,7 +554,7 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
+ 	if (!rsnd_ssi_is_run_mods(mod, io))
+ 		return 0;
+ 
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		return 0;
+ 
+ 	cr  =	ssi->cr_own	|
+@@ -592,7 +592,7 @@ static int rsnd_ssi_irq(struct rsnd_mod *mod,
+ 	if (rsnd_is_gen1(priv))
+ 		return 0;
+ 
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		return 0;
+ 
+ 	if (!rsnd_ssi_is_run_mods(mod, io))
+@@ -674,6 +674,9 @@ static void rsnd_ssi_parent_attach(struct rsnd_mod *mod,
+ 	if (!rsnd_rdai_is_clk_master(rdai))
+ 		return;
+ 
++	if (rsnd_ssi_is_multi_slave(mod, io))
++		return;
++
+ 	switch (rsnd_mod_id(mod)) {
+ 	case 1:
+ 	case 2:
 -- 
 2.20.1
 
