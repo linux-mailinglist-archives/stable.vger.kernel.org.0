@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B7E1CACE6
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E8A1CACD6
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729595AbgEHM4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:56:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39562 "EHLO mail.kernel.org"
+        id S1730162AbgEHM4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:56:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730420AbgEHM4M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:56:12 -0400
+        id S1729934AbgEHM4S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:56:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD9792054F;
-        Fri,  8 May 2020 12:56:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE32224969;
+        Fri,  8 May 2020 12:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942572;
-        bh=Afv2FaG5DQaHqoUBgBp0RuCQ3U8KX62WJDiJFCsqfJs=;
+        s=default; t=1588942577;
+        bh=f0xr2TAEkyL4kye8GmlZwNW+yvmgzpgCK7AqH3ydBQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UOwSX04aU0Efwu06TnzBvAt0xyDXYo1z5uGX3fCVpo+JBWBR0uZaD0XQz7aWrFUVt
-         mfSDJYW/b0758+PKpBeNp2z+CvTTq5WyQD905QIy45a4DdWhgNRxkguTOOzGx/UwXV
-         XharQXwr1vItIRQTCoL5isy5f6DzwpsO+6gbn32g=
+        b=sZ6ZNUBlW6T58Dg1C/oXzpBwUS162kInjlfB4KNAaTEVB8JsDPLdHC5McdWmyRw/H
+         +ea90G8hxyPxVDfoCiv56nWKDLxsMEgd2jYcB+TkCS9yeNUSdQfHVl9NQ9ECBRVlTn
+         XHfDm30INKPWEjG96GPjILXzhdef6FD+FeGEVGoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Dmitry Yakunin <zeil@yandex-team.ru>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 48/49] cgroup, netclassid: remove double cond_resched
-Date:   Fri,  8 May 2020 14:36:05 +0200
-Message-Id: <20200508123049.452001905@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.6 49/49] mm/mremap: Add comment explaining the untagging behaviour of mremap()
+Date:   Fri,  8 May 2020 14:36:06 +0200
+Message-Id: <20200508123049.580997355@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
 References: <20200508123042.775047422@linuxfoundation.org>
@@ -45,38 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Will Deacon <will@kernel.org>
 
-commit 526f3d96b8f83b1b13d73bd0b5c79cc2c487ec8e upstream.
+commit b2a84de2a2deb76a6a51609845341f508c518c03 upstream.
 
-Commit 018d26fcd12a ("cgroup, netclassid: periodically release file_lock
-on classid") added a second cond_resched to write_classid indirectly by
-update_classid_task. Remove the one in write_classid.
+Commit dcde237319e6 ("mm: Avoid creating virtual address aliases in
+brk()/mmap()/mremap()") changed mremap() so that only the 'old' address
+is untagged, leaving the 'new' address in the form it was passed from
+userspace. This prevents the unexpected creation of aliasing virtual
+mappings in userspace, but looks a bit odd when you read the code.
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Dmitry Yakunin <zeil@yandex-team.ru>
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Add a comment justifying the untagging behaviour in mremap().
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/netclassid_cgroup.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ mm/mremap.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/net/core/netclassid_cgroup.c
-+++ b/net/core/netclassid_cgroup.c
-@@ -127,10 +127,8 @@ static int write_classid(struct cgroup_s
- 	cs->classid = (u32)value;
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -606,6 +606,16 @@ SYSCALL_DEFINE5(mremap, unsigned long, a
+ 	LIST_HEAD(uf_unmap_early);
+ 	LIST_HEAD(uf_unmap);
  
- 	css_task_iter_start(css, 0, &it);
--	while ((p = css_task_iter_next(&it))) {
-+	while ((p = css_task_iter_next(&it)))
- 		update_classid_task(p, cs->classid);
--		cond_resched();
--	}
- 	css_task_iter_end(&it);
++	/*
++	 * There is a deliberate asymmetry here: we strip the pointer tag
++	 * from the old address but leave the new address alone. This is
++	 * for consistency with mmap(), where we prevent the creation of
++	 * aliasing mappings in userspace by leaving the tag bits of the
++	 * mapping address intact. A non-zero tag will cause the subsequent
++	 * range checks to reject the address as invalid.
++	 *
++	 * See Documentation/arm64/tagged-address-abi.rst for more information.
++	 */
+ 	addr = untagged_addr(addr);
  
- 	return 0;
+ 	if (flags & ~(MREMAP_FIXED | MREMAP_MAYMOVE))
 
 
