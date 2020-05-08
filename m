@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEFE61CAC0E
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:49:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9ABC1CAD42
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728817AbgEHMtj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:49:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55584 "EHLO mail.kernel.org"
+        id S1727828AbgEHNAE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:00:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728871AbgEHMti (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:49:38 -0400
+        id S1729977AbgEHMwh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:52:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA8CC218AC;
-        Fri,  8 May 2020 12:49:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7409A24958;
+        Fri,  8 May 2020 12:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942178;
-        bh=brmIHDI2OIjf6X5qfGk9j3hdw4WiFOYPiZME2ivsH5w=;
+        s=default; t=1588942356;
+        bh=nsssbZy682qJB1nLB7JZpO040fXKDc94Bx3ipos/8Ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=De0VOPdsOkJJ8RyoEmUZ2EcHiTaW6szwsMIlCH8GtlUbk1+8ugLYKGmasKKs7kylD
-         2D16ULh0EX9hG4EdJk+96kNvkEAsHRdTbB5jvxfBn0A7iU543LI/1JZUu9m0Bbqyxw
-         82lrCSQooNCvWIrKW40A7nkroVeAdOKWPTeenLYc=
+        b=qGqMxVwtOxYARGbNyhHy0Qnd8v1e6zkwZqBulCm90cAVTS1N6Iw7E5L8+Hq+2TDkp
+         7QOsHSMsz9BtSOp89mLDAvI8g5MGjd6c5JGvUpLen5wVGt2xc163DNFvZphKE1xLjC
+         UvCc0GolqdRuRDOsHxblx9P1oJBkFKpiMpBvThX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Jere=20Lepp=C3=A4nen?= <jere.leppanen@nokia.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 16/18] sctp: Fix SHUTDOWN CTSN Ack in the peer restart case
+        Matthias Blankertz <matthias.blankertz@cetitec.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/50] ASoC: rsnd: Fix HDMI channel mapping for multi-SSI mode
 Date:   Fri,  8 May 2020 14:35:19 +0200
-Message-Id: <20200508123034.158652178@linuxfoundation.org>
+Message-Id: <20200508123045.281825712@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
-References: <20200508123030.497793118@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jere Leppänen <jere.leppanen@nokia.com>
+From: Matthias Blankertz <matthias.blankertz@cetitec.com>
 
-commit 12dfd78e3a74825e6f0bc8df7ef9f938fbc6bfe3 upstream.
+[ Upstream commit b94e164759b82d0c1c80d4b1c8f12c9bee83f11d ]
 
-When starting shutdown in sctp_sf_do_dupcook_a(), get the value for
-SHUTDOWN Cumulative TSN Ack from the new association, which is
-reconstructed from the cookie, instead of the old association, which
-the peer doesn't have anymore.
+The HDMI?_SEL register maps up to four stereo SSI data lanes onto the
+sdata[0..3] inputs of the HDMI output block. The upper half of the
+register contains four blocks of 4 bits, with the most significant
+controlling the sdata3 line and the least significant the sdata0 line.
 
-Otherwise the SHUTDOWN is either ignored or replied to with an ABORT
-by the peer because CTSN Ack doesn't match the peer's Initial TSN.
+The shift calculation has an off-by-one error, causing the parent SSI to
+be mapped to sdata3, the first multi-SSI child to sdata0 and so forth.
+As the parent SSI transmits the stereo L/R channels, and the HDMI core
+expects it on the sdata0 line, this causes no audio to be output when
+playing stereo audio on a multichannel capable HDMI out, and
+multichannel audio has permutated channels.
 
-Fixes: bdf6fa52f01b ("sctp: handle association restarts when the socket is closed.")
-Signed-off-by: Jere Leppänen <jere.leppanen@nokia.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix the shift calculation to map the parent SSI to sdata0, the first
+child to sdata1 etc.
 
+Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/20200415141017.384017-3-matthias.blankertz@cetitec.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_make_chunk.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/soc/sh/rcar/ssiu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -856,7 +856,11 @@ struct sctp_chunk *sctp_make_shutdown(co
- 	sctp_shutdownhdr_t shut;
- 	__u32 ctsn;
+diff --git a/sound/soc/sh/rcar/ssiu.c b/sound/soc/sh/rcar/ssiu.c
+index f35d882118874..9c7c3e7539c93 100644
+--- a/sound/soc/sh/rcar/ssiu.c
++++ b/sound/soc/sh/rcar/ssiu.c
+@@ -221,7 +221,7 @@ static int rsnd_ssiu_init_gen2(struct rsnd_mod *mod,
+ 			i;
  
--	ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
-+	if (chunk && chunk->asoc)
-+		ctsn = sctp_tsnmap_get_ctsn(&chunk->asoc->peer.tsn_map);
-+	else
-+		ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
-+
- 	shut.cum_tsn_ack = htonl(ctsn);
- 
- 	retval = sctp_make_control(asoc, SCTP_CID_SHUTDOWN, 0,
+ 		for_each_rsnd_mod_array(i, pos, io, rsnd_ssi_array) {
+-			shift	= (i * 4) + 16;
++			shift	= (i * 4) + 20;
+ 			val	= (val & ~(0xF << shift)) |
+ 				rsnd_mod_id(pos) << shift;
+ 		}
+-- 
+2.20.1
+
 
 
