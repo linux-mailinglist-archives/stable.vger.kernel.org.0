@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D3B61CAD1D
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E96BB1CACA7
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729913AbgEHMvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:51:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60956 "EHLO mail.kernel.org"
+        id S1728842AbgEHMzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:55:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726751AbgEHMvp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:45 -0400
+        id S1730320AbgEHMzU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:55:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C857218AC;
-        Fri,  8 May 2020 12:51:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A677A24963;
+        Fri,  8 May 2020 12:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942304;
-        bh=KrhjgCPKMberTqvFLNzwp6iWdSbl/MN6j5trdSmwi/g=;
+        s=default; t=1588942520;
+        bh=nsssbZy682qJB1nLB7JZpO040fXKDc94Bx3ipos/8Ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=loxQJvIQHjgFe8nLvmvJznt0HZQ0JKLjoyliH9/6Ky3Gkj3teel4+PEL2xbZrMehV
-         MSWVZEjELljbFg1v6abIcX4zPKy4lJvL+jLEnPhAIPNAN2+XJF73sVUAlurzT+MjcT
-         QYHtSgcACFBgeCIz9YeMpAnNcUuL7ou7RCxnN7M4=
+        b=lGxQWn0yM1d1snw46SF2yx3gNJuoC8JfhANYsgHpq+7FKskY5wR3Z3QU+C9caEL29
+         cz2l/lPKFzekL3ZpYvvOi/55f2+599S/J6/Nu7OhwUdcd/9PUS96sDvzgQiiDmf8j2
+         AukuYEVx30cc4GtpCQcXXL10KGsk+2C2utxqfG5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
-        Tuowen Zhao <ztuowen@gmail.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org,
+        Matthias Blankertz <matthias.blankertz@cetitec.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/32] lib: devres: add a helper function for ioremap_uc
+Subject: [PATCH 5.6 20/49] ASoC: rsnd: Fix HDMI channel mapping for multi-SSI mode
 Date:   Fri,  8 May 2020 14:35:37 +0200
-Message-Id: <20200508123038.272499757@linuxfoundation.org>
+Message-Id: <20200508123045.833953087@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,82 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuowen Zhao <ztuowen@gmail.com>
+From: Matthias Blankertz <matthias.blankertz@cetitec.com>
 
-[ Upstream commit e537654b7039aacfe8ae629d49655c0e5692ad44 ]
+[ Upstream commit b94e164759b82d0c1c80d4b1c8f12c9bee83f11d ]
 
-Implement a resource managed strongly uncachable ioremap function.
+The HDMI?_SEL register maps up to four stereo SSI data lanes onto the
+sdata[0..3] inputs of the HDMI output block. The upper half of the
+register contains four blocks of 4 bits, with the most significant
+controlling the sdata3 line and the least significant the sdata0 line.
 
-Cc: <stable@vger.kernel.org> # v4.19+
-Tested-by: AceLan Kao <acelan.kao@canonical.com>
-Signed-off-by: Tuowen Zhao <ztuowen@gmail.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+The shift calculation has an off-by-one error, causing the parent SSI to
+be mapped to sdata3, the first multi-SSI child to sdata0 and so forth.
+As the parent SSI transmits the stereo L/R channels, and the HDMI core
+expects it on the sdata0 line, this causes no audio to be output when
+playing stereo audio on a multichannel capable HDMI out, and
+multichannel audio has permutated channels.
+
+Fix the shift calculation to map the parent SSI to sdata0, the first
+child to sdata1 etc.
+
+Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/20200415141017.384017-3-matthias.blankertz@cetitec.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/io.h |  2 ++
- lib/devres.c       | 19 +++++++++++++++++++
- 2 files changed, 21 insertions(+)
+ sound/soc/sh/rcar/ssiu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/io.h b/include/linux/io.h
-index 32e30e8fb9db9..da39ff89df651 100644
---- a/include/linux/io.h
-+++ b/include/linux/io.h
-@@ -75,6 +75,8 @@ static inline void devm_ioport_unmap(struct device *dev, void __iomem *addr)
+diff --git a/sound/soc/sh/rcar/ssiu.c b/sound/soc/sh/rcar/ssiu.c
+index f35d882118874..9c7c3e7539c93 100644
+--- a/sound/soc/sh/rcar/ssiu.c
++++ b/sound/soc/sh/rcar/ssiu.c
+@@ -221,7 +221,7 @@ static int rsnd_ssiu_init_gen2(struct rsnd_mod *mod,
+ 			i;
  
- void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
- 			   resource_size_t size);
-+void __iomem *devm_ioremap_uc(struct device *dev, resource_size_t offset,
-+				   resource_size_t size);
- void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
- 				   resource_size_t size);
- void __iomem *devm_ioremap_wc(struct device *dev, resource_size_t offset,
-diff --git a/lib/devres.c b/lib/devres.c
-index aa0f5308ac6be..75ea32d9b661b 100644
---- a/lib/devres.c
-+++ b/lib/devres.c
-@@ -9,6 +9,7 @@
- enum devm_ioremap_type {
- 	DEVM_IOREMAP = 0,
- 	DEVM_IOREMAP_NC,
-+	DEVM_IOREMAP_UC,
- 	DEVM_IOREMAP_WC,
- };
- 
-@@ -39,6 +40,9 @@ static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
- 	case DEVM_IOREMAP_NC:
- 		addr = ioremap_nocache(offset, size);
- 		break;
-+	case DEVM_IOREMAP_UC:
-+		addr = ioremap_uc(offset, size);
-+		break;
- 	case DEVM_IOREMAP_WC:
- 		addr = ioremap_wc(offset, size);
- 		break;
-@@ -68,6 +72,21 @@ void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
- }
- EXPORT_SYMBOL(devm_ioremap);
- 
-+/**
-+ * devm_ioremap_uc - Managed ioremap_uc()
-+ * @dev: Generic device to remap IO address for
-+ * @offset: Resource address to map
-+ * @size: Size of map
-+ *
-+ * Managed ioremap_uc().  Map is automatically unmapped on driver detach.
-+ */
-+void __iomem *devm_ioremap_uc(struct device *dev, resource_size_t offset,
-+			      resource_size_t size)
-+{
-+	return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_UC);
-+}
-+EXPORT_SYMBOL_GPL(devm_ioremap_uc);
-+
- /**
-  * devm_ioremap_nocache - Managed ioremap_nocache()
-  * @dev: Generic device to remap IO address for
+ 		for_each_rsnd_mod_array(i, pos, io, rsnd_ssi_array) {
+-			shift	= (i * 4) + 16;
++			shift	= (i * 4) + 20;
+ 			val	= (val & ~(0xF << shift)) |
+ 				rsnd_mod_id(pos) << shift;
+ 		}
 -- 
 2.20.1
 
