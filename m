@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8292C1CB973
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 23:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A79021CB98A
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 23:10:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbgEHVHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 17:07:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53784 "EHLO
+        id S1727841AbgEHVKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 17:10:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726811AbgEHVHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 17:07:22 -0400
+        with ESMTP id S1726913AbgEHVKn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 17:10:43 -0400
 Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B748CC061A0C;
-        Fri,  8 May 2020 14:07:22 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id y6so4852917pjc.4;
-        Fri, 08 May 2020 14:07:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D4F1C061A0C;
+        Fri,  8 May 2020 14:10:43 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id a5so4858832pjh.2;
+        Fri, 08 May 2020 14:10:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=ELrMJhIhro9y5oLWHFOyZXgEdVIzhb+CSHsd3m1dBJs=;
-        b=J3JUNxB5mUxZQ0FqlKZt/1Y2bW/szMkeyqE2sOKnXt8xgnJKIUaa3+lUeCvpbwPaFa
-         mij9aisyvWLaOfRPkOIj0TBPMuV62jlUY7WBHgvAQtuQE7W25AwJkOW2NiGW5xVu33Pd
-         h9pocR8sheac0r0KbYjRhpnrUqvvqFT4BQPqdecme5lSYRX2/eP29YHoFpBCpCioMDDG
-         bFgiZiyJEP4EgC529/jjFixJQivo/5/1aLYzSh/15pZzat3+jTzXYOBljt4oU3dzZhar
-         swHEwZqCx6R10sp5WFK9lVi73mjb5X1HC5OfMBkqka0L9COmqKASu/8lKZM2zQ4lon+1
-         WZhw==
+        bh=i526L9szJtNPgWaUy9PbrhKFBUtftq3gPNzk/WhdMPo=;
+        b=tRjxfmZXEgKltxumbRotfh9GzHfRCeEX0E3N7b2gja1iPMloLceUG3a7eyh+DbHpQH
+         Cb8wfigBPgh0vvycE26hdVEgiGMBjI1UT9gIODTW5+FLq04oMzLGnnqLqYjfDUAHcJBX
+         7JoX3VG+0fnr07zd2oOVBQ0EIzH8JfKUExMilGm9BHU7cLvCYk/6TiXrH6ztjC6tdcEC
+         /XcwpTx5i00n6KBKb95Kkjgm1962UKw/jJHXB43Ol7rlfaa0u3X+I0MBGuMqfS83lRX5
+         DzhRlw4oSsS5AEoUneVtroy4DQCXTTJ70jdMT7DEdsZAxqVdenvhumKlq0xfVIH59gn5
+         VEvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=ELrMJhIhro9y5oLWHFOyZXgEdVIzhb+CSHsd3m1dBJs=;
-        b=E/jPAYgPuPbnlP6mX9zliSBwlSOn+j3ClgwGH5KJwdyjUKfDiB5aS1VqjYWphkeJcV
-         MjuwDvUAe1jF0NMPHMz3Lx0Ty+MIE3PLay72bvpsZHu8CwEUX9G2/tDoFHUZqZc/KMRl
-         Uw8pFUmY5A+d/ERpQgt8mQKaM5N6tEG4bd+85gGZsf4p2ARlN7PsgYajHpwdex5a9zBq
-         2VzATXIVkUuPCmSI9bAviIm5v6J1K/IyamGcUadi0RzllGpnqxdJ83q3vzFxPzs5Brpl
-         b9yl/zmZGlXHOpuv0mpvlzX/sJHoqJAWlSLTLsb9IYcqXMoaN9tBk5xYzAhigEJx8zye
-         6hdw==
-X-Gm-Message-State: AGi0PuYsId9lNMXHeKDtgr8+//ql6soDb8vMNNmMm7OdGS/3oEY6YHVT
-        xQiXJhbQdPs/cnyM/dgZ6yDyC3FQ
-X-Google-Smtp-Source: APiQypJpKNU71cvRpDuiVQeZMSCWbfcZwYp9WT2RjZF9SDjdJfQ0cqsojo3raZkf1Rp+O1SJ/4hqCg==
-X-Received: by 2002:a17:902:207:: with SMTP id 7mr4076595plc.331.1588972042117;
-        Fri, 08 May 2020 14:07:22 -0700 (PDT)
+        bh=i526L9szJtNPgWaUy9PbrhKFBUtftq3gPNzk/WhdMPo=;
+        b=Xth0VR363CsDQmy7Fj2+9oN8Ms+w7DQZacb0uAixBD2/9ceSWW3f4ykTzol6SS/hm9
+         bk07tOF+P9iirHQqo6jvkjpEs7WYuxgupkwfbdrx0LHshEYXdWWZ4zbSLBlLjvpj38FC
+         nYpD+VgboO/o0DX0ncWMrNcnGppWihSt8ev7BoQnlPmHsEuJqC11F+MNDeO+ezFyRKBr
+         qG4xOQnprhbSE4dbHS+aYLkgIzGNSPkNmPPVqMUDv6ah4LWso5HlU5+4Ht9RAtUMbnAK
+         9Awv/UIqELezu4W3IDiEpL0Sqy/qCNieisE+epFqxoosduOf25ahstvAtiqKmw+4WLgD
+         L3fw==
+X-Gm-Message-State: AGi0PuaHH7GAPKWzfzOP8fmPMd1h9rt6aRgxLB9ZGAbdTNjbe/Aww1hE
+        tTOZG/svEevRoCRCMLrV610Rn8iR
+X-Google-Smtp-Source: APiQypIm7aSLJcYyNIRSPehvYhkHbHbDJkl6hl2E2HrMkL/hmeW+XR6+k+Sw0YHWQRvfO+bwEZImAw==
+X-Received: by 2002:a17:902:9a41:: with SMTP id x1mr4035748plv.4.1588972242723;
+        Fri, 08 May 2020 14:10:42 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y21sm2555107pfm.219.2020.05.08.14.07.21
+        by smtp.gmail.com with ESMTPSA id f26sm2692220pfn.183.2020.05.08.14.10.41
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 08 May 2020 14:07:21 -0700 (PDT)
-Subject: Re: [PATCH 5.6 00/49] 5.6.12-rc1 review
+        Fri, 08 May 2020 14:10:42 -0700 (PDT)
+Subject: Re: [PATCH 4.4 000/308] 4.4.223-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508142854.087405740@linuxfoundation.org>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -101,33 +101,48 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <5cc3be36-c198-1b49-bc69-3742a8acc1cd@roeck-us.net>
-Date:   Fri, 8 May 2020 14:07:20 -0700
+Message-ID: <ada628d9-fd10-acd4-94fe-cdcf1caf43fc@roeck-us.net>
+Date:   Fri, 8 May 2020 14:10:40 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508142854.087405740@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/8/20 5:35 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.6.12 release.
-> There are 49 patches in this series, all will be posted as a response
+On 5/8/20 7:32 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.223 release.
+> There are 308 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
-> Responses should be made by Sun, 10 May 2020 12:29:44 +0000.
+> Responses should be made by Sun, 10 May 2020 14:26:28 +0000.
 > Anything received after that time might be too late.
 > 
 
 Build results:
-	total: 155 pass: 155 fail: 0
+	total: 169 pass: 156 fail: 13
+Failed builds:
+	<all mips>
 Qemu test results:
-	total: 430 pass: 430 fail: 0
+	total: 332 pass: 272 fail: 60
+Failed tests:
+	arm:mcimx6ul-evk:imx_v6_v7_defconfig:nodrm:mem256:imx6ul-14x14-evk:initrd
+	arm:mcimx6ul-evk:imx_v6_v7_defconfig:nodrm:sd:mem256:imx6ul-14x14-evk:rootfs
+	arm:mcimx6ul-evk:imx_v6_v7_defconfig:nodrm:usb1:mem256:imx6ul-14x14-evk:rootfs
+	<all mips>
+
+Bisecting the arm boot failure points to commit 9b86858f37d682 ("regulator:
+Try to resolve regulators supplies on registration"). Reverting this commit fixes
+the problem.
+
+The mips build failure is caused by commit d0e89dd815b712 ("MIPS: math-emu:
+Fix m{add,sub}.s shifts"). It removes the define of SPXSRSXn, but that define
+is still used in v4.4.y. Reverting the offending patch fixes the problem.
 
 Guenter
