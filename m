@@ -2,132 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 528001CA2A2
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 07:26:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5801CA3B6
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 08:21:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725681AbgEHF0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 01:26:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47738 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725812AbgEHF0g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 01:26:36 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF1FC05BD0B
-        for <stable@vger.kernel.org>; Thu,  7 May 2020 22:26:35 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id s11so358509vsq.13
-        for <stable@vger.kernel.org>; Thu, 07 May 2020 22:26:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jgXEH2RG1EUF/osFI6e00b26mIaF+BkthMPU4Amf75U=;
-        b=aQxYapeY3RhEj3QL+T0cTy4xQcneFUuBAt8xTEY2IXRwEOOVRYsKFr1vFpbknIr7TQ
-         Dt6Sg0Y7pSFJBAiB17pgomIr28oE2tVknu4W9Kv7SKPx0Su1+iO83SgeJib8yog72aod
-         CYvnQHz6m0I97taYXOmH/9t8sac2Mj9xpoRaiRC7Urd2KbpcB6xMFeq4JWglybksHYae
-         0suCF36vSePFEYyetLKwBK08CUFHmo/nPc8dhhqiCEotWsV4V70GtePv6YmEp6G/d/E0
-         hk2LE8bxRcbIcDeUCNSa0nnVBqLEDSenIS60AyrCG2rp0clckoQmFtpu/VhJKE7OD5HT
-         5wVg==
+        id S1727104AbgEHGV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 02:21:28 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:44702 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726815AbgEHGV1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 02:21:27 -0400
+Received: by mail-lj1-f193.google.com with SMTP id a21so433224ljj.11;
+        Thu, 07 May 2020 23:21:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jgXEH2RG1EUF/osFI6e00b26mIaF+BkthMPU4Amf75U=;
-        b=r2uRbGWd/s5R2h8tmHfeCOj47MLUL0kIa7jTpJPDmqI/c29qj24ejLVE7JYyKorSOj
-         o+a9dp33ShsnHXZ++9pakJ97I61mrkY4mospz4O8WS0HQtGg9p6yrYsaqy1aUTuDRpyD
-         wo1H0VzaiUpUacYgFPr8tMkDCJm6T0n/LgIXqIt7OWRZAti6OD1JTaepLY37v6I+KTnK
-         kTAsLDzbqPxIPrGocvWqZO6UVYSY7oNiUog0LPf6zT3+3NdObEy5BfFwz9qabNMpct52
-         ZqQvc0nfUeXpcHbN2pFlWckHa9JwZeKFnFBhlMlWnSkvPddqTGjsCUHBYyYnbQT6XMls
-         0cyA==
-X-Gm-Message-State: AGi0PuYGZtQkIg6MmDQZTJiL4mJhIL4Q9WKXqbygVdnOTpOD0eGXv0zV
-        91EW6R0xAbhG4RGrjI7dDDQhOAOU/f4Yba8GWORnkw==
-X-Google-Smtp-Source: APiQypIrnxR8E4rtJEWtj/6ZH8t5DZDcf7RygyXFGfVM1Io8rU8yL+5jnboGDWJNeT0QTfXFiWaC/4h8RJ4VKlAz4Go=
-X-Received: by 2002:a67:8b46:: with SMTP id n67mr567817vsd.35.1588915594812;
- Thu, 07 May 2020 22:26:34 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=l07sjg7wad11JybQiwBPplAsmA/VCV2GQr8sTEyBm88=;
+        b=C1Dt6HJA2i7OLmGNc9XeFfcM+njIJrh7SQ8MmMM0w10EYLGbB6nWl5tysAKbyh26NV
+         92Vr2fknGA27JOLMooDs/pi8KKnsaE4BJ8VLjEu3XWbuCgDKezm2PWVhZdNQT9VlF+Cr
+         e8xxoIPBQPiiPP32vzN0FV6FP2kMUjmQqt4kIXxuNJ/O1NMiyhRh68rZyxUfO85vMG3Y
+         7rEIjqd07d20ros4Bro7pnu6ce1GoDxeMYDUhLG8n1abhqKhxiK7h5EjO6DMHHYBcjqO
+         30Xp79qHVkpd6OIfZkp6oq6yP9TVUTqReasmmj5XZdnhXF6HGP8tdN1ONSzr+RMd1Gqe
+         uGtA==
+X-Gm-Message-State: AOAM532LnT/OWxDGsCuWXIkKI6J1NQMvV5HRcU++9B/lN68BdQtQcidF
+        /aD/BQBnht/6sdswbsr4/9I=
+X-Google-Smtp-Source: ABdhPJzQwccjomPZVXTofZDq7QNMtMm+acyePCPBUNykc5Wt6G9pf/ArU7L/ehrFMv9M6FmHt7FVvw==
+X-Received: by 2002:a05:651c:549:: with SMTP id q9mr624525ljp.236.1588918884533;
+        Thu, 07 May 2020 23:21:24 -0700 (PDT)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id z64sm428692lfa.50.2020.05.07.23.21.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 May 2020 23:21:23 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@kernel.org>)
+        id 1jWwNr-0001TQ-0H; Fri, 08 May 2020 08:21:19 +0200
+Date:   Fri, 8 May 2020 08:21:19 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Johan Hovold <johan@kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Fugang Duan <fugang.duan@nxp.com>,
+        Pantelis Antoniou <pantelis.antoniou@gmail.com>,
+        Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Lars Persson <lars.persson@axis.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>, Netdev <netdev@vger.kernel.org>,
+        nios2-dev@lists.rocketboards.org,
+        open list <linux-kernel@vger.kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-mediatek@lists.infradead.org,
+        linux-renesas-soc@vger.kernel.org, linux-omap@vger.kernel.org,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, lkft-triage@lists.linaro.org
+Subject: Re: [PATCH net 11/16] net: ethernet: marvell: mvneta: fix fixed-link
+ phydev leaks
+Message-ID: <20200508062119.GE25962@localhost>
+References: <1480357509-28074-1-git-send-email-johan@kernel.org>
+ <1480357509-28074-12-git-send-email-johan@kernel.org>
+ <CA+G9fYvBjUVkVhtRHVm6xXcKe2+tZN4rGdB9FzmpcfpaLhY1+g@mail.gmail.com>
+ <20200507064412.GL2042@localhost>
+ <20200507064734.GA798308@kroah.com>
+ <20200507111312.GA1497799@kroah.com>
+ <CA+G9fYu2SrkEHyAzF57xJz5WjgHv361qdL2wPqON_pGS4Vtxmw@mail.gmail.com>
 MIME-Version: 1.0
-References: <1588775643-18037-1-git-send-email-vbadigan@codeaurora.org>
- <1588775643-18037-3-git-send-email-vbadigan@codeaurora.org>
- <b4a01f2c-479a-2a23-58b7-64f16cbc17a2@intel.com> <66747f4c-e61f-509f-a3cc-7e3499a844e4@intel.com>
-In-Reply-To: <66747f4c-e61f-509f-a3cc-7e3499a844e4@intel.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Fri, 8 May 2020 07:25:58 +0200
-Message-ID: <CAPDyKFo10JFbe7ZFnRBE2e55eGs-odAWYxU+Ep0S74003aLGpg@mail.gmail.com>
-Subject: Re: [PATCH] mmc: block: Fix request completion in the CQE timeout path
-To:     Adrian Hunter <adrian.hunter@intel.com>
-Cc:     Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
-        Sahitya Tummala <stummala@codeaurora.org>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        Sarthak Garg <sartgarg@codeaurora.org>,
-        "# 4.0+" <stable@vger.kernel.org>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Christoph Hellwig <hch@lst.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYu2SrkEHyAzF57xJz5WjgHv361qdL2wPqON_pGS4Vtxmw@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 7 May 2020 at 16:06, Adrian Hunter <adrian.hunter@intel.com> wrote:
->
-> First, it should be noted that the CQE timeout (60 seconds) is substantial
-> so a CQE request that times out is really stuck, and the race between
-> timeout and completion is extremely unlikely. Nevertheless this patch
-> fixes an issue with it.
->
-> Commit ad73d6feadbd7b ("mmc: complete requests from ->timeout")
-> preserved the existing functionality, to complete the request.
-> However that had only been necessary because the block layer
-> timeout handler had been marking the request to prevent it from being
-> completed normally. That restriction was removed at the same time, the
-> result being that a request that has gone will have been completed anyway.
-> That is, the completion in the timeout handler became unnecessary.
->
-> At the time, the unnecessary completion was harmless because the block
-> layer would ignore it, although that changed in kernel v5.0.
->
-> Note for stable, this patch will not apply cleanly without patch "mmc:
-> core: Fix recursive locking issue in CQE recovery path"
->
-> Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-> Fixes: ad73d6feadbd7b ("mmc: complete requests from ->timeout")
-> Cc: stable@vger.kernel.org
-> ---
->
->
-> This is the patch I alluded to when replying to "mmc: core: Fix recursive
-> locking issue in CQE recovery path"
+On Fri, May 08, 2020 at 03:35:02AM +0530, Naresh Kamboju wrote:
+> On Thu, 7 May 2020 at 16:43, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> <trim>
+> > > >
+> > > > Greg, 3f65047c853a ("of_mdio: add helper to deregister fixed-link
+> > > > PHYs") needs to be backported as well for these.
+> > > >
+> > > > Original series can be found here:
+> > > >
+> > > >     https://lkml.kernel.org/r/1480357509-28074-1-git-send-email-johan@kernel.org
+> > >
+> > > Ah, thanks for that, I thought I dropped all of the ones that caused
+> > > build errors, but missed the above one.  I'll go take the whole series
+> > > instead.
+> >
+> > This should now all be fixed up, thanks.
+> 
+> While building kernel Image for arm architecture on stable-rc 4.4 branch
+> the following build error found.
+> 
+> of_mdio: add helper to deregister fixed-link PHYs
+> commit 3f65047c853a2a5abcd8ac1984af3452b5df4ada upstream.
+> 
+> Add helper to deregister fixed-link PHYs registered using
+> of_phy_register_fixed_link().
+> 
+> Convert the two drivers that care to deregister their fixed-link PHYs to
+> use the new helper, but note that most drivers currently fail to do so.
+> 
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> [only take helper function for 4.4.y - gregkh]
+> 
+>  # make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm
+> CROSS_COMPILE=arm-linux-gnueabihf- HOSTCC=gcc CC="sccache
+> arm-linux-gnueabihf-gcc" O=build zImage
+> 70 #
+> 71 ../drivers/of/of_mdio.c: In function ‘of_phy_deregister_fixed_link’:
+> 72 ../drivers/of/of_mdio.c:379:2: error: implicit declaration of
+> function ‘fixed_phy_unregister’; did you mean ‘fixed_phy_register’?
+> [-Werror=implicit-function-declaration]
+> 73  379 | fixed_phy_unregister(phydev);
+> 74  | ^~~~~~~~~~~~~~~~~~~~
+> 75  | fixed_phy_register
+> 76 ../drivers/of/of_mdio.c:381:22: error: ‘struct phy_device’ has no
+> member named ‘mdio’; did you mean ‘mdix’?
+> 77  381 | put_device(&phydev->mdio.dev); /* of_phy_find_device() */
+> 78  | ^~~~
+> 79  | mdix
 
-Looks like the patch got corrupted, I was trying to fix it, but just
-couldn't figure it out.
+Another dependency: 5bcbe0f35fb1 ("phy: fixed: Fix removal of phys.")
 
-Can you please re-format and do a repost?
+Greg, these patches are from four years ago so can't really remember if
+there are other dependencies or reasons against backporting them (the
+missing stable tags are per Dave's preference), sorry.
 
-Kind regards
-Uffe
+The cover letter also mentions another dependency, but that may just
+have been some context conflict.
 
->
->
->  drivers/mmc/core/queue.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
-> index 72bef39d7011..10ea67892b5f 100644
-> --- a/drivers/mmc/core/queue.c
-> +++ b/drivers/mmc/core/queue.c
-> @@ -110,8 +110,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct
-> request *req)
->                                 mmc_cqe_recovery_notifier(mrq);
->                         return BLK_EH_RESET_TIMER;
->                 }
-> -               /* No timeout (XXX: huh? comment doesn't make much sense) */
-> -               blk_mq_complete_request(req);
-> +               /* The request has gone already */
->                 return BLK_EH_DONE;
->         default:
->                 /* Timeout is handled by mmc core */
-> --
-> 2.17.1
->
+Perhaps you better drop these unless you want to review them closer.
+
+Johan
