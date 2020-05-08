@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC141CAD67
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D14731CAC2A
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727838AbgEHNBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:01:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32786 "EHLO mail.kernel.org"
+        id S1729599AbgEHMuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:50:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729928AbgEHMvr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:47 -0400
+        id S1729470AbgEHMun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:50:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB41724953;
-        Fri,  8 May 2020 12:51:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 615E9218AC;
+        Fri,  8 May 2020 12:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942307;
-        bh=G+XhWuodZsxbLJtlCk/40wVd2/t6S+dPVSqrfZJM3wY=;
+        s=default; t=1588942242;
+        bh=JhaoRj9jZk39lYShkuqJ2n3OdDYo4lbMd/G3DAoAJHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jd0x0rb3IySeW5YMtM5NP7ZhJQaHB5j9tT+NB/v17sJLdT4xPgD/Lx8o31lCCP4mU
-         FIERpiUXWQC+pWJGQh7UTuZxQe0cp1lgZ5rfHb9YlgKkJJWp6u2vfxvBaBNtrj7NL6
-         AIjdFzzh9+EuKEiWtHhy8k0O3QQIfrnSI/jnGeo0=
+        b=OLhIEXrppr0uv5U/uQ8MqMBwgImUFgs8YZxU3YRwme27W7GgC7MC7nMOW4aIE/nja
+         pEkiNhZD2mqG1WQhYJ0Ct+5UaWpCbnfQPEi9yByvZtiOrUHb1xTEK6NJpXFETUKgxO
+         8yfvhHsnTwO5ha7zBt3KCL6Hz+o8YdLkt2wK3F+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/32] ASoC: topology: Check return value of pcm_new_ver
+Subject: [PATCH 4.14 04/22] selftests/ipc: Fix test failure seen after initial test run
 Date:   Fri,  8 May 2020 14:35:16 +0200
-Message-Id: <20200508123035.259081294@linuxfoundation.org>
+Message-Id: <20200508123034.461070550@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
+References: <20200508123033.915895060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,38 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-[ Upstream commit b3677fc3d68dd942c92de52f0bd9dd8b472a40e6 ]
+[ Upstream commit b87080eab4c1377706c113fc9c0157f19ea8fed1 ]
 
-Function pcm_new_ver can fail, so we should check it's return value and
-handle possible error.
+After successfully running the IPC msgque test once, subsequent runs
+result in a test failure:
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200327204729.397-6-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  $ sudo ./run_kselftest.sh
+  TAP version 13
+  1..1
+  # selftests: ipc: msgque
+  # Failed to get stats for IPC queue with id 0
+  # Failed to dump queue: -22
+  # Bail out!
+  # # Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
+  not ok 1 selftests: ipc: msgque # exit=1
+
+The dump_queue() function loops through the possible message queue index
+values using calls to msgctl(kern_id, MSG_STAT, ...) where kern_id
+represents the index value. The first time the test is ran, the initial
+index value of 0 is valid and the test is able to complete. The index
+value of 0 is not valid in subsequent test runs and the loop attempts to
+try index values of 1, 2, 3, and so on until a valid index value is
+found that corresponds to the message queue created earlier in the test.
+
+The msgctl() syscall returns -1 and sets errno to EINVAL when invalid
+index values are used. The test failure is caused by incorrectly
+comparing errno to -EINVAL when cycling through possible index values.
+
+Fix invalid test failures on subsequent runs of the msgque test by
+correctly comparing errno values to a non-negated EINVAL.
+
+Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/testing/selftests/ipc/msgque.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index 756dd23031063..2c6598e07dde3 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -1923,7 +1923,9 @@ static int soc_tplg_pcm_elems_load(struct soc_tplg *tplg,
- 			_pcm = pcm;
- 		} else {
- 			abi_match = false;
--			pcm_new_ver(tplg, pcm, &_pcm);
-+			ret = pcm_new_ver(tplg, pcm, &_pcm);
-+			if (ret < 0)
-+				return ret;
- 		}
- 
- 		/* create the FE DAIs and DAI links */
+diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
+index c5587844fbb8c..ad723a5d0f831 100644
+--- a/tools/testing/selftests/ipc/msgque.c
++++ b/tools/testing/selftests/ipc/msgque.c
+@@ -137,7 +137,7 @@ int dump_queue(struct msgque_data *msgque)
+ 	for (kern_id = 0; kern_id < 256; kern_id++) {
+ 		ret = msgctl(kern_id, MSG_STAT, &ds);
+ 		if (ret < 0) {
+-			if (errno == -EINVAL)
++			if (errno == EINVAL)
+ 				continue;
+ 			printf("Failed to get stats for IPC queue with id %d\n",
+ 					kern_id);
 -- 
 2.20.1
 
