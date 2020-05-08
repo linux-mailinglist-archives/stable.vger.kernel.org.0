@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A4C11CAECB
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:16:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DB721CABE3
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729621AbgEHMsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:48:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51062 "EHLO mail.kernel.org"
+        id S1729615AbgEHMsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729602AbgEHMr5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:47:57 -0400
+        id S1729012AbgEHMr7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:47:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E73F6221F7;
-        Fri,  8 May 2020 12:47:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BF4D221F7;
+        Fri,  8 May 2020 12:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942076;
-        bh=1tUFM6fNGiDqtCHQbKjTGwJSyZBHktSvZBFVdBsQkYw=;
+        s=default; t=1588942078;
+        bh=S8DKXB9PEAxLvWBWOyJyiuxF/b8JR1221vT76XoCgLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kh3QMsNop0zc3b4+YFrYG23DvWZJYPryeCwxNG014yHzaywwV54y8GUExBJ3aUC2Z
-         8VbMomP0CJJXshX2aLEK0Lw1h1GzNBuxOOAT8ZtxNz1IWccDgL/pcfxf9HoJmHvPd7
-         KHv4BE35xfn78EiwtHtHICSMT0x0NUTggbh9WkkE=
+        b=U8ejE8RueF2C1NDwgCfUfTEiidQQ1IRTBPDLzhptWPwFOKaWTQx9E9L9lE7pCmcGm
+         uaLHphNHxtOZON9/ScqGvKCgOAZf1dXIxB5FloU32a24Z+V4C7oh37hQwFntcZqfHg
+         hNozkGtxgjudqZap+7wpSbTjEmmtsuUZsHpDmF5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Cyrille Pitchen <cyrille.pitchen@atmel.com>,
-        Nicolas Ferre <nicolas.ferre@atmel.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 288/312] net: macb: replace macb_writel() call by queue_writel() to update queue ISR
-Date:   Fri,  8 May 2020 14:34:39 +0200
-Message-Id: <20200508123144.643175909@linuxfoundation.org>
+Subject: [PATCH 4.4 289/312] ravb: Add missing free_irq() call to ravb_close()
+Date:   Fri,  8 May 2020 14:34:40 +0200
+Message-Id: <20200508123144.711327872@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,46 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit ba5049945421b8d2f3e2af786a15d13b82316503 upstream.
+commit 7fa816b92c52e2c304f2ff6401e0d51e1d229ca5 upstream.
 
-macb_interrupt() should not use macb_writel(bp, ISR, <value>) but only
-queue_writel(queue, ISR, <value>).
+When reopening the network device on ra7795/salvator-x, e.g. after a
+DHCP timeout:
 
-There is one IRQ and one set of {ISR, IER, IDR, IMR} [1] registers per
-queue on gem hardware, though only queue0 is actually used for now to
-receive frames: other queues can already be used to transmit frames.
+    IP-Config: Reopening network devices...
+    genirq: Flags mismatch irq 139. 00000000 (eth0:ch24:emac) vs. 00000000 (eth0:ch24:emac)
+    ravb e6800000.ethernet eth0: cannot request IRQ eth0:ch24:emac
+    IP-Config: Failed to open eth0
+    IP-Config: No network devices available
 
-The queue_readl() and queue_writel() helper macros are designed to access
-the relevant IRQ registers.
+The "mismatch" is due to requesting an IRQ that is already in use,
+while IRQF_PROBE_SHARED wasn't set.
 
-[1]
-ISR: Interrupt Status Register
-IER: Interrupt Enable Register
-IDR: Interrupt Disable Register
-IMR: Interrupt Mask Register
+However, the real cause is that ravb_close() doesn't release the R-Car
+Gen3-specific secondary IRQ.
 
-Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Fixes: bfbb92c44670 ("net: macb: Handle the RXUBR interrupt on all devices")
-Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+Add the missing free_irq() call to fix this.
+
+Fixes: 22d4df8ff3a3cc72 ("ravb: Add support for r8a7795 SoC")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/cadence/macb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/ravb_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/cadence/macb.c
-+++ b/drivers/net/ethernet/cadence/macb.c
-@@ -1104,7 +1104,7 @@ static irqreturn_t macb_interrupt(int ir
- 			macb_writel(bp, NCR, ctrl | MACB_BIT(RE));
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1528,6 +1528,8 @@ static int ravb_close(struct net_device
+ 		priv->phydev = NULL;
+ 	}
  
- 			if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
--				macb_writel(bp, ISR, MACB_BIT(RXUBR));
-+				queue_writel(queue, ISR, MACB_BIT(RXUBR));
- 		}
++	if (priv->chip_id == RCAR_GEN3)
++		free_irq(priv->emac_irq, ndev);
+ 	free_irq(ndev->irq, ndev);
  
- 		if (status & MACB_BIT(ISR_ROVR)) {
+ 	napi_disable(&priv->napi[RAVB_NC]);
 
 
