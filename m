@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D8D1CABEF
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 589C11CAECF
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728181AbgEHMsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:48:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52030 "EHLO mail.kernel.org"
+        id S1729057AbgEHMs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:48:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729664AbgEHMsW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:48:22 -0400
+        id S1729669AbgEHMsY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:48:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1B9421473;
-        Fri,  8 May 2020 12:48:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 581A12145D;
+        Fri,  8 May 2020 12:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942101;
-        bh=7fa/eJupouYkwqroFu6QkxFryOR+WnizWgdKI1tS3Nk=;
+        s=default; t=1588942103;
+        bh=AAeV4GeEnJgXtRjAjYtvSoUzsCDgz5TClALxpSv5FcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oIAm6c5l9bDFU4i+PCARmWjYmLUnifq6pGvJib1pXBe1veMa+37IQ2woIIKoNfco
-         kEpaAnyzlul7CcsHyAwsW/sls4f/HfvMxMrk7HPsL0pmXs0FOBujZZgrVwemYKeRyq
-         C4mcKmZUdOay9mlk4O0I+SWbrCapb59q+hev7oYQ=
+        b=h7XHrxYHPan1z06SifvcN8Xeqm3JXxwyjOTOLO6i/iA12mPdpfelBNw71DmFVzsP/
+         ZfYOfIwwjp7wH+1a2PofBzyrevM+JBxF/Bch8Q0tf1Jck4/g2Rwp1PnO6sbUG26r5D
+         cGwlEbSt4cfIxd5zTTIW7WMPL6LfPPdR57+pwzic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 297/312] at803x: fix reset handling
-Date:   Fri,  8 May 2020 14:34:48 +0200
-Message-Id: <20200508123145.266175751@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH 4.4 298/312] regulator: Try to resolve regulators supplies on registration
+Date:   Fri,  8 May 2020 14:34:49 +0200
+Message-Id: <20200508123145.337797569@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -46,49 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
 
-commit d57019d1858a6f9b3ca05d76d793466ae428cfa3 upstream.
+commit 5e3ca2b349b1e2c80b060b51bbf2af37448fad85 upstream.
 
-The driver of course "knows" that the chip's reset signal is active low,
-so  it drives the GPIO to 0  to reset the PHY and to 1 otherwise; however
-all this will only work iff the GPIO  is  specified as active-high in the
-device tree!  I think both the driver and the device trees (if there are
-any -- I was unable to find them) need to be fixed in this case...
+Commit 6261b06de565 ("regulator: Defer lookup of supply to regulator_get")
+moved the regulator supplies lookup logic from the regulators registration
+to the regulators get time.
 
-Fixes: 13a56b449325 ("net: phy: at803x: Add support for hardware reset")
-Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Unfortunately, that changed the behavior of the regulator core since now a
+parent supply with a child regulator marked as always-on, won't be enabled
+unless a client driver attempts to get the child regulator during boot.
+
+This patch tries to resolve the parent supply for the already registered
+regulators each time that a new regulator is registered. So the regulators
+that have child regulators marked as always on will be enabled regardless
+if a driver gets the child regulator or not.
+
+That was the behavior before the mentioned commit, since parent supplies
+were looked up at regulator registration time instead of during child get.
+
+Since regulator_resolve_supply() checks for rdev->supply, most of the times
+it will be a no-op. Errors aren't checked to keep the possible out of order
+dependencies which was the motivation for the mentioned commit.
+
+Also, the supply being available will be enforced on regulator get anyways
+in case the resolve fails on regulators registration.
+
+Fixes: 6261b06de565 ("regulator: Defer lookup of supply to regulator_get")
+Suggested-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: <stable@vger.kernel.org> # 4.1+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/phy/at803x.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/regulator/core.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/net/phy/at803x.c
-+++ b/drivers/net/phy/at803x.c
-@@ -198,7 +198,7 @@ static int at803x_probe(struct phy_devic
- 	if (!priv)
- 		return -ENOMEM;
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -3822,6 +3822,11 @@ static void rdev_init_debugfs(struct reg
+ 			   &rdev->bypass_count);
+ }
  
--	gpiod_reset = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
-+	gpiod_reset = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LOW);
- 	if (IS_ERR(gpiod_reset))
- 		return PTR_ERR(gpiod_reset);
++static int regulator_register_resolve_supply(struct device *dev, void *data)
++{
++	return regulator_resolve_supply(dev_to_rdev(dev));
++}
++
+ /**
+  * regulator_register - register regulator
+  * @regulator_desc: regulator to register
+@@ -3968,6 +3973,10 @@ regulator_register(const struct regulato
+ 	}
  
-@@ -274,10 +274,10 @@ static void at803x_link_change_notify(st
- 
- 				at803x_context_save(phydev, &context);
- 
--				gpiod_set_value(priv->gpiod_reset, 0);
--				msleep(1);
- 				gpiod_set_value(priv->gpiod_reset, 1);
- 				msleep(1);
-+				gpiod_set_value(priv->gpiod_reset, 0);
-+				msleep(1);
- 
- 				at803x_context_restore(phydev, &context);
- 
+ 	rdev_init_debugfs(rdev);
++
++	/* try to resolve regulators supply since a new one was registered */
++	class_for_each_device(&regulator_class, NULL, NULL,
++			      regulator_register_resolve_supply);
+ out:
+ 	mutex_unlock(&regulator_list_mutex);
+ 	kfree(config);
 
 
