@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D9C1CAF88
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C1F1CAFC4
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728789AbgEHMlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:41:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35668 "EHLO mail.kernel.org"
+        id S1728812AbgEHNUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:20:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728188AbgEHMlK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:41:10 -0400
+        id S1728790AbgEHMlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:41:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC5B920731;
-        Fri,  8 May 2020 12:41:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56F4F21835;
+        Fri,  8 May 2020 12:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941670;
-        bh=kV98EsgCCVwfYGIGyknDDHj3jNejnuhthv1D6favVD4=;
+        s=default; t=1588941672;
+        bh=dtMqCeN0jf3ytObDrTDdY1U5ezSq4z//xU03AYErxMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+MZ0h6djnhrTDoT3EUln2aqdT45GDWCuJtXLkJJUL8S3Kvzjy2xXB2U4uA6Fpsk+
-         RoerjEZa1cuvWqdwDXPF2wdERf04CenRQI8IVPkC86Js5bSvtR7rc1csYjGOTeQYSx
-         tHF0CIvqqQfTuc4DTQuFF3+H1QbBw5FMRWLBMNuE=
+        b=asiy5aWeLzFW2DH09WlycEOSGUdMYplGUzmQubzaMldp5/jzLUY3PWGQjQFX2iA40
+         OZuyd4Y9pyGIMVL6N3xENlPxkmCsshCGSQisPb8AaWTbrdaHQljfDLQXefP6WiHCKp
+         uzKgEtXqMucz1Z9t13qCNPz/Cq3RUO6QO0meXSN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilan Tayari <ilant@mellanox.com>,
-        Rami Rosen <roszenrami@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.4 125/312] xfrm: Fix memory leak of aead algorithm name
-Date:   Fri,  8 May 2020 14:31:56 +0200
-Message-Id: <20200508123133.269293616@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.4 126/312] mac80211: fix mgmt-tx abort cookie and leak
+Date:   Fri,  8 May 2020 14:31:57 +0200
+Message-Id: <20200508123133.362186114@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,38 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilan Tayari <ilant@mellanox.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit b588479358ce26f32138e0f0a7ab0678f8e3e601 upstream.
+commit e673a65952b4ab045a3e3eb200fdf408004fb4fd upstream.
 
-commit 1a6509d99122 ("[IPSEC]: Add support for combined mode algorithms")
-introduced aead. The function attach_aead kmemdup()s the algorithm
-name during xfrm_state_construct().
-However this memory is never freed.
-Implementation has since been slightly modified in
-commit ee5c23176fcc ("xfrm: Clone states properly on migration")
-without resolving this leak.
-This patch adds a kfree() call for the aead algorithm name.
+If a mgmt-tx operation is aborted before it runs, the wrong
+cookie is reported back to userspace, and the ack_skb gets
+leaked since the frame is freed directly instead of freeing
+it using ieee80211_free_txskb(). Fix that.
 
-Fixes: 1a6509d99122 ("[IPSEC]: Add support for combined mode algorithms")
-Signed-off-by: Ilan Tayari <ilant@mellanox.com>
-Acked-by: Rami Rosen <roszenrami@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 3b79af973cf4 ("mac80211: stop using pointers as userspace cookies")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/xfrm/xfrm_state.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/mac80211/offchannel.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -332,6 +332,7 @@ static void xfrm_state_gc_destroy(struct
- {
- 	tasklet_hrtimer_cancel(&x->mtimer);
- 	del_timer_sync(&x->rtimer);
-+	kfree(x->aead);
- 	kfree(x->aalg);
- 	kfree(x->ealg);
- 	kfree(x->calg);
+--- a/net/mac80211/offchannel.c
++++ b/net/mac80211/offchannel.c
+@@ -308,11 +308,10 @@ void ieee80211_roc_notify_destroy(struct
+ 
+ 	/* was never transmitted */
+ 	if (roc->frame) {
+-		cfg80211_mgmt_tx_status(&roc->sdata->wdev,
+-					(unsigned long)roc->frame,
++		cfg80211_mgmt_tx_status(&roc->sdata->wdev, roc->mgmt_tx_cookie,
+ 					roc->frame->data, roc->frame->len,
+ 					false, GFP_KERNEL);
+-		kfree_skb(roc->frame);
++		ieee80211_free_txskb(&roc->sdata->local->hw, roc->frame);
+ 	}
+ 
+ 	if (!roc->mgmt_tx_cookie)
 
 
