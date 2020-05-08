@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 732AB1CAF52
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A159E1CAB87
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728038AbgEHMo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:44:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
+        id S1728566AbgEHMo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:44:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729192AbgEHMoZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:44:25 -0400
+        id S1727104AbgEHMo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:44:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8BDD208D6;
-        Fri,  8 May 2020 12:44:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57B152145D;
+        Fri,  8 May 2020 12:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941865;
-        bh=iu9kPeQefUOz9tbxzl85LDuwE2UENP8ezYaTmda1qaY=;
+        s=default; t=1588941867;
+        bh=ntFx9cisOC5WEGR9NgoQJkp5UtAujJ3Z17jpEpWqYz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TqAS4wrSVLrAyX9LgSSvR8VVrZbBeQk0WYpD0bT/mFO6VBdpjF+YAu03OVMGFfzk4
-         hAT3cF4r5nRL5QRFkUe1e1k6wBXLhxwqpWNp7lnqv6XxvjSUgZQWROAzSFaryM9EZr
-         uV7wSu7kmM7oOVnDYQbpZmo6ckISb47BHrOL94Vw=
+        b=hQKrmklLuJ3wHhF7BU8GQb99vahwrEgnEZ78m8cvQISomyobjrQnaSlclIa1W9xMF
+         btxQQLr+aqXO45ez21BORlEPqAdNdPDQApjn6GxlIpa5kgUFqYB5Xj7SFm5hmYGgb+
+         oChVCBO5MKW7whA+GGf9RCMUl39piB0EXnRDNxyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tero Kristo <t-kristo@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Stephen Boyd <sboyd@codeaurora.org>
-Subject: [PATCH 4.4 204/312] clk: ti: omap3+: dpll: use non-locking version of clk_get_rate
-Date:   Fri,  8 May 2020 14:33:15 +0200
-Message-Id: <20200508123138.772609902@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Michael Turquette <mturquette@baylibre.com>
+Subject: [PATCH 4.4 205/312] clk: multiplier: Prevent the multiplier from under / over flowing
+Date:   Fri,  8 May 2020 14:33:16 +0200
+Message-Id: <20200508123138.843408939@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,38 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
 
-commit a0d54c3899aaeb047969d9479263c6bcf385c331 upstream.
+commit 25f77a3aa4cb948666bf8e7fd972533ea487c3bd upstream.
 
-As the code in this file is being executed within irq context in some
-cases, we must avoid the clk_get_rate which uses mutex internally.
-Switch the code to use clk_hw_get_rate instead which is non-locking.
+In the current multiplier base clock implementation, if the
+CLK_SET_RATE_PARENT flag isn't set, the code will not make sure that the
+multiplier computed remains within the boundaries of our clock.
 
-This fixes an issue where PM runtime will hang the system if enabled
-with a serial console before a suspend-resume cycle.
+This means that if the clock we want to reach is below the parent rate,
+or if the multiplier is above the maximum that we can reach, we will end up
+with a completely bogus one that the clock cannot achieve.
 
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Fixes: a53ad8ef3dcc ("clk: ti: Convert to clk_hw based provider APIs")
-Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
+Fixes: f2e0a53271a4 ("clk: Add a basic multiplier clock")
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Signed-off-by: Michael Turquette <mturquette@baylibre.com>
+Link: lkml.kernel.org/r/1463402840-17062-3-git-send-email-maxime.ripard@free-electrons.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/ti/dpll3xxx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/clk-multiplier.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/clk/ti/dpll3xxx.c
-+++ b/drivers/clk/ti/dpll3xxx.c
-@@ -437,7 +437,8 @@ int omap3_noncore_dpll_enable(struct clk
+--- a/drivers/clk/clk-multiplier.c
++++ b/drivers/clk/clk-multiplier.c
+@@ -54,14 +54,28 @@ static unsigned long __bestmult(struct c
+ 				unsigned long *best_parent_rate,
+ 				u8 width, unsigned long flags)
+ {
++	struct clk_multiplier *mult = to_clk_multiplier(hw);
+ 	unsigned long orig_parent_rate = *best_parent_rate;
+ 	unsigned long parent_rate, current_rate, best_rate = ~0;
+ 	unsigned int i, bestmult = 0;
++	unsigned int maxmult = (1 << width) - 1;
  
- 	parent = clk_hw_get_parent(hw);
+-	if (!(clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT))
+-		return rate / *best_parent_rate;
++	if (!(clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT)) {
++		bestmult = rate / orig_parent_rate;
  
--	if (clk_hw_get_rate(hw) == clk_get_rate(dd->clk_bypass)) {
-+	if (clk_hw_get_rate(hw) ==
-+	    clk_hw_get_rate(__clk_get_hw(dd->clk_bypass))) {
- 		WARN_ON(parent != __clk_get_hw(dd->clk_bypass));
- 		r = _omap3_noncore_dpll_bypass(clk);
- 	} else {
+-	for (i = 1; i < ((1 << width) - 1); i++) {
++		/* Make sure we don't end up with a 0 multiplier */
++		if ((bestmult == 0) &&
++		    !(mult->flags & CLK_MULTIPLIER_ZERO_BYPASS))
++			bestmult = 1;
++
++		/* Make sure we don't overflow the multiplier */
++		if (bestmult > maxmult)
++			bestmult = maxmult;
++
++		return bestmult;
++	}
++
++	for (i = 1; i < maxmult; i++) {
+ 		if (rate == orig_parent_rate * i) {
+ 			/*
+ 			 * This is the best case for us if we have a
 
 
