@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D29BD1CAD44
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC981CAD9A
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728298AbgEHNAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:00:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33794 "EHLO mail.kernel.org"
+        id S1729749AbgEHMtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:49:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729946AbgEHMwe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:52:34 -0400
+        id S1729471AbgEHMtf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:49:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BC1E24953;
-        Fri,  8 May 2020 12:52:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BC0F21473;
+        Fri,  8 May 2020 12:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942354;
-        bh=8zk+QF+qhgskiuTgcQ5ftCBfM2M46oQfz0+/HdbgpwY=;
+        s=default; t=1588942175;
+        bh=xktOPO+lo9iGrhSYFcTcjnuNNkEKYIfj+EE6VDjCbb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUy6s3VctjlOmN73IZlV2wzYkggoY8ZIF3nk8g0sKMtOo4Y4IA7mARLF8bP6UgFvK
-         F51AUWrTtQZazDWH1mC9Usu0u7JDSfrPuSl68sITOedAYmRoEReOh6nmT+Al6RcklK
-         DNB2TyiDeDzZYpJZiq26i4tGjBZEo6MhKGWa3quY=
+        b=DqIhpqpAaGZ6UT/c0f12uddud0HPJVAxqDeeNHX50nckouRKCTWByy5XzIqAemhU8
+         MJAj50i1/WfB5cslXRNHYpNEJg7hsI9skKn+C/d9JVkQ8IpCcss7R6ypqHT1vGy9sE
+         Ahaa/iWp036LHF85CoutSg27olqXFbqh+Vh/Vn0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Matthias Blankertz <matthias.blankertz@cetitec.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/50] ASoC: rsnd: Fix parent SSI start/stop in multi-SSI mode
+        Marcin Nowakowski <marcin.nowakowski@imgtec.com>,
+        linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>
+Subject: [PATCH 4.9 15/18] MIPS: perf: Remove incorrect odd/even counter handling for I6400
 Date:   Fri,  8 May 2020 14:35:18 +0200
-Message-Id: <20200508123045.135492487@linuxfoundation.org>
+Message-Id: <20200508123033.980681215@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
+References: <20200508123030.497793118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Blankertz <matthias.blankertz@cetitec.com>
+From: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
 
-[ Upstream commit a09fb3f28a60ba3e928a1fa94b0456780800299d ]
+commit f7a31b5e7874f77464a4eae0a8ba84b9ae0b3a54 upstream.
 
-The parent SSI of a multi-SSI setup must be fully setup, started and
-stopped since it is also part of the playback/capture setup. So only
-skip the SSI (as per commit 203cdf51f288 ("ASoC: rsnd: SSI parent cares
-SWSP bit") and commit 597b046f0d99 ("ASoC: rsnd: control SSICR::EN
-correctly")) if the SSI is parent outside of a multi-SSI setup.
+All performance counters on I6400 (odd and even) are capable of counting
+any of the available events, so drop current logic of using the extra
+bit to determine which counter to use.
 
-Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20200415141017.384017-2-matthias.blankertz@cetitec.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
+Fixes: 4e88a8621301 ("MIPS: Add cases for CPU_I6400")
+Fixes: fd716fca10fc ("MIPS: perf: Fix I6400 event numbers")
+Cc: linux-mips@linux-mips.org
+Patchwork: https://patchwork.linux-mips.org/patch/15991/
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/sh/rcar/ssi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/mips/kernel/perf_event_mipsxx.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index fc5d089868dfc..d51fb3a394486 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -407,7 +407,7 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
- 	 * We shouldn't exchange SWSP after running.
- 	 * This means, parent needs to care it.
- 	 */
--	if (rsnd_ssi_is_parent(mod, io))
-+	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
- 		goto init_end;
- 
- 	if (rsnd_io_is_play(io))
-@@ -559,7 +559,7 @@ static int rsnd_ssi_start(struct rsnd_mod *mod,
- 	 * EN is for data output.
- 	 * SSI parent EN is not needed.
- 	 */
--	if (rsnd_ssi_is_parent(mod, io))
-+	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
- 		return 0;
- 
- 	ssi->cr_en = EN;
-@@ -582,7 +582,7 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
- 	if (!rsnd_ssi_is_run_mods(mod, io))
- 		return 0;
- 
--	if (rsnd_ssi_is_parent(mod, io))
-+	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
- 		return 0;
- 
- 	cr  =	ssi->cr_own	|
-@@ -620,7 +620,7 @@ static int rsnd_ssi_irq(struct rsnd_mod *mod,
- 	if (rsnd_is_gen1(priv))
- 		return 0;
- 
--	if (rsnd_ssi_is_parent(mod, io))
-+	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
- 		return 0;
- 
- 	if (!rsnd_ssi_is_run_mods(mod, io))
--- 
-2.20.1
-
+--- a/arch/mips/kernel/perf_event_mipsxx.c
++++ b/arch/mips/kernel/perf_event_mipsxx.c
+@@ -1605,7 +1605,6 @@ static const struct mips_perf_event *mip
+ 		break;
+ 	case CPU_P5600:
+ 	case CPU_P6600:
+-	case CPU_I6400:
+ 		/* 8-bit event numbers */
+ 		raw_id = config & 0x1ff;
+ 		base_id = raw_id & 0xff;
+@@ -1618,6 +1617,11 @@ static const struct mips_perf_event *mip
+ 		raw_event.range = P;
+ #endif
+ 		break;
++	case CPU_I6400:
++		/* 8-bit event numbers */
++		base_id = config & 0xff;
++		raw_event.cntr_mask = CNTR_EVEN | CNTR_ODD;
++		break;
+ 	case CPU_1004K:
+ 		if (IS_BOTH_COUNTERS_1004K_EVENT(base_id))
+ 			raw_event.cntr_mask = CNTR_EVEN | CNTR_ODD;
 
 
