@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A51581CADA6
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7911CAC92
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729476AbgEHNDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:03:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58358 "EHLO mail.kernel.org"
+        id S1730236AbgEHMyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:54:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729485AbgEHMu2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:50:28 -0400
+        id S1730234AbgEHMyl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:54:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7725924953;
-        Fri,  8 May 2020 12:50:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12E9C2496C;
+        Fri,  8 May 2020 12:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942227;
-        bh=ev1tv+6hnFkG0avYA73Iper+0UcLbZROgtinSu5hH04=;
+        s=default; t=1588942480;
+        bh=pNDq+qA0a6AeHHaZ1+wh57H8blS3M82LwnhCyrgPei8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUlqCudbTpi5vJWG4gLnwinkVT2Qzmqf68PuYXGay1AWqnH9INz1wcS8LEsF/AGiB
-         ux/3GPcZYS6wazEjYNGAwIdjzCdvliDsUyP/Zx5SQxiT0hNqTlPCCgesQqPectEOzG
-         wi++uH9ghX7PzLkh48WX9ga+NIKdTYNR6glbKCPw=
+        b=wbo9eTpkmuLe3xwhNkHxAFcgMjdFzyAvb8bDatgpfHjJDJMjMko3ICciMoD0EgVuZ
+         IE8Hh8Wvi4jyZHKKY7qRLeHWxLSWev/0+SnAp59OMxSHLhchsWFtalA7klA508BfgR
+         ZRraRogheHWdVIF1ByDvaChmlU3uFY91v/KT0FRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Nikita Sobolev <Nikita.Sobolev@synopsys.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/22] net: systemport: suppress warnings on failed Rx SKB allocations
+Subject: [PATCH 5.6 12/49] Revert "Kernel selftests: tpm2: check for tpm support"
 Date:   Fri,  8 May 2020 14:35:29 +0200
-Message-Id: <20200508123036.048157812@linuxfoundation.org>
+Message-Id: <20200508123044.748082043@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
-References: <20200508123033.915895060@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
-[ Upstream commit 3554e54a46125030c534820c297ed7f6c3907e24 ]
+[ Upstream commit aaa2d92efe1f972567f1691b423ab8dc606ab3a9 ]
 
-The driver is designed to drop Rx packets and reclaim the buffers
-when an allocation fails, and the network interface needs to safely
-handle this packet loss. Therefore, an allocation failure of Rx
-SKBs is relatively benign.
+This reverts commit b32694cd0724d4ceca2c62cc7c3d3a8d1ffa11fc.
 
-However, the output of the warning message occurs with a high
-scheduling priority that can cause excessive jitter/latency for
-other high priority processing.
+The original comment was neither reviewed nor tested. Thus, this the
+*only* possible action to take.
 
-This commit suppresses the warning messages to prevent scheduling
-problems while retaining the failure count in the statistics of
-the network interface.
-
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Nikita Sobolev <Nikita.Sobolev@synopsys.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/tpm2/test_smoke.sh | 13 ++-----------
+ tools/testing/selftests/tpm2/test_space.sh |  9 +--------
+ 2 files changed, 3 insertions(+), 19 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -645,7 +645,8 @@ static struct sk_buff *bcm_sysport_rx_re
- 	dma_addr_t mapping;
+diff --git a/tools/testing/selftests/tpm2/test_smoke.sh b/tools/testing/selftests/tpm2/test_smoke.sh
+index b630c7b5950a9..8155c2ea7ccbb 100755
+--- a/tools/testing/selftests/tpm2/test_smoke.sh
++++ b/tools/testing/selftests/tpm2/test_smoke.sh
+@@ -1,17 +1,8 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
+-self.flags = flags
  
- 	/* Allocate a new SKB for a new packet */
--	skb = netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH);
-+	skb = __netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH,
-+				 GFP_ATOMIC | __GFP_NOWARN);
- 	if (!skb) {
- 		priv->mib.alloc_rx_buff_failed++;
- 		netif_err(priv, rx_err, ndev, "SKB alloc failed\n");
+-# Kselftest framework requirement - SKIP code is 4.
+-ksft_skip=4
+-
+-
+-if [ -f /dev/tpm0 ] ; then
+-	python -m unittest -v tpm2_tests.SmokeTest
+-	python -m unittest -v tpm2_tests.AsyncTest
+-else
+-	exit $ksft_skip
+-fi
++python -m unittest -v tpm2_tests.SmokeTest
++python -m unittest -v tpm2_tests.AsyncTest
+ 
+ CLEAR_CMD=$(which tpm2_clear)
+ if [ -n $CLEAR_CMD ]; then
+diff --git a/tools/testing/selftests/tpm2/test_space.sh b/tools/testing/selftests/tpm2/test_space.sh
+index 180b469c53b47..a6f5e346635e5 100755
+--- a/tools/testing/selftests/tpm2/test_space.sh
++++ b/tools/testing/selftests/tpm2/test_space.sh
+@@ -1,11 +1,4 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
+ 
+-# Kselftest framework requirement - SKIP code is 4.
+-ksft_skip=4
+-
+-if [ -f /dev/tpmrm0 ] ; then
+-	python -m unittest -v tpm2_tests.SpaceTest
+-else
+-	exit $ksft_skip
+-fi
++python -m unittest -v tpm2_tests.SpaceTest
+-- 
+2.20.1
+
 
 
