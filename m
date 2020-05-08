@@ -2,169 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92C341CA652
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 10:42:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87B21CA690
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 10:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726598AbgEHImj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 04:42:39 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:31885 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727805AbgEHImi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 04:42:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588927356;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=HDqdz7vUW07g8cOkfmGPIO8ov0KvSWCkjJFS1FzKfW0=;
-        b=KgELIlqoT/Gzay5TM23oNfJiFXsV2VnmItnz92sU7H84Ih2kF35E25ynK+GPOAMtl/yHqI
-        +d6DD5nflh7JjjzrsT7iGzI7HRDPYElzhTusKOP7E4tWXMAra6qe0VL9c4VkSFDwWF2I87
-        H/m9/jOCpBcfgI3ufnvnEwAlGwjiIKU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-427-tly-VFRPOxOjTHrhhsV3FQ-1; Fri, 08 May 2020 04:42:32 -0400
-X-MC-Unique: tly-VFRPOxOjTHrhhsV3FQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 41EEE8018AB;
-        Fri,  8 May 2020 08:42:31 +0000 (UTC)
-Received: from t480s.redhat.com (ovpn-113-181.ams2.redhat.com [10.36.113.181])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0F93E5C1B0;
-        Fri,  8 May 2020 08:42:28 +0000 (UTC)
-From:   David Hildenbrand <david@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, linux-nvdimm@lists.01.org,
-        kexec@lists.infradead.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        David Hildenbrand <david@redhat.com>, stable@vger.kernel.org,
-        Dan Williams <dan.j.williams@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v4 1/4] device-dax: Don't leak kernel memory to user space after unloading kmem
-Date:   Fri,  8 May 2020 10:42:14 +0200
-Message-Id: <20200508084217.9160-2-david@redhat.com>
-In-Reply-To: <20200508084217.9160-1-david@redhat.com>
-References: <20200508084217.9160-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+        id S1726736AbgEHIvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 04:51:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51768 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726616AbgEHIvp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 04:51:45 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A37F5C05BD43
+        for <stable@vger.kernel.org>; Fri,  8 May 2020 01:51:44 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id u16so9715901wmc.5
+        for <stable@vger.kernel.org>; Fri, 08 May 2020 01:51:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=GTjfeLZr6qS9lCebo0Oi2u+gWYCLyvnmU1MVj1pW/Tc=;
+        b=dGxd/hii6j+GES6t/mDi2Arr/f8FWTzss8lXWYrY2wLyGjkKVy4kB4Cnln5gMKv2+u
+         jNuaDMYwDCRwAB9zaykC0CPyzC2Y7Yu5wQIJ2DxrYwytHuvfsIlkhM+JfTinuWevF7bL
+         lG7wsmfGcDHQfNjs9pwOzCXNsdiy3nwEk5UqI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=GTjfeLZr6qS9lCebo0Oi2u+gWYCLyvnmU1MVj1pW/Tc=;
+        b=ZK72qOmTqwJM2fdmNV43KxtnPDmIbS46OD3/qK7apPsztpxsABF8tKyZhTVCWgifl8
+         JIqO/l/y35Cw+iiBPiCPbywXa6bf8hd4gBRy4A+GwlbeW3FAbXyAfnZwuqnuhlQBgrt2
+         SDs1qmuwMeKDL+WcXKkMRVwYT91C43g5ihaUZbpPP7c0E5h31IYemt6nU1ycsy/Iw83X
+         TgM4iRjz9ap/qHizb8WkBw9oatzPTbSlbe+uo6DfYRoDSCfepAsupja0KrIHC7LALu1+
+         IOD+zbOjYpCWrhlcguS9eTxO8zz7DmmtPqxkmopr99y+zTYO15m9cTAFZavsTEAeSCTM
+         UWLw==
+X-Gm-Message-State: AGi0Pua0KMOMeYmBq4YwoaY16K9/LwBL6bGBFymcZdYqTBI4rpmqy3nO
+        MOsxrUEYjdbm1Cd4Vg/zqgkaCQ==
+X-Google-Smtp-Source: APiQypJweP82VQB3J7E+aqGejvIAep37uz3nqCleBy34hPBOzfiO/mJT1tufHfGKNAwidM1XGaJrsg==
+X-Received: by 2002:a1c:5402:: with SMTP id i2mr14350587wmb.2.1588927903277;
+        Fri, 08 May 2020 01:51:43 -0700 (PDT)
+Received: from it_dev_server1.dhcp.broadcom.net ([192.19.234.250])
+        by smtp.gmail.com with ESMTPSA id p8sm8048387wma.45.2020.05.08.01.51.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 May 2020 01:51:42 -0700 (PDT)
+From:   Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+To:     linux-scsi@vger.kernel.org
+Cc:     kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
+        kiran-kumar.kasturi@broadcom.com, sankar.patra@broadcom.com,
+        sasikumar.pc@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+        anand.lodnoor@broadcom.com,
+        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+        "# v5 . 6+" <stable@vger.kernel.org>
+Subject: [PATCH 3/5] megaraid_sas: Replace undefined MFI_BIG_ENDIAN macro with __BIG_ENDIAN_BITFIELD macro
+Date:   Fri,  8 May 2020 14:21:30 +0530
+Message-Id: <20200508085130.23339-1-chandrakanth.patil@broadcom.com>
+X-Mailer: git-send-email 2.9.5
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Assume we have kmem configured and loaded:
-  [root@localhost ~]# cat /proc/iomem
-  ...
-  140000000-33fffffff : Persistent Memory$
-    140000000-1481fffff : namespace0.0
-    150000000-33fffffff : dax0.0
-      150000000-33fffffff : System RAM
+MFI_BIG_ENDIAN macro used in drivers structure bitfield to check
+the CPU big endianness is undefined which would break the code on
+big endian machine. __BIG_ENDIAN_BITFIELD kernel macro should be
+used in places of MFI_BIG_ENDIAN macro.
 
-Assume we try to unload kmem. This force-unloading will work, even if
-memory cannot get removed from the system.
-  [root@localhost ~]# rmmod kmem
-  [   86.380228] removing memory fails, because memory [0x0000000150000000-0x0000000157ffffff] is onlined
-  ...
-  [   86.431225] kmem dax0.0: DAX region [mem 0x150000000-0x33fffffff] cannot be hotremoved until the next reboot
-
-Now, we can reconfigure the namespace:
-  [root@localhost ~]# ndctl create-namespace --force --reconfig=namespace0.0 --mode=devdax
-  [  131.409351] nd_pmem namespace0.0: could not reserve region [mem 0x140000000-0x33fffffff]dax
-  [  131.410147] nd_pmem: probe of namespace0.0 failed with error -16namespace0.0 --mode=devdax
-  ...
-
-This fails as expected due to the busy memory resource, and the memory
-cannot be used. However, the dax0.0 device is removed, and along its name.
-
-The name of the memory resource now points at freed memory (name of the
-device).
-  [root@localhost ~]# cat /proc/iomem
-  ...
-  140000000-33fffffff : Persistent Memory
-    140000000-1481fffff : namespace0.0
-    150000000-33fffffff : �_�^7_��/_��wR��WQ���^��� ...
-    150000000-33fffffff : System RAM
-
-We have to make sure to duplicate the string. While at it, remove the
-superfluous setting of the name and fixup a stale comment.
-
-Fixes: 9f960da72b25 ("device-dax: "Hotremove" persistent memory that is used like normal RAM")
-Cc: stable@vger.kernel.org # v5.3
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Fixes: a7faf81d7858 ("scsi: megaraid_sas: Set no_write_same only for Virtual Disk")
+Cc: <stable@vger.kernel.org> # v5.6+
+Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
 ---
- drivers/dax/kmem.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas.h        | 4 ++--
+ drivers/scsi/megaraid/megaraid_sas_fusion.h | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/dax/kmem.c b/drivers/dax/kmem.c
-index 3d0a7e702c94..1e678bdf5aed 100644
---- a/drivers/dax/kmem.c
-+++ b/drivers/dax/kmem.c
-@@ -22,6 +22,7 @@ int dev_dax_kmem_probe(struct device *dev)
- 	resource_size_t kmem_size;
- 	resource_size_t kmem_end;
- 	struct resource *new_res;
-+	const char *new_res_name;
- 	int numa_node;
- 	int rc;
+diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
+index 83d8c4c..9882736 100644
+--- a/drivers/scsi/megaraid/megaraid_sas.h
++++ b/drivers/scsi/megaraid/megaraid_sas.h
+@@ -511,7 +511,7 @@ union MR_PROGRESS {
+  */
+ struct MR_PD_PROGRESS {
+ 	struct {
+-#ifndef MFI_BIG_ENDIAN
++#ifndef __BIG_ENDIAN_BITFIELD
+ 		u32     rbld:1;
+ 		u32     patrol:1;
+ 		u32     clear:1;
+@@ -537,7 +537,7 @@ struct MR_PD_PROGRESS {
+ 	};
  
-@@ -48,11 +49,16 @@ int dev_dax_kmem_probe(struct device *dev)
- 	kmem_size &= ~(memory_block_size_bytes() - 1);
- 	kmem_end = kmem_start + kmem_size;
+ 	struct {
+-#ifndef MFI_BIG_ENDIAN
++#ifndef __BIG_ENDIAN_BITFIELD
+ 		u32     rbld:1;
+ 		u32     patrol:1;
+ 		u32     clear:1;
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.h b/drivers/scsi/megaraid/megaraid_sas_fusion.h
+index d57ecc7..30de4b0 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.h
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.h
+@@ -774,7 +774,7 @@ struct MR_SPAN_BLOCK_INFO {
+ struct MR_CPU_AFFINITY_MASK {
+ 	union {
+ 		struct {
+-#ifndef MFI_BIG_ENDIAN
++#ifndef __BIG_ENDIAN_BITFIELD
+ 		u8 hw_path:1;
+ 		u8 cpu0:1;
+ 		u8 cpu1:1;
+@@ -866,7 +866,7 @@ struct MR_LD_RAID {
+ 	__le16     seqNum;
  
--	/* Region is permanently reserved.  Hot-remove not yet implemented. */
--	new_res = request_mem_region(kmem_start, kmem_size, dev_name(dev));
-+	new_res_name = kstrdup(dev_name(dev), GFP_KERNEL);
-+	if (!new_res_name)
-+		return -ENOMEM;
-+
-+	/* Region is permanently reserved if hotremove fails. */
-+	new_res = request_mem_region(kmem_start, kmem_size, new_res_name);
- 	if (!new_res) {
- 		dev_warn(dev, "could not reserve region [%pa-%pa]\n",
- 			 &kmem_start, &kmem_end);
-+		kfree(new_res_name);
- 		return -EBUSY;
- 	}
- 
-@@ -63,12 +69,12 @@ int dev_dax_kmem_probe(struct device *dev)
- 	 * unknown to us that will break add_memory() below.
- 	 */
- 	new_res->flags = IORESOURCE_SYSTEM_RAM;
--	new_res->name = dev_name(dev);
- 
- 	rc = add_memory(numa_node, new_res->start, resource_size(new_res));
- 	if (rc) {
- 		release_resource(new_res);
- 		kfree(new_res);
-+		kfree(new_res_name);
- 		return rc;
- 	}
- 	dev_dax->dax_kmem_res = new_res;
-@@ -83,6 +89,7 @@ static int dev_dax_kmem_remove(struct device *dev)
- 	struct resource *res = dev_dax->dax_kmem_res;
- 	resource_size_t kmem_start = res->start;
- 	resource_size_t kmem_size = resource_size(res);
-+	const char *res_name = res->name;
- 	int rc;
- 
- 	/*
-@@ -102,6 +109,7 @@ static int dev_dax_kmem_remove(struct device *dev)
- 	/* Release and free dax resources */
- 	release_resource(res);
- 	kfree(res);
-+	kfree(res_name);
- 	dev_dax->dax_kmem_res = NULL;
- 
- 	return 0;
+ struct {
+-#ifndef MFI_BIG_ENDIAN
++#ifndef __BIG_ENDIAN_BITFIELD
+ 	u32 ldSyncRequired:1;
+ 	u32 regTypeReqOnReadIsValid:1;
+ 	u32 isEPD:1;
+@@ -889,7 +889,7 @@ struct {
+ 	/* 0x30 - 0x33, Logical block size for the LD */
+ 	u32 logical_block_length;
+ 	struct {
+-#ifndef MFI_BIG_ENDIAN
++#ifndef __BIG_ENDIAN_BITFIELD
+ 	/* 0x34, P_I_EXPONENT from READ CAPACITY 16 */
+ 	u32 ld_pi_exp:4;
+ 	/* 0x34, LOGICAL BLOCKS PER PHYSICAL
 -- 
-2.25.4
+2.9.5
 
