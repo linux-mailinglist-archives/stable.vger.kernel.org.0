@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 188941CAF96
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B781CAFA9
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728996AbgEHMmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:42:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40282 "EHLO mail.kernel.org"
+        id S1728271AbgEHNSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:18:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728283AbgEHMmv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:42:51 -0400
+        id S1727822AbgEHMmy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:42:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3D0820731;
-        Fri,  8 May 2020 12:42:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4094220731;
+        Fri,  8 May 2020 12:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941771;
-        bh=rqwiKhf2BLURmX6eRQeZLiO0HnJNekfAjN4i7IDcxOM=;
+        s=default; t=1588941773;
+        bh=XN68A37iu2jJCoQbeNfrAiAWU4zQaStLofsytveBz/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MSGHYXybSrPZQBtsJnXroI/HhWsdNvM/r6+v4VKMdBf1UjFQCXCJ/JvQMERJkTxj3
-         PsArE+5h5j9IbDcrKpVOYoB6ujRHRYudyQzHZ2XHwlb9nCtzEyP9w07SZxY1BV2wMq
-         Vzta2fLWC+I0L85S2f2+XV2DmU3OGZRLbCoUKdUc=
+        b=hPu2rK9ha+PHJ3MKvEnnttLGgmD1WkAgIqhwFtRS0vGbfWF/2OmFd6dc0s/AVoLkq
+         0dxgX1o9JJ0NokUMhGsOnS/o2PPLJqfCzPUnX2x2PIdoYpVSDHtHzO864cjzZLEF08
+         iR1mcrKlLYRzK0gz9YuNkfy8HsTQyZ107uWozTlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Jeremie Francois (on alpha)" <jeremie.francois@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 165/312] scripts/config: allow colons in option strings for sed
-Date:   Fri,  8 May 2020 14:32:36 +0200
-Message-Id: <20200508123136.055968322@linuxfoundation.org>
+Subject: [PATCH 4.4 166/312] lib/mpi: Fix building for powerpc with clang
+Date:   Fri,  8 May 2020 14:32:37 +0200
+Message-Id: <20200508123136.130140346@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,46 +46,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremie Francois (on alpha) <jeremie.francois@gmail.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit e461bc9f9ab105637b86065d24b0b83f182d477c ]
+[ Upstream commit 5990cdee689c6885b27c6d969a3d58b09002b0bc ]
 
-Sed broke on some strings as it used colon as a separator.
-I made it more robust by using \001, which is legit POSIX AFAIK.
+0day reports over and over on an powerpc randconfig with clang:
 
-E.g. ./config --set-str CONFIG_USBNET_DEVADDR "de:ad:be:ef:00:01"
-failed with: sed: -e expression #1, char 55: unknown option to `s'
+lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
+inline asm context requiring an l-value: remove the cast or build with
+-fheinous-gnu-extensions
 
-Signed-off-by: Jeremie Francois (on alpha) <jeremie.francois@gmail.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Remove the superfluous casts, which have been done previously for x86
+and arm32 in commit dea632cadd12 ("lib/mpi: fix build with clang") and
+commit 7b7c1df2883d ("lib/mpi/longlong.h: fix building with 32-bit
+x86").
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/991
+Link: https://lore.kernel.org/r/20200413195041.24064-1-natechancellor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/config | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ lib/mpi/longlong.h | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/scripts/config b/scripts/config
-index 026aeb4f32ee3..73de17d396987 100755
---- a/scripts/config
-+++ b/scripts/config
-@@ -6,6 +6,9 @@ myname=${0##*/}
- # If no prefix forced, use the default CONFIG_
- CONFIG_="${CONFIG_-CONFIG_}"
- 
-+# We use an uncommon delimiter for sed substitutions
-+SED_DELIM=$(echo -en "\001")
-+
- usage() {
- 	cat >&2 <<EOL
- Manipulate options in a .config file from the command line.
-@@ -82,7 +85,7 @@ txt_subst() {
- 	local infile="$3"
- 	local tmpfile="$infile.swp"
- 
--	sed -e "s:$before:$after:" "$infile" >"$tmpfile"
-+	sed -e "s$SED_DELIM$before$SED_DELIM$after$SED_DELIM" "$infile" >"$tmpfile"
- 	# replace original file with the edited one
- 	mv "$tmpfile" "$infile"
- }
+diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
+index d2ecf0a09180c..f1f31c754b3e6 100644
+--- a/lib/mpi/longlong.h
++++ b/lib/mpi/longlong.h
+@@ -756,22 +756,22 @@ do {									\
+ do { \
+ 	if (__builtin_constant_p(bh) && (bh) == 0) \
+ 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "%r" ((USItype)(ah)), \
+ 		"%r" ((USItype)(al)), \
+ 		"rI" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
+ 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "%r" ((USItype)(ah)), \
+ 		"%r" ((USItype)(al)), \
+ 		"rI" ((USItype)(bl))); \
+ 	else \
+ 		__asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "%r" ((USItype)(ah)), \
+ 		"r" ((USItype)(bh)), \
+ 		"%r" ((USItype)(al)), \
+@@ -781,36 +781,36 @@ do { \
+ do { \
+ 	if (__builtin_constant_p(ah) && (ah) == 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(bh)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(ah) && (ah) == ~(USItype) 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(bh)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(bh) && (bh) == 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(ah)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(ah)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else \
+ 		__asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(ah)), \
+ 		"r" ((USItype)(bh)), \
+ 		"rI" ((USItype)(al)), \
+@@ -821,7 +821,7 @@ do { \
+ do { \
+ 	USItype __m0 = (m0), __m1 = (m1); \
+ 	__asm__ ("mulhwu %0,%1,%2" \
+-	: "=r" ((USItype) ph) \
++	: "=r" (ph) \
+ 	: "%r" (__m0), \
+ 	"r" (__m1)); \
+ 	(pl) = __m0 * __m1; \
 -- 
 2.20.1
 
