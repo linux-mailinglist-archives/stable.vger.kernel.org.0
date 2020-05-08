@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02CFE1CACC8
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E06021CACE8
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729726AbgEHMz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:55:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39172 "EHLO mail.kernel.org"
+        id S1727889AbgEHM5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:57:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730381AbgEHMzz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:55:55 -0400
+        id S1728482AbgEHMz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:55:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DF5A24958;
-        Fri,  8 May 2020 12:55:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F21982054F;
+        Fri,  8 May 2020 12:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942555;
-        bh=AsdhOWSmGpAo9X9fraQLcchhnvazowDqGOabd/fCwm0=;
+        s=default; t=1588942557;
+        bh=os/rM898h0GWxPAxlsSRkIi4ZajVCplOuaeMIrU9njg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vX4N3/qp9nvLbFUHeZWEaP5/noagdYaJ4CRJ/W+FtbAaGYc5VLBaYxkQwxVoQd/R6
-         jp0SYxqFYrd6F23CcZV2AZUP2rnnX/rvVeLBoujEmkk9B3nFTDkzXpg91FtJyQa3cQ
-         Akzyi5h5DNRxYztdzyvfasZVx/X0LfQdv/w8NlmQ=
+        b=lLdVzcbHvuW6M8ZiLCVN+LCXLgDhopTvTGdC91ivUijIocNZa82LsmF1382jeZSfe
+         UmIzNPZosBCP8JEid+hhqRMUcUYJBwYqHI5okydvLSnzp9v0n4RoTlsf6FHxqqjh5p
+         1A2bP6I99B70fNJ3sw4yGaWxmi7Pz+sArD/a59x0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jere=20Lepp=C3=A4nen?= <jere.leppanen@nokia.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 41/49] sctp: Fix SHUTDOWN CTSN Ack in the peer restart case
-Date:   Fri,  8 May 2020 14:35:58 +0200
-Message-Id: <20200508123048.658039730@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.6 42/49] drm/amdgpu: Fix oops when pp_funcs is unset in ACPI event
+Date:   Fri,  8 May 2020 14:35:59 +0200
+Message-Id: <20200508123048.762117644@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
 References: <20200508123042.775047422@linuxfoundation.org>
@@ -45,42 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jere Leppänen <jere.leppanen@nokia.com>
+From: Aaron Ma <aaron.ma@canonical.com>
 
-commit 12dfd78e3a74825e6f0bc8df7ef9f938fbc6bfe3 upstream.
+commit 5932d260a8d85a103bd6c504fbb85ff58b156bf9 upstream.
 
-When starting shutdown in sctp_sf_do_dupcook_a(), get the value for
-SHUTDOWN Cumulative TSN Ack from the new association, which is
-reconstructed from the cookie, instead of the old association, which
-the peer doesn't have anymore.
+On ARCTURUS and RENOIR, powerplay is not supported yet.
+When plug in or unplug power jack, ACPI event will issue.
+Then kernel NULL pointer BUG will be triggered.
+Check for NULL pointers before calling.
 
-Otherwise the SHUTDOWN is either ignored or replied to with an ABORT
-by the peer because CTSN Ack doesn't match the peer's Initial TSN.
-
-Fixes: bdf6fa52f01b ("sctp: handle association restarts when the socket is closed.")
-Signed-off-by: Jere Leppänen <jere.leppanen@nokia.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sctp/sm_make_chunk.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -858,7 +858,11 @@ struct sctp_chunk *sctp_make_shutdown(co
- 	struct sctp_chunk *retval;
- 	__u32 ctsn;
- 
--	ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
-+	if (chunk && chunk->asoc)
-+		ctsn = sctp_tsnmap_get_ctsn(&chunk->asoc->peer.tsn_map);
-+	else
-+		ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
-+
- 	shut.cum_tsn_ack = htonl(ctsn);
- 
- 	retval = sctp_make_control(asoc, SCTP_CID_SHUTDOWN, 0,
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
+@@ -91,7 +91,8 @@ void amdgpu_pm_acpi_event_handler(struct
+ 			adev->pm.ac_power = true;
+ 		else
+ 			adev->pm.ac_power = false;
+-		if (adev->powerplay.pp_funcs->enable_bapm)
++		if (adev->powerplay.pp_funcs &&
++		    adev->powerplay.pp_funcs->enable_bapm)
+ 			amdgpu_dpm_enable_bapm(adev, adev->pm.ac_power);
+ 		mutex_unlock(&adev->pm.mutex);
+ 	}
 
 
