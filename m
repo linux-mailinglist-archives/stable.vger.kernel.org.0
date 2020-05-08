@@ -2,110 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2824C1CA025
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 03:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09F371CA049
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 03:47:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726712AbgEHBg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 21:36:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59044 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726575AbgEHBg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 21:36:28 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6ABE208DB;
-        Fri,  8 May 2020 01:36:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588901788;
-        bh=g0pEyyb/gsTGB3SkdWVyxw/OBrmAQIsbGx8qcRgJoGs=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=GdEwiPj24EfE5S72ehXb90qsiV5hL36FVgCDWdXZXwFjLGRB2huzo9vqYe9r+FUGl
-         7rwXl0Syquop2mR9IQe1RbYTOBWPd8amqQ02T3Zc1UBLkITNS1HZ9aco5WHxD97eQV
-         X0U6K08aVSEe4OBFGmi8SqmyLF3PeG+KN/KJYXOY=
-Date:   Thu, 07 May 2020 18:36:27 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, david@redhat.com,
-        henry.willard@oracle.com, linux-mm@kvack.org,
-        mgorman@techsingularity.net, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz
-Subject:  [patch 15/15] mm: limit boost_watermark on small zones
-Message-ID: <20200508013627.uDh87VOZJ%akpm@linux-foundation.org>
-In-Reply-To: <20200507183509.c5ef146c5aaeb118a25a39a8@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726518AbgEHBrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 21:47:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42056 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726514AbgEHBrt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 21:47:49 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411FDC05BD43
+        for <stable@vger.kernel.org>; Thu,  7 May 2020 18:47:49 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id y6so3510416pjc.4
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 18:47:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=f9eiMDw+TYT+YpY+WIf+wyHCcdJr+jALbf8pRs9wo94=;
+        b=ALo96trml03jRans8W1z9pGzbrEDgDqHsar9PVW4R9ptwxsp3Ejhh1nFeyi1xKQfHI
+         uRYYY300AT5z9eiRP64Tzt5i6e6FslcrJfbe0pFMXs6nY7RYE7h2em9rK6wd8Gj+Gj82
+         AXiPHSV65NzOwb1esK3cqIvxlC8Vnh0hN/n57EPgEsUMrXfc50shuJzHnwNEuq2hdIXu
+         js7ZeBi9WuijaRUVpU6Kwtu+28RK1OuLhRjceEkWDMMCYJRXmdSGdb0aDV9zLksMmeZB
+         zIFLZ2u6Nw9bvwWnahBsQtkyhJafTiv7nLp5zeQgjpcKPVnkHLE1VtibIJZmD/RdKAVp
+         tLbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=f9eiMDw+TYT+YpY+WIf+wyHCcdJr+jALbf8pRs9wo94=;
+        b=drSiPofZax++P0aJhAmlllpy2tfPtaFfHkNzkbeZk4MJndGEVo/D6klF1mBHpDC8Ni
+         eFdsR+bFnpbWzHkhh+1QQLvfxkN1wzdP8i9fnTaFl8Q09IMYsA+KpdxzSR9b3t4oe3D7
+         GIDWWR00s77UMfL7C/VZYswSYMvW9djKEWJ3BoyfBehDwGtNJRgbv4aBcAenPENoWjLw
+         GtxK4MfZir8G+FiIi4M9h/aNTfhiMimSX+uSv0TUwETpmd20Qu+81qfSft2ZTBTyw6QM
+         hAMl9Kx4NMgwafQY2PVR+LoSmyKvClgxv+abKuM1OfmqLuYe6jeKCtcnQEAl8Ue9wsRk
+         /DHw==
+X-Gm-Message-State: AGi0PuYpnyWKdF+foANdx52rT5Q1Ly9D9G6lzlC3VLXvrXwmcDy72txc
+        Vk3SylSlJNkNJNAwipwASrI=
+X-Google-Smtp-Source: APiQypLU7dd0pYeDOpbH0cHb2maPxLv5siGqT00cQQrFQLZiF1iP/PvsQgp85GEEtH9epZiWocxiig==
+X-Received: by 2002:a17:90a:252f:: with SMTP id j44mr3313706pje.9.1588902468645;
+        Thu, 07 May 2020 18:47:48 -0700 (PDT)
+Received: from iclxps (155-97-232-235.usahousing.utah.edu. [155.97.232.235])
+        by smtp.gmail.com with ESMTPSA id a196sm49243pfd.184.2020.05.07.18.47.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 May 2020 18:47:47 -0700 (PDT)
+Message-ID: <f86e1777b6ca07ea496079fe96c5e5934b9e3a99.camel@gmail.com>
+Subject: Re: Patch "lib: devres: add a helper function for ioremap_uc" has
+ been added to the 4.19-stable tree
+From:   Tuowen Zhao <ztuowen@gmail.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        acelan.kao@canonical.com, andriy.shevchenko@linux.intel.com,
+        gregkh@linuxfoundation.org, mika.westerberg@linux.intel.com,
+        subdiff@gmail.com, hch@lst.de, akpm@linux-foundation.org,
+        alexios.zavras@intel.com, allison@lohutok.net,
+        bcain@codeaurora.org, boqun.feng@gmail.com, geert@linux-m68k.org,
+        gregkh@linuxfoundation.org, lee.jones@linaro.org,
+        mcgrof@kernel.org, mingo@redhat.com, natechancellor@gmail.com,
+        ndesaulniers@google.com, peterz@infradead.org, rfontana@redhat.com,
+        tglx@linutronix.de, will@kernel.org
+Date:   Thu, 07 May 2020 19:47:44 -0600
+In-Reply-To: <20200508005104.CDBDD208CA@mail.kernel.org>
+References: <20200508005104.CDBDD208CA@mail.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.2 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Willard <henry.willard@oracle.com>
-Subject: mm: limit boost_watermark on small zones
+Hi,
 
-Commit 1c30844d2dfe ("mm: reclaim small amounts of memory when an external
-fragmentation event occurs") adds a boost_watermark() function which
-increases the min watermark in a zone by at least pageblock_nr_pages or
-the number of pages in a page block. On Arm64, with 64K pages and 512M
-huge pages, this is 8192 pages or 512M. It does this regardless of the
-number of managed pages managed in the zone or the likelihood of success.
-This can put the zone immediately under water in terms of allocating pages
-from the zone, and can cause a small machine to fail immediately due to
-OoM. Unlike set_recommended_min_free_kbytes(), which substantially
-increases min_free_kbytes and is tied to THP, boost_watermark() can be
-called even if THP is not active. The problem is most likely to appear
-on architectures such as Arm64 where pageblock_nr_pages is very large.
+I believe some patches are needed to fix build issues on Hexagon:
 
-It is desirable to run the kdump capture kernel in as small a space as
-possible to avoid wasting memory. In some architectures, such as Arm64,
-there are restrictions on where the capture kernel can run, and therefore,
-the space available. A capture kernel running in 768M can fail due to OoM
-immediately after boost_watermark() sets the min in zone DMA32, where
-most of the memory is, to 512M. It fails even though there is over 500M of
-free memory. With boost_watermark() suppressed, the capture kernel can run
-successfully in 448M.
+ac32292c8552f7e8517be184e65dd09786e991f9 hexagon: clean up ioremap
+7312b70699252074d753c5005fc67266c547bbe3 hexagon: define ioremap_uc
 
-This patch limits boost_watermark() to boosting a zone's min watermark only
-when there are enough pages that the boost will produce positive results.
-In this case that is estimated to be four times as many pages as
-pageblock_nr_pages.
+The same is for stable v5.4.
 
-Mel said:
+Best,
+Tuowen
 
-: There is no harm in marking it stable.  Clearly it does not happen very
-: often but it's not impossible.  32-bit x86 is a lot less common now
-: which would previously have been vulnerable to triggering this easily. 
-: ppc64 has a larger base page size but typically only has one zone. 
-: arm64 is likely the most vulnerable, particularly when CMA is
-: configured with a small movable zone.
-
-Link: http://lkml.kernel.org/r/1588294148-6586-1-git-send-email-henry.willard@oracle.com
-Fixes: 1c30844d2dfe ("mm: reclaim small amounts of memory when an external fragmentation event occurs")
-Signed-off-by: Henry Willard <henry.willard@oracle.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/page_alloc.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- a/mm/page_alloc.c~mm-limit-boost_watermark-on-small-zones
-+++ a/mm/page_alloc.c
-@@ -2401,6 +2401,14 @@ static inline void boost_watermark(struc
- 
- 	if (!watermark_boost_factor)
- 		return;
-+	/*
-+	 * Don't bother in zones that are unlikely to produce results.
-+	 * On small machines, including kdump capture kernels running
-+	 * in a small area, boosting the watermark can cause an out of
-+	 * memory situation immediately.
-+	 */
-+	if ((pageblock_nr_pages * 4) > zone_managed_pages(zone))
-+		return;
- 
- 	max_boost = mult_frac(zone->_watermark[WMARK_HIGH],
- 			watermark_boost_factor, 10000);
-_
