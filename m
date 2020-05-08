@@ -2,71 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72DCC1CBB7B
-	for <lists+stable@lfdr.de>; Sat,  9 May 2020 01:57:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6536A1CBB5E
+	for <lists+stable@lfdr.de>; Sat,  9 May 2020 01:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726380AbgEHX5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 19:57:06 -0400
-Received: from buro.com.pe ([190.81.117.218]:49778 "EHLO mail.buro.com.pe"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727890AbgEHX5E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 19:57:04 -0400
-X-Greylist: delayed 487 seconds by postgrey-1.27 at vger.kernel.org; Fri, 08 May 2020 19:57:03 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by mail.buro.com.pe (Postfix) with ESMTP id BC629DBB18C
-        for <stable@vger.kernel.org>; Fri,  8 May 2020 18:48:54 -0500 (-05)
-Received: from mail.buro.com.pe ([127.0.0.1])
-        by localhost (mail.buro.com.pe [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id J9q8Eg8fEUJc for <stable@vger.kernel.org>;
-        Fri,  8 May 2020 18:48:54 -0500 (-05)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.buro.com.pe (Postfix) with ESMTP id BAC62DBAD73
-        for <stable@vger.kernel.org>; Fri,  8 May 2020 18:45:39 -0500 (-05)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.buro.com.pe BAC62DBAD73
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=buro.com.pe;
-        s=8EF3D770-2911-11EA-9B8B-1DAC71A75241; t=1588981539;
-        bh=uTfHNdarxC6TUd0t1xriOzQUp+lKjQMy6JA2EaKp7js=;
-        h=MIME-Version:To:From:Date:Message-Id;
-        b=mBkqYmh4A8Su8oCW4UoViN2aLhGr2WwMFtcnQF73H2OI/93kvwsDqbGhYYhbctEqE
-         tnwr1kFC+u2CfAnWWiyaz6/LvVmJbHGj5lB/I24K8s0+fKrUlYqvb550M2WTFYsRxz
-         M2g12Vb23doK7n9M4MY++cIwij3ugtw8aIDX5A7EJhrTEnIqNOsPvYrX0XYa57MHsG
-         NZ8UUj/bEh35cYpzuXQYSn7PSxucDihrxW1BhDBJhzIqKkgQHGIQ9WUrDifkvOBliJ
-         o3Il+tITEUnW6NvjSWqY60cZEzoJVJkSzTekHvlQs9j8j5rD6bUhB2PmHwc36B3Mtt
-         OTl5cqnvUzzqw==
-X-Virus-Scanned: amavisd-new at buro.com.pe
-Received: from mail.buro.com.pe ([127.0.0.1])
-        by localhost (mail.buro.com.pe [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id TJdI67Wz47yx for <stable@vger.kernel.org>;
-        Fri,  8 May 2020 18:45:39 -0500 (-05)
-Received: from [10.52.0.9] (unknown [181.214.6.68])
-        by mail.buro.com.pe (Postfix) with ESMTPSA id 3EEA6DBB40D
-        for <stable@vger.kernel.org>; Fri,  8 May 2020 18:42:39 -0500 (-05)
+        id S1727778AbgEHXqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 19:46:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727774AbgEHXqf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 19:46:35 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FF24C061A0C
+        for <stable@vger.kernel.org>; Fri,  8 May 2020 16:46:35 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id j21so1601680pgb.7
+        for <stable@vger.kernel.org>; Fri, 08 May 2020 16:46:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tZ6hgdG53wnvNpfraUGTaSGPdLMMlBKpB/QyjLM2JqY=;
+        b=cx0wADVyjnM8kqLSX6kuq+uzBnCE3bpzqB0Asegnsu4J91oQKfq4CsDbYLT4z8B25n
+         7cM7RaPtSi+vhmcu83xpx4bpO2e8df1clzRjv082UJmjg4NfsoROVdUWEqPQAgDF+Z97
+         icnb+7/yXP73hlmBOU/hBm1EmmNrc5i2gga/kJCKWBnQo05H/DmBSV03Iz+eQahpWXYZ
+         oQpFKn896/kdNfqrBSHI1LVn3dXNLbV5VjnWXDzVmF6f6RwxOyaTex+GjRDhVRUwZIep
+         me0UI/57RqW8hWwKuyy3UWvelvN9koz63FqxbcIz3mi7aE2WoUPsWfcWNHKtqb2UbKwV
+         4y2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tZ6hgdG53wnvNpfraUGTaSGPdLMMlBKpB/QyjLM2JqY=;
+        b=GqShFu5P6a0qBhV21jFfHO8U5I0StAN+qZfQfm4PRFe6hrFSaCokw5SUoXdsCfufdg
+         vI7JIO0o6QrvKRbCPK86rAyxZCA95l30RfiwnGNa+WbNL0IDwh7CyF9dGkdXNxigctp8
+         FAHt8DnDWSgClLmR7Wvh+HJ+g52J0S7U9bM4DA3dHlQIolIflp1RjjvrrpqNeW6v58ZQ
+         gAzmpBtDp4y+mcuY3dJTCh/2C1au+xaMaUyPyMssYiSThSpiHcyAhHW9l8xyR8CrcRCw
+         5it3M/9wHb9nsnRj7Ur3BC5LFflvfwNDqgwcGnLa5bLM2qR04LlzDVqVB21BOtInLJwA
+         ccvw==
+X-Gm-Message-State: AGi0Pua8k/WRv4N7kx+Sopmr/StOR33QO8I62Z4yHPfSUVer5baiWwSs
+        wt5VTygXzg2dQmqAmp7pnXdXwglGCMQ=
+X-Google-Smtp-Source: APiQypLgw1R85dm9c3VEgsbUkYHqlsmY/s139V7UWxDKk9sMHcJaC84SxgUFdEwtrtcmgVxeMr40Sg==
+X-Received: by 2002:a63:bd42:: with SMTP id d2mr4067643pgp.214.1588981594723;
+        Fri, 08 May 2020 16:46:34 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 207sm2175737pgh.34.2020.05.08.16.46.33
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 May 2020 16:46:33 -0700 (PDT)
+Message-ID: <5eb5ef59.1c69fb81.69759.8fb4@mx.google.com>
+Date:   Fri, 08 May 2020 16:46:33 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: =?utf-8?b?SGVyemxpY2hlIEdsw7xja3fDvG5zY2hlOiDigqwgMiwwMDAsMDAwLjAwIEV1?=
- =?utf-8?q?ro?=
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.39-50-g695621e78832
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.4.y boot: 148 boots: 0 failed,
+ 138 passed with 5 offline, 5 untried/unknown (v5.4.39-50-g695621e78832)
 To:     stable@vger.kernel.org
-From:   "Jeff Lindsay" <cparedes.stbk@buro.com.pe>
-Date:   Fri, 08 May 2020 16:42:34 -0700
-Reply-To: povertysolutionsorg@gmail.com
-Message-Id: <20200508234240.3EEA6DBB40D@mail.buro.com.pe>
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ich bin Jeff Lindsay, ein =C3=A4lterer B=C3=BCrger aus Kalifornien, USA. Ic=
-h habe einen Jackpot von 447,8 Millionen Dollar gewonnen, der gr=C3=B6=C3=
-=9Fte Lotterie-Jackpot. Im Namen meiner Familie und aus gutem Willen spende=
-n wir Ihnen und Ihrer Familie einen Betrag von (=E2=82=AC 2.000.000,00 EUR)=
-. Ich versuche, die =C3=B6ffentlichen Waisenh=C3=A4user zu erreichen. Trage=
-n Sie zur Armutsbek=C3=A4mpfung bei und sorgen Sie f=C3=BCr eine angemessen=
-e Gesundheitsversorgung f=C3=BCr Einzelpersonen, insbesondere w=C3=A4hrend =
-dieser Welt. Pandemic Covid 19. Ich m=C3=B6chte auch, dass Sie einen Teil d=
-ieser Spende in die =C3=B6ffentliche Infrastruktur investieren, um Arbeitsl=
-osen in Ihrem Land Arbeitspl=C3=A4tze zu bieten. Ich habe dich gew=C3=A4hlt=
-, weil ich an dich glaube. Ich brauche Ihre uneingeschr=C3=A4nkte Mitarbeit=
- in Bezug auf diese Spende. Bitte kontaktieren Sie mich hier zur=C3=BCck un=
-ter meiner privaten E-Mail: povertysolutionsorg@gmail.com
+stable-rc/linux-5.4.y boot: 148 boots: 0 failed, 138 passed with 5 offline,=
+ 5 untried/unknown (v5.4.39-50-g695621e78832)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.39-50-g695621e78832/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.39-50-g695621e78832/
+
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.39-50-g695621e78832
+Git Commit: 695621e788325e527588a26f1a9c6c526b69a2ee
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 92 unique boards, 24 SoC families, 20 builds out of 200
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 90 days (last pass: v5.4.=
+17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
