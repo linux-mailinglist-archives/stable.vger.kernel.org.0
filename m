@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 703941CAFD2
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11D641CAFCF
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728089AbgEHNUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:20:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34866 "EHLO mail.kernel.org"
+        id S1729083AbgEHNUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:20:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728738AbgEHMks (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:40:48 -0400
+        id S1728673AbgEHMkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:40:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F82B24973;
-        Fri,  8 May 2020 12:40:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AA9D20731;
+        Fri,  8 May 2020 12:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941647;
-        bh=uYTutWpeFVx8U1uosvVPfF9K6SerEPchJOh+0W11+ig=;
+        s=default; t=1588941650;
+        bh=6n0ahUsSSAX0rdpWSQ18St5EorlUTtHxTcar9RoEJE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uTMu3o7JhsE6cRQ5JMzZDeEAzRQ7mm4MSEjqxI+e+jOmfRRGPPziEBTK7BeSz3Ru1
-         c6t+SLa8HNyNuPS6Y78o2wQDX9GYYmF18DYxlazHsRWJz+qrTO7CLJVrB51U4stX3A
-         PEbDsQGZJH3TYPjy63U0MUsicUfU8XNQ4omf6+R4=
+        b=NQvmR0cSEDX0r5xdki5zrqSUOrWb8JSQwyF+roR00akC+bAvkVnW/4FAvZpJSJAk6
+         z1XhpuQrBn3kdxjuD7zwNudM5dUkcw4jqgIJfQX9ZWkZYJioAAbJBcQHnm6D6nHk5B
+         K5lf+67F/3V2uecmuFNs5CUy+kvSxtlptR/nQqQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: [PATCH 4.4 117/312] serial: samsung: Fix possible out of bounds access on non-DT platform
-Date:   Fri,  8 May 2020 14:31:48 +0200
-Message-Id: <20200508123132.697716151@linuxfoundation.org>
+        stable@vger.kernel.org, Olaf Hering <olaf@aepfle.de>,
+        "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 4.4 118/312] Drivers: hv: utils: use memdup_user in hvt_op_write
+Date:   Fri,  8 May 2020 14:31:49 +0200
+Message-Id: <20200508123132.763575979@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,48 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+From: Olaf Hering <olaf@aepfle.de>
 
-commit 926b7b5122c96e1f18cd20e85a286c7ec8d18c97 upstream.
+commit b00359642c2427da89dc8f77daa2c9e8a84e6d76 upstream.
 
-On non-DeviceTree platforms, the index of serial device is a static
-variable incremented on each probe.  It is incremented even if deferred
-probe happens when getting the clock in s3c24xx_serial_init_port().
+Use memdup_user to handle OOM.
 
-This index is used for referencing elements of statically allocated
-s3c24xx_serial_ports array.  In case of re-probe, the index will point
-outside of this array leading to memory corruption.
+Fixes: 14b50f80c32d ('Drivers: hv: util: introduce hv_utils_transport abstraction')
 
-Increment the index only on successful probe.
-
-Reported-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Fixes: b497549a035c ("[ARM] S3C24XX: Split serial driver into core and per-cpu drivers")
-Signed-off-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Signed-off-by: Olaf Hering <olaf@aepfle.de>
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/samsung.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hv/hv_utils_transport.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/tty/serial/samsung.c
-+++ b/drivers/tty/serial/samsung.c
-@@ -1841,8 +1841,6 @@ static int s3c24xx_serial_probe(struct p
- 	ourport->min_dma_size = max_t(int, ourport->port.fifosize,
- 				    dma_get_cache_alignment());
+--- a/drivers/hv/hv_utils_transport.c
++++ b/drivers/hv/hv_utils_transport.c
+@@ -80,11 +80,10 @@ static ssize_t hvt_op_write(struct file
  
--	probe_index++;
--
- 	dbg("%s: initialising port %p...\n", __func__, ourport);
+ 	hvt = container_of(file->f_op, struct hvutil_transport, fops);
  
- 	ret = s3c24xx_serial_init_port(ourport, pdev);
-@@ -1872,6 +1870,8 @@ static int s3c24xx_serial_probe(struct p
- 	if (ret < 0)
- 		dev_err(&pdev->dev, "failed to add cpufreq notifier\n");
- 
-+	probe_index++;
+-	inmsg = kzalloc(count, GFP_KERNEL);
+-	if (copy_from_user(inmsg, buf, count)) {
+-		kfree(inmsg);
+-		return -EFAULT;
+-	}
++	inmsg = memdup_user(buf, count);
++	if (IS_ERR(inmsg))
++		return PTR_ERR(inmsg);
 +
- 	return 0;
- }
- 
+ 	if (hvt->on_msg(inmsg, count))
+ 		return -EFAULT;
+ 	kfree(inmsg);
 
 
