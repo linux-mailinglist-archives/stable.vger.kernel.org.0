@@ -2,86 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E921CB1C1
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 16:26:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 619501CB1CE
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 16:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726951AbgEHO0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 10:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47620 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726636AbgEHO0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 10:26:16 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B20824954;
-        Fri,  8 May 2020 14:26:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588947975;
-        bh=6b8YGMJkYUmjuyizBgw94aYNmIm4Dx+h8LwG/nDQZUM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hgu6cwX1VlUfQlDjUijm1axY/KMFXW8hdj6fwxL/QPec9Ev8uywMXUltBUkxIDCF+
-         uFln6081TAZK6fBzAVNwh3qRrOGK7o8cKDxpIP38Mj3IY7xEvhfGPqLahoKVi6fJfO
-         ipq/yLg84K/8bFJPcBsGCO95wwjTBh/5dxQVjW00=
-Date:   Fri, 8 May 2020 16:26:13 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 000/312] 4.4.223-rc1 review
-Message-ID: <20200508142613.GA426400@kroah.com>
-References: <20200508123124.574959822@linuxfoundation.org>
- <fe060262-1712-9205-b1cd-cd209d0ed395@roeck-us.net>
- <20200508134408.GA196344@kroah.com>
- <cfb6cb83-81c2-7491-c58b-70986119eb65@roeck-us.net>
+        id S1728000AbgEHO2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 10:28:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47726 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726937AbgEHO2X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 10:28:23 -0400
+Received: from mo6-p01-ob.smtp.rzone.de (mo6-p01-ob.smtp.rzone.de [IPv6:2a01:238:20a:202:5301::4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD4BC05BD43
+        for <stable@vger.kernel.org>; Fri,  8 May 2020 07:28:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1588948101;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=LpO9CZWTeUZskyiR1MzGWr/RjAwDvytIyHeUpak8yl4=;
+        b=ODg0NYlVfPOG8lUAgBUXd6CvTF3elw8pfY6vkAbv8YvZ/1w5Y+mOuS3ztQL1+1FtPy
+        OYo9iqXAzAUsJBD4q1ebTVIbFZxRHdC0yYE9fjoQq5lcZMKDQMiDKbJpRhQl0xVh+t/G
+        gMYIkLD+ikHL8pfDaXa4/u5pauxG+OuZd63aPu/hom6Qpejiwa8dxbinZSCu+H0TbR51
+        HEvMGuNkuC0n6xrYt1en5qrMoWxWVertyCj1X6KbklhxeiQ0NeYj3llYtVZ7NUV+xGhi
+        s2p08VAZufUZegEqjgs5AoapdT7YMj8yJroSND/3VW/z6opeNNEYbyzBQcDKhpvkt7Gv
+        42jA==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o1mfYzBGHXH6HVy/jE8="
+X-RZG-CLASS-ID: mo00
+Received: from iMac.fritz.box
+        by smtp.strato.de (RZmta 46.6.2 DYNA|AUTH)
+        with ESMTPSA id R0acebw48ESL4Mj
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Fri, 8 May 2020 16:28:21 +0200 (CEST)
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+To:     letux-kernel@openphoenux.org
+Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>, stable@vger.kernel.org
+Subject: [PATCH 1/5] w1: omap-hdq: cleanup to add missing newline for some dev_dbg
+Date:   Fri,  8 May 2020 16:28:16 +0200
+Message-Id: <8adf53c9ec9900404df7e1e76088b7e85b35074e.1588948099.git.hns@goldelico.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <cover.1588948099.git.hns@goldelico.com>
+References: <cover.1588948099.git.hns@goldelico.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cfb6cb83-81c2-7491-c58b-70986119eb65@roeck-us.net>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 08, 2020 at 06:54:11AM -0700, Guenter Roeck wrote:
-> On 5/8/20 6:44 AM, Greg Kroah-Hartman wrote:
-> > On Fri, May 08, 2020 at 06:37:56AM -0700, Guenter Roeck wrote:
-> >> On 5/8/20 5:29 AM, Greg Kroah-Hartman wrote:
-> >>> This is the start of the stable review cycle for the 4.4.223 release.
-> >>> There are 312 patches in this series, all will be posted as a response
-> >>> to this one.  If anyone has any issues with these being applied, please
-> >>> let me know.
-> >>>
-> >>> Responses should be made by Sun, 10 May 2020 12:29:44 +0000.
-> >>> Anything received after that time might be too late.
-> >>>
-> >>
-> >> This is not a complete list of errors.
-> > 
-> > Yeah, I knew this was going to be a rough one.  I was hoping the "early
-> > warning" messages from Linaro would have caught most of these, oh well
-> > :(
-> > 
-> 
-> To be fair, I had noticed the errors yesterday. I just thought this was
-> so bad that it looked like a stray (bad) push to me, and I didn't send
-> feedback. Maybe I should always send feedback if I see errors prior to
-> an -rc release. I don't want to spam people with noise, so I am not sure.
-> Any thoughts on that ?
+or it will corrupt the console log during debugging.
 
-If the tree is broken, I'd like to know about it.  Rarely do I know that
-it is broken and leave it alone.  One exception would be last night when
-it was too late for me to fix the build issues, but Sasha was kind
-enough to do so.
+Fixes: 7b5362a603a1 ("w1: omap_hdq: Fix some error/debug handling.")
+Cc: stable@vger.kernel.org
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+---
+ drivers/w1/masters/omap_hdq.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-So it's not noise to me, if it's easy enough for you to do so.
+diff --git a/drivers/w1/masters/omap_hdq.c b/drivers/w1/masters/omap_hdq.c
+index aa09f85277767..d363e2a89fdfc 100644
+--- a/drivers/w1/masters/omap_hdq.c
++++ b/drivers/w1/masters/omap_hdq.c
+@@ -155,7 +155,7 @@ static int hdq_write_byte(struct hdq_data *hdq_data, u8 val, u8 *status)
+ 	/* check irqstatus */
+ 	if (!(*status & OMAP_HDQ_INT_STATUS_TXCOMPLETE)) {
+ 		dev_dbg(hdq_data->dev, "timeout waiting for"
+-			" TXCOMPLETE/RXCOMPLETE, %x", *status);
++			" TXCOMPLETE/RXCOMPLETE, %x\n", *status);
+ 		ret = -ETIMEDOUT;
+ 		goto out;
+ 	}
+@@ -166,7 +166,7 @@ static int hdq_write_byte(struct hdq_data *hdq_data, u8 val, u8 *status)
+ 			OMAP_HDQ_FLAG_CLEAR, &tmp_status);
+ 	if (ret) {
+ 		dev_dbg(hdq_data->dev, "timeout waiting GO bit"
+-			" return to zero, %x", tmp_status);
++			" return to zero, %x\n", tmp_status);
+ 	}
+ 
+ out:
+@@ -183,7 +183,7 @@ static irqreturn_t hdq_isr(int irq, void *_hdq)
+ 	spin_lock_irqsave(&hdq_data->hdq_spinlock, irqflags);
+ 	hdq_data->hdq_irqstatus = hdq_reg_in(hdq_data, OMAP_HDQ_INT_STATUS);
+ 	spin_unlock_irqrestore(&hdq_data->hdq_spinlock, irqflags);
+-	dev_dbg(hdq_data->dev, "hdq_isr: %x", hdq_data->hdq_irqstatus);
++	dev_dbg(hdq_data->dev, "hdq_isr: %x\n", hdq_data->hdq_irqstatus);
+ 
+ 	if (hdq_data->hdq_irqstatus &
+ 		(OMAP_HDQ_INT_STATUS_TXCOMPLETE | OMAP_HDQ_INT_STATUS_RXCOMPLETE
+@@ -248,7 +248,7 @@ static int omap_hdq_break(struct hdq_data *hdq_data)
+ 	tmp_status = hdq_data->hdq_irqstatus;
+ 	/* check irqstatus */
+ 	if (!(tmp_status & OMAP_HDQ_INT_STATUS_TIMEOUT)) {
+-		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x",
++		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x\n",
+ 				tmp_status);
+ 		ret = -ETIMEDOUT;
+ 		goto out;
+@@ -275,7 +275,7 @@ static int omap_hdq_break(struct hdq_data *hdq_data)
+ 			&tmp_status);
+ 	if (ret)
+ 		dev_dbg(hdq_data->dev, "timeout waiting INIT&GO bits"
+-			" return to zero, %x", tmp_status);
++			" return to zero, %x\n", tmp_status);
+ 
+ out:
+ 	hdq_reset_irqstatus(hdq_data);
+-- 
+2.26.2
 
-I think I fixed up the MIPS stuff, turns out gcc was just crashing on a
-filesystem driver with an internal error.  I think I need a different
-version of gcc if I want to build more arches...
-
-I'll go push out a -rc with this fixed up now, thanks.
-
-greg k-h
