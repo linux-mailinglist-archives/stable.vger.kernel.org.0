@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BDCD1CAB9B
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:45:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FDC31CAF3D
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729285AbgEHMpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:45:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44510 "EHLO mail.kernel.org"
+        id S1728454AbgEHNQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728559AbgEHMpN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:45:13 -0400
+        id S1727943AbgEHMpP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:45:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DE26208D6;
-        Fri,  8 May 2020 12:45:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89D2121473;
+        Fri,  8 May 2020 12:45:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941912;
-        bh=3Gv960WOUHXTssVcGdsk3y/VLn7wVu7uSqVU1Wsl9Jo=;
+        s=default; t=1588941915;
+        bh=+3sH12Mcafg+dre+feGqjGBkiQ+LF0frBeNkWn0pyhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6ZshCZkqviC1G33C6EEoVuxb3tN+Rwmf22YmBazagbXjqZK4EXHSzV3Rsm2Vb5xp
-         ggcYCYTruMPKmokWADXprx1xY1KY4IA9iXZ+N6pY8RosrzA6uHeR2Q7YqpGFxh4wku
-         S5dVuxR4I6RuYXTGcn7MiDLyp9tCImZBHIqW0aXU=
+        b=gQWiYfXDk1lV0cqnnYQPTW7MJtpqhG0lyo6eRPNu2fyjLwR2I4l9GngdpG9fmgDHI
+         +7HlxOmAqXk+R/zx5ynZpTct5IbWE0u1fZzbk3+ixwZ7IhL5hPrHSbA0tPWOmHTKta
+         tWRXJjfeyuh0Z/67G2DVDGcou8ZQ2Rh+TwJzQ6DU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
+        stable@vger.kernel.org, Yotam Gigi <yotamg@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 221/312] net/mlx4_core: Fix QUERY FUNC CAP flags
-Date:   Fri,  8 May 2020 14:33:32 +0200
-Message-Id: <20200508123140.002267257@linuxfoundation.org>
+Subject: [PATCH 4.4 222/312] mlxsw: switchx2: Fix misuse of hard_header_len
+Date:   Fri,  8 May 2020 14:33:33 +0200
+Message-Id: <20200508123140.073297562@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,58 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@mellanox.com>
+From: Yotam Gigi <yotamg@mellanox.com>
 
-commit c9cc599a96a6822c52cd72ed31dd7f813d792b4f upstream.
+commit 251d41c58b765f00d73b1b4230cad256e25f2735 upstream.
 
-Separate QUERY_FUNC_CAP flags0 from QUERY_FUNC_CAP flags, as 'flags' is
-already used for another set of flags in FUNC CAP, while phv bit should be
-part of a different set of flags.
-Remove QUERY_FUNC_CAP port_flags field, as it is not in use.
+In order to specify that the mlxsw switchx2 driver needs additional
+headroom for packets, there have been use of the hard_header_len field of
+the netdevice struct.
 
-Fixes: 77fc29c4bbbb ('net/mlx4_core: Preparations for 802.1ad VLAN support')
-Fixes: 5cc914f10851 ('mlx4_core: Added FW commands and their wrappers for supporting SRIOV')
-Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+This commit changes that to use needed_headroom instead, as this is the
+correct way to do that.
+
+Fixes: 31557f0f9755 ("mlxsw: Introduce Mellanox SwitchX-2 ASIC support")
+Signed-off-by: Yotam Gigi <yotamg@mellanox.com>
+Acked-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx4/fw.c |    5 ++---
- drivers/net/ethernet/mellanox/mlx4/fw.h |    2 +-
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/switchx2.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/fw.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/fw.c
-@@ -610,8 +610,7 @@ int mlx4_QUERY_FUNC_CAP(struct mlx4_dev
- 		MLX4_GET(func_cap->phys_port_id, outbox,
- 			 QUERY_FUNC_CAP_PHYS_PORT_ID);
+--- a/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
+@@ -993,7 +993,7 @@ static int mlxsw_sx_port_create(struct m
+ 	/* Each packet needs to have a Tx header (metadata) on top all other
+ 	 * headers.
+ 	 */
+-	dev->hard_header_len += MLXSW_TXHDR_LEN;
++	dev->needed_headroom = MLXSW_TXHDR_LEN;
  
--	MLX4_GET(field, outbox, QUERY_FUNC_CAP_FLAGS0_OFFSET);
--	func_cap->flags |= (field & QUERY_FUNC_CAP_PHV_BIT);
-+	MLX4_GET(func_cap->flags0, outbox, QUERY_FUNC_CAP_FLAGS0_OFFSET);
- 
- 	/* All other resources are allocated by the master, but we still report
- 	 * 'num' and 'reserved' capabilities as follows:
-@@ -2840,7 +2839,7 @@ int get_phv_bit(struct mlx4_dev *dev, u8
- 	memset(&func_cap, 0, sizeof(func_cap));
- 	err = mlx4_QUERY_FUNC_CAP(dev, port, &func_cap);
- 	if (!err)
--		*phv = func_cap.flags & QUERY_FUNC_CAP_PHV_BIT;
-+		*phv = func_cap.flags0 & QUERY_FUNC_CAP_PHV_BIT;
- 	return err;
- }
- EXPORT_SYMBOL(get_phv_bit);
---- a/drivers/net/ethernet/mellanox/mlx4/fw.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/fw.h
-@@ -150,7 +150,7 @@ struct mlx4_func_cap {
- 	u32	qp1_proxy_qpn;
- 	u32	reserved_lkey;
- 	u8	physical_port;
--	u8	port_flags;
-+	u8	flags0;
- 	u8	flags1;
- 	u64	phys_port_id;
- 	u32	extra_flags;
+ 	err = mlxsw_sx_port_module_check(mlxsw_sx_port, &usable);
+ 	if (err) {
 
 
