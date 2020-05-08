@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 255671CAD80
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBC141CAD67
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729832AbgEHNCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58904 "EHLO mail.kernel.org"
+        id S1727838AbgEHNBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:01:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728171AbgEHMuk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:50:40 -0400
+        id S1729928AbgEHMvr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:51:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B61B424954;
-        Fri,  8 May 2020 12:50:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB41724953;
+        Fri,  8 May 2020 12:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942240;
-        bh=/n8bR6qEQEFiWRHggcyYjAzLLFE0mHLo93NI3PBUp94=;
+        s=default; t=1588942307;
+        bh=G+XhWuodZsxbLJtlCk/40wVd2/t6S+dPVSqrfZJM3wY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKPb+wWUOu+Qd6TDON/KUtOZhdzc7DGoIxoaat+Vw4FDRzfHgN+HuFQg+9BnWrXs8
-         MuxZUtPCCe9wbl6RgspDYDsTX6zPeQKNnS0tOJWcpWMcpXIJl/9vBHrXIFsnX6X/pk
-         HNsWAeAa7YlyLl9guARRUx/CLoSoLH/wiywDXjnM=
+        b=jd0x0rb3IySeW5YMtM5NP7ZhJQaHB5j9tT+NB/v17sJLdT4xPgD/Lx8o31lCCP4mU
+         FIERpiUXWQC+pWJGQh7UTuZxQe0cp1lgZ5rfHb9YlgKkJJWp6u2vfxvBaBNtrj7NL6
+         AIjdFzzh9+EuKEiWtHhy8k0O3QQIfrnSI/jnGeo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,12 +33,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/22] ASoC: topology: Check return value of pcm_new_ver
-Date:   Fri,  8 May 2020 14:35:15 +0200
-Message-Id: <20200508123034.315432739@linuxfoundation.org>
+Subject: [PATCH 4.19 03/32] ASoC: topology: Check return value of pcm_new_ver
+Date:   Fri,  8 May 2020 14:35:16 +0200
+Message-Id: <20200508123035.259081294@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
-References: <20200508123033.915895060@linuxfoundation.org>
+In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
+References: <20200508123034.886699170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,10 +66,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index a215b9ad148c4..50aa45525be5a 100644
+index 756dd23031063..2c6598e07dde3 100644
 --- a/sound/soc/soc-topology.c
 +++ b/sound/soc/soc-topology.c
-@@ -1954,7 +1954,9 @@ static int soc_tplg_pcm_elems_load(struct soc_tplg *tplg,
+@@ -1923,7 +1923,9 @@ static int soc_tplg_pcm_elems_load(struct soc_tplg *tplg,
  			_pcm = pcm;
  		} else {
  			abi_match = false;
