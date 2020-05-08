@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7DD11CABA5
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:45:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67D9A1CABA8
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728940AbgEHMpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45286 "EHLO mail.kernel.org"
+        id S1729324AbgEHMpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:45:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728686AbgEHMpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:45:33 -0400
+        id S1729317AbgEHMpg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:45:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68D63208D6;
-        Fri,  8 May 2020 12:45:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E5252496A;
+        Fri,  8 May 2020 12:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941932;
-        bh=pYyn1sYWrtiRt37rxMZle5l0sYm/BxNM/I+kmoLRHVw=;
+        s=default; t=1588941935;
+        bh=t3MmTJjftAmvLq23kCtDBWhJvbXS7RsTnd8Pp+kNyqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=su0/FNyeg5jPz/X44T6IKPPNBuxY91/lYlzEg2DljS2Vk5zQCd4VsARO/JL325TvQ
-         T+E+R4AdSHx+DalGLvHqr9GfGy71l5mzmhOJv2tJHGBanMQ18J8frwV3P3av1PF9ed
-         ysxQ53r45DiLbz2AFAiHS3WTxzZvkYMR8GqTCpoo=
+        b=IFhKkWO2rRw091mtc0lK/5d8qmr1GgGdChCYih/Kf1a+ZmcR97XUBbUKhOzV3ORk7
+         kR37gDkUimTuxmMJ4hCkSXDQOPueX/QglDdW9IJ1/zm/r68dkBACgitc10GFrVk9Ik
+         RiiQzjc7Gyyd56RIx67+5SqDS969YaKOrwlEbxcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Francesco Fusco <ffusco@redhat.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
+        stable@vger.kernel.org, David Ahern <dsa@cumulusnetworks.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 191/312] ipv4: accept u8 in IP_TOS ancillary data
-Date:   Fri,  8 May 2020 14:33:02 +0200
-Message-Id: <20200508123137.893496235@linuxfoundation.org>
+Subject: [PATCH 4.4 192/312] net: vrf: Fix dev refcnt leak due to IPv6 prefix route
+Date:   Fri,  8 May 2020 14:33:03 +0200
+Message-Id: <20200508123137.959916124@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,56 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David Ahern <dsa@cumulusnetworks.com>
 
-commit e895cdce683161081e3626c4f5a5c55cb72089f8 upstream.
+commit 4f7f34eaab9f68c9bcd45386b15c414c38b40587 upstream.
 
-In commit f02db315b8d8 ("ipv4: IP_TOS and IP_TTL can be specified as
-ancillary data") Francesco added IP_TOS values specified as integer.
+ifupdown2 found a kernel bug with IPv6 routes and movement from the main
+table to the VRF table. Sequence of events:
 
-However, kernel sends to userspace (at recvmsg() time) an IP_TOS value
-in a single byte, when IP_RECVTOS is set on the socket.
+Create the interface and add addresses:
+    ip link add dev eth4.105 link eth4 type vlan id 105
+    ip addr add dev eth4.105 8.105.105.10/24
+    ip -6 addr add dev eth4.105 2008:105:105::10/64
 
-It can be very useful to reflect all ancillary options as given by the
-kernel in a subsequent sendmsg(), instead of aborting the sendmsg() with
-EINVAL after Francesco patch.
+At this point IPv6 has inserted a prefix route in the main table even
+though the interface is 'down'. From there the VRF device is created:
+    ip link add dev vrf105 type vrf table 105
+    ip addr add dev vrf105 9.9.105.10/32
+    ip -6 addr add dev vrf105 2000:9:105::10/128
+    ip link set vrf105 up
 
-So this patch extends IP_TOS ancillary to accept an u8, so that an UDP
-server can simply reuse same ancillary block without having to mangle
-it.
+Then the interface is enslaved, while still in the 'down' state:
+    ip link set dev eth4.105 master vrf105
 
-Jesper can then augment
-https://github.com/netoptimizer/network-testing/blob/master/src/udp_example02.c
-to add TOS reflection ;)
+Since the device is down the VRF driver cycling the device does not
+send the NETDEV_UP and NETDEV_DOWN but rather the NETDEV_CHANGE event
+which does not flush the routes inserted prior.
 
-Fixes: f02db315b8d8 ("ipv4: IP_TOS and IP_TTL can be specified as ancillary data")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Francesco Fusco <ffusco@redhat.com>
-Cc: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+When the link is brought up
+    ip link set dev eth4.105 up
+
+the prefix route is added in the VRF table, but does not remove
+the route from the main table.
+
+Fix by handling the NETDEV_CHANGEUPPER event similar what was implemented
+for IPv4 in 7f49e7a38b77 ("net: Flush local routes when device changes vrf
+association")
+
+Fixes: 35402e3136634 ("net: Add IPv6 support to VRF device")
+
+Signed-off-by: David Ahern <dsa@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/ip_sockglue.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/ipv6/addrconf.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/net/ipv4/ip_sockglue.c
-+++ b/net/ipv4/ip_sockglue.c
-@@ -279,9 +279,12 @@ int ip_cmsg_send(struct net *net, struct
- 			ipc->ttl = val;
- 			break;
- 		case IP_TOS:
--			if (cmsg->cmsg_len != CMSG_LEN(sizeof(int)))
-+			if (cmsg->cmsg_len == CMSG_LEN(sizeof(int)))
-+				val = *(int *)CMSG_DATA(cmsg);
-+			else if (cmsg->cmsg_len == CMSG_LEN(sizeof(u8)))
-+				val = *(u8 *)CMSG_DATA(cmsg);
-+			else
- 				return -EINVAL;
--			val = *(int *)CMSG_DATA(cmsg);
- 			if (val < 0 || val > 255)
- 				return -EINVAL;
- 			ipc->tos = val;
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3146,6 +3146,7 @@ static int addrconf_notify(struct notifi
+ 			   void *ptr)
+ {
+ 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
++	struct netdev_notifier_changeupper_info *info;
+ 	struct inet6_dev *idev = __in6_dev_get(dev);
+ 	struct net *net = dev_net(dev);
+ 	int run_pending = 0;
+@@ -3307,6 +3308,15 @@ static int addrconf_notify(struct notifi
+ 	case NETDEV_POST_TYPE_CHANGE:
+ 		addrconf_type_change(dev, event);
+ 		break;
++
++	case NETDEV_CHANGEUPPER:
++		info = ptr;
++
++		/* flush all routes if dev is linked to or unlinked from
++		 * an L3 master device (e.g., VRF)
++		 */
++		if (info->upper_dev && netif_is_l3_master(info->upper_dev))
++			addrconf_ifdown(dev, 0);
+ 	}
+ 
+ 	return NOTIFY_OK;
 
 
