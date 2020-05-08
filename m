@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E8DD1CAD26
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EDDE1CAC0B
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729965AbgEHMwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:52:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33688 "EHLO mail.kernel.org"
+        id S1728559AbgEHMtc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:49:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729961AbgEHMwa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:52:30 -0400
+        id S1729751AbgEHMtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:49:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C4E624953;
-        Fri,  8 May 2020 12:52:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 458B521473;
+        Fri,  8 May 2020 12:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942349;
-        bh=LNu0u4m1TpX1W4ZZjSTKvd48EX1thU7V29jKjQvWTMc=;
+        s=default; t=1588942170;
+        bh=Hl1LxDpnfMYnR22dTbVNhRHjrc+J+pqClyoq8nfljSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEkXkFBsDq3s6iMAV5jTl5UPsQddpJLW9eJoOs2CcIPflWD36gB6lNxdklURNxVt9
-         IXfjLaUrd0ORIfKsHsQDBDFAq0HwzYaLlDP3LckqajDoVKLRD6w1cxyRJPaRt9PkGS
-         YBE7rEBNDHxCD1AoAZ8Tfaoi9ra4NHu7xeEBZfIE=
+        b=JngP224gWiYOxuEeV/wLTAohkOqUzyELVnUKnPsLAaewvGbxFT/Y4B3pzKVow+Rg6
+         UrlJ21MfVV6JynVD8Gq0BdPSruPgBLCQpZlFktIoJLMApICg5yQNfHWB7FHigQ++Wp
+         hXwMgVhVXkD86xnhSCWdkk66ytiJ/YP7qlQDIv50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/50] ASoC: topology: Fix endianness issue
+Subject: [PATCH 4.9 13/18] net: systemport: suppress warnings on failed Rx SKB allocations
 Date:   Fri,  8 May 2020 14:35:16 +0200
-Message-Id: <20200508123044.840286096@linuxfoundation.org>
+Message-Id: <20200508123033.662294858@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
+References: <20200508123030.497793118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit 26d87881590fd55ccdd8f829498d7b3033f81990 ]
+[ Upstream commit 3554e54a46125030c534820c297ed7f6c3907e24 ]
 
-As done in already existing cases, we should use le32_to_cpu macro while
-accessing hdr->magic. Found with sparse.
+The driver is designed to drop Rx packets and reclaim the buffers
+when an allocation fails, and the network interface needs to safely
+handle this packet loss. Therefore, an allocation failure of Rx
+SKBs is relatively benign.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Link: https://lore.kernel.org/r/20200415162435.31859-2-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+However, the output of the warning message occurs with a high
+scheduling priority that can cause excessive jitter/latency for
+other high priority processing.
+
+This commit suppresses the warning messages to prevent scheduling
+problems while retaining the failure count in the statistics of
+the network interface.
+
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bcmsysport.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index 2d4a5a3058c41..65c91abb9462f 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -2559,7 +2559,7 @@ static int soc_valid_header(struct soc_tplg *tplg,
- 	}
+--- a/drivers/net/ethernet/broadcom/bcmsysport.c
++++ b/drivers/net/ethernet/broadcom/bcmsysport.c
+@@ -504,7 +504,8 @@ static struct sk_buff *bcm_sysport_rx_re
+ 	dma_addr_t mapping;
  
- 	/* big endian firmware objects not supported atm */
--	if (hdr->magic == SOC_TPLG_MAGIC_BIG_ENDIAN) {
-+	if (le32_to_cpu(hdr->magic) == SOC_TPLG_MAGIC_BIG_ENDIAN) {
- 		dev_err(tplg->dev,
- 			"ASoC: pass %d big endian not supported header got %x at offset 0x%lx size 0x%zx.\n",
- 			tplg->pass, hdr->magic,
--- 
-2.20.1
-
+ 	/* Allocate a new SKB for a new packet */
+-	skb = netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH);
++	skb = __netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH,
++				 GFP_ATOMIC | __GFP_NOWARN);
+ 	if (!skb) {
+ 		priv->mib.alloc_rx_buff_failed++;
+ 		netif_err(priv, rx_err, ndev, "SKB alloc failed\n");
 
 
