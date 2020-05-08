@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4AA31CAD0A
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D3B61CAD1D
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730090AbgEHM6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:58:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
+        id S1729913AbgEHMvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:51:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730192AbgEHMyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:54:21 -0400
+        id S1726751AbgEHMvp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:51:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3712824958;
-        Fri,  8 May 2020 12:54:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C857218AC;
+        Fri,  8 May 2020 12:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942460;
-        bh=AsdhOWSmGpAo9X9fraQLcchhnvazowDqGOabd/fCwm0=;
+        s=default; t=1588942304;
+        bh=KrhjgCPKMberTqvFLNzwp6iWdSbl/MN6j5trdSmwi/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbMVbJltCeH6QTSWPDViLEez/HO6uebHr43DZd2XXsAHY1/bpvYHVS8J7bey1i8BL
-         tIPymgq6UTpodR9M6g8phm/Oh9kR2WhnEenZwDdGoz35ngncPYqI1FGp15YXkAcFRf
-         z2iIc5sQby4VcU3odb2zRDQRdLCpUiuJC9jETO1w=
+        b=loxQJvIQHjgFe8nLvmvJznt0HZQ0JKLjoyliH9/6Ky3Gkj3teel4+PEL2xbZrMehV
+         MSWVZEjELljbFg1v6abIcX4zPKy4lJvL+jLEnPhAIPNAN2+XJF73sVUAlurzT+MjcT
+         QYHtSgcACFBgeCIz9YeMpAnNcUuL7ou7RCxnN7M4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jere=20Lepp=C3=A4nen?= <jere.leppanen@nokia.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 31/50] sctp: Fix SHUTDOWN CTSN Ack in the peer restart case
+        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
+        Tuowen Zhao <ztuowen@gmail.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/32] lib: devres: add a helper function for ioremap_uc
 Date:   Fri,  8 May 2020 14:35:37 +0200
-Message-Id: <20200508123047.622093625@linuxfoundation.org>
+Message-Id: <20200508123038.272499757@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
+References: <20200508123034.886699170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +48,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jere Leppänen <jere.leppanen@nokia.com>
+From: Tuowen Zhao <ztuowen@gmail.com>
 
-commit 12dfd78e3a74825e6f0bc8df7ef9f938fbc6bfe3 upstream.
+[ Upstream commit e537654b7039aacfe8ae629d49655c0e5692ad44 ]
 
-When starting shutdown in sctp_sf_do_dupcook_a(), get the value for
-SHUTDOWN Cumulative TSN Ack from the new association, which is
-reconstructed from the cookie, instead of the old association, which
-the peer doesn't have anymore.
+Implement a resource managed strongly uncachable ioremap function.
 
-Otherwise the SHUTDOWN is either ignored or replied to with an ABORT
-by the peer because CTSN Ack doesn't match the peer's Initial TSN.
-
-Fixes: bdf6fa52f01b ("sctp: handle association restarts when the socket is closed.")
-Signed-off-by: Jere Leppänen <jere.leppanen@nokia.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: <stable@vger.kernel.org> # v4.19+
+Tested-by: AceLan Kao <acelan.kao@canonical.com>
+Signed-off-by: Tuowen Zhao <ztuowen@gmail.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_make_chunk.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/io.h |  2 ++
+ lib/devres.c       | 19 +++++++++++++++++++
+ 2 files changed, 21 insertions(+)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -858,7 +858,11 @@ struct sctp_chunk *sctp_make_shutdown(co
- 	struct sctp_chunk *retval;
- 	__u32 ctsn;
+diff --git a/include/linux/io.h b/include/linux/io.h
+index 32e30e8fb9db9..da39ff89df651 100644
+--- a/include/linux/io.h
++++ b/include/linux/io.h
+@@ -75,6 +75,8 @@ static inline void devm_ioport_unmap(struct device *dev, void __iomem *addr)
  
--	ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
-+	if (chunk && chunk->asoc)
-+		ctsn = sctp_tsnmap_get_ctsn(&chunk->asoc->peer.tsn_map);
-+	else
-+		ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
+ void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
+ 			   resource_size_t size);
++void __iomem *devm_ioremap_uc(struct device *dev, resource_size_t offset,
++				   resource_size_t size);
+ void __iomem *devm_ioremap_nocache(struct device *dev, resource_size_t offset,
+ 				   resource_size_t size);
+ void __iomem *devm_ioremap_wc(struct device *dev, resource_size_t offset,
+diff --git a/lib/devres.c b/lib/devres.c
+index aa0f5308ac6be..75ea32d9b661b 100644
+--- a/lib/devres.c
++++ b/lib/devres.c
+@@ -9,6 +9,7 @@
+ enum devm_ioremap_type {
+ 	DEVM_IOREMAP = 0,
+ 	DEVM_IOREMAP_NC,
++	DEVM_IOREMAP_UC,
+ 	DEVM_IOREMAP_WC,
+ };
+ 
+@@ -39,6 +40,9 @@ static void __iomem *__devm_ioremap(struct device *dev, resource_size_t offset,
+ 	case DEVM_IOREMAP_NC:
+ 		addr = ioremap_nocache(offset, size);
+ 		break;
++	case DEVM_IOREMAP_UC:
++		addr = ioremap_uc(offset, size);
++		break;
+ 	case DEVM_IOREMAP_WC:
+ 		addr = ioremap_wc(offset, size);
+ 		break;
+@@ -68,6 +72,21 @@ void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
+ }
+ EXPORT_SYMBOL(devm_ioremap);
+ 
++/**
++ * devm_ioremap_uc - Managed ioremap_uc()
++ * @dev: Generic device to remap IO address for
++ * @offset: Resource address to map
++ * @size: Size of map
++ *
++ * Managed ioremap_uc().  Map is automatically unmapped on driver detach.
++ */
++void __iomem *devm_ioremap_uc(struct device *dev, resource_size_t offset,
++			      resource_size_t size)
++{
++	return __devm_ioremap(dev, offset, size, DEVM_IOREMAP_UC);
++}
++EXPORT_SYMBOL_GPL(devm_ioremap_uc);
 +
- 	shut.cum_tsn_ack = htonl(ctsn);
- 
- 	retval = sctp_make_control(asoc, SCTP_CID_SHUTDOWN, 0,
+ /**
+  * devm_ioremap_nocache - Managed ioremap_nocache()
+  * @dev: Generic device to remap IO address for
+-- 
+2.20.1
+
 
 
