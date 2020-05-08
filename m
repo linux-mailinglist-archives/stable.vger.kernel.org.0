@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 861721CAC09
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:49:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 005621CAD97
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729732AbgEHMt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:49:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54958 "EHLO mail.kernel.org"
+        id S1729740AbgEHMt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:49:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727933AbgEHMtY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:49:24 -0400
+        id S1729733AbgEHMt0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:49:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF09121473;
-        Fri,  8 May 2020 12:49:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6229421582;
+        Fri,  8 May 2020 12:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942163;
-        bh=Le0zW1plhrNPBG0p2P7erK3rKc1E/Ehf/4uht5qiCYE=;
+        s=default; t=1588942165;
+        bh=d4tZJ1lNOOitCep9qPpvmUw7f2lXt1ujH7SYD/ecmjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uHPVo8CuEMNEp/GyQxhcohrnArHk8ThvdLPcTSVsVust5PVbxssGMZb5pHntQZijl
-         c8vtXJ0T5KiL+iEUDKC6GiDt1dc4eyrWJy+wKbuI/xq+TDHKHm26X5/Hy3Ee5pAA9+
-         F3IDksgWXfZ/X9+5joU8HA2/E+6kvOf/uid0Sad8=
+        b=fEspxyk5CLzywM8qpB571+C8elUvLSnLy4RnbHmVIaSsN6XJ17xCDbWUgc66Bfv7A
+         Q6ZdPltxFj0uEQuZyZN5/eST07V3qItW+BX7ArYxltbyn6thJ/jZ8xXKIZ3IrlyK8r
+         DxyOcS9jriXpvu5QNdPBKtl7m317fMtAqECjmdyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 10/18] net: dsa: b53: Rework ARL bin logic
-Date:   Fri,  8 May 2020 14:35:13 +0200
-Message-Id: <20200508123033.056749305@linuxfoundation.org>
+Subject: [PATCH 4.9 11/18] lib/mpi: Fix building for powerpc with clang
+Date:   Fri,  8 May 2020 14:35:14 +0200
+Message-Id: <20200508123033.324538586@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
 References: <20200508123030.497793118@linuxfoundation.org>
@@ -44,117 +46,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 6344dbde6a27d10d16246d734b968f84887841e2 ]
+[ Upstream commit 5990cdee689c6885b27c6d969a3d58b09002b0bc ]
 
-When asking the ARL to read a MAC address, we will get a number of bins
-returned in a single read. Out of those bins, there can essentially be 3
-states:
+0day reports over and over on an powerpc randconfig with clang:
 
-- all bins are full, we have no space left, and we can either replace an
-  existing address or return that full condition
+lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
+inline asm context requiring an l-value: remove the cast or build with
+-fheinous-gnu-extensions
 
-- the MAC address was found, then we need to return its bin index and
-  modify that one, and only that one
+Remove the superfluous casts, which have been done previously for x86
+and arm32 in commit dea632cadd12 ("lib/mpi: fix build with clang") and
+commit 7b7c1df2883d ("lib/mpi/longlong.h: fix building with 32-bit
+x86").
 
-- the MAC address was not found and we have a least one bin free, we use
-  that bin index location then
-
-The code would unfortunately fail on all counts.
-
-Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/991
+Link: https://lore.kernel.org/r/20200413195041.24064-1-natechancellor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/b53/b53_common.c | 30 ++++++++++++++++++++++++++----
- drivers/net/dsa/b53/b53_regs.h   |  3 +++
- 2 files changed, 29 insertions(+), 4 deletions(-)
+ lib/mpi/longlong.h | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
-index 71525950c641d..060f9b1769298 100644
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -1109,6 +1109,7 @@ static int b53_arl_read(struct b53_device *dev, u64 mac,
- 			u16 vid, struct b53_arl_entry *ent, u8 *idx,
- 			bool is_valid)
- {
-+	DECLARE_BITMAP(free_bins, B53_ARLTBL_MAX_BIN_ENTRIES);
- 	unsigned int i;
- 	int ret;
- 
-@@ -1116,6 +1117,8 @@ static int b53_arl_read(struct b53_device *dev, u64 mac,
- 	if (ret)
- 		return ret;
- 
-+	bitmap_zero(free_bins, dev->num_arl_entries);
-+
- 	/* Read the bins */
- 	for (i = 0; i < dev->num_arl_entries; i++) {
- 		u64 mac_vid;
-@@ -1127,13 +1130,21 @@ static int b53_arl_read(struct b53_device *dev, u64 mac,
- 			   B53_ARLTBL_DATA_ENTRY(i), &fwd_entry);
- 		b53_arl_to_entry(ent, mac_vid, fwd_entry);
- 
--		if (!(fwd_entry & ARLTBL_VALID))
-+		if (!(fwd_entry & ARLTBL_VALID)) {
-+			set_bit(i, free_bins);
- 			continue;
-+		}
- 		if ((mac_vid & ARLTBL_MAC_MASK) != mac)
- 			continue;
- 		*idx = i;
-+		return 0;
- 	}
- 
-+	if (bitmap_weight(free_bins, dev->num_arl_entries) == 0)
-+		return -ENOSPC;
-+
-+	*idx = find_first_bit(free_bins, dev->num_arl_entries);
-+
- 	return -ENOENT;
- }
- 
-@@ -1163,10 +1174,21 @@ static int b53_arl_op(struct b53_device *dev, int op, int port,
- 	if (op)
- 		return ret;
- 
--	/* We could not find a matching MAC, so reset to a new entry */
--	if (ret) {
-+	switch (ret) {
-+	case -ENOSPC:
-+		dev_dbg(dev->dev, "{%pM,%.4d} no space left in ARL\n",
-+			addr, vid);
-+		return is_valid ? ret : 0;
-+	case -ENOENT:
-+		/* We could not find a matching MAC, so reset to a new entry */
-+		dev_dbg(dev->dev, "{%pM,%.4d} not found, using idx: %d\n",
-+			addr, vid, idx);
- 		fwd_entry = 0;
--		idx = 1;
-+		break;
-+	default:
-+		dev_dbg(dev->dev, "{%pM,%.4d} found, using idx: %d\n",
-+			addr, vid, idx);
-+		break;
- 	}
- 
- 	memset(&ent, 0, sizeof(ent));
-diff --git a/drivers/net/dsa/b53/b53_regs.h b/drivers/net/dsa/b53/b53_regs.h
-index 85c44bfba55a2..3cf246c6bdcc4 100644
---- a/drivers/net/dsa/b53/b53_regs.h
-+++ b/drivers/net/dsa/b53/b53_regs.h
-@@ -280,6 +280,9 @@
- #define   ARLTBL_STATIC			BIT(15)
- #define   ARLTBL_VALID			BIT(16)
- 
-+/* Maximum number of bin entries in the ARL for all switches */
-+#define B53_ARLTBL_MAX_BIN_ENTRIES	4
-+
- /* ARL Search Control Register (8 bit) */
- #define B53_ARL_SRCH_CTL		0x50
- #define B53_ARL_SRCH_CTL_25		0x20
+diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
+index 0f64fcee4ccd1..8f383cca6bb1f 100644
+--- a/lib/mpi/longlong.h
++++ b/lib/mpi/longlong.h
+@@ -756,22 +756,22 @@ do {									\
+ do { \
+ 	if (__builtin_constant_p(bh) && (bh) == 0) \
+ 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "%r" ((USItype)(ah)), \
+ 		"%r" ((USItype)(al)), \
+ 		"rI" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
+ 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "%r" ((USItype)(ah)), \
+ 		"%r" ((USItype)(al)), \
+ 		"rI" ((USItype)(bl))); \
+ 	else \
+ 		__asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "%r" ((USItype)(ah)), \
+ 		"r" ((USItype)(bh)), \
+ 		"%r" ((USItype)(al)), \
+@@ -781,36 +781,36 @@ do { \
+ do { \
+ 	if (__builtin_constant_p(ah) && (ah) == 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(bh)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(ah) && (ah) == ~(USItype) 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(bh)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(bh) && (bh) == 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(ah)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
+ 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(ah)), \
+ 		"rI" ((USItype)(al)), \
+ 		"r" ((USItype)(bl))); \
+ 	else \
+ 		__asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2" \
+-		: "=r" ((USItype)(sh)), \
+-		"=&r" ((USItype)(sl)) \
++		: "=r" (sh), \
++		"=&r" (sl) \
+ 		: "r" ((USItype)(ah)), \
+ 		"r" ((USItype)(bh)), \
+ 		"rI" ((USItype)(al)), \
+@@ -821,7 +821,7 @@ do { \
+ do { \
+ 	USItype __m0 = (m0), __m1 = (m1); \
+ 	__asm__ ("mulhwu %0,%1,%2" \
+-	: "=r" ((USItype) ph) \
++	: "=r" (ph) \
+ 	: "%r" (__m0), \
+ 	"r" (__m1)); \
+ 	(pl) = __m0 * __m1; \
 -- 
 2.20.1
 
