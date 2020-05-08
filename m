@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C05D51CAC95
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBF41CADA4
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730234AbgEHMyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:54:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37220 "EHLO mail.kernel.org"
+        id S1728032AbgEHNDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:03:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728425AbgEHMyn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:54:43 -0400
+        id S1729525AbgEHMua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:50:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DF282496A;
-        Fri,  8 May 2020 12:54:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF62924958;
+        Fri,  8 May 2020 12:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942483;
-        bh=/pCLZHYr2OmVi2mS3ZUGZ80/NyMpK1+qw2ThEw/BWPI=;
+        s=default; t=1588942230;
+        bh=AsdhOWSmGpAo9X9fraQLcchhnvazowDqGOabd/fCwm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xv5u1iYUByJZp2gee8o/BTCUGEtEjlH8T74u45eZTQa3GWoH6vqOdW++lMli3jUba
-         EHNp8BTeajA96JaOTPSfSCQx4SO1G7TZjbvuhgbgnAIn6p+CguFiFQcVNG4yQpXjlL
-         nkrRTh7FEk5hyMXLEl00PZzkCeoJfZsNXQ6jeRcE=
+        b=ugQCPYfi8jbkblI1QgTc89W4SlsfZevwrB1+AaFkLWHgPltLBSqRThRfGbiYYw5Xl
+         yjOADwR8lldEUXmeBh5cBAdeWS4oTGXgMRagcv4pj7wPfXfnN+DBQTRc6/BcOxoTIz
+         VNj2cL2hnTEMHEuh+ZKW0mffyMznn9g8E9RxOkbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 13/49] selftests/ipc: Fix test failure seen after initial test run
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jere=20Lepp=C3=A4nen?= <jere.leppanen@nokia.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 18/22] sctp: Fix SHUTDOWN CTSN Ack in the peer restart case
 Date:   Fri,  8 May 2020 14:35:30 +0200
-Message-Id: <20200508123044.904724531@linuxfoundation.org>
+Message-Id: <20200508123036.195643301@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
-References: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
+References: <20200508123033.915895060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyler Hicks <tyhicks@linux.microsoft.com>
+From: Jere Leppänen <jere.leppanen@nokia.com>
 
-[ Upstream commit b87080eab4c1377706c113fc9c0157f19ea8fed1 ]
+commit 12dfd78e3a74825e6f0bc8df7ef9f938fbc6bfe3 upstream.
 
-After successfully running the IPC msgque test once, subsequent runs
-result in a test failure:
+When starting shutdown in sctp_sf_do_dupcook_a(), get the value for
+SHUTDOWN Cumulative TSN Ack from the new association, which is
+reconstructed from the cookie, instead of the old association, which
+the peer doesn't have anymore.
 
-  $ sudo ./run_kselftest.sh
-  TAP version 13
-  1..1
-  # selftests: ipc: msgque
-  # Failed to get stats for IPC queue with id 0
-  # Failed to dump queue: -22
-  # Bail out!
-  # # Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
-  not ok 1 selftests: ipc: msgque # exit=1
+Otherwise the SHUTDOWN is either ignored or replied to with an ABORT
+by the peer because CTSN Ack doesn't match the peer's Initial TSN.
 
-The dump_queue() function loops through the possible message queue index
-values using calls to msgctl(kern_id, MSG_STAT, ...) where kern_id
-represents the index value. The first time the test is ran, the initial
-index value of 0 is valid and the test is able to complete. The index
-value of 0 is not valid in subsequent test runs and the loop attempts to
-try index values of 1, 2, 3, and so on until a valid index value is
-found that corresponds to the message queue created earlier in the test.
+Fixes: bdf6fa52f01b ("sctp: handle association restarts when the socket is closed.")
+Signed-off-by: Jere Leppänen <jere.leppanen@nokia.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The msgctl() syscall returns -1 and sets errno to EINVAL when invalid
-index values are used. The test failure is caused by incorrectly
-comparing errno to -EINVAL when cycling through possible index values.
-
-Fix invalid test failures on subsequent runs of the msgque test by
-correctly comparing errno values to a non-negated EINVAL.
-
-Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
-Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/ipc/msgque.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sctp/sm_make_chunk.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
-index 4c156aeab6b80..5ec4d9e18806c 100644
---- a/tools/testing/selftests/ipc/msgque.c
-+++ b/tools/testing/selftests/ipc/msgque.c
-@@ -137,7 +137,7 @@ int dump_queue(struct msgque_data *msgque)
- 	for (kern_id = 0; kern_id < 256; kern_id++) {
- 		ret = msgctl(kern_id, MSG_STAT, &ds);
- 		if (ret < 0) {
--			if (errno == -EINVAL)
-+			if (errno == EINVAL)
- 				continue;
- 			printf("Failed to get stats for IPC queue with id %d\n",
- 					kern_id);
--- 
-2.20.1
-
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -858,7 +858,11 @@ struct sctp_chunk *sctp_make_shutdown(co
+ 	struct sctp_chunk *retval;
+ 	__u32 ctsn;
+ 
+-	ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
++	if (chunk && chunk->asoc)
++		ctsn = sctp_tsnmap_get_ctsn(&chunk->asoc->peer.tsn_map);
++	else
++		ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
++
+ 	shut.cum_tsn_ack = htonl(ctsn);
+ 
+ 	retval = sctp_make_control(asoc, SCTP_CID_SHUTDOWN, 0,
 
 
