@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAEE1CAB65
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3478A1CAF9F
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729059AbgEHMnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:43:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40870 "EHLO mail.kernel.org"
+        id S1728636AbgEHNSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:18:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728620AbgEHMnQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:43:16 -0400
+        id S1728053AbgEHMnS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:43:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34D2B24973;
-        Fri,  8 May 2020 12:43:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A54BA20731;
+        Fri,  8 May 2020 12:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941795;
-        bh=GQS6+EQAyU4PQ2E8sPYaUu3YJ+wCBWJ8k/5K90gMOfM=;
+        s=default; t=1588941798;
+        bh=+Kr0YZdilqw32Wu6ZnjBEU69JrMi5MUb4OE8GixeM8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXPJrs2Hn4Gs1YwI5H9ZGo2eN+AAjffUImrZhJtLm2sDW4ylhzo/6BH7LcOnkeunE
-         Dd8LtAnmfHeXa7E+Xm8fSN4DP/1uYnbpTAaFLu+BW2YKBkAPzRGxQktznoMEoaKFmc
-         In7bw7DZ1t33vV/jZnBlAXeK8Vs078uTFkBBkASY=
+        b=fdIYwOi7xxTrt/S6NXWhA+QFvrWRssbYbyh/NCMA6NNv31q0HKCr/ZL+3KsNK8wJL
+         zIgPLhcCMsjNEZSpdHJsAjTXcBCLW3c8Vy8lyKBkc7Q5hJMYgbr4Le8CFMZliDjyHu
+         oc5eEJgHmqLnjN7X72GzXW1cWuVIjloaiU53GA1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Eric Auger <eric.auger@linaro.org>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 4.4 174/312] VFIO: platform: reset: fix a warning message condition
-Date:   Fri,  8 May 2020 14:32:45 +0200
-Message-Id: <20200508123136.734835774@linuxfoundation.org>
+        Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 175/312] net: moxa: fix an error code
+Date:   Fri,  8 May 2020 14:32:46 +0200
+Message-Id: <20200508123136.803325883@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -46,32 +46,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 967628827f404b3063016c138ccc7b06c54350f8 upstream.
+commit 1d3cd1773fddfdc9ffb0c2dec9a954c7a54bc207 upstream.
 
-This loop ends with count set to -1 and not zero so the warning message
-isn't printed when it should be.  I've fixed this by change the postop
-to a preop.
+We accidentally return IS_ERR(priv->base) which is 1 instead of
+PTR_ERR(priv->base) which is the error code.
 
-Fixes: 0990822c9866 ('VFIO: platform: reset: AMD xgbe reset module')
+Fixes: 6c821bd9edc9 ('net: Add MOXA ART SoCs ethernet driver')
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Eric Auger <eric.auger@linaro.org>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/platform/reset/vfio_platform_amdxgbe.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/moxa/moxart_ether.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/vfio/platform/reset/vfio_platform_amdxgbe.c
-+++ b/drivers/vfio/platform/reset/vfio_platform_amdxgbe.c
-@@ -110,7 +110,7 @@ int vfio_platform_amdxgbe_reset(struct v
- 	usleep_range(10, 15);
+--- a/drivers/net/ethernet/moxa/moxart_ether.c
++++ b/drivers/net/ethernet/moxa/moxart_ether.c
+@@ -460,9 +460,9 @@ static int moxart_mac_probe(struct platf
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	ndev->base_addr = res->start;
+ 	priv->base = devm_ioremap_resource(p_dev, res);
+-	ret = IS_ERR(priv->base);
+-	if (ret) {
++	if (IS_ERR(priv->base)) {
+ 		dev_err(p_dev, "devm_ioremap_resource failed\n");
++		ret = PTR_ERR(priv->base);
+ 		goto init_fail;
+ 	}
  
- 	count = 2000;
--	while (count-- && (ioread32(xgmac_regs->ioaddr + DMA_MR) & 1))
-+	while (--count && (ioread32(xgmac_regs->ioaddr + DMA_MR) & 1))
- 		usleep_range(500, 600);
- 
- 	if (!count)
 
 
