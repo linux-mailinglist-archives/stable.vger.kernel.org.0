@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34ED31CAD19
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A72231CAD3C
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726825AbgEHMv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60408 "EHLO mail.kernel.org"
+        id S1728272AbgEHM7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:59:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729900AbgEHMvX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:23 -0400
+        id S1730025AbgEHMxH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:53:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4536F24953;
-        Fri,  8 May 2020 12:51:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8802824953;
+        Fri,  8 May 2020 12:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942282;
-        bh=5UUaHL/T+MNhOlEAM9Bbtuz7oEuaCC3NVlwW6aTI8t4=;
+        s=default; t=1588942387;
+        bh=CMnwyT2LMCD0EZriqR5rgqNhfdV0DFvfJcImtGsdcOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vbzVeR19TGNBOup/y7cAJLCfh1To+yLZuF5qUC6c4SCYRdnKxQDen3EMeFiV2//gZ
-         ER3WlYoaVicltjeMRt+guBDgtoXpVgi9sd96lot5BMt2734vfiwihxeZSAPWxPyW5z
-         BNOE95xOw7lGhWP1h/TAX7dOwLCtSYuUd5Qknx5Y=
+        b=YPv3BQdi/HQMK52xkJIfc0RaJiP7TYdBumEaAiVa8YzjceVaEauU67Nl69xOyGtlQ
+         mIdUofOZWqsFnGls9eP8jhELyiMHJi4RI847ZxKL7pKc8XxgdfPJqkQvHhfoAKVe71
+         HPg2b3ybBiaJn0JSKbzy3oJ8RihKEGDGCEs19kqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
         Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/32] cifs: protect updating server->dstaddr with a spinlock
-Date:   Fri,  8 May 2020 14:35:29 +0200
-Message-Id: <20200508123036.981881820@linuxfoundation.org>
+Subject: [PATCH 5.4 24/50] cifs: do not share tcons with DFS
+Date:   Fri,  8 May 2020 14:35:30 +0200
+Message-Id: <20200508123046.763258087@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit fada37f6f62995cc449b36ebba1220594bfe55fe ]
+[ Upstream commit 65303de829dd6d291a4947c1a31de31896f8a060 ]
 
-We use a spinlock while we are reading and accessing the destination address for a server.
-We need to also use this spinlock to protect when we are modifying this address from
-reconn_set_ipaddr().
+This disables tcon re-use for DFS shares.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+tcon->dfs_path stores the path that the tcon should connect to when
+doing failing over.
+
+If that tcon is used multiple times e.g. 2 mounts using it with
+different prefixpath, each will need a different dfs_path but there is
+only one tcon. The other solution would be to split the tcon in 2
+tcons during failover but that is much harder.
+
+tcons could not be shared with DFS in cifs.ko because in a
+DFS namespace like:
+
+          //domain/dfsroot -> /serverA/dfsroot, /serverB/dfsroot
+
+          //serverA/dfsroot/link -> /serverA/target1/aa/bb
+
+          //serverA/dfsroot/link2 -> /serverA/target1/cc/dd
+
+you can see that link and link2 are two DFS links that both resolve to
+the same target share (/serverA/target1), so cifs.ko will only contain a
+single tcon for both link and link2.
+
+The problem with that is, if we (auto)mount "link" and "link2", cifs.ko
+will only contain a single tcon for both DFS links so we couldn't
+perform failover or refresh the DFS cache for both links because
+tcon->dfs_path was set to either "link" or "link2", but not both --
+which is wrong.
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/cifs/connect.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 975f800b9dd4d..9e569d60c636b 100644
+index 52589ea4e3c05..721b2560caa74 100644
 --- a/fs/cifs/connect.c
 +++ b/fs/cifs/connect.c
-@@ -353,8 +353,10 @@ static int reconn_set_ipaddr(struct TCP_Server_Info *server)
- 		return rc;
- 	}
- 
-+	spin_lock(&cifs_tcp_ses_lock);
- 	rc = cifs_convert_address((struct sockaddr *)&server->dstaddr, ipaddr,
- 				  strlen(ipaddr));
-+	spin_unlock(&cifs_tcp_ses_lock);
- 	kfree(ipaddr);
- 
- 	return !rc ? -1 : 0;
+@@ -3362,6 +3362,10 @@ cifs_find_tcon(struct cifs_ses *ses, struct smb_vol *volume_info)
+ 	spin_lock(&cifs_tcp_ses_lock);
+ 	list_for_each(tmp, &ses->tcon_list) {
+ 		tcon = list_entry(tmp, struct cifs_tcon, tcon_list);
++#ifdef CONFIG_CIFS_DFS_UPCALL
++		if (tcon->dfs_path)
++			continue;
++#endif
+ 		if (!match_tcon(tcon, volume_info))
+ 			continue;
+ 		++tcon->tc_count;
 -- 
 2.20.1
 
