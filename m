@@ -2,182 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D111C9F4F
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 01:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 232331C9FCB
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 02:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726480AbgEGXxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 19:53:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52750 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726476AbgEGXxp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 May 2020 19:53:45 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1FA920720;
-        Thu,  7 May 2020 23:53:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588895624;
-        bh=4cQyWJROk5wGYMXFEIKUKovpkS26o5KvIY2HePmm3Gg=;
-        h=Date:From:To:Subject:From;
-        b=k/FSwels1XVm9hN+P37irMRBZRh+lsmjNsMPg24oyCS/dPPXlofdfl21x8vwSyQmj
-         3tEblN+TmrFrZZhPCu6rtE5hfj9lDVl14AWpi/9L0WrdbROay30nLgGrOLNkE6Or9t
-         z6R55HEFOXm3XG99YQeu6OKlsPk8nSWNHSZkQqqk=
-Date:   Thu, 07 May 2020 16:53:43 -0700
-From:   akpm@linux-foundation.org
-To:     dave@stgolabs.net, longman@redhat.com, manfred@colorfullife.com,
-        mingo@redhat.com, mm-commits@vger.kernel.org, neilb@suse.com,
-        oberpar@linux.ibm.com, rostedt@goodmis.org, schwab@suse.de,
-        stable@vger.kernel.org, vvs@virtuozzo.com
-Subject:  +
- ipc-utilc-sysvipc_find_ipc-incorrectly-updates-position-index.patch added
- to -mm tree
-Message-ID: <20200507235343.GG9mhhjlf%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726518AbgEHAp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 20:45:26 -0400
+Received: from mail-pj1-f68.google.com ([209.85.216.68]:37271 "EHLO
+        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726470AbgEHAp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 20:45:26 -0400
+Received: by mail-pj1-f68.google.com with SMTP id a7so3440025pju.2
+        for <stable@vger.kernel.org>; Thu, 07 May 2020 17:45:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=T1RdoN5yYMOPyos/tTMbsBpzg7SNlCVRUTxr+QKqco8=;
+        b=Z8RixYh53ywE2RnhzWUJiCiIvXNcxYlf6SNJ+dDKDFhebxLFsohOhJfA77ioWK8ZnT
+         uyBIW9ugAqUzXcmy2PTI83O995dxtvJ+MDJ4GgeibOwGLIdFL21Jzll7sd/jSAmRbqGm
+         rrsTJkYxhiVfqapRgRdHPgUWCvHzhjwkxBfmHqODz9SaSS/dYvszqi5PzHx1RGhqJ4CN
+         FOx6eNLn7BhzXMDwW1FY8Fg/zKZDHZrFzbpsXmxbaR5JTg7PKwFxzeyzdengSprLqYw3
+         dhBdcF1ZjAY3S76f+tGFpd6HyJxPEwejJoTA1jxLYV/Wph288c9/VMzvKfaTWA+rH8is
+         B9gA==
+X-Gm-Message-State: AGi0PubZNnnA/n517XVvniobtaD88Qn+zovr9pa4wzSCFbC1ld4tAR4M
+        tUaMIZWp5fVJQifhNMtvs2w=
+X-Google-Smtp-Source: APiQypKl8X92PyJIO8Hk6djHXXlpYugrMfS5kZj/XWC5UVzlnknu3W2yQvA7EoD1xx/pBWIlMgLY/A==
+X-Received: by 2002:a17:902:eacb:: with SMTP id p11mr10908219pld.14.1588898725173;
+        Thu, 07 May 2020 17:45:25 -0700 (PDT)
+Received: from ?IPv6:2601:647:4802:9070:6507:baa2:4de7:40e9? ([2601:647:4802:9070:6507:baa2:4de7:40e9])
+        by smtp.gmail.com with ESMTPSA id p1sm903648pjk.50.2020.05.07.17.45.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 May 2020 17:45:24 -0700 (PDT)
+Subject: Re: [PATCH stable 5.4+] nvme: fix possible hang when ns scanning
+ fails during error recovery
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>
+References: <20200506231451.23145-1-sagi@grimberg.me>
+ <20200507070317.GB841650@kroah.com>
+From:   Sagi Grimberg <sagi@grimberg.me>
+Message-ID: <0319f65d-9928-4fcf-a7f4-9e9e80beb619@grimberg.me>
+Date:   Thu, 7 May 2020 17:45:22 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Firefox/68.0 Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20200507070317.GB841650@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: ipc/util.c: sysvipc_find_ipc() incorrectly updates position index
-has been added to the -mm tree.  Its filename is
-     ipc-utilc-sysvipc_find_ipc-incorrectly-updates-position-index.patch
+>> When the controller is reconnecting, the host fails I/O and admin
+>> commands as the host cannot reach the controller. ns scanning may
+>> revalidate namespaces during that period and it is wrong to remove
+>> namespaces due to these failures as we may hang (see 205da2434301).
+>>
+>> One command that may fail is nvme_identify_ns_descs. Since we return
+>> success due to having ns descriptor list optional, we continue to
+>> validate ns identifiers in nvme_revalidate_disk, obviously fail and
+>> return -ENODEV to nvme_validate_ns, which will remove the namespace.
+>>
+>> Exactly what we don't want to happen.
+>>
+>> Fixes: 22802bf742c2 ("nvme: Namepace identification descriptor list is optional")
+>> Tested-by: Anton Eidelman <anton@lightbitslabs.com>
+>> Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+>>
+>> Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+>> ---
+>>   drivers/nvme/host/core.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> What is the git commit id of this patch in Linus's tree?
+> 
+> And why sign-off on a patch twice with a blank line?
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/ipc-utilc-sysvipc_find_ipc-incorrectly-updates-position-index.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/ipc-utilc-sysvipc_find_ipc-incorrectly-updates-position-index.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Vasily Averin <vvs@virtuozzo.com>
-Subject: ipc/util.c: sysvipc_find_ipc() incorrectly updates position index
-
-Commit 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase
-position index") is causing this bug (seen on 5.6.8):
-
-# ipcs -q
-
------- Message Queues --------
-key        msqid      owner      perms      used-bytes   messages    
-
-# ipcmk -Q
-Message queue id: 0
-# ipcs -q
-
------- Message Queues --------
-key        msqid      owner      perms      used-bytes   messages    
-0x82db8127 0          root       644        0            0           
-
-# ipcmk -Q
-Message queue id: 1
-# ipcs -q
-
------- Message Queues --------
-key        msqid      owner      perms      used-bytes   messages    
-0x82db8127 0          root       644        0            0           
-0x76d1fb2a 1          root       644        0            0           
-
-# ipcrm -q 0
-# ipcs -q
-
------- Message Queues --------
-key        msqid      owner      perms      used-bytes   messages    
-0x76d1fb2a 1          root       644        0            0           
-0x76d1fb2a 1          root       644        0            0           
-
-# ipcmk -Q
-Message queue id: 2
-# ipcrm -q 2
-# ipcs -q
-
------- Message Queues --------
-key        msqid      owner      perms      used-bytes   messages    
-0x76d1fb2a 1          root       644        0            0           
-0x76d1fb2a 1          root       644        0            0           
-
-# ipcmk -Q
-Message queue id: 3
-# ipcrm -q 1
-# ipcs -q
-
------- Message Queues --------
-key        msqid      owner      perms      used-bytes   messages    
-0x7c982867 3          root       644        0            0           
-0x7c982867 3          root       644        0            0           
-0x7c982867 3          root       644        0            0           
-0x7c982867 3          root       644        0            0           
-
-
-Whenever an IPC item with a low id is deleted, the items with higher ids
-are duplicated, as if filling a hole.
-
-new_pos should jump through hole of unused ids, pos can be updated inside
-"for" cycle.
-
-Link: http://lkml.kernel.org/r/4921fe9b-9385-a2b4-1dc4-1099be6d2e39@virtuozzo.com
-Fixes: 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase position index")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reported-by: Andreas Schwab <schwab@suse.de>
-Acked-by: Waiman Long <longman@redhat.com>
-Cc: NeilBrown <neilb@suse.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- ipc/util.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
---- a/ipc/util.c~ipc-utilc-sysvipc_find_ipc-incorrectly-updates-position-index
-+++ a/ipc/util.c
-@@ -764,21 +764,21 @@ static struct kern_ipc_perm *sysvipc_fin
- 			total++;
- 	}
- 
--	*new_pos = pos + 1;
-+	ipc = NULL;
- 	if (total >= ids->in_use)
--		return NULL;
-+		goto out;
- 
- 	for (; pos < ipc_mni; pos++) {
- 		ipc = idr_find(&ids->ipcs_idr, pos);
- 		if (ipc != NULL) {
- 			rcu_read_lock();
- 			ipc_lock_object(ipc);
--			return ipc;
-+			break;
- 		}
- 	}
--
--	/* Out of range - return NULL to terminate iteration */
--	return NULL;
-+out:
-+	*new_pos = pos + 1;
-+	return ipc;
- }
- 
- static void *sysvipc_proc_next(struct seq_file *s, void *it, loff_t *pos)
-_
-
-Patches currently in -mm which might be from vvs@virtuozzo.com are
-
-ipc-utilc-sysvipc_find_ipc-incorrectly-updates-position-index.patch
-
+I'll resend greg, sorry for the inconvenience.
