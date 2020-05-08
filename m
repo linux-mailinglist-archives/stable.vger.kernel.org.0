@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A72231CAD3C
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C05D51CAC95
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728272AbgEHM7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:59:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34604 "EHLO mail.kernel.org"
+        id S1730234AbgEHMyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:54:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730025AbgEHMxH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:53:07 -0400
+        id S1728425AbgEHMyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:54:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8802824953;
-        Fri,  8 May 2020 12:53:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DF282496A;
+        Fri,  8 May 2020 12:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942387;
-        bh=CMnwyT2LMCD0EZriqR5rgqNhfdV0DFvfJcImtGsdcOA=;
+        s=default; t=1588942483;
+        bh=/pCLZHYr2OmVi2mS3ZUGZ80/NyMpK1+qw2ThEw/BWPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPv3BQdi/HQMK52xkJIfc0RaJiP7TYdBumEaAiVa8YzjceVaEauU67Nl69xOyGtlQ
-         mIdUofOZWqsFnGls9eP8jhELyiMHJi4RI847ZxKL7pKc8XxgdfPJqkQvHhfoAKVe71
-         HPg2b3ybBiaJn0JSKbzy3oJ8RihKEGDGCEs19kqA=
+        b=Xv5u1iYUByJZp2gee8o/BTCUGEtEjlH8T74u45eZTQa3GWoH6vqOdW++lMli3jUba
+         EHNp8BTeajA96JaOTPSfSCQx4SO1G7TZjbvuhgbgnAIn6p+CguFiFQcVNG4yQpXjlL
+         nkrRTh7FEk5hyMXLEl00PZzkCeoJfZsNXQ6jeRcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/50] cifs: do not share tcons with DFS
+Subject: [PATCH 5.6 13/49] selftests/ipc: Fix test failure seen after initial test run
 Date:   Fri,  8 May 2020 14:35:30 +0200
-Message-Id: <20200508123046.763258087@linuxfoundation.org>
+Message-Id: <20200508123044.904724531@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,63 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-[ Upstream commit 65303de829dd6d291a4947c1a31de31896f8a060 ]
+[ Upstream commit b87080eab4c1377706c113fc9c0157f19ea8fed1 ]
 
-This disables tcon re-use for DFS shares.
+After successfully running the IPC msgque test once, subsequent runs
+result in a test failure:
 
-tcon->dfs_path stores the path that the tcon should connect to when
-doing failing over.
+  $ sudo ./run_kselftest.sh
+  TAP version 13
+  1..1
+  # selftests: ipc: msgque
+  # Failed to get stats for IPC queue with id 0
+  # Failed to dump queue: -22
+  # Bail out!
+  # # Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
+  not ok 1 selftests: ipc: msgque # exit=1
 
-If that tcon is used multiple times e.g. 2 mounts using it with
-different prefixpath, each will need a different dfs_path but there is
-only one tcon. The other solution would be to split the tcon in 2
-tcons during failover but that is much harder.
+The dump_queue() function loops through the possible message queue index
+values using calls to msgctl(kern_id, MSG_STAT, ...) where kern_id
+represents the index value. The first time the test is ran, the initial
+index value of 0 is valid and the test is able to complete. The index
+value of 0 is not valid in subsequent test runs and the loop attempts to
+try index values of 1, 2, 3, and so on until a valid index value is
+found that corresponds to the message queue created earlier in the test.
 
-tcons could not be shared with DFS in cifs.ko because in a
-DFS namespace like:
+The msgctl() syscall returns -1 and sets errno to EINVAL when invalid
+index values are used. The test failure is caused by incorrectly
+comparing errno to -EINVAL when cycling through possible index values.
 
-          //domain/dfsroot -> /serverA/dfsroot, /serverB/dfsroot
+Fix invalid test failures on subsequent runs of the msgque test by
+correctly comparing errno values to a non-negated EINVAL.
 
-          //serverA/dfsroot/link -> /serverA/target1/aa/bb
-
-          //serverA/dfsroot/link2 -> /serverA/target1/cc/dd
-
-you can see that link and link2 are two DFS links that both resolve to
-the same target share (/serverA/target1), so cifs.ko will only contain a
-single tcon for both link and link2.
-
-The problem with that is, if we (auto)mount "link" and "link2", cifs.ko
-will only contain a single tcon for both DFS links so we couldn't
-perform failover or refresh the DFS cache for both links because
-tcon->dfs_path was set to either "link" or "link2", but not both --
-which is wrong.
-
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/testing/selftests/ipc/msgque.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 52589ea4e3c05..721b2560caa74 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -3362,6 +3362,10 @@ cifs_find_tcon(struct cifs_ses *ses, struct smb_vol *volume_info)
- 	spin_lock(&cifs_tcp_ses_lock);
- 	list_for_each(tmp, &ses->tcon_list) {
- 		tcon = list_entry(tmp, struct cifs_tcon, tcon_list);
-+#ifdef CONFIG_CIFS_DFS_UPCALL
-+		if (tcon->dfs_path)
-+			continue;
-+#endif
- 		if (!match_tcon(tcon, volume_info))
- 			continue;
- 		++tcon->tc_count;
+diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
+index 4c156aeab6b80..5ec4d9e18806c 100644
+--- a/tools/testing/selftests/ipc/msgque.c
++++ b/tools/testing/selftests/ipc/msgque.c
+@@ -137,7 +137,7 @@ int dump_queue(struct msgque_data *msgque)
+ 	for (kern_id = 0; kern_id < 256; kern_id++) {
+ 		ret = msgctl(kern_id, MSG_STAT, &ds);
+ 		if (ret < 0) {
+-			if (errno == -EINVAL)
++			if (errno == EINVAL)
+ 				continue;
+ 			printf("Failed to get stats for IPC queue with id %d\n",
+ 					kern_id);
 -- 
 2.20.1
 
