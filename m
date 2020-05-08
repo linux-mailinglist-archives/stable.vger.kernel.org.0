@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9533A1CAB54
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB5241CAFAB
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728981AbgEHMmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:42:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39892 "EHLO mail.kernel.org"
+        id S1728651AbgEHNSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:18:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728974AbgEHMmj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:42:39 -0400
+        id S1728984AbgEHMml (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:42:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A7E624970;
-        Fri,  8 May 2020 12:42:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 896E320731;
+        Fri,  8 May 2020 12:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941758;
-        bh=ZQ0XHbfBWQiIWiONf5FTHXKsilzV6KRIvH4mlihmPd4=;
+        s=default; t=1588941761;
+        bh=iKLOjbISfSmx+ATUFlxMQc5jsMELnFldoSD6Jp2nEvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mnRNANWtfxRUZyP1IroffIhMBqymu4fenGDEopGd190rsy6L6mLJEpTp0V81hTwJp
-         sIf1oQ+vaiBhlukzt257FkNpyf8nMWmd3ugUNxVcWR3wY2viIwLm9qHdRFMydYEdQx
-         BmEJxPSSICM68ShkAVjZ6p/E8RKWX/EcXdQjasc4=
+        b=a+dSlhWhKAHf7kJ2eAdthM/hrgUBxrH2cQtCsvksMD4GkQSz9/X6ReOcxvyiyvYCY
+         hJkd7j/ryxkaOzU9LQ7kVZNLjjO/qoZkekWDpN11gvKDmgBoAOKRSwjxA1Ts4KTppe
+         IyOb72TZWF2sGieZnD3fZx8ULMjzM3zQTwpE5KE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 161/312] iio:ad7797: Use correct attribute_group
-Date:   Fri,  8 May 2020 14:32:32 +0200
-Message-Id: <20200508123135.778053240@linuxfoundation.org>
+Subject: [PATCH 4.4 162/312] selftests/ipc: Fix test failure seen after initial test run
+Date:   Fri,  8 May 2020 14:32:33 +0200
+Message-Id: <20200508123135.845917934@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,38 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-[ Upstream commit 28535877ac5b2b84f0d394fd67a5ec71c0c48b10 ]
+[ Upstream commit b87080eab4c1377706c113fc9c0157f19ea8fed1 ]
 
-It should use ad7797_attribute_group in ad7797_info,
-according to commit ("iio:ad7793: Add support for the ad7796 and ad7797").
+After successfully running the IPC msgque test once, subsequent runs
+result in a test failure:
 
-Scale is fixed for the ad7796 and not programmable, hence
-should not have the scale_available attribute.
+  $ sudo ./run_kselftest.sh
+  TAP version 13
+  1..1
+  # selftests: ipc: msgque
+  # Failed to get stats for IPC queue with id 0
+  # Failed to dump queue: -22
+  # Bail out!
+  # # Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
+  not ok 1 selftests: ipc: msgque # exit=1
 
-Fixes: fd1a8b912841 ("iio:ad7793: Add support for the ad7796 and ad7797")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+The dump_queue() function loops through the possible message queue index
+values using calls to msgctl(kern_id, MSG_STAT, ...) where kern_id
+represents the index value. The first time the test is ran, the initial
+index value of 0 is valid and the test is able to complete. The index
+value of 0 is not valid in subsequent test runs and the loop attempts to
+try index values of 1, 2, 3, and so on until a valid index value is
+found that corresponds to the message queue created earlier in the test.
+
+The msgctl() syscall returns -1 and sets errno to EINVAL when invalid
+index values are used. The test failure is caused by incorrectly
+comparing errno to -EINVAL when cycling through possible index values.
+
+Fix invalid test failures on subsequent runs of the msgque test by
+correctly comparing errno values to a non-negated EINVAL.
+
+Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad7793.c | 2 +-
+ tools/testing/selftests/ipc/msgque.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ad7793.c b/drivers/iio/adc/ad7793.c
-index 91d34ed756eaf..fe0c5a155e211 100644
---- a/drivers/iio/adc/ad7793.c
-+++ b/drivers/iio/adc/ad7793.c
-@@ -579,7 +579,7 @@ static const struct iio_info ad7797_info = {
- 	.read_raw = &ad7793_read_raw,
- 	.write_raw = &ad7793_write_raw,
- 	.write_raw_get_fmt = &ad7793_write_raw_get_fmt,
--	.attrs = &ad7793_attribute_group,
-+	.attrs = &ad7797_attribute_group,
- 	.validate_trigger = ad_sd_validate_trigger,
- 	.driver_module = THIS_MODULE,
- };
+diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
+index 1b2ce334bb3f0..47c074d73e610 100644
+--- a/tools/testing/selftests/ipc/msgque.c
++++ b/tools/testing/selftests/ipc/msgque.c
+@@ -135,7 +135,7 @@ int dump_queue(struct msgque_data *msgque)
+ 	for (kern_id = 0; kern_id < 256; kern_id++) {
+ 		ret = msgctl(kern_id, MSG_STAT, &ds);
+ 		if (ret < 0) {
+-			if (errno == -EINVAL)
++			if (errno == EINVAL)
+ 				continue;
+ 			printf("Failed to get stats for IPC queue with id %d\n",
+ 					kern_id);
 -- 
 2.20.1
 
