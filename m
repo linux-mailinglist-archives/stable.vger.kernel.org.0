@@ -2,105 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23EF21CBB6C
-	for <lists+stable@lfdr.de>; Sat,  9 May 2020 01:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F0D1CBB71
+	for <lists+stable@lfdr.de>; Sat,  9 May 2020 01:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728353AbgEHXxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 19:53:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54958 "EHLO mail.kernel.org"
+        id S1728379AbgEHXxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 19:53:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727778AbgEHXxJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 19:53:09 -0400
+        id S1727878AbgEHXxV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 19:53:21 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C36D12063A;
-        Fri,  8 May 2020 23:53:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FB262063A;
+        Fri,  8 May 2020 23:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588981987;
-        bh=HhHKaurLAmb7NjsgrxbGjxSSVFmDRRfuuN9UCDjB39o=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=NlxsLycULu/0pDE5VncKMqsY68TvDzrBX4Z64itAzdFVs23jjGQe08PfomP/NtWT8
-         t+PlAdQE7wuMV/9rpzTnihUcJMRtJqlsdArVibUT/u4A0ZhILXtPYgryyu3m8JvFgO
-         cvEh5TrYedonuRC3JSEcG71eqRoSLBbbgIM2fD/M=
-Date:   Fri, 8 May 2020 16:53:06 -0700
+        s=default; t=1588982000;
+        bh=Q+zg/S+1Gx4065xyCGOd2vJrhliJjaxxiPkQceLl/fM=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=W2CClFWnASUjWS3FjpdC+13aANTdykKUpo1+WB7WWdgN4ditEx5p5vZsiXCufifz+
+         YUneyH0/haAWWK4a5VVmTNlaNkc0tXVkMD+yQUVUrMqv9sDI+Pd7ERs3/1lEUwxtIt
+         1nQLNWv/NVP/skh719Bp4srlvKkwvwPXBF9AYHeI=
+Date:   Fri, 08 May 2020 16:53:19 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linux-nvdimm@lists.01.org, kexec@lists.infradead.org,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH v4 1/4] device-dax: Don't leak kernel memory to user
- space after unloading kmem
-Message-Id: <20200508165306.7cd806f7e451c5c9bc2a40ac@linux-foundation.org>
-In-Reply-To: <20200508084217.9160-2-david@redhat.com>
-References: <20200508084217.9160-1-david@redhat.com>
-        <20200508084217.9160-2-david@redhat.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To:     akpm@linux-foundation.org, dan.j.williams@intel.com,
+        dave.jiang@intel.com, david@redhat.com, mm-commits@vger.kernel.org,
+        pasha.tatashin@soleen.com, stable@vger.kernel.org,
+        vishal.l.verma@intel.com
+Subject:  +
+ device-dax-dont-leak-kernel-memory-to-user-space-after-unloading-kmem.patch
+ added to -mm tree
+Message-ID: <20200508235319.0NmZ0DltL%akpm@linux-foundation.org>
+In-Reply-To: <20200507183509.c5ef146c5aaeb118a25a39a8@linux-foundation.org>
+User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri,  8 May 2020 10:42:14 +0200 David Hildenbrand <david@redhat.com> wrote:
 
-> Assume we have kmem configured and loaded:
->   [root@localhost ~]# cat /proc/iomem
->   ...
->   140000000-33fffffff : Persistent Memory$
->     140000000-1481fffff : namespace0.0
->     150000000-33fffffff : dax0.0
->       150000000-33fffffff : System RAM
-> 
-> Assume we try to unload kmem. This force-unloading will work, even if
-> memory cannot get removed from the system.
->   [root@localhost ~]# rmmod kmem
->   [   86.380228] removing memory fails, because memory [0x0000000150000000-0x0000000157ffffff] is onlined
->   ...
->   [   86.431225] kmem dax0.0: DAX region [mem 0x150000000-0x33fffffff] cannot be hotremoved until the next reboot
-> 
-> Now, we can reconfigure the namespace:
->   [root@localhost ~]# ndctl create-namespace --force --reconfig=namespace0.0 --mode=devdax
->   [  131.409351] nd_pmem namespace0.0: could not reserve region [mem 0x140000000-0x33fffffff]dax
->   [  131.410147] nd_pmem: probe of namespace0.0 failed with error -16namespace0.0 --mode=devdax
->   ...
-> 
-> This fails as expected due to the busy memory resource, and the memory
-> cannot be used. However, the dax0.0 device is removed, and along its name.
-> 
-> The name of the memory resource now points at freed memory (name of the
-> device).
->   [root@localhost ~]# cat /proc/iomem
->   ...
->   140000000-33fffffff : Persistent Memory
->     140000000-1481fffff : namespace0.0
->     150000000-33fffffff : �_�^7_��/_��wR��WQ���^��� ...
->     150000000-33fffffff : System RAM
-> 
-> We have to make sure to duplicate the string. While at it, remove the
-> superfluous setting of the name and fixup a stale comment.
-> 
-> Fixes: 9f960da72b25 ("device-dax: "Hotremove" persistent memory that is used like normal RAM")
-> Cc: stable@vger.kernel.org # v5.3
+The patch titled
+     Subject: device-dax: don't leak kernel memory to user space after unlo=
+ading kmem
+has been added to the -mm tree.  Its filename is
+     device-dax-dont-leak-kernel-memory-to-user-space-after-unloading-kmem.=
+patch
 
-hm.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/device-dax-dont-leak-kernel-me=
+mory-to-user-space-after-unloading-kmem.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/device-dax-dont-leak-kernel-me=
+mory-to-user-space-after-unloading-kmem.patch
 
-Is this really -stable material?  These are all privileged operations,
-I expect?
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Assuming "yes", I've queued this separately, staged for 5.7-rcX.  I'll
-redo patches 2-4 as a three-patch series for 5.8-rc1.
+*** Remember to use Documentation/process/submit-checklist.rst when testing=
+ your code ***
 
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Vishal Verma <vishal.l.verma@intel.com>
-> Cc: Dave Jiang <dave.jiang@intel.com>
-> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Reviewers, please ;)
+------------------------------------------------------
+=46rom: David Hildenbrand <david@redhat.com>
+Subject: device-dax: don't leak kernel memory to user space after unloading=
+ kmem
 
+Assume we have kmem configured and loaded:
+  [root@localhost ~]# cat /proc/iomem
+  ...
+  140000000-33fffffff : Persistent Memory$
+    140000000-1481fffff : namespace0.0
+    150000000-33fffffff : dax0.0
+      150000000-33fffffff : System RAM
+
+Assume we try to unload kmem. This force-unloading will work, even if
+memory cannot get removed from the system.
+  [root@localhost ~]# rmmod kmem
+  [   86.380228] removing memory fails, because memory [0x0000000150000000-=
+0x0000000157ffffff] is onlined
+  ...
+  [   86.431225] kmem dax0.0: DAX region [mem 0x150000000-0x33fffffff] cann=
+ot be hotremoved until the next reboot
+
+Now, we can reconfigure the namespace:
+  [root@localhost ~]# ndctl create-namespace --force --reconfig=3Dnamespace=
+0.0 --mode=3Ddevdax
+  [  131.409351] nd_pmem namespace0.0: could not reserve region [mem 0x1400=
+00000-0x33fffffff]dax
+  [  131.410147] nd_pmem: probe of namespace0.0 failed with error -16namesp=
+ace0.0 --mode=3Ddevdax
+  ...
+
+This fails as expected due to the busy memory resource, and the memory
+cannot be used. However, the dax0.0 device is removed, and along its name.
+
+The name of the memory resource now points at freed memory (name of the
+device).
+  [root@localhost ~]# cat /proc/iomem
+  ...
+  140000000-33fffffff : Persistent Memory
+    140000000-1481fffff : namespace0.0
+    150000000-33fffffff : =EF=BF=BD_=EF=BF=BD^7_=EF=BF=BD=EF=BF=BD/_=EF=BF=
+=BD=EF=BF=BDwR=EF=BF=BD=EF=BF=BDWQ=EF=BF=BD=EF=BF=BD=EF=BF=BD^=EF=BF=BD=EF=
+=BF=BD=EF=BF=BD ...
+    150000000-33fffffff : System RAM
+
+We have to make sure to duplicate the string.  While at it, remove the
+superfluous setting of the name and fixup a stale comment.
+
+Link: http://lkml.kernel.org/r/20200508084217.9160-2-david@redhat.com
+Fixes: 9f960da72b25 ("device-dax: "Hotremove" persistent memory that is use=
+d like normal RAM")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: <stable@vger.kernel.org>	[5.3]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ drivers/dax/kmem.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+--- a/drivers/dax/kmem.c~device-dax-dont-leak-kernel-memory-to-user-space-a=
+fter-unloading-kmem
++++ a/drivers/dax/kmem.c
+@@ -22,6 +22,7 @@ int dev_dax_kmem_probe(struct device *de
+ 	resource_size_t kmem_size;
+ 	resource_size_t kmem_end;
+ 	struct resource *new_res;
++	const char *new_res_name;
+ 	int numa_node;
+ 	int rc;
+=20
+@@ -48,11 +49,16 @@ int dev_dax_kmem_probe(struct device *de
+ 	kmem_size &=3D ~(memory_block_size_bytes() - 1);
+ 	kmem_end =3D kmem_start + kmem_size;
+=20
+-	/* Region is permanently reserved.  Hot-remove not yet implemented. */
+-	new_res =3D request_mem_region(kmem_start, kmem_size, dev_name(dev));
++	new_res_name =3D kstrdup(dev_name(dev), GFP_KERNEL);
++	if (!new_res_name)
++		return -ENOMEM;
++
++	/* Region is permanently reserved if hotremove fails. */
++	new_res =3D request_mem_region(kmem_start, kmem_size, new_res_name);
+ 	if (!new_res) {
+ 		dev_warn(dev, "could not reserve region [%pa-%pa]\n",
+ 			 &kmem_start, &kmem_end);
++		kfree(new_res_name);
+ 		return -EBUSY;
+ 	}
+=20
+@@ -63,12 +69,12 @@ int dev_dax_kmem_probe(struct device *de
+ 	 * unknown to us that will break add_memory() below.
+ 	 */
+ 	new_res->flags =3D IORESOURCE_SYSTEM_RAM;
+-	new_res->name =3D dev_name(dev);
+=20
+ 	rc =3D add_memory(numa_node, new_res->start, resource_size(new_res));
+ 	if (rc) {
+ 		release_resource(new_res);
+ 		kfree(new_res);
++		kfree(new_res_name);
+ 		return rc;
+ 	}
+ 	dev_dax->dax_kmem_res =3D new_res;
+@@ -83,6 +89,7 @@ static int dev_dax_kmem_remove(struct de
+ 	struct resource *res =3D dev_dax->dax_kmem_res;
+ 	resource_size_t kmem_start =3D res->start;
+ 	resource_size_t kmem_size =3D resource_size(res);
++	const char *res_name =3D res->name;
+ 	int rc;
+=20
+ 	/*
+@@ -102,6 +109,7 @@ static int dev_dax_kmem_remove(struct de
+ 	/* Release and free dax resources */
+ 	release_resource(res);
+ 	kfree(res);
++	kfree(res_name);
+ 	dev_dax->dax_kmem_res =3D NULL;
+=20
+ 	return 0;
+_
+
+Patches currently in -mm which might be from david@redhat.com are
+
+device-dax-dont-leak-kernel-memory-to-user-space-after-unloading-kmem.patch
+drivers-base-memoryc-cache-memory-blocks-in-xarray-to-accelerate-lookup-fix=
+.patch
+powerpc-pseries-hotplug-memory-stop-checking-is_mem_section_removable.patch
+mm-memory_hotplug-remove-is_mem_section_removable.patch
+mm-memory_hotplug-set-node_start_pfn-of-hotadded-pgdat-to-0.patch
+mm-memory_hotplug-handle-memblocks-only-with-config_arch_keep_memblock.patch
 
