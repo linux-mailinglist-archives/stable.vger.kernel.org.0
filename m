@@ -2,53 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D341CAD22
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8961CAD50
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729478AbgEHMwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:52:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33232 "EHLO mail.kernel.org"
+        id S1728511AbgEHNAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:00:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729939AbgEHMwK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:52:10 -0400
+        id S1729942AbgEHMwN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:52:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CF9A2495C;
-        Fri,  8 May 2020 12:52:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EABF024963;
+        Fri,  8 May 2020 12:52:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942330;
-        bh=99e2e49jVyP6KgaTxONJgD6vclc1pSQXLVl2yYtOBrE=;
+        s=default; t=1588942332;
+        bh=ecwnxAIpDp2gYLaZOYa/8bW7oSyzWdgnsCQup0zBE6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sejnadb/0bygnd/QPW78hwt+aFa2cj6/b7ORqbf8FL7Q4CMRyXLHt5QVI51M3paBk
-         InigjfAL4PqzTlysPuXZrYibAbAN2Zp2jfEHhMyuyxWoW7OYNqaCIc1msHupWcipMD
-         mfCLuOhT3jk+PUavF9Cjdq3p5vFOHjUUC7sLbQtI=
+        b=T/+G5qDBVYevPa3rZuQYrpWl/vpEat39dbO6pNFI5Zh7C8SnJ/yyGBkn2IhEl7LQu
+         em5SZOFfQ1UvBPH6hTy9AZlhCoCVhQ1PIQEgfqeiN5Ww8+z0cXwbxSpPwL2D/WX0uD
+         jhU1CbpPPiQucRTDz88StNy/Cs5YNv7LhReHxGLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Brian Cain <bcain@codeaurora.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Tuowen Zhao <ztuowen@gmail.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Allison Randal <allison@lohutok.net>,
-        Will Deacon <will@kernel.org>,
-        Richard Fontana <rfontana@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 27/32] hexagon: define ioremap_uc
-Date:   Fri,  8 May 2020 14:35:40 +0200
-Message-Id: <20200508123038.844529381@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 28/32] ALSA: hda: Match both PCI ID and SSID for driver blacklist
+Date:   Fri,  8 May 2020 14:35:41 +0200
+Message-Id: <20200508123039.019764517@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
 References: <20200508123034.886699170@linuxfoundation.org>
@@ -61,53 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 7312b70699252074d753c5005fc67266c547bbe3 upstream.
+commit 977dfef40c8996b69afe23a9094d184049efb7bb upstream.
 
-Similar to commit 38e45d81d14e ("sparc64: implement ioremap_uc") define
-ioremap_uc for hexagon to avoid errors from
--Wimplicit-function-definition.
+The commit 3c6fd1f07ed0 ("ALSA: hda: Add driver blacklist") added a
+new blacklist for the devices that are known to have empty codecs, and
+one of the entries was ASUS ROG Zenith II (PCI SSID 1043:874f).
+However, it turned out that the very same PCI SSID is used for the
+previous model that does have the valid HD-audio codecs and the change
+broke the sound on it.
 
-Link: http://lkml.kernel.org/r/20191209222956.239798-2-ndesaulniers@google.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/797
-Fixes: e537654b7039 ("lib: devres: add a helper function for ioremap_uc")
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Tuowen Zhao <ztuowen@gmail.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
-Cc: Allison Randal <allison@lohutok.net>
-Cc: Will Deacon <will@kernel.org>
-Cc: Richard Fontana <rfontana@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Since the empty codec problem appear on the certain AMD platform (PCI
+ID 1022:1487), this patch changes the blacklist matching to both PCI
+ID and SSID using pci_match_id().  Also, the entry that was removed by
+the previous fix for ASUS ROG Zenigh II is re-added.
+
+Link: https://lore.kernel.org/r/20200424061222.19792-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/hexagon/include/asm/io.h |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/hda_intel.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -188,6 +188,7 @@ static inline void writel(u32 data, vola
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2214,9 +2214,10 @@ static const struct hdac_io_ops pci_hda_
+  * some HD-audio PCI entries are exposed without any codecs, and such devices
+  * should be ignored from the beginning.
+  */
+-static const struct snd_pci_quirk driver_blacklist[] = {
+-	SND_PCI_QUIRK(0x1462, 0xcb59, "MSI TRX40 Creator", 0),
+-	SND_PCI_QUIRK(0x1462, 0xcb60, "MSI TRX40", 0),
++static const struct pci_device_id driver_blacklist[] = {
++	{ PCI_DEVICE_SUB(0x1022, 0x1487, 0x1043, 0x874f) }, /* ASUS ROG Zenith II / Strix */
++	{ PCI_DEVICE_SUB(0x1022, 0x1487, 0x1462, 0xcb59) }, /* MSI TRX40 Creator */
++	{ PCI_DEVICE_SUB(0x1022, 0x1487, 0x1462, 0xcb60) }, /* MSI TRX40 */
+ 	{}
+ };
  
- void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
- #define ioremap_nocache ioremap
-+#define ioremap_uc(X, Y) ioremap((X), (Y))
+@@ -2239,7 +2240,7 @@ static int azx_probe(struct pci_dev *pci
+ 	bool schedule_probe;
+ 	int err;
  
- 
- static inline void iounmap(volatile void __iomem *addr)
+-	if (snd_pci_quirk_lookup(pci, driver_blacklist)) {
++	if (pci_match_id(driver_blacklist, pci)) {
+ 		dev_info(&pci->dev, "Skipping the blacklisted device\n");
+ 		return -ENODEV;
+ 	}
 
 
