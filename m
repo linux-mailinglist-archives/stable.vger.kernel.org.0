@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 629E31CACA8
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4B31CAD45
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730329AbgEHMzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:55:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38144 "EHLO mail.kernel.org"
+        id S1729922AbgEHNAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:00:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730311AbgEHMzS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:55:18 -0400
+        id S1728709AbgEHMwd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:52:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 366C82495A;
-        Fri,  8 May 2020 12:55:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 912F224953;
+        Fri,  8 May 2020 12:52:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942517;
-        bh=ijgAiuYERsKwqsyboj2S9wS+rFrydzgj4aslyhTclCs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=1Is05wZ+1ApeUbVV1a/6XODo3WU61cxmot8gdZK3uVA8h3BydcJhQ7vOSeHav7J6D
-         5bDco8QgRimo32QLsiv9dHyMFfbxg7d7XNfXMAilxRl7Hb6UZrywhDJljRz1C6HiKB
-         xLKGEesOmIaWx7lMHojJaSMnGdIpCRa3H09OzIdM=
+        s=default; t=1588942352;
+        bh=56wc2T2Ds3OP+AwV4IRMX/evqxsa+vTXshBIIEREP3E=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=iZMAvLLxd8d0VzP2PvIusGN9T82CEPnSxo9HRL2UaCDD3zla11per6aMJGj7iMHXZ
+         fmmkMKFFGmjFGZB56DLnoJEPfjZwjiGdbVQ7vgs7eXPxPnAEA1kWKx2Wist5Z1OnMx
+         l/oWY9xEikZn4YSf5XtL8qqm/fLrFvU3CN/pL7WE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.6 00/49] 5.6.12-rc1 review
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 11/50] usb: dwc3: gadget: Properly set maxpacket limit
 Date:   Fri,  8 May 2020 14:35:17 +0200
-Message-Id: <20200508123042.775047422@linuxfoundation.org>
+Message-Id: <20200508123044.998764402@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-MIME-Version: 1.0
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.6.12-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.6.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.6.12-rc1
-X-KernelTest-Deadline: 2020-05-10T12:30+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,233 +44,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.6.12 release.
-There are 49 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-Responses should be made by Sun, 10 May 2020 12:29:44 +0000.
-Anything received after that time might be too late.
+[ Upstream commit d94ea5319813658ad5861d161ae16a194c2abf88 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.12-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-and the diffstat can be found below.
+Currently the calculation of max packet size limit for IN endpoints is
+too restrictive. This prevents a matching of a capable hardware endpoint
+during configuration. Below is the minimum recommended HW configuration
+to support a particular endpoint setup from the databook:
 
-thanks,
+For OUT endpoints, the databook recommended the minimum RxFIFO size to
+be at least 3x MaxPacketSize + 3x setup packets size (8 bytes each) +
+clock crossing margin (16 bytes).
 
-greg k-h
+For IN endpoints, the databook recommended the minimum TxFIFO size to be
+at least 3x MaxPacketSize for endpoints that support burst. If the
+endpoint doesn't support burst or when the device is operating in USB
+2.0 mode, a minimum TxFIFO size of 2x MaxPacketSize is recommended.
 
--------------
-Pseudo-Shortlog of commits:
+Base on these recommendations, we can calculate the MaxPacketSize limit
+of each endpoint. This patch revises the IN endpoint MaxPacketSize limit
+and also sets the MaxPacketSize limit for OUT endpoints.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.6.12-rc1
+Reference: Databook 3.30a section 3.2.2 and 3.2.3
 
-Will Deacon <will@kernel.org>
-    mm/mremap: Add comment explaining the untagging behaviour of mremap()
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/usb/dwc3/core.h   |  4 +++
+ drivers/usb/dwc3/gadget.c | 52 ++++++++++++++++++++++++++++++---------
+ 2 files changed, 45 insertions(+), 11 deletions(-)
 
-Jiri Slaby <jslaby@suse.cz>
-    cgroup, netclassid: remove double cond_resched
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 3ecc69c5b150f..ce4acbf7fef90 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -310,6 +310,10 @@
+ #define DWC3_GTXFIFOSIZ_TXFDEF(n)	((n) & 0xffff)
+ #define DWC3_GTXFIFOSIZ_TXFSTADDR(n)	((n) & 0xffff0000)
+ 
++/* Global RX Fifo Size Register */
++#define DWC31_GRXFIFOSIZ_RXFDEP(n)	((n) & 0x7fff)	/* DWC_usb31 only */
++#define DWC3_GRXFIFOSIZ_RXFDEP(n)	((n) & 0xffff)
++
+ /* Global Event Size Registers */
+ #define DWC3_GEVNTSIZ_INTMASK		BIT(31)
+ #define DWC3_GEVNTSIZ_SIZE(n)		((n) & 0xffff)
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 379f978db13d5..3d30dec42c81a 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2220,7 +2220,6 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
+ {
+ 	struct dwc3 *dwc = dep->dwc;
+ 	int mdwidth;
+-	int kbytes;
+ 	int size;
+ 
+ 	mdwidth = DWC3_MDWIDTH(dwc->hwparams.hwparams0);
+@@ -2236,17 +2235,17 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
+ 	/* FIFO Depth is in MDWDITH bytes. Multiply */
+ 	size *= mdwidth;
+ 
+-	kbytes = size / 1024;
+-	if (kbytes == 0)
+-		kbytes = 1;
+-
+ 	/*
+-	 * FIFO sizes account an extra MDWIDTH * (kbytes + 1) bytes for
+-	 * internal overhead. We don't really know how these are used,
+-	 * but documentation say it exists.
++	 * To meet performance requirement, a minimum TxFIFO size of 3x
++	 * MaxPacketSize is recommended for endpoints that support burst and a
++	 * minimum TxFIFO size of 2x MaxPacketSize for endpoints that don't
++	 * support burst. Use those numbers and we can calculate the max packet
++	 * limit as below.
+ 	 */
+-	size -= mdwidth * (kbytes + 1);
+-	size /= kbytes;
++	if (dwc->maximum_speed >= USB_SPEED_SUPER)
++		size /= 3;
++	else
++		size /= 2;
+ 
+ 	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
+ 
+@@ -2264,8 +2263,39 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
+ static int dwc3_gadget_init_out_endpoint(struct dwc3_ep *dep)
+ {
+ 	struct dwc3 *dwc = dep->dwc;
++	int mdwidth;
++	int size;
++
++	mdwidth = DWC3_MDWIDTH(dwc->hwparams.hwparams0);
++
++	/* MDWIDTH is represented in bits, convert to bytes */
++	mdwidth /= 8;
+ 
+-	usb_ep_set_maxpacket_limit(&dep->endpoint, 1024);
++	/* All OUT endpoints share a single RxFIFO space */
++	size = dwc3_readl(dwc->regs, DWC3_GRXFIFOSIZ(0));
++	if (dwc3_is_usb31(dwc))
++		size = DWC31_GRXFIFOSIZ_RXFDEP(size);
++	else
++		size = DWC3_GRXFIFOSIZ_RXFDEP(size);
++
++	/* FIFO depth is in MDWDITH bytes */
++	size *= mdwidth;
++
++	/*
++	 * To meet performance requirement, a minimum recommended RxFIFO size
++	 * is defined as follow:
++	 * RxFIFO size >= (3 x MaxPacketSize) +
++	 * (3 x 8 bytes setup packets size) + (16 bytes clock crossing margin)
++	 *
++	 * Then calculate the max packet limit as below.
++	 */
++	size -= (3 * 8) + 16;
++	if (size < 0)
++		size = 0;
++	else
++		size /= 3;
++
++	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
+ 	dep->endpoint.max_streams = 15;
+ 	dep->endpoint.ops = &dwc3_gadget_ep_ops;
+ 	list_add_tail(&dep->endpoint.ep_list,
+-- 
+2.20.1
 
-Thomas Pedersen <thomas@adapt-ip.com>
-    mac80211: add ieee80211_is_any_nullfunc()
-
-Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-    ACPI: PM: s2idle: Fix comment in acpi_s2idle_prepare_late()
-
-Hans de Goede <hdegoede@redhat.com>
-    platform/x86: GPD pocket fan: Fix error message when temp-limits are out of range
-
-Qian Cai <cai@lca.pw>
-    x86/kvm: fix a missing-prototypes "vmread_error"
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda: Match both PCI ID and SSID for driver blacklist
-
-Aaron Ma <aaron.ma@canonical.com>
-    drm/amdgpu: Fix oops when pp_funcs is unset in ACPI event
-
-Jere Leppänen <jere.leppanen@nokia.com>
-    sctp: Fix SHUTDOWN CTSN Ack in the peer restart case
-
-Andrii Nakryiko <andriin@fb.com>
-    tools/runqslower: Ensure own vmlinux.h is picked up first
-
-Doug Berger <opendmb@gmail.com>
-    net: systemport: suppress warnings on failed Rx SKB allocations
-
-Doug Berger <opendmb@gmail.com>
-    net: bcmgenet: suppress warnings on failed Rx SKB allocations
-
-Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-    mac80211: sta_info: Add lockdep condition for RCU list usage
-
-Nathan Chancellor <natechancellor@gmail.com>
-    lib/mpi: Fix building for powerpc with clang
-
-Russell King <rmk+kernel@armlinux.org.uk>
-    net: phy: bcm84881: clear settings on link down
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    ftrace: Fix memory leak caused by not freeing entry in unregister_ftrace_direct()
-
-Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-    tracing: Fix memory leaks in trace_events_hist.c
-
-Paulo Alcantara <pc@cjr.nz>
-    cifs: do not share tcons with DFS
-
-Jeremie Francois (on alpha) <jeremie.francois@gmail.com>
-    scripts/config: allow colons in option strings for sed
-
-Ronnie Sahlberg <lsahlber@redhat.com>
-    cifs: protect updating server->dstaddr with a spinlock
-
-Matthias Blankertz <matthias.blankertz@cetitec.com>
-    ASoC: rsnd: Fix "status check failed" spam for multi-SSI
-
-Matthias Blankertz <matthias.blankertz@cetitec.com>
-    ASoC: rsnd: Don't treat master SSI in multi SSI setup as parent
-
-Julien Beraud <julien.beraud@orolia.com>
-    net: stmmac: Fix sub-second increment
-
-Julien Beraud <julien.beraud@orolia.com>
-    net: stmmac: fix enabling socfpga's ptp_ref_clock
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    wimax/i2400m: Fix potential urb refcnt leak
-
-Sandeep Raghuraman <sandy.8925@gmail.com>
-    drm/amdgpu: Correctly initialize thermal controller for GPUs with Powerplay table v0 (e.g Hawaii)
-
-Prike Liang <Prike.Liang@amd.com>
-    drm/amd/powerplay: fix resume failed as smu table initialize early exit
-
-Alex Elder <elder@linaro.org>
-    remoteproc: qcom_q6v5_mss: fix a bug in q6v5_probe()
-
-Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-    ASoC: codecs: hdac_hdmi: Fix incorrect use of list_for_each_entry
-
-Matthias Blankertz <matthias.blankertz@cetitec.com>
-    ASoC: rsnd: Fix HDMI channel mapping for multi-SSI mode
-
-Matthias Blankertz <matthias.blankertz@cetitec.com>
-    ASoC: rsnd: Fix parent SSI start/stop in multi-SSI mode
-
-Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-    usb: dwc3: gadget: Properly set maxpacket limit
-
-Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-    ASoC: topology: Fix endianness issue
-
-Sebastian Reichel <sebastian.reichel@collabora.com>
-    ASoC: sgtl5000: Fix VAG power-on handling
-
-Wu Bo <wubo40@huawei.com>
-    scsi: sg: add sg_remove_request in sg_write
-
-Vasily Khoruzhick <anarsoul@gmail.com>
-    drm/bridge: anx6345: set correct BPC for display_info of connector
-
-Tyler Hicks <tyhicks@linux.microsoft.com>
-    selftests/ipc: Fix test failure seen after initial test run
-
-Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-    Revert "Kernel selftests: tpm2: check for tpm support"
-
-Sandipan Das <sandipan@linux.ibm.com>
-    selftests: vm: Fix 64-bit test builds for powerpc64le
-
-Sandipan Das <sandipan@linux.ibm.com>
-    selftests: vm: Do not override definition of ARCH
-
-Yihao Wu <wuyihao@linux.alibaba.com>
-    SUNRPC/cache: Fix unsafe traverse caused double-free in cache_purge
-
-Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-    ASoC: topology: Check return value of soc_tplg_dai_config
-
-Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-    ASoC: topology: Check return value of pcm_new_ver
-
-Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-    ASoC: topology: Check soc_tplg_add_route return value
-
-Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-    ASoC: topology: Check return value of soc_tplg_*_create
-
-Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-    ASoC: topology: Check return value of soc_tplg_create_tlv
-
-Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-    ASoC: topology: Add missing memory checks
-
-Marek Szyprowski <m.szyprowski@samsung.com>
-    drm/bridge: analogix_dp: Split bind() into probe() and real bind()
-
-Jia He <justin.he@arm.com>
-    vhost: vsock: kick send_pkt worker once device is started
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/x86/kvm/vmx/ops.h                             |   1 +
- drivers/acpi/sleep.c                               |   5 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c             |   3 +-
- .../gpu/drm/amd/powerplay/hwmgr/processpptables.c  |  26 +++++
- drivers/gpu/drm/amd/powerplay/renoir_ppt.c         |   7 +-
- drivers/gpu/drm/bridge/analogix/analogix-anx6345.c |   3 +
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |  33 ++++--
- drivers/gpu/drm/exynos/exynos_dp.c                 |  29 +++---
- drivers/gpu/drm/rockchip/analogix_dp-rockchip.c    |  36 ++++---
- drivers/net/ethernet/broadcom/bcmsysport.c         |   3 +-
- drivers/net/ethernet/broadcom/genet/bcmgenet.c     |   3 +-
- .../net/ethernet/stmicro/stmmac/dwmac-socfpga.c    |   9 +-
- .../net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c  |  12 ++-
- drivers/net/phy/bcm84881.c                         |   6 +-
- drivers/net/wimax/i2400m/usb-fw.c                  |   1 +
- drivers/platform/x86/gpd-pocket-fan.c              |   2 +-
- drivers/remoteproc/qcom_q6v5_mss.c                 |   2 +-
- drivers/scsi/sg.c                                  |   4 +-
- drivers/usb/dwc3/core.h                            |   4 +
- drivers/usb/dwc3/gadget.c                          |  52 ++++++++--
- drivers/vhost/vsock.c                              |   5 +
- fs/cifs/connect.c                                  |   6 ++
- include/drm/bridge/analogix_dp.h                   |   5 +-
- include/linux/ieee80211.h                          |   9 ++
- kernel/trace/ftrace.c                              |   1 +
- kernel/trace/trace_events_hist.c                   |   7 ++
- lib/mpi/longlong.h                                 |  34 +++---
- mm/mremap.c                                        |  10 ++
- net/core/netclassid_cgroup.c                       |   4 +-
- net/mac80211/mlme.c                                |   2 +-
- net/mac80211/rx.c                                  |   8 +-
- net/mac80211/sta_info.c                            |   3 +-
- net/mac80211/status.c                              |   5 +-
- net/mac80211/tx.c                                  |   2 +-
- net/sctp/sm_make_chunk.c                           |   6 +-
- net/sunrpc/cache.c                                 |   5 +-
- scripts/config                                     |   5 +-
- sound/pci/hda/hda_intel.c                          |   9 +-
- sound/soc/codecs/hdac_hdmi.c                       |   6 +-
- sound/soc/codecs/sgtl5000.c                        |  34 ++++++
- sound/soc/codecs/sgtl5000.h                        |   1 +
- sound/soc/sh/rcar/ssi.c                            |  11 +-
- sound/soc/sh/rcar/ssiu.c                           |   2 +-
- sound/soc/soc-topology.c                           | 115 ++++++++++++++++-----
- tools/bpf/runqslower/Makefile                      |   2 +-
- tools/testing/selftests/ipc/msgque.c               |   2 +-
- tools/testing/selftests/tpm2/test_smoke.sh         |  13 +--
- tools/testing/selftests/tpm2/test_space.sh         |   9 +-
- tools/testing/selftests/vm/Makefile                |   4 +-
- tools/testing/selftests/vm/run_vmtests             |   2 +-
- 51 files changed, 402 insertions(+), 170 deletions(-)
 
 
