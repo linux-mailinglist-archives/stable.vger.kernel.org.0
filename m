@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB5F71CAD84
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 496EA1CAD2E
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729821AbgEHNCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:02:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58686 "EHLO mail.kernel.org"
+        id S1730072AbgEHMxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:53:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728032AbgEHMug (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:50:36 -0400
+        id S1730070AbgEHMxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:53:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9DFE2495C;
-        Fri,  8 May 2020 12:50:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45C4924953;
+        Fri,  8 May 2020 12:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942235;
-        bh=dH39vX1jFQ/TFkb+BTCWZyIAmD9Vcg+f2I8YszPGVZc=;
+        s=default; t=1588942401;
+        bh=/pCLZHYr2OmVi2mS3ZUGZ80/NyMpK1+qw2ThEw/BWPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkYRF2hi27enzkp8d26mRWdCveNvNmRlaWgcCJufIpiq4Dalk48QJtU5m1B1OgPjs
-         2Z/V3R5n3sImhQqpwGxkvNKQRGDGhHNw9dd5VyqbPThauEIyKaj0kOD/ojPoo1R1En
-         vNVD3cfhb4g8skpVO5+5o54Vq+Aiu4bX3rz1Jyq8=
+        b=vVv8Y+9lHvNelmXr7QePV2Vt5SBkC1y8x/gXVYS6SzN0ME0+vU5oP2642HYLDzUGN
+         cjzd6EeAHYK67Gme7XGlVv80nbn3qyncv1LeTQnmpF5AEKqc/UPRNjSpY3M8naVdR9
+         z/EGwm8WadvkQg3X7iVWuvBxE7jxYPaT6D8Z0w6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 02/22] powerpc/pci/of: Parse unassigned resources
+        stable@vger.kernel.org, Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 08/50] selftests/ipc: Fix test failure seen after initial test run
 Date:   Fri,  8 May 2020 14:35:14 +0200
-Message-Id: <20200508123034.179234373@linuxfoundation.org>
+Message-Id: <20200508123044.532376143@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
-References: <20200508123033.915895060@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Tyler Hicks <tyhicks@linux.microsoft.com>
 
-commit dead1c845dbe97e0061dae2017eaf3bd8f8f06ee upstream.
+[ Upstream commit b87080eab4c1377706c113fc9c0157f19ea8fed1 ]
 
-The pseries platform uses the PCI_PROBE_DEVTREE method of PCI probing
-which reads "assigned-addresses" of every PCI device and initializes
-the device resources. However if the property is missing or zero sized,
-then there is no fallback of any kind and the PCI resources remain
-undiscovered, i.e. pdev->resource[] array remains empty.
+After successfully running the IPC msgque test once, subsequent runs
+result in a test failure:
 
-This adds a fallback which parses the "reg" property in pretty much same
-way except it marks resources as "unset" which later make Linux assign
-those resources proper addresses.
+  $ sudo ./run_kselftest.sh
+  TAP version 13
+  1..1
+  # selftests: ipc: msgque
+  # Failed to get stats for IPC queue with id 0
+  # Failed to dump queue: -22
+  # Bail out!
+  # # Pass 0 Fail 0 Xfail 0 Xpass 0 Skip 0 Error 0
+  not ok 1 selftests: ipc: msgque # exit=1
 
-This has an effect when:
-1. a hypervisor failed to assign any resource for a device;
-2. /chosen/linux,pci-probe-only=0 is in the DT so the system may try
-assigning a resource.
-Neither is likely to happen under PowerVM.
+The dump_queue() function loops through the possible message queue index
+values using calls to msgctl(kern_id, MSG_STAT, ...) where kern_id
+represents the index value. The first time the test is ran, the initial
+index value of 0 is valid and the test is able to complete. The index
+value of 0 is not valid in subsequent test runs and the loop attempts to
+try index values of 1, 2, 3, and so on until a valid index value is
+found that corresponds to the message queue created earlier in the test.
 
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The msgctl() syscall returns -1 and sets errno to EINVAL when invalid
+index values are used. The test failure is caused by incorrectly
+comparing errno to -EINVAL when cycling through possible index values.
 
+Fix invalid test failures on subsequent runs of the msgque test by
+correctly comparing errno values to a non-negated EINVAL.
+
+Fixes: 3a665531a3b7 ("selftests: IPC message queue copy feature test")
+Signed-off-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/pci_of_scan.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ tools/testing/selftests/ipc/msgque.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/pci_of_scan.c
-+++ b/arch/powerpc/kernel/pci_of_scan.c
-@@ -82,10 +82,16 @@ static void of_pci_parse_addrs(struct de
- 	const __be32 *addrs;
- 	u32 i;
- 	int proplen;
-+	bool mark_unset = false;
- 
- 	addrs = of_get_property(node, "assigned-addresses", &proplen);
--	if (!addrs)
--		return;
-+	if (!addrs || !proplen) {
-+		addrs = of_get_property(node, "reg", &proplen);
-+		if (!addrs || !proplen)
-+			return;
-+		mark_unset = true;
-+	}
-+
- 	pr_debug("    parse addresses (%d bytes) @ %p\n", proplen, addrs);
- 	for (; proplen >= 20; proplen -= 20, addrs += 5) {
- 		flags = pci_parse_of_flags(of_read_number(addrs, 1), 0);
-@@ -110,6 +116,8 @@ static void of_pci_parse_addrs(struct de
- 			continue;
- 		}
- 		res->flags = flags;
-+		if (mark_unset)
-+			res->flags |= IORESOURCE_UNSET;
- 		res->name = pci_name(dev);
- 		region.start = base;
- 		region.end = base + size - 1;
+diff --git a/tools/testing/selftests/ipc/msgque.c b/tools/testing/selftests/ipc/msgque.c
+index 4c156aeab6b80..5ec4d9e18806c 100644
+--- a/tools/testing/selftests/ipc/msgque.c
++++ b/tools/testing/selftests/ipc/msgque.c
+@@ -137,7 +137,7 @@ int dump_queue(struct msgque_data *msgque)
+ 	for (kern_id = 0; kern_id < 256; kern_id++) {
+ 		ret = msgctl(kern_id, MSG_STAT, &ds);
+ 		if (ret < 0) {
+-			if (errno == -EINVAL)
++			if (errno == EINVAL)
+ 				continue;
+ 			printf("Failed to get stats for IPC queue with id %d\n",
+ 					kern_id);
+-- 
+2.20.1
+
 
 
