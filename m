@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 302CA1CADB0
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 861721CAC09
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730110AbgEHND2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57288 "EHLO mail.kernel.org"
+        id S1729732AbgEHMt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:49:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729822AbgEHMuI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:50:08 -0400
+        id S1727933AbgEHMtY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:49:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8433F24959;
-        Fri,  8 May 2020 12:50:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF09121473;
+        Fri,  8 May 2020 12:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942208;
-        bh=tS8yISY2FPSoFA2Xz5HcnvqcY9twKKqKe7VbtyvOpsU=;
+        s=default; t=1588942163;
+        bh=Le0zW1plhrNPBG0p2P7erK3rKc1E/Ehf/4uht5qiCYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H2um+XcrmlVfahll5O52Ua+Fai3NmpjfDc+R1V1CaEjX2BPVeBc8He7KVy3gYNgo4
-         24y6Wu/eXnVMSi7CrRgr3HXtK2QG60XVCDXEaf/lWo/YMwAiECwuryFJxK6D/FmtJZ
-         RFZlh1MW+cN6oZ03mokuw9vIUozCuJWMDiu2qOfU=
+        b=uHPVo8CuEMNEp/GyQxhcohrnArHk8ThvdLPcTSVsVust5PVbxssGMZb5pHntQZijl
+         c8vtXJ0T5KiL+iEUDKC6GiDt1dc4eyrWJy+wKbuI/xq+TDHKHm26X5/Hy3Ee5pAA9+
+         F3IDksgWXfZ/X9+5joU8HA2/E+6kvOf/uid0Sad8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ning Bo <n.b@live.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jia He <justin.he@arm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 4.14 01/22] vhost: vsock: kick send_pkt worker once device is started
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 10/18] net: dsa: b53: Rework ARL bin logic
 Date:   Fri,  8 May 2020 14:35:13 +0200
-Message-Id: <20200508123034.093635974@linuxfoundation.org>
+Message-Id: <20200508123033.056749305@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
-References: <20200508123033.915895060@linuxfoundation.org>
+In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
+References: <20200508123030.497793118@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,72 +44,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia He <justin.he@arm.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 0b841030625cde5f784dd62aec72d6a766faae70 upstream.
+[ Upstream commit 6344dbde6a27d10d16246d734b968f84887841e2 ]
 
-Ning Bo reported an abnormal 2-second gap when booting Kata container [1].
-The unconditional timeout was caused by VSOCK_DEFAULT_CONNECT_TIMEOUT of
-connecting from the client side. The vhost vsock client tries to connect
-an initializing virtio vsock server.
+When asking the ARL to read a MAC address, we will get a number of bins
+returned in a single read. Out of those bins, there can essentially be 3
+states:
 
-The abnormal flow looks like:
-host-userspace           vhost vsock                       guest vsock
-==============           ===========                       ============
-connect()     -------->  vhost_transport_send_pkt_work()   initializing
-   |                     vq->private_data==NULL
-   |                     will not be queued
-   V
-schedule_timeout(2s)
-                         vhost_vsock_start()  <---------   device ready
-                         set vq->private_data
+- all bins are full, we have no space left, and we can either replace an
+  existing address or return that full condition
 
-wait for 2s and failed
-connect() again          vq->private_data!=NULL         recv connecting pkt
+- the MAC address was found, then we need to return its bin index and
+  modify that one, and only that one
 
-Details:
-1. Host userspace sends a connect pkt, at that time, guest vsock is under
-   initializing, hence the vhost_vsock_start has not been called. So
-   vq->private_data==NULL, and the pkt is not been queued to send to guest
-2. Then it sleeps for 2s
-3. After guest vsock finishes initializing, vq->private_data is set
-4. When host userspace wakes up after 2s, send connecting pkt again,
-   everything is fine.
+- the MAC address was not found and we have a least one bin free, we use
+  that bin index location then
 
-As suggested by Stefano Garzarella, this fixes it by additional kicking the
-send_pkt worker in vhost_vsock_start once the virtio device is started. This
-makes the pending pkt sent again.
+The code would unfortunately fail on all counts.
 
-After this patch, kata-runtime (with vsock enabled) boot time is reduced
-from 3s to 1s on a ThunderX2 arm64 server.
-
-[1] https://github.com/kata-containers/runtime/issues/1917
-
-Reported-by: Ning Bo <n.b@live.com>
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jia He <justin.he@arm.com>
-Link: https://lore.kernel.org/r/20200501043840.186557-1-justin.he@arm.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1da6df85c6fb ("net: dsa: b53: Implement ARL add/del/dump operations")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vsock.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/dsa/b53/b53_common.c | 30 ++++++++++++++++++++++++++----
+ drivers/net/dsa/b53/b53_regs.h   |  3 +++
+ 2 files changed, 29 insertions(+), 4 deletions(-)
 
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -499,6 +499,11 @@ static int vhost_vsock_start(struct vhos
- 		mutex_unlock(&vq->mutex);
+diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
+index 71525950c641d..060f9b1769298 100644
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1109,6 +1109,7 @@ static int b53_arl_read(struct b53_device *dev, u64 mac,
+ 			u16 vid, struct b53_arl_entry *ent, u8 *idx,
+ 			bool is_valid)
+ {
++	DECLARE_BITMAP(free_bins, B53_ARLTBL_MAX_BIN_ENTRIES);
+ 	unsigned int i;
+ 	int ret;
+ 
+@@ -1116,6 +1117,8 @@ static int b53_arl_read(struct b53_device *dev, u64 mac,
+ 	if (ret)
+ 		return ret;
+ 
++	bitmap_zero(free_bins, dev->num_arl_entries);
++
+ 	/* Read the bins */
+ 	for (i = 0; i < dev->num_arl_entries; i++) {
+ 		u64 mac_vid;
+@@ -1127,13 +1130,21 @@ static int b53_arl_read(struct b53_device *dev, u64 mac,
+ 			   B53_ARLTBL_DATA_ENTRY(i), &fwd_entry);
+ 		b53_arl_to_entry(ent, mac_vid, fwd_entry);
+ 
+-		if (!(fwd_entry & ARLTBL_VALID))
++		if (!(fwd_entry & ARLTBL_VALID)) {
++			set_bit(i, free_bins);
+ 			continue;
++		}
+ 		if ((mac_vid & ARLTBL_MAC_MASK) != mac)
+ 			continue;
+ 		*idx = i;
++		return 0;
  	}
  
-+	/* Some packets may have been queued before the device was started,
-+	 * let's kick the send worker to send them.
-+	 */
-+	vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
++	if (bitmap_weight(free_bins, dev->num_arl_entries) == 0)
++		return -ENOSPC;
 +
- 	mutex_unlock(&vsock->dev.mutex);
- 	return 0;
++	*idx = find_first_bit(free_bins, dev->num_arl_entries);
++
+ 	return -ENOENT;
+ }
  
+@@ -1163,10 +1174,21 @@ static int b53_arl_op(struct b53_device *dev, int op, int port,
+ 	if (op)
+ 		return ret;
+ 
+-	/* We could not find a matching MAC, so reset to a new entry */
+-	if (ret) {
++	switch (ret) {
++	case -ENOSPC:
++		dev_dbg(dev->dev, "{%pM,%.4d} no space left in ARL\n",
++			addr, vid);
++		return is_valid ? ret : 0;
++	case -ENOENT:
++		/* We could not find a matching MAC, so reset to a new entry */
++		dev_dbg(dev->dev, "{%pM,%.4d} not found, using idx: %d\n",
++			addr, vid, idx);
+ 		fwd_entry = 0;
+-		idx = 1;
++		break;
++	default:
++		dev_dbg(dev->dev, "{%pM,%.4d} found, using idx: %d\n",
++			addr, vid, idx);
++		break;
+ 	}
+ 
+ 	memset(&ent, 0, sizeof(ent));
+diff --git a/drivers/net/dsa/b53/b53_regs.h b/drivers/net/dsa/b53/b53_regs.h
+index 85c44bfba55a2..3cf246c6bdcc4 100644
+--- a/drivers/net/dsa/b53/b53_regs.h
++++ b/drivers/net/dsa/b53/b53_regs.h
+@@ -280,6 +280,9 @@
+ #define   ARLTBL_STATIC			BIT(15)
+ #define   ARLTBL_VALID			BIT(16)
+ 
++/* Maximum number of bin entries in the ARL for all switches */
++#define B53_ARLTBL_MAX_BIN_ENTRIES	4
++
+ /* ARL Search Control Register (8 bit) */
+ #define B53_ARL_SRCH_CTL		0x50
+ #define B53_ARL_SRCH_CTL_25		0x20
+-- 
+2.20.1
+
 
 
