@@ -2,108 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DA41CA696
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 10:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E34A1CA6CE
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 11:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726770AbgEHIw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 04:52:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51958 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726616AbgEHIw6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 04:52:58 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F68CC05BD43
-        for <stable@vger.kernel.org>; Fri,  8 May 2020 01:52:57 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id k12so9368576wmj.3
-        for <stable@vger.kernel.org>; Fri, 08 May 2020 01:52:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=XHtY22wdqoD6kwX3h4YQdHgh33drKh8dmMkZ3FUswro=;
-        b=a3M4eQ+WWaAMgC3KWWxjz92/gjVJbQg54xYUI2IMUPV8vbLXBByqWMB616+NYou7hB
-         g0MfI5H3o1UxEtWkyOp7WJ/p0V92jf/07aCuzVW6zZclHr8hlc4js0grL/UvLee76ET7
-         RKfEuIW0zS1x2pvxPGG/xk04NnL/eP5M7PX0g=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=XHtY22wdqoD6kwX3h4YQdHgh33drKh8dmMkZ3FUswro=;
-        b=UJO4hVTKbG94DJkMdRZ52PDu2iIz/Je2eGwlH8GjkUIGw+XCsrSblfZEgwqE5+VoNK
-         PnPQJfYEfKYv1vCncg9mF27OL6LLBnhUms6+k3h5OP5jSslVc8RFzGmTTRqpY/PFWa5j
-         HI5+Q1hBqzR2QDgZSCSq+VBQ94RprdivBHiQ8Pv0zbjM50fquTpJfrAY2MhPiyQ18dZd
-         fcEvKKWcYFW/ganCW9/ol6Sy89KTcWmUHRYjwnIwEUmMRBjzG4oH9qIM1r1pZWttfEsC
-         3EhTdpkBmSGXLz5aUyWBwivDiH+mbwvOj/SAYsR4I5J/lruWWT0iOwprTcTlYY8KDj7l
-         z9QQ==
-X-Gm-Message-State: AGi0PubYRF1Xoe0yPsO4SO8HYiR+tBbKaF6q3uPde7WNvZDDLVwK1pi5
-        t3zdnt46gp5WHisQZHwt0Ve2nw==
-X-Google-Smtp-Source: APiQypKdriRs4YmjXWuUXd6zMQwRpYcVQtLFOq8GnpNc/A1T2Ibe50kATp5BITp4mlzmVAS0oN2d/w==
-X-Received: by 2002:a1c:6042:: with SMTP id u63mr854070wmb.65.1588927976290;
-        Fri, 08 May 2020 01:52:56 -0700 (PDT)
-Received: from it_dev_server1.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id f26sm12132333wmj.11.2020.05.08.01.52.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 May 2020 01:52:55 -0700 (PDT)
-From:   Chandrakanth Patil <chandrakanth.patil@broadcom.com>
-To:     linux-scsi@vger.kernel.org
-Cc:     kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
-        kiran-kumar.kasturi@broadcom.com, sankar.patra@broadcom.com,
-        sasikumar.pc@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
-        anand.lodnoor@broadcom.com,
-        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 4/5] megaraid_sas: TM command refire leads to controller firmware crash
-Date:   Fri,  8 May 2020 14:22:42 +0530
-Message-Id: <20200508085242.23406-1-chandrakanth.patil@broadcom.com>
-X-Mailer: git-send-email 2.9.5
+        id S1725825AbgEHJHh convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 8 May 2020 05:07:37 -0400
+Received: from smtp2-g21.free.fr ([212.27.42.2]:40088 "EHLO smtp2-g21.free.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725710AbgEHJHh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 05:07:37 -0400
+Received: from mail.corsac.net (unknown [78.194.244.226])
+        by smtp2-g21.free.fr (Postfix) with ESMTPS id B4963200440
+        for <stable@vger.kernel.org>; Fri,  8 May 2020 11:07:34 +0200 (CEST)
+Received: from scapa.corsac.net (unknown [IPv6:2a01:e34:ec2f:4e20:6af7:28ff:fe8d:2119])
+        by mail.corsac.net (Postfix) with ESMTPS id 8086290
+        for <stable@vger.kernel.org>; Fri,  8 May 2020 11:07:00 +0200 (CEST)
+Received: from corsac (uid 1000)
+        (envelope-from corsac@debian.org)
+        id a024a
+        by scapa.corsac.net (DragonFly Mail Agent v0.12);
+        Fri, 08 May 2020 11:07:00 +0200
+Message-ID: <2a05f4c4362d386d298a06a67f2f528ef603a734.camel@debian.org>
+Subject: Re: [PATCH] drm/atomic: Take the atomic toys away from X
+From:   Yves-Alexis Perez <corsac@debian.org>
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        DRI Development <dri-devel@lists.freedesktop.org>
+Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Ilia Mirkin <imirkin@alum.mit.edu>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
+        Alex Deucher <alexdeucher@gmail.com>,
+        Adam Jackson <ajax@redhat.com>, Sean Paul <sean@poorly.run>,
+        David Airlie <airlied@linux.ie>,
+        Rob Clark <robdclark@gmail.com>, stable@vger.kernel.org,
+        Daniel Vetter <daniel.vetter@intel.com>
+Date:   Fri, 08 May 2020 11:06:56 +0200
+In-Reply-To: <20190905185318.31363-1-daniel.vetter@ffwll.ch>
+References: <20190903190642.32588-1-daniel.vetter@ffwll.ch>
+         <20190905185318.31363-1-daniel.vetter@ffwll.ch>
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.2-1 
+MIME-Version: 1.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Issue: When TM command times-out driver invokes the controller
-reset. Post reset, driver re-fires pended TM commands which leads
-to firmware crash.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
 
-Fix: Post controller reset, return pended TM commands back to OS.
+On Thu, 2019-09-05 at 20:53 +0200, Daniel Vetter wrote:
+> The -modesetting ddx has a totally broken idea of how atomic works:
+> - doesn't disable old connectors, assuming they get auto-disable like
+>   with the legacy setcrtc
+> - assumes ASYNC_FLIP is wired through for the atomic ioctl
+> - not a single call to TEST_ONLY
+> 
+> Iow the implementation is a 1:1 translation of legacy ioctls to
+> atomic, which is a) broken b) pointless.
+> 
+> We already have bugs in both i915 and amdgpu-DC where this prevents us
+> from enabling neat features.
+> 
+> If anyone ever cares about atomic in X we can easily add a new atomic
+> level (req->value == 2) for X to get back the shiny toys.
+> 
+> Since these broken versions of -modesetting have been shipping,
+> there's really no other way to get out of this bind.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
-Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
----
- drivers/scsi/megaraid/megaraid_sas_fusion.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Hi Daniel and Greg (especially). It seems that this patch was never applied to
+stable, maybe it fell through the cracks?
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-index 87f91a38..319f241 100644
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -4180,6 +4180,7 @@ static void megasas_refire_mgmt_cmd(struct megasas_instance *instance,
- 	struct fusion_context *fusion;
- 	struct megasas_cmd *cmd_mfi;
- 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc;
-+	struct MPI2_RAID_SCSI_IO_REQUEST *scsi_io_req;
- 	u16 smid;
- 	bool refire_cmd = false;
- 	u8 result;
-@@ -4247,6 +4248,11 @@ static void megasas_refire_mgmt_cmd(struct megasas_instance *instance,
- 			result = COMPLETE_CMD;
- 		}
- 
-+		scsi_io_req = (struct MPI2_RAID_SCSI_IO_REQUEST *)
-+				cmd_fusion->io_request;
-+		if (scsi_io_req->Function == MPI2_FUNCTION_SCSI_TASK_MGMT)
-+			result = RETURN_CMD;
-+
- 		switch (result) {
- 		case REFIRE_CMD:
- 			megasas_fire_cmd_fusion(instance, req_desc);
-@@ -4475,7 +4481,6 @@ megasas_issue_tm(struct megasas_instance *instance, u16 device_handle,
- 	if (!timeleft) {
- 		dev_err(&instance->pdev->dev,
- 			"task mgmt type 0x%x timed out\n", type);
--		cmd_mfi->flags |= DRV_DCMD_SKIP_REFIRE;
- 		mutex_unlock(&instance->reset_mutex);
- 		rc = megasas_reset_fusion(instance->host, MFI_IO_TIMEOUT_OCR);
- 		mutex_lock(&instance->reset_mutex);
--- 
-2.9.5
+It doesn't apply as-is in 4.19 branch but a small change in the context makes
+it apply. I'm experiencing issues with lightdm and vt-switch in Debian Buster
+(which has a 4.19 kernel) so I'd appreciate if the patch was included in at
+least that release.
 
+Regards,
+- -- 
+Yves-Alexis
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEE8vi34Qgfo83x35gF3rYcyPpXRFsFAl61ITAACgkQ3rYcyPpX
+RFvlaAf9HZ0DTX1fAkNeNFoAgn4pFztnFq0fAwGj5iVIL4q6upE1wE3E8cDgUHeT
+maQQvL3YHFXjgzgDHYNIuUMipFE1Djymoy+EB4ZoOftqsJ4CPy4pCMUAh57u7BrV
+T+eBtj4n0wY0SgvoPism3QdbxY7CLLgCMJKLNrCPlkDCdJyGsZX9RIgfqvbkGM36
+ftwBKcyy1iW5cAv10ehiXi/1zszA8bx2gULim3abcSjjz12ckNvBPy/BDvfFx19V
+8cGgG3qD9PLmxRl80H1/mX30Ddw8Md5Fu7I/ndh3EGXLu8p8zod0rQVCQjAEW4X4
+ew4tajDD2l9vWzN0sZIlyjq9fNgXBw==
+=lPBO
+-----END PGP SIGNATURE-----
