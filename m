@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5964E1CAC89
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 676BE1CAC9D
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730187AbgEHMyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:54:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36458 "EHLO mail.kernel.org"
+        id S1730275AbgEHMy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:54:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729807AbgEHMyQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:54:16 -0400
+        id S1730268AbgEHMy4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:54:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60C66218AC;
-        Fri,  8 May 2020 12:54:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07C84218AC;
+        Fri,  8 May 2020 12:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942455;
-        bh=taLdJCQv5r2Rr6dabxuHs7+lFJKQzoONrB/y4VXGayU=;
+        s=default; t=1588942495;
+        bh=7KhIi5HbIUi+mJ6HlfhTjVe87HCe7Ai7DqwQYwyE+sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=djJbEpLQMVPea9I8u3FTwc3BIkD6bU5s7JPhE+/jKQ975Fy/ic7dhSUrDlUFe21P5
-         8inalLIhxAN1CiKXUG/p7ITPdEwVy/vx8e9n/PWshjodQkNWPUrBNWQeTs49sQP5dN
-         hlU6ggPvZdgMiGlSBzH7hk9hiJws5q29j1dTTAQI=
+        b=0l9GyXZHx341ihSf8eGCBrFFPirsaKwB4A6qYdT/HteJMd61H2dTos/QxQBeY/2pL
+         IyuCfdZVN5JX1WaR8NY3im0RqWCfEi3iPlNdfzr8qg+h86rmCKYKfodTlK6B/sqNiU
+         UWRhBmIYknE1qusk9xULGEHAuVKmfEqO4dhZLBko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/50] net: systemport: suppress warnings on failed Rx SKB allocations
+Subject: [PATCH 5.6 18/49] usb: dwc3: gadget: Properly set maxpacket limit
 Date:   Fri,  8 May 2020 14:35:35 +0200
-Message-Id: <20200508123047.348346483@linuxfoundation.org>
+Message-Id: <20200508123045.578356830@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +44,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 3554e54a46125030c534820c297ed7f6c3907e24 ]
+[ Upstream commit d94ea5319813658ad5861d161ae16a194c2abf88 ]
 
-The driver is designed to drop Rx packets and reclaim the buffers
-when an allocation fails, and the network interface needs to safely
-handle this packet loss. Therefore, an allocation failure of Rx
-SKBs is relatively benign.
+Currently the calculation of max packet size limit for IN endpoints is
+too restrictive. This prevents a matching of a capable hardware endpoint
+during configuration. Below is the minimum recommended HW configuration
+to support a particular endpoint setup from the databook:
 
-However, the output of the warning message occurs with a high
-scheduling priority that can cause excessive jitter/latency for
-other high priority processing.
+For OUT endpoints, the databook recommended the minimum RxFIFO size to
+be at least 3x MaxPacketSize + 3x setup packets size (8 bytes each) +
+clock crossing margin (16 bytes).
 
-This commit suppresses the warning messages to prevent scheduling
-problems while retaining the failure count in the statistics of
-the network interface.
+For IN endpoints, the databook recommended the minimum TxFIFO size to be
+at least 3x MaxPacketSize for endpoints that support burst. If the
+endpoint doesn't support burst or when the device is operating in USB
+2.0 mode, a minimum TxFIFO size of 2x MaxPacketSize is recommended.
 
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Base on these recommendations, we can calculate the MaxPacketSize limit
+of each endpoint. This patch revises the IN endpoint MaxPacketSize limit
+and also sets the MaxPacketSize limit for OUT endpoints.
+
+Reference: Databook 3.30a section 3.2.2 and 3.2.3
+
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/core.h   |  4 +++
+ drivers/usb/dwc3/gadget.c | 52 ++++++++++++++++++++++++++++++---------
+ 2 files changed, 45 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
-index ad86a186ddc5f..4dfdb5a58025b 100644
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -666,7 +666,8 @@ static struct sk_buff *bcm_sysport_rx_refill(struct bcm_sysport_priv *priv,
- 	dma_addr_t mapping;
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 3ecc69c5b150f..ce4acbf7fef90 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -310,6 +310,10 @@
+ #define DWC3_GTXFIFOSIZ_TXFDEF(n)	((n) & 0xffff)
+ #define DWC3_GTXFIFOSIZ_TXFSTADDR(n)	((n) & 0xffff0000)
  
- 	/* Allocate a new SKB for a new packet */
--	skb = netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH);
-+	skb = __netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH,
-+				 GFP_ATOMIC | __GFP_NOWARN);
- 	if (!skb) {
- 		priv->mib.alloc_rx_buff_failed++;
- 		netif_err(priv, rx_err, ndev, "SKB alloc failed\n");
++/* Global RX Fifo Size Register */
++#define DWC31_GRXFIFOSIZ_RXFDEP(n)	((n) & 0x7fff)	/* DWC_usb31 only */
++#define DWC3_GRXFIFOSIZ_RXFDEP(n)	((n) & 0xffff)
++
+ /* Global Event Size Registers */
+ #define DWC3_GEVNTSIZ_INTMASK		BIT(31)
+ #define DWC3_GEVNTSIZ_SIZE(n)		((n) & 0xffff)
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index c4be4631937a8..bc1cf6d0412a3 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2223,7 +2223,6 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
+ {
+ 	struct dwc3 *dwc = dep->dwc;
+ 	int mdwidth;
+-	int kbytes;
+ 	int size;
+ 
+ 	mdwidth = DWC3_MDWIDTH(dwc->hwparams.hwparams0);
+@@ -2239,17 +2238,17 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
+ 	/* FIFO Depth is in MDWDITH bytes. Multiply */
+ 	size *= mdwidth;
+ 
+-	kbytes = size / 1024;
+-	if (kbytes == 0)
+-		kbytes = 1;
+-
+ 	/*
+-	 * FIFO sizes account an extra MDWIDTH * (kbytes + 1) bytes for
+-	 * internal overhead. We don't really know how these are used,
+-	 * but documentation say it exists.
++	 * To meet performance requirement, a minimum TxFIFO size of 3x
++	 * MaxPacketSize is recommended for endpoints that support burst and a
++	 * minimum TxFIFO size of 2x MaxPacketSize for endpoints that don't
++	 * support burst. Use those numbers and we can calculate the max packet
++	 * limit as below.
+ 	 */
+-	size -= mdwidth * (kbytes + 1);
+-	size /= kbytes;
++	if (dwc->maximum_speed >= USB_SPEED_SUPER)
++		size /= 3;
++	else
++		size /= 2;
+ 
+ 	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
+ 
+@@ -2267,8 +2266,39 @@ static int dwc3_gadget_init_in_endpoint(struct dwc3_ep *dep)
+ static int dwc3_gadget_init_out_endpoint(struct dwc3_ep *dep)
+ {
+ 	struct dwc3 *dwc = dep->dwc;
++	int mdwidth;
++	int size;
++
++	mdwidth = DWC3_MDWIDTH(dwc->hwparams.hwparams0);
++
++	/* MDWIDTH is represented in bits, convert to bytes */
++	mdwidth /= 8;
+ 
+-	usb_ep_set_maxpacket_limit(&dep->endpoint, 1024);
++	/* All OUT endpoints share a single RxFIFO space */
++	size = dwc3_readl(dwc->regs, DWC3_GRXFIFOSIZ(0));
++	if (dwc3_is_usb31(dwc))
++		size = DWC31_GRXFIFOSIZ_RXFDEP(size);
++	else
++		size = DWC3_GRXFIFOSIZ_RXFDEP(size);
++
++	/* FIFO depth is in MDWDITH bytes */
++	size *= mdwidth;
++
++	/*
++	 * To meet performance requirement, a minimum recommended RxFIFO size
++	 * is defined as follow:
++	 * RxFIFO size >= (3 x MaxPacketSize) +
++	 * (3 x 8 bytes setup packets size) + (16 bytes clock crossing margin)
++	 *
++	 * Then calculate the max packet limit as below.
++	 */
++	size -= (3 * 8) + 16;
++	if (size < 0)
++		size = 0;
++	else
++		size /= 3;
++
++	usb_ep_set_maxpacket_limit(&dep->endpoint, size);
+ 	dep->endpoint.max_streams = 15;
+ 	dep->endpoint.ops = &dwc3_gadget_ep_ops;
+ 	list_add_tail(&dep->endpoint.ep_list,
 -- 
 2.20.1
 
