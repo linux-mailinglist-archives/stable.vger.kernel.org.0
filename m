@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D26701CAD38
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E9B1CACE4
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729947AbgEHM7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:59:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35342 "EHLO mail.kernel.org"
+        id S1729372AbgEHM4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729914AbgEHMxc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:53:32 -0400
+        id S1729826AbgEHM4W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:56:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F3EA24963;
-        Fri,  8 May 2020 12:53:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABB80218AC;
+        Fri,  8 May 2020 12:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942411;
-        bh=tYCmFYG1c80BdMRSWHjwTjudD6VVh+EKEYME+PVr0eU=;
+        s=default; t=1588942582;
+        bh=Cqr8eghnHCwYfy32Xoq0YNy2OmKR9+KhkhznVTmFUrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m14aK9JD+w6cN8dInbuJGDX/bfAIRjCT0yMUUBvQAQ5xk4wnaMaI2wJgbgi+Z0A50
-         rt9p4GSulmIJfMtGZxzJbdQOf9WYVW7CxZqBcJw+658jUdii4LxMpTBndzAA3IGe0p
-         Z8wVzPglusCAUJA35xq56CS3PKxJ6IQ0dhgrd6c4=
+        b=j+wzxpbbibs5fHLgYck6ap1v0BmzbbLDzO3Z5vYw7eaJWQdu1z51MBITihZmNG3bb
+         HwB6Xx3ijzJ2HqwJieat0uXie9wZuPhorJJkyU0ifBQKriQfOI9N2Emo3kr8KySJsl
+         YuYRL00+PMt5FQfpZOETBjuL2t7k3y6g+cP8868k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
-        Tuowen Zhao <ztuowen@gmail.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Roman Gilg <subdiff@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.4 35/50] mfd: intel-lpss: Use devm_ioremap_uc for MMIO
+        stable@vger.kernel.org, Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 24/49] drm/amdgpu: Correctly initialize thermal controller for GPUs with Powerplay table v0 (e.g Hawaii)
 Date:   Fri,  8 May 2020 14:35:41 +0200
-Message-Id: <20200508123048.223733664@linuxfoundation.org>
+Message-Id: <20200508123046.472976640@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,49 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuowen Zhao <ztuowen@gmail.com>
+From: Sandeep Raghuraman <sandy.8925@gmail.com>
 
-commit a8ff78f7f773142eb8a8befe5a95dd6858ebd635 upstream.
+[ Upstream commit bbc25dadc7ed19f9d6b2e30980f0eb4c741bb8bf ]
 
-Some BIOS erroneously specifies write-combining BAR for intel-lpss-pci
-in MTRR. This will cause the system to hang during boot. If possible,
-this bug could be corrected with a firmware update.
+Initialize thermal controller fields in the PowerPlay table for Hawaii
+GPUs, so that fan speeds are reported.
 
-This patch use devm_ioremap_uc to overwrite/ignore the MTRR settings
-by forcing the use of strongly uncachable pages for intel-lpss.
-
-The BIOS bug is present on Dell XPS 13 7390 2-in-1:
-
-[    0.001734]   5 base 4000000000 mask 6000000000 write-combining
-
-4000000000-7fffffffff : PCI Bus 0000:00
-  4000000000-400fffffff : 0000:00:02.0 (i915)
-  4010000000-4010000fff : 0000:00:15.0 (intel-lpss-pci)
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203485
-Cc: <stable@vger.kernel.org> # v4.19+
-Tested-by: AceLan Kao <acelan.kao@canonical.com>
-Signed-off-by: Tuowen Zhao <ztuowen@gmail.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Roman Gilg <subdiff@gmail.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel-lpss.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../drm/amd/powerplay/hwmgr/processpptables.c | 26 +++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
---- a/drivers/mfd/intel-lpss.c
-+++ b/drivers/mfd/intel-lpss.c
-@@ -384,7 +384,7 @@ int intel_lpss_probe(struct device *dev,
- 	if (!lpss)
- 		return -ENOMEM;
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/processpptables.c b/drivers/gpu/drm/amd/powerplay/hwmgr/processpptables.c
+index 77c14671866c0..719597c5d27d9 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/processpptables.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/processpptables.c
+@@ -984,6 +984,32 @@ static int init_thermal_controller(
+ 			struct pp_hwmgr *hwmgr,
+ 			const ATOM_PPLIB_POWERPLAYTABLE *powerplay_table)
+ {
++	hwmgr->thermal_controller.ucType =
++			powerplay_table->sThermalController.ucType;
++	hwmgr->thermal_controller.ucI2cLine =
++			powerplay_table->sThermalController.ucI2cLine;
++	hwmgr->thermal_controller.ucI2cAddress =
++			powerplay_table->sThermalController.ucI2cAddress;
++
++	hwmgr->thermal_controller.fanInfo.bNoFan =
++		(0 != (powerplay_table->sThermalController.ucFanParameters &
++			ATOM_PP_FANPARAMETERS_NOFAN));
++
++	hwmgr->thermal_controller.fanInfo.ucTachometerPulsesPerRevolution =
++		powerplay_table->sThermalController.ucFanParameters &
++		ATOM_PP_FANPARAMETERS_TACHOMETER_PULSES_PER_REVOLUTION_MASK;
++
++	hwmgr->thermal_controller.fanInfo.ulMinRPM
++		= powerplay_table->sThermalController.ucFanMinRPM * 100UL;
++	hwmgr->thermal_controller.fanInfo.ulMaxRPM
++		= powerplay_table->sThermalController.ucFanMaxRPM * 100UL;
++
++	set_hw_cap(hwmgr,
++		   ATOM_PP_THERMALCONTROLLER_NONE != hwmgr->thermal_controller.ucType,
++		   PHM_PlatformCaps_ThermalController);
++
++	hwmgr->thermal_controller.use_hw_fan_control = 1;
++
+ 	return 0;
+ }
  
--	lpss->priv = devm_ioremap(dev, info->mem->start + LPSS_PRIV_OFFSET,
-+	lpss->priv = devm_ioremap_uc(dev, info->mem->start + LPSS_PRIV_OFFSET,
- 				  LPSS_PRIV_SIZE);
- 	if (!lpss->priv)
- 		return -ENOMEM;
+-- 
+2.20.1
+
 
 
