@@ -2,181 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD0B31CAA29
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 13:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5558A1CAA33
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727076AbgEHL7y convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 8 May 2020 07:59:54 -0400
-Received: from pic75-3-78-194-244-226.fbxo.proxad.net ([78.194.244.226]:52692
-        "EHLO mail.corsac.net" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1726618AbgEHL7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 07:59:54 -0400
-X-Greylist: delayed 10338 seconds by postgrey-1.27 at vger.kernel.org; Fri, 08 May 2020 07:59:52 EDT
-Received: from scapa.corsac.net (unknown [IPv6:2a01:e34:ec2f:4e20:6af7:28ff:fe8d:2119])
-        by mail.corsac.net (Postfix) with ESMTPS id D6CD08E
-        for <stable@vger.kernel.org>; Fri,  8 May 2020 13:59:21 +0200 (CEST)
-Received: from corsac (uid 1000)
-        (envelope-from corsac@debian.org)
-        id a00a4
-        by scapa.corsac.net (DragonFly Mail Agent v0.12);
-        Fri, 08 May 2020 13:59:21 +0200
-Message-ID: <177a9ed3375957e40b295e20bb6b42663a784a74.camel@debian.org>
-Subject: Re: [PATCH] drm/atomic: Take the atomic toys away from X
-From:   Yves-Alexis Perez <corsac@debian.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        DRI Development <dri-devel@lists.freedesktop.org>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        Ilia Mirkin <imirkin@alum.mit.edu>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
-        Alex Deucher <alexdeucher@gmail.com>,
-        Adam Jackson <ajax@redhat.com>, Sean Paul <sean@poorly.run>,
-        David Airlie <airlied@linux.ie>,
-        Rob Clark <robdclark@gmail.com>, stable@vger.kernel.org,
-        Daniel Vetter <daniel.vetter@intel.com>
-Date:   Fri, 08 May 2020 13:59:17 +0200
-In-Reply-To: <20200508095426.GA3778290@kroah.com>
-References: <20190903190642.32588-1-daniel.vetter@ffwll.ch>
-         <20190905185318.31363-1-daniel.vetter@ffwll.ch>
-         <2a05f4c4362d386d298a06a67f2f528ef603a734.camel@debian.org>
-         <20200508095426.GA3778290@kroah.com>
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.2-1 
+        id S1727097AbgEHMCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48438 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726618AbgEHMCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:02:08 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44B0B208DB;
+        Fri,  8 May 2020 12:02:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588939327;
+        bh=MVgAInBlHbFucqqOMS2zpzCl41mt8McPbpWInuTvt7A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Twetzls2F3Jeu+KmG5FUOutvjCz/WoqfrsBaX8GvAALNLGFDnKHPy8LdLPUulm0yK
+         tBOfN6D3JwamP0kQgp3199ol6mSEtcR3ZeMDY8UHhllndREBSrWk/ouW1UclYwkLr1
+         L125iRZ6ei661Ah3Bz5HYH2pfNhM462Cs2rBmyg0=
+Date:   Fri, 8 May 2020 14:02:05 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Fugang Duan <fugang.duan@nxp.com>,
+        Pantelis Antoniou <pantelis.antoniou@gmail.com>,
+        Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Lars Persson <lars.persson@axis.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>, Netdev <netdev@vger.kernel.org>,
+        nios2-dev@lists.rocketboards.org,
+        open list <linux-kernel@vger.kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-mediatek@lists.infradead.org,
+        linux-renesas-soc@vger.kernel.org, linux-omap@vger.kernel.org,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, lkft-triage@lists.linaro.org
+Subject: Re: [PATCH net 11/16] net: ethernet: marvell: mvneta: fix fixed-link
+ phydev leaks
+Message-ID: <20200508120205.GA4089177@kroah.com>
+References: <1480357509-28074-1-git-send-email-johan@kernel.org>
+ <1480357509-28074-12-git-send-email-johan@kernel.org>
+ <CA+G9fYvBjUVkVhtRHVm6xXcKe2+tZN4rGdB9FzmpcfpaLhY1+g@mail.gmail.com>
+ <20200507064412.GL2042@localhost>
+ <20200507064734.GA798308@kroah.com>
+ <20200507111312.GA1497799@kroah.com>
+ <CA+G9fYu2SrkEHyAzF57xJz5WjgHv361qdL2wPqON_pGS4Vtxmw@mail.gmail.com>
+ <20200508062119.GE25962@localhost>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200508062119.GE25962@localhost>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
-
-On Fri, 2020-05-08 at 11:54 +0200, Greg KH wrote:
-> > Hi Daniel and Greg (especially). It seems that this patch was never
-> > applied to
-> > stable, maybe it fell through the cracks?
+On Fri, May 08, 2020 at 08:21:19AM +0200, Johan Hovold wrote:
+> On Fri, May 08, 2020 at 03:35:02AM +0530, Naresh Kamboju wrote:
+> > On Thu, 7 May 2020 at 16:43, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > <trim>
+> > > > >
+> > > > > Greg, 3f65047c853a ("of_mdio: add helper to deregister fixed-link
+> > > > > PHYs") needs to be backported as well for these.
+> > > > >
+> > > > > Original series can be found here:
+> > > > >
+> > > > >     https://lkml.kernel.org/r/1480357509-28074-1-git-send-email-johan@kernel.org
+> > > >
+> > > > Ah, thanks for that, I thought I dropped all of the ones that caused
+> > > > build errors, but missed the above one.  I'll go take the whole series
+> > > > instead.
+> > >
+> > > This should now all be fixed up, thanks.
+> > 
+> > While building kernel Image for arm architecture on stable-rc 4.4 branch
+> > the following build error found.
+> > 
+> > of_mdio: add helper to deregister fixed-link PHYs
+> > commit 3f65047c853a2a5abcd8ac1984af3452b5df4ada upstream.
+> > 
+> > Add helper to deregister fixed-link PHYs registered using
+> > of_phy_register_fixed_link().
+> > 
+> > Convert the two drivers that care to deregister their fixed-link PHYs to
+> > use the new helper, but note that most drivers currently fail to do so.
+> > 
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > Signed-off-by: David S. Miller <davem@davemloft.net>
+> > [only take helper function for 4.4.y - gregkh]
+> > 
+> >  # make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm
+> > CROSS_COMPILE=arm-linux-gnueabihf- HOSTCC=gcc CC="sccache
+> > arm-linux-gnueabihf-gcc" O=build zImage
+> > 70 #
+> > 71 ../drivers/of/of_mdio.c: In function ‘of_phy_deregister_fixed_link’:
+> > 72 ../drivers/of/of_mdio.c:379:2: error: implicit declaration of
+> > function ‘fixed_phy_unregister’; did you mean ‘fixed_phy_register’?
+> > [-Werror=implicit-function-declaration]
+> > 73  379 | fixed_phy_unregister(phydev);
+> > 74  | ^~~~~~~~~~~~~~~~~~~~
+> > 75  | fixed_phy_register
+> > 76 ../drivers/of/of_mdio.c:381:22: error: ‘struct phy_device’ has no
+> > member named ‘mdio’; did you mean ‘mdix’?
+> > 77  381 | put_device(&phydev->mdio.dev); /* of_phy_find_device() */
+> > 78  | ^~~~
+> > 79  | mdix
 > 
-> What patch is "this patch"?
-
-Sorry, the patch was in the mail I was replying to:
-
-commit 26b1d3b527e7bf3e24b814d617866ac5199ce68d
-Author: Daniel Vetter <daniel.vetter@ffwll.ch>
-Date:   Thu Sep 5 20:53:18 2019 +0200
-
-    drm/atomic: Take the atomic toys away from X
-
+> Another dependency: 5bcbe0f35fb1 ("phy: fixed: Fix removal of phys.")
 > 
-> > It doesn't apply as-is in 4.19 branch but a small change in the context
-> > makes
-> > it apply. I'm experiencing issues with lightdm and vt-switch in Debian
-> > Buster
-> > (which has a 4.19 kernel) so I'd appreciate if the patch was included in
-> > at
-> > least that release.
+> Greg, these patches are from four years ago so can't really remember if
+> there are other dependencies or reasons against backporting them (the
+> missing stable tags are per Dave's preference), sorry.
 > 
-> What is the git commit id of the patch in Linus's tree?  If you have a
-> working backport, that makes it much easier than hoping I can fix it
-> up...
+> The cover letter also mentions another dependency, but that may just
+> have been some context conflict.
+> 
+> Perhaps you better drop these unless you want to review them closer.
 
-The commit id is in Linus tree is 26b1d3b527e7bf3e24b814d617866ac5199ce68d. To
-apply properly 69fdf4206a8ba91a277b3d50a3a05b71247635b2 would need to be
-cherry-picked as well but it wasn't marked for stable so I didn't bother and
-only fixed the context. Here's the backport to 4.19, compile and runtime
-tested. It does fix the issue for me (like it did on mainline).
+Good idea, I've dropped them all for now, sorry for the noise.
 
-So I guess
-Tested-By: Yves-Alexis Perez <corsac@debian.org>
-
-commit 8a99914f7b539542622dc571c82d6cd203bddf64
-Author: Daniel Vetter <daniel.vetter@ffwll.ch>
-Date:   Thu Sep 5 20:53:18 2019 +0200
-
-    drm/atomic: Take the atomic toys away from X
-    
-    The -modesetting ddx has a totally broken idea of how atomic works:
-    - doesn't disable old connectors, assuming they get auto-disable like
-      with the legacy setcrtc
-    - assumes ASYNC_FLIP is wired through for the atomic ioctl
-    - not a single call to TEST_ONLY
-    
-    Iow the implementation is a 1:1 translation of legacy ioctls to
-    atomic, which is a) broken b) pointless.
-    
-    We already have bugs in both i915 and amdgpu-DC where this prevents us
-    from enabling neat features.
-    
-    If anyone ever cares about atomic in X we can easily add a new atomic
-    level (req->value == 2) for X to get back the shiny toys.
-    
-    Since these broken versions of -modesetting have been shipping,
-    there's really no other way to get out of this bind.
-    
-    v2:
-    - add an informational dmesg output (Rob, Ajax)
-    - reorder after the DRIVER_ATOMIC check to avoid useless noise (Ilia)
-    - allow req->value > 2 so that X can do another attempt at atomic in
-      the future
-    
-    v3: Go with paranoid, insist that the X should be first (suggested by
-    Rob)
-    
-    Cc: Ilia Mirkin <imirkin@alum.mit.edu>
-    References: https://gitlab.freedesktop.org/xorg/xserver/issues/629
-    References: https://gitlab.freedesktop.org/xorg/xserver/merge_requests/180
-    References: abbc0697d5fb ("drm/fb: revert the i915 Actually configure
-untiled displays from master")
-    Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-    Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com> (v1)
-    Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com> (v1)
-    Cc: Michel Dänzer <michel@daenzer.net>
-    Cc: Alex Deucher <alexdeucher@gmail.com>
-    Cc: Adam Jackson <ajax@redhat.com>
-    Acked-by: Adam Jackson <ajax@redhat.com>
-    Cc: Sean Paul <sean@poorly.run>
-    Cc: David Airlie <airlied@linux.ie>
-    Cc: Rob Clark <robdclark@gmail.com>
-    Acked-by: Rob Clark <robdclark@gmail.com>
-    Cc: stable@vger.kernel.org
-    Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-    Link: 
-https://patchwork.freedesktop.org/patch/msgid/20190905185318.31363-1-daniel.vetter@ffwll.ch
-
-diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
-index ba129b64b61f..b92682f037b2 100644
-- --- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -321,7 +321,12 @@ drm_setclientcap(struct drm_device *dev, void *data,
-struct drm_file *file_priv)
- 	case DRM_CLIENT_CAP_ATOMIC:
- 		if (!drm_core_check_feature(dev, DRIVER_ATOMIC))
- 			return -EINVAL;
-- -		if (req->value > 1)
-+		/* The modesetting DDX has a totally broken idea of atomic. */
-+		if (current->comm[0] == 'X' && req->value == 1) {
-+			pr_info("broken atomic modeset userspace detected,
-disabling atomic\n");
-+			return -EOPNOTSUPP;
-+		}
-+		if (req->value > 2)
- 			return -EINVAL;
- 		file_priv->atomic = req->value;
- 		file_priv->universal_planes = req->value;
-
-
-- -- 
-Yves-Alexis
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEE8vi34Qgfo83x35gF3rYcyPpXRFsFAl61SZUACgkQ3rYcyPpX
-RFvPfwgAzMyFqiV592RBKu4tx5Ivqa4EC/1OdR8DojyQlw4AP0bYc+4O67xYbvt5
-r4JXuGbSu+jW/29V+2t8ZlLi4S7bAvAo2DEhuBdGVzdmD4gM9EC+69oqVeZWWZTm
-VUldLrRO8BoPxv14lX/K/kU/o5Pv8ivRoEKs385JU2p1AxNGJI2UUmIXKGtk7Cu/
-Fu/flH627RHjTRk2QYsemqHqSAONaHYuSiYm783hz4wYiPOZQdGvS+ifHwMAhUqh
-scaCxv+pBOxaLuZAfUXFjDX+qAcuJCxaP9bT4soweIpYqjzcAdBSmny0+OLOnie/
-HcBzKwpgitKR/cVadZgb0US1oHeo2A==
-=l8z1
------END PGP SIGNATURE-----
+greg k-h
