@@ -2,210 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 629861CB569
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 19:09:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EED421CB5BC
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 19:22:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726843AbgEHRJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 13:09:55 -0400
-Received: from mga11.intel.com ([192.55.52.93]:1495 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726750AbgEHRJy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 13:09:54 -0400
-IronPort-SDR: ys2D1VsYFBEU1vjgLbT7MEqZwDRHicNqHB9k6nSvs2MHnFArrbKmAsOsvnSRLv0qP8iV3u8zr2
- VgGUbfrgKy7g==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 May 2020 10:09:43 -0700
-IronPort-SDR: VfaqUptVu/bVBogD4N8hx8N4u1Y1eU06bAepQECQZGaK7snz3O7sio9UysfzZw6+hNMBL28qkY
- X1pmCf5piARA==
-X-IronPort-AV: E=Sophos;i="5.73,368,1583222400"; 
-   d="scan'208";a="261058312"
-Received: from rdvivi-losangeles.jf.intel.com (HELO intel.com) ([10.165.21.202])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 May 2020 10:09:42 -0700
-Date:   Fri, 8 May 2020 10:08:40 -0700
-From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     Daniel Vetter <daniel@ffwll.ch>, stable <stable@vger.kernel.org>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        dri-devel <dri-devel@lists.freedesktop.org>
-Subject: Re: [PATCH] drm: Fix page flip ioctl format check
-Message-ID: <20200508170840.GE1219060@intel.com>
-References: <20200416170420.23657-1-ville.syrjala@linux.intel.com>
- <20200417152310.GQ3456981@phenom.ffwll.local>
- <20200417154313.GO6112@intel.com>
- <CAKMK7uGBWyPtm0dva=Ndk6xJx7nUKJ20kn8S37iFB8s85WWmdw@mail.gmail.com>
- <20200417182834.GS6112@intel.com>
+        id S1727104AbgEHRWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 13:22:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727030AbgEHRWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 13:22:00 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8023C061A0C
+        for <stable@vger.kernel.org>; Fri,  8 May 2020 10:22:00 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id a5so4609094pjh.2
+        for <stable@vger.kernel.org>; Fri, 08 May 2020 10:22:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=FDmOxQMCuaw5F6/Weoldmrv8lAutINkccOcvV//08Lo=;
+        b=uz6CQxh4gx44MIkOb4uoPsulQcoadM4lvLN8PW4twq6GXEyiBPwb4BpfSqGisSWHU8
+         KgUz23Sy4OHg4McVtDGkn1shgfffYfuSoTyYAp3cSjJqjMzB/uChi69dqKS3z0+CIhSX
+         DpqZWBMvLuY6Yy9OqKHgQOFn+0nNEXzJKOl4XRO+5kH9YpeoVN2u+KziL+wT3kg7kobt
+         8HspgqpP3STPysPB9h+RHLEusRGic/V2t62HNpOYC6ZiqEU3ZLZp0oRdcKkmTrdWrNjD
+         yEU6b7VACRfdgG7SsFhLBl9kmiNt3HJy5MaLxj3VP16jk5qCLTutzRyTzSlcDNAOnAEQ
+         qndw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=FDmOxQMCuaw5F6/Weoldmrv8lAutINkccOcvV//08Lo=;
+        b=PvavZ+Panl1TvtMH5EOEbBwtjhwf8OZ1sz01QCOZF/WhmIa3r4tAXBaWvj7O7Pjn65
+         /DqCxpnBPj11ZLenbPFt46m3ugv1H1k/Sl2t/3EI1YB20gcPX9ne9Sp1x/VwRnDrPgHd
+         gnPV4dq9Ha1dFFuKa4ucZjupNpX486+R3KWMWRmhUWVkOsX4qNn3UoceAsN+iTGjAvQe
+         tN1Wvcur0n159uffgAcVMqYDq3pmbpZ0RGJJPuoPC1AjvuH2VNemM4lxZaiUsGwwkFY7
+         I3nulZGVKGQ7oUgQzdpRMPyxGNR2bqxL8APz2ZfrufB0hTaPsEMOwzRTQQTUdpKFhPrY
+         chDQ==
+X-Gm-Message-State: AGi0PuYBKuiBpoSXbUu6vPxjqpFvoYe79ZivvRf0Wfq7J1dYKgZHb4bd
+        x1ibWiUa7TNeBN1sYMAZnQglFcRqaUL3YdD0G+pTgA==
+X-Google-Smtp-Source: APiQypISgtnD5NDGHv3g6yn5klP9hv3kXnvW9OyaSiLskvc+++YwjPnOVL60aWHLauimVX8osi0SRQ8ElmR15zyuNn0=
+X-Received: by 2002:a17:90b:2302:: with SMTP id mt2mr3301097pjb.25.1588958519887;
+ Fri, 08 May 2020 10:21:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200417182834.GS6112@intel.com>
+References: <20200505174423.199985-1-ndesaulniers@google.com>
+ <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com> <20200507113422.GA3762@hirez.programming.kicks-ass.net>
+ <CAMzpN2hXUYvLuTA63N56ef4DEzyWXt_uVVq6PV0r8YQT-YN42g@mail.gmail.com>
+ <CAKwvOd=a3MR7osKBpbq=d41ieo7G9FtOp5Kok5por1P5ZS9s4g@mail.gmail.com>
+ <CAKwvOd=Ogbp0oVgmF2B9cePjyWnvLLFRSp2EnaonA-ZFN3K7Dg@mail.gmail.com> <CAMzpN2gu4stkRKTsMTVxyzckO3SMhfA+dmCnSu6-aMg5QAA_JQ@mail.gmail.com>
+In-Reply-To: <CAMzpN2gu4stkRKTsMTVxyzckO3SMhfA+dmCnSu6-aMg5QAA_JQ@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Fri, 8 May 2020 10:21:48 -0700
+Message-ID: <CAKwvOd=hVKrFU+imSGeX+MEKMpW97gE7bzn1C637qdns9KSnUA@mail.gmail.com>
+Subject: Re: [PATCH] x86: bitops: fix build regression
+To:     Brian Gerst <brgerst@gmail.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Daniel Axtens <dja@axtens.net>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 17, 2020 at 09:28:34PM +0300, Ville Syrjälä wrote:
-> On Fri, Apr 17, 2020 at 08:10:26PM +0200, Daniel Vetter wrote:
-> > On Fri, Apr 17, 2020 at 5:43 PM Ville Syrjälä
-> > <ville.syrjala@linux.intel.com> wrote:
+On Thu, May 7, 2020 at 6:57 PM Brian Gerst <brgerst@gmail.com> wrote:
+>
+> On Thu, May 7, 2020 at 6:29 PM Nick Desaulniers <ndesaulniers@google.com> wrote:
+> >
+> > On Thu, May 7, 2020 at 12:19 PM Nick Desaulniers
+> > <ndesaulniers@google.com> wrote:
 > > >
-> > > On Fri, Apr 17, 2020 at 05:23:10PM +0200, Daniel Vetter wrote:
-> > > > On Thu, Apr 16, 2020 at 08:04:20PM +0300, Ville Syrjala wrote:
-> > > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > >
-> > > > > Revert back to comparing fb->format->format instead fb->format for the
-> > > > > page flip ioctl. This check was originally only here to disallow pixel
-> > > > > format changes, but when we changed it to do the pointer comparison
-> > > > > we potentially started to reject some (but definitely not all) modifier
-> > > > > changes as well. In fact the current behaviour depends on whether the
-> > > > > driver overrides the format info for a specific format+modifier combo.
-> > > > > Eg. on i915 this now rejects compression vs. no compression changes but
-> > > > > does not reject any other tiling changes. That's just inconsistent
-> > > > > nonsense.
-> > > > >
-> > > > > The main reason we have to go back to the old behaviour is to fix page
-> > > > > flipping with Xorg. At some point Xorg got its atomic rights taken away
-> > > > > and since then we can't page flip between compressed and non-compressed
-> > > > > fbs on i915. Currently we get no page flipping for any games pretty much
-> > > > > since Mesa likes to use compressed buffers. Not sure how compositors are
-> > > > > working around this (don't use one myself). I guess they must be doing
-> > > > > something to get non-compressed buffers instead. Either that or
-> > > > > somehow no one noticed the tearing from the blit fallback.
+> > > On Thu, May 7, 2020 at 7:00 AM Brian Gerst <brgerst@gmail.com> wrote:
 > > > >
-> > > > Mesa only uses compressed buffers if you enable modifiers, and there's a
-> > > > _loooooooooooot_ more that needs to be fixed in Xorg to enable that for
-> > > > real. Like real atomic support.
+> > > > This change will make sparse happy and allow these cleanups:
+> > > > #define CONST_MASK(nr)                 ((u8)1 << ((nr) & 7))
 > > >
-> > > Why would you need atomic for modifiers? Xorg doesn't even have
-> > > any sensible framework for atomic and I suspect it never will.
-> > 
-> > Frankly if no one cares about atomic in X I don't think we should do
-> > work-arounds for lack of atomic in X.
-> > 
-> > > > Without modifiers all you get is X tiling,
-> > > > and that works just fine.
-> > > >
-> > > > Which would also fix this issue here you're papering over.
-> > > >
-> > > > So if this is the entire reason for this, I'm inclined to not do this.
-> > > > Current Xorg is toast wrt modifiers, that's not news.
-> > >
-> > > Works just fine. Also pretty sure modifiers are even enabled by
-> > > default now in modesetting.
-> > 
-> > Y/CSS is harder to scan out, you need to verify with TEST_ONLY whether
-> > it works. Otherwise good chances for some oddball black screens on
-> > configurations that worked before. Which is why all non-atomic
-> > compositors reverted modifiers by default again.
-> 
-> Y alone is hard to scanout also, and yet we do nothing to reject that.
-> It's just an inconsistent mess.
-> 
-> If we really want to keep this check then we should rewrite it
-> to be explicit:
-> 
-> if (old_fb->format->format != new_fb->format->format ||
->     is_ccs(old_fb->modifier) != is_ccs(new_fb->modifier))
->     return -EINVAL;
-> 
-> Now it's just a random thing that may even stop doing what it's
-> currently doing if anyone touches their .get_format_info()
-> implementation.
-> 
-> > 
-> > > And as stated the current check doesn't have consistent behaviour
-> > > anyway. You can still flip between different modifiers as long a the
-> > > driver doesn't override .get_format_info() for one of them. The *only*
-> > > case where that happens is CCS on i915. There is no valid reason to
-> > > special case that one.
-> > 
-> > The thing is, you need atomic to make CCS work reliably enough for
-> > compositors and distros to dare enabling it by default.
-> 
-> If it's not enabled by default then there is no harm in letting people
-> explicitly enable it and get better performance.
-> 
-> > CCS flipping
-> > works with atomic. I really see no point in baking this in with as
-> > uapi.
-> 
-> It's just going back to the original intention of the check.
-> Heck, the debug message doesn't even match what it's doing now.
-> 
-> > Just fix Xorg.
-> 
-> Be serious. No one is going to rewrite all the randr code to be atomic.
+> > > yep, this is more elegant, IMO.  Will send a v3 later with this
+> > > change.  Looking at the uses of CONST_MASK, I noticed
+> > > arch_change_bit() currently has the (u8) cast from commit
+> > > 838e8bb71dc0c ("x86: Implement change_bit with immediate operand as
+> > > "lock xorb""), so that instance can get cleaned up with the above
+> > > suggestion.
+> >
+> > Oh, we need the cast to be the final operation.  The binary AND and
+> > XOR in 2 of the 3 uses of CONST_MASK implicitly promote the operands
+> > of the binary operand to int, so the type of the evaluated
+> > subexpression is int.
+> > https://wiki.sei.cmu.edu/confluence/display/c/EXP14-C.+Beware+of+integer+promotion+when+performing+bitwise+operations+on+integer+types+smaller+than+int
+> > So I think this version (v2) is most precise fix, and would be better
+> > than defining more macros or (worse) using metaprogramming.
+>
+> One last suggestion.  Add the "b" modifier to the mask operand: "orb
+> %b1, %0".  That forces the compiler to use the 8-bit register name
+> instead of trying to deduce the width from the input.
 
-I fully understand Daniel's concern here, but I also believe this won't be
-done so soon at least. Meanwhile would it be acceptable to have a comment
-with the code /* XXX: Xorg blah... */ or /* FIXME: After Xorg blah.. */
-?
+Ah right: https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#x86Operandmodifiers
 
-> 
-> > -Daniel
-> > 
-> > >
-> > > > -Daniel
-> > > >
-> > > > >
-> > > > > Looking back at the original discussion on this change we pretty much
-> > > > > just did it in the name of skipping a few extra pointer dereferences.
-> > > > > However, I've decided not to revert the whole thing in case someone
-> > > > > has since started to depend on these changes. None of the other checks
-> > > > > are relevant for i915 anyways.
-> > > > >
-> > > > > Cc: stable@vger.kernel.org
-> > > > > Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > > > > Fixes: dbd4d5761e1f ("drm: Replace 'format->format' comparisons to just 'format' comparisons")
-> > > > > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > ---
-> > > > >  drivers/gpu/drm/drm_plane.c | 2 +-
-> > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > >
-> > > > > diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
-> > > > > index d6ad60ab0d38..f2ca5315f23b 100644
-> > > > > --- a/drivers/gpu/drm/drm_plane.c
-> > > > > +++ b/drivers/gpu/drm/drm_plane.c
-> > > > > @@ -1153,7 +1153,7 @@ int drm_mode_page_flip_ioctl(struct drm_device *dev,
-> > > > >     if (ret)
-> > > > >             goto out;
-> > > > >
-> > > > > -   if (old_fb->format != fb->format) {
-> > > > > +   if (old_fb->format->format != fb->format->format) {
-> > > > >             DRM_DEBUG_KMS("Page flip is not allowed to change frame buffer format.\n");
-> > > > >             ret = -EINVAL;
-> > > > >             goto out;
-> > > > > --
-> > > > > 2.24.1
-> > > > >
-> > > > > _______________________________________________
-> > > > > dri-devel mailing list
-> > > > > dri-devel@lists.freedesktop.org
-> > > > > https://lists.freedesktop.org/mailman/listinfo/dri-devel
-> > > >
-> > > > --
-> > > > Daniel Vetter
-> > > > Software Engineer, Intel Corporation
-> > > > http://blog.ffwll.ch
-> > >
-> > > --
-> > > Ville Syrjälä
-> > > Intel
-> > 
-> > 
-> > 
-> > -- 
-> > Daniel Vetter
-> > Software Engineer, Intel Corporation
-> > +41 (0) 79 365 57 48 - http://blog.ffwll.ch
-> 
-> -- 
-> Ville Syrjälä
-> Intel
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+Looks like that works for both compilers.  In that case, we can likely
+drop the `& 0xff`, too.  Let me play with that, then I'll hopefully
+send a v3 today.
+-- 
+Thanks,
+~Nick Desaulniers
