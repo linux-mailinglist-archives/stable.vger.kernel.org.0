@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 657CA1CAC7E
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F32E71CACA9
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730118AbgEHMxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:53:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35820 "EHLO mail.kernel.org"
+        id S1730080AbgEHMza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730115AbgEHMxt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:53:49 -0400
+        id S1729885AbgEHMz2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:55:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CFAF24964;
-        Fri,  8 May 2020 12:53:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D8D024958;
+        Fri,  8 May 2020 12:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942428;
-        bh=7iN2FQF+Ed1iKKEZKKAl6raBAdxVzHmDVQBjaLOBjgs=;
+        s=default; t=1588942527;
+        bh=gwwltBoEbues8SEU545brQ4mqhSyAnYy0hmSd/ji+j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThcszKYFnnqPavdriDEuDvn32cVZvED7ZL3IFtKefwCAJCTbC74o9gYutgIrI34fc
-         zMpcOUUPn6/L4nUNYNJV5jp+XT6dSSc9l5UJfTzIkAh0IoPq7aB8q2WUzubYgF7cJK
-         46UZU3k9eX08ZhN5HkCBV/WFsAm3vhECLLw6o9Dw=
+        b=QFITd2Kgfw81VDKzfqJY6JHxs575HtAfQfGXS/EKZhtiYG7e4YqtrL03cKCwwpCQB
+         A0RsNOKCzKRZ8bMyiFXwZpbxBgsk5hBVxFF3R1JOnCVuIeOB5YQA48s+Ah4DagisHl
+         6qjuqYoU8P2qqrTrMkKeHKXBi4P/Jmset2fD/MMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 42/50] ACPI: PM: s2idle: Fix comment in acpi_s2idle_prepare_late()
+        "Jeremie Francois (on alpha)" <jeremie.francois@gmail.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 31/49] scripts/config: allow colons in option strings for sed
 Date:   Fri,  8 May 2020 14:35:48 +0200
-Message-Id: <20200508123048.932531154@linuxfoundation.org>
+Message-Id: <20200508123047.347017108@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Jeremie Francois (on alpha) <jeremie.francois@gmail.com>
 
-commit 243a98894dc525ad2fbeb608722fcb682be3186d upstream.
+[ Upstream commit e461bc9f9ab105637b86065d24b0b83f182d477c ]
 
-Fix a comment in acpi_s2idle_prepare_late() that has become outdated
-after commit f0ac20c3f613 ("ACPI: EC: Fix flushing of pending work").
+Sed broke on some strings as it used colon as a separator.
+I made it more robust by using \001, which is legit POSIX AFAIK.
 
-Fixes: f0ac20c3f613 ("ACPI: EC: Fix flushing of pending work")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+E.g. ./config --set-str CONFIG_USBNET_DEVADDR "de:ad:be:ef:00:01"
+failed with: sed: -e expression #1, char 55: unknown option to `s'
 
+Signed-off-by: Jeremie Francois (on alpha) <jeremie.francois@gmail.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/sleep.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ scripts/config | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -979,10 +979,7 @@ static int acpi_s2idle_prepare_late(void
+diff --git a/scripts/config b/scripts/config
+index e0e39826dae90..eee5b7f3a092a 100755
+--- a/scripts/config
++++ b/scripts/config
+@@ -7,6 +7,9 @@ myname=${0##*/}
+ # If no prefix forced, use the default CONFIG_
+ CONFIG_="${CONFIG_-CONFIG_}"
  
- static void acpi_s2idle_sync(void)
- {
--	/*
--	 * The EC driver uses the system workqueue and an additional special
--	 * one, so those need to be flushed too.
--	 */
-+	/* The EC driver uses special workqueues that need to be flushed. */
- 	acpi_ec_flush_work();
- 	acpi_os_wait_events_complete(); /* synchronize Notify handling */
++# We use an uncommon delimiter for sed substitutions
++SED_DELIM=$(echo -en "\001")
++
+ usage() {
+ 	cat >&2 <<EOL
+ Manipulate options in a .config file from the command line.
+@@ -83,7 +86,7 @@ txt_subst() {
+ 	local infile="$3"
+ 	local tmpfile="$infile.swp"
+ 
+-	sed -e "s:$before:$after:" "$infile" >"$tmpfile"
++	sed -e "s$SED_DELIM$before$SED_DELIM$after$SED_DELIM" "$infile" >"$tmpfile"
+ 	# replace original file with the edited one
+ 	mv "$tmpfile" "$infile"
  }
+-- 
+2.20.1
+
 
 
