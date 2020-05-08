@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D21171CAC74
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B68AC1CAC34
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729717AbgEHMxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35238 "EHLO mail.kernel.org"
+        id S1728735AbgEHMvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:51:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729707AbgEHMxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:53:30 -0400
+        id S1729861AbgEHMvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:51:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC3B124959;
-        Fri,  8 May 2020 12:53:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CB6124959;
+        Fri,  8 May 2020 12:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942409;
-        bh=/F9JKVwDou5NhYrhKi27NvGY0xN/IWMFBTSb7Z63lPI=;
+        s=default; t=1588942262;
+        bh=F42RYYpFQA8sz/EtIP1xqz9osr29mGNKV4lkhnLOvOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WEz9CZ8Kohvy1hKUkoEtu4vthjhtqXi+rPvqVtssluMMU9FW96zuSPmvfvQXVZ+GU
-         NYZY0R+pzYvwGT4//CLw8rMEMdPh3guUqQynBVNhpJpMIMf9QOKb4xeucF9VjeklOV
-         //g0zpuU4ToFWu2ZzW/gH0FiIddxpvPuHIeKn5Y0=
+        b=iAh3u5103V0DFbtKL1W9avLB6ZaZWdYX71ovsHE6QHBXwoEjmdMBv117VHU2DuZ7G
+         zhSXAIu2Twn8FZIJGT6GRKMjKZkfqKg8e6NnWPPEMXEpbZVnjeP2m3FRTYDRTrlDUS
+         PNuYIjRoLgmxvdDbuZ6pMy1j3e1Yao/IzNgONtZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/50] lib/mpi: Fix building for powerpc with clang
-Date:   Fri,  8 May 2020 14:35:32 +0200
-Message-Id: <20200508123047.011158803@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Pedersen <thomas@adapt-ip.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 21/22] mac80211: add ieee80211_is_any_nullfunc()
+Date:   Fri,  8 May 2020 14:35:33 +0200
+Message-Id: <20200508123036.553439396@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
+References: <20200508123033.915895060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,123 +43,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Thomas Pedersen <thomas@adapt-ip.com>
 
-[ Upstream commit 5990cdee689c6885b27c6d969a3d58b09002b0bc ]
+commit 30b2f0be23fb40e58d0ad2caf8702c2a44cda2e1 upstream.
 
-0day reports over and over on an powerpc randconfig with clang:
+commit 08a5bdde3812 ("mac80211: consider QoS Null frames for STA_NULLFUNC_ACKED")
+Fixed a bug where we failed to take into account a
+nullfunc frame can be either non-QoS or QoS. It turns out
+there is at least one more bug in
+ieee80211_sta_tx_notify(), introduced in
+commit 7b6ddeaf27ec ("mac80211: use QoS NDP for AP probing"),
+where we forgot to check for the QoS variant and so
+assumed the QoS nullfunc frame never went out
 
-lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast or build with
--fheinous-gnu-extensions
+Fix this by adding a helper ieee80211_is_any_nullfunc()
+which consolidates the check for non-QoS and QoS nullfunc
+frames. Replace existing compound conditionals and add a
+couple more missing checks for QoS variant.
 
-Remove the superfluous casts, which have been done previously for x86
-and arm32 in commit dea632cadd12 ("lib/mpi: fix build with clang") and
-commit 7b7c1df2883d ("lib/mpi/longlong.h: fix building with 32-bit
-x86").
+Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
+Link: https://lore.kernel.org/r/20200114055940.18502-3-thomas@adapt-ip.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/991
-Link: https://lore.kernel.org/r/20200413195041.24064-1-natechancellor@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/longlong.h | 34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ include/linux/ieee80211.h |    9 +++++++++
+ net/mac80211/mlme.c       |    2 +-
+ net/mac80211/rx.c         |    8 +++-----
+ net/mac80211/status.c     |    5 ++---
+ net/mac80211/tx.c         |    2 +-
+ 5 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
-index 2dceaca27489c..891e1c3549c46 100644
---- a/lib/mpi/longlong.h
-+++ b/lib/mpi/longlong.h
-@@ -722,22 +722,22 @@ do {									\
- do { \
- 	if (__builtin_constant_p(bh) && (bh) == 0) \
- 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"%r" ((USItype)(al)), \
- 		"rI" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
- 		__asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"%r" ((USItype)(al)), \
- 		"rI" ((USItype)(bl))); \
- 	else \
- 		__asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "%r" ((USItype)(ah)), \
- 		"r" ((USItype)(bh)), \
- 		"%r" ((USItype)(al)), \
-@@ -747,36 +747,36 @@ do { \
- do { \
- 	if (__builtin_constant_p(ah) && (ah) == 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(ah) && (ah) == ~(USItype) 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else if (__builtin_constant_p(bh) && (bh) == ~(USItype) 0) \
- 		__asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"rI" ((USItype)(al)), \
- 		"r" ((USItype)(bl))); \
- 	else \
- 		__asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2" \
--		: "=r" ((USItype)(sh)), \
--		"=&r" ((USItype)(sl)) \
-+		: "=r" (sh), \
-+		"=&r" (sl) \
- 		: "r" ((USItype)(ah)), \
- 		"r" ((USItype)(bh)), \
- 		"rI" ((USItype)(al)), \
-@@ -787,7 +787,7 @@ do { \
- do { \
- 	USItype __m0 = (m0), __m1 = (m1); \
- 	__asm__ ("mulhwu %0,%1,%2" \
--	: "=r" ((USItype) ph) \
-+	: "=r" (ph) \
- 	: "%r" (__m0), \
- 	"r" (__m1)); \
- 	(pl) = __m0 * __m1; \
--- 
-2.20.1
-
+--- a/include/linux/ieee80211.h
++++ b/include/linux/ieee80211.h
+@@ -622,6 +622,15 @@ static inline bool ieee80211_is_qos_null
+ }
+ 
+ /**
++ * ieee80211_is_any_nullfunc - check if frame is regular or QoS nullfunc frame
++ * @fc: frame control bytes in little-endian byteorder
++ */
++static inline bool ieee80211_is_any_nullfunc(__le16 fc)
++{
++	return (ieee80211_is_nullfunc(fc) || ieee80211_is_qos_nullfunc(fc));
++}
++
++/**
+  * ieee80211_is_bufferable_mmpdu - check if frame is bufferable MMPDU
+  * @fc: frame control field in little-endian byteorder
+  */
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2273,7 +2273,7 @@ void ieee80211_sta_tx_notify(struct ieee
+ 	if (!ieee80211_is_data(hdr->frame_control))
+ 	    return;
+ 
+-	if (ieee80211_is_nullfunc(hdr->frame_control) &&
++	if (ieee80211_is_any_nullfunc(hdr->frame_control) &&
+ 	    sdata->u.mgd.probe_send_count > 0) {
+ 		if (ack)
+ 			ieee80211_sta_reset_conn_monitor(sdata);
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -1255,8 +1255,7 @@ ieee80211_rx_h_check_dup(struct ieee8021
+ 		return RX_CONTINUE;
+ 
+ 	if (ieee80211_is_ctl(hdr->frame_control) ||
+-	    ieee80211_is_nullfunc(hdr->frame_control) ||
+-	    ieee80211_is_qos_nullfunc(hdr->frame_control) ||
++	    ieee80211_is_any_nullfunc(hdr->frame_control) ||
+ 	    is_multicast_ether_addr(hdr->addr1))
+ 		return RX_CONTINUE;
+ 
+@@ -1643,8 +1642,7 @@ ieee80211_rx_h_sta_process(struct ieee80
+ 	 * Drop (qos-)data::nullfunc frames silently, since they
+ 	 * are used only to control station power saving mode.
+ 	 */
+-	if (ieee80211_is_nullfunc(hdr->frame_control) ||
+-	    ieee80211_is_qos_nullfunc(hdr->frame_control)) {
++	if (ieee80211_is_any_nullfunc(hdr->frame_control)) {
+ 		I802_DEBUG_INC(rx->local->rx_handlers_drop_nullfunc);
+ 
+ 		/*
+@@ -2134,7 +2132,7 @@ static int ieee80211_drop_unencrypted(st
+ 
+ 	/* Drop unencrypted frames if key is set. */
+ 	if (unlikely(!ieee80211_has_protected(fc) &&
+-		     !ieee80211_is_nullfunc(fc) &&
++		     !ieee80211_is_any_nullfunc(fc) &&
+ 		     ieee80211_is_data(fc) && rx->key))
+ 		return -EACCES;
+ 
+--- a/net/mac80211/status.c
++++ b/net/mac80211/status.c
+@@ -478,8 +478,7 @@ static void ieee80211_report_ack_skb(str
+ 		rcu_read_lock();
+ 		sdata = ieee80211_sdata_from_skb(local, skb);
+ 		if (sdata) {
+-			if (ieee80211_is_nullfunc(hdr->frame_control) ||
+-			    ieee80211_is_qos_nullfunc(hdr->frame_control))
++			if (ieee80211_is_any_nullfunc(hdr->frame_control))
+ 				cfg80211_probe_status(sdata->dev, hdr->addr1,
+ 						      cookie, acked,
+ 						      GFP_ATOMIC);
+@@ -856,7 +855,7 @@ static void __ieee80211_tx_status(struct
+ 			I802_DEBUG_INC(local->dot11FailedCount);
+ 	}
+ 
+-	if ((ieee80211_is_nullfunc(fc) || ieee80211_is_qos_nullfunc(fc)) &&
++	if (ieee80211_is_any_nullfunc(fc) &&
+ 	    ieee80211_has_pm(fc) &&
+ 	    ieee80211_hw_check(&local->hw, REPORTS_TX_ACK_STATUS) &&
+ 	    !(info->flags & IEEE80211_TX_CTL_INJECTED) &&
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -296,7 +296,7 @@ ieee80211_tx_h_check_assoc(struct ieee80
+ 	if (unlikely(test_bit(SCAN_SW_SCANNING, &tx->local->scanning)) &&
+ 	    test_bit(SDATA_STATE_OFFCHANNEL, &tx->sdata->state) &&
+ 	    !ieee80211_is_probe_req(hdr->frame_control) &&
+-	    !ieee80211_is_nullfunc(hdr->frame_control))
++	    !ieee80211_is_any_nullfunc(hdr->frame_control))
+ 		/*
+ 		 * When software scanning only nullfunc frames (to notify
+ 		 * the sleep state to the AP) and probe requests (for the
 
 
