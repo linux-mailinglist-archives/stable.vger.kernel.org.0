@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0C71CADAC
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 497511CAD28
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728330AbgEHNDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:03:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57700 "EHLO mail.kernel.org"
+        id S1729349AbgEHMwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727123AbgEHMuQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:50:16 -0400
+        id S1729995AbgEHMwt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:52:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 458F1218AC;
-        Fri,  8 May 2020 12:50:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFE7724959;
+        Fri,  8 May 2020 12:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942215;
-        bh=LTRsRa4wOMiSn/uoTzJ5hVuhRHAn+clpoI749rHtK7w=;
+        s=default; t=1588942369;
+        bh=SD7T60NTWAwj0y0ioejAXYqLHyACuAREGqmS+ToUxjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o+KP2wiwUxqKYaYhjTDkniVzStddqB3Nyc/NZBwby9D3Y63qKdl/U/gtA1fwz9EHN
-         C8fqD9Xh++kX4HgxIsFXV7UlqcNSNElR+U5AJkNL5NB7nfJmqBR43NNSeK1KeY+OPw
-         mGlnKZs8j8IJZj4bD/mN+Ai9zbR28xOMTr5ZmWGo=
+        b=teL+LocBnFykFE5BauUzAOUHDzH7Il5eLDDwQxGC5WMfH7/HkEc2wj05nYlB3p1i5
+         0vg+eUi10DiZuudp1FALh0PXc1/lrZoDjXeT2rth8SvI+TAnD1afW4v6Z+X4sOF9rm
+         VLCNhAebIfbMWTjQp1N/ugwYZfRjcKniv4rfOJL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Julien Beraud <julien.beraud@orolia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/22] s390/ftrace: fix potential crashes when switching tracers
+Subject: [PATCH 5.4 18/50] net: stmmac: fix enabling socfpgas ptp_ref_clock
 Date:   Fri,  8 May 2020 14:35:24 +0200
-Message-Id: <20200508123035.392899555@linuxfoundation.org>
+Message-Id: <20200508123045.931530239@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
-References: <20200508123033.915895060@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Rudo <prudo@linux.ibm.com>
+From: Julien Beraud <julien.beraud@orolia.com>
 
-[ Upstream commit 8ebf6da9db1b2a20bb86cc1bee2552e894d03308 ]
+[ Upstream commit 15ce30609d1e88d42fb1cd948f453e6d5f188249 ]
 
-Switching tracers include instruction patching. To prevent that a
-instruction is patched while it's read the instruction patching is done
-in stop_machine 'context'. This also means that any function called
-during stop_machine must not be traced. Thus add 'notrace' to all
-functions called within stop_machine.
+There are 2 registers to write to enable a ptp ref clock coming from the
+fpga.
+One that enables the usage of the clock from the fpga for emac0 and emac1
+as a ptp ref clock, and the other to allow signals from the fpga to reach
+emac0 and emac1.
+Currently, if the dwmac-socfpga has phymode set to PHY_INTERFACE_MODE_MII,
+PHY_INTERFACE_MODE_GMII, or PHY_INTERFACE_MODE_SGMII, both registers will
+be written and the ptp ref clock will be set as coming from the fpga.
+Separate the 2 register writes to only enable signals from the fpga to
+reach emac0 or emac1 when ptp ref clock is not coming from the fpga.
 
-Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
-Fixes: 38f2c691a4b3 ("s390: improve wait logic of stop_machine")
-Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
-Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Julien Beraud <julien.beraud@orolia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/diag.c  | 2 +-
- arch/s390/kernel/smp.c   | 4 ++--
- arch/s390/kernel/trace.c | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/diag.c b/arch/s390/kernel/diag.c
-index 35c842aa87058..4c7cf8787a848 100644
---- a/arch/s390/kernel/diag.c
-+++ b/arch/s390/kernel/diag.c
-@@ -128,7 +128,7 @@ void diag_stat_inc(enum diag_stat_enum nr)
- }
- EXPORT_SYMBOL(diag_stat_inc);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
+index fa32cd5b418ef..70d41783329dd 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
+@@ -291,16 +291,19 @@ static int socfpga_gen5_set_phy_mode(struct socfpga_dwmac *dwmac)
+ 	    phymode == PHY_INTERFACE_MODE_MII ||
+ 	    phymode == PHY_INTERFACE_MODE_GMII ||
+ 	    phymode == PHY_INTERFACE_MODE_SGMII) {
+-		ctrl |= SYSMGR_EMACGRP_CTRL_PTP_REF_CLK_MASK << (reg_shift / 2);
+ 		regmap_read(sys_mgr_base_addr, SYSMGR_FPGAGRP_MODULE_REG,
+ 			    &module);
+ 		module |= (SYSMGR_FPGAGRP_MODULE_EMAC << (reg_shift / 2));
+ 		regmap_write(sys_mgr_base_addr, SYSMGR_FPGAGRP_MODULE_REG,
+ 			     module);
+-	} else {
+-		ctrl &= ~(SYSMGR_EMACGRP_CTRL_PTP_REF_CLK_MASK << (reg_shift / 2));
+ 	}
  
--void diag_stat_inc_norecursion(enum diag_stat_enum nr)
-+void notrace diag_stat_inc_norecursion(enum diag_stat_enum nr)
- {
- 	this_cpu_inc(diag_stat.counter[nr]);
- 	trace_s390_diagnose_norecursion(diag_map[nr].code);
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index b649a6538350d..808f4fbe869e7 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -406,7 +406,7 @@ int smp_find_processor_id(u16 address)
- 	return -1;
- }
++	if (dwmac->f2h_ptp_ref_clk)
++		ctrl |= SYSMGR_EMACGRP_CTRL_PTP_REF_CLK_MASK << (reg_shift / 2);
++	else
++		ctrl &= ~(SYSMGR_EMACGRP_CTRL_PTP_REF_CLK_MASK <<
++			  (reg_shift / 2));
++
+ 	regmap_write(sys_mgr_base_addr, reg_offset, ctrl);
  
--bool arch_vcpu_is_preempted(int cpu)
-+bool notrace arch_vcpu_is_preempted(int cpu)
- {
- 	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
- 		return false;
-@@ -416,7 +416,7 @@ bool arch_vcpu_is_preempted(int cpu)
- }
- EXPORT_SYMBOL(arch_vcpu_is_preempted);
- 
--void smp_yield_cpu(int cpu)
-+void notrace smp_yield_cpu(int cpu)
- {
- 	if (MACHINE_HAS_DIAG9C) {
- 		diag_stat_inc_norecursion(DIAG_STAT_X09C);
-diff --git a/arch/s390/kernel/trace.c b/arch/s390/kernel/trace.c
-index 490b52e850145..11a669f3cc93c 100644
---- a/arch/s390/kernel/trace.c
-+++ b/arch/s390/kernel/trace.c
-@@ -14,7 +14,7 @@ EXPORT_TRACEPOINT_SYMBOL(s390_diagnose);
- 
- static DEFINE_PER_CPU(unsigned int, diagnose_trace_depth);
- 
--void trace_s390_diagnose_norecursion(int diag_nr)
-+void notrace trace_s390_diagnose_norecursion(int diag_nr)
- {
- 	unsigned long flags;
- 	unsigned int *depth;
+ 	/* Deassert reset for the phy configuration to be sampled by
 -- 
 2.20.1
 
