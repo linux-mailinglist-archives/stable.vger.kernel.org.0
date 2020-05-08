@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DAEB1CAD31
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C8B91CACBD
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730131AbgEHMxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:53:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35952 "EHLO mail.kernel.org"
+        id S1728475AbgEHMzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:55:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730129AbgEHMxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:53:53 -0400
+        id S1728347AbgEHMzg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:55:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29AC524953;
-        Fri,  8 May 2020 12:53:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A40D124963;
+        Fri,  8 May 2020 12:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942433;
-        bh=Afv2FaG5DQaHqoUBgBp0RuCQ3U8KX62WJDiJFCsqfJs=;
+        s=default; t=1588942535;
+        bh=wNcfpUZNdC8GZXWSQLabHe2MZTpS/tgVvFvWTu9TVew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFDwC2+Lm6Ee/nn5ghgUYXADnJp1vHlJaGWdX1YrNQfd2/WADXELeGiKnq8qLR4hS
-         UOZjB75u0CE76szv/zLeqFE1ecDQ6Pl33EwHwrlRzCT8KHwZ33pgFiXy7ejkGlVZBq
-         u5iCG0JbZe39Oze0si2/5LqOjIES2vH9tuV1CSvg=
+        b=DlcwY52SnLHta4xKayzJVPPWL4mkp5B0EwYVSFCNWPMeYmQ3z1kHEyvpNGJU5HCra
+         6TldMCOFZ4phyzvMc8WB/jS6FhDE7ZXJoSnM+0ckGUh5px1NZaJPnEsANsRtuoQKHX
+         B46MqjADZK9+voCYMaEXHOk1EFPxXCdF+V5ZJ/XI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Dmitry Yakunin <zeil@yandex-team.ru>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 44/50] cgroup, netclassid: remove double cond_resched
-Date:   Fri,  8 May 2020 14:35:50 +0200
-Message-Id: <20200508123049.158807378@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 34/49] ftrace: Fix memory leak caused by not freeing entry in unregister_ftrace_direct()
+Date:   Fri,  8 May 2020 14:35:51 +0200
+Message-Id: <20200508123047.916721099@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 526f3d96b8f83b1b13d73bd0b5c79cc2c487ec8e upstream.
+[ Upstream commit 353da87921a5ec654e7e9024e083f099f1b33c97 ]
 
-Commit 018d26fcd12a ("cgroup, netclassid: periodically release file_lock
-on classid") added a second cond_resched to write_classid indirectly by
-update_classid_task. Remove the one in write_classid.
+kmemleak reported the following:
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Dmitry Yakunin <zeil@yandex-team.ru>
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+unreferenced object 0xffff90d47127a920 (size 32):
+  comm "modprobe", pid 1766, jiffies 4294792031 (age 162.568s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 22 01 00 00 00 00 ad de  ........".......
+    00 78 12 a7 ff ff ff ff 00 00 b6 c0 ff ff ff ff  .x..............
+  backtrace:
+    [<00000000bb79e72e>] register_ftrace_direct+0xcb/0x3a0
+    [<00000000295e4f79>] do_one_initcall+0x72/0x340
+    [<00000000873ead18>] do_init_module+0x5a/0x220
+    [<00000000974d9de5>] load_module+0x2235/0x2550
+    [<0000000059c3d6ce>] __do_sys_finit_module+0xc0/0x120
+    [<000000005a8611b4>] do_syscall_64+0x60/0x230
+    [<00000000a0cdc49e>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
 
+The entry used to save the direct descriptor needs to be freed
+when unregistering.
+
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/netclassid_cgroup.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ kernel/trace/ftrace.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/core/netclassid_cgroup.c
-+++ b/net/core/netclassid_cgroup.c
-@@ -127,10 +127,8 @@ static int write_classid(struct cgroup_s
- 	cs->classid = (u32)value;
- 
- 	css_task_iter_start(css, 0, &it);
--	while ((p = css_task_iter_next(&it))) {
-+	while ((p = css_task_iter_next(&it)))
- 		update_classid_task(p, cs->classid);
--		cond_resched();
--	}
- 	css_task_iter_end(&it);
- 
- 	return 0;
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index fd81c7de77a70..63089c70adbb6 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5155,6 +5155,7 @@ int unregister_ftrace_direct(unsigned long ip, unsigned long addr)
+ 			list_del_rcu(&direct->next);
+ 			synchronize_rcu_tasks();
+ 			kfree(direct);
++			kfree(entry);
+ 			ftrace_direct_func_count--;
+ 		}
+ 	}
+-- 
+2.20.1
+
 
 
