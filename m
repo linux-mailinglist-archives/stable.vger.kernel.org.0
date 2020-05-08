@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F141CACA4
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A4741CAC65
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730307AbgEHMzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:55:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38094 "EHLO mail.kernel.org"
+        id S1730005AbgEHMw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:52:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730304AbgEHMzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:55:15 -0400
+        id S1730021AbgEHMw5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:52:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFD3E24967;
-        Fri,  8 May 2020 12:55:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DCB5218AC;
+        Fri,  8 May 2020 12:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942515;
-        bh=X+8B5r+3ozNjTtxJhR0LgbtW2wp7VlQ+Pb0lz57jQmY=;
+        s=default; t=1588942377;
+        bh=MPyBt+js+ZFj7/UkvTMgEb63O/0/GYa3hNOG0libZHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2EJuMTw7j22QFN5qlMWmfPwB810aTk+EBK4u9XBQ1PUVIZE2/yaZs2OWxNXp6aqU1
-         GFrPgGgLek/Z6PBPYpFIQ2/DoP8WZpzXs26+a6P9iqis2zj1+Va8XjQOV84Q8ebEcV
-         AsChDFtShoaSy3D6VaFhs5GG2I+vu7uHB02IgA6Q=
+        b=1zPILyYtYFcEtk53DtyKPhvf8i6DNwDg+UmsC2ci81XWYW/QUhrA3G5DsUEaxecVB
+         9fNauaawvh+Tjvg/7iV8LM+vP4PBzS7bMsyrzKzM9UFQn0Xkts1seqhtizW4SxqTEQ
+         L9GdtH3Rx8MCTRdirjaZGs7KQ3tNKxmlpWAFxbvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Yihao Wu <wuyihao@linux.alibaba.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org,
+        Matthias Blankertz <matthias.blankertz@cetitec.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 09/49] SUNRPC/cache: Fix unsafe traverse caused double-free in cache_purge
+Subject: [PATCH 5.4 20/50] ASoC: rsnd: Dont treat master SSI in multi SSI setup as parent
 Date:   Fri,  8 May 2020 14:35:26 +0200
-Message-Id: <20200508123044.289470166@linuxfoundation.org>
+Message-Id: <20200508123046.204397661@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
-References: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yihao Wu <wuyihao@linux.alibaba.com>
+From: Matthias Blankertz <matthias.blankertz@cetitec.com>
 
-[ Upstream commit 43e33924c38e8faeb0c12035481cb150e602e39d ]
+[ Upstream commit 0c258657ddfe81b4fc0183378d800c97ba0b7cdd ]
 
-Deleting list entry within hlist_for_each_entry_safe is not safe unless
-next pointer (tmp) is protected too. It's not, because once hash_lock
-is released, cache_clean may delete the entry that tmp points to. Then
-cache_purge can walk to a deleted entry and tries to double free it.
+The master SSI of a multi-SSI setup was attached both to the
+RSND_MOD_SSI slot and the RSND_MOD_SSIP slot of the rsnd_dai_stream.
+This is not correct wrt. the meaning of being "parent" in the rest of
+the SSI code, where it seems to indicate an SSI that provides clock and
+word sync but is not transmitting/receiving audio data.
 
-Fix this bug by holding only the deleted entry's reference.
+Not treating the multi-SSI master as parent allows removal of various
+special cases to the rsnd_ssi_is_parent conditions introduced in commit
+a09fb3f28a60 ("ASoC: rsnd: Fix parent SSI start/stop in multi-SSI mode").
+It also fixes the issue that operations performed via rsnd_dai_call()
+were performed twice for the master SSI. This caused some "status check
+failed" spam when stopping a multi-SSI stream as the driver attempted to
+stop the master SSI twice.
 
-Suggested-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Yihao Wu <wuyihao@linux.alibaba.com>
-Reviewed-by: NeilBrown <neilb@suse.de>
-[ cel: removed unused variable ]
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/20200417153017.1744454-2-matthias.blankertz@cetitec.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/cache.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/sh/rcar/ssi.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/net/sunrpc/cache.c b/net/sunrpc/cache.c
-index bd843a81afa0b..d36cea4e270de 100644
---- a/net/sunrpc/cache.c
-+++ b/net/sunrpc/cache.c
-@@ -521,7 +521,6 @@ void cache_purge(struct cache_detail *detail)
- {
- 	struct cache_head *ch = NULL;
- 	struct hlist_head *head = NULL;
--	struct hlist_node *tmp = NULL;
- 	int i = 0;
+diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
+index d51fb3a394486..9900a4f6f4e53 100644
+--- a/sound/soc/sh/rcar/ssi.c
++++ b/sound/soc/sh/rcar/ssi.c
+@@ -407,7 +407,7 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
+ 	 * We shouldn't exchange SWSP after running.
+ 	 * This means, parent needs to care it.
+ 	 */
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		goto init_end;
  
- 	spin_lock(&detail->hash_lock);
-@@ -533,7 +532,9 @@ void cache_purge(struct cache_detail *detail)
- 	dprintk("RPC: %d entries in %s cache\n", detail->entries, detail->name);
- 	for (i = 0; i < detail->hash_size; i++) {
- 		head = &detail->hash_table[i];
--		hlist_for_each_entry_safe(ch, tmp, head, cache_list) {
-+		while (!hlist_empty(head)) {
-+			ch = hlist_entry(head->first, struct cache_head,
-+					 cache_list);
- 			sunrpc_begin_cache_remove_entry(ch, detail);
- 			spin_unlock(&detail->hash_lock);
- 			sunrpc_end_cache_remove_entry(ch, detail);
+ 	if (rsnd_io_is_play(io))
+@@ -559,7 +559,7 @@ static int rsnd_ssi_start(struct rsnd_mod *mod,
+ 	 * EN is for data output.
+ 	 * SSI parent EN is not needed.
+ 	 */
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		return 0;
+ 
+ 	ssi->cr_en = EN;
+@@ -582,7 +582,7 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
+ 	if (!rsnd_ssi_is_run_mods(mod, io))
+ 		return 0;
+ 
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		return 0;
+ 
+ 	cr  =	ssi->cr_own	|
+@@ -620,7 +620,7 @@ static int rsnd_ssi_irq(struct rsnd_mod *mod,
+ 	if (rsnd_is_gen1(priv))
+ 		return 0;
+ 
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		return 0;
+ 
+ 	if (!rsnd_ssi_is_run_mods(mod, io))
+@@ -737,6 +737,9 @@ static void rsnd_ssi_parent_attach(struct rsnd_mod *mod,
+ 	if (!rsnd_rdai_is_clk_master(rdai))
+ 		return;
+ 
++	if (rsnd_ssi_is_multi_slave(mod, io))
++		return;
++
+ 	switch (rsnd_mod_id(mod)) {
+ 	case 1:
+ 	case 2:
 -- 
 2.20.1
 
