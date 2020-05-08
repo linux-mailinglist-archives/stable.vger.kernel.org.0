@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D98F71CAB3A
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:41:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 625EC1CAFBC
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728354AbgEHMlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:41:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36828 "EHLO mail.kernel.org"
+        id S1728866AbgEHNTl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:19:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbgEHMlf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:41:35 -0400
+        id S1728840AbgEHMlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:41:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A02B321835;
-        Fri,  8 May 2020 12:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D96921835;
+        Fri,  8 May 2020 12:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941695;
-        bh=2dG/OHHGbktKhf8xB9OWzKVYPN3FmK95Ri9z0xkL55U=;
+        s=default; t=1588941697;
+        bh=OuenHsL91OyfoabZnQQPLI6StpAl5FR2BmeWRvv+hB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLEiTBGqZBmRN/mpOkBwXnr1SqfBoBYqlA+5NvyVzcUaHSTk3f2rZqzyY1f2VxUny
-         cdvb2Mfr39lRu8fsO7KVJBpJ6knFiUieguo5v4SEzXiQeuVvyJoZK1uUuTvyCzJBQU
-         ckLNH1VKVPwvYlh4G3eSGuUNXSH9nN4VuGJ9Toac=
+        b=SBpIA06KRjOvQjxZJcfHU/vzEWRfmc/DuGkbpsJy4y2f6KJ9WusWptZFW30ZYUZTk
+         BKTrNyPX9Kq8i8MhrwOSlsuTw5RvqDSTnQi49FlXnvVNIJaO87BsSqaLTqBCgZI3ge
+         3PmPzNd/Ac52nykY/LpaxTOxOJ9EW/i1pF5x9pYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dinesh Mirche <dinesh.mirche@intel.com>,
-        Vinod Koul <vinod.koul@intel.com>,
+        stable@vger.kernel.org, Sudip Mukherjee <sudip@vectorindia.org>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.4 134/312] ASoC: Intel: pass correct parameter in sst_alloc_stream_mrfld()
-Date:   Fri,  8 May 2020 14:32:05 +0200
-Message-Id: <20200508123133.928010716@linuxfoundation.org>
+Subject: [PATCH 4.4 135/312] ASoC: tegra_alc5632: check return value
+Date:   Fri,  8 May 2020 14:32:06 +0200
+Message-Id: <20200508123133.995845962@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,34 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-commit d16a2b9f2465b5486f830178fbfb7d203e0a17ae upstream.
+commit 319c32597fc22a58b946a6146f2be1fd208582e0 upstream.
 
-"data" is always NULL in this function.  I think we should be passing
-"&data" to sst_prepare_and_post_msg() instead of "data".
+We have been returning success even if snd_soc_card_jack_new() fails.
+Lets check the return value and return error if it fails.
 
-Fixes: 3d9ff34622ba ('ASoC: Intel: sst: add stream operations')
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Tested-by: Dinesh Mirche <dinesh.mirche@intel.com>
-Acked-by: Vinod Koul <vinod.koul@intel.com>
+Fixes: 12cc6d1dca4d ("ASoC: tegra_alc5632: Register jacks at the card level")
+Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/atom/sst/sst_stream.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/tegra/tegra_alc5632.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/sound/soc/intel/atom/sst/sst_stream.c
-+++ b/sound/soc/intel/atom/sst/sst_stream.c
-@@ -108,7 +108,7 @@ int sst_alloc_stream_mrfld(struct intel_
- 			str_id, pipe_id);
- 	ret = sst_prepare_and_post_msg(sst_drv_ctx, task_id, IPC_CMD,
- 			IPC_IA_ALLOC_STREAM_MRFLD, pipe_id, sizeof(alloc_param),
--			&alloc_param, data, true, true, false, true);
-+			&alloc_param, &data, true, true, false, true);
+--- a/sound/soc/tegra/tegra_alc5632.c
++++ b/sound/soc/tegra/tegra_alc5632.c
+@@ -101,12 +101,16 @@ static const struct snd_kcontrol_new teg
  
- 	if (ret < 0) {
- 		dev_err(sst_drv_ctx->dev, "FW alloc failed ret %d\n", ret);
+ static int tegra_alc5632_asoc_init(struct snd_soc_pcm_runtime *rtd)
+ {
++	int ret;
+ 	struct tegra_alc5632 *machine = snd_soc_card_get_drvdata(rtd->card);
+ 
+-	snd_soc_card_jack_new(rtd->card, "Headset Jack", SND_JACK_HEADSET,
+-			      &tegra_alc5632_hs_jack,
+-			      tegra_alc5632_hs_jack_pins,
+-			      ARRAY_SIZE(tegra_alc5632_hs_jack_pins));
++	ret = snd_soc_card_jack_new(rtd->card, "Headset Jack",
++				    SND_JACK_HEADSET,
++				    &tegra_alc5632_hs_jack,
++				    tegra_alc5632_hs_jack_pins,
++				    ARRAY_SIZE(tegra_alc5632_hs_jack_pins));
++	if (ret)
++		return ret;
+ 
+ 	if (gpio_is_valid(machine->gpio_hp_det)) {
+ 		tegra_alc5632_hp_jack_gpio.gpio = machine->gpio_hp_det;
 
 
