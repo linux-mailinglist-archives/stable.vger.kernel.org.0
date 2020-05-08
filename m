@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D11271CAC4C
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F30D1CACE0
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729949AbgEHMwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:52:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33486 "EHLO mail.kernel.org"
+        id S1730462AbgEHM4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:56:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729946AbgEHMwX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:52:23 -0400
+        id S1730455AbgEHM4d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:56:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 906B724953;
-        Fri,  8 May 2020 12:52:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC04424958;
+        Fri,  8 May 2020 12:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942342;
-        bh=HtJtrn7JwVuOd7YJhv7kbzpt4F0amW7hxGYen/hosUA=;
+        s=default; t=1588942592;
+        bh=MPyBt+js+ZFj7/UkvTMgEb63O/0/GYa3hNOG0libZHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kB10gsvVCIrxZTM3k6DDcOEGpAJTfU+4Nrz4yHTGTVAq5m1mMhsHLX8jYruKnhQCe
-         5vJden20T2fOLG847htPi/z9flfqGSs9CJYNi8fO3Glez/PEwoOaxW0EcX7H0PelI0
-         NfMmxF3IpcSJE3lfZjXh/TKTpMeZvV35vrUaw81U=
+        b=BlncBiulb5SjdVi+zDlBdCpm59N3mh+5uklsDCXleB0VBEXkLPmdacwDoSdejIZ8W
+         qzXkt8ky2SNugH0k3ozZZ4U6JivuzX88fNsJMwQBp0WmcKjq4SGz1juCDbNn15iqRE
+         pkYIp5HdkzIGWV0Nn3yXdAHPJlGA/mDyYBw3y0E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilia Mirkin <imirkin@alum.mit.edu>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel@daenzer.net>,
-        Alex Deucher <alexdeucher@gmail.com>,
-        Adam Jackson <ajax@redhat.com>, Sean Paul <sean@poorly.run>,
-        David Airlie <airlied@linux.ie>,
-        Rob Clark <robdclark@gmail.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Yves-Alexis Perez <corsac@debian.org>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Subject: [PATCH 4.19 32/32] drm/atomic: Take the atomic toys away from X
+        stable@vger.kernel.org,
+        Matthias Blankertz <matthias.blankertz@cetitec.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 28/49] ASoC: rsnd: Dont treat master SSI in multi SSI setup as parent
 Date:   Fri,  8 May 2020 14:35:45 +0200
-Message-Id: <20200508123039.718403889@linuxfoundation.org>
+Message-Id: <20200508123046.996330044@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
+References: <20200508123042.775047422@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,74 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Matthias Blankertz <matthias.blankertz@cetitec.com>
 
-commit 26b1d3b527e7bf3e24b814d617866ac5199ce68d upstream.
+[ Upstream commit 0c258657ddfe81b4fc0183378d800c97ba0b7cdd ]
 
-The -modesetting ddx has a totally broken idea of how atomic works:
-- doesn't disable old connectors, assuming they get auto-disable like
-  with the legacy setcrtc
-- assumes ASYNC_FLIP is wired through for the atomic ioctl
-- not a single call to TEST_ONLY
+The master SSI of a multi-SSI setup was attached both to the
+RSND_MOD_SSI slot and the RSND_MOD_SSIP slot of the rsnd_dai_stream.
+This is not correct wrt. the meaning of being "parent" in the rest of
+the SSI code, where it seems to indicate an SSI that provides clock and
+word sync but is not transmitting/receiving audio data.
 
-Iow the implementation is a 1:1 translation of legacy ioctls to
-atomic, which is a) broken b) pointless.
+Not treating the multi-SSI master as parent allows removal of various
+special cases to the rsnd_ssi_is_parent conditions introduced in commit
+a09fb3f28a60 ("ASoC: rsnd: Fix parent SSI start/stop in multi-SSI mode").
+It also fixes the issue that operations performed via rsnd_dai_call()
+were performed twice for the master SSI. This caused some "status check
+failed" spam when stopping a multi-SSI stream as the driver attempted to
+stop the master SSI twice.
 
-We already have bugs in both i915 and amdgpu-DC where this prevents us
-from enabling neat features.
-
-If anyone ever cares about atomic in X we can easily add a new atomic
-level (req->value == 2) for X to get back the shiny toys.
-
-Since these broken versions of -modesetting have been shipping,
-there's really no other way to get out of this bind.
-
-v2:
-- add an informational dmesg output (Rob, Ajax)
-- reorder after the DRIVER_ATOMIC check to avoid useless noise (Ilia)
-- allow req->value > 2 so that X can do another attempt at atomic in
-  the future
-
-v3: Go with paranoid, insist that the X should be first (suggested by
-Rob)
-
-Cc: Ilia Mirkin <imirkin@alum.mit.edu>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com> (v1)
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com> (v1)
-Cc: Michel Dänzer <michel@daenzer.net>
-Cc: Alex Deucher <alexdeucher@gmail.com>
-Cc: Adam Jackson <ajax@redhat.com>
-Acked-by: Adam Jackson <ajax@redhat.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Rob Clark <robdclark@gmail.com>
-Acked-by: Rob Clark <robdclark@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190905185318.31363-1-daniel.vetter@ffwll.ch
-Cc: Yves-Alexis Perez <corsac@debian.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/20200417153017.1744454-2-matthias.blankertz@cetitec.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_ioctl.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ sound/soc/sh/rcar/ssi.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/drm_ioctl.c
-+++ b/drivers/gpu/drm/drm_ioctl.c
-@@ -321,7 +321,12 @@ drm_setclientcap(struct drm_device *dev,
- 	case DRM_CLIENT_CAP_ATOMIC:
- 		if (!drm_core_check_feature(dev, DRIVER_ATOMIC))
- 			return -EINVAL;
--		if (req->value > 1)
-+		/* The modesetting DDX has a totally broken idea of atomic. */
-+		if (current->comm[0] == 'X' && req->value == 1) {
-+			pr_info("broken atomic modeset userspace detected, disabling atomic\n");
-+			return -EOPNOTSUPP;
-+		}
-+		if (req->value > 2)
- 			return -EINVAL;
- 		file_priv->atomic = req->value;
- 		file_priv->universal_planes = req->value;
+diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
+index d51fb3a394486..9900a4f6f4e53 100644
+--- a/sound/soc/sh/rcar/ssi.c
++++ b/sound/soc/sh/rcar/ssi.c
+@@ -407,7 +407,7 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
+ 	 * We shouldn't exchange SWSP after running.
+ 	 * This means, parent needs to care it.
+ 	 */
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		goto init_end;
+ 
+ 	if (rsnd_io_is_play(io))
+@@ -559,7 +559,7 @@ static int rsnd_ssi_start(struct rsnd_mod *mod,
+ 	 * EN is for data output.
+ 	 * SSI parent EN is not needed.
+ 	 */
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		return 0;
+ 
+ 	ssi->cr_en = EN;
+@@ -582,7 +582,7 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
+ 	if (!rsnd_ssi_is_run_mods(mod, io))
+ 		return 0;
+ 
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		return 0;
+ 
+ 	cr  =	ssi->cr_own	|
+@@ -620,7 +620,7 @@ static int rsnd_ssi_irq(struct rsnd_mod *mod,
+ 	if (rsnd_is_gen1(priv))
+ 		return 0;
+ 
+-	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
++	if (rsnd_ssi_is_parent(mod, io))
+ 		return 0;
+ 
+ 	if (!rsnd_ssi_is_run_mods(mod, io))
+@@ -737,6 +737,9 @@ static void rsnd_ssi_parent_attach(struct rsnd_mod *mod,
+ 	if (!rsnd_rdai_is_clk_master(rdai))
+ 		return;
+ 
++	if (rsnd_ssi_is_multi_slave(mod, io))
++		return;
++
+ 	switch (rsnd_mod_id(mod)) {
+ 	case 1:
+ 	case 2:
+-- 
+2.20.1
+
 
 
