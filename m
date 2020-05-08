@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0444E1CAF51
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4236A1CAF46
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729072AbgEHNQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42962 "EHLO mail.kernel.org"
+        id S1729053AbgEHNQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:16:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728625AbgEHMoa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:44:30 -0400
+        id S1729247AbgEHMo5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:44:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB47021974;
-        Fri,  8 May 2020 12:44:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F20282145D;
+        Fri,  8 May 2020 12:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941870;
-        bh=lbi4H41BSD2GduzmkGWXkVWkVYMWEtihHI4wer6yx9A=;
+        s=default; t=1588941897;
+        bh=RcBs7OXOISL3/zxdhrJ/BCk5YFJhN/ifvMWPZ3AI0WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuvAMw5+tlTCSgGqRcXDIKZOCiHuDYarvrPAAGXFX2v2UyiC1PFZ2JmtCOgkSgXfa
-         zQnsWVL93a3pwYI38X/VJM/24PsidOeSnCSdbnWaUWviyFXbc/Itk9QPXAkIoaUQFP
-         MBbTEcrKqwduCeBM3/Aoi+v7Vhf1Mzntfd/D+93c=
+        b=RMBvHif1T1+m/Y1HxZYx0SxwzuHU93rf0cFIAMFANG69XZgqoS7PT4j0/nBmVh3vW
+         MJa0+bG4VdLjqW6IVnweMVqlg6LobaQgfFxxU3U9glev4i8tRP47cWzwvVnvE7Cxy2
+         ZXdV5HlierlxBqokbYcCG8gbJMk4GsJhqq3P8+CU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Duyck <aduyck@mirantis.com>,
+        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
         Tom Herbert <tom@herbertland.com>,
+        Hannes Frederic Sowa <hannes@stressinduktion.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 188/312] flow_dissector: Check for IP fragmentation even if not using IPv4 address
-Date:   Fri,  8 May 2020 14:32:59 +0200
-Message-Id: <20200508123137.693611173@linuxfoundation.org>
+Subject: [PATCH 4.4 189/312] ipv4: fix checksum annotation in udp4_csum_init
+Date:   Fri,  8 May 2020 14:33:00 +0200
+Message-Id: <20200508123137.760014097@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -44,52 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Duyck <aduyck@mirantis.com>
+From: Hannes Frederic Sowa <hannes@stressinduktion.org>
 
-commit 918c023f29ab2dd8c63cfcc6a1239ee15933871a upstream.
+commit b46d9f625b07f843c706c2c7d0210a90ccdf143b upstream.
 
-This patch corrects the logic for the IPv4 parsing so that it is consistent
-with how we handle IPv6.  Specifically if we do not have the flow key
-indicating we want the addresses we still may need to take a look at the IP
-fragmentation bits and to see if we should stop after we have recognized
-the L3 header.
-
-Fixes: 807e165dc44f ("flow_dissector: Add control/reporting of fragmentation")
-Signed-off-by: Alexander Duyck <aduyck@mirantis.com>
-Acked-by: Tom Herbert <tom@herbertland.com>
+Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Tom Herbert <tom@herbertland.com>
+Fixes: 4068579e1e098fa ("net: Implmement RFC 6936 (zero RX csums for UDP/IPv6")
+Signed-off-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/flow_dissector.c |   17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ net/ipv4/udp.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -178,15 +178,16 @@ ip:
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1754,8 +1754,11 @@ static inline int udp4_csum_init(struct
+ 		}
+ 	}
  
- 		ip_proto = iph->protocol;
+-	return skb_checksum_init_zero_check(skb, proto, uh->check,
+-					    inet_compute_pseudo);
++	/* Note, we are only interested in != 0 or == 0, thus the
++	 * force to int.
++	 */
++	return (__force int)skb_checksum_init_zero_check(skb, proto, uh->check,
++							 inet_compute_pseudo);
+ }
  
--		if (!dissector_uses_key(flow_dissector,
--					FLOW_DISSECTOR_KEY_IPV4_ADDRS))
--			break;
-+		if (dissector_uses_key(flow_dissector,
-+				       FLOW_DISSECTOR_KEY_IPV4_ADDRS)) {
-+			key_addrs = skb_flow_dissector_target(flow_dissector,
-+							      FLOW_DISSECTOR_KEY_IPV4_ADDRS,
-+							      target_container);
- 
--		key_addrs = skb_flow_dissector_target(flow_dissector,
--			      FLOW_DISSECTOR_KEY_IPV4_ADDRS, target_container);
--		memcpy(&key_addrs->v4addrs, &iph->saddr,
--		       sizeof(key_addrs->v4addrs));
--		key_control->addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
-+			memcpy(&key_addrs->v4addrs, &iph->saddr,
-+			       sizeof(key_addrs->v4addrs));
-+			key_control->addr_type = FLOW_DISSECTOR_KEY_IPV4_ADDRS;
-+		}
- 
- 		if (ip_is_fragment(iph)) {
- 			key_control->flags |= FLOW_DIS_IS_FRAGMENT;
+ /*
 
 
