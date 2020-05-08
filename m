@@ -2,85 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE7EB1CA007
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 03:19:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A7601CA01E
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 03:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbgEHBTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 May 2020 21:19:03 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:49678 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726495AbgEHBTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 May 2020 21:19:03 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0481DGPx117909;
-        Fri, 8 May 2020 01:18:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=corp-2020-01-29;
- bh=AGZ///fS0m5w20Fqfh+I54Gq/fVyTBEN4HLztdE+ISs=;
- b=hAqUK078GW0Ymbj+1UqNc8lBF+9AJh9Mo8fiIBEyc4pK7nwzARTIJKdkyA+hmBomKbym
- EodbxvLU2tPcRnRMQN0MzLlYE6JGs80iwTMhWl1SZozd1qUzt9NaCG+Q7ZEEX/WNOBze
- 13rNJ+F/v/KYhzU1j3D0aKV4KYO0KihohSX6njL7KODKb/cBWOwzfjS+HFqDecxoEnYW
- aRCI8VS/ZS+wfFlEq7FKC60072IUSL/Xv43hzIIHlZWrZNkQH56NEUvktlCXVSNbnjXg
- y14BNFFGQ+afK3CpUnaRwlAhWi2hvThl+huNcQWXodarl77nX63W9dmCCdm/o/lNEbD2 vw== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by aserp2120.oracle.com with ESMTP id 30vtepghva-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 08 May 2020 01:18:59 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0481FrSK123056;
-        Fri, 8 May 2020 01:16:58 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by aserp3020.oracle.com with ESMTP id 30vtdxs6us-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 08 May 2020 01:16:58 +0000
-Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0481GlB8015047;
-        Fri, 8 May 2020 01:16:47 GMT
-Received: from ca-mkp.ca.oracle.com (/10.156.108.201)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 07 May 2020 18:16:47 -0700
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-To:     linux-scsi@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        stable@vger.kernel.org, himanshu.madhani@oracle.com,
-        njavali@marvell.com
-Subject: Re: [PATCH] scsi: qla2xxx: Do not log message when reading port speed via sysfs
-Date:   Thu,  7 May 2020 21:16:44 -0400
-Message-Id: <158890041329.32359.10571833651773278265.b4-ty@oracle.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200504175416.15417-1-emilne@redhat.com>
-References: <20200504175416.15417-1-emilne@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9614 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=879 phishscore=0
- bulkscore=0 malwarescore=0 suspectscore=0 adultscore=0 mlxscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2005080008
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9614 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 spamscore=0
- impostorscore=0 phishscore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 malwarescore=0 suspectscore=0 mlxscore=0
- mlxlogscore=926 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2003020000 definitions=main-2005080008
+        id S1726542AbgEHBfl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 May 2020 21:35:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58142 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726514AbgEHBfl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 May 2020 21:35:41 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 935E4208D6;
+        Fri,  8 May 2020 01:35:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588901740;
+        bh=FPDT0W0AtRtGB503SATyNKtLfA9QKfQ0kS9zIImZNH0=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=DKtSi6oGnZtC3PMCDEFGCo/5QIl0gmOODYvdgTA5N0z1g75QlIgjCn5LhmiB2TrGO
+         SpfP2LF7UuEuxLL+rnO0abUPJ1Ni0qN5jNLCV6zXRkBu64YyzmOGHxgqgK2uqrAo4s
+         1syuOlNUaqIs35KArViKMpmn2M0HfVKYLYZ6D1vY=
+Date:   Thu, 07 May 2020 18:35:39 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     1vier1@web.de, akpm@linux-foundation.org, dave@stgolabs.net,
+        ebiederm@xmission.com, elfring@users.sourceforge.net,
+        linux-mm@kvack.org, manfred@colorfullife.com,
+        mm-commits@vger.kernel.org, oleg@redhat.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        yoji.fujihar.min@gmail.com
+Subject:  [patch 01/15] ipc/mqueue.c: change __do_notify() to
+ bypass check_kill_permission()
+Message-ID: <20200508013539.Q-iufOGqB%akpm@linux-foundation.org>
+In-Reply-To: <20200507183509.c5ef146c5aaeb118a25a39a8@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 4 May 2020 13:54:16 -0400, Ewan D. Milne wrote:
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: ipc/mqueue.c: change __do_notify() to bypass check_kill_permission()
 
-> Calling ql_log() inside qla2x00_port_speed_show() is causing messages
-> to be output to the console for no particularly good reason.  The sysfs
-> read routine should just return the information to userspace.  The only
-> reason to log a message is when the port speed actually changes, and
-> this already occurs elsewhere.
+Commit cc731525f26a ("signal: Remove kernel interal si_code magic")
+changed the value of SI_FROMUSER(SI_MESGQ), this means that mq_notify() no
+longer works if the sender doesn't have rights to send a signal.
 
-Applied to 5.7/scsi-queue, thanks!
+Change __do_notify() to use do_send_sig_info() instead of kill_pid_info()
+to avoid check_kill_permission().
 
-[1/1] scsi: qla2xxx: Do not log message when reading port speed via sysfs
-      https://git.kernel.org/mkp/scsi/c/0f3b2f3fb5dc
+This needs the additional notify.sigev_signo != 0 check, shouldn't we
+change do_mq_notify() to deny sigev_signo == 0 ?
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
+Test-case:
+
+	#include <signal.h>
+	#include <mqueue.h>
+	#include <unistd.h>
+	#include <sys/wait.h>
+	#include <assert.h>
+
+	static int notified;
+
+	static void sigh(int sig)
+	{
+		notified = 1;
+	}
+
+	int main(void)
+	{
+		signal(SIGIO, sigh);
+
+		int fd = mq_open("/mq", O_RDWR|O_CREAT, 0666, NULL);
+		assert(fd >= 0);
+
+		struct sigevent se = {
+			.sigev_notify	= SIGEV_SIGNAL,
+			.sigev_signo	= SIGIO,
+		};
+		assert(mq_notify(fd, &se) == 0);
+
+		if (!fork()) {
+			assert(setuid(1) == 0);
+			mq_send(fd, "",1,0);
+			return 0;
+		}
+
+		wait(NULL);
+		mq_unlink("/mq");
+		assert(notified);
+		return 0;
+	}
+
+[manfred@colorfullife.com: 1) Add self_exec_id evaluation so that the implementation matches do_notify_parent 2) use PIDTYPE_TGID everywhere]
+Link: http://lkml.kernel.org/r/e2a782e4-eab9-4f5c-c749-c07a8f7a4e66@colorfullife.com
+Fixes: cc731525f26a ("signal: Remove kernel interal si_code magic")
+Reported-by: Yoji <yoji.fujihar.min@gmail.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Markus Elfring <elfring@users.sourceforge.net>
+Cc: <1vier1@web.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ ipc/mqueue.c |   34 ++++++++++++++++++++++++++--------
+ 1 file changed, 26 insertions(+), 8 deletions(-)
+
+--- a/ipc/mqueue.c~ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission-v2
++++ a/ipc/mqueue.c
+@@ -142,6 +142,7 @@ struct mqueue_inode_info {
+ 
+ 	struct sigevent notify;
+ 	struct pid *notify_owner;
++	u32 notify_self_exec_id;
+ 	struct user_namespace *notify_user_ns;
+ 	struct user_struct *user;	/* user who created, for accounting */
+ 	struct sock *notify_sock;
+@@ -773,28 +774,44 @@ static void __do_notify(struct mqueue_in
+ 	 * synchronously. */
+ 	if (info->notify_owner &&
+ 	    info->attr.mq_curmsgs == 1) {
+-		struct kernel_siginfo sig_i;
+ 		switch (info->notify.sigev_notify) {
+ 		case SIGEV_NONE:
+ 			break;
+-		case SIGEV_SIGNAL:
+-			/* sends signal */
++		case SIGEV_SIGNAL: {
++			struct kernel_siginfo sig_i;
++			struct task_struct *task;
++
++			/* do_mq_notify() accepts sigev_signo == 0, why?? */
++			if (!info->notify.sigev_signo)
++				break;
+ 
+ 			clear_siginfo(&sig_i);
+ 			sig_i.si_signo = info->notify.sigev_signo;
+ 			sig_i.si_errno = 0;
+ 			sig_i.si_code = SI_MESGQ;
+ 			sig_i.si_value = info->notify.sigev_value;
+-			/* map current pid/uid into info->owner's namespaces */
+ 			rcu_read_lock();
++			/* map current pid/uid into info->owner's namespaces */
+ 			sig_i.si_pid = task_tgid_nr_ns(current,
+ 						ns_of_pid(info->notify_owner));
+-			sig_i.si_uid = from_kuid_munged(info->notify_user_ns, current_uid());
++			sig_i.si_uid = from_kuid_munged(info->notify_user_ns,
++						current_uid());
++			/*
++			 * We can't use kill_pid_info(), this signal should
++			 * bypass check_kill_permission(). It is from kernel
++			 * but si_fromuser() can't know this.
++			 * We do check the self_exec_id, to avoid sending
++			 * signals to programs that don't expect them.
++			 */
++			task = pid_task(info->notify_owner, PIDTYPE_TGID);
++			if (task && task->self_exec_id ==
++						info->notify_self_exec_id) {
++				do_send_sig_info(info->notify.sigev_signo,
++						&sig_i, task, PIDTYPE_TGID);
++			}
+ 			rcu_read_unlock();
+-
+-			kill_pid_info(info->notify.sigev_signo,
+-				      &sig_i, info->notify_owner);
+ 			break;
++		}
+ 		case SIGEV_THREAD:
+ 			set_cookie(info->notify_cookie, NOTIFY_WOKENUP);
+ 			netlink_sendskb(info->notify_sock, info->notify_cookie);
+@@ -1383,6 +1400,7 @@ retry:
+ 			info->notify.sigev_signo = notification->sigev_signo;
+ 			info->notify.sigev_value = notification->sigev_value;
+ 			info->notify.sigev_notify = SIGEV_SIGNAL;
++			info->notify_self_exec_id = current->self_exec_id;
+ 			break;
+ 		}
+ 
+_
