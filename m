@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C8B91CACBD
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8518C1CAD10
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728475AbgEHMzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:55:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38672 "EHLO mail.kernel.org"
+        id S1730145AbgEHMx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:53:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728347AbgEHMzg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:55:36 -0400
+        id S1730141AbgEHMx7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:53:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A40D124963;
-        Fri,  8 May 2020 12:55:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32DF924953;
+        Fri,  8 May 2020 12:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942535;
-        bh=wNcfpUZNdC8GZXWSQLabHe2MZTpS/tgVvFvWTu9TVew=;
+        s=default; t=1588942438;
+        bh=CG5L+HPinmACqHR+Nsp6zb8O1bqdbTC8gH5OpjjR8pY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DlcwY52SnLHta4xKayzJVPPWL4mkp5B0EwYVSFCNWPMeYmQ3z1kHEyvpNGJU5HCra
-         6TldMCOFZ4phyzvMc8WB/jS6FhDE7ZXJoSnM+0ckGUh5px1NZaJPnEsANsRtuoQKHX
-         B46MqjADZK9+voCYMaEXHOk1EFPxXCdF+V5ZJ/XI=
+        b=q/jBLmb9uQ0kpSq6L730czCgGJ5dbfCdCtaqQi8sooPtvRECDy+SKHPuJPpcYxTzR
+         cLNvsCk/JU3lLyK1/WvqKkHkzzMF3auWJRKHaZed0SZFoyQbiBlesfGG8JLeQJUmUq
+         WsmMJE1O0C22dG3ZKTPbwZdhfkRj9tsNrKKKU7hU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 34/49] ftrace: Fix memory leak caused by not freeing entry in unregister_ftrace_direct()
+        stable@vger.kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Aurelien Jarno <aurelien@aurel32.net>
+Subject: [PATCH 5.4 45/50] libbpf: Fix readelf output parsing for Fedora
 Date:   Fri,  8 May 2020 14:35:51 +0200
-Message-Id: <20200508123047.916721099@linuxfoundation.org>
+Message-Id: <20200508123049.261521656@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
-References: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-[ Upstream commit 353da87921a5ec654e7e9024e083f099f1b33c97 ]
+commit aa915931ac3e53ccf371308e6750da510e3591dd upstream.
 
-kmemleak reported the following:
+Fedora binutils has been patched to show "other info" for a symbol at the
+end of the line. This was done in order to support unmaintained scripts
+that would break with the extra info. [1]
 
-unreferenced object 0xffff90d47127a920 (size 32):
-  comm "modprobe", pid 1766, jiffies 4294792031 (age 162.568s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 22 01 00 00 00 00 ad de  ........".......
-    00 78 12 a7 ff ff ff ff 00 00 b6 c0 ff ff ff ff  .x..............
-  backtrace:
-    [<00000000bb79e72e>] register_ftrace_direct+0xcb/0x3a0
-    [<00000000295e4f79>] do_one_initcall+0x72/0x340
-    [<00000000873ead18>] do_init_module+0x5a/0x220
-    [<00000000974d9de5>] load_module+0x2235/0x2550
-    [<0000000059c3d6ce>] __do_sys_finit_module+0xc0/0x120
-    [<000000005a8611b4>] do_syscall_64+0x60/0x230
-    [<00000000a0cdc49e>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
+[1] https://src.fedoraproject.org/rpms/binutils/c/b8265c46f7ddae23a792ee8306fbaaeacba83bf8
 
-The entry used to save the direct descriptor needs to be freed
-when unregistering.
+This in turn has been done to fix the build of ruby, because of checksec.
+[2] Thanks Michael Ellerman for the pointer.
 
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[2] https://bugzilla.redhat.com/show_bug.cgi?id=1479302
+
+As libbpf Makefile is not unmaintained, we can simply deal with either
+output format, by just removing the "other info" field, as it always comes
+inside brackets.
+
+Fixes: 3464afdf11f9 (libbpf: Fix readelf output parsing on powerpc with recent binutils)
+Reported-by: Justin Forbes <jmforbes@linuxtx.org>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Cc: Aurelien Jarno <aurelien@aurel32.net>
+Link: https://lore.kernel.org/bpf/20191213101114.GA3986@calabresa
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/trace/ftrace.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/lib/bpf/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index fd81c7de77a70..63089c70adbb6 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -5155,6 +5155,7 @@ int unregister_ftrace_direct(unsigned long ip, unsigned long addr)
- 			list_del_rcu(&direct->next);
- 			synchronize_rcu_tasks();
- 			kfree(direct);
-+			kfree(entry);
- 			ftrace_direct_func_count--;
- 		}
- 	}
--- 
-2.20.1
-
+--- a/tools/lib/bpf/Makefile
++++ b/tools/lib/bpf/Makefile
+@@ -145,6 +145,7 @@ PC_FILE		:= $(addprefix $(OUTPUT),$(PC_F
+ 
+ GLOBAL_SYM_COUNT = $(shell readelf -s --wide $(BPF_IN_SHARED) | \
+ 			   cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' | \
++			   sed 's/\[.*\]//' | \
+ 			   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
+ 			   sort -u | wc -l)
+ VERSIONED_SYM_COUNT = $(shell readelf -s --wide $(OUTPUT)libbpf.so | \
+@@ -217,6 +218,7 @@ check_abi: $(OUTPUT)libbpf.so
+ 		     "versioned in $(VERSION_SCRIPT)." >&2;		 \
+ 		readelf -s --wide $(BPF_IN_SHARED) |			 \
+ 		    cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' |	 \
++		    sed 's/\[.*\]//' |					 \
+ 		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
+ 		    sort -u > $(OUTPUT)libbpf_global_syms.tmp;		 \
+ 		readelf -s --wide $(OUTPUT)libbpf.so |			 \
 
 
