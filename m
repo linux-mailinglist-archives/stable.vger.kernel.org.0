@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC20E1CB003
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3766E1CAAF7
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727109AbgEHMif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:38:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54686 "EHLO mail.kernel.org"
+        id S1728437AbgEHMij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:38:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728409AbgEHMie (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:38:34 -0400
+        id S1728392AbgEHMii (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:38:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F6E521582;
-        Fri,  8 May 2020 12:38:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD74F24957;
+        Fri,  8 May 2020 12:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941513;
-        bh=kDgKTk6zSvN1I0mYRhrLAZSenMElEVVerabyFRFK6K4=;
+        s=default; t=1588941516;
+        bh=jJ0laAd9KeMfidB86hAIvKolc99ga8fgSzNcVScJC9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXZ2IgH/9oGRntt/wjtX0bRQjcNwNSLArqFEz2n+W+dM877I+9bq1XOK++ujATxMQ
-         WitqCMZoiC6y2f3h5bYw5L0LM5TI7elcHc9BdGbj/hpnpESXYhxNT+wXP7lIG8d8Uk
-         IUwrl6pHCSSjgTBpC2/LXJxrdeSZZycdAdcqQ2+4=
+        b=rKMViDsZHzQWTrMuK4r0C/edktBV6wNYyHliNFFUhukadeXtKNqTT3mD5NsaVwpiI
+         yHuNDvoY5hBBcsnUEGyZbcpo2JwZVop9ywwgUGHzpyWAbZ7COLXo4b1po/k/RXZHWs
+         euDjiEKfVWR2UFdAa6BmPsCsemQhiXrSEmVE2lgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, James Hogan <james.hogan@imgtec.com>,
-        Paul Burton <paul.burton@imgtec.com>,
+        Paul Burton <Paul.Burton@imgtec.com>,
         linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>
-Subject: [PATCH 4.4 024/312] MIPS: Fix 64-bit HTW configuration
-Date:   Fri,  8 May 2020 14:30:15 +0200
-Message-Id: <20200508123126.189876683@linuxfoundation.org>
+Subject: [PATCH 4.4 025/312] MIPS: Fix little endian microMIPS MSA encodings
+Date:   Fri,  8 May 2020 14:30:16 +0200
+Message-Id: <20200508123126.257451997@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -46,76 +46,295 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Hogan <james.hogan@imgtec.com>
 
-commit aa76042a016474775ccd187c068669148c30c3bb upstream.
+commit 6e1b29c3094688b6803fa1f9d5da676a7d0fbff9 upstream.
 
-The Hardware page Table Walker (HTW) is being misconfigured on 64-bit
-kernels. The PWSize.PS (pointer size) bit determines whether pointers
-within directories are loaded as 32-bit or 64-bit addresses, but was
-never being set to 1 for 64-bit kernels where the unsigned long in pgd_t
-is 64-bits wide.
+When the toolchain doesn't support MSA we encode MSA instructions
+explicitly in assembly. Unfortunately we use .word for both MIPS and
+microMIPS encodings which is wrong, since 32-bit microMIPS instructions
+are made up from a pair of halfwords.
 
-This actually reduces rather than improves performance when the HTW is
-enabled on P6600 since the HTW is initiated lots, but walks are all
-aborted due I think to bad intermediate pointers.
+- The most significant halfword always comes first, so for little endian
+  builds the halves will be emitted in the wrong order.
 
-Since we were already taking the width of the PTEs into account by
-setting PWSize.PTEW, which is the left shift applied to the page table
-index *in addition to* the native pointer size, we also need to reduce
-PTEW by 1 when PS=1. This is done by calculating PTEW based on the
-relative size of pte_t compared to pgd_t.
+- 32-bit alignment isn't guaranteed, so the assembler may insert a
+  16-bit nop instruction to pad the instruction stream to a 32-bit
+  boundary.
 
-Finally in order for the HTW to be used when PS=1, the appropriate
-XK/XS/XU bits corresponding to the different 64-bit segments need to be
-set in PWCtl. We enable only XU for now to enable walking for XUSeg.
+Use the new instruction encoding macros to encode microMIPS MSA
+instructions correctly.
 
-Supporting walking for XKSeg would be a bit more involved so is left for
-a future patch. It would either require the use of a per-CPU top level
-base directory if supported by the HTW (a bit like pgd_current but with
-a second entry pointing at swapper_pg_dir), or the HTW would prepend bit
-63 of the address to the global directory index which doesn't really
-match how we split user and kernel page directories.
-
-Fixes: cab25bc7537b ("MIPS: Extend hardware table walking support to MIPS64")
+Fixes: d96cc3d1ec5d ("MIPS: Add microMIPS MSA support.")
 Signed-off-by: James Hogan <james.hogan@imgtec.com>
-Cc: Paul Burton <paul.burton@imgtec.com>
+Cc: Paul Burton <Paul.Burton@imgtec.com>
 Cc: linux-mips@linux-mips.org
-Patchwork: https://patchwork.linux-mips.org/patch/13364/
+Patchwork: https://patchwork.linux-mips.org/patch/13312/
 Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/mm/tlbex.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/asmmacro.h |   99 +++++++++++++++++++--------------------
+ arch/mips/include/asm/msa.h      |   21 +++-----
+ 2 files changed, 58 insertions(+), 62 deletions(-)
 
---- a/arch/mips/mm/tlbex.c
-+++ b/arch/mips/mm/tlbex.c
-@@ -2329,15 +2329,25 @@ static void config_htw_params(void)
- 	if (CONFIG_PGTABLE_LEVELS >= 3)
- 		pwsize |= ilog2(PTRS_PER_PMD) << MIPS_PWSIZE_MDW_SHIFT;
+--- a/arch/mips/include/asm/asmmacro.h
++++ b/arch/mips/include/asm/asmmacro.h
+@@ -19,6 +19,28 @@
+ #include <asm/asmmacro-64.h>
+ #endif
  
--	pwsize |= ilog2(sizeof(pte_t)/4) << MIPS_PWSIZE_PTEW_SHIFT;
-+	/* Set pointer size to size of directory pointers */
-+	if (config_enabled(CONFIG_64BIT))
-+		pwsize |= MIPS_PWSIZE_PS_MASK;
-+	/* PTEs may be multiple pointers long (e.g. with XPA) */
-+	pwsize |= ((PTE_T_LOG2 - PGD_T_LOG2) << MIPS_PWSIZE_PTEW_SHIFT)
-+			& MIPS_PWSIZE_PTEW_MASK;
++/*
++ * Helper macros for generating raw instruction encodings.
++ */
++#ifdef CONFIG_CPU_MICROMIPS
++	.macro	insn32_if_mm enc
++	.insn
++	.hword ((\enc) >> 16)
++	.hword ((\enc) & 0xffff)
++	.endm
++
++	.macro	insn_if_mips enc
++	.endm
++#else
++	.macro	insn32_if_mm enc
++	.endm
++
++	.macro	insn_if_mips enc
++	.insn
++	.word (\enc)
++	.endm
++#endif
++
+ #if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPSR6)
+ 	.macro	local_irq_enable reg=t0
+ 	ei
+@@ -336,38 +358,6 @@
+ 	.endm
+ #else
  
- 	write_c0_pwsize(pwsize);
+-#ifdef CONFIG_CPU_MICROMIPS
+-#define CFC_MSA_INSN		0x587e0056
+-#define CTC_MSA_INSN		0x583e0816
+-#define LDB_MSA_INSN		0x58000807
+-#define LDH_MSA_INSN		0x58000817
+-#define LDW_MSA_INSN		0x58000827
+-#define LDD_MSA_INSN		0x58000837
+-#define STB_MSA_INSN		0x5800080f
+-#define STH_MSA_INSN		0x5800081f
+-#define STW_MSA_INSN		0x5800082f
+-#define STD_MSA_INSN		0x5800083f
+-#define COPY_SW_MSA_INSN	0x58b00056
+-#define COPY_SD_MSA_INSN	0x58b80056
+-#define INSERT_W_MSA_INSN	0x59300816
+-#define INSERT_D_MSA_INSN	0x59380816
+-#else
+-#define CFC_MSA_INSN		0x787e0059
+-#define CTC_MSA_INSN		0x783e0819
+-#define LDB_MSA_INSN		0x78000820
+-#define LDH_MSA_INSN		0x78000821
+-#define LDW_MSA_INSN		0x78000822
+-#define LDD_MSA_INSN		0x78000823
+-#define STB_MSA_INSN		0x78000824
+-#define STH_MSA_INSN		0x78000825
+-#define STW_MSA_INSN		0x78000826
+-#define STD_MSA_INSN		0x78000827
+-#define COPY_SW_MSA_INSN	0x78b00059
+-#define COPY_SD_MSA_INSN	0x78b80059
+-#define INSERT_W_MSA_INSN	0x79300819
+-#define INSERT_D_MSA_INSN	0x79380819
+-#endif
+-
+ 	/*
+ 	 * Temporary until all toolchains in use include MSA support.
+ 	 */
+@@ -375,8 +365,8 @@
+ 	.set	push
+ 	.set	noat
+ 	SET_HARDFLOAT
+-	.insn
+-	.word	CFC_MSA_INSN | (\cs << 11)
++	insn_if_mips 0x787e0059 | (\cs << 11)
++	insn32_if_mm 0x587e0056 | (\cs << 11)
+ 	move	\rd, $1
+ 	.set	pop
+ 	.endm
+@@ -386,7 +376,8 @@
+ 	.set	noat
+ 	SET_HARDFLOAT
+ 	move	$1, \rs
+-	.word	CTC_MSA_INSN | (\cd << 6)
++	insn_if_mips 0x783e0819 | (\cd << 6)
++	insn32_if_mm 0x583e0816 | (\cd << 6)
+ 	.set	pop
+ 	.endm
  
- 	/* Make sure everything is set before we enable the HTW */
- 	back_to_back_c0_hazard();
+@@ -395,7 +386,8 @@
+ 	.set	noat
+ 	SET_HARDFLOAT
+ 	PTR_ADDU $1, \base, \off
+-	.word	LDB_MSA_INSN | (\wd << 6)
++	insn_if_mips 0x78000820 | (\wd << 6)
++	insn32_if_mm 0x58000807 | (\wd << 6)
+ 	.set	pop
+ 	.endm
  
--	/* Enable HTW and disable the rest of the pwctl fields */
-+	/*
-+	 * Enable HTW (and only for XUSeg on 64-bit), and disable the rest of
-+	 * the pwctl fields.
-+	 */
- 	config = 1 << MIPS_PWCTL_PWEN_SHIFT;
-+	if (config_enabled(CONFIG_64BIT))
-+		config |= MIPS_PWCTL_XU_MASK;
- 	write_c0_pwctl(config);
- 	pr_info("Hardware Page Table Walker enabled\n");
+@@ -404,7 +396,8 @@
+ 	.set	noat
+ 	SET_HARDFLOAT
+ 	PTR_ADDU $1, \base, \off
+-	.word	LDH_MSA_INSN | (\wd << 6)
++	insn_if_mips 0x78000821 | (\wd << 6)
++	insn32_if_mm 0x58000817 | (\wd << 6)
+ 	.set	pop
+ 	.endm
  
+@@ -413,7 +406,8 @@
+ 	.set	noat
+ 	SET_HARDFLOAT
+ 	PTR_ADDU $1, \base, \off
+-	.word	LDW_MSA_INSN | (\wd << 6)
++	insn_if_mips 0x78000822 | (\wd << 6)
++	insn32_if_mm 0x58000827 | (\wd << 6)
+ 	.set	pop
+ 	.endm
+ 
+@@ -422,7 +416,8 @@
+ 	.set	noat
+ 	SET_HARDFLOAT
+ 	PTR_ADDU $1, \base, \off
+-	.word	LDD_MSA_INSN | (\wd << 6)
++	insn_if_mips 0x78000823 | (\wd << 6)
++	insn32_if_mm 0x58000837 | (\wd << 6)
+ 	.set	pop
+ 	.endm
+ 
+@@ -431,7 +426,8 @@
+ 	.set	noat
+ 	SET_HARDFLOAT
+ 	PTR_ADDU $1, \base, \off
+-	.word	STB_MSA_INSN | (\wd << 6)
++	insn_if_mips 0x78000824 | (\wd << 6)
++	insn32_if_mm 0x5800080f | (\wd << 6)
+ 	.set	pop
+ 	.endm
+ 
+@@ -440,7 +436,8 @@
+ 	.set	noat
+ 	SET_HARDFLOAT
+ 	PTR_ADDU $1, \base, \off
+-	.word	STH_MSA_INSN | (\wd << 6)
++	insn_if_mips 0x78000825 | (\wd << 6)
++	insn32_if_mm 0x5800081f | (\wd << 6)
+ 	.set	pop
+ 	.endm
+ 
+@@ -449,7 +446,8 @@
+ 	.set	noat
+ 	SET_HARDFLOAT
+ 	PTR_ADDU $1, \base, \off
+-	.word	STW_MSA_INSN | (\wd << 6)
++	insn_if_mips 0x78000826 | (\wd << 6)
++	insn32_if_mm 0x5800082f | (\wd << 6)
+ 	.set	pop
+ 	.endm
+ 
+@@ -458,7 +456,8 @@
+ 	.set	noat
+ 	SET_HARDFLOAT
+ 	PTR_ADDU $1, \base, \off
+-	.word	STD_MSA_INSN | (\wd << 6)
++	insn_if_mips 0x78000827 | (\wd << 6)
++	insn32_if_mm 0x5800083f | (\wd << 6)
+ 	.set	pop
+ 	.endm
+ 
+@@ -466,8 +465,8 @@
+ 	.set	push
+ 	.set	noat
+ 	SET_HARDFLOAT
+-	.insn
+-	.word	COPY_SW_MSA_INSN | (\n << 16) | (\ws << 11)
++	insn_if_mips 0x78b00059 | (\n << 16) | (\ws << 11)
++	insn32_if_mm 0x58b00056 | (\n << 16) | (\ws << 11)
+ 	.set	pop
+ 	.endm
+ 
+@@ -475,8 +474,8 @@
+ 	.set	push
+ 	.set	noat
+ 	SET_HARDFLOAT
+-	.insn
+-	.word	COPY_SD_MSA_INSN | (\n << 16) | (\ws << 11)
++	insn_if_mips 0x78b80059 | (\n << 16) | (\ws << 11)
++	insn32_if_mm 0x58b80056 | (\n << 16) | (\ws << 11)
+ 	.set	pop
+ 	.endm
+ 
+@@ -484,7 +483,8 @@
+ 	.set	push
+ 	.set	noat
+ 	SET_HARDFLOAT
+-	.word	INSERT_W_MSA_INSN | (\n << 16) | (\wd << 6)
++	insn_if_mips 0x79300819 | (\n << 16) | (\wd << 6)
++	insn32_if_mm 0x59300816 | (\n << 16) | (\wd << 6)
+ 	.set	pop
+ 	.endm
+ 
+@@ -492,7 +492,8 @@
+ 	.set	push
+ 	.set	noat
+ 	SET_HARDFLOAT
+-	.word	INSERT_D_MSA_INSN | (\n << 16) | (\wd << 6)
++	insn_if_mips 0x79380819 | (\n << 16) | (\wd << 6)
++	insn32_if_mm 0x59380816 | (\n << 16) | (\wd << 6)
+ 	.set	pop
+ 	.endm
+ #endif
+--- a/arch/mips/include/asm/msa.h
++++ b/arch/mips/include/asm/msa.h
+@@ -192,13 +192,6 @@ static inline void write_msa_##name(unsi
+  * allow compilation with toolchains that do not support MSA. Once all
+  * toolchains in use support MSA these can be removed.
+  */
+-#ifdef CONFIG_CPU_MICROMIPS
+-#define CFC_MSA_INSN	0x587e0056
+-#define CTC_MSA_INSN	0x583e0816
+-#else
+-#define CFC_MSA_INSN	0x787e0059
+-#define CTC_MSA_INSN	0x783e0819
+-#endif
+ 
+ #define __BUILD_MSA_CTL_REG(name, cs)				\
+ static inline unsigned int read_msa_##name(void)		\
+@@ -207,11 +200,12 @@ static inline unsigned int read_msa_##na
+ 	__asm__ __volatile__(					\
+ 	"	.set	push\n"					\
+ 	"	.set	noat\n"					\
+-	"	.insn\n"					\
+-	"	.word	%1 | (" #cs " << 11)\n"			\
++	"	# cfcmsa $1, $%1\n"				\
++	_ASM_INSN_IF_MIPS(0x787e0059 | %1 << 11)		\
++	_ASM_INSN32_IF_MM(0x587e0056 | %1 << 11)		\
+ 	"	move	%0, $1\n"				\
+ 	"	.set	pop\n"					\
+-	: "=r"(reg) : "i"(CFC_MSA_INSN));			\
++	: "=r"(reg) : "i"(cs));					\
+ 	return reg;						\
+ }								\
+ 								\
+@@ -221,10 +215,11 @@ static inline void write_msa_##name(unsi
+ 	"	.set	push\n"					\
+ 	"	.set	noat\n"					\
+ 	"	move	$1, %0\n"				\
+-	"	.insn\n"					\
+-	"	.word	%1 | (" #cs " << 6)\n"			\
++	"	# ctcmsa $%1, $1\n"				\
++	_ASM_INSN_IF_MIPS(0x783e0819 | %1 << 6)			\
++	_ASM_INSN32_IF_MM(0x583e0816 | %1 << 6)			\
+ 	"	.set	pop\n"					\
+-	: : "r"(val), "i"(CTC_MSA_INSN));			\
++	: : "r"(val), "i"(cs));					\
+ }
+ 
+ #endif /* !TOOLCHAIN_SUPPORTS_MSA */
 
 
