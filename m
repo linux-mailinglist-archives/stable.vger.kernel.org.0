@@ -2,174 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFBD1CAA1A
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 13:57:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD0B31CAA29
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 13:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726689AbgEHL5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 07:57:06 -0400
-Received: from ns.mm-sol.com ([37.157.136.199]:40764 "EHLO extserv.mm-sol.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726636AbgEHL5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 07:57:05 -0400
-X-Greylist: delayed 320 seconds by postgrey-1.27 at vger.kernel.org; Fri, 08 May 2020 07:57:04 EDT
-Received: from [192.168.1.3] (212-5-158-166.ip.btc-net.bg [212.5.158.166])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by extserv.mm-sol.com (Postfix) with ESMTPSA id 01B60CFDF;
-        Fri,  8 May 2020 14:51:41 +0300 (EEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mm-sol.com; s=201706;
-        t=1588938702; bh=HKXtAHb8XwUHfwx+lbiW6p1jjEHLBjHzXIcqdmJHqqo=;
-        h=Subject:To:Cc:From:Date:From;
-        b=NcEbwqswZH8u+RVQPQUWGHPsbLKm/6gGSfUMjoePLqgP5XBQXk/R3Pzr2joHoZqrj
-         gT1XmmZQx+hqZpAr5etbQx4ZdzWwa1VL5orRtSAI74Hvb1UvTjNjR53rmM8Z7jpcpZ
-         hSph9EnkKjuNmd94CpveOGlmHUW7+EEJzTqIgJn2cHUZfqs2LZ/+ZJvtTY5/wPQTJk
-         LFvY5GpWPCkLJ9v2DCZ+YOF515eUW9F6RmQijf7dUm82opTPWIKqkYPmemhhMvJr6B
-         UpPP0qYaDClC2ZcC9pRu15T1DFmq7JLMo2S31rMKbzoF2O0YgYmaPx7Vlf7NW5iig6
-         DYEUGUywDP6Bg==
-Subject: Re: [PATCH v3 01/11] PCI: qcom: add missing ipq806x clocks in PCIe
- driver
-To:     Ansuel Smith <ansuelsmth@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc:     Sham Muthayyan <smuthayy@codeaurora.org>, stable@vger.kernel.org,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Andrew Murray <amurray@thegoodpenguin.co.uk>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20200430220619.3169-1-ansuelsmth@gmail.com>
- <20200430220619.3169-2-ansuelsmth@gmail.com>
-From:   Stanimir Varbanov <svarbanov@mm-sol.com>
-Message-ID: <3228e401-f9cd-a550-0bd4-80f01b35971a@mm-sol.com>
-Date:   Fri, 8 May 2020 14:51:39 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1727076AbgEHL7y convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 8 May 2020 07:59:54 -0400
+Received: from pic75-3-78-194-244-226.fbxo.proxad.net ([78.194.244.226]:52692
+        "EHLO mail.corsac.net" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1726618AbgEHL7y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 07:59:54 -0400
+X-Greylist: delayed 10338 seconds by postgrey-1.27 at vger.kernel.org; Fri, 08 May 2020 07:59:52 EDT
+Received: from scapa.corsac.net (unknown [IPv6:2a01:e34:ec2f:4e20:6af7:28ff:fe8d:2119])
+        by mail.corsac.net (Postfix) with ESMTPS id D6CD08E
+        for <stable@vger.kernel.org>; Fri,  8 May 2020 13:59:21 +0200 (CEST)
+Received: from corsac (uid 1000)
+        (envelope-from corsac@debian.org)
+        id a00a4
+        by scapa.corsac.net (DragonFly Mail Agent v0.12);
+        Fri, 08 May 2020 13:59:21 +0200
+Message-ID: <177a9ed3375957e40b295e20bb6b42663a784a74.camel@debian.org>
+Subject: Re: [PATCH] drm/atomic: Take the atomic toys away from X
+From:   Yves-Alexis Perez <corsac@debian.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Ilia Mirkin <imirkin@alum.mit.edu>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
+        Alex Deucher <alexdeucher@gmail.com>,
+        Adam Jackson <ajax@redhat.com>, Sean Paul <sean@poorly.run>,
+        David Airlie <airlied@linux.ie>,
+        Rob Clark <robdclark@gmail.com>, stable@vger.kernel.org,
+        Daniel Vetter <daniel.vetter@intel.com>
+Date:   Fri, 08 May 2020 13:59:17 +0200
+In-Reply-To: <20200508095426.GA3778290@kroah.com>
+References: <20190903190642.32588-1-daniel.vetter@ffwll.ch>
+         <20190905185318.31363-1-daniel.vetter@ffwll.ch>
+         <2a05f4c4362d386d298a06a67f2f528ef603a734.camel@debian.org>
+         <20200508095426.GA3778290@kroah.com>
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.2-1 
 MIME-Version: 1.0
-In-Reply-To: <20200430220619.3169-2-ansuelsmth@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Ansuel,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
 
-On 5/1/20 1:06 AM, Ansuel Smith wrote:
-> Aux and Ref clk are missing in PCIe qcom driver.
-> Add support in the driver to fix PCIe initialization in ipq806x.
+On Fri, 2020-05-08 at 11:54 +0200, Greg KH wrote:
+> > Hi Daniel and Greg (especially). It seems that this patch was never
+> > applied to
+> > stable, maybe it fell through the cracks?
 > 
-> Fixes: 82a823833f4e PCI: qcom: Add Qualcomm PCIe controller driver
-> Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
-> Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
-> Cc: stable@vger.kernel.org # v4.5+
-> ---
->  drivers/pci/controller/dwc/pcie-qcom.c | 44 ++++++++++++++++++++++----
->  1 file changed, 38 insertions(+), 6 deletions(-)
+> What patch is "this patch"?
+
+Sorry, the patch was in the mail I was replying to:
+
+commit 26b1d3b527e7bf3e24b814d617866ac5199ce68d
+Author: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Thu Sep 5 20:53:18 2019 +0200
+
+    drm/atomic: Take the atomic toys away from X
+
 > 
-> diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-> index 5ea527a6bd9f..2a39dfdccfc8 100644
-> --- a/drivers/pci/controller/dwc/pcie-qcom.c
-> +++ b/drivers/pci/controller/dwc/pcie-qcom.c
-> @@ -88,6 +88,8 @@ struct qcom_pcie_resources_2_1_0 {
->  	struct clk *iface_clk;
->  	struct clk *core_clk;
->  	struct clk *phy_clk;
-> +	struct clk *aux_clk;
-> +	struct clk *ref_clk;
->  	struct reset_control *pci_reset;
->  	struct reset_control *axi_reset;
->  	struct reset_control *ahb_reset;
-> @@ -246,6 +248,14 @@ static int qcom_pcie_get_resources_2_1_0(struct qcom_pcie *pcie)
->  	if (IS_ERR(res->phy_clk))
->  		return PTR_ERR(res->phy_clk);
->  
-> +	res->aux_clk = devm_clk_get_optional(dev, "aux");
-> +	if (IS_ERR(res->aux_clk))
-> +		return PTR_ERR(res->aux_clk);
-> +
-> +	res->ref_clk = devm_clk_get_optional(dev, "ref");
-> +	if (IS_ERR(res->ref_clk))
-> +		return PTR_ERR(res->ref_clk);
-> +
->  	res->pci_reset = devm_reset_control_get_exclusive(dev, "pci");
->  	if (IS_ERR(res->pci_reset))
->  		return PTR_ERR(res->pci_reset);
-> @@ -278,6 +288,8 @@ static void qcom_pcie_deinit_2_1_0(struct qcom_pcie *pcie)
->  	clk_disable_unprepare(res->iface_clk);
->  	clk_disable_unprepare(res->core_clk);
->  	clk_disable_unprepare(res->phy_clk);
-> +	clk_disable_unprepare(res->aux_clk);
-> +	clk_disable_unprepare(res->ref_clk);
->  	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
->  }
->  
-> @@ -307,16 +319,32 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
->  		goto err_assert_ahb;
->  	}
->  
-> +	ret = clk_prepare_enable(res->core_clk);
-> +	if (ret) {
-> +		dev_err(dev, "cannot prepare/enable core clock\n");
-> +		goto err_clk_core;
-> +	}
-> +
->  	ret = clk_prepare_enable(res->phy_clk);
->  	if (ret) {
->  		dev_err(dev, "cannot prepare/enable phy clock\n");
->  		goto err_clk_phy;
->  	}
->  
-> -	ret = clk_prepare_enable(res->core_clk);
-> -	if (ret) {
-> -		dev_err(dev, "cannot prepare/enable core clock\n");
-> -		goto err_clk_core;
-> +	if (res->aux_clk) {
-
-you don't need this check, clk_prepare_enable handles NULL
-
-> +		ret = clk_prepare_enable(res->aux_clk);
-> +		if (ret) {
-> +			dev_err(dev, "cannot prepare/enable aux clock\n");
-> +			goto err_clk_aux;
-> +		}
-> +	}
-> +
-> +	if (res->ref_clk) {
-
-here too
-
-> +		ret = clk_prepare_enable(res->ref_clk);
-> +		if (ret) {
-> +			dev_err(dev, "cannot prepare/enable ref clock\n");
-> +			goto err_clk_ref;
-> +		}
->  	}
->  
->  	ret = reset_control_deassert(res->ahb_reset);
-> @@ -372,10 +400,14 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
->  	return 0;
->  
->  err_deassert_ahb:
-> -	clk_disable_unprepare(res->core_clk);
-> -err_clk_core:
-> +	clk_disable_unprepare(res->ref_clk);
-> +err_clk_ref:
-> +	clk_disable_unprepare(res->aux_clk);
-> +err_clk_aux:
->  	clk_disable_unprepare(res->phy_clk);
->  err_clk_phy:
-> +	clk_disable_unprepare(res->core_clk);
-> +err_clk_core:
->  	clk_disable_unprepare(res->iface_clk);
->  err_assert_ahb:
->  	regulator_bulk_disable(ARRAY_SIZE(res->supplies), res->supplies);
+> > It doesn't apply as-is in 4.19 branch but a small change in the context
+> > makes
+> > it apply. I'm experiencing issues with lightdm and vt-switch in Debian
+> > Buster
+> > (which has a 4.19 kernel) so I'd appreciate if the patch was included in
+> > at
+> > least that release.
 > 
+> What is the git commit id of the patch in Linus's tree?  If you have a
+> working backport, that makes it much easier than hoping I can fix it
+> up...
 
--- 
-regards,
-Stan
+The commit id is in Linus tree is 26b1d3b527e7bf3e24b814d617866ac5199ce68d. To
+apply properly 69fdf4206a8ba91a277b3d50a3a05b71247635b2 would need to be
+cherry-picked as well but it wasn't marked for stable so I didn't bother and
+only fixed the context. Here's the backport to 4.19, compile and runtime
+tested. It does fix the issue for me (like it did on mainline).
+
+So I guess
+Tested-By: Yves-Alexis Perez <corsac@debian.org>
+
+commit 8a99914f7b539542622dc571c82d6cd203bddf64
+Author: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Thu Sep 5 20:53:18 2019 +0200
+
+    drm/atomic: Take the atomic toys away from X
+    
+    The -modesetting ddx has a totally broken idea of how atomic works:
+    - doesn't disable old connectors, assuming they get auto-disable like
+      with the legacy setcrtc
+    - assumes ASYNC_FLIP is wired through for the atomic ioctl
+    - not a single call to TEST_ONLY
+    
+    Iow the implementation is a 1:1 translation of legacy ioctls to
+    atomic, which is a) broken b) pointless.
+    
+    We already have bugs in both i915 and amdgpu-DC where this prevents us
+    from enabling neat features.
+    
+    If anyone ever cares about atomic in X we can easily add a new atomic
+    level (req->value == 2) for X to get back the shiny toys.
+    
+    Since these broken versions of -modesetting have been shipping,
+    there's really no other way to get out of this bind.
+    
+    v2:
+    - add an informational dmesg output (Rob, Ajax)
+    - reorder after the DRIVER_ATOMIC check to avoid useless noise (Ilia)
+    - allow req->value > 2 so that X can do another attempt at atomic in
+      the future
+    
+    v3: Go with paranoid, insist that the X should be first (suggested by
+    Rob)
+    
+    Cc: Ilia Mirkin <imirkin@alum.mit.edu>
+    References: https://gitlab.freedesktop.org/xorg/xserver/issues/629
+    References: https://gitlab.freedesktop.org/xorg/xserver/merge_requests/180
+    References: abbc0697d5fb ("drm/fb: revert the i915 Actually configure
+untiled displays from master")
+    Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+    Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com> (v1)
+    Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com> (v1)
+    Cc: Michel Dänzer <michel@daenzer.net>
+    Cc: Alex Deucher <alexdeucher@gmail.com>
+    Cc: Adam Jackson <ajax@redhat.com>
+    Acked-by: Adam Jackson <ajax@redhat.com>
+    Cc: Sean Paul <sean@poorly.run>
+    Cc: David Airlie <airlied@linux.ie>
+    Cc: Rob Clark <robdclark@gmail.com>
+    Acked-by: Rob Clark <robdclark@gmail.com>
+    Cc: stable@vger.kernel.org
+    Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+    Link: 
+https://patchwork.freedesktop.org/patch/msgid/20190905185318.31363-1-daniel.vetter@ffwll.ch
+
+diff --git a/drivers/gpu/drm/drm_ioctl.c b/drivers/gpu/drm/drm_ioctl.c
+index ba129b64b61f..b92682f037b2 100644
+- --- a/drivers/gpu/drm/drm_ioctl.c
++++ b/drivers/gpu/drm/drm_ioctl.c
+@@ -321,7 +321,12 @@ drm_setclientcap(struct drm_device *dev, void *data,
+struct drm_file *file_priv)
+ 	case DRM_CLIENT_CAP_ATOMIC:
+ 		if (!drm_core_check_feature(dev, DRIVER_ATOMIC))
+ 			return -EINVAL;
+- -		if (req->value > 1)
++		/* The modesetting DDX has a totally broken idea of atomic. */
++		if (current->comm[0] == 'X' && req->value == 1) {
++			pr_info("broken atomic modeset userspace detected,
+disabling atomic\n");
++			return -EOPNOTSUPP;
++		}
++		if (req->value > 2)
+ 			return -EINVAL;
+ 		file_priv->atomic = req->value;
+ 		file_priv->universal_planes = req->value;
+
+
+- -- 
+Yves-Alexis
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEE8vi34Qgfo83x35gF3rYcyPpXRFsFAl61SZUACgkQ3rYcyPpX
+RFvPfwgAzMyFqiV592RBKu4tx5Ivqa4EC/1OdR8DojyQlw4AP0bYc+4O67xYbvt5
+r4JXuGbSu+jW/29V+2t8ZlLi4S7bAvAo2DEhuBdGVzdmD4gM9EC+69oqVeZWWZTm
+VUldLrRO8BoPxv14lX/K/kU/o5Pv8ivRoEKs385JU2p1AxNGJI2UUmIXKGtk7Cu/
+Fu/flH627RHjTRk2QYsemqHqSAONaHYuSiYm783hz4wYiPOZQdGvS+ifHwMAhUqh
+scaCxv+pBOxaLuZAfUXFjDX+qAcuJCxaP9bT4soweIpYqjzcAdBSmny0+OLOnie/
+HcBzKwpgitKR/cVadZgb0US1oHeo2A==
+=l8z1
+-----END PGP SIGNATURE-----
