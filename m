@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13A0F1CAAD3
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC9331CB02A
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727991AbgEHMhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:37:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51336 "EHLO mail.kernel.org"
+        id S1728050AbgEHMhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:37:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728018AbgEHMhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:37:10 -0400
+        id S1728035AbgEHMhM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:37:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 721CD21835;
-        Fri,  8 May 2020 12:37:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E388121BE5;
+        Fri,  8 May 2020 12:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941429;
-        bh=rBlSr5NBHfZ/N935rLEslrLFisg4sr5EccNQDxUtH+s=;
+        s=default; t=1588941432;
+        bh=RzxaLZeOI3TjEXWS1O0h8b31by9pETsE3J1aMyXPpK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9IbPLXKtSNk20Ao7Q5HByk0DowwFdXMH9u5wIYHKZ66jx/vxt/1KyGfzoeHOs8qE
-         M27TNaSRMnzfsifmdLa2ZBWHkvG4qSWmRDHvZO5P0uRbCJLPBeqeSufFxu0PZ/2dEM
-         JNKQGEWVdP/DCl2pJadMK6mhUPp7SoBVth0WxAfA=
+        b=yGF0+U16RYUYYZn5xavlFoMPBwYnM8o+uCXM4vYwhZfzUMywnfHE7oW9y7n7wYTd5
+         elhKGVMmVSh8G1hN6DjTT2AgNzUJFIoYyvTvDbmty2ayRYu42+1pYMOYBS71YZAiCH
+         nOrIr7M/FuRwx8srVlCK2HUAFBvKREpEcx2gKFi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        David Daney <david.daney@cavium.com>,
-        Rob Herring <robh@kernel.org>,
-        Marc Zyngier <marc.zyngier@arm.com>, linux-mips@linux-mips.org,
-        kernel-janitors@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>
-Subject: [PATCH 4.4 029/312] MIPS: Octeon: Off by one in octeon_irq_gpio_map()
-Date:   Fri,  8 May 2020 14:30:20 +0200
-Message-Id: <20200508123126.529643159@linuxfoundation.org>
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>, linux-mips@linux-mips.org,
+        Ralf Baechle <ralf@linux-mips.org>
+Subject: [PATCH 4.4 030/312] bpf, mips: fix off-by-one in ctx offset allocation
+Date:   Fri,  8 May 2020 14:30:21 +0200
+Message-Id: <20200508123126.611771025@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -46,37 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 008d0cf1ec69ec6d2c08f2d23aff2b67cbe5d2af upstream.
+commit b4e76f7e6d3200462c6354a6ad4ae167459e61f8 upstream.
 
-It should be >= ARRAY_SIZE() instead of > ARRAY_SIZE().
+Dan Carpenter reported [1] a static checker warning that ctx->offsets[]
+may be accessed off by one from build_body(), since it's allocated with
+fp->len * sizeof(*ctx.offsets) as length. The cBPF arm and ppc code
+doesn't have this issue as claimed, so only mips seems to be affected and
+should like most other JITs allocate with fp->len + 1. A few number of
+JITs (x86, sparc, arm64) handle this differently, where they only require
+fp->len array elements.
 
-Fixes: 64b139f97c01 ('MIPS: OCTEON: irq: add CIB and other fixes')
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: David Daney <david.daney@cavium.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Marc Zyngier <marc.zyngier@arm.com>
+  [1] http://www.spinics.net/lists/mips/msg64193.html
+
+Fixes: c6610de353da ("MIPS: net: Add BPF JIT")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: ast@kernel.org
 Cc: linux-mips@linux-mips.org
-Cc: kernel-janitors@vger.kernel.org
-Patchwork: https://patchwork.linux-mips.org/patch/13813/
+Cc: linux-mips@linux-mips.org
+Patchwork: https://patchwork.linux-mips.org/patch/13814/
 Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/cavium-octeon/octeon-irq.c |    2 +-
+ arch/mips/net/bpf_jit.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/cavium-octeon/octeon-irq.c
-+++ b/arch/mips/cavium-octeon/octeon-irq.c
-@@ -1220,7 +1220,7 @@ static int octeon_irq_gpio_map(struct ir
+--- a/arch/mips/net/bpf_jit.c
++++ b/arch/mips/net/bpf_jit.c
+@@ -1207,7 +1207,7 @@ void bpf_jit_compile(struct bpf_prog *fp
  
- 	line = (hw + gpiod->base_hwirq) >> 6;
- 	bit = (hw + gpiod->base_hwirq) & 63;
--	if (line > ARRAY_SIZE(octeon_irq_ciu_to_irq) ||
-+	if (line >= ARRAY_SIZE(octeon_irq_ciu_to_irq) ||
- 		octeon_irq_ciu_to_irq[line][bit] != 0)
- 		return -EINVAL;
+ 	memset(&ctx, 0, sizeof(ctx));
+ 
+-	ctx.offsets = kcalloc(fp->len, sizeof(*ctx.offsets), GFP_KERNEL);
++	ctx.offsets = kcalloc(fp->len + 1, sizeof(*ctx.offsets), GFP_KERNEL);
+ 	if (ctx.offsets == NULL)
+ 		return;
  
 
 
