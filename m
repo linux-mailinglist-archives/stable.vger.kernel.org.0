@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39EE21CAD5D
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC97E1CAC5B
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729982AbgEHNBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33054 "EHLO mail.kernel.org"
+        id S1729628AbgEHMwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:52:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728299AbgEHMv6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:58 -0400
+        id S1729984AbgEHMwj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:52:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67AF8218AC;
-        Fri,  8 May 2020 12:51:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4F4F24959;
+        Fri,  8 May 2020 12:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942317;
-        bh=dUI/gqqz5X+jR1udD0N8RtQtkFl5ejhA8YncUXES4cY=;
+        s=default; t=1588942359;
+        bh=jlkHXoihReddzPOAJ1lmAMz3Qsw9jgoxpyqzH4jRIE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZultaZtqRlq6r2RMCNx5I4HWN+eXy9BDblEn0FTH1PEbMnaRis17RDUD0rRvYrQl
-         0N7LOmaiAXSAaZ8LJIJMy6X4zuBpgCJicsfoaYvxlBnJWXEArDLMbIfNnLPAE0cgcC
-         6R4O7wyYVaQnDpFe3MmHkZ4rZO2aQdt8R4w+dLeA=
+        b=AFizlUb+jU6OttLY+hfbajjPpdvQU+ByqRjTkkm7ZwH6VSPxFBBtner7dUKFBuv64
+         ewr3LAMGqsRgbDkyPcIiYg0W1HrekBJuEJF7TrKoK4Q5CPQWTQE2UBmlJdi9xoy0oN
+         /bGG3lJ9Pm7aKJWIPx/svbysXCBOY+VJHfuPW02c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Matthias Blankertz <matthias.blankertz@cetitec.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/32] ASoC: rsnd: Fix parent SSI start/stop in multi-SSI mode
+Subject: [PATCH 5.4 14/50] ASoC: codecs: hdac_hdmi: Fix incorrect use of list_for_each_entry
 Date:   Fri,  8 May 2020 14:35:20 +0200
-Message-Id: <20200508123035.756624976@linuxfoundation.org>
+Message-Id: <20200508123045.416824145@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,65 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Blankertz <matthias.blankertz@cetitec.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit a09fb3f28a60ba3e928a1fa94b0456780800299d ]
+[ Upstream commit 326b509238171d37402dbe308e154cc234ed1960 ]
 
-The parent SSI of a multi-SSI setup must be fully setup, started and
-stopped since it is also part of the playback/capture setup. So only
-skip the SSI (as per commit 203cdf51f288 ("ASoC: rsnd: SSI parent cares
-SWSP bit") and commit 597b046f0d99 ("ASoC: rsnd: control SSICR::EN
-correctly")) if the SSI is parent outside of a multi-SSI setup.
+If we don't find any pcm, pcm will point at address at an offset from
+the the list head and not a meaningful structure. Fix this by returning
+correct pcm if found and NULL if not. Found with coccinelle.
 
-Signed-off-by: Matthias Blankertz <matthias.blankertz@cetitec.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20200415141017.384017-2-matthias.blankertz@cetitec.com
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Link: https://lore.kernel.org/r/20200415162849.308-1-amadeuszx.slawinski@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/ssi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/codecs/hdac_hdmi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index 33dc8d6ad35b2..3fe88f7743824 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -375,7 +375,7 @@ static void rsnd_ssi_config_init(struct rsnd_mod *mod,
- 	 * We shouldn't exchange SWSP after running.
- 	 * This means, parent needs to care it.
- 	 */
--	if (rsnd_ssi_is_parent(mod, io))
-+	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
- 		goto init_end;
+diff --git a/sound/soc/codecs/hdac_hdmi.c b/sound/soc/codecs/hdac_hdmi.c
+index 18c173e6a13b2..78d5b4d31bb69 100644
+--- a/sound/soc/codecs/hdac_hdmi.c
++++ b/sound/soc/codecs/hdac_hdmi.c
+@@ -150,14 +150,14 @@ static struct hdac_hdmi_pcm *
+ hdac_hdmi_get_pcm_from_cvt(struct hdac_hdmi_priv *hdmi,
+ 			   struct hdac_hdmi_cvt *cvt)
+ {
+-	struct hdac_hdmi_pcm *pcm = NULL;
++	struct hdac_hdmi_pcm *pcm;
  
- 	if (rsnd_io_is_play(io))
-@@ -531,7 +531,7 @@ static int rsnd_ssi_start(struct rsnd_mod *mod,
- 	 * EN is for data output.
- 	 * SSI parent EN is not needed.
- 	 */
--	if (rsnd_ssi_is_parent(mod, io))
-+	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
- 		return 0;
+ 	list_for_each_entry(pcm, &hdmi->pcm_list, head) {
+ 		if (pcm->cvt == cvt)
+-			break;
++			return pcm;
+ 	}
  
- 	ssi->cr_en = EN;
-@@ -554,7 +554,7 @@ static int rsnd_ssi_stop(struct rsnd_mod *mod,
- 	if (!rsnd_ssi_is_run_mods(mod, io))
- 		return 0;
+-	return pcm;
++	return NULL;
+ }
  
--	if (rsnd_ssi_is_parent(mod, io))
-+	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
- 		return 0;
- 
- 	cr  =	ssi->cr_own	|
-@@ -592,7 +592,7 @@ static int rsnd_ssi_irq(struct rsnd_mod *mod,
- 	if (rsnd_is_gen1(priv))
- 		return 0;
- 
--	if (rsnd_ssi_is_parent(mod, io))
-+	if (rsnd_ssi_is_parent(mod, io) && !rsnd_ssi_multi_slaves(io))
- 		return 0;
- 
- 	if (!rsnd_ssi_is_run_mods(mod, io))
+ static void hdac_hdmi_jack_report(struct hdac_hdmi_pcm *pcm,
 -- 
 2.20.1
 
