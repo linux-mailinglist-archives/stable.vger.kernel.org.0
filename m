@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA65F1CAC2C
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA181CAD99
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729625AbgEHMuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:50:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59172 "EHLO mail.kernel.org"
+        id S1729460AbgEHMtf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:49:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729336AbgEHMup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:50:45 -0400
+        id S1728871AbgEHMte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:49:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4A5C24954;
-        Fri,  8 May 2020 12:50:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A72FB24970;
+        Fri,  8 May 2020 12:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942245;
-        bh=3/POyiqtelTVhdORwpZ36G6ZaXCF8YcncynUzPf+djo=;
+        s=default; t=1588942173;
+        bh=id1gJZSNPT6DTP+D6NCupfUE+N8a2LeiAFD63nmkx9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doNqz/TpjdigqDNwMYlua2Jl6HGa9AK+qexOgSrUvnlhbYwDRWg+9D82Fd4D0nIU4
-         xz27G7UU1RGN5n+rjWDjXPAqBWFRlcGGIKYncrKZgxg4DPn6O9rgkRRBcsROz+UbNH
-         N3CBQ0+L1o9ikjVRAgMljtfInNmVbOZOKUiq8a3M=
+        b=VUQzkRne8BjQTU8OkPdLLXQpdmwxrmNxOQq39YCXNYwQhW1nE5RPtZT+SFh7dF1Fb
+         bXlkthnWdgVx+x/PHX6H5oG4RbDVUNBlSMCEIkPBvWr4EZeOCGQLJqueGQ25RDh1e8
+         j50zARGqBxX/PLOMaxmojmw4Peo1XrLXUsE4gF4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Fabio Estevam <festivem@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/22] ASoC: sgtl5000: Fix VAG power-on handling
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.9 14/18] xprtrdma: Fix backchannel allocation of extra rpcrdma_reps
 Date:   Fri,  8 May 2020 14:35:17 +0200
-Message-Id: <20200508123034.580292270@linuxfoundation.org>
+Message-Id: <20200508123033.840310015@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
-References: <20200508123033.915895060@linuxfoundation.org>
+In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
+References: <20200508123030.497793118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,89 +43,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit aa7812737f2877e192d57626cbe8825cc7cf6de9 ]
+commit d698c4a02ee02053bbebe051322ff427a2dad56a upstream.
 
-As mentioned slightly out of patch context in the code, there
-is no reset routine for the chip. On boards where the chip is
-supplied by a fixed regulator, it might not even be resetted
-during (e.g. watchdog) reboot and can be in any state.
+The backchannel code uses rpcrdma_recv_buffer_put to add new reps
+to the free rep list. This also decrements rb_recv_count, which
+spoofs the receive overrun logic in rpcrdma_buffer_get_rep.
 
-If the device is probed with VAG enabled, the driver's probe
-routine will generate a loud pop sound when ANA_POWER is
-being programmed. Avoid this by properly disabling just the
-VAG bit and waiting the required power down time.
+Commit 9b06688bc3b9 ("xprtrdma: Fix additional uses of
+spin_lock_irqsave(rb_lock)") replaced the original open-coded
+list_add with a call to rpcrdma_recv_buffer_put(), but then a year
+later, commit 05c974669ece ("xprtrdma: Fix receive buffer
+accounting") added rep accounting to rpcrdma_recv_buffer_put.
+It was an oversight to let the backchannel continue to use this
+function.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Reviewed-by: Fabio Estevam <festivem@gmail.com>
-Link: https://lore.kernel.org/r/20200414181140.145825-1-sebastian.reichel@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The fix this, let's combine the "add to free list" logic with
+rpcrdma_create_rep.
+
+Also, do not allocate RPCRDMA_MAX_BC_REQUESTS rpcrdma_reps in
+rpcrdma_buffer_create and then allocate additional rpcrdma_reps in
+rpcrdma_bc_setup_reps. Allocating the extra reps during backchannel
+set-up is sufficient.
+
+Fixes: 05c974669ece ("xprtrdma: Fix receive buffer accounting")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/codecs/sgtl5000.c | 34 ++++++++++++++++++++++++++++++++++
- sound/soc/codecs/sgtl5000.h |  1 +
- 2 files changed, 35 insertions(+)
+ net/sunrpc/xprtrdma/backchannel.c |   12 ++----------
+ net/sunrpc/xprtrdma/verbs.c       |   34 ++++++++++++++++++++--------------
+ net/sunrpc/xprtrdma/xprt_rdma.h   |    2 +-
+ 3 files changed, 23 insertions(+), 25 deletions(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index ca8a70ab22a82..d64cb28e8dc5c 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1563,6 +1563,40 @@ static int sgtl5000_i2c_probe(struct i2c_client *client,
- 		dev_err(&client->dev,
- 			"Error %d initializing CHIP_CLK_CTRL\n", ret);
+--- a/net/sunrpc/xprtrdma/backchannel.c
++++ b/net/sunrpc/xprtrdma/backchannel.c
+@@ -71,21 +71,13 @@ out_fail:
+ static int rpcrdma_bc_setup_reps(struct rpcrdma_xprt *r_xprt,
+ 				 unsigned int count)
+ {
+-	struct rpcrdma_rep *rep;
+ 	int rc = 0;
  
-+	/* Mute everything to avoid pop from the following power-up */
-+	ret = regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_CTRL,
-+			   SGTL5000_CHIP_ANA_CTRL_DEFAULT);
-+	if (ret) {
-+		dev_err(&client->dev,
-+			"Error %d muting outputs via CHIP_ANA_CTRL\n", ret);
-+		goto disable_clk;
-+	}
+ 	while (count--) {
+-		rep = rpcrdma_create_rep(r_xprt);
+-		if (IS_ERR(rep)) {
+-			pr_err("RPC:       %s: reply buffer alloc failed\n",
+-			       __func__);
+-			rc = PTR_ERR(rep);
++		rc = rpcrdma_create_rep(r_xprt);
++		if (rc)
+ 			break;
+-		}
+-
+-		rpcrdma_recv_buffer_put(rep);
+ 	}
+-
+ 	return rc;
+ }
+ 
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -891,10 +891,17 @@ rpcrdma_create_req(struct rpcrdma_xprt *
+ 	return req;
+ }
+ 
+-struct rpcrdma_rep *
+-rpcrdma_create_rep(struct rpcrdma_xprt *r_xprt)
++/**
++ * rpcrdma_create_rep - Allocate an rpcrdma_rep object
++ * @r_xprt: controlling transport
++ *
++ * Returns 0 on success or a negative errno on failure.
++ */
++int
++ rpcrdma_create_rep(struct rpcrdma_xprt *r_xprt)
+ {
+ 	struct rpcrdma_create_data_internal *cdata = &r_xprt->rx_data;
++	struct rpcrdma_buffer *buf = &r_xprt->rx_buf;
+ 	struct rpcrdma_ia *ia = &r_xprt->rx_ia;
+ 	struct rpcrdma_rep *rep;
+ 	int rc;
+@@ -919,12 +926,18 @@ rpcrdma_create_rep(struct rpcrdma_xprt *
+ 	rep->rr_recv_wr.wr_cqe = &rep->rr_cqe;
+ 	rep->rr_recv_wr.sg_list = &rep->rr_rdmabuf->rg_iov;
+ 	rep->rr_recv_wr.num_sge = 1;
+-	return rep;
 +
-+	/*
-+	 * If VAG is powered-on (e.g. from previous boot), it would be disabled
-+	 * by the write to ANA_POWER in later steps of the probe code. This
-+	 * may create a loud pop even with all outputs muted. The proper way
-+	 * to circumvent this is disabling the bit first and waiting the proper
-+	 * cool-down time.
-+	 */
-+	ret = regmap_read(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, &value);
-+	if (ret) {
-+		dev_err(&client->dev, "Failed to read ANA_POWER: %d\n", ret);
-+		goto disable_clk;
-+	}
-+	if (value & SGTL5000_VAG_POWERUP) {
-+		ret = regmap_update_bits(sgtl5000->regmap,
-+					 SGTL5000_CHIP_ANA_POWER,
-+					 SGTL5000_VAG_POWERUP,
-+					 0);
-+		if (ret) {
-+			dev_err(&client->dev, "Error %d disabling VAG\n", ret);
-+			goto disable_clk;
-+		}
-+
-+		msleep(SGTL5000_VAG_POWERDOWN_DELAY);
-+	}
-+
- 	/* Follow section 2.2.1.1 of AN3663 */
- 	ana_pwr = SGTL5000_ANA_POWER_DEFAULT;
- 	if (sgtl5000->num_supplies <= VDDD) {
-diff --git a/sound/soc/codecs/sgtl5000.h b/sound/soc/codecs/sgtl5000.h
-index 22f3442af9826..9ea41749d0375 100644
---- a/sound/soc/codecs/sgtl5000.h
-+++ b/sound/soc/codecs/sgtl5000.h
-@@ -236,6 +236,7 @@
- /*
-  * SGTL5000_CHIP_ANA_CTRL
++	spin_lock(&buf->rb_lock);
++	list_add(&rep->rr_list, &buf->rb_recv_bufs);
++	spin_unlock(&buf->rb_lock);
++	return 0;
+ 
+ out_free:
+ 	kfree(rep);
+ out:
+-	return ERR_PTR(rc);
++	dprintk("RPC:       %s: reply buffer %d alloc failed\n",
++		__func__, rc);
++	return rc;
+ }
+ 
+ int
+@@ -967,17 +980,10 @@ rpcrdma_buffer_create(struct rpcrdma_xpr
+ 	}
+ 
+ 	INIT_LIST_HEAD(&buf->rb_recv_bufs);
+-	for (i = 0; i < buf->rb_max_requests + RPCRDMA_MAX_BC_REQUESTS; i++) {
+-		struct rpcrdma_rep *rep;
+-
+-		rep = rpcrdma_create_rep(r_xprt);
+-		if (IS_ERR(rep)) {
+-			dprintk("RPC:       %s: reply buffer %d alloc failed\n",
+-				__func__, i);
+-			rc = PTR_ERR(rep);
++	for (i = 0; i <= buf->rb_max_requests; i++) {
++		rc = rpcrdma_create_rep(r_xprt);
++		if (rc)
+ 			goto out;
+-		}
+-		list_add(&rep->rr_list, &buf->rb_recv_bufs);
+ 	}
+ 
+ 	return 0;
+--- a/net/sunrpc/xprtrdma/xprt_rdma.h
++++ b/net/sunrpc/xprtrdma/xprt_rdma.h
+@@ -502,8 +502,8 @@ int rpcrdma_ep_post_recv(struct rpcrdma_
+  * Buffer calls - xprtrdma/verbs.c
   */
-+#define SGTL5000_CHIP_ANA_CTRL_DEFAULT		0x0133
- #define SGTL5000_LINE_OUT_MUTE			0x0100
- #define SGTL5000_HP_SEL_MASK			0x0040
- #define SGTL5000_HP_SEL_SHIFT			6
--- 
-2.20.1
-
+ struct rpcrdma_req *rpcrdma_create_req(struct rpcrdma_xprt *);
+-struct rpcrdma_rep *rpcrdma_create_rep(struct rpcrdma_xprt *);
+ void rpcrdma_destroy_req(struct rpcrdma_req *);
++int rpcrdma_create_rep(struct rpcrdma_xprt *r_xprt);
+ int rpcrdma_buffer_create(struct rpcrdma_xprt *);
+ void rpcrdma_buffer_destroy(struct rpcrdma_buffer *);
+ 
 
 
