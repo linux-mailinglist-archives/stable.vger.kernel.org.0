@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 315671CAC44
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5964E1CAC89
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729720AbgEHMvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:51:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60844 "EHLO mail.kernel.org"
+        id S1730187AbgEHMyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:54:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728823AbgEHMvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:51:40 -0400
+        id S1729807AbgEHMyQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:54:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A6F424966;
-        Fri,  8 May 2020 12:51:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60C66218AC;
+        Fri,  8 May 2020 12:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942300;
-        bh=CSSG65g2BH3IAonSSiWOlBenGNI6RSP/8pRPZEKLlNw=;
+        s=default; t=1588942455;
+        bh=taLdJCQv5r2Rr6dabxuHs7+lFJKQzoONrB/y4VXGayU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Th1bAbe+HedMpmEmCj/xtOfKv5cSSh38j+2iC7oZmrQgT5OwC/5ldcRykxKZZuIP9
-         MRqpvfXbSwfCihg2jnZKC71pzGfYThMYWgoDV4B2qK8q9d9P8XwnmaKw0YG8t2J1pp
-         SFBEeuULb2Ym0z6RDlo0kJkM4MIMDpDEIcmtxWH8=
+        b=djJbEpLQMVPea9I8u3FTwc3BIkD6bU5s7JPhE+/jKQ975Fy/ic7dhSUrDlUFe21P5
+         8inalLIhxAN1CiKXUG/p7ITPdEwVy/vx8e9n/PWshjodQkNWPUrBNWQeTs49sQP5dN
+         hlU6ggPvZdgMiGlSBzH7hk9hiJws5q29j1dTTAQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jere=20Lepp=C3=A4nen?= <jere.leppanen@nokia.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 22/32] sctp: Fix SHUTDOWN CTSN Ack in the peer restart case
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 29/50] net: systemport: suppress warnings on failed Rx SKB allocations
 Date:   Fri,  8 May 2020 14:35:35 +0200
-Message-Id: <20200508123037.944302353@linuxfoundation.org>
+Message-Id: <20200508123047.348346483@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
-References: <20200508123034.886699170@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jere Leppänen <jere.leppanen@nokia.com>
+From: Doug Berger <opendmb@gmail.com>
 
-commit 12dfd78e3a74825e6f0bc8df7ef9f938fbc6bfe3 upstream.
+[ Upstream commit 3554e54a46125030c534820c297ed7f6c3907e24 ]
 
-When starting shutdown in sctp_sf_do_dupcook_a(), get the value for
-SHUTDOWN Cumulative TSN Ack from the new association, which is
-reconstructed from the cookie, instead of the old association, which
-the peer doesn't have anymore.
+The driver is designed to drop Rx packets and reclaim the buffers
+when an allocation fails, and the network interface needs to safely
+handle this packet loss. Therefore, an allocation failure of Rx
+SKBs is relatively benign.
 
-Otherwise the SHUTDOWN is either ignored or replied to with an ABORT
-by the peer because CTSN Ack doesn't match the peer's Initial TSN.
+However, the output of the warning message occurs with a high
+scheduling priority that can cause excessive jitter/latency for
+other high priority processing.
 
-Fixes: bdf6fa52f01b ("sctp: handle association restarts when the socket is closed.")
-Signed-off-by: Jere Leppänen <jere.leppanen@nokia.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+This commit suppresses the warning messages to prevent scheduling
+problems while retaining the failure count in the statistics of
+the network interface.
+
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_make_chunk.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bcmsysport.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -871,7 +871,11 @@ struct sctp_chunk *sctp_make_shutdown(co
- 	struct sctp_chunk *retval;
- 	__u32 ctsn;
+diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
+index ad86a186ddc5f..4dfdb5a58025b 100644
+--- a/drivers/net/ethernet/broadcom/bcmsysport.c
++++ b/drivers/net/ethernet/broadcom/bcmsysport.c
+@@ -666,7 +666,8 @@ static struct sk_buff *bcm_sysport_rx_refill(struct bcm_sysport_priv *priv,
+ 	dma_addr_t mapping;
  
--	ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
-+	if (chunk && chunk->asoc)
-+		ctsn = sctp_tsnmap_get_ctsn(&chunk->asoc->peer.tsn_map);
-+	else
-+		ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
-+
- 	shut.cum_tsn_ack = htonl(ctsn);
- 
- 	retval = sctp_make_control(asoc, SCTP_CID_SHUTDOWN, 0,
+ 	/* Allocate a new SKB for a new packet */
+-	skb = netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH);
++	skb = __netdev_alloc_skb(priv->netdev, RX_BUF_LENGTH,
++				 GFP_ATOMIC | __GFP_NOWARN);
+ 	if (!skb) {
+ 		priv->mib.alloc_rx_buff_failed++;
+ 		netif_err(priv, rx_err, ndev, "SKB alloc failed\n");
+-- 
+2.20.1
+
 
 
