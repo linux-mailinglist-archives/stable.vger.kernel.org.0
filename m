@@ -2,136 +2,284 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5341CB043
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:28:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F11C81CB057
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727071AbgEHN1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:27:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49882 "EHLO mail.kernel.org"
+        id S1727790AbgEHNaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:30:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726736AbgEHN1k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 09:27:40 -0400
+        id S1726908AbgEHNad (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 09:30:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 600D4208DB;
-        Fri,  8 May 2020 13:27:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0104206D6;
+        Fri,  8 May 2020 13:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588944459;
-        bh=WoFe3YzSoDBlR/QxiETEMCC62eGbgcNbl+XND+75qcg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dEKKjcQHeJrZW2rlfo9zA+ChG/wQhnuQRVCbxZdnl1dea2zKgtVo/AeMzC0349xbn
-         9FzfI9IrCWLUKPg8GEOYQug/cup1XRe2nPhrqqJLAQLCRAmIDwXgkmX77e4ne6HHtE
-         3IsxaiLfNUOFDGr9x9CZT9FgqrWKIHhUsVP8pGFE=
-Date:   Fri, 8 May 2020 15:27:37 +0200
+        s=default; t=1588944632;
+        bh=YJHuyYQUMy5ygGz555o/uN/njIbPp3jNOoxtdWfpOG8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OM5E5CdyAJ7HatRGASNubsXEkL6oAzuJBc2VyCEtTeic50u+IUvJJc77CjbtTASbu
+         rCLeYtFvq9WcE1r5lr3usnJhZSAzfZZ3vrq9EyfQP5Z9djYlcvJx64T8TtxZxOH1TM
+         LCEXE5vt1ufwOlkaBXD72foe3hW50L0MzwQJDCPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Christoph Hellwig <hch@lst.de>, m.szyprowski@samsung.com,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Subject: Re: [PATCH 5.4 40/50] dma-direct: exclude dma_direct_map_resource
- from the min_low_pfn check
-Message-ID: <20200508132737.GA173507@kroah.com>
-References: <20200508123043.085296641@linuxfoundation.org>
- <20200508123048.730720753@linuxfoundation.org>
- <CA+G9fYvdD3dhMhGL5=nfT+7xTEdD36zUtceF2fROPF4OQQZbLQ@mail.gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.4 00/49] 5.4.40-rc2 review
+Date:   Fri,  8 May 2020 15:30:29 +0200
+Message-Id: <20200508132934.548989409@linuxfoundation.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.40-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.40-rc2
+X-KernelTest-Deadline: 2020-05-10T13:29+00:00
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYvdD3dhMhGL5=nfT+7xTEdD36zUtceF2fROPF4OQQZbLQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 08, 2020 at 06:50:02PM +0530, Naresh Kamboju wrote:
-> On Fri, 8 May 2020 at 18:23, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > From: Christoph Hellwig <hch@lst.de>
-> >
-> > commit 68a33b1794665ba8a1d1ef1d3bfcc7c587d380a6 upstream.
-> >
-> > The valid memory address check in dma_capable only makes sense when mapping
-> > normal memory, not when using dma_map_resource to map a device resource.
-> > Add a new boolean argument to dma_capable to exclude that check for the
-> > dma_map_resource case.
-> >
-> > Fixes: b12d66278dd6 ("dma-direct: check for overflows on 32 bit DMA addresses")
-> > Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> > Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> <trim>
-> >
-> > --- a/kernel/dma/direct.c
-> > +++ b/kernel/dma/direct.c
-> > @@ -327,7 +327,7 @@ static inline bool dma_direct_possible(s
-> >                 size_t size)
-> >  {
-> >         return swiotlb_force != SWIOTLB_FORCE &&
-> > -               dma_capable(dev, dma_addr, size);
-> > +               dma_capable(dev, dma_addr, size, true);
-> 
-> While building kernel Image for arm architecture the following error noticed
-> on stale-rc 5.4 kernel branch.
-> 
->  # make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm
-> CROSS_COMPILE=arm-linux-gnueabihf- HOSTCC=gcc CC="sccache
-> arm-linux-gnueabihf-gcc" O=build zImage
->  #
->  ../kernel/dma/direct.c: In function ‘dma_direct_possible’:
->  ../kernel/dma/direct.c:330:3: error: too many arguments to function
-> ‘dma_capable’
->    330 |   dma_capable(dev, dma_addr, size, true);
->        |   ^~~~~~~~~~~
->  In file included from ../include/linux/dma-direct.h:12,
->                   from ../kernel/dma/direct.c:10:
->  ../arch/arm/include/asm/dma-direct.h:17:20: note: declared here
->     17 | static inline bool dma_capable(struct device *dev, dma_addr_t
-> addr, size_t size)
->        |                    ^~~~~~~~~~~
->  In file included from ../include/linux/init.h:5,
->                   from ../include/linux/memblock.h:12,
->                   from ../kernel/dma/direct.c:7:
->  ../kernel/dma/direct.c: In function ‘dma_direct_map_resource’:
->  ../kernel/dma/direct.c:379:16: error: too many arguments to function
-> ‘dma_capable’
->    379 |  if (unlikely(!dma_capable(dev, dma_addr, size, false))) {
->        |                ^~~~~~~~~~~
->  ../include/linux/compiler.h:78:42: note: in definition of macro ‘unlikely’
->     78 | # define unlikely(x) __builtin_expect(!!(x), 0)
->        |                                          ^
->  In file included from ../include/linux/dma-direct.h:12,
->                   from ../kernel/dma/direct.c:10:
->  ../arch/arm/include/asm/dma-direct.h:17:20: note: declared here
->     17 | static inline bool dma_capable(struct device *dev, dma_addr_t
-> addr, size_t size)
->        |                    ^~~~~~~~~~~
->  make[3]: *** [../scripts/Makefile.build:266: kernel/dma/direct.o] Error 1
->  In file included from ../include/linux/string.h:6,
->                   from ../include/linux/dma-mapping.h:6,
->                   from ../include/linux/dma-direct.h:5,
->                   from ../kernel/dma/swiotlb.c:24:
->  ../kernel/dma/swiotlb.c: In function ‘swiotlb_map’:
->  ../kernel/dma/swiotlb.c:681:16: error: too many arguments to function
-> ‘dma_capable’
->    681 |  if (unlikely(!dma_capable(dev, *dma_addr, size, true))) {
->        |                ^~~~~~~~~~~
->  ../include/linux/compiler.h:78:42: note: in definition of macro ‘unlikely’
->     78 | # define unlikely(x) __builtin_expect(!!(x), 0)
->        |                                          ^
->  In file included from ../include/linux/dma-direct.h:12,
->                   from ../kernel/dma/swiotlb.c:24:
->  ../arch/arm/include/asm/dma-direct.h:17:20: note: declared here
->     17 | static inline bool dma_capable(struct device *dev, dma_addr_t
-> addr, size_t size)
->        |                    ^~~~~~~~~~
+This is the start of the stable review cycle for the 5.4.40 release.
+There are 49 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Ah crap, I think I remember trying to apply this in the past and running
-into these issues.  I'll go drop it now and push out a -rc2, thanks!
+Responses should be made by Sun, 10 May 2020 13:29:13 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.40-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
+
+thanks,
 
 greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.40-rc2
+
+Marek Szyprowski <m.szyprowski@samsung.com>
+    PM / devfreq: Add missing locking while setting suspend_freq
+
+Willem de Bruijn <willemb@google.com>
+    udp: document udp_rcv_segment special case for looped packets
+
+Arnaldo Carvalho de Melo <acme@redhat.com>
+    tools headers UAPI: Sync copy of arm64's asm/unistd.h with the kernel sources
+
+Zhan Liu <Zhan.Liu@amd.com>
+    Revert "drm/amd/display: setting the DIG_MODE to the correct value."
+
+Will Deacon <will@kernel.org>
+    mm/mremap: Add comment explaining the untagging behaviour of mremap()
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    libbpf: Fix readelf output parsing for Fedora
+
+Jiri Slaby <jslaby@suse.cz>
+    cgroup, netclassid: remove double cond_resched
+
+Thomas Pedersen <thomas@adapt-ip.com>
+    mac80211: add ieee80211_is_any_nullfunc()
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    ACPI: PM: s2idle: Fix comment in acpi_s2idle_prepare_late()
+
+Hans de Goede <hdegoede@redhat.com>
+    platform/x86: GPD pocket fan: Fix error message when temp-limits are out of range
+
+Qian Cai <cai@lca.pw>
+    x86/kvm: fix a missing-prototypes "vmread_error"
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda: Match both PCI ID and SSID for driver blacklist
+
+Nick Desaulniers <ndesaulniers@google.com>
+    hexagon: define ioremap_uc
+
+Christoph Hellwig <hch@lst.de>
+    hexagon: clean up ioremap
+
+Tuowen Zhao <ztuowen@gmail.com>
+    mfd: intel-lpss: Use devm_ioremap_uc for MMIO
+
+Tuowen Zhao <ztuowen@gmail.com>
+    lib: devres: add a helper function for ioremap_uc
+
+Brendan Higgins <brendanhiggins@google.com>
+    Revert "software node: Simplify software_node_release() function"
+
+Aaron Ma <aaron.ma@canonical.com>
+    drm/amdgpu: Fix oops when pp_funcs is unset in ACPI event
+
+Jere Leppänen <jere.leppanen@nokia.com>
+    sctp: Fix SHUTDOWN CTSN Ack in the peer restart case
+
+Matt Roper <matthew.d.roper@intel.com>
+    drm/i915: Extend WaDisableDARBFClkGating to icl,ehl,tgl
+
+Doug Berger <opendmb@gmail.com>
+    net: systemport: suppress warnings on failed Rx SKB allocations
+
+Doug Berger <opendmb@gmail.com>
+    net: bcmgenet: suppress warnings on failed Rx SKB allocations
+
+Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+    mac80211: sta_info: Add lockdep condition for RCU list usage
+
+Nathan Chancellor <natechancellor@gmail.com>
+    lib/mpi: Fix building for powerpc with clang
+
+Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+    tracing: Fix memory leaks in trace_events_hist.c
+
+Paulo Alcantara <pc@cjr.nz>
+    cifs: do not share tcons with DFS
+
+Jeremie Francois (on alpha) <jeremie.francois@gmail.com>
+    scripts/config: allow colons in option strings for sed
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: protect updating server->dstaddr with a spinlock
+
+Matthias Blankertz <matthias.blankertz@cetitec.com>
+    ASoC: rsnd: Fix "status check failed" spam for multi-SSI
+
+Matthias Blankertz <matthias.blankertz@cetitec.com>
+    ASoC: rsnd: Don't treat master SSI in multi SSI setup as parent
+
+Julien Beraud <julien.beraud@orolia.com>
+    net: stmmac: Fix sub-second increment
+
+Julien Beraud <julien.beraud@orolia.com>
+    net: stmmac: fix enabling socfpga's ptp_ref_clock
+
+Xiyu Yang <xiyuyang19@fudan.edu.cn>
+    wimax/i2400m: Fix potential urb refcnt leak
+
+Sandeep Raghuraman <sandy.8925@gmail.com>
+    drm/amdgpu: Correctly initialize thermal controller for GPUs with Powerplay table v0 (e.g Hawaii)
+
+Alex Elder <elder@linaro.org>
+    remoteproc: qcom_q6v5_mss: fix a bug in q6v5_probe()
+
+Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+    ASoC: codecs: hdac_hdmi: Fix incorrect use of list_for_each_entry
+
+Matthias Blankertz <matthias.blankertz@cetitec.com>
+    ASoC: rsnd: Fix HDMI channel mapping for multi-SSI mode
+
+Matthias Blankertz <matthias.blankertz@cetitec.com>
+    ASoC: rsnd: Fix parent SSI start/stop in multi-SSI mode
+
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: dwc3: gadget: Properly set maxpacket limit
+
+Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+    ASoC: topology: Fix endianness issue
+
+Sebastian Reichel <sebastian.reichel@collabora.com>
+    ASoC: sgtl5000: Fix VAG power-on handling
+
+Tyler Hicks <tyhicks@linux.microsoft.com>
+    selftests/ipc: Fix test failure seen after initial test run
+
+Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+    ASoC: topology: Check return value of soc_tplg_dai_config
+
+Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+    ASoC: topology: Check return value of pcm_new_ver
+
+Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+    ASoC: topology: Check soc_tplg_add_route return value
+
+Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+    ASoC: topology: Check return value of soc_tplg_*_create
+
+Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+    ASoC: topology: Check return value of soc_tplg_create_tlv
+
+Marek Szyprowski <m.szyprowski@samsung.com>
+    drm/bridge: analogix_dp: Split bind() into probe() and real bind()
+
+Jia He <justin.he@arm.com>
+    vhost: vsock: kick send_pkt worker once device is started
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/hexagon/include/asm/io.h                      | 12 ++---
+ arch/hexagon/kernel/hexagon_ksyms.c                |  2 +-
+ arch/hexagon/mm/ioremap.c                          |  2 +-
+ arch/x86/kvm/vmx/ops.h                             |  1 +
+ drivers/acpi/sleep.c                               |  5 +-
+ drivers/base/swnode.c                              | 14 +++---
+ drivers/devfreq/devfreq.c                          |  4 ++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c             |  3 +-
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c      |  9 ----
+ .../gpu/drm/amd/powerplay/hwmgr/processpptables.c  | 26 +++++++++++
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 33 +++++++++-----
+ drivers/gpu/drm/exynos/exynos_dp.c                 | 29 +++++++-----
+ drivers/gpu/drm/i915/display/intel_display.c       |  7 ++-
+ drivers/gpu/drm/rockchip/analogix_dp-rockchip.c    | 36 ++++++++-------
+ drivers/mfd/intel-lpss.c                           |  2 +-
+ drivers/net/ethernet/broadcom/bcmsysport.c         |  3 +-
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c     |  3 +-
+ .../net/ethernet/stmicro/stmmac/dwmac-socfpga.c    |  9 ++--
+ .../net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c  | 12 +++--
+ drivers/net/wimax/i2400m/usb-fw.c                  |  1 +
+ drivers/platform/x86/gpd-pocket-fan.c              |  2 +-
+ drivers/remoteproc/qcom_q6v5_mss.c                 |  2 +-
+ drivers/usb/dwc3/core.h                            |  4 ++
+ drivers/usb/dwc3/gadget.c                          | 52 ++++++++++++++++-----
+ drivers/vhost/vsock.c                              |  5 ++
+ fs/cifs/connect.c                                  |  6 +++
+ include/drm/bridge/analogix_dp.h                   |  5 +-
+ include/linux/ieee80211.h                          |  9 ++++
+ include/linux/io.h                                 |  2 +
+ include/net/udp.h                                  |  7 +++
+ kernel/trace/trace_events_hist.c                   |  7 +++
+ lib/devres.c                                       | 19 ++++++++
+ lib/mpi/longlong.h                                 | 34 +++++++-------
+ mm/mremap.c                                        | 10 ++++
+ net/core/netclassid_cgroup.c                       |  4 +-
+ net/mac80211/mlme.c                                |  2 +-
+ net/mac80211/rx.c                                  |  8 ++--
+ net/mac80211/sta_info.c                            |  3 +-
+ net/mac80211/status.c                              |  5 +-
+ net/mac80211/tx.c                                  |  2 +-
+ net/sctp/sm_make_chunk.c                           |  6 ++-
+ scripts/config                                     |  5 +-
+ sound/pci/hda/hda_intel.c                          |  9 ++--
+ sound/soc/codecs/hdac_hdmi.c                       |  6 +--
+ sound/soc/codecs/sgtl5000.c                        | 34 ++++++++++++++
+ sound/soc/codecs/sgtl5000.h                        |  1 +
+ sound/soc/sh/rcar/ssi.c                            | 11 ++++-
+ sound/soc/sh/rcar/ssiu.c                           |  2 +-
+ sound/soc/soc-topology.c                           | 53 ++++++++++++++++------
+ tools/arch/arm64/include/uapi/asm/unistd.h         |  1 +
+ tools/lib/bpf/Makefile                             |  2 +
+ tools/testing/selftests/ipc/msgque.c               |  2 +-
+ 53 files changed, 380 insertions(+), 157 deletions(-)
+
+
