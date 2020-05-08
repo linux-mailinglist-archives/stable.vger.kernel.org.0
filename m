@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7BB1CACA1
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 064761CAD23
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730287AbgEHMzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:55:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37814 "EHLO mail.kernel.org"
+        id S1726751AbgEHMwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:52:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730268AbgEHMzF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:55:05 -0400
+        id S1729005AbgEHMwG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:52:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6C612495A;
-        Fri,  8 May 2020 12:55:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6489224964;
+        Fri,  8 May 2020 12:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942505;
-        bh=leLlCGybufOOpVhMiAXOfQofFaZLZ2JQZlg6bMaHjAE=;
+        s=default; t=1588942322;
+        bh=jLd/m6vXXjMduVePN9+R0gj6Wj03nfzM/HiOjiE5sA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vo889R1c9hUIf9xLnkfNLWuKNOtP365lDdhatV6sMucmQnPOzCRl44dJcOkjeZtag
-         qdbDtTCpOVU4NM00stY80/uMJBHghahGoYzzAWH3CVE2pfVstjn34kF+T7dlYcizKd
-         ssU6CZdO2d0DC07vnB4iDPPicckZqUhcZh09J6kE=
+        b=wfBj2IjdnY7fhj71tzvhObOrt7dijjQTTTBNixynbLY0C2+1XnkDvTX1Gye4EbI1U
+         /VADLPZUco1jHELPmnfhM4UR/xvEMJUUuimCt5BbY26nmCteTwMVXOyAgR3RyrS4Cy
+         sQlx9y5zpXySnSuHqIMo2WJxqLdp2eB8QTx5gETQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
         <amadeuszx.slawinski@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 05/49] ASoC: topology: Check return value of soc_tplg_*_create
+Subject: [PATCH 4.19 09/32] ASoC: codecs: hdac_hdmi: Fix incorrect use of list_for_each_entry
 Date:   Fri,  8 May 2020 14:35:22 +0200
-Message-Id: <20200508123043.655503958@linuxfoundation.org>
+Message-Id: <20200508123036.041556222@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
-References: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508123034.886699170@linuxfoundation.org>
+References: <20200508123034.886699170@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,71 +48,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit 2ae548f30d7f6973388fc3769bb3c2f6fd13652b ]
+[ Upstream commit 326b509238171d37402dbe308e154cc234ed1960 ]
 
-Functions soc_tplg_denum_create, soc_tplg_dmixer_create,
-soc_tplg_dbytes_create can fail, so their return values should be
-checked and error should be propagated.
+If we don't find any pcm, pcm will point at address at an offset from
+the the list head and not a meaningful structure. Fix this by returning
+correct pcm if found and NULL if not. Found with coccinelle.
 
 Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200327204729.397-4-amadeuszx.slawinski@linux.intel.com
+Link: https://lore.kernel.org/r/20200415162849.308-1-amadeuszx.slawinski@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ sound/soc/codecs/hdac_hdmi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index 5d974a36cdc92..c86c3ea533f68 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -1124,6 +1124,7 @@ static int soc_tplg_kcontrol_elems_load(struct soc_tplg *tplg,
- 	struct snd_soc_tplg_hdr *hdr)
+diff --git a/sound/soc/codecs/hdac_hdmi.c b/sound/soc/codecs/hdac_hdmi.c
+index be2473166bfaf..4594b1447900a 100644
+--- a/sound/soc/codecs/hdac_hdmi.c
++++ b/sound/soc/codecs/hdac_hdmi.c
+@@ -148,14 +148,14 @@ static struct hdac_hdmi_pcm *
+ hdac_hdmi_get_pcm_from_cvt(struct hdac_hdmi_priv *hdmi,
+ 			   struct hdac_hdmi_cvt *cvt)
  {
- 	struct snd_soc_tplg_ctl_hdr *control_hdr;
-+	int ret;
- 	int i;
+-	struct hdac_hdmi_pcm *pcm = NULL;
++	struct hdac_hdmi_pcm *pcm;
  
- 	if (tplg->pass != SOC_TPLG_PASS_MIXER) {
-@@ -1152,25 +1153,30 @@ static int soc_tplg_kcontrol_elems_load(struct soc_tplg *tplg,
- 		case SND_SOC_TPLG_CTL_RANGE:
- 		case SND_SOC_TPLG_DAPM_CTL_VOLSW:
- 		case SND_SOC_TPLG_DAPM_CTL_PIN:
--			soc_tplg_dmixer_create(tplg, 1,
--					       le32_to_cpu(hdr->payload_size));
-+			ret = soc_tplg_dmixer_create(tplg, 1,
-+					le32_to_cpu(hdr->payload_size));
- 			break;
- 		case SND_SOC_TPLG_CTL_ENUM:
- 		case SND_SOC_TPLG_CTL_ENUM_VALUE:
- 		case SND_SOC_TPLG_DAPM_CTL_ENUM_DOUBLE:
- 		case SND_SOC_TPLG_DAPM_CTL_ENUM_VIRT:
- 		case SND_SOC_TPLG_DAPM_CTL_ENUM_VALUE:
--			soc_tplg_denum_create(tplg, 1,
--					      le32_to_cpu(hdr->payload_size));
-+			ret = soc_tplg_denum_create(tplg, 1,
-+					le32_to_cpu(hdr->payload_size));
- 			break;
- 		case SND_SOC_TPLG_CTL_BYTES:
--			soc_tplg_dbytes_create(tplg, 1,
--					       le32_to_cpu(hdr->payload_size));
-+			ret = soc_tplg_dbytes_create(tplg, 1,
-+					le32_to_cpu(hdr->payload_size));
- 			break;
- 		default:
- 			soc_bind_err(tplg, control_hdr, i);
- 			return -EINVAL;
- 		}
-+		if (ret < 0) {
-+			dev_err(tplg->dev, "ASoC: invalid control\n");
-+			return ret;
-+		}
-+
+ 	list_for_each_entry(pcm, &hdmi->pcm_list, head) {
+ 		if (pcm->cvt == cvt)
+-			break;
++			return pcm;
  	}
  
- 	return 0;
+-	return pcm;
++	return NULL;
+ }
+ 
+ static void hdac_hdmi_jack_report(struct hdac_hdmi_pcm *pcm,
 -- 
 2.20.1
 
