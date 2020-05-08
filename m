@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A811CAB8A
+	by mail.lfdr.de (Postfix) with ESMTP id 7326B1CAB8B
 	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:44:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727104AbgEHMoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:44:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43044 "EHLO mail.kernel.org"
+        id S1729205AbgEHMog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:44:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729198AbgEHMod (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:44:33 -0400
+        id S1729202AbgEHMof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:44:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 436CF208D6;
-        Fri,  8 May 2020 12:44:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF6B02145D;
+        Fri,  8 May 2020 12:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941872;
-        bh=+paItO5s4jfSbClbx7dPMpQsd3fzWtEyPMi442+bDpI=;
+        s=default; t=1588941875;
+        bh=HJHN5sj1vd4/4NzFiddp91u6CB25GJ+psBJotnAwsvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZzPISnW6X4f6KLTFqW+lrBBrXNlhMj/hFX96CKGffTVAJLifduGvxr5RI2TzPgAX
-         QqEh8i1hg6ceXsS2lYLxZ5FR5wG0vbE0uCvc+JFgSAkqvK2ydlhKOv4geqFv4MI0Od
-         /sHTkevuJX3MNAzc+74OZodJngKxsvn/Uf2Hcesg=
+        b=08OohzFhl39jOtzsNFPH5hpBmQybK8TwW2eUiK47VWIOv2ybTgS/FChTIM+smv0uX
+         zKrn+V1EKRDPHlN++1dbg+RAeCIby8dD9vyDZUxpvXUtvRTdTzsMjUS0f0kVqBiy/2
+         vAtOgftoPkohlWUBhg3xY2qwo5Ga2ocEzPzus4SU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.4 206/312] clk: imx: clk-pllv3: fix incorrect handle of enet powerdown bit
-Date:   Fri,  8 May 2020 14:33:17 +0200
-Message-Id: <20200508123138.910534395@linuxfoundation.org>
+        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
+        Loc Ho <lho@apm.com>, Stephen Boyd <sboyd@codeaurora.org>
+Subject: [PATCH 4.4 207/312] clk: xgene: Dont call __pa on ioremaped address
+Date:   Fri,  8 May 2020 14:33:18 +0200
+Message-Id: <20200508123138.976378561@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -43,49 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dong Aisheng <aisheng.dong@nxp.com>
+From: Laura Abbott <labbott@redhat.com>
 
-commit b3e76bdc0b2190e67427d31cd740debd01c03631 upstream.
+commit 06b113e9f28f8657715919087a3f54b77d1634ed upstream.
 
-After commit f53947456f98 ("ARM: clk: imx: update pllv3 to support imx7"),
-the former used BM_PLL_POWER bit is not correct anymore for IMX7 ENET.
-Instead, pll->powerdown holds the correct bit, so using powerdown bit
-in clk_pllv3_{prepare | unprepare} functions.
+ioremaped addresses are not linearly mapped so the physical
+address can not be figured out via __pa. More generally, there
+is no guarantee that backing value of an ioremapped address
+is a physical address at all. The value here is only used
+for debugging so just drop the call to __pa on the ioremapped
+address.
 
-Fixes: f53947456f98 ("ARM: clk: imx: update pllv3 to support imx7")
-Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 6ae5fd381251 ("clk: xgene: Silence sparse warnings")
+Signed-off-by: Laura Abbott <labbott@redhat.com>
+Acked-by: Loc Ho <lho@apm.com>
+Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/imx/clk-pllv3.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/clk/clk-xgene.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/clk/imx/clk-pllv3.c
-+++ b/drivers/clk/imx/clk-pllv3.c
-@@ -76,9 +76,9 @@ static int clk_pllv3_prepare(struct clk_
+--- a/drivers/clk/clk-xgene.c
++++ b/drivers/clk/clk-xgene.c
+@@ -218,22 +218,20 @@ static int xgene_clk_enable(struct clk_h
+ 	struct xgene_clk *pclk = to_xgene_clk(hw);
+ 	unsigned long flags = 0;
+ 	u32 data;
+-	phys_addr_t reg;
  
- 	val = readl_relaxed(pll->base);
- 	if (pll->powerup_set)
--		val |= BM_PLL_POWER;
-+		val |= pll->powerdown;
- 	else
--		val &= ~BM_PLL_POWER;
-+		val &= ~pll->powerdown;
- 	writel_relaxed(val, pll->base);
+ 	if (pclk->lock)
+ 		spin_lock_irqsave(pclk->lock, flags);
  
- 	return clk_pllv3_wait_lock(pll);
-@@ -91,9 +91,9 @@ static void clk_pllv3_unprepare(struct c
+ 	if (pclk->param.csr_reg != NULL) {
+ 		pr_debug("%s clock enabled\n", clk_hw_get_name(hw));
+-		reg = __pa(pclk->param.csr_reg);
+ 		/* First enable the clock */
+ 		data = xgene_clk_read(pclk->param.csr_reg +
+ 					pclk->param.reg_clk_offset);
+ 		data |= pclk->param.reg_clk_mask;
+ 		xgene_clk_write(data, pclk->param.csr_reg +
+ 					pclk->param.reg_clk_offset);
+-		pr_debug("%s clock PADDR base %pa clk offset 0x%08X mask 0x%08X value 0x%08X\n",
+-			clk_hw_get_name(hw), &reg,
++		pr_debug("%s clk offset 0x%08X mask 0x%08X value 0x%08X\n",
++			clk_hw_get_name(hw),
+ 			pclk->param.reg_clk_offset, pclk->param.reg_clk_mask,
+ 			data);
  
- 	val = readl_relaxed(pll->base);
- 	if (pll->powerup_set)
--		val &= ~BM_PLL_POWER;
-+		val &= ~pll->powerdown;
- 	else
--		val |= BM_PLL_POWER;
-+		val |= pll->powerdown;
- 	writel_relaxed(val, pll->base);
- }
- 
+@@ -243,8 +241,8 @@ static int xgene_clk_enable(struct clk_h
+ 		data &= ~pclk->param.reg_csr_mask;
+ 		xgene_clk_write(data, pclk->param.csr_reg +
+ 					pclk->param.reg_csr_offset);
+-		pr_debug("%s CSR RESET PADDR base %pa csr offset 0x%08X mask 0x%08X value 0x%08X\n",
+-			clk_hw_get_name(hw), &reg,
++		pr_debug("%s csr offset 0x%08X mask 0x%08X value 0x%08X\n",
++			clk_hw_get_name(hw),
+ 			pclk->param.reg_csr_offset, pclk->param.reg_csr_mask,
+ 			data);
+ 	}
 
 
