@@ -2,95 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 162EA1CBA71
-	for <lists+stable@lfdr.de>; Sat,  9 May 2020 00:10:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E63D1CBABB
+	for <lists+stable@lfdr.de>; Sat,  9 May 2020 00:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728114AbgEHWKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 18:10:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35296 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728109AbgEHWKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 18:10:03 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8C8C061A0C
-        for <stable@vger.kernel.org>; Fri,  8 May 2020 15:10:02 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id s9so2643848lfp.1
-        for <stable@vger.kernel.org>; Fri, 08 May 2020 15:10:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=8Z1evj5z1fUJNVE14V/R144ymkdb8ulzOni0eGnMYKA=;
-        b=jAhCocdTveRhOVOSdcjw1v9p1YTAJ1eGYA6i1CCGFuJC/QFo9jVL9rI40JAVRDh05v
-         u9VNMHO1Vci+Al3u6/hxISlPzyYIHCu/HleMoAFrWwjJluit8titwrxw1ihiTyQc0ugS
-         dyzWRd9nJ/vajhskqNlnWXeICpcgk7a4pchJgzp8Cul3oKP8pl33vtbHBz144aMLsi4T
-         WXFyaBDv5VeEBIgQA8S2+EAsocf5rb+g9mLIvr46biyEoQRANdwOezuo+cZTBiNH4clU
-         EJdSzo7Qgf9fDIG8NQ3PUfcLQgDvHan+J0Y96fw1QgHlp045DYj2IVmm5RDamAB1a+IV
-         lzIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=8Z1evj5z1fUJNVE14V/R144ymkdb8ulzOni0eGnMYKA=;
-        b=Sa5kSR/4DqodZoT+dBmcy9h6pGCuFpITgNUJVQ9Fiem1LsHWSmv0VJzF44js+j3rMD
-         1NqJNI2GcgK7fLbVTFR3leMT59AnR3mn2Drp5yb5XrKYsmbAwQ8Vd55lkesMSNa9+4HI
-         2/vYy8jYKfko8r9E0Ph+tJ72wiHecRXuenFFDDpQ9cNbQmWoNZ0TyRvjsfRzagf0Gjra
-         PJc4cebqj9Ee0ZDCi9fDPV7hIGUNc2DQMVXVlJTyTwpYfMG++M9CGbmw4TzZJYcHI4sl
-         uV5cOsycx455krW83nBGv5wV46znvcOkC5js5sQ2IU6PSb4mYsigCeLtRMxfIIOjhqh9
-         cg1A==
-X-Gm-Message-State: AOAM533dCL/szLszmRY9JbOcJOJwdWVgDUhzw9q07slcONwVvbIDfngA
-        6oLBeEhFHFk02JziW+6I4zgvfp4OZjvze243Qt4=
-X-Google-Smtp-Source: ABdhPJxBBptAY1AqM2j2I9plmJx2gl46IJRevLAnm+LCn42nsxFeJP0LmGGdc5qPDcy0ixl0XZ322WHg9nT8lpKIQGY=
-X-Received: by 2002:ac2:418b:: with SMTP id z11mr3322636lfh.30.1588975800367;
- Fri, 08 May 2020 15:10:00 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:ab3:4a0b:0:0:0:0:0 with HTTP; Fri, 8 May 2020 15:09:59 -0700 (PDT)
-Reply-To: veralaboso4@gmail.com
-From:   Vera Laboso <bladerunnernexus736@gmail.com>
-Date:   Fri, 8 May 2020 22:09:59 +0000
-Message-ID: <CAOq_gqJu=QCBBYtxXXeu+x+iS4_GKAU-xkMS=8TfZDh-obbxYw@mail.gmail.com>
-Subject: Good day my beloved
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1727774AbgEHWcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 18:32:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51802 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727082AbgEHWcV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 18:32:21 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50A452184D;
+        Fri,  8 May 2020 22:32:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1588977139;
+        bh=Im4ylCDaHYECVOrSW8a5s73yrxYc6iAcCllW/cynk4E=;
+        h=Date:From:To:Subject:From;
+        b=Emjk49QDJ3W7ZX/Pb6nbhqSE61nwnIAU5Elf2XTttSSzYnk9Lt1qafjaQ6pbhwMOZ
+         nChgjQFWK7n7ciHScOKo0LGBksEpF1bA/wFe1wsXViidey2cZ0Az+RSNVNhUayq1/o
+         g6oP2BYY2G0v58WeZI3Zyk9mk0ERHiIaBuel5T9s=
+Date:   Fri, 08 May 2020 15:32:18 -0700
+From:   akpm@linux-foundation.org
+To:     1vier1@web.de, dave@stgolabs.net, ebiederm@xmission.com,
+        elfring@users.sourceforge.net, manfred@colorfullife.com,
+        mm-commits@vger.kernel.org, oleg@redhat.com,
+        stable@vger.kernel.org, yoji.fujihar.min@gmail.com
+Subject:  [merged]
+ ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission-v2.patch
+ removed from -mm tree
+Message-ID: <20200508223218.hrb5ZW_Fi%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Good day and God bless you as you read this massage, I am by name Vera
-Laboso am 27 years old girl from Kenya, yes my Mother was Late Mrs.
-Lorna Laboso the former Kenyan Assistant Minister of Home and affairs
-who was among the plan that crash on board in the remote area of
-Kalong=E2=80=99s westernKenya Read more about the crash with the below web
-site
 
-http://edition.cnn.com/2008/WORLD/africa/06/10/kenya.crash/index.html
-I am constrained to contact you because of the maltreatment I am
-receiving from my step mother. She planned to take away all my late
-mothers treasury and properties from me since the unexpected death of
-my beloved mother. One day I opened my mother brave case and secretly
-found out that my mother deposited the sum of $ 27.5 million in BOA
-bank Burkina Faso with my name as the next of kin, then I visited
-Burkina Faso to withdraw the money and take care of myself and start a
-new life, on my arrival the Bank Director whom I meet in person Mr.
-Batish Zongo told me that my mother left an instruction to the bank,
-that the money should be release to me only when I am married or I
-present a trustee who will help me and invest the money overseas.
+The patch titled
+     Subject: ipc/mqueue.c: change __do_notify() to bypass check_kill_permission()
+has been removed from the -mm tree.  Its filename was
+     ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission-v2.patch
 
-That is the reason why I am in search of a honest and reliable person
-who will help me and stand as my trustee for the Bank to transfer the
-money to his account for me to come over and join you. It will be my
-great pleasure to compensate you with 30% of the money for your help
-and the balance shall be my capital with your kind idea for me to
-invest under your control over there in your country.
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-As soon as I receive your positive response showing your interest I
-will send you my picture's in my next mail and death certificate of my
-Mon and how you will receive the money in your account.
+------------------------------------------------------
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: ipc/mqueue.c: change __do_notify() to bypass check_kill_permission()
 
-Contact me though my Email: veralaboso4@gmail.com
+Commit cc731525f26a ("signal: Remove kernel interal si_code magic")
+changed the value of SI_FROMUSER(SI_MESGQ), this means that mq_notify() no
+longer works if the sender doesn't have rights to send a signal.
 
-Yours Sincerely
-Vera Laboso
+Change __do_notify() to use do_send_sig_info() instead of kill_pid_info()
+to avoid check_kill_permission().
+
+This needs the additional notify.sigev_signo != 0 check, shouldn't we
+change do_mq_notify() to deny sigev_signo == 0 ?
+
+Test-case:
+
+	#include <signal.h>
+	#include <mqueue.h>
+	#include <unistd.h>
+	#include <sys/wait.h>
+	#include <assert.h>
+
+	static int notified;
+
+	static void sigh(int sig)
+	{
+		notified = 1;
+	}
+
+	int main(void)
+	{
+		signal(SIGIO, sigh);
+
+		int fd = mq_open("/mq", O_RDWR|O_CREAT, 0666, NULL);
+		assert(fd >= 0);
+
+		struct sigevent se = {
+			.sigev_notify	= SIGEV_SIGNAL,
+			.sigev_signo	= SIGIO,
+		};
+		assert(mq_notify(fd, &se) == 0);
+
+		if (!fork()) {
+			assert(setuid(1) == 0);
+			mq_send(fd, "",1,0);
+			return 0;
+		}
+
+		wait(NULL);
+		mq_unlink("/mq");
+		assert(notified);
+		return 0;
+	}
+
+[manfred@colorfullife.com: 1) Add self_exec_id evaluation so that the implementation matches do_notify_parent 2) use PIDTYPE_TGID everywhere]
+Link: http://lkml.kernel.org/r/e2a782e4-eab9-4f5c-c749-c07a8f7a4e66@colorfullife.com
+Fixes: cc731525f26a ("signal: Remove kernel interal si_code magic")
+Reported-by: Yoji <yoji.fujihar.min@gmail.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Markus Elfring <elfring@users.sourceforge.net>
+Cc: <1vier1@web.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ ipc/mqueue.c |   34 ++++++++++++++++++++++++++--------
+ 1 file changed, 26 insertions(+), 8 deletions(-)
+
+--- a/ipc/mqueue.c~ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission-v2
++++ a/ipc/mqueue.c
+@@ -142,6 +142,7 @@ struct mqueue_inode_info {
+ 
+ 	struct sigevent notify;
+ 	struct pid *notify_owner;
++	u32 notify_self_exec_id;
+ 	struct user_namespace *notify_user_ns;
+ 	struct user_struct *user;	/* user who created, for accounting */
+ 	struct sock *notify_sock;
+@@ -773,28 +774,44 @@ static void __do_notify(struct mqueue_in
+ 	 * synchronously. */
+ 	if (info->notify_owner &&
+ 	    info->attr.mq_curmsgs == 1) {
+-		struct kernel_siginfo sig_i;
+ 		switch (info->notify.sigev_notify) {
+ 		case SIGEV_NONE:
+ 			break;
+-		case SIGEV_SIGNAL:
+-			/* sends signal */
++		case SIGEV_SIGNAL: {
++			struct kernel_siginfo sig_i;
++			struct task_struct *task;
++
++			/* do_mq_notify() accepts sigev_signo == 0, why?? */
++			if (!info->notify.sigev_signo)
++				break;
+ 
+ 			clear_siginfo(&sig_i);
+ 			sig_i.si_signo = info->notify.sigev_signo;
+ 			sig_i.si_errno = 0;
+ 			sig_i.si_code = SI_MESGQ;
+ 			sig_i.si_value = info->notify.sigev_value;
+-			/* map current pid/uid into info->owner's namespaces */
+ 			rcu_read_lock();
++			/* map current pid/uid into info->owner's namespaces */
+ 			sig_i.si_pid = task_tgid_nr_ns(current,
+ 						ns_of_pid(info->notify_owner));
+-			sig_i.si_uid = from_kuid_munged(info->notify_user_ns, current_uid());
++			sig_i.si_uid = from_kuid_munged(info->notify_user_ns,
++						current_uid());
++			/*
++			 * We can't use kill_pid_info(), this signal should
++			 * bypass check_kill_permission(). It is from kernel
++			 * but si_fromuser() can't know this.
++			 * We do check the self_exec_id, to avoid sending
++			 * signals to programs that don't expect them.
++			 */
++			task = pid_task(info->notify_owner, PIDTYPE_TGID);
++			if (task && task->self_exec_id ==
++						info->notify_self_exec_id) {
++				do_send_sig_info(info->notify.sigev_signo,
++						&sig_i, task, PIDTYPE_TGID);
++			}
+ 			rcu_read_unlock();
+-
+-			kill_pid_info(info->notify.sigev_signo,
+-				      &sig_i, info->notify_owner);
+ 			break;
++		}
+ 		case SIGEV_THREAD:
+ 			set_cookie(info->notify_cookie, NOTIFY_WOKENUP);
+ 			netlink_sendskb(info->notify_sock, info->notify_cookie);
+@@ -1383,6 +1400,7 @@ retry:
+ 			info->notify.sigev_signo = notification->sigev_signo;
+ 			info->notify.sigev_value = notification->sigev_value;
+ 			info->notify.sigev_notify = SIGEV_SIGNAL;
++			info->notify_self_exec_id = current->self_exec_id;
+ 			break;
+ 		}
+ 
+_
+
+Patches currently in -mm which might be from oleg@redhat.com are
+
+aio-simplify-read_events.patch
+
