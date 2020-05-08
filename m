@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F41FB1CAD91
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E343E1CAC1C
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728820AbgEHMtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:49:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54004 "EHLO mail.kernel.org"
+        id S1729820AbgEHMuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:50:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728684AbgEHMtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:49:07 -0400
+        id S1729818AbgEHMuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:50:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A3472495C;
-        Fri,  8 May 2020 12:49:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10A8524953;
+        Fri,  8 May 2020 12:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942143;
-        bh=17DgDuTxETQ7MoiY0oIHgTCZqZuCFtkAUqdkpS8UAG8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJiwxZKfBZ60xdj0yVLU3962cXmMX4VC3hR4NRR0ZbTnxcTy0PDTaDQueWAxwVaPC
-         DwObApeTZLnN+iFN9Ajv3y405ockGEhrPNllAOAjc5F/lldVct810mDCuWf64KyfPe
-         Tgcg0MskBnl3QgcfGuo7kd48m9eFkCwnE67fHI2s=
+        s=default; t=1588942205;
+        bh=tDgb4ZhqgTRX4pFltIIphvpJ1LIqmMkqkCzl3AR9tCU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eHiGacgwJ7dRMKrYqc3egS+1xqGdBtKrQSE19AZt8YZ1TyBqPetDtF3XuXjgt+r7K
+         r3U57g3P3u+lOjFTE4ozEOAebBIxdmEcJcNLL2ur2Mhnot/uTL3lVk04ce4nWnIaHc
+         reXfRbxS8yImDdOCY9rOJvHQh4/6bnlXYv2ZKgZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Pedersen <thomas@adapt-ip.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 312/312] mac80211: add ieee80211_is_any_nullfunc()
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.9 00/18] 4.9.223-rc1 review
 Date:   Fri,  8 May 2020 14:35:03 +0200
-Message-Id: <20200508123146.483755402@linuxfoundation.org>
+Message-Id: <20200508123030.497793118@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
-References: <20200508123124.574959822@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.223-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.223-rc1
+X-KernelTest-Deadline: 2020-05-10T12:30+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -43,128 +51,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Pedersen <thomas@adapt-ip.com>
+This is the start of the stable review cycle for the 4.9.223 release.
+There are 18 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 30b2f0be23fb40e58d0ad2caf8702c2a44cda2e1 upstream.
+Responses should be made by Sun, 10 May 2020 12:29:44 +0000.
+Anything received after that time might be too late.
 
-commit 08a5bdde3812 ("mac80211: consider QoS Null frames for STA_NULLFUNC_ACKED")
-Fixed a bug where we failed to take into account a
-nullfunc frame can be either non-QoS or QoS. It turns out
-there is at least one more bug in
-ieee80211_sta_tx_notify(), introduced in
-commit 7b6ddeaf27ec ("mac80211: use QoS NDP for AP probing"),
-where we forgot to check for the QoS variant and so
-assumed the QoS nullfunc frame never went out
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.223-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-Fix this by adding a helper ieee80211_is_any_nullfunc()
-which consolidates the check for non-QoS and QoS nullfunc
-frames. Replace existing compound conditionals and add a
-couple more missing checks for QoS variant.
+thanks,
 
-Signed-off-by: Thomas Pedersen <thomas@adapt-ip.com>
-Link: https://lore.kernel.org/r/20200114055940.18502-3-thomas@adapt-ip.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+greg k-h
 
----
- include/linux/ieee80211.h |    9 +++++++++
- net/mac80211/mlme.c       |    2 +-
- net/mac80211/rx.c         |    8 +++-----
- net/mac80211/status.c     |    5 ++---
- net/mac80211/tx.c         |    2 +-
- 5 files changed, 16 insertions(+), 10 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/include/linux/ieee80211.h
-+++ b/include/linux/ieee80211.h
-@@ -607,6 +607,15 @@ static inline bool ieee80211_is_qos_null
- }
- 
- /**
-+ * ieee80211_is_any_nullfunc - check if frame is regular or QoS nullfunc frame
-+ * @fc: frame control bytes in little-endian byteorder
-+ */
-+static inline bool ieee80211_is_any_nullfunc(__le16 fc)
-+{
-+	return (ieee80211_is_nullfunc(fc) || ieee80211_is_qos_nullfunc(fc));
-+}
-+
-+/**
-  * ieee80211_is_bufferable_mmpdu - check if frame is bufferable MMPDU
-  * @fc: frame control field in little-endian byteorder
-  */
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -2283,7 +2283,7 @@ void ieee80211_sta_tx_notify(struct ieee
- 	if (!ieee80211_is_data(hdr->frame_control))
- 	    return;
- 
--	if (ieee80211_is_nullfunc(hdr->frame_control) &&
-+	if (ieee80211_is_any_nullfunc(hdr->frame_control) &&
- 	    sdata->u.mgd.probe_send_count > 0) {
- 		if (ack)
- 			ieee80211_sta_reset_conn_monitor(sdata);
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -1110,8 +1110,7 @@ ieee80211_rx_h_check_dup(struct ieee8021
- 		return RX_CONTINUE;
- 
- 	if (ieee80211_is_ctl(hdr->frame_control) ||
--	    ieee80211_is_nullfunc(hdr->frame_control) ||
--	    ieee80211_is_qos_nullfunc(hdr->frame_control) ||
-+	    ieee80211_is_any_nullfunc(hdr->frame_control) ||
- 	    is_multicast_ether_addr(hdr->addr1))
- 		return RX_CONTINUE;
- 
-@@ -1487,8 +1486,7 @@ ieee80211_rx_h_sta_process(struct ieee80
- 	 * Drop (qos-)data::nullfunc frames silently, since they
- 	 * are used only to control station power saving mode.
- 	 */
--	if (ieee80211_is_nullfunc(hdr->frame_control) ||
--	    ieee80211_is_qos_nullfunc(hdr->frame_control)) {
-+	if (ieee80211_is_any_nullfunc(hdr->frame_control)) {
- 		I802_DEBUG_INC(rx->local->rx_handlers_drop_nullfunc);
- 
- 		/*
-@@ -1977,7 +1975,7 @@ static int ieee80211_drop_unencrypted(st
- 
- 	/* Drop unencrypted frames if key is set. */
- 	if (unlikely(!ieee80211_has_protected(fc) &&
--		     !ieee80211_is_nullfunc(fc) &&
-+		     !ieee80211_is_any_nullfunc(fc) &&
- 		     ieee80211_is_data(fc) && rx->key))
- 		return -EACCES;
- 
---- a/net/mac80211/status.c
-+++ b/net/mac80211/status.c
-@@ -474,8 +474,7 @@ static void ieee80211_report_ack_skb(str
- 		rcu_read_lock();
- 		sdata = ieee80211_sdata_from_skb(local, skb);
- 		if (sdata) {
--			if (ieee80211_is_nullfunc(hdr->frame_control) ||
--			    ieee80211_is_qos_nullfunc(hdr->frame_control))
-+			if (ieee80211_is_any_nullfunc(hdr->frame_control))
- 				cfg80211_probe_status(sdata->dev, hdr->addr1,
- 						      cookie, acked,
- 						      GFP_ATOMIC);
-@@ -905,7 +904,7 @@ void ieee80211_tx_status(struct ieee8021
- 			I802_DEBUG_INC(local->dot11FailedCount);
- 	}
- 
--	if (ieee80211_is_nullfunc(fc) && ieee80211_has_pm(fc) &&
-+	if (ieee80211_is_any_nullfunc(fc) && ieee80211_has_pm(fc) &&
- 	    ieee80211_hw_check(&local->hw, REPORTS_TX_ACK_STATUS) &&
- 	    !(info->flags & IEEE80211_TX_CTL_INJECTED) &&
- 	    local->ps_sdata && !(local->scanning)) {
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -291,7 +291,7 @@ ieee80211_tx_h_check_assoc(struct ieee80
- 	if (unlikely(test_bit(SCAN_SW_SCANNING, &tx->local->scanning)) &&
- 	    test_bit(SDATA_STATE_OFFCHANNEL, &tx->sdata->state) &&
- 	    !ieee80211_is_probe_req(hdr->frame_control) &&
--	    !ieee80211_is_nullfunc(hdr->frame_control))
-+	    !ieee80211_is_any_nullfunc(hdr->frame_control))
- 		/*
- 		 * When software scanning only nullfunc frames (to notify
- 		 * the sleep state to the AP) and probe requests (for the
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.223-rc1
+
+Thomas Pedersen <thomas@adapt-ip.com>
+    mac80211: add ieee80211_is_any_nullfunc()
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda: Match both PCI ID and SSID for driver blacklist
+
+Jere Leppänen <jere.leppanen@nokia.com>
+    sctp: Fix SHUTDOWN CTSN Ack in the peer restart case
+
+Marcin Nowakowski <marcin.nowakowski@imgtec.com>
+    MIPS: perf: Remove incorrect odd/even counter handling for I6400
+
+Chuck Lever <chuck.lever@oracle.com>
+    xprtrdma: Fix backchannel allocation of extra rpcrdma_reps
+
+Doug Berger <opendmb@gmail.com>
+    net: systemport: suppress warnings on failed Rx SKB allocations
+
+Doug Berger <opendmb@gmail.com>
+    net: bcmgenet: suppress warnings on failed Rx SKB allocations
+
+Nathan Chancellor <natechancellor@gmail.com>
+    lib/mpi: Fix building for powerpc with clang
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: dsa: b53: Rework ARL bin logic
+
+Jeremie Francois (on alpha) <jeremie.francois@gmail.com>
+    scripts/config: allow colons in option strings for sed
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: protect updating server->dstaddr with a spinlock
+
+Julien Beraud <julien.beraud@orolia.com>
+    net: stmmac: Fix sub-second increment
+
+Xiyu Yang <xiyuyang19@fudan.edu.cn>
+    wimax/i2400m: Fix potential urb refcnt leak
+
+Sebastian Reichel <sebastian.reichel@collabora.com>
+    ASoC: sgtl5000: Fix VAG power-on handling
+
+Tyler Hicks <tyhicks@linux.microsoft.com>
+    selftests/ipc: Fix test failure seen after initial test run
+
+YueHaibing <yuehaibing@huawei.com>
+    iio:ad7797: Use correct attribute_group
+
+Alexey Kardashevskiy <aik@ozlabs.ru>
+    powerpc/pci/of: Parse unassigned resources
+
+Jia He <justin.he@arm.com>
+    vhost: vsock: kick send_pkt worker once device is started
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +--
+ arch/mips/kernel/perf_event_mipsxx.c               |  6 +++-
+ arch/powerpc/kernel/pci_of_scan.c                  | 12 ++++++--
+ drivers/iio/adc/ad7793.c                           |  2 +-
+ drivers/net/dsa/b53/b53_common.c                   | 30 ++++++++++++++++---
+ drivers/net/dsa/b53/b53_regs.h                     |  3 ++
+ drivers/net/ethernet/broadcom/bcmsysport.c         |  3 +-
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c     |  3 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c  | 12 +++++---
+ drivers/net/wimax/i2400m/usb-fw.c                  |  1 +
+ drivers/vhost/vsock.c                              |  5 ++++
+ fs/cifs/connect.c                                  |  2 ++
+ include/linux/ieee80211.h                          |  9 ++++++
+ lib/mpi/longlong.h                                 | 34 +++++++++++-----------
+ net/mac80211/mlme.c                                |  2 +-
+ net/mac80211/rx.c                                  |  8 ++---
+ net/mac80211/status.c                              |  5 ++--
+ net/mac80211/tx.c                                  |  2 +-
+ net/sctp/sm_make_chunk.c                           |  6 +++-
+ net/sunrpc/xprtrdma/backchannel.c                  | 12 ++------
+ net/sunrpc/xprtrdma/verbs.c                        | 34 +++++++++++++---------
+ net/sunrpc/xprtrdma/xprt_rdma.h                    |  2 +-
+ scripts/config                                     |  5 +++-
+ sound/pci/hda/hda_intel.c                          |  9 +++---
+ sound/soc/codecs/sgtl5000.c                        | 34 ++++++++++++++++++++++
+ sound/soc/codecs/sgtl5000.h                        |  1 +
+ tools/testing/selftests/ipc/msgque.c               |  2 +-
+ 27 files changed, 173 insertions(+), 75 deletions(-)
 
 
