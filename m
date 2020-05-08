@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6A581CAD2F
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1501CADB7
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730079AbgEHMxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:53:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35154 "EHLO mail.kernel.org"
+        id S1727802AbgEHNEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:04:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730075AbgEHMxZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:53:25 -0400
+        id S1727933AbgEHMt2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:49:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC14524953;
-        Fri,  8 May 2020 12:53:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC44D21473;
+        Fri,  8 May 2020 12:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942404;
-        bh=5hhbYVQCTy75BKT8wdUxSHaCzVbKKnijehTwzZXWmEI=;
+        s=default; t=1588942168;
+        bh=6PQThudiOADLiowU8hPRGHfSO63STL1z7Wa+F73g4G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6mIwl8qErt4tGjsXW/bpKioPRZo57BrfsJ+br1UHSdYTeXPnXwcsI7skpIxUxsHH
-         HKoWXWmFNxeI2WQwGfH34U1G41uK5qLFCNFaxvqSqed3Ay1g99wVmh3hs0OOWNG7Jl
-         GYa9Alv62HgEZEGs0ZRi+2dF96trOVotWu/zECEI=
+        b=eUeYS/sZ3WV9nSdGiYk8fT2coV8gOenWwyL9EBtsbyy7fUicLZqCGqHywWQDZxGGr
+         cA3Q51dVFyIzlkBYijlSpKNmMBXhA5Ogk9oCMeBZgJ6TuBjew+No3x6Tny3ug4hAy0
+         unzgr+LtfYv75nTlEhvecjAnVc6muS8WfgPGh5S0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Fabio Estevam <festivem@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/50] ASoC: sgtl5000: Fix VAG power-on handling
+Subject: [PATCH 4.9 12/18] net: bcmgenet: suppress warnings on failed Rx SKB allocations
 Date:   Fri,  8 May 2020 14:35:15 +0200
-Message-Id: <20200508123044.691442503@linuxfoundation.org>
+Message-Id: <20200508123033.424749203@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
-References: <20200508123043.085296641@linuxfoundation.org>
+In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
+References: <20200508123030.497793118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,87 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit aa7812737f2877e192d57626cbe8825cc7cf6de9 ]
+[ Upstream commit ecaeceb8a8a145d93c7e136f170238229165348f ]
 
-As mentioned slightly out of patch context in the code, there
-is no reset routine for the chip. On boards where the chip is
-supplied by a fixed regulator, it might not even be resetted
-during (e.g. watchdog) reboot and can be in any state.
+The driver is designed to drop Rx packets and reclaim the buffers
+when an allocation fails, and the network interface needs to safely
+handle this packet loss. Therefore, an allocation failure of Rx
+SKBs is relatively benign.
 
-If the device is probed with VAG enabled, the driver's probe
-routine will generate a loud pop sound when ANA_POWER is
-being programmed. Avoid this by properly disabling just the
-VAG bit and waiting the required power down time.
+However, the output of the warning message occurs with a high
+scheduling priority that can cause excessive jitter/latency for
+other high priority processing.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Reviewed-by: Fabio Estevam <festivem@gmail.com>
-Link: https://lore.kernel.org/r/20200414181140.145825-1-sebastian.reichel@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This commit suppresses the warning messages to prevent scheduling
+problems while retaining the failure count in the statistics of
+the network interface.
+
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 34 ++++++++++++++++++++++++++++++++++
- sound/soc/codecs/sgtl5000.h |  1 +
- 2 files changed, 35 insertions(+)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index e949b372ceada..f5b59305c957a 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1645,6 +1645,40 @@ static int sgtl5000_i2c_probe(struct i2c_client *client,
- 		dev_err(&client->dev,
- 			"Error %d initializing CHIP_CLK_CTRL\n", ret);
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index a234044805977..5d4189c94718c 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -1596,7 +1596,8 @@ static struct sk_buff *bcmgenet_rx_refill(struct bcmgenet_priv *priv,
+ 	dma_addr_t mapping;
  
-+	/* Mute everything to avoid pop from the following power-up */
-+	ret = regmap_write(sgtl5000->regmap, SGTL5000_CHIP_ANA_CTRL,
-+			   SGTL5000_CHIP_ANA_CTRL_DEFAULT);
-+	if (ret) {
-+		dev_err(&client->dev,
-+			"Error %d muting outputs via CHIP_ANA_CTRL\n", ret);
-+		goto disable_clk;
-+	}
-+
-+	/*
-+	 * If VAG is powered-on (e.g. from previous boot), it would be disabled
-+	 * by the write to ANA_POWER in later steps of the probe code. This
-+	 * may create a loud pop even with all outputs muted. The proper way
-+	 * to circumvent this is disabling the bit first and waiting the proper
-+	 * cool-down time.
-+	 */
-+	ret = regmap_read(sgtl5000->regmap, SGTL5000_CHIP_ANA_POWER, &value);
-+	if (ret) {
-+		dev_err(&client->dev, "Failed to read ANA_POWER: %d\n", ret);
-+		goto disable_clk;
-+	}
-+	if (value & SGTL5000_VAG_POWERUP) {
-+		ret = regmap_update_bits(sgtl5000->regmap,
-+					 SGTL5000_CHIP_ANA_POWER,
-+					 SGTL5000_VAG_POWERUP,
-+					 0);
-+		if (ret) {
-+			dev_err(&client->dev, "Error %d disabling VAG\n", ret);
-+			goto disable_clk;
-+		}
-+
-+		msleep(SGTL5000_VAG_POWERDOWN_DELAY);
-+	}
-+
- 	/* Follow section 2.2.1.1 of AN3663 */
- 	ana_pwr = SGTL5000_ANA_POWER_DEFAULT;
- 	if (sgtl5000->num_supplies <= VDDD) {
-diff --git a/sound/soc/codecs/sgtl5000.h b/sound/soc/codecs/sgtl5000.h
-index a4bf4bca95bf7..56ec5863f2507 100644
---- a/sound/soc/codecs/sgtl5000.h
-+++ b/sound/soc/codecs/sgtl5000.h
-@@ -233,6 +233,7 @@
- /*
-  * SGTL5000_CHIP_ANA_CTRL
-  */
-+#define SGTL5000_CHIP_ANA_CTRL_DEFAULT		0x0133
- #define SGTL5000_LINE_OUT_MUTE			0x0100
- #define SGTL5000_HP_SEL_MASK			0x0040
- #define SGTL5000_HP_SEL_SHIFT			6
+ 	/* Allocate a new Rx skb */
+-	skb = netdev_alloc_skb(priv->dev, priv->rx_buf_len + SKB_ALIGNMENT);
++	skb = __netdev_alloc_skb(priv->dev, priv->rx_buf_len + SKB_ALIGNMENT,
++				 GFP_ATOMIC | __GFP_NOWARN);
+ 	if (!skb) {
+ 		priv->mib.alloc_rx_buff_failed++;
+ 		netif_err(priv, rx_err, priv->dev,
 -- 
 2.20.1
 
