@@ -2,122 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E02711CB902
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 22:32:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D211CB96C
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 23:05:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727088AbgEHUaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 16:30:24 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:56072 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726904AbgEHUaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 16:30:23 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 7A1921C025E; Fri,  8 May 2020 22:30:21 +0200 (CEST)
-Date:   Fri, 8 May 2020 22:30:21 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ilia Mirkin <imirkin@alum.mit.edu>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Michel =?iso-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
-        Alex Deucher <alexdeucher@gmail.com>,
-        Adam Jackson <ajax@redhat.com>, Sean Paul <sean@poorly.run>,
-        David Airlie <airlied@linux.ie>,
-        Rob Clark <robdclark@gmail.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Yves-Alexis Perez <corsac@debian.org>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Subject: Re: [PATCH 4.19 32/32] drm/atomic: Take the atomic toys away from X
-Message-ID: <20200508203021.GA18233@duo.ucw.cz>
-References: <20200508123034.886699170@linuxfoundation.org>
- <20200508123039.718403889@linuxfoundation.org>
+        id S1726883AbgEHVFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 17:05:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53532 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726811AbgEHVFo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 May 2020 17:05:44 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E2DC061A0C;
+        Fri,  8 May 2020 14:05:44 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id 7so5658474pjo.0;
+        Fri, 08 May 2020 14:05:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=7hsgmtINwUGgBZvNPOy7LgQvXDltAS2NUL5891y8aU0=;
+        b=sIsD551i+u4p6BVOMiFCR12yPb1NY0KQCG9zZryedmmECw4C9/zqio8YWYVoKV4QeK
+         3erBtd+QLUJUQeyLNDQUy0trA9LyZy+p7R9BydTuapO4uEKki680ZYttNOeQN9M46MQs
+         gQ4DNNeiNn/A8GZcwwB69P0tIxEfD1ajJlPvzMTykEX27oSIxALlgh+66Xp4qzsJq9Tg
+         MXHOigbjba2IQFekYzWF+TMBs7lMbfOE1kO5YkuxawcA+syQSjAFY8L5biOdvsgEbxkQ
+         AQxxpvTXyHf/KpeFXp61SH2OJFwy0FuUrLXKGLQTfQqk4givf3qSdP5BzXtsx6VBMGqR
+         f89Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=7hsgmtINwUGgBZvNPOy7LgQvXDltAS2NUL5891y8aU0=;
+        b=Zdg5S5tHUcp2/5Cwge1vKzUWbQy1je66k81BEQSG8Wu3ARLx0fuyenjq2+AAKjCWeR
+         GTbYoL6AXHjlkTnLr+fs1Sqp1AvDkDB3zyIDtd6JlOaGUj6C7tGSDrmMFzJgaEUP9GrN
+         CtOjreBhKFI3mQVY9BHUB5/mmnH/VkdxlQU9Dkreo/AWZAu39VUjhDrSo+/eYXKt2iJ2
+         Qt0dusPgXwPvjrqd3+sd5q0+J6Au8AokAyG10QVs6WgeHURKFuWYbxz0K9q2m1lBCMjL
+         Tl0kEd6ibqfne8tNN4USsaXXgb1L79ZdPYi51YZktcCU8A2EYzebOo9Sw0CBocUz7O3L
+         w5Wg==
+X-Gm-Message-State: AGi0Pubf/Hw+UKEtCZ4G8UbTseBEJZrQyfEXjYMfSxDaL9DjYf6XfF6q
+        N0w8hBJfpmfsIWlRcV/YPH/zIE8z
+X-Google-Smtp-Source: APiQypIp8HFL+J96xbg2Qn7vOXi7hMYjWVTPe+fnJizMpSd4THPmcjA1Vu7lFqKf/WQahhyxpHHcFw==
+X-Received: by 2002:a17:902:bc8c:: with SMTP id bb12mr4030601plb.142.1588971943483;
+        Fri, 08 May 2020 14:05:43 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id gz14sm3157542pjb.42.2020.05.08.14.05.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 08 May 2020 14:05:42 -0700 (PDT)
+Subject: Re: [PATCH 4.14 00/22] 4.14.180-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20200508123033.915895060@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <fbb6b101-47d1-b021-2f6a-b3117f51fb98@roeck-us.net>
+Date:   Fri, 8 May 2020 14:05:41 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
-Content-Disposition: inline
-In-Reply-To: <20200508123039.718403889@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200508123033.915895060@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 5/8/20 5:35 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.180 release.
+> There are 22 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 10 May 2020 12:29:44 +0000.
+> Anything received after that time might be too late.
+> 
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Build results:
+	total: 171 pass: 171 fail: 0
+Qemu test results:
+	total: 407 pass: 407 fail: 0
 
-Hi!
-
-> From: Daniel Vetter <daniel.vetter@ffwll.ch>
->=20
-> commit 26b1d3b527e7bf3e24b814d617866ac5199ce68d upstream.
->=20
-> The -modesetting ddx has a totally broken idea of how atomic works:
-> - doesn't disable old connectors, assuming they get auto-disable like
->   with the legacy setcrtc
-> - assumes ASYNC_FLIP is wired through for the atomic ioctl
-> - not a single call to TEST_ONLY
->=20
-> Iow the implementation is a 1:1 translation of legacy ioctls to
-> atomic, which is a) broken b) pointless.
->=20
-> We already have bugs in both i915 and amdgpu-DC where this prevents us
-> from enabling neat features.
->=20
-> If anyone ever cares about atomic in X we can easily add a new atomic
-> level (req->value =3D=3D 2) for X to get back the shiny toys.
->=20
-> Since these broken versions of -modesetting have been shipping,
-> there's really no other way to get out of this bind.
-
-This is quite crazy. You really should not fight with X like
-that. Will it break someone's setup?
-
-> @@ -321,7 +321,12 @@ drm_setclientcap(struct drm_device *dev,
->  	case DRM_CLIENT_CAP_ATOMIC:
->  		if (!drm_core_check_feature(dev, DRIVER_ATOMIC))
->  			return -EINVAL;
-> -		if (req->value > 1)
-> +		/* The modesetting DDX has a totally broken idea of atomic. */
-> +		if (current->comm[0] =3D=3D 'X' && req->value =3D=3D 1) {
-> +			pr_info("broken atomic modeset userspace detected, disabling atomic\n=
-");
-> +			return -EOPNOTSUPP;
-> +		}
-> +		if (req->value > 2)
-
-Really? Checking first letter of command name? Is there no other way
-to do it? Should it at least check full command name, so my
-XtremeWindowingSystem can continue working?
-
-Is this justified? If this is not an regression, you should simply ask
-people to update their X server, not add crazy hack in kernel for
-that.
-
-Does it even work? Will not comm[0] be "/" in many cases?
-
-root     13628  1.6  2.5 914196 150524 tty7    Ssl+ Apr19 482:32 /usr/lib/x=
-org/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -n=
-ovtswitch
-
-Best regards,
-									Pavel
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXrXBXQAKCRAw5/Bqldv6
-8vpQAJ4zhHO6X7W2juDP9b+LBH5YxRrwgQCgiPy0KmyBeUzQoQO4Zs88noz7E74=
-=N84f
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--
+Guenter
