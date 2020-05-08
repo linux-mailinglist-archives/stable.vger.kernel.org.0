@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56BF21CAF9B
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:23:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6AF1CAF6B
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728182AbgEHNR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 09:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41380 "EHLO mail.kernel.org"
+        id S1728736AbgEHNRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 09:17:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729081AbgEHMnd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:43:33 -0400
+        id S1727953AbgEHMng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:43:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4631224978;
-        Fri,  8 May 2020 12:43:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF889206B8;
+        Fri,  8 May 2020 12:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588941812;
-        bh=rIvUnN0qPCeX6EYEn5S5OcwALRbUK6B/Lh0xuvzRDXg=;
+        s=default; t=1588941815;
+        bh=N1QuJS+d5gBmirzhOh9f5RZpo50hIk/wDqEPpv55E0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhzMWv7QRdBMuMilMOSZE25fttjVc+vzuuNep4gZLzCC+y5nH9O+k3/bJ2JkwBhl/
-         4mDySXSs/bBJFRY75w3v6B4vCk5HwOmOPDdpaySVJIE0BZJsBumkU5M+6iiP8XHkgD
-         o46bj6XiYwfEEgAPz4oUlCpBAWxeP17hzxcz9XVo=
+        b=Z6smHcF9DnBbz371xpwx0tvMdHkzO9UpbIqMKhlvLM9VRhlUh+59nZ56DCqqkXLYg
+         vlYjAnf8XU1+DXDP035yxJA3vdvvoaaYDVkQ8RI4fCGftjGVLM5ydXusVjQJhH8+4V
+         AXfYdGF7iuqp40qUSUE3TRYXaoNjbT6sO6K3N/k8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 181/312] qlcnic: potential NULL dereference in qlcnic_83xx_get_minidump_template()
-Date:   Fri,  8 May 2020 14:32:52 +0200
-Message-Id: <20200508123137.216615221@linuxfoundation.org>
+Subject: [PATCH 4.4 182/312] qlcnic: use the correct ring in qlcnic_83xx_process_rcv_ring_diag()
+Date:   Fri,  8 May 2020 14:32:53 +0200
+Message-Id: <20200508123137.285319631@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,43 +45,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 5f46feab87bb105d6a217d966b327fdc56696802 upstream.
+commit 5b4d10f5e0369ed79434593b7cd8e85eebbe473f upstream.
 
-If qlcnic_fw_cmd_get_minidump_temp() fails then "fw_dump->tmpl_hdr" is
-NULL or possibly freed.  It can lead to an oops later.
+There is a static checker warning here "warn: mask and shift to zero"
+and the code sets "ring" to zero every time.  From looking at how
+QLCNIC_FETCH_RING_ID() is used in qlcnic_83xx_process_rcv_ring() the
+qlcnic_83xx_hndl() should be removed.
 
-Fixes: d01a6d3c8ae1 ('qlcnic: Add support to enable capability to extend minidump for iSCSI')
+Fixes: 4be41e92f7c6 ('qlcnic: 83xx data path routines')
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_io.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_minidump.c
-@@ -1419,6 +1419,7 @@ void qlcnic_83xx_get_minidump_template(s
- 	struct qlcnic_fw_dump *fw_dump = &ahw->fw_dump;
- 	struct pci_dev *pdev = adapter->pdev;
- 	bool extended = false;
-+	int ret;
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_io.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_io.c
+@@ -2220,7 +2220,7 @@ void qlcnic_83xx_process_rcv_ring_diag(s
+ 	if (!opcode)
+ 		return;
  
- 	prev_version = adapter->fw_version;
- 	current_version = qlcnic_83xx_get_fw_version(adapter);
-@@ -1429,8 +1430,11 @@ void qlcnic_83xx_get_minidump_template(s
- 		if (qlcnic_83xx_md_check_extended_dump_capability(adapter))
- 			extended = !qlcnic_83xx_extend_md_capab(adapter);
- 
--		if (!qlcnic_fw_cmd_get_minidump_temp(adapter))
--			dev_info(&pdev->dev, "Supports FW dump capability\n");
-+		ret = qlcnic_fw_cmd_get_minidump_temp(adapter);
-+		if (ret)
-+			return;
-+
-+		dev_info(&pdev->dev, "Supports FW dump capability\n");
- 
- 		/* Once we have minidump template with extended iSCSI dump
- 		 * capability, update the minidump capture mask to 0x1f as
+-	ring = QLCNIC_FETCH_RING_ID(qlcnic_83xx_hndl(sts_data[0]));
++	ring = QLCNIC_FETCH_RING_ID(sts_data[0]);
+ 	qlcnic_83xx_process_rcv_diag(adapter, ring, sts_data);
+ 	desc = &sds_ring->desc_head[consumer];
+ 	desc->status_desc_data[0] = cpu_to_le64(STATUS_OWNER_PHANTOM);
 
 
