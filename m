@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B531CACF5
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3560D1CAC61
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:55:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729636AbgEHM5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37882 "EHLO mail.kernel.org"
+        id S1730000AbgEHMwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730291AbgEHMzI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:55:08 -0400
+        id S1729992AbgEHMwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:52:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 656902495C;
-        Fri,  8 May 2020 12:55:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4368A24953;
+        Fri,  8 May 2020 12:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942507;
-        bh=+oeNiTYPadaKg8OL8/VAEVfJ9NdIfn3+Zuj8RJ/QEGc=;
+        s=default; t=1588942366;
+        bh=POwLX1SmMFcQfjvzYyCJqlQaSBoWeieD5GSTE2vxqa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIhTfhdHwRTsd6IOtCnhjW7JQAy17VvdzCqAD5wjycW7jWXsrST9A/w29C1OXeyvl
-         DOA4SsIMlD/W6poJChDO3HXt4AYNX8eYS5dI7VtX3/S6FUf4Rg/6gM2TKRAaYgruzv
-         y/emWH2xokOS1H/QaXfZgrqaQGQR3uXnkt2YEzaI=
+        b=tw44dIz3s0EBV983FggSQOooGbgrA6iSreU2MNJ50/e9zNU/Elz1orJQhC2hoJsTk
+         mWcvFBIWtlpfhnjLM+zpNEToZoFQ0J/PrCOX8g3rWkv6nlZivQnOUlAN3fVkZM9Q84
+         Zil64jt7XEoFu3ghYwwMobmBwFcTQfpmrAIZ9i+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 06/49] ASoC: topology: Check soc_tplg_add_route return value
+Subject: [PATCH 5.4 17/50] wimax/i2400m: Fix potential urb refcnt leak
 Date:   Fri,  8 May 2020 14:35:23 +0200
-Message-Id: <20200508123043.815690910@linuxfoundation.org>
+Message-Id: <20200508123045.802606396@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200508123042.775047422@linuxfoundation.org>
-References: <20200508123042.775047422@linuxfoundation.org>
+In-Reply-To: <20200508123043.085296641@linuxfoundation.org>
+References: <20200508123043.085296641@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,38 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 6856e887eae3efc0fe56899cb3f969fe063171c5 ]
+[ Upstream commit 7717cbec172c3554d470023b4020d5781961187e ]
 
-Function soc_tplg_add_route can propagate error code from callback, we
-should check its return value and handle fail in correct way.
+i2400mu_bus_bm_wait_for_ack() invokes usb_get_urb(), which increases the
+refcount of the "notif_urb".
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200327204729.397-5-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+When i2400mu_bus_bm_wait_for_ack() returns, local variable "notif_urb"
+becomes invalid, so the refcount should be decreased to keep refcount
+balanced.
+
+The issue happens in all paths of i2400mu_bus_bm_wait_for_ack(), which
+forget to decrease the refcnt increased by usb_get_urb(), causing a
+refcnt leak.
+
+Fix this issue by calling usb_put_urb() before the
+i2400mu_bus_bm_wait_for_ack() returns.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wimax/i2400m/usb-fw.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index c86c3ea533f68..aa7714f2b78fd 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -1284,7 +1284,9 @@ static int soc_tplg_dapm_graph_elems_load(struct soc_tplg *tplg,
- 		routes[i]->dobj.index = tplg->index;
- 		list_add(&routes[i]->dobj.list, &tplg->comp->dobj_list);
+diff --git a/drivers/net/wimax/i2400m/usb-fw.c b/drivers/net/wimax/i2400m/usb-fw.c
+index 529ebca1e9e13..1f7709d24f352 100644
+--- a/drivers/net/wimax/i2400m/usb-fw.c
++++ b/drivers/net/wimax/i2400m/usb-fw.c
+@@ -354,6 +354,7 @@ ssize_t i2400mu_bus_bm_wait_for_ack(struct i2400m *i2400m,
+ 		usb_autopm_put_interface(i2400mu->usb_iface);
+ 	d_fnend(8, dev, "(i2400m %p ack %p size %zu) = %ld\n",
+ 		i2400m, ack, ack_size, (long) result);
++	usb_put_urb(&notif_urb);
+ 	return result;
  
--		soc_tplg_add_route(tplg, routes[i]);
-+		ret = soc_tplg_add_route(tplg, routes[i]);
-+		if (ret < 0)
-+			break;
- 
- 		/* add route, but keep going if some fail */
- 		snd_soc_dapm_add_routes(dapm, routes[i], 1);
+ error_exceeded:
 -- 
 2.20.1
 
