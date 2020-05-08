@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A2AC1CAD8F
-	for <lists+stable@lfdr.de>; Fri,  8 May 2020 15:06:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D831CAC02
+	for <lists+stable@lfdr.de>; Fri,  8 May 2020 14:49:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729373AbgEHMs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 May 2020 08:48:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53668 "EHLO mail.kernel.org"
+        id S1728052AbgEHMtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 May 2020 08:49:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728294AbgEHMsz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 May 2020 08:48:55 -0400
+        id S1727119AbgEHMtA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 May 2020 08:49:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FCEB21473;
-        Fri,  8 May 2020 12:48:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D38621473;
+        Fri,  8 May 2020 12:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1588942135;
-        bh=TP97m5R3CtqaMXtZ++WkaHcN9XZ3LDmzoitsQph8EPo=;
+        s=default; t=1588942140;
+        bh=ARGjaWFHqdgkPHQ98BIfen4PBnU2LG6BdxoH4zt4bn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mdw5AUefalhp2+8kY8/goSfmSUxfaga8fwDyDGoPvH1W04qa57uDzdI4avvbTVesi
-         oJHEo0b/71ZsTZMVmmc9oc98mbCW8aW/MedYzGYky7VVZcBN/iPPAO2v1sxNhcoE02
-         txKr5c/6tKDF6RVac8B2y/2c8VeB8YmhbA26cJYQ=
+        b=dWJWBelZ1fOeN5Mus67wWlwVQYD1PzMW2p6t3wqp3mZ/zK4TvwY7W5MLt3xvWuTFg
+         lgqzGgdat/oZpnV9dPcU0l2pZJM+fEVX5DmHrdw7Br953W3b4BO9hRQ1VdZ+Vku2sA
+         8PWZVTozzW91cTJSSflVJWrXmY1SXkEbpXdiqbzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jere=20Lepp=C3=A4nen?= <jere.leppanen@nokia.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 310/312] sctp: Fix SHUTDOWN CTSN Ack in the peer restart case
-Date:   Fri,  8 May 2020 14:35:01 +0200
-Message-Id: <20200508123146.325593469@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 311/312] ALSA: hda: Match both PCI ID and SSID for driver blacklist
+Date:   Fri,  8 May 2020 14:35:02 +0200
+Message-Id: <20200508123146.410325938@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200508123124.574959822@linuxfoundation.org>
 References: <20200508123124.574959822@linuxfoundation.org>
@@ -45,42 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jere Leppänen <jere.leppanen@nokia.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 12dfd78e3a74825e6f0bc8df7ef9f938fbc6bfe3 upstream.
+commit 977dfef40c8996b69afe23a9094d184049efb7bb upstream.
 
-When starting shutdown in sctp_sf_do_dupcook_a(), get the value for
-SHUTDOWN Cumulative TSN Ack from the new association, which is
-reconstructed from the cookie, instead of the old association, which
-the peer doesn't have anymore.
+The commit 3c6fd1f07ed0 ("ALSA: hda: Add driver blacklist") added a
+new blacklist for the devices that are known to have empty codecs, and
+one of the entries was ASUS ROG Zenith II (PCI SSID 1043:874f).
+However, it turned out that the very same PCI SSID is used for the
+previous model that does have the valid HD-audio codecs and the change
+broke the sound on it.
 
-Otherwise the SHUTDOWN is either ignored or replied to with an ABORT
-by the peer because CTSN Ack doesn't match the peer's Initial TSN.
+Since the empty codec problem appear on the certain AMD platform (PCI
+ID 1022:1487), this patch changes the blacklist matching to both PCI
+ID and SSID using pci_match_id().  Also, the entry that was removed by
+the previous fix for ASUS ROG Zenigh II is re-added.
 
-Fixes: bdf6fa52f01b ("sctp: handle association restarts when the socket is closed.")
-Signed-off-by: Jere Leppänen <jere.leppanen@nokia.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20200424061222.19792-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sctp/sm_make_chunk.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -857,7 +857,11 @@ struct sctp_chunk *sctp_make_shutdown(co
- 	sctp_shutdownhdr_t shut;
- 	__u32 ctsn;
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1977,9 +1977,10 @@ static const struct hdac_io_ops pci_hda_
+  * some HD-audio PCI entries are exposed without any codecs, and such devices
+  * should be ignored from the beginning.
+  */
+-static const struct snd_pci_quirk driver_blacklist[] = {
+-	SND_PCI_QUIRK(0x1462, 0xcb59, "MSI TRX40 Creator", 0),
+-	SND_PCI_QUIRK(0x1462, 0xcb60, "MSI TRX40", 0),
++static const struct pci_device_id driver_blacklist[] = {
++	{ PCI_DEVICE_SUB(0x1022, 0x1487, 0x1043, 0x874f) }, /* ASUS ROG Zenith II / Strix */
++	{ PCI_DEVICE_SUB(0x1022, 0x1487, 0x1462, 0xcb59) }, /* MSI TRX40 Creator */
++	{ PCI_DEVICE_SUB(0x1022, 0x1487, 0x1462, 0xcb60) }, /* MSI TRX40 */
+ 	{}
+ };
  
--	ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
-+	if (chunk && chunk->asoc)
-+		ctsn = sctp_tsnmap_get_ctsn(&chunk->asoc->peer.tsn_map);
-+	else
-+		ctsn = sctp_tsnmap_get_ctsn(&asoc->peer.tsn_map);
-+
- 	shut.cum_tsn_ack = htonl(ctsn);
+@@ -2002,7 +2003,7 @@ static int azx_probe(struct pci_dev *pci
+ 	bool schedule_probe;
+ 	int err;
  
- 	retval = sctp_make_control(asoc, SCTP_CID_SHUTDOWN, 0,
+-	if (snd_pci_quirk_lookup(pci, driver_blacklist)) {
++	if (pci_match_id(driver_blacklist, pci)) {
+ 		dev_info(&pci->dev, "Skipping the blacklisted device\n");
+ 		return -ENODEV;
+ 	}
 
 
