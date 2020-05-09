@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCB2C1CC151
-	for <lists+stable@lfdr.de>; Sat,  9 May 2020 14:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B5EC1CC153
+	for <lists+stable@lfdr.de>; Sat,  9 May 2020 14:31:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728564AbgEIMa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 May 2020 08:30:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60354 "EHLO mail.kernel.org"
+        id S1728575AbgEIMa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 May 2020 08:30:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726370AbgEIMaz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 May 2020 08:30:55 -0400
+        id S1728554AbgEIMa4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 May 2020 08:30:56 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C7E724956;
-        Sat,  9 May 2020 12:30:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7CF9218AC;
+        Sat,  9 May 2020 12:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589027454;
-        bh=0pINHCe149/hIGfHpl78LOiYhlqOZDIOygvNmvlot4E=;
-        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
-         From;
-        b=gpo1x5ID3Yx6RBtuEwYTVyiqWXm6zUv8S/DIZ4GI9F+shHkz+BgZUcFHDFOIPHOFO
-         Jf/P3L1EGU6nK04xuPAYt/yPeVnTmiT7O2gHx9uXLY8lyWtUiusKLew2eJJaMw/dJc
-         3A/uPLa7i6iBgeQI/qBKBZlTjP8Yz1Glep3YRn2k=
-Date:   Sat, 09 May 2020 12:30:53 +0000
+        s=default; t=1589027455;
+        bh=4eDX4+vczY4BvjCe0KI5NzaClWwU2LcMQJLE9Xm9qx4=;
+        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=wzQXq8qQTsX588B+r245mPfmArgc1UAM7bjthP0bLiHHMMPTGsEYzJ0Xt+JXe/qpV
+         MyARsOajVxaEHxPCieJR+l87lQV8Su8wnmwrjqywXdbgbN+YiUw1pXMCWgU/MWd9BN
+         kg3rFSp8oaBP5dt9wU8KDzgW0kAtQ/XWCOU25HW4=
+Date:   Sat, 09 May 2020 12:30:55 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
-To:     Sarthak Garg <sartgarg@codeaurora.org>
-To:     adrian.hunter@intel.com, ulf.hansson@linaro.org
-Cc:     stummala@codeaurora.org, linux-mmc@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
+To:     Charan Teja Reddy <charante@codeaurora.org>
+To:     sumit.semwal@linaro.org, ghackmann@google.com, fengc@google.com
+Cc:     linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH V2] mmc: core: Fix recursive locking issue in CQE recovery path
-In-Reply-To: <1588868135-31783-1-git-send-email-vbadigan@codeaurora.org>
-References: <1588868135-31783-1-git-send-email-vbadigan@codeaurora.org>
-Message-Id: <20200509123054.9C7E724956@mail.kernel.org>
+Subject: Re: [PATCH v2] dma-buf: fix use-after-free in dmabuffs_dname
+In-Reply-To: <1588920063-17624-1-git-send-email-charante@codeaurora.org>
+References: <1588920063-17624-1-git-send-email-charante@codeaurora.org>
+Message-Id: <20200509123055.B7CF9218AC@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -47,21 +44,13 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 1e8e55b67030 ("mmc: block: Add CQE support").
+fixing commit: bb2bb9030425 ("dma-buf: add DMA_BUF_SET_NAME ioctls").
 
-The bot has tested the following trees: v5.6.11, v5.4.39, v4.19.121.
+The bot has tested the following trees: v5.6.11, v5.4.39.
 
-v5.6.11: Failed to apply! Possible dependencies:
-    511ce378e16f ("mmc: Add MMC host software queue support")
-
+v5.6.11: Build OK!
 v5.4.39: Failed to apply! Possible dependencies:
-    511ce378e16f ("mmc: Add MMC host software queue support")
-
-v4.19.121: Failed to apply! Possible dependencies:
-    310df020cdd7 ("mmc: stop abusing the request queue_lock pointer")
-    511ce378e16f ("mmc: Add MMC host software queue support")
-    b061b326287d ("mmc: simplify queue initialization")
-    f5d72c5c55bc ("mmc: stop abusing the request queue_lock pointer")
+    15fd552d186c ("dma-buf: change DMA-buf locking convention v3")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
