@@ -2,132 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19A081CC1B5
-	for <lists+stable@lfdr.de>; Sat,  9 May 2020 15:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 478481CC208
+	for <lists+stable@lfdr.de>; Sat,  9 May 2020 16:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726885AbgEINRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 May 2020 09:17:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34684 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726807AbgEINRI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 May 2020 09:17:08 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4442EC061A0C;
-        Sat,  9 May 2020 06:17:08 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id z6so1920985plk.10;
-        Sat, 09 May 2020 06:17:08 -0700 (PDT)
+        id S1726782AbgEIOJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 May 2020 10:09:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726013AbgEIOJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 May 2020 10:09:49 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E686C061A0C
+        for <stable@vger.kernel.org>; Sat,  9 May 2020 07:09:49 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id m24so3455092wml.2
+        for <stable@vger.kernel.org>; Sat, 09 May 2020 07:09:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=p3UHVQpztMF3Kt/dNfXYTW1Uo9wvzU5jjbjM1irBwJs=;
-        b=DVg8wOaxSn1yo5GFz/QHPC3K/cypCLpG3TjV5ytMRrLzSXf31A2zqeGJB7oClVh/pN
-         eiI9mElhrgl2dw+Uv9GGX3nw6VU4OtiA7eTk+fK4rqhybeoSFRwzNKpmN4ZXy4F1rafE
-         YXooYjTEgsA8gGfjrBp1ExRFJKI50HfeesZUPmR8Kpu20K7uBILGJDFKikQpXF+7D0/M
-         IS7I/AMqk2HRpC7OcWQdXmgmp976bijK1RnL2jnEbZAS35pVE0M4vA2/yzNMwHONysbW
-         sPUKPAhRD07DnR/UZALHQyqM6vd3ctRnvEeSF+j5QIQa4w+aoYt8fCPg/X5Nm59E6j4y
-         qQ9g==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=WWzy9b/nUy5RuVkJOOlslFyp3SHDdiToSNZ261P0kCU=;
+        b=XeEbzepnDt1ZJK0H1el8ujEAZf9VZh0LReFdU9eOIOohhdDpLSJzo82uP5bwP/nY7p
+         Lr5TyX2Z3p48tst6K0ubNJVmsZm6fSllTaU4PHIMUFPgpi45KcY5tN1YeKWfvWhPuVO5
+         PQmDxKWtJ9BvDefv7IAcap55kTIXaxa2LlAKHEhc2gfdewZTct/vpzqf0kcBQNuhRJqE
+         safKxHOtGgf0XG5v9Gsuvwn11uAPNA8cyuVGT7jmRH/RggTlhGtgKapQk5bmzgm46idN
+         H//iPEdUnLAaL5ohTXiqMJBGmqOrX853WumbsELHIzMaa0h+ZS9gNagf4zfKgWGJZw0O
+         BAYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=p3UHVQpztMF3Kt/dNfXYTW1Uo9wvzU5jjbjM1irBwJs=;
-        b=NHnmWN6beBH4616Se4m2kT9QuOC82NjfgCYxjf3oeoRkrdg+EmKQHoLltbpemUv+dy
-         iyvopC0lniSUE+Mek7FgtfHqSdHHPj4qv6TtFVTZC3JKt2Do/k2BuiU7XdLuDGqjMYiH
-         lRepd1e8sLe7PtOvBtpVXP9BaDX8DKcv5KefEBFTaJl5WZ5b838lYEfzwtJQuxBAXAbZ
-         9u6sYnBK/kONlfo21i4tGc1bmfbcMCvgVUS7SR4HiSFrlevRBhX2HE2Zx21Lx0DyY2X4
-         fXPyPGWN7Pvsxe9j/CJGwcM4NqazClHD/Ut81omd+M4jRlHU1lnnx9JwEjYN/QiMp2J7
-         TOcw==
-X-Gm-Message-State: AGi0PuZQOl8Zx6pPeJ+/5pd3wfYroATuwjRPqKrMjsO4uTFmAsg6W7JO
-        uGQ+v2VpIdbLQXOpdgNjs+1wr6XS
-X-Google-Smtp-Source: APiQypKOHxbCIY/JMtt9ILASYfdEzfUkE8jywa0oH/yfOtKVeCD7359k+YgoYD009idpUhhPR+8UbA==
-X-Received: by 2002:a17:90a:a584:: with SMTP id b4mr11221033pjq.106.1589030227599;
-        Sat, 09 May 2020 06:17:07 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j26sm4598259pfr.215.2020.05.09.06.17.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 09 May 2020 06:17:06 -0700 (PDT)
-Subject: Re: [PATCH 4.4 000/306] 4.4.223-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200509064507.085696379@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <2e986f85-e3c5-fa22-73cf-82c78db18663@roeck-us.net>
-Date:   Sat, 9 May 2020 06:17:05 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=WWzy9b/nUy5RuVkJOOlslFyp3SHDdiToSNZ261P0kCU=;
+        b=SW5V9FjLvdLUlbAK8LkddDH7pqiQUjCG+OrJ7VFOv8zbteazcJ5yWsItCs2PSBhm+j
+         tHxpCHhyn1D3wLvM85vr0g5d0cTru8BV4aeb4ejaigRCfMd1PczwPh1WWsSJjJ2MuBdc
+         s8fDYv2Gx47AUuQhO3iR5EAALHo+DSNDokku+E9kjeiWd00Qmma6jwJIanVphq+yGPfr
+         gxBh74qk9JorjDK0nPp39sAHmqg7oL4hs7kTlRmWem7LVbOiPnC+OsZ9ZWDdY8B+/uYC
+         4FhmU9ZPhGlGEcDNPeVM6bznooJVoCGCiMSQhNKkyZgbnNUYxga9MCfKxp/dMTzGJ6Qx
+         zUSw==
+X-Gm-Message-State: AGi0PuaxFvcGIBKiPYI5TPmpMgxeMYvc5Qbyaa9i6APY9JHWDQS7nZRs
+        obZ+1mbEWK2IaT8qCqxinf6Z75efudD5gmnDyyY=
+X-Google-Smtp-Source: APiQypLj183LbyWAEnZO/J/K3LbViTeFRQnLMg7ZRbZA0r/RPcurrBIdMEqKDIWXc29GmnVnfpgpAFVCJgFSXKweiBs=
+X-Received: by 2002:a7b:c759:: with SMTP id w25mr23515213wmk.68.1589033388348;
+ Sat, 09 May 2020 07:09:48 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200509064507.085696379@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a1c:9d15:0:0:0:0:0 with HTTP; Sat, 9 May 2020 07:09:47 -0700 (PDT)
+Reply-To: giorgiobugatto@gmail.com
+From:   "Dr.G. Bugatto" <tmaamun1960@gmail.com>
+Date:   Sat, 9 May 2020 15:09:47 +0100
+Message-ID: <CAMZyPkZeY-E-2wyps=CDRoGYq-cLUOdhwxLHVhrK=Y+qhvA=bg@mail.gmail.com>
+Subject: PRONTO
+To:     tmaamun1960 <tmaamun1960@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/8/20 11:51 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.223 release.
-> There are 306 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Mon, 11 May 2020 06:44:14 +0000.
-> Anything received after that time might be too late.
-> 
-
-Build results:
-	total: 169 pass: 169 fail: 0
-Qemu test results:
-	total: 331 pass: 331 fail: 0
-
-Guenter
+Good day , my name is Giorgio Bugatto, i sent you a mail and there was
+no response , please confirm that you did get this mail for more
+details.
+Regards.
+Giorgio Bugatto
