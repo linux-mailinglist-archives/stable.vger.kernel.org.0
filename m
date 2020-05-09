@@ -2,429 +2,288 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E0BF1CC03A
-	for <lists+stable@lfdr.de>; Sat,  9 May 2020 12:12:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D74731CC03C
+	for <lists+stable@lfdr.de>; Sat,  9 May 2020 12:13:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726120AbgEIKMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 May 2020 06:12:48 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:57871 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726012AbgEIKMs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 May 2020 06:12:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589019164;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=KpLXD4y/nDAK8WMBVfMyjp1Xrkx3npQpu15feOyTGn4=;
-        b=AyhFS5+WvY22l2iUTKCgO+VVEXCE/YnqjwW+sxB3xFMv167fh1+aCP30JsB4BsIsB9Z6XI
-        r9kKhDjIdMmrz/1BPcesPJYFjToPUOTubqLvWJy1DRsbxoc3+sjCnpQfeWpk63Pu3ONw92
-        4vumwi4/DA0ig00QcsL8TP3xFwBrPUE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-97-Vhxy7GhpNTOsDXlAg5t3KA-1; Sat, 09 May 2020 06:12:40 -0400
-X-MC-Unique: Vhxy7GhpNTOsDXlAg5t3KA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E11941005510
-        for <stable@vger.kernel.org>; Sat,  9 May 2020 10:12:39 +0000 (UTC)
-Received: from [172.54.77.132] (cpt-1034.paas.prod.upshift.rdu2.redhat.com [10.0.19.60])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 20BFE5D9CC;
-        Sat,  9 May 2020 10:12:34 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1726877AbgEIKNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 May 2020 06:13:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34476 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726017AbgEIKNP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 May 2020 06:13:15 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDF1DC061A0C
+        for <stable@vger.kernel.org>; Sat,  9 May 2020 03:13:14 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id j16so10771280oih.10
+        for <stable@vger.kernel.org>; Sat, 09 May 2020 03:13:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=j7df/sGANfMjiL3GSPbHESG02xuyrHmMRu09XEfC5cc=;
+        b=Wn+Eodka0YNyvoAmF6uP1TxgTtL16UWHeIIJMF8944NiJG48P7/tjsgHM0HRx35gQH
+         o9tHCBrYIEXYx9YqfCDWUYMkYBAYQ0oK3WtgevQvnRHhqDA7qug7coVmbI02X9t0kVXk
+         ZpUlW6TatoB4jxnqguiJ5fq0bxSjePF/UWxWI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=j7df/sGANfMjiL3GSPbHESG02xuyrHmMRu09XEfC5cc=;
+        b=H3p/JUSUcUpPDL9WcAtEVhBpvqp+mNyXkOOqM2FPfngPI6nSFj17NmBSeESdatHw2w
+         W9LJXslWZGH8iYGrLTTLJYs2yBTQcAYVwx89y0b4ZKc3LAA6BLob32fD+SQ2If5VwDJW
+         fpuqT4x3A8/062WY+8uAFamu76QHRmMlUCeOemiaCi7KE13paY2CEa8ErXAwp24sa4jh
+         b7buOqR2sS9nm7zV4eencNQnC+Bw98UW3rGzqaTZHdlTGhT2IIPg46cTUitZ57eR83jZ
+         dgibVEN7Q7StUehOJ1PHdDrEkVjDsEhzpOYAqaf8NXpt/hNwxG53NbLZdmWV0tQTAIJS
+         mnCQ==
+X-Gm-Message-State: AGi0PuYJIzinHbikrURn7eZ3JujtHAypkZhMghuYGf2tE/+8IZGMMe4i
+        l+vYox/4uJrFrBtaGBGwXm2HArf9YxAGeZgA8+C7TA==
+X-Google-Smtp-Source: APiQypLwpKu++5ndRDIqJgJuD9WqFtMtTMuI+84Adx1SXSReftDsQCBbdoG1hg1C66PKvJGaYMeAg2Q9Wc2xDD0ZRGU=
+X-Received: by 2002:aca:2113:: with SMTP id 19mr4949493oiz.128.1589019194103;
+ Sat, 09 May 2020 03:13:14 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.6.11-967dfff.cki
- (stable-queue)
-Date:   Sat, 09 May 2020 10:12:33 -0000
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        Ondrej Moris <omoris@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Message-ID: <cki.8218434652.MHNTWI6F6V@redhat.com>
-X-Gitlab-Pipeline-ID: 562524
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/562524
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+References: <20200416170420.23657-1-ville.syrjala@linux.intel.com>
+ <20200417152310.GQ3456981@phenom.ffwll.local> <20200417154313.GO6112@intel.com>
+ <CAKMK7uGBWyPtm0dva=Ndk6xJx7nUKJ20kn8S37iFB8s85WWmdw@mail.gmail.com>
+ <20200417182834.GS6112@intel.com> <20200508170840.GE1219060@intel.com>
+In-Reply-To: <20200508170840.GE1219060@intel.com>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Sat, 9 May 2020 12:13:02 +0200
+Message-ID: <CAKMK7uHm+CmM6noHbMnmW9bSzk0dZ=9-CTpu+hxUwFbXmMkZ4g@mail.gmail.com>
+Subject: Re: [PATCH] drm: Fix page flip ioctl format check
+To:     Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc:     =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        stable <stable@vger.kernel.org>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, May 8, 2020 at 7:09 PM Rodrigo Vivi <rodrigo.vivi@intel.com> wrote:
+>
+> On Fri, Apr 17, 2020 at 09:28:34PM +0300, Ville Syrj=C3=A4l=C3=A4 wrote:
+> > On Fri, Apr 17, 2020 at 08:10:26PM +0200, Daniel Vetter wrote:
+> > > On Fri, Apr 17, 2020 at 5:43 PM Ville Syrj=C3=A4l=C3=A4
+> > > <ville.syrjala@linux.intel.com> wrote:
+> > > >
+> > > > On Fri, Apr 17, 2020 at 05:23:10PM +0200, Daniel Vetter wrote:
+> > > > > On Thu, Apr 16, 2020 at 08:04:20PM +0300, Ville Syrjala wrote:
+> > > > > > From: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+> > > > > >
+> > > > > > Revert back to comparing fb->format->format instead fb->format =
+for the
+> > > > > > page flip ioctl. This check was originally only here to disallo=
+w pixel
+> > > > > > format changes, but when we changed it to do the pointer compar=
+ison
+> > > > > > we potentially started to reject some (but definitely not all) =
+modifier
+> > > > > > changes as well. In fact the current behaviour depends on wheth=
+er the
+> > > > > > driver overrides the format info for a specific format+modifier=
+ combo.
+> > > > > > Eg. on i915 this now rejects compression vs. no compression cha=
+nges but
+> > > > > > does not reject any other tiling changes. That's just inconsist=
+ent
+> > > > > > nonsense.
+> > > > > >
+> > > > > > The main reason we have to go back to the old behaviour is to f=
+ix page
+> > > > > > flipping with Xorg. At some point Xorg got its atomic rights ta=
+ken away
+> > > > > > and since then we can't page flip between compressed and non-co=
+mpressed
+> > > > > > fbs on i915. Currently we get no page flipping for any games pr=
+etty much
+> > > > > > since Mesa likes to use compressed buffers. Not sure how compos=
+itors are
+> > > > > > working around this (don't use one myself). I guess they must b=
+e doing
+> > > > > > something to get non-compressed buffers instead. Either that or
+> > > > > > somehow no one noticed the tearing from the blit fallback.
+> > > > >
+> > > > > Mesa only uses compressed buffers if you enable modifiers, and th=
+ere's a
+> > > > > _loooooooooooot_ more that needs to be fixed in Xorg to enable th=
+at for
+> > > > > real. Like real atomic support.
+> > > >
+> > > > Why would you need atomic for modifiers? Xorg doesn't even have
+> > > > any sensible framework for atomic and I suspect it never will.
+> > >
+> > > Frankly if no one cares about atomic in X I don't think we should do
+> > > work-arounds for lack of atomic in X.
+> > >
+> > > > > Without modifiers all you get is X tiling,
+> > > > > and that works just fine.
+> > > > >
+> > > > > Which would also fix this issue here you're papering over.
+> > > > >
+> > > > > So if this is the entire reason for this, I'm inclined to not do =
+this.
+> > > > > Current Xorg is toast wrt modifiers, that's not news.
+> > > >
+> > > > Works just fine. Also pretty sure modifiers are even enabled by
+> > > > default now in modesetting.
+> > >
+> > > Y/CSS is harder to scan out, you need to verify with TEST_ONLY whethe=
+r
+> > > it works. Otherwise good chances for some oddball black screens on
+> > > configurations that worked before. Which is why all non-atomic
+> > > compositors reverted modifiers by default again.
+> >
+> > Y alone is hard to scanout also, and yet we do nothing to reject that.
+> > It's just an inconsistent mess.
+> >
+> > If we really want to keep this check then we should rewrite it
+> > to be explicit:
+> >
+> > if (old_fb->format->format !=3D new_fb->format->format ||
+> >     is_ccs(old_fb->modifier) !=3D is_ccs(new_fb->modifier))
+> >     return -EINVAL;
+> >
+> > Now it's just a random thing that may even stop doing what it's
+> > currently doing if anyone touches their .get_format_info()
+> > implementation.
+> >
+> > >
+> > > > And as stated the current check doesn't have consistent behaviour
+> > > > anyway. You can still flip between different modifiers as long a th=
+e
+> > > > driver doesn't override .get_format_info() for one of them. The *on=
+ly*
+> > > > case where that happens is CCS on i915. There is no valid reason to
+> > > > special case that one.
+> > >
+> > > The thing is, you need atomic to make CCS work reliably enough for
+> > > compositors and distros to dare enabling it by default.
+> >
+> > If it's not enabled by default then there is no harm in letting people
+> > explicitly enable it and get better performance.
+> >
+> > > CCS flipping
+> > > works with atomic. I really see no point in baking this in with as
+> > > uapi.
+> >
+> > It's just going back to the original intention of the check.
+> > Heck, the debug message doesn't even match what it's doing now.
+> >
+> > > Just fix Xorg.
+> >
+> > Be serious. No one is going to rewrite all the randr code to be atomic.
+>
+> I fully understand Daniel's concern here, but I also believe this won't b=
+e
+> done so soon at least. Meanwhile would it be acceptable to have a comment
+> with the code /* XXX: Xorg blah... */ or /* FIXME: After Xorg blah.. */
+> ?
 
-Hello,
+Here's a few numbers:
 
-We ran automated tests on a recent commit from this kernel tree:
+- skl shipped in Aug 2015, so about 5 years. Since then would we like
+to have modifiers enabled for intel, because it costs us quite a bit
+of performance. This isn't new at all.
+- the last Xorg release is from May 2018, so two years. Meanwhile even
+patches to fix some of the atomic mixups in -modesetting landed, but
+they never shipped so not useful.
+- I spent a few hours (which really is nothing) reading Xorg code
+yesterday, and I concur with Daniel Stone's napkin estimate that this
+will take about half to one year to fix properly. It's not happening,
+no one is working on that.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 967dffffcc16 - mm/mremap: Add comment explaining the unta=
-gging behaviour of mremap()
+Conclusion: No one cares about modifiers on Xorg-modesetting. I don't
+see why the kernel should bend over for that.
 
-The results of these automated tests are provided below.
+Once that has changed (I'm not betting on that) and there's clear
+effort behind modifiers for Xorg-modesetting I guess we can look into
+stop-gap measures, but meanwhile the best imo is to not disturb the
+dead.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Cheers, Daniel
 
-All kernel binaries, config files, and logs are available for download here:
+> >
+> > > -Daniel
+> > >
+> > > >
+> > > > > -Daniel
+> > > > >
+> > > > > >
+> > > > > > Looking back at the original discussion on this change we prett=
+y much
+> > > > > > just did it in the name of skipping a few extra pointer derefer=
+ences.
+> > > > > > However, I've decided not to revert the whole thing in case som=
+eone
+> > > > > > has since started to depend on these changes. None of the other=
+ checks
+> > > > > > are relevant for i915 anyways.
+> > > > > >
+> > > > > > Cc: stable@vger.kernel.org
+> > > > > > Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> > > > > > Fixes: dbd4d5761e1f ("drm: Replace 'format->format' comparisons=
+ to just 'format' comparisons")
+> > > > > > Signed-off-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.int=
+el.com>
+> > > > > > ---
+> > > > > >  drivers/gpu/drm/drm_plane.c | 2 +-
+> > > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > > >
+> > > > > > diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_=
+plane.c
+> > > > > > index d6ad60ab0d38..f2ca5315f23b 100644
+> > > > > > --- a/drivers/gpu/drm/drm_plane.c
+> > > > > > +++ b/drivers/gpu/drm/drm_plane.c
+> > > > > > @@ -1153,7 +1153,7 @@ int drm_mode_page_flip_ioctl(struct drm_d=
+evice *dev,
+> > > > > >     if (ret)
+> > > > > >             goto out;
+> > > > > >
+> > > > > > -   if (old_fb->format !=3D fb->format) {
+> > > > > > +   if (old_fb->format->format !=3D fb->format->format) {
+> > > > > >             DRM_DEBUG_KMS("Page flip is not allowed to change f=
+rame buffer format.\n");
+> > > > > >             ret =3D -EINVAL;
+> > > > > >             goto out;
+> > > > > > --
+> > > > > > 2.24.1
+> > > > > >
+> > > > > > _______________________________________________
+> > > > > > dri-devel mailing list
+> > > > > > dri-devel@lists.freedesktop.org
+> > > > > > https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> > > > >
+> > > > > --
+> > > > > Daniel Vetter
+> > > > > Software Engineer, Intel Corporation
+> > > > > http://blog.ffwll.ch
+> > > >
+> > > > --
+> > > > Ville Syrj=C3=A4l=C3=A4
+> > > > Intel
+> > >
+> > >
+> > >
+> > > --
+> > > Daniel Vetter
+> > > Software Engineer, Intel Corporation
+> > > +41 (0) 79 365 57 48 - http://blog.ffwll.ch
+> >
+> > --
+> > Ville Syrj=C3=A4l=C3=A4
+> > Intel
+> > _______________________________________________
+> > dri-devel mailing list
+> > dri-devel@lists.freedesktop.org
+> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
 
-  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/05/08/562524
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
 
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9D=8C LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-  s390x:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       Probable cause: Problem connecting to Beaker
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       Probable cause: Problem connecting to Beaker
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test - as root
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test - as user
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       Probable cause: Problem connecting to Beaker
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test - as root
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test - as user
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-
-    Host 4:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       Probable cause: Problem connecting to Beaker
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - qedf driver
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas_gen1
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 5:
-       =E2=8F=B1  Boot test
-       =E2=8F=B1  Storage SAN device stress - megaraid_sas
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
-
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
