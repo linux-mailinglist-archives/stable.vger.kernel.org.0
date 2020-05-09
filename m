@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C188A1CC14D
-	for <lists+stable@lfdr.de>; Sat,  9 May 2020 14:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB2C1CC151
+	for <lists+stable@lfdr.de>; Sat,  9 May 2020 14:30:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728552AbgEIMay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 May 2020 08:30:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60304 "EHLO mail.kernel.org"
+        id S1728564AbgEIMa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 May 2020 08:30:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728388AbgEIMay (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 May 2020 08:30:54 -0400
+        id S1726370AbgEIMaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 May 2020 08:30:55 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8336121775;
-        Sat,  9 May 2020 12:30:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C7E724956;
+        Sat,  9 May 2020 12:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589027453;
-        bh=OwcjYKRbZzqpyx8QeBNflPw0HHuipPQBwm+zLS/vkDE=;
-        h=Date:From:To:To:To:To:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
-         References:From;
-        b=Kr6hj66rZcU8VVPxHRTeNlogBeZ7ss2vlhiuVmUN9I58gcL96VF9yyymyir6bFJnm
-         EzvAxKvYyEOBMCjEFXz92QPq7xbbSQ3hTSPfdcYScb+TEo0R8iTCRt9v1ix1dI35IC
-         RvqVjnYmBSMQN1gMMSI99wXkcCRgPfAezSyX50W4=
-Date:   Sat, 09 May 2020 12:30:52 +0000
+        s=default; t=1589027454;
+        bh=0pINHCe149/hIGfHpl78LOiYhlqOZDIOygvNmvlot4E=;
+        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=gpo1x5ID3Yx6RBtuEwYTVyiqWXm6zUv8S/DIZ4GI9F+shHkz+BgZUcFHDFOIPHOFO
+         Jf/P3L1EGU6nK04xuPAYt/yPeVnTmiT7O2gHx9uXLY8lyWtUiusKLew2eJJaMw/dJc
+         3A/uPLa7i6iBgeQI/qBKBZlTjP8Yz1Glep3YRn2k=
+Date:   Sat, 09 May 2020 12:30:53 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-To:     Oleg Nesterov <oleg@redhat.com>
-To:     1vier1@web.de, akpm@linux-foundation.org, dave@stgolabs.net
-Cc:     Davidlohr Bueso <dave@stgolabs.net>
-Cc:     Markus Elfring <elfring@users.sourceforge.net>
-Cc:     <1vier1@web.de>
+To:     Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+To:     Sarthak Garg <sartgarg@codeaurora.org>
+To:     adrian.hunter@intel.com, ulf.hansson@linaro.org
+Cc:     stummala@codeaurora.org, linux-mmc@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Subject: Re: [patch 01/15] ipc/mqueue.c: change __do_notify() to bypass check_kill_permission()
-In-Reply-To: <20200508013539.Q-iufOGqB%akpm@linux-foundation.org>
-References: <20200508013539.Q-iufOGqB%akpm@linux-foundation.org>
-Message-Id: <20200509123053.8336121775@mail.kernel.org>
+Subject: Re: [PATCH V2] mmc: core: Fix recursive locking issue in CQE recovery path
+In-Reply-To: <1588868135-31783-1-git-send-email-vbadigan@codeaurora.org>
+References: <1588868135-31783-1-git-send-email-vbadigan@codeaurora.org>
+Message-Id: <20200509123054.9C7E724956@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -49,30 +47,21 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: cc731525f26a ("signal: Remove kernel interal si_code magic").
+fixing commit: 1e8e55b67030 ("mmc: block: Add CQE support").
 
-The bot has tested the following trees: v5.6.11, v5.4.39, v4.19.121, v4.14.179.
+The bot has tested the following trees: v5.6.11, v5.4.39, v4.19.121.
 
-v5.6.11: Build OK!
-v5.4.39: Build OK!
+v5.6.11: Failed to apply! Possible dependencies:
+    511ce378e16f ("mmc: Add MMC host software queue support")
+
+v5.4.39: Failed to apply! Possible dependencies:
+    511ce378e16f ("mmc: Add MMC host software queue support")
+
 v4.19.121: Failed to apply! Possible dependencies:
-    4cd2e0e70af6 ("signal: Introduce copy_siginfo_from_user and use it's return value")
-    ae7795bc6187 ("signal: Distinguish between kernel_siginfo and siginfo")
-    efc463adbccf ("signal: Simplify tracehook_report_syscall_exit")
-
-v4.14.179: Failed to apply! Possible dependencies:
-    212a36a17efe ("signal: Unify and correct copy_siginfo_from_user32")
-    3eb0f5193b49 ("signal: Ensure every siginfo we send has all bits initialized")
-    3f7c86b2382e ("arm64: Update fault_info table with new exception types")
-    526c3ddb6aa2 ("signal/arm64: Document conflicts with SI_USER and SIGFPE,SIGTRAP,SIGBUS")
-    532826f3712b ("arm64: Mirror arm for unimplemented compat syscalls")
-    6b4f3d01052a ("usb, signal, security: only pass the cred, not the secid, to kill_pid_info_as_cred and security_task_kill")
-    92ff0674f5d8 ("arm64: mm: Rework unhandled user pagefaults to call arm64_force_sig_info")
-    ae7795bc6187 ("signal: Distinguish between kernel_siginfo and siginfo")
-    af40ff687bc9 ("arm64: signal: Ensure si_code is valid for all fault signals")
-    b713da69e4c9 ("signal: unify compat_siginfo_t")
-    ea64d5acc8f0 ("signal: Unify and correct copy_siginfo_to_user32")
-    efc463adbccf ("signal: Simplify tracehook_report_syscall_exit")
+    310df020cdd7 ("mmc: stop abusing the request queue_lock pointer")
+    511ce378e16f ("mmc: Add MMC host software queue support")
+    b061b326287d ("mmc: simplify queue initialization")
+    f5d72c5c55bc ("mmc: stop abusing the request queue_lock pointer")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
