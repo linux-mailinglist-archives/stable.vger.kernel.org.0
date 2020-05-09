@@ -2,95 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8EEB1CC3A9
-	for <lists+stable@lfdr.de>; Sat,  9 May 2020 20:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D11DB1CC46C
+	for <lists+stable@lfdr.de>; Sat,  9 May 2020 22:12:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727863AbgEISVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 May 2020 14:21:06 -0400
-Received: from sonic304-22.consmr.mail.ir2.yahoo.com ([77.238.179.147]:32919
-        "EHLO sonic304-22.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727950AbgEISVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 May 2020 14:21:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589048464; bh=+NKq2YP/4c3bLm2HmGhxa/KCZOXr0NIUKHs/ECuC0yk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=pX0VkSZgBFEaBeKHr2zh1Im/6mDXVGfPAfpFcLOFBNXmES5OIZYOPK3NqKK7AVQ++C3nS0d1SYFaX+UxXYu8E358UhPrh4scoq6FqY+fQB7I2bhsCb1QmtrW+Y7fsMszNuAARtOETShZRdwQISSFXlQrCXNttieMMLQ+JX+309EEjBZEDAIbjNDHV+djXKklAbCDoQGHIDaSPiHiu0e43F/Pk0zH7/Wqudl7SPk+QjgFCET2onBy7+XxMHibejEq/zryWfPqqNXBaveoQ0YRwE7Q2zkVax3UXaJ/LZMKJm0Ek4QDhrEnqwBoTeRW8Pp75kNkIis9984AGsKBbLB0pw==
-X-YMail-OSG: 7pCY7sQVM1mnnp0eI2dKqc8ulLf7.cs7GUhC4B5VHJBrzT9Qx2_l6asFQrwgHMY
- WgN.7s35MXYpsp9EiaxZjgg45IvkgJ6uuuXqBy06CJYWNqrjt2_SLzWA.SJto7KI961qhKpFxZjM
- uV_cJzbJBlCJO.B5pVLaWywDVIv2khJfbFrQDToRG_et1DhmzVH1VdyFXycGPHrUzug6YEMfLgeQ
- fjRhHr_M7Oo61jPESDItjaZx03T8zkKyHi6BvwPaQrDzMTGIePArkBBH5rTizHSEIabgpBy.kELz
- eye53_OZiLQIM19QRzKsQKUowfcw7NkUDQQQR5vEmJI6jvqhjmZOJXpt1N2_vcUUHk2UaDTzSjmg
- yyyzwegzTC5MyNM4j8GkQSmP4Ai.8MpJrvNWH_mC4wY53k7wd53htqA.0D3j.gX1AHiAdHZR1LbD
- He_Exv_thqjTCIaDoIjPnsMefFB7ti9sjwUze0jn8mJ17WY8rY4dnBk38yxLh9JK9QqdwqNZUd1m
- RGpbhXMbu8HlBHCgje05HoVpA4VwmOIcX4sHJ.pQ9apcx4V8xRr3VqKde11_Y7kotqMyt8ehVjM7
- v2GAAK5aOsivN_Fg6GWcakuQnKMus4GrMJeemaKDD_iVWFamGV9NBCO_RU8gmUwFFGL9WqLtM731
- 2WgTCGa565P9_XmBdNHEtV_jTqRYzoi9ujpQFuoJrCWIGE2UT_jMM1Kue82eoW9ySApILSCxle1t
- Uz_BCRKhMdmZgCaMskjl2jn4zoa3qmga4NXdxqUcPy2IXN_vZznYDnsi2KqidxIKfHv1AKJgM1.1
- M5vXgOKJCL.kuvPSU32HY5ZMOS3GA9VG.6TIGKULk6Ez_dncX_S16dsyAfq4yEU7qkFpb9Wf3OmV
- 51pTOiMHBPdTZDjWD8vgERhqDsTDkEj4AFuKXkLzqFb24mFiXGSV5cJsIXUdCqHNg.rMOTCHrWa0
- rtVSi_8XsjtdO8VDUaltVvJUf8IDoKFbu_JlalMIDqUCEERTkbNKDttVUbc_tX.fAXuanSlt1bQX
- l_kWXmMXzQ0k0dy9RpRbswr_19wiPqyuvoVLgyxumx2P1mK8P0wLbDenr3P3vy7qLC9kc0K_XO1Q
- pxc1YQOi4Eqpy4bxOI5cEAvlDzV_Is4GP9v2szkYooHWLhPoeFKxCN0xAw26VQmdNV3FYuTYsUz2
- 8Aihsaj1jUxXY1CoHcK3NB6hwaHQMtr8Ge5J9GUnUN.tqCrTgU2z9SkpXb_ya6qOiPcjinqzL1yX
- rUdLHxoJUuyj6PTY0ft0lSg.EZlrJRWXIfDbiQSVRgfNkkQjVaxJQrIZJLq9aKWLn.p2P3qg0kFg
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.ir2.yahoo.com with HTTP; Sat, 9 May 2020 18:21:04 +0000
-Date:   Sat, 9 May 2020 18:21:03 +0000 (UTC)
-From:   "Mrs. Mina A. Brunel" <mrs.mainaabrunel126@gmail.com>
-Reply-To: mrs.minaabrunel30@gmail.com
-Message-ID: <262998524.1270929.1589048463590@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1728469AbgEIUMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 May 2020 16:12:17 -0400
+Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:58015 "EHLO
+        wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728445AbgEIUMR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 May 2020 16:12:17 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.west.internal (Postfix) with ESMTP id 687935A2;
+        Sat,  9 May 2020 16:05:46 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sat, 09 May 2020 16:05:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm2; bh=Ew42L4+sGtXg1rthBvoivnjXlL
+        0sKSK0vrB5L8HvPIw=; b=irwi4PiEEnm3yS5ojpXizK80wCkAe9CqI4cpobElyE
+        TMstGge/F2IG24p9/WnXexsl1FXvy9Xeyuq2JWClBtd9e36yR8NQGuX8Z1cNKamf
+        ks3++I88EDJyOqSof+lojfivo7aqbBNuq4NwZJhERmCD6HOEi/Tpq3oC+ain7J1B
+        Ut1iSkoT7TdY/9teezX6f/OAEg9UX00RHIQO4TQ3aXU6Rmqml/3xWCW3IsCyU2tV
+        Ln1h/f4YPBX5hN4yGy+PIe07oFUVIt7SX37xM1ZgXTPUsBf7XqlxytSKqciVuvoK
+        T1qoLIPjs+sjpg5wnrDAA6Tjos6mTaXIoTm+VhUfFJoA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Ew42L4+sGtXg1rthB
+        voivnjXlL0sKSK0vrB5L8HvPIw=; b=wWniHsJMia5XslNF4Fk+sJqHm5PB/aMPb
+        gfg9SpVgMf9ZcKRUxNXuf5AUfC9BrRlLMbg7rl+ZdFoQRNLDZIDxuDlC+jrQFEAg
+        FDBveEJCxarX0xxF/FJbFH//UOj14cAi08YrtwaJtbXP5XfRjhzV+zq6ZV1Knc8k
+        IKi2YWtZgxB2MJzHReUW9DzZVAT90glgc+6kWz2ocza6w++le3p7pgagXGbOXloH
+        cN10WK51o3S9S7xUTFg2vemlP/YNYLE/JfPBpMuVYyoigoWSERnyrsuYRCpP8+uZ
+        35+KIGKEGZaQYRhyNNmlf7DHF/QraaM+Sxh0nkGJfxmtGEIuEu0pQ==
+X-ME-Sender: <xms:Fw23XmtOCK3AFqkx9u8SK_NmO06cgXyWfJY3QwX0nGq5LZuuP81S1Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrkeehgddugeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgvlhcu
+    jfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtffrrg
+    htthgvrhhnpeeiteekhfehuddugfeltddufeejjeefgeevheekueffhffhjeekheeiffdt
+    vedtveenucfkphepjedtrddufeehrddugeekrdduhedunecuvehluhhsthgvrhfuihiivg
+    eptdenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghnugdr
+    ohhrgh
+X-ME-Proxy: <xmx:Fw23Xp9wBgF6l1tux0T5LNtaq17_ACd09z7ePsLbCRceQqfTrFgBug>
+    <xmx:Fw23XoFS9-EkLd1c1PhvNt-NDga-LRqTdc1dsm4Wz1E0Z-YxV2oUbw>
+    <xmx:Fw23XnxC25xuzT2AWRDxXxE4MVhUl72sb7HcK6BJnF6V3vugeEjNRw>
+    <xmx:Gg23Xu1pwmeq2-Kij57xRjyI5jCSc_krsWXtEQkQMlErMMkxxhh4qjfHdh0>
+Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 21E8D3066240;
+        Sat,  9 May 2020 16:05:43 -0400 (EDT)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Maxime Ripard <mripard@kernel.org>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-sunxi@googlegroups.com,
+        Samuel Holland <samuel@sholland.org>, stable@vger.kernel.org,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Ezequiel Garcia <ezequiel@collabora.com>
+Subject: [PATCH v3 1/2] media: cedrus: Program output format during each run
+Date:   Sat,  9 May 2020 15:06:42 -0500
+Message-Id: <20200509200643.30597-1-samuel@sholland.org>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <262998524.1270929.1589048463590.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15902 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Previously, the output format was programmed as part of the ioctl()
+handler. However, this has two problems:
 
+  1) If there are multiple active streams with different output
+     formats, the hardware will use whichever format was set last
+     for both streams. Similarly, an ioctl() done in an inactive
+     context will wrongly affect other active contexts.
+  2) The registers are written while the device is not actively
+     streaming. To enable runtime PM tied to the streaming state,
+     all hardware access needs to be moved inside cedrus_device_run().
 
-My Dear in the lord
+The call to cedrus_dst_format_set() is now placed just before the
+codec-specific callback that programs the hardware.
 
+Cc: <stable@vger.kernel.org>
+Fixes: 50e761516f2b ("media: platform: Add Cedrus VPU decoder driver")
+Suggested-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Suggested-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Tested-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+---
 
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politician who owns a small =
-gold company in Burkina Faso; He died of Leprosy and Radesyge, in the year =
-February 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Mi=
-llion Euro) Eight million, Five hundred thousand Euros in a bank in Ouagado=
-ugou the capital city of Burkina Faso in West Africa. The money was from th=
-e sale of his company and death benefits payment and entitlements of my dec=
-eased husband by his company.
+v2: added patch
+v3: collected tags
 
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
+---
+ drivers/staging/media/sunxi/cedrus/cedrus_dec.c   | 2 ++
+ drivers/staging/media/sunxi/cedrus/cedrus_video.c | 3 ---
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
+diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
+index 4a2fc33a1d79..58c48e4fdfe9 100644
+--- a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
+@@ -74,6 +74,8 @@ void cedrus_device_run(void *priv)
+ 
+ 	v4l2_m2m_buf_copy_metadata(run.src, run.dst, true);
+ 
++	cedrus_dst_format_set(dev, &ctx->dst_fmt);
++
+ 	dev->dec_ops[ctx->current_codec]->setup(ctx, &run);
+ 
+ 	/* Complete request(s) controls if needed. */
+diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_video.c b/drivers/staging/media/sunxi/cedrus/cedrus_video.c
+index 15cf1f10221b..ed3f511f066f 100644
+--- a/drivers/staging/media/sunxi/cedrus/cedrus_video.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus_video.c
+@@ -273,7 +273,6 @@ static int cedrus_s_fmt_vid_cap(struct file *file, void *priv,
+ 				struct v4l2_format *f)
+ {
+ 	struct cedrus_ctx *ctx = cedrus_file2ctx(file);
+-	struct cedrus_dev *dev = ctx->dev;
+ 	struct vb2_queue *vq;
+ 	int ret;
+ 
+@@ -287,8 +286,6 @@ static int cedrus_s_fmt_vid_cap(struct file *file, void *priv,
+ 
+ 	ctx->dst_fmt = f->fmt.pix;
+ 
+-	cedrus_dst_format_set(dev, &ctx->dst_fmt);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.24.1
 
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
-
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
-
-Thanks
-Mrs. Mina A. Brunel
