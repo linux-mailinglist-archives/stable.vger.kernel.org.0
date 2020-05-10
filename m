@@ -2,20 +2,20 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6861CCABA
-	for <lists+stable@lfdr.de>; Sun, 10 May 2020 14:13:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C541CCABC
+	for <lists+stable@lfdr.de>; Sun, 10 May 2020 14:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728868AbgEJMNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 May 2020 08:13:17 -0400
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:58717 "EHLO
+        id S1728856AbgEJMNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 May 2020 08:13:19 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:54345 "EHLO
         relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728856AbgEJMNQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 May 2020 08:13:16 -0400
+        with ESMTP id S1726863AbgEJMNT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 May 2020 08:13:19 -0400
 X-Originating-IP: 91.224.148.103
 Received: from localhost.localdomain (unknown [91.224.148.103])
         (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id A517120008;
-        Sun, 10 May 2020 12:13:14 +0000 (UTC)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 2F7712000A;
+        Sun, 10 May 2020 12:13:17 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
@@ -24,9 +24,9 @@ To:     Richard Weinberger <richard@nod.at>,
 Cc:     Boris Brezillon <boris.brezillon@collabora.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         stable@vger.kernel.org
-Subject: [PATCH 53/62] mtd: rawnand: sunxi: Fix the probe error path
-Date:   Sun, 10 May 2020 14:12:11 +0200
-Message-Id: <20200510121220.18042-54-miquel.raynal@bootlin.com>
+Subject: [PATCH 56/62] mtd: rawnand: tmio: Fix the probe error path
+Date:   Sun, 10 May 2020 14:12:14 +0200
+Message-Id: <20200510121220.18042-57-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200510121220.18042-1-miquel.raynal@bootlin.com>
 References: <20200510121220.18042-1-miquel.raynal@bootlin.com>
@@ -41,26 +41,33 @@ X-Mailing-List: stable@vger.kernel.org
 nand_release() is supposed be called after MTD device registration.
 Here, only nand_scan() happened, so use nand_cleanup() instead.
 
-Fixes: 1fef62c1423b ("mtd: nand: add sunxi NAND flash controller support")
+There is no real Fixes tag applying here as the use of nand_release()
+in this driver predates by far the introduction of nand_cleanup() in
+commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
+which makes this change possible. However, pointing this commit as the
+culprit for backporting purposes makes sense even if this commit is not
+introducing any bug.
+
+Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/mtd/nand/raw/sunxi_nand.c | 2 +-
+ drivers/mtd/nand/raw/tmio_nand.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/sunxi_nand.c b/drivers/mtd/nand/raw/sunxi_nand.c
-index 26d862213cac..9f51fd20a52e 100644
---- a/drivers/mtd/nand/raw/sunxi_nand.c
-+++ b/drivers/mtd/nand/raw/sunxi_nand.c
-@@ -2004,7 +2004,7 @@ static int sunxi_nand_chip_init(struct device *dev, struct sunxi_nfc *nfc,
- 	ret = mtd_device_register(mtd, NULL, 0);
- 	if (ret) {
- 		dev_err(dev, "failed to register mtd device: %d\n", ret);
--		nand_release(nand);
-+		nand_cleanup(nand);
- 		return ret;
- 	}
+diff --git a/drivers/mtd/nand/raw/tmio_nand.c b/drivers/mtd/nand/raw/tmio_nand.c
+index db030f1701ee..4e9a6d94f6e8 100644
+--- a/drivers/mtd/nand/raw/tmio_nand.c
++++ b/drivers/mtd/nand/raw/tmio_nand.c
+@@ -448,7 +448,7 @@ static int tmio_probe(struct platform_device *dev)
+ 	if (!retval)
+ 		return retval;
  
+-	nand_release(nand_chip);
++	nand_cleanup(nand_chip);
+ 
+ err_irq:
+ 	tmio_hw_stop(dev, tmio);
 -- 
 2.20.1
 
