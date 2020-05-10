@@ -2,20 +2,20 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54EF21CCAB4
-	for <lists+stable@lfdr.de>; Sun, 10 May 2020 14:13:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 743BD1CCAB5
+	for <lists+stable@lfdr.de>; Sun, 10 May 2020 14:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728468AbgEJMNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 May 2020 08:13:01 -0400
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:51691 "EHLO
+        id S1728555AbgEJMNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 May 2020 08:13:04 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:46707 "EHLO
         relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726863AbgEJMNA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 May 2020 08:13:00 -0400
+        with ESMTP id S1726863AbgEJMND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 May 2020 08:13:03 -0400
 X-Originating-IP: 91.224.148.103
 Received: from localhost.localdomain (unknown [91.224.148.103])
         (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id BF3782000D;
-        Sun, 10 May 2020 12:12:58 +0000 (UTC)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id E139D2000E;
+        Sun, 10 May 2020 12:13:01 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
@@ -24,9 +24,9 @@ To:     Richard Weinberger <richard@nod.at>,
 Cc:     Boris Brezillon <boris.brezillon@collabora.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
         stable@vger.kernel.org
-Subject: [PATCH 36/62] mtd: rawnand: oxnas: Fix the probe error path
-Date:   Sun, 10 May 2020 14:11:54 +0200
-Message-Id: <20200510121220.18042-37-miquel.raynal@bootlin.com>
+Subject: [PATCH 40/62] mtd: rawnand: pasemi: Fix the probe error path
+Date:   Sun, 10 May 2020 14:11:58 +0200
+Message-Id: <20200510121220.18042-41-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200510121220.18042-1-miquel.raynal@bootlin.com>
 References: <20200510121220.18042-1-miquel.raynal@bootlin.com>
@@ -38,45 +38,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-nand_release() is supposed be called after MTD device registration.
-Here, only nand_scan() happened, so use nand_cleanup() instead.
+nand_cleanup() is supposed to be called on error after a successful
+call to nand_scan() to free all NAND resources.
 
-While at it, be consistent and move the function call in the error
-path thanks to a goto statement.
+There is no real Fixes tag applying here as the use of nand_release()
+in this driver predates by far the introduction of nand_cleanup() in
+commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
+which makes this change possible, hence pointing it as the commit to
+fix for backporting purposes, even if this commit is not introducing
+any bug.
 
-Fixes: 668592492409 ("mtd: nand: Add OX820 NAND Support")
+Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/mtd/nand/raw/oxnas_nand.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mtd/nand/raw/pasemi_nand.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/oxnas_nand.c b/drivers/mtd/nand/raw/oxnas_nand.c
-index bead5ac70160..4fadfa118582 100644
---- a/drivers/mtd/nand/raw/oxnas_nand.c
-+++ b/drivers/mtd/nand/raw/oxnas_nand.c
-@@ -140,10 +140,8 @@ static int oxnas_nand_probe(struct platform_device *pdev)
- 			goto err_release_child;
+diff --git a/drivers/mtd/nand/raw/pasemi_nand.c b/drivers/mtd/nand/raw/pasemi_nand.c
+index 9cfe7395172a..be40b2f32237 100644
+--- a/drivers/mtd/nand/raw/pasemi_nand.c
++++ b/drivers/mtd/nand/raw/pasemi_nand.c
+@@ -146,7 +146,7 @@ static int pasemi_nand_probe(struct platform_device *ofdev)
+ 	if (mtd_device_register(pasemi_nand_mtd, NULL, 0)) {
+ 		dev_err(dev, "Unable to register MTD device\n");
+ 		err = -ENODEV;
+-		goto out_lpc;
++		goto out_cleanup_nand;
+ 	}
  
- 		err = mtd_device_register(mtd, NULL, 0);
--		if (err) {
--			nand_release(chip);
--			goto err_release_child;
--		}
-+		if (err)
-+			goto err_cleanup_nand;
- 
- 		oxnas->chips[oxnas->nchips] = chip;
- 		++oxnas->nchips;
-@@ -159,6 +157,8 @@ static int oxnas_nand_probe(struct platform_device *pdev)
+ 	dev_info(dev, "PA Semi NAND flash at %pR, control at I/O %x\n", &res,
+@@ -154,6 +154,8 @@ static int pasemi_nand_probe(struct platform_device *ofdev)
  
  	return 0;
  
-+err_cleanup_nand:
++out_cleanup:
 +	nand_cleanup(chip);
- err_release_child:
- 	of_node_put(nand_np);
- err_clk_unprepare:
+  out_lpc:
+ 	release_region(lpcctl, 4);
+  out_ior:
 -- 
 2.20.1
 
