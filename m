@@ -2,118 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 258DE1CC7B3
-	for <lists+stable@lfdr.de>; Sun, 10 May 2020 09:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06D4B1CCAA3
+	for <lists+stable@lfdr.de>; Sun, 10 May 2020 13:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725810AbgEJHnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 May 2020 03:43:09 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:40593 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728546AbgEJHnJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 May 2020 03:43:09 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.nyi.internal (Postfix) with ESMTP id 51C805C008D;
-        Sun, 10 May 2020 03:43:08 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Sun, 10 May 2020 03:43:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm1; bh=M1abo0l7aBFB5
-        B5e/LqkRoptxJ7+Xxq7I7XlPHS3iCM=; b=JJfFLNX51RUSA42POH0AJTcxkD0rK
-        Ng/k7v0ODTzd9jYjqshc8jAiIw1V+917xsQxnxYLg/d9FAZwZWwVCXh4L2IHLedN
-        lZqYLWo5jLDa8Bv+cOAWBszCTZdZ7ptNMOf6ioJRVEQJZy9Wriuecm6FsPzkq9G2
-        cQbUMxX0Q+37ReOmMJObyxgYhzYUuJi4w7Y3DCoLhEEWuHFHsQIOWapylNwJbshW
-        dlXEQzmv8L8NDQLpWuF98kYJeUnOIVUcqMLIuQ7pUWz1hruJmqBQOphYnvvX/ZzT
-        SqREEMUo3fqTJuyZQwGsTrDd3MGQ9GNsx9lOLSiV/I/TNwCQTE9niOSFA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm2; bh=M1abo0l7aBFB5B5e/LqkRoptxJ7+Xxq7I7XlPHS3iCM=; b=Czh9+Zxq
-        rLqCyrOCWy3VzqP7USI8hMNC7v2dd4sNxf093S5l1nJlbQL8FY+5vMTxQbqkbGGw
-        sLqY1stICO4GvwzEZKTlOpidKeXZECTUEVifnhvu0jMnRb2DSDJqFbq6Sur1V98C
-        s6yJKvY+y0cBqZ8BZZq2RoWgijIINfHGFECcBVWMFa3ZCkxs+NLEix6ziz6GqSWj
-        YElxMrA5eG9h+2qzGsXU+B2XMbG+aNcbvDBpzr/Tptn8gM/rGSKLF2xcerg1yizQ
-        xB/bFPp1RRQi01BdDpFcYr1jgbBbrrtlpJi5uDqHXAZxX+aw+d9lAPmo7BiaBV6V
-        tk3P0BQeeWxjrA==
-X-ME-Sender: <xms:jLC3XnmYNuxLSyljfE4Iync1uzSpCWNz8vyF-OiO86MbO_Gxmb9tmg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrkeejgddvkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffojghfggfgsedtkeertd
-    ertddtnecuhfhrohhmpefvrghkrghshhhiucfurghkrghmohhtohcuoehoqdhtrghkrghs
-    hhhisehsrghkrghmohgttghhihdrjhhpqeenucggtffrrghtthgvrhhnpeevfefffeekte
-    fgveegfeelheffhfeujedtjeevtefhkeevkedtjeejvddtjefhjeenucfkphepudektddr
-    vdefhedrfedrheegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
-    hfrhhomhepohdqthgrkhgrshhhihesshgrkhgrmhhotggthhhirdhjph
-X-ME-Proxy: <xmx:jLC3Xoqv5_Y8uZskK_qswvwCucv1HvQcFnAMjXGEu1fKz-DGJCm5tA>
-    <xmx:jLC3XoHv1HSUODhOM9eEM0adKK4r3yyEy6Bu4zZNr4EyZU8hHd_JmA>
-    <xmx:jLC3XswtWgVHsR-bQgnaqAZWcAzJu1avh4-32_xLzlg1hYhGhVbYSg>
-    <xmx:jLC3XnfjJvPJ4-azle2k9txKBgX3likdJ9_-fYrbYxlxP0ovn__FVQ>
-Received: from workstation.flets-east.jp (ad003054.dynamic.ppp.asahi-net.or.jp [180.235.3.54])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D98493066258;
-        Sun, 10 May 2020 03:43:06 -0400 (EDT)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     clemens@ladisch.de, tiwai@suse.de
-Cc:     alsa-devel@alsa-project.org, ffado-devel@lists.sourceforge.net,
-        stable@vger.kernel.org
-Subject: [PATCH 2/6] ALSA: fireface: start IR context immediately
-Date:   Sun, 10 May 2020 16:42:57 +0900
-Message-Id: <20200510074301.116224-3-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200510074301.116224-1-o-takashi@sakamocchi.jp>
-References: <20200510074301.116224-1-o-takashi@sakamocchi.jp>
+        id S1728705AbgEJL7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 May 2020 07:59:23 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:47675 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728677AbgEJL7W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 May 2020 07:59:22 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-236-yr5hR8jROKGsvosUIzCW6w-1; Sun, 10 May 2020 12:59:18 +0100
+X-MC-Unique: yr5hR8jROKGsvosUIzCW6w-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Sun, 10 May 2020 12:59:18 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Sun, 10 May 2020 12:59:18 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     "'H. Peter Anvin'" <hpa@zytor.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Brian Gerst <brgerst@gmail.com>
+CC:     Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Daniel Axtens <dja@axtens.net>,
+        "Masahiro Yamada" <yamada.masahiro@socionext.com>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Subject: RE: [PATCH] x86: bitops: fix build regression
+Thread-Topic: [PATCH] x86: bitops: fix build regression
+Thread-Index: AQHWJV6GnFcKS0TA9USbY8l3s67J1qihNCig
+Date:   Sun, 10 May 2020 11:59:17 +0000
+Message-ID: <b1072e7116774e0c9e6e7e6f55bae4a3@AcuMS.aculab.com>
+References: <20200505174423.199985-1-ndesaulniers@google.com>
+ <8A776DBC-03AF-485B-9AA6-5920E3C4ACB2@zytor.com>
+ <20200507113422.GA3762@hirez.programming.kicks-ass.net>
+ <CAMzpN2hXUYvLuTA63N56ef4DEzyWXt_uVVq6PV0r8YQT-YN42g@mail.gmail.com>
+ <CAKwvOd=a3MR7osKBpbq=d41ieo7G9FtOp5Kok5por1P5ZS9s4g@mail.gmail.com>
+ <CAKwvOd=Ogbp0oVgmF2B9cePjyWnvLLFRSp2EnaonA-ZFN3K7Dg@mail.gmail.com>
+ <CAMzpN2gu4stkRKTsMTVxyzckO3SMhfA+dmCnSu6-aMg5QAA_JQ@mail.gmail.com>
+ <CAKwvOd=hVKrFU+imSGeX+MEKMpW97gE7bzn1C637qdns9KSnUA@mail.gmail.com>
+ <8f53b69e-86cc-7ff9-671e-5e0a67ff75a2@zytor.com>
+In-Reply-To: <8f53b69e-86cc-7ff9-671e-5e0a67ff75a2@zytor.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In the latter models of RME Fireface series, device start to transfer
-packets several dozens of milliseconds. On the other hand, ALSA fireface
-driver starts IR context 2 milliseconds after the start. This results
-in loss to handle incoming packets on the context.
-
-This commit changes to start IR context immediately instead of
-postponement. For Fireface 800, this affects nothing because the device
-transfer packets 100 milliseconds or so after the start and this is
-within wait timeout.
-
-Cc: <stable@vger.kernel.org>
-Fixes: acfedcbe1ce4 ("ALSA: firewire-lib: postpone to start IR context")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
----
- sound/firewire/fireface/ff-stream.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
-
-diff --git a/sound/firewire/fireface/ff-stream.c b/sound/firewire/fireface/ff-stream.c
-index 63b79c4a5405..5452115c0ef9 100644
---- a/sound/firewire/fireface/ff-stream.c
-+++ b/sound/firewire/fireface/ff-stream.c
-@@ -184,7 +184,6 @@ int snd_ff_stream_start_duplex(struct snd_ff *ff, unsigned int rate)
- 	 */
- 	if (!amdtp_stream_running(&ff->rx_stream)) {
- 		int spd = fw_parent_device(ff->unit)->max_speed;
--		unsigned int ir_delay_cycle;
- 
- 		err = ff->spec->protocol->begin_session(ff, rate);
- 		if (err < 0)
-@@ -200,14 +199,7 @@ int snd_ff_stream_start_duplex(struct snd_ff *ff, unsigned int rate)
- 		if (err < 0)
- 			goto error;
- 
--		// The device postpones start of transmission mostly for several
--		// cycles after receiving packets firstly.
--		if (ff->spec->protocol == &snd_ff_protocol_ff800)
--			ir_delay_cycle = 800;	// = 100 msec
--		else
--			ir_delay_cycle = 16;	// = 2 msec
--
--		err = amdtp_domain_start(&ff->domain, ir_delay_cycle);
-+		err = amdtp_domain_start(&ff->domain, 0);
- 		if (err < 0)
- 			goto error;
- 
--- 
-2.25.1
+RnJvbTogUGV0ZXIgQW52aW4NCj4gU2VudDogMDggTWF5IDIwMjAgMTg6MzINCj4gT24gMjAyMC0w
+NS0wOCAxMDoyMSwgTmljayBEZXNhdWxuaWVycyB3cm90ZToNCj4gPj4NCj4gPj4gT25lIGxhc3Qg
+c3VnZ2VzdGlvbi4gIEFkZCB0aGUgImIiIG1vZGlmaWVyIHRvIHRoZSBtYXNrIG9wZXJhbmQ6ICJv
+cmINCj4gPj4gJWIxLCAlMCIuICBUaGF0IGZvcmNlcyB0aGUgY29tcGlsZXIgdG8gdXNlIHRoZSA4
+LWJpdCByZWdpc3RlciBuYW1lDQo+ID4+IGluc3RlYWQgb2YgdHJ5aW5nIHRvIGRlZHVjZSB0aGUg
+d2lkdGggZnJvbSB0aGUgaW5wdXQuDQo+ID4NCj4gPiBBaCByaWdodDogaHR0cHM6Ly9nY2MuZ251
+Lm9yZy9vbmxpbmVkb2NzL2djYy9FeHRlbmRlZC1Bc20uaHRtbCN4ODZPcGVyYW5kbW9kaWZpZXJz
+DQo+ID4NCj4gPiBMb29rcyBsaWtlIHRoYXQgd29ya3MgZm9yIGJvdGggY29tcGlsZXJzLiAgSW4g
+dGhhdCBjYXNlLCB3ZSBjYW4gbGlrZWx5DQo+ID4gZHJvcCB0aGUgYCYgMHhmZmAsIHRvby4gIExl
+dCBtZSBwbGF5IHdpdGggdGhhdCwgdGhlbiBJJ2xsIGhvcGVmdWxseQ0KPiA+IHNlbmQgYSB2MyB0
+b2RheS4NCj4gPg0KPiANCj4gR29vZCBpZGVhLiBJIHJlcXVlc3RlZCBhIHdoaWxlIGFnbyB0aGF0
+IHRoZXkgZG9jdW1lbnQgdGhlc2UgbW9kaWZpZXJzOyB0aGV5DQo+IGNob3NlIG5vdCB0byBkb2N1
+bWVudCB0aGVtIGFsbCB3aGljaCBpbiBzb21lIHdheXMgaXMgZ29vZDsgaXQgc2hvd3Mgd2hhdCB0
+aGV5DQo+IGFyZSB3aWxsaW5nIHRvIGNvbW1pdCB0byBpbmRlZmluaXRlbHkuDQoNCkkgdGhvdWdo
+dCB0aGUgaW50ZW50aW9uIGhlcmUgd2FzIHRvIGV4cGxpY2l0bHkgZG8gYSBieXRlIGFjY2Vzcy4N
+CklmIHRoZSBjb25zdGFudCBiaXQgbnVtYmVyIGhhcyBoYWQgYSBkaXYvbW9kIGJ5IDggZG9uZSBv
+biBpdCB0aGVuDQp0aGUgYWRkcmVzcyBjYW4gYmUgbWlzYWxpZ25lZCAtIHNvIHlvdSBtdXN0bid0
+IGRvIGEgbm9uLWJ5dGUgc2l6ZWQNCmxvY2tlZCBhY2Nlc3MuDQoNCk9UT0ggdGhlIG9yaWdpbmFs
+IGJhc2UgYWRkcmVzcyBtdXN0IGJlIGFsaWduZWQuDQoNCkxvb2tpbmcgYXQgc29tZSBpbnN0cnVj
+dGlvbiB0aW1pbmcsIEJUUy9CVFIgYXJlbid0IHRvbyBiYWQgaWYgdGhlDQpiaXQgbnVtYmVyIGlz
+IGEgY29uc3RhbnQuIEJ1dCBhcmUgNiBvciA3IGNsb2NrcyBzbG93ZXIgaWYgaXQgaXMgaW4gJWNs
+Lg0KR2l2ZW4gdGhlc2UgYXJlIGxvY2tlZCBSTVcgYnVzIGN5Y2xlcyB0aGV5J2xsIGFsd2F5cyBi
+ZSBzbG93IQ0KDQpIb3cgYWJvdXQgYW4gYXNtIG11bHRpLXBhcnQgYWx0ZXJuYXRpdmUgdGhhdCB1
+c2VzIGEgYnl0ZSBvZmZzZXQNCmFuZCBieXRlIGNvbnN0YW50IGlmIHRoZSBjb21waWxlciB0aGlu
+a3MgdGhlIG1hc2sgaXMgY29uc3RhbnQNCm9yIGEgNC1ieXRlIG9mZnNldCBhbmQgMzJiaXQgbWFz
+ayBpZiBpdCBkb2Vzbid0Lg0KDQpUaGUgb3RoZXIgYWx0ZXJuYXRpdmUgaXMgdG8ganVzdCB1c2Ug
+QlRTL0JUUyBhbmQgKG1heWJlKSByZWx5IG9uIHRoZQ0KYXNzZW1ibGVyIHRvIGFkZCBpbiB0aGUg
+d29yZCBvZmZzZXQgdG8gdGhlIGJhc2UgYWRkcmVzcy4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVy
+ZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5
+bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
 
