@@ -2,80 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 520CA1CE79B
-	for <lists+stable@lfdr.de>; Mon, 11 May 2020 23:41:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D65AA1CE7D1
+	for <lists+stable@lfdr.de>; Mon, 11 May 2020 23:57:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725912AbgEKVlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 May 2020 17:41:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44704 "EHLO mail.kernel.org"
+        id S1727094AbgEKV53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 May 2020 17:57:29 -0400
+Received: from mail.zx2c4.com ([192.95.5.64]:51045 "EHLO mail.zx2c4.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725860AbgEKVlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 May 2020 17:41:52 -0400
-Received: from localhost (c-67-164-102-47.hsd1.ca.comcast.net [67.164.102.47])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FA83206E6;
-        Mon, 11 May 2020 21:41:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589233311;
-        bh=/fl3uka4BT5IGqZ+Q4Z4mtPFibQXcT2JNziQkXT1B1Y=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=2YJjy8kxgUoeP+gliRPlKr1nW7XHzo4oL9gHBwx3pAz42LG3n/w4NH/igzJJstIct
-         HW4nO1ydZ86YE7re2cLTdml2H2TafeyC+oDL4wo5Mqhxuf/9gDzc8Ci/QsQsQ3UlFR
-         LhIZV1ZAwA1Eky4PnR4qG9ZAi+2mr3HhB9+YdsHQ=
-Date:   Mon, 11 May 2020 14:41:50 -0700 (PDT)
-From:   Stefano Stabellini <sstabellini@kernel.org>
-X-X-Sender: sstabellini@sstabellini-ThinkPad-T480s
-To:     Juergen Gross <jgross@suse.com>
-cc:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] xen/pvcalls-back: test for errors when calling
- backend_connect()
-In-Reply-To: <20200511074231.19794-1-jgross@suse.com>
-Message-ID: <alpine.DEB.2.21.2005111440210.26167@sstabellini-ThinkPad-T480s>
-References: <20200511074231.19794-1-jgross@suse.com>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S1726067AbgEKV53 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 May 2020 17:57:29 -0400
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 6b5c03cc;
+        Mon, 11 May 2020 21:44:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=from:to:cc
+        :subject:date:message-id:in-reply-to:references:mime-version
+        :content-transfer-encoding; s=mail; bh=zEVrJxzNsiJ9BdLH8+Ar4RftJ
+        Zs=; b=yU79Z16M3/E+1Wj1bofhPZM8EboOcIXbVoCQ3o7eKG6SgO+H82xTm/yT5
+        PX4VmPb4oNA+8yosihaCHj9Bu7Viy5QiPlRpJqMSdakywjl6U+/UIDV28tOzafrF
+        a2q5AvQJBA/M7r2pZC0v+jya/ygGx16o0EKJ4y2vSSHi83ljbFT1ZlOP+xrtSaFN
+        TQISVCQqRDtb4es9+Z8n8EsT4e1XDke4WX7SMMqf+9q7t3smgAZdGYGUPYVImtHh
+        LGuIXGGFOJM2yXFwTGCsl1TTjjnwAGZh5tJZnnh4FFjX1IsTIOvVC1xA8E9oRfEq
+        Rw+htyH57AaD+PlAg1y/W/TQ69elA==
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id e6acb82e (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Mon, 11 May 2020 21:44:04 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        linux-kbuild@vger.kernel.org, x86@kernel.org,
+        stable@vger.kernel.org, hjl.tools@gmail.com,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jakub Jelinek <jakub@redhat.com>,
+        Oleksandr Natalenko <oleksandr@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Laight <David.Laight@aculab.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH v2] Kconfig: default to CC_OPTIMIZE_FOR_PERFORMANCE_O3 for gcc >= 10
+Date:   Mon, 11 May 2020 15:57:20 -0600
+Message-Id: <20200511215720.303181-1-Jason@zx2c4.com>
+In-Reply-To: <20200508090202.7s3kcqpvpxx32syu@butterfly.localdomain>
+References: <20200508090202.7s3kcqpvpxx32syu@butterfly.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 11 May 2020, Juergen Gross wrote:
-> backend_connect() can fail, so switch the device to connected only if
-> no error occurred.
-> 
-> Fixes: 0a9c75c2c7258f2 ("xen/pvcalls: xenbus state handling")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+GCC 10 appears to have changed -O2 in order to make compilation time
+faster when using -flto, seemingly at the expense of performance, in
+particular with regards to how the inliner works. Since -O3 these days
+shouldn't have the same set of bugs as 10 years ago, this commit
+defaults new kernel compiles to -O3 when using gcc >= 10.
 
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Cc: linux-kbuild@vger.kernel.org
+Cc: x86@kernel.org
+Cc: stable@vger.kernel.org
+Cc: hjl.tools@gmail.com
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Jakub Jelinek <jakub@redhat.com>
+Cc: Oleksandr Natalenko <oleksandr@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: David Laight <David.Laight@aculab.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+Changes v1->v2:
+ - [Oleksandr] Remove O3 dependency on ARC.
 
+ init/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> ---
->  drivers/xen/pvcalls-back.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/xen/pvcalls-back.c b/drivers/xen/pvcalls-back.c
-> index cf4ce3e9358d..41a18ece029a 100644
-> --- a/drivers/xen/pvcalls-back.c
-> +++ b/drivers/xen/pvcalls-back.c
-> @@ -1088,7 +1088,8 @@ static void set_backend_state(struct xenbus_device *dev,
->  		case XenbusStateInitialised:
->  			switch (state) {
->  			case XenbusStateConnected:
-> -				backend_connect(dev);
-> +				if (backend_connect(dev))
-> +					return;
+diff --git a/init/Kconfig b/init/Kconfig
+index 9e22ee8fbd75..f76ec3ccc883 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1245,7 +1245,8 @@ config BOOT_CONFIG
+ 
+ choice
+ 	prompt "Compiler optimization level"
+-	default CC_OPTIMIZE_FOR_PERFORMANCE
++	default CC_OPTIMIZE_FOR_PERFORMANCE_O3 if GCC_VERSION >= 100000
++	default CC_OPTIMIZE_FOR_PERFORMANCE if (GCC_VERSION < 100000 || CC_IS_CLANG)
+ 
+ config CC_OPTIMIZE_FOR_PERFORMANCE
+ 	bool "Optimize for performance (-O2)"
+@@ -1256,7 +1257,6 @@ config CC_OPTIMIZE_FOR_PERFORMANCE
+ 
+ config CC_OPTIMIZE_FOR_PERFORMANCE_O3
+ 	bool "Optimize more for performance (-O3)"
+-	depends on ARC
+ 	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
+ 	help
+ 	  Choosing this option will pass "-O3" to your compiler to optimize
+-- 
+2.26.2
 
-Do you think it would make sense to WARN?
-
->  				xenbus_switch_state(dev, XenbusStateConnected);
->  				break;
->  			case XenbusStateClosing:
-> -- 
-> 2.26.1
-> 
