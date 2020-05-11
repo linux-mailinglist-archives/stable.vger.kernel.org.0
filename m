@@ -2,182 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 310251CE1DA
-	for <lists+stable@lfdr.de>; Mon, 11 May 2020 19:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 344BA1CE203
+	for <lists+stable@lfdr.de>; Mon, 11 May 2020 19:49:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730644AbgEKRjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 May 2020 13:39:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40908 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730215AbgEKRjW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 May 2020 13:39:22 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95020C061A0C
-        for <stable@vger.kernel.org>; Mon, 11 May 2020 10:39:22 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id u5so2273977pgn.5
-        for <stable@vger.kernel.org>; Mon, 11 May 2020 10:39:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=o8ikOR3Yrfcdajhq9Ltdlg3+3v1t4TX59qeN8PVErug=;
-        b=lS8SOZCeVFvW3TA8eiNqLrU34vpGdOxeGJp0k1mZeP3AFZThcQLJ0KME/AGwa5nLAV
-         uNBz/PoigXXZxvi01wxW/OTb78iqzVIKyeE34xYDQXleM9cM0SbOCXYz29YxxN6lAk+Y
-         LSNtxXZM1k7t7VPWbXmipSDrRIwzLLFPsv9Ny0NcZLM1HicNw7FeMluQcw8WUbEg2hOG
-         BxWdgGMt7f4TowNbk8Qe1uGLbNwr6ZjyKpJJcdRUlnkooTnoIsefZVoFGV0S8QHr30W/
-         V3AIjqNS+DgEajLcLsEY0jwjANQcSNbLrC+SWXrsChrKeIEZoRTVvwEVyLquR63yiBwf
-         /xWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=o8ikOR3Yrfcdajhq9Ltdlg3+3v1t4TX59qeN8PVErug=;
-        b=Wkm6itpWgxqF9fyQcLv/2BU5s18Rdwy7TV3LWL3z7HXdWXgZF9kkKwDE5YTo/W1gsD
-         9kmASBR54JlEJw4+6oLuOB9mKwRtkyq+owHjghchNSnOp/Xw4vG9r/XM+dcE27bpQXXf
-         8ZKrqWO8FbJbWlm9YDDp/p51YmxCZC9RztUZlopVbouNMrYn/8xt+BcTHZP6dYHQm8RP
-         CmcwwU9b09peT0z9TFXHwC6B0SzckfYHujsfzPrr5suCl3n4JVWXb/os3YsZ6VZ/TnGu
-         TcqTt6XcgTGoKCk2bAeeOk/BjNMCZdFAqjVTDHj4XNz2jPjVYk9Bvg+gHY7sEiB9QYF0
-         Wj1A==
-X-Gm-Message-State: AGi0PuYYNdspbD0BhDdQBESxwoti2P1nVD/7EuH1s3PvA4PZzkKnbfhl
-        Dr3R8bD2iHRm/GHAeoSVw1lAJunbnD8=
-X-Google-Smtp-Source: APiQypJ6DLvlJ750h5CyAgjFIOKIegoOtr7t1sw2eAXRm6xEYkM/oNMyk9Qw7BbhXDMQKl3RXsI2yg==
-X-Received: by 2002:a63:2ec7:: with SMTP id u190mr13539572pgu.89.1589218761691;
-        Mon, 11 May 2020 10:39:21 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b15sm9697840pfd.139.2020.05.11.10.39.20
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2020 10:39:20 -0700 (PDT)
-Message-ID: <5eb98dc8.1c69fb81.cbf2f.30ad@mx.google.com>
-Date:   Mon, 11 May 2020 10:39:20 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728046AbgEKRtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 May 2020 13:49:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48968 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726310AbgEKRtH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 May 2020 13:49:07 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7586206D7;
+        Mon, 11 May 2020 17:49:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589219347;
+        bh=hAMVqWBjyLV3nWm3Je7DHAFzlAVeVx9EPwxdRkkE0Oc=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=PJlwgjW4o15eOpGfmwAHGURNVdLup0NdgDSgCP5x1mY8rm3VPLRqwTJsfMtaqo803
+         jPYRe51e5tP3Zcj4vayfSbHRbTBLYRs62KpfpR0YdC09hqHG/i1umhsV1zgA7DinMA
+         5aH5euLMv6+BqbYjq1LFyQPIHRMaXvdpAi0hw5zc=
+Subject: Re: [PATCH 5.4 00/50] 5.4.40-rc1 review
+To:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        shuah <shuah@kernel.org>
+References: <20200508123043.085296641@linuxfoundation.org>
+ <e090d5ed-3e18-333e-221b-197a30c102e8@kernel.org>
+ <6a43d9b82e321aef0324d10a5e2f3dc4961a7fe9.camel@codethink.co.uk>
+From:   shuah <shuah@kernel.org>
+Message-ID: <136f7e48-08ec-bb3f-8642-cba71cca9b96@kernel.org>
+Date:   Mon, 11 May 2020 11:49:06 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.122
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.19.y boot: 133 boots: 1 failed,
- 113 passed with 13 offline, 5 untried/unknown, 1 conflict (v4.19.122)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <6a43d9b82e321aef0324d10a5e2f3dc4961a7fe9.camel@codethink.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 133 boots: 1 failed, 113 passed with 13 offlin=
-e, 5 untried/unknown, 1 conflict (v4.19.122)
+On 5/11/20 11:21 AM, Ben Hutchings wrote:
+> On Mon, 2020-05-11 at 10:35 -0600, shuah wrote:
+>> On 5/8/20 6:35 AM, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.4.40 release.
+>>> There are 50 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Sun, 10 May 2020 12:29:44 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.40-rc1.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>>
+>>
+>> Compiled and booted on my test system. I am seeing the following
+>> regression in dmesg and with a new emergency message.
+>>
+>> Initramfs unpacking failed: Decoding failed
+>>
+>> I don't know why yet. I will debug and let you know.
+> 
+> At a guess: you upgraded to Ubuntu 20.04, and the default initramfs
+> compression changed to lz4.  Or something like that.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.122/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.122/
+Right, I remembered I ran into a similar problem after upgrading to
+19.10 and went looking for info. instead of doing bisect.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.122
-Git Commit: 033c4ea49a4ba7a2b13aabf3ec755557924a9cda
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 79 unique boards, 21 SoC families, 20 builds out of 206
+That is what I found in the following thread:
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1835660
 
-Boot Regressions Detected:
+Oddly it started showing up before I upgraded on Ubuntu 19.10.
 
-arm:
+thanks,
+-- Shuah
 
-    imx_v6_v7_defconfig:
-        gcc-8:
-          imx6dl-wandboard_dual:
-              lab-baylibre-seattle: new failure (last pass: v4.19.121-33-g7=
-ad26f947708)
-          imx6dl-wandboard_solo:
-              lab-baylibre-seattle: new failure (last pass: v4.19.121-33-g7=
-ad26f947708)
+thanks,
+-- Shuah
 
-    omap2plus_defconfig:
-        gcc-8:
-          omap3-beagle:
-              lab-baylibre-seattle: new failure (last pass: v4.19.121)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 59 days (last pass: v4.19.108-87-=
-g624c124960e8 - first fail: v4.19.109)
-
-    sunxi_defconfig:
-        gcc-8:
-          sun8i-h2-plus-orangepi-r1:
-              lab-baylibre: new failure (last pass: v4.19.121)
-
-    tegra_defconfig:
-        gcc-8:
-          tegra30-beaver:
-              lab-baylibre-seattle: new failure (last pass: v4.19.121-33-g7=
-ad26f947708)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.19.121-33-g7ad26f94=
-7708)
-
-i386:
-
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-baylibre: new failure (last pass: v4.19.121-33-g7ad26f947=
-708)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    omap2plus_defconfig:
-        gcc-8
-            omap3-beagle: 1 offline lab
-
-    tegra_defconfig:
-        gcc-8
-            tegra30-beaver: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            omap3-beagle: 1 offline lab
-            stih410-b2120: 1 offline lab
-            tegra30-beaver: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-baylibre: FAIL (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
