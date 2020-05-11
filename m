@@ -2,109 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1B461CE146
-	for <lists+stable@lfdr.de>; Mon, 11 May 2020 19:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C9C1CE154
+	for <lists+stable@lfdr.de>; Mon, 11 May 2020 19:13:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730730AbgEKRJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 May 2020 13:09:20 -0400
-Received: from mga09.intel.com ([134.134.136.24]:27102 "EHLO mga09.intel.com"
+        id S1730624AbgEKRNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 May 2020 13:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729731AbgEKRJU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 May 2020 13:09:20 -0400
-IronPort-SDR: IHhPHqyU8uNyvZBXVMYw0p+wVYH1is9cDCXPOFi5iop7tj+T65Ou3fsuPGW8sVvDzzL1v+KQz/
- DbaHZ5GPLrig==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 May 2020 10:09:19 -0700
-IronPort-SDR: mwFPGWm0qFw4uSTv1oqAe8IpRQMBbJuZhc4VgA2JlpPOKsmLNj/BMlkD9rCSbKi2lO9u7HHYHg
- DEZPtnnCbCNA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,380,1583222400"; 
-   d="scan'208";a="265221454"
-Received: from tmeseri-mobl.ger.corp.intel.com (HELO [10.254.97.79]) ([10.254.97.79])
-  by orsmga006.jf.intel.com with ESMTP; 11 May 2020 10:09:19 -0700
-Subject: Re: [linux-drivers-review] [PATCH] x86/mm: Fix boot with some memory
- above MAXMEM
-To:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        "Kleen, Andi" <andi.kleen@intel.com>, dave.hansen@linux.intel.com,
-        linux-drivers-review@eclists.intel.com, stable@vger.kernel.org
-References: <20200511163706.41619-1-kirill.shutemov@linux.intel.com>
- <4db011da-35b4-c6c0-aa35-54a28776169b@intel.com>
- <20200511170419.a53lgasfxd33nrk7@black.fi.intel.com>
-From:   Dave Hansen <dave.hansen@intel.com>
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
- z5cecg==
-Message-ID: <5f95e4c2-66fe-42a0-f09f-cb902cd6db9a@intel.com>
-Date:   Mon, 11 May 2020 10:09:19 -0700
+        id S1729731AbgEKRNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 May 2020 13:13:18 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E87920714;
+        Mon, 11 May 2020 17:13:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589217198;
+        bh=HzRnoLxva5TEjQwJpL7oLKvb5b5J0ffUrtcmvG8XvGg=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=bl1wqPPQKxQvvTYa3bHowvivrmonuWrMLWBkCickE7r2v0LJz+eMYMQnSrHyr/pCa
+         aL4dzGv1FyRKql8ZL+NUFhBx/EDyeA92IvAjT8Gy+BDHaVz0hlgdEfIy9JQkA7Pfef
+         gI8BC9/J5W1HtjODpNpQ55FDjcYfbjd9Ak0hEuTo=
+Subject: Re: [PATCH 4.9 00/18] 4.9.223-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200508123030.497793118@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <413ec0d9-f857-c46a-0313-a8a9a34857d6@kernel.org>
+Date:   Mon, 11 May 2020 11:13:16 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20200511170419.a53lgasfxd33nrk7@black.fi.intel.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20200508123030.497793118@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/11/20 10:04 AM, Kirill A. Shutemov wrote:
-> +	if (not_addressable) {
-> +		pr_err("%lldMB of physical memory is not addressable in the paging mode\n",
-> +		       not_addressable >> 20);
-> +		if (!pgtable_l5_enabled())
-> +			pr_err("Consider enabling 5-level paging\n");
-> +	}
+On 5/8/20 6:35 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.223 release.
+> There are 18 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 10 May 2020 12:29:44 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.223-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Looks sane to me.  Definitely good enough until we get the first bug
-reports from an end user about how they screwed this up in practice.
+Compiled and booted on my test system. Same emergency message
+in this release as well.
 
-For the aggregate patch:
+Initramfs unpacking failed: Decoding failed
 
-Reviewed-by: Dave Hansen <dave.hansen@intel.com>
+I will starting debug and let you know.
 
-BTW, it's a shame that 0day and friends can't find stuff like this.  I
-have the feeling we have more bugs like this coming.
+thanks,
+-- Shuah
