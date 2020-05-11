@@ -2,79 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8221F1CE74C
-	for <lists+stable@lfdr.de>; Mon, 11 May 2020 23:19:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 520CA1CE79B
+	for <lists+stable@lfdr.de>; Mon, 11 May 2020 23:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725912AbgEKVTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 May 2020 17:19:24 -0400
-Received: from mga06.intel.com ([134.134.136.31]:61385 "EHLO mga06.intel.com"
+        id S1725912AbgEKVlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 May 2020 17:41:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725810AbgEKVTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 May 2020 17:19:24 -0400
-IronPort-SDR: Jj2x88ygjMHPXHU7Fdvdcn3u3A1l2n9EY3GH3QJGdM6BCc5cotiwCb5Bfk/l/o1Dk+uOA+pR4G
- f5Yrje+6ddXA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 May 2020 14:19:24 -0700
-IronPort-SDR: QrWKwN1WJ1d5vWIdXIw/cMlQnab15fPk/RRQoKnJLJdx0l5V8hQlNFlGHSXHuXsYOMIHqlaP7T
- PIDukjQwa5OQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,381,1583222400"; 
-   d="scan'208";a="340675658"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga001.jf.intel.com with ESMTP; 11 May 2020 14:19:22 -0700
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andriy.shevchenko@intel.com>)
-        id 1jYFpd-0063NI-Cm; Tue, 12 May 2020 00:19:25 +0300
-Date:   Tue, 12 May 2020 00:19:25 +0300
-From:   Andy Shevchenko <andriy.shevchenko@intel.com>
-To:     "Luck, Tony" <tony.luck@intel.com>
-Cc:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        "Williams, Dan J" <dan.j.williams@intel.com>,
-        "Kleen, Andi" <andi.kleen@intel.com>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "linux-drivers-review@eclists.intel.com" 
-        <linux-drivers-review@eclists.intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [linux-drivers-review] [PATCH] x86/mm: Fix boot with some memory
- above MAXMEM
-Message-ID: <20200511211925.GQ185537@smile.fi.intel.com>
-References: <20200511163706.41619-1-kirill.shutemov@linux.intel.com>
- <4db011da-35b4-c6c0-aa35-54a28776169b@intel.com>
- <20200511170419.a53lgasfxd33nrk7@black.fi.intel.com>
- <5f95e4c2-66fe-42a0-f09f-cb902cd6db9a@intel.com>
- <3908561D78D1C84285E8C5FCA982C28F7F61FEF4@ORSMSX115.amr.corp.intel.com>
- <20200511184330.fbxjbnho4tzkukry@black.fi.intel.com>
- <3908561D78D1C84285E8C5FCA982C28F7F6200F3@ORSMSX115.amr.corp.intel.com>
+        id S1725860AbgEKVlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 May 2020 17:41:52 -0400
+Received: from localhost (c-67-164-102-47.hsd1.ca.comcast.net [67.164.102.47])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FA83206E6;
+        Mon, 11 May 2020 21:41:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589233311;
+        bh=/fl3uka4BT5IGqZ+Q4Z4mtPFibQXcT2JNziQkXT1B1Y=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=2YJjy8kxgUoeP+gliRPlKr1nW7XHzo4oL9gHBwx3pAz42LG3n/w4NH/igzJJstIct
+         HW4nO1ydZ86YE7re2cLTdml2H2TafeyC+oDL4wo5Mqhxuf/9gDzc8Ci/QsQsQ3UlFR
+         LhIZV1ZAwA1Eky4PnR4qG9ZAi+2mr3HhB9+YdsHQ=
+Date:   Mon, 11 May 2020 14:41:50 -0700 (PDT)
+From:   Stefano Stabellini <sstabellini@kernel.org>
+X-X-Sender: sstabellini@sstabellini-ThinkPad-T480s
+To:     Juergen Gross <jgross@suse.com>
+cc:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] xen/pvcalls-back: test for errors when calling
+ backend_connect()
+In-Reply-To: <20200511074231.19794-1-jgross@suse.com>
+Message-ID: <alpine.DEB.2.21.2005111440210.26167@sstabellini-ThinkPad-T480s>
+References: <20200511074231.19794-1-jgross@suse.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3908561D78D1C84285E8C5FCA982C28F7F6200F3@ORSMSX115.amr.corp.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 11, 2020 at 06:58:21PM +0000, Luck, Tony wrote:
-> >> > +		pr_err("%lldMB of physical memory is not addressable in the paging mode\n",
-> >> > +		       not_addressable >> 20);
-> >> 
-> >> Is "MB" the right unit for this. The problem seems to happen for systems with >64TB ... I doubt
-> >> the unaddressable memory is just a couple of MBbytes
-> >
-> > Change it to GB?
+On Mon, 11 May 2020, Juergen Gross wrote:
+> backend_connect() can fail, so switch the device to connected only if
+> no error occurred.
 > 
-> I think it would be more readable.
+> Fixes: 0a9c75c2c7258f2 ("xen/pvcalls: xenbus state handling")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+
+
+> ---
+>  drivers/xen/pvcalls-back.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> [Maybe Linux needs a magic %p{something} that does auto-sizing to print in the most appropriate out of KB, MB, GB, TB, PB?]
+> diff --git a/drivers/xen/pvcalls-back.c b/drivers/xen/pvcalls-back.c
+> index cf4ce3e9358d..41a18ece029a 100644
+> --- a/drivers/xen/pvcalls-back.c
+> +++ b/drivers/xen/pvcalls-back.c
+> @@ -1088,7 +1088,8 @@ static void set_backend_state(struct xenbus_device *dev,
+>  		case XenbusStateInitialised:
+>  			switch (state) {
+>  			case XenbusStateConnected:
+> -				backend_connect(dev);
+> +				if (backend_connect(dev))
+> +					return;
 
-We have one in string_helpers.c.
+Do you think it would make sense to WARN?
 
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+>  				xenbus_switch_state(dev, XenbusStateConnected);
+>  				break;
+>  			case XenbusStateClosing:
+> -- 
+> 2.26.1
+> 
