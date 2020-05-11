@@ -2,169 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3047F1CE0D1
-	for <lists+stable@lfdr.de>; Mon, 11 May 2020 18:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9AA21CE0D2
+	for <lists+stable@lfdr.de>; Mon, 11 May 2020 18:43:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729619AbgEKQn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 May 2020 12:43:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60432 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729550AbgEKQn3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 May 2020 12:43:29 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E91A2C061A0C
-        for <stable@vger.kernel.org>; Mon, 11 May 2020 09:43:28 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id t40so8048764pjb.3
-        for <stable@vger.kernel.org>; Mon, 11 May 2020 09:43:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=t2YvUZ+6AkZ4jmk9XyVqlCqkrY5aCDcc6K9Gau93OEA=;
-        b=mkMMBRwf2aFrpxCCatPiuaNKKHNnGKkiPGt3dSA4c40hn6hf4CTwq0ol1XNgk7fsVu
-         IU5ZdLnUNhZHk3+5InRk7rgiYWDuDTMiUHlO+HvPHIBRZ/Rxf4JNOiA4Mcp0Sn8k8FxW
-         0ZMyTY/lNplWNdbs8bH+vf7fYl0wM84B+6RqTjjx81TPd5iBwGkGYPMZa+ACF+MUzyd0
-         lU1iVW5YYLY07y9SAoj8R0Z4tWJfQ5N/1yh4PsCaT5wKMbK1ykL54H1STwmOxhGQtKRH
-         jYzAopfOcakV3DqcqWN0kwbToEQfBIuihLfJFbfcUqF7qHfC4blySpzI7gwE5g4mhEQq
-         w9YQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=t2YvUZ+6AkZ4jmk9XyVqlCqkrY5aCDcc6K9Gau93OEA=;
-        b=fSzIqGGl27fLkFLMS1Q1hq0NCqj7iR+6QabESMErYqrDmmd+YV4ZRR53fwrIQVpNc+
-         EdEuH7tX1KdSIomwn5SzkS2pKLDwULfcpd26oJUUdKQHu1lbjeIE7mIi3OBTl2TFzZ0O
-         hlwS0wuTDy5I9PRElL89bN2CcakZU9UiigZ4eCsImxzOu4PQZoZb2FJvIj7he/bZ7rZK
-         CvaW5HARvNQdmPgBaFodMZHBc6w18FE1ZOnLu6cf5MZqgJV0lTqFLcYveKMsc04+2Qke
-         cEflynZO/91kzdbJAv+Tm2nTGpMp0H1TLuju/+BzlsgPITXKiCwGIKL6DDYLF0EbBHQ8
-         Y1Hg==
-X-Gm-Message-State: AGi0PuaL4A7qSeAlKJRnfY3UB0+ZsFTFyiU9mEY2d8dX46omOF/WIC1r
-        Bro5/JpomRLBFHvRde/c1S/iVpVtGy0=
-X-Google-Smtp-Source: APiQypLq5eGMGCBywKUW6cr0X/sdjalAucOxQthDn32wn29rCkOOiC67h0rKRCXqib1V/C7QHqR5zA==
-X-Received: by 2002:a17:90a:364c:: with SMTP id s70mr23091128pjb.143.1589215406858;
-        Mon, 11 May 2020 09:43:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x4sm9451541pfj.76.2020.05.11.09.43.25
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2020 09:43:25 -0700 (PDT)
-Message-ID: <5eb980ad.1c69fb81.9d25.2e72@mx.google.com>
-Date:   Mon, 11 May 2020 09:43:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1729956AbgEKQnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 May 2020 12:43:32 -0400
+Received: from mga09.intel.com ([134.134.136.24]:24306 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729550AbgEKQnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 May 2020 12:43:32 -0400
+IronPort-SDR: 7Yka3/TFFdtYbqS58d0lQvlm5SZ+jMzdagN7H+izGx+Gmd5xlw3SCCe5xBrECrkqsmzpdtQNCd
+ qiENc8cXzjvQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 May 2020 09:43:31 -0700
+IronPort-SDR: /epQPIGELEBOGsMFIqFWafme5opOmbJS3hFrKhRBG6pJ58CLVxxnv1zTZE2A8V9byuVqfcEd7U
+ QkESAcpEpSKg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,380,1583222400"; 
+   d="scan'208";a="265212769"
+Received: from tmeseri-mobl.ger.corp.intel.com (HELO [10.254.97.79]) ([10.254.97.79])
+  by orsmga006.jf.intel.com with ESMTP; 11 May 2020 09:43:31 -0700
+Subject: Re: [PATCH] x86/mm: Fix boot with some memory above MAXMEM
+To:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Kleen, Andi" <andi.kleen@intel.com>
+Cc:     dave.hansen@linux.intel.com,
+        linux-drivers-review@eclists.intel.com, stable@vger.kernel.org
+References: <20200511163706.41619-1-kirill.shutemov@linux.intel.com>
+From:   Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+ z5cecg==
+Message-ID: <4db011da-35b4-c6c0-aa35-54a28776169b@intel.com>
+Date:   Mon, 11 May 2020 09:43:30 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.40
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.4.y boot: 159 boots: 1 failed,
- 139 passed with 13 offline, 6 untried/unknown (v5.4.40)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20200511163706.41619-1-kirill.shutemov@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 159 boots: 1 failed, 139 passed with 13 offline=
-, 6 untried/unknown (v5.4.40)
+On 5/11/20 9:37 AM, Kirill A. Shutemov wrote:
+> -		memblock_add(entry->addr, entry->size);
+> +		if (entry->addr >= MAXMEM || end >= MAXMEM)
+> +			pr_err_once("Some physical memory is not addressable in the paging mode.\n");
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.40/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.40/
+Hi Kirill,
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.40
-Git Commit: f015b86259a520ad886523d9ec6fdb0ed80edc38
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 99 unique boards, 25 SoC families, 20 builds out of 200
+Thanks for fixing this!
 
-Boot Regressions Detected:
+Could we make the pr_err() a bit more informative, though?  It would be
+nice to print out how much memory (or which addresses at least) are
+being thrown away.
 
-arm:
-
-    imx_v6_v7_defconfig:
-        gcc-8:
-          imx6dl-wandboard_dual:
-              lab-baylibre-seattle: new failure (last pass: v5.4.39-50-g695=
-621e78832)
-          imx6dl-wandboard_solo:
-              lab-baylibre-seattle: new failure (last pass: v5.4.39-50-g695=
-621e78832)
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap3-beagle:
-              lab-baylibre-seattle: new failure (last pass: v5.4.39-50-g695=
-621e78832)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 33 days (last pass: v5.4.30-37-g4=
-0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
-
-    tegra_defconfig:
-        gcc-8:
-          tegra30-beaver:
-              lab-baylibre-seattle: new failure (last pass: v5.4.39-50-g695=
-621e78832)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.4.39-50-g695621e788=
-32)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          sun50i-a64-pine64-plus:
-              lab-baylibre: new failure (last pass: v5.4.39-50-g695621e7883=
-2)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    omap2plus_defconfig:
-        gcc-8
-            omap3-beagle: 1 offline lab
-
-    tegra_defconfig:
-        gcc-8
-            tegra30-beaver: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-            omap3-beagle: 1 offline lab
-            stih410-b2120: 1 offline lab
-            tegra30-beaver: 1 offline lab
-
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6dl-wandboard_dual: 1 offline lab
-            imx6dl-wandboard_solo: 1 offline lab
-            imx6q-wandboard: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+I was also thinking that it would be handy to tell folks how to rectify
+the situation.  Should we perhaps dump out the runtime status of
+X86_FEATURE_LA57?
