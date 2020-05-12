@@ -2,105 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6312D1CF275
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 12:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3811CF2B7
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 12:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729460AbgELKb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 06:31:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57544 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728990AbgELKb6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 06:31:58 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19391C061A0C;
-        Tue, 12 May 2020 03:31:58 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id f15so5199836plr.3;
-        Tue, 12 May 2020 03:31:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=x723HYVX6DLr2jIwmsKENzW16HVJ+jFKg8Bzo5IJIqo=;
-        b=AkanddFeTVYotV2MU3WkzuS08pCcGroQ6uiV+hbrB28sgRMn3Y6ot5cQNrUlA4rR5y
-         iBE9iRKSg/E9yg9Lba+FQm+MmSdre/264HEkqpUPCZq55vfJm72HjiOVcsqaVEp4oAJW
-         Yut03N8cE78U3Lu6HqSY7rYC4SWpBTlb1Q14QovbEtJ/vLeSrGS4o/E/FU5PwZmFnIQW
-         FfxFMkit75KGBBOg8ztgdTPtOw4nfhDOhiNzJevSNbXHdzOw5hzmEAcPjnJPZgzd0RW0
-         bqn2MDT6sOue8YcksTXW57MijaQ44Pojhb7ijE/rz1ZZoJlqCxJ5wHZ0/BZ+tPZJNlD1
-         B8gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=x723HYVX6DLr2jIwmsKENzW16HVJ+jFKg8Bzo5IJIqo=;
-        b=RuBpcxLGtI2FY+xmxY5dpposx7Ex39VK36mgw+a8/LJyLDvJKcivN8543+5HeJOmwy
-         VPpK5yfpHagLj6Ya3g86oKVBMuFTT0Jp3DPaEzjR6zirlsV8/8OWhu2cmzjUHE6SSNAQ
-         n9TU3g75uS0MjTkp93c755MJUjTNkMYkOJL3974ZiP2fqCVeoN7Js08NGPVO+JKz+ZQJ
-         /TiLWHEH9ZxgSjjloKDr1WsqES9uFarqnixbqBYP4lPDxKqmzLyWglYO1Xx7zOY6LRzd
-         uyOVuAjRaCTsm0RRhmP6ffgfPwnBscMQ9gvBIPgZULnrVD0FGGjKb52oGUj1nLmRtLtP
-         9MXg==
-X-Gm-Message-State: AGi0Puam3GSIOQnErnawRUqMWXcaFHKIZsfDffXEP9sW/vDMRMwYEmjx
-        Tj6u4L2/GSAIp6kEDcenAHs=
-X-Google-Smtp-Source: APiQypKYuvP6Yz8SZAqAYu/2EVhVfHUTVYeUP9sMz6TAP8fztO/cBA31vvm749W29zykWzTtvZRzeA==
-X-Received: by 2002:a17:902:7d96:: with SMTP id a22mr20445958plm.194.1589279517429;
-        Tue, 12 May 2020 03:31:57 -0700 (PDT)
-Received: from software.domain.org (28.144.92.34.bc.googleusercontent.com. [34.92.144.28])
-        by smtp.gmail.com with ESMTPSA id q11sm11617094pfl.97.2020.05.12.03.31.54
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 12 May 2020 03:31:57 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
-Cc:     kvm@vger.kernel.org, linux-mips@vger.kernel.org,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Xing Li <lixing@loongson.cn>, stable@vger.kernel.org,
-        Huacai Chen <chenhc@lemote.com>
-Subject: [PATCH V4 02/14] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
-Date:   Tue, 12 May 2020 18:31:08 +0800
-Message-Id: <1589279480-27722-3-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
-In-Reply-To: <1589279480-27722-1-git-send-email-chenhc@lemote.com>
-References: <1589279480-27722-1-git-send-email-chenhc@lemote.com>
+        id S1729229AbgELKlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 06:41:44 -0400
+Received: from mga11.intel.com ([192.55.52.93]:35942 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726187AbgELKlo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 May 2020 06:41:44 -0400
+IronPort-SDR: HKiP4rC0rUdhfzVBUkkoOpVo2CKaqWCCIq0UPu9UlyFpf4oIs406H7GIZ9NIB6yB7/ZAarsrbt
+ yxoc06x+dzcw==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2020 03:41:43 -0700
+IronPort-SDR: IKGkcoonveRRsaxEa/z7hB2eSwHmMMWTLNtvjBme2nqnMHOXCmjMfwT/I5P8A7Z8xqVvma9d8X
+ TmoBJ3UjM5fw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,383,1583222400"; 
+   d="scan'208";a="252857807"
+Received: from gaia.fi.intel.com ([10.237.72.192])
+  by fmsmga008.fm.intel.com with ESMTP; 12 May 2020 03:41:42 -0700
+Received: by gaia.fi.intel.com (Postfix, from userid 1000)
+        id 36AFF5C1F36; Tue, 12 May 2020 13:39:31 +0300 (EEST)
+From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>
+Subject: Re: [Intel-gfx] [PATCH] drm/i915: Watch out for idling during i915_gem_evict_something
+In-Reply-To: <20200509115217.26853-1-chris@chris-wilson.co.uk>
+References: <20200509115217.26853-1-chris@chris-wilson.co.uk>
+Date:   Tue, 12 May 2020 13:39:31 +0300
+Message-ID: <87lflx309o.fsf@gaia.fi.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xing Li <lixing@loongson.cn>
+Chris Wilson <chris@chris-wilson.co.uk> writes:
 
-If a CPU support more than 32bit vmbits (which is true for 64bit CPUs),
-VPN2_MASK set to fixed 0xffffe000 will lead to a wrong EntryHi in some
-functions such as _kvm_mips_host_tlb_inv().
+> i915_gem_evict_something() is charged with finding a slot within the GTT
+> that we may reuse. Since our goal is not to stall, we first look for a
+> slot that only overlaps idle vma. To this end, on the first pass we move
+> any active vma to the end of the search list. However, we only stopped
+> moving active vma after we see the first active vma twice. If during the
+> search, that first active vma completed, we would not notice and keep on
+> extending the search list.
+>
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1746
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.5+
 
-The cpu_vmbits definition of 32bit CPU in cpu-features.h is 31, so we
-still use the old definition.
+Only thing I would change is tune up the subject line.
+It fixes a possible busy loop in eviction so I feel 'watch out' is not
+strong enough for my liking.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
-Signed-off-by: Xing Li <lixing@loongson.cn>
-[Huacai: Improve commit messages]
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- arch/mips/include/asm/kvm_host.h | 4 ++++
- 1 file changed, 4 insertions(+)
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
 
-diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
-index a01cee9..caa2b936 100644
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -274,7 +274,11 @@ enum emulation_result {
- #define MIPS3_PG_SHIFT		6
- #define MIPS3_PG_FRAME		0x3fffffc0
- 
-+#if defined(CONFIG_64BIT)
-+#define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
-+#else
- #define VPN2_MASK		0xffffe000
-+#endif
- #define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
- #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
- #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
--- 
-2.7.0
-
+> ---
+>  drivers/gpu/drm/i915/i915_gem_evict.c | 26 ++++++++++++--------------
+>  1 file changed, 12 insertions(+), 14 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/i915_gem_evict.c b/drivers/gpu/drm/i915/i915_gem_evict.c
+> index 0ba7b1e881c0..6501939929d5 100644
+> --- a/drivers/gpu/drm/i915/i915_gem_evict.c
+> +++ b/drivers/gpu/drm/i915/i915_gem_evict.c
+> @@ -128,6 +128,13 @@ i915_gem_evict_something(struct i915_address_space *vm,
+>  	active = NULL;
+>  	INIT_LIST_HEAD(&eviction_list);
+>  	list_for_each_entry_safe(vma, next, &vm->bound_list, vm_link) {
+> +		if (vma == active) { /* now seen this vma twice */
+> +			if (flags & PIN_NONBLOCK)
+> +				break;
+> +
+> +			active = ERR_PTR(-EAGAIN);
+> +		}
+> +
+>  		/*
+>  		 * We keep this list in a rough least-recently scanned order
+>  		 * of active elements (inactive elements are cheap to reap).
+> @@ -143,21 +150,12 @@ i915_gem_evict_something(struct i915_address_space *vm,
+>  		 * To notice when we complete one full cycle, we record the
+>  		 * first active element seen, before moving it to the tail.
+>  		 */
+> -		if (i915_vma_is_active(vma)) {
+> -			if (vma == active) {
+> -				if (flags & PIN_NONBLOCK)
+> -					break;
+> -
+> -				active = ERR_PTR(-EAGAIN);
+> -			}
+> -
+> -			if (active != ERR_PTR(-EAGAIN)) {
+> -				if (!active)
+> -					active = vma;
+> +		if (active != ERR_PTR(-EAGAIN) && i915_vma_is_active(vma)) {
+> +			if (!active)
+> +				active = vma;
+>  
+> -				list_move_tail(&vma->vm_link, &vm->bound_list);
+> -				continue;
+> -			}
+> +			list_move_tail(&vma->vm_link, &vm->bound_list);
+> +			continue;
+>  		}
+>  
+>  		if (mark_free(&scan, vma, flags, &eviction_list))
+> -- 
+> 2.20.1
+>
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
