@@ -2,120 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C3811CF2B7
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 12:41:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19DD11CF2E4
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 12:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729229AbgELKlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 06:41:44 -0400
-Received: from mga11.intel.com ([192.55.52.93]:35942 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726187AbgELKlo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 May 2020 06:41:44 -0400
-IronPort-SDR: HKiP4rC0rUdhfzVBUkkoOpVo2CKaqWCCIq0UPu9UlyFpf4oIs406H7GIZ9NIB6yB7/ZAarsrbt
- yxoc06x+dzcw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2020 03:41:43 -0700
-IronPort-SDR: IKGkcoonveRRsaxEa/z7hB2eSwHmMMWTLNtvjBme2nqnMHOXCmjMfwT/I5P8A7Z8xqVvma9d8X
- TmoBJ3UjM5fw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,383,1583222400"; 
-   d="scan'208";a="252857807"
-Received: from gaia.fi.intel.com ([10.237.72.192])
-  by fmsmga008.fm.intel.com with ESMTP; 12 May 2020 03:41:42 -0700
-Received: by gaia.fi.intel.com (Postfix, from userid 1000)
-        id 36AFF5C1F36; Tue, 12 May 2020 13:39:31 +0300 (EEST)
-From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915: Watch out for idling during i915_gem_evict_something
-In-Reply-To: <20200509115217.26853-1-chris@chris-wilson.co.uk>
-References: <20200509115217.26853-1-chris@chris-wilson.co.uk>
-Date:   Tue, 12 May 2020 13:39:31 +0300
-Message-ID: <87lflx309o.fsf@gaia.fi.intel.com>
+        id S1729283AbgELKwC convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 12 May 2020 06:52:02 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:54379 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729247AbgELKwC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 06:52:02 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 21171647-1500050 
+        for multiple; Tue, 12 May 2020 11:51:24 +0100
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <87lflx309o.fsf@gaia.fi.intel.com>
+References: <20200509115217.26853-1-chris@chris-wilson.co.uk> <87lflx309o.fsf@gaia.fi.intel.com>
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH] drm/i915: Watch out for idling during i915_gem_evict_something
+To:     Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org
+Message-ID: <158928068371.21674.17585538612679770949@build.alporthouse.com>
+User-Agent: alot/0.8.1
+Date:   Tue, 12 May 2020 11:51:23 +0100
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Chris Wilson <chris@chris-wilson.co.uk> writes:
+Quoting Mika Kuoppala (2020-05-12 11:39:31)
+> Chris Wilson <chris@chris-wilson.co.uk> writes:
+> 
+> > i915_gem_evict_something() is charged with finding a slot within the GTT
+> > that we may reuse. Since our goal is not to stall, we first look for a
+> > slot that only overlaps idle vma. To this end, on the first pass we move
+> > any active vma to the end of the search list. However, we only stopped
+> > moving active vma after we see the first active vma twice. If during the
+> > search, that first active vma completed, we would not notice and keep on
+> > extending the search list.
+> >
+> > Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1746
+> > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> > Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> > Cc: <stable@vger.kernel.org> # v5.5+
+> 
+> Only thing I would change is tune up the subject line.
+> It fixes a possible busy loop in eviction so I feel 'watch out' is not
+> strong enough for my liking.
 
-> i915_gem_evict_something() is charged with finding a slot within the GTT
-> that we may reuse. Since our goal is not to stall, we first look for a
-> slot that only overlaps idle vma. To this end, on the first pass we move
-> any active vma to the end of the search list. However, we only stopped
-> moving active vma after we see the first active vma twice. If during the
-> search, that first active vma completed, we would not notice and keep on
-> extending the search list.
->
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1746
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.5+
-
-Only thing I would change is tune up the subject line.
-It fixes a possible busy loop in eviction so I feel 'watch out' is not
-strong enough for my liking.
-
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-
-> ---
->  drivers/gpu/drm/i915/i915_gem_evict.c | 26 ++++++++++++--------------
->  1 file changed, 12 insertions(+), 14 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/i915_gem_evict.c b/drivers/gpu/drm/i915/i915_gem_evict.c
-> index 0ba7b1e881c0..6501939929d5 100644
-> --- a/drivers/gpu/drm/i915/i915_gem_evict.c
-> +++ b/drivers/gpu/drm/i915/i915_gem_evict.c
-> @@ -128,6 +128,13 @@ i915_gem_evict_something(struct i915_address_space *vm,
->  	active = NULL;
->  	INIT_LIST_HEAD(&eviction_list);
->  	list_for_each_entry_safe(vma, next, &vm->bound_list, vm_link) {
-> +		if (vma == active) { /* now seen this vma twice */
-> +			if (flags & PIN_NONBLOCK)
-> +				break;
-> +
-> +			active = ERR_PTR(-EAGAIN);
-> +		}
-> +
->  		/*
->  		 * We keep this list in a rough least-recently scanned order
->  		 * of active elements (inactive elements are cheap to reap).
-> @@ -143,21 +150,12 @@ i915_gem_evict_something(struct i915_address_space *vm,
->  		 * To notice when we complete one full cycle, we record the
->  		 * first active element seen, before moving it to the tail.
->  		 */
-> -		if (i915_vma_is_active(vma)) {
-> -			if (vma == active) {
-> -				if (flags & PIN_NONBLOCK)
-> -					break;
-> -
-> -				active = ERR_PTR(-EAGAIN);
-> -			}
-> -
-> -			if (active != ERR_PTR(-EAGAIN)) {
-> -				if (!active)
-> -					active = vma;
-> +		if (active != ERR_PTR(-EAGAIN) && i915_vma_is_active(vma)) {
-> +			if (!active)
-> +				active = vma;
->  
-> -				list_move_tail(&vma->vm_link, &vm->bound_list);
-> -				continue;
-> -			}
-> +			list_move_tail(&vma->vm_link, &vm->bound_list);
-> +			continue;
->  		}
->  
->  		if (mark_free(&scan, vma, flags, &eviction_list))
-> -- 
-> 2.20.1
->
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+Duck and cover for the idling is a-coming!
+-Chris
