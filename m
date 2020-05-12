@@ -2,112 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD7631CEEA2
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 09:57:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B76051CEF23
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 10:29:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729016AbgELH5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 03:57:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33046 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728949AbgELH5k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 03:57:40 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71838C061A0C;
-        Tue, 12 May 2020 00:57:40 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id s8so14112672wrt.9;
-        Tue, 12 May 2020 00:57:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=FKnAX8odzheYGQT7jDGjNlR3gvRSpwlFpS1VXp9+OKk=;
-        b=t+rtPBl8xM/oMLoZggKEKVQ1X/xWoBIs5OibyQFRcHvNObtIM6v3af/9AzrsAqUE/k
-         UybciGnMaLDJqfw1XEa1zjTD42QeqBpjafibcXRUg7RSgvGqvZrB8b0SsH+Hnvk+bN10
-         sowFLNzrW+7d3hmG0/3UruTr2OJl3cDNnxZmQqAcEk7qZvOBdyA+pAFsRELK96OPTTN1
-         CUpncx8RhmQ5gPO7uGqPA+LwVeVNktbBR+9e/xpLLBbsoTvQ+SNMN0/31Hdj0nMg3T0k
-         hhuK2QvqN5Vtzx19Z3KLNtFeMDq8YmCEd7NB36p9Q0Hkxp12GJ/7zNSB1gILQalDkZVz
-         BOWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=FKnAX8odzheYGQT7jDGjNlR3gvRSpwlFpS1VXp9+OKk=;
-        b=FW4sP4ExjXr8KIO3kRlZVTj/+kvyieamjKYk5uoZTz2f2K+5KKpc3bOo9M7dgPphuq
-         +jpUfgs4Eo8UXPZ0yFPNCchu7dOssiPhsHenp0N50ruCVFr/WOZXRzts8s7pJS6l7+DG
-         dKC5qgHFb4krkhPvIGAIcztwIyoE+sUv5RA96SS1OdZC1TByfQJkZYqVA5sIjcW2L5LY
-         ns75foo3FBmvZ6VYofVSrbcQecfAYeFboBhnjTnjaY9SHAROdHU8rXg8nUb+1qpquped
-         V6CjBvmus5VgpyzrIAacWYanwMYKBquZDanq6toHQESnxqEcJ1V0R/H8PJA9TEfR0C/a
-         S33g==
-X-Gm-Message-State: AGi0PuZuKFY8OA6ccYA8d3q9dOEwCiiN/lXPG9vZVdwnzIfMnGpCE7v7
-        z5ucICUSVL91FsK33xcnDFs=
-X-Google-Smtp-Source: APiQypKQwhXCVL/sn5E+I1b6Dwcm3VQqlLP5ifkvLOekIBhx5aYOclR8fafBTsQDDgUDuakI9hQt0w==
-X-Received: by 2002:adf:afe9:: with SMTP id y41mr5657932wrd.56.1589270259075;
-        Tue, 12 May 2020 00:57:39 -0700 (PDT)
-Received: from skynet.lan (198.red-83-49-57.dynamicip.rima-tde.net. [83.49.57.198])
-        by smtp.gmail.com with ESMTPSA id p8sm25946618wma.45.2020.05.12.00.57.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2020 00:57:38 -0700 (PDT)
-From:   =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>
-To:     computersforpeace@gmail.com, kdasu.kdev@gmail.com,
-        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
-        sumit.semwal@linaro.org, linux-mtd@lists.infradead.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
-Cc:     =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH v4 1/2] mtd: rawnand: brcmnand: fix hamming oob layout
-Date:   Tue, 12 May 2020 09:57:32 +0200
-Message-Id: <20200512075733.745374-2-noltari@gmail.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200512075733.745374-1-noltari@gmail.com>
-References: <20200512060023.684871-1-noltari@gmail.com>
- <20200512075733.745374-1-noltari@gmail.com>
+        id S1729224AbgELI27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 04:28:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57428 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729174AbgELI26 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 May 2020 04:28:58 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 901BB207FF;
+        Tue, 12 May 2020 08:28:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589272138;
+        bh=njpDdm0ei3wLE4fag30griz3nGE2HvH4gTYqWN2cPCE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Br6Ur28N7qvreO6eMeGli0A2o5+jsl0caJg+EtNBINXVHTrmoy9FM6OFGR2SPXEqw
+         +2OkbSMvg6KumldeCuPiMNL/GMh20WB/NvI17u+Kee9ynrKK+1l5bDnVsjRLW6z3+f
+         NDaPzva8aCCkYr7aVSYKkgD7/z/sel8BNylY7fHk=
+Date:   Tue, 12 May 2020 10:27:44 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guillaume Tucker <guillaume.tucker@collabora.com>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: stable/linux-4.4.y bisection: baseline.login on
+ at91-sama5d4_xplained
+Message-ID: <20200512082744.GB3526567@kroah.com>
+References: <5eb8399a.1c69fb81.c5a60.8316@mx.google.com>
+ <2db7e52e-86ae-7c87-1782-8c0cafcbadd8@collabora.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2db7e52e-86ae-7c87-1782-8c0cafcbadd8@collabora.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-First 2 bytes are used in large-page nand.
+On Tue, May 12, 2020 at 06:54:29AM +0100, Guillaume Tucker wrote:
+> Please see the bisection report below about a boot failure.
+> 
+> Reports aren't automatically sent to the public while we're
+> trialing new bisection features on kernelci.org but this one
+> looks valid.
+> 
+> It appears to be due to the fact that the network interface is
+> failing to get brought up:
+> 
+> [  114.385000] Waiting up to 10 more seconds for network.
+> [  124.355000] Sending DHCP requests ...#
+> ..#
+> .#
+>  timed out!
+> [  212.355000] IP-Config: Reopening network devices...
+> [  212.365000] IPv6: ADDRCONF(NETDEV_UP): eth0: link is not ready
+> #
+> 
+> 
+> I guess the board would boot fine without network if it didn't
+> have ip=dhcp in the command line, so it's not strictly a kernel
+> boot failure but still an ethernet issue.
+> 
+> There wasn't any failure reported by kernelci on linux-4.9.y so
+> maybe this patch was applied by mistake on linux-4.4.y but I
+> haven't investigated enough to prove this.
 
-Fixes: ef5eeea6e911 ("mtd: nand: brcm: switch to mtd_ooblayout_ops")
-Cc: stable@vger.kernel.org
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
----
- v4: no changes
- v3: invert patch order
- v2: extend original comment
+It wasn't applied "by mistake", as the commit log for this says it
+resolves an issue that was created in 2c7b49212a86 ("phy: fix the use of
+PHY_IGNORE_INTERRUPT") which was in 3.11.
 
- drivers/mtd/nand/raw/brcmnand/brcmnand.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+I'll go revert this now, as regressions are not good, perhaps some other
+change that happened between 4.5 and 4.9 in this area keeps the error
+you are seeing from happening.
 
-diff --git a/drivers/mtd/nand/raw/brcmnand/brcmnand.c b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-index e4e3ceeac38f..1c1070111ebc 100644
---- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-@@ -1116,11 +1116,14 @@ static int brcmnand_hamming_ooblayout_free(struct mtd_info *mtd, int section,
- 		if (!section) {
- 			/*
- 			 * Small-page NAND use byte 6 for BBI while large-page
--			 * NAND use byte 0.
-+			 * NAND use bytes 0 and 1.
- 			 */
--			if (cfg->page_size > 512)
--				oobregion->offset++;
--			oobregion->length--;
-+			if (cfg->page_size > 512) {
-+				oobregion->offset += 2;
-+				oobregion->length -= 2;
-+			} else {
-+				oobregion->length--;
-+			}
- 		}
- 	}
- 
--- 
-2.26.2
+thanks,
 
+greg k-h
