@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B36251CF345
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C82A1CF346
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:26:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729446AbgELL0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 07:26:53 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:36113 "EHLO
+        id S1726891AbgELL0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 07:26:55 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:40129 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726891AbgELL0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:26:53 -0400
+        by vger.kernel.org with ESMTP id S1729437AbgELL0y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:26:54 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 257531940B06;
-        Tue, 12 May 2020 07:26:52 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 906B61940B09;
+        Tue, 12 May 2020 07:26:53 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 12 May 2020 07:26:52 -0400
+  by compute1.internal (MEProxy); Tue, 12 May 2020 07:26:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zAWkY7
-        uMLmfglbeYuazAyFFYOM+PHtAJxxddtUXUwps=; b=mVkYZ2y7AGJwGay5fdeGg5
-        G4SjHjSaoc2fV4ErfVkGBIDjQtdn3F6TOh0jKksWe7katgkE95pX0vHJ5jgBvnH3
-        gTVUHltlwIstkjOL4penkPKDPhS8kMKE92+jPcQGvYmKR9pUHnaViBSDIQnmT92B
-        8i8chFSHZSXu0lkh9qaOhx17e9HhSqjR5VSdpLidtIQFrHWHcjkBcD4venNUpU9v
-        wpKzZB/EuCNPzC+B0lEctNT9689ls2WFwLa59W1XsN7V1pKgs1FO5S7y/8Bw4NoM
-        t6rAb4/ExN2kgINXlcew3a/0aSFK4f84AxnTwCPXalJsUUdSxfL5LIJOLkmzwD8A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=UrFXk3
+        uUc1s8RaGoRz7UXlOY+8zICYnjgi4aZLyrZcg=; b=fddy+3OUfYlTyscsg5zJBx
+        ddksPnzf0WIv1xvzdLzZ2cyYeDaalpE7GG2OJi2esIF4QGATEms/A5LYiSYUj7B6
+        3PRRQC2WZ5x+zCZiLkQrifsrQB+MGU/X8ci+VDs5jD3qo2Q5G8Ox1x47/IxOjBYy
+        Qcty5NakTeqapf2OEhCunUxiz04xuLyvfKuCIAsxKZ9fHIi+4xZUgHvgo/LwCCev
+        lnSvORHZrefpg2Bi3+A/G6oAW06Cbd0cu83EV+FNbPX1SFeeg5+1LQBvmO+rI2Bq
+        2A0+gBav+tavE5e+VZ4cnlTR3G7fho4nHs3AGSVyTl9JLuEm1ivGrfEiFqwQOBgg
         ==
-X-ME-Sender: <xms:_Ie6XoKCxA4sKbRUcj8wPdyKOWVcakV-NGEJvzobv-7QOZg50vhmOw>
+X-ME-Sender: <xms:_Ye6XgqxDSfwt9NUUri5d_3SteNy6tHa7wuPZ0-NDzNWYNWWdYpfNw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrledvgdefjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrledvgdefjecutefuodetggdote
     dufeevgeffuedvteelueenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
     rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:_Ie6XoJ5uiof92myBNZ41l87LB8hdWu_8ou-izYwb6dbKrBiGmM-1Q>
-    <xmx:_Ie6XovgyHHvGCfrbGewCREPUTKRPQWm9EgMskpgkGezWIr5tzF8HQ>
-    <xmx:_Ie6XlbpS7v7RodvNyL8p2mAu7EGVOhSEL58AZSusP9OqMufS5Vlkw>
-    <xmx:_Ie6XmyJeokdpnHGbXmW-jvcZB8yVBbl8_1IqSlc2tMVBFoeNfmwhA>
+X-ME-Proxy: <xmx:_Ye6Xmp5ERfPOFvR_Dl0ZC_nWLtySjcA6XIEAixkBuRROhoYDWLz6A>
+    <xmx:_Ye6XlNGnlZMv1GCNI_Sdj6QoAHu75HQ512gN6X55zeVAS40IF-U3Q>
+    <xmx:_Ye6Xn7v-SeAdtyQEydIbikB7FwnEQw-uwbqqiK5ih2gJrTH_cuazg>
+    <xmx:_Ye6XpQshF3tpVvK2tuWqWwYFcTMksvRsw-0QWxAF-GgaF2xISRGPQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B8D183280063;
-        Tue, 12 May 2020 07:26:51 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] arm64: hugetlb: avoid potential NULL dereference" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2E2F53280063;
+        Tue, 12 May 2020 07:26:53 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: hugetlb: avoid potential NULL dereference" failed to apply to 4.4-stable tree
 To:     mark.rutland@arm.com, catalin.marinas@arm.com,
         kyrylo.tkachov@arm.com, stable@vger.kernel.org, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 12 May 2020 13:26:42 +0200
-Message-ID: <158928280292134@kroah.com>
+Date:   Tue, 12 May 2020 13:26:43 +0200
+Message-ID: <158928280312186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
