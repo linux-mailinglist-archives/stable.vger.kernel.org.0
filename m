@@ -2,145 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F29F1CF302
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:00:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20F641CF31B
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726891AbgELLAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 07:00:53 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:55013 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727859AbgELLAx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:00:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589281252;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=tQSc1TJDaYwxYLceWP29iPDKblot1rwfivc0kNtIR+o=;
-        b=VPW44cq9o4e07lxFH6YAzsTFENIMs6MwDOfyK6TCiybSf8g5gbqeORsjTfRW9W1+nC7QEE
-        XlEeHjYWN7O6Pe6ta3xPWDgTcD77frMJCScntzsAipAbLdRVQIlM08RG8ZulTIUVCnXPAb
-        D+wHbw0RFGk2rYGQ0/H9AXnpfmxjs1g=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-457-Xu03e-A9OeWDOLi_le5K1A-1; Tue, 12 May 2020 07:00:48 -0400
-X-MC-Unique: Xu03e-A9OeWDOLi_le5K1A-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 080618018A7;
-        Tue, 12 May 2020 11:00:47 +0000 (UTC)
-Received: from x1.localdomain.com (ovpn-113-117.ams2.redhat.com [10.36.113.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7CBAB78B21;
-        Tue, 12 May 2020 11:00:45 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-pwm@vger.kernel.org, linux-acpi@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] pwm: lpss: Fix get_state runtime-pm reference handling
-Date:   Tue, 12 May 2020 13:00:44 +0200
-Message-Id: <20200512110044.95984-1-hdegoede@redhat.com>
+        id S1728085AbgELLLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 07:11:03 -0400
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:58865 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726891AbgELLLD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:11:03 -0400
+X-Originating-IP: 90.65.91.255
+Received: from localhost (lfbn-lyo-1-1912-bdcst.w90-65.abo.wanadoo.fr [90.65.91.255])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id CF861C0008;
+        Tue, 12 May 2020 11:10:59 +0000 (UTC)
+Date:   Tue, 12 May 2020 13:10:59 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Guillaume Tucker <guillaume.tucker@collabora.com>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: stable/linux-4.4.y bisection: baseline.login on
+ at91-sama5d4_xplained
+Message-ID: <20200512111059.GA34497@piout.net>
+References: <5eb8399a.1c69fb81.c5a60.8316@mx.google.com>
+ <2db7e52e-86ae-7c87-1782-8c0cafcbadd8@collabora.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2db7e52e-86ae-7c87-1782-8c0cafcbadd8@collabora.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Before commit cfc4c189bc70 ("pwm: Read initial hardware state at request
-time"), a driver's get_state callback would get called once per PWM from
-pwmchip_add().
+Hi,
 
-pwm-lpss' runtime-pm code was relying on this, getting a runtime-pm ref for
-PWMs which are enabled at probe time from within its get_state callback,
-before enabling runtime-pm.
+On 12/05/2020 06:54:29+0100, Guillaume Tucker wrote:
+> Please see the bisection report below about a boot failure.
+> 
+> Reports aren't automatically sent to the public while we're
+> trialing new bisection features on kernelci.org but this one
+> looks valid.
+> 
+> It appears to be due to the fact that the network interface is
+> failing to get brought up:
+> 
+> [  114.385000] Waiting up to 10 more seconds for network.
+> [  124.355000] Sending DHCP requests ...#
+> ..#
+> .#
+>  timed out!
+> [  212.355000] IP-Config: Reopening network devices...
+> [  212.365000] IPv6: ADDRCONF(NETDEV_UP): eth0: link is not ready
+> #
+> 
+> 
+> I guess the board would boot fine without network if it didn't
+> have ip=dhcp in the command line, so it's not strictly a kernel
+> boot failure but still an ethernet issue.
+> 
 
-The change to calling get_state at request time causes a number of
-problems:
+I think the resolution of this issue is
+99f81afc139c6edd14d77a91ee91685a414a1c66. If this is taken, then I think
+f5aba91d7f186cba84af966a741a0346de603cd4 should also be backported.
 
-1. PWMs enabled at probe time may get runtime suspended before they are
-requested, causing e.g. a LCD backlight controlled by the PWM to turn off.
 
-2. When the request happens when the PWM has been runtime suspended, the
-ctrl register will read all 1 / 0xffffffff, causing get_state to store
-bogus values in the pwm_state.
+> There wasn't any failure reported by kernelci on linux-4.9.y so
+> maybe this patch was applied by mistake on linux-4.4.y but I
+> haven't investigated enough to prove this.
+> 
+> Thanks,
+> Guillaume
+> 
+> 
+> On 10/05/2020 18:27, kernelci.org bot wrote:
+> > * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+> > * This automated bisection report was sent to you on the basis  *
+> > * that you may be involved with the breaking commit it has      *
+> > * found.  No manual investigation has been done to verify it,   *
+> > * and the root cause of the problem may be somewhere else.      *
+> > *                                                               *
+> > * If you do send a fix, please include this trailer:            *
+> > *   Reported-by: "kernelci.org bot" <bot@kernelci.org>          *
+> > *                                                               *
+> > * Hope this helps!                                              *
+> > * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+> > 
+> > stable/linux-4.4.y bisection: baseline.login on at91-sama5d4_xplained
+> > 
+> > Summary:
+> >   Start:      e157447efd85b Linux 4.4.223
+> >   Plain log:  https://storage.kernelci.org/stable/linux-4.4.y/v4.4.223/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+> >   HTML log:   https://storage.kernelci.org/stable/linux-4.4.y/v4.4.223/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
+> >   Result:     0d1951fa23ba0 net: phy: Avoid polling PHY with PHY_IGNORE_INTERRUPTS
+> > 
+> > Checks:
+> >   revert:     PASS
+> >   verify:     PASS
+> > 
+> > Parameters:
+> >   Tree:       stable
+> >   URL:        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+> >   Branch:     linux-4.4.y
+> >   Target:     at91-sama5d4_xplained
+> >   CPU arch:   arm
+> >   Lab:        lab-baylibre
+> >   Compiler:   gcc-8
+> >   Config:     multi_v7_defconfig
+> >   Test case:  baseline.login
+> > 
+> > Breaking commit found:
+> > 
+> > -------------------------------------------------------------------------------
+> > commit 0d1951fa23ba0d35a4c5498ff28d1c5206d6fcdd
+> > Author: Florian Fainelli <f.fainelli@gmail.com>
+> > Date:   Mon Jan 18 19:33:06 2016 -0800
+> > 
+> >     net: phy: Avoid polling PHY with PHY_IGNORE_INTERRUPTS
+> >     
+> >     commit d5c3d84657db57bd23ecd58b97f1c99dd42a7b80 upstream.
+> >     
+> >     Commit 2c7b49212a86 ("phy: fix the use of PHY_IGNORE_INTERRUPT") changed
+> >     a hunk in phy_state_machine() in the PHY_RUNNING case which was not
+> >     needed. The change essentially makes the PHY library treat PHY devices
+> >     with PHY_IGNORE_INTERRUPT to keep polling for the PHY device, even
+> >     though the intent is not to do it.
+> >     
+> >     Fix this by reverting that specific hunk, which makes the PHY state
+> >     machine wait for state changes, and stay in the PHY_RUNNING state for as
+> >     long as needed.
+> >     
+> >     Fixes: 2c7b49212a86 ("phy: fix the use of PHY_IGNORE_INTERRUPT")
+> >     Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> >     Signed-off-by: David S. Miller <davem@davemloft.net>
+> >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > 
+> > diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+> > index 7d2cf015c5e76..b242bec834f4b 100644
+> > --- a/drivers/net/phy/phy.c
+> > +++ b/drivers/net/phy/phy.c
+> > @@ -912,10 +912,10 @@ void phy_state_machine(struct work_struct *work)
+> >  		phydev->adjust_link(phydev->attached_dev);
+> >  		break;
+> >  	case PHY_RUNNING:
+> > -		/* Only register a CHANGE if we are polling or ignoring
+> > -		 * interrupts and link changed since latest checking.
+> > +		/* Only register a CHANGE if we are polling and link changed
+> > +		 * since latest checking.
+> >  		 */
+> > -		if (!phy_interrupt_is_valid(phydev)) {
+> > +		if (phydev->irq == PHY_POLL) {
+> >  			old_link = phydev->link;
+> >  			err = phy_read_status(phydev);
+> >  			if (err)
+> > @@ -1015,8 +1015,13 @@ void phy_state_machine(struct work_struct *work)
+> >  	dev_dbg(&phydev->dev, "PHY state change %s -> %s\n",
+> >  		phy_state_to_str(old_state), phy_state_to_str(phydev->state));
+> >  
+> > -	queue_delayed_work(system_power_efficient_wq, &phydev->state_queue,
+> > -			   PHY_STATE_TIME * HZ);
+> > +	/* Only re-schedule a PHY state machine change if we are polling the
+> > +	 * PHY, if PHY_IGNORE_INTERRUPT is set, then we will be moving
+> > +	 * between states from phy_mac_interrupt()
+> > +	 */
+> > +	if (phydev->irq == PHY_POLL)
+> > +		queue_delayed_work(system_power_efficient_wq, &phydev->state_queue,
+> > +				   PHY_STATE_TIME * HZ);
+> >  }
+> >  
+> >  void phy_mac_interrupt(struct phy_device *phydev, int new_link)
+> > -------------------------------------------------------------------------------
+> > 
+> > 
+> > Git bisection log:
+> > 
+> > -------------------------------------------------------------------------------
+> > git bisect start
+> > # good: [b63f449e18b130fdc372b9717e72c19b83fc4876] Linux 4.4.222
+> > git bisect good b63f449e18b130fdc372b9717e72c19b83fc4876
+> > # bad: [e157447efd85bb2e6f8deaabbb62663bccd9bad2] Linux 4.4.223
+> > git bisect bad e157447efd85bb2e6f8deaabbb62663bccd9bad2
+> > # bad: [5733a9f4a3df384097c92c532aed34bc698a9acd] net: dsa: slave: fix of-node leak and phy priority
+> > git bisect bad 5733a9f4a3df384097c92c532aed34bc698a9acd
+> > # good: [1ce6993b857318a4b8c674b1bbaaf79aced34136] net/mlx5e: Fix blue flame quota logic
+> > git bisect good 1ce6993b857318a4b8c674b1bbaaf79aced34136
+> > # good: [c32532162f8ea4beed50a20cf4f9b205c75fe1b1] serial: samsung: Fix possible out of bounds access on non-DT platform
+> > git bisect good c32532162f8ea4beed50a20cf4f9b205c75fe1b1
+> > # good: [25e8aad6f491da6ae330148da09585371a3790f2] Revert "ACPI / LPSS: allow to use specific PM domain during ->probe()"
+> > git bisect good 25e8aad6f491da6ae330148da09585371a3790f2
+> > # good: [2f3e56e4b6020812350190f1cada230d790ce0e8] powerpc/tm: Fix stack pointer corruption in __tm_recheckpoint()
+> > git bisect good 2f3e56e4b6020812350190f1cada230d790ce0e8
+> > # bad: [0d1951fa23ba0d35a4c5498ff28d1c5206d6fcdd] net: phy: Avoid polling PHY with PHY_IGNORE_INTERRUPTS
+> > git bisect bad 0d1951fa23ba0d35a4c5498ff28d1c5206d6fcdd
+> > # good: [4ebef63e925e37f5de2f9da8fc86a545e4e0b945] sctp: fix the transports round robin issue when init is retransmitted
+> > git bisect good 4ebef63e925e37f5de2f9da8fc86a545e4e0b945
+> > # good: [c175435fdf50c81ca2b6576f090cba31c3489209] NFC: nci: memory leak in nci_core_conn_create()
+> > git bisect good c175435fdf50c81ca2b6576f090cba31c3489209
+> > # first bad commit: [0d1951fa23ba0d35a4c5498ff28d1c5206d6fcdd] net: phy: Avoid polling PHY with PHY_IGNORE_INTERRUPTS
+> > -------------------------------------------------------------------------------
+> > 
+> 
 
-3. get_state was using an async pm_runtime_get() call, because it assumed
-that runtime-pm has not been enabled yet. If shortly after the request an
-apply call is made, then the pwm_lpss_is_updating() check may trigger
-because the resume triggered by the pm_runtime_get() call is not complete
-yet, so the ctrl register still reads all 1 / 0xffffffff.
-
-This commit fixes these issues by moving the initial pm_runtime_get() call
-for PWMs which are enabled at probe time to the pwm_lpss_probe() function;
-and by making get_state take a runtime-pm ref before reading the ctrl reg.
-
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1828927
-Fixes: cfc4c189bc70 ("pwm: Read initial hardware state at request time")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/pwm/pwm-lpss.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/pwm/pwm-lpss.c b/drivers/pwm/pwm-lpss.c
-index 75bbfe5f3bc2..9d965ffe66d1 100644
---- a/drivers/pwm/pwm-lpss.c
-+++ b/drivers/pwm/pwm-lpss.c
-@@ -158,7 +158,6 @@ static int pwm_lpss_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 	return 0;
- }
- 
--/* This function gets called once from pwmchip_add to get the initial state */
- static void pwm_lpss_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 			       struct pwm_state *state)
- {
-@@ -167,6 +166,8 @@ static void pwm_lpss_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 	unsigned long long base_unit, freq, on_time_div;
- 	u32 ctrl;
- 
-+	pm_runtime_get_sync(chip->dev);
-+
- 	base_unit_range = BIT(lpwm->info->base_unit_bits);
- 
- 	ctrl = pwm_lpss_read(pwm);
-@@ -187,8 +188,7 @@ static void pwm_lpss_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 	state->polarity = PWM_POLARITY_NORMAL;
- 	state->enabled = !!(ctrl & PWM_ENABLE);
- 
--	if (state->enabled)
--		pm_runtime_get(chip->dev);
-+	pm_runtime_put(chip->dev);
- }
- 
- static const struct pwm_ops pwm_lpss_ops = {
-@@ -202,7 +202,8 @@ struct pwm_lpss_chip *pwm_lpss_probe(struct device *dev, struct resource *r,
- {
- 	struct pwm_lpss_chip *lpwm;
- 	unsigned long c;
--	int ret;
-+	int i, ret;
-+	u32 ctrl;
- 
- 	if (WARN_ON(info->npwm > MAX_PWMS))
- 		return ERR_PTR(-ENODEV);
-@@ -232,6 +233,12 @@ struct pwm_lpss_chip *pwm_lpss_probe(struct device *dev, struct resource *r,
- 		return ERR_PTR(ret);
- 	}
- 
-+	for (i = 0; i < lpwm->info->npwm; i++) {
-+		ctrl = pwm_lpss_read(&lpwm->chip.pwms[i]);
-+		if (ctrl & PWM_ENABLE)
-+			pm_runtime_get(dev);
-+	}
-+
- 	return lpwm;
- }
- EXPORT_SYMBOL_GPL(pwm_lpss_probe);
 -- 
-2.26.0
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
