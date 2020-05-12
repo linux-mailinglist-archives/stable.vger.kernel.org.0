@@ -2,96 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C501CF392
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:45:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 761991CF3BE
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729505AbgELLph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 07:45:37 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:51275 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726187AbgELLph (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:45:37 -0400
+        id S1728085AbgELLvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 07:51:14 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:51579 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727859AbgELLvO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:51:14 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 345BC5C00E1;
-        Tue, 12 May 2020 07:45:36 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 12 May 2020 07:45:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=CgwbE++isZyh3ATrtRIk7CV0qzN
-        Yg3YqRPlybExTQvQ=; b=ai/6IKq+PjIBYdqmB00V7zCtQ5OORYogAyFp6PG+Ww7
-        jmFOiRjsXHKsSfhcPpLB2u2w7cZIx8j6fSNe0oChaL3Wa1/f0NXq75ZxG4pSC5tb
-        D9Z7hYadD3wNShYxQvceom3G9gCkdxe2uh5ukcy/Tj+5u7WbNxr/bQH4GmWH4Whi
-        kIUcsvFM+/6B9biMt7oYdymIgDZRqZazJGCxs8dLkLA2YZZmWnBpIIfqMX7ZmU9T
-        LVoaNjbf+PZkrpieXFPXYH7c1cLuWo28/em+oP6JcwdqH7gKKPj+KNqTLWIKxGny
-        fzJWOCc+O0tgJfbGfAqppv5gptDjZMeO30HZdkqVjcw==
+        by mailforward.west.internal (Postfix) with ESMTP id 44371784;
+        Tue, 12 May 2020 07:51:13 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 12 May 2020 07:51:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=CgwbE+
-        +isZyh3ATrtRIk7CV0qzNYg3YqRPlybExTQvQ=; b=dfribv2oTfwMksipTTVAGH
-        ma8ibMGxYhwHJxfugABK9kUGF9TESgHtraGsW9nNdEUUBGPtSfoCmzeyFY1ebEcO
-        xEbjXL22IDyZkCbzjBSSpXRAVkO62v1oKHe/nTjZ+eynk0BjdzYGZRbTiqIQZQHv
-        3b4hNvVVkOYmYZ6hKePJBB3VCts1siK0I3v6v4WytAggS+fcbsYW43eMbW1d0vAp
-        XQsAZlVoJdypCoodF0WCA6rHi4H43U1dAYJCC9sCCe1JaLeIi7kg9FZh1mf07wB6
-        s6ev7LKNzh4iurqzmWpEDrI7T6M86iOuGHm/eB1iL6esii9VkJp3RCgiqNqTR38g
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=d+6Hro
+        /ZS804SbMK1cutX4n2YNt8NoOUs2xaq0R+TJY=; b=a4ec9DlKYFVlYCLdMUSUOF
+        x3u1H2ltSXV+deDLxZE0n8tuC6GKUr3KRWCtAXpzEJrtmCJIuxUmi5G8yiNogHDt
+        6TkLwpaA99sS6U7qZGgejh8N13ILHo9j9+fVYDRYJ8wKIYYNDzFItB07mrLWVwQQ
+        hBkWGVoK0g8EqTxhfmmktT5ascEAT+M07Jm/kOuJR07mk+TSOknp1+8tP8YmgKRU
+        f+vcM/Lglz2xIASAzYWZgu/77p5FkoBIwTc5jmIiFDjGZZ3FAh5DZ9NxbLAzYTbV
+        UPRdE9BFTNUSvklnmaikWJD9ikqJKdhIYILLZLq1lbs/CRYEWiCcfKFFX2o/Fwag
         ==
-X-ME-Sender: <xms:X4y6Xo42oE_nwJQQxEd-SKlA7huq_hL4C-Kd-dM552lRhzVGNglwuQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrledvgdegudcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:r426XlcOu3iBVNCujF81UD2h5Xky0Bx5_QNa9pwISsO1SC9ztXRHbg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrledvgdegvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsth
-    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
-    rdgtohhm
-X-ME-Proxy: <xmx:X4y6Xp7qGI-_7cRIjn-BgY1gcPwRdwtRhmdhLUukidQvWCgoX08vOQ>
-    <xmx:X4y6XncxbpWFohzTEPPfEsYDbM7uZ8mCuYb_8FQKcZu38XV3aKgIkA>
-    <xmx:X4y6XtJl87C2N_r7yr967xE6lVUijCXf4Iewxxo1yEnqGLsm4Q691w>
-    <xmx:YIy6Xg3UWXtCWVw9AJ7ObGBnAaiPmY0qK7gxoJ1FB2PfQh6I2oP0MA>
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:r426XjNhsWggr1575Wu5qnzfQSH0onuPvLft2H--_KaK5JmsOuB6tQ>
+    <xmx:r426XuiMPr0GtvJae5ZebDl3NsBM1Vs8dXDnLoP0Vy3YC5IxXh8xrw>
+    <xmx:r426Xu_a_SCIr0eWF2dxlJN-EXP7hGQE-xzqnhuwppLdoOwpTiiR6w>
+    <xmx:sI26Xq5LRIL7eT4AnmQhZlAFT_UkVD2FlY7sU45zKvuuM3qZeTCGFRwf5js>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 674EF3280066;
-        Tue, 12 May 2020 07:45:35 -0400 (EDT)
-Date:   Tue, 12 May 2020 13:45:33 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Ritesh Harjani <ritesh.list@gmail.com>
-Cc:     stable@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
-        linux-ext4@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH] ext4: Don't set dioread_nolock by default for blocksize
- < pagesize
-Message-ID: <20200512114533.GA54730@kroah.com>
-References: <87pndagw7s.fsf@linux.ibm.com>
- <20200327200744.12473-1-riteshh@linux.ibm.com>
- <20200329021728.GI53396@mit.edu>
- <e61fe76d-687f-3e34-6091-c501071b8a9a@gmail.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id A134130662BA;
+        Tue, 12 May 2020 07:51:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] bdi: add a ->dev_name field to struct backing_dev_info" failed to apply to 5.4-stable tree
+To:     hch@lst.de, axboe@kernel.dk, bvanassche@acm.org, jack@suse.cz,
+        yuyufen@huawei.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 12 May 2020 13:51:10 +0200
+Message-ID: <158928427099191@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e61fe76d-687f-3e34-6091-c501071b8a9a@gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 11, 2020 at 01:37:59PM +0530, Ritesh Harjani wrote:
-> Hello stable-list,
-> 
-> I think this subjected patch [1] missed the below fixes tag.
-> I guess the subjected patch is only picked for 5.7. And
-> AFAIU, this patch will be needed for 5.6 as well.
-> 
-> Could you please do the needful.
-> 
-> Fixes: 244adf6426ee31a (ext4: make dioread_nolock the default)
-> 
-> [1]: https://git.kernel.org/pub/scm/linux/kernel/git/tytso/ext4.git/commit/?h=dev&id=626b035b816b61a7a7b4d2205a6807e2f11a18c1
 
-This patch does not apply to the 5.6 kernel tree at all.  Please provide
-a working backport if you wish to see it present there.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 6bd87eec23cbc9ed222bed0f5b5b02bf300e9a8d Mon Sep 17 00:00:00 2001
+From: Christoph Hellwig <hch@lst.de>
+Date: Mon, 4 May 2020 14:47:56 +0200
+Subject: [PATCH] bdi: add a ->dev_name field to struct backing_dev_info
+
+Cache a copy of the name for the life time of the backing_dev_info
+structure so that we can reference it even after unregistering.
+
+Fixes: 68f23b89067f ("memcg: fix a crash in wb_workfn when a device disappears")
+Reported-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/include/linux/backing-dev-defs.h b/include/linux/backing-dev-defs.h
+index ee577a83cfe6..7367150f962a 100644
+--- a/include/linux/backing-dev-defs.h
++++ b/include/linux/backing-dev-defs.h
+@@ -219,6 +219,7 @@ struct backing_dev_info {
+ 	wait_queue_head_t wb_waitq;
+ 
+ 	struct device *dev;
++	char dev_name[64];
+ 	struct device *owner;
+ 
+ 	struct timer_list laptop_mode_wb_timer;
+diff --git a/mm/backing-dev.c b/mm/backing-dev.c
+index c2c44c89ee5d..efc5b83acd2d 100644
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -938,7 +938,8 @@ int bdi_register_va(struct backing_dev_info *bdi, const char *fmt, va_list args)
+ 	if (bdi->dev)	/* The driver needs to use separate queues per device */
+ 		return 0;
+ 
+-	dev = device_create_vargs(bdi_class, NULL, MKDEV(0, 0), bdi, fmt, args);
++	vsnprintf(bdi->dev_name, sizeof(bdi->dev_name), fmt, args);
++	dev = device_create(bdi_class, NULL, MKDEV(0, 0), bdi, bdi->dev_name);
+ 	if (IS_ERR(dev))
+ 		return PTR_ERR(dev);
+ 
+@@ -1047,7 +1048,7 @@ const char *bdi_dev_name(struct backing_dev_info *bdi)
+ {
+ 	if (!bdi || !bdi->dev)
+ 		return bdi_unknown_name;
+-	return dev_name(bdi->dev);
++	return bdi->dev_name;
+ }
+ EXPORT_SYMBOL_GPL(bdi_dev_name);
+ 
+
