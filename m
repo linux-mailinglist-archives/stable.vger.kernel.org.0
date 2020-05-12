@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 761991CF3BE
+	by mail.lfdr.de (Postfix) with ESMTP id E25ED1CF3BF
 	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728085AbgELLvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 07:51:14 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:51579 "EHLO
+        id S1727859AbgELLvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 07:51:15 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:36219 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727859AbgELLvO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:51:14 -0400
+        by vger.kernel.org with ESMTP id S1729761AbgELLvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:51:15 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 44371784;
+        by mailforward.west.internal (Postfix) with ESMTP id F04186C2;
         Tue, 12 May 2020 07:51:13 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 12 May 2020 07:51:13 -0400
+  by compute1.internal (MEProxy); Tue, 12 May 2020 07:51:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=d+6Hro
-        /ZS804SbMK1cutX4n2YNt8NoOUs2xaq0R+TJY=; b=a4ec9DlKYFVlYCLdMUSUOF
-        x3u1H2ltSXV+deDLxZE0n8tuC6GKUr3KRWCtAXpzEJrtmCJIuxUmi5G8yiNogHDt
-        6TkLwpaA99sS6U7qZGgejh8N13ILHo9j9+fVYDRYJ8wKIYYNDzFItB07mrLWVwQQ
-        hBkWGVoK0g8EqTxhfmmktT5ascEAT+M07Jm/kOuJR07mk+TSOknp1+8tP8YmgKRU
-        f+vcM/Lglz2xIASAzYWZgu/77p5FkoBIwTc5jmIiFDjGZZ3FAh5DZ9NxbLAzYTbV
-        UPRdE9BFTNUSvklnmaikWJD9ikqJKdhIYILLZLq1lbs/CRYEWiCcfKFFX2o/Fwag
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=w4u9vM
+        QR9ZFdUXCm1B8M0jWitFISYKkY+HJDRBsvBKg=; b=2Tbb0DLnUQSDo4fUgfS3w3
+        kCQW7GyFEW1yupHyQXSctEbOpIrwhxcgte2t1K0cjVHgk+OC7wXuhPAxVy5uY9Zr
+        VhEV6NbLYcgdiQKVhnaVQGaCfdoY1QtC0ArvZUMuKTLuAZubP0VuryZrpsCcDslM
+        EWXYdTUBJK2bUfJPcmQjOIk8JRneCbwjfkCIwe/gSXNS11t2wcc8tmd5WjAPB4S0
+        L3IuoHpOlt1CFRsLsqXPnLyEvaOOV0eA8+r+olhk6pFI2YXrE0RqtZHswscIJ9vs
+        AFz0B28MxCs/twKGGtzF/9bQRy5Ek+ztyf0Grrx/aM+g/NLKewXZmTmKyN1anR3A
         ==
-X-ME-Sender: <xms:r426XlcOu3iBVNCujF81UD2h5Xky0Bx5_QNa9pwISsO1SC9ztXRHbg>
+X-ME-Sender: <xms:sY26XkJ6qWgi6Qtqk0cfQsB0nP5jTXWZds-2gF8-QzWy8AKW9P556Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrledvgdegvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrledvgdegvdcutefuodetggdote
     evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:r426XjNhsWggr1575Wu5qnzfQSH0onuPvLft2H--_KaK5JmsOuB6tQ>
-    <xmx:r426XuiMPr0GtvJae5ZebDl3NsBM1Vs8dXDnLoP0Vy3YC5IxXh8xrw>
-    <xmx:r426Xu_a_SCIr0eWF2dxlJN-EXP7hGQE-xzqnhuwppLdoOwpTiiR6w>
-    <xmx:sI26Xq5LRIL7eT4AnmQhZlAFT_UkVD2FlY7sU45zKvuuM3qZeTCGFRwf5js>
+X-ME-Proxy: <xmx:sY26XkJ2zgxShrFlbtU-LSL5GMFLDITTmJhcmqlRBLa6ad89qw-CnA>
+    <xmx:sY26Xkv-XyoIzDFSHkVbHwTNy3KYuiJfpkRqxj-OK6Tmkjm2wJfjCA>
+    <xmx:sY26XhYUXgWNx8ZodUK4eOZnkfuM-FhTPaatoZrj3fQ4ul5F8_evSg>
+    <xmx:sY26Xqnj_Snio-bgpcMfhEErA0-qZsrX5-zX7EKNY51RTrbRCdP-ezn-9uc>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A134130662BA;
-        Tue, 12 May 2020 07:51:11 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bdi: add a ->dev_name field to struct backing_dev_info" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3465430662CE;
+        Tue, 12 May 2020 07:51:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] bdi: add a ->dev_name field to struct backing_dev_info" failed to apply to 5.6-stable tree
 To:     hch@lst.de, axboe@kernel.dk, bvanassche@acm.org, jack@suse.cz,
         yuyufen@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 12 May 2020 13:51:10 +0200
-Message-ID: <158928427099191@kroah.com>
+Date:   Tue, 12 May 2020 13:51:12 +0200
+Message-ID: <158928427224231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.6-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
