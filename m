@@ -2,56 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C82A1CF346
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FAED1CF355
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726891AbgELL0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 07:26:55 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:40129 "EHLO
-        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729437AbgELL0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:26:54 -0400
+        id S1729505AbgELLaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 07:30:15 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:33287 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726891AbgELLaO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:30:14 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 906B61940B09;
-        Tue, 12 May 2020 07:26:53 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 54946727;
+        Tue, 12 May 2020 07:30:13 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 12 May 2020 07:26:53 -0400
+  by compute1.internal (MEProxy); Tue, 12 May 2020 07:30:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=UrFXk3
-        uUc1s8RaGoRz7UXlOY+8zICYnjgi4aZLyrZcg=; b=fddy+3OUfYlTyscsg5zJBx
-        ddksPnzf0WIv1xvzdLzZ2cyYeDaalpE7GG2OJi2esIF4QGATEms/A5LYiSYUj7B6
-        3PRRQC2WZ5x+zCZiLkQrifsrQB+MGU/X8ci+VDs5jD3qo2Q5G8Ox1x47/IxOjBYy
-        Qcty5NakTeqapf2OEhCunUxiz04xuLyvfKuCIAsxKZ9fHIi+4xZUgHvgo/LwCCev
-        lnSvORHZrefpg2Bi3+A/G6oAW06Cbd0cu83EV+FNbPX1SFeeg5+1LQBvmO+rI2Bq
-        2A0+gBav+tavE5e+VZ4cnlTR3G7fho4nHs3AGSVyTl9JLuEm1ivGrfEiFqwQOBgg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=EkVdKM
+        K//TDT/2vilpkl3mp7EcsDkrTf+8LPtpUybrg=; b=P1NaA64ThRfTS6jw2fdj1y
+        dg5XT3V7uHWWEWRD4WxJnUw7kxAbU62SgA4HyyRLTEG4pzOtnkVPTA8M+T/necZI
+        ItrPZzrrM68vYKUIr4yLI10fGFlzabaEWYR2oXCNCaVvJrGxlMr6uWVY9F+zA+TB
+        8S+fbyQOwr+DbqgPgdG1sKU+Veb6a/9+JSykJytNwW4aX1TQZtXqqZT9LVocDQQn
+        9zTE7X8Cuu2QF82VB9w3/a7p0H1uBvS4RVpMJySoyOSH/rqB/cwBt8p0mc8KoO2/
+        K+bVVrpp74MSGNRLXB3ftLZDiefoSF2JIBKdTv3z9yTmdGw5FFaBjPnRD0MU0QAw
         ==
-X-ME-Sender: <xms:_Ye6XgqxDSfwt9NUUri5d_3SteNy6tHa7wuPZ0-NDzNWYNWWdYpfNw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrledvgdefjecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:xIi6XqieiIitJIv1z0d4wXYFMTK5rF7t6BLsbRInQjK88xfbHV4Imw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrledvgdefkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeehgefguedvheejffeiheehuedvjeefhfegvefggedvue
-    dufeevgeffuedvteelueenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:_Ye6Xmp5ERfPOFvR_Dl0ZC_nWLtySjcA6XIEAixkBuRROhoYDWLz6A>
-    <xmx:_Ye6XlNGnlZMv1GCNI_Sdj6QoAHu75HQ512gN6X55zeVAS40IF-U3Q>
-    <xmx:_Ye6Xn7v-SeAdtyQEydIbikB7FwnEQw-uwbqqiK5ih2gJrTH_cuazg>
-    <xmx:_Ye6XpQshF3tpVvK2tuWqWwYFcTMksvRsw-0QWxAF-GgaF2xISRGPQ>
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:xIi6XrCZjBtNcvpa1Wg1UhEzC62B4Yr2IAWPOCM7sJJqw4nMReTAAg>
+    <xmx:xIi6XiHokVLP0P-G0bvd9jb5m6nVGQtIiyaWvbdUut2HRtHkTh3MJQ>
+    <xmx:xIi6XjTo_B_TtgWMfpnWAAz_QKbouCoydx-qkNxAo2_vsIHS1Wk84Q>
+    <xmx:xIi6Xun9eksQZ7agRMnt0n91_iwIVaN8qMxtL__nSXNWCKxagBWB6JZ3nXQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2E2F53280063;
-        Tue, 12 May 2020 07:26:53 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] arm64: hugetlb: avoid potential NULL dereference" failed to apply to 4.4-stable tree
-To:     mark.rutland@arm.com, catalin.marinas@arm.com,
-        kyrylo.tkachov@arm.com, stable@vger.kernel.org, will@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id F3E89328006E;
+        Tue, 12 May 2020 07:30:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ipc/mqueue.c: change __do_notify() to bypass" failed to apply to 4.14-stable tree
+To:     oleg@redhat.com, 1vier1@web.de, akpm@linux-foundation.org,
+        dave@stgolabs.net, ebiederm@xmission.com,
+        elfring@users.sourceforge.net, manfred@colorfullife.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        yoji.fujihar.min@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 12 May 2020 13:26:43 +0200
-Message-ID: <158928280312186@kroah.com>
+Date:   Tue, 12 May 2020 13:30:09 +0200
+Message-ID: <158928300990199@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -59,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,53 +73,147 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 027d0c7101f50cf03aeea9eebf484afd4920c8d3 Mon Sep 17 00:00:00 2001
-From: Mark Rutland <mark.rutland@arm.com>
-Date: Tue, 5 May 2020 13:59:30 +0100
-Subject: [PATCH] arm64: hugetlb: avoid potential NULL dereference
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From b5f2006144c6ae941726037120fa1001ddede784 Mon Sep 17 00:00:00 2001
+From: Oleg Nesterov <oleg@redhat.com>
+Date: Thu, 7 May 2020 18:35:39 -0700
+Subject: [PATCH] ipc/mqueue.c: change __do_notify() to bypass
+ check_kill_permission()
 
-The static analyzer in GCC 10 spotted that in huge_pte_alloc() we may
-pass a NULL pmdp into pte_alloc_map() when pmd_alloc() returns NULL:
+Commit cc731525f26a ("signal: Remove kernel interal si_code magic")
+changed the value of SI_FROMUSER(SI_MESGQ), this means that mq_notify() no
+longer works if the sender doesn't have rights to send a signal.
 
-|   CC      arch/arm64/mm/pageattr.o
-|   CC      arch/arm64/mm/hugetlbpage.o
-|                  from arch/arm64/mm/hugetlbpage.c:10:
-| arch/arm64/mm/hugetlbpage.c: In function ‘huge_pte_alloc’:
-| ./arch/arm64/include/asm/pgtable-types.h:28:24: warning: dereference of NULL ‘pmdp’ [CWE-690] [-Wanalyzer-null-dereference]
-| ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro ‘pmd_val’
-| arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro ‘pte_alloc_map’
-|     |arch/arm64/mm/hugetlbpage.c:232:10:
-|     |./arch/arm64/include/asm/pgtable-types.h:28:24:
-| ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro ‘pmd_val’
-| arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro ‘pte_alloc_map’
+Change __do_notify() to use do_send_sig_info() instead of kill_pid_info()
+to avoid check_kill_permission().
 
-This can only occur when the kernel cannot allocate a page, and so is
-unlikely to happen in practice before other systems start failing.
+This needs the additional notify.sigev_signo != 0 check, shouldn't we
+change do_mq_notify() to deny sigev_signo == 0 ?
 
-We can avoid this by bailing out if pmd_alloc() fails, as we do earlier
-in the function if pud_alloc() fails.
+Test-case:
 
-Fixes: 66b3923a1a0f ("arm64: hugetlb: add support for PTE contiguous bit")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Reported-by: Kyrill Tkachov <kyrylo.tkachov@arm.com>
-Cc: <stable@vger.kernel.org> # 4.5.x-
-Cc: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+	#include <signal.h>
+	#include <mqueue.h>
+	#include <unistd.h>
+	#include <sys/wait.h>
+	#include <assert.h>
 
-diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
-index bbeb6a5a6ba6..0be3355e3499 100644
---- a/arch/arm64/mm/hugetlbpage.c
-+++ b/arch/arm64/mm/hugetlbpage.c
-@@ -230,6 +230,8 @@ pte_t *huge_pte_alloc(struct mm_struct *mm,
- 		ptep = (pte_t *)pudp;
- 	} else if (sz == (CONT_PTE_SIZE)) {
- 		pmdp = pmd_alloc(mm, pudp, addr);
-+		if (!pmdp)
-+			return NULL;
+	static int notified;
+
+	static void sigh(int sig)
+	{
+		notified = 1;
+	}
+
+	int main(void)
+	{
+		signal(SIGIO, sigh);
+
+		int fd = mq_open("/mq", O_RDWR|O_CREAT, 0666, NULL);
+		assert(fd >= 0);
+
+		struct sigevent se = {
+			.sigev_notify	= SIGEV_SIGNAL,
+			.sigev_signo	= SIGIO,
+		};
+		assert(mq_notify(fd, &se) == 0);
+
+		if (!fork()) {
+			assert(setuid(1) == 0);
+			mq_send(fd, "",1,0);
+			return 0;
+		}
+
+		wait(NULL);
+		mq_unlink("/mq");
+		assert(notified);
+		return 0;
+	}
+
+[manfred@colorfullife.com: 1) Add self_exec_id evaluation so that the implementation matches do_notify_parent 2) use PIDTYPE_TGID everywhere]
+Fixes: cc731525f26a ("signal: Remove kernel interal si_code magic")
+Reported-by: Yoji <yoji.fujihar.min@gmail.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Markus Elfring <elfring@users.sourceforge.net>
+Cc: <1vier1@web.de>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/e2a782e4-eab9-4f5c-c749-c07a8f7a4e66@colorfullife.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index dc8307bf2d74..beff0cfcd1e8 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -142,6 +142,7 @@ struct mqueue_inode_info {
  
- 		WARN_ON(addr & (sz - 1));
- 		/*
+ 	struct sigevent notify;
+ 	struct pid *notify_owner;
++	u32 notify_self_exec_id;
+ 	struct user_namespace *notify_user_ns;
+ 	struct user_struct *user;	/* user who created, for accounting */
+ 	struct sock *notify_sock;
+@@ -773,28 +774,44 @@ static void __do_notify(struct mqueue_inode_info *info)
+ 	 * synchronously. */
+ 	if (info->notify_owner &&
+ 	    info->attr.mq_curmsgs == 1) {
+-		struct kernel_siginfo sig_i;
+ 		switch (info->notify.sigev_notify) {
+ 		case SIGEV_NONE:
+ 			break;
+-		case SIGEV_SIGNAL:
+-			/* sends signal */
++		case SIGEV_SIGNAL: {
++			struct kernel_siginfo sig_i;
++			struct task_struct *task;
++
++			/* do_mq_notify() accepts sigev_signo == 0, why?? */
++			if (!info->notify.sigev_signo)
++				break;
+ 
+ 			clear_siginfo(&sig_i);
+ 			sig_i.si_signo = info->notify.sigev_signo;
+ 			sig_i.si_errno = 0;
+ 			sig_i.si_code = SI_MESGQ;
+ 			sig_i.si_value = info->notify.sigev_value;
+-			/* map current pid/uid into info->owner's namespaces */
+ 			rcu_read_lock();
++			/* map current pid/uid into info->owner's namespaces */
+ 			sig_i.si_pid = task_tgid_nr_ns(current,
+ 						ns_of_pid(info->notify_owner));
+-			sig_i.si_uid = from_kuid_munged(info->notify_user_ns, current_uid());
++			sig_i.si_uid = from_kuid_munged(info->notify_user_ns,
++						current_uid());
++			/*
++			 * We can't use kill_pid_info(), this signal should
++			 * bypass check_kill_permission(). It is from kernel
++			 * but si_fromuser() can't know this.
++			 * We do check the self_exec_id, to avoid sending
++			 * signals to programs that don't expect them.
++			 */
++			task = pid_task(info->notify_owner, PIDTYPE_TGID);
++			if (task && task->self_exec_id ==
++						info->notify_self_exec_id) {
++				do_send_sig_info(info->notify.sigev_signo,
++						&sig_i, task, PIDTYPE_TGID);
++			}
+ 			rcu_read_unlock();
+-
+-			kill_pid_info(info->notify.sigev_signo,
+-				      &sig_i, info->notify_owner);
+ 			break;
++		}
+ 		case SIGEV_THREAD:
+ 			set_cookie(info->notify_cookie, NOTIFY_WOKENUP);
+ 			netlink_sendskb(info->notify_sock, info->notify_cookie);
+@@ -1383,6 +1400,7 @@ static int do_mq_notify(mqd_t mqdes, const struct sigevent *notification)
+ 			info->notify.sigev_signo = notification->sigev_signo;
+ 			info->notify.sigev_value = notification->sigev_value;
+ 			info->notify.sigev_notify = SIGEV_SIGNAL;
++			info->notify_self_exec_id = current->self_exec_id;
+ 			break;
+ 		}
+ 
 
