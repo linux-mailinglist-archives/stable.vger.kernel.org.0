@@ -2,211 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F641CF31B
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4741C1CF344
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 13:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728085AbgELLLD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 07:11:03 -0400
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:58865 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726891AbgELLLD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:11:03 -0400
-X-Originating-IP: 90.65.91.255
-Received: from localhost (lfbn-lyo-1-1912-bdcst.w90-65.abo.wanadoo.fr [90.65.91.255])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id CF861C0008;
-        Tue, 12 May 2020 11:10:59 +0000 (UTC)
-Date:   Tue, 12 May 2020 13:10:59 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Guillaume Tucker <guillaume.tucker@collabora.com>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: stable/linux-4.4.y bisection: baseline.login on
- at91-sama5d4_xplained
-Message-ID: <20200512111059.GA34497@piout.net>
-References: <5eb8399a.1c69fb81.c5a60.8316@mx.google.com>
- <2db7e52e-86ae-7c87-1782-8c0cafcbadd8@collabora.com>
+        id S1729436AbgELL0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 07:26:47 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:46733 "EHLO
+        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726891AbgELL0q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 07:26:46 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id A45BC19409E7;
+        Tue, 12 May 2020 07:26:45 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 12 May 2020 07:26:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YHQy5p
+        JofgB/kpEPQgmFyTJ6m6/fuRQmY/GJK/QtThQ=; b=dGpMkEhB3WfH1ulkl7pcrs
+        AbuMrZDyN8b6CWXuDUkwFyzUUoqbwpVkjyLkbWjExL4ToPenScUb6n41bfe4rvWG
+        GeVPIxQvBAQ+85pDG+23Nkl19IoWgC57oA3Bcz+T6UgrDCErqgcGRtfKgopYw/78
+        tX9YKugJpQwjeGfmdRR/St9W7tQT3GSvF5MvQmupyuLpy3lghisfCiAMSpVT3HYP
+        9QqL/zpYyQ8IZeWlNEDW8qAed+Y7YalGH46G9k0e3JYNJDJlbTLp9z3ZYf9KrE6w
+        UZsu9jJswoGDeXxKpMNQptao4uLH5SetlTDCeb0lxn8GSScSQugwf7TTQvhHJgmQ
+        ==
+X-ME-Sender: <xms:9Ye6XjU8jOPCxNxXNV_GDEDiI_oDKR0H7d-cdJYqRcbsrGuG2_HalQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrledvgdefjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeehgefguedvheejffeiheehuedvjeefhfegvefggedvue
+    dufeevgeffuedvteelueenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:9Ye6Xrlcn585_3koncpADqw0ghph_XRPllTO6254llYGoPw0aOnV1A>
+    <xmx:9Ye6XvYIFQTHRu-LZEZjaKqibUi5K-uKhf5wPCJ24nIiyr_FrKYzQQ>
+    <xmx:9Ye6XuVArX77CTr4URMWKiT9eydeCmCRgw94UASSbclnKFVm_S-SMA>
+    <xmx:9Ye6XtujE6c7wDZ6XUvD8ZJoXDPD4TArwUYGN0Gins2OrOVgC-asZw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1D6FD30662CD;
+        Tue, 12 May 2020 07:26:45 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: hugetlb: avoid potential NULL dereference" failed to apply to 4.14-stable tree
+To:     mark.rutland@arm.com, catalin.marinas@arm.com,
+        kyrylo.tkachov@arm.com, stable@vger.kernel.org, will@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 12 May 2020 13:26:41 +0200
+Message-ID: <15892828013114@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2db7e52e-86ae-7c87-1782-8c0cafcbadd8@collabora.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On 12/05/2020 06:54:29+0100, Guillaume Tucker wrote:
-> Please see the bisection report below about a boot failure.
-> 
-> Reports aren't automatically sent to the public while we're
-> trialing new bisection features on kernelci.org but this one
-> looks valid.
-> 
-> It appears to be due to the fact that the network interface is
-> failing to get brought up:
-> 
-> [  114.385000] Waiting up to 10 more seconds for network.
-> [  124.355000] Sending DHCP requests ...#
-> ..#
-> .#
->  timed out!
-> [  212.355000] IP-Config: Reopening network devices...
-> [  212.365000] IPv6: ADDRCONF(NETDEV_UP): eth0: link is not ready
-> #
-> 
-> 
-> I guess the board would boot fine without network if it didn't
-> have ip=dhcp in the command line, so it's not strictly a kernel
-> boot failure but still an ethernet issue.
-> 
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I think the resolution of this issue is
-99f81afc139c6edd14d77a91ee91685a414a1c66. If this is taken, then I think
-f5aba91d7f186cba84af966a741a0346de603cd4 should also be backported.
+thanks,
 
+greg k-h
 
-> There wasn't any failure reported by kernelci on linux-4.9.y so
-> maybe this patch was applied by mistake on linux-4.4.y but I
-> haven't investigated enough to prove this.
-> 
-> Thanks,
-> Guillaume
-> 
-> 
-> On 10/05/2020 18:27, kernelci.org bot wrote:
-> > * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-> > * This automated bisection report was sent to you on the basis  *
-> > * that you may be involved with the breaking commit it has      *
-> > * found.  No manual investigation has been done to verify it,   *
-> > * and the root cause of the problem may be somewhere else.      *
-> > *                                                               *
-> > * If you do send a fix, please include this trailer:            *
-> > *   Reported-by: "kernelci.org bot" <bot@kernelci.org>          *
-> > *                                                               *
-> > * Hope this helps!                                              *
-> > * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-> > 
-> > stable/linux-4.4.y bisection: baseline.login on at91-sama5d4_xplained
-> > 
-> > Summary:
-> >   Start:      e157447efd85b Linux 4.4.223
-> >   Plain log:  https://storage.kernelci.org/stable/linux-4.4.y/v4.4.223/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-> >   HTML log:   https://storage.kernelci.org/stable/linux-4.4.y/v4.4.223/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
-> >   Result:     0d1951fa23ba0 net: phy: Avoid polling PHY with PHY_IGNORE_INTERRUPTS
-> > 
-> > Checks:
-> >   revert:     PASS
-> >   verify:     PASS
-> > 
-> > Parameters:
-> >   Tree:       stable
-> >   URL:        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
-> >   Branch:     linux-4.4.y
-> >   Target:     at91-sama5d4_xplained
-> >   CPU arch:   arm
-> >   Lab:        lab-baylibre
-> >   Compiler:   gcc-8
-> >   Config:     multi_v7_defconfig
-> >   Test case:  baseline.login
-> > 
-> > Breaking commit found:
-> > 
-> > -------------------------------------------------------------------------------
-> > commit 0d1951fa23ba0d35a4c5498ff28d1c5206d6fcdd
-> > Author: Florian Fainelli <f.fainelli@gmail.com>
-> > Date:   Mon Jan 18 19:33:06 2016 -0800
-> > 
-> >     net: phy: Avoid polling PHY with PHY_IGNORE_INTERRUPTS
-> >     
-> >     commit d5c3d84657db57bd23ecd58b97f1c99dd42a7b80 upstream.
-> >     
-> >     Commit 2c7b49212a86 ("phy: fix the use of PHY_IGNORE_INTERRUPT") changed
-> >     a hunk in phy_state_machine() in the PHY_RUNNING case which was not
-> >     needed. The change essentially makes the PHY library treat PHY devices
-> >     with PHY_IGNORE_INTERRUPT to keep polling for the PHY device, even
-> >     though the intent is not to do it.
-> >     
-> >     Fix this by reverting that specific hunk, which makes the PHY state
-> >     machine wait for state changes, and stay in the PHY_RUNNING state for as
-> >     long as needed.
-> >     
-> >     Fixes: 2c7b49212a86 ("phy: fix the use of PHY_IGNORE_INTERRUPT")
-> >     Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> >     Signed-off-by: David S. Miller <davem@davemloft.net>
-> >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > 
-> > diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-> > index 7d2cf015c5e76..b242bec834f4b 100644
-> > --- a/drivers/net/phy/phy.c
-> > +++ b/drivers/net/phy/phy.c
-> > @@ -912,10 +912,10 @@ void phy_state_machine(struct work_struct *work)
-> >  		phydev->adjust_link(phydev->attached_dev);
-> >  		break;
-> >  	case PHY_RUNNING:
-> > -		/* Only register a CHANGE if we are polling or ignoring
-> > -		 * interrupts and link changed since latest checking.
-> > +		/* Only register a CHANGE if we are polling and link changed
-> > +		 * since latest checking.
-> >  		 */
-> > -		if (!phy_interrupt_is_valid(phydev)) {
-> > +		if (phydev->irq == PHY_POLL) {
-> >  			old_link = phydev->link;
-> >  			err = phy_read_status(phydev);
-> >  			if (err)
-> > @@ -1015,8 +1015,13 @@ void phy_state_machine(struct work_struct *work)
-> >  	dev_dbg(&phydev->dev, "PHY state change %s -> %s\n",
-> >  		phy_state_to_str(old_state), phy_state_to_str(phydev->state));
-> >  
-> > -	queue_delayed_work(system_power_efficient_wq, &phydev->state_queue,
-> > -			   PHY_STATE_TIME * HZ);
-> > +	/* Only re-schedule a PHY state machine change if we are polling the
-> > +	 * PHY, if PHY_IGNORE_INTERRUPT is set, then we will be moving
-> > +	 * between states from phy_mac_interrupt()
-> > +	 */
-> > +	if (phydev->irq == PHY_POLL)
-> > +		queue_delayed_work(system_power_efficient_wq, &phydev->state_queue,
-> > +				   PHY_STATE_TIME * HZ);
-> >  }
-> >  
-> >  void phy_mac_interrupt(struct phy_device *phydev, int new_link)
-> > -------------------------------------------------------------------------------
-> > 
-> > 
-> > Git bisection log:
-> > 
-> > -------------------------------------------------------------------------------
-> > git bisect start
-> > # good: [b63f449e18b130fdc372b9717e72c19b83fc4876] Linux 4.4.222
-> > git bisect good b63f449e18b130fdc372b9717e72c19b83fc4876
-> > # bad: [e157447efd85bb2e6f8deaabbb62663bccd9bad2] Linux 4.4.223
-> > git bisect bad e157447efd85bb2e6f8deaabbb62663bccd9bad2
-> > # bad: [5733a9f4a3df384097c92c532aed34bc698a9acd] net: dsa: slave: fix of-node leak and phy priority
-> > git bisect bad 5733a9f4a3df384097c92c532aed34bc698a9acd
-> > # good: [1ce6993b857318a4b8c674b1bbaaf79aced34136] net/mlx5e: Fix blue flame quota logic
-> > git bisect good 1ce6993b857318a4b8c674b1bbaaf79aced34136
-> > # good: [c32532162f8ea4beed50a20cf4f9b205c75fe1b1] serial: samsung: Fix possible out of bounds access on non-DT platform
-> > git bisect good c32532162f8ea4beed50a20cf4f9b205c75fe1b1
-> > # good: [25e8aad6f491da6ae330148da09585371a3790f2] Revert "ACPI / LPSS: allow to use specific PM domain during ->probe()"
-> > git bisect good 25e8aad6f491da6ae330148da09585371a3790f2
-> > # good: [2f3e56e4b6020812350190f1cada230d790ce0e8] powerpc/tm: Fix stack pointer corruption in __tm_recheckpoint()
-> > git bisect good 2f3e56e4b6020812350190f1cada230d790ce0e8
-> > # bad: [0d1951fa23ba0d35a4c5498ff28d1c5206d6fcdd] net: phy: Avoid polling PHY with PHY_IGNORE_INTERRUPTS
-> > git bisect bad 0d1951fa23ba0d35a4c5498ff28d1c5206d6fcdd
-> > # good: [4ebef63e925e37f5de2f9da8fc86a545e4e0b945] sctp: fix the transports round robin issue when init is retransmitted
-> > git bisect good 4ebef63e925e37f5de2f9da8fc86a545e4e0b945
-> > # good: [c175435fdf50c81ca2b6576f090cba31c3489209] NFC: nci: memory leak in nci_core_conn_create()
-> > git bisect good c175435fdf50c81ca2b6576f090cba31c3489209
-> > # first bad commit: [0d1951fa23ba0d35a4c5498ff28d1c5206d6fcdd] net: phy: Avoid polling PHY with PHY_IGNORE_INTERRUPTS
-> > -------------------------------------------------------------------------------
-> > 
-> 
+------------------ original commit in Linus's tree ------------------
 
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+From 027d0c7101f50cf03aeea9eebf484afd4920c8d3 Mon Sep 17 00:00:00 2001
+From: Mark Rutland <mark.rutland@arm.com>
+Date: Tue, 5 May 2020 13:59:30 +0100
+Subject: [PATCH] arm64: hugetlb: avoid potential NULL dereference
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The static analyzer in GCC 10 spotted that in huge_pte_alloc() we may
+pass a NULL pmdp into pte_alloc_map() when pmd_alloc() returns NULL:
+
+|   CC      arch/arm64/mm/pageattr.o
+|   CC      arch/arm64/mm/hugetlbpage.o
+|                  from arch/arm64/mm/hugetlbpage.c:10:
+| arch/arm64/mm/hugetlbpage.c: In function ‘huge_pte_alloc’:
+| ./arch/arm64/include/asm/pgtable-types.h:28:24: warning: dereference of NULL ‘pmdp’ [CWE-690] [-Wanalyzer-null-dereference]
+| ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro ‘pmd_val’
+| arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro ‘pte_alloc_map’
+|     |arch/arm64/mm/hugetlbpage.c:232:10:
+|     |./arch/arm64/include/asm/pgtable-types.h:28:24:
+| ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro ‘pmd_val’
+| arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro ‘pte_alloc_map’
+
+This can only occur when the kernel cannot allocate a page, and so is
+unlikely to happen in practice before other systems start failing.
+
+We can avoid this by bailing out if pmd_alloc() fails, as we do earlier
+in the function if pud_alloc() fails.
+
+Fixes: 66b3923a1a0f ("arm64: hugetlb: add support for PTE contiguous bit")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Reported-by: Kyrill Tkachov <kyrylo.tkachov@arm.com>
+Cc: <stable@vger.kernel.org> # 4.5.x-
+Cc: Will Deacon <will@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+
+diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
+index bbeb6a5a6ba6..0be3355e3499 100644
+--- a/arch/arm64/mm/hugetlbpage.c
++++ b/arch/arm64/mm/hugetlbpage.c
+@@ -230,6 +230,8 @@ pte_t *huge_pte_alloc(struct mm_struct *mm,
+ 		ptep = (pte_t *)pudp;
+ 	} else if (sz == (CONT_PTE_SIZE)) {
+ 		pmdp = pmd_alloc(mm, pudp, addr);
++		if (!pmdp)
++			return NULL;
+ 
+ 		WARN_ON(addr & (sz - 1));
+ 		/*
+
