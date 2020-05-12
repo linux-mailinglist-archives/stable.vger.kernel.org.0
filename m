@@ -2,122 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22CCF1CFB14
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 18:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0041CFCC6
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 20:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726160AbgELQl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 12:41:28 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:38715 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725938AbgELQl2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 12:41:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589301687;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=CToIAhR+WP82aVf9tq4SNiktxX0z23DH62TLuGr2uDE=;
-        b=YGWp816vIbc72nsfGHhm4ZnLWoKKKe7M0N+S4RTCHYSZehZHMqTcmv9P+RIgZdvfqIGxaa
-        wG/q/PdKyUj7GO0fJhl69Zxno2gNsGHGpO6cZR2Lyc7DPwyeWSQmzzJWalwGfWPYHk/2aP
-        eRBAGhGFf/eb3yGAJ/CtFj12GP5Tjk0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-195-mVHNN4GsPvW4fgL9CrFinw-1; Tue, 12 May 2020 12:41:08 -0400
-X-MC-Unique: mVHNN4GsPvW4fgL9CrFinw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 29DCE18FE870
-        for <stable@vger.kernel.org>; Tue, 12 May 2020 16:41:07 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.106])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id AFCC75C1C3;
-        Tue, 12 May 2020 16:40:55 +0000 (UTC)
-Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Waiting_for_review=3a_Test_report?=
- =?UTF-8?Q?_for_kernel_5=2e6=2e12-c4bbda2=2ecki_=28stable=29?=
-To:     Li Wang <liwan@redhat.com>, CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Cc:     skt-results-master@redhat.com, Ondrej Moris <omoris@redhat.com>,
-        Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-References: <cki.9933286682.FRYDQE9CQT@redhat.com>
- <CAEemH2cAxJy1GtmhjH8S2F_96E19FkUo-gUEnoTL=YG6taJ1qQ@mail.gmail.com>
-From:   Rachel Sibley <rasibley@redhat.com>
-Message-ID: <fb1cfaac-bdb9-4daf-4ddf-acb97bd33338@redhat.com>
-Date:   Tue, 12 May 2020 12:40:53 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1729194AbgELSFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 14:05:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43630 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725950AbgELSFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 May 2020 14:05:52 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFC8C061A0F
+        for <stable@vger.kernel.org>; Tue, 12 May 2020 11:05:51 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id r16so11897336edw.5
+        for <stable@vger.kernel.org>; Tue, 12 May 2020 11:05:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Ms+okw9kISTy8DxIfTUPcDhLDVdj6HKJmn7lPs1OmaM=;
+        b=ANCJuXtIhopMe6qzWtsRo4zE5GwXPL2Fk27jlFtblD32o31TKkPi9JrM5YQ1FRbGGw
+         eUtReQNx7ZPWVJCKKQmQY2x0qhNdY7aYRrWAsjuzQxh6CiTwxUZpPj5a46bbJ+YN/W6S
+         EaFhcHxM9nKISssN9RIwNV899HAGlfqKPJnoTNYq1Fb80oz7XTtEdYi3fleThbrxE0xy
+         0CahD8l36d+6vvBQqimotY6M7DQ+oVXdXc5mac54/80ZYTFUquUawLnxcvp9/mt/a/+t
+         qK8SvbNUN+9noprcr64PsqZd+VNSIInGJ/r4pfEjT6HYDFdQ2N8EYMx69342UTZ7tuS2
+         JWuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Ms+okw9kISTy8DxIfTUPcDhLDVdj6HKJmn7lPs1OmaM=;
+        b=suak5eu++ELGehtqS4Mw+V8OnCp2rAQOVjaYXfqoe85CE0fV83P1bLd+pfOBGEkhFh
+         NkEv/p8TdL82HSsSaexjXmkQonBR0DFthBsn1Cl4bh6apA7uA2o8L8xde+/AngVg6IZS
+         KLWKHn1TAFPUB01x3B1DO1msvGHiX0nrUwRv7dvXwZR735sKX5glbbEOMHSTl2NN27Z7
+         sjq30QgJz2cNMtM+tpAFuSGR0+uIxLOedHJFrZiDp1zxHs4vMWKBI6IB7tH4O1Urn3hB
+         gPms4Hr+lJSE5tIhER35GlXH4RmLoqkfpUfo8MxC2XviiSZYD9Gu0IaTOpgFlkhi1zrY
+         6seg==
+X-Gm-Message-State: AGi0PubN2+oxaWQ5JZVBwQjBlIiF9Xh36VlcOq3DsquA9NW7sTmiq3e6
+        cQdczaEgCa+GPdCdHGGAWQVpRgUQmVlxfVcgMA409A==
+X-Google-Smtp-Source: APiQypJvskxmjKTDhmdLSx2Yht+zHg5JvLy1YSbPTEhuJJQB3XuwpQtA+29OJIhchXZ77/rOOIYdHdsZrcyGLApzwck=
+X-Received: by 2002:a50:bb6b:: with SMTP id y98mr18400434ede.296.1589306750124;
+ Tue, 12 May 2020 11:05:50 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAEemH2cAxJy1GtmhjH8S2F_96E19FkUo-gUEnoTL=YG6taJ1qQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+References: <20200511090034.GX5770@shao2-debian> <440dae1b-9146-0bc3-e8f2-bd3cb3aa89bb@intel.com>
+In-Reply-To: <440dae1b-9146-0bc3-e8f2-bd3cb3aa89bb@intel.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Tue, 12 May 2020 11:05:38 -0700
+Message-ID: <CAPcyv4jKZp2bOZZ+ZMrcbFw9fPzeDu8waqwG6mBVpWwGq2DGtw@mail.gmail.com>
+Subject: Re: [ACPI] b13663bdf9: BUG:sleeping_function_called_from_invalid_context_at_kernel/locking/mutex.c
+To:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc:     kernel test robot <rong.a.chen@intel.com>,
+        stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        Myron Stowe <myron.stowe@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>, lkp@lists.01.org,
+        Linux ACPI <linux-acpi@vger.kernel.org>,
+        "Huang, Ying" <ying.huang@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks Li, cc'ing stable ML so they're aware.
+On Tue, May 12, 2020 at 9:28 AM Rafael J. Wysocki
+<rafael.j.wysocki@intel.com> wrote:
+>
+> On 5/11/2020 11:00 AM, kernel test robot wrote:
+> > Greeting,
+> >
+> > FYI, we noticed the following commit (built with gcc-7):
+> >
+> > commit: b13663bdf9701c8896bebcc7ee998f8656c1ea37 ("[PATCH] ACPI: Drop rcu usage for MMIO mappings")
+> > url: https://github.com/0day-ci/linux/commits/Dan-Williams/ACPI-Drop-rcu-usage-for-MMIO-mappings/20200507-075930
+> > base: https://git.kernel.org/cgit/linux/kernel/git/rafael/linux-pm.git linux-next
+> >
+> > in testcase: v4l2
+> > with following parameters:
+> >
+> >       test: device
+> >       ucode: 0x43
+> >
+> >
+> >
+> > on test machine: 72 threads Intel(R) Xeon(R) CPU E5-2699 v3 @ 2.30GHz with 256G memory
+> >
+> > caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
+> >
+> >
+> >
+> > If you fix the issue, kindly add following tag
+> > Reported-by: kernel test robot <rong.a.chen@intel.com>
+>
+> Dan,
+>
+> Has this been addressed in the v2?
 
-On 5/12/20 6:24 AM, Li Wang wrote:
-> 
-> 
-> On Tue, May 12, 2020 at 4:48 PM CKI Project <cki-project@redhat.com <mailto:cki-project@redhat.com>> wrote:
-> 
-> 
->     ┌───────────────────────────────────────────────────────────────┐
->     │ REVIEW REQUIRED FOR FAILED TEST                               │
->     ├───────────────────────────────────────────────────────────────┤
->     │ This failed kernel test has been held for review by kernel    │
->     │ test maintainers and the CKI team. Please investigate using   │
->     │ the pipeline link below this box.                             │
->     │                                                               │
->     │ If the test failure is related to a non-kernel bug, no action │
->     │ is needed. If a kernel bug is found, please reply all with    │
->     │ your assessment and we will release the report.               │
->     │ For more details: https://docs.engineering.redhat.com/x/eG5qB │
->     └───────────────────────────────────────────────────────────────┘
-> 
->     Pipeline: https://xci32.lab.eng.rdu2.redhat.com/cki-project/cki-pipeline/pipelines/563063
-> 
->     Check out if the issue is autotriaged in the dashboard:
->     https://datawarehouse-webservice-ark.cloud.paas.psi.redhat.com/pipeline/563063
-> 
->     Hello,
-> 
->     We ran automated tests on a recent commit from this kernel tree:
-> 
->             Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->                  Commit: c4bbda210077 - Linux 5.6.12
-> 
->     The results of these automated tests are provided below.
-> 
->          Overall result: FAILED (see details below)
->                   Merge: OK
->                 Compile: OK
->                   Tests: FAILED
-> 
->     All kernel binaries, config files, and logs are available for download here:
-> 
->     https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/05/11/563063
-> 
->     One or more kernel tests failed:
-> 
->          aarch64:
->           ❌ LTP
-> 
-> 
-> fanotify09Bug 1832099 - fanotify: fix merging marks masks with FAN_ONDIR
-> 
-> fanotify15 failure is also a kernel bug in fedora.
-> which has been fix in mainline: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f367a62a7cad
-> $ git describe --contains f367a62a7cad
-> v5.7-rc1~72^2~10
-> 
-> 
-> -- 
-> Regards,
-> Li Wang
+No, this looks like a case I was concerned about, i.e. the GHES code
+is not being completely careful to avoid calling potentially sleeping
+functions with interrupts disabled. There is the nice comment that
+indicates that the fixmap should be used when ghes_notify_lock_irq()
+is held, but there seems to be no infrastructure to use / divert to
+the fixmap in the ghes_proc() path. That needs to be reworked first.
+It seems the implementation was getting lucky before to hit the cached
+acpi_ioremap in this path under rcu_read_lock(), but it appears it
+should have always been using the fixmap. Ying, James, is my read
+correct?
 
+/*
+ * Because the memory area used to transfer hardware error information
+ * from BIOS to Linux can be determined only in NMI, IRQ or timer
+ * handler, but general ioremap can not be used in atomic context, so
+ * the fixmap is used instead.
+ *
+ * This spinlock is used to prevent the fixmap entry from being used
+ * simultaneously.
+ */
+static DEFINE_SPINLOCK(ghes_notify_lock_irq);
+
+
+> > [   21.012858] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:281
+> > [   21.013816] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
+> > [   21.029953] tsc: Refined TSC clocksource calibration: 2294.686 MHz
+> > [   21.013816] CPU: 55 PID: 1 Comm: swapper/0 Not tainted 5.7.0-rc3-00025-gb13663bdf9701c #1
+> > [   21.013816] Hardware name: Intel Corporation S2600WTT/S2600WTT, BIOS SE5C610.86B.01.01.0008.021120151325 02/11/2015
+> > [   21.013816] Call Trace:
+> > [   21.042037] clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x211399552f8, max_idle_ns: 440795292447 ns
+> > [   21.013816]  dump_stack+0x66/0x8b
+> > [   21.064421]  ___might_sleep+0x102/0x120
+> > [   21.064421]  mutex_lock+0x1c/0x40
+> > [   21.064421]  acpi_os_rw_map+0x37/0xe0
+> > [   21.064421]  acpi_os_read_memory+0x34/0xc0
+> > [   21.064421]  ? acpi_match_platform_list+0x84/0x100
+> > [   21.064421]  apei_read+0x97/0xb0
+> > [   21.064421]  __ghes_peek_estatus+0x27/0xc0
+> > [   21.064421]  ghes_proc+0x37/0x120
+> > [   21.064421]  ghes_probe+0x1d0/0x460
+> > [   21.064421]  platform_drv_probe+0x37/0x90
+> > [   21.064421]  really_probe+0xef/0x430
+> > [   21.064421]  driver_probe_device+0x110/0x120
+> > [   21.064421]  device_driver_attach+0x4f/0x60
+> > [   21.064421]  __driver_attach+0x9a/0x140
+> > [   21.064421]  ? device_driver_attach+0x60/0x60
+> > [   21.064421]  bus_for_each_dev+0x76/0xc0
+> > [   21.064421]  ? klist_add_tail+0x3b/0x70
+> > [   21.064421]  bus_add_driver+0x144/0x220
+> > [   21.064421]  ? bert_init+0x229/0x229
+> > [   21.064421]  driver_register+0x5b/0xf0
+> > [   21.064421]  ? bert_init+0x229/0x229
+> > [   21.064421]  ghes_init+0x83/0xde
+> > [   21.064421]  do_one_initcall+0x46/0x220
+> > [   21.064421]  kernel_init_freeable+0x206/0x280
+> > [   21.064421]  ? rest_init+0xd0/0xd0
+> > [   21.064421]  kernel_init+0xa/0x110
+> > [   21.064421]  ret_from_fork+0x35/0x40
+> > [   21.211518] clocksource: Switched to clocksource tsc
+> > [   21.212408] GHES: APEI firmware first mode is enabled by APEI bit and WHEA _OSC.
+> > [   21.227478] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+> > [   21.235019] 00:02: ttyS0 at I/O 0x3f8 (irq = 4, base_baud = 115200) is a 16550A
+> > [   21.244105] 00:03: ttyS1 at I/O 0x2f8 (irq = 3, base_baud = 115200) is a 16550A
+> > [   21.254257] Non-volatile memory driver v1.3
+> > [   21.259421] Linux agpgart interface v0.103
+> > [   21.272262] rdac: device handler registered
+> > [   21.277466] hp_sw: device handler registered
+> > [   21.282671] emc: device handler registered
+> > [   21.288039] alua: device handler registered
+> > [   21.293154] MACsec IEEE 802.1AE
+> > [   21.297325] libphy: Fixed MDIO Bus: probed
+> > [   21.302666] e1000: Intel(R) PRO/1000 Network Driver - version 7.3.21-k8-NAPI
+> > [   21.310980] e1000: Copyright (c) 1999-2006 Intel Corporation.
+> > [   21.317926] e1000e: Intel(R) PRO/1000 Network Driver - 3.2.6-k
+> > [   21.324883] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+> > [   21.332069] igb: Intel(R) Gigabit Ethernet Network Driver - version 5.6.0-k
+> > [   21.340297] igb: Copyright (c) 2007-2014 Intel Corporation.
+> > [   21.347058] ixgbe: Intel(R) 10 Gigabit PCI Express Network Driver - version 5.1.0-k
+> > [   21.356399] ixgbe: Copyright (c) 1999-2016 Intel Corporation.
+> > [   21.363577] IOAPIC[9]: Set IRTE entry (P:1 FPD:0 Dst_Mode:1 Redir_hint:1 Trig_Mode:0 Dlvry_Mode:0 Avail:0 Vector:EF Dest:00000001 SID:002C SQ:0 SVT:1)
+> > [   21.379417] IOAPIC[1]: Set routing entry (9-13 -> 0xef -> IRQ 38 Mode:1 Active:1 Dest:1)
+> > [   21.665318] ixgbe 0000:03:00.0: Multiqueue Enabled: Rx Queue count = 63, Tx Queue count = 63 XDP Queue count = 0
+> > [   21.761727] ixgbe 0000:03:00.0: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
+> > [   21.795985] ixgbe 0000:03:00.0: MAC: 3, PHY: 0, PBA No: 000000-000
+> > [   21.803321] ixgbe 0000:03:00.0: 00:1e:67:f7:44:b3
+> > [   21.957977] ixgbe 0000:03:00.0: Intel(R) 10 Gigabit Network Connection
+> > [   21.965867] libphy: ixgbe-mdio: probed
+> > [   21.970646] IOAPIC[9]: Set IRTE entry (P:1 FPD:0 Dst_Mode:1 Redir_hint:1 Trig_Mode:0 Dlvry_Mode:0 Avail:0 Vector:EF Dest:00000001 SID:002C SQ:0 SVT:1)
+> > [   21.986482] IOAPIC[1]: Set routing entry (9-10 -> 0xef -> IRQ 105 Mode:1 Active:1 Dest:1)
+> > [   22.265269] ixgbe 0000:03:00.1: Multiqueue Enabled: Rx Queue count = 63, Tx Queue count = 63 XDP Queue count = 0
+> > [   22.361656] ixgbe 0000:03:00.1: 32.000 Gb/s available PCIe bandwidth (5.0 GT/s PCIe x8 link)
+> > [   22.395908] ixgbe 0000:03:00.1: MAC: 3, PHY: 0, PBA No: 000000-000
+> > [   22.403235] ixgbe 0000:03:00.1: 00:1e:67:f7:44:b4
+> > [   22.556985] ixgbe 0000:03:00.1: Intel(R) 10 Gigabit Network Connection
+> > [   22.564864] libphy: ixgbe-mdio: probed
+> > [   22.569541] i40e: Intel(R) Ethernet Connection XL710 Network Driver - version 2.8.20-k
+> > [   22.579179] i40e: Copyright (c) 2013 - 2019 Intel Corporation.
+> > [   22.586811] usbcore: registered new interface driver catc
+> > [   22.593299] usbcore: registered new interface driver kaweth
+> > [   22.599957] pegasus: v0.9.3 (2013/04/25), Pegasus/Pegasus II USB Ethernet driver
+> > [   22.609017] usbcore: registered new interface driver pegasus
+> > [   22.615784] usbcore: registered new interface driver rtl8150
+> > [   22.622550] usbcore: registered new interface driver asix
+> > [   22.629029] usbcore: registered new interface driver cdc_ether
+> > [   22.635987] usbcore: registered new interface driver cdc_eem
+> > [   22.642749] usbcore: registered new interface driver dm9601
+> > [   22.649423] usbcore: registered new interface driver smsc75xx
+> > [   22.656294] usbcore: registered new interface driver smsc95xx
+> > [   22.663163] usbcore: registered new interface driver gl620a
+> > [   22.669828] usbcore: registered new interface driver net1080
+> > [   22.676587] usbcore: registered new interface driver plusb
+> > [   22.683162] usbcore: registered new interface driver rndis_host
+> > [   22.690218] usbcore: registered new interface driver cdc_subset
+> > [   22.697285] usbcore: registered new interface driver zaurus
+> > [   22.703954] usbcore: registered new interface driver MOSCHIP usb-ethernet driver
+> > [   22.713005] usbcore: registered new interface driver int51x1
+> > [   22.719770] usbcore: registered new interface driver ipheth
+> > [   22.726439] usbcore: registered new interface driver sierra_net
+> > [   22.733563] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+> > [   22.741292] ehci-pci: EHCI PCI platform driver
+> > [   22.746931] IOAPIC[8]: Set IRTE entry (P:1 FPD:0 Dst_Mode:1 Redir_hint:1 Trig_Mode:0 Dlvry_Mode:0 Avail:0 Vector:EF Dest:00000001 SID:F0FF SQ:0 SVT:1)
+> > [   22.762784] IOAPIC[0]: Set routing entry (8-18 -> 0xef -> IRQ 18 Mode:1 Active:1 Dest:1)
+> > [   22.772881] ehci-pci 0000:00:1a.0: EHCI Host Controller
+> > [   22.779227] ehci-pci 0000:00:1a.0: new USB bus registered, assigned bus number 1
+> >
+> >
+> > To reproduce:
+> >
+> >          git clone https://github.com/intel/lkp-tests.git
+> >          cd lkp-tests
+> >          bin/lkp install job.yaml  # job file is attached in this email
+> >          bin/lkp run     job.yaml
+> >
+> >
+> >
+> > Thanks,
+> > Rong Chen
+> >
+>
