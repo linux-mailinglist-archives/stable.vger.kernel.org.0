@@ -2,93 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 719261CF21A
-	for <lists+stable@lfdr.de>; Tue, 12 May 2020 12:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 131961CF23C
+	for <lists+stable@lfdr.de>; Tue, 12 May 2020 12:21:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726193AbgELKFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 06:05:18 -0400
-Received: from mga12.intel.com ([192.55.52.136]:44925 "EHLO mga12.intel.com"
+        id S1728371AbgELKVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 06:21:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726187AbgELKFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 May 2020 06:05:17 -0400
-IronPort-SDR: MdMTjn7tE3JwPGoCHB1y52ncCRIYQ/y5HdRFuhuPRP+20Jnzbrbj5KNUmVMohziIQNisHLqHXm
- GV8/hCjPm8aQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2020 03:05:17 -0700
-IronPort-SDR: UpOceRC9Yf3sV+OOnBzSOUIv+XJOQ0VnhDNZFNvak+OTJIG3sWvAo5DYaS/9yDY1RE/T5rTW+I
- /O4OtCPkAhgA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,383,1583222400"; 
-   d="scan'208";a="251423804"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 12 May 2020 03:05:13 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1000)
-        id 17DEB179; Tue, 12 May 2020 13:05:12 +0300 (EEST)
-Date:   Tue, 12 May 2020 13:05:12 +0300
-From:   "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-To:     "Luck, Tony" <tony.luck@intel.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@intel.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        "Williams, Dan J" <dan.j.williams@intel.com>,
-        "Kleen, Andi" <andi.kleen@intel.com>,
-        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
-        "linux-drivers-review@eclists.intel.com" 
-        <linux-drivers-review@eclists.intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [linux-drivers-review] [PATCH] x86/mm: Fix boot with some memory
- above MAXMEM
-Message-ID: <20200512100512.nqovrzouvdw2b4dq@black.fi.intel.com>
-References: <20200511163706.41619-1-kirill.shutemov@linux.intel.com>
- <4db011da-35b4-c6c0-aa35-54a28776169b@intel.com>
- <20200511170419.a53lgasfxd33nrk7@black.fi.intel.com>
- <5f95e4c2-66fe-42a0-f09f-cb902cd6db9a@intel.com>
- <3908561D78D1C84285E8C5FCA982C28F7F61FEF4@ORSMSX115.amr.corp.intel.com>
- <20200511184330.fbxjbnho4tzkukry@black.fi.intel.com>
- <3908561D78D1C84285E8C5FCA982C28F7F6200F3@ORSMSX115.amr.corp.intel.com>
- <20200511211925.GQ185537@smile.fi.intel.com>
- <20200512005001.GA27126@agluck-desk2.amr.corp.intel.com>
+        id S1727783AbgELKVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 May 2020 06:21:31 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE54320736;
+        Tue, 12 May 2020 10:21:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589278889;
+        bh=aXsknNY4pPaxjYIakVc8U6uboeJkTUVX2PRa3miUVLE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=QkZoTPD7us1V1bMWUW4u+Kv4a8f7DvkZWGvSD3tlaoQe9WbPFUfdPB1o3K4MXtc2k
+         7OhA5Ye2n5Ls2rR4GnyP5OelnxgFugnUEyHYw8a3GGmZlKylVYC6DvMoAoM6IIrLlj
+         jSG37cKcC5vgGAjZ71XipSwbWjYmNGhuBdd8YSEM=
+Date:   Tue, 12 May 2020 12:21:27 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: Re: List of patches to apply to stable releases (5/11)
+Message-ID: <20200512102127.GC3991701@kroah.com>
+References: <20200512010721.GA221140@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200512005001.GA27126@agluck-desk2.amr.corp.intel.com>
+In-Reply-To: <20200512010721.GA221140@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 11, 2020 at 05:50:01PM -0700, Luck, Tony wrote:
-> On Tue, May 12, 2020 at 12:19:25AM +0300, Andy Shevchenko wrote:
-> > On Mon, May 11, 2020 at 06:58:21PM +0000, Luck, Tony wrote:
-> > > >> > +		pr_err("%lldMB of physical memory is not addressable in the paging mode\n",
-> > > >> > +		       not_addressable >> 20);
-> > > >> 
-> > > >> Is "MB" the right unit for this. The problem seems to happen for systems with >64TB ... I doubt
-> > > >> the unaddressable memory is just a couple of MBbytes
-> > > >
-> > > > Change it to GB?
-> > > 
-> > > I think it would be more readable.
-> > > 
-> > > [Maybe Linux needs a magic %p{something} that does auto-sizing to print in the most appropriate out of KB, MB, GB, TB, PB?]
-> > 
-> > We have one in string_helpers.c.
+On Mon, May 11, 2020 at 06:07:21PM -0700, Guenter Roeck wrote:
+> Hi,
 > 
-> Ah, nice.  So:
+> Please consider applying the following patches to the listed stable releases.
 > 
-> #include <linux/string_helpers.h>
+> The following patches were found to be missing in stable releases by the
+> Chrome OS missing patch robot. The patches meet the following criteria.
+> - The patch includes a Fixes: tag
+> - The patch referenced in the Fixes: tag has been applied to the listed
+>   stable release
+> - The patch has not been applied to that stable release
 > 
+> All patches have been applied to the listed stable releases and to at least one
+> Chrome OS branch. Resulting images have been build- and runtime-tested (where
+> applicable) on real hardware and with virtual hardware on kerneltests.org.
 > 
-> 	char	tmp[10]; /* Bother, no #define for this, just a comment in string_helpers.c */
+> Thanks,
+> Guenter
 > 
+> ---
+> Upstream commit fd25ea29093e ("Revert "ACPI / video: Add force_native quirk for HP Pavilion dv6"")
+>   upstream: v4.10-rc6
+>     Fixes: 6276e53fa8c0 ("ACPI / video: Add force_native quirk for HP Pavilion dv6")
+>       in linux-4.4.y: 69e236e70ead
+>       in linux-4.9.y: a04465251f94
+>       upstream: v4.10-rc1
+>     Affected branches:
+>       linux-4.4.y
+>       linux-4.9.y
 > 
-> 	string_get_size(not_addressable, 1, STRING_UNITS_2, tmp, sizeof(tmp);
+> Upstream commit 56f772279a76 ("enic: do not overwrite error code")
+>   upstream: v4.18-rc2
+>     Fixes: e8588e268509 ("enic: enable rq before updating rq descriptors")
+>       in linux-4.4.y: 6af8cf3ca5cb
+>       in linux-4.9.y: 92ff7ff0318f
+>       in linux-4.14.y: 87337cb5663c
+>       upstream: v4.17-rc1
+>     Affected branches:
+>       linux-4.4.y
+>       linux-4.9.y (already applied)
+>       linux-4.14.y (already applied)
 > 
-> 	pr_err("%s of physical memory is not addressable in the paging mode\n", tmp);
+> Upstream commit afe49de44c27 ("ipv6: fix cleanup ordering for ip6_mr failure")
+>   upstream: v4.19-rc3
+>     Fixes: 15e668070a64 ("ipv6: reorder icmpv6_init() and ip6_mr_init()")
+>       in linux-4.4.y: 7c5deeccc664
+>       in linux-4.9.y: 05a59bc2f3c0
+>       upstream: v4.11-rc3
+>     Affected branches:
+>       linux-4.4.y
+>       linux-4.9.y (already applied)
+>       linux-4.14.y
+>         [commit 15e668070a64 is in v4.14 and thus in v4.14.y but its fix isn't]
+> 
+> Upstream commit bbdc6076d2e5 ("binfmt_elf: move brk out of mmap when doing direct loader exec")
+>   upstream: v5.2-rc1
+>     Fixes: eab09532d400 ("binfmt_elf: use ELF_ET_DYN_BASE only for PIE")
+>       in linux-4.4.y: 7eb968cd04d4
+>       in linux-4.9.y: 63c2f8f8c41b
+>       upstream: v4.13-rc1
+>     Affected branches:
+>       linux-4.4.y
+>       linux-4.9.y
+>       linux-4.14.y (already applied)
+>       linux-4.19.y (already applied)
+> 
+> Upstream commit 6f6060a5c9cc ("x86/apm: Don't access __preempt_count with zeroed fs")
+>   upstream: v4.18-rc6
+>     Fixes: dd84441a7971 ("x86/speculation: Use IBRS if available before calling into firmware")
+>       in linux-4.4.y: 7ec391255421
+>       in linux-4.9.y: a27ede1bedcb
+>       in linux-4.14.y: c3ffdb5a2ed4
+>       upstream: v4.16-rc4
+>     Affected branches:
+>       linux-4.4.y
+>       linux-4.9.y (already applied)
+>       linux-4.14.y (already applied)
+> 
+> Upstream commit 612601d0013f ("Revert "IB/ipoib: Update broadcast object if PKey value was changed in index 0"")
+>   upstream: v4.14-rc3
+>     Fixes: 9a9b8112699d ("IB/ipoib: Update broadcast object if PKey value was changed in index 0")
+>       in linux-4.4.y: 8716c87ec253
+>       in linux-4.9.y: 089f13786bdc
+>       upstream: v4.12-rc1
+>     Affected branches:
+>       linux-4.4.y
+>       linux-4.9.y (already applied)
+> 
+> Upstream commit 778fbf417999 ("HID: wacom: Read HID_DG_CONTACTMAX directly for non-generic devices")
+>   upstream: v5.7-rc5
+>     Fixes: 184eccd40389 ("HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report")
+>       in linux-4.14.y: 4e268e9c404a
+>       in linux-4.19.y: 8993c673d6c4
+>       upstream: v5.3-rc1
+>     Affected branches:
+>       linux-4.14.y
+>       linux-4.19.y
+>       linux-5.4.y
+>       linux-5.6.y
+> 
+> Upstream commit f9094b7603c0 ("geneve: only configure or fill UDP_ZERO_CSUM6_RX/TX info when CONFIG_IPV6")
+>   upstream: v4.15-rc1
+>     Fixes: fd7eafd02121 ("geneve: fix fill_info when link down")
+>       in linux-4.14.y: 81a1c2d3f9eb
+>       upstream: v4.15-rc1
+>     Affected branches:
+>       linux-4.14.y
+> 
+> Upstream commit 57d38f26d81e ("vt: fix unicode console freeing with a common interface")
+>   upstream: v5.7-rc5
+>     Fixes: 9a98e7a80f95 ("vt: don't use kmalloc() for the unicode screen buffer")
+>       in linux-4.19.y: b91c4171c74e
+>       in linux-5.4.y: 64882aa0c531
+>       in linux-5.6.y: ec6e885a4cb0
+>       upstream: v5.7-rc3
+>     Affected branches:
+>       linux-4.19.y
+>       linux-5.4.y
+>       linux-5.6.y
+> 
+> Upstream commit 145cb2f7177d ("sctp: Fix bundling of SHUTDOWN with COOKIE-ACK")
+>   upstream: v5.7-rc3
+>     Fixes: 4ff40b86262b ("sctp: set chunk transport correctly when it's a new asoc")
+>       in linux-4.19.y: cbf23d40cece
+>       upstream: v5.0-rc4
+>     Affected branches:
+>       linux-4.19.y
+>       linux-5.4.y
+>       linux-5.6.y
+> 
+> Upstream commit 2ae11c46d5fd ("tty: xilinx_uartps: Fix missing id assignment to the console")
+>   upstream: v5.7-rc5
+>     Fixes: 18cc7ac8a28e ("Revert "serial: uartps: Register own uart console and driver structures"")
+>       in linux-5.4.y: c4606876164c
+>       in linux-5.6.y: 29772eb399a3
+>       upstream: v5.7-rc3
+>     Affected branches:
+>       linux-5.4.y
+>       linux-5.6.y
 
-I've already submitted the patch upstream. I'll add it if a new revision
-is needed.
+Thanks for these, all now queued up!
 
--- 
- Kirill A. Shutemov
+greg k-h
