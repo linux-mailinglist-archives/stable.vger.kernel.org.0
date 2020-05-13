@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC9311D0EE6
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:03:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC2E1D0E90
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:01:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732756AbgEMKDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 06:03:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48012 "EHLO mail.kernel.org"
+        id S2387613AbgEMJvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:51:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733189AbgEMJtL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:49:11 -0400
+        id S2387611AbgEMJvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:51:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58D8720740;
-        Wed, 13 May 2020 09:49:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75AFE23127;
+        Wed, 13 May 2020 09:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363350;
-        bh=x6W/Pxf4cTQTlMo1ktdLzg2nMjER+L4G8RuHBtd4C3E=;
+        s=default; t=1589363469;
+        bh=IflCjPG2xi5TTNJDFZpm013QD6WriFjIurebSx5OlPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r84pG1olKwpQTJw8MQWKLQovAx3enYVMYtZrP22LIybvMFhgtuv5BHvOGkZbZNjcz
-         1ghXjwm9CJcfYrPSK8/gu/Fzs6bU/Q51HDFuZ+eqb1M6XhfTYaMDEIE2Or/75XkuZg
-         SPT41yBJJ92leD767uswHIA3pvZ7XbFq7ngU41pA=
+        b=PGR8w8gGCv/nICGbPiGmFw3O4FqYKrPBx/rCnd8g9s3T47U1U1n2u8NDxuqNM/4ye
+         ebuIpi+Yp8PouCMMyOE2LOQxSDNYJ67Dg9Q78YWpYwn8bKFLZWJl4HXrJcJ0a8bl9/
+         KblESoDdDoJUyl7xf8lkW5IKp2IW4i5RDfV0Lb88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
         Eran Ben Elisha <eranbe@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 37/90] net/mlx5: Fix forced completion access non initialized command entry
-Date:   Wed, 13 May 2020 11:44:33 +0200
-Message-Id: <20200513094412.490041589@linuxfoundation.org>
+Subject: [PATCH 5.4 38/90] net/mlx5: Fix command entry leak in Internal Error State
+Date:   Wed, 13 May 2020 11:44:34 +0200
+Message-Id: <20200513094412.612953424@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
 References: <20200513094408.810028856@linuxfoundation.org>
@@ -46,17 +46,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit f3cb3cebe26ed4c8036adbd9448b372129d3c371 ]
+[ Upstream commit cece6f432cca9f18900463ed01b97a152a03600a ]
 
-mlx5_cmd_flush() will trigger forced completions to all valid command
-entries. Triggered by an asynch event such as fast teardown it can
-happen at any stage of the command, including command initialization.
-It will trigger forced completion and that can lead to completion on an
-uninitialized command entry.
-
-Setting MLX5_CMD_ENT_STATE_PENDING_COMP only after command entry is
-initialized will ensure force completion is treated only if command
-entry is initialized.
+Processing commands by cmd_work_handler() while already in Internal
+Error State will result in entry leak, since the handler process force
+completion without doorbell. Forced completion doesn't release the entry
+and event completion will never arrive, so entry should be released.
 
 Fixes: 73dd3a4839c1 ("net/mlx5: Avoid using pending command interface slots")
 Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
@@ -64,26 +59,21 @@ Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 --- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -888,7 +888,6 @@ static void cmd_work_handler(struct work
+@@ -922,6 +922,10 @@ static void cmd_work_handler(struct work
+ 		MLX5_SET(mbox_out, ent->out, syndrome, drv_synd);
+ 
+ 		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++		/* no doorbell, no need to keep the entry */
++		free_ent(cmd, ent->idx);
++		if (ent->callback)
++			free_cmd(ent);
+ 		return;
  	}
  
- 	cmd->ent_arr[ent->idx] = ent;
--	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
- 	lay = get_inst(cmd, ent->idx);
- 	ent->lay = lay;
- 	memset(lay, 0, sizeof(*lay));
-@@ -910,6 +909,7 @@ static void cmd_work_handler(struct work
- 
- 	if (ent->callback)
- 		schedule_delayed_work(&ent->cb_timeout_work, cb_timeout);
-+	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
- 
- 	/* Skip sending command to fw if internal error */
- 	if (pci_channel_offline(dev->pdev) ||
 
 
