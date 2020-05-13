@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7311D0B62
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:00:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D3FB1D0B73
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730346AbgEMI7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 04:59:54 -0400
-Received: from mo-csw1516.securemx.jp ([210.130.202.155]:40382 "EHLO
+        id S1732420AbgEMJFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:05:08 -0400
+Received: from mo-csw1515.securemx.jp ([210.130.202.154]:42814 "EHLO
         mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727970AbgEMI7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 04:59:54 -0400
-Received: by mo-csw.securemx.jp (mx-mo-csw1516) id 04D8xeUK011949; Wed, 13 May 2020 17:59:40 +0900
-X-Iguazu-Qid: 34trvY1fFe4gKchsTT
-X-Iguazu-QSIG: v=2; s=0; t=1589360380; q=34trvY1fFe4gKchsTT; m=YGsCUDiFF0rekN/dioa5Vn1o9+lwg/r/hxhrlg2wrRU=
+        with ESMTP id S1732418AbgEMJFI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 05:05:08 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1515) id 04D94wGW020892; Wed, 13 May 2020 18:04:58 +0900
+X-Iguazu-Qid: 34trvY1fFe54IlaZA3
+X-Iguazu-QSIG: v=2; s=0; t=1589360697; q=34trvY1fFe54IlaZA3; m=xx+W0XSXb3sal68mh4Q20qi34zEEd4qXc3q0G1K3l/Q=
 Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
-        by relay.securemx.jp (mx-mr1512) id 04D8xcVf028225;
-        Wed, 13 May 2020 17:59:38 +0900
+        by relay.securemx.jp (mx-mr1513) id 04D94u3f013565;
+        Wed, 13 May 2020 18:04:56 +0900
 Received: from enc02.toshiba.co.jp ([61.202.160.51])
-        by imx12.toshiba.co.jp  with ESMTP id 04D8xc6T006206;
-        Wed, 13 May 2020 17:59:38 +0900 (JST)
+        by imx12.toshiba.co.jp  with ESMTP id 04D94urt008492;
+        Wed, 13 May 2020 18:04:56 +0900 (JST)
 Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id 04D8xbIY024974;
-        Wed, 13 May 2020 17:59:37 +0900
+        by enc02.toshiba.co.jp  with ESMTP id 04D94t7d028872;
+        Wed, 13 May 2020 18:04:56 +0900
 From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, Kees Cook <keescook@chromium.org>,
-        Richard Kojedzinszky <richard@kojedz.in>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     gregkh@linuxfoundation.org, David Ahern <dsa@cumulusnetworks.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH for 4.4, 4.9] binfmt_elf: Do not move brk for INTERP-less ET_EXEC
-Date:   Wed, 13 May 2020 17:59:32 +0900
+Subject: [PATCH] net: handle no dst on skb in icmp6_send
+Date:   Wed, 13 May 2020 18:04:51 +0900
 X-TSB-HOP: ON
-Message-Id: <20200513085932.920902-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+Message-Id: <20200513090451.939095-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -41,40 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: David Ahern <dsa@cumulusnetworks.com>
 
-commit 7be3cb019db1cbd5fd5ffe6d64a23fefa4b6f229 upstream.
+commit 79dc7e3f1cd323be4c81aa1a94faa1b3ed987fb2 upstream.
 
-When brk was moved for binaries without an interpreter, it should have
-been limited to ET_DYN only. In other words, the special case was an
-ET_DYN that lacks an INTERP, not just an executable that lacks INTERP.
-The bug manifested for giant static executables, where the brk would end
-up in the middle of the text area on 32-bit architectures.
+Andrey reported the following while fuzzing the kernel with syzkaller:
 
-Reported-and-tested-by: Richard Kojedzinszky <richard@kojedz.in>
-Fixes: bbdc6076d2e5 ("binfmt_elf: move brk out of mmap when doing direct loader exec")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN
+Modules linked in:
+CPU: 0 PID: 3859 Comm: a.out Not tainted 4.9.0-rc6+ #429
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+task: ffff8800666d4200 task.stack: ffff880067348000
+RIP: 0010:[<ffffffff833617ec>]  [<ffffffff833617ec>]
+icmp6_send+0x5fc/0x1e30 net/ipv6/icmp.c:451
+RSP: 0018:ffff88006734f2c0  EFLAGS: 00010206
+RAX: ffff8800666d4200 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: dffffc0000000000 RDI: 0000000000000018
+RBP: ffff88006734f630 R08: ffff880064138418 R09: 0000000000000003
+R10: dffffc0000000000 R11: 0000000000000005 R12: 0000000000000000
+R13: ffffffff84e7e200 R14: ffff880064138484 R15: ffff8800641383c0
+FS:  00007fb3887a07c0(0000) GS:ffff88006cc00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000000 CR3: 000000006b040000 CR4: 00000000000006f0
+Stack:
+ ffff8800666d4200 ffff8800666d49f8 ffff8800666d4200 ffffffff84c02460
+ ffff8800666d4a1a 1ffff1000ccdaa2f ffff88006734f498 0000000000000046
+ ffff88006734f440 ffffffff832f4269 ffff880064ba7456 0000000000000000
+Call Trace:
+ [<ffffffff83364ddc>] icmpv6_param_prob+0x2c/0x40 net/ipv6/icmp.c:557
+ [<     inline     >] ip6_tlvopt_unknown net/ipv6/exthdrs.c:88
+ [<ffffffff83394405>] ip6_parse_tlv+0x555/0x670 net/ipv6/exthdrs.c:157
+ [<ffffffff8339a759>] ipv6_parse_hopopts+0x199/0x460 net/ipv6/exthdrs.c:663
+ [<ffffffff832ee773>] ipv6_rcv+0xfa3/0x1dc0 net/ipv6/ip6_input.c:191
+ ...
+
+icmp6_send / icmpv6_send is invoked for both rx and tx paths. In both
+cases the dst->dev should be preferred for determining the L3 domain
+if the dst has been set on the skb. Fallback to the skb->dev if it has
+not. This covers the case reported here where icmp6_send is invoked on
+Rx before the route lookup.
+
+Fixes: 5d41ce29e ("net: icmp6_send should use dst dev to determine L3 domain")
+Reported-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: David Ahern <dsa@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 ---
- fs/binfmt_elf.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv6/icmp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-index a6857e9bd4460..164e5fedd7b6a 100644
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -1104,7 +1104,8 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 		 * (since it grows up, and may collide early with the stack
- 		 * growing down), and into the unused ELF_ET_DYN_BASE region.
- 		 */
--		if (IS_ENABLED(CONFIG_ARCH_HAS_ELF_RANDOMIZE) && !interpreter)
-+		if (IS_ENABLED(CONFIG_ARCH_HAS_ELF_RANDOMIZE) &&
-+		    loc->elf_ex.e_type == ET_DYN && !interpreter)
- 			current->mm->brk = current->mm->start_brk =
- 				ELF_ET_DYN_BASE;
+diff --git a/net/ipv6/icmp.c b/net/ipv6/icmp.c
+index d21e81cd6120e..fa96e05cf22be 100644
+--- a/net/ipv6/icmp.c
++++ b/net/ipv6/icmp.c
+@@ -445,8 +445,10 @@ static void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info)
  
+ 	if (__ipv6_addr_needs_scope_id(addr_type))
+ 		iif = skb->dev->ifindex;
+-	else
+-		iif = l3mdev_master_ifindex(skb_dst(skb)->dev);
++	else {
++		dst = skb_dst(skb);
++		iif = l3mdev_master_ifindex(dst ? dst->dev : skb->dev);
++	}
+ 
+ 	/*
+ 	 *	Must not send error if the source does not uniquely
 -- 
 2.26.0
 
