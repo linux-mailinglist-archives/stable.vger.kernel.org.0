@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E11281D03EE
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 02:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E4E1D03EF
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 02:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731579AbgEMAtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 20:49:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55390 "EHLO mail.kernel.org"
+        id S1731604AbgEMAtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 20:49:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729646AbgEMAtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 May 2020 20:49:35 -0400
+        id S1729646AbgEMAtg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 May 2020 20:49:36 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C19220675;
-        Wed, 13 May 2020 00:49:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72F0220753;
+        Wed, 13 May 2020 00:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589330974;
-        bh=SToSKVRWisjBjQeJk/UxhfxWAcqEoWxI3rXeXzCG+3Q=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=c1omUK7THKB7sWq3uQyPwlxGPRIn6xGDQDFysMvcx7uJTlZ2M7KSvX35W2pLlD5b+
-         QVx/V4sckccSXymwFk+FcteGUZ5SXZE3mAkG8AOaqyyoMSh+KucCOq5PfpqT65K0QF
-         GDxxn0l/+SLgPw8e09cFwoSLAKuyRplSjFj5iV4s=
-Date:   Wed, 13 May 2020 00:49:33 +0000
+        s=default; t=1589330975;
+        bh=9qJ5RZzzZN5GiUVZMI2CqHQ8Q47+EhKS8T5MvtvGDcM=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=ccnSbPHAKPntfM8vsjvtQqsZ+vJ7cGM+hnS8Jq9M0L2c4sSj5T2VTtZBnDPLeHk6b
+         HCDFXph9bjY3F8bldrxspub3VRR5DqCmroqChHXZW5NQ1mB5CO4afL32o9yS9sG8kM
+         esKStvS0jgDSJOF1OuKoRDQwEiJZ0G3x0I/Gm6FM=
+Date:   Wed, 13 May 2020 00:49:34 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
 To:     Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>
 Cc:     Boris Brezillon <boris.brezillon@collabora.com>
 Cc:     stable@vger.kernel.org
+Cc:     Xiaolei Li <xiaolei.li@mediatek.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 53/62] mtd: rawnand: sunxi: Fix the probe error path
-In-Reply-To: <20200510121220.18042-54-miquel.raynal@bootlin.com>
-References: <20200510121220.18042-54-miquel.raynal@bootlin.com>
-Message-Id: <20200513004934.4C19220675@mail.kernel.org>
+Subject: Re: [PATCH 27/62] mtd: rawnand: mtk: Fix the probe error path
+In-Reply-To: <20200510121220.18042-28-miquel.raynal@bootlin.com>
+References: <20200510121220.18042-28-miquel.raynal@bootlin.com>
+Message-Id: <20200513004935.72F0220753@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,9 +47,9 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 1fef62c1423b ("mtd: nand: add sunxi NAND flash controller support").
+fixing commit: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources").
 
-The bot has tested the following trees: v5.6.11, v5.4.39, v4.19.121, v4.14.179, v4.9.222, v4.4.222.
+The bot has tested the following trees: v5.6.11, v5.4.39, v4.19.121, v4.14.179, v4.9.222.
 
 v5.6.11: Build OK!
 v5.4.39: Build OK!
@@ -77,17 +79,6 @@ v4.9.222: Failed to apply! Possible dependencies:
     c441a4781ff1 ("crypto: doc - remove crypto API DocBook")
     d6ba7a9c8b5a ("doc: Sphinxify the tracepoint docbook")
     e7f08ffb1855 ("Documentation/workqueue.txt: convert to ReST markup")
-    f3fc83e55533 ("docs: Fix htmldocs build failure")
-
-v4.4.222: Failed to apply! Possible dependencies:
-    2cca45574007 ("Merge tag 'topic/drm-misc-2016-06-07' of git://anongit.freedesktop.org/drm-intel into drm-next")
-    47cb398dd75a ("Docs: sphinxify device-drivers.tmpl")
-    4ad4b21b1b81 ("docs-rst: convert usb docbooks to ReST")
-    59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
-    5b996e93aac3 ("Documentation: include sync_file into DocBook")
-    609f212f6a12 ("docs-rst: convert mtdnand book to ReST")
-    90f9f118b75c ("docs-rst: convert filesystems book to ReST")
-    eae1760fc838 ("doc: update/fixup dma-buf related DocBook")
     f3fc83e55533 ("docs: Fix htmldocs build failure")
 
 
