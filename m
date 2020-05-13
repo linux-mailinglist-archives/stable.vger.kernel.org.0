@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 434AB1D0D83
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE7A1D0EE2
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387990AbgEMJxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:53:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55768 "EHLO mail.kernel.org"
+        id S2387603AbgEMKDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:03:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732603AbgEMJxj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:53:39 -0400
+        id S1733248AbgEMJtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:49:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C896820575;
-        Wed, 13 May 2020 09:53:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFD9F2493C;
+        Wed, 13 May 2020 09:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363619;
-        bh=9Id/3gUvE69ng67jci/Ipgi+B0JOa0NZwiI0Aii5NOI=;
+        s=default; t=1589363370;
+        bh=Snpmvv0YuV91IW1ciI0eICakPwNAYNUaaKoQhGWBYVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2QHmKl3qoPjwyAzTFQ4SI5rdK8277nhYvaNw6iQ2l+WQAc5PqmFdztZZSVxBT6iQU
-         mYqbAqwziYN60fgPBviZNT4LAmwEH1ZgmxuyP3rIDpoASZMdNGsuWVDO5Ir7CgvUaW
-         odLPjMsNUixIzn3gv4vHpDqfBT5/NVXMFTsD3dxQ=
+        b=NKB08oiHMS29A/Ar8z1A1Fjklm/9FcRXC8a2zy91TcF6pTBbqfe+LzLTJPhkYzxKv
+         KqrWXLr6hnJ6LuuQo0k2wB+9CVSSfmwEbwYGcG/tcj2572mredA5SEndmuBCbgEQV5
+         u9sum44pGipNgjzB//v47ptpQ52yZFNIp+2ymeJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
-        Wang Jian <larkwang@gmail.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 056/118] wireguard: send/receive: cond_resched() when processing worker ringbuffers
+Subject: [PATCH 5.4 39/90] net: mvpp2: prevent buffer overflow in mvpp22_rss_ctx()
 Date:   Wed, 13 May 2020 11:44:35 +0200
-Message-Id: <20200513094421.948432116@linuxfoundation.org>
+Message-Id: <20200513094412.739673889@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4005f5c3c9d006157ba716594e0d70c88a235c5e ]
+[ Upstream commit 39bd16df7c31bb8cf5dfd0c88e42abd5ae10029d ]
 
-Users with pathological hardware reported CPU stalls on CONFIG_
-PREEMPT_VOLUNTARY=y, because the ringbuffers would stay full, meaning
-these workers would never terminate. That turned out not to be okay on
-systems without forced preemption, which Sultan observed. This commit
-adds a cond_resched() to the bottom of each loop iteration, so that
-these workers don't hog the core. Note that we don't need this on the
-napi poll worker, since that terminates after its budget is expended.
+The "rss_context" variable comes from the user via  ethtool_get_rxfh().
+It can be any u32 value except zero.  Eventually it gets passed to
+mvpp22_rss_ctx() and if it is over MVPP22_N_RSS_TABLES (8) then it
+results in an array overflow.
 
-Suggested-by: Sultan Alsawaf <sultan@kerneltoast.com>
-Reported-by: Wang Jian <larkwang@gmail.com>
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: 895586d5dc32 ("net: mvpp2: cls: Use RSS contexts to handle RSS tables")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/receive.c |    2 ++
- drivers/net/wireguard/send.c    |    4 ++++
- 2 files changed, 6 insertions(+)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/wireguard/receive.c
-+++ b/drivers/net/wireguard/receive.c
-@@ -516,6 +516,8 @@ void wg_packet_decrypt_worker(struct wor
- 				&PACKET_CB(skb)->keypair->receiving)) ?
- 				PACKET_STATE_CRYPTED : PACKET_STATE_DEAD;
- 		wg_queue_enqueue_per_peer_napi(skb, state);
-+		if (need_resched())
-+			cond_resched();
- 	}
- }
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -4319,6 +4319,8 @@ static int mvpp2_ethtool_get_rxfh_contex
  
---- a/drivers/net/wireguard/send.c
-+++ b/drivers/net/wireguard/send.c
-@@ -281,6 +281,8 @@ void wg_packet_tx_worker(struct work_str
+ 	if (!mvpp22_rss_is_supported())
+ 		return -EOPNOTSUPP;
++	if (rss_context >= MVPP22_N_RSS_TABLES)
++		return -EINVAL;
  
- 		wg_noise_keypair_put(keypair, false);
- 		wg_peer_put(peer);
-+		if (need_resched())
-+			cond_resched();
- 	}
- }
- 
-@@ -305,6 +307,8 @@ void wg_packet_encrypt_worker(struct wor
- 		wg_queue_enqueue_per_peer(&PACKET_PEER(first)->tx_queue, first,
- 					  state);
- 
-+		if (need_resched())
-+			cond_resched();
- 	}
- }
- 
+ 	if (hfunc)
+ 		*hfunc = ETH_RSS_HASH_CRC32;
 
 
