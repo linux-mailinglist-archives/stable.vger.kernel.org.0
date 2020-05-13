@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C62A1D0DDA
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:56:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCDCD1D0DDE
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733035AbgEMJ40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:56:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60032 "EHLO mail.kernel.org"
+        id S2387935AbgEMJ4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:56:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388414AbgEMJ4X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:56:23 -0400
+        id S2387919AbgEMJ40 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:56:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 877E020769;
-        Wed, 13 May 2020 09:56:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDC35206D6;
+        Wed, 13 May 2020 09:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363783;
-        bh=WAETQjuLl5QS1YCI7B1gmJLMQhVKG4lIqaVhHcXqd+A=;
+        s=default; t=1589363785;
+        bh=Jze8i4rj65vnF9d3Kd8ooqtpOb+CdZklIrrCf6FWc/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQ2+Ht9BWWZFkpj8wI+3GOZehCP9U/RRFPQtRcTPebyENTosnyGg4gN/Gc4POT/ad
-         DCEk9+vds8NK9QLO/KHslzOWLxWR/Rys79qWXE0gx7BLXstUoHXpXat+Th5EpHQdl2
-         cL73mMfY5iwN0qzAPVGqng8ckWfvC22mEhGVYKm8=
+        b=AsWYbkl2L6iVk07dNf2EoCw0JbpnIE3kvaGp9mQb0h9YBn1Vthb+dQ14DNcjsuLqu
+         XiCC3yyoYURzvb82TYcRlr8iUedqXKQs7n5Ny1Me7u9nPojMEyynbt/Fz3ebEl+ofk
+         WRuvCJ1Z4A7q3hJYAVdjA+B67D+TE7CupusMVMM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Jan Kara <jack@suse.cz>, Bart Van Assche <bvanassche@acm.org>,
+        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
+        Bart Van Assche <bvanassche@acm.org>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 114/118] bdi: move bdi_dev_name out of line
-Date:   Wed, 13 May 2020 11:45:33 +0200
-Message-Id: <20200513094427.931727604@linuxfoundation.org>
+Subject: [PATCH 5.6 115/118] bdi: add a ->dev_name field to struct backing_dev_info
+Date:   Wed, 13 May 2020 11:45:34 +0200
+Message-Id: <20200513094427.983612846@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -46,70 +47,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit eb7ae5e06bb6e6ac6bb86872d27c43ebab92f6b2 ]
+[ Upstream commit 6bd87eec23cbc9ed222bed0f5b5b02bf300e9a8d ]
 
-bdi_dev_name is not a fast path function, move it out of line.  This
-prepares for using it from modular callers without having to export
-an implementation detail like bdi_unknown_name.
+Cache a copy of the name for the life time of the backing_dev_info
+structure so that we can reference it even after unregistering.
 
+Fixes: 68f23b89067f ("memcg: fix a crash in wb_workfn when a device disappears")
+Reported-by: Yufen Yu <yuyufen@huawei.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/backing-dev.h |  9 +--------
- mm/backing-dev.c            | 10 +++++++++-
- 2 files changed, 10 insertions(+), 9 deletions(-)
+ include/linux/backing-dev-defs.h | 1 +
+ mm/backing-dev.c                 | 5 +++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/backing-dev.h b/include/linux/backing-dev.h
-index f88197c1ffc2d..c9ad5c3b7b4b2 100644
---- a/include/linux/backing-dev.h
-+++ b/include/linux/backing-dev.h
-@@ -505,13 +505,6 @@ static inline int bdi_rw_congested(struct backing_dev_info *bdi)
- 				  (1 << WB_async_congested));
- }
+diff --git a/include/linux/backing-dev-defs.h b/include/linux/backing-dev-defs.h
+index 4fc87dee005ab..2849bdbb3acbe 100644
+--- a/include/linux/backing-dev-defs.h
++++ b/include/linux/backing-dev-defs.h
+@@ -220,6 +220,7 @@ struct backing_dev_info {
+ 	wait_queue_head_t wb_waitq;
  
--extern const char *bdi_unknown_name;
--
--static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
--{
--	if (!bdi || !bdi->dev)
--		return bdi_unknown_name;
--	return dev_name(bdi->dev);
--}
-+const char *bdi_dev_name(struct backing_dev_info *bdi);
+ 	struct device *dev;
++	char dev_name[64];
+ 	struct device *owner;
  
- #endif	/* _LINUX_BACKING_DEV_H */
+ 	struct timer_list laptop_mode_wb_timer;
 diff --git a/mm/backing-dev.c b/mm/backing-dev.c
-index 62f05f605fb5b..680e5028d0fc5 100644
+index 680e5028d0fc5..3f2480e4c5af3 100644
 --- a/mm/backing-dev.c
 +++ b/mm/backing-dev.c
-@@ -21,7 +21,7 @@ struct backing_dev_info noop_backing_dev_info = {
- EXPORT_SYMBOL_GPL(noop_backing_dev_info);
+@@ -938,7 +938,8 @@ int bdi_register_va(struct backing_dev_info *bdi, const char *fmt, va_list args)
+ 	if (bdi->dev)	/* The driver needs to use separate queues per device */
+ 		return 0;
  
- static struct class *bdi_class;
--const char *bdi_unknown_name = "(unknown)";
-+static const char *bdi_unknown_name = "(unknown)";
+-	dev = device_create_vargs(bdi_class, NULL, MKDEV(0, 0), bdi, fmt, args);
++	vsnprintf(bdi->dev_name, sizeof(bdi->dev_name), fmt, args);
++	dev = device_create(bdi_class, NULL, MKDEV(0, 0), bdi, bdi->dev_name);
+ 	if (IS_ERR(dev))
+ 		return PTR_ERR(dev);
  
- /*
-  * bdi_lock protects bdi_tree and updates to bdi_list. bdi_list has RCU
-@@ -1043,6 +1043,14 @@ void bdi_put(struct backing_dev_info *bdi)
+@@ -1047,7 +1048,7 @@ const char *bdi_dev_name(struct backing_dev_info *bdi)
+ {
+ 	if (!bdi || !bdi->dev)
+ 		return bdi_unknown_name;
+-	return dev_name(bdi->dev);
++	return bdi->dev_name;
  }
- EXPORT_SYMBOL(bdi_put);
+ EXPORT_SYMBOL_GPL(bdi_dev_name);
  
-+const char *bdi_dev_name(struct backing_dev_info *bdi)
-+{
-+	if (!bdi || !bdi->dev)
-+		return bdi_unknown_name;
-+	return dev_name(bdi->dev);
-+}
-+EXPORT_SYMBOL_GPL(bdi_dev_name);
-+
- static wait_queue_head_t congestion_wqh[2] = {
- 		__WAIT_QUEUE_HEAD_INITIALIZER(congestion_wqh[0]),
- 		__WAIT_QUEUE_HEAD_INITIALIZER(congestion_wqh[1])
 -- 
 2.20.1
 
