@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A14381D0D60
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B756D1D0E5E
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387808AbgEMJwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:52:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53952 "EHLO mail.kernel.org"
+        id S1733082AbgEMJwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:52:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387805AbgEMJwb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:52:31 -0400
+        id S1732718AbgEMJwd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:52:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29C1620575;
-        Wed, 13 May 2020 09:52:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE50620740;
+        Wed, 13 May 2020 09:52:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363550;
-        bh=YolsKuG7VLjfBorjfwxATK010IzrZyYTau88vE0mZXc=;
+        s=default; t=1589363553;
+        bh=997yCqMNX4KxpweHvk3j8zDPvvDW9cjqo7KuuBv9lxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dt6PamYzkBv9whvUP033+hKbVDcVWNdAUe2zvJVx4+8cyDcxpp66oypc+YVhUSWHG
-         eL/cqJ05iLCpRgimEG7UdJIE7S0Tgl1sMjYM7qIE+bNu5ec9mNuhqahb/tGfstJePN
-         yYJRbJjuAtOTi0kY01Ny/OIqVb09XJN2iA1B2dSA=
+        b=OQdUUQoSji4Cdk8CQQ9frpGl5LSCHue2PEi0hyCQrTvdU6nmACKXipDjVk74maRCI
+         NnTd/W7XZth/VobqO/ygNROzzlJNz7Opt4SHbQ+xWlB61vMgL3WzA2xUHMD1jIfNhv
+         ykrYV5iuW+uJ2+fQbbkcALMPczG/p/n9dYe0mWtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 008/118] ext4: disable dioread_nolock whenever delayed allocation is disabled
-Date:   Wed, 13 May 2020 11:43:47 +0200
-Message-Id: <20200513094418.386785975@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 009/118] nvme: refactor nvme_identify_ns_descs error handling
+Date:   Wed, 13 May 2020 11:43:48 +0200
+Message-Id: <20200513094418.481181484@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -43,53 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit c8980e1980ccdc2229aa2218d532ddc62e0aabe5 ]
+[ Upstream commit fb314eb0cbb2e11540d1ae1a7b28346397f621ef ]
 
-The patch "ext4: make dioread_nolock the default" (244adf6426ee) causes
-generic/422 to fail when run in kvm-xfstests' ext3conv test case.  This
-applies both the dioread_nolock and nodelalloc mount options, a
-combination not previously tested by kvm-xfstests.  The failure occurs
-because the dioread_nolock code path splits a previously fallocated
-multiblock extent into a series of single block extents when overwriting
-a portion of that extent.  That causes allocation of an extent tree leaf
-node and a reshuffling of extents.  Once writeback is completed, the
-individual extents are recombined into a single extent, the extent is
-moved again, and the leaf node is deleted.  The difference in block
-utilization before and after writeback due to the leaf node triggers the
-failure.
+Move the handling of an error into the function from the caller, and
+only do it for an actual error on the admin command itself, not the
+command parsing, as that should be enough to deal with devices claiming
+a bogus version compliance.
 
-The original reason for this behavior was to avoid ENOSPC when handling
-I/O completions during writeback in the dioread_nolock code paths when
-delayed allocation is disabled.  It may no longer be necessary, because
-code was added in the past to reserve extra space to solve this problem
-when delayed allocation is enabled, and this code may also apply when
-delayed allocation is disabled.  Until this can be verified, don't use
-the dioread_nolock code paths if delayed allocation is disabled.
-
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Link: https://lore.kernel.org/r/20200319150028.24592-1-enwlinux@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ext4_jbd2.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/nvme/host/core.c | 28 +++++++++++++---------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
-diff --git a/fs/ext4/ext4_jbd2.h b/fs/ext4/ext4_jbd2.h
-index 7ea4f6fa173b4..4b9002f0e84c0 100644
---- a/fs/ext4/ext4_jbd2.h
-+++ b/fs/ext4/ext4_jbd2.h
-@@ -512,6 +512,9 @@ static inline int ext4_should_dioread_nolock(struct inode *inode)
- 		return 0;
- 	if (ext4_should_journal_data(inode))
- 		return 0;
-+	/* temporary fix to prevent generic/422 test failures */
-+	if (!test_opt(inode->i_sb, DELALLOC))
-+		return 0;
- 	return 1;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index fb4c35a430650..545e9e5f1b737 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1075,8 +1075,17 @@ static int nvme_identify_ns_descs(struct nvme_ctrl *ctrl, unsigned nsid,
+ 
+ 	status = nvme_submit_sync_cmd(ctrl->admin_q, &c, data,
+ 				      NVME_IDENTIFY_DATA_SIZE);
+-	if (status)
++	if (status) {
++		dev_warn(ctrl->device,
++			"Identify Descriptors failed (%d)\n", status);
++		 /*
++		  * Don't treat an error as fatal, as we potentially already
++		  * have a NGUID or EUI-64.
++		  */
++		if (status > 0)
++			status = 0;
+ 		goto free_data;
++	}
+ 
+ 	for (pos = 0; pos < NVME_IDENTIFY_DATA_SIZE; pos += len) {
+ 		struct nvme_ns_id_desc *cur = data + pos;
+@@ -1734,26 +1743,15 @@ static void nvme_config_write_zeroes(struct gendisk *disk, struct nvme_ns *ns)
+ static int nvme_report_ns_ids(struct nvme_ctrl *ctrl, unsigned int nsid,
+ 		struct nvme_id_ns *id, struct nvme_ns_ids *ids)
+ {
+-	int ret = 0;
+-
+ 	memset(ids, 0, sizeof(*ids));
+ 
+ 	if (ctrl->vs >= NVME_VS(1, 1, 0))
+ 		memcpy(ids->eui64, id->eui64, sizeof(id->eui64));
+ 	if (ctrl->vs >= NVME_VS(1, 2, 0))
+ 		memcpy(ids->nguid, id->nguid, sizeof(id->nguid));
+-	if (ctrl->vs >= NVME_VS(1, 3, 0)) {
+-		 /* Don't treat error as fatal we potentially
+-		  * already have a NGUID or EUI-64
+-		  */
+-		ret = nvme_identify_ns_descs(ctrl, nsid, ids);
+-		if (ret)
+-			dev_warn(ctrl->device,
+-				 "Identify Descriptors failed (%d)\n", ret);
+-		if (ret > 0)
+-			ret = 0;
+-	}
+-	return ret;
++	if (ctrl->vs >= NVME_VS(1, 3, 0))
++		return nvme_identify_ns_descs(ctrl, nsid, ids);
++	return 0;
  }
  
+ static bool nvme_ns_ids_valid(struct nvme_ns_ids *ids)
 -- 
 2.20.1
 
