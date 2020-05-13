@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 425341D0DD6
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6F571D0DE3
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388400AbgEMJ4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:56:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59890 "EHLO mail.kernel.org"
+        id S2387439AbgEMJ4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:56:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388396AbgEMJ4Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:56:16 -0400
+        id S2388403AbgEMJ4S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:56:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FCFF206D6;
-        Wed, 13 May 2020 09:56:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85AEE20769;
+        Wed, 13 May 2020 09:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363775;
-        bh=TMMKp9MXI84LsWq7FxEwGSGpQH/c4gWkGe1CnI5SMfs=;
+        s=default; t=1589363778;
+        bh=2vyF+S/PDQhriF+Z8BMNLoo5/iIbcU3qwbW9jy4iwZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZNpSb8yTrVFFVR9w01TU46753kaCK8seIAQIjzwlltYjWxuQDqZ6GHh3pPWMkAxb
-         LFWllgGiCtQNMLH/lZQDMpiLaWbh8ljSqFg/trPN+RPjPgfZHEeJeVrXPxNe0/RIFq
-         5SOll5yhA2Xx8CnQZWjeCDCE8ZDJ02V27+pnzcic=
+        b=yj1wdINRu4NU202io9Nv0bRDKGBZF5EZMQ5d0/BartF3W+XeKz4f1tbBS4Z47o085
+         a8RT9iKa2D86KlWSBb3fbQInJ4mRQr8/ffYD9xhNmwezT+qP6hjQvYVUPUnWwRic3j
+         BPjJxumqlv0VD8iVYyHxKpugRvLvVw/baBed3Zyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.6 111/118] iommu/virtio: Reverse arguments to list_add
-Date:   Wed, 13 May 2020 11:45:30 +0200
-Message-Id: <20200513094427.757861816@linuxfoundation.org>
+        stable@vger.kernel.org, Ivan Delalande <colona@arista.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.6 112/118] scripts/decodecode: fix trapping instruction formatting
+Date:   Wed, 13 May 2020 11:45:31 +0200
+Message-Id: <20200513094427.823627648@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -44,38 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@inria.fr>
+From: Ivan Delalande <colona@arista.com>
 
-commit fb3637a113349f53830f7d6ca45891b7192cd28f upstream.
+commit e08df079b23e2e982df15aa340bfbaf50f297504 upstream.
 
-Elsewhere in the file, there is a list_for_each_entry with
-&vdev->resv_regions as the second argument, suggesting that
-&vdev->resv_regions is the list head.  So exchange the
-arguments on the list_add call to put the list head in the
-second argument.
+If the trapping instruction contains a ':', for a memory access through
+segment registers for example, the sed substitution will insert the '*'
+marker in the middle of the instruction instead of the line address:
 
-Fixes: 2a5a31487445 ("iommu/virtio: Add probe request")
-Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
+	2b:   65 48 0f c7 0f          cmpxchg16b %gs:*(%rdi)          <-- trapping instruction
+
+I started to think I had forgotten some quirk of the assembly syntax
+before noticing that it was actually coming from the script.  Fix it to
+add the address marker at the right place for these instructions:
+
+	28:   49 8b 06                mov    (%r14),%rax
+	2b:*  65 48 0f c7 0f          cmpxchg16b %gs:(%rdi)           <-- trapping instruction
+	30:   0f 94 c0                sete   %al
+
+Fixes: 18ff44b189e2 ("scripts/decodecode: make faulting insn ptr more robust")
+Signed-off-by: Ivan Delalande <colona@arista.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Link: http://lkml.kernel.org/r/20200419223653.GA31248@visor
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Link: https://lore.kernel.org/r/1588704467-13431-1-git-send-email-Julia.Lawall@inria.fr
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-
 ---
- drivers/iommu/virtio-iommu.c |    2 +-
+ scripts/decodecode |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -453,7 +453,7 @@ static int viommu_add_resv_mem(struct vi
- 	if (!region)
- 		return -ENOMEM;
+--- a/scripts/decodecode
++++ b/scripts/decodecode
+@@ -126,7 +126,7 @@ faultlinenum=$(( $(wc -l $T.oo  | cut -d
+ faultline=`cat $T.dis | head -1 | cut -d":" -f2-`
+ faultline=`echo "$faultline" | sed -e 's/\[/\\\[/g; s/\]/\\\]/g'`
  
--	list_add(&vdev->resv_regions, &region->list);
-+	list_add(&region->list, &vdev->resv_regions);
- 	return 0;
- }
- 
+-cat $T.oo | sed -e "${faultlinenum}s/^\(.*:\)\(.*\)/\1\*\2\t\t<-- trapping instruction/"
++cat $T.oo | sed -e "${faultlinenum}s/^\([^:]*:\)\(.*\)/\1\*\2\t\t<-- trapping instruction/"
+ echo
+ cat $T.aa
+ cleanup
 
 
