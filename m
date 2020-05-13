@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8CDA1D0F02
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9CD81D0D90
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:54:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388065AbgEMKD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 06:03:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46406 "EHLO mail.kernel.org"
+        id S2388050AbgEMJyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:54:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733006AbgEMJsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:48:09 -0400
+        id S1732826AbgEMJyH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:54:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 218C620740;
-        Wed, 13 May 2020 09:48:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F781205ED;
+        Wed, 13 May 2020 09:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363288;
-        bh=IDIvI+1772k1Od1sxCmC/aHtQx79JKNpyEUnrjOlVXI=;
+        s=default; t=1589363646;
+        bh=YXLFxgx/cR+xQ8Urciq83J/EM61NJniqRVSKvI+Ss68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0WARAdSQ2lATN6aYv7FEby3Hu4PMinMsQgftIkwJgv8k1xVbDLwA2j2wXuQFDNZKe
-         HGRfuccdNyEdK8WgkIpC1nfuA4JoJ22H51+EV1aSGgrtm994/fruqQTppyxrdR7Egz
-         FF22kDMqu/ItzpQKo3qPwd3DDL8MbGNq2wxNNLJs=
+        b=A5zxQ4emUI9wsU31i6tLwh1NCiMxeQFqOL6AHW2eM3p/hxlJmBMZPDSKEFRDEzlTD
+         G0dt0Panf8K4uvCwTuylkVDnOjNL5XNt757Gu0BV+sRlcFkODaNy+yHbJrIO3rlbJM
+         AHaYf6pvwzS3HWzkhGbkgyQFlRl//RB7//iq2DgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 14/90] mlxsw: spectrum_acl_tcam: Position vchunk in a vregion list properly
+Subject: [PATCH 5.6 031/118] net/tls: Fix sk_psock refcnt leak in bpf_exec_tx_verdict()
 Date:   Wed, 13 May 2020 11:44:10 +0200
-Message-Id: <20200513094410.465523372@linuxfoundation.org>
+Message-Id: <20200513094420.270139384@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Pirko <jiri@mellanox.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 6ef4889fc0b3aa6ab928e7565935ac6f762cee6e ]
+[ Upstream commit 095f5614bfe16e5b3e191b34ea41b10d6fdd4ced ]
 
-Vregion helpers to get min and max priority depend on the correct
-ordering of vchunks in the vregion list. However, the current code
-always adds new chunk to the end of the list, no matter what the
-priority is. Fix this by finding the correct place in the list and put
-vchunk there.
+bpf_exec_tx_verdict() invokes sk_psock_get(), which returns a reference
+of the specified sk_psock object to "psock" with increased refcnt.
 
-Fixes: 22a677661f56 ("mlxsw: spectrum: Introduce ACL core with simple TCAM implementation")
-Signed-off-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+When bpf_exec_tx_verdict() returns, local variable "psock" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
+
+The reference counting issue happens in one exception handling path of
+bpf_exec_tx_verdict(). When "policy" equals to NULL but "psock" is not
+NULL, the function forgets to decrease the refcnt increased by
+sk_psock_get(), causing a refcnt leak.
+
+Fix this issue by calling sk_psock_put() on this error path before
+bpf_exec_tx_verdict() returns.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ net/tls/tls_sw.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c
-@@ -986,8 +986,9 @@ mlxsw_sp_acl_tcam_vchunk_create(struct m
- 				unsigned int priority,
- 				struct mlxsw_afk_element_usage *elusage)
- {
-+	struct mlxsw_sp_acl_tcam_vchunk *vchunk, *vchunk2;
- 	struct mlxsw_sp_acl_tcam_vregion *vregion;
--	struct mlxsw_sp_acl_tcam_vchunk *vchunk;
-+	struct list_head *pos;
- 	int err;
- 
- 	if (priority == MLXSW_SP_ACL_TCAM_CATCHALL_PRIO)
-@@ -1025,7 +1026,14 @@ mlxsw_sp_acl_tcam_vchunk_create(struct m
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -800,6 +800,8 @@ static int bpf_exec_tx_verdict(struct sk
+ 			*copied -= sk_msg_free(sk, msg);
+ 			tls_free_open_rec(sk);
+ 		}
++		if (psock)
++			sk_psock_put(sk, psock);
+ 		return err;
  	}
- 
- 	mlxsw_sp_acl_tcam_rehash_ctx_vregion_changed(vregion);
--	list_add_tail(&vchunk->list, &vregion->vchunk_list);
-+
-+	/* Position the vchunk inside the list according to priority */
-+	list_for_each(pos, &vregion->vchunk_list) {
-+		vchunk2 = list_entry(pos, typeof(*vchunk2), list);
-+		if (vchunk2->priority > priority)
-+			break;
-+	}
-+	list_add_tail(&vchunk->list, pos);
- 	mutex_unlock(&vregion->lock);
- 
- 	return vchunk;
+ more_data:
 
 
