@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A16361D0EAD
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B271D0E23
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:58:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387536AbgEMJum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:50:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50650 "EHLO mail.kernel.org"
+        id S2388201AbgEMJzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:55:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387529AbgEMJuj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:50:39 -0400
+        id S2388195AbgEMJzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:55:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E256206D6;
-        Wed, 13 May 2020 09:50:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6CFD2176D;
+        Wed, 13 May 2020 09:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363438;
-        bh=TSdAbGoPvFw3p1tkaz4eAGaJ8MYFj3rY7vna4i8xfKk=;
+        s=default; t=1589363700;
+        bh=xz5Gg2isLL+FnA6oJVp9NAbGaQF3iERV+FstlcUn034=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLPVY8Nv7/B/9E5g2JP1jLZvMQissOEwzcnqm13TAunu0+hw2iSIMRoSXbukqJRQB
-         /mSLUUOxz7Wjyjyg7vvuyMl4HUpEMM7IrJgkijsyNuef043azOwxY6qhVmgW9BbWR3
-         MWbWhzx9fni2lpkssthJTDsdDCvtndYUP/uXdtAA=
+        b=Zc2pfBKaw19sQnT72RNayXbH99sKwfZkJRSE5+A3ULa98IA17exAhFRSY3AR/87Ry
+         Mgm3NpsV/kkLDvWY/VXQFVhDKYKEY3a1yG0k/jvKs6V1dVeWfQ2btddG/jug87LULE
+         HEuWaLoc2Ocfrjf2g4ze1CLYS9bmji4inVvyQTXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
-        Dave Jones <dsj@fb.com>,
-        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
-        Joe Mario <jmario@redhat.com>, Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 73/90] x86/entry/64: Fix unwind hints in kernel exit path
+        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
+        Anup Patel <anup@brainfault.org>,
+        Yash Shah <yash.shah@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.6 090/118] riscv: set max_pfn to the PFN of the last page
 Date:   Wed, 13 May 2020 11:45:09 +0200
-Message-Id: <20200513094416.934392058@linuxfoundation.org>
+Message-Id: <20200513094425.220798099@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,69 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Vincent Chen <vincent.chen@sifive.com>
 
-commit 1fb143634a38095b641a3a21220774799772dc4c upstream.
+commit c749bb2d554825e007cbc43b791f54e124dadfce upstream.
 
-In swapgs_restore_regs_and_return_to_usermode, after the stack is
-switched to the trampoline stack, the existing UNWIND_HINT_REGS hint is
-no longer valid, which can result in the following ORC unwinder warning:
+The current max_pfn equals to zero. In this case, I found it caused users
+cannot get some page information through /proc such as kpagecount in v5.6
+kernel because of new sanity checks. The following message is displayed by
+stress-ng test suite with the command "stress-ng --verbose --physpage 1 -t
+1" on HiFive unleashed board.
 
-  WARNING: can't dereference registers at 000000003aeb0cdd for ip swapgs_restore_regs_and_return_to_usermode+0x93/0xa0
+ # stress-ng --verbose --physpage 1 -t 1
+ stress-ng: debug: [109] 4 processors online, 4 processors configured
+ stress-ng: info: [109] dispatching hogs: 1 physpage
+ stress-ng: debug: [109] cache allocate: reducing cache level from L3 (too high) to L0
+ stress-ng: debug: [109] get_cpu_cache: invalid cache_level: 0
+ stress-ng: info: [109] cache allocate: using built-in defaults as no suitable cache found
+ stress-ng: debug: [109] cache allocate: default cache size: 2048K
+ stress-ng: debug: [109] starting stressors
+ stress-ng: debug: [109] 1 stressor spawned
+ stress-ng: debug: [110] stress-ng-physpage: started [110] (instance 0)
+ stress-ng: error: [110] stress-ng-physpage: cannot read page count for address 0x3fd34de000 in /proc/kpagecount, errno=0 (Success)
+ stress-ng: error: [110] stress-ng-physpage: cannot read page count for address 0x3fd32db078 in /proc/kpagecount, errno=0 (Success)
+ ...
+ stress-ng: error: [110] stress-ng-physpage: cannot read page count for address 0x3fd32db078 in /proc/kpagecount, errno=0 (Success)
+ stress-ng: debug: [110] stress-ng-physpage: exited [110] (instance 0)
+ stress-ng: debug: [109] process [110] terminated
+ stress-ng: info: [109] successful run completed in 1.00s
+ #
 
-For full correctness, we could try to add complicated unwind hints so
-the unwinder could continue to find the registers, but when when it's
-this close to kernel exit, unwind hints aren't really needed anymore and
-it's fine to just use an empty hint which tells the unwinder to stop.
+After applying this patch, the kernel can pass the test.
 
-For consistency, also move the UNWIND_HINT_EMPTY in
-entry_SYSCALL_64_after_hwframe to a similar location.
+ # stress-ng --verbose --physpage 1 -t 1
+ stress-ng: debug: [104] 4 processors online, 4 processors configured stress-ng: info: [104] dispatching hogs: 1 physpage
+ stress-ng: info: [104] cache allocate: using defaults, can't determine cache details from sysfs
+ stress-ng: debug: [104] cache allocate: default cache size: 2048K
+ stress-ng: debug: [104] starting stressors
+ stress-ng: debug: [104] 1 stressor spawned
+ stress-ng: debug: [105] stress-ng-physpage: started [105] (instance 0) stress-ng: debug: [105] stress-ng-physpage: exited [105] (instance 0) stress-ng: debug: [104] process [105] terminated
+ stress-ng: info: [104] successful run completed in 1.01s
+ #
 
-Fixes: 3e3b9293d392 ("x86/entry/64: Return to userspace from the trampoline stack")
-Reported-by: Vince Weaver <vincent.weaver@maine.edu>
-Reported-by: Dave Jones <dsj@fb.com>
-Reported-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
-Reported-by: Joe Mario <jmario@redhat.com>
-Reported-by: Jann Horn <jannh@google.com>
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/60ea8f562987ed2d9ace2977502fe481c0d7c9a0.1587808742.git.jpoimboe@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Reviewed-by: Yash Shah <yash.shah@sifive.com>
+Tested-by: Yash Shah <yash.shah@sifive.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/entry/entry_64.S |    3 ++-
+ arch/riscv/mm/init.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -249,7 +249,6 @@ GLOBAL(entry_SYSCALL_64_after_hwframe)
- 	 */
- syscall_return_via_sysret:
- 	/* rcx and r11 are already restored (see code above) */
--	UNWIND_HINT_EMPTY
- 	POP_REGS pop_rdi=0 skip_r11rcx=1
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -149,7 +149,8 @@ void __init setup_bootmem(void)
+ 	memblock_reserve(vmlinux_start, vmlinux_end - vmlinux_start);
  
- 	/*
-@@ -258,6 +257,7 @@ syscall_return_via_sysret:
- 	 */
- 	movq	%rsp, %rdi
- 	movq	PER_CPU_VAR(cpu_tss_rw + TSS_sp0), %rsp
-+	UNWIND_HINT_EMPTY
+ 	set_max_mapnr(PFN_DOWN(mem_size));
+-	max_low_pfn = PFN_DOWN(memblock_end_of_DRAM());
++	max_pfn = PFN_DOWN(memblock_end_of_DRAM());
++	max_low_pfn = max_pfn;
  
- 	pushq	RSP-RDI(%rdi)	/* RSP */
- 	pushq	(%rdi)		/* RDI */
-@@ -637,6 +637,7 @@ GLOBAL(swapgs_restore_regs_and_return_to
- 	 */
- 	movq	%rsp, %rdi
- 	movq	PER_CPU_VAR(cpu_tss_rw + TSS_sp0), %rsp
-+	UNWIND_HINT_EMPTY
- 
- 	/* Copy the IRET frame to the trampoline stack. */
- 	pushq	6*8(%rdi)	/* SS */
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	setup_initrd();
 
 
