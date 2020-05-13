@@ -2,124 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2531D2040
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 22:37:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 056151D2096
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 23:03:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728015AbgEMUhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 16:37:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37722 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727118AbgEMUho (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 16:37:44 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82DDC061A0C
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 13:37:44 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id ms17so11496793pjb.0
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 13:37:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Nu0hW+M1pebW59JVnAn3mGOG+YT94LSbEEyBBC7jPdo=;
-        b=YlFt+AH0mSVMXpOp/P9FZDfGP/Cj9nIwUCZnNcEbdSb8ItCGBSfZKLsZd2YP7bNKje
-         81QAFhUGFU7EBxIxZH0qqJbx1hcFjEq0vbTi7nrAVS4Sw4xb+fHnnE7TP1ypzg78nfy9
-         w8aOmE0U4ctb2oIuwVs3YdZswDLz5NgyGSLoKuXE2soHs2+fgqzr4mtxajj0ykAMbo1g
-         TxiirZof4yXjUf2Qiutv2lN6j2kTDZNhbQ/LOXmWo6NnYrCsON/kjCxFzArkv5ClQFa+
-         YavrVKGd4Uhra2Og1u+t2vp/JiOqFi0l2jWAGAhEYPMRidX6ibg0k8ew48FCRH+p6HvD
-         mUVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Nu0hW+M1pebW59JVnAn3mGOG+YT94LSbEEyBBC7jPdo=;
-        b=lIt0x2gGdm3Q5h1I3iF4BvmkwU0v226kJSfstEIEd5xRLxfAKmD0sCJraqW8IujY3o
-         Kaqi6BppcR61oUTfbuj7wQ3HNsA0UgP8V9fI4VNw8JS/wjiSBLwOi6aW6FOSdPC9H5yO
-         wlZFZWNFUyrcaEcXc5IGK+7NAN7mO1Vx7LO5msXceVHpIR7aodjUKqQA8JrcBle1fjRM
-         xnv2rfy/hKXiNbnpkN0XLuoT0nXPi0CczcNytRvxD3uSfqZQrhvMeVfj0+IYMXX7PVWr
-         O4urIm+W8+gL63jWYzIAsKTYtanibHvJQt10Ae9cflgjuuCx0fojpuI+EIZBKKbD/WeC
-         rvcA==
-X-Gm-Message-State: AOAM53208l0tZWg/SsJWr5AjC3fgqmgdAiga1Mmw2G5gMK1tu06PO5zd
-        w1UDT2BLcwhWhsmDzejNFzlsyPk8ATk=
-X-Google-Smtp-Source: ABdhPJyDVG64wx+27eDbpl47L6DqmUA0qNcaD0F7a+ChcEWEZuZKvH8dCgva7jO66GRpQNLeDkESqA==
-X-Received: by 2002:a17:902:fe03:: with SMTP id g3mr937086plj.28.1589402263964;
-        Wed, 13 May 2020 13:37:43 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w13sm354719pfn.192.2020.05.13.13.37.42
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2020 13:37:42 -0700 (PDT)
-Message-ID: <5ebc5a96.1c69fb81.5fcc3.1650@mx.google.com>
-Date:   Wed, 13 May 2020 13:37:42 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726145AbgEMVDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 17:03:14 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:51200 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725952AbgEMVDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 17:03:13 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 088FC1C0285; Wed, 13 May 2020 23:03:12 +0200 (CEST)
+Date:   Wed, 13 May 2020 23:03:11 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: Re: [PATCH 4.19 35/48] batman-adv: Fix refcnt leak in
+ batadv_store_throughput_override
+Message-ID: <20200513210311.GA1822@duo.ucw.cz>
+References: <20200513094351.100352960@linuxfoundation.org>
+ <20200513094400.720293748@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.6.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.6.12-119-gf1d28d1c7608
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.6.y boot: 130 boots: 4 failed,
- 118 passed with 2 offline, 6 untried/unknown (v5.6.12-119-gf1d28d1c7608)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Content-Disposition: inline
+In-Reply-To: <20200513094400.720293748@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.6.y boot: 130 boots: 4 failed, 118 passed with 2 offline,=
- 6 untried/unknown (v5.6.12-119-gf1d28d1c7608)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.6.y/kernel/v5.6.12-119-gf1d28d1c7608/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
-/kernel/v5.6.12-119-gf1d28d1c7608/
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tree: stable-rc
-Branch: linux-5.6.y
-Git Describe: v5.6.12-119-gf1d28d1c7608
-Git Commit: f1d28d1c7608478dd10b7a36c40f2375bcc1648e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 90 unique boards, 23 SoC families, 19 builds out of 200
+Hi!
 
-Boot Regressions Detected:
+> From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+>=20
+> commit 6107c5da0fca8b50b4d3215e94d619d38cc4a18c upstream.
+>=20
+> batadv_show_throughput_override() invokes batadv_hardif_get_by_netdev(),
+> which gets a batadv_hard_iface object from net_dev with increased refcnt
+> and its reference is assigned to a local pointer 'hard_iface'.
+>=20
+> When batadv_store_throughput_override() returns, "hard_iface" becomes
+> invalid, so the refcount should be decreased to keep refcount balanced.
+>=20
+> The issue happens in one error path of
+> batadv_store_throughput_override(). When batadv_parse_throughput()
+> returns NULL, the refcnt increased by batadv_hardif_get_by_netdev() is
+> not decreased, causing a refcnt leak.
+>=20
+> Fix this issue by jumping to "out" label when batadv_parse_throughput()
+> returns NULL.
 
-arm64:
+Ok, this fixes the issue, but it brings up a question:
 
-    defconfig:
-        gcc-8:
-          meson-g12a-sei510:
-              lab-baylibre: new failure (last pass: v5.6.12)
-          meson-gxm-q200:
-              lab-baylibre: new failure (last pass: v5.6.12)
-          sun50i-a64-pine64-plus:
-              lab-baylibre: new failure (last pass: v5.6.12)
 
-Boot Failures Detected:
+> --- a/net/batman-adv/sysfs.c
+> +++ b/net/batman-adv/sysfs.c
+> @@ -1093,7 +1093,7 @@ static ssize_t batadv_store_throughput_o
+>  	ret =3D batadv_parse_throughput(net_dev, buff, "throughput_override",
+>  				      &tp_override);
+>  	if (!ret)
+> -		return count;
+> +		goto out;
+>
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-g12a-sei510: 1 failed lab
-            meson-gxm-q200: 1 failed lab
-            sun50i-a64-pine64-plus: 1 failed lab
+If parsing of value from userspace failed we are currently returning
+success. That seems wrong. Should we return -EINVAL instead?
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            bcm2836-rpi-2-b: 1 failed lab
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-Offline Platforms:
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature; name="signature.asc"
 
-arm:
+-----BEGIN PGP SIGNATURE-----
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXrxgjwAKCRAw5/Bqldv6
+8jBxAKCPatfcX8F+QT4Xyocp9Z5aK5zspQCfeBHvHJ78hSvs+RqKA0ND11ZVfKs=
+=SVkw
+-----END PGP SIGNATURE-----
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+--FCuugMFkClbJLl1L--
