@@ -2,71 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA6B1D2295
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 01:02:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D42A61D2333
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 01:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732042AbgEMXCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 19:02:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38996 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731815AbgEMXCb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 19:02:31 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45A3B20675;
-        Wed, 13 May 2020 23:02:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589410951;
-        bh=nkq4QibHgdf/84wDz2VcbjymUdMoVUptx7L8aeIN+2c=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=LqlA51UVu0TuMHAIUmJF1cVnfu0OTE+Nte9ev7/OYuwYc6qaOk6QO6w8qPnN/SlXg
-         F8cRi7R0cJoeKREv+ZmxSEbOqi6CMFswiAfVvjtERHkZ9I8acHJ74Y21R/iYInkyFw
-         hoFyDBQF8LWnQ/Bvw+vGUJ9h4YK5bEFb4Fc8zwTk=
-Subject: Re: [PATCH 4.19 00/48] 4.19.123-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20200513094351.100352960@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <b7aed527-54db-189c-4d34-cc5834f18bc6@kernel.org>
-Date:   Wed, 13 May 2020 17:02:30 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1732678AbgEMXl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 19:41:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38328 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1732456AbgEMXl6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 19:41:58 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50B8CC061A0C
+        for <stable@vger.kernel.org>; Wed, 13 May 2020 16:41:58 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id k12so28289771wmj.3
+        for <stable@vger.kernel.org>; Wed, 13 May 2020 16:41:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=Lg0zv30JO/DXTq8yUM57Me9C0HjbxVWKVCxRhxt35eg=;
+        b=RysJ55WBg45Lyz6g8eVfkwaDFozmyPv4RVtHRPjS8WBpdg3398QBqWzneSn+3LigV4
+         f/hSRKCmpwAc/5b03uz9AgrPcsfNh1usacUw/Ci3F/TiJuPgB2RbMG5Png4H8d4kpGfI
+         QAs9se/g6vXIgwdKBoEbuu+3WrWS4E9xQMXcotBHsZ0RloLUra8F4SksiNmThHMjDO7j
+         AyD7PPnE+kG42LyMadrLuUfCVnOln1YxdqrpFsZ2ByX8yZ7hOrM0WrX/ED3Hzv0k3RsE
+         nXq70RVHyD8MQzFLCGnoEvlwUroqdb26d4tR3Oa4PsQ/kvB/fY3QoqfwjLc2XX9tpB0T
+         oBwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=Lg0zv30JO/DXTq8yUM57Me9C0HjbxVWKVCxRhxt35eg=;
+        b=HJdijTy6xLdwjtoCLeBf8ha3gO7IzF1KTl5U7vd/3pEkyU//5OeiGwIBSoJGZ6CkzD
+         IW7zaoSJzoauF2jjlL+eMgIzNuxSBUm1R4VVa2YkNHX/BxikR9ny0wkRvbfBd2o4ievF
+         CfNnkY1GnKtAlraSgj0USh071W/Z8K6Sv0ZDCuNeYWFgSBNQzdTD3eDT8Jq9xuO53X0f
+         oveZw7Qk7dylJAFs10gggs2382m2YbcmzbpF7eQ8DfSJa/Av8Xne2uQtoWMOawT3ur+O
+         tp0x3lE47wDQHa4nXrocsf8EjhMh1dPAFs5ExVzj0ecTC3mJL+ib5GW3ZEGReLtkYjnG
+         vsjA==
+X-Gm-Message-State: AGi0PubmfqIS2hgPpLKaP/48XdPHLepYzIAzBFWYizEJH/dJ+xA6EPaR
+        mYcVSSXVR5kRBHqRqYcnayxhHUJl9CSQGIX1mic=
+X-Google-Smtp-Source: APiQypL3vhq7mEbfgxKqk07Dc4F9xALQ+gh4/i+g09Fuc4uyutol903FXP9K4cBxmEVeQH+EsOrY2spVOKFUPXe8xhg=
+X-Received: by 2002:a1c:66c4:: with SMTP id a187mr36637581wmc.63.1589413316430;
+ Wed, 13 May 2020 16:41:56 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Reply-To: kabiruwahid111@gmail.com
+Received: by 2002:a05:6000:12d2:0:0:0:0 with HTTP; Wed, 13 May 2020 16:41:55
+ -0700 (PDT)
+From:   Mr Kabiru Wahid <mrkabiruwahid47@gmail.com>
+Date:   Wed, 13 May 2020 23:41:55 +0000
+X-Google-Sender-Auth: mpUzEpvjL_K5ITH8TJugNve5BJM
+Message-ID: <CAG4bLKtxnANKr58KZqU9QDOm42=Zp=rCDJSE0oecHo=0ajHMjA@mail.gmail.com>
+Subject: Hello Dear Friend Please I Need Your Urgent Respond!
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/13/20 3:44 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.123 release.
-> There are 48 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 15 May 2020 09:41:20 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.123-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
-Compiled and booted on my test system. No dmesg regressions.
-
-thanks,
--- Shuah
+I am Mr Kabiru Wahid, I have investment funds worth ($15.500.000.00)
+and i need a trusted investment Manager/Partner because of my current
+refugee status If you are willing to handle this project on my behalf
+kindly reply urgent to enable me provide you more information Your
+Urgent Reply Will Be Appreciated. write me at this email address
+(kabiruwahid111@gmail.com) for further discussion
