@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B45F1D0CE0
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFCB01D0D66
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732555AbgEMJsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:48:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46574 "EHLO mail.kernel.org"
+        id S2387825AbgEMJwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:52:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733032AbgEMJsR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:48:17 -0400
+        id S2387822AbgEMJwk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:52:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F70020753;
-        Wed, 13 May 2020 09:48:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A9FE206D6;
+        Wed, 13 May 2020 09:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363296;
-        bh=cFAc/IDSVmen1vlXx4gXPx148PrTuQYtAWHIc1Ke8Nc=;
+        s=default; t=1589363560;
+        bh=2zFgR8b1GyApn0bsSolKNyvqPISgYbhDCtDqlgNZqcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJ0d6gSDjMk83z5X9zRh6vQ6P+dVzo1P0IL9DVm8gOU4yUYNbZdHM0hQFpcRrQ6kD
-         XWnqR3afxR/a/McZ1tmwy2qari/ctHzdkair0UmaceJVXE/lXb4YpY4ArbPY/YoIfc
-         EbWboVsHb/5dhs+hDc4sH1EdQb0IC2Yz14wEhsj8=
+        b=YvnFgPe9P5leh2BfFV/9XNwjEsbHl2ssL9rKCI4tldpVqn9cMRk7y7G8CdO5Y1uSS
+         Ac5CxLfW1c7fwfVJpwqcSuJRXp0k5aU1CqDCVkDegbsxCwqTdsNnxcZu03gWsnGdVH
+         vC+60OsqVNA968441Eh1uEzxzMUWHFHSZ941PTX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Yash Shah <yash.shah@sifive.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Dejin Zheng <zhengdejin5@gmail.com>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 17/90] net: macb: fix an issue about leak related system resources
+Subject: [PATCH 5.6 034/118] nfp: abm: fix a memory leak bug
 Date:   Wed, 13 May 2020 11:44:13 +0200
-Message-Id: <20200513094410.642137919@linuxfoundation.org>
+Message-Id: <20200513094420.468071956@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,48 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dejin Zheng <zhengdejin5@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit b959c77dac09348955f344104c6a921ebe104753 ]
+[ Upstream commit bd4af432cc71b5fbfe4833510359a6ad3ada250d ]
 
-A call of the function macb_init() can fail in the function
-fu540_c000_init. The related system resources were not released
-then. use devm_platform_ioremap_resource() to replace ioremap()
-to fix it.
+In function nfp_abm_vnic_set_mac, pointer nsp is allocated by nfp_nsp_open.
+But when nfp_nsp_has_hwinfo_lookup fail, the pointer is not released,
+which can lead to a memory leak bug. Fix this issue by adding
+nfp_nsp_close(nsp) in the error path.
 
-Fixes: c218ad559020ff9 ("macb: Add support for SiFive FU540-C000")
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Yash Shah <yash.shah@sifive.com>
-Suggested-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Fixes: f6e71efdf9fb1 ("nfp: abm: look up MAC addresses via management FW")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Acked-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c |   12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/netronome/nfp/abm/main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -4054,15 +4054,9 @@ static int fu540_c000_clk_init(struct pl
+--- a/drivers/net/ethernet/netronome/nfp/abm/main.c
++++ b/drivers/net/ethernet/netronome/nfp/abm/main.c
+@@ -283,6 +283,7 @@ nfp_abm_vnic_set_mac(struct nfp_pf *pf,
+ 	if (!nfp_nsp_has_hwinfo_lookup(nsp)) {
+ 		nfp_warn(pf->cpp, "NSP doesn't support PF MAC generation\n");
+ 		eth_hw_addr_random(nn->dp.netdev);
++		nfp_nsp_close(nsp);
+ 		return;
+ 	}
  
- static int fu540_c000_init(struct platform_device *pdev)
- {
--	struct resource *res;
--
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--	if (!res)
--		return -ENODEV;
--
--	mgmt->reg = ioremap(res->start, resource_size(res));
--	if (!mgmt->reg)
--		return -ENOMEM;
-+	mgmt->reg = devm_platform_ioremap_resource(pdev, 1);
-+	if (IS_ERR(mgmt->reg))
-+		return PTR_ERR(mgmt->reg);
- 
- 	return macb_init(pdev);
- }
 
 
