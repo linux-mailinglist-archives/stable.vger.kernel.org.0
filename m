@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6AA41D0DEF
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:57:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF4721D0EBA
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388305AbgEMJzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:55:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59044 "EHLO mail.kernel.org"
+        id S1733290AbgEMJtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:49:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388299AbgEMJzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:55:45 -0400
+        id S1733287AbgEMJtn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:49:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7270A20753;
-        Wed, 13 May 2020 09:55:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51A4720753;
+        Wed, 13 May 2020 09:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363743;
-        bh=jBWitMYFdNu0214x8a7VCY4Sq+QrJC98y5VwtH5igU4=;
+        s=default; t=1589363382;
+        bh=TvsZ9x45JSetsMTqI7i24qd6HnpVpWez8dXLTlvaFSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SHQ5rOCEqXBs0maeZWtTCY8XTo0vf20aLgNKyD6fnHAz+0/jP8t1dOay80InMws2i
-         TXOGzOluB/eXPyG03fBKjL1NizzR/XaQ26dMRMrnDANG3tXjglRFKHZYdTIQ9nq6Zx
-         ozfrxu2XqtsDGEyy04L5TAjmf4BOL3qoRDA7Pn7g=
+        b=vVbOMfDntMJqV44d+09hpDkLlAGbdhnDWl04DWC8GM5VefufKNvZCT2fIEab+Imo2
+         DUUPVTy7JzaBD/4pOhQ/2INnCIytGCEUAXzSUfgZ/QypuB6Lkk15Ukhm11FJKCxZiq
+         jwl1Mz+VRWRxPh3pylCkWUslSOzN1tCFKOvqmoMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.6 069/118] crypto: arch/nhpoly1305 - process in explicit 4k chunks
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 52/90] KVM: VMX: Explicitly clear RFLAGS.CF and RFLAGS.ZF in VM-Exit RSB path
 Date:   Wed, 13 May 2020 11:44:48 +0200
-Message-Id: <20200513094423.857357935@linuxfoundation.org>
+Message-Id: <20200513094414.306377659@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit a9a8ba90fa5857c2c8a0e32eef2159cec717da11 upstream.
+commit c7cb2d650c9e78c03bd2d1c0db89891825f8c0f4 upstream.
 
-Rather than chunking via PAGE_SIZE, this commit changes the arch
-implementations to chunk in explicit 4k parts, so that calculations on
-maximum acceptable latency don't suddenly become invalid on platforms
-where PAGE_SIZE isn't 4k, such as arm64.
+Clear CF and ZF in the VM-Exit path after doing __FILL_RETURN_BUFFER so
+that KVM doesn't interpret clobbered RFLAGS as a VM-Fail.  Filling the
+RSB has always clobbered RFLAGS, its current incarnation just happens
+clear CF and ZF in the processs.  Relying on the macro to clear CF and
+ZF is extremely fragile, e.g. commit 089dd8e53126e ("x86/speculation:
+Change FILL_RETURN_BUFFER to work with objtool") tweaks the loop such
+that the ZF flag is always set.
 
-Fixes: 0f961f9f670e ("crypto: x86/nhpoly1305 - add AVX2 accelerated NHPoly1305")
-Fixes: 012c82388c03 ("crypto: x86/nhpoly1305 - add SSE2 accelerated NHPoly1305")
-Fixes: a00fa0c88774 ("crypto: arm64/nhpoly1305 - add NEON-accelerated NHPoly1305")
-Fixes: 16aae3595a9d ("crypto: arm/nhpoly1305 - add NEON-accelerated NHPoly1305")
+Reported-by: Qian Cai <cai@lca.pw>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: f2fde6a5bcfcf ("KVM: VMX: Move RSB stuffing to before the first RET after VM-Exit")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200506035355.2242-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/crypto/nhpoly1305-neon-glue.c   |    2 +-
- arch/arm64/crypto/nhpoly1305-neon-glue.c |    2 +-
- arch/x86/crypto/nhpoly1305-avx2-glue.c   |    2 +-
- arch/x86/crypto/nhpoly1305-sse2-glue.c   |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kvm/vmx/vmenter.S |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/crypto/nhpoly1305-neon-glue.c
-+++ b/arch/arm/crypto/nhpoly1305-neon-glue.c
-@@ -30,7 +30,7 @@ static int nhpoly1305_neon_update(struct
- 		return crypto_nhpoly1305_update(desc, src, srclen);
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -86,6 +86,9 @@ ENTRY(vmx_vmexit)
+ 	/* IMPORTANT: Stuff the RSB immediately after VM-Exit, before RET! */
+ 	FILL_RETURN_BUFFER %_ASM_AX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
  
- 	do {
--		unsigned int n = min_t(unsigned int, srclen, PAGE_SIZE);
-+		unsigned int n = min_t(unsigned int, srclen, SZ_4K);
- 
- 		kernel_neon_begin();
- 		crypto_nhpoly1305_update_helper(desc, src, n, _nh_neon);
---- a/arch/arm64/crypto/nhpoly1305-neon-glue.c
-+++ b/arch/arm64/crypto/nhpoly1305-neon-glue.c
-@@ -30,7 +30,7 @@ static int nhpoly1305_neon_update(struct
- 		return crypto_nhpoly1305_update(desc, src, srclen);
- 
- 	do {
--		unsigned int n = min_t(unsigned int, srclen, PAGE_SIZE);
-+		unsigned int n = min_t(unsigned int, srclen, SZ_4K);
- 
- 		kernel_neon_begin();
- 		crypto_nhpoly1305_update_helper(desc, src, n, _nh_neon);
---- a/arch/x86/crypto/nhpoly1305-avx2-glue.c
-+++ b/arch/x86/crypto/nhpoly1305-avx2-glue.c
-@@ -29,7 +29,7 @@ static int nhpoly1305_avx2_update(struct
- 		return crypto_nhpoly1305_update(desc, src, srclen);
- 
- 	do {
--		unsigned int n = min_t(unsigned int, srclen, PAGE_SIZE);
-+		unsigned int n = min_t(unsigned int, srclen, SZ_4K);
- 
- 		kernel_fpu_begin();
- 		crypto_nhpoly1305_update_helper(desc, src, n, _nh_avx2);
---- a/arch/x86/crypto/nhpoly1305-sse2-glue.c
-+++ b/arch/x86/crypto/nhpoly1305-sse2-glue.c
-@@ -29,7 +29,7 @@ static int nhpoly1305_sse2_update(struct
- 		return crypto_nhpoly1305_update(desc, src, srclen);
- 
- 	do {
--		unsigned int n = min_t(unsigned int, srclen, PAGE_SIZE);
-+		unsigned int n = min_t(unsigned int, srclen, SZ_4K);
- 
- 		kernel_fpu_begin();
- 		crypto_nhpoly1305_update_helper(desc, src, n, _nh_sse2);
++	/* Clear RFLAGS.CF and RFLAGS.ZF to preserve VM-Exit, i.e. !VM-Fail. */
++	or $1, %_ASM_AX
++
+ 	pop %_ASM_AX
+ .Lvmexit_skip_rsb:
+ #endif
 
 
