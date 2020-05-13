@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B28B1D0CBA
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D8BD1D0E1F
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732809AbgEMJrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:47:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44838 "EHLO mail.kernel.org"
+        id S2388169AbgEMJyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:54:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732803AbgEMJrL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:47:11 -0400
+        id S2388168AbgEMJyu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:54:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B49A206F5;
-        Wed, 13 May 2020 09:47:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E2C52176D;
+        Wed, 13 May 2020 09:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363230;
-        bh=5FbjvvE4YYzC2D6LEejeXrQVJx3de3jv9KNq2V6otDI=;
+        s=default; t=1589363690;
+        bh=cbdqSpXBVFYvpZijqGbmvEmlaz/Njx0MPsJhNP3shPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTDmOzh3DwF7M1tuJD25WPRvp0c6wmjlBZBmgwcg+uRoy7DmgOSS2OxQCQmqTc0Rb
-         YvGzXf2fUjdVFjwxwvSwBk6+jldzMdk6WMJ4/WRd1mTUYbmlLDdu7g9e4hgIKFhs6h
-         Fa+h0zJJJsM7TvFQJExNXYs0rD3q8cyxyMP7BuaA=
+        b=xXbu35wbEFFY4pJrAbD2fOTDVOsGOTuwMD91y26VLlpKol70GIJ8EHE47hnxW0dv4
+         3SvkBHm8HtAbCvElWHv55PjBjin4HYvMWeeSDQ8WXpCn+qLkXJlNlP/YvsJv6KDbUT
+         ydFIRdTh9L8LUIi52967HQPTj61lrqmnztCUp598=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
-        Dave Jones <dsj@fb.com>,
-        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
-        Joe Mario <jmario@redhat.com>, Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 38/48] x86/entry/64: Fix unwind hints in kernel exit path
-Date:   Wed, 13 May 2020 11:45:04 +0200
-Message-Id: <20200513094401.426409226@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
+        Eduard Shishkin <edward6@linux.ibm.com>
+Subject: [PATCH 5.6 086/118] ceph: fix endianness bug when handling MDS session feature bits
+Date:   Wed, 13 May 2020 11:45:05 +0200
+Message-Id: <20200513094424.940137263@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,69 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 1fb143634a38095b641a3a21220774799772dc4c upstream.
+commit 0fa8263367db9287aa0632f96c1a5f93cc478150 upstream.
 
-In swapgs_restore_regs_and_return_to_usermode, after the stack is
-switched to the trampoline stack, the existing UNWIND_HINT_REGS hint is
-no longer valid, which can result in the following ORC unwinder warning:
+Eduard reported a problem mounting cephfs on s390 arch. The feature
+mask sent by the MDS is little-endian, so we need to convert it
+before storing and testing against it.
 
-  WARNING: can't dereference registers at 000000003aeb0cdd for ip swapgs_restore_regs_and_return_to_usermode+0x93/0xa0
-
-For full correctness, we could try to add complicated unwind hints so
-the unwinder could continue to find the registers, but when when it's
-this close to kernel exit, unwind hints aren't really needed anymore and
-it's fine to just use an empty hint which tells the unwinder to stop.
-
-For consistency, also move the UNWIND_HINT_EMPTY in
-entry_SYSCALL_64_after_hwframe to a similar location.
-
-Fixes: 3e3b9293d392 ("x86/entry/64: Return to userspace from the trampoline stack")
-Reported-by: Vince Weaver <vincent.weaver@maine.edu>
-Reported-by: Dave Jones <dsj@fb.com>
-Reported-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
-Reported-by: Joe Mario <jmario@redhat.com>
-Reported-by: Jann Horn <jannh@google.com>
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/60ea8f562987ed2d9ace2977502fe481c0d7c9a0.1587808742.git.jpoimboe@redhat.com
+Cc: stable@vger.kernel.org
+Reported-and-Tested-by: Eduard Shishkin <edward6@linux.ibm.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/entry/entry_64.S |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ceph/mds_client.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -312,7 +312,6 @@ GLOBAL(entry_SYSCALL_64_after_hwframe)
- 	 */
- syscall_return_via_sysret:
- 	/* rcx and r11 are already restored (see code above) */
--	UNWIND_HINT_EMPTY
- 	POP_REGS pop_rdi=0 skip_r11rcx=1
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -3116,8 +3116,7 @@ static void handle_session(struct ceph_m
+ 	void *end = p + msg->front.iov_len;
+ 	struct ceph_mds_session_head *h;
+ 	u32 op;
+-	u64 seq;
+-	unsigned long features = 0;
++	u64 seq, features = 0;
+ 	int wake = 0;
+ 	bool blacklisted = false;
  
- 	/*
-@@ -321,6 +320,7 @@ syscall_return_via_sysret:
- 	 */
- 	movq	%rsp, %rdi
- 	movq	PER_CPU_VAR(cpu_tss_rw + TSS_sp0), %rsp
-+	UNWIND_HINT_EMPTY
+@@ -3136,9 +3135,8 @@ static void handle_session(struct ceph_m
+ 			goto bad;
+ 		/* version >= 3, feature bits */
+ 		ceph_decode_32_safe(&p, end, len, bad);
+-		ceph_decode_need(&p, end, len, bad);
+-		memcpy(&features, p, min_t(size_t, len, sizeof(features)));
+-		p += len;
++		ceph_decode_64_safe(&p, end, features, bad);
++		p += len - sizeof(features);
+ 	}
  
- 	pushq	RSP-RDI(%rdi)	/* RSP */
- 	pushq	(%rdi)		/* RDI */
-@@ -700,6 +700,7 @@ GLOBAL(swapgs_restore_regs_and_return_to
- 	 */
- 	movq	%rsp, %rdi
- 	movq	PER_CPU_VAR(cpu_tss_rw + TSS_sp0), %rsp
-+	UNWIND_HINT_EMPTY
- 
- 	/* Copy the IRET frame to the trampoline stack. */
- 	pushq	6*8(%rdi)	/* SS */
+ 	mutex_lock(&mdsc->mutex);
 
 
