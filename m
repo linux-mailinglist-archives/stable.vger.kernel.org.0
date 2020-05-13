@@ -2,514 +2,259 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B85D71D1DA8
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 20:39:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4111D1F31
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 21:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390216AbgEMSjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 14:39:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47284 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2390214AbgEMSjo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 14:39:44 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEC79C061A0C
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 11:39:43 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id b8so162744plm.11
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 11:39:43 -0700 (PDT)
+        id S2390358AbgEMT30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 15:29:26 -0400
+Received: from mail-eopbgr1400129.outbound.protection.outlook.com ([40.107.140.129]:45095
+        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2390291AbgEMT30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 15:29:26 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=V3tsdiDApq5lj9n3F/8MyvhEs7Nyd7qaR5eG8FfrMfaEKCBTslr02Y/x5JuqsKsZHtssyRAh31O6Bc3Qgz4cO5GhNc3mhwuDJ19/wUPCNgqlGuKb7a00A3ShK7nHntHORC3QQg8ZAtkEVp7LXuWsJ6di1ckiEBh2y3WnLvVlR0KF5EoCJq2GQfkQxh5lYS6IlXkCW/UaMBZBlGQkAYhfJ25xJ3ioPJQ6KA7uS/boAqSCFqGH4Fq2KjBJA/a0Peim/H3exTuAnhdX8eD/T/+w0aXnpm/Bv/pR9/zM61fXN2E7ukDzWgc9y1LgBRjvmE+ltm4t+Iy6d8i5AHmIQSeehA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Pnm0MNBiHzdZQTTXTc4+z6diQQzmhzGdcGYDEGQBi2U=;
+ b=XDyD0Wzq/dTxWZRTA/Nw8P8PHrEXDU/V98ccZJz9cIOUvEqmyqi9NkhJYLH5hBwW8Mhs/GXTMZ+n908yNFXYm9bUV7bXVc3s55hkTOBN3f6PJH3kNpSPGkuBzpZ6GTZEQPMPilQt56Uu1h0Y8O5Ip0HWCfBxtPRN1Lg0Kidf/qnBzb/jNCcdurpPzn1YFUlF1w87Q+CQ14pGX9AREkTaoo7xYm6Hfqsyi6HTQQeF/JeX3FzqC26g8cp3VAnOhwf2hWEU+uEndB5yC5J4bmnDMyHF4oQnOIBoJ3J53hfHCujMHzUq9vYXnjCYvTDb+olPbve4qzEX5yGehjkZhg7fIA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=+ss3yh7hJ2ydmeslNxiEwN8NhlX0JHiWcEv94zeqy9A=;
-        b=eyguWrhl1VYiOkasUz0dlkIGJf/afzx4zZbd41S1Ajmzd8CcybPYqn4p64BVzwxezp
-         qztmjzs09BMuBNLwRObf/78Kw4E7zR6JEgBlEs1CU8D0xVSNc73fk8GI+hbsH1CHDFJu
-         Wc+UmIW4i3aA16i8eRQZ+vR4hOc78EerYigNk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=+ss3yh7hJ2ydmeslNxiEwN8NhlX0JHiWcEv94zeqy9A=;
-        b=T2i1zHaWcECRnRF+13pmCL54BRgZmsguOqwoFGjX/4dlIfr5dloIjdZZOkCjDGENM/
-         jGSohyDn0G/AOXM8UVZkpLEPMGX3kBLDfphqMiqm3yktC+H+MzQCd+g6BC6hXZnfqoW9
-         mX0kSJBhIHh6gtyCukC5LYnaWEXvKVk9n7hI7UUUiUGgO2y31ETXgbD6/qi/A7ZaZpW0
-         /ijyBDyNpfl/hMH7bnVp6F2yxveU1/QL6xAadNtQd5GHWFzqu7hS2MD/KfR8RlxD51OX
-         xSRZgZ8gJfeo557iVs75kPtvJIuetxpMsRWiieFb3SE4yqtur3GQ4k9qAqxJpZAx8DAZ
-         BXrg==
-X-Gm-Message-State: AOAM5327ubouOm44jGaVLOznrR0RbA8K/eUwsTjInvGii+gku32vm/ql
-        m4BWoPtaMXOYVfs404YRAY5rTg==
-X-Google-Smtp-Source: ABdhPJxa7qcEvvKmg01TkPY+ocKYEnjc6xVOjEcI9TOYKphLUayu1if1/FLsYKV/59FnljqHZqsArQ==
-X-Received: by 2002:a17:902:a586:: with SMTP id az6mr466437plb.201.1589395183106;
-        Wed, 13 May 2020 11:39:43 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id q6sm211981pfh.193.2020.05.13.11.39.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2020 11:39:42 -0700 (PDT)
-Date:   Wed, 13 May 2020 11:39:41 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, John Stultz <john.stultz@linaro.org>,
-        Todd Kjos <tkjos@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>, ardb@kernel.org,
-        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Dumazet <edumazet@google.com>
-Subject: Re: stable-rc 4.19: WARNING: at lib/refcount.c:187
- refcount_sub_and_test_checked
-Message-ID: <202005131133.C15035F90@keescook>
-References: <CA+G9fYvo2yUVicoZ7fOYf8=QxTtS8nW-Z2JGD4iLtU61E6xNdw@mail.gmail.com>
+ d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Pnm0MNBiHzdZQTTXTc4+z6diQQzmhzGdcGYDEGQBi2U=;
+ b=i70G37jSTjTkoaIY9kmRjiA86Ju0aLt68a3wX/rvQ/5lAZ2nRa+WFjhi8OCWUNCMxomWw/qg3UGyIDI9H7qmX7Y9rulDykgbIUpKjggmi9GOT9pQGotKPvJQiHhnHK2Oaje3Ki2V0JqarvIXkirY+bFsteOOkKZPdbVy0hxB9hY=
+Received: from OSAPR01MB2385.jpnprd01.prod.outlook.com (2603:1096:603:37::20)
+ by OSAPR01MB3985.jpnprd01.prod.outlook.com (2603:1096:604:5e::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2979.34; Wed, 13 May
+ 2020 19:29:20 +0000
+Received: from OSAPR01MB2385.jpnprd01.prod.outlook.com
+ ([fe80::c44c:5473:6b95:d9fd]) by OSAPR01MB2385.jpnprd01.prod.outlook.com
+ ([fe80::c44c:5473:6b95:d9fd%6]) with mapi id 15.20.3000.016; Wed, 13 May 2020
+ 19:29:20 +0000
+From:   Chris Paterson <Chris.Paterson2@renesas.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 4.19 00/48] 4.19.123-rc1 review
+Thread-Topic: [PATCH 4.19 00/48] 4.19.123-rc1 review
+Thread-Index: AQHWKQ4UN6EjLkCvskqbSiwyPMK4yqimZqPQ
+Date:   Wed, 13 May 2020 19:29:20 +0000
+Message-ID: <OSAPR01MB2385B3078527999231A706ACB7BF0@OSAPR01MB2385.jpnprd01.prod.outlook.com>
+References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: linuxfoundation.org; dkim=none (message not signed)
+ header.d=none;linuxfoundation.org; dmarc=none action=none
+ header.from=renesas.com;
+x-originating-ip: [94.194.217.239]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 0412ebc1-13ba-4be9-113a-08d7f773ef87
+x-ms-traffictypediagnostic: OSAPR01MB3985:
+x-microsoft-antispam-prvs: <OSAPR01MB3985454F6D4C8C84C223F320B7BF0@OSAPR01MB3985.jpnprd01.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-forefront-prvs: 0402872DA1
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: kMeFgo7Sj2bjM20RZvFFI1UzYn6x/NQaxMOx6WoqT0ygOmCTBeRlGozqW/Z1imVUTSiBr3iqp4amJjUtRxTn8PdExiBG2Ts8HNoMXv38bFB3YFzHxBnb5z/jG1kquktWJUnvFKDcGH7zUUPWZIUsTI9UyB8ER31zDI1Es/mjgeCNmntfxJKzTHGH1bTsQxWBiCr1E7cNw/bIjZ/PRL4t6zKwoVw3GT9MtpjyYqcNFqJO6uMN9VspxzaFNbBIKc3ORUr2sdN9pEgo1AZirKLDU7wsUoJTB+NcjxWcjNGxgfjLdxIWLtSQdIE0ee76zd8z7ZtcxnTTQqx5NCcDs1r9GuTqnZGDW+Kf/GgbgTZvi2tWcQGJbE8rFDPoZs4H9GTy9UjeBzr0xHYMVWQwVeRv8nmEDcv5yF6OaO/2btbVkZD3TcX1HPw4Foa2hvGx21kF9grIApub8BpyXl1xJq7N7KNxxROJIAmq7NArFXx31e8+V0AfVtfBHCb9JdQTyEylwkJxJY8JEstXaQg8Db/XQ7PVls5APXnd1DDRCj6NCbvusSu3BzFgCDrHuOpAoxRKfFIpwmG1NgI/WXnyPjqymgGJXWO13ZJMO1K7LD4fkq4=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:OSAPR01MB2385.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(39860400002)(396003)(346002)(136003)(366004)(376002)(33430700001)(8676002)(52536014)(478600001)(86362001)(316002)(6506007)(33656002)(9686003)(966005)(186003)(66574014)(2906002)(5660300002)(33440700001)(66556008)(26005)(4326008)(66946007)(55016002)(8936002)(66446008)(76116006)(110136005)(7416002)(64756008)(71200400001)(54906003)(66476007)(7696005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: c+01TVpvh73ljPrIlpUKV0IzniajtP+lsWiIM2NQhr3I5+qmyBxVXSeFbP+VS7kJAlRVgUrEvgIk1jjUeajhN/iasEkjWl+g6VQDrO9Cz0SJVtJM42PMu6YV5nKSEMC03rmzyr5HtzpgJQ6M7XJwVXsTayG8axDxV1Dd/VxKc5TYZkUzuDz90zz7mHlibDidvbsdeMjwOzGMZtsaiQjBIbrZP0ekMOk21rTqhCC+dQobHUFF86ps3cPi8KajPF0y0JHI5+PLGpVIMZZ5n5Lv9RhKr7fl6tiSzloUHb2+HjqDH/NuZxds6G4Ps/sVuZQ14bKCgw1IP9IcttZxrHjq4fEWTPzGr6pqQi0uZjz6YMD4lAaTcFbdeUygMPbcYxi+mgu/Szeak/JOrJ4wjduuitsUlQG4fZ4H7UqR7allvhSO3qflyqKKz9BqREIEAysmAZ0kGWCgZgxmSbl6LDu86ZIsKExykCF5jfONmTQchIXLA9SHSlaB2aEvDYNlBzvX
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYvo2yUVicoZ7fOYf8=QxTtS8nW-Z2JGD4iLtU61E6xNdw@mail.gmail.com>
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0412ebc1-13ba-4be9-113a-08d7f773ef87
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 May 2020 19:29:20.6661
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: uP+VUAsfmZqeseHUHIxYDLmwg56BDmQHHQTyZ+NcFh/0klbNGMN8u+twDftgjJT3aNVun5WJAeIOSiLGuKUqEKZX9pnx9tKRyY8vVUG3aAI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OSAPR01MB3985
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 13, 2020 at 11:41:14PM +0530, Naresh Kamboju wrote:
-> While running LTP sched on stable-rc 4.19 branch kernel on arm64 hikey device.
-> Thermal alarm triggered and followed by kernel warnings and Internal
-> error: Oops:
-
-Hi!
-
-I just happened to see this on lkml. It looks a lot like this:
-
-https://lore.kernel.org/lkml/0ba7cb74-507e-7fb5-6147-1d5fee34155f@kernel.dk/
-
-(though obviously not in io_uring)
-
-If this is reliable can you bisect to find what broke? There have been a
-lot of bugs found by refcount_t that have been fixed in upstream, just
-from fuzzing:
-https://syzkaller.appspot.com/upstream/fixed
-
--Kees
-
-> 
-> steps to reproduce:
-> cd /opt/ltp
-> ./runltp -f sched
-> 
-> Test running hackbench test case from LTP sched
-> 
-> Test case: hackbench 50 process 1000
-> 
-> Running with 50*40 (== 2000) tasks.
-> [   33.758553] LDO2_2V8: disabling
-> [   33.761846] LDO13_1V8: disabling
-> [   33.767592] LDO14_2V8: disabling
-> [   33.771918] LDO17_2V5: disabling
-> [   34.182704] hisi_thermal f7030700.tsensor: THERMAL ALARM: 66385 > 65000
-> [   39.518923] ------------[ cut here ]------------
-> [   39.525600] refcount_t: underflow; use-after-free.
-> [   39.532816] WARNING: CPU: 1 PID: 5624 at lib/refcount.c:187
-> refcount_sub_and_test_checked+0xa0/0xa8
-> [   39.542099] Modules linked in: wl18xx wlcore mac80211 cfg80211
-> hci_uart adv7511 snd_soc_audio_graph_card crc32_ce btbcm
-> snd_soc_simple_card_utils crct10dif_ce cec kirin_drm bluetooth
-> drm_kms_helper dw_drm_dsi drm wlcore_sdio rfkill
-> drm_panel_orientation_quirks fuse
-> [   39.566135] CPU: 1 PID: 5624 Comm: hackbench Not tainted
-> 4.19.123-rc1-00049-g6d5c161fb73d #1
-> [   39.574768] Hardware name: HiKey Development Board (DT)
-> [   39.580122] pstate: 40000005 (nZcv daif -PAN -UAO)
-> [   39.585043] pc : refcount_sub_and_test_checked+0xa0/0xa8
-> [   39.590491] lr : refcount_sub_and_test_checked+0xa0/0xa8
-> [   39.595933] sp : ffff0000142bba60
-> [   39.599331] x29: ffff0000142bba60 x28: ffff80004e20d4c8
-> [   39.604771] x27: ffff800048273f28 x26: 0000000000000064
-> [   39.610213] x25: ffff800048273f00 x24: 0000000000000000
-> [   39.615657] x23: 0000000000000064 x22: ffff80004e20d740
-> [   39.621097] x21: 0000000000000000 x20: ffff800058991944
-> [   39.626538] x19: 0000000000000000 x18: 0000000000000000
-> [   39.631980] x17: 0000000000000000 x16: 0000000000000000
-> [   39.637418] x15: 0000000000000400 x14: 0000000000000333
-> [   39.642857] x13: 0000000000000001 x12: 0000000000000000
-> [   39.648295] x11: 0000000000000002 x10: 0000000000000960
-> [   39.653734] x9 : ffff0000142bb7a0 x8 : ffff80004e2573c0
-> [   39.659174] x7 : ffff8000757a6c00 x6 : 0000000000000010
-> [   39.664612] x5 : ffff800077f1a790 x4 : ffff800077f1b0d0
-> [   39.670053] x3 : ffff800077f21eb0 x2 : ffff800077f1b0d0
-> [   39.675493] x1 : d13523b333b73d00 x0 : 0000000000000000
-> [   39.680930] Call trace:
-> [   39.683455]  refcount_sub_and_test_checked+0xa0/0xa8
-> [   39.688550]  sock_wfree+0x4c/0xa0
-> [   39.691957]  unix_destruct_scm+0x70/0x90
-> [   39.695986]  skb_release_head_state+0x5c/0xf0
-> [   39.700460]  skb_release_all+0x14/0x30
-> [   39.704306]  consume_skb+0x2c/0x58
-> [   39.707801]  unix_stream_read_generic+0x680/0x750
-> [   39.712623]  unix_stream_recvmsg+0x4c/0x70
-> [   39.716829]  sock_read_iter+0x94/0xe8
-> [   39.720589]  __vfs_read+0xf8/0x148
-> [   39.724084]  vfs_read+0xa8/0x160
-> [   39.727400]  ksys_read+0x64/0xd8
-> [   39.730714]  __arm64_sys_read+0x18/0x20
-> [   39.734655]  el0_svc_common+0x70/0x168
-> [   39.738509]  el0_svc_handler+0x2c/0x80
-> [   39.742360]  el0_svc+0x8/0xc
-> [   39.745321] ---[ end trace 6e44f0c23e5d9fb1 ]---
-> [   44.241524] ------------[ cut here ]------------
-> [   44.248838] WARNING: CPU: 0 PID: 5624 at net/unix/af_unix.c:498
-> unix_sock_destructor+0xf4/0x100
-> [   44.257760] Modules linked in: wl18xx wlcore mac80211 cfg80211
-> hci_uart adv7511 snd_soc_audio_graph_card crc32_ce btbcm
-> snd_soc_simple_card_utils crct10dif_ce cec kirin_drm bluetooth
-> drm_kms_helper dw_drm_dsi drm wlcore_sdio rfkill
-> drm_panel_orientation_quirks fuse
-> [   44.281801] CPU: 0 PID: 5624 Comm: hackbench Tainted: G        W
->      4.19.123-rc1-00049-g6d5c161fb73d #1
-> [   44.291854] Hardware name: HiKey Development Board (DT)
-> [   44.297209] pstate: 40000005 (nZcv daif -PAN -UAO)
-> [   44.302126] pc : unix_sock_destructor+0xf4/0x100
-> [   44.306863] lr : unix_sock_destructor+0xf4/0x100
-> [   44.311593] sp : ffff0000142bb9f0
-> [   44.314990] x29: ffff0000142bb9f0 x28: ffff80004e20d4c8
-> [   44.320429] x27: ffff800048273f28 x26: 0000000000000064
-> [   44.325869] x25: ffff800048273f00 x24: 0000000000000000
-> [   44.331308] x23: 0000000000000064 x22: ffff80004e20d740
-> [   44.336747] x21: ffff800058991800 x20: ffff8000589916b8
-> [   44.342186] x19: ffff800058991800 x18: 0000000000000000
-> [   44.347625] x17: 0000000000000000 x16: 0000000000000000
-> [   44.353066] x15: 0000000000000400 x14: 0000000000000333
-> [   44.358508] x13: 0000000000000001 x12: 0000000000000000
-> [   44.370733] x11: 0000000000000002 x10: 0000000000000960
-> [   44.382900] x9 : ffff0000142bb760 x8 : ffff80004e2573c0
-> [   44.395054] x7 : ffff8000757a6a00 x6 : 0000000000000010
-> [   44.406985] x5 : ffff800077f04790 x4 : ffff800077f050d0
-> [   44.418678] x3 : ffff800077f0beb0 x2 : d13523b333b73d00
-> [   44.430478] x1 : 0000000000000000 x0 : 0000000000000024
-> [   44.442258] Call trace:
-> [   44.451166]  unix_sock_destructor+0xf4/0x100
-> [   44.461909]  __sk_destruct+0x2c/0x150
-> [   44.471973]  sk_destruct+0x48/0x60
-> [   44.481725]  __sk_free+0x38/0xd0
-> [   44.491237]  sock_wfree+0x7c/0xa0
-> [   44.500416]  unix_destruct_scm+0x70/0x90
-> [   44.509821]  skb_release_head_state+0x5c/0xf0
-> [   44.519571]  skb_release_all+0x14/0x30
-> [   44.528610]  consume_skb+0x2c/0x58
-> [   44.537257]  unix_stream_read_generic+0x680/0x750
-> [   44.547227]  unix_stream_recvmsg+0x4c/0x70
-> [   44.556616]  sock_read_iter+0x94/0xe8
-> [   44.565510]  __vfs_read+0xf8/0x148
-> [   44.574124]  vfs_read+0xa8/0x160
-> [   44.582578]  ksys_read+0x64/0xd8
-> [   44.591057]  __arm64_sys_read+0x18/0x20
-> [   44.600160]  el0_svc_common+0x70/0x168
-> [   44.609177]  el0_svc_handler+0x2c/0x80
-> [   44.618194]  el0_svc+0x8/0xc
-> [   44.626370] ---[ end trace 6e44f0c23e5d9fb2 ]---
-> [   44.804127] ------------[ cut here ]------------
-> [   44.851402] refcount_t: addition on 0; use-after-free.
-> [   45.083709] ------------[ cut here ]------------
-> [   45.095872] WARNING: CPU: 1 PID: 5624 at net/unix/af_unix.c:499
-> unix_sock_destructor+0xe0/0x100
-> [   45.110316] Modules linked in: wl18xx wlcore mac80211 cfg80211
-> hci_uart adv7511 snd_soc_audio_graph_card crc32_ce btbcm
-> snd_soc_simple_card_utils crct10dif_ce cec kirin_drm bluetooth
-> drm_kms_helper dw_drm_dsi drm wlcore_sdio rfkill
-> drm_panel_orientation_quirks fuse
-> [   45.146603] CPU: 1 PID: 5624 Comm: hackbench Tainted: G        W
->      4.19.123-rc1-00049-g6d5c161fb73d #1
-> [   45.163052] Hardware name: HiKey Development Board (DT)
-> [   45.174863] pstate: 40000005 (nZcv daif -PAN -UAO)
-> [   45.186303] pc : unix_sock_destructor+0xe0/0x100
-> [   45.197560] lr : unix_sock_destructor+0xe0/0x100
-> [   45.208757] sp : ffff0000142bb9f0
-> [   45.218636] x29: ffff0000142bb9f0 x28: ffff80004e20d4c8
-> [   45.230537] x27: ffff800048273f28 x26: 0000000000000064
-> [   45.242423] x25: ffff800048273f00 x24: 0000000000000000
-> [   45.254317] x23: 0000000000000064 x22: ffff80004e20d740
-> [   45.266248] x21: ffff800058991800 x20: ffff8000589916b8
-> [   45.278128] x19: ffff800058991800 x18: 0000000000000000
-> [   45.289964] x17: 0000000000000000 x16: 0000000000000000
-> [   45.301854] x15: 0000000000000400 x14: 0000000000000333
-> [   45.313691] x13: 0000000000000001 x12: 0000000000000000
-> [   45.325466] x11: 0000000000000002 x10: 0000000000000960
-> [   45.337205] x9 : ffff0000142bb760 x8 : ffff80004e2573c0
-> [   45.349011] x7 : ffff8000757a6c00 x6 : 0000000000000010
-> [   45.360826] x5 : ffff800077f1a790 x4 : ffff800077f1b0d0
-> [   45.372682] x3 : ffff800077f21eb0 x2 : d13523b333b73d00
-> [   45.384432] x1 : 0000000000000000 x0 : 0000000000000024
-> [   45.396161] Call trace:
-> [   45.404576]  unix_sock_destructor+0xe0/0x100
-> [   45.414505]  __sk_destruct+0x2c/0x150
-> [   45.423673]  sk_destruct+0x48/0x60
-> [   45.432482]  __sk_free+0x38/0xd0
-> [   45.441123]  sock_wfree+0x7c/0xa0
-> [   45.449751]  unix_destruct_scm+0x70/0x90
-> [   45.459098]  skb_release_head_state+0x5c/0xf0
-> [   45.468851]  skb_release_all+0x14/0x30
-> [   45.477977]  consume_skb+0x2c/0x58
-> [   45.486728]  unix_stream_read_generic+0x680/0x750
-> [   45.496892]  unix_stream_recvmsg+0x4c/0x70
-> [   45.506383]  sock_read_iter+0x94/0xe8
-> [   45.515494]  __vfs_read+0xf8/0x148
-> [   45.524328]  vfs_read+0xa8/0x160
-> [   45.532979]  ksys_read+0x64/0xd8
-> [   45.541711]  __arm64_sys_read+0x18/0x20
-> [   45.551056]  el0_svc_common+0x70/0x168
-> [   45.560334]  el0_svc_handler+0x2c/0x80
-> [   45.569595]  el0_svc+0x8/0xc
-> [   45.577983] ---[ end trace 6e44f0c23e5d9fb3 ]---
-> [   46.230081] unix: Attempt to release alive unix socket: 00000000c16f8bab
-> [   46.581410] WARNING: CPU: 7 PID: 4201 at lib/refcount.c:102
-> refcount_add_checked+0x40/0x48
-> [   46.595469] Modules linked in: wl18xx wlcore mac80211 cfg80211
-> hci_uart adv7511 snd_soc_audio_graph_card crc32_ce btbcm
-> snd_soc_simple_card_utils crct10dif_ce cec kirin_drm bluetooth
-> drm_kms_helper dw_drm_dsi drm wlcore_sdio rfkill
-> drm_panel_orientation_quirks fuse
-> [   46.631752] CPU: 7 PID: 4201 Comm: hackbench Tainted: G        W
->      4.19.123-rc1-00049-g6d5c161fb73d #1
-> [   46.648192] Hardware name: HiKey Development Board (DT)
-> [   46.660070] pstate: 40000005 (nZcv daif -PAN -UAO)
-> [   46.671520] pc : refcount_add_checked+0x40/0x48
-> [   46.682787] lr : refcount_add_checked+0x40/0x48
-> [   46.693921] sp : ffff000011653b10
-> [   46.703835] x29: ffff000011653b10 x28: 0000000000000000
-> [   46.715810] x27: 0000000000000003 x26: 0000000000000000
-> [   46.727832] x25: 7fffffffffffffff x24: ffff000011653c74
-> [   46.739766] x23: ffff0000092198c8 x22: ffff0000081187c8
-> [   46.751748] x21: ffff800058991400 x20: ffff800058991800
-> [   46.763739] x19: ffff80004bcad300 x18: 0000000000000000
-> [   46.775673] x17: 0000000000000000 x16: 0000000000000000
-> [   46.787641] x15: 0000000000000400 x14: 0000000000000333
-> [   46.799574] x13: 0000000000000001 x12: 0000000000000000
-> [   46.811479] x11: 0000000000000070 x10: 0000000000000960
-> [   46.823383] x9 : ffff000011653850 x8 : ffff800058b43180
-> [   46.835276] x7 : ffff8000757a7800 x6 : 0000000000000010
-> [   46.847198] x5 : ffff800077f9e790 x4 : ffff800077f9f0d0
-> [   46.859090] x3 : ffff800077fa5eb0 x2 : ffff800077f9f0d0
-> [   46.870964] x1 : d13523b333b73d00 x0 : 0000000000000000
-> [   46.882829] Call trace:
-> [   46.891741]  refcount_add_checked+0x40/0x48
-> [   46.902369]  skb_set_owner_w+0x60/0xa8
-> [   46.912144]  sock_alloc_send_pskb+0x200/0x210
-> [   46.922202]  unix_stream_sendmsg+0x1d0/0x340
-> [   46.931999]  sock_sendmsg+0x18/0x30
-> [   46.940976]  sock_write_iter+0x8c/0xe0
-> [   46.950159]  __vfs_write+0xf8/0x160
-> [   46.959014]  vfs_write+0xa4/0x1b0
-> [   46.967712]  ksys_write+0x64/0xd8
-> [   46.976420]  __arm64_sys_write+0x18/0x20
-> [   46.985743]  el0_svc_common+0x70/0x168
-> [   46.994915]  el0_svc_handler+0x2c/0x80
-> [   47.004074]  el0_svc+0x8/0xc
-> [   47.012329] ---[ end trace 6e44f0c23e5d9fb4 ]---
-> [   51.942160] Unable to handle kernel NULL pointer dereference at
-> virtual address 0000000000000008
-> [   51.956600] Mem abort info:
-> [   51.964994]   ESR = 0x96000046
-> [   51.973658]   Exception class = DABT (current EL), IL = 32 bits
-> [   51.985323]   SET = 0, FnV = 0
-> [   51.994116]   EA = 0, S1PTW = 0
-> [   52.002991] Data abort info:
-> [   52.011559]   ISV = 0, ISS = 0x00000046
-> [   52.021139]   CM = 0, WnR = 1
-> [   52.029826] user pgtable: 4k pages, 48-bit VAs, pgdp = 00000000cd136acc
-> [   52.042281] [0000000000000008] pgd=000000004e23d003,
-> pud=000000004e23e003, pmd=0000000000000000
-> [   52.056947] Internal error: Oops: 96000046 [#1] PREEMPT SMP
-> [   52.068511] Modules linked in: wl18xx wlcore mac80211 cfg80211
-> hci_uart adv7511 snd_soc_audio_graph_card crc32_ce btbcm
-> snd_soc_simple_card_utils crct10dif_ce cec kirin_drm bluetooth
-> drm_kms_helper dw_drm_dsi drm wlcore_sdio rfkill
-> drm_panel_orientation_quirks fuse
-> [   52.105341] Process hackbench (pid: 5616, stack limit = 0x00000000a84269cf)
-> [   52.119153] CPU: 2 PID: 5616 Comm: hackbench Tainted: G        W
->      4.19.123-rc1-00049-g6d5c161fb73d #1
-> [   52.136027] Hardware name: HiKey Development Board (DT)
-> [   52.148385] pstate: 60000085 (nZCv daIf -PAN -UAO)
-> [   52.160272] pc : skb_unlink+0x40/0x60
-> [   52.171005] lr : skb_unlink+0x24/0x60
-> [   52.181698] sp : ffff00001427bb20
-> [   52.191997] x29: ffff00001427bb20 x28: ffff80004e2094c8
-> [   52.204398] x27: ffff800048273528 x26: 0000000000000064
-> [   52.216760] x25: ffff800048273500 x24: 0000000000000000
-> [   52.229121] x23: 0000000000000064 x22: ffff80004e209740
-> [   52.241486] x21: ffff80004e2094dc x20: ffff80004e2094c8
-> [   52.253822] x19: ffff800048273500 x18: 0000000000000000
-> [   52.266159] x17: 0000000000000000 x16: 0000000000000000
-> [   52.278498] x15: 0000000000000000 x14: 00000000226300a0
-> [   52.290796] x13: 00000000226300a0 x12: 00000000004012f8
-> [   52.303077] x11: 00000000004014b4 x10: 0000fffff7fe03b0
-> [   52.315350] x9 : 00000000226300a0 x8 : 0000000000000008
-> [   52.327541] x7 : 0000000000000007 x6 : 0000000000000001
-> [   52.339623] x5 : 0000000000000001 x4 : 0000000000000002
-> [   52.351279] x3 : 0000000000000000 x2 : 0000000000000000
-> [   52.362553] x1 : 0000000000000000 x0 : ffff80004e2094dc
-> [   52.373690] Call trace:
-> [   52.381864]  skb_unlink+0x40/0x60
-> [   52.390837]  unix_stream_read_generic+0x678/0x750
-> [   52.401221]  unix_stream_recvmsg+0x4c/0x70
-> [   52.411043]  sock_read_iter+0x94/0xe8
-> [   52.420417]  __vfs_read+0xf8/0x148
-> [   52.429510]  vfs_read+0xa8/0x160
-> [   52.438457]  ksys_read+0x64/0xd8
-> [   52.447370]  __arm64_sys_read+0x18/0x20
-> [   52.456911]  el0_svc_common+0x70/0x168
-> [   52.466376]  el0_svc_handler+0x2c/0x80
-> [   52.475801]  el0_svc+0x8/0xc
-> [   52.484345] Code: 51000442 b9001282 a9400a63 a9007e7f (f9000462)
-> [   52.496245] ---[ end trace 6e44f0c23e5d9fb5 ]---
-> [   52.506922] note: hackbench[5616] exited with preempt_count 1
-> 
-> Broadcast message from systemd-journald@hikey (Sun 2019-03-24 19:24:41 UTC):
-> 
-> kernel[3032]: [   52.056947] Internal error: Oops: 96000046 [#1] PREEMPT SMP
-> 
-> 
-> Broadcast message from systemd-journald@hikey (Sun 2019-03-24 19:24:41 UTC):
-> 
-> kernel[3032]: [   52.105341] Process hackbench (pid: 5616, stack limit
-> = 0x00000000a84269cf)
-> 
-> 
-> Broadcast message from systemd-journald@hikey (Sun 2019-03-24 19:24:41 UTC):
-> 
-> kernel[3032]: [   52.484345] Code: 51000442 b9001282 a9400a63 a9007e7f
-> (f9000462)
-> 
-> SERVER: read (error: Bad address)
-> Running with 20*40 (== 800) tasks.
-> [   53.050369] Unable to handle kernel NULL pointer dereference at
-> virtual address 0000000000000000
-> [   53.065286] Mem abort info:
-> [   53.074084]   ESR = 0x96000044
-> [   53.083135]   Exception class = DABT (current EL), IL = 32 bits
-> [   53.095174]   SET = 0, FnV = 0
-> [   53.104314]   EA = 0, S1PTW = 0
-> [   53.113497] Data abort info:
-> [   53.122392]   ISV = 0, ISS = 0x00000044
-> [   53.132261]   CM = 0, WnR = 1
-> [   53.141238] user pgtable: 4k pages, 48-bit VAs, pgdp = 000000005aa0b283
-> [   53.153996] [0000000000000000] pgd=0000000000000000
-> [   53.165047] Internal error: Oops: 96000044 [#2] PREEMPT SMP
-> [   53.176817] Modules linked in: wl18xx wlcore mac80211 cfg80211
-> hci_uart adv7511 snd_soc_audio_graph_card crc32_ce btbcm
-> snd_soc_simple_card_utils crct10dif_ce cec kirin_drm bluetooth
-> drm_kms_helper dw_drm_dsi drm wlcore_sdio rfkill
-> drm_panel_orientation_quirks fuse
-> [   53.214090] Process hackbench (pid: 5624, stack limit = 0x0000000092e9188f)
-> [   53.228138] CPU: 7 PID: 5624 Comm: hackbench Tainted: G      D W
->      4.19.123-rc1-00049-g6d5c161fb73d #1
-> [   53.245231] Hardware name: HiKey Development Board (DT)
-> [   53.257701] pstate: 80000085 (Nzcv daIf -PAN -UAO)
-> [   53.269773] pc : skb_dequeue+0x4c/0x90
-> [   53.280804] lr : skb_dequeue+0x20/0x90
-> [   53.291782] sp : ffff0000142bbae0
-> [   53.302190] x29: ffff0000142bbae0 x28: ffff80004e256a00
-> [   53.314558] x27: 0000000000000000 x26: ffff80004e20db40
-> [   53.326910] x25: 0000000000000003 x24: 0000000000000001
-> [   53.339232] x23: ffff0000092198c8 x22: ffff80004e20d4c8
-> [   53.351527] x21: ffff80004e20d4dc x20: ffff800048273500
-> [   53.363836] x19: ffff80004e20d4c8 x18: 0000000000000333
-> [   53.376137] x17: 0000000000000000 x16: 0000000000000000
-> [   53.388449] x15: 0000000000000400 x14: 0000000000000333
-> [   53.400697] x13: 0000000000000001 x12: 0000000000000000
-> [   53.412874] x11: 0000000000000002 x10: ffff800005f0a800
-> [   53.424943] x9 : 0000000000000010 x8 : ffff800077fac8e8
-> [   53.436880] x7 : 0000000044040000 x6 : 0000000000000002
-> [   53.448446] x5 : 0000000000000001 x4 : 0000000000000003
-> [   53.459613] x3 : ffff80004e20d4dc x2 : ffff800048273c00
-> [   53.470707] x1 : 0000000000000000 x0 : 0000000000000000
-> [   53.481673] Call trace:
-> [   53.489657]  skb_dequeue+0x4c/0x90
-> [   53.498571]  unix_release_sock+0x138/0x268
-> [   53.508190]  unix_release+0x20/0x38
-> [   53.517203]  __sock_release+0x40/0xb8
-> [   53.526390]  sock_close+0x14/0x20
-> [   53.535243]  __fput+0x88/0x1b0
-> [   53.543818]  ____fput+0xc/0x18
-> [   53.552379]  task_work_run+0x90/0xb0
-> [   53.561486]  do_exit+0x350/0x9a8
-> [   53.570250]  do_group_exit+0x34/0x98
-> [   53.579335]  get_signal+0xac/0x618
-> [   53.588266]  do_signal+0x8c/0x2a0
-> [   53.597122]  do_notify_resume+0xd0/0x110
-> [   53.606623]  work_pending+0x8/0x10
-> [   53.615588] Code: b9001260 a9400282 a9007e9f f9000440 (f9000002)
-> [   53.627346] ---[ end trace 6e44f0c23e5d9fb6 ]---
-> [   53.637660] Fixing recursive fault but reboot is needed!
-> 
-> Broadcast message from systemd-journald@hikey (Sun 2019-03-24 19:24:42 UTC):
-> 
-> kernel[3032]: [   53.165047] Internal error: Oops: 96000044 [#2] PREEMPT SMP
-> 
-> 
-> Broadcast message from systemd-journald@hikey (Sun 2019-03-24 19:24:42 UTC):
-> 
-> kernel[3032]: [   53.214090] Process hackbench (pid: 5624, stack limit
-> = 0x0000000092e9188f)
-> 
-> 
-> Broadcast message from systemd-journald@hikey (Sun 2019-03-24 19:24:42 UTC):
-> 
-> kernel[3032]: [   53.615588] Code: b9001260 a9400282 a9007e9f f9000440
-> (f9000002)
-> 
-> [   54.489871] hisi_thermal f7030700.tsensor: THERMAL ALARM stopped:
-> 61675 < 65000
-> [   74.654864] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
-> [   74.666836] rcu: 2-...0: (1 GPs behind)
-> idle=daa/1/0x4000000000000000 softirq=3834/3912 fqs=2623
-> [   74.681934] rcu: (detected by 5, t=5252 jiffies, g=2345, q=677)
-> [   74.694094] Task dump for CPU 2:
-> [   74.703435] hackbench       R  running task        0  5616      1 0x0000022e
-> [   74.716735] Call trace:
-> [   74.725367]  __switch_to+0xe8/0x148
-> [   74.735044]            (null)
-> [   74.744269] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-> [   74.756718] rcu: 2-...0: (1 GPs behind)
-> idle=daa/1/0x4000000000000000 softirq=3836/3912 fqs=2623
-> [   74.772141] rcu: (detected by 5, t=5273 jiffies, g=2645, q=16353)
-> [   74.784812] Task dump for CPU 2:
-> [   74.794529] hackbench       R  running task        0  5616      1 0x0000022e
-> [   74.808210] Call trace:
-> [   74.817173]  __switch_to+0xe8/0x148
-> [   74.827156]            (null)
-> [  137.674820] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
-> [  137.687231] rcu: 2-...0: (1 GPs behind)
-> idle=daa/1/0x4000000000000000 softirq=3834/3912 fqs=10479
-> [  137.702783] rcu: (detected by 5, t=21007 jiffies, g=2345, q=677)
-> [  137.715437] Task dump for CPU 2:
-> [  137.725159] hackbench       R  running task        0  5616      1 0x0000022e
-> [  137.738781] Call trace:
-> [  137.747752]  __switch_to+0xe8/0x148
-> [  137.757797]            (null)
-> [  137.767359] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-> [  137.780138] rcu: 2-...0: (1 GPs behind)
-> idle=daa/1/0x4000000000000000 softirq=3836/3912 fqs=10464
-> [  137.795939] rcu: (detected by 5, t=21029 jiffies, g=2645, q=16636)
-> [  137.808940] Task dump for CPU 2:
-> [  137.818844] hackbench       R  running task        0  5616      1 0x0000022e
-> [  137.832327] Call trace:
-> [  137.840756]  __switch_to+0xe8/0x148
-> [  137.850166]            (null)
-> [  185.305855] audit: type=1701 audit(1553455613.779:3):
-> auid=4294967295 uid=993 gid=990 ses=4294967295 pid=2943
-> comm=\"systemd-network\" exe=\"/lib/systemd/systemd-networkd\" sig=6
-> res=1
-> [  185.326450] dwmmc_k3 f723d000.dwmmc0: Unexpected interrupt latency
-> [  200.694868] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
-> 
-> Ref:
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/build/v4.19.122-49-g6d5c161fb73d/testrun/1429265/log
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/build/v4.19.122-49-g6d5c161fb73d/testrun/1429265
-> 
-> kernel config:
-> https://builds.tuxbuild.com/CiEjvux-yM6p2wRSLY2A0Q/kernel.config
-> 
-> -- 
-> Linaro LKFT
-> https://lkft.linaro.org
-
--- 
-Kees Cook
+SGVsbG8gR3JlZywNCg0KPiBGcm9tOiBzdGFibGUtb3duZXJAdmdlci5rZXJuZWwub3JnIDxzdGFi
+bGUtb3duZXJAdmdlci5rZXJuZWwub3JnPiBPbg0KPiBCZWhhbGYgT2YgR3JlZyBLcm9haC1IYXJ0
+bWFuDQo+IFNlbnQ6IDEzIE1heSAyMDIwIDEwOjQ0DQo+IA0KPiBUaGlzIGlzIHRoZSBzdGFydCBv
+ZiB0aGUgc3RhYmxlIHJldmlldyBjeWNsZSBmb3IgdGhlIDQuMTkuMTIzIHJlbGVhc2UuDQo+IFRo
+ZXJlIGFyZSA0OCBwYXRjaGVzIGluIHRoaXMgc2VyaWVzLCBhbGwgd2lsbCBiZSBwb3N0ZWQgYXMg
+YSByZXNwb25zZQ0KPiB0byB0aGlzIG9uZS4gIElmIGFueW9uZSBoYXMgYW55IGlzc3VlcyB3aXRo
+IHRoZXNlIGJlaW5nIGFwcGxpZWQsIHBsZWFzZQ0KPiBsZXQgbWUga25vdy4NCj4gDQoNCk5vIGJ1
+aWxkL2Jvb3QgaXNzdWVzIHNlZW4gZm9yIENJUCBjb25maWdzIGZvciBMaW51eCA0LjE5LjEyMy1y
+YzEgKDZkNWMxNjFmYjczZCkuDQoNCkJ1aWxkL3Rlc3QgcGlwZWxpbmUvbG9nczogaHR0cHM6Ly9n
+aXRsYWIuY29tL2NpcC1wcm9qZWN0L2NpcC10ZXN0aW5nL2xpbnV4LXN0YWJsZS1yYy1jaS9waXBl
+bGluZXMvMTQ1NjU4ODY0DQpHaXRMYWIgQ0kgcGlwZWxpbmU6IGh0dHBzOi8vZ2l0bGFiLmNvbS9j
+aXAtcHJvamVjdC9jaXAtdGVzdGluZy9saW51eC1jaXAtcGlwZWxpbmVzLy0vYmxvYi9tYXN0ZXIv
+dHJlZXMvbGludXgtNC4xOS55LnltbA0KUmVsZXZhbnQgTEFWQSBqb2JzOiBodHRwczovL2xhdmEu
+Y2lwbGF0Zm9ybS5vcmcvc2NoZWR1bGVyL2FsbGpvYnM/bGVuZ3RoPTI1JnNlYXJjaD02ZDVjMTYj
+dGFibGUgDQoNCktpbmQgcmVnYXJkcywgQ2hyaXMNCg0KPiBSZXNwb25zZXMgc2hvdWxkIGJlIG1h
+ZGUgYnkgRnJpLCAxNSBNYXkgMjAyMCAwOTo0MToyMCArMDAwMC4NCj4gQW55dGhpbmcgcmVjZWl2
+ZWQgYWZ0ZXIgdGhhdCB0aW1lIG1pZ2h0IGJlIHRvbyBsYXRlLg0KPiANCj4gVGhlIHdob2xlIHBh
+dGNoIHNlcmllcyBjYW4gYmUgZm91bmQgaW4gb25lIHBhdGNoIGF0Og0KPiAJaHR0cHM6Ly93d3cu
+a2VybmVsLm9yZy9wdWIvbGludXgva2VybmVsL3Y0Lngvc3RhYmxlLXJldmlldy9wYXRjaC0NCj4g
+NC4xOS4xMjMtcmMxLmd6DQo+IG9yIGluIHRoZSBnaXQgdHJlZSBhbmQgYnJhbmNoIGF0Og0KPiAJ
+Z2l0Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L3N0YWJsZS9saW51
+eC1zdGFibGUtcmMuZ2l0DQo+IGxpbnV4LTQuMTkueQ0KPiBhbmQgdGhlIGRpZmZzdGF0IGNhbiBi
+ZSBmb3VuZCBiZWxvdy4NCj4gDQo+IHRoYW5rcywNCj4gDQo+IGdyZWcgay1oDQo+IA0KPiAtLS0t
+LS0tLS0tLS0tDQo+IFBzZXVkby1TaG9ydGxvZyBvZiBjb21taXRzOg0KPiANCj4gR3JlZyBLcm9h
+aC1IYXJ0bWFuIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4NCj4gICAgIExpbnV4IDQuMTku
+MTIzLXJjMQ0KPiANCj4gT2xlZyBOZXN0ZXJvdiA8b2xlZ0ByZWRoYXQuY29tPg0KPiAgICAgaXBj
+L21xdWV1ZS5jOiBjaGFuZ2UgX19kb19ub3RpZnkoKSB0byBieXBhc3MgY2hlY2tfa2lsbF9wZXJt
+aXNzaW9uKCkNCj4gDQo+IEl2YW4gRGVsYWxhbmRlIDxjb2xvbmFAYXJpc3RhLmNvbT4NCj4gICAg
+IHNjcmlwdHMvZGVjb2RlY29kZTogZml4IHRyYXBwaW5nIGluc3RydWN0aW9uIGZvcm1hdHRpbmcN
+Cj4gDQo+IEpvc2ggUG9pbWJvZXVmIDxqcG9pbWJvZUByZWRoYXQuY29tPg0KPiAgICAgb2JqdG9v
+bDogRml4IHN0YWNrIG9mZnNldCB0cmFja2luZyBmb3IgaW5kaXJlY3QgQ0ZBcw0KPiANCj4gQXJu
+ZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4NCj4gICAgIG5ldGZpbHRlcjogbmZfb3NmOiBhdm9p
+ZCBwYXNzaW5nIHBvaW50ZXIgdG8gbG9jYWwgdmFyDQo+IA0KPiBHdWlsbGF1bWUgTmF1bHQgPGdu
+YXVsdEByZWRoYXQuY29tPg0KPiAgICAgbmV0ZmlsdGVyOiBuYXQ6IG5ldmVyIHVwZGF0ZSB0aGUg
+VURQIGNoZWNrc3VtIHdoZW4gaXQncyAwDQo+IA0KPiBKb3NoIFBvaW1ib2V1ZiA8anBvaW1ib2VA
+cmVkaGF0LmNvbT4NCj4gICAgIHg4Ni91bndpbmQvb3JjOiBGaXggcHJlbWF0dXJlIHVud2luZCBz
+dG9wcGFnZSBkdWUgdG8gSVJFVCBmcmFtZXMNCj4gDQo+IEpvc2ggUG9pbWJvZXVmIDxqcG9pbWJv
+ZUByZWRoYXQuY29tPg0KPiAgICAgeDg2L3Vud2luZC9vcmM6IEZpeCBlcnJvciBwYXRoIGZvciBi
+YWQgT1JDIGVudHJ5IHR5cGUNCj4gDQo+IEpvc2ggUG9pbWJvZXVmIDxqcG9pbWJvZUByZWRoYXQu
+Y29tPg0KPiAgICAgeDg2L3Vud2luZC9vcmM6IFByZXZlbnQgdW53aW5kaW5nIGJlZm9yZSBPUkMg
+aW5pdGlhbGl6YXRpb24NCj4gDQo+IE1pcm9zbGF2IEJlbmVzIDxtYmVuZXNAc3VzZS5jej4NCj4g
+ICAgIHg4Ni91bndpbmQvb3JjOiBEb24ndCBza2lwIHRoZSBmaXJzdCBmcmFtZSBmb3IgaW5hY3Rp
+dmUgdGFza3MNCj4gDQo+IEphbm4gSG9ybiA8amFubmhAZ29vZ2xlLmNvbT4NCj4gICAgIHg4Ni9l
+bnRyeS82NDogRml4IHVud2luZCBoaW50cyBpbiByZXdpbmRfc3RhY2tfZG9fZXhpdCgpDQo+IA0K
+PiBKb3NoIFBvaW1ib2V1ZiA8anBvaW1ib2VAcmVkaGF0LmNvbT4NCj4gICAgIHg4Ni9lbnRyeS82
+NDogRml4IHVud2luZCBoaW50cyBpbiBrZXJuZWwgZXhpdCBwYXRoDQo+IA0KPiBKb3NoIFBvaW1i
+b2V1ZiA8anBvaW1ib2VAcmVkaGF0LmNvbT4NCj4gICAgIHg4Ni9lbnRyeS82NDogRml4IHVud2lu
+ZCBoaW50cyBpbiByZWdpc3RlciBjbGVhcmluZyBjb2RlDQo+IA0KPiBYaXl1IFlhbmcgPHhpeXV5
+YW5nMTlAZnVkYW4uZWR1LmNuPg0KPiAgICAgYmF0bWFuLWFkdjogRml4IHJlZmNudCBsZWFrIGlu
+IGJhdGFkdl92X29nbV9wcm9jZXNzDQo+IA0KPiBYaXl1IFlhbmcgPHhpeXV5YW5nMTlAZnVkYW4u
+ZWR1LmNuPg0KPiAgICAgYmF0bWFuLWFkdjogRml4IHJlZmNudCBsZWFrIGluIGJhdGFkdl9zdG9y
+ZV90aHJvdWdocHV0X292ZXJyaWRlDQo+IA0KPiBYaXl1IFlhbmcgPHhpeXV5YW5nMTlAZnVkYW4u
+ZWR1LmNuPg0KPiAgICAgYmF0bWFuLWFkdjogRml4IHJlZmNudCBsZWFrIGluIGJhdGFkdl9zaG93
+X3Rocm91Z2hwdXRfb3ZlcnJpZGUNCj4gDQo+IEdlb3JnZSBTcGVsdmluIDxsa21sQHNkZi5vcmc+
+DQo+ICAgICBiYXRtYW4tYWR2OiBmaXggYmF0YWR2X25jX3JhbmRvbV93ZWlnaHRfdHENCj4gDQo+
+IFNlYW4gQ2hyaXN0b3BoZXJzb24gPHNlYW4uai5jaHJpc3RvcGhlcnNvbkBpbnRlbC5jb20+DQo+
+ICAgICBLVk06IFZNWDogTWFyayBSQ1gsIFJEWCBhbmQgUlNJIGFzIGNsb2JiZXJlZCBpbiB2bXhf
+dmNwdV9ydW4oKSdzIGFzbSBibG9iDQo+IA0KPiBTZWFuIENocmlzdG9waGVyc29uIDxzZWFuLmou
+Y2hyaXN0b3BoZXJzb25AaW50ZWwuY29tPg0KPiAgICAgS1ZNOiBWTVg6IEV4cGxpY2l0bHkgcmVm
+ZXJlbmNlIFJDWCBhcyB0aGUgdm14X3ZjcHUgcG9pbnRlciBpbiBhc20gYmxvYnMNCj4gDQo+IEx1
+aXMgQ2hhbWJlcmxhaW4gPG1jZ3JvZkBrZXJuZWwub3JnPg0KPiAgICAgY29yZWR1bXA6IGZpeCBj
+cmFzaCB3aGVuIHVtaCBpcyBkaXNhYmxlZA0KPiANCj4gT3NjYXIgQ2FydGVyIDxvc2Nhci5jYXJ0
+ZXJAZ214LmNvbT4NCj4gICAgIHN0YWdpbmc6IGdhc2tldDogQ2hlY2sgdGhlIHJldHVybiB2YWx1
+ZSBvZiBnYXNrZXRfZ2V0X2Jhcl9pbmRleCgpDQo+IA0KPiBEYXZpZCBIaWxkZW5icmFuZCA8ZGF2
+aWRAcmVkaGF0LmNvbT4NCj4gICAgIG1tL3BhZ2VfYWxsb2M6IGZpeCB3YXRjaGRvZyBzb2Z0IGxv
+Y2t1cHMgZHVyaW5nIHNldF96b25lX2NvbnRpZ3VvdXMoKQ0KPiANCj4gTWFyayBSdXRsYW5kIDxt
+YXJrLnJ1dGxhbmRAYXJtLmNvbT4NCj4gICAgIGFybTY0OiBodWdldGxiOiBhdm9pZCBwb3RlbnRp
+YWwgTlVMTCBkZXJlZmVyZW5jZQ0KPiANCj4gTWFyYyBaeW5naWVyIDxtYXpAa2VybmVsLm9yZz4N
+Cj4gICAgIEtWTTogYXJtNjQ6IEZpeCAzMmJpdCBQQyB3cmFwLWFyb3VuZA0KPiANCj4gTWFyYyBa
+eW5naWVyIDxtYXpAa2VybmVsLm9yZz4NCj4gICAgIEtWTTogYXJtOiB2Z2ljOiBGaXggbGltaXQg
+Y29uZGl0aW9uIHdoZW4gd3JpdGluZyB0byBHSUNEX0lbQ1NdQUNUSVZFUg0KPiANCj4gU3RldmVu
+IFJvc3RlZHQgKFZNd2FyZSkgPHJvc3RlZHRAZ29vZG1pcy5vcmc+DQo+ICAgICB0cmFjaW5nOiBB
+ZGQgYSB2bWFsbG9jX3N5bmNfbWFwcGluZ3MoKSBmb3Igc2FmZSBtZWFzdXJlDQo+IA0KPiBPbGl2
+ZXIgTmV1a3VtIDxvbmV1a3VtQHN1c2UuY29tPg0KPiAgICAgVVNCOiBzZXJpYWw6IGdhcm1pbl9n
+cHM6IGFkZCBzYW5pdHkgY2hlY2tpbmcgZm9yIGRhdGEgbGVuZ3RoDQo+IA0KPiBPbGl2ZXIgTmV1
+a3VtIDxvbmV1a3VtQHN1c2UuY29tPg0KPiAgICAgVVNCOiB1YXM6IGFkZCBxdWlyayBmb3IgTGFD
+aWUgMkJpZyBRdWFkcmENCj4gDQo+IEFsYW4gU3Rlcm4gPHN0ZXJuQHJvd2xhbmQuaGFydmFyZC5l
+ZHU+DQo+ICAgICBISUQ6IHVzYmhpZDogRml4IHJhY2UgYmV0d2VlbiB1c2JoaWRfY2xvc2UoKSBh
+bmQgdXNiaGlkX3N0b3AoKQ0KPiANCj4gSmVyZSBMZXBww6RuZW4gPGplcmUubGVwcGFuZW5Abm9r
+aWEuY29tPg0KPiAgICAgc2N0cDogRml4IGJ1bmRsaW5nIG9mIFNIVVRET1dOIHdpdGggQ09PS0lF
+LUFDSw0KPiANCj4gSmFzb24gR2VyZWNrZSA8amFzb24uZ2VyZWNrZUB3YWNvbS5jb20+DQo+ICAg
+ICBISUQ6IHdhY29tOiBSZWFkIEhJRF9ER19DT05UQUNUTUFYIGRpcmVjdGx5IGZvciBub24tZ2Vu
+ZXJpYyBkZXZpY2VzDQo+IA0KPiBXaWxsZW0gZGUgQnJ1aWpuIDx3aWxsZW1iQGdvb2dsZS5jb20+
+DQo+ICAgICBuZXQ6IHN0cmljdGVyIHZhbGlkYXRpb24gb2YgdW50cnVzdGVkIGdzbyBwYWNrZXRz
+DQo+IA0KPiBNaWNoYWVsIENoYW4gPG1pY2hhZWwuY2hhbkBicm9hZGNvbS5jb20+DQo+ICAgICBi
+bnh0X2VuOiBGaXggVkYgYW50aS1zcG9vZiBmaWx0ZXIgc2V0dXAuDQo+IA0KPiBNaWNoYWVsIENo
+YW4gPG1pY2hhZWwuY2hhbkBicm9hZGNvbS5jb20+DQo+ICAgICBibnh0X2VuOiBJbXByb3ZlIEFF
+UiBzbG90IHJlc2V0Lg0KPiANCj4gTW9zaGUgU2hlbWVzaCA8bW9zaGVAbWVsbGFub3guY29tPg0K
+PiAgICAgbmV0L21seDU6IEZpeCBjb21tYW5kIGVudHJ5IGxlYWsgaW4gSW50ZXJuYWwgRXJyb3Ig
+U3RhdGUNCj4gDQo+IE1vc2hlIFNoZW1lc2ggPG1vc2hlQG1lbGxhbm94LmNvbT4NCj4gICAgIG5l
+dC9tbHg1OiBGaXggZm9yY2VkIGNvbXBsZXRpb24gYWNjZXNzIG5vbiBpbml0aWFsaXplZCBjb21t
+YW5kIGVudHJ5DQo+IA0KPiBNaWNoYWVsIENoYW4gPG1pY2hhZWwuY2hhbkBicm9hZGNvbS5jb20+
+DQo+ICAgICBibnh0X2VuOiBGaXggVkxBTiBhY2NlbGVyYXRpb24gaGFuZGxpbmcgaW4gYm54dF9m
+aXhfZmVhdHVyZXMoKS4NCj4gDQo+IFR1b25nIExpZW4gPHR1b25nLnQubGllbkBkZWt0ZWNoLmNv
+bS5hdT4NCj4gICAgIHRpcGM6IGZpeCBwYXJ0aWFsIHRvcG9sb2d5IGNvbm5lY3Rpb24gY2xvc3Vy
+ZQ0KPiANCj4gRXJpYyBEdW1hemV0IDxlZHVtYXpldEBnb29nbGUuY29tPg0KPiAgICAgc2NoX3Nm
+cTogdmFsaWRhdGUgc2lsbHkgcXVhbnR1bSB2YWx1ZXMNCj4gDQo+IEVyaWMgRHVtYXpldCA8ZWR1
+bWF6ZXRAZ29vZ2xlLmNvbT4NCj4gICAgIHNjaF9jaG9rZTogYXZvaWQgcG90ZW50aWFsIHBhbmlj
+IGluIGNob2tlX3Jlc2V0KCkNCj4gDQo+IE1hdHQgSm9sbHkgPEthbmdpZUBmb290Y2xhbi5uaW5q
+YT4NCj4gICAgIG5ldDogdXNiOiBxbWlfd3dhbjogYWRkIHN1cHBvcnQgZm9yIERXNTgxNmUNCj4g
+DQo+IEVyaWMgRHVtYXpldCA8ZWR1bWF6ZXRAZ29vZ2xlLmNvbT4NCj4gICAgIG5ldF9zY2hlZDog
+c2NoX3NrYnByaW86IGFkZCBtZXNzYWdlIHZhbGlkYXRpb24gdG8gc2ticHJpb19jaGFuZ2UoKQ0K
+PiANCj4gVGFyaXEgVG91a2FuIDx0YXJpcXRAbWVsbGFub3guY29tPg0KPiAgICAgbmV0L21seDRf
+Y29yZTogRml4IHVzZSBvZiBFTk9TUEMgYXJvdW5kIG1seDRfY291bnRlcl9hbGxvYygpDQo+IA0K
+PiBTY290dCBEaWFsIDxzY290dEBzY290dGRpYWwuY29tPg0KPiAgICAgbmV0OiBtYWNzZWM6IHBy
+ZXNlcnZlIGluZ3Jlc3MgZnJhbWUgb3JkZXJpbmcNCj4gDQo+IEVyaWMgRHVtYXpldCA8ZWR1bWF6
+ZXRAZ29vZ2xlLmNvbT4NCj4gICAgIGZxX2NvZGVsOiBmaXggVENBX0ZRX0NPREVMX0RST1BfQkFU
+Q0hfU0laRSBzYW5pdHkgY2hlY2tzDQo+IA0KPiBKdWxpYSBMYXdhbGwgPEp1bGlhLkxhd2FsbEBp
+bnJpYS5mcj4NCj4gICAgIGRwODM2NDA6IHJldmVyc2UgYXJndW1lbnRzIHRvIGxpc3RfYWRkX3Rh
+aWwNCj4gDQo+IE5pY29sYXMgUGl0cmUgPG5pY29AZmx1eG5pYy5uZXQ+DQo+ICAgICB2dDogZml4
+IHVuaWNvZGUgY29uc29sZSBmcmVlaW5nIHdpdGggYSBjb21tb24gaW50ZXJmYWNlDQo+IA0KPiBN
+YXNhbWkgSGlyYW1hdHN1IDxtaGlyYW1hdEBrZXJuZWwub3JnPg0KPiAgICAgdHJhY2luZy9rcHJv
+YmVzOiBGaXggYSBkb3VibGUgaW5pdGlhbGl6YXRpb24gdHlwbw0KPiANCj4gTWF0dCBKb2xseSA8
+S2FuZ2llQGZvb3RjbGFuLm5pbmphPg0KPiAgICAgVVNCOiBzZXJpYWw6IHFjc2VyaWFsOiBBZGQg
+RFc1ODE2ZSBzdXBwb3J0DQo+IA0KPiANCj4gLS0tLS0tLS0tLS0tLQ0KPiANCj4gRGlmZnN0YXQ6
+DQo+IA0KPiAgTWFrZWZpbGUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+fCAgNCArLQ0KPiAgYXJjaC9hcm02NC9rdm0vZ3Vlc3QuYyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgfCAgNyArKw0KPiAgYXJjaC9hcm02NC9tbS9odWdldGxicGFnZS5jICAgICAgICAgICAgICAg
+ICAgICAgfCAgMiArDQo+ICBhcmNoL3g4Ni9lbnRyeS9jYWxsaW5nLmggICAgICAgICAgICAgICAg
+ICAgICAgICB8IDQwICsrKysrLS0tLS0tDQo+ICBhcmNoL3g4Ni9lbnRyeS9lbnRyeV82NC5TICAg
+ICAgICAgICAgICAgICAgICAgICB8ICA5ICstLQ0KPiAgYXJjaC94ODYvaW5jbHVkZS9hc20vdW53
+aW5kLmggICAgICAgICAgICAgICAgICAgfCAgMiArLQ0KPiAgYXJjaC94ODYva2VybmVsL3Vud2lu
+ZF9vcmMuYyAgICAgICAgICAgICAgICAgICAgfCA2MSArKysrKysrKysrKystLS0tLQ0KPiAgYXJj
+aC94ODYva3ZtL3ZteC5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCA5MSArKysrKysr
+KysrKysrKy0tLS0tLS0tLS0tDQo+ICBkcml2ZXJzL2hpZC91c2JoaWQvaGlkLWNvcmUuYyAgICAg
+ICAgICAgICAgICAgICB8IDM3ICsrKysrKystLS0NCj4gIGRyaXZlcnMvaGlkL3VzYmhpZC91c2Jo
+aWQuaCAgICAgICAgICAgICAgICAgICAgIHwgIDEgKw0KPiAgZHJpdmVycy9oaWQvd2Fjb21fc3lz
+LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNCArLQ0KPiAgZHJpdmVycy9uZXQvZXRoZXJu
+ZXQvYnJvYWRjb20vYm54dC9ibnh0LmMgICAgICAgfCAxOCArKystLQ0KPiAgZHJpdmVycy9uZXQv
+ZXRoZXJuZXQvYnJvYWRjb20vYm54dC9ibnh0LmggICAgICAgfCAgMSAtDQo+ICBkcml2ZXJzL25l
+dC9ldGhlcm5ldC9icm9hZGNvbS9ibnh0L2JueHRfc3Jpb3YuYyB8ICA5ICstLQ0KPiAgZHJpdmVy
+cy9uZXQvZXRoZXJuZXQvbWVsbGFub3gvbWx4NC9tYWluLmMgICAgICAgfCAgNCArLQ0KPiAgZHJp
+dmVycy9uZXQvZXRoZXJuZXQvbWVsbGFub3gvbWx4NS9jb3JlL2NtZC5jICAgfCAgNiArLQ0KPiAg
+ZHJpdmVycy9uZXQvbWFjc2VjLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMyArLQ0K
+PiAgZHJpdmVycy9uZXQvcGh5L2RwODM2NDAuYyAgICAgICAgICAgICAgICAgICAgICAgfCAgMiAr
+LQ0KPiAgZHJpdmVycy9uZXQvdXNiL3FtaV93d2FuLmMgICAgICAgICAgICAgICAgICAgICAgfCAg
+MSArDQo+ICBkcml2ZXJzL3N0YWdpbmcvZ2Fza2V0L2dhc2tldF9jb3JlLmMgICAgICAgICAgICB8
+ICA0ICsrDQo+ICBkcml2ZXJzL3R0eS92dC92dC5jICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICB8ICA5ICsrLQ0KPiAgZHJpdmVycy91c2Ivc2VyaWFsL2dhcm1pbl9ncHMuYyAgICAgICAgICAg
+ICAgICAgfCAgNCArLQ0KPiAgZHJpdmVycy91c2Ivc2VyaWFsL3Fjc2VyaWFsLmMgICAgICAgICAg
+ICAgICAgICAgfCAgMSArDQo+ICBkcml2ZXJzL3VzYi9zdG9yYWdlL3VudXN1YWxfdWFzLmggICAg
+ICAgICAgICAgICB8ICA3ICsrDQo+ICBmcy9jb3JlZHVtcC5jICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8ICA4ICsrKw0KPiAgaW5jbHVkZS9saW51eC92aXJ0aW9fbmV0LmggICAg
+ICAgICAgICAgICAgICAgICAgfCAyNiArKysrKystDQo+ICBpcGMvbXF1ZXVlLmMgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB8IDM0ICsrKysrKy0tLQ0KPiAga2VybmVsL3RyYWNl
+L3RyYWNlLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAxMyArKysrDQo+ICBrZXJuZWwv
+dHJhY2UvdHJhY2Vfa3Byb2JlLmMgICAgICAgICAgICAgICAgICAgICB8ICAyICstDQo+ICBrZXJu
+ZWwvdW1oLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA1ICsrDQo+ICBt
+bS9wYWdlX2FsbG9jLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxICsNCj4g
+IG5ldC9iYXRtYW4tYWR2L2JhdF92X29nbS5jICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0N
+Cj4gIG5ldC9iYXRtYW4tYWR2L25ldHdvcmstY29kaW5nLmMgICAgICAgICAgICAgICAgIHwgIDkg
+Ky0tDQo+ICBuZXQvYmF0bWFuLWFkdi9zeXNmcy5jICAgICAgICAgICAgICAgICAgICAgICAgICB8
+ICAzICstDQo+ICBuZXQvbmV0ZmlsdGVyL25mX25hdF9wcm90b191ZHAuYyAgICAgICAgICAgICAg
+ICB8ICA1ICstDQo+ICBuZXQvbmV0ZmlsdGVyL25mbmV0bGlua19vc2YuYyAgICAgICAgICAgICAg
+ICAgICB8IDEyICsrLS0NCj4gIG5ldC9zY2hlZC9zY2hfY2hva2UuYyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgIDMgKy0NCj4gIG5ldC9zY2hlZC9zY2hfZnFfY29kZWwuYyAgICAgICAgICAg
+ICAgICAgICAgICAgIHwgIDIgKy0NCj4gIG5ldC9zY2hlZC9zY2hfc2ZxLmMgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIHwgIDkgKysrDQo+ICBuZXQvc2NoZWQvc2NoX3NrYnByaW8uYyAgICAg
+ICAgICAgICAgICAgICAgICAgICB8ICAzICsNCj4gIG5ldC9zY3RwL3NtX3N0YXRlZnVucy5jICAg
+ICAgICAgICAgICAgICAgICAgICAgIHwgIDYgKy0NCj4gIG5ldC90aXBjL3RvcHNydi5jICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDUgKy0NCj4gIHNjcmlwdHMvZGVjb2RlY29kZSAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0NCj4gIHRvb2xzL29ianRvb2wvY2hl
+Y2suYyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0NCj4gIHZpcnQva3ZtL2FybS9o
+eXAvYWFyY2gzMi5jICAgICAgICAgICAgICAgICAgICAgIHwgIDggKystDQo+ICB2aXJ0L2t2bS9h
+cm0vdmdpYy92Z2ljLW1taW8uYyAgICAgICAgICAgICAgICAgICB8ICA0ICstDQo+ICA0NiBmaWxl
+cyBjaGFuZ2VkLCAzMzUgaW5zZXJ0aW9ucygrKSwgMTU2IGRlbGV0aW9ucygtKQ0KPiANCg0K
