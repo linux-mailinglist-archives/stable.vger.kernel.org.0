@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA011D0D37
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C7B1D0DBB
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387627AbgEMJvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:51:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51768 "EHLO mail.kernel.org"
+        id S2388238AbgEMJz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:55:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387620AbgEMJvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:51:12 -0400
+        id S2387714AbgEMJzZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:55:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFB8B20575;
-        Wed, 13 May 2020 09:51:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4673E20753;
+        Wed, 13 May 2020 09:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363472;
-        bh=tuV8TrIntQx/Va+AYnfJhtfpfekpiuaiuOMv9B7aI6w=;
+        s=default; t=1589363724;
+        bh=21ZeV7DMXJGDzla/Lkcyv+lxyssas6Aup9sjf/i5oZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCYi+W1V5GBb9Hy7Of3foc74YDaFv15Q2P7TtvU61dNjL+TzWjBuJLIXTn1zNtxjL
-         Jb5eqbb4YSQ7comGMgcfSXV7tUT2bwQL56JUTuh3FleB0n3n3SpZ1j5SIi2awJ75v1
-         h9wLnEzR3OtgOm1oI5yKK5CnY/ZMIzuj0YIxcFPM=
+        b=WjoV7rqigxuLzgoVpDJvhwz6vqXvol0WUx3FJmIxgTzb7XIIgp3AqqlYUtdJndfEs
+         axSukLbmPx3vyh0BVH435pdYvaLlqvHwUQk6JzU/4EwMw7m1VHo6Vud5yfosxcFsSj
+         0YKDjf7b2tcc4qPGbfec2/qGeT7IR7m0jy7opTFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 81/90] netfilter: nat: never update the UDP checksum when its 0
-Date:   Wed, 13 May 2020 11:45:17 +0200
-Message-Id: <20200513094417.648417436@linuxfoundation.org>
+        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>
+Subject: [PATCH 5.6 099/118] x86/entry/64: Fix unwind hints in __switch_to_asm()
+Date:   Wed, 13 May 2020 11:45:18 +0200
+Message-Id: <20200513094425.959397282@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit ea64d8d6c675c0bb712689b13810301de9d8f77a upstream.
+commit 96c64806b4bf35f5edb465cafa6cec490e424a30 upstream.
 
-If the UDP header of a local VXLAN endpoint is NAT-ed, and the VXLAN
-device has disabled UDP checksums and enabled Tx checksum offloading,
-then the skb passed to udp_manip_pkt() has hdr->check == 0 (outer
-checksum disabled) and skb->ip_summed == CHECKSUM_PARTIAL (inner packet
-checksum offloaded).
+UNWIND_HINT_FUNC has some limitations: specifically, it doesn't reset
+all the registers to undefined.  This causes objtool to get confused
+about the RBP push in __switch_to_asm(), resulting in bad ORC data.
 
-Because of the ->ip_summed value, udp_manip_pkt() tries to update the
-outer checksum with the new address and port, leading to an invalid
-checksum sent on the wire, as the original null checksum obviously
-didn't take the old address and port into account.
+While __switch_to_asm() does do some stack magic, it's otherwise a
+normal callable-from-C function, so just annotate it as a function,
+which makes objtool happy and allows it to produces the correct hints
+automatically.
 
-So, we can't take ->ip_summed into account in udp_manip_pkt(), as it
-might not refer to the checksum we're acting on. Instead, we can base
-the decision to update the UDP checksum entirely on the value of
-hdr->check, because it's null if and only if checksum is disabled:
-
-  * A fully computed checksum can't be 0, since a 0 checksum is
-    represented by the CSUM_MANGLED_0 value instead.
-
-  * A partial checksum can't be 0, since the pseudo-header always adds
-    at least one non-zero value (the UDP protocol type 0x11) and adding
-    more values to the sum can't make it wrap to 0 as the carry is then
-    added to the wrapped number.
-
-  * A disabled checksum uses the special value 0.
-
-The problem seems to be there from day one, although it was probably
-not visible before UDP tunnels were implemented.
-
-Fixes: 5b1158e909ec ("[NETFILTER]: Add NAT support for nf_conntrack")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 8c1f75587a18 ("x86/entry/64: Add unwind hint annotations")
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Dave Jones <dsj@fb.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Link: https://lore.kernel.org/r/03d0411920d10f7418f2e909210d8e9a3b2ab081.1587808742.git.jpoimboe@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nf_nat_proto.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/x86/entry/entry_64.S |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/netfilter/nf_nat_proto.c
-+++ b/net/netfilter/nf_nat_proto.c
-@@ -68,15 +68,13 @@ static bool udp_manip_pkt(struct sk_buff
- 			  enum nf_nat_manip_type maniptype)
- {
- 	struct udphdr *hdr;
--	bool do_csum;
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -279,8 +279,7 @@ SYM_CODE_END(entry_SYSCALL_64)
+  * %rdi: prev task
+  * %rsi: next task
+  */
+-SYM_CODE_START(__switch_to_asm)
+-	UNWIND_HINT_FUNC
++SYM_FUNC_START(__switch_to_asm)
+ 	/*
+ 	 * Save callee-saved registers
+ 	 * This must match the order in inactive_task_frame
+@@ -321,7 +320,7 @@ SYM_CODE_START(__switch_to_asm)
+ 	popq	%rbp
  
- 	if (skb_ensure_writable(skb, hdroff + sizeof(*hdr)))
- 		return false;
+ 	jmp	__switch_to
+-SYM_CODE_END(__switch_to_asm)
++SYM_FUNC_END(__switch_to_asm)
  
- 	hdr = (struct udphdr *)(skb->data + hdroff);
--	do_csum = hdr->check || skb->ip_summed == CHECKSUM_PARTIAL;
-+	__udp_manip_pkt(skb, iphdroff, hdr, tuple, maniptype, !!hdr->check);
- 
--	__udp_manip_pkt(skb, iphdroff, hdr, tuple, maniptype, do_csum);
- 	return true;
- }
- 
+ /*
+  * A newly forked process directly context switches into this address.
 
 
