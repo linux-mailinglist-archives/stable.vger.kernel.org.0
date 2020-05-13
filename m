@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B9A1D0CC5
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64CBF1D0EA8
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732881AbgEMJrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:47:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45520 "EHLO mail.kernel.org"
+        id S2388132AbgEMKBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:01:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732875AbgEMJrc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:47:32 -0400
+        id S1732886AbgEMJuq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:50:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9728520753;
-        Wed, 13 May 2020 09:47:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12F1720740;
+        Wed, 13 May 2020 09:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363252;
-        bh=CsbIO5dipL0iKBcIfukTEXl367sjdfnK/Vip1aGHx/E=;
+        s=default; t=1589363445;
+        bh=wN63/d8bY6lKcZMrGG0Tt2Sxn2DQckb0HCInWH1OSmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13e+ky6kqbqQihHKlo8ToHijGMn8KfNE9QGWaS+2K1mL+DNZxRjYWTd784V08BcY2
-         y2Qmy37iAYHssb6KMnmlq66ZnS4TLX22GuJqBOLHUwmAyXEHTZ9cy7LF8100SoYuFA
-         J6Xx3mRSvRikxQjr5u+lt/Ld+FVrfwtgPqc4ymaY=
+        b=EjSc9uCPvWl4LDsYp0jUYPP50WVoG+jNDSKjknhCIlxJIR0sehaq6V9Gnd/R/0j1g
+         PeY2LTKQcc+1WI2Smy0W/KAk2V6Ypey/zAlxoyIRKnOf0HJZ5EdZOCwt6ntwN5j2tU
+         xYt3tMs2SLSWj6TcLOd2hXJoIsjM8AkIMuUopEmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
-        Dave Jones <dsj@fb.com>, Steven Rostedt <rostedt@goodmis.org>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Joe Mario <jmario@redhat.com>, Miroslav Benes <mbenes@suse.cz>,
+        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
         Josh Poimboeuf <jpoimboe@redhat.com>,
         Ingo Molnar <mingo@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
         Jann Horn <jannh@google.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 46/48] objtool: Fix stack offset tracking for indirect CFAs
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>
+Subject: [PATCH 5.4 76/90] x86/unwind/orc: Prevent unwinding before ORC initialization
 Date:   Wed, 13 May 2020 11:45:12 +0200
-Message-Id: <20200513094404.559723075@linuxfoundation.org>
+Message-Id: <20200513094417.204174530@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +51,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit d8dd25a461e4eec7190cb9d66616aceacc5110ad upstream.
+commit 98d0c8ebf77e0ba7c54a9ae05ea588f0e9e3f46e upstream.
 
-When the current frame address (CFA) is stored on the stack (i.e.,
-cfa->base == CFI_SP_INDIRECT), objtool neglects to adjust the stack
-offset when there are subsequent pushes or pops.  This results in bad
-ORC data at the end of the ENTER_IRQ_STACK macro, when it puts the
-previous stack pointer on the stack and does a subsequent push.
+If the unwinder is called before the ORC data has been initialized,
+orc_find() returns NULL, and it tries to fall back to using frame
+pointers.  This can cause some unexpected warnings during boot.
 
-This fixes the following unwinder warning:
+Move the 'orc_init' check from orc_find() to __unwind_init(), so that it
+doesn't even try to unwind from an uninitialized state.
 
-  WARNING: can't dereference registers at 00000000f0a6bdba for ip interrupt_entry+0x9f/0xa0
-
-Fixes: 627fce14809b ("objtool: Add ORC unwind table generation")
-Reported-by: Vince Weaver <vincent.weaver@maine.edu>
-Reported-by: Dave Jones <dsj@fb.com>
-Reported-by: Steven Rostedt <rostedt@goodmis.org>
-Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
-Reported-by: Joe Mario <jmario@redhat.com>
+Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
 Reviewed-by: Miroslav Benes <mbenes@suse.cz>
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Dave Jones <dsj@fb.com>
 Cc: Jann Horn <jannh@google.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/853d5d691b29e250333332f09b8e27410b2d9924.1587808742.git.jpoimboe@redhat.com
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Link: https://lore.kernel.org/r/069d1499ad606d85532eb32ce39b2441679667d5.1587808742.git.jpoimboe@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/objtool/check.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/unwind_orc.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -1315,7 +1315,7 @@ static int update_insn_state_regs(struct
- 	struct cfi_reg *cfa = &state->cfa;
- 	struct stack_op *op = &insn->stack_op;
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -142,9 +142,6 @@ static struct orc_entry *orc_find(unsign
+ {
+ 	static struct orc_entry *orc;
  
--	if (cfa->base != CFI_SP)
-+	if (cfa->base != CFI_SP && cfa->base != CFI_SP_INDIRECT)
- 		return 0;
+-	if (!orc_init)
+-		return NULL;
+-
+ 	if (ip == 0)
+ 		return &null_orc_entry;
  
- 	/* push */
+@@ -582,6 +579,9 @@ EXPORT_SYMBOL_GPL(unwind_next_frame);
+ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 		    struct pt_regs *regs, unsigned long *first_frame)
+ {
++	if (!orc_init)
++		goto done;
++
+ 	memset(state, 0, sizeof(*state));
+ 	state->task = task;
+ 
 
 
