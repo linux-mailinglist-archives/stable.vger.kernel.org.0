@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 685451D0C9C
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:46:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36C461D0EE9
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732596AbgEMJqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:46:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
+        id S1733161AbgEMJtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:49:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732595AbgEMJqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:46:14 -0400
+        id S1732597AbgEMJs6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:48:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8973720740;
-        Wed, 13 May 2020 09:46:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E6DC20575;
+        Wed, 13 May 2020 09:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363174;
-        bh=329AiQM0KavVaWXkv+g4W1c7NSgAQWjHdkTzidhBu5c=;
+        s=default; t=1589363337;
+        bh=7t/1B8SMUNJlx2mXgH50/BFXjRUypT2lzL9JCbMpWjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W1UHIExTP++gCsm86MDaclOM60fGbGj2YjEV285Wg3lHOTV9lnPVQSAF6y0nJ3TH9
-         uOQct7+jQIifPRj7h1SbLlFUbobjEK45PabPFQNhrGC1MBB743T8ZVMM2KSq3iJtkQ
-         Tr9/h3SCRTc9gSG0/ieE/yRFV94+sRX4mZf4Dvns=
+        b=ZBza9qcaCvBODFXALJWcuKB3vSkE+w3x8xafbDMyyoxwazuyPsccOnDu6t7QE6wkm
+         LOzOfc1OMZqQl3aZBln+UqQvBCyjfRxm1/vrNSIY2q7L7VLEQ4xAMXMkVHAMt5y7iw
+         OscTlE+d07E7GoVJxbofkE2RsqNBH8VVfrk/GXO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/48] tracing/kprobes: Fix a double initialization typo
+        stable@vger.kernel.org,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 32/90] bnxt_en: Reduce BNXT_MSIX_VEC_MAX value to supported CQs per PF.
 Date:   Wed, 13 May 2020 11:44:28 +0200
-Message-Id: <20200513094352.173810992@linuxfoundation.org>
+Message-Id: <20200513094411.891864798@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit dcbd21c9fca5e954fd4e3d91884907eb6d47187e ]
+[ Upstream commit 9e68cb0359b20f99c7b070f1d3305e5e0a9fae6d ]
 
-Fix a typo that resulted in an unnecessary double
-initialization to addr.
+Broadcom adapters support only maximum of 512 CQs per PF. If user sets
+MSIx vectors more than supported CQs, firmware is setting incorrect value
+for msix_vec_per_pf_max parameter. Fix it by reducing the BNXT_MSIX_VEC_MAX
+value to 512, even though the maximum # of MSIx vectors supported by adapter
+are 1280.
 
-Link: http://lkml.kernel.org/r/158779374968.6082.2337484008464939919.stgit@devnote2
-
-Cc: Tom Zanussi <zanussi@kernel.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: c7411a1a126f ("tracing/kprobe: Check whether the non-suffixed symbol is notrace")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f399e8497826 ("bnxt_en: Use msix_vec_per_pf_max and msix_vec_per_pf_min devlink params.")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_kprobe.c | 2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index 65b4e28ff425f..c45b017bacd47 100644
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -538,7 +538,7 @@ static bool __within_notrace_func(unsigned long addr)
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
+@@ -39,7 +39,7 @@ static inline void bnxt_link_bp_to_dl(st
+ #define NVM_OFF_DIS_GRE_VER_CHECK	171
+ #define NVM_OFF_ENABLE_SRIOV		401
  
- static bool within_notrace_func(struct trace_kprobe *tk)
- {
--	unsigned long addr = addr = trace_kprobe_address(tk);
-+	unsigned long addr = trace_kprobe_address(tk);
- 	char symname[KSYM_NAME_LEN], *p;
+-#define BNXT_MSIX_VEC_MAX	1280
++#define BNXT_MSIX_VEC_MAX	512
+ #define BNXT_MSIX_VEC_MIN_MAX	128
  
- 	if (!__within_notrace_func(addr))
--- 
-2.20.1
-
+ enum bnxt_nvm_dir_type {
 
 
