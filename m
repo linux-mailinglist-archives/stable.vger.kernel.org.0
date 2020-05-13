@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 398841D0E76
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A5A01D0E7C
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:01:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387704AbgEMJvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:51:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52888 "EHLO mail.kernel.org"
+        id S1733108AbgEMKAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:00:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387702AbgEMJvr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:51:47 -0400
+        id S2387682AbgEMJvt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:51:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C934A20753;
-        Wed, 13 May 2020 09:51:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37D4520769;
+        Wed, 13 May 2020 09:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363506;
-        bh=2IoNdM2KI03Yv6nw6vfK4lxfPu+CTcXzy9HO+5uuJW4=;
+        s=default; t=1589363508;
+        bh=I2jwnxVXM12FKVcYuCcTAMuuoCTdocvVrL5yu3rWjI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBz7/Io4pArDZ5iLA1XcQMXWE4r5x8Xkzy8XvoJsyvulKEYynVi0S6PXOL/+mLsL2
-         Egd/O7tBPpmswyZPrI/FZEQP4ssa30Tm+iLor6gJheFczw3AerAggACxrQqiVQbS2g
-         mBqt/RJ1icYmDjlVAYKQO8eh/MsNnuAT44jLuBJU=
+        b=0XA7pMBAV46Tvdq+trzNetGPAaTY55J4XWC87iJSMQpSLbu9veSDBFfp0KCPM51fT
+         QDPxl0g/w4UQ5oIeEQF+GM8WUWxUdKU9K/B1s878LyxOBerO5OywWRXB/IDedWxmYv
+         ViuxEvH7rWIIDxca40meDZLqmsEzjpONTM/+EGUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 012/118] net: macb: Fix runtime PM refcounting
-Date:   Wed, 13 May 2020 11:43:51 +0200
-Message-Id: <20200513094418.750886835@linuxfoundation.org>
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 013/118] cxgb4: fix EOTID leak when disabling TC-MQPRIO offload
+Date:   Wed, 13 May 2020 11:43:52 +0200
+Message-Id: <20200513094418.847414141@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -47,71 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit 0ce205d4660c312cdeb4a81066616dcc6f3799c4 ]
+[ Upstream commit 69422a7e5d578aab277091f4ebb7c1b387f3e355 ]
 
-The commit e6a41c23df0d, while trying to fix an issue,
+Under heavy load, the EOTID termination FLOWC request fails to get
+enqueued to the end of the Tx ring due to lack of credits. This
+results in EOTID leak.
 
-    ("net: macb: ensure interface is not suspended on at91rm9200")
+When disabling TC-MQPRIO offload, the link is already brought down
+to cleanup EOTIDs. So, flush any pending enqueued skbs that can't be
+sent outside the wire, to make room for FLOWC request. Also, move the
+FLOWC descriptor consumption logic closer to when the FLOWC request is
+actually posted to hardware.
 
-introduced a refcounting regression, because in error case refcounter
-must be balanced. Fix it by calling pm_runtime_put_noidle() in error case.
-
-While here, fix the same mistake in other couple of places.
-
-Fixes: e6a41c23df0d ("net: macb: ensure interface is not suspended on at91rm9200")
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 0e395b3cb1fb ("cxgb4: add FLOWC based QoS offload")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/sge.c |   39 ++++++++++++++++++++++++++++---
+ 1 file changed, 36 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index b3a51935e8e0b..1fc83cd31cf28 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -334,8 +334,10 @@ static int macb_mdio_read(struct mii_bus *bus, int mii_id, int regnum)
- 	int status;
+--- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
+@@ -2202,6 +2202,9 @@ static void ethofld_hard_xmit(struct net
+ 	if (unlikely(skip_eotx_wr)) {
+ 		start = (u64 *)wr;
+ 		eosw_txq->state = next_state;
++		eosw_txq->cred -= wrlen16;
++		eosw_txq->ncompl++;
++		eosw_txq->last_compl = 0;
+ 		goto write_wr_headers;
+ 	}
  
- 	status = pm_runtime_get_sync(&bp->pdev->dev);
--	if (status < 0)
-+	if (status < 0) {
-+		pm_runtime_put_noidle(&bp->pdev->dev);
- 		goto mdio_pm_exit;
+@@ -2360,6 +2363,34 @@ netdev_tx_t t4_start_xmit(struct sk_buff
+ 	return cxgb4_eth_xmit(skb, dev);
+ }
+ 
++static void eosw_txq_flush_pending_skbs(struct sge_eosw_txq *eosw_txq)
++{
++	int pktcount = eosw_txq->pidx - eosw_txq->last_pidx;
++	int pidx = eosw_txq->pidx;
++	struct sk_buff *skb;
++
++	if (!pktcount)
++		return;
++
++	if (pktcount < 0)
++		pktcount += eosw_txq->ndesc;
++
++	while (pktcount--) {
++		pidx--;
++		if (pidx < 0)
++			pidx += eosw_txq->ndesc;
++
++		skb = eosw_txq->desc[pidx].skb;
++		if (skb) {
++			dev_consume_skb_any(skb);
++			eosw_txq->desc[pidx].skb = NULL;
++			eosw_txq->inuse--;
++		}
 +	}
++
++	eosw_txq->pidx = eosw_txq->last_pidx + 1;
++}
++
+ /**
+  * cxgb4_ethofld_send_flowc - Send ETHOFLD flowc request to bind eotid to tc.
+  * @dev - netdevice
+@@ -2435,9 +2466,11 @@ int cxgb4_ethofld_send_flowc(struct net_
+ 					    FW_FLOWC_MNEM_EOSTATE_CLOSING :
+ 					    FW_FLOWC_MNEM_EOSTATE_ESTABLISHED);
  
- 	status = macb_mdio_wait_for_idle(bp);
- 	if (status < 0)
-@@ -386,8 +388,10 @@ static int macb_mdio_write(struct mii_bus *bus, int mii_id, int regnum,
- 	int status;
+-	eosw_txq->cred -= len16;
+-	eosw_txq->ncompl++;
+-	eosw_txq->last_compl = 0;
++	/* Free up any pending skbs to ensure there's room for
++	 * termination FLOWC.
++	 */
++	if (tc == FW_SCHED_CLS_NONE)
++		eosw_txq_flush_pending_skbs(eosw_txq);
  
- 	status = pm_runtime_get_sync(&bp->pdev->dev);
--	if (status < 0)
-+	if (status < 0) {
-+		pm_runtime_put_noidle(&bp->pdev->dev);
- 		goto mdio_pm_exit;
-+	}
- 
- 	status = macb_mdio_wait_for_idle(bp);
- 	if (status < 0)
-@@ -3803,8 +3807,10 @@ static int at91ether_open(struct net_device *dev)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(&lp->pdev->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(&lp->pdev->dev);
- 		return ret;
-+	}
- 
- 	/* Clear internal statistics */
- 	ctl = macb_readl(lp, NCR);
--- 
-2.20.1
-
+ 	ret = eosw_txq_enqueue(eosw_txq, skb);
+ 	if (ret) {
 
 
