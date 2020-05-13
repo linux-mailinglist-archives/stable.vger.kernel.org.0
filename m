@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A98FD1D0EF6
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:03:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A3581D0D68
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733049AbgEMJsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:48:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46732 "EHLO mail.kernel.org"
+        id S1732746AbgEMJwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733043AbgEMJsV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:48:21 -0400
+        id S2387833AbgEMJwp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:52:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65B0120753;
-        Wed, 13 May 2020 09:48:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9E29206D6;
+        Wed, 13 May 2020 09:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363300;
-        bh=OZF5ZwFXj4P8n0iGxnlNhVhwzR/yGMlCOIbRSfvbciQ=;
+        s=default; t=1589363565;
+        bh=Oa+q0KIYYDTnW/Wjd+DAuMGDs+zRTcpchmQ85aZUICE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lqWAgbWyAJmFTGoJWrD2OPnL5GOovmTF32F66Uk4uHpzH7+AKP5fWWmMTvN3qmR5r
-         25E3bF8VmYBZ9ajwxPuKtRxdtnolHMxEy66gCgaykdTN2YZMorY0BRpng0HE8VUAiX
-         4Sw1eSX0vCduEgHtE2Hk9XZ503tyKC1+1LT4xaOI=
+        b=bUwxdjBnUbDsqimmBu2zx6izP6Ydb1KR0DXcHl8E+5selFiX+lvpXP/GsLTRPWKT4
+         DwK+o4FKPakpQVAZsOwbmyQNlm7ZLl44IhJ3f9GaBMHc2Vm8UcvnpJNbVO5sgZwsK8
+         qGK4nFJS2ewlgjYgpwjoacIbOBwvZkh1RepV12Ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot+0251e883fe39e7a0cb0a@syzkaller.appspotmail.com,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 19/90] net/mlx4_core: Fix use of ENOSPC around mlx4_counter_alloc()
+Subject: [PATCH 5.6 036/118] sch_sfq: validate silly quantum values
 Date:   Wed, 13 May 2020 11:44:15 +0200
-Message-Id: <20200513094410.796020305@linuxfoundation.org>
+Message-Id: <20200513094420.600244790@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 40e473071dbad04316ddc3613c3a3d1c75458299 ]
+[ Upstream commit df4953e4e997e273501339f607b77953772e3559 ]
 
-When ENOSPC is set the idx is still valid and gets set to the global
-MLX4_SINK_COUNTER_INDEX.  However gcc's static analysis cannot tell that
-ENOSPC is impossible from mlx4_cmd_imm() and gives this warning:
+syzbot managed to set up sfq so that q->scaled_quantum was zero,
+triggering an infinite loop in sfq_dequeue()
 
-drivers/net/ethernet/mellanox/mlx4/main.c:2552:28: warning: 'idx' may be
-used uninitialized in this function [-Wmaybe-uninitialized]
- 2552 |    priv->def_counter[port] = idx;
+More generally, we must only accept quantum between 1 and 2^18 - 7,
+meaning scaled_quantum must be in [1, 0x7FFF] range.
 
-Also, when ENOSPC is returned mlx4_allocate_default_counters should not
-fail.
+Otherwise, we also could have a loop in sfq_dequeue()
+if scaled_quantum happens to be 0x8000, since slot->allot
+could indefinitely switch between 0 and 0x8000.
 
-Fixes: 6de5f7f6a1fa ("net/mlx4_core: Allocate default counter per port")
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Fixes: eeaeb068f139 ("sch_sfq: allow big packets and be fair")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+0251e883fe39e7a0cb0a@syzkaller.appspotmail.com
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sched/sch_sfq.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx4/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/main.c
-@@ -2550,6 +2550,7 @@ static int mlx4_allocate_default_counter
- 
- 		if (!err || err == -ENOSPC) {
- 			priv->def_counter[port] = idx;
-+			err = 0;
- 		} else if (err == -ENOENT) {
- 			err = 0;
- 			continue;
-@@ -2600,7 +2601,8 @@ int mlx4_counter_alloc(struct mlx4_dev *
- 				   MLX4_CMD_TIME_CLASS_A, MLX4_CMD_WRAPPED);
- 		if (!err)
- 			*idx = get_param_l(&out_param);
--
-+		if (WARN_ON(err == -ENOSPC))
-+			err = -EINVAL;
- 		return err;
- 	}
- 	return __mlx4_counter_alloc(dev, idx);
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -637,6 +637,15 @@ static int sfq_change(struct Qdisc *sch,
+ 	if (ctl->divisor &&
+ 	    (!is_power_of_2(ctl->divisor) || ctl->divisor > 65536))
+ 		return -EINVAL;
++
++	/* slot->allot is a short, make sure quantum is not too big. */
++	if (ctl->quantum) {
++		unsigned int scaled = SFQ_ALLOT_SIZE(ctl->quantum);
++
++		if (scaled <= 0 || scaled > SHRT_MAX)
++			return -EINVAL;
++	}
++
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+ 					ctl_v1->Wlog))
+ 		return -EINVAL;
 
 
