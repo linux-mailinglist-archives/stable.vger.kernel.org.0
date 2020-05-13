@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F801D0DDF
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C62A1D0DDA
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:56:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388436AbgEMJ4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:56:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59990 "EHLO mail.kernel.org"
+        id S1733035AbgEMJ40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:56:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388411AbgEMJ4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:56:21 -0400
+        id S2388414AbgEMJ4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:56:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFD61206D6;
-        Wed, 13 May 2020 09:56:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 877E020769;
+        Wed, 13 May 2020 09:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363780;
-        bh=srG9i/xIR2nz4+pXygtkAgDXU6JyRfly2ErsQkCjXA4=;
+        s=default; t=1589363783;
+        bh=WAETQjuLl5QS1YCI7B1gmJLMQhVKG4lIqaVhHcXqd+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oppq4PLd8x+WWGakg0Hgne0hHXtbcrfMZgP9v0ykw0TEHhmQKISbrHdqh7VJZk1et
-         43xGacMimUkY/HVs6z0VA3wfnoLYikEh8UbKMExMpV8BLS5zC6nKhg3DIw6mVI4FRR
-         xJ8Drc0fLQWPL4i6Lb16XdMfI3REy+V5L3fnzB8Q=
+        b=xQ2+Ht9BWWZFkpj8wI+3GOZehCP9U/RRFPQtRcTPebyENTosnyGg4gN/Gc4POT/ad
+         DCEk9+vds8NK9QLO/KHslzOWLxWR/Rys79qWXE0gx7BLXstUoHXpXat+Th5EpHQdl2
+         cL73mMfY5iwN0qzAPVGqng8ckWfvC22mEhGVYKm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 113/118] mm, memcg: fix error return value of mem_cgroup_css_alloc()
-Date:   Wed, 13 May 2020 11:45:32 +0200
-Message-Id: <20200513094427.878405561@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jan Kara <jack@suse.cz>, Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 114/118] bdi: move bdi_dev_name out of line
+Date:   Wed, 13 May 2020 11:45:33 +0200
+Message-Id: <20200513094427.931727604@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -48,99 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yafang Shao <laoar.shao@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 11d6761218d19ca06ae5387f4e3692c4fa9e7493 upstream.
+[ Upstream commit eb7ae5e06bb6e6ac6bb86872d27c43ebab92f6b2 ]
 
-When I run my memcg testcase which creates lots of memcgs, I found
-there're unexpected out of memory logs while there're still enough
-available free memory.  The error log is
+bdi_dev_name is not a fast path function, move it out of line.  This
+prepares for using it from modular callers without having to export
+an implementation detail like bdi_unknown_name.
 
-  mkdir: cannot create directory 'foo.65533': Cannot allocate memory
-
-The reason is when we try to create more than MEM_CGROUP_ID_MAX memcgs,
-an -ENOMEM errno will be set by mem_cgroup_css_alloc(), but the right
-errno should be -ENOSPC "No space left on device", which is an
-appropriate errno for userspace's failed mkdir.
-
-As the errno really misled me, we should make it right.  After this
-patch, the error log will be
-
-  mkdir: cannot create directory 'foo.65533': No space left on device
-
-[akpm@linux-foundation.org: s/EBUSY/ENOSPC/, per Michal]
-[akpm@linux-foundation.org: s/EBUSY/ENOSPC/, per Michal]
-Fixes: 73f576c04b94 ("mm: memcontrol: fix cgroup creation failure after many small jobs")
-Suggested-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Michal Hocko <mhocko@kernel.org>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Link: http://lkml.kernel.org/r/20200407063621.GA18914@dhcp22.suse.cz
-Link: http://lkml.kernel.org/r/1586192163-20099-1-git-send-email-laoar.shao@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ include/linux/backing-dev.h |  9 +--------
+ mm/backing-dev.c            | 10 +++++++++-
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -4977,19 +4977,22 @@ static struct mem_cgroup *mem_cgroup_all
- 	unsigned int size;
- 	int node;
- 	int __maybe_unused i;
-+	long error = -ENOMEM;
- 
- 	size = sizeof(struct mem_cgroup);
- 	size += nr_node_ids * sizeof(struct mem_cgroup_per_node *);
- 
- 	memcg = kzalloc(size, GFP_KERNEL);
- 	if (!memcg)
--		return NULL;
-+		return ERR_PTR(error);
- 
- 	memcg->id.id = idr_alloc(&mem_cgroup_idr, NULL,
- 				 1, MEM_CGROUP_ID_MAX,
- 				 GFP_KERNEL);
--	if (memcg->id.id < 0)
-+	if (memcg->id.id < 0) {
-+		error = memcg->id.id;
- 		goto fail;
-+	}
- 
- 	memcg->vmstats_local = alloc_percpu(struct memcg_vmstats_percpu);
- 	if (!memcg->vmstats_local)
-@@ -5033,7 +5036,7 @@ static struct mem_cgroup *mem_cgroup_all
- fail:
- 	mem_cgroup_id_remove(memcg);
- 	__mem_cgroup_free(memcg);
--	return NULL;
-+	return ERR_PTR(error);
+diff --git a/include/linux/backing-dev.h b/include/linux/backing-dev.h
+index f88197c1ffc2d..c9ad5c3b7b4b2 100644
+--- a/include/linux/backing-dev.h
++++ b/include/linux/backing-dev.h
+@@ -505,13 +505,6 @@ static inline int bdi_rw_congested(struct backing_dev_info *bdi)
+ 				  (1 << WB_async_congested));
  }
  
- static struct cgroup_subsys_state * __ref
-@@ -5044,8 +5047,8 @@ mem_cgroup_css_alloc(struct cgroup_subsy
- 	long error = -ENOMEM;
+-extern const char *bdi_unknown_name;
+-
+-static inline const char *bdi_dev_name(struct backing_dev_info *bdi)
+-{
+-	if (!bdi || !bdi->dev)
+-		return bdi_unknown_name;
+-	return dev_name(bdi->dev);
+-}
++const char *bdi_dev_name(struct backing_dev_info *bdi);
  
- 	memcg = mem_cgroup_alloc();
--	if (!memcg)
--		return ERR_PTR(error);
-+	if (IS_ERR(memcg))
-+		return ERR_CAST(memcg);
+ #endif	/* _LINUX_BACKING_DEV_H */
+diff --git a/mm/backing-dev.c b/mm/backing-dev.c
+index 62f05f605fb5b..680e5028d0fc5 100644
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -21,7 +21,7 @@ struct backing_dev_info noop_backing_dev_info = {
+ EXPORT_SYMBOL_GPL(noop_backing_dev_info);
  
- 	memcg->high = PAGE_COUNTER_MAX;
- 	memcg->soft_limit = PAGE_COUNTER_MAX;
-@@ -5095,7 +5098,7 @@ mem_cgroup_css_alloc(struct cgroup_subsy
- fail:
- 	mem_cgroup_id_remove(memcg);
- 	mem_cgroup_free(memcg);
--	return ERR_PTR(-ENOMEM);
-+	return ERR_PTR(error);
+ static struct class *bdi_class;
+-const char *bdi_unknown_name = "(unknown)";
++static const char *bdi_unknown_name = "(unknown)";
+ 
+ /*
+  * bdi_lock protects bdi_tree and updates to bdi_list. bdi_list has RCU
+@@ -1043,6 +1043,14 @@ void bdi_put(struct backing_dev_info *bdi)
  }
+ EXPORT_SYMBOL(bdi_put);
  
- static int mem_cgroup_css_online(struct cgroup_subsys_state *css)
++const char *bdi_dev_name(struct backing_dev_info *bdi)
++{
++	if (!bdi || !bdi->dev)
++		return bdi_unknown_name;
++	return dev_name(bdi->dev);
++}
++EXPORT_SYMBOL_GPL(bdi_dev_name);
++
+ static wait_queue_head_t congestion_wqh[2] = {
+ 		__WAIT_QUEUE_HEAD_INITIALIZER(congestion_wqh[0]),
+ 		__WAIT_QUEUE_HEAD_INITIALIZER(congestion_wqh[1])
+-- 
+2.20.1
+
 
 
