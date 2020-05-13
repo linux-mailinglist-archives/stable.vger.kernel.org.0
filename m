@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAC981D0E49
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:59:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5751D1D0CF0
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387910AbgEMJxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:53:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54910 "EHLO mail.kernel.org"
+        id S1733117AbgEMJso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:48:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387900AbgEMJxI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:53:08 -0400
+        id S1733112AbgEMJso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:48:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD18C23128;
-        Wed, 13 May 2020 09:53:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9B9D206F5;
+        Wed, 13 May 2020 09:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363587;
-        bh=pM95nrK/ZvH2xPCEa2KhKYz52Uj9sIGd6V9yKNOB8TM=;
+        s=default; t=1589363323;
+        bh=4LdK0UMZKV88NR0FednH6zsZI4bJjPkcrrE6fGKiOuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DBiS0J71Pw/0aAoodOaVXkh2xZgTxy8jdLwasDLPRvyc6hxU5EGWItcc8gmtgnDr7
-         cyH/PUoAZg2ZPIUl4e2225Hky50ex3Jo0gu1uoyy805a/ASkbx6LagD+3W4WZJLuq9
-         CH32xvVRj2M1Ss0ZjasVbtxuZ25GdiuTSajfnmj4=
+        b=1lrubWQeZYSt9AAfEUK0GGyusMFxvvrpZGWU3PG27p1rc9n3waX6ebzBxrUHXfyqu
+         X0EVw1QlTn7+Bd1kR87nmz0NpaES/TV7RjfPxtzQdd0BeD9NSXbU9Bar4oYXlYckov
+         MIEO8r1P0cDxttFlU4LhBPpGW+VO65TIeLJFLwyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 044/118] bnxt_en: Return error when allocating zero size context memory.
+Subject: [PATCH 5.4 27/90] sch_choke: avoid potential panic in choke_reset()
 Date:   Wed, 13 May 2020 11:44:23 +0200
-Message-Id: <20200513094421.147790032@linuxfoundation.org>
+Message-Id: <20200513094411.400502329@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit bbf211b1ecb891c7e0cc7888834504183fc8b534 ]
+[ Upstream commit 8738c85c72b3108c9b9a369a39868ba5f8e10ae0 ]
 
-bnxt_alloc_ctx_pg_tbls() should return error when the memory size of the
-context memory to set up is zero.  By returning success (0), the caller
-may proceed normally and may crash later when it tries to set up the
-memory.
+If choke_init() could not allocate q->tab, we would crash later
+in choke_reset().
 
-Fixes: 08fe9d181606 ("bnxt_en: Add Level 2 context memory paging support.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+BUG: KASAN: null-ptr-deref in memset include/linux/string.h:366 [inline]
+BUG: KASAN: null-ptr-deref in choke_reset+0x208/0x340 net/sched/sch_choke.c:326
+Write of size 8 at addr 0000000000000000 by task syz-executor822/7022
+
+CPU: 1 PID: 7022 Comm: syz-executor822 Not tainted 5.7.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x188/0x20d lib/dump_stack.c:118
+ __kasan_report.cold+0x5/0x4d mm/kasan/report.c:515
+ kasan_report+0x33/0x50 mm/kasan/common.c:625
+ check_memory_region_inline mm/kasan/generic.c:187 [inline]
+ check_memory_region+0x141/0x190 mm/kasan/generic.c:193
+ memset+0x20/0x40 mm/kasan/common.c:85
+ memset include/linux/string.h:366 [inline]
+ choke_reset+0x208/0x340 net/sched/sch_choke.c:326
+ qdisc_reset+0x6b/0x520 net/sched/sch_generic.c:910
+ dev_deactivate_queue.constprop.0+0x13c/0x240 net/sched/sch_generic.c:1138
+ netdev_for_each_tx_queue include/linux/netdevice.h:2197 [inline]
+ dev_deactivate_many+0xe2/0xba0 net/sched/sch_generic.c:1195
+ dev_deactivate+0xf8/0x1c0 net/sched/sch_generic.c:1233
+ qdisc_graft+0xd25/0x1120 net/sched/sch_api.c:1051
+ tc_modify_qdisc+0xbab/0x1a00 net/sched/sch_api.c:1670
+ rtnetlink_rcv_msg+0x44e/0xad0 net/core/rtnetlink.c:5454
+ netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
+ netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+ netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
+ netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6bf/0x7e0 net/socket.c:2362
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2416
+ __sys_sendmsg+0xec/0x1b0 net/socket.c:2449
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+
+Fixes: 77e62da6e60c ("sch_choke: drop all packets in queue during reset")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_choke.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -6662,7 +6662,7 @@ static int bnxt_alloc_ctx_pg_tbls(struct
- 	int rc;
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -323,7 +323,8 @@ static void choke_reset(struct Qdisc *sc
  
- 	if (!mem_size)
--		return 0;
-+		return -EINVAL;
- 
- 	ctx_pg->nr_pages = DIV_ROUND_UP(mem_size, BNXT_PAGE_SIZE);
- 	if (ctx_pg->nr_pages > MAX_CTX_TOTAL_PAGES) {
+ 	sch->q.qlen = 0;
+ 	sch->qstats.backlog = 0;
+-	memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
++	if (q->tab)
++		memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
+ 	q->head = q->tail = 0;
+ 	red_restart(&q->vars);
+ }
 
 
