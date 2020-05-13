@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD27D1D0E64
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D87351D0CEB
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387843AbgEMJwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:52:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54534 "EHLO mail.kernel.org"
+        id S1733087AbgEMJse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:48:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387853AbgEMJwx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:52:53 -0400
+        id S1733083AbgEMJsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:48:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D49C20753;
-        Wed, 13 May 2020 09:52:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5BDF20753;
+        Wed, 13 May 2020 09:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363572;
-        bh=6Nj0ivymC0ECNsWFCc3YPYlbmxZtWC1YnpOr92BuU0g=;
+        s=default; t=1589363313;
+        bh=w4FmW7XPb/C8TwDdYwkik3mJPi8H8DYgNLABeNK/Ju4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ihePZmXs0ox3WdiS50DfNw10BYQ7X0kpAdSUG0sWK1XCEIWL7jsuysR7qqaJOOH03
-         I9U9TU8p598K1XsUymybBXgcDif6Hm6kRdqnwjq7ICO3Qht2gZWkOB1KejCBq2w705
-         ZerkcJMbjwIHlTIn55DPGCCd1Ij24FPXdOZcUPS8=
+        b=sj89AwRavwKbF8iEIfd8g3rMEw3Cmxl1HPAcZSaX+vnm5Wo7JAMa5tSqWl1/4jS9l
+         Vxun/BRUj2yubFaJcWNfJS9QEsm+rdvzBmI9mYG+x5p5nzaoFpfC68im4Fy3L5QBfj
+         SsBWRjuh7KvX3Gzh2GxDRbfsJgFh9dbxybVtptVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Tuong Lien <tuong.t.lien@dektech.com.au>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 039/118] tipc: fix partial topology connection closure
-Date:   Wed, 13 May 2020 11:44:18 +0200
-Message-Id: <20200513094420.799732773@linuxfoundation.org>
+Subject: [PATCH 5.4 23/90] net/tls: Fix sk_psock refcnt leak in bpf_exec_tx_verdict()
+Date:   Wed, 13 May 2020 11:44:19 +0200
+Message-Id: <20200513094411.100591611@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuong Lien <tuong.t.lien@dektech.com.au>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 980d69276f3048af43a045be2925dacfb898a7be ]
+[ Upstream commit 095f5614bfe16e5b3e191b34ea41b10d6fdd4ced ]
 
-When an application connects to the TIPC topology server and subscribes
-to some services, a new connection is created along with some objects -
-'tipc_subscription' to store related data correspondingly...
-However, there is one omission in the connection handling that when the
-connection or application is orderly shutdown (e.g. via SIGQUIT, etc.),
-the connection is not closed in kernel, the 'tipc_subscription' objects
-are not freed too.
-This results in:
-- The maximum number of subscriptions (65535) will be reached soon, new
-subscriptions will be rejected;
-- TIPC module cannot be removed (unless the objects  are somehow forced
-to release first);
+bpf_exec_tx_verdict() invokes sk_psock_get(), which returns a reference
+of the specified sk_psock object to "psock" with increased refcnt.
 
-The commit fixes the issue by closing the connection if the 'recvmsg()'
-returns '0' i.e. when the peer is shutdown gracefully. It also includes
-the other unexpected cases.
+When bpf_exec_tx_verdict() returns, local variable "psock" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
 
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Acked-by: Ying Xue <ying.xue@windriver.com>
-Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
+The reference counting issue happens in one exception handling path of
+bpf_exec_tx_verdict(). When "policy" equals to NULL but "psock" is not
+NULL, the function forgets to decrease the refcnt increased by
+sk_psock_get(), causing a refcnt leak.
+
+Fix this issue by calling sk_psock_put() on this error path before
+bpf_exec_tx_verdict() returns.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/topsrv.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/tls/tls_sw.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/tipc/topsrv.c
-+++ b/net/tipc/topsrv.c
-@@ -402,10 +402,11 @@ static int tipc_conn_rcv_from_sock(struc
- 		read_lock_bh(&sk->sk_callback_lock);
- 		ret = tipc_conn_rcv_sub(srv, con, &s);
- 		read_unlock_bh(&sk->sk_callback_lock);
-+		if (!ret)
-+			return 0;
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -797,6 +797,8 @@ static int bpf_exec_tx_verdict(struct sk
+ 			*copied -= sk_msg_free(sk, msg);
+ 			tls_free_open_rec(sk);
+ 		}
++		if (psock)
++			sk_psock_put(sk, psock);
+ 		return err;
  	}
--	if (ret < 0)
--		tipc_conn_close(con);
- 
-+	tipc_conn_close(con);
- 	return ret;
- }
- 
+ more_data:
 
 
