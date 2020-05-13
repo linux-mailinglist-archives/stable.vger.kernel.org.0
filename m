@@ -2,99 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 056151D2096
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 23:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DCBB1D2174
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 23:49:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726145AbgEMVDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 17:03:14 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:51200 "EHLO
+        id S1729490AbgEMVs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 17:48:59 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:55322 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725952AbgEMVDN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 17:03:13 -0400
+        with ESMTP id S1729487AbgEMVs7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 17:48:59 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 088FC1C0285; Wed, 13 May 2020 23:03:12 +0200 (CEST)
-Date:   Wed, 13 May 2020 23:03:11 +0200
+        id 8207E1C0281; Wed, 13 May 2020 23:48:57 +0200 (CEST)
+Date:   Wed, 13 May 2020 23:48:56 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: Re: [PATCH 4.19 35/48] batman-adv: Fix refcnt leak in
- batadv_store_throughput_override
-Message-ID: <20200513210311.GA1822@duo.ucw.cz>
+        Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>
+Subject: Re: [PATCH 4.19 37/48] x86/entry/64: Fix unwind hints in register
+ clearing code
+Message-ID: <20200513214856.GA27858@amd>
 References: <20200513094351.100352960@linuxfoundation.org>
- <20200513094400.720293748@linuxfoundation.org>
+ <20200513094401.325580400@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+        protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
 Content-Disposition: inline
-In-Reply-To: <20200513094400.720293748@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200513094401.325580400@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---FCuugMFkClbJLl1L
+--mYCpIKhGyMATD0i+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
-
-> From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+On Wed 2020-05-13 11:45:03, Greg Kroah-Hartman wrote:
+> From: Josh Poimboeuf <jpoimboe@redhat.com>
 >=20
-> commit 6107c5da0fca8b50b4d3215e94d619d38cc4a18c upstream.
+> commit 06a9750edcffa808494d56da939085c35904e618 upstream.
 >=20
-> batadv_show_throughput_override() invokes batadv_hardif_get_by_netdev(),
-> which gets a batadv_hard_iface object from net_dev with increased refcnt
-> and its reference is assigned to a local pointer 'hard_iface'.
+> The PUSH_AND_CLEAR_REGS macro zeroes each register immediately after
+> pushing it.  If an NMI or exception hits after a register is cleared,
+> but before the UNWIND_HINT_REGS annotation, the ORC unwinder will
+> wrongly think the previous value of the register was zero.  This can
+> confuse the unwinding process and cause it to exit early.
 >=20
-> When batadv_store_throughput_override() returns, "hard_iface" becomes
-> invalid, so the refcount should be decreased to keep refcount balanced.
->=20
-> The issue happens in one error path of
-> batadv_store_throughput_override(). When batadv_parse_throughput()
-> returns NULL, the refcnt increased by batadv_hardif_get_by_netdev() is
-> not decreased, causing a refcnt leak.
->=20
-> Fix this issue by jumping to "out" label when batadv_parse_throughput()
-> returns NULL.
+> Because ORC is simpler than DWARF, there are a limited number of unwind
+> annotation states, so it's not possible to add an individual unwind hint
+> after each push/clear combination.  Instead, the register clearing
+> instructions need to be consolidated and moved to after the
+> UNWIND_HINT_REGS annotation.
 
-Ok, this fixes the issue, but it brings up a question:
-
-
-> --- a/net/batman-adv/sysfs.c
-> +++ b/net/batman-adv/sysfs.c
-> @@ -1093,7 +1093,7 @@ static ssize_t batadv_store_throughput_o
->  	ret =3D batadv_parse_throughput(net_dev, buff, "throughput_override",
->  				      &tp_override);
->  	if (!ret)
-> -		return count;
-> +		goto out;
->
-
-If parsing of value from userspace failed we are currently returning
-success. That seems wrong. Should we return -EINVAL instead?
+This actually makes kernel entry/exit slower, due to poor instruction
+scheduling. And that is a bit of hot path... Is it strictly
+neccessary? Not everyone needs ORC scheduler. Should it be somehow
+optional?
 
 Best regards,
-									Pavel
+								Pavel
+
+> -	 * Interleave XOR with PUSH for better uop scheduling:
+> -	 */
+>  	.if \save_ret
+>  	pushq	%rsi		/* pt_regs->si */
+>  	movq	8(%rsp), %rsi	/* temporarily store the return address in %rsi */
+> @@ -114,34 +107,43 @@ For 32-bit we have the following convent
+>  	pushq   %rsi		/* pt_regs->si */
+>  	.endif
+>  	pushq	\rdx		/* pt_regs->dx */
+> -	xorl	%edx, %edx	/* nospec   dx */
+>  	pushq   %rcx		/* pt_regs->cx */
+> -	xorl	%ecx, %ecx	/* nospec   cx */
+>  	pushq   \rax		/* pt_regs->ax */
+>  	pushq   %r8		/* pt_regs->r8 */
+> -	xorl	%r8d, %r8d	/* nospec   r8 */
+>  	pushq   %r9		/* pt_regs->r9 */
+> -	xorl	%r9d, %r9d	/* nospec   r9 */
+>  	pushq   %r10		/* pt_regs->r10 */
+> -	xorl	%r10d, %r10d	/* nospec   r10 */
+>  	pushq   %r11		/* pt_regs->r11 */
+> -	xorl	%r11d, %r11d	/* nospec   r11*/
+>  	pushq	%rbx		/* pt_regs->rbx */
+> -	xorl    %ebx, %ebx	/* nospec   rbx*/
+>  	pushq	%rbp		/* pt_regs->rbp */
+> -	xorl    %ebp, %ebp	/* nospec   rbp*/
+>  	pushq	%r12		/* pt_regs->r12 */
+> -	xorl	%r12d, %r12d	/* nospec   r12*/
+>  	pushq	%r13		/* pt_regs->r13 */
+> -	xorl	%r13d, %r13d	/* nospec   r13*/
+>  	pushq	%r14		/* pt_regs->r14 */
+> -	xorl	%r14d, %r14d	/* nospec   r14*/
+>  	pushq	%r15		/* pt_regs->r15 */
+> -	xorl	%r15d, %r15d	/* nospec   r15*/
+>  	UNWIND_HINT_REGS
+> +
+>  	.if \save_ret
+>  	pushq	%rsi		/* return address on top of stack */
+>  	.endif
+> +
+> +	/*
+> +	 * Sanitize registers of values that a speculation attack might
+> +	 * otherwise want to exploit. The lower registers are likely clobbered
+> +	 * well before they could be put to use in a speculative execution
+> +	 * gadget.
+> +	 */
+> +	xorl	%edx,  %edx	/* nospec dx  */
+> +	xorl	%ecx,  %ecx	/* nospec cx  */
+> +	xorl	%r8d,  %r8d	/* nospec r8  */
+> +	xorl	%r9d,  %r9d	/* nospec r9  */
+> +	xorl	%r10d, %r10d	/* nospec r10 */
+> +	xorl	%r11d, %r11d	/* nospec r11 */
+> +	xorl	%ebx,  %ebx	/* nospec rbx */
+> +	xorl	%ebp,  %ebp	/* nospec rbp */
+> +	xorl	%r12d, %r12d	/* nospec r12 */
+> +	xorl	%r13d, %r13d	/* nospec r13 */
+> +	xorl	%r14d, %r14d	/* nospec r14 */
+> +	xorl	%r15d, %r15d	/* nospec r15 */
+> +
+>  .endm
+> =20
+>  .macro POP_REGS pop_rdi=3D1 skip_r11rcx=3D0
+>=20
+
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---FCuugMFkClbJLl1L
+--mYCpIKhGyMATD0i+
 Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXrxgjwAKCRAw5/Bqldv6
-8jBxAKCPatfcX8F+QT4Xyocp9Z5aK5zspQCfeBHvHJ78hSvs+RqKA0ND11ZVfKs=
-=SVkw
+iEYEARECAAYFAl68a0gACgkQMOfwapXb+vIrGgCfUxFYifTpou/d/zLj+TzOUT+N
+UvIAn0eMh/YolxsvDJ8kC1h+/gWGhzg2
+=3I5W
 -----END PGP SIGNATURE-----
 
---FCuugMFkClbJLl1L--
+--mYCpIKhGyMATD0i+--
