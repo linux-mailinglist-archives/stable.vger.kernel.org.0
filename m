@@ -2,101 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34AD61D1672
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 15:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD89D1D1684
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 15:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387768AbgEMNut convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 13 May 2020 09:50:49 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:54055 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727792AbgEMNut (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 09:50:49 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-207-7QlvMga7Ot6aVhvjyH0N6g-1; Wed, 13 May 2020 14:50:45 +0100
-X-MC-Unique: 7QlvMga7Ot6aVhvjyH0N6g-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Wed, 13 May 2020 14:50:44 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Wed, 13 May 2020 14:50:44 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Peter Zijlstra' <peterz@infradead.org>
-CC:     'Geert Uytterhoeven' <geert@linux-m68k.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        stable <stable@vger.kernel.org>,
-        Alexey Brodkin <alexey.brodkin@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: RE: [PATCH 4.4 03/16] devres: Align data[] to ARCH_KMALLOC_MINALIGN
-Thread-Topic: [PATCH 4.4 03/16] devres: Align data[] to ARCH_KMALLOC_MINALIGN
-Thread-Index: AQHWKQu4HYgJHBu5S0KOdh+8IRi0tqilymPggAAprYCAABK8AA==
-Date:   Wed, 13 May 2020 13:50:44 +0000
-Message-ID: <94541c2ec85e4b2589dc8902ef2c4f41@AcuMS.aculab.com>
-References: <20200423204014.784944-1-lee.jones@linaro.org>
- <20200423204014.784944-4-lee.jones@linaro.org>
- <20200513093536.GB830571@kroah.com>
- <CAMuHMdVZHodDXGOMuOpVLbgiy9_WeHHKKq4kG7Cz9u9pm8UZuw@mail.gmail.com>
- <335fbcc7d9ad4d429ec11e9ac2caf118@AcuMS.aculab.com>
- <20200513133609.GO2978@hirez.programming.kicks-ass.net>
-In-Reply-To: <20200513133609.GO2978@hirez.programming.kicks-ass.net>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S2387669AbgEMNya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 09:54:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47418 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387593AbgEMNya (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 09:54:30 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E94652054F;
+        Wed, 13 May 2020 13:54:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589378069;
+        bh=OaCIyJaknHnXL4A2CM7xPhFVRnnkmUrAQr7NCYr0ZWo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FujL5I+sarhZUbmaL7dIqwNkRuJxH0NKNVktbQbYiAkWVKnFDX/BibiUV+JYONJZ2
+         GydfOikgiNggwDWrjauLcDc6XuWV84EfdkhQD68FTDmK2KkOPfpFQ9Qvg35Yf9Jvbo
+         +WngV9Nk5Uky9RIrV6ktKwruTgCOBPHiatH2PP2Q=
+Date:   Wed, 13 May 2020 15:54:27 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.6 000/118] 5.6.13-rc1 review
+Message-ID: <20200513135427.GB1309267@kroah.com>
+References: <20200513094417.618129545@linuxfoundation.org>
+ <12592104-9a83-5b19-be42-5bbf92198ad7@nvidia.com>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12592104-9a83-5b19-be42-5bbf92198ad7@nvidia.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra
-> Sent: 13 May 2020 14:36
+On Wed, May 13, 2020 at 02:46:31PM +0100, Jon Hunter wrote:
 > 
-> On Wed, May 13, 2020 at 10:10:03AM +0000, David Laight wrote:
-> > From: Geert Uytterhoeven
-> > > Sent: 13 May 2020 10:49
-> > ...
-> > > > I don't want to apply this to older kernels as it could cause extra
-> > > > memory usage for no good reason.  I have no idea why a non ARC system
-> > > > would want it :(
-> > >
-> > > I think the reference to ARC is a red herring.
-> > > The real issue is that buffers used for DMA may not have the required
-> > > alignment, which is not limited to ARC systems.
-> > >
-> > > Note that I'm also not super happy with the extra memory usage.
-> > > But devm_*() conveniences come with their penalties...
-> >
-> > Interesting thought.
-> > Could the devm 'header' be put right at the end of the kmalloc()
-> > buffer?
+> On 13/05/2020 10:43, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.6.13 release.
+> > There are 118 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri, 15 May 2020 09:41:20 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.13-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> https://lkml.kernel.org/r/20191220140655.GN2827@hirez.programming.kicks-ass.net
+> All tests are passing for Tegra ...
+> 
+> Test results for stable-v5.6:
+>     13 builds:	13 pass, 0 fail
+>     26 boots:	26 pass, 0 fail
+>     42 tests:	42 pass, 0 fail
+> 
+> Linux version:	5.6.13-rc1-gf1d28d1c7608
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>                 tegra30-cardhu-a04
 
-All the way around the loop.....
+Wonderful, thanks for testing all of these and letting me know.
 
-ISTR there have also been issues with one of the kmalloc() implementations
-adding a header to the memory block.
-Didn't it generate 4n+2 aligned buffers on m68k - breaking code that
-tried to use the two lower bits of an address.
-
-If one of the kmalloc()s behaves like that it ought to be possible
-for devm_alloc() to use the spare space in the same cache line??
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+greg k-h
