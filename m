@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2C81D0E53
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4231D0C9E
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387962AbgEMJ72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:59:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55344 "EHLO mail.kernel.org"
+        id S1732595AbgEMJqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:46:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387450AbgEMJxW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:53:22 -0400
+        id S1732603AbgEMJqS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:46:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9277923127;
-        Wed, 13 May 2020 09:53:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0130220753;
+        Wed, 13 May 2020 09:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363602;
-        bh=TlT7PaR9dkyX6jd4ZuvSgQwZhY1dVip0Q7ChdmokFDE=;
+        s=default; t=1589363176;
+        bh=iS7eAURgS/wF/PWdxHp0Cl49YaiEufuniPsH1gRlEeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMzAAb287QCrpPc4QoVdeez7Vc0fL82y/PdUWCW9pdK+e3xv/NyKKX9ynr99O/6f7
-         5chpdq8lKEW3jcmYyKdXYCudMIZi045nokIlzS7EdxMD3W2e9662trCa6I/B8v0OSj
-         jNbCM58YmOFkQ2xEGn4ihi6nrcLq8co94voR4Dyk=
+        b=BhpS/NryXrl7/Rlp7r/0xJoCF3moDFTAWzJtqiBKi0cTamoFKVdemQ3Zaom9Q8BKk
+         qEcm7FSOoy7+jM7J8M7jQ/cqnnHU5b0uxGt1iQf1/siG/wqlMjbTdTiyumJG5Ktykn
+         RBP8fVCsbJ3SN2rmy6TykSA8sRf9dXROGmzpayKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 050/118] net: mvpp2: prevent buffer overflow in mvpp22_rss_ctx()
+        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
+        syzbot+0bfda3ade1ee9288a1be@syzkaller.appspotmail.com,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 03/48] vt: fix unicode console freeing with a common interface
 Date:   Wed, 13 May 2020 11:44:29 +0200
-Message-Id: <20200513094421.545373030@linuxfoundation.org>
+Message-Id: <20200513094352.389302207@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
+References: <20200513094351.100352960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Nicolas Pitre <nico@fluxnic.net>
 
-[ Upstream commit 39bd16df7c31bb8cf5dfd0c88e42abd5ae10029d ]
+[ Upstream commit 57d38f26d81e4275748b69372f31df545dcd9b71 ]
 
-The "rss_context" variable comes from the user via  ethtool_get_rxfh().
-It can be any u32 value except zero.  Eventually it gets passed to
-mvpp22_rss_ctx() and if it is over MVPP22_N_RSS_TABLES (8) then it
-results in an array overflow.
+By directly using kfree() in different places we risk missing one if
+it is switched to using vfree(), especially if the corresponding
+vmalloc() is hidden away within a common abstraction.
 
-Fixes: 895586d5dc32 ("net: mvpp2: cls: Use RSS contexts to handle RSS tables")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Oh wait, that's exactly what happened here.
+
+So let's fix this by creating a common abstraction for the free case
+as well.
+
+Signed-off-by: Nicolas Pitre <nico@fluxnic.net>
+Reported-by: syzbot+0bfda3ade1ee9288a1be@syzkaller.appspotmail.com
+Fixes: 9a98e7a80f95 ("vt: don't use kmalloc() for the unicode screen buffer")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.2005021043110.2671@knanqh.ubzr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/vt/vt.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -4325,6 +4325,8 @@ static int mvpp2_ethtool_get_rxfh_contex
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index ca8c6ddc1ca8c..5c7a968a5ea67 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -365,9 +365,14 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
+ 	return uniscr;
+ }
  
- 	if (!mvpp22_rss_is_supported())
- 		return -EOPNOTSUPP;
-+	if (rss_context >= MVPP22_N_RSS_TABLES)
-+		return -EINVAL;
++static void vc_uniscr_free(struct uni_screen *uniscr)
++{
++	vfree(uniscr);
++}
++
+ static void vc_uniscr_set(struct vc_data *vc, struct uni_screen *new_uniscr)
+ {
+-	vfree(vc->vc_uni_screen);
++	vc_uniscr_free(vc->vc_uni_screen);
+ 	vc->vc_uni_screen = new_uniscr;
+ }
  
- 	if (hfunc)
- 		*hfunc = ETH_RSS_HASH_CRC32;
+@@ -1233,7 +1238,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	err = resize_screen(vc, new_cols, new_rows, user);
+ 	if (err) {
+ 		kfree(newscreen);
+-		kfree(new_uniscr);
++		vc_uniscr_free(new_uniscr);
+ 		return err;
+ 	}
+ 
+-- 
+2.20.1
+
 
 
