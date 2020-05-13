@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCDCD1D0DDE
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E976E1D0DCF
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387935AbgEMJ4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:56:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60108 "EHLO mail.kernel.org"
+        id S2387572AbgEMJ4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:56:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387919AbgEMJ40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:56:26 -0400
+        id S2388343AbgEMJ4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:56:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDC35206D6;
-        Wed, 13 May 2020 09:56:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7772205ED;
+        Wed, 13 May 2020 09:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363785;
-        bh=Jze8i4rj65vnF9d3Kd8ooqtpOb+CdZklIrrCf6FWc/k=;
+        s=default; t=1589363761;
+        bh=BK2IuMds37I6KVyFy/t0DPC7b/EYKzwfvjKXqUM5nl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AsWYbkl2L6iVk07dNf2EoCw0JbpnIE3kvaGp9mQb0h9YBn1Vthb+dQ14DNcjsuLqu
-         XiCC3yyoYURzvb82TYcRlr8iUedqXKQs7n5Ny1Me7u9nPojMEyynbt/Fz3ebEl+ofk
-         WRuvCJ1Z4A7q3hJYAVdjA+B67D+TE7CupusMVMM0=
+        b=EPVvuc8no/cosr4eY6XkQ3QOXPa2i+m4lhkmZVNBUfMxcnabwMss2ShKADLqqVzQD
+         yoaYuAEUCcFgtYQni3MENzuZiGGygQswlJtG6dhhd340IbGIZdMDguOwrcfrmwX6ww
+         hYOVXzedPI+c92VSdxmE0Xq3gAX7GOXKs6f2Be88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 115/118] bdi: add a ->dev_name field to struct backing_dev_info
-Date:   Wed, 13 May 2020 11:45:34 +0200
-Message-Id: <20200513094427.983612846@linuxfoundation.org>
+        stable@vger.kernel.org, Max Kellermann <mk@cm4all.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.6 116/118] io_uring: dont use fd for openat/openat2/statx
+Date:   Wed, 13 May 2020 11:45:35 +0200
+Message-Id: <20200513094428.036106422@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -45,62 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Max Kellermann <mk@cm4all.com>
 
-[ Upstream commit 6bd87eec23cbc9ed222bed0f5b5b02bf300e9a8d ]
+Based on commit 63ff822358b276137059520cf16e587e8073e80f upstream.
 
-Cache a copy of the name for the life time of the backing_dev_info
-structure so that we can reference it even after unregistering.
+If an operation's flag `needs_file` is set, the function
+io_req_set_file() calls io_file_get() to obtain a `struct file*`.
 
-Fixes: 68f23b89067f ("memcg: fix a crash in wb_workfn when a device disappears")
-Reported-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+This fails for `O_PATH` file descriptors, because io_file_get() calls
+fget(), which rejects `O_PATH` file descriptors.  To support `O_PATH`,
+fdget_raw() must be used (like path_init() in `fs/namei.c` does).
+This rejection causes io_req_set_file() to throw `-EBADF`.  This
+breaks the operations `openat`, `openat2` and `statx`, where `O_PATH`
+file descriptors are commonly used.
+
+This could be solved by adding support for `O_PATH` file descriptors
+with another `io_op_def` flag, but since those three operations don't
+need the `struct file*` but operate directly on the numeric file
+descriptors, the best solution here is to simply remove `needs_file`
+(and the accompanying flag `fd_non_reg`).
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Max Kellermann <mk@cm4all.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/backing-dev-defs.h | 1 +
- mm/backing-dev.c                 | 5 +++--
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/io_uring.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/include/linux/backing-dev-defs.h b/include/linux/backing-dev-defs.h
-index 4fc87dee005ab..2849bdbb3acbe 100644
---- a/include/linux/backing-dev-defs.h
-+++ b/include/linux/backing-dev-defs.h
-@@ -220,6 +220,7 @@ struct backing_dev_info {
- 	wait_queue_head_t wb_waitq;
- 
- 	struct device *dev;
-+	char dev_name[64];
- 	struct device *owner;
- 
- 	struct timer_list laptop_mode_wb_timer;
-diff --git a/mm/backing-dev.c b/mm/backing-dev.c
-index 680e5028d0fc5..3f2480e4c5af3 100644
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -938,7 +938,8 @@ int bdi_register_va(struct backing_dev_info *bdi, const char *fmt, va_list args)
- 	if (bdi->dev)	/* The driver needs to use separate queues per device */
- 		return 0;
- 
--	dev = device_create_vargs(bdi_class, NULL, MKDEV(0, 0), bdi, fmt, args);
-+	vsnprintf(bdi->dev_name, sizeof(bdi->dev_name), fmt, args);
-+	dev = device_create(bdi_class, NULL, MKDEV(0, 0), bdi, bdi->dev_name);
- 	if (IS_ERR(dev))
- 		return PTR_ERR(dev);
- 
-@@ -1047,7 +1048,7 @@ const char *bdi_dev_name(struct backing_dev_info *bdi)
- {
- 	if (!bdi || !bdi->dev)
- 		return bdi_unknown_name;
--	return dev_name(bdi->dev);
-+	return bdi->dev_name;
- }
- EXPORT_SYMBOL_GPL(bdi_dev_name);
- 
--- 
-2.20.1
-
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -696,8 +696,6 @@ static const struct io_op_def io_op_defs
+ 		.needs_file		= 1,
+ 	},
+ 	[IORING_OP_OPENAT] = {
+-		.needs_file		= 1,
+-		.fd_non_neg		= 1,
+ 		.file_table		= 1,
+ 		.needs_fs		= 1,
+ 	},
+@@ -711,8 +709,6 @@ static const struct io_op_def io_op_defs
+ 	},
+ 	[IORING_OP_STATX] = {
+ 		.needs_mm		= 1,
+-		.needs_file		= 1,
+-		.fd_non_neg		= 1,
+ 		.needs_fs		= 1,
+ 		.file_table		= 1,
+ 	},
+@@ -743,8 +739,6 @@ static const struct io_op_def io_op_defs
+ 		.unbound_nonreg_file	= 1,
+ 	},
+ 	[IORING_OP_OPENAT2] = {
+-		.needs_file		= 1,
+-		.fd_non_neg		= 1,
+ 		.file_table		= 1,
+ 		.needs_fs		= 1,
+ 	},
 
 
