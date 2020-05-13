@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E28651D0F39
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:05:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B749A1D0E44
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732581AbgEMJqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:46:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43452 "EHLO mail.kernel.org"
+        id S2388020AbgEMJxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:53:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726492AbgEMJqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:46:09 -0400
+        id S2388017AbgEMJxw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:53:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67F8020740;
-        Wed, 13 May 2020 09:46:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27E08205ED;
+        Wed, 13 May 2020 09:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363168;
-        bh=jpdaPpHao6OeULRHplp+4KkK02unGY3r6eZUySCwHaM=;
+        s=default; t=1589363631;
+        bh=6bqyuSi7qqW5PiXT3G0qoFdiCIsMTRNnGfoFN53ZoS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WoWofrOCEaxW0E7UULadyUuknM/4CGjZ2nQjMObusz0is/FXaY8Q0VGG/oe0eK3kj
-         u3EUgCmBjI3mtrE9QXrOC7U0WvD+PEjoUiGxO0k+CxyTudgV79fYsE4WI1dwQlC8sr
-         7+fiSXfy9q7GviOhSifCzEa4OSGVuYTqrohcW1m0=
+        b=eqw34YZyF3N7XFl4BrHasG5n+xKji6x+q0ZOqQbVbo6JNXill8ucQerVxKEUuZX6+
+         mF7Z0SMtMlE/QuJ9RQYKevwpHr1Tb6xTy8CKDvBZh8WyWdWpfWuxnPFuCQ3+tBFPqR
+         njvQbcjsQT1kMUpZnZWkfppV3hKCtG7iwrvYzSVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
-        Eran Ben Elisha <eranbe@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 4.19 14/48] net/mlx5: Fix forced completion access non initialized command entry
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.6 061/118] HID: wacom: Report 2nd-gen Intuos Pro S center button status over BT
 Date:   Wed, 13 May 2020 11:44:40 +0200
-Message-Id: <20200513094354.999572106@linuxfoundation.org>
+Message-Id: <20200513094422.338397479@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@mellanox.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-[ Upstream commit f3cb3cebe26ed4c8036adbd9448b372129d3c371 ]
+commit dcce8ef8f70a8e38e6c47c1bae8b312376c04420 upstream.
 
-mlx5_cmd_flush() will trigger forced completions to all valid command
-entries. Triggered by an asynch event such as fast teardown it can
-happen at any stage of the command, including command initialization.
-It will trigger forced completion and that can lead to completion on an
-uninitialized command entry.
+The state of the center button was not reported to userspace for the
+2nd-gen Intuos Pro S when used over Bluetooth due to the pad handling
+code not being updated to support its reduced number of buttons. This
+patch uses the actual number of buttons present on the tablet to
+assemble a button state bitmap.
 
-Setting MLX5_CMD_ENT_STATE_PENDING_COMP only after command entry is
-initialized will ensure force completion is treated only if command
-entry is initialized.
-
-Fixes: 73dd3a4839c1 ("net/mlx5: Avoid using pending command interface slots")
-Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Link: https://github.com/linuxwacom/xf86-input-wacom/issues/112
+Fixes: cd47de45b855 ("HID: wacom: Add 2nd gen Intuos Pro Small support")
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Cc: stable@vger.kernel.org # v5.3+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -862,7 +862,6 @@ static void cmd_work_handler(struct work
- 	}
+---
+ drivers/hid/wacom_wac.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1427,11 +1427,13 @@ static void wacom_intuos_pro2_bt_pad(str
+ {
+ 	struct input_dev *pad_input = wacom->pad_input;
+ 	unsigned char *data = wacom->data;
++	int nbuttons = wacom->features.numbered_buttons;
  
- 	cmd->ent_arr[ent->idx] = ent;
--	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
- 	lay = get_inst(cmd, ent->idx);
- 	ent->lay = lay;
- 	memset(lay, 0, sizeof(*lay));
-@@ -884,6 +883,7 @@ static void cmd_work_handler(struct work
+-	int buttons = data[282] | ((data[281] & 0x40) << 2);
++	int expresskeys = data[282];
++	int center = (data[281] & 0x40) >> 6;
+ 	int ring = data[285] & 0x7F;
+ 	bool ringstatus = data[285] & 0x80;
+-	bool prox = buttons || ringstatus;
++	bool prox = expresskeys || center || ringstatus;
  
- 	if (ent->callback)
- 		schedule_delayed_work(&ent->cb_timeout_work, cb_timeout);
-+	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
+ 	/* Fix touchring data: userspace expects 0 at left and increasing clockwise */
+ 	ring = 71 - ring;
+@@ -1439,7 +1441,8 @@ static void wacom_intuos_pro2_bt_pad(str
+ 	if (ring > 71)
+ 		ring -= 72;
  
- 	/* Skip sending command to fw if internal error */
- 	if (pci_channel_offline(dev->pdev) ||
+-	wacom_report_numbered_buttons(pad_input, 9, buttons);
++	wacom_report_numbered_buttons(pad_input, nbuttons,
++                                      expresskeys | (center << (nbuttons - 1)));
+ 
+ 	input_report_abs(pad_input, ABS_WHEEL, ringstatus ? ring : 0);
+ 
 
 
