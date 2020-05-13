@@ -2,84 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFCC21D10C9
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 13:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9A01D1115
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 13:20:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730047AbgEMLNa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 07:13:30 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:47620 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726645AbgEMLNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 07:13:30 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: gtucker)
-        with ESMTPSA id BFAF72711FF
-To:     kernelci@groups.io, kernel-build-reports@lists.linaro.org,
-        automated-testing@lists.yoctoproject.org,
-        linux-next@vger.kernel.org, stable@vger.kernel.org,
-        Ard Biesheuvel <ardb@kernel.org>, agross@kernel.org,
-        qcomlt-patches@lists.linaro.org,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        Tony Lindgren <tony@atomide.com>, ulf.hansson@linaro.org,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>, linux-pm@vger.kernel.org,
-        vireshk@kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        kernel@collabora.com, kernelci@baylibre.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-From:   Guillaume Tucker <guillaume.tucker@collabora.com>
-Subject: kernelci.org transitioning to functional testing
-Message-ID: <66aae710-1ee9-fb67-1a1b-997eeb70dc04@collabora.com>
-Date:   Wed, 13 May 2020 12:13:24 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1732727AbgEMLUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 07:20:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51128 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732645AbgEMLUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 07:20:16 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34AF520753;
+        Wed, 13 May 2020 11:20:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589368815;
+        bh=VsTxQWxtAzHsTjQO+yKb7lilsW41+D/S6/UQRjTZZOo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KTBPYDosG9uW6ltz9IqO6pV14qWXE3TnFMfSRetF72SoKGWFH0jhoQAELiWcvW93b
+         4rXcSff4TdFdyYB7wiTQ386m+0hFEHk8L/fPEsbEh5ku5y3KzYkPXolcsP5WsOb7qX
+         xJ9NIGjoiSnk1QW/iSeVFUS0O4EtTZyQ4orN4nSA=
+Date:   Wed, 13 May 2020 13:20:13 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>, catalin.marinas@arm.com,
+        kyrylo.tkachov@arm.com, linux- stable <stable@vger.kernel.org>,
+        Will Deacon <will@kernel.org>
+Subject: Re: FAILED: patch "[PATCH] arm64: hugetlb: avoid potential NULL
+ dereference" failed to apply to 4.14-stable tree
+Message-ID: <20200513112013.GA874540@kroah.com>
+References: <15892828013114@kroah.com>
+ <CA+G9fYt_BmF2t+3S1_yD0KZ3d8OE1W_tQH2pROo1E1GLgm0aBA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYt_BmF2t+3S1_yD0KZ3d8OE1W_tQH2pROo1E1GLgm0aBA@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As kernelci.org is expanding its functional testing
-capabilities, the concept of boot testing is now being
-deprecated.
+On Wed, May 13, 2020 at 04:23:11PM +0530, Naresh Kamboju wrote:
+> On Tue, 12 May 2020 at 16:56, <gregkh@linuxfoundation.org> wrote:
+> >
+> >
+> > The patch below does not apply to the 4.14-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
+> > ------------------ original commit in Linus's tree ------------------
+> >
+> > From 027d0c7101f50cf03aeea9eebf484afd4920c8d3 Mon Sep 17 00:00:00 2001
+> > From: Mark Rutland <mark.rutland@arm.com>
+> > Date: Tue, 5 May 2020 13:59:30 +0100
+> > Subject: [PATCH] arm64: hugetlb: avoid potential NULL dereference
+> > MIME-Version: 1.0
+> > Content-Type: text/plain; charset=UTF-8
+> > Content-Transfer-Encoding: 8bit
+> >
+> > The static analyzer in GCC 10 spotted that in huge_pte_alloc() we may
+> > pass a NULL pmdp into pte_alloc_map() when pmd_alloc() returns NULL:
+> >
+> > |   CC      arch/arm64/mm/pageattr.o
+> > |   CC      arch/arm64/mm/hugetlbpage.o
+> > |                  from arch/arm64/mm/hugetlbpage.c:10:
+> > | arch/arm64/mm/hugetlbpage.c: In function ‘huge_pte_alloc’:
+> > | ./arch/arm64/include/asm/pgtable-types.h:28:24: warning: dereference of NULL ‘pmdp’ [CWE-690] [-Wanalyzer-null-dereference]
+> > | ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro ‘pmd_val’
+> > | arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro ‘pte_alloc_map’
+> > |     |arch/arm64/mm/hugetlbpage.c:232:10:
+> > |     |./arch/arm64/include/asm/pgtable-types.h:28:24:
+> > | ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro ‘pmd_val’
+> > | arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro ‘pte_alloc_map’
+> >
+> > This can only occur when the kernel cannot allocate a page, and so is
+> > unlikely to happen in practice before other systems start failing.
+> >
+> > We can avoid this by bailing out if pmd_alloc() fails, as we do earlier
+> > in the function if pud_alloc() fails.
+> >
+> > Fixes: 66b3923a1a0f ("arm64: hugetlb: add support for PTE contiguous bit")
+> > Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+> > Reported-by: Kyrill Tkachov <kyrylo.tkachov@arm.com>
+> > Cc: <stable@vger.kernel.org> # 4.5.x-
+> > Cc: Will Deacon <will@kernel.org>
+> > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> >
+> > diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
+> > index bbeb6a5a6ba6..0be3355e3499 100644
+> > --- a/arch/arm64/mm/hugetlbpage.c
+> > +++ b/arch/arm64/mm/hugetlbpage.c
+> > @@ -230,6 +230,8 @@ pte_t *huge_pte_alloc(struct mm_struct *mm,
+> >                 ptep = (pte_t *)pudp;
+> >         } else if (sz == (CONT_PTE_SIZE)) {
+> >                 pmdp = pmd_alloc(mm, pudp, addr);
+> > +               if (!pmdp)
+> > +                       return NULL;
+> >
+> >                 WARN_ON(addr & (sz - 1));
+> >                 /*
+> 
+> As per the subject this patch failed to apply on 4.14
+> FYI,
+> on stable-rc 4.14 branch arm64 architecture build failed.
+> 
+>  # make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm64
+> CROSS_COMPILE=aarch64-linux-gnu- HOSTCC=gcc CC="sccache
+> aarch64-linux-gnu-gcc" O=build Image
+> 70 #
+> 71 ../arch/arm64/mm/hugetlbpage.c: In function ‘huge_pte_alloc’:
+> 72 ../arch/arm64/mm/hugetlbpage.c:223:8: error: ‘pmdp’ undeclared
+> (first use in this function); did you mean ‘pmd’?
+> 73  223 | if (!pmdp)
+> 74  | ^~~~
+> 75  | pmd
+> 76 ../arch/arm64/mm/hugetlbpage.c:223:8: note: each undeclared
+> identifier is reported only once for each function it appears in
+> 77 make[2]: *** [../scripts/Makefile.build:326:
+> arch/arm64/mm/hugetlbpage.o] Error 1
+> 
+> ref:
+> https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/550145375
 
-Next Monday 18th May, the web dashboard on https://kernelci.org
-will be updated to primarily show functional test results
-rather than boot results.  The Boots tab will still be
-available until 5th June to ease the transition.
+Now dropped from 4.9 and 4.14 trees, the backport was incorrect...
 
-The new equivalent to boot testing is the *baseline* test suite
-which also runs sanity checks using dmesg and bootrr[1].
-
-Boot email reports will eventually be replaced with baseline
-reports.  For those of you already familiar with the test email
-reports, they will be simplified to only show regressions with
-links to the dashboard for all the details.
-
-Some functional tests are already being run by kernelci.org,
-results have only been shared by email so far but they will
-become visible on the web dashboard next week.  In particular:
-v4l2-compliance, i-g-t for DRM/KMS and Panfrost,
-suspend/resume...
-
-And of course, a lot of functional test suites are in the
-process of being added: kselftest, KUnit, LTP, xfstests,
-extended i-g-t coverage and many more.
-
-The detailed schedule is available on a GitHub issue[2].
-
-Please let us know if you have any questions, comments or
-concerns either in this thread, on kernelci@groups.io or IRC
-#kernelci on Freenode.
-
-Stay tuned!
-
-Thanks,
-Guillaume
-
-
-[1] bootrr: https://github.com/kernelci/bootrr
-[2] schedule: https://github.com/kernelci/kernelci-backend/issues/238
-
+greg k-h
