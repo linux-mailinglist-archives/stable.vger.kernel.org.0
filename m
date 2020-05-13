@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 302081D0CFF
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:49:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DAA1D0E6F
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733200AbgEMJtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48066 "EHLO mail.kernel.org"
+        id S2387798AbgEMKAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:00:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732597AbgEMJtN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:49:13 -0400
+        id S2387754AbgEMJwL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:52:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C483520575;
-        Wed, 13 May 2020 09:49:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB6CA20575;
+        Wed, 13 May 2020 09:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363353;
-        bh=Yu4TcK9D+DpQamB7b26U8i2tsNUfEJ3iL6TdNQu6NYM=;
+        s=default; t=1589363531;
+        bh=dHuJGjr6XK/FSo+1wCO++KttMGGK+sidM+ctbYH9GKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iz6etKBzXD6Z2Du7Sao6gSZrDRxXtjI/ip2r/0UNIcNzdDPk4UpU4Ng7Bw5cUx7qg
-         rFgGlYUENVgxGscMjG/JIY1Q5sTQGOd+2i1XLDW6x55He/tTvEuQZLkUeV4OK4V/Xi
-         Hd0w5AiWWpsHJmdT/7jyPB7yBbSAUOxAeu1FYLhg=
+        b=zL7ZuXN38cuT978NATvXog5/+M0HVGI6ntNB66AMjtg1A4u4yQdenHkmNmEJgt8rO
+         1wrBvG5tO3J9igyU0i7Cd1QL3pOMpM3gmo0pVR/WTW4r0e34Xq56jSyEFK9hEq1p9P
+         GqDqm0yb2EtTXb7mhLPNJs7kzLq9iwdX48RQ3aNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/90] tracing/kprobes: Fix a double initialization typo
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Stefan Priebe - Profihost AG <s.priebe@profihost.ag>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 021/118] net: bridge: vlan: Add a schedule point during VLAN processing
 Date:   Wed, 13 May 2020 11:44:00 +0200
-Message-Id: <20200513094409.531117166@linuxfoundation.org>
+Message-Id: <20200513094419.579670715@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit dcbd21c9fca5e954fd4e3d91884907eb6d47187e ]
+[ Upstream commit 7979457b1d3a069cd857f5bd69e070e30223dd0c ]
 
-Fix a typo that resulted in an unnecessary double
-initialization to addr.
+User space can request to delete a range of VLANs from a bridge slave in
+one netlink request. For each deleted VLAN the FDB needs to be traversed
+in order to flush all the affected entries.
 
-Link: http://lkml.kernel.org/r/158779374968.6082.2337484008464939919.stgit@devnote2
+If a large range of VLANs is deleted and the number of FDB entries is
+large or the FDB lock is contented, it is possible for the kernel to
+loop through the deleted VLANs for a long time. In case preemption is
+disabled, this can result in a soft lockup.
 
-Cc: Tom Zanussi <zanussi@kernel.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: c7411a1a126f ("tracing/kprobe: Check whether the non-suffixed symbol is notrace")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by adding a schedule point after each VLAN is deleted to yield
+the CPU, if needed. This is safe because the VLANs are traversed in
+process context.
+
+Fixes: bdced7ef7838 ("bridge: support for multiple vlans and vlan ranges in setlink and dellink requests")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Stefan Priebe - Profihost AG <s.priebe@profihost.ag>
+Tested-by: Stefan Priebe - Profihost AG <s.priebe@profihost.ag>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_kprobe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/br_netlink.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index 2f0f7fcee73e6..fba4b48451f6c 100644
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -454,7 +454,7 @@ static bool __within_notrace_func(unsigned long addr)
- 
- static bool within_notrace_func(struct trace_kprobe *tk)
- {
--	unsigned long addr = addr = trace_kprobe_address(tk);
-+	unsigned long addr = trace_kprobe_address(tk);
- 	char symname[KSYM_NAME_LEN], *p;
- 
- 	if (!__within_notrace_func(addr))
--- 
-2.20.1
-
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -612,6 +612,7 @@ int br_process_vlan_info(struct net_brid
+ 					       v - 1, rtm_cmd);
+ 				v_change_start = 0;
+ 			}
++			cond_resched();
+ 		}
+ 		/* v_change_start is set only if the last/whole range changed */
+ 		if (v_change_start)
 
 
