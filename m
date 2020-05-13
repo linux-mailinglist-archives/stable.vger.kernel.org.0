@@ -2,98 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 163211D1654
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 15:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34AD61D1672
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 15:50:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387962AbgEMNqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 09:46:36 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:17318 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726061AbgEMNqg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 09:46:36 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5ebbfa2f0000>; Wed, 13 May 2020 06:46:23 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 13 May 2020 06:46:35 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 13 May 2020 06:46:35 -0700
-Received: from [10.26.74.82] (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 13 May
- 2020 13:46:33 +0000
-Subject: Re: [PATCH 5.6 000/118] 5.6.13-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20200513094417.618129545@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <12592104-9a83-5b19-be42-5bbf92198ad7@nvidia.com>
-Date:   Wed, 13 May 2020 14:46:31 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
-MIME-Version: 1.0
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
+        id S2387768AbgEMNut convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 13 May 2020 09:50:49 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:54055 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727792AbgEMNut (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 09:50:49 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-207-7QlvMga7Ot6aVhvjyH0N6g-1; Wed, 13 May 2020 14:50:45 +0100
+X-MC-Unique: 7QlvMga7Ot6aVhvjyH0N6g-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Wed, 13 May 2020 14:50:44 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Wed, 13 May 2020 14:50:44 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Peter Zijlstra' <peterz@infradead.org>
+CC:     'Geert Uytterhoeven' <geert@linux-m68k.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        stable <stable@vger.kernel.org>,
+        Alexey Brodkin <alexey.brodkin@synopsys.com>,
+        Alexey Brodkin <abrodkin@synopsys.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: RE: [PATCH 4.4 03/16] devres: Align data[] to ARCH_KMALLOC_MINALIGN
+Thread-Topic: [PATCH 4.4 03/16] devres: Align data[] to ARCH_KMALLOC_MINALIGN
+Thread-Index: AQHWKQu4HYgJHBu5S0KOdh+8IRi0tqilymPggAAprYCAABK8AA==
+Date:   Wed, 13 May 2020 13:50:44 +0000
+Message-ID: <94541c2ec85e4b2589dc8902ef2c4f41@AcuMS.aculab.com>
+References: <20200423204014.784944-1-lee.jones@linaro.org>
+ <20200423204014.784944-4-lee.jones@linaro.org>
+ <20200513093536.GB830571@kroah.com>
+ <CAMuHMdVZHodDXGOMuOpVLbgiy9_WeHHKKq4kG7Cz9u9pm8UZuw@mail.gmail.com>
+ <335fbcc7d9ad4d429ec11e9ac2caf118@AcuMS.aculab.com>
+ <20200513133609.GO2978@hirez.programming.kicks-ass.net>
+In-Reply-To: <20200513133609.GO2978@hirez.programming.kicks-ass.net>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1589377583; bh=MMq244zQ6f/PFo4yEc+mgL5wOdb+hDWjRauLSXWDRvY=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=HYgfgLrQI1CM43E5OkdMAfri0o2ZQOPpEr7gCzlbNZYAXSVxGGDGsXPZYcRoxr1pV
-         /vnQ/cIHxR8RdgeH9BqqEV3icoNrkjCJ4lUOwTi8gWzY4G+T4bjZprKQlKK0+fQjBB
-         2dfAFg6cdyTc9q59oeCnrF3PqGxsVnlQZvp6YEkl2v3Gk+1O4j6F8xD8awr0Uzv2tP
-         Wbu9nUT9ndXiOf5tvacSx7AoXwILCDB5JXGqOOtQvMScLzlfUBAj6G+M9vnJKmgUSX
-         6jtKtQvpvyjZnwKWw4xvwOMl3eiyA1Y45S3nl5izlLC1lFTrO+D5SaC1B6ux2qD9ZM
-         Wh0lOWzyGwJfw==
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 13/05/2020 10:43, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.6.13 release.
-> There are 118 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+From: Peter Zijlstra
+> Sent: 13 May 2020 14:36
 > 
-> Responses should be made by Fri, 15 May 2020 09:41:20 +0000.
-> Anything received after that time might be too late.
+> On Wed, May 13, 2020 at 10:10:03AM +0000, David Laight wrote:
+> > From: Geert Uytterhoeven
+> > > Sent: 13 May 2020 10:49
+> > ...
+> > > > I don't want to apply this to older kernels as it could cause extra
+> > > > memory usage for no good reason.  I have no idea why a non ARC system
+> > > > would want it :(
+> > >
+> > > I think the reference to ARC is a red herring.
+> > > The real issue is that buffers used for DMA may not have the required
+> > > alignment, which is not limited to ARC systems.
+> > >
+> > > Note that I'm also not super happy with the extra memory usage.
+> > > But devm_*() conveniences come with their penalties...
+> >
+> > Interesting thought.
+> > Could the devm 'header' be put right at the end of the kmalloc()
+> > buffer?
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.13-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> https://lkml.kernel.org/r/20191220140655.GN2827@hirez.programming.kicks-ass.net
 
-All tests are passing for Tegra ...
+All the way around the loop.....
 
-Test results for stable-v5.6:
-    13 builds:	13 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    42 tests:	42 pass, 0 fail
+ISTR there have also been issues with one of the kmalloc() implementations
+adding a header to the memory block.
+Didn't it generate 4n+2 aligned buffers on m68k - breaking code that
+tried to use the two lower bits of an address.
 
-Linux version:	5.6.13-rc1-gf1d28d1c7608
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
+If one of the kmalloc()s behaves like that it ought to be possible
+for devm_alloc() to use the spare space in the same cache line??
 
-Cheers
-Jon
+	David
 
--- 
-nvpublic
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
