@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C4181D0D91
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:54:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF7701D0F00
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:04:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388055AbgEMJyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:54:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56450 "EHLO mail.kernel.org"
+        id S1733055AbgEMKDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:03:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388053AbgEMJyJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:54:09 -0400
+        id S1732472AbgEMJsN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:48:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B42B20575;
-        Wed, 13 May 2020 09:54:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F27A20753;
+        Wed, 13 May 2020 09:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363648;
-        bh=wVQB35DVJkUTTN5UUzYKgILYjZl1UWPiepEnvyRw1Ps=;
+        s=default; t=1589363293;
+        bh=bHdmZDYvm4sZsTCmDc+bJ2o87qNAxyOF5X9rKGj+pcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n3j71y3tMs0N/iL0fhkmJLShe1oD06ghvDNSvo91HiAx0LBHXwPZ4h5ijgV6l6UvJ
-         O17n4wHRTDlRA3dnyH946T/UvjB27ks4kyfJY+8h3p46V40N3DUyl6HSQZ6RWP3wtV
-         aaDBH2EJ28lMj5QWn+ALPZYJZHsxSBQ85RfP217Q=
+        b=0ZzTLut20IrjBGC9kJ+Ffz1PticEHaEPa2XzMJmeZHzXRzyPIBDt9UVdTACr3Kss7
+         mpHROFebF/htqBn7pJg/nOj1ruAyQ8pYjt6upx5ntYMJBLwDNgeV46e880+7+Aitao
+         ECLW+CxMrmbSsQiNnv/BKds+Pe8xvAcEIACsJO9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
+        stable@vger.kernel.org, Allen Pais <allen.pais@oracle.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 032/118] net/tls: Fix sk_psock refcnt leak when in tls_data_ready()
-Date:   Wed, 13 May 2020 11:44:11 +0200
-Message-Id: <20200513094420.336676639@linuxfoundation.org>
+Subject: [PATCH 5.4 16/90] net: dsa: Do not leave DSA master with NULL netdev_ops
+Date:   Wed, 13 May 2020 11:44:12 +0200
+Message-Id: <20200513094410.583502170@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 62b4011fa7bef9fa00a6aeec26e69685dc1cc21e ]
+[ Upstream commit 050569fc8384c8056bacefcc246bcb2dfe574936 ]
 
-tls_data_ready() invokes sk_psock_get(), which returns a reference of
-the specified sk_psock object to "psock" with increased refcnt.
+When ndo_get_phys_port_name() for the CPU port was added we introduced
+an early check for when the DSA master network device in
+dsa_master_ndo_setup() already implements ndo_get_phys_port_name(). When
+we perform the teardown operation in dsa_master_ndo_teardown() we would
+not be checking that cpu_dp->orig_ndo_ops was successfully allocated and
+non-NULL initialized.
 
-When tls_data_ready() returns, local variable "psock" becomes invalid,
-so the refcount should be decreased to keep refcount balanced.
+With network device drivers such as virtio_net, this leads to a NPD as
+soon as the DSA switch hanging off of it gets torn down because we are
+now assigning the virtio_net device's netdev_ops a NULL pointer.
 
-The reference counting issue happens in one exception handling path of
-tls_data_ready(). When "psock->ingress_msg" is empty but "psock" is not
-NULL, the function forgets to decrease the refcnt increased by
-sk_psock_get(), causing a refcnt leak.
-
-Fix this issue by calling sk_psock_put() on all paths when "psock" is
-not NULL.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Fixes: da7b9e9b00d4 ("net: dsa: Add ndo_get_phys_port_name() for CPU port")
+Reported-by: Allen Pais <allen.pais@oracle.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Allen Pais <allen.pais@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_sw.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/dsa/master.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -2083,8 +2083,9 @@ static void tls_data_ready(struct sock *
- 	strp_data_ready(&ctx->strp);
+--- a/net/dsa/master.c
++++ b/net/dsa/master.c
+@@ -259,7 +259,8 @@ static void dsa_master_ndo_teardown(stru
+ {
+ 	struct dsa_port *cpu_dp = dev->dsa_ptr;
  
- 	psock = sk_psock_get(sk);
--	if (psock && !list_empty(&psock->ingress_msg)) {
--		ctx->saved_data_ready(sk);
-+	if (psock) {
-+		if (!list_empty(&psock->ingress_msg))
-+			ctx->saved_data_ready(sk);
- 		sk_psock_put(sk, psock);
- 	}
+-	dev->netdev_ops = cpu_dp->orig_ndo_ops;
++	if (cpu_dp->orig_ndo_ops)
++		dev->netdev_ops = cpu_dp->orig_ndo_ops;
+ 	cpu_dp->orig_ndo_ops = NULL;
  }
+ 
 
 
