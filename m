@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 468DC1D0D39
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C93051D0E8E
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387637AbgEMJvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51924 "EHLO mail.kernel.org"
+        id S2387643AbgEMJvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:51:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387632AbgEMJvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:51:17 -0400
+        id S1732826AbgEMJvU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:51:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C58C5206D6;
-        Wed, 13 May 2020 09:51:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1002A20740;
+        Wed, 13 May 2020 09:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363477;
-        bh=rKeULQkRxUhRHLjybAHWdbegXlR743VjXvWhU6otZ+0=;
+        s=default; t=1589363479;
+        bh=kRo67pmpyuQs429SixwVJcGbtcWjE06LrpqfDcKfVTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojPkNe9DiP142Q6K5U3F+eIn5DEmLPbQ1gFdvZWjzpEg4OZkeo6TJHOutDdJP5LKI
-         V2jLQZi+6/U/nt2aSMhULf/hmRnksRr8fPPvaUSw5/i4csh8KwEqKn+jTYKXnf/d/y
-         eEl0ShHYjB/LLRIlKTfel2marRM3NuoSUO5fhimc=
+        b=EAKdxtoq22HmHvNKjvWcZis4ma00ZpUcWiv+MAAhiAT0N2Gjmtx8Ord9r3qGZUTdj
+         tRqYeuhlGo7lR3GFE82QaAY18hxSOuJjgx9gM8BrHknw/HW6GLcoHKzT6HU3lvz8dg
+         80H4pFVEyQv+9vUCoUMc1+YLxAEuuF1XfGPYPXNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 82/90] netfilter: nf_osf: avoid passing pointer to local var
-Date:   Wed, 13 May 2020 11:45:18 +0200
-Message-Id: <20200513094417.731713866@linuxfoundation.org>
+        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
+        Dave Jones <dsj@fb.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Joe Mario <jmario@redhat.com>, Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 83/90] objtool: Fix stack offset tracking for indirect CFAs
+Date:   Wed, 13 May 2020 11:45:19 +0200
+Message-Id: <20200513094417.832803844@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
 References: <20200513094408.810028856@linuxfoundation.org>
@@ -44,75 +51,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit c165d57b552aaca607fa5daf3fb524a6efe3c5a3 upstream.
+commit d8dd25a461e4eec7190cb9d66616aceacc5110ad upstream.
 
-gcc-10 points out that a code path exists where a pointer to a stack
-variable may be passed back to the caller:
+When the current frame address (CFA) is stored on the stack (i.e.,
+cfa->base == CFI_SP_INDIRECT), objtool neglects to adjust the stack
+offset when there are subsequent pushes or pops.  This results in bad
+ORC data at the end of the ENTER_IRQ_STACK macro, when it puts the
+previous stack pointer on the stack and does a subsequent push.
 
-net/netfilter/nfnetlink_osf.c: In function 'nf_osf_hdr_ctx_init':
-cc1: warning: function may return address of local variable [-Wreturn-local-addr]
-net/netfilter/nfnetlink_osf.c:171:16: note: declared here
-  171 |  struct tcphdr _tcph;
-      |                ^~~~~
+This fixes the following unwinder warning:
 
-I am not sure whether this can happen in practice, but moving the
-variable declaration into the callers avoids the problem.
+  WARNING: can't dereference registers at 00000000f0a6bdba for ip interrupt_entry+0x9f/0xa0
 
-Fixes: 31a9c29210e2 ("netfilter: nf_osf: add struct nf_osf_hdr_ctx")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 627fce14809b ("objtool: Add ORC unwind table generation")
+Reported-by: Vince Weaver <vincent.weaver@maine.edu>
+Reported-by: Dave Jones <dsj@fb.com>
+Reported-by: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
+Reported-by: Joe Mario <jmario@redhat.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/853d5d691b29e250333332f09b8e27410b2d9924.1587808742.git.jpoimboe@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nfnetlink_osf.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ tools/objtool/check.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nfnetlink_osf.c
-+++ b/net/netfilter/nfnetlink_osf.c
-@@ -165,12 +165,12 @@ static bool nf_osf_match_one(const struc
- static const struct tcphdr *nf_osf_hdr_ctx_init(struct nf_osf_hdr_ctx *ctx,
- 						const struct sk_buff *skb,
- 						const struct iphdr *ip,
--						unsigned char *opts)
-+						unsigned char *opts,
-+						struct tcphdr *_tcph)
- {
- 	const struct tcphdr *tcp;
--	struct tcphdr _tcph;
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1402,7 +1402,7 @@ static int update_insn_state_regs(struct
+ 	struct cfi_reg *cfa = &state->cfa;
+ 	struct stack_op *op = &insn->stack_op;
  
--	tcp = skb_header_pointer(skb, ip_hdrlen(skb), sizeof(struct tcphdr), &_tcph);
-+	tcp = skb_header_pointer(skb, ip_hdrlen(skb), sizeof(struct tcphdr), _tcph);
- 	if (!tcp)
- 		return NULL;
+-	if (cfa->base != CFI_SP)
++	if (cfa->base != CFI_SP && cfa->base != CFI_SP_INDIRECT)
+ 		return 0;
  
-@@ -205,10 +205,11 @@ nf_osf_match(const struct sk_buff *skb,
- 	int fmatch = FMATCH_WRONG;
- 	struct nf_osf_hdr_ctx ctx;
- 	const struct tcphdr *tcp;
-+	struct tcphdr _tcph;
- 
- 	memset(&ctx, 0, sizeof(ctx));
- 
--	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts);
-+	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts, &_tcph);
- 	if (!tcp)
- 		return false;
- 
-@@ -265,10 +266,11 @@ bool nf_osf_find(const struct sk_buff *s
- 	const struct nf_osf_finger *kf;
- 	struct nf_osf_hdr_ctx ctx;
- 	const struct tcphdr *tcp;
-+	struct tcphdr _tcph;
- 
- 	memset(&ctx, 0, sizeof(ctx));
- 
--	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts);
-+	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts, &_tcph);
- 	if (!tcp)
- 		return false;
- 
+ 	/* push */
 
 
