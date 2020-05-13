@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 127801D0F1D
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B971D0EA1
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732894AbgEMKEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 06:04:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45650 "EHLO mail.kernel.org"
+        id S2387573AbgEMKBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:01:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732887AbgEMJrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:47:37 -0400
+        id S2387540AbgEMJux (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:50:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4156C20769;
-        Wed, 13 May 2020 09:47:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D74E20753;
+        Wed, 13 May 2020 09:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363256;
-        bh=GUIpK23XvnwYuYschf4nAkND8B9/PhPFyFh4GqVIbfE=;
+        s=default; t=1589363452;
+        bh=7a6pFoexQEMB+IgLe7+WUtY2E9md0k0R1KZQMDM8yOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Sh+U0v/4ZxzF8Mkay1fCJ2S7DdRXhBjdgPciApNmDL92DzpHi7d8vsv0tIyb+80h
-         rjOv8sgK7ORzkZLWqj5hW4f8QgDtc+UA24QjieqWEHQuMRcIkM3lVmed7TvGYEjgK3
-         0LpLAWkNyuDfY7ULWb6RtTPe34lLShyFG/8WnCG4=
+        b=1eumQdbYUGqeboByzrpP7mtKOJ1fkS5YGz5olguI/JYOghYUZcNg+mmxfVci7mqtb
+         8P07V9ECSYBG3BvdcBuLEwPpVwMRwQI+hYpEhYB2CZpLJoErvL8fv9hr/XPrTXHO6J
+         WtUw/1+GUmZkVHSoKWDDIoGJF3/6Np0ibXS/MEfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yoji <yoji.fujihar.min@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Markus Elfring <elfring@users.sourceforge.net>, 1vier1@web.de,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/48] ipc/mqueue.c: change __do_notify() to bypass check_kill_permission()
+        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>
+Subject: [PATCH 5.4 78/90] x86/unwind/orc: Fix premature unwind stoppage due to IRET frames
 Date:   Wed, 13 May 2020 11:45:14 +0200
-Message-Id: <20200513094405.122260162@linuxfoundation.org>
+Message-Id: <20200513094417.384525135@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,153 +49,215 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit b5f2006144c6ae941726037120fa1001ddede784 ]
+commit 81b67439d147677d844d492fcbd03712ea438f42 upstream.
 
-Commit cc731525f26a ("signal: Remove kernel interal si_code magic")
-changed the value of SI_FROMUSER(SI_MESGQ), this means that mq_notify() no
-longer works if the sender doesn't have rights to send a signal.
+The following execution path is possible:
 
-Change __do_notify() to use do_send_sig_info() instead of kill_pid_info()
-to avoid check_kill_permission().
+  fsnotify()
+    [ realign the stack and store previous SP in R10 ]
+    <IRQ>
+      [ only IRET regs saved ]
+      common_interrupt()
+        interrupt_entry()
+	  <NMI>
+	    [ full pt_regs saved ]
+	    ...
+	    [ unwind stack ]
 
-This needs the additional notify.sigev_signo != 0 check, shouldn't we
-change do_mq_notify() to deny sigev_signo == 0 ?
+When the unwinder goes through the NMI and the IRQ on the stack, and
+then sees fsnotify(), it doesn't have access to the value of R10,
+because it only has the five IRET registers.  So the unwind stops
+prematurely.
 
-Test-case:
+However, because the interrupt_entry() code is careful not to clobber
+R10 before saving the full regs, the unwinder should be able to read R10
+from the previously saved full pt_regs associated with the NMI.
 
-	#include <signal.h>
-	#include <mqueue.h>
-	#include <unistd.h>
-	#include <sys/wait.h>
-	#include <assert.h>
+Handle this case properly.  When encountering an IRET regs frame
+immediately after a full pt_regs frame, use the pt_regs as a backup
+which can be used to get the C register values.
 
-	static int notified;
+Also, note that a call frame resets the 'prev_regs' value, because a
+function is free to clobber the registers.  For this fix to work, the
+IRET and full regs frames must be adjacent, with no FUNC frames in
+between.  So replace the FUNC hint in interrupt_entry() with an
+IRET_REGS hint.
 
-	static void sigh(int sig)
-	{
-		notified = 1;
-	}
+Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Dave Jones <dsj@fb.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Link: https://lore.kernel.org/r/97a408167cc09f1cfa0de31a7b70dd88868d743f.1587808742.git.jpoimboe@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-	int main(void)
-	{
-		signal(SIGIO, sigh);
-
-		int fd = mq_open("/mq", O_RDWR|O_CREAT, 0666, NULL);
-		assert(fd >= 0);
-
-		struct sigevent se = {
-			.sigev_notify	= SIGEV_SIGNAL,
-			.sigev_signo	= SIGIO,
-		};
-		assert(mq_notify(fd, &se) == 0);
-
-		if (!fork()) {
-			assert(setuid(1) == 0);
-			mq_send(fd, "",1,0);
-			return 0;
-		}
-
-		wait(NULL);
-		mq_unlink("/mq");
-		assert(notified);
-		return 0;
-	}
-
-[manfred@colorfullife.com: 1) Add self_exec_id evaluation so that the implementation matches do_notify_parent 2) use PIDTYPE_TGID everywhere]
-Fixes: cc731525f26a ("signal: Remove kernel interal si_code magic")
-Reported-by: Yoji <yoji.fujihar.min@gmail.com>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Markus Elfring <elfring@users.sourceforge.net>
-Cc: <1vier1@web.de>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/e2a782e4-eab9-4f5c-c749-c07a8f7a4e66@colorfullife.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- ipc/mqueue.c | 34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ arch/x86/entry/entry_64.S     |    4 +--
+ arch/x86/include/asm/unwind.h |    2 -
+ arch/x86/kernel/unwind_orc.c  |   51 ++++++++++++++++++++++++++++++++----------
+ 3 files changed, 43 insertions(+), 14 deletions(-)
 
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index de4070d5472f2..46d0265423f5b 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -76,6 +76,7 @@ struct mqueue_inode_info {
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -512,7 +512,7 @@ END(spurious_entries_start)
+  * +----------------------------------------------------+
+  */
+ ENTRY(interrupt_entry)
+-	UNWIND_HINT_FUNC
++	UNWIND_HINT_IRET_REGS offset=16
+ 	ASM_CLAC
+ 	cld
  
- 	struct sigevent notify;
- 	struct pid *notify_owner;
-+	u32 notify_self_exec_id;
- 	struct user_namespace *notify_user_ns;
- 	struct user_struct *user;	/* user who created, for accounting */
- 	struct sock *notify_sock;
-@@ -662,28 +663,44 @@ static void __do_notify(struct mqueue_inode_info *info)
- 	 * synchronously. */
- 	if (info->notify_owner &&
- 	    info->attr.mq_curmsgs == 1) {
--		struct siginfo sig_i;
- 		switch (info->notify.sigev_notify) {
- 		case SIGEV_NONE:
- 			break;
--		case SIGEV_SIGNAL:
--			/* sends signal */
-+		case SIGEV_SIGNAL: {
-+			struct siginfo sig_i;
-+			struct task_struct *task;
+@@ -544,9 +544,9 @@ ENTRY(interrupt_entry)
+ 	pushq	5*8(%rdi)		/* regs->eflags */
+ 	pushq	4*8(%rdi)		/* regs->cs */
+ 	pushq	3*8(%rdi)		/* regs->ip */
++	UNWIND_HINT_IRET_REGS
+ 	pushq	2*8(%rdi)		/* regs->orig_ax */
+ 	pushq	8(%rdi)			/* return address */
+-	UNWIND_HINT_FUNC
+ 
+ 	movq	(%rdi), %rdi
+ 	jmp	2f
+--- a/arch/x86/include/asm/unwind.h
++++ b/arch/x86/include/asm/unwind.h
+@@ -19,7 +19,7 @@ struct unwind_state {
+ #if defined(CONFIG_UNWINDER_ORC)
+ 	bool signal, full_regs;
+ 	unsigned long sp, bp, ip;
+-	struct pt_regs *regs;
++	struct pt_regs *regs, *prev_regs;
+ #elif defined(CONFIG_UNWINDER_FRAME_POINTER)
+ 	bool got_irq;
+ 	unsigned long *bp, *orig_sp, ip;
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -375,9 +375,38 @@ static bool deref_stack_iret_regs(struct
+ 	return true;
+ }
+ 
++/*
++ * If state->regs is non-NULL, and points to a full pt_regs, just get the reg
++ * value from state->regs.
++ *
++ * Otherwise, if state->regs just points to IRET regs, and the previous frame
++ * had full regs, it's safe to get the value from the previous regs.  This can
++ * happen when early/late IRQ entry code gets interrupted by an NMI.
++ */
++static bool get_reg(struct unwind_state *state, unsigned int reg_off,
++		    unsigned long *val)
++{
++	unsigned int reg = reg_off/8;
 +
-+			/* do_mq_notify() accepts sigev_signo == 0, why?? */
-+			if (!info->notify.sigev_signo)
-+				break;
++	if (!state->regs)
++		return false;
++
++	if (state->full_regs) {
++		*val = ((unsigned long *)state->regs)[reg];
++		return true;
++	}
++
++	if (state->prev_regs) {
++		*val = ((unsigned long *)state->prev_regs)[reg];
++		return true;
++	}
++
++	return false;
++}
++
+ bool unwind_next_frame(struct unwind_state *state)
+ {
+-	unsigned long ip_p, sp, orig_ip = state->ip, prev_sp = state->sp;
++	unsigned long ip_p, sp, tmp, orig_ip = state->ip, prev_sp = state->sp;
+ 	enum stack_type prev_type = state->stack_info.type;
+ 	struct orc_entry *orc;
+ 	bool indirect = false;
+@@ -439,39 +468,35 @@ bool unwind_next_frame(struct unwind_sta
+ 		break;
  
- 			clear_siginfo(&sig_i);
- 			sig_i.si_signo = info->notify.sigev_signo;
- 			sig_i.si_errno = 0;
- 			sig_i.si_code = SI_MESGQ;
- 			sig_i.si_value = info->notify.sigev_value;
--			/* map current pid/uid into info->owner's namespaces */
- 			rcu_read_lock();
-+			/* map current pid/uid into info->owner's namespaces */
- 			sig_i.si_pid = task_tgid_nr_ns(current,
- 						ns_of_pid(info->notify_owner));
--			sig_i.si_uid = from_kuid_munged(info->notify_user_ns, current_uid());
-+			sig_i.si_uid = from_kuid_munged(info->notify_user_ns,
-+						current_uid());
-+			/*
-+			 * We can't use kill_pid_info(), this signal should
-+			 * bypass check_kill_permission(). It is from kernel
-+			 * but si_fromuser() can't know this.
-+			 * We do check the self_exec_id, to avoid sending
-+			 * signals to programs that don't expect them.
-+			 */
-+			task = pid_task(info->notify_owner, PIDTYPE_TGID);
-+			if (task && task->self_exec_id ==
-+						info->notify_self_exec_id) {
-+				do_send_sig_info(info->notify.sigev_signo,
-+						&sig_i, task, PIDTYPE_TGID);
-+			}
- 			rcu_read_unlock();
--
--			kill_pid_info(info->notify.sigev_signo,
--				      &sig_i, info->notify_owner);
- 			break;
-+		}
- 		case SIGEV_THREAD:
- 			set_cookie(info->notify_cookie, NOTIFY_WOKENUP);
- 			netlink_sendskb(info->notify_sock, info->notify_cookie);
-@@ -1273,6 +1290,7 @@ retry:
- 			info->notify.sigev_signo = notification->sigev_signo;
- 			info->notify.sigev_value = notification->sigev_value;
- 			info->notify.sigev_notify = SIGEV_SIGNAL;
-+			info->notify_self_exec_id = current->self_exec_id;
- 			break;
+ 	case ORC_REG_R10:
+-		if (!state->regs || !state->full_regs) {
++		if (!get_reg(state, offsetof(struct pt_regs, r10), &sp)) {
+ 			orc_warn("missing regs for base reg R10 at ip %pB\n",
+ 				 (void *)state->ip);
+ 			goto err;
+ 		}
+-		sp = state->regs->r10;
+ 		break;
+ 
+ 	case ORC_REG_R13:
+-		if (!state->regs || !state->full_regs) {
++		if (!get_reg(state, offsetof(struct pt_regs, r13), &sp)) {
+ 			orc_warn("missing regs for base reg R13 at ip %pB\n",
+ 				 (void *)state->ip);
+ 			goto err;
+ 		}
+-		sp = state->regs->r13;
+ 		break;
+ 
+ 	case ORC_REG_DI:
+-		if (!state->regs || !state->full_regs) {
++		if (!get_reg(state, offsetof(struct pt_regs, di), &sp)) {
+ 			orc_warn("missing regs for base reg DI at ip %pB\n",
+ 				 (void *)state->ip);
+ 			goto err;
+ 		}
+-		sp = state->regs->di;
+ 		break;
+ 
+ 	case ORC_REG_DX:
+-		if (!state->regs || !state->full_regs) {
++		if (!get_reg(state, offsetof(struct pt_regs, dx), &sp)) {
+ 			orc_warn("missing regs for base reg DX at ip %pB\n",
+ 				 (void *)state->ip);
+ 			goto err;
+ 		}
+-		sp = state->regs->dx;
+ 		break;
+ 
+ 	default:
+@@ -498,6 +523,7 @@ bool unwind_next_frame(struct unwind_sta
+ 
+ 		state->sp = sp;
+ 		state->regs = NULL;
++		state->prev_regs = NULL;
+ 		state->signal = false;
+ 		break;
+ 
+@@ -509,6 +535,7 @@ bool unwind_next_frame(struct unwind_sta
  		}
  
--- 
-2.20.1
-
+ 		state->regs = (struct pt_regs *)sp;
++		state->prev_regs = NULL;
+ 		state->full_regs = true;
+ 		state->signal = true;
+ 		break;
+@@ -520,6 +547,8 @@ bool unwind_next_frame(struct unwind_sta
+ 			goto err;
+ 		}
+ 
++		if (state->full_regs)
++			state->prev_regs = state->regs;
+ 		state->regs = (void *)sp - IRET_FRAME_OFFSET;
+ 		state->full_regs = false;
+ 		state->signal = true;
+@@ -534,8 +563,8 @@ bool unwind_next_frame(struct unwind_sta
+ 	/* Find BP: */
+ 	switch (orc->bp_reg) {
+ 	case ORC_REG_UNDEFINED:
+-		if (state->regs && state->full_regs)
+-			state->bp = state->regs->bp;
++		if (get_reg(state, offsetof(struct pt_regs, bp), &tmp))
++			state->bp = tmp;
+ 		break;
+ 
+ 	case ORC_REG_PREV_SP:
 
 
