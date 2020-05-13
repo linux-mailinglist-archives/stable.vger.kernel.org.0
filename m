@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD831D0D53
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:52:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D33D1D0D59
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:52:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387746AbgEMJwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:52:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53366 "EHLO mail.kernel.org"
+        id S2387782AbgEMJwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:52:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733174AbgEMJwG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:52:06 -0400
+        id S2387780AbgEMJwS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:52:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF70320575;
-        Wed, 13 May 2020 09:52:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBE5720575;
+        Wed, 13 May 2020 09:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363526;
-        bh=A3Y2v+4SlLEutyfNVUrIBwwpsZ4l2T67ReBBophFU2k=;
+        s=default; t=1589363538;
+        bh=IZM81WLlvh0/dPfb23etI7Ae/UROhw9c2iDXJF2NLxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V7LvRX8A7wPXIvyG8LfBwJ2Wnf8xVHg1Sjf6nT6DZ/UKbQ9xnZBjKHg1d+TtMjeeF
-         lnZneaygyho/7GPmDvTtLxWAtt73vhlZLY0PzliWUS+/MfaS0+ra7jj3/CWM8Ok0Zd
-         4sLODIQJGVdTC4H0vFHqLuhHyMXBPftAGOm3vSyA=
+        b=Ufn1QnwBN8HuyH1sYVHtc14yu1CwZ2wrpdmAZmfCyUuJOxsr65As/q4JUxqq4ug86
+         ByKB1+EHwZ7d7Ydqo9oavLxtI6CoA12ATI0Lgs6+o7I+5na6WziOmP/OXb692RZb3s
+         0XLVAtf9c/wRXMfrKtB5Pb5i8tzyPIzMLoBIZ/rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Jolly <Kangie@footclan.ninja>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.6 002/118] USB: serial: qcserial: Add DW5816e support
-Date:   Wed, 13 May 2020 11:43:41 +0200
-Message-Id: <20200513094417.831600703@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 003/118] drm/amdgpu: move kfd suspend after ip_suspend_phase1
+Date:   Wed, 13 May 2020 11:43:42 +0200
+Message-Id: <20200513094417.921191057@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -43,30 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Jolly <Kangie@footclan.ninja>
+From: Evan Quan <evan.quan@amd.com>
 
-commit 78d6de3cfbd342918d31cf68d0d2eda401338aef upstream.
+[ Upstream commit c457a273e118bb96e1db8d1825f313e6cafe4258 ]
 
-Add support for Dell Wireless 5816e to drivers/usb/serial/qcserial.c
+This sequence change should be safe as what did in ip_suspend_phase1
+is to suspend DCE only. And this is a prerequisite for coming
+redundant cg/pg ungate dropping.
 
-Signed-off-by: Matt Jolly <Kangie@footclan.ninja>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 487eca11a321ef ("drm/amdgpu: fix gfx hang during suspend with video playback (v2)")
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/qcserial.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -173,6 +173,7 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x413c, 0x81b3)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
- 	{DEVICE_SWI(0x413c, 0x81b5)},	/* Dell Wireless 5811e QDL */
- 	{DEVICE_SWI(0x413c, 0x81b6)},	/* Dell Wireless 5811e QDL */
-+	{DEVICE_SWI(0x413c, 0x81cc)},	/* Dell Wireless 5816e */
- 	{DEVICE_SWI(0x413c, 0x81cf)},   /* Dell Wireless 5819 */
- 	{DEVICE_SWI(0x413c, 0x81d0)},   /* Dell Wireless 5819 */
- 	{DEVICE_SWI(0x413c, 0x81d1)},   /* Dell Wireless 5818 */
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index f184cdca938de..1ddf2460cf834 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -3328,12 +3328,12 @@ int amdgpu_device_suspend(struct drm_device *dev, bool fbcon)
+ 	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
+ 	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
+ 
+-	amdgpu_amdkfd_suspend(adev);
+-
+ 	amdgpu_ras_suspend(adev);
+ 
+ 	r = amdgpu_device_ip_suspend_phase1(adev);
+ 
++	amdgpu_amdkfd_suspend(adev);
++
+ 	/* evict vram memory */
+ 	amdgpu_bo_evict_vram(adev);
+ 
+-- 
+2.20.1
+
 
 
