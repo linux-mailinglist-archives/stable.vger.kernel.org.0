@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A3581D0D68
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:52:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFFD71D0EEC
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:03:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732746AbgEMJwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:52:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54352 "EHLO mail.kernel.org"
+        id S1733064AbgEMJs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:48:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387833AbgEMJwp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:52:45 -0400
+        id S1733061AbgEMJs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:48:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9E29206D6;
-        Wed, 13 May 2020 09:52:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35D7D20753;
+        Wed, 13 May 2020 09:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363565;
-        bh=Oa+q0KIYYDTnW/Wjd+DAuMGDs+zRTcpchmQ85aZUICE=;
+        s=default; t=1589363305;
+        bh=2//70JfgGrfyqpGrlGdGZMeHpKH1PrGxXfJ48VpBiDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUwxdjBnUbDsqimmBu2zx6izP6Ydb1KR0DXcHl8E+5selFiX+lvpXP/GsLTRPWKT4
-         DwK+o4FKPakpQVAZsOwbmyQNlm7ZLl44IhJ3f9GaBMHc2Vm8UcvnpJNbVO5sgZwsK8
-         qGK4nFJS2ewlgjYgpwjoacIbOBwvZkh1RepV12Ps=
+        b=oTp0U8KM+Tb2PHgCpN49ivZW4RlE8yM0kmvRh/HhLR9Y5WyYC0/1bQmBvC/WAjJvS
+         DbiW0lmGxrOeScxCvT7VsabUphfYcE2SJrW79QIYhswwK0CxGWq+B0HU8O3IWNHon2
+         abfyGsPhpzNqSfKURazKEC5Gi/lRKRSaeqRILg1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot+0251e883fe39e7a0cb0a@syzkaller.appspotmail.com,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 036/118] sch_sfq: validate silly quantum values
-Date:   Wed, 13 May 2020 11:44:15 +0200
-Message-Id: <20200513094420.600244790@linuxfoundation.org>
+Subject: [PATCH 5.4 20/90] net_sched: sch_skbprio: add message validation to skbprio_change()
+Date:   Wed, 13 May 2020 11:44:16 +0200
+Message-Id: <20200513094410.864230402@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +46,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit df4953e4e997e273501339f607b77953772e3559 ]
+[ Upstream commit 2761121af87de45951989a0adada917837d8fa82 ]
 
-syzbot managed to set up sfq so that q->scaled_quantum was zero,
-triggering an infinite loop in sfq_dequeue()
+Do not assume the attribute has the right size.
 
-More generally, we must only accept quantum between 1 and 2^18 - 7,
-meaning scaled_quantum must be in [1, 0x7FFF] range.
-
-Otherwise, we also could have a loop in sfq_dequeue()
-if scaled_quantum happens to be 0x8000, since slot->allot
-could indefinitely switch between 0 and 0x8000.
-
-Fixes: eeaeb068f139 ("sch_sfq: allow big packets and be fair")
+Fixes: aea5f654e6b7 ("net/sched: add skbprio scheduler")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot+0251e883fe39e7a0cb0a@syzkaller.appspotmail.com
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_sfq.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/sched/sch_skbprio.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/sched/sch_sfq.c
-+++ b/net/sched/sch_sfq.c
-@@ -637,6 +637,15 @@ static int sfq_change(struct Qdisc *sch,
- 	if (ctl->divisor &&
- 	    (!is_power_of_2(ctl->divisor) || ctl->divisor > 65536))
- 		return -EINVAL;
+--- a/net/sched/sch_skbprio.c
++++ b/net/sched/sch_skbprio.c
+@@ -169,6 +169,9 @@ static int skbprio_change(struct Qdisc *
+ {
+ 	struct tc_skbprio_qopt *ctl = nla_data(opt);
+ 
++	if (opt->nla_len != nla_attr_size(sizeof(*ctl)))
++		return -EINVAL;
 +
-+	/* slot->allot is a short, make sure quantum is not too big. */
-+	if (ctl->quantum) {
-+		unsigned int scaled = SFQ_ALLOT_SIZE(ctl->quantum);
-+
-+		if (scaled <= 0 || scaled > SHRT_MAX)
-+			return -EINVAL;
-+	}
-+
- 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
- 					ctl_v1->Wlog))
- 		return -EINVAL;
+ 	sch->limit = ctl->limit;
+ 	return 0;
+ }
 
 
