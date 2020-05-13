@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26B7E1D0E80
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F36121D0D49
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388593AbgEMKAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 06:00:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52714 "EHLO mail.kernel.org"
+        id S2387695AbgEMJvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:51:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387689AbgEMJvm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:51:42 -0400
+        id S2387682AbgEMJvo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:51:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB03D206D6;
-        Wed, 13 May 2020 09:51:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FD3920740;
+        Wed, 13 May 2020 09:51:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363501;
-        bh=v7NdYPKBxwZImOHEBfWad5B/TjWWCPo/UVSdqEdgSU4=;
+        s=default; t=1589363503;
+        bh=iFVVwAqZMv4HlYQB0z0yB9f1G91U1CY+wl1KJSWMZog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yo09FBccf0ZViA2jCReqZ0QAYQBLkhIs9yIK7UuYvdhQtZu+iDLZk4oxvp00coDBu
-         yqcMfIxD0xPqg1A7+TBqpGTWgCOSn9sW1LSB4BipmMoDxCWX9JQLqn12M+RgFt12O6
-         rzmgAksD4GaWh4zfu4iWO702r848AJVtGj8PhdUs=
+        b=YCza4XslP8mBHJzXN2x3lB8w1Za5xKzj098lXNY1KQGA2PoHSLVpr6r4qLMI0Lwi+
+         NheZBBSImeEK3EQurE8yXXXO0ampvTe1CsmhYygaoMhfYzITGejuo9oL7hvFz68fg0
+         Zv38lzpDGdd7/EidbNwgggy4i7GFNCmXnJWTOrbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 010/118] nvme: fix possible hang when ns scanning fails during error recovery
-Date:   Wed, 13 May 2020 11:43:49 +0200
-Message-Id: <20200513094418.563762283@linuxfoundation.org>
+Subject: [PATCH 5.6 011/118] tracing/kprobes: Fix a double initialization typo
+Date:   Wed, 13 May 2020 11:43:50 +0200
+Message-Id: <20200513094418.661114296@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -46,46 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 59c7c3caaaf8750df4ec3255082f15eb4e371514 ]
+[ Upstream commit dcbd21c9fca5e954fd4e3d91884907eb6d47187e ]
 
-When the controller is reconnecting, the host fails I/O and admin
-commands as the host cannot reach the controller. ns scanning may
-revalidate namespaces during that period and it is wrong to remove
-namespaces due to these failures as we may hang (see 205da2434301).
+Fix a typo that resulted in an unnecessary double
+initialization to addr.
 
-One command that may fail is nvme_identify_ns_descs. Since we return
-success due to having ns identify descriptor list optional, we continue
-to compare ns identifiers in nvme_revalidate_disk, obviously fail and
-return -ENODEV to nvme_validate_ns, which will remove the namespace.
+Link: http://lkml.kernel.org/r/158779374968.6082.2337484008464939919.stgit@devnote2
 
-Exactly what we don't want to happen.
-
-Fixes: 22802bf742c2 ("nvme: Namepace identification descriptor list is optional")
-Tested-by: Anton Eidelman <anton@lightbitslabs.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Tom Zanussi <zanussi@kernel.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: c7411a1a126f ("tracing/kprobe: Check whether the non-suffixed symbol is notrace")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 2 +-
+ kernel/trace/trace_kprobe.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 545e9e5f1b737..84f20369d8467 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1082,7 +1082,7 @@ static int nvme_identify_ns_descs(struct nvme_ctrl *ctrl, unsigned nsid,
- 		  * Don't treat an error as fatal, as we potentially already
- 		  * have a NGUID or EUI-64.
- 		  */
--		if (status > 0)
-+		if (status > 0 && !(status & NVME_SC_DNR))
- 			status = 0;
- 		goto free_data;
- 	}
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index d0568af4a0ef6..0d9300c3b0846 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -453,7 +453,7 @@ static bool __within_notrace_func(unsigned long addr)
+ 
+ static bool within_notrace_func(struct trace_kprobe *tk)
+ {
+-	unsigned long addr = addr = trace_kprobe_address(tk);
++	unsigned long addr = trace_kprobe_address(tk);
+ 	char symname[KSYM_NAME_LEN], *p;
+ 
+ 	if (!__within_notrace_func(addr))
 -- 
 2.20.1
 
