@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 017741D0E92
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:01:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE6DC1D0CC3
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732883AbgEMJup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:50:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50810 "EHLO mail.kernel.org"
+        id S1732866AbgEMJr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:47:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387540AbgEMJuo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:50:44 -0400
+        id S1732860AbgEMJr2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:47:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB94D24927;
-        Wed, 13 May 2020 09:50:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D504F20753;
+        Wed, 13 May 2020 09:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363443;
-        bh=WSo/3rDLENVTpb3Y9jGDv+tK+Xnbk3u8YdyUOSXIpDU=;
+        s=default; t=1589363247;
+        bh=4m7XJmhmlHWuzWttM8S0PrW824Xv1kZgHZj4jUu04Nw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0BSHqoHI+WrGAUvVVc4KOCmYKt7tVPYax2Qzv3Tdgvikr1oqQtUZ1PrE4TvLiaQd
-         9ojQj2f/rQqaSB1kI0R8ZW8Eco7HJKDPU0V8k6j7rIjp5sy9TtO4gjbGqppbr+PbFh
-         7k4NRRQ+UkwzlhJ5bAH+jtUDBWG3DbhCRnM1T7Eg=
+        b=02g8wM931AJExaWhRBx2NfEHWLm9nUijZZLUAqjRKw81EXJW2IztjYNjWeaMwg/99
+         7tp00ktcAxdr8aH+Z8clKjEkwSZQrD8rDVhu6wMW8DFR3LiDTjAvXo+O3+zFHixM7K
+         Ys7FTld58oY7ucnMdD0f7lu7TB4Am1x2Y8N3uh0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
-        Jann Horn <jannh@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>
-Subject: [PATCH 5.4 75/90] x86/unwind/orc: Dont skip the first frame for inactive tasks
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 45/48] netfilter: nf_osf: avoid passing pointer to local var
 Date:   Wed, 13 May 2020 11:45:11 +0200
-Message-Id: <20200513094417.113737977@linuxfoundation.org>
+Message-Id: <20200513094404.213164359@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
+References: <20200513094351.100352960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,48 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Benes <mbenes@suse.cz>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit f1d9a2abff66aa8156fbc1493abed468db63ea48 upstream.
+commit c165d57b552aaca607fa5daf3fb524a6efe3c5a3 upstream.
 
-When unwinding an inactive task, the ORC unwinder skips the first frame
-by default.  If both the 'regs' and 'first_frame' parameters of
-unwind_start() are NULL, 'state->sp' and 'first_frame' are later
-initialized to the same value for an inactive task.  Given there is a
-"less than or equal to" comparison used at the end of __unwind_start()
-for skipping stack frames, the first frame is skipped.
+gcc-10 points out that a code path exists where a pointer to a stack
+variable may be passed back to the caller:
 
-Drop the equal part of the comparison and make the behavior equivalent
-to the frame pointer unwinder.
+net/netfilter/nfnetlink_osf.c: In function 'nf_osf_hdr_ctx_init':
+cc1: warning: function may return address of local variable [-Wreturn-local-addr]
+net/netfilter/nfnetlink_osf.c:171:16: note: declared here
+  171 |  struct tcphdr _tcph;
+      |                ^~~~~
 
-Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Dave Jones <dsj@fb.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Link: https://lore.kernel.org/r/7f08db872ab59e807016910acdbe82f744de7065.1587808742.git.jpoimboe@redhat.com
+I am not sure whether this can happen in practice, but moving the
+variable declaration into the callers avoids the problem.
+
+Fixes: 31a9c29210e2 ("netfilter: nf_osf: add struct nf_osf_hdr_ctx")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/unwind_orc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nfnetlink_osf.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -648,7 +648,7 @@ void __unwind_start(struct unwind_state
- 	/* Otherwise, skip ahead to the user-specified starting frame: */
- 	while (!unwind_done(state) &&
- 	       (!on_stack(&state->stack_info, first_frame, sizeof(long)) ||
--			state->sp <= (unsigned long)first_frame))
-+			state->sp < (unsigned long)first_frame))
- 		unwind_next_frame(state);
+--- a/net/netfilter/nfnetlink_osf.c
++++ b/net/netfilter/nfnetlink_osf.c
+@@ -170,12 +170,12 @@ static bool nf_osf_match_one(const struc
+ static const struct tcphdr *nf_osf_hdr_ctx_init(struct nf_osf_hdr_ctx *ctx,
+ 						const struct sk_buff *skb,
+ 						const struct iphdr *ip,
+-						unsigned char *opts)
++						unsigned char *opts,
++						struct tcphdr *_tcph)
+ {
+ 	const struct tcphdr *tcp;
+-	struct tcphdr _tcph;
  
- 	return;
+-	tcp = skb_header_pointer(skb, ip_hdrlen(skb), sizeof(struct tcphdr), &_tcph);
++	tcp = skb_header_pointer(skb, ip_hdrlen(skb), sizeof(struct tcphdr), _tcph);
+ 	if (!tcp)
+ 		return NULL;
+ 
+@@ -210,10 +210,11 @@ nf_osf_match(const struct sk_buff *skb,
+ 	int fmatch = FMATCH_WRONG;
+ 	struct nf_osf_hdr_ctx ctx;
+ 	const struct tcphdr *tcp;
++	struct tcphdr _tcph;
+ 
+ 	memset(&ctx, 0, sizeof(ctx));
+ 
+-	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts);
++	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts, &_tcph);
+ 	if (!tcp)
+ 		return false;
+ 
+@@ -270,10 +271,11 @@ const char *nf_osf_find(const struct sk_
+ 	struct nf_osf_hdr_ctx ctx;
+ 	const struct tcphdr *tcp;
+ 	const char *genre = NULL;
++	struct tcphdr _tcph;
+ 
+ 	memset(&ctx, 0, sizeof(ctx));
+ 
+-	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts);
++	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts, &_tcph);
+ 	if (!tcp)
+ 		return NULL;
+ 
 
 
