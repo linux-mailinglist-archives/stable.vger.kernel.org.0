@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 395E01D0E14
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 784EA1D0DB5
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388219AbgEMJzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:55:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57928 "EHLO mail.kernel.org"
+        id S2387739AbgEMJzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:55:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388220AbgEMJzI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:55:08 -0400
+        id S2387681AbgEMJzN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:55:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 342E324935;
-        Wed, 13 May 2020 09:55:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DD7220753;
+        Wed, 13 May 2020 09:55:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363707;
-        bh=17QPbeEKarOTesGJ57OM/RN6hhUjRNgopEosfdRyfkQ=;
+        s=default; t=1589363712;
+        bh=t+dAG2ciSY11/anwEimjtMYFr2ia36uqkw+4TtFXdvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h08wkGzousmk4DTo9I5Vz1f9I3hcfB+NyPc61xttpmgECtr52KX48d+y6H8H2ue+t
-         HsbqbeY/QySUwM7PuCHAv5etnjkeYZoCg8IM8ULnkQLdV70C+jdnFrrbzWVsEp9KRX
-         A2nYMT3R9ZbTUEcoMadL4B5RK4hIwSyqAGMKhQMA=
+        b=AkugV0PKxlvssvh82iagRhIuq165x/oeDh/Pvd6jkIir2EIyPrpm/T24RPm5F8IHW
+         IP8Dg1moZGeNLHk/m4X6unfrWz9l6W+MOY22kR33Jacvq/wkxZnZrKLuV2AaoFjB6L
+         osBU0V1a/9FGSSbYyQtapRN5TJjmAS8kO/i5CloE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Xin Tan <tanxin.ctf@gmail.com>,
         Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 5.6 093/118] batman-adv: Fix refcnt leak in batadv_show_throughput_override
-Date:   Wed, 13 May 2020 11:45:12 +0200
-Message-Id: <20200513094425.463259783@linuxfoundation.org>
+Subject: [PATCH 5.6 094/118] batman-adv: Fix refcnt leak in batadv_store_throughput_override
+Date:   Wed, 13 May 2020 11:45:13 +0200
+Message-Id: <20200513094425.545848374@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -47,22 +47,22 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit f872de8185acf1b48b954ba5bd8f9bc0a0d14016 upstream.
+commit 6107c5da0fca8b50b4d3215e94d619d38cc4a18c upstream.
 
 batadv_show_throughput_override() invokes batadv_hardif_get_by_netdev(),
 which gets a batadv_hard_iface object from net_dev with increased refcnt
 and its reference is assigned to a local pointer 'hard_iface'.
 
-When batadv_show_throughput_override() returns, "hard_iface" becomes
+When batadv_store_throughput_override() returns, "hard_iface" becomes
 invalid, so the refcount should be decreased to keep refcount balanced.
 
-The issue happens in the normal path of
-batadv_show_throughput_override(), which forgets to decrease the refcnt
-increased by batadv_hardif_get_by_netdev() before the function returns,
-causing a refcnt leak.
+The issue happens in one error path of
+batadv_store_throughput_override(). When batadv_parse_throughput()
+returns NULL, the refcnt increased by batadv_hardif_get_by_netdev() is
+not decreased, causing a refcnt leak.
 
-Fix this issue by calling batadv_hardif_put() before the
-batadv_show_throughput_override() returns in the normal path.
+Fix this issue by jumping to "out" label when batadv_parse_throughput()
+returns NULL.
 
 Fixes: 0b5ecc6811bd ("batman-adv: add throughput override attribute to hard_ifaces")
 Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
@@ -72,18 +72,19 @@ Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/batman-adv/sysfs.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/batman-adv/sysfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/net/batman-adv/sysfs.c
 +++ b/net/batman-adv/sysfs.c
-@@ -1190,6 +1190,7 @@ static ssize_t batadv_show_throughput_ov
+@@ -1150,7 +1150,7 @@ static ssize_t batadv_store_throughput_o
+ 	ret = batadv_parse_throughput(net_dev, buff, "throughput_override",
+ 				      &tp_override);
+ 	if (!ret)
+-		return count;
++		goto out;
  
- 	tp_override = atomic_read(&hard_iface->bat_v.throughput_override);
- 
-+	batadv_hardif_put(hard_iface);
- 	return sprintf(buff, "%u.%u MBit\n", tp_override / 10,
- 		       tp_override % 10);
- }
+ 	old_tp_override = atomic_read(&hard_iface->bat_v.throughput_override);
+ 	if (old_tp_override == tp_override)
 
 
