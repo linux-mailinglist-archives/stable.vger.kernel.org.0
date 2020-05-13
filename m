@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 290151D0D65
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36E251D0D46
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:51:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733253AbgEMJwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:52:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54070 "EHLO mail.kernel.org"
+        id S2387684AbgEMJvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:51:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733241AbgEMJwh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:52:37 -0400
+        id S2387682AbgEMJvj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:51:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E2B020575;
-        Wed, 13 May 2020 09:52:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8927B206D6;
+        Wed, 13 May 2020 09:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363555;
-        bh=IGnc9NEsJmYtWU+txtlSjnNhxD+3NvcHi5DLgFSY3gw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=KyNkbbviCfT4owTYeFcoExKWklAhjVCZK+coQ867kKWd0K0cDMUvV7Elh6SueMdsz
-         RXSRt++rdDuqZYh+QCT361WUxYpWKIqHrwQVXdVBA89AjFmOlGfEFc1TGs3X0JDRfl
-         Vgc6roHRR9Uusc61CFJdZa3pCXNgUGO4d30f7Ql8=
+        s=default; t=1589363499;
+        bh=lbc0ZkuPyvr62w63DEgAjqvxm+QSLWvjl3b/t0QNdjk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=PqmB9nB8Aa5us0IZXAXVjSvB4lls5JKhUjh5qPqIFsa+TXw5qm3M+sYCCNTUCi91w
+         gVnF6qgzg1xR6t8pDMlwHhZMaAI1YLYsFXNTMXY6TdKalHjNED7rpqsakxLrnrnexD
+         r9FilP+jnZ0dLvUvrmH8DtOFTQCuL8e7ST0XNgTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.6 000/118] 5.6.13-rc1 review
-Date:   Wed, 13 May 2020 11:43:39 +0200
-Message-Id: <20200513094417.618129545@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Yehezkel Bernat <yehezkelshb@gmail.com>
+Subject: [PATCH 5.6 001/118] thunderbolt: Check return value of tb_sw_read() in usb4_switch_op()
+Date:   Wed, 13 May 2020 11:43:40 +0200
+Message-Id: <20200513094417.748040775@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-MIME-Version: 1.0
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.6.13-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.6.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.6.13-rc1
-X-KernelTest-Deadline: 2020-05-15T09:44+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,514 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.6.13 release.
-There are 118 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Fri, 15 May 2020 09:41:20 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.13-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.6.13-rc1
-
-Amir Goldstein <amir73il@gmail.com>
-    fanotify: merge duplicate events on parent and child
-
-Amir Goldstein <amir73il@gmail.com>
-    fsnotify: replace inode pointer with an object id
-
-Max Kellermann <mk@cm4all.com>
-    io_uring: don't use 'fd' for openat/openat2/statx
-
-Christoph Hellwig <hch@lst.de>
-    bdi: add a ->dev_name field to struct backing_dev_info
-
-Christoph Hellwig <hch@lst.de>
-    bdi: move bdi_dev_name out of line
-
-Yafang Shao <laoar.shao@gmail.com>
-    mm, memcg: fix error return value of mem_cgroup_css_alloc()
-
-Ivan Delalande <colona@arista.com>
-    scripts/decodecode: fix trapping instruction formatting
-
-Julia Lawall <Julia.Lawall@inria.fr>
-    iommu/virtio: Reverse arguments to list_add
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    objtool: Fix stack offset tracking for indirect CFAs
-
-Paolo Bonzini <pbonzini@redhat.com>
-    kvm: ioapic: Restrict lazy EOI update to edge-triggered interrupts
-
-Arnd Bergmann <arnd@arndb.de>
-    netfilter: nf_osf: avoid passing pointer to local var
-
-Guillaume Nault <gnault@redhat.com>
-    netfilter: nat: never update the UDP checksum when it's 0
-
-Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
-    arch/x86/kvm/svm/sev.c: change flag passed to GUP fast in sev_pin_memory()
-
-Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-    KVM: x86: Fixes posted interrupt check for IRQs delivery modes
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/unwind/orc: Fix premature unwind stoppage due to IRET frames
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/unwind/orc: Fix error path for bad ORC entry type
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/unwind/orc: Prevent unwinding before ORC initialization
-
-Miroslav Benes <mbenes@suse.cz>
-    x86/unwind/orc: Don't skip the first frame for inactive tasks
-
-Jann Horn <jannh@google.com>
-    x86/entry/64: Fix unwind hints in rewind_stack_do_exit()
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/entry/64: Fix unwind hints in __switch_to_asm()
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/entry/64: Fix unwind hints in kernel exit path
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/entry/64: Fix unwind hints in register clearing code
-
-Rick Edgecombe <rick.p.edgecombe@intel.com>
-    x86/mm/cpa: Flush direct map alias during cpa
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    batman-adv: Fix refcnt leak in batadv_v_ogm_process
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    batman-adv: Fix refcnt leak in batadv_store_throughput_override
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    batman-adv: Fix refcnt leak in batadv_show_throughput_override
-
-George Spelvin <lkml@sdf.org>
-    batman-adv: fix batadv_nc_random_weight_tq
-
-Tejun Heo <tj@kernel.org>
-    iocost: protect iocg->abs_vdebt with iocg->waitq.lock
-
-Vincent Chen <vincent.chen@sifive.com>
-    riscv: set max_pfn to the PFN of the last page
-
-Luis Chamberlain <mcgrof@kernel.org>
-    coredump: fix crash when umh is disabled
-
-Oscar Carter <oscar.carter@gmx.com>
-    staging: gasket: Check the return value of gasket_get_bar_index()
-
-Luis Henriques <lhenriques@suse.com>
-    ceph: demote quotarealm lookup warning to a debug message
-
-Jeff Layton <jlayton@kernel.org>
-    ceph: fix endianness bug when handling MDS session feature bits
-
-Henry Willard <henry.willard@oracle.com>
-    mm: limit boost_watermark on small zones
-
-David Hildenbrand <david@redhat.com>
-    mm/page_alloc: fix watchdog soft lockups during set_zone_contiguous()
-
-Khazhismel Kumykov <khazhy@google.com>
-    eventpoll: fix missing wakeup for ovflist in ep_poll_callback
-
-Roman Penyaev <rpenyaev@suse.de>
-    epoll: atomically remove wait entry on wake up
-
-Oleg Nesterov <oleg@redhat.com>
-    ipc/mqueue.c: change __do_notify() to bypass check_kill_permission()
-
-Daniel Kolesa <daniel@octaforge.org>
-    drm/amd/display: work around fp code being emitted outside of DC_FP_START/END
-
-H. Nikolaus Schaller <hns@goldelico.com>
-    drm: ingenic-drm: add MODULE_DEVICE_TABLE
-
-Tomas Winkler <tomas.winkler@intel.com>
-    mei: me: disable mei interface on LBG servers.
-
-Ulf Hansson <ulf.hansson@linaro.org>
-    amba: Initialize dma_parms for amba devices
-
-Ulf Hansson <ulf.hansson@linaro.org>
-    driver core: platform: Initialize dma_parms for platform devices
-
-Mark Rutland <mark.rutland@arm.com>
-    arm64: hugetlb: avoid potential NULL dereference
-
-Marc Zyngier <maz@kernel.org>
-    KVM: arm64: Fix 32bit PC wrap-around
-
-Marc Zyngier <maz@kernel.org>
-    KVM: arm: vgic: Fix limit condition when writing to GICD_I[CS]ACTIVER
-
-Sean Christopherson <sean.j.christopherson@intel.com>
-    KVM: VMX: Explicitly clear RFLAGS.CF and RFLAGS.ZF in VM-Exit RSB path
-
-Christian Borntraeger <borntraeger@de.ibm.com>
-    KVM: s390: Remove false WARN_ON_ONCE for the PQAP instruction
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    crypto: arch/lib - limit simd usage to 4k chunks
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    crypto: arch/nhpoly1305 - process in explicit 4k chunks
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    tracing: Add a vmalloc_sync_mappings() for safe measure
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    tracing: Wait for preempt irq delay thread to finish
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    tracing/kprobes: Reject new event if loc is NULL
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    tracing/boottime: Fix kprobe event API usage
-
-Oliver Neukum <oneukum@suse.com>
-    USB: serial: garmin_gps: add sanity checking for data length
-
-Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-    usb: chipidea: msm: Ensure proper controller reset using role switch API
-
-Oliver Neukum <oneukum@suse.com>
-    USB: uas: add quirk for LaCie 2Big Quadra
-
-Jason Gerecke <killertofu@gmail.com>
-    HID: wacom: Report 2nd-gen Intuos Pro S center button status over BT
-
-Alan Stern <stern@rowland.harvard.edu>
-    HID: usbhid: Fix race between usbhid_close() and usbhid_stop()
-
-Jason Gerecke <killertofu@gmail.com>
-    Revert "HID: wacom: generic: read the number of expected touches on a per collection basis"
-
-Jere Leppänen <jere.leppanen@nokia.com>
-    sctp: Fix bundling of SHUTDOWN with COOKIE-ACK
-
-Jason Gerecke <jason.gerecke@wacom.com>
-    HID: wacom: Read HID_DG_CONTACTMAX directly for non-generic devices
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    wireguard: send/receive: cond_resched() when processing worker ringbuffers
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    wireguard: socket: remove errant restriction on looping to self
-
-Dejin Zheng <zhengdejin5@gmail.com>
-    net: enetc: fix an issue about leak system resources
-
-Toke Høiland-Jørgensen <toke@redhat.com>
-    wireguard: receive: use tunnel helpers for decapsulating ECN markings
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    wireguard: queueing: cleanup ptr_ring in error path of packet_queue_init
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    net: mvpp2: cls: Prevent buffer overflow in mvpp2_ethtool_cls_rule_del()
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    net: mvpp2: prevent buffer overflow in mvpp22_rss_ctx()
-
-Roi Dayan <roid@mellanox.com>
-    net/mlx5e: Fix q counters on uplink representors
-
-Moshe Shemesh <moshe@mellanox.com>
-    net/mlx5: Fix command entry leak in Internal Error State
-
-Moshe Shemesh <moshe@mellanox.com>
-    net/mlx5: Fix forced completion access non initialized command entry
-
-Erez Shitrit <erezsh@mellanox.com>
-    net/mlx5: DR, On creation set CQ's arm_db member to right value
-
-Michael Chan <michael.chan@broadcom.com>
-    bnxt_en: Fix VLAN acceleration handling in bnxt_fix_features().
-
-Michael Chan <michael.chan@broadcom.com>
-    bnxt_en: Return error when allocating zero size context memory.
-
-Michael Chan <michael.chan@broadcom.com>
-    bnxt_en: Improve AER slot reset.
-
-Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-    bnxt_en: Reduce BNXT_MSIX_VEC_MAX value to supported CQs per PF.
-
-Michael Chan <michael.chan@broadcom.com>
-    bnxt_en: Fix VF anti-spoof filter setup.
-
-Toke Høiland-Jørgensen <toke@redhat.com>
-    tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040
-
-Tuong Lien <tuong.t.lien@dektech.com.au>
-    tipc: fix partial topology connection closure
-
-Eric Dumazet <edumazet@google.com>
-    selftests: net: tcp_mmap: fix SO_RCVLOWAT setting
-
-Eric Dumazet <edumazet@google.com>
-    selftests: net: tcp_mmap: clear whole tcp_zerocopy_receive struct
-
-Eric Dumazet <edumazet@google.com>
-    sch_sfq: validate silly quantum values
-
-Eric Dumazet <edumazet@google.com>
-    sch_choke: avoid potential panic in choke_reset()
-
-Qiushi Wu <wu000273@umn.edu>
-    nfp: abm: fix a memory leak bug
-
-Matt Jolly <Kangie@footclan.ninja>
-    net: usb: qmi_wwan: add support for DW5816e
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    net/tls: Fix sk_psock refcnt leak when in tls_data_ready()
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    net/tls: Fix sk_psock refcnt leak in bpf_exec_tx_verdict()
-
-Anthony Felice <tony.felice@timesys.com>
-    net: tc35815: Fix phydev supported/advertising mask
-
-Willem de Bruijn <willemb@google.com>
-    net: stricter validation of untrusted gso packets
-
-Eric Dumazet <edumazet@google.com>
-    net_sched: sch_skbprio: add message validation to skbprio_change()
-
-Baruch Siach <baruch@tkos.co.il>
-    net: phy: marvell10g: fix temperature sensor on 2110
-
-Tariq Toukan <tariqt@mellanox.com>
-    net/mlx4_core: Fix use of ENOSPC around mlx4_counter_alloc()
-
-Scott Dial <scott@scottdial.com>
-    net: macsec: preserve ingress frame ordering
-
-Dejin Zheng <zhengdejin5@gmail.com>
-    net: macb: fix an issue about leak related system resources
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: dsa: Do not make user port errors fatal
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: dsa: Do not leave DSA master with NULL netdev_ops
-
-Ido Schimmel <idosch@mellanox.com>
-    net: bridge: vlan: Add a schedule point during VLAN processing
-
-Roman Mashak <mrv@mojatatu.com>
-    neigh: send protocol value in neighbor create notification
-
-Jiri Pirko <jiri@mellanox.com>
-    mlxsw: spectrum_acl_tcam: Position vchunk in a vregion list properly
-
-David Ahern <dsahern@kernel.org>
-    ipv6: Use global sernum for dst validation with nexthop objects
-
-Eric Dumazet <edumazet@google.com>
-    fq_codel: fix TCA_FQ_CODEL_DROP_BATCH_SIZE sanity checks
-
-Julia Lawall <Julia.Lawall@inria.fr>
-    dp83640: reverse arguments to list_add_tail
-
-Jakub Kicinski <kuba@kernel.org>
-    devlink: fix return value after hitting end in region read
-
-Aya Levin <ayal@mellanox.com>
-    devlink: Fix reporter's recovery condition
-
-Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-    cxgb4: fix EOTID leak when disabling TC-MQPRIO offload
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    net: macb: Fix runtime PM refcounting
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    tracing/kprobes: Fix a double initialization typo
-
-Sagi Grimberg <sagi@grimberg.me>
-    nvme: fix possible hang when ns scanning fails during error recovery
-
-Christoph Hellwig <hch@lst.de>
-    nvme: refactor nvme_identify_ns_descs error handling
-
-Eric Whitney <enwlinux@gmail.com>
-    ext4: disable dioread_nolock whenever delayed allocation is disabled
-
-Ritesh Harjani <riteshh@linux.ibm.com>
-    ext4: don't set dioread_nolock by default for blocksize < pagesize
-
-Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-    tty: xilinx_uartps: Fix missing id assignment to the console
-
-Nicolas Pitre <nico@fluxnic.net>
-    vt: fix unicode console freeing with a common interface
-
-Evan Quan <evan.quan@amd.com>
-    drm/amdgpu: drop redundant cg/pg ungate on runpm enter
-
-Evan Quan <evan.quan@amd.com>
-    drm/amdgpu: move kfd suspend after ip_suspend_phase1
-
-Matt Jolly <Kangie@footclan.ninja>
-    USB: serial: qcserial: Add DW5816e support
-
-Mika Westerberg <mika.westerberg@linux.intel.com>
-    thunderbolt: Check return value of tb_sw_read() in usb4_switch_op()
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/arm/crypto/chacha-glue.c                      |  14 ++-
- arch/arm/crypto/nhpoly1305-neon-glue.c             |   2 +-
- arch/arm/crypto/poly1305-glue.c                    |  15 ++-
- arch/arm64/crypto/chacha-neon-glue.c               |  14 ++-
- arch/arm64/crypto/nhpoly1305-neon-glue.c           |   2 +-
- arch/arm64/crypto/poly1305-glue.c                  |  15 ++-
- arch/arm64/kvm/guest.c                             |   7 ++
- arch/arm64/mm/hugetlbpage.c                        |   2 +
- arch/riscv/mm/init.c                               |   3 +-
- arch/s390/kvm/priv.c                               |   4 +-
- arch/x86/crypto/blake2s-glue.c                     |  10 +-
- arch/x86/crypto/chacha_glue.c                      |  14 ++-
- arch/x86/crypto/nhpoly1305-avx2-glue.c             |   2 +-
- arch/x86/crypto/nhpoly1305-sse2-glue.c             |   2 +-
- arch/x86/crypto/poly1305_glue.c                    |  13 ++-
- arch/x86/entry/calling.h                           |  40 +++----
- arch/x86/entry/entry_64.S                          |  14 +--
- arch/x86/include/asm/kvm_host.h                    |   4 +-
- arch/x86/include/asm/unwind.h                      |   2 +-
- arch/x86/kernel/unwind_orc.c                       |  61 ++++++++---
- arch/x86/kvm/ioapic.c                              |  10 +-
- arch/x86/kvm/svm.c                                 |   2 +-
- arch/x86/kvm/vmx/vmenter.S                         |   3 +
- arch/x86/mm/pat/set_memory.c                       |  12 ++-
- block/blk-iocost.c                                 | 117 +++++++++++++--------
- drivers/amba/bus.c                                 |   1 +
- drivers/base/platform.c                            |   2 +
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c         |   7 +-
- .../gpu/drm/amd/display/dc/dcn20/dcn20_resource.c  |  31 ++++--
- drivers/gpu/drm/ingenic/ingenic-drm.c              |   1 +
- drivers/hid/usbhid/hid-core.c                      |  37 +++++--
- drivers/hid/usbhid/usbhid.h                        |   1 +
- drivers/hid/wacom_sys.c                            |   4 +-
- drivers/hid/wacom_wac.c                            |  88 ++++------------
- drivers/iommu/virtio-iommu.c                       |   2 +-
- drivers/misc/mei/hw-me.c                           |   8 ++
- drivers/misc/mei/hw-me.h                           |   4 +
- drivers/misc/mei/pci-me.c                          |   2 +-
- drivers/net/ethernet/broadcom/bnxt/bnxt.c          |  20 ++--
- drivers/net/ethernet/broadcom/bnxt/bnxt.h          |   1 -
- drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h  |   2 +-
- drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c    |  10 +-
- drivers/net/ethernet/cadence/macb_main.c           |  24 ++---
- drivers/net/ethernet/chelsio/cxgb4/sge.c           |  39 ++++++-
- .../net/ethernet/freescale/enetc/enetc_pci_mdio.c  |   2 +-
- drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c     |   3 +
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    |   2 +
- drivers/net/ethernet/mellanox/mlx4/main.c          |   4 +-
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c      |   6 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c   |   9 +-
- .../ethernet/mellanox/mlx5/core/steering/dr_send.c |  14 ++-
- .../ethernet/mellanox/mlxsw/spectrum_acl_tcam.c    |  12 ++-
- drivers/net/ethernet/netronome/nfp/abm/main.c      |   1 +
- drivers/net/ethernet/toshiba/tc35815.c             |   2 +-
- drivers/net/macsec.c                               |   3 +-
- drivers/net/phy/dp83640.c                          |   2 +-
- drivers/net/phy/marvell10g.c                       |  27 ++++-
- drivers/net/usb/qmi_wwan.c                         |   1 +
- drivers/net/wireguard/queueing.c                   |   4 +-
- drivers/net/wireguard/receive.c                    |   8 +-
- drivers/net/wireguard/send.c                       |   4 +
- drivers/net/wireguard/socket.c                     |  12 ---
- drivers/nvme/host/core.c                           |  28 +++--
- drivers/staging/gasket/gasket_core.c               |   4 +
- drivers/thunderbolt/usb4.c                         |   3 +
- drivers/tty/serial/xilinx_uartps.c                 |   1 +
- drivers/tty/vt/vt.c                                |   9 +-
- drivers/usb/chipidea/ci_hdrc_msm.c                 |   2 +-
- drivers/usb/serial/garmin_gps.c                    |   4 +-
- drivers/usb/serial/qcserial.c                      |   1 +
- drivers/usb/storage/unusual_uas.h                  |   7 ++
- fs/ceph/mds_client.c                               |   8 +-
- fs/ceph/quota.c                                    |   4 +-
- fs/coredump.c                                      |   8 ++
- fs/eventpoll.c                                     |  61 ++++++-----
- fs/ext4/ext4_jbd2.h                                |   3 +
- fs/ext4/super.c                                    |  13 ++-
- fs/io_uring.c                                      |   6 --
- fs/notify/fanotify/fanotify.c                      |   9 +-
- fs/notify/inotify/inotify_fsnotify.c               |   4 +-
- fs/notify/inotify/inotify_user.c                   |   2 +-
- include/linux/amba/bus.h                           |   1 +
- include/linux/backing-dev-defs.h                   |   1 +
- include/linux/backing-dev.h                        |   9 +-
- include/linux/fsnotify_backend.h                   |   7 +-
- include/linux/platform_device.h                    |   1 +
- include/linux/virtio_net.h                         |  26 ++++-
- include/net/inet_ecn.h                             |  57 +++++++++-
- include/net/ip6_fib.h                              |   4 +
- include/net/net_namespace.h                        |   7 ++
- ipc/mqueue.c                                       |  34 ++++--
- kernel/trace/preemptirq_delay_test.c               |  30 ++++--
- kernel/trace/trace.c                               |  13 +++
- kernel/trace/trace_boot.c                          |  20 ++--
- kernel/trace/trace_kprobe.c                        |   8 +-
- kernel/umh.c                                       |   5 +
- mm/backing-dev.c                                   |  13 ++-
- mm/memcontrol.c                                    |  15 +--
- mm/page_alloc.c                                    |   9 ++
- net/batman-adv/bat_v_ogm.c                         |   2 +-
- net/batman-adv/network-coding.c                    |   9 +-
- net/batman-adv/sysfs.c                             |   3 +-
- net/bridge/br_netlink.c                            |   1 +
- net/core/devlink.c                                 |  12 ++-
- net/core/neighbour.c                               |   6 +-
- net/dsa/dsa2.c                                     |   2 +-
- net/dsa/master.c                                   |   3 +-
- net/ipv6/route.c                                   |  25 +++++
- net/netfilter/nf_nat_proto.c                       |   4 +-
- net/netfilter/nfnetlink_osf.c                      |  12 ++-
- net/sched/sch_choke.c                              |   3 +-
- net/sched/sch_fq_codel.c                           |   2 +-
- net/sched/sch_sfq.c                                |   9 ++
- net/sched/sch_skbprio.c                            |   3 +
- net/sctp/sm_statefuns.c                            |   6 +-
- net/tipc/topsrv.c                                  |   5 +-
- net/tls/tls_sw.c                                   |   7 +-
- scripts/decodecode                                 |   2 +-
- tools/cgroup/iocost_monitor.py                     |   7 +-
- tools/objtool/check.c                              |   2 +-
- tools/testing/selftests/net/tcp_mmap.c             |   7 +-
- tools/testing/selftests/wireguard/netns.sh         |  54 +++++++++-
- virt/kvm/arm/hyp/aarch32.c                         |   8 +-
- virt/kvm/arm/vgic/vgic-mmio.c                      |   4 +-
- 125 files changed, 964 insertions(+), 459 deletions(-)
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+
+commit c3bf9930921b33edb31909006607e478751a6f5e upstream.
+
+The function misses checking return value of tb_sw_read() before it
+accesses the value that was read. Fix this by checking the return value
+first.
+
+Fixes: b04079837b20 ("thunderbolt: Add initial support for USB4")
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Yehezkel Bernat <yehezkelshb@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/thunderbolt/usb4.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/drivers/thunderbolt/usb4.c
++++ b/drivers/thunderbolt/usb4.c
+@@ -182,6 +182,9 @@ static int usb4_switch_op(struct tb_swit
+ 		return ret;
+ 
+ 	ret = tb_sw_read(sw, &val, TB_CFG_SWITCH, ROUTER_CS_26, 1);
++	if (ret)
++		return ret;
++
+ 	if (val & ROUTER_CS_26_ONS)
+ 		return -EOPNOTSUPP;
+ 
 
 
