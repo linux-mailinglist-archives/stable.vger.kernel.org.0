@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE0F41D0E4B
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:59:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BE7E1D0CF7
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:49:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387927AbgEMJxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:53:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
+        id S1733142AbgEMJs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:48:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387915AbgEMJxM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:53:12 -0400
+        id S1733139AbgEMJsy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:48:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A524A20753;
-        Wed, 13 May 2020 09:53:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88CEA206D6;
+        Wed, 13 May 2020 09:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363592;
-        bh=1CMv9hFWmICCdrJOEUu6oBzHCYSfNEa4RMkguyk+ykY=;
+        s=default; t=1589363333;
+        bh=xqrh2MopQeipAcdHacog6ivfLRVDwUVB/2W23jrA/+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XG0i1lWepxFRtP+8PBshFHjxlnpma01X23IudOpxaOZmLpSf/wkItECag9qUu05U+
-         yYwgNCyn6EsxBXu4dVRMYqqyxCxJ38MDCWzk897mmUH+jm57fwFBAWHXnz27LntePV
-         639Wiky6XjsI0jK6w+AlrIENnrKUIPUezh5JO9NI=
+        b=yTHo7GTPFu1j5Tr2Ig067yn+toFH63xd5Vo1tjrgo48sUrovps3b6Hx5vuwzlfLQ1
+         t36giFRZQmq+mtIk1JuQ5u6XtSlLSpZW5ROZPyT0TF3G4FWQ+58qcBzgfd9obsZMfa
+         9CmVv7+1aVNNLIKqigF4EFK8Rf5SFBrJcdmL40tU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erez Shitrit <erezsh@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Alex Vesker <valex@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 046/118] net/mlx5: DR, On creation set CQs arm_db member to right value
-Date:   Wed, 13 May 2020 11:44:25 +0200
-Message-Id: <20200513094421.280886211@linuxfoundation.org>
+        stable@vger.kernel.org, Bob Briscoe <ietf@bobbriscoe.net>,
+        Olivier Tilmans <olivier.tilmans@nokia-bell-labs.com>,
+        Dave Taht <dave.taht@gmail.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 30/90] tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040
+Date:   Wed, 13 May 2020 11:44:26 +0200
+Message-Id: <20200513094411.682649645@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +47,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erez Shitrit <erezsh@mellanox.com>
+From: "Toke Høiland-Jørgensen" <toke@redhat.com>
 
-[ Upstream commit 8075411d93b6efe143d9f606f6531077795b7fbf ]
+[ Upstream commit b723748750ece7d844cdf2f52c01d37f83387208 ]
 
-In polling mode, set arm_db member to a value that will avoid CQ
-event recovery by the HW.
-Otherwise we might get event without completion function.
-In addition,empty completion function to was added to protect from
-unexpected events.
+RFC 6040 recommends propagating an ECT(1) mark from an outer tunnel header
+to the inner header if that inner header is already marked as ECT(0). When
+RFC 6040 decapsulation was implemented, this case of propagation was not
+added. This simply appears to be an oversight, so let's fix that.
 
-Fixes: 297cccebdc5a ("net/mlx5: DR, Expose an internal API to issue RDMA operations")
-Signed-off-by: Erez Shitrit <erezsh@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Reviewed-by: Alex Vesker <valex@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: eccc1bb8d4b4 ("tunnel: drop packet if ECN present with not-ECT")
+Reported-by: Bob Briscoe <ietf@bobbriscoe.net>
+Reported-by: Olivier Tilmans <olivier.tilmans@nokia-bell-labs.com>
+Cc: Dave Taht <dave.taht@gmail.com>
+Cc: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: Toke HÃ¸iland-JÃ¸rgensen <toke@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c |   14 ++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ include/net/inet_ecn.h |   57 +++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 55 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-@@ -689,6 +689,12 @@ static void dr_cq_event(struct mlx5_core
- 	pr_info("CQ event %u on CQ #%u\n", event, mcq->cqn);
+--- a/include/net/inet_ecn.h
++++ b/include/net/inet_ecn.h
+@@ -99,6 +99,20 @@ static inline int IP_ECN_set_ce(struct i
+ 	return 1;
  }
  
-+static void dr_cq_complete(struct mlx5_core_cq *mcq,
-+			   struct mlx5_eqe *eqe)
++static inline int IP_ECN_set_ect1(struct iphdr *iph)
 +{
-+	pr_err("CQ completion CQ: #%u\n", mcq->cqn);
++	u32 check = (__force u32)iph->check;
++
++	if ((iph->tos & INET_ECN_MASK) != INET_ECN_ECT_0)
++		return 0;
++
++	check += (__force u16)htons(0x100);
++
++	iph->check = (__force __sum16)(check + (check>=0xFFFF));
++	iph->tos ^= INET_ECN_MASK;
++	return 1;
 +}
 +
- static struct mlx5dr_cq *dr_create_cq(struct mlx5_core_dev *mdev,
- 				      struct mlx5_uars_page *uar,
- 				      size_t ncqe)
-@@ -750,6 +756,7 @@ static struct mlx5dr_cq *dr_create_cq(st
- 	mlx5_fill_page_frag_array(&cq->wq_ctrl.buf, pas);
+ static inline void IP_ECN_clear(struct iphdr *iph)
+ {
+ 	iph->tos &= ~INET_ECN_MASK;
+@@ -134,6 +148,22 @@ static inline int IP6_ECN_set_ce(struct
+ 	return 1;
+ }
  
- 	cq->mcq.event = dr_cq_event;
-+	cq->mcq.comp  = dr_cq_complete;
++static inline int IP6_ECN_set_ect1(struct sk_buff *skb, struct ipv6hdr *iph)
++{
++	__be32 from, to;
++
++	if ((ipv6_get_dsfield(iph) & INET_ECN_MASK) != INET_ECN_ECT_0)
++		return 0;
++
++	from = *(__be32 *)iph;
++	to = from ^ htonl(INET_ECN_MASK << 20);
++	*(__be32 *)iph = to;
++	if (skb->ip_summed == CHECKSUM_COMPLETE)
++		skb->csum = csum_add(csum_sub(skb->csum, (__force __wsum)from),
++				     (__force __wsum)to);
++	return 1;
++}
++
+ static inline void ipv6_copy_dscp(unsigned int dscp, struct ipv6hdr *inner)
+ {
+ 	dscp &= ~INET_ECN_MASK;
+@@ -159,6 +189,25 @@ static inline int INET_ECN_set_ce(struct
+ 	return 0;
+ }
  
- 	err = mlx5_core_create_cq(mdev, &cq->mcq, in, inlen, out, sizeof(out));
- 	kvfree(in);
-@@ -761,7 +768,12 @@ static struct mlx5dr_cq *dr_create_cq(st
- 	cq->mcq.set_ci_db = cq->wq_ctrl.db.db;
- 	cq->mcq.arm_db = cq->wq_ctrl.db.db + 1;
- 	*cq->mcq.set_ci_db = 0;
--	*cq->mcq.arm_db = 0;
++static inline int INET_ECN_set_ect1(struct sk_buff *skb)
++{
++	switch (skb->protocol) {
++	case cpu_to_be16(ETH_P_IP):
++		if (skb_network_header(skb) + sizeof(struct iphdr) <=
++		    skb_tail_pointer(skb))
++			return IP_ECN_set_ect1(ip_hdr(skb));
++		break;
 +
-+	/* set no-zero value, in order to avoid the HW to run db-recovery on
-+	 * CQ that used in polling mode.
-+	 */
-+	*cq->mcq.arm_db = cpu_to_be32(2 << 28);
++	case cpu_to_be16(ETH_P_IPV6):
++		if (skb_network_header(skb) + sizeof(struct ipv6hdr) <=
++		    skb_tail_pointer(skb))
++			return IP6_ECN_set_ect1(skb, ipv6_hdr(skb));
++		break;
++	}
 +
- 	cq->mcq.vector = 0;
- 	cq->mcq.irqn = irqn;
- 	cq->mcq.uar = uar;
++	return 0;
++}
++
+ /*
+  * RFC 6040 4.2
+  *  To decapsulate the inner header at the tunnel egress, a compliant
+@@ -208,8 +257,12 @@ static inline int INET_ECN_decapsulate(s
+ 	int rc;
+ 
+ 	rc = __INET_ECN_decapsulate(outer, inner, &set_ce);
+-	if (!rc && set_ce)
+-		INET_ECN_set_ce(skb);
++	if (!rc) {
++		if (set_ce)
++			INET_ECN_set_ce(skb);
++		else if ((outer & INET_ECN_MASK) == INET_ECN_ECT_1)
++			INET_ECN_set_ect1(skb);
++	}
+ 
+ 	return rc;
+ }
 
 
