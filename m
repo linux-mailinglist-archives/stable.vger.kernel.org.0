@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C74BD1D0E96
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B6991D0E3F
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:59:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387582AbgEMJvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:51:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51434 "EHLO mail.kernel.org"
+        id S2388028AbgEMJxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732965AbgEMJvD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:51:03 -0400
+        id S2388024AbgEMJxy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:53:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AEEE20575;
-        Wed, 13 May 2020 09:51:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9907C20769;
+        Wed, 13 May 2020 09:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363462;
-        bh=6bqyuSi7qqW5PiXT3G0qoFdiCIsMTRNnGfoFN53ZoS4=;
+        s=default; t=1589363634;
+        bh=Ez+HzjOW/kVjeb7BJUsCWE4kuKqi8dg53pjN7LeiX/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2WyIWkpi4iSobvzdgMwOTwU6DWbLy40paz5TZMFhN2vGdFSA2C8Z1F1Hmw+R86d7
-         Pu90hnvIUgPFUE5wBg+JrGruOuANByrQTpqTvOORTYkUQ1IiyMIGuHVzH3DFLxCTli
-         +8EfEph8w/ISw8D72acskT5JDq1NcqXmUFFc6p4M=
+        b=jHG/pFMhmWSk+byxMsUJn8vIWnAWBGcUHYVbo9yeWRNdO8D9ygOKfgJDQkiqHoD1c
+         MKpzOAJKzjbyMCbbnlkE116MjLX9aYarFtCTx4erKOtzp7rlEJqiNmgBVbIDvpZPPZ
+         HVBkWeOMmEwT58kXezFTmCBXOmm2HQKG3Ky3ObfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 45/90] HID: wacom: Report 2nd-gen Intuos Pro S center button status over BT
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        =?UTF-8?q?Julian=20Gro=C3=9F?= <julian.g@posteo.de>
+Subject: [PATCH 5.6 062/118] USB: uas: add quirk for LaCie 2Big Quadra
 Date:   Wed, 13 May 2020 11:44:41 +0200
-Message-Id: <20200513094413.579703873@linuxfoundation.org>
+Message-Id: <20200513094422.818213105@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit dcce8ef8f70a8e38e6c47c1bae8b312376c04420 upstream.
+commit 9f04db234af691007bb785342a06abab5fb34474 upstream.
 
-The state of the center button was not reported to userspace for the
-2nd-gen Intuos Pro S when used over Bluetooth due to the pad handling
-code not being updated to support its reduced number of buttons. This
-patch uses the actual number of buttons present on the tablet to
-assemble a button state bitmap.
+This device needs US_FL_NO_REPORT_OPCODES to avoid going
+through prolonged error handling on enumeration.
 
-Link: https://github.com/linuxwacom/xf86-input-wacom/issues/112
-Fixes: cd47de45b855 ("HID: wacom: Add 2nd gen Intuos Pro Small support")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Cc: stable@vger.kernel.org # v5.3+
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: Julian Groß <julian.g@posteo.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200429155218.7308-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/wacom_wac.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1427,11 +1427,13 @@ static void wacom_intuos_pro2_bt_pad(str
- {
- 	struct input_dev *pad_input = wacom->pad_input;
- 	unsigned char *data = wacom->data;
-+	int nbuttons = wacom->features.numbered_buttons;
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -28,6 +28,13 @@
+  * and don't forget to CC: the USB development list <linux-usb@vger.kernel.org>
+  */
  
--	int buttons = data[282] | ((data[281] & 0x40) << 2);
-+	int expresskeys = data[282];
-+	int center = (data[281] & 0x40) >> 6;
- 	int ring = data[285] & 0x7F;
- 	bool ringstatus = data[285] & 0x80;
--	bool prox = buttons || ringstatus;
-+	bool prox = expresskeys || center || ringstatus;
- 
- 	/* Fix touchring data: userspace expects 0 at left and increasing clockwise */
- 	ring = 71 - ring;
-@@ -1439,7 +1441,8 @@ static void wacom_intuos_pro2_bt_pad(str
- 	if (ring > 71)
- 		ring -= 72;
- 
--	wacom_report_numbered_buttons(pad_input, 9, buttons);
-+	wacom_report_numbered_buttons(pad_input, nbuttons,
-+                                      expresskeys | (center << (nbuttons - 1)));
- 
- 	input_report_abs(pad_input, ABS_WHEEL, ringstatus ? ring : 0);
- 
++/* Reported-by: Julian Groß <julian.g@posteo.de> */
++UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
++		"LaCie",
++		"2Big Quadra USB3",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_REPORT_OPCODES),
++
+ /*
+  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
+  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
 
 
