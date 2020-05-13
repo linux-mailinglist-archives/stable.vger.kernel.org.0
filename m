@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1558F1D0DE6
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A101D0DF5
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:57:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388381AbgEMJ4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:56:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59450 "EHLO mail.kernel.org"
+        id S2387675AbgEMJ4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:56:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388353AbgEMJz7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:55:59 -0400
+        id S1732964AbgEMJ4J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:56:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F02D20575;
-        Wed, 13 May 2020 09:55:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01625205ED;
+        Wed, 13 May 2020 09:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363758;
-        bh=tuV8TrIntQx/Va+AYnfJhtfpfekpiuaiuOMv9B7aI6w=;
+        s=default; t=1589363768;
+        bh=rKeULQkRxUhRHLjybAHWdbegXlR743VjXvWhU6otZ+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FezR223wX2w5IGIakI27MdsTlXNCMwHxaX9n2Vs/lYYlWCQgcVKr0h2P/9pxpW2gK
-         KgzPAkTK1v1DKFMCREOdlopAxnr2F5V1XG6x2iXXTzbyhTEINU5PkSmk2jjvsTvJeU
-         VIEoU41fPEf4eWgS3vRwyN8/FTPF3Arn8LxyDOgI=
+        b=OLX7GabJALJe2h+/QeI9rC4H8T48BDQFbGqJUenLsvjSe6sVHqWh/gapmDi8C3Owd
+         4sI6etYKQnh53calmDUcBB8XnIqd3f3fddVWh0bwS4GtO7TGwFTh0x/avLfqM229gj
+         7384kdaRBtHtaGJwC3NHdE/LAiFoFBjT67ID3NuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.6 107/118] netfilter: nat: never update the UDP checksum when its 0
-Date:   Wed, 13 May 2020 11:45:26 +0200
-Message-Id: <20200513094427.452324281@linuxfoundation.org>
+Subject: [PATCH 5.6 108/118] netfilter: nf_osf: avoid passing pointer to local var
+Date:   Wed, 13 May 2020 11:45:27 +0200
+Message-Id: <20200513094427.531893899@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -44,67 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit ea64d8d6c675c0bb712689b13810301de9d8f77a upstream.
+commit c165d57b552aaca607fa5daf3fb524a6efe3c5a3 upstream.
 
-If the UDP header of a local VXLAN endpoint is NAT-ed, and the VXLAN
-device has disabled UDP checksums and enabled Tx checksum offloading,
-then the skb passed to udp_manip_pkt() has hdr->check == 0 (outer
-checksum disabled) and skb->ip_summed == CHECKSUM_PARTIAL (inner packet
-checksum offloaded).
+gcc-10 points out that a code path exists where a pointer to a stack
+variable may be passed back to the caller:
 
-Because of the ->ip_summed value, udp_manip_pkt() tries to update the
-outer checksum with the new address and port, leading to an invalid
-checksum sent on the wire, as the original null checksum obviously
-didn't take the old address and port into account.
+net/netfilter/nfnetlink_osf.c: In function 'nf_osf_hdr_ctx_init':
+cc1: warning: function may return address of local variable [-Wreturn-local-addr]
+net/netfilter/nfnetlink_osf.c:171:16: note: declared here
+  171 |  struct tcphdr _tcph;
+      |                ^~~~~
 
-So, we can't take ->ip_summed into account in udp_manip_pkt(), as it
-might not refer to the checksum we're acting on. Instead, we can base
-the decision to update the UDP checksum entirely on the value of
-hdr->check, because it's null if and only if checksum is disabled:
+I am not sure whether this can happen in practice, but moving the
+variable declaration into the callers avoids the problem.
 
-  * A fully computed checksum can't be 0, since a 0 checksum is
-    represented by the CSUM_MANGLED_0 value instead.
-
-  * A partial checksum can't be 0, since the pseudo-header always adds
-    at least one non-zero value (the UDP protocol type 0x11) and adding
-    more values to the sum can't make it wrap to 0 as the carry is then
-    added to the wrapped number.
-
-  * A disabled checksum uses the special value 0.
-
-The problem seems to be there from day one, although it was probably
-not visible before UDP tunnels were implemented.
-
-Fixes: 5b1158e909ec ("[NETFILTER]: Add NAT support for nf_conntrack")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Fixes: 31a9c29210e2 ("netfilter: nf_osf: add struct nf_osf_hdr_ctx")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Reviewed-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nf_nat_proto.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/netfilter/nfnetlink_osf.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/net/netfilter/nf_nat_proto.c
-+++ b/net/netfilter/nf_nat_proto.c
-@@ -68,15 +68,13 @@ static bool udp_manip_pkt(struct sk_buff
- 			  enum nf_nat_manip_type maniptype)
+--- a/net/netfilter/nfnetlink_osf.c
++++ b/net/netfilter/nfnetlink_osf.c
+@@ -165,12 +165,12 @@ static bool nf_osf_match_one(const struc
+ static const struct tcphdr *nf_osf_hdr_ctx_init(struct nf_osf_hdr_ctx *ctx,
+ 						const struct sk_buff *skb,
+ 						const struct iphdr *ip,
+-						unsigned char *opts)
++						unsigned char *opts,
++						struct tcphdr *_tcph)
  {
- 	struct udphdr *hdr;
--	bool do_csum;
+ 	const struct tcphdr *tcp;
+-	struct tcphdr _tcph;
  
- 	if (skb_ensure_writable(skb, hdroff + sizeof(*hdr)))
+-	tcp = skb_header_pointer(skb, ip_hdrlen(skb), sizeof(struct tcphdr), &_tcph);
++	tcp = skb_header_pointer(skb, ip_hdrlen(skb), sizeof(struct tcphdr), _tcph);
+ 	if (!tcp)
+ 		return NULL;
+ 
+@@ -205,10 +205,11 @@ nf_osf_match(const struct sk_buff *skb,
+ 	int fmatch = FMATCH_WRONG;
+ 	struct nf_osf_hdr_ctx ctx;
+ 	const struct tcphdr *tcp;
++	struct tcphdr _tcph;
+ 
+ 	memset(&ctx, 0, sizeof(ctx));
+ 
+-	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts);
++	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts, &_tcph);
+ 	if (!tcp)
  		return false;
  
- 	hdr = (struct udphdr *)(skb->data + hdroff);
--	do_csum = hdr->check || skb->ip_summed == CHECKSUM_PARTIAL;
-+	__udp_manip_pkt(skb, iphdroff, hdr, tuple, maniptype, !!hdr->check);
+@@ -265,10 +266,11 @@ bool nf_osf_find(const struct sk_buff *s
+ 	const struct nf_osf_finger *kf;
+ 	struct nf_osf_hdr_ctx ctx;
+ 	const struct tcphdr *tcp;
++	struct tcphdr _tcph;
  
--	__udp_manip_pkt(skb, iphdroff, hdr, tuple, maniptype, do_csum);
- 	return true;
- }
+ 	memset(&ctx, 0, sizeof(ctx));
+ 
+-	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts);
++	tcp = nf_osf_hdr_ctx_init(&ctx, skb, ip, opts, &_tcph);
+ 	if (!tcp)
+ 		return false;
  
 
 
