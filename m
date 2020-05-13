@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 286B01D0D87
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03CB41D0D2E
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733068AbgEMJxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:53:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55898 "EHLO mail.kernel.org"
+        id S2387577AbgEMJu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:50:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733061AbgEMJxr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:53:47 -0400
+        id S1732965AbgEMJu6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:50:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58056205ED;
-        Wed, 13 May 2020 09:53:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3153C23126;
+        Wed, 13 May 2020 09:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363626;
+        s=default; t=1589363457;
         bh=+feFlMH+aRpu3ZqDbPLETijhIkIBmj5Z97hvv1TLdeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVLP1ueKtIC3HEtMi+Hj3VH61h/VdZ/qpX5PRcWvj8GJQbwlE9A8yGH0egnuDC6An
-         AQnZAxxlSyQmo0l5HLCapfXuNPpWDN/kp0kY+EKQS+omlTU+Eu3pE/phJ9J+beTnau
-         lJXmvMfOgkwhoE5Vc0uzFjHpkRffC97X5nSExA6A=
+        b=kr3pCUSLl9YmsOY1vRICl7Wkt5Ltdr0/ZTAUV8Eoktasf7m9TrDlHF3bu0OfXjbT6
+         HJKbvkdWU6KwFddseYgLolIoVNAPfW68hE9ZviHXn5xjijC/lOnnRikn9NkDWfBkns
+         Bg4oeAaEDJDytb4mD9nsac9DUVBeBel3rG7K9EI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
         Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
         Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.6 059/118] Revert "HID: wacom: generic: read the number of expected touches on a per collection basis"
-Date:   Wed, 13 May 2020 11:44:38 +0200
-Message-Id: <20200513094422.171935594@linuxfoundation.org>
+Subject: [PATCH 5.4 43/90] Revert "HID: wacom: generic: read the number of expected touches on a per collection basis"
+Date:   Wed, 13 May 2020 11:44:39 +0200
+Message-Id: <20200513094413.327648897@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
