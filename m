@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43CAE1D0DB9
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A8D61D0E9F
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387767AbgEMJzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:55:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58258 "EHLO mail.kernel.org"
+        id S1733014AbgEMKB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:01:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388238AbgEMJzS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:55:18 -0400
+        id S2387573AbgEMJuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:50:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 122C4205ED;
-        Wed, 13 May 2020 09:55:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4EF520575;
+        Wed, 13 May 2020 09:50:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363717;
-        bh=vAyTy4r/PAq4UOpinLcKhBk/Qzc2OfeoEtEpUCCAc2E=;
+        s=default; t=1589363455;
+        bh=CXVsfp0dJQu1Fcsy1N3InxY3gjc4AOdrPhido3R2SBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNodMjz3bDRNgCMENgXkNYitCFnqYrYAsFW5EKwfKnKCUQOLOmtMDyHTZhc9llsQ1
-         TUMqN7NNMEoAfWhRzQkmqqQOouJw7UnBojVJwx2nIkzpEXlW1SCXp1ONGXimHuI0fM
-         3189tenasSts53U9CbNQnLQFjpHhFeolpqRN20YM=
+        b=QLrtAgfnkQgpofosfkD6MFPfYU5PGpatJD3lOnTkgJ8cbfBMjA2LGnUsCM+4upI+L
+         Agu+/CKfR3FKWVAQPYj8VjhI/+pXPE5AGNOhqO0KYPWLSDO9drRxMpWGZu+4Dzn1GI
+         yMrRza9fSDLBl4oNuhhOnPTD8XjqBlTN9Jj5b9UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.6 096/118] x86/mm/cpa: Flush direct map alias during cpa
+        stable@vger.kernel.org, Alexander Graf <graf@amazon.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 79/90] KVM: x86: Fixes posted interrupt check for IRQs delivery modes
 Date:   Wed, 13 May 2020 11:45:15 +0200
-Message-Id: <20200513094425.718296537@linuxfoundation.org>
+Message-Id: <20200513094417.469987816@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rick Edgecombe <rick.p.edgecombe@intel.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-commit ab5130186d7476dcee0d4e787d19a521ca552ce9 upstream.
+commit 637543a8d61c6afe4e9be64bfb43c78701a83375 upstream.
 
-As an optimization, cpa_flush() was changed to optionally only flush
-the range in @cpa if it was small enough.  However, this range does
-not include any direct map aliases changed in cpa_process_alias(). So
-small set_memory_() calls that touch that alias don't get the direct
-map changes flushed. This situation can happen when the virtual
-address taking variants are passed an address in vmalloc or modules
-space.
+Current logic incorrectly uses the enum ioapic_irq_destination_types
+to check the posted interrupt destination types. However, the value was
+set using APIC_DM_XXX macros, which are left-shifted by 8 bits.
 
-In these cases, force a full TLB flush.
+Fixes by using the APIC_DM_FIXED and APIC_DM_LOWEST instead.
 
-Note this issue does not extend to cases where the set_memory_() calls are
-passed a direct map address, or page array, etc, as the primary target. In
-those cases the direct map would be flushed.
-
-Fixes: 935f5839827e ("x86/mm/cpa: Optimize cpa_flush_array() TLB invalidation")
-Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200424105343.GA20730@hirez.programming.kicks-ass.net
+Fixes: (fdcf75621375 'KVM: x86: Disable posted interrupts for non-standard IRQs delivery modes')
+Cc: Alexander Graf <graf@amazon.com>
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Message-Id: <1586239989-58305-1-git-send-email-suravee.suthikulpanit@amd.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Tested-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/mm/pat/set_memory.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/kvm_host.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/mm/pat/set_memory.c
-+++ b/arch/x86/mm/pat/set_memory.c
-@@ -42,7 +42,8 @@ struct cpa_data {
- 	unsigned long	pfn;
- 	unsigned int	flags;
- 	unsigned int	force_split		: 1,
--			force_static_prot	: 1;
-+			force_static_prot	: 1,
-+			force_flush_all		: 1;
- 	struct page	**pages;
- };
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1608,8 +1608,8 @@ void kvm_set_msi_irq(struct kvm *kvm, st
+ static inline bool kvm_irq_is_postable(struct kvm_lapic_irq *irq)
+ {
+ 	/* We can only post Fixed and LowPrio IRQs */
+-	return (irq->delivery_mode == dest_Fixed ||
+-		irq->delivery_mode == dest_LowestPrio);
++	return (irq->delivery_mode == APIC_DM_FIXED ||
++		irq->delivery_mode == APIC_DM_LOWEST);
+ }
  
-@@ -352,10 +353,10 @@ static void cpa_flush(struct cpa_data *d
- 		return;
- 	}
- 
--	if (cpa->numpages <= tlb_single_page_flush_ceiling)
--		on_each_cpu(__cpa_flush_tlb, cpa, 1);
--	else
-+	if (cpa->force_flush_all || cpa->numpages > tlb_single_page_flush_ceiling)
- 		flush_tlb_all();
-+	else
-+		on_each_cpu(__cpa_flush_tlb, cpa, 1);
- 
- 	if (!cache)
- 		return;
-@@ -1595,6 +1596,8 @@ static int cpa_process_alias(struct cpa_
- 		alias_cpa.flags &= ~(CPA_PAGES_ARRAY | CPA_ARRAY);
- 		alias_cpa.curpage = 0;
- 
-+		cpa->force_flush_all = 1;
-+
- 		ret = __change_page_attr_set_clr(&alias_cpa, 0);
- 		if (ret)
- 			return ret;
-@@ -1615,6 +1618,7 @@ static int cpa_process_alias(struct cpa_
- 		alias_cpa.flags &= ~(CPA_PAGES_ARRAY | CPA_ARRAY);
- 		alias_cpa.curpage = 0;
- 
-+		cpa->force_flush_all = 1;
- 		/*
- 		 * The high mapping range is imprecise, so ignore the
- 		 * return value.
+ static inline void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu)
 
 
