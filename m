@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 310621D0E5F
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89ECF1D0D02
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387818AbgEMJwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:52:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54138 "EHLO mail.kernel.org"
+        id S1732714AbgEMJtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:49:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387815AbgEMJwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:52:39 -0400
+        id S1733227AbgEMJtX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:49:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE60A20769;
-        Wed, 13 May 2020 09:52:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5731120740;
+        Wed, 13 May 2020 09:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363558;
-        bh=57dvFvSjdaHFFUCUywJoU6nfomw//ZNIqcTjWzfo1e4=;
+        s=default; t=1589363362;
+        bh=hs85OavSCtNgsW2+tQSoU6rRTFH3U89gLyes2Lyan44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jt+0NgGOvIrzSsck452HbjLou5dIbmclTFL3903q4Qr3PiR4/k+bY+pLroKcPcCZx
-         bORlrPU1OwX+C17s2IiI0/ELEr/CdY3sYUgbcSntfs9W0sCuzmXup2iK/JxxTxDuIr
-         VWx/gclegRFF5juNis7g1pBRE4ChgU9D99s8cA5M=
+        b=K/sx3XylN1l3WzhbOB6YoCcNKmTwCS20EnHUi7hT457IH4fTLccuv/7+7q7PdoYMB
+         04fzHiIw95kXjjXSkhHxCI5nWFFeqUOEfcqGvGdWYH3OHu8xfarUzpNe1qOsI99AnJ
+         UZLMXF/tOsoYO7F0lod8iPRVHNSzLJLRMLyT2VJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Dial <scott@scottdial.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 025/118] net: macsec: preserve ingress frame ordering
+        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
+        syzbot+0bfda3ade1ee9288a1be@syzkaller.appspotmail.com,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 08/90] vt: fix unicode console freeing with a common interface
 Date:   Wed, 13 May 2020 11:44:04 +0200
-Message-Id: <20200513094419.863673154@linuxfoundation.org>
+Message-Id: <20200513094409.974392275@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Dial <scott@scottdial.com>
+From: Nicolas Pitre <nico@fluxnic.net>
 
-[ Upstream commit ab046a5d4be4c90a3952a0eae75617b49c0cb01b ]
+[ Upstream commit 57d38f26d81e4275748b69372f31df545dcd9b71 ]
 
-MACsec decryption always occurs in a softirq context. Since
-the FPU may not be usable in the softirq context, the call to
-decrypt may be scheduled on the cryptd work queue. The cryptd
-work queue does not provide ordering guarantees. Therefore,
-preserving order requires masking out ASYNC implementations
-of gcm(aes).
+By directly using kfree() in different places we risk missing one if
+it is switched to using vfree(), especially if the corresponding
+vmalloc() is hidden away within a common abstraction.
 
-For instance, an Intel CPU with AES-NI makes available the
-generic-gcm-aesni driver from the aesni_intel module to
-implement gcm(aes). However, this implementation requires
-the FPU, so it is not always available to use from a softirq
-context, and will fallback to the cryptd work queue, which
-does not preserve frame ordering. With this change, such a
-system would select gcm_base(ctr(aes-aesni),ghash-generic).
-While the aes-aesni implementation prefers to use the FPU, it
-will fallback to the aes-asm implementation if unavailable.
+Oh wait, that's exactly what happened here.
 
-By using a synchronous version of gcm(aes), the decryption
-will complete before returning from crypto_aead_decrypt().
-Therefore, the macsec_decrypt_done() callback will be called
-before returning from macsec_decrypt(). Thus, the order of
-calls to macsec_post_decrypt() for the frames is preserved.
+So let's fix this by creating a common abstraction for the free case
+as well.
 
-While it's presumable that the pure AES-NI version of gcm(aes)
-is more performant, the hybrid solution is capable of gigabit
-speeds on modest hardware. Regardless, preserving the order
-of frames is paramount for many network protocols (e.g.,
-triggering TCP retries). Within the MACsec driver itself, the
-replay protection is tripped by the out-of-order frames, and
-can cause frames to be dropped.
-
-This bug has been present in this code since it was added in
-v4.6, however it may not have been noticed since not all CPUs
-have FPU offload available. Additionally, the bug manifests
-as occasional out-of-order packets that are easily
-misattributed to other network phenomena.
-
-When this code was added in v4.6, the crypto/gcm.c code did
-not restrict selection of the ghash function based on the
-ASYNC flag. For instance, x86 CPUs with PCLMULQDQ would
-select the ghash-clmulni driver instead of ghash-generic,
-which submits to the cryptd work queue if the FPU is busy.
-However, this bug was was corrected in v4.8 by commit
-b30bdfa86431afbafe15284a3ad5ac19b49b88e3, and was backported
-all the way back to the v3.14 stable branch, so this patch
-should be applicable back to the v4.6 stable branch.
-
-Signed-off-by: Scott Dial <scott@scottdial.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Nicolas Pitre <nico@fluxnic.net>
+Reported-by: syzbot+0bfda3ade1ee9288a1be@syzkaller.appspotmail.com
+Fixes: 9a98e7a80f95 ("vt: don't use kmalloc() for the unicode screen buffer")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.2005021043110.2671@knanqh.ubzr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/vt/vt.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1226,7 +1226,8 @@ static struct crypto_aead *macsec_alloc_
- 	struct crypto_aead *tfm;
- 	int ret;
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index 8b3ecef50394a..fd0361d72738b 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -365,9 +365,14 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
+ 	return uniscr;
+ }
  
--	tfm = crypto_alloc_aead("gcm(aes)", 0, 0);
-+	/* Pick a sync gcm(aes) cipher to ensure order is preserved. */
-+	tfm = crypto_alloc_aead("gcm(aes)", 0, CRYPTO_ALG_ASYNC);
++static void vc_uniscr_free(struct uni_screen *uniscr)
++{
++	vfree(uniscr);
++}
++
+ static void vc_uniscr_set(struct vc_data *vc, struct uni_screen *new_uniscr)
+ {
+-	vfree(vc->vc_uni_screen);
++	vc_uniscr_free(vc->vc_uni_screen);
+ 	vc->vc_uni_screen = new_uniscr;
+ }
  
- 	if (IS_ERR(tfm))
- 		return tfm;
+@@ -1230,7 +1235,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	err = resize_screen(vc, new_cols, new_rows, user);
+ 	if (err) {
+ 		kfree(newscreen);
+-		kfree(new_uniscr);
++		vc_uniscr_free(new_uniscr);
+ 		return err;
+ 	}
+ 
+-- 
+2.20.1
+
 
 
