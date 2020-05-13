@@ -2,108 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D57FD1D0FE0
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D0A1D0FDE
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727794AbgEMKck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 06:32:40 -0400
-Received: from mga09.intel.com ([134.134.136.24]:63390 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732556AbgEMKcj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 06:32:39 -0400
-IronPort-SDR: 0sT9FsNGn+ZoyqUjwScFX5GJusHUoEX2j+im6z+zZbk+xBCvj0qCa/Afrvjbijn4g6jc3/TFRu
- Mz0AKgNuIIBA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2020 03:32:38 -0700
-IronPort-SDR: Hvv4InNJGc7fHnyB8SLK88DtnDdJpIDRTXFIvd/L4yRlczBHHJmc8srE4vV6AEx2BLRfvbzlry
- 2uaQo/yz9Kmg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,387,1583222400"; 
-   d="scan'208";a="262438024"
-Received: from ideak-desk.fi.intel.com ([10.237.72.183])
-  by orsmga003.jf.intel.com with ESMTP; 13 May 2020 03:32:36 -0700
-From:   Imre Deak <imre.deak@intel.com>
-To:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Cc:     Lyude Paul <lyude@redhat.com>, Sean Paul <sean@poorly.run>,
-        Wayne Lin <Wayne.Lin@amd.com>, stable@vger.kernel.org
-Subject: [PATCH] drm/dp_mst: Fix timeout handling of MST down messages
-Date:   Wed, 13 May 2020 13:31:55 +0300
-Message-Id: <20200513103155.12336-1-imre.deak@intel.com>
-X-Mailer: git-send-email 2.23.1
+        id S1732485AbgEMKcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:32:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55884 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727794AbgEMKcX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 06:32:23 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 828CAC061A0C
+        for <stable@vger.kernel.org>; Wed, 13 May 2020 03:32:23 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id w10so6466324ljo.0
+        for <stable@vger.kernel.org>; Wed, 13 May 2020 03:32:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=kgV1PH6IdI+/Z8CIXoSiBHCJgvfZ9K5954ASAiVs5C8=;
+        b=zEmxlB7PoUsxMJz/Hk9ivN/qplHBf/NBwwIS3XRsbMtwFeqttUE3v1MQtWr5Q8rRPo
+         PqnjmeFC2xrjbZuPZgeBuwNIgRO2/UY5I/5tyI1s5uiU5VQz/CbBE69XmL/Kd/qcrOxA
+         11qQU7Lyvza2p3R1k/I0UxNQLd9FAuFBGgf4Wz7FBUhkZaL2NgAS8sCblYuX0bgom027
+         aECc2J+YC28+H5H8lWP6A9UKnyLs2S8+Xv2Bcd7uyvt6CXER6DYy5ei0IprTRwbAkpRh
+         Ckz+mpZP9xf1mxxxwJ4pQ/17A1p4Gy32JoGvbX3fkerkR+NeklnZAJLXHw/BRsLcEorw
+         vfIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=kgV1PH6IdI+/Z8CIXoSiBHCJgvfZ9K5954ASAiVs5C8=;
+        b=UXoWp4cqv/XtoKgYM/K4ZjqYUVpmoHuyUuATi6DkJDE1Clp3KjeoxSgvg14RJrfHD5
+         4UoKX8Axrzj+eKlop7HtonNpfDnudgThfNSdigI6yNLBnEWKuOlxFGBUDaSmuxQTq7Xp
+         OKl8GR02g6Yy/8JFMjKbN+WzKJNtW4tpPDZDcygzPmxZJA7dqa77Iv+RFDVfQirVHQMH
+         22LSKoEbgCb//iixG4GJ7Xvl9+ikEB0Zzon/nnqut6SsVaDkWFmfVu91TbNJ62rMtSI+
+         lJiXRYCHU2HSFAK1/tRF4o8tFK6+O8/ms1za8zgkFv2Ox+FD5UhTF9/Z9zArWeEreSSF
+         wFMw==
+X-Gm-Message-State: AOAM530esndoxDS/0+EP/lcI0RujX1z4dLVLO3jd/jqOUmNMPGrDe3S6
+        9l+bIB4m3pco63MDwneQk7ld4MVxroN3VU/q7kD2+A==
+X-Google-Smtp-Source: ABdhPJwrE5MR0Z3Lgel2dOA+n6bI6qjbtbjRYYl978azmhVUrEawbknTFZJo7BYsDw9RhdRCbjmMRRJ7OoHIN3fAFkM=
+X-Received: by 2002:a2e:8912:: with SMTP id d18mr17369817lji.123.1589365940899;
+ Wed, 13 May 2020 03:32:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <158928280292134@kroah.com>
+In-Reply-To: <158928280292134@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 13 May 2020 16:02:09 +0530
+Message-ID: <CA+G9fYvoMhYHihJCq9eF7F0YwaL+s-n7nzPERmzbr08iL_Jwgw@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] arm64: hugetlb: avoid potential NULL
+ dereference" failed to apply to 4.9-stable tree
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>, catalin.marinas@arm.com,
+        kyrylo.tkachov@arm.com, linux- stable <stable@vger.kernel.org>,
+        Will Deacon <will@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes the following use-after-free problem in case an MST down
-message times out, while waiting for the response for it:
+On Tue, 12 May 2020 at 16:56, <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>
+> thanks,
+>
+> greg k-h
+>
+> ------------------ original commit in Linus's tree ------------------
+>
+> From 027d0c7101f50cf03aeea9eebf484afd4920c8d3 Mon Sep 17 00:00:00 2001
+> From: Mark Rutland <mark.rutland@arm.com>
+> Date: Tue, 5 May 2020 13:59:30 +0100
+> Subject: [PATCH] arm64: hugetlb: avoid potential NULL dereference
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=3DUTF-8
+> Content-Transfer-Encoding: 8bit
+>
+> The static analyzer in GCC 10 spotted that in huge_pte_alloc() we may
+> pass a NULL pmdp into pte_alloc_map() when pmd_alloc() returns NULL:
+>
+> |   CC      arch/arm64/mm/pageattr.o
+> |   CC      arch/arm64/mm/hugetlbpage.o
+> |                  from arch/arm64/mm/hugetlbpage.c:10:
+> | arch/arm64/mm/hugetlbpage.c: In function =E2=80=98huge_pte_alloc=E2=80=
+=99:
+> | ./arch/arm64/include/asm/pgtable-types.h:28:24: warning: dereference of=
+ NULL =E2=80=98pmdp=E2=80=99 [CWE-690] [-Wanalyzer-null-dereference]
+> | ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro =
+=E2=80=98pmd_val=E2=80=99
+> | arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro =E2=80=
+=98pte_alloc_map=E2=80=99
+> |     |arch/arm64/mm/hugetlbpage.c:232:10:
+> |     |./arch/arm64/include/asm/pgtable-types.h:28:24:
+> | ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro =
+=E2=80=98pmd_val=E2=80=99
+> | arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro =E2=80=
+=98pte_alloc_map=E2=80=99
+>
+> This can only occur when the kernel cannot allocate a page, and so is
+> unlikely to happen in practice before other systems start failing.
+>
+> We can avoid this by bailing out if pmd_alloc() fails, as we do earlier
+> in the function if pud_alloc() fails.
+>
+> Fixes: 66b3923a1a0f ("arm64: hugetlb: add support for PTE contiguous bit"=
+)
+> Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+> Reported-by: Kyrill Tkachov <kyrylo.tkachov@arm.com>
+> Cc: <stable@vger.kernel.org> # 4.5.x-
+> Cc: Will Deacon <will@kernel.org>
+> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+>
+> diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
+> index bbeb6a5a6ba6..0be3355e3499 100644
+> --- a/arch/arm64/mm/hugetlbpage.c
+> +++ b/arch/arm64/mm/hugetlbpage.c
+> @@ -230,6 +230,8 @@ pte_t *huge_pte_alloc(struct mm_struct *mm,
+>                 ptep =3D (pte_t *)pudp;
+>         } else if (sz =3D=3D (CONT_PTE_SIZE)) {
+>                 pmdp =3D pmd_alloc(mm, pudp, addr);
+> +               if (!pmdp)
+> +                       return NULL;
+>
+>                 WARN_ON(addr & (sz - 1));
+>                 /*
+>
 
-[  449.022841] [drm:drm_dp_mst_wait_tx_reply.isra.26] timedout msg send 0000000080ba7fa2 2 0
-[  449.022898] ------------[ cut here ]------------
-[  449.022903] list_add corruption. prev->next should be next (ffff88847dae32c0), but was 6b6b6b6b6b6b6b6b. (prev=ffff88847db1c140).
-[  449.022931] WARNING: CPU: 2 PID: 22 at lib/list_debug.c:28 __list_add_valid+0x4d/0x70
-[  449.022935] Modules linked in: asix usbnet mii snd_hda_codec_hdmi mei_hdcp i915 x86_pkg_temp_thermal coretemp crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_intel snd_intel_dspcfg snd_hda_codec snd_hwdep e1000e snd_hda_core ptp snd_pcm pps_core mei_me mei intel_lpss_pci prime_numbers
-[  449.022966] CPU: 2 PID: 22 Comm: kworker/2:0 Not tainted 5.7.0-rc3-CI-Patchwork_17536+ #1
-[  449.022970] Hardware name: Intel Corporation Tiger Lake Client Platform/TigerLake U DDR4 SODIMM RVP, BIOS TGLSFWI1.R00.2457.A16.1912270059 12/27/2019
-[  449.022976] Workqueue: events_long drm_dp_mst_link_probe_work
-[  449.022982] RIP: 0010:__list_add_valid+0x4d/0x70
-[  449.022987] Code: c3 48 89 d1 48 c7 c7 f0 e7 32 82 48 89 c2 e8 3a 49 b7 ff 0f 0b 31 c0 c3 48 89 c1 4c 89 c6 48 c7 c7 40 e8 32 82 e8 23 49 b7 ff <0f> 0b 31 c0 c3 48 89 f2 4c 89 c1 48 89 fe 48 c7 c7 90 e8 32 82 e8
-[  449.022991] RSP: 0018:ffffc900001abcb0 EFLAGS: 00010286
-[  449.022995] RAX: 0000000000000000 RBX: ffff88847dae2d58 RCX: 0000000000000001
-[  449.022999] RDX: 0000000080000001 RSI: ffff88849d914978 RDI: 00000000ffffffff
-[  449.023002] RBP: ffff88847dae32c0 R08: ffff88849d914978 R09: 0000000000000000
-[  449.023006] R10: ffffc900001abcb8 R11: 0000000000000000 R12: ffff888490d98400
-[  449.023009] R13: ffff88847dae3230 R14: ffff88847db1c140 R15: ffff888490d98540
-[  449.023013] FS:  0000000000000000(0000) GS:ffff88849ff00000(0000) knlGS:0000000000000000
-[  449.023017] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  449.023021] CR2: 00007fb96fafdc63 CR3: 0000000005610004 CR4: 0000000000760ee0
-[  449.023025] PKRU: 55555554
-[  449.023028] Call Trace:
-[  449.023034]  drm_dp_queue_down_tx+0x59/0x110
-[  449.023041]  ? rcu_read_lock_sched_held+0x4d/0x80
-[  449.023050]  ? kmem_cache_alloc_trace+0x2a6/0x2d0
-[  449.023060]  drm_dp_send_link_address+0x74/0x870
-[  449.023065]  ? __slab_free+0x3e1/0x5c0
-[  449.023071]  ? lockdep_hardirqs_on+0xe0/0x1c0
-[  449.023078]  ? lockdep_hardirqs_on+0xe0/0x1c0
-[  449.023097]  drm_dp_check_and_send_link_address+0x9a/0xc0
-[  449.023106]  drm_dp_mst_link_probe_work+0x9e/0x160
-[  449.023117]  process_one_work+0x268/0x600
-[  449.023124]  ? __schedule+0x307/0x8d0
-[  449.023139]  worker_thread+0x37/0x380
-[  449.023149]  ? process_one_work+0x600/0x600
-[  449.023153]  kthread+0x140/0x160
-[  449.023159]  ? kthread_park+0x80/0x80
-[  449.023169]  ret_from_fork+0x24/0x50
+on stable-rc 4.9 branch arm64 architecture build failed.
 
-Fixes: d308a881a591 ("drm/dp_mst: Kill the second sideband tx slot, save the world")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: <stable@vger.kernel.org> # v3.17+
-Signed-off-by: Imre Deak <imre.deak@intel.com>
----
- drivers/gpu/drm/drm_dp_mst_topology.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+  CC      arch/arm64/mm/hugetlbpage.o
+arch/arm64/mm/hugetlbpage.c: In function 'huge_pte_alloc':
+arch/arm64/mm/hugetlbpage.c:106:8: error: 'pmdp' undeclared (first use
+in this function); did you mean 'pmd'?
+   if (!pmdp)
+        ^~~~
+        pmd
+arch/arm64/mm/hugetlbpage.c:106:8: note: each undeclared identifier is
+reported only once for each function it appears in
+scripts/Makefile.build:304: recipe for target
+'arch/arm64/mm/hugetlbpage.o' failed
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index 2d4132e0a98f..70455e304a26 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -1197,7 +1197,8 @@ static int drm_dp_mst_wait_tx_reply(struct drm_dp_mst_branch *mstb,
- 
- 		/* remove from q */
- 		if (txmsg->state == DRM_DP_SIDEBAND_TX_QUEUED ||
--		    txmsg->state == DRM_DP_SIDEBAND_TX_START_SEND)
-+		    txmsg->state == DRM_DP_SIDEBAND_TX_START_SEND ||
-+		    txmsg->state == DRM_DP_SIDEBAND_TX_SENT)
- 			list_del(&txmsg->next);
- 	}
- out:
--- 
-2.23.1
+ref:
+https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.9/D=
+ISTRO=3Dlkft,MACHINE=3Dhikey,label=3Ddocker-lkft/893/consoleText
 
+--=20
+Linaro LKFT
+https://lkft.linaro.org
