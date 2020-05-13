@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D1751D0D7F
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:53:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 746391D0F34
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:05:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387957AbgEMJxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:53:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55520 "EHLO mail.kernel.org"
+        id S1727812AbgEMJqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:46:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387954AbgEMJxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:53:30 -0400
+        id S1732636AbgEMJq1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:46:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0506C20753;
-        Wed, 13 May 2020 09:53:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D17C623128;
+        Wed, 13 May 2020 09:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363609;
-        bh=iPa4Xr6Ty70rISOHMRVLustJX8yAz3kr/Ge5GvuPdVM=;
+        s=default; t=1589363186;
+        bh=LwGn39lj7UslFGfZpnJKr1mv5ArhCasq226wWa4aPUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDKTBiFU8ZcTS7eUhBG27ES/PsKLJM6lKM5niVDiN2ybBAryg8LrvN3dQe4s3sFB4
-         M/nRGnN5ymiusidA5GtntQRUw1ZrJIR0/b8TEURBEwCSqjHEVrr6yHAt2TGyZiscW0
-         AtjcH6L6EKzms7rqMnnnFq7yB+wy05afm+iGl+hc=
+        b=EO/EVrTQDyAaDDhl0YWzXDaT+pf44wwhVQw1OMKrLhnRkBoKOgmYundfWpc8V/uax
+         bEGaDpPkoiNndZ6/kKPGw4fayQBjG34EfNgsLxydoumj2ga4EDbPxlgVNrhiYraQCZ
+         4yypOhJIgMWLUFNOPO4JUO5NoW5jMqm/VH08CikI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Olivier Tilmans <olivier.tilmans@nokia-bell-labs.com>,
-        Dave Taht <dave.taht@gmail.com>,
-        "Rodney W. Grimes" <ietf@gndrsh.dnsmgr.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 053/118] wireguard: receive: use tunnel helpers for decapsulating ECN markings
-Date:   Wed, 13 May 2020 11:44:32 +0200
-Message-Id: <20200513094421.742472747@linuxfoundation.org>
+Subject: [PATCH 4.19 07/48] net/mlx4_core: Fix use of ENOSPC around mlx4_counter_alloc()
+Date:   Wed, 13 May 2020 11:44:33 +0200
+Message-Id: <20200513094353.857327137@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
+References: <20200513094351.100352960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,48 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Toke Høiland-Jørgensen" <toke@redhat.com>
+From: Tariq Toukan <tariqt@mellanox.com>
 
-[ Upstream commit eebabcb26ea1e3295704477c6cd4e772c96a9559 ]
+[ Upstream commit 40e473071dbad04316ddc3613c3a3d1c75458299 ]
 
-WireGuard currently only propagates ECN markings on tunnel decap according
-to the old RFC3168 specification. However, the spec has since been updated
-in RFC6040 to recommend slightly different decapsulation semantics. This
-was implemented in the kernel as a set of common helpers for ECN
-decapsulation, so let's just switch over WireGuard to using those, so it
-can benefit from this enhancement and any future tweaks. We do not drop
-packets with invalid ECN marking combinations, because WireGuard is
-frequently used to work around broken ISPs, which could be doing that.
+When ENOSPC is set the idx is still valid and gets set to the global
+MLX4_SINK_COUNTER_INDEX.  However gcc's static analysis cannot tell that
+ENOSPC is impossible from mlx4_cmd_imm() and gives this warning:
 
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Reported-by: Olivier Tilmans <olivier.tilmans@nokia-bell-labs.com>
-Cc: Dave Taht <dave.taht@gmail.com>
-Cc: Rodney W. Grimes <ietf@gndrsh.dnsmgr.net>
-Signed-off-by: Toke HÃ¸iland-JÃ¸rgensen <toke@redhat.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+drivers/net/ethernet/mellanox/mlx4/main.c:2552:28: warning: 'idx' may be
+used uninitialized in this function [-Wmaybe-uninitialized]
+ 2552 |    priv->def_counter[port] = idx;
+
+Also, when ENOSPC is returned mlx4_allocate_default_counters should not
+fail.
+
+Fixes: 6de5f7f6a1fa ("net/mlx4_core: Allocate default counter per port")
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/receive.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireguard/receive.c
-+++ b/drivers/net/wireguard/receive.c
-@@ -393,13 +393,11 @@ static void wg_packet_consume_data_done(
- 		len = ntohs(ip_hdr(skb)->tot_len);
- 		if (unlikely(len < sizeof(struct iphdr)))
- 			goto dishonest_packet_size;
--		if (INET_ECN_is_ce(PACKET_CB(skb)->ds))
--			IP_ECN_set_ce(ip_hdr(skb));
-+		INET_ECN_decapsulate(skb, PACKET_CB(skb)->ds, ip_hdr(skb)->tos);
- 	} else if (skb->protocol == htons(ETH_P_IPV6)) {
- 		len = ntohs(ipv6_hdr(skb)->payload_len) +
- 		      sizeof(struct ipv6hdr);
--		if (INET_ECN_is_ce(PACKET_CB(skb)->ds))
--			IP6_ECN_set_ce(skb, ipv6_hdr(skb));
-+		INET_ECN_decapsulate(skb, PACKET_CB(skb)->ds, ipv6_get_dsfield(ipv6_hdr(skb)));
- 	} else {
- 		goto dishonest_packet_type;
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -2539,6 +2539,7 @@ static int mlx4_allocate_default_counter
+ 
+ 		if (!err || err == -ENOSPC) {
+ 			priv->def_counter[port] = idx;
++			err = 0;
+ 		} else if (err == -ENOENT) {
+ 			err = 0;
+ 			continue;
+@@ -2589,7 +2590,8 @@ int mlx4_counter_alloc(struct mlx4_dev *
+ 				   MLX4_CMD_TIME_CLASS_A, MLX4_CMD_WRAPPED);
+ 		if (!err)
+ 			*idx = get_param_l(&out_param);
+-
++		if (WARN_ON(err == -ENOSPC))
++			err = -EINVAL;
+ 		return err;
  	}
+ 	return __mlx4_counter_alloc(dev, idx);
 
 
