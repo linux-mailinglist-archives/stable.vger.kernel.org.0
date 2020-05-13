@@ -2,96 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F2BF1D217E
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 23:52:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0967F1D2287
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 01:00:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729732AbgEMVwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 17:52:13 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:55624 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729487AbgEMVwM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 17:52:12 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 342A21C0285; Wed, 13 May 2020 23:52:11 +0200 (CEST)
-Date:   Wed, 13 May 2020 23:52:10 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
-        Jann Horn <jannh@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>
-Subject: Re: [PATCH 4.19 41/48] x86/unwind/orc: Prevent unwinding before ORC
- initialization
-Message-ID: <20200513215210.GB27858@amd>
-References: <20200513094351.100352960@linuxfoundation.org>
- <20200513094402.645961403@linuxfoundation.org>
+        id S1731857AbgEMXAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 19:00:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731815AbgEMXAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 19:00:04 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 351972053B;
+        Wed, 13 May 2020 23:00:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589410804;
+        bh=yhgOy+HBIqe+YTLD0EU9sasHa8OQ4wIY+R54vtxpDU4=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=c3Umq4IsUaRU+CdCE3tq1ph8DqMqpHh3Zo4v6ZjUetNZZ8j2bJ/QCpTfWYDcvi+Hu
+         cFRvfDqZczu0qgb4dQeXbmcnUKWmIELwWPBBkruCDX12VFkrGKCiCY7Mjib+e9ni1C
+         dE+UI9NB/TMtFeg4KuXoCO0R5HDgwpi/A7N0/CVA=
+Subject: Re: [PATCH 5.6 000/118] 5.6.13-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200513094417.618129545@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <6ef26ca0-ebb2-9f9a-c9a8-32365667a7a9@kernel.org>
+Date:   Wed, 13 May 2020 16:59:52 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7ZAtKRhVyVSsbBD2"
-Content-Disposition: inline
-In-Reply-To: <20200513094402.645961403@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 5/13/20 3:43 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.6.13 release.
+> There are 118 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 15 May 2020 09:41:20 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.13-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
---7ZAtKRhVyVSsbBD2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Compiled and booted on my test system. No dmesg regressions.
 
-Hi!
+thanks,
+-- Shuah
 
-> From: Josh Poimboeuf <jpoimboe@redhat.com>
->=20
-> commit 98d0c8ebf77e0ba7c54a9ae05ea588f0e9e3f46e upstream.
->=20
-> If the unwinder is called before the ORC data has been initialized,
-> orc_find() returns NULL, and it tries to fall back to using frame
-> pointers.  This can cause some unexpected warnings during boot.
->=20
-> Move the 'orc_init' check from orc_find() to __unwind_init(), so that it
-> doesn't even try to unwind from an uninitialized state.
-
-> @@ -563,6 +560,9 @@ EXPORT_SYMBOL_GPL(unwind_next_frame);
->  void __unwind_start(struct unwind_state *state, struct task_struct *task,
->  		    struct pt_regs *regs, unsigned long *first_frame)
->  {
-> +	if (!orc_init)
-> +		goto done;
-> +
->  	memset(state, 0, sizeof(*state));
->  	state->task =3D task;
-> =20
-
-As this returns the *state to the caller, should the "goto done" move
-below the memset? Otherwise we are returning partialy-initialized
-struct, which is ... weird.
-
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---7ZAtKRhVyVSsbBD2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl68bAoACgkQMOfwapXb+vIO/wCfeBz+IYxkM6JcitMdJYsM+hlL
-nbMAn1Tq0iWjnwpbT7Xhq4LpYViSDVSd
-=vaev
------END PGP SIGNATURE-----
-
---7ZAtKRhVyVSsbBD2--
