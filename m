@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11A711D0E32
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:58:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C9771D0EC1
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726345AbgEMJ6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:58:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56740 "EHLO mail.kernel.org"
+        id S1732785AbgEMJuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:50:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387594AbgEMJyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:54:22 -0400
+        id S2387433AbgEMJuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:50:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C171205ED;
-        Wed, 13 May 2020 09:54:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5D5C23128;
+        Wed, 13 May 2020 09:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363661;
-        bh=T7mwNA+BukZCmqrM9ItDpviYepoJkudAyU7T2jHsWvU=;
+        s=default; t=1589363402;
+        bh=H6RK4Fn9JCQrahNvg7ybV844UB/P0cnu7StCAIBei8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqXnel3UlCEJrREz9bIauTo2l4w7Zxg8gRBv4C/+gAFHMB8poVONFVXQe8+uw11ZE
-         C0K+7rIYe/F7oYaUXl0WG18VcGYD0pkvkxet8qYvQlLbdOSSYRvKM8AsN20P3DR5ZJ
-         1r8/BdqeBi+YHb7NyTi+xT5+sD1UxlBbusiExJ/A=
+        b=NIABCVsMFeUEcsIOh0l7E83e8/AJBwu6FIxD9JFjf5wzYgfwJOzn85/kf5TbSfyB+
+         YufsjvSRjyXbtYqOqJfyTOBsHqF0OoTFBTsauxFCkKVbeOrDPEhFnKrVC/2Rg3jmlQ
+         n8dqLzLDb7mDStmfqrYPexHvmoIYq2dmGK75f1Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Kyrill Tkachov <kyrylo.tkachov@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.6 075/118] arm64: hugetlb: avoid potential NULL dereference
-Date:   Wed, 13 May 2020 11:44:54 +0200
-Message-Id: <20200513094424.216202240@linuxfoundation.org>
+        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Penyaev <rpenyaev@suse.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
+        Jason Baron <jbaron@akamai.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 59/90] eventpoll: fix missing wakeup for ovflist in ep_poll_callback
+Date:   Wed, 13 May 2020 11:44:55 +0200
+Message-Id: <20200513094415.943881845@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +47,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Khazhismel Kumykov <khazhy@google.com>
 
-commit 027d0c7101f50cf03aeea9eebf484afd4920c8d3 upstream.
+commit 0c54a6a44bf3d41e76ce3f583a6ece267618df2e upstream.
 
-The static analyzer in GCC 10 spotted that in huge_pte_alloc() we may
-pass a NULL pmdp into pte_alloc_map() when pmd_alloc() returns NULL:
+In the event that we add to ovflist, before commit 339ddb53d373
+("fs/epoll: remove unnecessary wakeups of nested epoll") we would be
+woken up by ep_scan_ready_list, and did no wakeup in ep_poll_callback.
 
-|   CC      arch/arm64/mm/pageattr.o
-|   CC      arch/arm64/mm/hugetlbpage.o
-|                  from arch/arm64/mm/hugetlbpage.c:10:
-| arch/arm64/mm/hugetlbpage.c: In function ‘huge_pte_alloc’:
-| ./arch/arm64/include/asm/pgtable-types.h:28:24: warning: dereference of NULL ‘pmdp’ [CWE-690] [-Wanalyzer-null-dereference]
-| ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro ‘pmd_val’
-| arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro ‘pte_alloc_map’
-|     |arch/arm64/mm/hugetlbpage.c:232:10:
-|     |./arch/arm64/include/asm/pgtable-types.h:28:24:
-| ./arch/arm64/include/asm/pgtable.h:436:26: note: in expansion of macro ‘pmd_val’
-| arch/arm64/mm/hugetlbpage.c:242:10: note: in expansion of macro ‘pte_alloc_map’
+With that wakeup removed, if we add to ovflist here, we may never wake
+up.  Rather than adding back the ep_scan_ready_list wakeup - which was
+resulting in unnecessary wakeups, trigger a wake-up in ep_poll_callback.
 
-This can only occur when the kernel cannot allocate a page, and so is
-unlikely to happen in practice before other systems start failing.
+We noticed that one of our workloads was missing wakeups starting with
+339ddb53d373 and upon manual inspection, this wakeup seemed missing to me.
+With this patch added, we no longer see missing wakeups.  I haven't yet
+tried to make a small reproducer, but the existing kselftests in
+filesystem/epoll passed for me with this patch.
 
-We can avoid this by bailing out if pmd_alloc() fails, as we do earlier
-in the function if pud_alloc() fails.
-
-Fixes: 66b3923a1a0f ("arm64: hugetlb: add support for PTE contiguous bit")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Reported-by: Kyrill Tkachov <kyrylo.tkachov@arm.com>
-Cc: <stable@vger.kernel.org> # 4.5.x-
-Cc: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[khazhy@google.com: use if/elif instead of goto + cleanup suggested by Roman]
+  Link: http://lkml.kernel.org/r/20200424190039.192373-1-khazhy@google.com
+Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
+Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Roman Penyaev <rpenyaev@suse.de>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Roman Penyaev <rpenyaev@suse.de>
+Cc: Heiher <r@hev.cc>
+Cc: Jason Baron <jbaron@akamai.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200424025057.118641-1-khazhy@google.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/mm/hugetlbpage.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/eventpoll.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/arch/arm64/mm/hugetlbpage.c
-+++ b/arch/arm64/mm/hugetlbpage.c
-@@ -230,6 +230,8 @@ pte_t *huge_pte_alloc(struct mm_struct *
- 		ptep = (pte_t *)pudp;
- 	} else if (sz == (CONT_PTE_SIZE)) {
- 		pmdp = pmd_alloc(mm, pudp, addr);
-+		if (!pmdp)
-+			return NULL;
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1176,6 +1176,10 @@ static inline bool chain_epi_lockless(st
+ {
+ 	struct eventpoll *ep = epi->ep;
  
- 		WARN_ON(addr & (sz - 1));
- 		/*
++	/* Fast preliminary check */
++	if (epi->next != EP_UNACTIVE_PTR)
++		return false;
++
+ 	/* Check that the same epi has not been just chained from another CPU */
+ 	if (cmpxchg(&epi->next, EP_UNACTIVE_PTR, NULL) != EP_UNACTIVE_PTR)
+ 		return false;
+@@ -1242,16 +1246,12 @@ static int ep_poll_callback(wait_queue_e
+ 	 * chained in ep->ovflist and requeued later on.
+ 	 */
+ 	if (READ_ONCE(ep->ovflist) != EP_UNACTIVE_PTR) {
+-		if (epi->next == EP_UNACTIVE_PTR &&
+-		    chain_epi_lockless(epi))
++		if (chain_epi_lockless(epi))
++			ep_pm_stay_awake_rcu(epi);
++	} else if (!ep_is_linked(epi)) {
++		/* In the usual case, add event to ready list. */
++		if (list_add_tail_lockless(&epi->rdllink, &ep->rdllist))
+ 			ep_pm_stay_awake_rcu(epi);
+-		goto out_unlock;
+-	}
+-
+-	/* If this file is already in the ready list we exit soon */
+-	if (!ep_is_linked(epi) &&
+-	    list_add_tail_lockless(&epi->rdllink, &ep->rdllist)) {
+-		ep_pm_stay_awake_rcu(epi);
+ 	}
+ 
+ 	/*
 
 
