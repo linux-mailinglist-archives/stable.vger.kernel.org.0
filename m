@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E4E1D03EF
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 02:49:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 045251D03F0
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 02:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731604AbgEMAtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 20:49:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55420 "EHLO mail.kernel.org"
+        id S1731619AbgEMAth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 20:49:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729646AbgEMAtg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 May 2020 20:49:36 -0400
+        id S1729646AbgEMAth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 May 2020 20:49:37 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72F0220753;
-        Wed, 13 May 2020 00:49:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9051020675;
+        Wed, 13 May 2020 00:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589330975;
-        bh=9qJ5RZzzZN5GiUVZMI2CqHQ8Q47+EhKS8T5MvtvGDcM=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Subject:In-Reply-To:References:
-         From;
-        b=ccnSbPHAKPntfM8vsjvtQqsZ+vJ7cGM+hnS8Jq9M0L2c4sSj5T2VTtZBnDPLeHk6b
-         HCDFXph9bjY3F8bldrxspub3VRR5DqCmroqChHXZW5NQ1mB5CO4afL32o9yS9sG8kM
-         esKStvS0jgDSJOF1OuKoRDQwEiJZ0G3x0I/Gm6FM=
-Date:   Wed, 13 May 2020 00:49:34 +0000
+        s=default; t=1589330976;
+        bh=HzhXP4qyPkq4rXGEJtKdNFiQO7D3NYzHXCbINeVWqh8=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=JwGr8a1zzTn/5nmQexSV1qntL8lTyJ505QOm+JBhyexxAptdq5SkqilMlDC2N8cbX
+         KJFXiBcm0iKeP3RZgPhywDekVkZs6imfKrZhqopNk/HX7HivQXgNSO8ivM/grDG26b
+         uZZ6WzTF0MhX1mCr384O6IUakp6or61kibHYtcpc=
+Date:   Wed, 13 May 2020 00:49:35 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
 To:     Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Richard Weinberger <richard@nod.at>
 Cc:     Boris Brezillon <boris.brezillon@collabora.com>
 Cc:     stable@vger.kernel.org
-Cc:     Xiaolei Li <xiaolei.li@mediatek.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 27/62] mtd: rawnand: mtk: Fix the probe error path
-In-Reply-To: <20200510121220.18042-28-miquel.raynal@bootlin.com>
-References: <20200510121220.18042-28-miquel.raynal@bootlin.com>
-Message-Id: <20200513004935.72F0220753@mail.kernel.org>
+Subject: Re: [PATCH 36/62] mtd: rawnand: oxnas: Fix the probe error path
+In-Reply-To: <20200510121220.18042-37-miquel.raynal@bootlin.com>
+References: <20200510121220.18042-37-miquel.raynal@bootlin.com>
+Message-Id: <20200513004936.9051020675@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -54,22 +52,30 @@ The bot has tested the following trees: v5.6.11, v5.4.39, v4.19.121, v4.14.179, 
 v5.6.11: Build OK!
 v5.4.39: Build OK!
 v4.19.121: Failed to apply! Possible dependencies:
+    00ad378f304a ("mtd: rawnand: Pass a nand_chip object to nand_scan()")
+    4b17cf680c0c ("mtd: rawnand: diskonchip: Fix the probe error path")
     59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
 
 v4.14.179: Failed to apply! Possible dependencies:
+    00ad378f304a ("mtd: rawnand: Pass a nand_chip object to nand_scan()")
     02f26ecf8c77 ("mtd: nand: add reworked Marvell NAND controller driver")
-    256c4fc76a80 ("mtd: rawnand: add a way to pass an ID table with nand_scan()")
-    39b77c586e17 ("mtd: rawnand: fsl_elbc: fix probe function error path")
-    59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
-    63fa37f0c512 ("mtd: rawnand: Replace printk() with appropriate pr_*() macro")
-    97d90da8a886 ("mtd: nand: provide several helpers to do common NAND operations")
-    98732da1a08e ("mtd: rawnand: do not export nand_scan_[ident|tail]() anymore")
-    acfc33091f7a ("mtd: rawnand: fsl_ifc: fix probe function error path")
+    1c782b9a8517 ("mtd: nand: mtk: change the compile sequence of mtk_nand.o and mtk_ecc.o")
+    263c68afb521 ("mtd: nand: pxa3xx_nand: Update Kconfig information")
+    34832dc44d44 ("mtd: nand: gpmi-nand: Remove wrong Kconfig help text")
+    4b17cf680c0c ("mtd: rawnand: diskonchip: Fix the probe error path")
+    577e010c24bc ("mtd: rawnand: atmel: convert driver to nand_scan()")
+    7928225ffcb3 ("mtd: rawnand: atmel: clarify NAND addition/removal paths")
+    7cce5d835467 ("MAINTAINERS: mtd/nand: update Microchip nand entry")
+    7da45139d264 ("mtd: rawnand: better name for the controller structure")
+    93db446a424c ("mtd: nand: move raw NAND related code to the raw/ subdir")
+    b4525db6f0c6 ("MAINTAINERS: Add entry for Marvell NAND controller driver")
+    d7d9f8ec77fe ("mtd: rawnand: add NVIDIA Tegra NAND Flash controller driver")
 
 v4.9.222: Failed to apply! Possible dependencies:
+    00ad378f304a ("mtd: rawnand: Pass a nand_chip object to nand_scan()")
     24755a55b01f ("Documentation/00-index: update for new core-api folder")
     4ad4b21b1b81 ("docs-rst: convert usb docbooks to ReST")
-    59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
+    4b17cf680c0c ("mtd: rawnand: diskonchip: Fix the probe error path")
     609f212f6a12 ("docs-rst: convert mtdnand book to ReST")
     66115335fbb4 ("docs: Fix build failure")
     7ddedebb03b7 ("ALSA: doc: ReSTize writing-an-alsa-driver document")
