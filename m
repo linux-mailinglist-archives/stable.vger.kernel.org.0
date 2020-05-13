@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A86EE1D03EC
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 02:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 149361D03ED
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 02:49:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731298AbgEMAtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 May 2020 20:49:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55324 "EHLO mail.kernel.org"
+        id S1731399AbgEMAte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 May 2020 20:49:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729646AbgEMAtc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 May 2020 20:49:32 -0400
+        id S1729646AbgEMAtd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 May 2020 20:49:33 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 150512078C;
-        Wed, 13 May 2020 00:49:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AF0323129;
+        Wed, 13 May 2020 00:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589330972;
+        s=default; t=1589330973;
         bh=9qJ5RZzzZN5GiUVZMI2CqHQ8Q47+EhKS8T5MvtvGDcM=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=PW90F9KTTEmLAH21Z4FKgyVHVJW4vJ+eVhn22nKLMogimAmxngPsG45sdIgfqVmfH
-         V7kwUwcSsiqDHbOwDlk922k2fb53A0DNCAT1cwvoixfATgTsYoE8A5oy4EbU2GFfLt
-         6ej6h4WgANrjpmhPEywpBqGdUyZXBXkxwW3Qcifg=
-Date:   Wed, 13 May 2020 00:49:31 +0000
+        b=gOKUw94kcs7F49N5KoPYicpjowkJZxopJTdGS3i8r910XR1JVqd3TuN9fi3lIE841
+         J7FrkOxV7sxyRB53SdQJQksGJbnGWhsmBXE7oi5NCY/KNFTw+/bN+EQBrQ9/a7imf7
+         MdSXqi0liA+gVtNLmw3uaYWSuqDJt1uidMLW220E=
+Date:   Wed, 13 May 2020 00:49:32 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
 To:     Miquel Raynal <miquel.raynal@bootlin.com>
@@ -31,10 +31,10 @@ To:     Richard Weinberger <richard@nod.at>
 Cc:     Boris Brezillon <boris.brezillon@collabora.com>
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 60/62] mtd: rawnand: xway: Fix the probe error path
-In-Reply-To: <20200510121220.18042-61-miquel.raynal@bootlin.com>
-References: <20200510121220.18042-61-miquel.raynal@bootlin.com>
-Message-Id: <20200513004932.150512078C@mail.kernel.org>
+Subject: Re: [PATCH 48/62] mtd: rawnand: sharpsl: Fix the probe error path
+In-Reply-To: <20200510121220.18042-49-miquel.raynal@bootlin.com>
+References: <20200510121220.18042-49-miquel.raynal@bootlin.com>
+Message-Id: <20200513004933.2AF0323129@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
