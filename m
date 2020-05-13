@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B57B1D0DB4
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66771D0F0A
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:04:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388227AbgEMJzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:55:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57990 "EHLO mail.kernel.org"
+        id S1732910AbgEMJrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:47:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387729AbgEMJzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:55:10 -0400
+        id S1732906AbgEMJrm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:47:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A302520575;
-        Wed, 13 May 2020 09:55:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BB3D2312A;
+        Wed, 13 May 2020 09:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363710;
-        bh=34m/alNxLbIOqK6f0xzzYeLyfyK6oFVxVodhSqz5tdY=;
+        s=default; t=1589363261;
+        bh=7HOzoA+oiVdIykvmrKwGyftM1ekVtfT2zGCNRlF8990=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIG5ptX8f+/FDyuFSSXmtdWPBY6gL3I7Qwq7xcHySYi2iFbJ8RAkj9vQJcsbAqCA7
-         IaFdfqU6TLlqI+OWEK6y/wi87Xg5Hg7Unreapp4YEqf/6Fw5HpQSCeMp6j6n6LEd9p
-         2rPrd0fTFSXHmFG2awCpNsAbtpPRcgwgW2N73qWg=
+        b=TSSlT2A5W4wWPaAFaBcSOk3Wmjir5jzHYXDhU21kczzybgWkNxP+80IiekB9F/E4h
+         imRn2TT1/HiUAttWAtmhSuSvYhuFoyRxKSDjD7l3qC1Z/TGkOjUvtlfaAjbb3liAF+
+         Jr8SedcXKU9jF5DRqirA/pp1zPxp/XmE/BP7j6B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Yang <yangx.jy@cn.fujitsu.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.6 067/118] tracing: Wait for preempt irq delay thread to finish
-Date:   Wed, 13 May 2020 11:44:46 +0200
-Message-Id: <20200513094423.748971097@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jkosina@suse.cz>,
+        syzbot+7bf5a7b0f0a1f9446f4c@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 21/48] HID: usbhid: Fix race between usbhid_close() and usbhid_stop()
+Date:   Wed, 13 May 2020 11:44:47 +0200
+Message-Id: <20200513094356.227542582@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
+References: <20200513094351.100352960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +44,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit d16a8c31077e75ecb9427fbfea59b74eed00f698 upstream.
+commit 0ed08faded1da03eb3def61502b27f81aef2e615 upstream.
 
-Running on a slower machine, it is possible that the preempt delay kernel
-thread may still be executing if the module was immediately removed after
-added, and this can cause the kernel to crash as the kernel thread might be
-executing after its code has been removed.
+The syzbot fuzzer discovered a bad race between in the usbhid driver
+between usbhid_stop() and usbhid_close().  In particular,
+usbhid_stop() does:
 
-There's no reason that the caller of the code shouldn't just wait for the
-delay thread to finish, as the thread can also be created by a trigger in
-the sysfs code, which also has the same issues.
+	usb_free_urb(usbhid->urbin);
+	...
+	usbhid->urbin = NULL; /* don't mess up next start */
 
-Link: http://lore.kernel.org/r/5EA2B0C8.2080706@cn.fujitsu.com
+and usbhid_close() does:
 
-Cc: stable@vger.kernel.org
-Fixes: 793937236d1ee ("lib: Add module for testing preemptoff/irqsoff latency tracers")
-Reported-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
-Reviewed-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
-Reviewed-by: Joel Fernandes <joel@joelfernandes.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+	usb_kill_urb(usbhid->urbin);
+
+with no mutual exclusion.  If the two routines happen to run
+concurrently so that usb_kill_urb() is called in between the
+usb_free_urb() and the NULL assignment, it will access the
+deallocated urb structure -- a use-after-free bug.
+
+This patch adds a mutex to the usbhid private structure and uses it to
+enforce mutual exclusion of the usbhid_start(), usbhid_stop(),
+usbhid_open() and usbhid_close() callbacks.
+
+Reported-and-tested-by: syzbot+7bf5a7b0f0a1f9446f4c@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/preemptirq_delay_test.c |   30 ++++++++++++++++++++++++------
- 1 file changed, 24 insertions(+), 6 deletions(-)
+ drivers/hid/usbhid/hid-core.c |   37 +++++++++++++++++++++++++++++--------
+ drivers/hid/usbhid/usbhid.h   |    1 +
+ 2 files changed, 30 insertions(+), 8 deletions(-)
 
---- a/kernel/trace/preemptirq_delay_test.c
-+++ b/kernel/trace/preemptirq_delay_test.c
-@@ -113,22 +113,42 @@ static int preemptirq_delay_run(void *da
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -685,16 +685,21 @@ static int usbhid_open(struct hid_device
+ 	struct usbhid_device *usbhid = hid->driver_data;
+ 	int res;
  
- 	for (i = 0; i < s; i++)
- 		(testfuncs[i])(i);
++	mutex_lock(&usbhid->mutex);
 +
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	while (!kthread_should_stop()) {
-+		schedule();
-+		set_current_state(TASK_INTERRUPTIBLE);
+ 	set_bit(HID_OPENED, &usbhid->iofl);
+ 
+-	if (hid->quirks & HID_QUIRK_ALWAYS_POLL)
+-		return 0;
++	if (hid->quirks & HID_QUIRK_ALWAYS_POLL) {
++		res = 0;
++		goto Done;
 +	}
+ 
+ 	res = usb_autopm_get_interface(usbhid->intf);
+ 	/* the device must be awake to reliably request remote wakeup */
+ 	if (res < 0) {
+ 		clear_bit(HID_OPENED, &usbhid->iofl);
+-		return -EIO;
++		res = -EIO;
++		goto Done;
+ 	}
+ 
+ 	usbhid->intf->needs_remote_wakeup = 1;
+@@ -728,6 +733,9 @@ static int usbhid_open(struct hid_device
+ 		msleep(50);
+ 
+ 	clear_bit(HID_RESUME_RUNNING, &usbhid->iofl);
 +
-+	__set_current_state(TASK_RUNNING);
++ Done:
++	mutex_unlock(&usbhid->mutex);
+ 	return res;
+ }
+ 
+@@ -735,6 +743,8 @@ static void usbhid_close(struct hid_devi
+ {
+ 	struct usbhid_device *usbhid = hid->driver_data;
+ 
++	mutex_lock(&usbhid->mutex);
 +
+ 	/*
+ 	 * Make sure we don't restart data acquisition due to
+ 	 * a resumption we no longer care about by avoiding racing
+@@ -746,12 +756,13 @@ static void usbhid_close(struct hid_devi
+ 		clear_bit(HID_IN_POLLING, &usbhid->iofl);
+ 	spin_unlock_irq(&usbhid->lock);
+ 
+-	if (hid->quirks & HID_QUIRK_ALWAYS_POLL)
+-		return;
++	if (!(hid->quirks & HID_QUIRK_ALWAYS_POLL)) {
++		hid_cancel_delayed_stuff(usbhid);
++		usb_kill_urb(usbhid->urbin);
++		usbhid->intf->needs_remote_wakeup = 0;
++	}
+ 
+-	hid_cancel_delayed_stuff(usbhid);
+-	usb_kill_urb(usbhid->urbin);
+-	usbhid->intf->needs_remote_wakeup = 0;
++	mutex_unlock(&usbhid->mutex);
+ }
+ 
+ /*
+@@ -1060,6 +1071,8 @@ static int usbhid_start(struct hid_devic
+ 	unsigned int n, insize = 0;
+ 	int ret;
+ 
++	mutex_lock(&usbhid->mutex);
++
+ 	clear_bit(HID_DISCONNECTED, &usbhid->iofl);
+ 
+ 	usbhid->bufsize = HID_MIN_BUFFER_SIZE;
+@@ -1180,6 +1193,8 @@ static int usbhid_start(struct hid_devic
+ 		usbhid_set_leds(hid);
+ 		device_set_wakeup_enable(&dev->dev, 1);
+ 	}
++
++	mutex_unlock(&usbhid->mutex);
  	return 0;
+ 
+ fail:
+@@ -1190,6 +1205,7 @@ fail:
+ 	usbhid->urbout = NULL;
+ 	usbhid->urbctrl = NULL;
+ 	hid_free_buffers(dev, hid);
++	mutex_unlock(&usbhid->mutex);
+ 	return ret;
  }
  
--static struct task_struct *preemptirq_start_test(void)
-+static int preemptirq_run_test(void)
- {
-+	struct task_struct *task;
+@@ -1205,6 +1221,8 @@ static void usbhid_stop(struct hid_devic
+ 		usbhid->intf->needs_remote_wakeup = 0;
+ 	}
+ 
++	mutex_lock(&usbhid->mutex);
 +
- 	char task_name[50];
+ 	clear_bit(HID_STARTED, &usbhid->iofl);
+ 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
+ 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
+@@ -1225,6 +1243,8 @@ static void usbhid_stop(struct hid_devic
+ 	usbhid->urbout = NULL;
  
- 	snprintf(task_name, sizeof(task_name), "%s_test", test_mode);
--	return kthread_run(preemptirq_delay_run, NULL, task_name);
-+	task =  kthread_run(preemptirq_delay_run, NULL, task_name);
-+	if (IS_ERR(task))
-+		return PTR_ERR(task);
-+	if (task)
-+		kthread_stop(task);
-+	return 0;
- }
- 
- 
- static ssize_t trigger_store(struct kobject *kobj, struct kobj_attribute *attr,
- 			 const char *buf, size_t count)
- {
--	preemptirq_start_test();
-+	ssize_t ret;
+ 	hid_free_buffers(hid_to_usb_dev(hid), hid);
 +
-+	ret = preemptirq_run_test();
-+	if (ret)
-+		return ret;
- 	return count;
++	mutex_unlock(&usbhid->mutex);
  }
  
-@@ -148,11 +168,9 @@ static struct kobject *preemptirq_delay_
+ static int usbhid_power(struct hid_device *hid, int lvl)
+@@ -1385,6 +1405,7 @@ static int usbhid_probe(struct usb_inter
+ 	INIT_WORK(&usbhid->reset_work, hid_reset);
+ 	timer_setup(&usbhid->io_retry, hid_retry_timeout, 0);
+ 	spin_lock_init(&usbhid->lock);
++	mutex_init(&usbhid->mutex);
  
- static int __init preemptirq_delay_init(void)
- {
--	struct task_struct *test_task;
- 	int retval;
+ 	ret = hid_add_device(hid);
+ 	if (ret) {
+--- a/drivers/hid/usbhid/usbhid.h
++++ b/drivers/hid/usbhid/usbhid.h
+@@ -93,6 +93,7 @@ struct usbhid_device {
+ 	dma_addr_t outbuf_dma;                                          /* Output buffer dma */
+ 	unsigned long last_out;							/* record of last output for timeouts */
  
--	test_task = preemptirq_start_test();
--	retval = PTR_ERR_OR_ZERO(test_task);
-+	retval = preemptirq_run_test();
- 	if (retval != 0)
- 		return retval;
- 
++	struct mutex mutex;						/* start/stop/open/close */
+ 	spinlock_t lock;						/* fifo spinlock */
+ 	unsigned long iofl;                                             /* I/O flags (CTRL_RUNNING, OUT_RUNNING) */
+ 	struct timer_list io_retry;                                     /* Retry timer */
 
 
