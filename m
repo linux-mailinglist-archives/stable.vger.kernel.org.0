@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7C01D0E2A
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 643B41D0EB5
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387917AbgEMJ62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:58:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57444 "EHLO mail.kernel.org"
+        id S1732886AbgEMKCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:02:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388156AbgEMJys (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:54:48 -0400
+        id S2387493AbgEMJu1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:50:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82E4920753;
-        Wed, 13 May 2020 09:54:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42C8F20740;
+        Wed, 13 May 2020 09:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363688;
-        bh=8nWeuh1x24TWSX1tL7laF5UYkrmye3w6vE49+0gyclc=;
+        s=default; t=1589363426;
+        bh=Ubz7VruHRIYMARfNxYnqVv5zsSbjW/xH3CYrn/L8SJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sw7EG0NABIr/Cy+Rb8ZBAY4175lOw8ZGVivrUU3vVjsua1GTqlsbygWiCHaqaJicu
-         HbuD5ABaMmr5EJnGS9t+D7ONSsGcGte0l1+EdCZjD16F7iROpI8GCDb2Pgd3zuc2XH
-         8LhjNSCGvrfborx08qapPR+EbKN9Jjdzha/fGlQU=
+        b=caogtro+jjim67ybypyOO0PW6Py1xZp//n5Dd5cgfpPIlV11d5Q9ZT8LRv+sk9vqp
+         n6mP+bLHNX78Eq4vxXv5Hpv/H+dFBZi042Bo8pkk6dOCnBi7vsakhaLD2SghBTL29A
+         LmHVGnvhyN7tCx38SO3FhxWRzy3iBM+vp6Spg1pQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Willard <henry.willard@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 085/118] mm: limit boost_watermark on small zones
+        stable@vger.kernel.org, George Spelvin <lkml@sdf.org>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 5.4 68/90] batman-adv: fix batadv_nc_random_weight_tq
 Date:   Wed, 13 May 2020 11:45:04 +0200
-Message-Id: <20200513094424.870600250@linuxfoundation.org>
+Message-Id: <20200513094416.485631562@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,82 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Willard <henry.willard@oracle.com>
+From: George Spelvin <lkml@sdf.org>
 
-commit 14f69140ff9c92a0928547ceefb153a842e8492c upstream.
+commit fd0c42c4dea54335967c5a86f15fc064235a2797 upstream.
 
-Commit 1c30844d2dfe ("mm: reclaim small amounts of memory when an
-external fragmentation event occurs") adds a boost_watermark() function
-which increases the min watermark in a zone by at least
-pageblock_nr_pages or the number of pages in a page block.
+and change to pseudorandom numbers, as this is a traffic dithering
+operation that doesn't need crypto-grade.
 
-On Arm64, with 64K pages and 512M huge pages, this is 8192 pages or
-512M.  It does this regardless of the number of managed pages managed in
-the zone or the likelihood of success.
+The previous code operated in 4 steps:
 
-This can put the zone immediately under water in terms of allocating
-pages from the zone, and can cause a small machine to fail immediately
-due to OoM.  Unlike set_recommended_min_free_kbytes(), which
-substantially increases min_free_kbytes and is tied to THP,
-boost_watermark() can be called even if THP is not active.
+1. Generate a random byte 0 <= rand_tq <= 255
+2. Multiply it by BATADV_TQ_MAX_VALUE - tq
+3. Divide by 255 (= BATADV_TQ_MAX_VALUE)
+4. Return BATADV_TQ_MAX_VALUE - rand_tq
 
-The problem is most likely to appear on architectures such as Arm64
-where pageblock_nr_pages is very large.
+This would apperar to scale (BATADV_TQ_MAX_VALUE - tq) by a random
+value between 0/255 and 255/255.
 
-It is desirable to run the kdump capture kernel in as small a space as
-possible to avoid wasting memory.  In some architectures, such as Arm64,
-there are restrictions on where the capture kernel can run, and
-therefore, the space available.  A capture kernel running in 768M can
-fail due to OoM immediately after boost_watermark() sets the min in zone
-DMA32, where most of the memory is, to 512M.  It fails even though there
-is over 500M of free memory.  With boost_watermark() suppressed, the
-capture kernel can run successfully in 448M.
+But!  The intermediate value between steps 3 and 4 is stored in a u8
+variable.  So it's truncated, and most of the time, is less than 255, after
+which the division produces 0.  Specifically, if tq is odd, the product is
+always even, and can never be 255.  If tq is even, there's exactly one
+random byte value that will produce a product byte of 255.
 
-This patch limits boost_watermark() to boosting a zone's min watermark
-only when there are enough pages that the boost will produce positive
-results.  In this case that is estimated to be four times as many pages
-as pageblock_nr_pages.
+Thus, the return value is 255 (511/512 of the time) or 254 (1/512
+of the time).
 
-Mel said:
+If we assume that the truncation is a bug, and the code is meant to scale
+the input, a simpler way of looking at it is that it's returning a random
+value between tq and BATADV_TQ_MAX_VALUE, inclusive.
 
-: There is no harm in marking it stable.  Clearly it does not happen very
-: often but it's not impossible.  32-bit x86 is a lot less common now
-: which would previously have been vulnerable to triggering this easily.
-: ppc64 has a larger base page size but typically only has one zone.
-: arm64 is likely the most vulnerable, particularly when CMA is
-: configured with a small movable zone.
+Well, we have an optimized function for doing just that.
 
-Fixes: 1c30844d2dfe ("mm: reclaim small amounts of memory when an external fragmentation event occurs")
-Signed-off-by: Henry Willard <henry.willard@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/1588294148-6586-1-git-send-email-henry.willard@oracle.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 3c12de9a5c75 ("batman-adv: network coding - code and transmit packets if possible")
+Signed-off-by: George Spelvin <lkml@sdf.org>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/page_alloc.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/batman-adv/network-coding.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -2351,6 +2351,14 @@ static inline void boost_watermark(struc
+--- a/net/batman-adv/network-coding.c
++++ b/net/batman-adv/network-coding.c
+@@ -1009,15 +1009,8 @@ static struct batadv_nc_path *batadv_nc_
+  */
+ static u8 batadv_nc_random_weight_tq(u8 tq)
+ {
+-	u8 rand_val, rand_tq;
+-
+-	get_random_bytes(&rand_val, sizeof(rand_val));
+-
+ 	/* randomize the estimated packet loss (max TQ - estimated TQ) */
+-	rand_tq = rand_val * (BATADV_TQ_MAX_VALUE - tq);
+-
+-	/* normalize the randomized packet loss */
+-	rand_tq /= BATADV_TQ_MAX_VALUE;
++	u8 rand_tq = prandom_u32_max(BATADV_TQ_MAX_VALUE + 1 - tq);
  
- 	if (!watermark_boost_factor)
- 		return;
-+	/*
-+	 * Don't bother in zones that are unlikely to produce results.
-+	 * On small machines, including kdump capture kernels running
-+	 * in a small area, boosting the watermark can cause an out of
-+	 * memory situation immediately.
-+	 */
-+	if ((pageblock_nr_pages * 4) > zone_managed_pages(zone))
-+		return;
- 
- 	max_boost = mult_frac(zone->_watermark[WMARK_HIGH],
- 			watermark_boost_factor, 10000);
+ 	/* convert to (randomized) estimated tq again */
+ 	return BATADV_TQ_MAX_VALUE - rand_tq;
 
 
