@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D87351D0CEB
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 135DC1D0D6C
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733087AbgEMJse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47026 "EHLO mail.kernel.org"
+        id S2387868AbgEMJw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:52:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733083AbgEMJsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:48:33 -0400
+        id S2387860AbgEMJwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:52:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5BDF20753;
-        Wed, 13 May 2020 09:48:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95F60206D6;
+        Wed, 13 May 2020 09:52:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363313;
-        bh=w4FmW7XPb/C8TwDdYwkik3mJPi8H8DYgNLABeNK/Ju4=;
+        s=default; t=1589363575;
+        bh=xqrh2MopQeipAcdHacog6ivfLRVDwUVB/2W23jrA/+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sj89AwRavwKbF8iEIfd8g3rMEw3Cmxl1HPAcZSaX+vnm5Wo7JAMa5tSqWl1/4jS9l
-         Vxun/BRUj2yubFaJcWNfJS9QEsm+rdvzBmI9mYG+x5p5nzaoFpfC68im4Fy3L5QBfj
-         SsBWRjuh7KvX3Gzh2GxDRbfsJgFh9dbxybVtptVI=
+        b=Jok1ZPMZMc4D25jrfM1gzlHeZJ5+1XGKu1TxuCaT4ZtK8V1f+6OKb3SwsAHj5Po9I
+         GWcheY6C82PvHD/x+j5mQ2lWMNNtnXTr/e1KQTEDHS9TUlylZu9K58e2dWXxthTiQs
+         qmTOwkVMDCGQA2SihEqnDfungc6HNzKokQ3o5/do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
+        stable@vger.kernel.org, Bob Briscoe <ietf@bobbriscoe.net>,
+        Olivier Tilmans <olivier.tilmans@nokia-bell-labs.com>,
+        Dave Taht <dave.taht@gmail.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 23/90] net/tls: Fix sk_psock refcnt leak in bpf_exec_tx_verdict()
+Subject: [PATCH 5.6 040/118] tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040
 Date:   Wed, 13 May 2020 11:44:19 +0200
-Message-Id: <20200513094411.100591611@linuxfoundation.org>
+Message-Id: <20200513094420.866941098@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +47,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: "Toke Høiland-Jørgensen" <toke@redhat.com>
 
-[ Upstream commit 095f5614bfe16e5b3e191b34ea41b10d6fdd4ced ]
+[ Upstream commit b723748750ece7d844cdf2f52c01d37f83387208 ]
 
-bpf_exec_tx_verdict() invokes sk_psock_get(), which returns a reference
-of the specified sk_psock object to "psock" with increased refcnt.
+RFC 6040 recommends propagating an ECT(1) mark from an outer tunnel header
+to the inner header if that inner header is already marked as ECT(0). When
+RFC 6040 decapsulation was implemented, this case of propagation was not
+added. This simply appears to be an oversight, so let's fix that.
 
-When bpf_exec_tx_verdict() returns, local variable "psock" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
-
-The reference counting issue happens in one exception handling path of
-bpf_exec_tx_verdict(). When "policy" equals to NULL but "psock" is not
-NULL, the function forgets to decrease the refcnt increased by
-sk_psock_get(), causing a refcnt leak.
-
-Fix this issue by calling sk_psock_put() on this error path before
-bpf_exec_tx_verdict() returns.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Fixes: eccc1bb8d4b4 ("tunnel: drop packet if ECN present with not-ECT")
+Reported-by: Bob Briscoe <ietf@bobbriscoe.net>
+Reported-by: Olivier Tilmans <olivier.tilmans@nokia-bell-labs.com>
+Cc: Dave Taht <dave.taht@gmail.com>
+Cc: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: Toke HÃ¸iland-JÃ¸rgensen <toke@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_sw.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/net/inet_ecn.h |   57 +++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 55 insertions(+), 2 deletions(-)
 
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -797,6 +797,8 @@ static int bpf_exec_tx_verdict(struct sk
- 			*copied -= sk_msg_free(sk, msg);
- 			tls_free_open_rec(sk);
- 		}
-+		if (psock)
-+			sk_psock_put(sk, psock);
- 		return err;
- 	}
- more_data:
+--- a/include/net/inet_ecn.h
++++ b/include/net/inet_ecn.h
+@@ -99,6 +99,20 @@ static inline int IP_ECN_set_ce(struct i
+ 	return 1;
+ }
+ 
++static inline int IP_ECN_set_ect1(struct iphdr *iph)
++{
++	u32 check = (__force u32)iph->check;
++
++	if ((iph->tos & INET_ECN_MASK) != INET_ECN_ECT_0)
++		return 0;
++
++	check += (__force u16)htons(0x100);
++
++	iph->check = (__force __sum16)(check + (check>=0xFFFF));
++	iph->tos ^= INET_ECN_MASK;
++	return 1;
++}
++
+ static inline void IP_ECN_clear(struct iphdr *iph)
+ {
+ 	iph->tos &= ~INET_ECN_MASK;
+@@ -134,6 +148,22 @@ static inline int IP6_ECN_set_ce(struct
+ 	return 1;
+ }
+ 
++static inline int IP6_ECN_set_ect1(struct sk_buff *skb, struct ipv6hdr *iph)
++{
++	__be32 from, to;
++
++	if ((ipv6_get_dsfield(iph) & INET_ECN_MASK) != INET_ECN_ECT_0)
++		return 0;
++
++	from = *(__be32 *)iph;
++	to = from ^ htonl(INET_ECN_MASK << 20);
++	*(__be32 *)iph = to;
++	if (skb->ip_summed == CHECKSUM_COMPLETE)
++		skb->csum = csum_add(csum_sub(skb->csum, (__force __wsum)from),
++				     (__force __wsum)to);
++	return 1;
++}
++
+ static inline void ipv6_copy_dscp(unsigned int dscp, struct ipv6hdr *inner)
+ {
+ 	dscp &= ~INET_ECN_MASK;
+@@ -159,6 +189,25 @@ static inline int INET_ECN_set_ce(struct
+ 	return 0;
+ }
+ 
++static inline int INET_ECN_set_ect1(struct sk_buff *skb)
++{
++	switch (skb->protocol) {
++	case cpu_to_be16(ETH_P_IP):
++		if (skb_network_header(skb) + sizeof(struct iphdr) <=
++		    skb_tail_pointer(skb))
++			return IP_ECN_set_ect1(ip_hdr(skb));
++		break;
++
++	case cpu_to_be16(ETH_P_IPV6):
++		if (skb_network_header(skb) + sizeof(struct ipv6hdr) <=
++		    skb_tail_pointer(skb))
++			return IP6_ECN_set_ect1(skb, ipv6_hdr(skb));
++		break;
++	}
++
++	return 0;
++}
++
+ /*
+  * RFC 6040 4.2
+  *  To decapsulate the inner header at the tunnel egress, a compliant
+@@ -208,8 +257,12 @@ static inline int INET_ECN_decapsulate(s
+ 	int rc;
+ 
+ 	rc = __INET_ECN_decapsulate(outer, inner, &set_ce);
+-	if (!rc && set_ce)
+-		INET_ECN_set_ce(skb);
++	if (!rc) {
++		if (set_ce)
++			INET_ECN_set_ce(skb);
++		else if ((outer & INET_ECN_MASK) == INET_ECN_ECT_1)
++			INET_ECN_set_ect1(skb);
++	}
+ 
+ 	return rc;
+ }
 
 
