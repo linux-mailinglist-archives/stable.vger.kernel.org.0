@@ -2,65 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CA5E1D0711
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 08:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FD71D08CC
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 08:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728784AbgEMGVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 02:21:33 -0400
-Received: from mx2.suse.de ([195.135.220.15]:35960 "EHLO mx2.suse.de"
+        id S1729379AbgEMGl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 02:41:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728498AbgEMGVc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 02:21:32 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id CD6A7ABBE;
-        Wed, 13 May 2020 06:21:33 +0000 (UTC)
-Subject: Re: [PATCH 3/5] megaraid_sas: Replace undefined MFI_BIG_ENDIAN macro
- with __BIG_ENDIAN_BITFIELD macro
-To:     Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-        linux-scsi@vger.kernel.org
-Cc:     kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
-        kiran-kumar.kasturi@broadcom.com, sankar.patra@broadcom.com,
-        sasikumar.pc@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
-        anand.lodnoor@broadcom.com, "# v5 . 6+" <stable@vger.kernel.org>
-References: <20200508085130.23339-1-chandrakanth.patil@broadcom.com>
-From:   Hannes Reinecke <hare@suse.de>
-Message-ID: <8e1264db-bd78-a42e-2993-b0e6ef0ed91e@suse.de>
-Date:   Wed, 13 May 2020 08:21:29 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1728712AbgEMGl3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 02:41:29 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFA8E206A5;
+        Wed, 13 May 2020 06:41:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589352089;
+        bh=uRTpqnKoq2y/0IEppiPjVG2nzz/Z1d3nUknlc3qiuYA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Z2BHogCsUrLOnpEtsMGWpS/xWB/wk/kXDITYGh5MrqREDk9vDNQhdXttS6YIvr9O+
+         6W2ToVEkgLK5ARCgbP9wByBPmkFIaBGIuPkMDqasiPqAHXQTlrSel0bbLnXl+Ka8/F
+         ZRl8P3KtP2ksGMwZyt36bqpbMxksqxGulz8vxy54=
+Date:   Wed, 13 May 2020 08:41:27 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
+Cc:     Sasha Levin <Alexander.Levin@microsoft.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [4.4-stable] Security fixes
+Message-ID: <20200513064127.GA760931@kroah.com>
+References: <7e20d8b5d48106dff7020ba0eec6f79d675b17c2.camel@codethink.co.uk>
 MIME-Version: 1.0
-In-Reply-To: <20200508085130.23339-1-chandrakanth.patil@broadcom.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7e20d8b5d48106dff7020ba0eec6f79d675b17c2.camel@codethink.co.uk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/8/20 10:51 AM, Chandrakanth Patil wrote:
-> MFI_BIG_ENDIAN macro used in drivers structure bitfield to check
-> the CPU big endianness is undefined which would break the code on
-> big endian machine. __BIG_ENDIAN_BITFIELD kernel macro should be
-> used in places of MFI_BIG_ENDIAN macro.
-> 
-> Fixes: a7faf81d7858 ("scsi: megaraid_sas: Set no_write_same only for Virtual Disk")
-> Cc: <stable@vger.kernel.org> # v5.6+
-> Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
-> Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
-> ---
->   drivers/scsi/megaraid/megaraid_sas.h        | 4 ++--
->   drivers/scsi/megaraid/megaraid_sas_fusion.h | 6 +++---
->   2 files changed, 5 insertions(+), 5 deletions(-)
-> 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+On Tue, May 12, 2020 at 10:59:36PM +0100, Ben Hutchings wrote:
+> Here are some fixes that required backporting for 4.4.  All of them
+> are already present in (or queued for) later stable branches.
 
-Cheers,
+All now queued up.  Turns out Sasha applied them, and then I applied
+them again.  I've fixed up the mess in the tree, my fault...
 
-Hannes
--- 
-Dr. Hannes Reinecke            Teamlead Storage & Networking
-hare@suse.de                               +49 911 74053 688
-SUSE Software Solutions GmbH, Maxfeldstr. 5, 90409 Nürnberg
-HRB 36809 (AG Nürnberg), Geschäftsführer: Felix Imendörffer
+greg k-h
