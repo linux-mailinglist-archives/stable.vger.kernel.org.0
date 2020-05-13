@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF2B1D0DED
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 801221D0D0D
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:50:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733241AbgEMJzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:55:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58862 "EHLO mail.kernel.org"
+        id S1732726AbgEMJtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:49:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388289AbgEMJzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:55:37 -0400
+        id S1733282AbgEMJtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:49:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBF9420575;
-        Wed, 13 May 2020 09:55:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9BFA23126;
+        Wed, 13 May 2020 09:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363736;
-        bh=lzC80R2tk7ApyrTkRZ63q8mqBzSTeWMMDyNZcdjk2vQ=;
+        s=default; t=1589363380;
+        bh=OBjA4hsPp4PLfpQ8jjfg+PmSNwEel0QxiScbjp+evq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vuLKsVfMfyXVtLZlzTJK/V7nBRsQC1faguSFRH7LUDmNi+rzuUQzQUsaI9LKYi6cL
-         EKQWHJ2d9bDEWNszN9tcpB2/Qec8EuJeHT654Whx4lWZlZ1HLEJqPvbfojvrryQV92
-         BXxt3rhXi1BAoOIY/rfyMkmd8mULUY8uCvvlyzS8=
+        b=gmfp9PtJC5UZ768ssv3TMiKhWX8wSaoJvczeait7mwcCyme7duqav+xp4xH0ANGTV
+         IeB8C/rFECm1vIzYMdUJq8L0iKDoc//YTebQagR3W8RyNRg2zQJQy4cgINYLPcz3r0
+         iMCoOTawUrSGF3Yj8v3Dzw7Bc+s+XeCPFcV6BRho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.6 068/118] tracing: Add a vmalloc_sync_mappings() for safe measure
+        stable@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Qian Cai <cailca@icloud.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH 5.4 51/90] KVM: s390: Remove false WARN_ON_ONCE for the PQAP instruction
 Date:   Wed, 13 May 2020 11:44:47 +0200
-Message-Id: <20200513094423.803385902@linuxfoundation.org>
+Message-Id: <20200513094414.195096237@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-commit 11f5efc3ab66284f7aaacc926e9351d658e2577b upstream.
+commit 5615e74f48dcc982655543e979b6c3f3f877e6f6 upstream.
 
-x86_64 lazily maps in the vmalloc pages, and the way this works with per_cpu
-areas can be complex, to say the least. Mappings may happen at boot up, and
-if nothing synchronizes the page tables, those page mappings may not be
-synced till they are used. This causes issues for anything that might touch
-one of those mappings in the path of the page fault handler. When one of
-those unmapped mappings is touched in the page fault handler, it will cause
-another page fault, which in turn will cause a page fault, and leave us in
-a loop of page faults.
+In LPAR we will only get an intercept for FC==3 for the PQAP
+instruction. Running nested under z/VM can result in other intercepts as
+well as ECA_APIE is an effective bit: If one hypervisor layer has
+turned this bit off, the end result will be that we will get intercepts for
+all function codes. Usually the first one will be a query like PQAP(QCI).
+So the WARN_ON_ONCE is not right. Let us simply remove it.
 
-Commit 763802b53a42 ("x86/mm: split vmalloc_sync_all()") split
-vmalloc_sync_all() into vmalloc_sync_unmappings() and
-vmalloc_sync_mappings(), as on system exit, it did not need to do a full
-sync on x86_64 (although it still needed to be done on x86_32). By chance,
-the vmalloc_sync_all() would synchronize the page mappings done at boot up
-and prevent the per cpu area from being a problem for tracing in the page
-fault handler. But when that synchronization in the exit of a task became a
-nop, it caused the problem to appear.
-
-Link: https://lore.kernel.org/r/20200429054857.66e8e333@oasis.local.home
-
-Cc: stable@vger.kernel.org
-Fixes: 737223fbca3b1 ("tracing: Consolidate buffer allocation code")
-Reported-by: "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>
-Suggested-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Pierre Morel <pmorel@linux.ibm.com>
+Cc: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: stable@vger.kernel.org # v5.3+
+Fixes: e5282de93105 ("s390: ap: kvm: add PQAP interception for AQIC")
+Link: https://lore.kernel.org/kvm/20200505083515.2720-1-borntraeger@de.ibm.com
+Reported-by: Qian Cai <cailca@icloud.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/s390/kvm/priv.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8452,6 +8452,19 @@ static int allocate_trace_buffers(struct
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -626,10 +626,12 @@ static int handle_pqap(struct kvm_vcpu *
+ 	 * available for the guest are AQIC and TAPQ with the t bit set
+ 	 * since we do not set IC.3 (FIII) we currently will only intercept
+ 	 * the AQIC function code.
++	 * Note: running nested under z/VM can result in intercepts for other
++	 * function codes, e.g. PQAP(QCI). We do not support this and bail out.
  	 */
- 	allocate_snapshot = false;
- #endif
-+
-+	/*
-+	 * Because of some magic with the way alloc_percpu() works on
-+	 * x86_64, we need to synchronize the pgd of all the tables,
-+	 * otherwise the trace events that happen in x86_64 page fault
-+	 * handlers can't cope with accessing the chance that a
-+	 * alloc_percpu()'d memory might be touched in the page fault trace
-+	 * event. Oh, and we need to audit all other alloc_percpu() and vmalloc()
-+	 * calls in tracing, because something might get triggered within a
-+	 * page fault trace event!
-+	 */
-+	vmalloc_sync_mappings();
-+
- 	return 0;
- }
+ 	reg0 = vcpu->run->s.regs.gprs[0];
+ 	fc = (reg0 >> 24) & 0xff;
+-	if (WARN_ON_ONCE(fc != 0x03))
++	if (fc != 0x03)
+ 		return -EOPNOTSUPP;
  
+ 	/* PQAP instruction is allowed for guest kernel only */
 
 
