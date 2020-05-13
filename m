@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92A161D0C94
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A15591D0ECE
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727120AbgEMJqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:46:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43164 "EHLO mail.kernel.org"
+        id S2387424AbgEMKCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 06:02:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730661AbgEMJp7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:45:59 -0400
+        id S2387414AbgEMJt5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:49:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 909E4206F5;
-        Wed, 13 May 2020 09:45:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE9A5206D6;
+        Wed, 13 May 2020 09:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363159;
-        bh=pUIO6TEaK9n0rE5E5dO/hj2zx7EL6SpRabCZcLs9Ka8=;
+        s=default; t=1589363397;
+        bh=EnnBG/aX6Kg6Mk78SEPquxSEbjde6dpFg9+8Mqr0Sik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ScC8bFUwz3Csx6LjTaiHvogbm2hIToL0WW77QMzEaL3ixCr7j8jvHnuh1LRKWQg0B
-         F6nRcrxqISXzm5UyVUTmhIGmdhJl8w6TFZII+cC6R5dRxLou8sHlKrYBWaIeh1Bpuh
-         x9sXdh+bvVIKh1KXSFPOQTunnfLPuSxfZ6t9KWWM=
+        b=nuseMn/r2b6Tx038ZiLqyhJPfj+23QyCLt5jxGMFzUGEk3JueAor5gGyf/X96L8el
+         N62OeXKIZfDlPuh931D5pjPtTl11RTG3hGVB9U1pAbgsY1l833bpmX0Nz4sqVVaEF/
+         XvFCNiJXsCBNhO/U9M0U1iEsfR5D3jMLsMlNoe/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 10/48] sch_choke: avoid potential panic in choke_reset()
+Subject: [PATCH 5.4 40/90] net: mvpp2: cls: Prevent buffer overflow in mvpp2_ethtool_cls_rule_del()
 Date:   Wed, 13 May 2020 11:44:36 +0200
-Message-Id: <20200513094354.391305028@linuxfoundation.org>
+Message-Id: <20200513094412.888788715@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 8738c85c72b3108c9b9a369a39868ba5f8e10ae0 ]
+[ Upstream commit 722c0f00d4feea77475a5dc943b53d60824a1e4e ]
 
-If choke_init() could not allocate q->tab, we would crash later
-in choke_reset().
+The "info->fs.location" is a u32 that comes from the user via the
+ethtool_set_rxnfc() function.  We need to check for invalid values to
+prevent a buffer overflow.
 
-BUG: KASAN: null-ptr-deref in memset include/linux/string.h:366 [inline]
-BUG: KASAN: null-ptr-deref in choke_reset+0x208/0x340 net/sched/sch_choke.c:326
-Write of size 8 at addr 0000000000000000 by task syz-executor822/7022
+I copy and pasted this check from the mvpp2_ethtool_cls_rule_ins()
+function.
 
-CPU: 1 PID: 7022 Comm: syz-executor822 Not tainted 5.7.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x188/0x20d lib/dump_stack.c:118
- __kasan_report.cold+0x5/0x4d mm/kasan/report.c:515
- kasan_report+0x33/0x50 mm/kasan/common.c:625
- check_memory_region_inline mm/kasan/generic.c:187 [inline]
- check_memory_region+0x141/0x190 mm/kasan/generic.c:193
- memset+0x20/0x40 mm/kasan/common.c:85
- memset include/linux/string.h:366 [inline]
- choke_reset+0x208/0x340 net/sched/sch_choke.c:326
- qdisc_reset+0x6b/0x520 net/sched/sch_generic.c:910
- dev_deactivate_queue.constprop.0+0x13c/0x240 net/sched/sch_generic.c:1138
- netdev_for_each_tx_queue include/linux/netdevice.h:2197 [inline]
- dev_deactivate_many+0xe2/0xba0 net/sched/sch_generic.c:1195
- dev_deactivate+0xf8/0x1c0 net/sched/sch_generic.c:1233
- qdisc_graft+0xd25/0x1120 net/sched/sch_api.c:1051
- tc_modify_qdisc+0xbab/0x1a00 net/sched/sch_api.c:1670
- rtnetlink_rcv_msg+0x44e/0xad0 net/core/rtnetlink.c:5454
- netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
- netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
- netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
- netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6bf/0x7e0 net/socket.c:2362
- ___sys_sendmsg+0x100/0x170 net/socket.c:2416
- __sys_sendmsg+0xec/0x1b0 net/socket.c:2449
- do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
-
-Fixes: 77e62da6e60c ("sch_choke: drop all packets in queue during reset")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Fixes: 90b509b39ac9 ("net: mvpp2: cls: Add Classification offload support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_choke.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/sched/sch_choke.c
-+++ b/net/sched/sch_choke.c
-@@ -327,7 +327,8 @@ static void choke_reset(struct Qdisc *sc
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
+@@ -1422,6 +1422,9 @@ int mvpp2_ethtool_cls_rule_del(struct mv
+ 	struct mvpp2_ethtool_fs *efs;
+ 	int ret;
  
- 	sch->q.qlen = 0;
- 	sch->qstats.backlog = 0;
--	memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
-+	if (q->tab)
-+		memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
- 	q->head = q->tail = 0;
- 	red_restart(&q->vars);
- }
++	if (info->fs.location >= MVPP2_N_RFS_ENTRIES_PER_FLOW)
++		return -EINVAL;
++
+ 	efs = port->rfs_rules[info->fs.location];
+ 	if (!efs)
+ 		return -EINVAL;
 
 
