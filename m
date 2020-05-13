@@ -2,99 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C374C1D0A57
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 09:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B421D0A77
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 10:05:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729414AbgEMH7U convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 13 May 2020 03:59:20 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:18811 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729026AbgEMH7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 03:59:20 -0400
-X-Originating-IP: 91.224.148.103
-Received: from xps13 (unknown [91.224.148.103])
-        (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 6DAD7240011;
-        Wed, 13 May 2020 07:59:17 +0000 (UTC)
-Date:   Wed, 13 May 2020 09:59:15 +0200
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Richard Weinberger <richard@nod.at>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 12/62] mtd: rawnand: diskonchip: Fix the probe error
- path
-Message-ID: <20200513095915.7f88d189@xps13>
-In-Reply-To: <20200513004939.E8D1C23129@mail.kernel.org>
-References: <20200510121220.18042-13-miquel.raynal@bootlin.com>
-        <20200513004939.E8D1C23129@mail.kernel.org>
-Organization: Bootlin
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1730203AbgEMIEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 04:04:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32832 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726092AbgEMIEo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 04:04:44 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38EB0C061A0C
+        for <stable@vger.kernel.org>; Wed, 13 May 2020 01:04:44 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id j21so7439105pgb.7
+        for <stable@vger.kernel.org>; Wed, 13 May 2020 01:04:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=F1Bkmb1qKXIiney4vDs2ANZt0OaJ4EhSInWo3xGnfGY=;
+        b=bVz7ZdHpoev3mnnYD+kjb9D9qe5LYRF5iWs0qQh3dSkTdOHSlygqk4zmMmALVnz6t9
+         q5TGuppoX0U+GJI4KwfY0ckTsyiNDKkij/TQ+fBZlUj2YEIN8x8Q121I3FUvr52rLnTp
+         o3BByGowU6bD6dbvkoGttWSGUrTH4bEngns08XLy4HmB4QzGDbpbqUxzGqrQxWiCoev6
+         lPV61Wz3DOQMe+r+uXu5kwiff+TqX63jT1xEywvnx6Q5snJdEIaZun7vOmGznDXolnQ3
+         Bvhp1DGrd1UmsXThItwyYFfgp1yUOBHMWjE6pxiiFmFv1c1STIPvX4eBvRTINo9t1AN3
+         F2+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=F1Bkmb1qKXIiney4vDs2ANZt0OaJ4EhSInWo3xGnfGY=;
+        b=f66riD1Ulm9+mA2WJl8MU/UynllPI3ajuN73kwZrtA50c5JOVZDvBSVv1XK8Miq7xt
+         78b75lno4oeTI/SjXxh+Jfhh3qhZdyi/9mrDblnxUcx8409IPOVE0xIRULydTt5DhuG2
+         WWOlSkCgY7rurtcDgjlrDEmSEESoro+G4G8Vpwe7pbsILC3St3FY6Cb4/HGt5Dd1UOwS
+         lVf5DHipeKHbLu49z6qiAo553dj3ieveuzhS1hYAs5Cs6vJit3r1ecRcdohLCCNajz4J
+         6nitzDxfM9T7D88kmCwv63sTsc2tmCR6O0UBCg0CpL60myjYG7seh2fozEJ5oz0KvRdV
+         QhHw==
+X-Gm-Message-State: AGi0PuaIKZgY815v/UNDuWPPj61Idc4Xjq5Gj+GKx3pycU34+1P6SNrX
+        Q1w/nEYPNGnoqxX5iApiHuHl+aOb4+Y=
+X-Google-Smtp-Source: APiQypJPMqQ2Epg7dlHrXTKbn3ALi+5EK/qgGjyOR+ZU0rgG5sbpkXFlwHZ8iQONGZvB9yU8bhrnug==
+X-Received: by 2002:a63:5552:: with SMTP id f18mr22841576pgm.366.1589357083436;
+        Wed, 13 May 2020 01:04:43 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g17sm3600085pgg.43.2020.05.13.01.04.41
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 May 2020 01:04:42 -0700 (PDT)
+Message-ID: <5ebbaa1a.1c69fb81.f87f2.dccd@mx.google.com>
+Date:   Wed, 13 May 2020 01:04:42 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.180-37-gad4fc99d1989
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.14.y boot: 101 boots: 2 failed,
+ 90 passed with 7 offline, 2 untried/unknown (v4.14.180-37-gad4fc99d1989)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+stable-rc/linux-4.14.y boot: 101 boots: 2 failed, 90 passed with 7 offline,=
+ 2 untried/unknown (v4.14.180-37-gad4fc99d1989)
 
-Sasha Levin <sashal@kernel.org> wrote on Wed, 13 May 2020 00:49:39
-+0000:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.180-37-gad4fc99d1989/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.180-37-gad4fc99d1989/
 
-> Hi
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag
-> fixing commit: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources").
-> 
-> The bot has tested the following trees: v5.6.11, v5.4.39, v4.19.121, v4.14.179, v4.9.222.
-> 
-> v5.6.11: Build OK!
-> v5.4.39: Build OK!
-> v4.19.121: Failed to apply! Possible dependencies:
->     00ad378f304a ("mtd: rawnand: Pass a nand_chip object to nand_scan()")
->     59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
-> 
-> v4.14.179: Failed to apply! Possible dependencies:
->     00ad378f304a ("mtd: rawnand: Pass a nand_chip object to nand_scan()")
->     02f26ecf8c77 ("mtd: nand: add reworked Marvell NAND controller driver")
->     1c782b9a8517 ("mtd: nand: mtk: change the compile sequence of mtk_nand.o and mtk_ecc.o")
->     263c68afb521 ("mtd: nand: pxa3xx_nand: Update Kconfig information")
->     34832dc44d44 ("mtd: nand: gpmi-nand: Remove wrong Kconfig help text")
->     577e010c24bc ("mtd: rawnand: atmel: convert driver to nand_scan()")
->     7928225ffcb3 ("mtd: rawnand: atmel: clarify NAND addition/removal paths")
->     7cce5d835467 ("MAINTAINERS: mtd/nand: update Microchip nand entry")
->     7da45139d264 ("mtd: rawnand: better name for the controller structure")
->     93db446a424c ("mtd: nand: move raw NAND related code to the raw/ subdir")
->     b4525db6f0c6 ("MAINTAINERS: Add entry for Marvell NAND controller driver")
->     d7d9f8ec77fe ("mtd: rawnand: add NVIDIA Tegra NAND Flash controller driver")
-> 
-> v4.9.222: Failed to apply! Possible dependencies:
->     00ad378f304a ("mtd: rawnand: Pass a nand_chip object to nand_scan()")
->     24755a55b01f ("Documentation/00-index: update for new core-api folder")
->     4ad4b21b1b81 ("docs-rst: convert usb docbooks to ReST")
->     609f212f6a12 ("docs-rst: convert mtdnand book to ReST")
->     66115335fbb4 ("docs: Fix build failure")
->     7ddedebb03b7 ("ALSA: doc: ReSTize writing-an-alsa-driver document")
->     8551914a5e19 ("ALSA: doc: ReSTize alsa-driver-api document")
->     90f9f118b75c ("docs-rst: convert filesystems book to ReST")
->     93dc3a112bf8 ("doc: Convert the debugobjects DocBook template to sphinx")
->     c441a4781ff1 ("crypto: doc - remove crypto API DocBook")
->     d6ba7a9c8b5a ("doc: Sphinxify the tracepoint docbook")
->     e7f08ffb1855 ("Documentation/workqueue.txt: convert to ReST markup")
->     f3fc83e55533 ("docs: Fix htmldocs build failure")
-> 
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
-> 
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.180-37-gad4fc99d1989
+Git Commit: ad4fc99d19898b966c3fa74c7adaaee8d12da3a9
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 66 unique boards, 18 SoC families, 17 builds out of 201
 
-I knew applying these patches would quickly be an issue, I think
-having these backported to the latest kernels is enough.
+Boot Regressions Detected:
 
-Thanks,
-Miquèl
+arm:
+
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v4.14.180)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.14.180)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: new failure (last pass: v4.14.180)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
+            meson-gxm-q200: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
