@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D02361D0F23
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7C01D0E2A
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732797AbgEMJrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:47:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44754 "EHLO mail.kernel.org"
+        id S2387917AbgEMJ62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:58:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732773AbgEMJrJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:47:09 -0400
+        id S2388156AbgEMJys (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:54:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA99E20753;
-        Wed, 13 May 2020 09:47:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82E4920753;
+        Wed, 13 May 2020 09:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363228;
-        bh=efmXkP4nZQuabVonmCLtMzWmGLAsXGPDsTiDa8BZylU=;
+        s=default; t=1589363688;
+        bh=8nWeuh1x24TWSX1tL7laF5UYkrmye3w6vE49+0gyclc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HOFsMt33O6kfQhCpSzi7Uoz/Gk7ETeGhmdKnvCoemgGZO/+bRCHGiA5R9tG11Eqp3
-         xoTAQaaGuFgKGLgs2yS35foFwtdRHk+uWmkLzPaOWqh3fSiCLmZrbdV5vsmHvaMOY5
-         gGN3akSzYUP4DzmPpiV5vdxxlXbsRt7Q59sZlKBo=
+        b=sw7EG0NABIr/Cy+Rb8ZBAY4175lOw8ZGVivrUU3vVjsua1GTqlsbygWiCHaqaJicu
+         HbuD5ABaMmr5EJnGS9t+D7ONSsGcGte0l1+EdCZjD16F7iROpI8GCDb2Pgd3zuc2XH
+         8LhjNSCGvrfborx08qapPR+EbKN9Jjdzha/fGlQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
-        Jann Horn <jannh@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>
-Subject: [PATCH 4.19 37/48] x86/entry/64: Fix unwind hints in register clearing code
-Date:   Wed, 13 May 2020 11:45:03 +0200
-Message-Id: <20200513094401.325580400@linuxfoundation.org>
+        stable@vger.kernel.org, Henry Willard <henry.willard@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.6 085/118] mm: limit boost_watermark on small zones
+Date:   Wed, 13 May 2020 11:45:04 +0200
+Message-Id: <20200513094424.870600250@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,110 +47,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Henry Willard <henry.willard@oracle.com>
 
-commit 06a9750edcffa808494d56da939085c35904e618 upstream.
+commit 14f69140ff9c92a0928547ceefb153a842e8492c upstream.
 
-The PUSH_AND_CLEAR_REGS macro zeroes each register immediately after
-pushing it.  If an NMI or exception hits after a register is cleared,
-but before the UNWIND_HINT_REGS annotation, the ORC unwinder will
-wrongly think the previous value of the register was zero.  This can
-confuse the unwinding process and cause it to exit early.
+Commit 1c30844d2dfe ("mm: reclaim small amounts of memory when an
+external fragmentation event occurs") adds a boost_watermark() function
+which increases the min watermark in a zone by at least
+pageblock_nr_pages or the number of pages in a page block.
 
-Because ORC is simpler than DWARF, there are a limited number of unwind
-annotation states, so it's not possible to add an individual unwind hint
-after each push/clear combination.  Instead, the register clearing
-instructions need to be consolidated and moved to after the
-UNWIND_HINT_REGS annotation.
+On Arm64, with 64K pages and 512M huge pages, this is 8192 pages or
+512M.  It does this regardless of the number of managed pages managed in
+the zone or the likelihood of success.
 
-Fixes: 3f01daecd545 ("x86/entry/64: Introduce the PUSH_AND_CLEAN_REGS macro")
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Dave Jones <dsj@fb.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Link: https://lore.kernel.org/r/68fd3d0bc92ae2d62ff7879d15d3684217d51f08.1587808742.git.jpoimboe@redhat.com
+This can put the zone immediately under water in terms of allocating
+pages from the zone, and can cause a small machine to fail immediately
+due to OoM.  Unlike set_recommended_min_free_kbytes(), which
+substantially increases min_free_kbytes and is tied to THP,
+boost_watermark() can be called even if THP is not active.
+
+The problem is most likely to appear on architectures such as Arm64
+where pageblock_nr_pages is very large.
+
+It is desirable to run the kdump capture kernel in as small a space as
+possible to avoid wasting memory.  In some architectures, such as Arm64,
+there are restrictions on where the capture kernel can run, and
+therefore, the space available.  A capture kernel running in 768M can
+fail due to OoM immediately after boost_watermark() sets the min in zone
+DMA32, where most of the memory is, to 512M.  It fails even though there
+is over 500M of free memory.  With boost_watermark() suppressed, the
+capture kernel can run successfully in 448M.
+
+This patch limits boost_watermark() to boosting a zone's min watermark
+only when there are enough pages that the boost will produce positive
+results.  In this case that is estimated to be four times as many pages
+as pageblock_nr_pages.
+
+Mel said:
+
+: There is no harm in marking it stable.  Clearly it does not happen very
+: often but it's not impossible.  32-bit x86 is a lot less common now
+: which would previously have been vulnerable to triggering this easily.
+: ppc64 has a larger base page size but typically only has one zone.
+: arm64 is likely the most vulnerable, particularly when CMA is
+: configured with a small movable zone.
+
+Fixes: 1c30844d2dfe ("mm: reclaim small amounts of memory when an external fragmentation event occurs")
+Signed-off-by: Henry Willard <henry.willard@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/1588294148-6586-1-git-send-email-henry.willard@oracle.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/entry/calling.h |   40 +++++++++++++++++++++-------------------
- 1 file changed, 21 insertions(+), 19 deletions(-)
+ mm/page_alloc.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/x86/entry/calling.h
-+++ b/arch/x86/entry/calling.h
-@@ -98,13 +98,6 @@ For 32-bit we have the following convent
- #define SIZEOF_PTREGS	21*8
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -2351,6 +2351,14 @@ static inline void boost_watermark(struc
  
- .macro PUSH_AND_CLEAR_REGS rdx=%rdx rax=%rax save_ret=0
--	/*
--	 * Push registers and sanitize registers of values that a
--	 * speculation attack might otherwise want to exploit. The
--	 * lower registers are likely clobbered well before they
--	 * could be put to use in a speculative execution gadget.
--	 * Interleave XOR with PUSH for better uop scheduling:
--	 */
- 	.if \save_ret
- 	pushq	%rsi		/* pt_regs->si */
- 	movq	8(%rsp), %rsi	/* temporarily store the return address in %rsi */
-@@ -114,34 +107,43 @@ For 32-bit we have the following convent
- 	pushq   %rsi		/* pt_regs->si */
- 	.endif
- 	pushq	\rdx		/* pt_regs->dx */
--	xorl	%edx, %edx	/* nospec   dx */
- 	pushq   %rcx		/* pt_regs->cx */
--	xorl	%ecx, %ecx	/* nospec   cx */
- 	pushq   \rax		/* pt_regs->ax */
- 	pushq   %r8		/* pt_regs->r8 */
--	xorl	%r8d, %r8d	/* nospec   r8 */
- 	pushq   %r9		/* pt_regs->r9 */
--	xorl	%r9d, %r9d	/* nospec   r9 */
- 	pushq   %r10		/* pt_regs->r10 */
--	xorl	%r10d, %r10d	/* nospec   r10 */
- 	pushq   %r11		/* pt_regs->r11 */
--	xorl	%r11d, %r11d	/* nospec   r11*/
- 	pushq	%rbx		/* pt_regs->rbx */
--	xorl    %ebx, %ebx	/* nospec   rbx*/
- 	pushq	%rbp		/* pt_regs->rbp */
--	xorl    %ebp, %ebp	/* nospec   rbp*/
- 	pushq	%r12		/* pt_regs->r12 */
--	xorl	%r12d, %r12d	/* nospec   r12*/
- 	pushq	%r13		/* pt_regs->r13 */
--	xorl	%r13d, %r13d	/* nospec   r13*/
- 	pushq	%r14		/* pt_regs->r14 */
--	xorl	%r14d, %r14d	/* nospec   r14*/
- 	pushq	%r15		/* pt_regs->r15 */
--	xorl	%r15d, %r15d	/* nospec   r15*/
- 	UNWIND_HINT_REGS
-+
- 	.if \save_ret
- 	pushq	%rsi		/* return address on top of stack */
- 	.endif
-+
+ 	if (!watermark_boost_factor)
+ 		return;
 +	/*
-+	 * Sanitize registers of values that a speculation attack might
-+	 * otherwise want to exploit. The lower registers are likely clobbered
-+	 * well before they could be put to use in a speculative execution
-+	 * gadget.
++	 * Don't bother in zones that are unlikely to produce results.
++	 * On small machines, including kdump capture kernels running
++	 * in a small area, boosting the watermark can cause an out of
++	 * memory situation immediately.
 +	 */
-+	xorl	%edx,  %edx	/* nospec dx  */
-+	xorl	%ecx,  %ecx	/* nospec cx  */
-+	xorl	%r8d,  %r8d	/* nospec r8  */
-+	xorl	%r9d,  %r9d	/* nospec r9  */
-+	xorl	%r10d, %r10d	/* nospec r10 */
-+	xorl	%r11d, %r11d	/* nospec r11 */
-+	xorl	%ebx,  %ebx	/* nospec rbx */
-+	xorl	%ebp,  %ebp	/* nospec rbp */
-+	xorl	%r12d, %r12d	/* nospec r12 */
-+	xorl	%r13d, %r13d	/* nospec r13 */
-+	xorl	%r14d, %r14d	/* nospec r14 */
-+	xorl	%r15d, %r15d	/* nospec r15 */
-+
- .endm
++	if ((pageblock_nr_pages * 4) > zone_managed_pages(zone))
++		return;
  
- .macro POP_REGS pop_rdi=1 skip_r11rcx=0
+ 	max_boost = mult_frac(zone->_watermark[WMARK_HIGH],
+ 			watermark_boost_factor, 10000);
 
 
