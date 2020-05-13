@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D62B1D0CEA
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD27D1D0E64
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732590AbgEMJsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:48:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46952 "EHLO mail.kernel.org"
+        id S2387843AbgEMJwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:52:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733077AbgEMJsb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:48:31 -0400
+        id S2387853AbgEMJwx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:52:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20C6620753;
-        Wed, 13 May 2020 09:48:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D49C20753;
+        Wed, 13 May 2020 09:52:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363310;
-        bh=exXkvc1Pk18jelMY6JM7GsbunGm4/kMfPFEySFm36xU=;
+        s=default; t=1589363572;
+        bh=6Nj0ivymC0ECNsWFCc3YPYlbmxZtWC1YnpOr92BuU0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wJ+GR9KSroUxlDBZSEaSvWhta4hCoPIHZbjDHKPAzv83yaFqPOWPC4tY3Gz+qkqiT
-         ildaNETV8C6o7XMTFDU2GJAPjhqAixC2Rx/bcY6qcfuFWSy06aAIu8XwLUXE83IA8j
-         cWpDesj9JEXUOOjb3ocxHAmF7fEoJb2R3JlUjynU=
+        b=ihePZmXs0ox3WdiS50DfNw10BYQ7X0kpAdSUG0sWK1XCEIWL7jsuysR7qqaJOOH03
+         I9U9TU8p598K1XsUymybBXgcDif6Hm6kRdqnwjq7ICO3Qht2gZWkOB1KejCBq2w705
+         ZerkcJMbjwIHlTIn55DPGCCd1Ij24FPXdOZcUPS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Felice <tony.felice@timesys.com>,
-        Akshay Bhat <akshay.bhat@timesys.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        Tuong Lien <tuong.t.lien@dektech.com.au>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 22/90] net: tc35815: Fix phydev supported/advertising mask
+Subject: [PATCH 5.6 039/118] tipc: fix partial topology connection closure
 Date:   Wed, 13 May 2020 11:44:18 +0200
-Message-Id: <20200513094411.029573562@linuxfoundation.org>
+Message-Id: <20200513094420.799732773@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Felice <tony.felice@timesys.com>
+From: Tuong Lien <tuong.t.lien@dektech.com.au>
 
-[ Upstream commit 4b5b71f770e2edefbfe74203777264bfe6a9927c ]
+[ Upstream commit 980d69276f3048af43a045be2925dacfb898a7be ]
 
-Commit 3c1bcc8614db ("net: ethernet: Convert phydev advertize and
-supported from u32 to link mode") updated ethernet drivers to use a
-linkmode bitmap. It mistakenly dropped a bitwise negation in the
-tc35815 ethernet driver on a bitmask to set the supported/advertising
-flags.
+When an application connects to the TIPC topology server and subscribes
+to some services, a new connection is created along with some objects -
+'tipc_subscription' to store related data correspondingly...
+However, there is one omission in the connection handling that when the
+connection or application is orderly shutdown (e.g. via SIGQUIT, etc.),
+the connection is not closed in kernel, the 'tipc_subscription' objects
+are not freed too.
+This results in:
+- The maximum number of subscriptions (65535) will be reached soon, new
+subscriptions will be rejected;
+- TIPC module cannot be removed (unless the objects  are somehow forced
+to release first);
 
-Found by Anthony via code inspection, not tested as I do not have the
-required hardware.
+The commit fixes the issue by closing the connection if the 'recvmsg()'
+returns '0' i.e. when the peer is shutdown gracefully. It also includes
+the other unexpected cases.
 
-Fixes: 3c1bcc8614db ("net: ethernet: Convert phydev advertize and supported from u32 to link mode")
-Signed-off-by: Anthony Felice <tony.felice@timesys.com>
-Reviewed-by: Akshay Bhat <akshay.bhat@timesys.com>
-Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/toshiba/tc35815.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tipc/topsrv.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/toshiba/tc35815.c
-+++ b/drivers/net/ethernet/toshiba/tc35815.c
-@@ -644,7 +644,7 @@ static int tc_mii_probe(struct net_devic
- 		linkmode_set_bit(ETHTOOL_LINK_MODE_10baseT_Half_BIT, mask);
- 		linkmode_set_bit(ETHTOOL_LINK_MODE_100baseT_Half_BIT, mask);
+--- a/net/tipc/topsrv.c
++++ b/net/tipc/topsrv.c
+@@ -402,10 +402,11 @@ static int tipc_conn_rcv_from_sock(struc
+ 		read_lock_bh(&sk->sk_callback_lock);
+ 		ret = tipc_conn_rcv_sub(srv, con, &s);
+ 		read_unlock_bh(&sk->sk_callback_lock);
++		if (!ret)
++			return 0;
  	}
--	linkmode_and(phydev->supported, phydev->supported, mask);
-+	linkmode_andnot(phydev->supported, phydev->supported, mask);
- 	linkmode_copy(phydev->advertising, phydev->supported);
+-	if (ret < 0)
+-		tipc_conn_close(con);
  
- 	lp->link = 0;
++	tipc_conn_close(con);
+ 	return ret;
+ }
+ 
 
 
