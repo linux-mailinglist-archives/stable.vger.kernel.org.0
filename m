@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B0B1D0E4C
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:59:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 685451D0C9C
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387501AbgEMJxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:53:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55286 "EHLO mail.kernel.org"
+        id S1732596AbgEMJqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387431AbgEMJxU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:53:20 -0400
+        id S1732595AbgEMJqO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:46:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28BB120753;
-        Wed, 13 May 2020 09:53:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8973720740;
+        Wed, 13 May 2020 09:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363599;
-        bh=gmah9KEAeFrzt5Pb5eobdMbcMTm/fjmivIHVkNUhpXE=;
+        s=default; t=1589363174;
+        bh=329AiQM0KavVaWXkv+g4W1c7NSgAQWjHdkTzidhBu5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDobpIQeTrF103ZEdOdvG38YYvtkajWjrFcWRfBXwS0s3lj4tg67+IhJ9hqQgYuZO
-         Oh9kb8dmCB6FDzGzLfeBund+QCipXrevZDsWaCg1ehNk1gzxjBZgTJj5FCciyh0fld
-         WbJgAcWSNtFTjkRVUFYLbKbSQ+a4f7AVLIrySZ7E=
+        b=W1UHIExTP++gCsm86MDaclOM60fGbGj2YjEV285Wg3lHOTV9lnPVQSAF6y0nJ3TH9
+         uOQct7+jQIifPRj7h1SbLlFUbobjEK45PabPFQNhrGC1MBB743T8ZVMM2KSq3iJtkQ
+         Tr9/h3SCRTc9gSG0/ieE/yRFV94+sRX4mZf4Dvns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
-        Vlad Buslov <vladbu@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 049/118] net/mlx5e: Fix q counters on uplink representors
+        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 02/48] tracing/kprobes: Fix a double initialization typo
 Date:   Wed, 13 May 2020 11:44:28 +0200
-Message-Id: <20200513094421.478529411@linuxfoundation.org>
+Message-Id: <20200513094352.173810992@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
+References: <20200513094351.100352960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@mellanox.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 67b38de646894c9a94fe4d6d17719e70cc6028eb ]
+[ Upstream commit dcbd21c9fca5e954fd4e3d91884907eb6d47187e ]
 
-Need to allocate the q counters before init_rx which needs them
-when creating the rq.
+Fix a typo that resulted in an unnecessary double
+initialization to addr.
 
-Fixes: 8520fa57a4e9 ("net/mlx5e: Create q counters on uplink representors")
-Signed-off-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Vlad Buslov <vladbu@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: http://lkml.kernel.org/r/158779374968.6082.2337484008464939919.stgit@devnote2
+
+Cc: Tom Zanussi <zanussi@kernel.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: c7411a1a126f ("tracing/kprobe: Check whether the non-suffixed symbol is notrace")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ kernel/trace/trace_kprobe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -1692,19 +1692,14 @@ static void mlx5e_cleanup_rep_rx(struct
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index 65b4e28ff425f..c45b017bacd47 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -538,7 +538,7 @@ static bool __within_notrace_func(unsigned long addr)
  
- static int mlx5e_init_ul_rep_rx(struct mlx5e_priv *priv)
+ static bool within_notrace_func(struct trace_kprobe *tk)
  {
--	int err = mlx5e_init_rep_rx(priv);
--
--	if (err)
--		return err;
--
- 	mlx5e_create_q_counters(priv);
--	return 0;
-+	return mlx5e_init_rep_rx(priv);
- }
+-	unsigned long addr = addr = trace_kprobe_address(tk);
++	unsigned long addr = trace_kprobe_address(tk);
+ 	char symname[KSYM_NAME_LEN], *p;
  
- static void mlx5e_cleanup_ul_rep_rx(struct mlx5e_priv *priv)
- {
--	mlx5e_destroy_q_counters(priv);
- 	mlx5e_cleanup_rep_rx(priv);
-+	mlx5e_destroy_q_counters(priv);
- }
- 
- static int mlx5e_init_uplink_rep_tx(struct mlx5e_rep_priv *rpriv)
+ 	if (!__within_notrace_func(addr))
+-- 
+2.20.1
+
 
 
