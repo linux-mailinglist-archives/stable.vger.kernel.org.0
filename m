@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 811361D0D20
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9680C1D0E20
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387505AbgEMJuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:50:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50408 "EHLO mail.kernel.org"
+        id S2388168AbgEMJyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:54:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387501AbgEMJuc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:50:32 -0400
+        id S2388178AbgEMJyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:54:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29DBD20740;
-        Wed, 13 May 2020 09:50:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A3FA20753;
+        Wed, 13 May 2020 09:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363431;
-        bh=t+dAG2ciSY11/anwEimjtMYFr2ia36uqkw+4TtFXdvI=;
+        s=default; t=1589363692;
+        bh=59zeFVD0BiQV6wVNQvdmW3dX3E0raA5rPJYbte2mkoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qz7JqnZNYt9vbfF7AKh0JPY+gMkxJzkzpltx2oUhTlxAYyDjvjNAAyYISwNAP30al
-         tGLl+E8pHB128IZNFfmau+D2jj282mv9wkiXhh1GguUkmuQ1Liwa+lcCOmIh/lMOPT
-         ER2bmKh3VD9CAbh0GR7v3lNX+MrLA5O3ocvJeEj4=
+        b=GJsWifpObwevlnS4fx+JVUy0l8wbbP8Aq0Z61vS/3Pn0aJfYWvSzR6hpSSKu7B0Wi
+         DCV5q9Z2/bDCzG5Loi+2dnRikCEyLGlFOZV9dvGzcooBVq1i5hErL7sCN3z5x+6TXi
+         1Aw7DgNMRj3U9p2YuFqkztTf633dcJHeZLw0kfF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 5.4 70/90] batman-adv: Fix refcnt leak in batadv_store_throughput_override
+        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.6 087/118] ceph: demote quotarealm lookup warning to a debug message
 Date:   Wed, 13 May 2020 11:45:06 +0200
-Message-Id: <20200513094416.651341365@linuxfoundation.org>
+Message-Id: <20200513094425.009591824@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Luis Henriques <lhenriques@suse.com>
 
-commit 6107c5da0fca8b50b4d3215e94d619d38cc4a18c upstream.
+commit 12ae44a40a1be891bdc6463f8c7072b4ede746ef upstream.
 
-batadv_show_throughput_override() invokes batadv_hardif_get_by_netdev(),
-which gets a batadv_hard_iface object from net_dev with increased refcnt
-and its reference is assigned to a local pointer 'hard_iface'.
+A misconfigured cephx can easily result in having the kernel client
+flooding the logs with:
 
-When batadv_store_throughput_override() returns, "hard_iface" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
+  ceph: Can't lookup inode 1 (err: -13)
 
-The issue happens in one error path of
-batadv_store_throughput_override(). When batadv_parse_throughput()
-returns NULL, the refcnt increased by batadv_hardif_get_by_netdev() is
-not decreased, causing a refcnt leak.
+Change this message to debug level.
 
-Fix this issue by jumping to "out" label when batadv_parse_throughput()
-returns NULL.
-
-Fixes: 0b5ecc6811bd ("batman-adv: add throughput override attribute to hard_ifaces")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/44546
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/batman-adv/sysfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/quota.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/batman-adv/sysfs.c
-+++ b/net/batman-adv/sysfs.c
-@@ -1150,7 +1150,7 @@ static ssize_t batadv_store_throughput_o
- 	ret = batadv_parse_throughput(net_dev, buff, "throughput_override",
- 				      &tp_override);
- 	if (!ret)
--		return count;
-+		goto out;
+--- a/fs/ceph/quota.c
++++ b/fs/ceph/quota.c
+@@ -159,8 +159,8 @@ static struct inode *lookup_quotarealm_i
+ 	}
  
- 	old_tp_override = atomic_read(&hard_iface->bat_v.throughput_override);
- 	if (old_tp_override == tp_override)
+ 	if (IS_ERR(in)) {
+-		pr_warn("Can't lookup inode %llx (err: %ld)\n",
+-			realm->ino, PTR_ERR(in));
++		dout("Can't lookup inode %llx (err: %ld)\n",
++		     realm->ino, PTR_ERR(in));
+ 		qri->timeout = jiffies + msecs_to_jiffies(60 * 1000); /* XXX */
+ 	} else {
+ 		qri->timeout = 0;
 
 
