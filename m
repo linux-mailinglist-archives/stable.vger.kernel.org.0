@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8B31D0DA3
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:55:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BF5D1D0EB7
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388134AbgEMJyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:54:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
+        id S2387472AbgEMJuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:50:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388129AbgEMJyj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:54:39 -0400
+        id S2387470AbgEMJuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:50:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1EC320753;
-        Wed, 13 May 2020 09:54:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D030206D6;
+        Wed, 13 May 2020 09:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363678;
-        bh=SBu3nKrPUII6wLYa7UcjO4P0bf+07rMWUTiGAHrPK3M=;
+        s=default; t=1589363417;
+        bh=XqLpaBs6gOV3NeFStYNmFciupOw+sZY4klD0tUH5OUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5bp6vjPVjA7eDz6SUMGxjP7pLRtx9sYJsl0Anq/KoB+/PtL8jZbfINfqvquIXRTx
-         cipMnOSPY73EaDuaQLSExfO3nly4e/VcXkOzAgevV2pdKaHmw6h6yLIHLmp+fgncYS
-         6zHZpSvy215T4ISYP8LubbBBSwBjn86FYMDdZMXc=
+        b=TLeG7iGrWCwv2HHyKwXPeFLTUTwl1hrzmYn5Dla0RigJE8ZDwAjdb5vbFohod4Snc
+         V2LjirIeFqq7CGuzSPky5Ou7ttu6PP+Eb1YyBHs2c/6gjVOTA8cbt3f2U2o9E1uEkU
+         ohFAFgNUQoTEdsOQyprVUcTwJ+xl7160HHcbO9EE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Penyaev <rpenyaev@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jason Baron <jbaron@akamai.com>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>, Heiher <r@hev.cc>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 082/118] epoll: atomically remove wait entry on wake up
+        stable@vger.kernel.org, Tony Vroon <chainsaw@gentoo.org>,
+        Sergey Kvachonok <ravenexp@gmail.com>,
+        Sergei Trofimovich <slyfox@gentoo.org>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 5.4 65/90] coredump: fix crash when umh is disabled
 Date:   Wed, 13 May 2020 11:45:01 +0200
-Message-Id: <20200513094424.670552201@linuxfoundation.org>
+Message-Id: <20200513094416.284461688@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,178 +45,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Penyaev <rpenyaev@suse.de>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-commit 412895f03cbf9633298111cb4dfde13b7720e2c5 upstream.
+commit 3740d93e37902b31159a82da2d5c8812ed825404 upstream.
 
-This patch does two things:
+Commit 64e90a8acb859 ("Introduce STATIC_USERMODEHELPER to mediate
+call_usermodehelper()") added the optiont to disable all
+call_usermodehelper() calls by setting STATIC_USERMODEHELPER_PATH to
+an empty string. When this is done, and crashdump is triggered, it
+will crash on null pointer dereference, since we make assumptions
+over what call_usermodehelper_exec() did.
 
- - fixes a lost wakeup introduced by commit 339ddb53d373 ("fs/epoll:
-   remove unnecessary wakeups of nested epoll")
+This has been reported by Sergey when one triggers a a coredump
+with the following configuration:
 
- - improves performance for events delivery.
+```
+CONFIG_STATIC_USERMODEHELPER=y
+CONFIG_STATIC_USERMODEHELPER_PATH=""
+kernel.core_pattern = |/usr/lib/systemd/systemd-coredump %P %u %g %s %t %c %h %e
+```
 
-The description of the problem is the following: if N (>1) threads are
-waiting on ep->wq for new events and M (>1) events come, it is quite
-likely that >1 wakeups hit the same wait queue entry, because there is
-quite a big window between __add_wait_queue_exclusive() and the
-following __remove_wait_queue() calls in ep_poll() function.
+The way disabling the umh was designed was that call_usermodehelper_exec()
+would just return early, without an error. But coredump assumes
+certain variables are set up for us when this happens, and calls
+ile_start_write(cprm.file) with a NULL file.
 
-This can lead to lost wakeups, because thread, which was woken up, can
-handle not all the events in ->rdllist.  (in better words the problem is
-described here: https://lkml.org/lkml/2019/10/7/905)
+[    2.819676] BUG: kernel NULL pointer dereference, address: 0000000000000020
+[    2.819859] #PF: supervisor read access in kernel mode
+[    2.820035] #PF: error_code(0x0000) - not-present page
+[    2.820188] PGD 0 P4D 0
+[    2.820305] Oops: 0000 [#1] SMP PTI
+[    2.820436] CPU: 2 PID: 89 Comm: a Not tainted 5.7.0-rc1+ #7
+[    2.820680] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190711_202441-buildvm-armv7-10.arm.fedoraproject.org-2.fc31 04/01/2014
+[    2.821150] RIP: 0010:do_coredump+0xd80/0x1060
+[    2.821385] Code: e8 95 11 ed ff 48 c7 c6 cc a7 b4 81 48 8d bd 28 ff
+ff ff 89 c2 e8 70 f1 ff ff 41 89 c2 85 c0 0f 84 72 f7 ff ff e9 b4 fe ff
+ff <48> 8b 57 20 0f b7 02 66 25 00 f0 66 3d 00 8
+0 0f 84 9c 01 00 00 44
+[    2.822014] RSP: 0000:ffffc9000029bcb8 EFLAGS: 00010246
+[    2.822339] RAX: 0000000000000000 RBX: ffff88803f860000 RCX: 000000000000000a
+[    2.822746] RDX: 0000000000000009 RSI: 0000000000000282 RDI: 0000000000000000
+[    2.823141] RBP: ffffc9000029bde8 R08: 0000000000000000 R09: ffffc9000029bc00
+[    2.823508] R10: 0000000000000001 R11: ffff88803dec90be R12: ffffffff81c39da0
+[    2.823902] R13: ffff88803de84400 R14: 0000000000000000 R15: 0000000000000000
+[    2.824285] FS:  00007fee08183540(0000) GS:ffff88803e480000(0000) knlGS:0000000000000000
+[    2.824767] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    2.825111] CR2: 0000000000000020 CR3: 000000003f856005 CR4: 0000000000060ea0
+[    2.825479] Call Trace:
+[    2.825790]  get_signal+0x11e/0x720
+[    2.826087]  do_signal+0x1d/0x670
+[    2.826361]  ? force_sig_info_to_task+0xc1/0xf0
+[    2.826691]  ? force_sig_fault+0x3c/0x40
+[    2.826996]  ? do_trap+0xc9/0x100
+[    2.827179]  exit_to_usermode_loop+0x49/0x90
+[    2.827359]  prepare_exit_to_usermode+0x77/0xb0
+[    2.827559]  ? invalid_op+0xa/0x30
+[    2.827747]  ret_from_intr+0x20/0x20
+[    2.827921] RIP: 0033:0x55e2c76d2129
+[    2.828107] Code: 2d ff ff ff e8 68 ff ff ff 5d c6 05 18 2f 00 00 01
+c3 0f 1f 80 00 00 00 00 c3 0f 1f 80 00 00 00 00 e9 7b ff ff ff 55 48 89
+e5 <0f> 0b b8 00 00 00 00 5d c3 66 2e 0f 1f 84 0
+0 00 00 00 00 0f 1f 40
+[    2.828603] RSP: 002b:00007fffeba5e080 EFLAGS: 00010246
+[    2.828801] RAX: 000055e2c76d2125 RBX: 0000000000000000 RCX: 00007fee0817c718
+[    2.829034] RDX: 00007fffeba5e188 RSI: 00007fffeba5e178 RDI: 0000000000000001
+[    2.829257] RBP: 00007fffeba5e080 R08: 0000000000000000 R09: 00007fee08193c00
+[    2.829482] R10: 0000000000000009 R11: 0000000000000000 R12: 000055e2c76d2040
+[    2.829727] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[    2.829964] CR2: 0000000000000020
+[    2.830149] ---[ end trace ceed83d8c68a1bf1 ]---
+```
 
-The idea of the current patch is to use init_wait() instead of
-init_waitqueue_entry().
-
-Internally init_wait() sets autoremove_wake_function as a callback,
-which removes the wait entry atomically (under the wq locks) from the
-list, thus the next coming wakeup hits the next wait entry in the wait
-queue, thus preventing lost wakeups.
-
-Problem is very well reproduced by the epoll60 test case [1].
-
-Wait entry removal on wakeup has also performance benefits, because
-there is no need to take a ep->lock and remove wait entry from the queue
-after the successful wakeup.  Here is the timing output of the epoll60
-test case:
-
-  With explicit wakeup from ep_scan_ready_list() (the state of the
-  code prior 339ddb53d373):
-
-    real    0m6.970s
-    user    0m49.786s
-    sys     0m0.113s
-
- After this patch:
-
-   real    0m5.220s
-   user    0m36.879s
-   sys     0m0.019s
-
-The other testcase is the stress-epoll [2], where one thread consumes
-all the events and other threads produce many events:
-
-  With explicit wakeup from ep_scan_ready_list() (the state of the
-  code prior 339ddb53d373):
-
-    threads  events/ms  run-time ms
-          8       5427         1474
-         16       6163         2596
-         32       6824         4689
-         64       7060         9064
-        128       6991        18309
-
- After this patch:
-
-    threads  events/ms  run-time ms
-          8       5598         1429
-         16       7073         2262
-         32       7502         4265
-         64       7640         8376
-        128       7634        16767
-
- (number of "events/ms" represents event bandwidth, thus higher is
-  better; number of "run-time ms" represents overall time spent
-  doing the benchmark, thus lower is better)
-
-[1] tools/testing/selftests/filesystems/epoll/epoll_wakeup_test.c
-[2] https://github.com/rouming/test-tools/blob/master/stress-epoll.c
-
-Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Jason Baron <jbaron@akamai.com>
-Cc: Khazhismel Kumykov <khazhy@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Heiher <r@hev.cc>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200430130326.1368509-2-rpenyaev@suse.de
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org> # v4.11+
+Fixes: 64e90a8acb85 ("Introduce STATIC_USERMODEHELPER to mediate call_usermodehelper()")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=199795
+Reported-by: Tony Vroon <chainsaw@gentoo.org>
+Reported-by: Sergey Kvachonok <ravenexp@gmail.com>
+Tested-by: Sergei Trofimovich <slyfox@gentoo.org>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20200416162859.26518-1-mcgrof@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/eventpoll.c |   43 ++++++++++++++++++++++++-------------------
- 1 file changed, 24 insertions(+), 19 deletions(-)
+ fs/coredump.c |    8 ++++++++
+ kernel/umh.c  |    5 +++++
+ 2 files changed, 13 insertions(+)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1800,7 +1800,6 @@ static int ep_poll(struct eventpoll *ep,
- {
- 	int res = 0, eavail, timed_out = 0;
- 	u64 slack = 0;
--	bool waiter = false;
- 	wait_queue_entry_t wait;
- 	ktime_t expires, *to = NULL;
- 
-@@ -1845,21 +1844,23 @@ fetch_events:
- 	 */
- 	ep_reset_busy_poll_napi_id(ep);
- 
--	/*
--	 * We don't have any available event to return to the caller.  We need
--	 * to sleep here, and we will be woken by ep_poll_callback() when events
--	 * become available.
--	 */
--	if (!waiter) {
--		waiter = true;
--		init_waitqueue_entry(&wait, current);
--
-+	do {
+--- a/fs/coredump.c
++++ b/fs/coredump.c
+@@ -788,6 +788,14 @@ void do_coredump(const kernel_siginfo_t
+ 	if (displaced)
+ 		put_files_struct(displaced);
+ 	if (!dump_interrupted()) {
 +		/*
-+		 * Internally init_wait() uses autoremove_wake_function(),
-+		 * thus wait entry is removed from the wait queue on each
-+		 * wakeup. Why it is important? In case of several waiters
-+		 * each new wakeup will hit the next waiter, giving it the
-+		 * chance to harvest new event. Otherwise wakeup can be
-+		 * lost. This is also good performance-wise, because on
-+		 * normal wakeup path no need to call __remove_wait_queue()
-+		 * explicitly, thus ep->lock is not taken, which halts the
-+		 * event delivery.
++		 * umh disabled with CONFIG_STATIC_USERMODEHELPER_PATH="" would
++		 * have this set to NULL.
 +		 */
-+		init_wait(&wait);
- 		write_lock_irq(&ep->lock);
- 		__add_wait_queue_exclusive(&ep->wq, &wait);
- 		write_unlock_irq(&ep->lock);
--	}
- 
--	for (;;) {
- 		/*
- 		 * We don't want to sleep if the ep_poll_callback() sends us
- 		 * a wakeup in between. That's why we set the task state
-@@ -1889,10 +1890,20 @@ fetch_events:
- 			timed_out = 1;
- 			break;
- 		}
--	}
-+
-+		/* We were woken up, thus go and try to harvest some events */
-+		eavail = 1;
-+
-+	} while (0);
- 
- 	__set_current_state(TASK_RUNNING);
- 
-+	if (!list_empty_careful(&wait.entry)) {
-+		write_lock_irq(&ep->lock);
-+		__remove_wait_queue(&ep->wq, &wait);
-+		write_unlock_irq(&ep->lock);
-+	}
-+
- send_events:
- 	/*
- 	 * Try to transfer events to user space. In case we get 0 events and
-@@ -1903,12 +1914,6 @@ send_events:
- 	    !(res = ep_send_events(ep, events, maxevents)) && !timed_out)
- 		goto fetch_events;
- 
--	if (waiter) {
--		write_lock_irq(&ep->lock);
--		__remove_wait_queue(&ep->wq, &wait);
--		write_unlock_irq(&ep->lock);
--	}
--
- 	return res;
- }
- 
++		if (!cprm.file) {
++			pr_info("Core dump to |%s disabled\n", cn.corename);
++			goto close_fail;
++		}
+ 		file_start_write(cprm.file);
+ 		core_dumped = binfmt->core_dump(&cprm);
+ 		file_end_write(cprm.file);
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -544,6 +544,11 @@ EXPORT_SYMBOL_GPL(fork_usermode_blob);
+  * Runs a user-space application.  The application is started
+  * asynchronously if wait is not set, and runs as a child of system workqueues.
+  * (ie. it runs with full root capabilities and optimized affinity).
++ *
++ * Note: successful return value does not guarantee the helper was called at
++ * all. You can't rely on sub_info->{init,cleanup} being called even for
++ * UMH_WAIT_* wait modes as STATIC_USERMODEHELPER_PATH="" turns all helpers
++ * into a successful no-op.
+  */
+ int call_usermodehelper_exec(struct subprocess_info *sub_info, int wait)
+ {
 
 
