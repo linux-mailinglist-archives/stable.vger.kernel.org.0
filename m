@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2631D0CA9
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B4E1D0E3B
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:59:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732682AbgEMJqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:46:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44152 "EHLO mail.kernel.org"
+        id S2387759AbgEMJ6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:58:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732678AbgEMJqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:46:39 -0400
+        id S2387419AbgEMJyT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:54:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52346206F5;
-        Wed, 13 May 2020 09:46:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 143FA20769;
+        Wed, 13 May 2020 09:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363198;
-        bh=2cKhX3xfB6ZFEbpbrR4NOu89GxoweIZyJxrTXHQ9D+U=;
+        s=default; t=1589363658;
+        bh=WXEx72ox0x9obtGOs2Ak4Pv6rMzqC8WDkMx6ygPsUXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FKK3l31inBJru0o5NKo+RLwxQgmoNCncuFrpTtDBiyjTbf4Y6+1olP81YDJggZsKr
-         iAvU2ugrr6d8L0GJmGxm921w1gdQgmH4QlJcG0oRCGOQjLX1N85sT5yjnH0qkEFJdJ
-         kGbWYEQh/v2OduBH7fCWue933Qg7Mjr/1dj7pFBE=
+        b=bvqN2BQ9H7AWRPo1v+ptrkwH8Vxa/hT6hr20ZqZqi7BAKWG8wwAe3lNY0yhPgeFUQ
+         3Kz+1JrqlBd9kg+dnO9C8GqjrddeoLkbx6TfJv0OL93vQ05dCAghpJKFML5+ME6Mp5
+         dS5PZoLqwhrar+6bM0duwUk7GUuux1jeZRAsrDvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Will Deacon <will@kernel.org>,
         Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 26/48] KVM: arm64: Fix 32bit PC wrap-around
-Date:   Wed, 13 May 2020 11:44:52 +0200
-Message-Id: <20200513094357.501897308@linuxfoundation.org>
+Subject: [PATCH 5.6 074/118] KVM: arm64: Fix 32bit PC wrap-around
+Date:   Wed, 13 May 2020 11:44:53 +0200
+Message-Id: <20200513094424.154844614@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,7 +75,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/arm64/kvm/guest.c
 +++ b/arch/arm64/kvm/guest.c
-@@ -179,6 +179,13 @@ static int set_core_reg(struct kvm_vcpu
+@@ -201,6 +201,13 @@ static int set_core_reg(struct kvm_vcpu
  	}
  
  	memcpy((u32 *)regs + off, valp, KVM_REG_SIZE(reg->id));
