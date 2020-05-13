@@ -2,97 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49AA81D0C5C
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5C711D0C5D
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:37:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727918AbgEMJgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:36:32 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:34697 "EHLO
+        id S1727120AbgEMJhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:37:06 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:53065 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727120AbgEMJgc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 05:36:32 -0400
+        by vger.kernel.org with ESMTP id S1726891AbgEMJhF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 05:37:05 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 53E9A5C0096;
-        Wed, 13 May 2020 05:36:31 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id B21575C013C;
+        Wed, 13 May 2020 05:37:04 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 13 May 2020 05:36:31 -0400
+  by compute1.internal (MEProxy); Wed, 13 May 2020 05:37:04 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=aktcx0F31Hq4KJ/iBkCoSOsg+5T
-        TlFbA8xn53jTs41A=; b=fkKDTA1SEUD5FPqXIopTrADlYnm0UyaL9O7xIdIl03C
-        NWgwEWZnVA6vTCtSjAOY1+FW9RGpXlxWk5Viq6zyW1q9BBnmPMBL9fV/DAoBRzjx
-        anPXnos6XRMje7Puh4RWGy4diM1buWMMBSkLWrdaJ2Y0Qu6eigmUc3MhBivqXy/r
-        zuMPvLMjTlifyqiRLfTpCx5hDXzVHT4dDCQzvt+Tp5P82FD6hHt3YrqeX2glvITH
-        djroqAW9igUm9oVun2UB6Ch3B/piePRDJbBhq6jyNNzQ6+Lpq97WKc71tQsrfE3h
-        DYbDTf6++wlyfxdNkgYyKPY+tnRzdPa4Psrfy1s02nA==
+        :content-type:in-reply-to; s=fm3; bh=/bysaxoFtZbhiN+/iyGCIki1PgJ
+        2l6ObgRjyef/n24c=; b=fZjHTrcYUkiYlxB6MVffUDow4uT+x5m3+e+TXojI8E3
+        4DOBIB8xnsQCBqNn8pWz0LmV/pqM2TU9MY1hzwJ1oyQVwXW12lIpbMjE3o5318j8
+        h5EJc3cbaM8cXne6R+O8Noz/wekKbRowVTZFt0HfQ/SqAsHfhf1QR4WVatzEl50v
+        XAXeCQrwjQAieKkrqVe6NXkyCAXXfU3N26zwnkgjpnpOF0D+POqBWb8OMF5wAX9w
+        hHXGRTisBLLKFtzuz2uv/N5C+Y21tmHTRDwK4BFGOJsZHnH+aC3xP//Uy0mOTcLr
+        A3gwHnqbBvcoLrlSThcFlyRDFJKu8gLKQKFO0N1zZSg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=aktcx0
-        F31Hq4KJ/iBkCoSOsg+5TTlFbA8xn53jTs41A=; b=DSJv0jBDpy2iEPiUCT9N14
-        bshw3O+IfnOGLcEf8yqiziBTrpOfspsCMhU30JN8J+QvFuN81M3B+Q/o/sf3fKfb
-        fxIeKVa1blK700W3Y2B42dTrbWN/dF3KrEbMaYdaEm7ALP84X74Zm4acQhFC03et
-        cC70k5KdSToiyekQM4S8bnUaGxf8WlumxBq4h/wYSxcD4mITo+7TOZj7XxYuTpRe
-        z/JZUZg+0y6RkWJT+loj9cZ+zn4qp07JgFkuc0ynHrX87yJ7tgMLifKljHnUWmz2
-        nX+KgSxstC+fBTmnX8Jvb+qlpEcgcivoHYJFJGtUFLKagDvUSBQ/fsVjBYqvSxEw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/bysax
+        oFtZbhiN+/iyGCIki1PgJ2l6ObgRjyef/n24c=; b=x9NWzWVgoPr/zYiBm7OSY0
+        CbeiS+ASo8nUf9hz9K9itBbTMSZVcBKSsMN2ofK8DG1bLYxnActe73u995tyvXdW
+        bbzFWlKTZcHcklQXA54h5Vde+r39f1oHB/d6Hgdrziqm6qZF8bSDu7VvpeNo0M9S
+        BNYY7rZ14aZF0ORe1ZSZFlryuO7mHPE4NhTViB6DBKYK5XYB9IpoossdJpZDHb4A
+        p68UAThjRTQKUB0wJNNAqTelOL1YonFv12yvxunGrdaHAjfXWHQgItDZnpAK62HY
+        MOuH3hCWXfD9sIU2Tolo6k9q5pWaLmT9vT4DhQ/oN0gB+RixiZ2hQuyDJ3oLHIsA
         ==
-X-ME-Sender: <xms:n7-7XgjCH7jfifFlg5SmVYy3v-8SfaTis85T4ZsZVKAg2fbjXHOaug>
+X-ME-Sender: <xms:wL-7XlIywqC7E2wfvKx27ZNdr_qHOWrH-dq_husRAGtWuSpo7dUF1Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrleeggddukecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
     fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepgfduvdfhvd
-    eugeeiuedvudeltdegvdetheethfekveekhefgtdelvdfhfedvieegnecuffhomhgrihhn
-    pehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenuc
-    evlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvghes
-    khhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:n7-7XpDpLgU3kx2TN0H1tEh8n8ahlmc-_UpEPVfHH1lyG8l9D2E_Vg>
-    <xmx:n7-7XoEq8YI6-eLrqlhgnyYzDHIYWHr54sTEfnR12RGuyXPpfbVsCg>
-    <xmx:n7-7XhRrrr5hRNpREgfZn60rz5mD5S-b4iVBXRaQzq2orMj7FGQl8A>
-    <xmx:n7-7XupEOOragGfNSCzfqImdN1lnAkivcpIg_JLhyQ8YGHqzWqN33g>
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
+    keeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:wL-7XhI1c7NXOUiaEghTzAf2IHu44xTmBmyvXpCOGCuTL8_1OwbcSg>
+    <xmx:wL-7XtsctGmVcnPS20qqEHaeCC3RAmCGPqb8zkdSegk_kbfxeOcu0g>
+    <xmx:wL-7XmZ3ZJzGpAW1T-2Wg2Er6-7d3Tcdlh2YcNQr1L1yXav33st2dg>
+    <xmx:wL-7XlDaF9eYh3Dp8LYwk9ez6wJlW3853KJTltxiJzQAAMhudRh5_Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DB46C30662FC;
-        Wed, 13 May 2020 05:36:30 -0400 (EDT)
-Date:   Wed, 13 May 2020 11:36:25 +0200
+        by mail.messagingengine.com (Postfix) with ESMTPA id 32A3C3066309;
+        Wed, 13 May 2020 05:37:04 -0400 (EDT)
+Date:   Wed, 13 May 2020 11:37:03 +0200
 From:   Greg KH <greg@kroah.com>
 To:     Lee Jones <lee.jones@linaro.org>
-Cc:     stable@vger.kernel.org, Joe Moriarty <joe.moriarty@oracle.com>,
-        Steven Sistare <steven.sistare@oracle.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: Re: [PATCH 4.4 05/16] drm: NULL pointer dereference
- [null-pointer-deref] (CWE 476) problem
-Message-ID: <20200513093625.GD830571@kroah.com>
+Cc:     stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Stephen Boyd <sboyd@codeaurora.org>
+Subject: Re: [PATCH 4.4 06/16] clk: Fix debugfs_create_*() usage
+Message-ID: <20200513093703.GE830571@kroah.com>
 References: <20200423204014.784944-1-lee.jones@linaro.org>
- <20200423204014.784944-6-lee.jones@linaro.org>
+ <20200423204014.784944-7-lee.jones@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200423204014.784944-6-lee.jones@linaro.org>
+In-Reply-To: <20200423204014.784944-7-lee.jones@linaro.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 23, 2020 at 09:40:03PM +0100, Lee Jones wrote:
-> From: Joe Moriarty <joe.moriarty@oracle.com>
+On Thu, Apr 23, 2020 at 09:40:04PM +0100, Lee Jones wrote:
+> From: Geert Uytterhoeven <geert+renesas@glider.be>
 > 
-> [ Upstream commit 22a07038c0eaf4d1315a493ce66dcd255accba19 ]
+> [ Upstream commit 4c8326d5ebb0de3191e98980c80ab644026728d0 ]
 > 
-> The Parfait (version 2.1.0) static code analysis tool found the
-> following NULL pointer derefernce problem.
+> When exposing data access through debugfs, the correct
+> debugfs_create_*() functions must be used, matching the data
+> types.
 > 
-> - drivers/gpu/drm/drm_dp_mst_topology.c
-> The call to drm_dp_calculate_rad() in function drm_dp_port_setup_pdt()
-> could result in a NULL pointer being returned to port->mstb due to a
-> failure to allocate memory for port->mstb.
+> Remove all casts from data pointers passed to debugfs_create_*()
+> functions, as such casts prevent the compiler from flagging bugs.
 > 
-> Signed-off-by: Joe Moriarty <joe.moriarty@oracle.com>
-> Reviewed-by: Steven Sistare <steven.sistare@oracle.com>
-> Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20180212195144.98323-3-joe.moriarty@oracle.com
+> clk_core.rate and .accuracy are "unsigned long", hence casting
+> their addresses to "u32 *" exposed the wrong halves on big-endian
+> 64-bit systems. Fix this by using debugfs_create_ulong() instead.
+> 
+> Octal permissions are preferred, as they are easier to read than
+> symbolic permissions. Hence replace "S_IRUGO" by "0444"
+> throughout.
+> 
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> [sboyd@codeaurora.org: Squash the octal change in too]
+> Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 > Signed-off-by: Lee Jones <lee.jones@linaro.org>
 > ---
->  drivers/gpu/drm/drm_dp_mst_topology.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+>  drivers/clk/clk.c | 30 ++++++++++++++----------------
+>  1 file changed, 14 insertions(+), 16 deletions(-)
 
-Already in the 4.4.220 release.
+What about 4.9?
+
+I'm going to stop here and wait for a fixed up series of this, and any
+newer kernels that need the patches as well.
+
+thanks,
+
+greg k-h
