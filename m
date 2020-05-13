@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4231D0C9E
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 819961D0F32
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732595AbgEMJqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:46:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43636 "EHLO mail.kernel.org"
+        id S1732615AbgEMJqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:46:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732603AbgEMJqS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:46:18 -0400
+        id S1732608AbgEMJqT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:46:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0130220753;
-        Wed, 13 May 2020 09:46:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69C7720769;
+        Wed, 13 May 2020 09:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363176;
-        bh=iS7eAURgS/wF/PWdxHp0Cl49YaiEufuniPsH1gRlEeM=;
+        s=default; t=1589363178;
+        bh=HokuufDRAM7oWalWhPRiWqAim20UNg+s0sNa4Ozzl/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BhpS/NryXrl7/Rlp7r/0xJoCF3moDFTAWzJtqiBKi0cTamoFKVdemQ3Zaom9Q8BKk
-         qEcm7FSOoy7+jM7J8M7jQ/cqnnHU5b0uxGt1iQf1/siG/wqlMjbTdTiyumJG5Ktykn
-         RBP8fVCsbJ3SN2rmy6TykSA8sRf9dXROGmzpayKQ=
+        b=PvGnNgTT8XTcPaNcYGc03HXhaiWsPJi6AjWXxk1fWySbSUPCLbYgKjbPt+y23sixl
+         NYncQCJRTzTkTBkMTOAqQylsqugO4bpX6vKrWMDCmdCNojtjAADNVxf6aauJeMWtiR
+         GiKDi6UGpNhyhYArXoHIOHFKMoJlWK7wVMnaDG1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
-        syzbot+0bfda3ade1ee9288a1be@syzkaller.appspotmail.com,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/48] vt: fix unicode console freeing with a common interface
-Date:   Wed, 13 May 2020 11:44:29 +0200
-Message-Id: <20200513094352.389302207@linuxfoundation.org>
+        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 04/48] dp83640: reverse arguments to list_add_tail
+Date:   Wed, 13 May 2020 11:44:30 +0200
+Message-Id: <20200513094352.744242697@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
 References: <20200513094351.100352960@linuxfoundation.org>
@@ -45,62 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Pitre <nico@fluxnic.net>
+From: Julia Lawall <Julia.Lawall@inria.fr>
 
-[ Upstream commit 57d38f26d81e4275748b69372f31df545dcd9b71 ]
+[ Upstream commit 865308373ed49c9fb05720d14cbf1315349b32a9 ]
 
-By directly using kfree() in different places we risk missing one if
-it is switched to using vfree(), especially if the corresponding
-vmalloc() is hidden away within a common abstraction.
+In this code, it appears that phyter_clocks is a list head, based on
+the previous list_for_each, and that clock->list is intended to be a
+list element, given that it has just been initialized in
+dp83640_clock_init.  Accordingly, switch the arguments to
+list_add_tail, which takes the list head as the second argument.
 
-Oh wait, that's exactly what happened here.
-
-So let's fix this by creating a common abstraction for the free case
-as well.
-
-Signed-off-by: Nicolas Pitre <nico@fluxnic.net>
-Reported-by: syzbot+0bfda3ade1ee9288a1be@syzkaller.appspotmail.com
-Fixes: 9a98e7a80f95 ("vt: don't use kmalloc() for the unicode screen buffer")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.2005021043110.2671@knanqh.ubzr
+Fixes: cb646e2b02b27 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
+Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/phy/dp83640.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
-index ca8c6ddc1ca8c..5c7a968a5ea67 100644
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -365,9 +365,14 @@ static struct uni_screen *vc_uniscr_alloc(unsigned int cols, unsigned int rows)
- 	return uniscr;
- }
- 
-+static void vc_uniscr_free(struct uni_screen *uniscr)
-+{
-+	vfree(uniscr);
-+}
-+
- static void vc_uniscr_set(struct vc_data *vc, struct uni_screen *new_uniscr)
- {
--	vfree(vc->vc_uni_screen);
-+	vc_uniscr_free(vc->vc_uni_screen);
- 	vc->vc_uni_screen = new_uniscr;
- }
- 
-@@ -1233,7 +1238,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
- 	err = resize_screen(vc, new_cols, new_rows, user);
- 	if (err) {
- 		kfree(newscreen);
--		kfree(new_uniscr);
-+		vc_uniscr_free(new_uniscr);
- 		return err;
+--- a/drivers/net/phy/dp83640.c
++++ b/drivers/net/phy/dp83640.c
+@@ -1114,7 +1114,7 @@ static struct dp83640_clock *dp83640_clo
+ 		goto out;
  	}
+ 	dp83640_clock_init(clock, bus);
+-	list_add_tail(&phyter_clocks, &clock->list);
++	list_add_tail(&clock->list, &phyter_clocks);
+ out:
+ 	mutex_unlock(&phyter_clocks_lock);
  
--- 
-2.20.1
-
 
 
