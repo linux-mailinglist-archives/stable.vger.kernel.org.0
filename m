@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C32551D0EF2
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:03:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E40681D0D70
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732645AbgEMKDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 06:03:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47166 "EHLO mail.kernel.org"
+        id S1733020AbgEMJxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:53:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733098AbgEMJsi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:48:38 -0400
+        id S2387889AbgEMJxC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:53:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD9CD20753;
-        Wed, 13 May 2020 09:48:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3F2020575;
+        Wed, 13 May 2020 09:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363318;
-        bh=LUb+bO3zK4qWq5zgFW0JLezZ7BG2T63AmtuwtwMe7NM=;
+        s=default; t=1589363582;
+        bh=ZW/YsyCLq2WywkRXD65KdBn4deEsO02bkk6I1bnGvWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIoHn3EiREKRX6wdl2CylHd1LhUYGplRrEvoTANgEdub/SXlTmT0k6a5dsg3ttvly
-         ilMvwUiRazF5hjZdlMKRU2sM8EyLdCK50DgVBcAa1rQn3IV9zYy6DpFSO7JKZD40mD
-         S7dUUZbd0Sm6CeOoMuqxCCfYcY7WLNByjwjNzk5M=
+        b=S0YNA9kZZVpSqwPmpWkxy4glXa9rMFoqDp8r6ndBJpHWGX2wlakAiF61xTbCVNxQx
+         hNVcOZ6IH1Dbmg4yv6f0iTB0cw58SoEYDgFcPLwciO3NRjUt4x1a9qLeqacyhN4WtJ
+         gQSl6Zb7XLqDXe/phWROpKeI9K5fKNyuW3ltQt3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Jolly <Kangie@footclan.ninja>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 25/90] net: usb: qmi_wwan: add support for DW5816e
-Date:   Wed, 13 May 2020 11:44:21 +0200
-Message-Id: <20200513094411.251621056@linuxfoundation.org>
+Subject: [PATCH 5.6 043/118] bnxt_en: Improve AER slot reset.
+Date:   Wed, 13 May 2020 11:44:22 +0200
+Message-Id: <20200513094421.080353924@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
-References: <20200513094408.810028856@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,29 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Jolly <Kangie@footclan.ninja>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 57c7f2bd758eed867295c81d3527fff4fab1ed74 ]
+[ Upstream commit bae361c54fb6ac6eba3b4762f49ce14beb73ef13 ]
 
-Add support for Dell Wireless 5816e to drivers/net/usb/qmi_wwan.c
+Improve the slot reset sequence by disabling the device to prevent bad
+DMAs if slot reset fails.  Return the proper result instead of always
+PCI_ERS_RESULT_RECOVERED to the caller.
 
-Signed-off-by: Matt Jolly <Kangie@footclan.ninja>
-Acked-by: Bjørn Mork <bjorn@mork.no>
+Fixes: 6316ea6db93d ("bnxt_en: Enable AER support.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1359,6 +1359,7 @@ static const struct usb_device_id produc
- 	{QMI_FIXED_INTF(0x413c, 0x81b3, 8)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
- 	{QMI_FIXED_INTF(0x413c, 0x81b6, 8)},	/* Dell Wireless 5811e */
- 	{QMI_FIXED_INTF(0x413c, 0x81b6, 10)},	/* Dell Wireless 5811e */
-+	{QMI_FIXED_INTF(0x413c, 0x81cc, 8)},	/* Dell Wireless 5816e */
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
- 	{QMI_FIXED_INTF(0x413c, 0x81e0, 0)},	/* Dell Wireless 5821e with eSIM support*/
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -12173,12 +12173,15 @@ static pci_ers_result_t bnxt_io_slot_res
+ 		bnxt_ulp_start(bp, err);
+ 	}
+ 
+-	if (result != PCI_ERS_RESULT_RECOVERED && netif_running(netdev))
+-		dev_close(netdev);
++	if (result != PCI_ERS_RESULT_RECOVERED) {
++		if (netif_running(netdev))
++			dev_close(netdev);
++		pci_disable_device(pdev);
++	}
+ 
+ 	rtnl_unlock();
+ 
+-	return PCI_ERS_RESULT_RECOVERED;
++	return result;
+ }
+ 
+ /**
 
 
