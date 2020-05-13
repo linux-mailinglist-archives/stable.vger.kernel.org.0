@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D8BD1D0E1F
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08E0C1D0D1F
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388169AbgEMJyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:54:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57488 "EHLO mail.kernel.org"
+        id S1732903AbgEMJub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:50:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388168AbgEMJyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:54:50 -0400
+        id S1732803AbgEMJu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:50:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E2C52176D;
-        Wed, 13 May 2020 09:54:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD94B2492D;
+        Wed, 13 May 2020 09:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363690;
-        bh=cbdqSpXBVFYvpZijqGbmvEmlaz/Njx0MPsJhNP3shPo=;
+        s=default; t=1589363429;
+        bh=17QPbeEKarOTesGJ57OM/RN6hhUjRNgopEosfdRyfkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXbu35wbEFFY4pJrAbD2fOTDVOsGOTuwMD91y26VLlpKol70GIJ8EHE47hnxW0dv4
-         3SvkBHm8HtAbCvElWHv55PjBjin4HYvMWeeSDQ8WXpCn+qLkXJlNlP/YvsJv6KDbUT
-         ydFIRdTh9L8LUIi52967HQPTj61lrqmnztCUp598=
+        b=njrtDY1qRrcQiPqq65JeD4THozSc+cgUX4BltTsl5cM63+BOexF4RYyg38MerWuh0
+         Xcu66nkM3dfYAIs0eGiqyuVNj6q9eu7HO2PwI/vdqox9NPmn8KqIUIU8q7sF/qpoKr
+         /VgGspn9Fr5p1yXTKz5YiIv9IIWxIPaopMOHsbZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
-        Eduard Shishkin <edward6@linux.ibm.com>
-Subject: [PATCH 5.6 086/118] ceph: fix endianness bug when handling MDS session feature bits
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 5.4 69/90] batman-adv: Fix refcnt leak in batadv_show_throughput_override
 Date:   Wed, 13 May 2020 11:45:05 +0200
-Message-Id: <20200513094424.940137263@linuxfoundation.org>
+Message-Id: <20200513094416.558997429@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 0fa8263367db9287aa0632f96c1a5f93cc478150 upstream.
+commit f872de8185acf1b48b954ba5bd8f9bc0a0d14016 upstream.
 
-Eduard reported a problem mounting cephfs on s390 arch. The feature
-mask sent by the MDS is little-endian, so we need to convert it
-before storing and testing against it.
+batadv_show_throughput_override() invokes batadv_hardif_get_by_netdev(),
+which gets a batadv_hard_iface object from net_dev with increased refcnt
+and its reference is assigned to a local pointer 'hard_iface'.
 
-Cc: stable@vger.kernel.org
-Reported-and-Tested-by: Eduard Shishkin <edward6@linux.ibm.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+When batadv_show_throughput_override() returns, "hard_iface" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
+
+The issue happens in the normal path of
+batadv_show_throughput_override(), which forgets to decrease the refcnt
+increased by batadv_hardif_get_by_netdev() before the function returns,
+causing a refcnt leak.
+
+Fix this issue by calling batadv_hardif_put() before the
+batadv_show_throughput_override() returns in the normal path.
+
+Fixes: 0b5ecc6811bd ("batman-adv: add throughput override attribute to hard_ifaces")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ceph/mds_client.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/batman-adv/sysfs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -3116,8 +3116,7 @@ static void handle_session(struct ceph_m
- 	void *end = p + msg->front.iov_len;
- 	struct ceph_mds_session_head *h;
- 	u32 op;
--	u64 seq;
--	unsigned long features = 0;
-+	u64 seq, features = 0;
- 	int wake = 0;
- 	bool blacklisted = false;
+--- a/net/batman-adv/sysfs.c
++++ b/net/batman-adv/sysfs.c
+@@ -1190,6 +1190,7 @@ static ssize_t batadv_show_throughput_ov
  
-@@ -3136,9 +3135,8 @@ static void handle_session(struct ceph_m
- 			goto bad;
- 		/* version >= 3, feature bits */
- 		ceph_decode_32_safe(&p, end, len, bad);
--		ceph_decode_need(&p, end, len, bad);
--		memcpy(&features, p, min_t(size_t, len, sizeof(features)));
--		p += len;
-+		ceph_decode_64_safe(&p, end, features, bad);
-+		p += len - sizeof(features);
- 	}
+ 	tp_override = atomic_read(&hard_iface->bat_v.throughput_override);
  
- 	mutex_lock(&mdsc->mutex);
++	batadv_hardif_put(hard_iface);
+ 	return sprintf(buff, "%u.%u MBit\n", tp_override / 10,
+ 		       tp_override % 10);
+ }
 
 
