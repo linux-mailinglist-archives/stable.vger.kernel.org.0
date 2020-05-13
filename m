@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB8D1D0D57
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:52:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A702C1D0E5C
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733174AbgEMJwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:52:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53514 "EHLO mail.kernel.org"
+        id S2387762AbgEMJwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:52:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387762AbgEMJwN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:52:13 -0400
+        id S2387768AbgEMJwQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:52:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 193F3206D6;
-        Wed, 13 May 2020 09:52:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83CDD20575;
+        Wed, 13 May 2020 09:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363533;
-        bh=bkmkk4bP/D3Sq7OZCDTSZpVQIw/X4y2O9aX1jXh4CDc=;
+        s=default; t=1589363536;
+        bh=Vv9PhfdE/RaWowcul5qnKTkgLbCXCDjFn8b2JC2Q9co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6Eq7gy1yYINPeOLhGCReiMZKFDqtl1YB8FOnr4+77J4xnTGwowCaeIVt3/dtW1ET
-         t2/5P9qXA9zQobxACbq/pvKGV6O41SDz1UOi8evYoo2ep3mXzXQ7ohYAu69Qt9aGxl
-         Nt8FcjLDmEjQpCZypMLEm67r3y4I8jC5E5DyfoFs=
+        b=rYmskubFlxIapZvDE3kf7ISJ+cWsfeB5U3osrVXEemjKPvWDBTuoYytrisoy1tgNu
+         FQ/QsBg+cfMMwYcw31RgMHC64C58AiNUfERtzzH4vzovgnhdC9lqWHPn8GL23teWuY
+         BmAo2BIHv7Zh5mwEmpjZKmWEC7wFiq3mGeZmLBTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Allen Pais <allen.pais@oracle.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 022/118] net: dsa: Do not leave DSA master with NULL netdev_ops
-Date:   Wed, 13 May 2020 11:44:01 +0200
-Message-Id: <20200513094419.651633965@linuxfoundation.org>
+Subject: [PATCH 5.6 023/118] net: dsa: Do not make user port errors fatal
+Date:   Wed, 13 May 2020 11:44:02 +0200
+Message-Id: <20200513094419.723032920@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
 References: <20200513094417.618129545@linuxfoundation.org>
@@ -46,40 +46,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 050569fc8384c8056bacefcc246bcb2dfe574936 ]
+[ Upstream commit 86f8b1c01a0a537a73d2996615133be63cdf75db ]
 
-When ndo_get_phys_port_name() for the CPU port was added we introduced
-an early check for when the DSA master network device in
-dsa_master_ndo_setup() already implements ndo_get_phys_port_name(). When
-we perform the teardown operation in dsa_master_ndo_teardown() we would
-not be checking that cpu_dp->orig_ndo_ops was successfully allocated and
-non-NULL initialized.
+Prior to 1d27732f411d ("net: dsa: setup and teardown ports"), we would
+not treat failures to set-up an user port as fatal, but after this
+commit we would, which is a regression for some systems where interfaces
+may be declared in the Device Tree, but the underlying hardware may not
+be present (pluggable daughter cards for instance).
 
-With network device drivers such as virtio_net, this leads to a NPD as
-soon as the DSA switch hanging off of it gets torn down because we are
-now assigning the virtio_net device's netdev_ops a NULL pointer.
-
-Fixes: da7b9e9b00d4 ("net: dsa: Add ndo_get_phys_port_name() for CPU port")
-Reported-by: Allen Pais <allen.pais@oracle.com>
+Fixes: 1d27732f411d ("net: dsa: setup and teardown ports")
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Allen Pais <allen.pais@oracle.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/master.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/dsa/dsa2.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/dsa/master.c
-+++ b/net/dsa/master.c
-@@ -289,7 +289,8 @@ static void dsa_master_ndo_teardown(stru
- {
- 	struct dsa_port *cpu_dp = dev->dsa_ptr;
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -459,7 +459,7 @@ static int dsa_tree_setup_switches(struc
+ 	list_for_each_entry(dp, &dst->ports, list) {
+ 		err = dsa_port_setup(dp);
+ 		if (err)
+-			goto teardown;
++			continue;
+ 	}
  
--	dev->netdev_ops = cpu_dp->orig_ndo_ops;
-+	if (cpu_dp->orig_ndo_ops)
-+		dev->netdev_ops = cpu_dp->orig_ndo_ops;
- 	cpu_dp->orig_ndo_ops = NULL;
- }
- 
+ 	return 0;
 
 
