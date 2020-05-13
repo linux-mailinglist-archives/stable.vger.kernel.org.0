@@ -2,132 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30B421D0A77
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 10:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 930051D0B04
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 10:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730203AbgEMIEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 04:04:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32832 "EHLO
+        id S1732351AbgEMImr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 04:42:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726092AbgEMIEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 04:04:44 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38EB0C061A0C
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 01:04:44 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id j21so7439105pgb.7
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 01:04:44 -0700 (PDT)
+        with ESMTP id S1732346AbgEMImq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 04:42:46 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75189C061A0E;
+        Wed, 13 May 2020 01:42:46 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id f4so483808pgi.10;
+        Wed, 13 May 2020 01:42:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=F1Bkmb1qKXIiney4vDs2ANZt0OaJ4EhSInWo3xGnfGY=;
-        b=bVz7ZdHpoev3mnnYD+kjb9D9qe5LYRF5iWs0qQh3dSkTdOHSlygqk4zmMmALVnz6t9
-         q5TGuppoX0U+GJI4KwfY0ckTsyiNDKkij/TQ+fBZlUj2YEIN8x8Q121I3FUvr52rLnTp
-         o3BByGowU6bD6dbvkoGttWSGUrTH4bEngns08XLy4HmB4QzGDbpbqUxzGqrQxWiCoev6
-         lPV61Wz3DOQMe+r+uXu5kwiff+TqX63jT1xEywvnx6Q5snJdEIaZun7vOmGznDXolnQ3
-         Bvhp1DGrd1UmsXThItwyYFfgp1yUOBHMWjE6pxiiFmFv1c1STIPvX4eBvRTINo9t1AN3
-         F2+Q==
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=j/OSBdV9DXY2ETWsIc3eeYNxFXzAjwLns12YdEbp9AY=;
+        b=EIAEu13s66oW9k6Vovao7G9E5SdbVttY2FcvhrhrOpALX1xzdvK/fi/5tSU7AchDrp
+         xjLtTXSaYOXC++MtKSG6XSfRi9Uzq1LWgosZxGGJVrmIj7S2PUe4+KOYCVyOlSGXf3Be
+         5v1Bo79980xaF8uzo7M0mIugK/BM3uAyVAKwwKiYNjrikkAKXa7FfnwfkUi8ED3Svk3O
+         3fv+F72WDxYp7zS9Iii1kCYc+5Ibvam78ju91GWMfRjrXyfbpkW3BlgP3k/AMXBl8izp
+         2t73getaNkWaFmZAXSG2AAIwrOUt9mMyFAfFh+Umi9i+CdOWtpfaR1sTnPHEQ9Pyb9M2
+         +AjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=F1Bkmb1qKXIiney4vDs2ANZt0OaJ4EhSInWo3xGnfGY=;
-        b=f66riD1Ulm9+mA2WJl8MU/UynllPI3ajuN73kwZrtA50c5JOVZDvBSVv1XK8Miq7xt
-         78b75lno4oeTI/SjXxh+Jfhh3qhZdyi/9mrDblnxUcx8409IPOVE0xIRULydTt5DhuG2
-         WWOlSkCgY7rurtcDgjlrDEmSEESoro+G4G8Vpwe7pbsILC3St3FY6Cb4/HGt5Dd1UOwS
-         lVf5DHipeKHbLu49z6qiAo553dj3ieveuzhS1hYAs5Cs6vJit3r1ecRcdohLCCNajz4J
-         6nitzDxfM9T7D88kmCwv63sTsc2tmCR6O0UBCg0CpL60myjYG7seh2fozEJ5oz0KvRdV
-         QhHw==
-X-Gm-Message-State: AGi0PuaIKZgY815v/UNDuWPPj61Idc4Xjq5Gj+GKx3pycU34+1P6SNrX
-        Q1w/nEYPNGnoqxX5iApiHuHl+aOb4+Y=
-X-Google-Smtp-Source: APiQypJPMqQ2Epg7dlHrXTKbn3ALi+5EK/qgGjyOR+ZU0rgG5sbpkXFlwHZ8iQONGZvB9yU8bhrnug==
-X-Received: by 2002:a63:5552:: with SMTP id f18mr22841576pgm.366.1589357083436;
-        Wed, 13 May 2020 01:04:43 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g17sm3600085pgg.43.2020.05.13.01.04.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2020 01:04:42 -0700 (PDT)
-Message-ID: <5ebbaa1a.1c69fb81.f87f2.dccd@mx.google.com>
-Date:   Wed, 13 May 2020 01:04:42 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.180-37-gad4fc99d1989
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.14.y boot: 101 boots: 2 failed,
- 90 passed with 7 offline, 2 untried/unknown (v4.14.180-37-gad4fc99d1989)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references;
+        bh=j/OSBdV9DXY2ETWsIc3eeYNxFXzAjwLns12YdEbp9AY=;
+        b=T5msJx6rRbsJyoQgLf7HovOv1bNZ//ti8yrhRChYtzX5znKZlK5Lqlf70kW24MTAyU
+         QP/yr2Cc1l4JN2GIX0kiTLAomRz3sEHs6HHlRjWXn7Tz6kA0kTCDJ14Ui3OsJlk8skN8
+         3e5Tqlqal5epyB0d1O9c1oFm3oKGvG6QWzWD4iNYbo0XXAFSjDjk22zOw5NYdttrLwyR
+         wItWSGNx2Kzd47Fe04wAa+6Pvs9zjW4QSdVDxfaPWq7SyqXKpAO3XWbgI3a7BvDp12V1
+         /rseUDoflppdR+SfX2t+T0RSpCHa+2CAsOlc69tIuSg7nXXW/6pMGUSdijq+KuSCb+5m
+         ynTw==
+X-Gm-Message-State: AGi0PuYGcYG13ybuini5cpXlZU0Gpb5XRFQdQSVdMtTpnX+TxBCYodlv
+        UIiiC9PLAwIQm1gC3WOZfxc=
+X-Google-Smtp-Source: APiQypLiGdoKvwZ0R+yNy9cOCSzPNjj0ev7QHPZckQlRMXmZf3SX1Uw+A0KESJ2kE5bzKLnnJnjwgA==
+X-Received: by 2002:a63:f90a:: with SMTP id h10mr23319344pgi.57.1589359366020;
+        Wed, 13 May 2020 01:42:46 -0700 (PDT)
+Received: from software.domain.org (28.144.92.34.bc.googleusercontent.com. [34.92.144.28])
+        by smtp.gmail.com with ESMTPSA id o21sm14645570pjr.37.2020.05.13.01.42.42
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 13 May 2020 01:42:45 -0700 (PDT)
+From:   Huacai Chen <chenhc@lemote.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
+Cc:     kvm@vger.kernel.org, linux-mips@vger.kernel.org,
+        Fuxin Zhang <zhangfx@lemote.com>,
+        Huacai Chen <chenhuacai@gmail.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Xing Li <lixing@loongson.cn>, stable@vger.kernel.org,
+        Huacai Chen <chenhc@lemote.com>
+Subject: [PATCH V5 01/15] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
+Date:   Wed, 13 May 2020 16:42:32 +0800
+Message-Id: <1589359366-1669-2-git-send-email-chenhc@lemote.com>
+X-Mailer: git-send-email 2.7.0
+In-Reply-To: <1589359366-1669-1-git-send-email-chenhc@lemote.com>
+References: <1589359366-1669-1-git-send-email-chenhc@lemote.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 101 boots: 2 failed, 90 passed with 7 offline,=
- 2 untried/unknown (v4.14.180-37-gad4fc99d1989)
+From: Xing Li <lixing@loongson.cn>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.180-37-gad4fc99d1989/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.180-37-gad4fc99d1989/
+The code in decode_config4() of arch/mips/kernel/cpu-probe.c
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.180-37-gad4fc99d1989
-Git Commit: ad4fc99d19898b966c3fa74c7adaaee8d12da3a9
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 18 SoC families, 17 builds out of 201
+        asid_mask = MIPS_ENTRYHI_ASID;
+        if (config4 & MIPS_CONF4_AE)
+                asid_mask |= MIPS_ENTRYHI_ASIDX;
+        set_cpu_asid_mask(c, asid_mask);
 
-Boot Regressions Detected:
+set asid_mask to cpuinfo->asid_mask.
 
-arm:
+So in order to support variable ASID_MASK, KVM_ENTRYHI_ASID should also
+be changed to cpu_asid_mask(&boot_cpu_data).
 
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: new failure (last pass: v4.14.180)
-          dm365evm,legacy:
-              lab-baylibre-seattle: new failure (last pass: v4.14.180)
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: new failure (last pass: v4.14.180)
-
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxbb-p200: 1 failed lab
-            meson-gxm-q200: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
+Cc: stable@vger.kernel.org
+Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
+Signed-off-by: Xing Li <lixing@loongson.cn>
+[Huacai: Change current_cpu_data to boot_cpu_data for optimization]
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
 ---
-For more info write to <info@kernelci.org>
+ arch/mips/include/asm/kvm_host.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
+index 2c343c3..a01cee9 100644
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -275,7 +275,7 @@ enum emulation_result {
+ #define MIPS3_PG_FRAME		0x3fffffc0
+ 
+ #define VPN2_MASK		0xffffe000
+-#define KVM_ENTRYHI_ASID	MIPS_ENTRYHI_ASID
++#define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
+ #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
+ #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
+ #define TLB_ASID(x)		((x).tlb_hi & KVM_ENTRYHI_ASID)
+-- 
+2.7.0
+
