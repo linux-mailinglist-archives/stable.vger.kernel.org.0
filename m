@@ -2,122 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A3591D1B49
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 18:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A721D1BD3
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 19:03:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732543AbgEMQk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 12:40:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
+        id S2389431AbgEMRDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 13:03:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732510AbgEMQk5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 12:40:57 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F758C061A0C
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 09:40:57 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id u5so5409266pgn.5
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 09:40:57 -0700 (PDT)
+        with ESMTP id S1728068AbgEMRD3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 May 2020 13:03:29 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6595FC061A0C;
+        Wed, 13 May 2020 10:03:29 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id mq3so11379105pjb.1;
+        Wed, 13 May 2020 10:03:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jhhCDxcflw/bk46Jk/JZ3Qx09JeH0eqsLuk4o/r5RoM=;
-        b=q5qen9y+zcZoOAhquj12PzknsjnKeBNUudXUzr089U+2iaHxDh3WkpGlQL7kCfbDGv
-         +VyXPZ4j9Z9kcwiPTuCdNwn2Krd8/ZPp7dznJI7OcCMQCUciT9JYlbgpmGQ8miPIAddc
-         ZUqJ+fHRLOhLG63D0oKzlgr7W7V4FgEzlD/n/cOeBeUpdFiScUQBVpo/jN7T2Xf37wmo
-         PKGVgGu0xBf9oQ8rQaWlYqovtgoxRWpYFz+Oy+Zvu8jmIw8v7xWbC/jgkzkq7tn9X/6g
-         ZYB4pH474g9gWdrQOi92DHK1yF/hGeuBu4RILEr77FOU3h94Fa4up8hV7YGo+FBLmJfW
-         RHzQ==
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=mteLG302SDv6O1LHZdZapeGH7XY/9R6hk4XYfbaGd4o=;
+        b=tb4AK0vZ3DhX+9Grv0A9JGO2YmZyb+6M3JrE0r7yPbhyFW5aOdpQxOiuOreFlXYR/I
+         X7kxYBb49oda8jMXFRKr73XZCEM9q9vJfrUpq0JMBLsYQZSeTBYuZ0SJa/JJchRoAGip
+         XIy8tUExVfiBC5+A0DhfF10s9YxKA1r3szArRaVFsjw6C/KtD1tEzYyPEwXQz2PwSU5r
+         xr4qH0FsyRkU4RFVM5jQudN0DbJqur85mYijIvgcscu4i7NqkxVAjpm68jLxfm6f9LFu
+         GB2JjxOcGDg3LQlW6jxF/kFxcMnM2VCnv8GwzMnX79zd9YP7VT+dv6I8504+382uTj/T
+         lEhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jhhCDxcflw/bk46Jk/JZ3Qx09JeH0eqsLuk4o/r5RoM=;
-        b=eKrQ4CLeJVTMnjIISI/cWPN8F62DlWxp0wZV/quQysfCQKHfHkZ+Mzt4skrEHSbcqX
-         bLdeG4ycpx3mas1mblULAjm5K0q877QnrMezKqFcZQIhyjLN33w3fiZHdLLNsQYQR4cn
-         f3LsVe/WdlFfKPBnqJ7CUz3Ldnd7vi48etcrPQYPCUuEFUuq865Uf8gO2fLxNAhiYfTQ
-         AMrcY/hUqrzF4upCPj0Yb+fTHAcjpTqhnQMKPknfnKQZF4c5GPEYQGdUz8G09TDL3ZZY
-         ulU6MWC/sBvvy+zr8QhqmwPmVMyLCczU31kRzDh1Aj+xdoJ8Fn3nXRwRM5z4eEaTFU/F
-         La/A==
-X-Gm-Message-State: AOAM5302MCP1WuwN5T2YAI5+gnhRHF212kFbfeCpUnQlGijzbEhTO7z6
-        dI7Nv/jiiav5mokEO96FTgA2E9RBwGc=
-X-Google-Smtp-Source: ABdhPJx0UYoDv0ZqgKo5hfihCK1U+GOK43wC7iH6+x9wmZ2pIxClxZTZeVGSWdCMY4Ebpsd9goT08g==
-X-Received: by 2002:a63:d74a:: with SMTP id w10mr147586pgi.417.1589388056573;
-        Wed, 13 May 2020 09:40:56 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w1sm174658pgh.53.2020.05.13.09.40.55
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2020 09:40:55 -0700 (PDT)
-Message-ID: <5ebc2317.1c69fb81.36e7.0793@mx.google.com>
-Date:   Wed, 13 May 2020 09:40:55 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=mteLG302SDv6O1LHZdZapeGH7XY/9R6hk4XYfbaGd4o=;
+        b=KBe8whj2f5VwJhsmlaRk+jHVlgMxyvVeRZMFcMa2WgmGPwThuePvJ9Gh1h4X7D/yN4
+         ACqiDKYW6+kGIUNHH1iuMTD8cmKOngkkkjD/Aw+sq4/G+TiB79cXgqrJozV3Z/ZVVckS
+         2CmFb4mSE3h+xi02hBvO+kQ0fUMQ+oJOrunzxKhROyd/MNaVOQJPWKytPATWKUtnPYQm
+         9BYm0ebFrRnBGUMj+T18Tc1edKiKON5Z821DL+8/W2SSmgUIBhe6J1vcSXuigayhoyLm
+         aS6PtZTwo3I2iZoW+o5mA/wvDbubIWvhLk9snrHsGPqDaxcDouJUULK5s7geF4pAFFzG
+         AetQ==
+X-Gm-Message-State: AOAM531wbjSZ7qOGRlNhl6AkobMbaKBAjInKkZfizAEPzfii3CMjV6KA
+        k/F0eCVT0HWqlyVCwKtxG4Y=
+X-Google-Smtp-Source: ABdhPJy5eXtlxGaOfurDiWAnsNFyw3menyB+3BAV06D7otLRifTvFYh+nNBD4uW7Xq4GrEZNJBLLbw==
+X-Received: by 2002:a17:902:5588:: with SMTP id g8mr113400pli.321.1589389408994;
+        Wed, 13 May 2020 10:03:28 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id a6sm89225pfk.159.2020.05.13.10.03.27
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 13 May 2020 10:03:28 -0700 (PDT)
+Date:   Wed, 13 May 2020 10:03:26 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/48] 4.19.123-rc1 review
+Message-ID: <20200513170326.GA224971@roeck-us.net>
+References: <20200513094351.100352960@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.223-36-g32f5ec9b096d
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.4.y boot: 93 boots: 2 failed,
- 83 passed with 4 offline, 4 untried/unknown (v4.4.223-36-g32f5ec9b096d)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 93 boots: 2 failed, 83 passed with 4 offline, 4=
- untried/unknown (v4.4.223-36-g32f5ec9b096d)
+On Wed, May 13, 2020 at 11:44:26AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.123 release.
+> There are 48 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.223-36-g32f5ec9b096d/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.223-36-g32f5ec9b096d/
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 421 pass: 421 fail: 0
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.223-36-g32f5ec9b096d
-Git Commit: 32f5ec9b096d350c7dc7644c95912a599f6e8bbf
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 50 unique boards, 17 SoC families, 16 builds out of 190
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: new failure (last pass: v4.4.223)
-
-Boot Failures Detected:
-
-arm:
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Guenter
