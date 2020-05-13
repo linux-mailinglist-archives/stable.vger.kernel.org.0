@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55E7D1D0F13
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:04:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B57B1D0DB4
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387614AbgEMKEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 06:04:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45708 "EHLO mail.kernel.org"
+        id S2388227AbgEMJzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:55:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732894AbgEMJrj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:47:39 -0400
+        id S2387729AbgEMJzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:55:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5B232078C;
-        Wed, 13 May 2020 09:47:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A302520575;
+        Wed, 13 May 2020 09:55:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363259;
-        bh=twbmB15laeg2s2WH+3sd8ZjdGuGH39wXrzDitwnqjzE=;
+        s=default; t=1589363710;
+        bh=34m/alNxLbIOqK6f0xzzYeLyfyK6oFVxVodhSqz5tdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvG0HgazuGrS19EpKZ2v8LDby7cQaPqeuKvHjtxZkWsDIcC9P3TtAcUB1o/Ms7gKH
-         c5+CA/6CJPDtw/qEv/ppFSU3i44aOBBbM5QscRvIYd3oVX8WR30gwXU4qfn0Z4h9rH
-         +Fy7HJobc3LjECGNgdkabQ+qZYT1giTd4lhv50R4=
+        b=dIG5ptX8f+/FDyuFSSXmtdWPBY6gL3I7Qwq7xcHySYi2iFbJ8RAkj9vQJcsbAqCA7
+         IaFdfqU6TLlqI+OWEK6y/wi87Xg5Hg7Unreapp4YEqf/6Fw5HpQSCeMp6j6n6LEd9p
+         2rPrd0fTFSXHmFG2awCpNsAbtpPRcgwgW2N73qWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jere=20Lepp=C3=A4nen?= <jere.leppanen@nokia.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 20/48] sctp: Fix bundling of SHUTDOWN with COOKIE-ACK
+        stable@vger.kernel.org, Xiao Yang <yangx.jy@cn.fujitsu.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.6 067/118] tracing: Wait for preempt irq delay thread to finish
 Date:   Wed, 13 May 2020 11:44:46 +0200
-Message-Id: <20200513094356.037688991@linuxfoundation.org>
+Message-Id: <20200513094423.748971097@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
+References: <20200513094417.618129545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jere Leppänen <jere.leppanen@nokia.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 145cb2f7177d94bc54563ed26027e952ee0ae03c upstream.
+commit d16a8c31077e75ecb9427fbfea59b74eed00f698 upstream.
 
-When we start shutdown in sctp_sf_do_dupcook_a(), we want to bundle
-the SHUTDOWN with the COOKIE-ACK to ensure that the peer receives them
-at the same time and in the correct order. This bundling was broken by
-commit 4ff40b86262b ("sctp: set chunk transport correctly when it's a
-new asoc"), which assigns a transport for the COOKIE-ACK, but not for
-the SHUTDOWN.
+Running on a slower machine, it is possible that the preempt delay kernel
+thread may still be executing if the module was immediately removed after
+added, and this can cause the kernel to crash as the kernel thread might be
+executing after its code has been removed.
 
-Fix this by passing a reference to the COOKIE-ACK chunk as an argument
-to sctp_sf_do_9_2_start_shutdown() and onward to
-sctp_make_shutdown(). This way the SHUTDOWN chunk is assigned the same
-transport as the COOKIE-ACK chunk, which allows them to be bundled.
+There's no reason that the caller of the code shouldn't just wait for the
+delay thread to finish, as the thread can also be created by a trigger in
+the sysfs code, which also has the same issues.
 
-In sctp_sf_do_9_2_start_shutdown(), the void *arg parameter was
-previously unused. Now that we're taking it into use, it must be a
-valid pointer to a chunk, or NULL. There is only one call site where
-it's not, in sctp_sf_autoclose_timer_expire(). Fix that too.
+Link: http://lore.kernel.org/r/5EA2B0C8.2080706@cn.fujitsu.com
 
-Fixes: 4ff40b86262b ("sctp: set chunk transport correctly when it's a new asoc")
-Signed-off-by: Jere Leppänen <jere.leppanen@nokia.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: stable@vger.kernel.org
+Fixes: 793937236d1ee ("lib: Add module for testing preemptoff/irqsoff latency tracers")
+Reported-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
+Reviewed-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
+Reviewed-by: Joel Fernandes <joel@joelfernandes.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sctp/sm_statefuns.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/trace/preemptirq_delay_test.c |   30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
 
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -1880,7 +1880,7 @@ static enum sctp_disposition sctp_sf_do_
- 		 */
- 		sctp_add_cmd_sf(commands, SCTP_CMD_REPLY, SCTP_CHUNK(repl));
- 		return sctp_sf_do_9_2_start_shutdown(net, ep, asoc,
--						     SCTP_ST_CHUNK(0), NULL,
-+						     SCTP_ST_CHUNK(0), repl,
- 						     commands);
- 	} else {
- 		sctp_add_cmd_sf(commands, SCTP_CMD_NEW_STATE,
-@@ -5483,7 +5483,7 @@ enum sctp_disposition sctp_sf_do_9_2_sta
- 	 * in the Cumulative TSN Ack field the last sequential TSN it
- 	 * has received from the peer.
- 	 */
--	reply = sctp_make_shutdown(asoc, NULL);
-+	reply = sctp_make_shutdown(asoc, arg);
- 	if (!reply)
- 		goto nomem;
+--- a/kernel/trace/preemptirq_delay_test.c
++++ b/kernel/trace/preemptirq_delay_test.c
+@@ -113,22 +113,42 @@ static int preemptirq_delay_run(void *da
  
-@@ -6081,7 +6081,7 @@ enum sctp_disposition sctp_sf_autoclose_
- 	disposition = SCTP_DISPOSITION_CONSUME;
- 	if (sctp_outq_is_empty(&asoc->outqueue)) {
- 		disposition = sctp_sf_do_9_2_start_shutdown(net, ep, asoc, type,
--							    arg, commands);
-+							    NULL, commands);
- 	}
+ 	for (i = 0; i < s; i++)
+ 		(testfuncs[i])(i);
++
++	set_current_state(TASK_INTERRUPTIBLE);
++	while (!kthread_should_stop()) {
++		schedule();
++		set_current_state(TASK_INTERRUPTIBLE);
++	}
++
++	__set_current_state(TASK_RUNNING);
++
+ 	return 0;
+ }
  
- 	return disposition;
+-static struct task_struct *preemptirq_start_test(void)
++static int preemptirq_run_test(void)
+ {
++	struct task_struct *task;
++
+ 	char task_name[50];
+ 
+ 	snprintf(task_name, sizeof(task_name), "%s_test", test_mode);
+-	return kthread_run(preemptirq_delay_run, NULL, task_name);
++	task =  kthread_run(preemptirq_delay_run, NULL, task_name);
++	if (IS_ERR(task))
++		return PTR_ERR(task);
++	if (task)
++		kthread_stop(task);
++	return 0;
+ }
+ 
+ 
+ static ssize_t trigger_store(struct kobject *kobj, struct kobj_attribute *attr,
+ 			 const char *buf, size_t count)
+ {
+-	preemptirq_start_test();
++	ssize_t ret;
++
++	ret = preemptirq_run_test();
++	if (ret)
++		return ret;
+ 	return count;
+ }
+ 
+@@ -148,11 +168,9 @@ static struct kobject *preemptirq_delay_
+ 
+ static int __init preemptirq_delay_init(void)
+ {
+-	struct task_struct *test_task;
+ 	int retval;
+ 
+-	test_task = preemptirq_start_test();
+-	retval = PTR_ERR_OR_ZERO(test_task);
++	retval = preemptirq_run_test();
+ 	if (retval != 0)
+ 		return retval;
+ 
 
 
