@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E1E11D0E39
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 11:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B65AE1D0F25
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:05:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387595AbgEMJyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 05:54:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56584 "EHLO mail.kernel.org"
+        id S1732776AbgEMJrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:47:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388056AbgEMJyQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:54:16 -0400
+        id S1732773AbgEMJrD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:47:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6C1E20575;
-        Wed, 13 May 2020 09:54:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAC5F20753;
+        Wed, 13 May 2020 09:47:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363656;
-        bh=gHD1HELgNrGSh+O8ifb9VkNxa3bf9AhqZWNDoQTBo14=;
+        s=default; t=1589363223;
+        bh=FswPGtNokP1twHi/b4irODojKXk9W7QfAlV/zClpSR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6P7auL7SCnOmRrmtqJiaes/13wR8vcSb/8C21GnSSKmTcu5oxUEPUz6RloI6Rb9j
-         HqUtnFYEaqYjFiccwM0sA/aletYMhrn5C95q4wQSCpHPvmGDCzVnD3yLGTMpN65BGp
-         mopxe7vyMbbCmv6nH9hw8AYr5Mp0NaHMm3u30MSw=
+        b=HYD/054uLLKMN51Bl1cdDw2H0ItZhk3xbBcUfCpHtTAmrcPGnsqL50Glxupc4AjAE
+         asTtRdYDflUbFg/N6ywf7JZL8siUXMD6wiDondmVvoSZp7LfSMlQ6U/GbA2GHtsXKD
+         YWvk/huRjx37t5Dlt6+fK05ZLnkNcpFVSAy0SHuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.6 065/118] tracing/boottime: Fix kprobe event API usage
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 18/48] net: stricter validation of untrusted gso packets
 Date:   Wed, 13 May 2020 11:44:44 +0200
-Message-Id: <20200513094423.643780287@linuxfoundation.org>
+Message-Id: <20200513094355.651615237@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094417.618129545@linuxfoundation.org>
-References: <20200513094417.618129545@linuxfoundation.org>
+In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
+References: <20200513094351.100352960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Willem de Bruijn <willemb@google.com>
 
-commit da0f1f4167e3af69e1d8b32d6d65195ddd2bfb64 upstream.
+[ Upstream commit 9274124f023b5c56dc4326637d4f787968b03607 ]
 
-Fix boottime kprobe events to use API correctly for
-multiple events.
+Syzkaller again found a path to a kernel crash through bad gso input:
+a packet with transport header extending beyond skb_headlen(skb).
 
-For example, when we set a multiprobe kprobe events in
-bootconfig like below,
+Tighten validation at kernel entry:
 
-  ftrace.event.kprobes.myevent {
-  	probes = "vfs_read $arg1 $arg2", "vfs_write $arg1 $arg2"
-  }
+- Verify that the transport header lies within the linear section.
 
-This cause an error;
+    To avoid pulling linux/tcp.h, verify just sizeof tcphdr.
+    tcp_gso_segment will call pskb_may_pull (th->doff * 4) before use.
 
-  trace_boot: Failed to add probe: p:kprobes/myevent (null)  vfs_read $arg1 $arg2  vfs_write $arg1 $arg2
+- Match the gso_type against the ip_proto found by the flow dissector.
 
-This shows the 1st argument becomes NULL and multiprobes
-are merged to 1 probe.
-
-Link: http://lkml.kernel.org/r/158779375766.6082.201939936008972838.stgit@devnote2
-
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 29a154810546 ("tracing: Change trace_boot to use kprobe_event interface")
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: bfd5f4a3d605 ("packet: Add GSO/csum offload support.")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/trace/trace_boot.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ include/linux/virtio_net.h |   26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace_boot.c
-+++ b/kernel/trace/trace_boot.c
-@@ -95,24 +95,20 @@ trace_boot_add_kprobe_event(struct xbc_n
- 	struct xbc_node *anode;
- 	char buf[MAX_BUF_LEN];
- 	const char *val;
--	int ret;
-+	int ret = 0;
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -3,6 +3,8 @@
+ #define _LINUX_VIRTIO_NET_H
  
--	kprobe_event_cmd_init(&cmd, buf, MAX_BUF_LEN);
-+	xbc_node_for_each_array_value(node, "probes", anode, val) {
-+		kprobe_event_cmd_init(&cmd, buf, MAX_BUF_LEN);
+ #include <linux/if_vlan.h>
++#include <uapi/linux/tcp.h>
++#include <uapi/linux/udp.h>
+ #include <uapi/linux/virtio_net.h>
  
--	ret = kprobe_event_gen_cmd_start(&cmd, event, NULL);
--	if (ret)
--		return ret;
-+		ret = kprobe_event_gen_cmd_start(&cmd, event, val);
-+		if (ret)
-+			break;
+ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
+@@ -28,17 +30,25 @@ static inline int virtio_net_hdr_to_skb(
+ 					bool little_endian)
+ {
+ 	unsigned int gso_type = 0;
++	unsigned int thlen = 0;
++	unsigned int ip_proto;
  
--	xbc_node_for_each_array_value(node, "probes", anode, val) {
--		ret = kprobe_event_add_field(&cmd, val);
-+		ret = kprobe_event_gen_cmd_end(&cmd);
- 		if (ret)
--			return ret;
-+			pr_err("Failed to add probe: %s\n", buf);
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+ 		case VIRTIO_NET_HDR_GSO_TCPV4:
+ 			gso_type = SKB_GSO_TCPV4;
++			ip_proto = IPPROTO_TCP;
++			thlen = sizeof(struct tcphdr);
+ 			break;
+ 		case VIRTIO_NET_HDR_GSO_TCPV6:
+ 			gso_type = SKB_GSO_TCPV6;
++			ip_proto = IPPROTO_TCP;
++			thlen = sizeof(struct tcphdr);
+ 			break;
+ 		case VIRTIO_NET_HDR_GSO_UDP:
+ 			gso_type = SKB_GSO_UDP;
++			ip_proto = IPPROTO_UDP;
++			thlen = sizeof(struct udphdr);
+ 			break;
+ 		default:
+ 			return -EINVAL;
+@@ -57,16 +67,22 @@ static inline int virtio_net_hdr_to_skb(
+ 
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
++
++		if (skb_transport_offset(skb) + thlen > skb_headlen(skb))
++			return -EINVAL;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+ 		 * probe and drop if does not match one of the above types.
+ 		 */
+ 		if (gso_type && skb->network_header) {
++			struct flow_keys_basic keys;
++
+ 			if (!skb->protocol)
+ 				virtio_net_hdr_set_proto(skb, hdr);
+ retry:
+-			skb_probe_transport_header(skb, -1);
+-			if (!skb_transport_header_was_set(skb)) {
++			if (!skb_flow_dissect_flow_keys_basic(skb, &keys,
++							      NULL, 0, 0, 0,
++							      0)) {
+ 				/* UFO does not specify ipv4 or 6: try both */
+ 				if (gso_type & SKB_GSO_UDP &&
+ 				    skb->protocol == htons(ETH_P_IP)) {
+@@ -75,6 +91,12 @@ retry:
+ 				}
+ 				return -EINVAL;
+ 			}
++
++			if (keys.control.thoff + thlen > skb_headlen(skb) ||
++			    keys.basic.ip_proto != ip_proto)
++				return -EINVAL;
++
++			skb_set_transport_header(skb, keys.control.thoff);
+ 		}
  	}
  
--	ret = kprobe_event_gen_cmd_end(&cmd);
--	if (ret)
--		pr_err("Failed to add probe: %s\n", buf);
--
- 	return ret;
- }
- #else
 
 
