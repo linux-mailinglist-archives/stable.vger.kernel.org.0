@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C6861D0F0E
-	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6386B1D0EB9
+	for <lists+stable@lfdr.de>; Wed, 13 May 2020 12:02:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733245AbgEMKE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 May 2020 06:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45824 "EHLO mail.kernel.org"
+        id S1733292AbgEMJtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 May 2020 05:49:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732914AbgEMJro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 May 2020 05:47:44 -0400
+        id S1733282AbgEMJtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 May 2020 05:49:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC79E2312A;
-        Wed, 13 May 2020 09:47:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFF1B206D6;
+        Wed, 13 May 2020 09:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589363264;
-        bh=Ez+HzjOW/kVjeb7BJUsCWE4kuKqi8dg53pjN7LeiX/U=;
+        s=default; t=1589363385;
+        bh=DRnfapKAHniPBH4Zid0FNAbb9Jm5YcXFpjFxVu5RRS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RAMDiv9Qae7Kp9O88w2VjMT+iklxBvbfeMwVpjpbl2o/c8GjbaMei3QXTYwG+6UwI
-         Zwjuew3BsAqBx9XGOfLYm7vMCvIzye8J4o+azh4YCQck7K0yx8J7Iyl+uc5C+xfmvr
-         Ces8E2UAc6xVLkvmz8eBLwzWKWU1yIEyA3ebJdBM=
+        b=O2AXu/74cl42d1kcA+raWguqEQdD2ABCx/QVfANaLKNC+2eYmEpS3A1oa9lmbBwbY
+         l0OUmQGzFfiQG6qSyRsaag9vuCH5IgrB7MWyda8qajjhQi9zu9AxeL1saSnG67ZiMh
+         /74IFJ/WX00wq4pi7lUgldAcEx8A/IKwUeVMOD9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        =?UTF-8?q?Julian=20Gro=C3=9F?= <julian.g@posteo.de>
-Subject: [PATCH 4.19 22/48] USB: uas: add quirk for LaCie 2Big Quadra
-Date:   Wed, 13 May 2020 11:44:48 +0200
-Message-Id: <20200513094356.501425369@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Andr=C3=A9=20Przywara?= <andre.przywara@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 53/90] KVM: arm: vgic: Fix limit condition when writing to GICD_I[CS]ACTIVER
+Date:   Wed, 13 May 2020 11:44:49 +0200
+Message-Id: <20200513094414.397113042@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513094351.100352960@linuxfoundation.org>
-References: <20200513094351.100352960@linuxfoundation.org>
+In-Reply-To: <20200513094408.810028856@linuxfoundation.org>
+References: <20200513094408.810028856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 9f04db234af691007bb785342a06abab5fb34474 upstream.
+commit 1c32ca5dc6d00012f0c964e5fdd7042fcc71efb1 upstream.
 
-This device needs US_FL_NO_REPORT_OPCODES to avoid going
-through prolonged error handling on enumeration.
+When deciding whether a guest has to be stopped we check whether this
+is a private interrupt or not. Unfortunately, there's an off-by-one bug
+here, and we fail to recognize a whole range of interrupts as being
+global (GICv2 SPIs 32-63).
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: Julian Groß <julian.g@posteo.de>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200429155218.7308-1-oneukum@suse.com
+Fix the condition from > to be >=.
+
+Cc: stable@vger.kernel.org
+Fixes: abd7229626b93 ("KVM: arm/arm64: Simplify active_change_prepare and plug race")
+Reported-by: André Przywara <andre.przywara@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ virt/kvm/arm/vgic/vgic-mmio.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -28,6 +28,13 @@
-  * and don't forget to CC: the USB development list <linux-usb@vger.kernel.org>
-  */
+--- a/virt/kvm/arm/vgic/vgic-mmio.c
++++ b/virt/kvm/arm/vgic/vgic-mmio.c
+@@ -389,7 +389,7 @@ static void vgic_mmio_change_active(stru
+ static void vgic_change_active_prepare(struct kvm_vcpu *vcpu, u32 intid)
+ {
+ 	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
+-	    intid > VGIC_NR_PRIVATE_IRQS)
++	    intid >= VGIC_NR_PRIVATE_IRQS)
+ 		kvm_arm_halt_guest(vcpu->kvm);
+ }
  
-+/* Reported-by: Julian Groß <julian.g@posteo.de> */
-+UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
-+		"LaCie",
-+		"2Big Quadra USB3",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_NO_REPORT_OPCODES),
-+
- /*
-  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
-  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
+@@ -397,7 +397,7 @@ static void vgic_change_active_prepare(s
+ static void vgic_change_active_finish(struct kvm_vcpu *vcpu, u32 intid)
+ {
+ 	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
+-	    intid > VGIC_NR_PRIVATE_IRQS)
++	    intid >= VGIC_NR_PRIVATE_IRQS)
+ 		kvm_arm_resume_guest(vcpu->kvm);
+ }
+ 
 
 
