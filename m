@@ -2,89 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A11C1D3D72
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9311D3DB9
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726076AbgENT1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 15:27:46 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:56466 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725975AbgENT1q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 15:27:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589484465;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=y5h6nPrhEzpYCzdipFANUUrKCuB7CVP+YlT+ibTkEPU=;
-        b=hH6EIcDOTGXrzmcV/2IaG6pmXmawPa6XrBHrN/nH7uQbg+K9u7f4AQGqhkrD2A1cNoDNfV
-        u30FpyCJSjwOyyDEHmmERkyAHzORQDVhAqcK+vTtJQL84TLOjRBvDQ9WV4Km11HUZTBYV4
-        tAjy6SSbB8JrPUwSkX5T/+6xXRwCrlc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-171--HXsfovRPfaR3hf9MfvoDg-1; Thu, 14 May 2020 15:27:43 -0400
-X-MC-Unique: -HXsfovRPfaR3hf9MfvoDg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B8948107ACCD;
-        Thu, 14 May 2020 19:27:41 +0000 (UTC)
-Received: from treble (ovpn-117-14.rdu2.redhat.com [10.10.117.14])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 15E6C5D9CA;
-        Thu, 14 May 2020 19:27:39 +0000 (UTC)
-Date:   Thu, 14 May 2020 14:27:38 -0500
-From:   Josh Poimboeuf <jpoimboe@redhat.com>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Miroslav Benes <mbenes@suse.cz>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
-        Jann Horn <jannh@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>
-Subject: Re: [PATCH 4.19 37/48] x86/entry/64: Fix unwind hints in register
- clearing code
-Message-ID: <20200514192738.nolajgjg56of4nat@treble>
-References: <20200513094351.100352960@linuxfoundation.org>
- <20200513094401.325580400@linuxfoundation.org>
- <20200513214856.GA27858@amd>
+        id S1727991AbgENTlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 15:41:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56084 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727909AbgENTlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 15:41:21 -0400
+Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B01E3C061A0F
+        for <stable@vger.kernel.org>; Thu, 14 May 2020 12:41:21 -0700 (PDT)
+Received: by mail-io1-xd43.google.com with SMTP id w25so1929210iol.12
+        for <stable@vger.kernel.org>; Thu, 14 May 2020 12:41:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=XbCfhBHE3NPu8lbmSvI4yrKySjKFk+ZtqeSY76fHYsg=;
+        b=gRUpAjytJ9ZgVf66/bf46+JhjBw0zzeAKvlq/ToGil93JOk8iX9R/9HEfUOGwlpzLp
+         ZBAFMk0NzbEQrSBynkIOxlPLYVMkRC9sY4C3prldjz/2VlrccEe9mQvxqMyPjCAzb9md
+         /D5E2zscAv64m+nO0C0EKMppTb+uB2IMRQvGywTgOYIYgjpSSNdgzvOu3VpU/oFLg85j
+         ghIpHFK7QemjcjFl8GBjLwPKnayX5LzmXNrwI4DzWvWErXdbB+k4YzZqjs7coHwQbOHP
+         ljCLtKdz57Y4kDmEs4JkXJ8mzIAgTHtn66Hh0ys0r1pOvVHXnKz0S/vEL53AkXmzlfm7
+         tiEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=XbCfhBHE3NPu8lbmSvI4yrKySjKFk+ZtqeSY76fHYsg=;
+        b=uV2EZb1SxQzQZwbA1gWuJk0Ya8R3uYzJPVD846txTB0LQz8ZiSCL7uMo2scqU2Hjg7
+         U8QujBo825zmbaSQw/6rw0XUZCjsA92K2uZsODBg+TdfBvx7spWT6HjaHFKie9tCq/fn
+         JsnGtYu9JaUctAO67p2yA0sjE9AOfY8gE2BwgX08jDAS4S3/hwISwwy+WCUIDWZ594fW
+         l79kbPGP99k4tpetA59eUTMmexZ4gNGsy+Yj/j1fKOb8L+us5+7pxKkrMi3XMKNL1hyb
+         i7MVae4I48LXC6JP1CoET/Vrh8mNEaK6yiYT0esClOl+CcbHFKkt+q4kJvw4LuLtv+kA
+         KAEg==
+X-Gm-Message-State: AOAM531PXS5jZVMGY2rE2jFzGyVUo98LaDd+HIltRvkkXK/ywF7/o5Im
+        1akYlL/ItWdixi7IpRjLfEmQixE0694r4G2pCb4=
+X-Google-Smtp-Source: ABdhPJyzhBr2JCbRNvLBScdN+1BZJzW8aaoTyiGysKAlFf0i89xpjFyo5MVxjPWbL1292avuJpQKPqU5eF+AkfoYFtc=
+X-Received: by 2002:a05:6602:2104:: with SMTP id x4mr5702254iox.55.1589485281105;
+ Thu, 14 May 2020 12:41:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200513214856.GA27858@amd>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Received: by 2002:a6b:710d:0:0:0:0:0 with HTTP; Thu, 14 May 2020 12:41:20
+ -0700 (PDT)
+Reply-To: tracymedicinemed37@gmail.com
+From:   Dr Tracy William <mrsalicejohnson4@gmail.com>
+Date:   Thu, 14 May 2020 19:41:20 +0000
+Message-ID: <CAK50m7iyuSVXF9ZXMOGzQk=phRy9WVoejw8SQwYBJZUfRqteaA@mail.gmail.com>
+Subject: my dear friend
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 13, 2020 at 11:48:56PM +0200, Pavel Machek wrote:
-> On Wed 2020-05-13 11:45:03, Greg Kroah-Hartman wrote:
-> > From: Josh Poimboeuf <jpoimboe@redhat.com>
-> > 
-> > commit 06a9750edcffa808494d56da939085c35904e618 upstream.
-> > 
-> > The PUSH_AND_CLEAR_REGS macro zeroes each register immediately after
-> > pushing it.  If an NMI or exception hits after a register is cleared,
-> > but before the UNWIND_HINT_REGS annotation, the ORC unwinder will
-> > wrongly think the previous value of the register was zero.  This can
-> > confuse the unwinding process and cause it to exit early.
-> > 
-> > Because ORC is simpler than DWARF, there are a limited number of unwind
-> > annotation states, so it's not possible to add an individual unwind hint
-> > after each push/clear combination.  Instead, the register clearing
-> > instructions need to be consolidated and moved to after the
-> > UNWIND_HINT_REGS annotation.
-> 
-> This actually makes kernel entry/exit slower, due to poor instruction
-> scheduling. And that is a bit of hot path... Is it strictly
-> neccessary? Not everyone needs ORC scheduler. Should it be somehow
-> optional?
-
-I didn't measure a difference beyond the noise level, did you?
-
 -- 
-Josh
 
+how are you doing, Its my pleasure to contact you for a long term
+relationship. I was just surfing through the Internet when i found
+your email address. I want to make a new and special friend. Lets keep
+in touch and get to know more about each other and see what happens in
+future.
+
+My name is Tracy William, I am from the United States of America,but
+presently live and work in England.
+Pls reply to my personal email (tracymedicinemed37@gmail.com) I will
+send my details and pictures as soon as i hear from you.
+bye
+Tracy
+
+Dr Tracy William
