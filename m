@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 701C81D3B95
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECEDD1D3A34
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727844AbgENTDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 15:03:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54852 "EHLO mail.kernel.org"
+        id S1729189AbgENSyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:54:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729179AbgENSyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:54:44 -0400
+        id S1729186AbgENSyp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:54:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7C022074A;
-        Thu, 14 May 2020 18:54:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3097206F1;
+        Thu, 14 May 2020 18:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482483;
-        bh=7BopdSLcp8J4FWItB9qb1y6DyvBGvmyL2nsMbg4ACkw=;
+        s=default; t=1589482484;
+        bh=TXriUq+EznUcZN//EoYkrlULdDH1q/4CM+bAXiZMUg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmxFlHNpLZakuhVz8IKyZ75fNtJpROo3i8IdN8fve36KVCUpul/TVOUMfnZ7cAn4q
-         lfTqRa/lb+N36nx/7En9qTsfNLf7XW0ZbIDJ3MYGVAh7jHGSR7/1MO+5jM7av3HyVK
-         e1SSLvEsCsftN8BuZ9ynZ2Rw2AKO/WWPCC+VqSiw=
+        b=RzUFSeKumSLJ73W3joczFvqH6SYiQGJ9PUDx6cODnp2aHOdxyF9QK6+U4j9jDTps9
+         iau0UPi26KDb5Qrt31YRIuj/N+pdsP1aBXFdvKLFeVRCPoS9thIn2FeImmCC2km089
+         GqjOI71mSaWWNfefic+ciAC+xli/vk6VtCFCSwqw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 23/31] HID: quirks: Add HID_QUIRK_NO_INIT_REPORTS quirk for Dell K12A keyboard-dock
-Date:   Thu, 14 May 2020 14:54:05 -0400
-Message-Id: <20200514185413.20755-23-sashal@kernel.org>
+Cc:     Wu Bo <wubo40@huawei.com>, "Yan, Zheng" <zyan@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 24/31] ceph: fix double unlock in handle_cap_export()
+Date:   Thu, 14 May 2020 14:54:06 -0400
+Message-Id: <20200514185413.20755-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185413.20755-1-sashal@kernel.org>
 References: <20200514185413.20755-1-sashal@kernel.org>
@@ -44,50 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Wu Bo <wubo40@huawei.com>
 
-[ Upstream commit 1e189f267015a098bdcb82cc652d13fbf2203fa0 ]
+[ Upstream commit 4d8e28ff3106b093d98bfd2eceb9b430c70a8758 ]
 
-Add a HID_QUIRK_NO_INIT_REPORTS quirk for the Dell K12A keyboard-dock,
-which can be used with various Dell Venue 11 models.
+If the ceph_mdsc_open_export_target_session() return fails, it will
+do a "goto retry", but the session mutex has already been unlocked.
+Re-lock the mutex in that case to ensure that we don't unlock it
+twice.
 
-Without this quirk the keyboard/touchpad combo works fine when connected
-at boot, but when hotplugged 9 out of 10 times it will not work properly.
-Adding the quirk fixes this.
-
-Cc: Mario Limonciello <mario.limonciello@dell.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Wu Bo <wubo40@huawei.com>
+Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ fs/ceph/caps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e071fd3c6b2b0..c1fed1aaecdf8 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1081,6 +1081,7 @@
- #define USB_DEVICE_ID_SYNAPTICS_LTS2	0x1d10
- #define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
- #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
-+#define USB_DEVICE_ID_SYNAPTICS_DELL_K12A	0x2819
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012	0x2968
- #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 5241102b81a82..a2d4eed27f804 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -3632,6 +3632,7 @@ static void handle_cap_export(struct inode *inode, struct ceph_mds_caps *ex,
+ 		WARN_ON(1);
+ 		tsession = NULL;
+ 		target = -1;
++		mutex_lock(&session->s_mutex);
+ 	}
+ 	goto retry;
  
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index b9529bed4d763..e5beee3e8582a 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -163,6 +163,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_LTS2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DELL_K12A), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
 -- 
 2.20.1
 
