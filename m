@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D298E1D3A45
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:55:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E061D3B6E
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729329AbgENSzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:55:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55660 "EHLO mail.kernel.org"
+        id S1728729AbgENTCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 15:02:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729326AbgENSzN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:55:13 -0400
+        id S1729328AbgENSzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:55:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 106F9207F9;
-        Thu, 14 May 2020 18:55:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB7A42074A;
+        Thu, 14 May 2020 18:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482512;
-        bh=qulwPbZkzE4NFTAAUi2Qdb36dRGHKbHi3E8aGXOWyBk=;
+        s=default; t=1589482514;
+        bh=4xMj5rnI4Scg/R/q3gQ+zsinkyURzzXl/HRZSA+oI00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eokYUBXCwqkjaCYLg/aGwj5LkQC4qV8Kp91O7oAjDwKI1/MGiamWUDlAbJrg2k2Gz
-         ue6Ds34gIg83Vn8AvcjqrK7wz4GY4dO9FR5Svvo4M7snz1vU0NfSYB945JTYY0kCus
-         IlviC8oXAJHCSaeQ12modxq+wkIa3rvYcg61P3Yc=
+        b=18+tB5nvdv8JhRhLASdLcQU8O3y88nLIaNhg3tMSPI/MlYoZNsP49lo/3eoPRks1P
+         EQDhEEXLFZSU2zVWOvuSSVnZyjEzi3x7eiEY/jxdEMI8w7BwQ5thnLIdpJG1yL9Jgp
+         ZbOkkFvE8B0wwjeL7ZmRnSj58ujXM0BejgOy7c50=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Dave Jones <dsj@fb.com>,
+        "Dr . David Alan Gilbert" <dgilbert@redhat.com>,
+        Joe Mario <jmario@redhat.com>, Jann Horn <jannh@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Miroslav Benes <mbenes@suse.cz>,
         Ingo Molnar <mingo@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
-        Jann Horn <jannh@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 11/39] x86/entry/64: Fix unwind hints in register clearing code
-Date:   Thu, 14 May 2020 14:54:28 -0400
-Message-Id: <20200514185456.21060-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 12/39] x86/entry/64: Fix unwind hints in kernel exit path
+Date:   Thu, 14 May 2020 14:54:29 -0400
+Message-Id: <20200514185456.21060-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185456.21060-1-sashal@kernel.org>
 References: <20200514185456.21060-1-sashal@kernel.org>
@@ -51,105 +54,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 06a9750edcffa808494d56da939085c35904e618 ]
+[ Upstream commit 1fb143634a38095b641a3a21220774799772dc4c ]
 
-The PUSH_AND_CLEAR_REGS macro zeroes each register immediately after
-pushing it.  If an NMI or exception hits after a register is cleared,
-but before the UNWIND_HINT_REGS annotation, the ORC unwinder will
-wrongly think the previous value of the register was zero.  This can
-confuse the unwinding process and cause it to exit early.
+In swapgs_restore_regs_and_return_to_usermode, after the stack is
+switched to the trampoline stack, the existing UNWIND_HINT_REGS hint is
+no longer valid, which can result in the following ORC unwinder warning:
 
-Because ORC is simpler than DWARF, there are a limited number of unwind
-annotation states, so it's not possible to add an individual unwind hint
-after each push/clear combination.  Instead, the register clearing
-instructions need to be consolidated and moved to after the
-UNWIND_HINT_REGS annotation.
+  WARNING: can't dereference registers at 000000003aeb0cdd for ip swapgs_restore_regs_and_return_to_usermode+0x93/0xa0
 
-Fixes: 3f01daecd545 ("x86/entry/64: Introduce the PUSH_AND_CLEAN_REGS macro")
+For full correctness, we could try to add complicated unwind hints so
+the unwinder could continue to find the registers, but when when it's
+this close to kernel exit, unwind hints aren't really needed anymore and
+it's fine to just use an empty hint which tells the unwinder to stop.
+
+For consistency, also move the UNWIND_HINT_EMPTY in
+entry_SYSCALL_64_after_hwframe to a similar location.
+
+Fixes: 3e3b9293d392 ("x86/entry/64: Return to userspace from the trampoline stack")
+Reported-by: Vince Weaver <vincent.weaver@maine.edu>
+Reported-by: Dave Jones <dsj@fb.com>
+Reported-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
+Reported-by: Joe Mario <jmario@redhat.com>
+Reported-by: Jann Horn <jannh@google.com>
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
 Reviewed-by: Miroslav Benes <mbenes@suse.cz>
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Dave Jones <dsj@fb.com>
-Cc: Jann Horn <jannh@google.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Link: https://lore.kernel.org/r/68fd3d0bc92ae2d62ff7879d15d3684217d51f08.1587808742.git.jpoimboe@redhat.com
+Link: https://lore.kernel.org/r/60ea8f562987ed2d9ace2977502fe481c0d7c9a0.1587808742.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/calling.h | 38 +++++++++++++++++++++-----------------
- 1 file changed, 21 insertions(+), 17 deletions(-)
+ arch/x86/entry/entry_64.S | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/entry/calling.h b/arch/x86/entry/calling.h
-index 557c1bdda311b..1dbc62a96b859 100644
---- a/arch/x86/entry/calling.h
-+++ b/arch/x86/entry/calling.h
-@@ -98,13 +98,6 @@ For 32-bit we have the following conventions - kernel is built with
- #define SIZEOF_PTREGS	21*8
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index 5ec66fafde4e4..d4d72c84d9eb4 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -302,7 +302,6 @@ GLOBAL(entry_SYSCALL_64_after_hwframe)
+ 	 */
+ syscall_return_via_sysret:
+ 	/* rcx and r11 are already restored (see code above) */
+-	UNWIND_HINT_EMPTY
+ 	POP_REGS pop_rdi=0 skip_r11rcx=1
  
- .macro PUSH_AND_CLEAR_REGS rdx=%rdx rax=%rax save_ret=0
--	/*
--	 * Push registers and sanitize registers of values that a
--	 * speculation attack might otherwise want to exploit. The
--	 * lower registers are likely clobbered well before they
--	 * could be put to use in a speculative execution gadget.
--	 * Interleave XOR with PUSH for better uop scheduling:
--	 */
- 	.if \save_ret
- 	pushq	%rsi		/* pt_regs->si */
- 	movq	8(%rsp), %rsi	/* temporarily store the return address in %rsi */
-@@ -117,29 +110,40 @@ For 32-bit we have the following conventions - kernel is built with
- 	pushq   %rcx		/* pt_regs->cx */
- 	pushq   \rax		/* pt_regs->ax */
- 	pushq   %r8		/* pt_regs->r8 */
--	xorl	%r8d, %r8d	/* nospec   r8 */
- 	pushq   %r9		/* pt_regs->r9 */
--	xorl	%r9d, %r9d	/* nospec   r9 */
- 	pushq   %r10		/* pt_regs->r10 */
--	xorl	%r10d, %r10d	/* nospec   r10 */
- 	pushq   %r11		/* pt_regs->r11 */
--	xorl	%r11d, %r11d	/* nospec   r11*/
- 	pushq	%rbx		/* pt_regs->rbx */
--	xorl    %ebx, %ebx	/* nospec   rbx*/
- 	pushq	%rbp		/* pt_regs->rbp */
--	xorl    %ebp, %ebp	/* nospec   rbp*/
- 	pushq	%r12		/* pt_regs->r12 */
--	xorl	%r12d, %r12d	/* nospec   r12*/
- 	pushq	%r13		/* pt_regs->r13 */
--	xorl	%r13d, %r13d	/* nospec   r13*/
- 	pushq	%r14		/* pt_regs->r14 */
--	xorl	%r14d, %r14d	/* nospec   r14*/
- 	pushq	%r15		/* pt_regs->r15 */
--	xorl	%r15d, %r15d	/* nospec   r15*/
- 	UNWIND_HINT_REGS
-+
- 	.if \save_ret
- 	pushq	%rsi		/* return address on top of stack */
- 	.endif
-+
-+	/*
-+	 * Sanitize registers of values that a speculation attack might
-+	 * otherwise want to exploit. The lower registers are likely clobbered
-+	 * well before they could be put to use in a speculative execution
-+	 * gadget.
-+	 */
-+	xorl	%edx,  %edx	/* nospec dx  */
-+	xorl	%ecx,  %ecx	/* nospec cx  */
-+	xorl	%r8d,  %r8d	/* nospec r8  */
-+	xorl	%r9d,  %r9d	/* nospec r9  */
-+	xorl	%r10d, %r10d	/* nospec r10 */
-+	xorl	%r11d, %r11d	/* nospec r11 */
-+	xorl	%ebx,  %ebx	/* nospec rbx */
-+	xorl	%ebp,  %ebp	/* nospec rbp */
-+	xorl	%r12d, %r12d	/* nospec r12 */
-+	xorl	%r13d, %r13d	/* nospec r13 */
-+	xorl	%r14d, %r14d	/* nospec r14 */
-+	xorl	%r15d, %r15d	/* nospec r15 */
-+
- .endm
+ 	/*
+@@ -311,6 +310,7 @@ syscall_return_via_sysret:
+ 	 */
+ 	movq	%rsp, %rdi
+ 	movq	PER_CPU_VAR(cpu_tss_rw + TSS_sp0), %rsp
++	UNWIND_HINT_EMPTY
  
- .macro POP_REGS pop_rdi=1 skip_r11rcx=0
+ 	pushq	RSP-RDI(%rdi)	/* RSP */
+ 	pushq	(%rdi)		/* RDI */
+@@ -606,6 +606,7 @@ GLOBAL(swapgs_restore_regs_and_return_to_usermode)
+ 	 */
+ 	movq	%rsp, %rdi
+ 	movq	PER_CPU_VAR(cpu_tss_rw + TSS_sp0), %rsp
++	UNWIND_HINT_EMPTY
+ 
+ 	/* Copy the IRET frame to the trampoline stack. */
+ 	pushq	6*8(%rdi)	/* SS */
 -- 
 2.20.1
 
