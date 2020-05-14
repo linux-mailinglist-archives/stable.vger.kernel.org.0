@@ -2,95 +2,281 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7FE91D3033
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 14:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0E11D3073
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 14:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726073AbgENMqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 08:46:18 -0400
-Received: from sonic305-21.consmr.mail.ne1.yahoo.com ([66.163.185.147]:40786
-        "EHLO sonic305-21.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726037AbgENMqS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 08:46:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589460377; bh=+NKq2YP/4c3bLm2HmGhxa/KCZOXr0NIUKHs/ECuC0yk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=FGrd93FwKvkMEAfo2ya0gPZpz4EYdjLcl1jxv08SgSFsVCAVQp4gEDczvk//wPeOLcy8A9wltPVg6ItIGb2/OhSFkGVavZo9328oW1TyCv7Tf5ynoLZP741i0Te5yz3SJtgcVFelJ8ESV4cTSx8Grx2PPrmP66HrqDKBuHKKWXPmwnQXMxapJlH0piD6pGJGOoyEoXDMk2B1acITIyaX97NxCsAlJJxzxqIjKOv9x2Ka5mwSQBKSELpqnDuBtrALxVYTaubqFGSeq3ZO+ThbhRayNIHBW3FmMlun/rlwFK/izw4+JL6o61lMVqAcw1qV3r65c6YO6/MGFcaNOdB7rg==
-X-YMail-OSG: NFjme_UVM1ma33R8Jk204u6oTWI2ggTQRkToFfsC8JiBSwQXvFJ9jFnu0eC2bmv
- 1EXlk_BrDi7qQgGnBWdnuAaNm3IGjjvOXqxB2ntKlGHW39YeQlDx1vyg9gpKFGpcQiXqjSsQVCZz
- AJSw35oU3IoOyt5B6aFIzL9unx6Oc8oJpCvF85IkLrlNuXOFSPqP_13az4dfjQWqjrq_cs.QC92D
- 9.r9YO74rN5.czjOncnKsrMgDOfp_bmLGsnhoizBDJgs26UKzmxjpH7JNDaOO_nSQuzk5VKOxswg
- fbcaDfBgkDDbRuHoXG0KkZUdivnefBjkcqpY0ImK_GRnEbz9d1ljqeYakfBRko1hrwraPocn9mgm
- GDGtV3alXzmorJBiC7MVrdx07hvBddDCaZ1VlymjEUm.gUXvA7JyoGRZNPDPEtxLn248A8QIIQi6
- fCc9NW5mKA7ipwISOui2lQhmIKK36Mdrr_ZH6ldnpkoZvChmGFThh0blKP4Egx0RyZk451Eu_OsF
- fjeQF3tIuxoud.ld8CrSyUwaFzbG_sXL_IFzqhnFU_H2zK8WVrvIfwuTHvWxzwV7D6Flog2VE6gU
- uIoflECcsWsMj3_oOvzXOsBflaM_4Y3DkEGRFUvzwAR4Jm2yFChEPHiEUsFZes7NC29nMI8Tb6fe
- RnAl0roYYxx4fVx0NUrjOeku6i8iIRqS1HWBc7FEDw7j0xk5znHWK84GmOqOcL7gPMWftNY2NXma
- 8i0x82howSVNmn_R4nG82wu.09uhYi686xdwyRa51hapnfeBosUcNotBjvBg8Bs6o13Qfvl2KeMr
- zcgvYJxY8vj8E6Q8XU_7TBOXInQBBkT0W6oBdAws.ZRyniUC74DvG9oQ0.4O_gUuPwn6vzj7QsRb
- KI45x0B11SHhMKTPMRWHxgsHbX_RXFDlvBsSNpXG_2R4V8ipNgNulXp7GkDSVgx15Bbe4lNNXM9C
- Au4fVPrgPpWetp_DFaQmIoU8C3wbB9Vnz9tmwmYFkscRysv0ixMUteMeUsWuJ89DA3FCBqYFtDEm
- cdsssTCIUIaAdZNi5RdGkXSJRwPtIDzU0wcR.l92BwMMvIniEYWs_BCi0FlX7g4dRAGlXSjvCGSt
- eon6HO4MkR262ZXYAzIheXQ3TGAZTzhcMObaROVRR66ji.d7dn5vyaTZ5P9R3pHite_bQujBj2hy
- X0Q1C1YVwMjvSNSFO.77i276vP4a5VqAt1fleD5NiFV009xNVIFpl85ChIvttKjc.WC16ZmcNr98
- AD55KRhPem6r9xNMeL.khyJOYU9XYMBF_P19.Gp7fY6hHeXxL0R5HrmGAXQNQDooiEAxE_D.oSHi
- .7Q--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.ne1.yahoo.com with HTTP; Thu, 14 May 2020 12:46:17 +0000
-Date:   Thu, 14 May 2020 12:46:17 +0000 (UTC)
-From:   "Mrs. Mina A. Brunel" <mrs.minaabrunel209@gmail.com>
-Reply-To: mrs.minaabrunel30@gmail.com
-Message-ID: <128063437.104418.1589460377514@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1726011AbgENM6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 08:58:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51990 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726051AbgENM6p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 08:58:45 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCA78206D4;
+        Thu, 14 May 2020 12:58:43 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.93)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1jZDRi-000G9h-GO; Thu, 14 May 2020 08:58:42 -0400
+Message-ID: <20200514125842.392454557@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Thu, 14 May 2020 08:58:18 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [for-linus][PATCH 1/3] x86/ftrace: Have ftrace trampolines turn read-only at the end of
+ system boot up
+References: <20200514125817.850882486@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <128063437.104418.1589460377514.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15941 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+
+Booting one of my machines, it triggered the following crash:
+
+ Kernel/User page tables isolation: enabled
+ ftrace: allocating 36577 entries in 143 pages
+ Starting tracer 'function'
+ BUG: unable to handle page fault for address: ffffffffa000005c
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0003) - permissions violation
+ PGD 2014067 P4D 2014067 PUD 2015063 PMD 7b253067 PTE 7b252061
+ Oops: 0003 [#1] PREEMPT SMP PTI
+ CPU: 0 PID: 0 Comm: swapper Not tainted 5.4.0-test+ #24
+ Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./To be filled by O.E.M., BIOS SDBLI944.86P 05/08/2007
+ RIP: 0010:text_poke_early+0x4a/0x58
+ Code: 34 24 48 89 54 24 08 e8 bf 72 0b 00 48 8b 34 24 48 8b 4c 24 08 84 c0 74 0b 48 89 df f3 a4 48 83 c4 10 5b c3 9c 58 fa 48 89 df <f3> a4 50 9d 48 83 c4 10 5b e9 d6 f9 ff ff
+0 41 57 49
+ RSP: 0000:ffffffff82003d38 EFLAGS: 00010046
+ RAX: 0000000000000046 RBX: ffffffffa000005c RCX: 0000000000000005
+ RDX: 0000000000000005 RSI: ffffffff825b9a90 RDI: ffffffffa000005c
+ RBP: ffffffffa000005c R08: 0000000000000000 R09: ffffffff8206e6e0
+ R10: ffff88807b01f4c0 R11: ffffffff8176c106 R12: ffffffff8206e6e0
+ R13: ffffffff824f2440 R14: 0000000000000000 R15: ffffffff8206eac0
+ FS:  0000000000000000(0000) GS:ffff88807d400000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: ffffffffa000005c CR3: 0000000002012000 CR4: 00000000000006b0
+ Call Trace:
+  text_poke_bp+0x27/0x64
+  ? mutex_lock+0x36/0x5d
+  arch_ftrace_update_trampoline+0x287/0x2d5
+  ? ftrace_replace_code+0x14b/0x160
+  ? ftrace_update_ftrace_func+0x65/0x6c
+  __register_ftrace_function+0x6d/0x81
+  ftrace_startup+0x23/0xc1
+  register_ftrace_function+0x20/0x37
+  func_set_flag+0x59/0x77
+  __set_tracer_option.isra.19+0x20/0x3e
+  trace_set_options+0xd6/0x13e
+  apply_trace_boot_options+0x44/0x6d
+  register_tracer+0x19e/0x1ac
+  early_trace_init+0x21b/0x2c9
+  start_kernel+0x241/0x518
+  ? load_ucode_intel_bsp+0x21/0x52
+  secondary_startup_64+0xa4/0xb0
+
+I was able to trigger it on other machines, when I added to the kernel
+command line of both "ftrace=function" and "trace_options=func_stack_trace".
+
+The cause is the "ftrace=function" would register the function tracer
+and create a trampoline, and it will set it as executable and
+read-only. Then the "trace_options=func_stack_trace" would then update
+the same trampoline to include the stack tracer version of the function
+tracer. But since the trampoline already exists, it updates it with
+text_poke_bp(). The problem is that text_poke_bp() called while
+system_state == SYSTEM_BOOTING, it will simply do a memcpy() and not
+the page mapping, as it would think that the text is still read-write.
+But in this case it is not, and we take a fault and crash.
+
+Instead, lets keep the ftrace trampolines read-write during boot up,
+and then when the kernel executable text is set to read-only, the
+ftrace trampolines get set to read-only as well.
+
+Link: https://lkml.kernel.org/r/20200430202147.4dc6e2de@oasis.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: stable@vger.kernel.org
+Fixes: 768ae4406a5c ("x86/ftrace: Use text_poke()")
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ arch/x86/include/asm/ftrace.h  |  6 ++++++
+ arch/x86/kernel/ftrace.c       | 29 ++++++++++++++++++++++++++++-
+ arch/x86/mm/init_64.c          |  3 +++
+ include/linux/ftrace.h         | 23 +++++++++++++++++++++++
+ kernel/trace/ftrace_internal.h | 22 ----------------------
+ 5 files changed, 60 insertions(+), 23 deletions(-)
+
+diff --git a/arch/x86/include/asm/ftrace.h b/arch/x86/include/asm/ftrace.h
+index 85be2f506272..89af0d2c62aa 100644
+--- a/arch/x86/include/asm/ftrace.h
++++ b/arch/x86/include/asm/ftrace.h
+@@ -56,6 +56,12 @@ struct dyn_arch_ftrace {
+ 
+ #ifndef __ASSEMBLY__
+ 
++#if defined(CONFIG_FUNCTION_TRACER) && defined(CONFIG_DYNAMIC_FTRACE)
++extern void set_ftrace_ops_ro(void);
++#else
++static inline void set_ftrace_ops_ro(void) { }
++#endif
++
+ #define ARCH_HAS_SYSCALL_MATCH_SYM_NAME
+ static inline bool arch_syscall_match_sym_name(const char *sym, const char *name)
+ {
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index 37a0aeaf89e7..b0e641793be4 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -407,7 +407,8 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 
+ 	set_vm_flush_reset_perms(trampoline);
+ 
+-	set_memory_ro((unsigned long)trampoline, npages);
++	if (likely(system_state != SYSTEM_BOOTING))
++		set_memory_ro((unsigned long)trampoline, npages);
+ 	set_memory_x((unsigned long)trampoline, npages);
+ 	return (unsigned long)trampoline;
+ fail:
+@@ -415,6 +416,32 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 	return 0;
+ }
+ 
++void set_ftrace_ops_ro(void)
++{
++	struct ftrace_ops *ops;
++	unsigned long start_offset;
++	unsigned long end_offset;
++	unsigned long npages;
++	unsigned long size;
++
++	do_for_each_ftrace_op(ops, ftrace_ops_list) {
++		if (!(ops->flags & FTRACE_OPS_FL_ALLOC_TRAMP))
++			continue;
++
++		if (ops->flags & FTRACE_OPS_FL_SAVE_REGS) {
++			start_offset = (unsigned long)ftrace_regs_caller;
++			end_offset = (unsigned long)ftrace_regs_caller_end;
++		} else {
++			start_offset = (unsigned long)ftrace_caller;
++			end_offset = (unsigned long)ftrace_epilogue;
++		}
++		size = end_offset - start_offset;
++		size = size + RET_SIZE + sizeof(void *);
++		npages = DIV_ROUND_UP(size, PAGE_SIZE);
++		set_memory_ro((unsigned long)ops->trampoline, npages);
++	} while_for_each_ftrace_op(ops);
++}
++
+ static unsigned long calc_trampoline_call_offset(bool save_regs)
+ {
+ 	unsigned long start_offset;
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index 3b289c2f75cd..8b5f73f5e207 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -54,6 +54,7 @@
+ #include <asm/init.h>
+ #include <asm/uv/uv.h>
+ #include <asm/setup.h>
++#include <asm/ftrace.h>
+ 
+ #include "mm_internal.h"
+ 
+@@ -1291,6 +1292,8 @@ void mark_rodata_ro(void)
+ 	all_end = roundup((unsigned long)_brk_end, PMD_SIZE);
+ 	set_memory_nx(text_end, (all_end - text_end) >> PAGE_SHIFT);
+ 
++	set_ftrace_ops_ro();
++
+ #ifdef CONFIG_CPA_DEBUG
+ 	printk(KERN_INFO "Testing CPA: undo %lx-%lx\n", start, end);
+ 	set_memory_rw(start, (end-start) >> PAGE_SHIFT);
+diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+index db95244a62d4..ab4bd15cbcdb 100644
+--- a/include/linux/ftrace.h
++++ b/include/linux/ftrace.h
+@@ -210,6 +210,29 @@ struct ftrace_ops {
+ #endif
+ };
+ 
++extern struct ftrace_ops __rcu *ftrace_ops_list;
++extern struct ftrace_ops ftrace_list_end;
++
++/*
++ * Traverse the ftrace_global_list, invoking all entries.  The reason that we
++ * can use rcu_dereference_raw_check() is that elements removed from this list
++ * are simply leaked, so there is no need to interact with a grace-period
++ * mechanism.  The rcu_dereference_raw_check() calls are needed to handle
++ * concurrent insertions into the ftrace_global_list.
++ *
++ * Silly Alpha and silly pointer-speculation compiler optimizations!
++ */
++#define do_for_each_ftrace_op(op, list)			\
++	op = rcu_dereference_raw_check(list);			\
++	do
++
++/*
++ * Optimized for just a single item in the list (as that is the normal case).
++ */
++#define while_for_each_ftrace_op(op)				\
++	while (likely(op = rcu_dereference_raw_check((op)->next)) &&	\
++	       unlikely((op) != &ftrace_list_end))
++
+ /*
+  * Type of the current tracing.
+  */
+diff --git a/kernel/trace/ftrace_internal.h b/kernel/trace/ftrace_internal.h
+index 0456e0a3dab1..382775edf690 100644
+--- a/kernel/trace/ftrace_internal.h
++++ b/kernel/trace/ftrace_internal.h
+@@ -4,28 +4,6 @@
+ 
+ #ifdef CONFIG_FUNCTION_TRACER
+ 
+-/*
+- * Traverse the ftrace_global_list, invoking all entries.  The reason that we
+- * can use rcu_dereference_raw_check() is that elements removed from this list
+- * are simply leaked, so there is no need to interact with a grace-period
+- * mechanism.  The rcu_dereference_raw_check() calls are needed to handle
+- * concurrent insertions into the ftrace_global_list.
+- *
+- * Silly Alpha and silly pointer-speculation compiler optimizations!
+- */
+-#define do_for_each_ftrace_op(op, list)			\
+-	op = rcu_dereference_raw_check(list);			\
+-	do
+-
+-/*
+- * Optimized for just a single item in the list (as that is the normal case).
+- */
+-#define while_for_each_ftrace_op(op)				\
+-	while (likely(op = rcu_dereference_raw_check((op)->next)) &&	\
+-	       unlikely((op) != &ftrace_list_end))
+-
+-extern struct ftrace_ops __rcu *ftrace_ops_list;
+-extern struct ftrace_ops ftrace_list_end;
+ extern struct mutex ftrace_lock;
+ extern struct ftrace_ops global_ops;
+ 
+-- 
+2.26.2
 
 
-My Dear in the lord
-
-
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politician who owns a small =
-gold company in Burkina Faso; He died of Leprosy and Radesyge, in the year =
-February 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Mi=
-llion Euro) Eight million, Five hundred thousand Euros in a bank in Ouagado=
-ugou the capital city of Burkina Faso in West Africa. The money was from th=
-e sale of his company and death benefits payment and entitlements of my dec=
-eased husband by his company.
-
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
-
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
-
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
-
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
-
-Thanks
-Mrs. Mina A. Brunel
