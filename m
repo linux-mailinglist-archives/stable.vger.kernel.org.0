@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A1921D3A11
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:55:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9641D1D3C69
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:16:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728686AbgENSx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:53:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52592 "EHLO mail.kernel.org"
+        id S1728697AbgENSx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:53:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728680AbgENSxZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:53:25 -0400
+        id S1728691AbgENSx1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:53:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4186206DC;
-        Thu, 14 May 2020 18:53:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB90D20675;
+        Thu, 14 May 2020 18:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482405;
-        bh=dmKkOEPjX4LthcX5VeXmmzZybGQIaDpfw/FE7fFRzuA=;
+        s=default; t=1589482406;
+        bh=7Z0Hc+SaDoyfUvHDdqpilIVCAGEhOiZemi8d5z5qKDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NptH02gecPG2PWCHCq541W5sMGq4lDJ0a6CRD6FQazmQ8v1M05h6hVVRs52ojdyS+
-         T1uFv8w0eEJmKpZDCwhZqF2IyiEtv6jooTiliUWrhN3OzaA724ZJ0KqxRliW/1EeHT
-         v+109oZKuyHguP+lD9YHV8xerjpEkvcwmK3NHzTw=
+        b=TXeNPkxCft3zKvQw1uLnRcMQf/x2kGlx5qe5bTvqBcvnzrPAR5F2ejqvO7YYCyOyu
+         Mwrpzk5K9UYse0qbVqqL8H0DdXc3KfLvltaeNUp04g5gq860gG8EeM7o6p6McZzWiL
+         9oXvwsDZjzusskhtkCW89BpjkSHlfoszYuov30Xg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 11/49] configfs: fix config_item refcnt leak in configfs_rmdir()
-Date:   Thu, 14 May 2020 14:52:32 -0400
-Message-Id: <20200514185311.20294-11-sashal@kernel.org>
+Cc:     Stefano Garzarella <sgarzare@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 12/49] vhost/vsock: fix packet delivery order to monitoring devices
+Date:   Thu, 14 May 2020 14:52:33 -0400
+Message-Id: <20200514185311.20294-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185311.20294-1-sashal@kernel.org>
 References: <20200514185311.20294-1-sashal@kernel.org>
@@ -43,45 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 8aebfffacfa379ba400da573a5bf9e49634e38cb ]
+[ Upstream commit 107bc0766b9feb5113074c753735a3f115c2141f ]
 
-configfs_rmdir() invokes configfs_get_config_item(), which returns a
-reference of the specified config_item object to "parent_item" with
-increased refcnt.
+We want to deliver packets to monitoring devices before it is
+put in the virtqueue, to avoid that replies can appear in the
+packet capture before the transmitted packet.
 
-When configfs_rmdir() returns, local variable "parent_item" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
-
-The reference counting issue happens in one exception handling path of
-configfs_rmdir(). When down_write_killable() fails, the function forgets
-to decrease the refcnt increased by configfs_get_config_item(), causing
-a refcnt leak.
-
-Fix this issue by calling config_item_put() when down_write_killable()
-fails.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/vhost/vsock.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index cf7b7e1d5bd72..cb733652ecca6 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -1519,6 +1519,7 @@ static int configfs_rmdir(struct inode *dir, struct dentry *dentry)
- 		spin_lock(&configfs_dirent_lock);
- 		configfs_detach_rollback(dentry);
- 		spin_unlock(&configfs_dirent_lock);
-+		config_item_put(parent_item);
- 		return -EINTR;
- 	}
- 	frag->frag_dead = true;
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 6c089f655707f..ca68a27b98edd 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -181,14 +181,14 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 			break;
+ 		}
+ 
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+-		added = true;
+-
+-		/* Deliver to monitoring devices all correctly transmitted
+-		 * packets.
++		/* Deliver to monitoring devices all packets that we
++		 * will transmit.
+ 		 */
+ 		virtio_transport_deliver_tap_pkt(pkt);
+ 
++		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
++		added = true;
++
+ 		pkt->off += payload_len;
+ 		total_len += payload_len;
+ 
 -- 
 2.20.1
 
