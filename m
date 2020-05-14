@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8257B1D3A88
+	by mail.lfdr.de (Postfix) with ESMTP id 112F61D3A87
 	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:59:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729827AbgENS5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729038AbgENS5V (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 14 May 2020 14:57:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57698 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729747AbgENS4j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:56:39 -0400
+        id S1729760AbgENS4k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:56:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86DDB20727;
-        Thu, 14 May 2020 18:56:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1513207D5;
+        Thu, 14 May 2020 18:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482598;
-        bh=dIwDnWBI3zdZPm70c3zyZlmhRIygOKZQKTDT8e1PHPk=;
+        s=default; t=1589482599;
+        bh=cXe103MZdqM3avjFhQIUYBeg23UVSH5A3ks/8xqjwx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dw2O1rYUD24KUj85XKvkTE4U/vl16Qsv2thPjlhteLL5sCfeXofGzjv66Teot5JB5
-         wAZgIGUjFBgYC/HW6wB3SfQTQIjJMK7vIfNViC/eeINHX5y5vmMnF7Uom6lJueludn
-         kNP2qX0HKYs+VnOz6tyWMTak/NSe3gIBvYfywpaA=
+        b=Yx7Bp6jTS/Apv8qhPSCEC9XX+hVKD9vbherpB9CBAOy4gmb3iogcRnSaX3qpNASm2
+         P+BhNtOXV5Ejwav1lyvCnoHxUb0m3HFVUswN6vtYzG6yPm/qOTy9ta+s8ccg+ywHwl
+         oYRSr0+JJ9Pxyhma81GjelznsXIfwnMvvsiUwetA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tariq Toukan <tariqt@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 10/14] net/mlx4_core: Fix use of ENOSPC around mlx4_counter_alloc()
-Date:   Thu, 14 May 2020 14:56:21 -0400
-Message-Id: <20200514185625.21753-10-sashal@kernel.org>
+Cc:     Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+db339689b2101f6f6071@syzkaller.appspotmail.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 11/14] USB: core: Fix misleading driver bug report
+Date:   Thu, 14 May 2020 14:56:22 -0400
+Message-Id: <20200514185625.21753-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185625.21753-1-sashal@kernel.org>
 References: <20200514185625.21753-1-sashal@kernel.org>
@@ -45,52 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 40e473071dbad04316ddc3613c3a3d1c75458299 ]
+[ Upstream commit ac854131d9844f79e2fdcef67a7707227538d78a ]
 
-When ENOSPC is set the idx is still valid and gets set to the global
-MLX4_SINK_COUNTER_INDEX.  However gcc's static analysis cannot tell that
-ENOSPC is impossible from mlx4_cmd_imm() and gives this warning:
+The syzbot fuzzer found a race between URB submission to endpoint 0
+and device reset.  Namely, during the reset we call usb_ep0_reinit()
+because the characteristics of ep0 may have changed (if the reset
+follows a firmware update, for example).  While usb_ep0_reinit() is
+running there is a brief period during which the pointers stored in
+udev->ep_in[0] and udev->ep_out[0] are set to NULL, and if an URB is
+submitted to ep0 during that period, usb_urb_ep_type_check() will
+report it as a driver bug.  In the absence of those pointers, the
+routine thinks that the endpoint doesn't exist.  The log message looks
+like this:
 
-drivers/net/ethernet/mellanox/mlx4/main.c:2552:28: warning: 'idx' may be
-used uninitialized in this function [-Wmaybe-uninitialized]
- 2552 |    priv->def_counter[port] = idx;
+------------[ cut here ]------------
+usb 2-1: BOGUS urb xfer, pipe 2 != type 2
+WARNING: CPU: 0 PID: 9241 at drivers/usb/core/urb.c:478
+usb_submit_urb+0x1188/0x1460 drivers/usb/core/urb.c:478
 
-Also, when ENOSPC is returned mlx4_allocate_default_counters should not
-fail.
+Now, although submitting an URB while the device is being reset is a
+questionable thing to do, it shouldn't count as a driver bug as severe
+as submitting an URB for an endpoint that doesn't exist.  Indeed,
+endpoint 0 always exists, even while the device is in its unconfigured
+state.
 
-Fixes: 6de5f7f6a1fa ("net/mlx4_core: Allocate default counter per port")
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To prevent these misleading driver bug reports, this patch updates
+usb_disable_endpoint() to avoid clearing the ep_in[] and ep_out[]
+pointers when the endpoint being disabled is ep0.  There's no danger
+of leaving a stale pointer in place, because the usb_host_endpoint
+structure being pointed to is stored permanently in udev->ep0; it
+doesn't get deallocated until the entire usb_device structure does.
+
+Reported-and-tested-by: syzbot+db339689b2101f6f6071@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2005011558590.903-100000@netrider.rowland.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/core/message.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
-index f8ac0e69d14b7..b774ba64bd4b5 100644
---- a/drivers/net/ethernet/mellanox/mlx4/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/main.c
-@@ -2295,6 +2295,7 @@ static int mlx4_allocate_default_counters(struct mlx4_dev *dev)
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index 747343c61398b..f083ecfddd1b1 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -1080,11 +1080,11 @@ void usb_disable_endpoint(struct usb_device *dev, unsigned int epaddr,
  
- 		if (!err || err == -ENOSPC) {
- 			priv->def_counter[port] = idx;
-+			err = 0;
- 		} else if (err == -ENOENT) {
- 			err = 0;
- 			continue;
-@@ -2344,7 +2345,8 @@ int mlx4_counter_alloc(struct mlx4_dev *dev, u32 *idx)
- 				   MLX4_CMD_TIME_CLASS_A, MLX4_CMD_WRAPPED);
- 		if (!err)
- 			*idx = get_param_l(&out_param);
--
-+		if (WARN_ON(err == -ENOSPC))
-+			err = -EINVAL;
- 		return err;
+ 	if (usb_endpoint_out(epaddr)) {
+ 		ep = dev->ep_out[epnum];
+-		if (reset_hardware)
++		if (reset_hardware && epnum != 0)
+ 			dev->ep_out[epnum] = NULL;
+ 	} else {
+ 		ep = dev->ep_in[epnum];
+-		if (reset_hardware)
++		if (reset_hardware && epnum != 0)
+ 			dev->ep_in[epnum] = NULL;
  	}
- 	return __mlx4_counter_alloc(dev, idx);
+ 	if (ep) {
 -- 
 2.20.1
 
