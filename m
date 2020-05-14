@@ -2,84 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 795B51D4059
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 23:44:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B57EC1D406E
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 00:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727927AbgENVoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 17:44:15 -0400
-Received: from mga06.intel.com ([134.134.136.31]:8520 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726332AbgENVoP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 17:44:15 -0400
-IronPort-SDR: vMfh6WEIapnQqOP2IoGSnbp3xkcMKBM1+yGOKdxiWG1CL5SuEHV8aCHx7G955E8xkGRF3oKFxC
- huD9erCvBG8w==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 May 2020 14:44:14 -0700
-IronPort-SDR: ZOLK+g/Ubb+yKI7o/Afpf5Ce2Kn9Ye0ND9lwPTddoP2R5Fx/TNWTDcs4mOgvDNJrHxGBzwtDmq
- azpdVAtWKyXA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,392,1583222400"; 
-   d="scan'208";a="262980462"
-Received: from fmsmsx103.amr.corp.intel.com ([10.18.124.201])
-  by orsmga003.jf.intel.com with ESMTP; 14 May 2020 14:44:13 -0700
-Received: from fmsmsx116.amr.corp.intel.com ([169.254.2.85]) by
- FMSMSX103.amr.corp.intel.com ([169.254.2.250]) with mapi id 14.03.0439.000;
- Thu, 14 May 2020 14:44:12 -0700
-From:   "Souza, Jose" <jose.souza@intel.com>
-To:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "Deak, Imre" <imre.deak@intel.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915: Fix AUX power domain toggling
- across TypeC mode resets
-Thread-Topic: [Intel-gfx] [PATCH] drm/i915: Fix AUX power domain toggling
- across TypeC mode resets
-Thread-Index: AQHWKjC0SRXduwcViUmfS4hAe1Qa5qiokyuA
-Date:   Thu, 14 May 2020 21:44:11 +0000
-Message-ID: <b2fb32c25309b1f8aef9d9c7beacf01d3fb5e9e7.camel@intel.com>
-References: <20200514204553.27193-1-imre.deak@intel.com>
-In-Reply-To: <20200514204553.27193-1-imre.deak@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.24.15.8]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <EAEA0FF90348CC4FBDAC8F0AC56F58CF@intel.com>
-Content-Transfer-Encoding: base64
+        id S1727832AbgENWD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 18:03:28 -0400
+Received: from smtp1.de.adit-jv.com ([93.241.18.167]:50491 "EHLO
+        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726126AbgENWD2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 18:03:28 -0400
+Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
+        by smtp1.de.adit-jv.com (Postfix) with ESMTP id F3A423C04C1;
+        Fri, 15 May 2020 00:03:24 +0200 (CEST)
+Received: from smtp1.de.adit-jv.com ([127.0.0.1])
+        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id o1TOWhpVUiKY; Fri, 15 May 2020 00:03:16 +0200 (CEST)
+Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 9B5E93C04C0;
+        Fri, 15 May 2020 00:03:16 +0200 (CEST)
+Received: from lxhi-065.adit-jv.com (10.72.94.5) by HI2EXCH01.adit-jv.com
+ (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.487.0; Fri, 15 May
+ 2020 00:03:16 +0200
+From:   Eugeniu Rosca <erosca@de.adit-jv.com>
+To:     Alan Stern <stern@rowland.harvard.edu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        <stable@vger.kernel.org>, Hardik Gajjar <hgajjar@de.adit-jv.com>,
+        <linux-renesas-soc@vger.kernel.org>, <linux-usb@vger.kernel.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH] usb: core: hub: limit HUB_QUIRK_DISABLE_AUTOSUSPEND to USB5534B
+Date:   Fri, 15 May 2020 00:02:46 +0200
+Message-ID: <20200514220246.13290-1-erosca@de.adit-jv.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.72.94.5]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVGh1LCAyMDIwLTA1LTE0IGF0IDIzOjQ1ICswMzAwLCBJbXJlIERlYWsgd3JvdGU6DQo+IE1h
-a2Ugc3VyZSB0byBzZWxlY3QgdGhlIHBvcnQncyBBVVggcG93ZXIgZG9tYWluIHdoaWxlIGhvbGRp
-bmcgdGhlIFRDDQo+IHBvcnQgbG9jay4gVGhlIGRvbWFpbiBkZXBlbmRzIG9uIHRoZSBwb3J0J3Mg
-Y3VycmVudCBUQyBtb2RlLCB3aGljaCBtYXkNCj4gZ2V0IGNoYW5nZWQgdW5kZXIgdXMgaWYgd2Un
-cmUgbm90IGhvbGRpbmcgdGhlIGxvY2suDQo+IA0KPiBUaGlzIHdhcyBsZWZ0IG91dCBmcm9tDQo+
-IGNvbW1pdCA4YzEwZTIyNjI2NjMgKCJkcm0vaTkxNTogS2VlcCB0aGUgVHlwZUMgcG9ydCBtb2Rl
-IGZpeGVkIGZvciBkZXRlY3QvQVVYIHRyYW5zZmVycyIpDQo+IA0KDQpSZXZpZXdlZC1ieTogSm9z
-w6kgUm9iZXJ0byBkZSBTb3V6YSA8am9zZS5zb3V6YUBpbnRlbC5jb20+DQoNCj4gQ2M6IDxzdGFi
-bGVAdmdlci5rZXJuZWwub3JnPiAjIHY1LjQrDQo+IFNpZ25lZC1vZmYtYnk6IEltcmUgRGVhayA8
-aW1yZS5kZWFrQGludGVsLmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNw
-bGF5L2ludGVsX2RwLmMgfCA1ICsrKy0tDQo+ICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25z
-KCspLCAyIGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9p
-OTE1L2Rpc3BsYXkvaW50ZWxfZHAuYyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50
-ZWxfZHAuYw0KPiBpbmRleCA0MDhjM2MxYzVlODEuLjQwZDQyZGNmZjBiNyAxMDA2NDQNCj4gLS0t
-IGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kcC5jDQo+ICsrKyBiL2RyaXZl
-cnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZHAuYw0KPiBAQCAtMTM1OSw4ICsxMzU5LDcg
-QEAgaW50ZWxfZHBfYXV4X3hmZXIoc3RydWN0IGludGVsX2RwICppbnRlbF9kcCwNCj4gIAlib29s
-IGlzX3RjX3BvcnQgPSBpbnRlbF9waHlfaXNfdGMoaTkxNSwgcGh5KTsNCj4gIAlpOTE1X3JlZ190
-IGNoX2N0bCwgY2hfZGF0YVs1XTsNCj4gIAl1MzIgYXV4X2Nsb2NrX2RpdmlkZXI7DQo+IC0JZW51
-bSBpbnRlbF9kaXNwbGF5X3Bvd2VyX2RvbWFpbiBhdXhfZG9tYWluID0NCj4gLQkJaW50ZWxfYXV4
-X3Bvd2VyX2RvbWFpbihpbnRlbF9kaWdfcG9ydCk7DQo+ICsJZW51bSBpbnRlbF9kaXNwbGF5X3Bv
-d2VyX2RvbWFpbiBhdXhfZG9tYWluOw0KPiAgCWludGVsX3dha2VyZWZfdCBhdXhfd2FrZXJlZjsN
-Cj4gIAlpbnRlbF93YWtlcmVmX3QgcHBzX3dha2VyZWY7DQo+ICAJaW50IGksIHJldCwgcmVjdl9i
-eXRlczsNCj4gQEAgLTEzNzUsNiArMTM3NCw4IEBAIGludGVsX2RwX2F1eF94ZmVyKHN0cnVjdCBp
-bnRlbF9kcCAqaW50ZWxfZHAsDQo+ICAJaWYgKGlzX3RjX3BvcnQpDQo+ICAJCWludGVsX3RjX3Bv
-cnRfbG9jayhpbnRlbF9kaWdfcG9ydCk7DQo+ICANCj4gKwlhdXhfZG9tYWluID0gaW50ZWxfYXV4
-X3Bvd2VyX2RvbWFpbihpbnRlbF9kaWdfcG9ydCk7DQo+ICsNCj4gIAlhdXhfd2FrZXJlZiA9IGlu
-dGVsX2Rpc3BsYXlfcG93ZXJfZ2V0KGk5MTUsIGF1eF9kb21haW4pOw0KPiAgCXBwc193YWtlcmVm
-ID0gcHBzX2xvY2soaW50ZWxfZHApOw0KPiAgDQo=
+On Tue, May 12, 2020 at 09:36:07PM +0800, Kai-Heng Feng wrote [1]:
+> This patch prevents my Raven Ridge xHCI from getting runtime suspend.
+
+The problem described in v5.6 commit 1208f9e1d758c9 ("USB: hub: Fix the
+broken detection of USB3 device in SMSC hub") applies solely to the
+USB5534B hub [2] present on the Kingfisher Infotainment Carrier Board,
+manufactured by Shimafuji Electric Inc [3].
+
+Despite that, the aforementioned commit applied the quirk to _all_ hubs
+carrying vendor ID 0x424 (i.e. SMSC), of which there are more [4] than
+initially expected. Consequently, the quirk is now enabled on platforms
+carrying SMSC/Microchip hub models which potentially don't exhibit the
+original issue.
+
+To avoid reports like [1], further limit the quirk's scope to
+USB5534B [2], by employing both Vendor and Product ID checks.
+
+Tested on H3ULCB + Kingfisher rev. M05.
+
+[1] https://lore.kernel.org/linux-renesas-soc/73933975-6F0E-40F5-9584-D2B8F615C0F3@canonical.com/
+[2] https://www.microchip.com/wwwproducts/en/USB5534B
+[3] http://www.shimafuji.co.jp/wp/wp-content/uploads/2018/08/SBEV-RCAR-KF-M06Board_HWSpecificationEN_Rev130.pdf
+[4] https://devicehunt.com/search/type/usb/vendor/0424/device/any
+
+Fixes: 1208f9e1d758c9 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
+Cc: stable@vger.kernel.org # v4.14+
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Hardik Gajjar <hgajjar@de.adit-jv.com>
+Cc: linux-renesas-soc@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+---
+ drivers/usb/core/hub.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 2b6565c06c23..fc748c731832 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -39,6 +39,7 @@
+ 
+ #define USB_VENDOR_GENESYS_LOGIC		0x05e3
+ #define USB_VENDOR_SMSC				0x0424
++#define USB_PRODUCT_USB5534B			0x5534
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
+ #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
+ 
+@@ -5621,8 +5622,11 @@ static void hub_event(struct work_struct *work)
+ }
+ 
+ static const struct usb_device_id hub_id_table[] = {
+-    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_CLASS,
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++                   | USB_DEVICE_ID_MATCH_PRODUCT
++                   | USB_DEVICE_ID_MATCH_INT_CLASS,
+       .idVendor = USB_VENDOR_SMSC,
++      .idProduct = USB_PRODUCT_USB5534B,
+       .bInterfaceClass = USB_CLASS_HUB,
+       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
+-- 
+2.26.2
+
