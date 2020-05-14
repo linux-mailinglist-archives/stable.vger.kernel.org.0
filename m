@@ -2,142 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8BC1D27F8
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 08:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8451D2812
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 08:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725838AbgENGko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 02:40:44 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:36334 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725818AbgENGkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 02:40:43 -0400
-Received: by mail-wm1-f66.google.com with SMTP id w19so16332417wmc.1;
-        Wed, 13 May 2020 23:40:42 -0700 (PDT)
+        id S1726090AbgENGm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 02:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47104 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726088AbgENGm0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 02:42:26 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22AA3C061A0C
+        for <stable@vger.kernel.org>; Wed, 13 May 2020 23:42:26 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id z72so21480562wmc.2
+        for <stable@vger.kernel.org>; Wed, 13 May 2020 23:42:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fooishbar-org.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Jx7qglq93rWDanidzQRtYPLYgQThofsEoYOfwLqQhc0=;
+        b=vJsbUxRyyUlKCO7bodkCSLhazXXcrW2rlT5uXYdav7sHNPuukNCjoJCjKYeLd4pwiN
+         RTDxD+R035RfhEmet5tCdwUlSGIoDOwduimQl3Yo7W5BWTOWWEoKrAq66TB6kpAkvMMF
+         V1ot/YnQjf6tcXeZZs2OlGDvcAHRdlZQIs3J2/rLuUO4Pr8AlUfB5HA8jlTPItg32H7J
+         Nd/TbIbnjVt6Fli8avZGrxwopAjLJobBOwhovnZ1gLgfUU8SzG1MEujiO2cOKDcS0Fwi
+         wMEr5jmrHVK1GoT0hEZ2dtyL+9AK12VyyQqUIgiqDarMc+MoEhEg+PsEgQSO+OfrDmNa
+         LgkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=LakL8r2zLTcB3K02mFhWm6Jrh+IpU4qwGN3UNJ1Qag8=;
-        b=XISAqZw4Q1JL7fVNlOChtsG+NC4YDeThft8DsFc7Y+JzdHDH17n4MM/oUM53SqsaF0
-         xzRH3u2oAcsq3Gh+LBJOQWg8us7vyDeQtWxwhPW+OZKCz0sGOWUKjShHaEo+kVq8y31D
-         jntIVKOvNFIpi1g2NgZUTVty+En/XL33+gVHZIVK2CGPywLmMmCrNE69Gc7EPeCXkIMk
-         d/Q2TvW4TrFfInPHD+zIApmYbS6CA3kZCU3XMJeNJ4xES2KqHZVhkgPYZf1eXFt9Ba7T
-         dRRrRCkOYCZMDt66qfgL8V8k17jGesT5VUNoEQtptNziSgLyipSAk45FY651qQclJkgG
-         3Fiw==
-X-Gm-Message-State: AGi0Pualil/BhWg8CTt1HxLvs7GhrWzGB94UW3U9MjFnE/F+1z9R2SA6
-        cloCd628OEqoDwb7jsS55YY=
-X-Google-Smtp-Source: APiQypLnRy9NL6J37yZyCR51Mt9JO5Mhk9186M9YmoEjdBcIKM0vK1HsL2Q4ThrUUwgpGjOqCTc8sw==
-X-Received: by 2002:a1c:f20f:: with SMTP id s15mr44463293wmc.114.1589438441521;
-        Wed, 13 May 2020 23:40:41 -0700 (PDT)
-Received: from localhost (ip-37-188-249-36.eurotel.cz. [37.188.249.36])
-        by smtp.gmail.com with ESMTPSA id j1sm2423429wrm.40.2020.05.13.23.40.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2020 23:40:40 -0700 (PDT)
-Date:   Thu, 14 May 2020 08:40:39 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>, Hugh Dickins <hughd@google.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Prakash Sangappa <prakash.sangappa@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        lkft-triage@lists.linaro.org, Arnd Bergmann <arnd@arndb.de>,
-        John Stultz <john.stultz@linaro.org>
-Subject: Re: stable-rc 5.4: libhugetlbfs fallocate_stress.sh: Unable to
- handle kernel paging request at virtual address ffff00006772f000
-Message-ID: <20200514064039.GY29153@dhcp22.suse.cz>
-References: <CA+G9fYvvDjA5t+zi0Zyn2F6D=7aE-Gu-m13o47LXYYfCD3SvrA@mail.gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Jx7qglq93rWDanidzQRtYPLYgQThofsEoYOfwLqQhc0=;
+        b=Gq1JfKw1vWZlZ56ETjqpwCCAxXYBf9qrbuQI/z8Rw6Taq4hLIqFZIzZDfCydduaIT4
+         0JeWVB4eaER16Mvjk75FILOKs/0Zjv60P6aTfkkoKKK71geuXY6Ev+hEvg764meLYvui
+         /i/xtCXC5ka79uBH1sBIGR8L/Gh6zZ+aDfl94VSw2T4xzJ+0pzLQV1CucJgQNBrGF3EA
+         QtcQbevTWTlifQtoNSTiHdJYC07Sfoo8OHco1MVkSeVp6QvGDKkSmBAZgCbO7WofkY4V
+         NgI8qRrFz0eEE5+PExZ+Y/bPr2HMvHombqz6P6OZAhkgOgXVo0c0ToCj6iARmsF1cvfq
+         BSSg==
+X-Gm-Message-State: AGi0PuZYst/TOV88IL9jRbYNK9B2pzWMCQf0RYEp0m7IE4VMkUpASsiS
+        QLtM25HPVeD8OzsUV20++cG620XXoPBuoRL3vzlNCA==
+X-Google-Smtp-Source: APiQypLH364lYxNqugtZIJWLLbIKFfVxH1Let0bIRxUi5KBU+tIytLWGafmeWA+xyDd9uh1HVWhThY+2FWEvWMxEX3Q=
+X-Received: by 2002:a1c:2d02:: with SMTP id t2mr46616464wmt.98.1589438544740;
+ Wed, 13 May 2020 23:42:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYvvDjA5t+zi0Zyn2F6D=7aE-Gu-m13o47LXYYfCD3SvrA@mail.gmail.com>
+References: <20200408162403.3616785-1-daniel.vetter@ffwll.ch>
+In-Reply-To: <20200408162403.3616785-1-daniel.vetter@ffwll.ch>
+From:   Daniel Stone <daniel@fooishbar.org>
+Date:   Thu, 14 May 2020 07:40:47 +0100
+Message-ID: <CAPj87rMJNwp0t4B0KxH7J_2__4eT7+ZJeG-=_juLSDhPc2hLHQ@mail.gmail.com>
+Subject: Re: [PATCH] drm: avoid spurious EBUSY due to nonblocking atomic modesets
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
+        stable@vger.kernel.org, Daniel Stone <daniels@collabora.com>,
+        =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 13-05-20 23:11:40, Naresh Kamboju wrote:
-> While running libhugetlbfs fallocate_stress.sh on stable-rc 5.4 branch kernel
-> on arm64 hikey device. The following kernel Internal error: Oops:
-> crash dump noticed.
+On Wed, 8 Apr 2020 at 17:24, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+> Resending because last attempt failed CI and meanwhile the results are
+> lost :-/
 
-Is the same problem reproducible on vanilla 5.4 without any stable
-patches?
+Did anything happen with this?
 
-> 
-> fallocate_stress.sh (2M: 64):
-> [  129.706506] Unable to handle kernel paging request at virtual
-> address ffff00006772f000
-> [  129.714638] Mem abort info:
-> [  129.717553]   ESR = 0x96000047
-> [  129.720726]   EC = 0x25: DABT (current EL), IL = 32 bits
-> [  129.726188]   SET = 0, FnV = 0
-> [  129.729338]   EA = 0, S1PTW = 0
-> [  129.732573] Data abort info:
-> [  129.735546]   ISV = 0, ISS = 0x00000047
-> [  129.739493]   CM = 0, WnR = 1
-> [  129.742534] swapper pgtable: 4k pages, 48-bit VAs, pgdp=00000000013ad000
-> [  129.749409] [ffff00006772f000] pgd=0000000077ff7003,
-> pud=0000000077e0d003, pmd=0000000077cd1003, pte=006800006772f713
-> [  129.760294] Internal error: Oops: 96000047 [#1] PREEMPT SMP
-> [  129.765988] Modules linked in: wl18xx wlcore mac80211 cfg80211
-> hci_uart snd_soc_audio_graph_card adv7511 crct10dif_ce wlcore_sdio
-> btbcm snd_soc_simple_card_utils cec kirin_drm bluetooth drm_kms_helper
-> dw_drm_dsi rfkill drm fuse
-> [  129.786626] CPU: 1 PID: 1263 Comm: fallocate_stres Not tainted
-> 5.4.41-rc1-00091-g132220af41e6 #1
-> [  129.795601] Hardware name: HiKey Development Board (DT)
-> [  129.800940] pstate: 80000005 (Nzcv daif -PAN -UAO)
-> [  129.805847] pc : clear_page+0x10/0x24
-> [  129.809594] lr : __cpu_clear_user_page+0xc/0x18
-> [  129.814225] sp : ffff800012a1bbe0
-> [  129.817609] x29: ffff800012a1bbe0 x28: fffffe00017d8000
-> [  129.823039] x27: ffff000073070268 x26: ffff800011adf000
-> [  129.828466] x25: ffff800011ae06c8 x24: 0000000000001000
-> [  129.833893] x23: 0000000000000000 x22: fffffe00017d8000
-> [  129.839320] x21: 0000000000000000 x20: 0000000006a00000
-> [  129.844747] x19: ffff000037945400 x18: 0000000000000000
-> [  129.850174] x17: 0000000000000000 x16: 0000000000000000
-> [  129.855602] x15: 0000000000000000 x14: 0000000000000000
-> [  129.861031] x13: 0000000000000000 x12: 0000000000000000
-> [  129.866458] x11: 0000000000000000 x10: ffff800012a1bbd0
-> [  129.871886] x9 : 0000000000000200 x8 : 0ffff00000010000
-> [  129.877314] x7 : 0000000000000000 x6 : 0000000000000080
-> [  129.882741] x5 : 0000000000000036 x4 : 0000020000200000
-> [  129.888170] x3 : 0000000000004bc0 x2 : 0000000000000004
-> [  129.893597] x1 : 0000000000000040 x0 : ffff00006772f000
-> [  129.899025] Call trace:
-> [  129.901530]  clear_page+0x10/0x24
-> [  129.904926]  clear_subpage+0x54/0x90
-> [  129.908580]  clear_huge_page+0x6c/0x208
-> [  129.912503]  hugetlbfs_fallocate+0x2e0/0x4a0
-> [  129.916869]  vfs_fallocate+0x1b8/0x2e0
-> [  129.920699]  ksys_fallocate+0x44/0x90
-> [  129.924446]  __arm64_sys_fallocate+0x1c/0x28
-> [  129.928811]  el0_svc_common.constprop.0+0x68/0x160
-> [  129.933708]  el0_svc_handler+0x20/0x80
-> [  129.937539]  el0_svc+0x8/0xc
-> [  129.940488] Code: d53b00e1 12000c21 d2800082 9ac12041 (d50b7420)
-> [  129.946719] ---[ end trace df98e92a449be749 ]---
-> [  129.959274] note: fallocate_stres[1263] exited with preempt_count 1
-> 
-> ref:
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/build/v5.4.40-91-g132220af41e6/testrun/1428986/log
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/build/v5.4.40-91-g132220af41e6/testrun/1428986/
-> 
-> kernel config:
-> https://builds.tuxbuild.com/SqvcoklXmvQsC70j6rfcgA/kernel.config
-> 
-> -- 
-> Linaro LKFT
-> https://lkft.linaro.org
-
--- 
-Michal Hocko
-SUSE Labs
+Cheers,
+Daniel
