@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCEE41D3C70
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:16:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0401D3C7B
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728748AbgENSxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:53:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52882 "EHLO mail.kernel.org"
+        id S1727890AbgENTH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 15:07:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728736AbgENSxd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:53:33 -0400
+        id S1728741AbgENSxe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:53:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8BF42078C;
-        Thu, 14 May 2020 18:53:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFBF2207DA;
+        Thu, 14 May 2020 18:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482412;
-        bh=gmJHuoKP4vuZXIRcNdIkm9jGlWqb1LToHSB1kWzEJSk=;
+        s=default; t=1589482413;
+        bh=zIZJBvqQV5EzAwQlt823kY5ulNaTAeV6ljSNeDxKaQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pG2Dp1DYlDFTGW+3TyFYytkgfY0UA4Jr19c5t4LguOvcLY31igehy8afPuLZ+YVTZ
-         1akwvmoktYn3RT/u/2CPMLrXLwoZ6PnUPqxrRfLv19KURCldXbDYOP9oOEzPX5KNvt
-         gbgv+ViFpFn5uODSGa+14JZSO3229OIWSrzqGrnI=
+        b=ZdYcPYV+LyXm5STljRZr/hjgDEqX2t/TthLzPANR4ZL4Nf01pn17osNJfpYM7CkA7
+         DiwHFz/6i8N7/BYsEDRVv8oKkS2I6GzYXy5vsa/fZgAqTJhFkawjulCprbaDtdvC4I
+         pDgCpIMPMpSX1lz9LvBxjOSDdTdZXQ3U9ldS7AAQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gavin Shan <gshan@redhat.com>, Shay Agroskin <shayagr@amazon.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 17/49] net/ena: Fix build warning in ena_xdp_set()
-Date:   Thu, 14 May 2020 14:52:38 -0400
-Message-Id: <20200514185311.20294-17-sashal@kernel.org>
+Cc:     Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 18/49] scsi: ibmvscsi: Fix WARN_ON during event pool release
+Date:   Thu, 14 May 2020 14:52:39 -0400
+Message-Id: <20200514185311.20294-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185311.20294-1-sashal@kernel.org>
 References: <20200514185311.20294-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,46 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Shan <gshan@redhat.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit caec66198d137c26f0d234abc498866a58c64150 ]
+[ Upstream commit b36522150e5b85045f868768d46fbaaa034174b2 ]
 
-This fixes the following build warning in ena_xdp_set(), which is
-observed on aarch64 with 64KB page size.
+While removing an ibmvscsi client adapter a WARN_ON like the following is
+seen in the kernel log:
 
-   In file included from ./include/net/inet_sock.h:19,
-      from ./include/net/ip.h:27,
-      from drivers/net/ethernet/amazon/ena/ena_netdev.c:46:
-   drivers/net/ethernet/amazon/ena/ena_netdev.c: In function         \
-   ‘ena_xdp_set’:                                                    \
-   drivers/net/ethernet/amazon/ena/ena_netdev.c:557:6: warning:      \
-   format ‘%lu’                                                      \
-   expects argument of type ‘long unsigned int’, but argument 4      \
-   has type ‘int’                                                    \
-   [-Wformat=] "Failed to set xdp program, the current MTU (%d) is   \
-   larger than the maximum allowed MTU (%lu) while xdp is on",
+drmgr: drmgr: -r -c slot -s U9080.M9S.783AEC8-V11-C11 -w 5 -d 1
+WARNING: CPU: 9 PID: 24062 at ../kernel/dma/mapping.c:311 dma_free_attrs+0x78/0x110
+Supported: No, Unreleased kernel
+CPU: 9 PID: 24062 Comm: drmgr Kdump: loaded Tainted: G               X 5.3.18-12-default
+NIP:  c0000000001fa758 LR: c0000000001fa744 CTR: c0000000001fa6e0
+REGS: c0000002173375d0 TRAP: 0700   Tainted: G               X (5.3.18-12-default)
+MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28088282  XER: 20000000
+CFAR: c0000000001fbf0c IRQMASK: 1
+GPR00: c0000000001fa744 c000000217337860 c00000000161ab00 0000000000000000
+GPR04: 0000000000000000 c000011e12250000 0000000018010000 0000000000000000
+GPR08: 0000000000000000 0000000000000001 0000000000000001 c0080000190f4fa8
+GPR12: c0000000001fa6e0 c000000007fc2a00 0000000000000000 0000000000000000
+GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR24: 000000011420e310 0000000000000000 0000000000000000 0000000018010000
+GPR28: c00000000159de50 c000011e12250000 0000000000006600 c000011e5c994848
+NIP [c0000000001fa758] dma_free_attrs+0x78/0x110
+LR [c0000000001fa744] dma_free_attrs+0x64/0x110
+Call Trace:
+[c000000217337860] [000000011420e310] 0x11420e310 (unreliable)
+[c0000002173378b0] [c0080000190f0280] release_event_pool+0xd8/0x120 [ibmvscsi]
+[c000000217337930] [c0080000190f3f74] ibmvscsi_remove+0x6c/0x160 [ibmvscsi]
+[c000000217337960] [c0000000000f3cac] vio_bus_remove+0x5c/0x100
+[c0000002173379a0] [c00000000087a0a4] device_release_driver_internal+0x154/0x280
+[c0000002173379e0] [c0000000008777cc] bus_remove_device+0x11c/0x220
+[c000000217337a60] [c000000000870fc4] device_del+0x1c4/0x470
+[c000000217337b10] [c0000000008712a0] device_unregister+0x30/0xa0
+[c000000217337b80] [c0000000000f39ec] vio_unregister_device+0x2c/0x60
+[c000000217337bb0] [c00800001a1d0964] dlpar_remove_slot+0x14c/0x250 [rpadlpar_io]
+[c000000217337c50] [c00800001a1d0bcc] remove_slot_store+0xa4/0x110 [rpadlpar_io]
+[c000000217337cd0] [c000000000c091a0] kobj_attr_store+0x30/0x50
+[c000000217337cf0] [c00000000057c934] sysfs_kf_write+0x64/0x90
+[c000000217337d10] [c00000000057be10] kernfs_fop_write+0x1b0/0x290
+[c000000217337d60] [c000000000488c4c] __vfs_write+0x3c/0x70
+[c000000217337d80] [c00000000048c648] vfs_write+0xd8/0x260
+[c000000217337dd0] [c00000000048ca8c] ksys_write+0xdc/0x130
+[c000000217337e20] [c00000000000b488] system_call+0x5c/0x70
+Instruction dump:
+7c840074 f8010010 f821ffb1 20840040 eb830218 7c8407b4 48002019 60000000
+2fa30000 409e003c 892d0988 792907e0 <0b090000> 2fbd0000 419e0028 2fbc0000
+---[ end trace 5955b3c0cc079942 ]---
+rpadlpar_io: slot U9080.M9S.783AEC8-V11-C11 removed
 
-Signed-off-by: Gavin Shan <gshan@redhat.com>
-Acked-by: Shay Agroskin <shayagr@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is tripped as a result of irqs being disabled during the call to
+dma_free_coherent() by release_event_pool(). At this point in the code path
+we have quiesced the adapter and it is overly paranoid to be holding the
+host lock.
+
+[mkp: fixed build warning reported by sfr]
+
+Link: https://lore.kernel.org/r/1588027793-17952-1-git-send-email-tyreld@linux.ibm.com
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ibmvscsi/ibmvscsi.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.h b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-index dc02950a96b8d..28412f11a9ca0 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.h
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-@@ -68,7 +68,7 @@
-  * 16kB.
-  */
- #if PAGE_SIZE > SZ_16K
--#define ENA_PAGE_SIZE SZ_16K
-+#define ENA_PAGE_SIZE (_AC(SZ_16K, UL))
- #else
- #define ENA_PAGE_SIZE PAGE_SIZE
- #endif
+diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
+index 7f66a77832099..59f0f1030c54a 100644
+--- a/drivers/scsi/ibmvscsi/ibmvscsi.c
++++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
+@@ -2320,16 +2320,12 @@ static int ibmvscsi_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ static int ibmvscsi_remove(struct vio_dev *vdev)
+ {
+ 	struct ibmvscsi_host_data *hostdata = dev_get_drvdata(&vdev->dev);
+-	unsigned long flags;
+ 
+ 	srp_remove_host(hostdata->host);
+ 	scsi_remove_host(hostdata->host);
+ 
+ 	purge_requests(hostdata, DID_ERROR);
+-
+-	spin_lock_irqsave(hostdata->host->host_lock, flags);
+ 	release_event_pool(&hostdata->pool, hostdata);
+-	spin_unlock_irqrestore(hostdata->host->host_lock, flags);
+ 
+ 	ibmvscsi_release_crq_queue(&hostdata->queue, hostdata,
+ 					max_events);
 -- 
 2.20.1
 
