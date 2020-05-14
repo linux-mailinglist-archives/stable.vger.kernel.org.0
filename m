@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E94C11D3A5F
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABFF51D3AD7
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729578AbgENS4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:56:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56942 "EHLO mail.kernel.org"
+        id S1729583AbgENS4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:56:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729573AbgENS4G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:56:06 -0400
+        id S1729577AbgENS4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:56:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7609207D0;
-        Thu, 14 May 2020 18:56:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D40E62074A;
+        Thu, 14 May 2020 18:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482565;
-        bh=dMS1BI4dhRHxWZzRrBMqPXB+b0yJ1yoqLZ7lWTjrRu8=;
+        s=default; t=1589482566;
+        bh=oRzOtKeM3gwOwne4JOUunDae+meR9aQTN2zQLyJ8T2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LP9LigL+j7mIrqAh6TW+6sQYT3glqHSfsJ8SQYm8FSa5vB881HQW1Q3XSsBe4ZGe4
-         TTJxul3ueLXsR+oXpKPhDN80dHY9Wu8PUJX04e4TT4+GQwEUgYMGPQoxhY3J3ktiyt
-         nqR83uIP2qLnrSr1ZIUx2R2s/35zciqmVigHu61k=
+        b=akBCseKZ5JJRMqZth2dIyPwO0shqQ474wKco4FDcNAIua8+TOfn6yWC63LYFIbq/k
+         z3pDpR4xC+8VZw6DCfQ97Y63H8GY/3+IruBQSnunNKRfcrzbrFOHMpy0R3Q7QexF0Q
+         7tdVf9Feai21NGmccxtJmj+kXH2rj0QLeD+CItCg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Hilliard <james.hilliard1@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 12/27] component: Silence bind error on -EPROBE_DEFER
-Date:   Thu, 14 May 2020 14:55:35 -0400
-Message-Id: <20200514185550.21462-12-sashal@kernel.org>
+Cc:     Moshe Shemesh <moshe@mellanox.com>,
+        Eran Ben Elisha <eranbe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 13/27] net/mlx5: Fix forced completion access non initialized command entry
+Date:   Thu, 14 May 2020 14:55:36 -0400
+Message-Id: <20200514185550.21462-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185550.21462-1-sashal@kernel.org>
 References: <20200514185550.21462-1-sashal@kernel.org>
@@ -43,51 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit 7706b0a76a9697021e2bf395f3f065c18f51043d ]
+[ Upstream commit f3cb3cebe26ed4c8036adbd9448b372129d3c371 ]
 
-If a component fails to bind due to -EPROBE_DEFER we should not log an
-error as this is not a real failure.
+mlx5_cmd_flush() will trigger forced completions to all valid command
+entries. Triggered by an asynch event such as fast teardown it can
+happen at any stage of the command, including command initialization.
+It will trigger forced completion and that can lead to completion on an
+uninitialized command entry.
 
-Fixes messages like:
-vc4-drm soc:gpu: failed to bind 3f902000.hdmi (ops vc4_hdmi_ops): -517
-vc4-drm soc:gpu: master bind failed: -517
+Setting MLX5_CMD_ENT_STATE_PENDING_COMP only after command entry is
+initialized will ensure force completion is treated only if command
+entry is initialized.
 
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200411190241.89404-1-james.hilliard1@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 73dd3a4839c1 ("net/mlx5: Avoid using pending command interface slots")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/component.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/component.c b/drivers/base/component.c
-index 08da6160e94dd..55f0856bd9b5e 100644
---- a/drivers/base/component.c
-+++ b/drivers/base/component.c
-@@ -162,7 +162,8 @@ static int try_to_bring_up_master(struct master *master,
- 	ret = master->ops->bind(master->dev);
- 	if (ret < 0) {
- 		devres_release_group(master->dev, NULL);
--		dev_info(master->dev, "master bind failed: %d\n", ret);
-+		if (ret != -EPROBE_DEFER)
-+			dev_info(master->dev, "master bind failed: %d\n", ret);
- 		return ret;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index 1d5263c46eee0..a1057efa2294e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -813,7 +813,6 @@ static void cmd_work_handler(struct work_struct *work)
  	}
  
-@@ -431,8 +432,9 @@ static int component_bind(struct component *component, struct master *master,
- 		devres_release_group(component->dev, NULL);
- 		devres_release_group(master->dev, NULL);
+ 	cmd->ent_arr[ent->idx] = ent;
+-	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
+ 	lay = get_inst(cmd, ent->idx);
+ 	ent->lay = lay;
+ 	memset(lay, 0, sizeof(*lay));
+@@ -835,6 +834,7 @@ static void cmd_work_handler(struct work_struct *work)
  
--		dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
--			dev_name(component->dev), component->ops, ret);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
-+				dev_name(component->dev), component->ops, ret);
- 	}
+ 	if (ent->callback)
+ 		schedule_delayed_work(&ent->cb_timeout_work, cb_timeout);
++	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
  
- 	return ret;
+ 	/* Skip sending command to fw if internal error */
+ 	if (pci_channel_offline(dev->pdev) ||
 -- 
 2.20.1
 
