@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57D791D3AB8
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:59:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 401281D3A67
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:58:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728230AbgENS6g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:58:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
+        id S1729701AbgENS4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:56:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729692AbgENS4X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:56:23 -0400
+        id S1729696AbgENS4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:56:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42783207ED;
-        Thu, 14 May 2020 18:56:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B59B207DA;
+        Thu, 14 May 2020 18:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482582;
-        bh=AaG/Kbi5od21eNCWlwJuZhmK5c2eLLCkNMUr9nuuBg8=;
+        s=default; t=1589482584;
+        bh=+yB8NAXvhlYkOZe9oqnQrrDCnWaEgp9K7qrE3bWQmbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9nq2Uj6c93StkCFCaa6D7R1Hlf1J28o2Qwuu+WVs70O+G3dedyB26FuOeA+nTWlk
-         tr1aPBj54THVAHYudhz4b+ZLGCInTESceDBUAlVEUOFbpih4YLamjhAFdmM0gPlNYp
-         YTIqqR+bai9lQESaKOaMgASmV7v97ZsMtQYP+aec=
+        b=kNgxYd1RyTGXbxAybQaKCefuacm6bW9fyIznt95F/FcyYtlkJX5mOMfqgH/yCHzm2
+         bO/SlpjPuYp3asAUSK8O2pxQZ21kqjVsPAZX7my1vpsAlNMDDIfKiufmfnQbfYab2y
+         BZnci5YMOhNhJDaa050zRIdXV0RUXh+xWL1z1h3A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 26/27] ARM: futex: Address build warning
-Date:   Thu, 14 May 2020 14:55:49 -0400
-Message-Id: <20200514185550.21462-26-sashal@kernel.org>
+Cc:     Ivan Delalande <colona@arista.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 27/27] scripts/decodecode: fix trapping instruction formatting
+Date:   Thu, 14 May 2020 14:55:50 -0400
+Message-Id: <20200514185550.21462-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185550.21462-1-sashal@kernel.org>
 References: <20200514185550.21462-1-sashal@kernel.org>
@@ -44,68 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Ivan Delalande <colona@arista.com>
 
-[ Upstream commit 8101b5a1531f3390b3a69fa7934c70a8fd6566ad ]
+[ Upstream commit e08df079b23e2e982df15aa340bfbaf50f297504 ]
 
-Stephen reported the following build warning on a ARM multi_v7_defconfig
-build with GCC 9.2.1:
+If the trapping instruction contains a ':', for a memory access through
+segment registers for example, the sed substitution will insert the '*'
+marker in the middle of the instruction instead of the line address:
 
-kernel/futex.c: In function 'do_futex':
-kernel/futex.c:1676:17: warning: 'oldval' may be used uninitialized in this function [-Wmaybe-uninitialized]
- 1676 |   return oldval == cmparg;
-      |          ~~~~~~~^~~~~~~~~
-kernel/futex.c:1652:6: note: 'oldval' was declared here
- 1652 |  int oldval, ret;
-      |      ^~~~~~
+	2b:   65 48 0f c7 0f          cmpxchg16b %gs:*(%rdi)          <-- trapping instruction
 
-introduced by commit a08971e9488d ("futex: arch_futex_atomic_op_inuser()
-calling conventions change").
+I started to think I had forgotten some quirk of the assembly syntax
+before noticing that it was actually coming from the script.  Fix it to
+add the address marker at the right place for these instructions:
 
-While that change should not make any difference it confuses GCC which
-fails to work out that oldval is not referenced when the return value is
-not zero.
+	28:   49 8b 06                mov    (%r14),%rax
+	2b:*  65 48 0f c7 0f          cmpxchg16b %gs:(%rdi)           <-- trapping instruction
+	30:   0f 94 c0                sete   %al
 
-GCC fails to properly analyze arch_futex_atomic_op_inuser(). It's not the
-early return, the issue is with the assembly macros. GCC fails to detect
-that those either set 'ret' to 0 and set oldval or set 'ret' to -EFAULT
-which makes oldval uninteresting. The store to the callsite supplied oldval
-pointer is conditional on ret == 0.
-
-The straight forward way to solve this is to make the store unconditional.
-
-Aside of addressing the build warning this makes sense anyway because it
-removes the conditional from the fastpath. In the error case the stored
-value is uninteresting and the extra store does not matter at all.
-
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/87pncao2ph.fsf@nanos.tec.linutronix.de
+Fixes: 18ff44b189e2 ("scripts/decodecode: make faulting insn ptr more robust")
+Signed-off-by: Ivan Delalande <colona@arista.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Link: http://lkml.kernel.org/r/20200419223653.GA31248@visor
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/futex.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ scripts/decodecode | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/include/asm/futex.h b/arch/arm/include/asm/futex.h
-index cc414382dab4b..561b2ba6bc284 100644
---- a/arch/arm/include/asm/futex.h
-+++ b/arch/arm/include/asm/futex.h
-@@ -162,8 +162,13 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
- 	preempt_enable();
- #endif
+diff --git a/scripts/decodecode b/scripts/decodecode
+index d8824f37acce9..aae7a035242b2 100755
+--- a/scripts/decodecode
++++ b/scripts/decodecode
+@@ -98,7 +98,7 @@ faultlinenum=$(( $(wc -l $T.oo  | cut -d" " -f1) - \
+ faultline=`cat $T.dis | head -1 | cut -d":" -f2-`
+ faultline=`echo "$faultline" | sed -e 's/\[/\\\[/g; s/\]/\\\]/g'`
  
--	if (!ret)
--		*oval = oldval;
-+	/*
-+	 * Store unconditionally. If ret != 0 the extra store is the least
-+	 * of the worries but GCC cannot figure out that __futex_atomic_op()
-+	 * is either setting ret to -EFAULT or storing the old value in
-+	 * oldval which results in a uninitialized warning at the call site.
-+	 */
-+	*oval = oldval;
- 
- 	return ret;
- }
+-cat $T.oo | sed -e "${faultlinenum}s/^\(.*:\)\(.*\)/\1\*\2\t\t<-- trapping instruction/"
++cat $T.oo | sed -e "${faultlinenum}s/^\([^:]*:\)\(.*\)/\1\*\2\t\t<-- trapping instruction/"
+ echo
+ cat $T.aa
+ cleanup
 -- 
 2.20.1
 
