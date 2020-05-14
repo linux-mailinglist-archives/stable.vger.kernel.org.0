@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 766051D3D03
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:17:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C7B1D39DA
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730200AbgENTLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 15:11:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50456 "EHLO mail.kernel.org"
+        id S1728293AbgENSwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:52:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728277AbgENSwU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:52:20 -0400
+        id S1728271AbgENSwV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:52:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 450A820675;
-        Thu, 14 May 2020 18:52:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72D5E206A5;
+        Thu, 14 May 2020 18:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482339;
-        bh=OePKM7A1K0XYiRWplDYUiamyPrsd/Yopn1WWNiCHw9c=;
+        s=default; t=1589482341;
+        bh=e923IeQUkDFGtCFMSIPljVav9gG9Zf2cBBiEpAXaqGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSwTrSoH8xm9vqUG8zHoUosGkMrIpFzSJCegn7Q20PbRdBALuTvW5ihszcY5c4tAE
-         X64LQB9+wpp9VLg1je03SiZ46AY0C4ImCpYinuEaww904XwSH+0UCpVrf08Owzbf/O
-         yU+LX5rpUnPmhmPifCuj9rUAjXm5z8jsoCXX0s28=
+        b=oG2R26SaAJoOazKuPjlEiwZblhjEDzSX4BnYOpExYH3n+VeWsTi3lrM9moxjabCMk
+         BVHv8E6jcn1B751CUYFBtKaWiip5yzEi7yydCWt9K5TI1iQWGvklY3uQ0y/gDuYwrf
+         uyaoAxTZro3SeXGFInpD+bi+SsSBeL7dmaIcO8W8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 24/62] net: moxa: Fix a potential double 'free_irq()'
-Date:   Thu, 14 May 2020 14:51:09 -0400
-Message-Id: <20200514185147.19716-24-sashal@kernel.org>
+Cc:     Alan Maguire <alan.maguire@oracle.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 25/62] ftrace/selftests: workaround cgroup RT scheduling issues
+Date:   Thu, 14 May 2020 14:51:10 -0400
+Message-Id: <20200514185147.19716-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185147.19716-1-sashal@kernel.org>
 References: <20200514185147.19716-1-sashal@kernel.org>
@@ -43,34 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Alan Maguire <alan.maguire@oracle.com>
 
-[ Upstream commit ee8d2267f0e39a1bfd95532da3a6405004114b27 ]
+[ Upstream commit 57c4cfd4a2eef8f94052bd7c0fce0981f74fb213 ]
 
-Should an irq requested with 'devm_request_irq' be released explicitly,
-it should be done by 'devm_free_irq()', not 'free_irq()'.
+wakeup_rt.tc and wakeup.tc tests in tracers/ subdirectory
+fail due to the chrt command returning:
 
-Fixes: 6c821bd9edc9 ("net: Add MOXA ART SoCs ethernet driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ chrt: failed to set pid 0's policy: Operation not permitted.
+
+To work around this, temporarily disable grout RT scheduling
+during ftracetest execution.  Restore original value on
+test run completion.  With these changes in place, both
+tests consistently pass.
+
+Fixes: c575dea2c1a5 ("selftests/ftrace: Add wakeup_rt tracer testcase")
+Fixes: c1edd060b413 ("selftests/ftrace: Add wakeup tracer testcase")
+Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/moxa/moxart_ether.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/ftrace/ftracetest | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/net/ethernet/moxa/moxart_ether.c b/drivers/net/ethernet/moxa/moxart_ether.c
-index e1651756bf9da..f70bb81e1ed65 100644
---- a/drivers/net/ethernet/moxa/moxart_ether.c
-+++ b/drivers/net/ethernet/moxa/moxart_ether.c
-@@ -564,7 +564,7 @@ static int moxart_remove(struct platform_device *pdev)
- 	struct net_device *ndev = platform_get_drvdata(pdev);
+diff --git a/tools/testing/selftests/ftrace/ftracetest b/tools/testing/selftests/ftrace/ftracetest
+index 063ecb290a5a3..144308a757b70 100755
+--- a/tools/testing/selftests/ftrace/ftracetest
++++ b/tools/testing/selftests/ftrace/ftracetest
+@@ -29,8 +29,25 @@ err_ret=1
+ # kselftest skip code is 4
+ err_skip=4
  
- 	unregister_netdev(ndev);
--	free_irq(ndev->irq, ndev);
-+	devm_free_irq(&pdev->dev, ndev->irq, ndev);
- 	moxart_mac_free_memory(ndev);
- 	free_netdev(ndev);
++# cgroup RT scheduling prevents chrt commands from succeeding, which
++# induces failures in test wakeup tests.  Disable for the duration of
++# the tests.
++
++readonly sched_rt_runtime=/proc/sys/kernel/sched_rt_runtime_us
++
++sched_rt_runtime_orig=$(cat $sched_rt_runtime)
++
++setup() {
++  echo -1 > $sched_rt_runtime
++}
++
++cleanup() {
++  echo $sched_rt_runtime_orig > $sched_rt_runtime
++}
++
+ errexit() { # message
+   echo "Error: $1" 1>&2
++  cleanup
+   exit $err_ret
+ }
  
+@@ -39,6 +56,8 @@ if [ `id -u` -ne 0 ]; then
+   errexit "this must be run by root user"
+ fi
+ 
++setup
++
+ # Utilities
+ absdir() { # file_path
+   (cd `dirname $1`; pwd)
+@@ -235,6 +254,7 @@ TOTAL_RESULT=0
+ 
+ INSTANCE=
+ CASENO=0
++
+ testcase() { # testfile
+   CASENO=$((CASENO+1))
+   desc=`grep "^#[ \t]*description:" $1 | cut -f2 -d:`
+@@ -406,5 +426,7 @@ prlog "# of unsupported: " `echo $UNSUPPORTED_CASES | wc -w`
+ prlog "# of xfailed: " `echo $XFAILED_CASES | wc -w`
+ prlog "# of undefined(test bug): " `echo $UNDEFINED_CASES | wc -w`
+ 
++cleanup
++
+ # if no error, return 0
+ exit $TOTAL_RESULT
 -- 
 2.20.1
 
