@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F9FE1D3BC5
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A8A41D3BC2
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:06:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729007AbgENSyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729010AbgENSyT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 14 May 2020 14:54:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54176 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728995AbgENSyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729006AbgENSyS (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 14 May 2020 14:54:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A11A206F1;
-        Thu, 14 May 2020 18:54:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87C5220727;
+        Thu, 14 May 2020 18:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482457;
-        bh=vrzhGL7SuHBe2px6S5O4M+HMKDdLb8UmSBWBYruGUag=;
+        s=default; t=1589482458;
+        bh=SnUz04ty+5J5f6STJXs9ZUb8m5aBjjSxuJ03NHZI1hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P72OhY2gIQ/qajSpIoShhel8GPCUl+1X4beML//vmJISkiK+wtVPW6/EBWT3UhGOa
-         JOhi2+X5H/5Mub57+mYp8mcO5UEOBchzSaObsPpb4hon20BAnJIZ3JM9kxVYZumZwI
-         Z2Q3Jhhb/HGRono+aU6eCm/zqvw01RlTFQIVhR58=
+        b=MuyNCAkiEWQDLznCTE2fy9LVnlcWJdw4hwb5lr6SvdqZEKvRvynKmeskc4YeDkcxT
+         KIx/Pp8LslhPgKFJV7zWTsJdaCITSueeNxl8odYwSvcIEukiyHsYroEQRcSJ79exkT
+         UEE8zwG1CJdZMNXAVdcqMFVgM0dCELEJ+QB/+tI4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Fr=C3=A9d=C3=A9ric=20Pierret=20=28fepitre=29?= 
-        <frederic.pierret@qubes-os.org>, Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        kernel-hardening@lists.openwall.com
-Subject: [PATCH AUTOSEL 4.19 02/31] gcc-common.h: Update for GCC 10
-Date:   Thu, 14 May 2020 14:53:44 -0400
-Message-Id: <20200514185413.20755-2-sashal@kernel.org>
+Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 03/31] HID: multitouch: add eGalaxTouch P80H84 support
+Date:   Thu, 14 May 2020 14:53:45 -0400
+Message-Id: <20200514185413.20755-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185413.20755-1-sashal@kernel.org>
 References: <20200514185413.20755-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,85 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frédéric Pierret (fepitre) <frederic.pierret@qubes-os.org>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit c7527373fe28f97d8a196ab562db5589be0d34b9 ]
+[ Upstream commit f9e82295eec141a0569649d400d249333d74aa91 ]
 
-Remove "params.h" include, which has been dropped in GCC 10.
+Add support for P80H84 touchscreen from eGalaxy:
 
-Remove is_a_helper() macro, which is now defined in gimple.h, as seen
-when running './scripts/gcc-plugin.sh g++ g++ gcc':
+  idVendor           0x0eef D-WAV Scientific Co., Ltd
+  idProduct          0xc002
+  iManufacturer           1 eGalax Inc.
+  iProduct                2 eGalaxTouch P80H84 2019 vDIVA_1204_T01 k4.02.146
 
-In file included from <stdin>:1:
-./gcc-plugins/gcc-common.h:852:13: error: redefinition of ‘static bool is_a_helper<T>::test(U*) [with U = const gimple; T = const ggoto*]’
-  852 | inline bool is_a_helper<const ggoto *>::test(const_gimple gs)
-      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~
-In file included from ./gcc-plugins/gcc-common.h:125,
-                 from <stdin>:1:
-/usr/lib/gcc/x86_64-redhat-linux/10/plugin/include/gimple.h:1037:1: note: ‘static bool is_a_helper<T>::test(U*) [with U = const gimple; T = const ggoto*]’ previously declared here
- 1037 | is_a_helper <const ggoto *>::test (const gimple *gs)
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Add -Wno-format-diag to scripts/gcc-plugins/Makefile to avoid
-meaningless warnings from error() formats used by plugins:
-
-scripts/gcc-plugins/structleak_plugin.c: In function ‘int plugin_init(plugin_name_args*, plugin_gcc_version*)’:
-scripts/gcc-plugins/structleak_plugin.c:253:12: warning: unquoted sequence of 2 consecutive punctuation characters ‘'-’ in format [-Wformat-diag]
-  253 |   error(G_("unknown option '-fplugin-arg-%s-%s'"), plugin_name, argv[i].key);
-      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Signed-off-by: Frédéric Pierret (fepitre) <frederic.pierret@qubes-os.org>
-Link: https://lore.kernel.org/r/20200407113259.270172-1-frederic.pierret@qubes-os.org
-[kees: include -Wno-format-diag for plugin builds]
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gcc-plugins/Makefile     | 1 +
- scripts/gcc-plugins/gcc-common.h | 4 ++++
- 2 files changed, 5 insertions(+)
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/scripts/gcc-plugins/Makefile b/scripts/gcc-plugins/Makefile
-index aa0d0ec6936d7..9e95862f27882 100644
---- a/scripts/gcc-plugins/Makefile
-+++ b/scripts/gcc-plugins/Makefile
-@@ -11,6 +11,7 @@ else
-   HOST_EXTRACXXFLAGS += -I$(GCC_PLUGINS_DIR)/include -I$(src) -std=gnu++98 -fno-rtti
-   HOST_EXTRACXXFLAGS += -fno-exceptions -fasynchronous-unwind-tables -ggdb
-   HOST_EXTRACXXFLAGS += -Wno-narrowing -Wno-unused-variable
-+  HOST_EXTRACXXFLAGS += -Wno-format-diag
-   export HOST_EXTRACXXFLAGS
- endif
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b2fff44c8109a..ae145bdcd83d5 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -378,6 +378,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002	0xc002
  
-diff --git a/scripts/gcc-plugins/gcc-common.h b/scripts/gcc-plugins/gcc-common.h
-index 17f06079a7123..9ad76b7f3f10e 100644
---- a/scripts/gcc-plugins/gcc-common.h
-+++ b/scripts/gcc-plugins/gcc-common.h
-@@ -35,7 +35,9 @@
- #include "ggc.h"
- #include "timevar.h"
+ #define USB_VENDOR_ID_ELAN		0x04f3
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 19dfd8acd0dab..8baf10beb1d5d 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1909,6 +1909,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
++	{ .driver_data = MT_CLS_EGALAX,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
  
-+#if BUILDING_GCC_VERSION < 10000
- #include "params.h"
-+#endif
- 
- #if BUILDING_GCC_VERSION <= 4009
- #include "pointer-set.h"
-@@ -847,6 +849,7 @@ static inline gimple gimple_build_assign_with_ops(enum tree_code subcode, tree l
- 	return gimple_build_assign(lhs, subcode, op1, op2 PASS_MEM_STAT);
- }
- 
-+#if BUILDING_GCC_VERSION < 10000
- template <>
- template <>
- inline bool is_a_helper<const ggoto *>::test(const_gimple gs)
-@@ -860,6 +863,7 @@ inline bool is_a_helper<const greturn *>::test(const_gimple gs)
- {
- 	return gs->code == GIMPLE_RETURN;
- }
-+#endif
- 
- static inline gasm *as_a_gasm(gimple stmt)
- {
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
 -- 
 2.20.1
 
