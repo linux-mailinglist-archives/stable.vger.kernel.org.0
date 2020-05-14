@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5CB01D3B71
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBB41D3B73
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729658AbgENTCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 15:02:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55568 "EHLO mail.kernel.org"
+        id S1729984AbgENTCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 15:02:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729306AbgENSzJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:55:09 -0400
+        id S1729318AbgENSzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:55:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3D4920820;
-        Thu, 14 May 2020 18:55:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A78820767;
+        Thu, 14 May 2020 18:55:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482508;
-        bh=Uiy3VQeypLsAQY+/YaG/683+rhD9rnz4IxkD2LlG6TI=;
+        s=default; t=1589482510;
+        bh=3e7nlEZf4wtghonZNXnreoWirReVHuM9IZL5Wh0xp/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vSL0wf+R8MUQlQqSioDFVNjlYMZoQXv21UVx+3B7OcbGqoB6eZx2p6f1Xt0nqniBS
-         q44awcLG/0Dzan2H4YRGMiffLIxMIz+BC3xlaol36P0tdnLy2fhdMusQEOk0FARksL
-         otb1ZraeK/3RmM2vHUPVtFyBmLou66b0Y2Z2Z4+o=
+        b=1B26N3A77WedwB3CGNueqSweF2DYC/duhb/TsJVTIRoaZK7/4yORPHsmdy4QkDBrC
+         IM4A8WQ1DXDfohwfksV2q7lEgxa7+1NWpByxuzcKJ1Z06N0WF7ueTa47Ds1LnHIA+a
+         kAReV7mNiAreB9Pumbsi1JIlqQrgkYLk5/GNc3F4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arun Easi <aeasi@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/39] scsi: qla2xxx: Fix hang when issuing nvme disconnect-all in NPIV
-Date:   Thu, 14 May 2020 14:54:26 -0400
-Message-Id: <20200514185456.21060-9-sashal@kernel.org>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Dave Jones <dsj@fb.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Joe Mario <jmario@redhat.com>, Miroslav Benes <mbenes@suse.cz>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 10/39] objtool: Fix stack offset tracking for indirect CFAs
+Date:   Thu, 14 May 2020 14:54:27 -0400
+Message-Id: <20200514185456.21060-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185456.21060-1-sashal@kernel.org>
 References: <20200514185456.21060-1-sashal@kernel.org>
@@ -45,40 +51,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 45a76264c26fd8cfd0c9746196892d9b7e2657ee ]
+[ Upstream commit d8dd25a461e4eec7190cb9d66616aceacc5110ad ]
 
-In NPIV environment, a NPIV host may use a queue pair created by base host
-or other NPIVs, so the check for a queue pair created by this NPIV is not
-correct, and can cause an abort to fail, which in turn means the NVME
-command not returned.  This leads to hang in nvme_fc layer in
-nvme_fc_delete_association() which waits for all I/Os to be returned, which
-is seen as hang in the application.
+When the current frame address (CFA) is stored on the stack (i.e.,
+cfa->base == CFI_SP_INDIRECT), objtool neglects to adjust the stack
+offset when there are subsequent pushes or pops.  This results in bad
+ORC data at the end of the ENTER_IRQ_STACK macro, when it puts the
+previous stack pointer on the stack and does a subsequent push.
 
-Link: https://lore.kernel.org/r/20200331104015.24868-3-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This fixes the following unwinder warning:
+
+  WARNING: can't dereference registers at 00000000f0a6bdba for ip interrupt_entry+0x9f/0xa0
+
+Fixes: 627fce14809b ("objtool: Add ORC unwind table generation")
+Reported-by: Vince Weaver <vincent.weaver@maine.edu>
+Reported-by: Dave Jones <dsj@fb.com>
+Reported-by: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
+Reported-by: Joe Mario <jmario@redhat.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/853d5d691b29e250333332f09b8e27410b2d9924.1587808742.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c | 2 +-
+ tools/objtool/check.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
-index 5e8ae510aef80..9d9737114dcf0 100644
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -2998,7 +2998,7 @@ qla24xx_abort_command(srb_t *sp)
- 	ql_dbg(ql_dbg_mbx + ql_dbg_verbose, vha, 0x108c,
- 	    "Entered %s.\n", __func__);
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 04fc04b4ab67e..5685fe2c7a7d3 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1291,7 +1291,7 @@ static int update_insn_state_regs(struct instruction *insn, struct insn_state *s
+ 	struct cfi_reg *cfa = &state->cfa;
+ 	struct stack_op *op = &insn->stack_op;
  
--	if (vha->flags.qpairs_available && sp->qpair)
-+	if (sp->qpair)
- 		req = sp->qpair->req;
+-	if (cfa->base != CFI_SP)
++	if (cfa->base != CFI_SP && cfa->base != CFI_SP_INDIRECT)
+ 		return 0;
  
- 	if (ql2xasynctmfenable)
+ 	/* push */
 -- 
 2.20.1
 
