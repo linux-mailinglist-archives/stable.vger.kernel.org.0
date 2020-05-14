@@ -2,141 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7B81D3BCA
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:06:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE3A51D3C63
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728978AbgENSyO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:54:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54060 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728967AbgENSyL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:54:11 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E25C206DC;
-        Thu, 14 May 2020 18:54:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482450;
-        bh=6LSTh6Jz142Cw16FwoeYYoL+hbnrbkU/L7NgiAS1tzw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtkWud7DSt/9+DJeroDRsITkNd/BqPJXnd+dhJDYAmeivdbde/LeVoIeSqAwtoH3y
-         Izt5n9ZuS4njtTgTDC8tBWMbln48HUvDl4QBDjTbuDR7c5ZF95TkZUFzyw7ZQfSYH1
-         yIf3p18LetGv+2LT2N+2BJZVeWZ3iPDgMt/HPn3Q=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 49/49] gcc-10: avoid shadowing standard library 'free()' in crypto
-Date:   Thu, 14 May 2020 14:53:10 -0400
-Message-Id: <20200514185311.20294-49-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200514185311.20294-1-sashal@kernel.org>
-References: <20200514185311.20294-1-sashal@kernel.org>
+        id S1728667AbgENSxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:53:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728661AbgENSxW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 14:53:22 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672FFC061A0C
+        for <stable@vger.kernel.org>; Thu, 14 May 2020 11:53:22 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id hi11so12945253pjb.3
+        for <stable@vger.kernel.org>; Thu, 14 May 2020 11:53:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=F6WLU9w6PeX/s4H3hi3K3y+xcBMPlMa1VaAKCsaR+Yk=;
+        b=zgMagJk8qJ3fd/KicQnoIdwNC+HnY7nAXak6kuQKovjYeMpmXZBvSzx6BWdoexIt5i
+         1XSYLlPxzvjX61SKlwG7Jqk4tjQmISD3nyRDNHndtQZUhTCzOxPeScKlQ5NC4URk5d2H
+         xaPZV+ufOaB1hebvTeRpJML7/xtsw+as//esiKw6LGJl54P2k5p+7v9HB1qKGY7NLQzR
+         usyeWOlSWnDVzkMyR8CcZ7x9Vnwf5s7jDyXqiXOn1wy0JvYHKujgJrgxDgpCYs487nqq
+         d/FVPUCDFXXbSKBEGvG3j1Sz3s0zpy0XqIbsR586C9f70g9+vstnHGZJQz/WPD17Yvfi
+         D1zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=F6WLU9w6PeX/s4H3hi3K3y+xcBMPlMa1VaAKCsaR+Yk=;
+        b=nrJKDJSWuQjKwxK3s96A4SQUOdXzC4Z7PMw570Cyeq/sGIEnEdYaGb9nPcGe1Ve8fx
+         DPo0gDo1I0kmXydZnH2i/pwryo8/CMNwmBR2tGJEqYFVtJNepLvuYzjz09YIT3GzPntw
+         f8r1DxFkGmgz4wrY8vTA4KSs6U+eUta4ev/PHzhbw6jU14ZQtKKzfrNHv2zqxCwZGlP3
+         Br4rwN6BRAhW5eBOciv+1ftH16sc4d/+lIP48xcJqZr6FJCmaXyOfpmyrlF+yaOXwSrf
+         kHUbPBGI0mEAOdGAhWjSwiAO8L9R6yGiGsx0ytx+z8sgvt6YhHEYjWWRcuq9Nbq9eFLI
+         KmzA==
+X-Gm-Message-State: AOAM53330SahYX4MgAmCVm2kir9zkp4N6RRJxNq16RRuxZITqmBFn43o
+        7JSX0c0uOR5ph8FqgPxotwCUEeoTVUc=
+X-Google-Smtp-Source: ABdhPJzv2M83+ro/XF6uj6fQyZSwbyHda6FAQ5Q95wChyFoeXXZQ0KNtwxbHf1NuEkItGh/cDXl2rw==
+X-Received: by 2002:a17:90b:358c:: with SMTP id mm12mr433889pjb.134.1589482401605;
+        Thu, 14 May 2020 11:53:21 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f21sm2919405pfn.71.2020.05.14.11.53.19
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2020 11:53:19 -0700 (PDT)
+Message-ID: <5ebd939f.1c69fb81.e6494.8aaf@mx.google.com>
+Date:   Thu, 14 May 2020 11:53:19 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.223-36-gceb6b0b3f45d
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 92 boots: 3 failed,
+ 81 passed with 3 offline, 5 untried/unknown (v4.4.223-36-gceb6b0b3f45d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+stable-rc/linux-4.4.y boot: 92 boots: 3 failed, 81 passed with 3 offline, 5=
+ untried/unknown (v4.4.223-36-gceb6b0b3f45d)
 
-[ Upstream commit 1a263ae60b04de959d9ce9caea4889385eefcc7b ]
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.223-36-gceb6b0b3f45d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.223-36-gceb6b0b3f45d/
 
-gcc-10 has started warning about conflicting types for a few new
-built-in functions, particularly 'free()'.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.223-36-gceb6b0b3f45d
+Git Commit: ceb6b0b3f45d368cf15b65cb3d690cffaab7bf38
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 18 SoC families, 17 builds out of 190
 
-This results in warnings like:
+Boot Regressions Detected:
 
-   crypto/xts.c:325:13: warning: conflicting types for built-in function ‘free’; expected ‘void(void *)’ [-Wbuiltin-declaration-mismatch]
+arm:
 
-because the crypto layer had its local freeing functions called
-'free()'.
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.4.22=
+3 - first fail: v4.4.223-36-g32f5ec9b096d)
 
-Gcc-10 is in the wrong here, since that function is marked 'static', and
-thus there is no chance of confusion with any standard library function
-namespace.
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 49 days (last pass: v4.4.216-127-=
+g955137020949 - first fail: v4.4.217)
 
-But the simplest thing to do is to just use a different name here, and
-avoid this gcc mis-feature.
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v4.4.223-36-g32f5ec9b09=
+6d)
 
-[ Side note: gcc knowing about 'free()' is in itself not the
-  mis-feature: the semantics of 'free()' are special enough that a
-  compiler can validly do special things when seeing it.
+Boot Failures Detected:
 
-  So the mis-feature here is that gcc thinks that 'free()' is some
-  restricted name, and you can't shadow it as a local static function.
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-  Making the special 'free()' semantics be a function attribute rather
-  than tied to the name would be the much better model ]
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
 
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
 ---
- crypto/lrw.c | 6 +++---
- crypto/xts.c | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/crypto/lrw.c b/crypto/lrw.c
-index fda9414890865..1a47ff9dc5ea1 100644
---- a/crypto/lrw.c
-+++ b/crypto/lrw.c
-@@ -289,7 +289,7 @@ static void exit_tfm(struct crypto_skcipher *tfm)
- 	crypto_free_skcipher(ctx->child);
- }
- 
--static void free(struct skcipher_instance *inst)
-+static void free_inst(struct skcipher_instance *inst)
- {
- 	crypto_drop_skcipher(skcipher_instance_ctx(inst));
- 	kfree(inst);
-@@ -401,12 +401,12 @@ static int create(struct crypto_template *tmpl, struct rtattr **tb)
- 	inst->alg.encrypt = encrypt;
- 	inst->alg.decrypt = decrypt;
- 
--	inst->free = free;
-+	inst->free = free_inst;
- 
- 	err = skcipher_register_instance(tmpl, inst);
- 	if (err) {
- err_free_inst:
--		free(inst);
-+		free_inst(inst);
- 	}
- 	return err;
- }
-diff --git a/crypto/xts.c b/crypto/xts.c
-index 73c648c373595..eead546d3124d 100644
---- a/crypto/xts.c
-+++ b/crypto/xts.c
-@@ -328,7 +328,7 @@ static void exit_tfm(struct crypto_skcipher *tfm)
- 	crypto_free_cipher(ctx->tweak);
- }
- 
--static void free(struct skcipher_instance *inst)
-+static void free_inst(struct skcipher_instance *inst)
- {
- 	crypto_drop_skcipher(skcipher_instance_ctx(inst));
- 	kfree(inst);
-@@ -439,12 +439,12 @@ static int create(struct crypto_template *tmpl, struct rtattr **tb)
- 	inst->alg.encrypt = encrypt;
- 	inst->alg.decrypt = decrypt;
- 
--	inst->free = free;
-+	inst->free = free_inst;
- 
- 	err = skcipher_register_instance(tmpl, inst);
- 	if (err) {
- err_free_inst:
--		free(inst);
-+		free_inst(inst);
- 	}
- 	return err;
- }
--- 
-2.20.1
-
+For more info write to <info@kernelci.org>
