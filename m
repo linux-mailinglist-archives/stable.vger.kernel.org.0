@@ -2,112 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B57EC1D406E
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 00:03:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6897A1D40F6
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 00:28:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727832AbgENWD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 18:03:28 -0400
-Received: from smtp1.de.adit-jv.com ([93.241.18.167]:50491 "EHLO
-        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726126AbgENWD2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 18:03:28 -0400
-Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
-        by smtp1.de.adit-jv.com (Postfix) with ESMTP id F3A423C04C1;
-        Fri, 15 May 2020 00:03:24 +0200 (CEST)
-Received: from smtp1.de.adit-jv.com ([127.0.0.1])
-        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id o1TOWhpVUiKY; Fri, 15 May 2020 00:03:16 +0200 (CEST)
-Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 9B5E93C04C0;
-        Fri, 15 May 2020 00:03:16 +0200 (CEST)
-Received: from lxhi-065.adit-jv.com (10.72.94.5) by HI2EXCH01.adit-jv.com
- (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.487.0; Fri, 15 May
- 2020 00:03:16 +0200
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Alan Stern <stern@rowland.harvard.edu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        <stable@vger.kernel.org>, Hardik Gajjar <hgajjar@de.adit-jv.com>,
-        <linux-renesas-soc@vger.kernel.org>, <linux-usb@vger.kernel.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH] usb: core: hub: limit HUB_QUIRK_DISABLE_AUTOSUSPEND to USB5534B
-Date:   Fri, 15 May 2020 00:02:46 +0200
-Message-ID: <20200514220246.13290-1-erosca@de.adit-jv.com>
-X-Mailer: git-send-email 2.26.2
+        id S1728533AbgENW2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 18:28:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53968 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728489AbgENW2Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 18:28:16 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CE95C061A0C
+        for <stable@vger.kernel.org>; Thu, 14 May 2020 15:28:16 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id t40so80036pjb.3
+        for <stable@vger.kernel.org>; Thu, 14 May 2020 15:28:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=+PUObpiA76y/yhYNjpOZWpgvK7VRFpyItZHhUCmn//M=;
+        b=rwOiasIkdjRAntReGK98xKV/djiruHSbGpmIQU2nuId4KzBsJaiK1Uex+q2tthKY0d
+         k6I2qwNrRa6kiGVIUPOvPw9wmp0xbT4sjl6Zicda6qISmZ0uRrT1wgaNo6R1/DqUe/Zr
+         eFXQ5kjtoKAn0QvitV2HsQo0pDgw/hDPkvqvpWKAaQ29AXnwCHhmpyF4qWAUVK5ECb21
+         RF7d9ojq0Mrjfimvhamu5cEsq62sDXALha9vqv74KAkpljFt6nOcWZBMrcZTxsZ9/4P1
+         xFtCLardPETeM+Qt6X1H+BSSKCc0eKNUev2SWG5mPkPjxqa+1KuhsVnsJwoVbRRhd899
+         mRHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=+PUObpiA76y/yhYNjpOZWpgvK7VRFpyItZHhUCmn//M=;
+        b=O8uewpLPelIiqGKHMoyh0oO3Xhe/4UDiZEa0IfFYo51b+/+A8SJr2vdbDdiujj7a5a
+         /fP5GyUgQ7LHs51jXsVhsfGx4aG/Udzmf1W5leSqNrLMa7zCUtUJl0EAfBnbh9MPwNWs
+         9/8Zmt+OZWt8oI6jvNl7bYX+D9frvQTh8Gz9hkQt2/b7zmuqdWkEFZJ6MpBN9xLgpesY
+         hwM8cwdS3PCDORHFGA5RmTv+d0i803o2K0GoD7Z/tpFDmdl81jOT2PCrF43hTYtNSqU9
+         XSsgL6L9E0UMi3JydUWp2wvfRFyOcx/QLs3aOjZ+sHvCnOyFYFJ3Wv05sn5LoHl6JBDf
+         pmlg==
+X-Gm-Message-State: AOAM5338m6/HeHDpk7n+mZ0nZcOBA2VdiXgQlpzmVAerVutCUC+11i79
+        GY5ctGEn8wPEs1XXiw0aDrBumQhkz1E=
+X-Google-Smtp-Source: ABdhPJwmwRtkey4auWHO/hhhgxqHDU3SxP5pCAtcqPmOV89e9+6FZEKPOOqKeir0Th/kUtXpK/Rjjw==
+X-Received: by 2002:a17:90a:bc90:: with SMTP id x16mr221319pjr.78.1589495295166;
+        Thu, 14 May 2020 15:28:15 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 192sm182913pfu.182.2020.05.14.15.28.14
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2020 15:28:14 -0700 (PDT)
+Message-ID: <5ebdc5fe.1c69fb81.1018.0ccd@mx.google.com>
+Date:   Thu, 14 May 2020 15:28:14 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.72.94.5]
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.123-2-gbed44563668d
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.19.y boot: 146 boots: 1 failed,
+ 133 passed with 5 offline, 7 untried/unknown (v4.19.123-2-gbed44563668d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 12, 2020 at 09:36:07PM +0800, Kai-Heng Feng wrote [1]:
-> This patch prevents my Raven Ridge xHCI from getting runtime suspend.
+stable-rc/linux-4.19.y boot: 146 boots: 1 failed, 133 passed with 5 offline=
+, 7 untried/unknown (v4.19.123-2-gbed44563668d)
 
-The problem described in v5.6 commit 1208f9e1d758c9 ("USB: hub: Fix the
-broken detection of USB3 device in SMSC hub") applies solely to the
-USB5534B hub [2] present on the Kingfisher Infotainment Carrier Board,
-manufactured by Shimafuji Electric Inc [3].
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.123-2-gbed44563668d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.123-2-gbed44563668d/
 
-Despite that, the aforementioned commit applied the quirk to _all_ hubs
-carrying vendor ID 0x424 (i.e. SMSC), of which there are more [4] than
-initially expected. Consequently, the quirk is now enabled on platforms
-carrying SMSC/Microchip hub models which potentially don't exhibit the
-original issue.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.123-2-gbed44563668d
+Git Commit: bed44563668db1bbeae9bc848d0b966a1ddb5e05
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 85 unique boards, 23 SoC families, 20 builds out of 206
 
-To avoid reports like [1], further limit the quirk's scope to
-USB5534B [2], by employing both Vendor and Product ID checks.
+Boot Regressions Detected:
 
-Tested on H3ULCB + Kingfisher rev. M05.
+arc:
 
-[1] https://lore.kernel.org/linux-renesas-soc/73933975-6F0E-40F5-9584-D2B8F615C0F3@canonical.com/
-[2] https://www.microchip.com/wwwproducts/en/USB5534B
-[3] http://www.shimafuji.co.jp/wp/wp-content/uploads/2018/08/SBEV-RCAR-KF-M06Board_HWSpecificationEN_Rev130.pdf
-[4] https://devicehunt.com/search/type/usb/vendor/0424/device/any
+    hsdk_defconfig:
+        gcc-8:
+          hsdk:
+              lab-baylibre: new failure (last pass: v4.19.122-49-g6d5c161fb=
+73d)
 
-Fixes: 1208f9e1d758c9 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
-Cc: stable@vger.kernel.org # v4.14+
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Hardik Gajjar <hgajjar@de.adit-jv.com>
-Cc: linux-renesas-soc@vger.kernel.org
-Cc: linux-usb@vger.kernel.org
-Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.19.1=
+22 - first fail: v4.19.122-48-g92ba0b6b33ad)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 62 days (last pass: v4.19.108-87-=
+g624c124960e8 - first fail: v4.19.109)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
 ---
- drivers/usb/core/hub.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 2b6565c06c23..fc748c731832 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -39,6 +39,7 @@
- 
- #define USB_VENDOR_GENESYS_LOGIC		0x05e3
- #define USB_VENDOR_SMSC				0x0424
-+#define USB_PRODUCT_USB5534B			0x5534
- #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
- #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
- 
-@@ -5621,8 +5622,11 @@ static void hub_event(struct work_struct *work)
- }
- 
- static const struct usb_device_id hub_id_table[] = {
--    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_CLASS,
-+    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
-+                   | USB_DEVICE_ID_MATCH_PRODUCT
-+                   | USB_DEVICE_ID_MATCH_INT_CLASS,
-       .idVendor = USB_VENDOR_SMSC,
-+      .idProduct = USB_PRODUCT_USB5534B,
-       .bInterfaceClass = USB_CLASS_HUB,
-       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
-     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
--- 
-2.26.2
-
+For more info write to <info@kernelci.org>
