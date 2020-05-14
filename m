@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D05491D3BE2
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 117691D3A1B
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728886AbgENSx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:53:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53586 "EHLO mail.kernel.org"
+        id S1728894AbgENSx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:53:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728881AbgENSx4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:53:56 -0400
+        id S1728891AbgENSx6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:53:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FC892076A;
-        Thu, 14 May 2020 18:53:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AF9120767;
+        Thu, 14 May 2020 18:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482436;
-        bh=7D/zctjk5AKqwiEPDsf1Ku+Xppketp/iz8b48qj3Saw=;
+        s=default; t=1589482437;
+        bh=DZ5qTTuGiQ8ince+iTyYGDPiQ52kRRQ7QbhT+igfATI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWeLlxGQ1M9kNhjP6IhQBdmd2aBGSnSpEziEtdUvR+EnqRYrbzfBrqOydTTe60ij3
-         4J3qMMVAEWe0wGXMVsLav7rU/Gg21vJ3iRn3VuO+tyrF1nGccmKShr0uH3suiST3li
-         2RR01S+fKhe0UvwMsAW8fTWveaEw07guWRgvrV3E=
+        b=LkajXWRpMQX7e39SsJxMzDoEBxT90h4qptYtW4WU4lFVnaYHlswFaF2dOgebB/qxW
+         4ptlkcDEdRtdWINqqm/oWSu6+EJwTUusi/PeqlJdapKhOMGZBR35I9H3dSah/pdsdc
+         KzTujFDVBk1WlcDHDCVHY1HpmUrLRq1FNp0zKnSA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joerg Roedel <jroedel@suse.de>, Qian Cai <cai@lca.pw>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.4 36/49] iommu/amd: Call domain_flush_complete() in update_domain()
-Date:   Thu, 14 May 2020 14:52:57 -0400
-Message-Id: <20200514185311.20294-36-sashal@kernel.org>
+Cc:     Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Harry Wentland <Harry.Wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 37/49] drm/amd/display: Prevent dpcd reads with passive dongles
+Date:   Thu, 14 May 2020 14:52:58 -0400
+Message-Id: <20200514185311.20294-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185311.20294-1-sashal@kernel.org>
 References: <20200514185311.20294-1-sashal@kernel.org>
@@ -43,35 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit f44a4d7e4f1cdef73c90b1dc749c4d8a7372a8eb ]
+[ Upstream commit e6142dd511425cb827b5db869f489eb81f5f994d ]
 
-The update_domain() function is expected to also inform the hardware
-about domain changes. This needs a COMPLETION_WAIT command to be sent
-to all IOMMUs which use the domain.
+[why]
+During hotplug, a DP port may be connected to the sink through
+passive adapter which does not support DPCD reads. Issuing reads
+without checking for this condition will result in errors
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Tested-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/20200504125413.16798-4-joro@8bytes.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+[how]
+Ensure the link is in aux_mode before initiating operation that result
+in a DPCD read.
+
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c   | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index bc77714983421..32de8e7bb8b45 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2386,6 +2386,7 @@ static void update_domain(struct protection_domain *domain)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index be61ae1430ed9..c9c2984138263 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1422,17 +1422,22 @@ amdgpu_dm_update_connector_after_detect(struct amdgpu_dm_connector *aconnector)
+ 		dc_sink_retain(aconnector->dc_sink);
+ 		if (sink->dc_edid.length == 0) {
+ 			aconnector->edid = NULL;
+-			drm_dp_cec_unset_edid(&aconnector->dm_dp_aux.aux);
++			if (aconnector->dc_link->aux_mode) {
++				drm_dp_cec_unset_edid(
++					&aconnector->dm_dp_aux.aux);
++			}
+ 		} else {
+ 			aconnector->edid =
+-				(struct edid *) sink->dc_edid.raw_edid;
+-
++				(struct edid *)sink->dc_edid.raw_edid;
  
- 	domain_flush_devices(domain);
- 	domain_flush_tlb_pde(domain);
-+	domain_flush_complete(domain);
- }
+ 			drm_connector_update_edid_property(connector,
+-					aconnector->edid);
+-			drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
+-					    aconnector->edid);
++							   aconnector->edid);
++
++			if (aconnector->dc_link->aux_mode)
++				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
++						    aconnector->edid);
+ 		}
++
+ 		amdgpu_dm_update_freesync_caps(connector, aconnector->edid);
  
- static int dir2prot(enum dma_data_direction direction)
+ 	} else {
 -- 
 2.20.1
 
