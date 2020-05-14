@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 779B01D3BDF
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:06:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 281B71D3BDA
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728590AbgENTFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 15:05:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53720 "EHLO mail.kernel.org"
+        id S1728926AbgENSyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:54:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728901AbgENSyA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:54:00 -0400
+        id S1728921AbgENSyC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:54:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15C71206F1;
-        Thu, 14 May 2020 18:53:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4203320801;
+        Thu, 14 May 2020 18:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482439;
-        bh=a4jLj5YoajADdtK8+YqM4haJAzib1te6w43IqWap+Bs=;
+        s=default; t=1589482441;
+        bh=MlcSKljYgpljWuTEmbal7pi1lzXa0+HQgb/c7fOshqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uA5rGnctLtMy+uB9mKBbVn0NHeAHkR54j4ERSYWfwbFGUEMskzcvx8Tnp5mjTpGqp
-         ada/xD4azGn8cFMkvi7VY+16la7xkn9QBxAPDyyDVwSnZvRvUFvRuBBJTRCAfHbGPf
-         1oMnbn1y60b89M+FRXFAUfPsNKywby9cP3EeNXJY=
+        b=SOuUr+VSpsCNrMrR1vx794VS1Tbyc88OIpE4ZLmf8QjxuNoqyRdrfPYLpC48RlmhV
+         PFGmqQkoEdw/G+umHVQ7+xZqSNoNNYl8qcSTSpluLjhZNwpuYI2htXZfU7Acr8w2s7
+         RjTR3Z/SyExqajy7Q0XagWYJHhDLf8ikqYKr0VgM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 39/49] ARM: futex: Address build warning
-Date:   Thu, 14 May 2020 14:53:00 -0400
-Message-Id: <20200514185311.20294-39-sashal@kernel.org>
+Cc:     Aymeric Agon-Rambosson <aymeric.agon@yandex.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Kieran Bingham <kbingham@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Nikolay Borisov <n.borisov.lkml@gmail.com>,
+        Jackie Liu <liuyun01@kylinos.cn>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 40/49] scripts/gdb: repair rb_first() and rb_last()
+Date:   Thu, 14 May 2020 14:53:01 -0400
+Message-Id: <20200514185311.20294-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185311.20294-1-sashal@kernel.org>
 References: <20200514185311.20294-1-sashal@kernel.org>
@@ -44,68 +51,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Aymeric Agon-Rambosson <aymeric.agon@yandex.com>
 
-[ Upstream commit 8101b5a1531f3390b3a69fa7934c70a8fd6566ad ]
+[ Upstream commit 50e36be1fb9572b2e4f2753340bdce3116bf2ce7 ]
 
-Stephen reported the following build warning on a ARM multi_v7_defconfig
-build with GCC 9.2.1:
+The current implementations of the rb_first() and rb_last() gdb
+functions have a variable that references itself in its instanciation,
+which causes the function to throw an error if a specific condition on
+the argument is met.  The original author rather intended to reference
+the argument and made a typo.  Referring the argument instead makes the
+function work as intended.
 
-kernel/futex.c: In function 'do_futex':
-kernel/futex.c:1676:17: warning: 'oldval' may be used uninitialized in this function [-Wmaybe-uninitialized]
- 1676 |   return oldval == cmparg;
-      |          ~~~~~~~^~~~~~~~~
-kernel/futex.c:1652:6: note: 'oldval' was declared here
- 1652 |  int oldval, ret;
-      |      ^~~~~~
-
-introduced by commit a08971e9488d ("futex: arch_futex_atomic_op_inuser()
-calling conventions change").
-
-While that change should not make any difference it confuses GCC which
-fails to work out that oldval is not referenced when the return value is
-not zero.
-
-GCC fails to properly analyze arch_futex_atomic_op_inuser(). It's not the
-early return, the issue is with the assembly macros. GCC fails to detect
-that those either set 'ret' to 0 and set oldval or set 'ret' to -EFAULT
-which makes oldval uninteresting. The store to the callsite supplied oldval
-pointer is conditional on ret == 0.
-
-The straight forward way to solve this is to make the store unconditional.
-
-Aside of addressing the build warning this makes sense anyway because it
-removes the conditional from the fastpath. In the error case the stored
-value is uninteresting and the extra store does not matter at all.
-
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/87pncao2ph.fsf@nanos.tec.linutronix.de
+Signed-off-by: Aymeric Agon-Rambosson <aymeric.agon@yandex.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Cc: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: Kieran Bingham <kbingham@kernel.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Nikolay Borisov <n.borisov.lkml@gmail.com>
+Cc: Jackie Liu <liuyun01@kylinos.cn>
+Cc: Jason Wessel <jason.wessel@windriver.com>
+Link: http://lkml.kernel.org/r/20200427051029.354840-1-aymeric.agon@yandex.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/futex.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ scripts/gdb/linux/rbtree.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/include/asm/futex.h b/arch/arm/include/asm/futex.h
-index 83c391b597d45..fdc4ae3e7378d 100644
---- a/arch/arm/include/asm/futex.h
-+++ b/arch/arm/include/asm/futex.h
-@@ -164,8 +164,13 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
- 	preempt_enable();
- #endif
+diff --git a/scripts/gdb/linux/rbtree.py b/scripts/gdb/linux/rbtree.py
+index 39db889b874c9..c4b9916079178 100644
+--- a/scripts/gdb/linux/rbtree.py
++++ b/scripts/gdb/linux/rbtree.py
+@@ -12,7 +12,7 @@ rb_node_type = utils.CachedType("struct rb_node")
  
--	if (!ret)
--		*oval = oldval;
-+	/*
-+	 * Store unconditionally. If ret != 0 the extra store is the least
-+	 * of the worries but GCC cannot figure out that __futex_atomic_op()
-+	 * is either setting ret to -EFAULT or storing the old value in
-+	 * oldval which results in a uninitialized warning at the call site.
-+	 */
-+	*oval = oldval;
+ def rb_first(root):
+     if root.type == rb_root_type.get_type():
+-        node = node.address.cast(rb_root_type.get_type().pointer())
++        node = root.address.cast(rb_root_type.get_type().pointer())
+     elif root.type != rb_root_type.get_type().pointer():
+         raise gdb.GdbError("Must be struct rb_root not {}".format(root.type))
  
- 	return ret;
- }
+@@ -28,7 +28,7 @@ def rb_first(root):
+ 
+ def rb_last(root):
+     if root.type == rb_root_type.get_type():
+-        node = node.address.cast(rb_root_type.get_type().pointer())
++        node = root.address.cast(rb_root_type.get_type().pointer())
+     elif root.type != rb_root_type.get_type().pointer():
+         raise gdb.GdbError("Must be struct rb_root not {}".format(root.type))
+ 
 -- 
 2.20.1
 
