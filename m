@@ -2,281 +2,330 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B0E11D3073
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 14:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 162601D3089
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 15:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726011AbgENM6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 08:58:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51990 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726051AbgENM6p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 08:58:45 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726037AbgENNBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 09:01:14 -0400
+Received: from mail26.static.mailgun.info ([104.130.122.26]:47709 "EHLO
+        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726142AbgENNBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 09:01:14 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1589461272; h=Content-Transfer-Encoding: Content-Type:
+ In-Reply-To: MIME-Version: Date: Message-ID: From: References: To:
+ Subject: Sender; bh=KCrkZDljahm2VY1bQ73k/xbKgbU2wAdGuhnKSxUTF30=; b=Yyb3wKJL4hL+Fk7ACCAz9sTUmyeTFzb9QEJ1K750hosYWSOzatw7A4/G5N2qYInSLp966fp6
+ vhchNNqRtaAnxC4l8WHBywZ4AM9iSyrjAsua1Ed6G3vPVfL6PBXKr58vPW+l7/LYHlN5ITlh
+ lf13XPBjaPrP94tEoJD0/8l6uxM=
+X-Mailgun-Sending-Ip: 104.130.122.26
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5ebd40e7.7f006a2d4378-smtp-out-n02;
+ Thu, 14 May 2020 13:00:23 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 49CEBC433BA; Thu, 14 May 2020 13:00:23 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from [192.168.0.102] (unknown [183.83.139.238])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCA78206D4;
-        Thu, 14 May 2020 12:58:43 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.93)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1jZDRi-000G9h-GO; Thu, 14 May 2020 08:58:42 -0400
-Message-ID: <20200514125842.392454557@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Thu, 14 May 2020 08:58:18 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [for-linus][PATCH 1/3] x86/ftrace: Have ftrace trampolines turn read-only at the end of
- system boot up
-References: <20200514125817.850882486@goodmis.org>
+        (Authenticated sender: charante)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id ACE35C433D2;
+        Thu, 14 May 2020 13:00:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org ACE35C433D2
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=charante@codeaurora.org
+Subject: Re: [PATCH v2] dma-buf: fix use-after-free in dmabuffs_dname
+To:     Sumit Semwal <sumit.semwal@linaro.org>, Greg KH <greg@kroah.com>,
+        Chenbo Feng <fengc@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        DRI mailing list <dri-devel@lists.freedesktop.org>,
+        Linaro MM SIG <linaro-mm-sig@lists.linaro.org>,
+        vinmenon@codeaurora.org, Greg Hackmann <ghackmann@google.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        "open list:DMA BUFFER SHARING FRAMEWORK" 
+        <linux-media@vger.kernel.org>
+References: <1588920063-17624-1-git-send-email-charante@codeaurora.org>
+ <20200512085221.GB3557007@kroah.com>
+ <a3cbf675-becc-1713-bcdc-664ddfe4a544@codeaurora.org>
+ <20200513125112.GC1083139@kroah.com>
+ <20200513154653.GK206103@phenom.ffwll.local>
+ <CAO_48GF0GMDJH1Wx4p5pfS4t57bh_BJO2=CmOpj_XCBnF0CbCQ@mail.gmail.com>
+From:   Charan Teja Kalla <charante@codeaurora.org>
+Message-ID: <20a2e97d-6a28-8bbd-044b-9d49aad0f65e@codeaurora.org>
+Date:   Thu, 14 May 2020 18:30:15 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+In-Reply-To: <CAO_48GF0GMDJH1Wx4p5pfS4t57bh_BJO2=CmOpj_XCBnF0CbCQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Thank you for the reply.
 
-Booting one of my machines, it triggered the following crash:
+On 5/13/2020 9:33 PM, Sumit Semwal wrote:
+> On Wed, 13 May 2020 at 21:16, Daniel Vetter <daniel@ffwll.ch> wrote:
+>>
+>> On Wed, May 13, 2020 at 02:51:12PM +0200, Greg KH wrote:
+>>> On Wed, May 13, 2020 at 05:40:26PM +0530, Charan Teja Kalla wrote:
+>>>>
+>>>> Thank you Greg for the comments.
+>>>> On 5/12/2020 2:22 PM, Greg KH wrote:
+>>>>> On Fri, May 08, 2020 at 12:11:03PM +0530, Charan Teja Reddy wrote:
+>>>>>> The following race occurs while accessing the dmabuf object exported as
+>>>>>> file:
+>>>>>> P1                               P2
+>>>>>> dma_buf_release()          dmabuffs_dname()
+>>>>>>                     [say lsof reading /proc/<P1 pid>/fd/<num>]
+>>>>>>
+>>>>>>                     read dmabuf stored in dentry->d_fsdata
+>>>>>> Free the dmabuf object
+>>>>>>                     Start accessing the dmabuf structure
+>>>>>>
+>>>>>> In the above description, the dmabuf object freed in P1 is being
+>>>>>> accessed from P2 which is resulting into the use-after-free. Below is
+>>>>>> the dump stack reported.
+>>>>>>
+>>>>>> We are reading the dmabuf object stored in the dentry->d_fsdata but
+>>>>>> there is no binding between the dentry and the dmabuf which means that
+>>>>>> the dmabuf can be freed while it is being read from ->d_fsdata and
+>>>>>> inuse. Reviews on the patch V1 says that protecting the dmabuf inuse
+>>>>>> with an extra refcount is not a viable solution as the exported dmabuf
+>>>>>> is already under file's refcount and keeping the multiple refcounts on
+>>>>>> the same object coordinated is not possible.
+>>>>>>
+>>>>>> As we are reading the dmabuf in ->d_fsdata just to get the user passed
+>>>>>> name, we can directly store the name in d_fsdata thus can avoid the
+>>>>>> reading of dmabuf altogether.
+>>>>>>
+>>>>>> Call Trace:
+>>>>>>  kasan_report+0x12/0x20
+>>>>>>  __asan_report_load8_noabort+0x14/0x20
+>>>>>>  dmabuffs_dname+0x4f4/0x560
+>>>>>>  tomoyo_realpath_from_path+0x165/0x660
+>>>>>>  tomoyo_get_realpath
+>>>>>>  tomoyo_check_open_permission+0x2a3/0x3e0
+>>>>>>  tomoyo_file_open
+>>>>>>  tomoyo_file_open+0xa9/0xd0
+>>>>>>  security_file_open+0x71/0x300
+>>>>>>  do_dentry_open+0x37a/0x1380
+>>>>>>  vfs_open+0xa0/0xd0
+>>>>>>  path_openat+0x12ee/0x3490
+>>>>>>  do_filp_open+0x192/0x260
+>>>>>>  do_sys_openat2+0x5eb/0x7e0
+>>>>>>  do_sys_open+0xf2/0x180
+>>>>>>
+>>>>>> Fixes: bb2bb9030425 ("dma-buf: add DMA_BUF_SET_NAME ioctls")
+>>>>>> Reported-by: syzbot+3643a18836bce555bff6@syzkaller.appspotmail.com
+>>>>>> Cc: <stable@vger.kernel.org> [5.3+]
+>>>>>> Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+>>>>>> ---
+>>>>>>
+>>>>>> Changes in v2:
+>>>>>>
+>>>>>> - Pass the user passed name in ->d_fsdata instead of dmabuf
+>>>>>> - Improve the commit message
+>>>>>>
+>>>>>> Changes in v1: (https://patchwork.kernel.org/patch/11514063/)
+>>>>>>
+>>>>>>  drivers/dma-buf/dma-buf.c | 17 ++++++++++-------
+>>>>>>  1 file changed, 10 insertions(+), 7 deletions(-)
+>>>>>>
+>>>>>> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+>>>>>> index 01ce125..0071f7d 100644
+>>>>>> --- a/drivers/dma-buf/dma-buf.c
+>>>>>> +++ b/drivers/dma-buf/dma-buf.c
+>>>>>> @@ -25,6 +25,7 @@
+>>>>>>  #include <linux/mm.h>
+>>>>>>  #include <linux/mount.h>
+>>>>>>  #include <linux/pseudo_fs.h>
+>>>>>> +#include <linux/dcache.h>
+>>>>>>
+>>>>>>  #include <uapi/linux/dma-buf.h>
+>>>>>>  #include <uapi/linux/magic.h>
+>>>>>> @@ -40,15 +41,13 @@ struct dma_buf_list {
+>>>>>>
+>>>>>>  static char *dmabuffs_dname(struct dentry *dentry, char *buffer, int buflen)
+>>>>>>  {
+>>>>>> -        struct dma_buf *dmabuf;
+>>>>>>          char name[DMA_BUF_NAME_LEN];
+>>>>>>          size_t ret = 0;
+>>>>>>
+>>>>>> -        dmabuf = dentry->d_fsdata;
+>>>>>> -        dma_resv_lock(dmabuf->resv, NULL);
+>>>>>> -        if (dmabuf->name)
+>>>>>> -                ret = strlcpy(name, dmabuf->name, DMA_BUF_NAME_LEN);
+>>>>>> -        dma_resv_unlock(dmabuf->resv);
+>>>>>> +        spin_lock(&dentry->d_lock);
+>>>>>
+>>>>> Are you sure this lock always protects d_fsdata?
+>>>>
+>>>> I think yes. In the dma-buf.c, I have to make sure that d_fsdata should
+>>>> always be under d_lock thus it will be protected. (In this posted patch
+>>>> there is one place(in dma_buf_set_name) that is missed, will update this
+>>>> in V3).
+>>>>
+>>>>>
+>>>>>> +        if (dentry->d_fsdata)
+>>>>>> +                ret = strlcpy(name, dentry->d_fsdata, DMA_BUF_NAME_LEN);
+>>>>>> +        spin_unlock(&dentry->d_lock);
+>>>>>>
+>>>>>>          return dynamic_dname(dentry, buffer, buflen, "/%s:%s",
+>>>>>>                               dentry->d_name.name, ret > 0 ? name : "");
+>>>>>
+>>>>> If the above check fails the name will be what?  How could d_name.name
+>>>>> be valid but d_fsdata not be valid?
+>>>>
+>>>> In case of check fails, empty string "" is appended to the name by the
+>>>> code, ret > 0 ? name : "", ret is initialized to zero. Thus the name
+>>>> string will be like "/dmabuf:".
+>>>
+>>> So multiple objects can have the same "name" if this happens to multiple
+>>> ones at once?
 
- Kernel/User page tables isolation: enabled
- ftrace: allocating 36577 entries in 143 pages
- Starting tracer 'function'
- BUG: unable to handle page fault for address: ffffffffa000005c
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0003) - permissions violation
- PGD 2014067 P4D 2014067 PUD 2015063 PMD 7b253067 PTE 7b252061
- Oops: 0003 [#1] PREEMPT SMP PTI
- CPU: 0 PID: 0 Comm: swapper Not tainted 5.4.0-test+ #24
- Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./To be filled by O.E.M., BIOS SDBLI944.86P 05/08/2007
- RIP: 0010:text_poke_early+0x4a/0x58
- Code: 34 24 48 89 54 24 08 e8 bf 72 0b 00 48 8b 34 24 48 8b 4c 24 08 84 c0 74 0b 48 89 df f3 a4 48 83 c4 10 5b c3 9c 58 fa 48 89 df <f3> a4 50 9d 48 83 c4 10 5b e9 d6 f9 ff ff
-0 41 57 49
- RSP: 0000:ffffffff82003d38 EFLAGS: 00010046
- RAX: 0000000000000046 RBX: ffffffffa000005c RCX: 0000000000000005
- RDX: 0000000000000005 RSI: ffffffff825b9a90 RDI: ffffffffa000005c
- RBP: ffffffffa000005c R08: 0000000000000000 R09: ffffffff8206e6e0
- R10: ffff88807b01f4c0 R11: ffffffff8176c106 R12: ffffffff8206e6e0
- R13: ffffffff824f2440 R14: 0000000000000000 R15: ffffffff8206eac0
- FS:  0000000000000000(0000) GS:ffff88807d400000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: ffffffffa000005c CR3: 0000000002012000 CR4: 00000000000006b0
- Call Trace:
-  text_poke_bp+0x27/0x64
-  ? mutex_lock+0x36/0x5d
-  arch_ftrace_update_trampoline+0x287/0x2d5
-  ? ftrace_replace_code+0x14b/0x160
-  ? ftrace_update_ftrace_func+0x65/0x6c
-  __register_ftrace_function+0x6d/0x81
-  ftrace_startup+0x23/0xc1
-  register_ftrace_function+0x20/0x37
-  func_set_flag+0x59/0x77
-  __set_tracer_option.isra.19+0x20/0x3e
-  trace_set_options+0xd6/0x13e
-  apply_trace_boot_options+0x44/0x6d
-  register_tracer+0x19e/0x1ac
-  early_trace_init+0x21b/0x2c9
-  start_kernel+0x241/0x518
-  ? load_ucode_intel_bsp+0x21/0x52
-  secondary_startup_64+0xa4/0xb0
+Yes that it can happen.
 
-I was able to trigger it on other machines, when I added to the kernel
-command line of both "ftrace=function" and "trace_options=func_stack_trace".
+>>>
+>>>> Regarding the validity of d_fsdata, we are setting the dmabuf's
+>>>> dentry->d_fsdata to NULL in the dma_buf_release() thus can go invalid if
+>>>> that dmabuf is in the free path.
+>>>
+>>> Why are we allowing the name to be set if the dmabuf is on the free path
+>>> at all?  Shouldn't that be the real fix here?
 
-The cause is the "ftrace=function" would register the function tracer
-and create a trampoline, and it will set it as executable and
-read-only. Then the "trace_options=func_stack_trace" would then update
-the same trampoline to include the stack tracer version of the function
-tracer. But since the trampoline already exists, it updates it with
-text_poke_bp(). The problem is that text_poke_bp() called while
-system_state == SYSTEM_BOOTING, it will simply do a memcpy() and not
-the page mapping, as it would think that the text is still read-write.
-But in this case it is not, and we take a fault and crash.
+I don't think that user setting the name is the problem but accessing
+the ->name while dmabuf is on the free path. And given a dmabuf we don't
+know If that is already in the free path.
 
-Instead, lets keep the ftrace trampolines read-write during boot up,
-and then when the kernel executable text is set to read-only, the
-ftrace trampolines get set to read-only as well.
+>>>
+>>>>>> @@ -80,12 +79,16 @@ static int dma_buf_fs_init_context(struct fs_context *fc)
+>>>>>>  static int dma_buf_release(struct inode *inode, struct file *file)
+>>>>>>  {
+>>>>>>          struct dma_buf *dmabuf;
+>>>>>> +        struct dentry *dentry = file->f_path.dentry;
+>>>>>>
+>>>>>>          if (!is_dma_buf_file(file))
+>>>>>>                  return -EINVAL;
+>>>>>>
+>>>>>>          dmabuf = file->private_data;
+>>>>>>
+>>>>>> +        spin_lock(&dentry->d_lock);
+>>>>>> +        dentry->d_fsdata = NULL;
+>>>>>> +        spin_unlock(&dentry->d_lock);
+>>>>>>          BUG_ON(dmabuf->vmapping_counter);
+>>>>>>
+>>>>>>          /*
+>>>>>> @@ -343,6 +346,7 @@ static long dma_buf_set_name(struct dma_buf *dmabuf, const char __user *buf)
+>>>>>>          }
+>>>>>>          kfree(dmabuf->name);
+>>>>>>          dmabuf->name = name;
+>>>>>> +        dmabuf->file->f_path.dentry->d_fsdata = name;
+>>>>>
+>>>>> You are just changing the use of d_fsdata from being a pointer to the
+>>>>> dmabuf to being a pointer to the name string?  What's to keep that name
+>>>>> string around and not have the same reference counting issues that the
+>>>>> dmabuf structure itself has?  Who frees that string memory?
+>>>>>
+>>>>
+>>>> Yes, I am just storing the name string in the d_fsdata in place of
+>>>> dmabuf and this helps to get rid of any extra refcount requirement.
+>>>> Because the user passed name carried in the d_fsdata is copied to the
+>>>> local buffer in dmabuffs_dname under spin_lock(d_lock) and the same
+>>>> d_fsdata is set to NULL(under the d_lock only) when that dmabuf is in
+>>>> the release path. So, when d_fsdata is NULL, name string is not accessed
+>>>> from the dmabuffs_dname thus extra count is not required.
+>>>>
+>>>> String memory, stored in the dmabuf->name, is released from the
+>>>> dma_buf_release(). Flow will be like, It fist sets d_fsdata=NULL and
+>>>> then free the dmabuf->name.
+>>>>
+>>>> However from your comments I have realized that there is a race in this
+>>>> patch when using the name string between dma_buf_set_name() and
+>>>> dmabuffs_dname(). But, If the idea of passing the name string inplace of
+>>>> dmabuf in d_fsdata looks fine, I can update this next patch.
+>>>
+>>> I'll leave that to the dmabuf authors/maintainers, but it feels odd to
+>>> me...
+>>
+>> I have zero clue about fs internals. This all scares me, that's all. I
+>> know enough about lifetime bugs that if you don't deeply understand a
+>> subsystem, all that's guaranteed is that you will get it wrong.
+> 
+> Likewise, and that made me realise that the 'fix' may not be as
+> innocuous or quick.
+> 
+> I will try to check with some folks more experienced than me in the fs
+> domain and see what is the logical way to handle it.
+> 
 
-Link: https://lkml.kernel.org/r/20200430202147.4dc6e2de@oasis.local.home
+BTW, I also would like to bring your notice that we have seen
+sleep-while-atomic bug in the dmabuffs_dname() because of the mutex
+used. It is caused from the SELinux permissions checks. I think SELinux
+tries to validate the inherited files from fork + exec and in doing so,
+it has to traverse the files. So, it relies on iterate_fd() (which
+traverse files under spin_lock) and call
+match_file(security/selinux/hooks.c) where the permission checks happen
+and then dumps the information logs using dump_common_audit_data(). This
+function is what actually trying to get the file path name and thus use
+d_path(). If the file check happen on the dmabuf's fd, then it ends up
+in ->dmabuffs_dname() under spin_lock(). So, flow will be like:
+flush_unauthorized_files()
+  iterate_fd()
+    spin_lock()
+      match_file()
+        file_has_perm()
+          avc_has_perm()
+            avc_audit()
+              slow_avc_audit()
+	        common_lsm_audit()
+		  dump_common_audit_data()
+		    audit_log_d_path()
+		      d_path()
+                        dmabuffs_dname()
+                          mutex_lock()--> Sleep while atomic.
 
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: stable@vger.kernel.org
-Fixes: 768ae4406a5c ("x86/ftrace: Use text_poke()")
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- arch/x86/include/asm/ftrace.h  |  6 ++++++
- arch/x86/kernel/ftrace.c       | 29 ++++++++++++++++++++++++++++-
- arch/x86/mm/init_64.c          |  3 +++
- include/linux/ftrace.h         | 23 +++++++++++++++++++++++
- kernel/trace/ftrace_internal.h | 22 ----------------------
- 5 files changed, 60 insertions(+), 23 deletions(-)
+So, we have to remove the use of mutex in the dmabuffs_dname(which is
+another bug in the existing code).
 
-diff --git a/arch/x86/include/asm/ftrace.h b/arch/x86/include/asm/ftrace.h
-index 85be2f506272..89af0d2c62aa 100644
---- a/arch/x86/include/asm/ftrace.h
-+++ b/arch/x86/include/asm/ftrace.h
-@@ -56,6 +56,12 @@ struct dyn_arch_ftrace {
- 
- #ifndef __ASSEMBLY__
- 
-+#if defined(CONFIG_FUNCTION_TRACER) && defined(CONFIG_DYNAMIC_FTRACE)
-+extern void set_ftrace_ops_ro(void);
-+#else
-+static inline void set_ftrace_ops_ro(void) { }
-+#endif
-+
- #define ARCH_HAS_SYSCALL_MATCH_SYM_NAME
- static inline bool arch_syscall_match_sym_name(const char *sym, const char *name)
- {
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 37a0aeaf89e7..b0e641793be4 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -407,7 +407,8 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 
- 	set_vm_flush_reset_perms(trampoline);
- 
--	set_memory_ro((unsigned long)trampoline, npages);
-+	if (likely(system_state != SYSTEM_BOOTING))
-+		set_memory_ro((unsigned long)trampoline, npages);
- 	set_memory_x((unsigned long)trampoline, npages);
- 	return (unsigned long)trampoline;
- fail:
-@@ -415,6 +416,32 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	return 0;
- }
- 
-+void set_ftrace_ops_ro(void)
-+{
-+	struct ftrace_ops *ops;
-+	unsigned long start_offset;
-+	unsigned long end_offset;
-+	unsigned long npages;
-+	unsigned long size;
-+
-+	do_for_each_ftrace_op(ops, ftrace_ops_list) {
-+		if (!(ops->flags & FTRACE_OPS_FL_ALLOC_TRAMP))
-+			continue;
-+
-+		if (ops->flags & FTRACE_OPS_FL_SAVE_REGS) {
-+			start_offset = (unsigned long)ftrace_regs_caller;
-+			end_offset = (unsigned long)ftrace_regs_caller_end;
-+		} else {
-+			start_offset = (unsigned long)ftrace_caller;
-+			end_offset = (unsigned long)ftrace_epilogue;
-+		}
-+		size = end_offset - start_offset;
-+		size = size + RET_SIZE + sizeof(void *);
-+		npages = DIV_ROUND_UP(size, PAGE_SIZE);
-+		set_memory_ro((unsigned long)ops->trampoline, npages);
-+	} while_for_each_ftrace_op(ops);
-+}
-+
- static unsigned long calc_trampoline_call_offset(bool save_regs)
- {
- 	unsigned long start_offset;
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 3b289c2f75cd..8b5f73f5e207 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -54,6 +54,7 @@
- #include <asm/init.h>
- #include <asm/uv/uv.h>
- #include <asm/setup.h>
-+#include <asm/ftrace.h>
- 
- #include "mm_internal.h"
- 
-@@ -1291,6 +1292,8 @@ void mark_rodata_ro(void)
- 	all_end = roundup((unsigned long)_brk_end, PMD_SIZE);
- 	set_memory_nx(text_end, (all_end - text_end) >> PAGE_SHIFT);
- 
-+	set_ftrace_ops_ro();
-+
- #ifdef CONFIG_CPA_DEBUG
- 	printk(KERN_INFO "Testing CPA: undo %lx-%lx\n", start, end);
- 	set_memory_rw(start, (end-start) >> PAGE_SHIFT);
-diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
-index db95244a62d4..ab4bd15cbcdb 100644
---- a/include/linux/ftrace.h
-+++ b/include/linux/ftrace.h
-@@ -210,6 +210,29 @@ struct ftrace_ops {
- #endif
- };
- 
-+extern struct ftrace_ops __rcu *ftrace_ops_list;
-+extern struct ftrace_ops ftrace_list_end;
-+
-+/*
-+ * Traverse the ftrace_global_list, invoking all entries.  The reason that we
-+ * can use rcu_dereference_raw_check() is that elements removed from this list
-+ * are simply leaked, so there is no need to interact with a grace-period
-+ * mechanism.  The rcu_dereference_raw_check() calls are needed to handle
-+ * concurrent insertions into the ftrace_global_list.
-+ *
-+ * Silly Alpha and silly pointer-speculation compiler optimizations!
-+ */
-+#define do_for_each_ftrace_op(op, list)			\
-+	op = rcu_dereference_raw_check(list);			\
-+	do
-+
-+/*
-+ * Optimized for just a single item in the list (as that is the normal case).
-+ */
-+#define while_for_each_ftrace_op(op)				\
-+	while (likely(op = rcu_dereference_raw_check((op)->next)) &&	\
-+	       unlikely((op) != &ftrace_list_end))
-+
- /*
-  * Type of the current tracing.
-  */
-diff --git a/kernel/trace/ftrace_internal.h b/kernel/trace/ftrace_internal.h
-index 0456e0a3dab1..382775edf690 100644
---- a/kernel/trace/ftrace_internal.h
-+++ b/kernel/trace/ftrace_internal.h
-@@ -4,28 +4,6 @@
- 
- #ifdef CONFIG_FUNCTION_TRACER
- 
--/*
-- * Traverse the ftrace_global_list, invoking all entries.  The reason that we
-- * can use rcu_dereference_raw_check() is that elements removed from this list
-- * are simply leaked, so there is no need to interact with a grace-period
-- * mechanism.  The rcu_dereference_raw_check() calls are needed to handle
-- * concurrent insertions into the ftrace_global_list.
-- *
-- * Silly Alpha and silly pointer-speculation compiler optimizations!
-- */
--#define do_for_each_ftrace_op(op, list)			\
--	op = rcu_dereference_raw_check(list);			\
--	do
--
--/*
-- * Optimized for just a single item in the list (as that is the normal case).
-- */
--#define while_for_each_ftrace_op(op)				\
--	while (likely(op = rcu_dereference_raw_check((op)->next)) &&	\
--	       unlikely((op) != &ftrace_list_end))
--
--extern struct ftrace_ops __rcu *ftrace_ops_list;
--extern struct ftrace_ops ftrace_list_end;
- extern struct mutex ftrace_lock;
- extern struct ftrace_ops global_ops;
- 
+Call trace captured is as below:
+___might_sleep+0x204/0x208
+__might_sleep+0x50/0x88
+__mutex_lock_common+0x5c/0x1068
+__mutex_lock_common+0x5c/0x1068
+mutex_lock_nested+0x40/0x50
+dmabuffs_dname+0xa0/0x170
+d_path+0x84/0x290
+audit_log_d_path+0x74/0x130
+common_lsm_audit+0x334/0x6e8
+slow_avc_audit+0xb8/0xf8
+avc_has_perm+0x154/0x218
+file_has_perm+0x70/0x180
+match_file+0x60/0x78
+iterate_fd+0x128/0x168
+selinux_bprm_committing_creds+0x178/0x248
+security_bprm_committing_creds+0x30/0x48
+install_exec_creds+0x1c/0x68
+load_elf_binary+0x3a4/0x14e0
+search_binary_handler+0xb0/0x1e0
+
+>>
+>> /me out
+>>
+>> Cheers, Daniel
+>>
+> 
+> Best,
+> Sumit.
+> 
+
 -- 
-2.26.2
-
-
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
+Forum, a Linux Foundation Collaborative Project
