@@ -2,59 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8451D2812
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 08:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DC701D2886
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 09:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726090AbgENGm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 02:42:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47104 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726088AbgENGm0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 02:42:26 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22AA3C061A0C
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 23:42:26 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id z72so21480562wmc.2
-        for <stable@vger.kernel.org>; Wed, 13 May 2020 23:42:26 -0700 (PDT)
+        id S1725878AbgENHIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 03:08:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51172 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725866AbgENHIh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 03:08:37 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBF94C061A0C
+        for <stable@vger.kernel.org>; Thu, 14 May 2020 00:08:36 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id x7so22813637oic.3
+        for <stable@vger.kernel.org>; Thu, 14 May 2020 00:08:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fooishbar-org.20150623.gappssmtp.com; s=20150623;
+        d=ffwll.ch; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Jx7qglq93rWDanidzQRtYPLYgQThofsEoYOfwLqQhc0=;
-        b=vJsbUxRyyUlKCO7bodkCSLhazXXcrW2rlT5uXYdav7sHNPuukNCjoJCjKYeLd4pwiN
-         RTDxD+R035RfhEmet5tCdwUlSGIoDOwduimQl3Yo7W5BWTOWWEoKrAq66TB6kpAkvMMF
-         V1ot/YnQjf6tcXeZZs2OlGDvcAHRdlZQIs3J2/rLuUO4Pr8AlUfB5HA8jlTPItg32H7J
-         Nd/TbIbnjVt6Fli8avZGrxwopAjLJobBOwhovnZ1gLgfUU8SzG1MEujiO2cOKDcS0Fwi
-         wMEr5jmrHVK1GoT0hEZ2dtyL+9AK12VyyQqUIgiqDarMc+MoEhEg+PsEgQSO+OfrDmNa
-         LgkA==
+        bh=biA9r0T5Sv8YCx33FWjEpY/1dzcGIkDdNQS4u+MoouI=;
+        b=RagWkUEEVxT3M0/6JygfpeHFqxjNSK9bLGwanXl+yLlMcDld9yavXpnYjhC9HsYTyt
+         IpbbT6bHMaMd2f9vY6YNn+nUwDS2OMydKVzTrB2VzDs5z9m/uiV2W+qu69XkVhRE9U/D
+         JCKPy6/hBAHyVbbUSJo1VFF3mcNxHW3TBhsy4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Jx7qglq93rWDanidzQRtYPLYgQThofsEoYOfwLqQhc0=;
-        b=Gq1JfKw1vWZlZ56ETjqpwCCAxXYBf9qrbuQI/z8Rw6Taq4hLIqFZIzZDfCydduaIT4
-         0JeWVB4eaER16Mvjk75FILOKs/0Zjv60P6aTfkkoKKK71geuXY6Ev+hEvg764meLYvui
-         /i/xtCXC5ka79uBH1sBIGR8L/Gh6zZ+aDfl94VSw2T4xzJ+0pzLQV1CucJgQNBrGF3EA
-         QtcQbevTWTlifQtoNSTiHdJYC07Sfoo8OHco1MVkSeVp6QvGDKkSmBAZgCbO7WofkY4V
-         NgI8qRrFz0eEE5+PExZ+Y/bPr2HMvHombqz6P6OZAhkgOgXVo0c0ToCj6iARmsF1cvfq
-         BSSg==
-X-Gm-Message-State: AGi0PuZYst/TOV88IL9jRbYNK9B2pzWMCQf0RYEp0m7IE4VMkUpASsiS
-        QLtM25HPVeD8OzsUV20++cG620XXoPBuoRL3vzlNCA==
-X-Google-Smtp-Source: APiQypLH364lYxNqugtZIJWLLbIKFfVxH1Let0bIRxUi5KBU+tIytLWGafmeWA+xyDd9uh1HVWhThY+2FWEvWMxEX3Q=
-X-Received: by 2002:a1c:2d02:: with SMTP id t2mr46616464wmt.98.1589438544740;
- Wed, 13 May 2020 23:42:24 -0700 (PDT)
+        bh=biA9r0T5Sv8YCx33FWjEpY/1dzcGIkDdNQS4u+MoouI=;
+        b=QlWfor33DMQlWvhJBN8kFv8EWFGCYSTnV5wPahRhs/G7KSs+x1ILJoFBP8aNgnQCY0
+         oO30zv4mLD6p4GmlcLvsV1BRYt/NvPcup12kZEbw2UkGKBTXGr21qTYSBJlXYwk4Ehv3
+         fAniUUSbcEUdOYi3UXpkH4rmWcWkrHRXX+ck+l3912GcM8fUJtQH6Sa/X9S1DhLGtFu7
+         RtRjvmdAL38up9G4AVIYK5Ub9u98e+KHaydcrDgtO54VDnypnUlYdfQuD6gkcABl85L8
+         weRVYg/WmxKXoMClVIcUXL0ZoSR4prtxcCIjPJirFe+tGfuy7NzBKuFPb6zCtGf68Gi6
+         AnMw==
+X-Gm-Message-State: AGi0PubQ7Q0mdO+ji+DmHBRDlp9NACpUb5l0u//Heq4qEaQoKBa6vncU
+        cJYZO/sTY5bRBjjbhdwh9SbDb92eJy02I+ISru3wx28N
+X-Google-Smtp-Source: APiQypKJ6btuyR96uWgPEvWVBRFi5eTdiYG7q16E+P138IuV2y8xg7pd1Cxf/tBRYAklxwLz52LrYL47V81D1ObHYgU=
+X-Received: by 2002:aca:3b41:: with SMTP id i62mr11137374oia.101.1589440116176;
+ Thu, 14 May 2020 00:08:36 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200408162403.3616785-1-daniel.vetter@ffwll.ch>
-In-Reply-To: <20200408162403.3616785-1-daniel.vetter@ffwll.ch>
-From:   Daniel Stone <daniel@fooishbar.org>
-Date:   Thu, 14 May 2020 07:40:47 +0100
-Message-ID: <CAPj87rMJNwp0t4B0KxH7J_2__4eT7+ZJeG-=_juLSDhPc2hLHQ@mail.gmail.com>
+References: <20200408162403.3616785-1-daniel.vetter@ffwll.ch> <CAPj87rMJNwp0t4B0KxH7J_2__4eT7+ZJeG-=_juLSDhPc2hLHQ@mail.gmail.com>
+In-Reply-To: <CAPj87rMJNwp0t4B0KxH7J_2__4eT7+ZJeG-=_juLSDhPc2hLHQ@mail.gmail.com>
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Thu, 14 May 2020 09:08:24 +0200
+Message-ID: <CAKMK7uFU7ST9LWmpfhTuk1-_ES6VU-cUogMnPjA15BWFsEVacw@mail.gmail.com>
 Subject: Re: [PATCH] drm: avoid spurious EBUSY due to nonblocking atomic modesets
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+To:     Daniel Stone <daniel@fooishbar.org>
 Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
         Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
         Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
-        stable@vger.kernel.org, Daniel Stone <daniels@collabora.com>,
+        stable <stable@vger.kernel.org>,
+        Daniel Stone <daniels@collabora.com>,
         =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
         Daniel Vetter <daniel.vetter@intel.com>
 Content-Type: text/plain; charset="UTF-8"
@@ -63,11 +61,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 8 Apr 2020 at 17:24, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
-> Resending because last attempt failed CI and meanwhile the results are
-> lost :-/
+On Thu, May 14, 2020 at 8:42 AM Daniel Stone <daniel@fooishbar.org> wrote:
+>
+> On Wed, 8 Apr 2020 at 17:24, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+> > Resending because last attempt failed CI and meanwhile the results are
+> > lost :-/
+>
+> Did anything happen with this?
 
-Did anything happen with this?
+Nope. There's an igt now that fails with this, and I'm not sure
+whether changing the igt is the right idea or not.
 
-Cheers,
-Daniel
+I'm kinda now thinking about changing this to instead document under
+which exact situations you can get a spurious EBUSY, and enforcing
+that in the code with some checks. Essentially only possible if you do
+a ALLOW_MODESET | NONBLOCKING on the other crtc. And then tell
+userspace you get to eat that. We've been shipping with this for so
+long by now that's defacto the uapi anyway :-/
+
+Thoughts? Too horrible?
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
