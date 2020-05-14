@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5D7F1D3A54
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C3471D3B1E
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729452AbgENSzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:55:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56284 "EHLO mail.kernel.org"
+        id S1729466AbgENSzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729446AbgENSzl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:55:41 -0400
+        id S1729453AbgENSzm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:55:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F4652076A;
-        Thu, 14 May 2020 18:55:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57E212074A;
+        Thu, 14 May 2020 18:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482540;
-        bh=4zIpcCXF6mOwa7JcGshnJHN7vHRqZxuFzWlbLOYLqz4=;
+        s=default; t=1589482542;
+        bh=sbMQ17tuiGvvseNECrP7Uo64U8wNFQxpIZK6xRPt+dM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IarTvLVRGW5MLbDz12khV9m+Xqeqf3VWTj3ehO4bCbhz+T2/NrWrBf3P9edXusoNh
-         1EeCwEnbOkUUqOA6Jg38EjJ3VPvLYo2Lt/KYS4kLaucL/Rq8/K3TUVp81iOUn4f74f
-         bF/Z+t2eyMIjjB4fTfKCjNy/R7spoxPatgzjcajs=
+        b=dbFIcmYGjhS+0iEhVJqJgWATPmukXEM4z5zXftQa2rcg8bVQKUzpNywuvzkUVwHvz
+         wP8apK3Bbin5Ulfg+W1bc1Cso2RfV9PnCF+cqIQcfK10ecyiZjkIO8Gf8vdvf0sbaH
+         Nts3Q1M2RTpSp6f7BOQQDYDBbFmpYoYukb/mMFjM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wu Bo <wubo40@huawei.com>, "Yan, Zheng" <zyan@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 33/39] ceph: fix double unlock in handle_cap_export()
-Date:   Thu, 14 May 2020 14:54:50 -0400
-Message-Id: <20200514185456.21060-33-sashal@kernel.org>
+Cc:     Tariq Toukan <tariqt@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 34/39] net/mlx4_core: Fix use of ENOSPC around mlx4_counter_alloc()
+Date:   Thu, 14 May 2020 14:54:51 -0400
+Message-Id: <20200514185456.21060-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185456.21060-1-sashal@kernel.org>
 References: <20200514185456.21060-1-sashal@kernel.org>
@@ -43,35 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Bo <wubo40@huawei.com>
+From: Tariq Toukan <tariqt@mellanox.com>
 
-[ Upstream commit 4d8e28ff3106b093d98bfd2eceb9b430c70a8758 ]
+[ Upstream commit 40e473071dbad04316ddc3613c3a3d1c75458299 ]
 
-If the ceph_mdsc_open_export_target_session() return fails, it will
-do a "goto retry", but the session mutex has already been unlocked.
-Re-lock the mutex in that case to ensure that we don't unlock it
-twice.
+When ENOSPC is set the idx is still valid and gets set to the global
+MLX4_SINK_COUNTER_INDEX.  However gcc's static analysis cannot tell that
+ENOSPC is impossible from mlx4_cmd_imm() and gives this warning:
 
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+drivers/net/ethernet/mellanox/mlx4/main.c:2552:28: warning: 'idx' may be
+used uninitialized in this function [-Wmaybe-uninitialized]
+ 2552 |    priv->def_counter[port] = idx;
+
+Also, when ENOSPC is returned mlx4_allocate_default_counters should not
+fail.
+
+Fixes: 6de5f7f6a1fa ("net/mlx4_core: Allocate default counter per port")
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx4/main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 1b5a50848b5be..589cfe3ed873b 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -3502,6 +3502,7 @@ static void handle_cap_export(struct inode *inode, struct ceph_mds_caps *ex,
- 		WARN_ON(1);
- 		tsession = NULL;
- 		target = -1;
-+		mutex_lock(&session->s_mutex);
- 	}
- 	goto retry;
+diff --git a/drivers/net/ethernet/mellanox/mlx4/main.c b/drivers/net/ethernet/mellanox/mlx4/main.c
+index 12d4b891301b6..cf9011bb6e0f1 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -2503,6 +2503,7 @@ static int mlx4_allocate_default_counters(struct mlx4_dev *dev)
  
+ 		if (!err || err == -ENOSPC) {
+ 			priv->def_counter[port] = idx;
++			err = 0;
+ 		} else if (err == -ENOENT) {
+ 			err = 0;
+ 			continue;
+@@ -2553,7 +2554,8 @@ int mlx4_counter_alloc(struct mlx4_dev *dev, u32 *idx, u8 usage)
+ 				   MLX4_CMD_TIME_CLASS_A, MLX4_CMD_WRAPPED);
+ 		if (!err)
+ 			*idx = get_param_l(&out_param);
+-
++		if (WARN_ON(err == -ENOSPC))
++			err = -EINVAL;
+ 		return err;
+ 	}
+ 	return __mlx4_counter_alloc(dev, idx);
 -- 
 2.20.1
 
