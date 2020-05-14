@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCF521D39DC
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3D21D3CF5
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728307AbgENSwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:52:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
+        id S1730148AbgENTKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 15:10:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728298AbgENSwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:52:24 -0400
+        id S1728271AbgENSwZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:52:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D37552065F;
-        Thu, 14 May 2020 18:52:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E807F207C3;
+        Thu, 14 May 2020 18:52:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482343;
-        bh=vSq6GEaaTggr4ryfJsodFdPoAGAAd+nM4yc6WZxN46A=;
+        s=default; t=1589482344;
+        bh=/eryEzJwcM6AO6qAExUDhUQLSZNz2j9Mo1ilCofKZ7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tDpPycG5aRTbIeplqsPUO7VgsWh16QhIFh+BjevLy7rxdIiBow8zGt5rlaY12oZCl
-         fzcjI7ENlrWdI9L6XTS8eTgRhRt47a1k+bcL/iosJwqa7JWs+p8FKJj2DwTv+HGXDe
-         P9XMHKwW1EsgoDj9N8a0+4CBPPAWoF9Q9oFpOcNM=
+        b=MTAK48SFcyVjThfV7RwGZJSnPxjIi/PeWpAIn3bm4R0Y5YTNPCuHbYfVyuu8b7qHv
+         zo4CAh0Q1ltODkPRjy15VHEN6fsFodmMLQCnNV66vhB0Rim/Odom9GteEisQk8h1SY
+         Z2ZUj1ApuxapdmiCHTdw7OPraUMLWFv7m/xMSgdw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 27/62] selftests: fix kvm relocatable native/cross builds and installs
-Date:   Thu, 14 May 2020 14:51:12 -0400
-Message-Id: <20200514185147.19716-27-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 28/62] x86/apic: Move TSC deadline timer debug printk
+Date:   Thu, 14 May 2020 14:51:13 -0400
+Message-Id: <20200514185147.19716-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185147.19716-1-sashal@kernel.org>
 References: <20200514185147.19716-1-sashal@kernel.org>
@@ -43,127 +43,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 66d69e081b526b6a6031f0d3ca8ddff71e5707a5 ]
+[ Upstream commit c84cb3735fd53c91101ccdb191f2e3331a9262cb ]
 
-kvm test Makefile doesn't fully support cross-builds and installs.
-UNAME_M = $(shell uname -m) variable is used to define the target
-programs and libraries to be built from arch specific sources in
-sub-directories.
+Leon reported that the printk_once() in __setup_APIC_LVTT() triggers a
+lockdep splat due to a lock order violation between hrtimer_base::lock and
+console_sem, when the 'once' condition is reset via
+/sys/kernel/debug/clear_warn_once after boot.
 
-For cross-builds to work, UNAME_M has to map to ARCH and arch specific
-directories and targets in this Makefile.
+The initial printk cannot trigger this because that happens during boot
+when the local APIC timer is set up on the boot CPU.
 
-UNAME_M variable to used to run the compiles pointing to the right arch
-directories and build the right targets for these supported architectures.
+Prevent it by moving the printk to a place which is guaranteed to be only
+called once during boot.
 
-TEST_GEN_PROGS and LIBKVM are set using UNAME_M variable.
-LINUX_TOOL_ARCH_INCLUDE is set using ARCH variable.
+Mark the deadline timer check related functions and data __init while at
+it.
 
-x86_64 targets are named to include x86_64 as a suffix and directories
-for includes are in x86_64 sub-directory. s390x and aarch64 follow the
-same convention. "uname -m" doesn't result in the correct mapping for
-s390x and aarch64. Fix it to set UNAME_M correctly for s390x and aarch64
-cross-builds.
-
-In addition, Makefile doesn't create arch sub-directories in the case of
-relocatable builds and test programs under s390x and x86_64 directories
-fail to build. This is a problem for native and cross-builds. Fix it to
-create all necessary directories keying off of TEST_GEN_PROGS.
-
-The following use-cases work with this change:
-
-Native x86_64:
-make O=/tmp/kselftest -C tools/testing/selftests TARGETS=kvm install \
- INSTALL_PATH=$HOME/x86_64
-
-arm64 cross-build:
-make O=$HOME/arm64_build/ ARCH=arm64 HOSTCC=gcc \
-	CROSS_COMPILE=aarch64-linux-gnu- defconfig
-
-make O=$HOME/arm64_build/ ARCH=arm64 HOSTCC=gcc \
-	CROSS_COMPILE=aarch64-linux-gnu- all
-
-make kselftest-install TARGETS=kvm O=$HOME/arm64_build ARCH=arm64 \
-	HOSTCC=gcc CROSS_COMPILE=aarch64-linux-gnu-
-
-s390x cross-build:
-make O=$HOME/s390x_build/ ARCH=s390 HOSTCC=gcc \
-	CROSS_COMPILE=s390x-linux-gnu- defconfig
-
-make O=$HOME/s390x_build/ ARCH=s390 HOSTCC=gcc \
-	CROSS_COMPILE=s390x-linux-gnu- all
-
-make kselftest-install TARGETS=kvm O=$HOME/s390x_build/ ARCH=s390 \
-	HOSTCC=gcc CROSS_COMPILE=s390x-linux-gnu- all
-
-No regressions in the following use-cases:
-make -C tools/testing/selftests TARGETS=kvm
-make kselftest-all TARGETS=kvm
-
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Reported-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/87y2qhoshi.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/Makefile | 29 +++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+ arch/x86/kernel/apic/apic.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index d91c53b726e60..75dec268787f3 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -5,8 +5,34 @@ all:
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 5f973fed3c9ff..e289722b04f63 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -352,8 +352,6 @@ static void __setup_APIC_LVTT(unsigned int clocks, int oneshot, int irqen)
+ 		 * According to Intel, MFENCE can do the serialization here.
+ 		 */
+ 		asm volatile("mfence" : : : "memory");
+-
+-		printk_once(KERN_DEBUG "TSC deadline timer enabled\n");
+ 		return;
+ 	}
  
- top_srcdir = ../../../..
- KSFT_KHDR_INSTALL := 1
-+
-+# For cross-builds to work, UNAME_M has to map to ARCH and arch specific
-+# directories and targets in this Makefile. "uname -m" doesn't map to
-+# arch specific sub-directory names.
-+#
-+# UNAME_M variable to used to run the compiles pointing to the right arch
-+# directories and build the right targets for these supported architectures.
-+#
-+# TEST_GEN_PROGS and LIBKVM are set using UNAME_M variable.
-+# LINUX_TOOL_ARCH_INCLUDE is set using ARCH variable.
-+#
-+# x86_64 targets are named to include x86_64 as a suffix and directories
-+# for includes are in x86_64 sub-directory. s390x and aarch64 follow the
-+# same convention. "uname -m" doesn't result in the correct mapping for
-+# s390x and aarch64.
-+#
-+# No change necessary for x86_64
- UNAME_M := $(shell uname -m)
+@@ -552,7 +550,7 @@ static DEFINE_PER_CPU(struct clock_event_device, lapic_events);
+ #define DEADLINE_MODEL_MATCH_REV(model, rev)	\
+ 	{ X86_VENDOR_INTEL, 6, model, X86_FEATURE_ANY, (unsigned long)rev }
  
-+# Set UNAME_M for arm64 compile/install to work
-+ifeq ($(ARCH),arm64)
-+	UNAME_M := aarch64
-+endif
-+# Set UNAME_M s390x compile/install to work
-+ifeq ($(ARCH),s390)
-+	UNAME_M := s390x
-+endif
-+
- LIBKVM = lib/assert.c lib/elf.c lib/io.c lib/kvm_util.c lib/sparsebit.c
- LIBKVM_x86_64 = lib/x86_64/processor.c lib/x86_64/vmx.c lib/x86_64/svm.c lib/x86_64/ucall.c
- LIBKVM_aarch64 = lib/aarch64/processor.c lib/aarch64/ucall.c
-@@ -47,7 +73,7 @@ LIBKVM += $(LIBKVM_$(UNAME_M))
- INSTALL_HDR_PATH = $(top_srcdir)/usr
- LINUX_HDR_PATH = $(INSTALL_HDR_PATH)/include/
- LINUX_TOOL_INCLUDE = $(top_srcdir)/tools/include
--LINUX_TOOL_ARCH_INCLUDE = $(top_srcdir)/tools/arch/x86/include
-+LINUX_TOOL_ARCH_INCLUDE = $(top_srcdir)/tools/arch/$(ARCH)/include
- CFLAGS += -Wall -Wstrict-prototypes -Wuninitialized -O2 -g -std=gnu99 \
- 	-fno-stack-protector -fno-PIE -I$(LINUX_TOOL_INCLUDE) \
- 	-I$(LINUX_TOOL_ARCH_INCLUDE) -I$(LINUX_HDR_PATH) -Iinclude \
-@@ -78,6 +104,7 @@ $(LIBKVM_OBJ): $(OUTPUT)/%.o: %.c
- $(OUTPUT)/libkvm.a: $(LIBKVM_OBJ)
- 	$(AR) crs $@ $^
+-static u32 hsx_deadline_rev(void)
++static __init u32 hsx_deadline_rev(void)
+ {
+ 	switch (boot_cpu_data.x86_stepping) {
+ 	case 0x02: return 0x3a; /* EP */
+@@ -562,7 +560,7 @@ static u32 hsx_deadline_rev(void)
+ 	return ~0U;
+ }
  
-+x := $(shell mkdir -p $(sort $(dir $(TEST_GEN_PROGS))))
- all: $(STATIC_LIBS)
- $(TEST_GEN_PROGS): $(STATIC_LIBS)
+-static u32 bdx_deadline_rev(void)
++static __init u32 bdx_deadline_rev(void)
+ {
+ 	switch (boot_cpu_data.x86_stepping) {
+ 	case 0x02: return 0x00000011;
+@@ -574,7 +572,7 @@ static u32 bdx_deadline_rev(void)
+ 	return ~0U;
+ }
  
+-static u32 skx_deadline_rev(void)
++static __init u32 skx_deadline_rev(void)
+ {
+ 	switch (boot_cpu_data.x86_stepping) {
+ 	case 0x03: return 0x01000136;
+@@ -587,7 +585,7 @@ static u32 skx_deadline_rev(void)
+ 	return ~0U;
+ }
+ 
+-static const struct x86_cpu_id deadline_match[] = {
++static const struct x86_cpu_id deadline_match[] __initconst = {
+ 	DEADLINE_MODEL_MATCH_FUNC( INTEL_FAM6_HASWELL_X,	hsx_deadline_rev),
+ 	DEADLINE_MODEL_MATCH_REV ( INTEL_FAM6_BROADWELL_X,	0x0b000020),
+ 	DEADLINE_MODEL_MATCH_FUNC( INTEL_FAM6_BROADWELL_D,	bdx_deadline_rev),
+@@ -609,18 +607,19 @@ static const struct x86_cpu_id deadline_match[] = {
+ 	{},
+ };
+ 
+-static void apic_check_deadline_errata(void)
++static __init bool apic_validate_deadline_timer(void)
+ {
+ 	const struct x86_cpu_id *m;
+ 	u32 rev;
+ 
+-	if (!boot_cpu_has(X86_FEATURE_TSC_DEADLINE_TIMER) ||
+-	    boot_cpu_has(X86_FEATURE_HYPERVISOR))
+-		return;
++	if (!boot_cpu_has(X86_FEATURE_TSC_DEADLINE_TIMER))
++		return false;
++	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
++		return true;
+ 
+ 	m = x86_match_cpu(deadline_match);
+ 	if (!m)
+-		return;
++		return true;
+ 
+ 	/*
+ 	 * Function pointers will have the MSB set due to address layout,
+@@ -632,11 +631,12 @@ static void apic_check_deadline_errata(void)
+ 		rev = (u32)m->driver_data;
+ 
+ 	if (boot_cpu_data.microcode >= rev)
+-		return;
++		return true;
+ 
+ 	setup_clear_cpu_cap(X86_FEATURE_TSC_DEADLINE_TIMER);
+ 	pr_err(FW_BUG "TSC_DEADLINE disabled due to Errata; "
+ 	       "please update microcode to version: 0x%x (or later)\n", rev);
++	return false;
+ }
+ 
+ /*
+@@ -2098,7 +2098,8 @@ void __init init_apic_mappings(void)
+ {
+ 	unsigned int new_apicid;
+ 
+-	apic_check_deadline_errata();
++	if (apic_validate_deadline_timer())
++		pr_debug("TSC deadline timer available\n");
+ 
+ 	if (x2apic_mode) {
+ 		boot_cpu_physical_apicid = read_apic_id();
 -- 
 2.20.1
 
