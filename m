@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B42021D3A56
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B331D3B23
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729471AbgENSzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:55:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56362 "EHLO mail.kernel.org"
+        id S1729483AbgENSzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:55:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729461AbgENSzo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:55:44 -0400
+        id S1728575AbgENSzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:55:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96A2C206DC;
-        Thu, 14 May 2020 18:55:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C10532076A;
+        Thu, 14 May 2020 18:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482543;
-        bh=B/jjLS5yxQUp47SB+Cv7TQJ3NiJnGkYG/R0jVVbl/mY=;
+        s=default; t=1589482544;
+        bh=QUFetR9UqtfJBD0l1eafaBNbAy+eu3AJDBGIyKjgDC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3p7iVjMadQF7Txl+8eprxMrKXYXLi63J9Mz5N5BDdOoTm5yr1CYKCh1Za64o3UQw
-         ipN4OT6IAwBhi+G4zZkKfJsLpQ0ScfmYlycAZuxcYRj5wlo8m7vsgcj09HUpshu5ec
-         Qx0974iRyY7+++l/SbeQNie5tWwZdKus9qVT1LRw=
+        b=lboxmf33XnHH2uOkDp+DG+yNUgazOZtnJOd3w+q+Q6Dp8IE0G8zz0Yk8HWrb4tKeF
+         KDChD78rnoWjFts2y1UdCbp2kosqhYNwuwABX3IBT/ObCwNq5kc+n/Guun6qUHzIaU
+         n8eAIBB57BULeDJ1UyKAflmKDjfAWlH0GiAtKQ7o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+db339689b2101f6f6071@syzkaller.appspotmail.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 35/39] USB: core: Fix misleading driver bug report
-Date:   Thu, 14 May 2020 14:54:52 -0400
-Message-Id: <20200514185456.21060-35-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        acpi4asus-user@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 36/39] platform/x86: asus-nb-wmi: Do not load on Asus T100TA and T200TA
+Date:   Thu, 14 May 2020 14:54:53 -0400
+Message-Id: <20200514185456.21060-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185456.21060-1-sashal@kernel.org>
 References: <20200514185456.21060-1-sashal@kernel.org>
@@ -44,67 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit ac854131d9844f79e2fdcef67a7707227538d78a ]
+[ Upstream commit 3bd12da7f50b8bc191fcb3bab1f55c582234df59 ]
 
-The syzbot fuzzer found a race between URB submission to endpoint 0
-and device reset.  Namely, during the reset we call usb_ep0_reinit()
-because the characteristics of ep0 may have changed (if the reset
-follows a firmware update, for example).  While usb_ep0_reinit() is
-running there is a brief period during which the pointers stored in
-udev->ep_in[0] and udev->ep_out[0] are set to NULL, and if an URB is
-submitted to ep0 during that period, usb_urb_ep_type_check() will
-report it as a driver bug.  In the absence of those pointers, the
-routine thinks that the endpoint doesn't exist.  The log message looks
-like this:
+asus-nb-wmi does not add any extra functionality on these Asus
+Transformer books. They have detachable keyboards, so the hotkeys are
+send through a HID device (and handled by the hid-asus driver) and also
+the rfkill functionality is not used on these devices.
 
-------------[ cut here ]------------
-usb 2-1: BOGUS urb xfer, pipe 2 != type 2
-WARNING: CPU: 0 PID: 9241 at drivers/usb/core/urb.c:478
-usb_submit_urb+0x1188/0x1460 drivers/usb/core/urb.c:478
+Besides not adding any extra functionality, initializing the WMI interface
+on these devices actually has a negative side-effect. For some reason
+the \_SB.ATKD.INIT() function which asus_wmi_platform_init() calls drives
+GPO2 (INT33FC:02) pin 8, which is connected to the front facing webcam LED,
+high and there is no (WMI or other) interface to drive this low again
+causing the LED to be permanently on, even during suspend.
 
-Now, although submitting an URB while the device is being reset is a
-questionable thing to do, it shouldn't count as a driver bug as severe
-as submitting an URB for an endpoint that doesn't exist.  Indeed,
-endpoint 0 always exists, even while the device is in its unconfigured
-state.
+This commit adds a blacklist of DMI system_ids on which not to load the
+asus-nb-wmi and adds these Transformer books to this list. This fixes
+the webcam LED being permanently on under Linux.
 
-To prevent these misleading driver bug reports, this patch updates
-usb_disable_endpoint() to avoid clearing the ep_in[] and ep_out[]
-pointers when the endpoint being disabled is ep0.  There's no danger
-of leaving a stale pointer in place, because the usb_host_endpoint
-structure being pointed to is stored permanently in udev->ep0; it
-doesn't get deallocated until the entire usb_device structure does.
-
-Reported-and-tested-by: syzbot+db339689b2101f6f6071@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2005011558590.903-100000@netrider.rowland.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/message.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/x86/asus-nb-wmi.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-index 00e80cfe614ce..298c91f83aeec 100644
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -1082,11 +1082,11 @@ void usb_disable_endpoint(struct usb_device *dev, unsigned int epaddr,
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 59f3a37a44d7a..8db2dc05b8cf2 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -517,9 +517,33 @@ static struct asus_wmi_driver asus_nb_wmi_driver = {
+ 	.detect_quirks = asus_nb_wmi_quirks,
+ };
  
- 	if (usb_endpoint_out(epaddr)) {
- 		ep = dev->ep_out[epnum];
--		if (reset_hardware)
-+		if (reset_hardware && epnum != 0)
- 			dev->ep_out[epnum] = NULL;
- 	} else {
- 		ep = dev->ep_in[epnum];
--		if (reset_hardware)
-+		if (reset_hardware && epnum != 0)
- 			dev->ep_in[epnum] = NULL;
- 	}
- 	if (ep) {
++static const struct dmi_system_id asus_nb_wmi_blacklist[] __initconst = {
++	{
++		/*
++		 * asus-nb-wm adds no functionality. The T100TA has a detachable
++		 * USB kbd, so no hotkeys and it has no WMI rfkill; and loading
++		 * asus-nb-wm causes the camera LED to turn and _stay_ on.
++		 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100TA"),
++		},
++	},
++	{
++		/* The Asus T200TA has the same issue as the T100TA */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T200TA"),
++		},
++	},
++	{} /* Terminating entry */
++};
+ 
+ static int __init asus_nb_wmi_init(void)
+ {
++	if (dmi_check_system(asus_nb_wmi_blacklist))
++		return -ENODEV;
++
+ 	return asus_wmi_register_driver(&asus_nb_wmi_driver);
+ }
+ 
 -- 
 2.20.1
 
