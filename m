@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B6A41D3B40
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19E2B1D3A5B
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728533AbgENTAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 15:00:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56470 "EHLO mail.kernel.org"
+        id S1729514AbgENSzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:55:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729495AbgENSzs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:55:48 -0400
+        id S1729512AbgENSzw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:55:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 623AE206DC;
-        Thu, 14 May 2020 18:55:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33920206DC;
+        Thu, 14 May 2020 18:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482548;
-        bh=bHdvG3V+cRt4VsuuMeScm5UtgDdc/bM/8nMMg9log5w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fvGD8EZD5czHaGF7wtjfIb2gotMsaqAEeoEdSknAv8jntH77aR8ZKNf9SX3i+qGXD
-         4d2qd8UkODduYnGQxyaLqltb07p1wAhnR0HZfhIjt61vjKVvExw1slcH5GhzhapgE7
-         ARKzWe6eHrhA2EBd0JFRMzCnVKWk+nJa1jFNu0zg=
+        s=default; t=1589482552;
+        bh=4kPiZPVeQUl8TP3Xtfxjsm362Xey/pqo3zMNZweN9pg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZHqvUWMHHs7kDxgdpi3asEWNOk9K+VHkT6r8p1cIxxYAwRviNyLLlTpwW5YCUdj0m
+         t3zW6EJHcKlRcGnV0sQD+nlC2SrxoqKjqo8je+8QdxRUwMDPBXAyWyhoFLNuSR1d9F
+         JCLcFIhYsy25ahW93Mg+WmvAIuf5NN9yYHhRdGgU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 39/39] crypto: xts - simplify error handling in ->create()
-Date:   Thu, 14 May 2020 14:54:56 -0400
-Message-Id: <20200514185456.21060-39-sashal@kernel.org>
+Cc:     Sergei Trofimovich <slyfox@gentoo.org>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/27] Makefile: disallow data races on gcc-10 as well
+Date:   Thu, 14 May 2020 14:55:24 -0400
+Message-Id: <20200514185550.21462-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200514185456.21060-1-sashal@kernel.org>
-References: <20200514185456.21060-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,91 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-[ Upstream commit 732e540953477083082e999ff553622c59cffd5f ]
+[ Upstream commit b1112139a103b4b1101d0d2d72931f2d33d8c978 ]
 
-Simplify the error handling in the XTS template's ->create() function by
-taking advantage of crypto_drop_skcipher() now accepting (as a no-op) a
-spawn that hasn't been grabbed yet.
+gcc-10 will rename --param=allow-store-data-races=0
+to -fno-allow-store-data-races.
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The flag change happened at https://gcc.gnu.org/PR92046.
+
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Acked-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/xts.c | 28 +++++++++++-----------------
- 1 file changed, 11 insertions(+), 17 deletions(-)
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/crypto/xts.c b/crypto/xts.c
-index e31828ed00466..c8ab2e0cda47c 100644
---- a/crypto/xts.c
-+++ b/crypto/xts.c
-@@ -525,15 +525,15 @@ static int create(struct crypto_template *tmpl, struct rtattr **tb)
+diff --git a/Makefile b/Makefile
+index 2a923301987e5..4ff8ea7d2835e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -672,6 +672,7 @@ KBUILD_CFLAGS += $(call cc-ifversion, -lt, 0409, \
  
- 	err = -EINVAL;
- 	if (alg->base.cra_blocksize != XTS_BLOCK_SIZE)
--		goto err_drop_spawn;
-+		goto err_free_inst;
+ # Tell gcc to never replace conditional load with a non-conditional one
+ KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
++KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
  
- 	if (crypto_skcipher_alg_ivsize(alg))
--		goto err_drop_spawn;
-+		goto err_free_inst;
- 
- 	err = crypto_inst_setname(skcipher_crypto_instance(inst), "xts",
- 				  &alg->base);
- 	if (err)
--		goto err_drop_spawn;
-+		goto err_free_inst;
- 
- 	err = -EINVAL;
- 	cipher_name = alg->base.cra_name;
-@@ -546,20 +546,20 @@ static int create(struct crypto_template *tmpl, struct rtattr **tb)
- 
- 		len = strlcpy(ctx->name, cipher_name + 4, sizeof(ctx->name));
- 		if (len < 2 || len >= sizeof(ctx->name))
--			goto err_drop_spawn;
-+			goto err_free_inst;
- 
- 		if (ctx->name[len - 1] != ')')
--			goto err_drop_spawn;
-+			goto err_free_inst;
- 
- 		ctx->name[len - 1] = 0;
- 
- 		if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
- 			     "xts(%s)", ctx->name) >= CRYPTO_MAX_ALG_NAME) {
- 			err = -ENAMETOOLONG;
--			goto err_drop_spawn;
-+			goto err_free_inst;
- 		}
- 	} else
--		goto err_drop_spawn;
-+		goto err_free_inst;
- 
- 	inst->alg.base.cra_flags = alg->base.cra_flags & CRYPTO_ALG_ASYNC;
- 	inst->alg.base.cra_priority = alg->base.cra_priority;
-@@ -583,17 +583,11 @@ static int create(struct crypto_template *tmpl, struct rtattr **tb)
- 	inst->free = free;
- 
- 	err = skcipher_register_instance(tmpl, inst);
--	if (err)
--		goto err_drop_spawn;
--
--out:
--	return err;
--
--err_drop_spawn:
--	crypto_drop_skcipher(&ctx->spawn);
-+	if (err) {
- err_free_inst:
--	kfree(inst);
--	goto out;
-+		free(inst);
-+	}
-+	return err;
- }
- 
- static struct crypto_template crypto_tmpl = {
+ # check for 'asm goto'
+ ifeq ($(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-goto.sh $(CC) $(KBUILD_CFLAGS)), y)
 -- 
 2.20.1
 
