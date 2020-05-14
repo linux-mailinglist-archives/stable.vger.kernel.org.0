@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F4A1D3CDD
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:16:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 930821D3CC7
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728784AbgENTKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 15:10:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50826 "EHLO mail.kernel.org"
+        id S1728365AbgENTKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 15:10:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728366AbgENSwd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:52:33 -0400
+        id S1728374AbgENSwf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:52:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 356892065F;
-        Thu, 14 May 2020 18:52:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E5892074A;
+        Thu, 14 May 2020 18:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482353;
-        bh=SAfOCFHBexJBzEkBuz8E/9AxJgu9uGJhvz1+5p2MdQM=;
+        s=default; t=1589482354;
+        bh=ohwbQZY6QHdivKiazf0CJGB7g/yVODd2beXogKwiMJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxwmraHy4rM5ddMCvR6DWzRjdn04ajGgoYCDmu66UuJjuKhfwK5GdiEzUgi+8dz7J
-         XcAXBp2RPn73NTZ3TpdXE/jApzmeq1znviErXAJmjxrrP7r0+zDmLD+CuRVGLH3Oke
-         0V4XJvZKWB/in3scoc5oaYvjND3cxD0URpP61LuU=
+        b=ibtICn1zihKxZqkrK9ARlH3+F5Mw8wJBu6jea+n3eLRe7PjBy0nsPex8MYwTz7WiJ
+         pklp0+eveJTStwPMEvaNopu0BC0my3rTupWo03YeKM6X8tLfEgVWZc12F8QS6N4bZQ
+         xd2m/gtV5pHazuJ+PLJ/DRxvwj5a3h3Pq07OwZqA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 34/62] sun6i: dsi: fix gcc-4.8
-Date:   Thu, 14 May 2020 14:51:19 -0400
-Message-Id: <20200514185147.19716-34-sashal@kernel.org>
+Cc:     Wu Bo <wubo40@huawei.com>, "Yan, Zheng" <zyan@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 35/62] ceph: fix double unlock in handle_cap_export()
+Date:   Thu, 14 May 2020 14:51:20 -0400
+Message-Id: <20200514185147.19716-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185147.19716-1-sashal@kernel.org>
 References: <20200514185147.19716-1-sashal@kernel.org>
@@ -46,43 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Wu Bo <wubo40@huawei.com>
 
-[ Upstream commit 3a3a71f97c30983f1627c2c550d43566e9b634d2 ]
+[ Upstream commit 4d8e28ff3106b093d98bfd2eceb9b430c70a8758 ]
 
-Older compilers warn about initializers with incorrect curly
-braces:
+If the ceph_mdsc_open_export_target_session() return fails, it will
+do a "goto retry", but the session mutex has already been unlocked.
+Re-lock the mutex in that case to ensure that we don't unlock it
+twice.
 
-drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c: In function 'sun6i_dsi_encoder_enable':
-drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c:720:8: error: missing braces around initializer [-Werror=missing-braces]
-  union phy_configure_opts opts = { 0 };
-        ^
-drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c:720:8: error: (near initialization for 'opts.mipi_dphy') [-Werror=missing-braces]
-
-Use the GNU empty initializer extension to avoid this.
-
-Fixes: bb3b6fcb6849 ("sun6i: dsi: Convert to generic phy handling")
-Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200428215105.3928459-1-arnd@arndb.de
+Signed-off-by: Wu Bo <wubo40@huawei.com>
+Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/caps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-index a75fcb1131724..2b6d77ca3dfc2 100644
---- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-+++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-@@ -719,7 +719,7 @@ static void sun6i_dsi_encoder_enable(struct drm_encoder *encoder)
- 	struct drm_display_mode *mode = &encoder->crtc->state->adjusted_mode;
- 	struct sun6i_dsi *dsi = encoder_to_sun6i_dsi(encoder);
- 	struct mipi_dsi_device *device = dsi->device;
--	union phy_configure_opts opts = { 0 };
-+	union phy_configure_opts opts = { };
- 	struct phy_configure_opts_mipi_dphy *cfg = &opts.mipi_dphy;
- 	u16 delay;
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index d050acc1fd5d9..f50204380a65d 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -3707,6 +3707,7 @@ static void handle_cap_export(struct inode *inode, struct ceph_mds_caps *ex,
+ 		WARN_ON(1);
+ 		tsession = NULL;
+ 		target = -1;
++		mutex_lock(&session->s_mutex);
+ 	}
+ 	goto retry;
  
 -- 
 2.20.1
