@@ -2,105 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 555E61D2FD5
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 14:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7FE91D3033
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 14:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726073AbgENMcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 08:32:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45380 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725925AbgENMcz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 08:32:55 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D8D5C061A0C
-        for <stable@vger.kernel.org>; Thu, 14 May 2020 05:32:55 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id m24so20549156wml.2
-        for <stable@vger.kernel.org>; Thu, 14 May 2020 05:32:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Hs0b6CimQtwFi7aqQ0x2t0EfYjjIMEZ9m/N7F6YQDAY=;
-        b=YgWHkQTYQPFppqYsLPN4O7w4lYivEAnsEzMA+LRaWDfv1qHjFZT7jJduso+EFh/hnh
-         BmsjyF8UrLtntddw7ns7M8+fhWv+y4cDydxv3fKuQ73T16tDKeVw7qrfp+ced3x5ZpsD
-         AkPmYBhTTcBPvfKZDxpbZ0iFajRNhq0rxkirk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Hs0b6CimQtwFi7aqQ0x2t0EfYjjIMEZ9m/N7F6YQDAY=;
-        b=Plh8nWFCX6eEae+oeNh/92Ug2xAdXSiiF3CiiH6k9OJcMnDOV6vKzT/hoQIQpaj1Lb
-         t/DfZCh8uFZ29o/wF/69w2UpCahmUY/u+/hI823/bo6cUaSVdu/SU3vzWYyXa+EZ0w4m
-         5DXVB6I27ZyFpPBa1c1VO96B3Y+TrK5o37niSbHxLimnQWo0gR8m1lvZ0X1CDRDxET58
-         9sUS8I84CcB809yr+cDnhqDN3sglaIqBWQHl+SV7pajDN6M0C1C8OqDSQxj6Lvpt8FcY
-         /8jebpeAFmnnfCORIKu4LFIdG2N89z06gyad6s7110xV1njdAtM4Amd+rnmY2CCT2Zio
-         rb7A==
-X-Gm-Message-State: AGi0Pua7juiAmDey1+huMC7Nqsfn5htCxMXp+OoPEhgOVZ/iKccvbb+U
-        nie9c7wEtWBCeQ1QpIdGpSdj17ySHoo=
-X-Google-Smtp-Source: APiQypLwlYFf18uBo+jfC26cvoH7AqKeY4MEhPzSMIyKaNwga5O97X2GrG0P30+6HD8/aszlGaAbDg==
-X-Received: by 2002:a1c:bbc5:: with SMTP id l188mr27784086wmf.163.1589459573864;
-        Thu, 14 May 2020 05:32:53 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id x23sm38645260wmj.6.2020.05.14.05.32.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2020 05:32:53 -0700 (PDT)
-Date:   Thu, 14 May 2020 14:32:51 +0200
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Daniel Stone <daniel@fooishbar.org>
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        DRI Development <dri-devel@lists.freedesktop.org>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
-        stable <stable@vger.kernel.org>,
-        Daniel Stone <daniels@collabora.com>,
-        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: Re: [PATCH] drm: avoid spurious EBUSY due to nonblocking atomic
- modesets
-Message-ID: <20200514123251.GR206103@phenom.ffwll.local>
-References: <20200408162403.3616785-1-daniel.vetter@ffwll.ch>
- <CAPj87rMJNwp0t4B0KxH7J_2__4eT7+ZJeG-=_juLSDhPc2hLHQ@mail.gmail.com>
- <CAKMK7uFU7ST9LWmpfhTuk1-_ES6VU-cUogMnPjA15BWFsEVacw@mail.gmail.com>
- <CAPj87rNRLsGJcGEM3dYnitYMwjh7iMNjo9KT=xcDZ0hebRC9iw@mail.gmail.com>
- <CAKMK7uG6krmntPW6Mud7aouvM=NRspYHoBdKeSwxS8wDwDZRkQ@mail.gmail.com>
- <CAPj87rO1oG00ipUA57a1kGu7K2=-ugTreM7QXy_tWjbZ+KzkFg@mail.gmail.com>
+        id S1726073AbgENMqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 08:46:18 -0400
+Received: from sonic305-21.consmr.mail.ne1.yahoo.com ([66.163.185.147]:40786
+        "EHLO sonic305-21.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726037AbgENMqS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 08:46:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589460377; bh=+NKq2YP/4c3bLm2HmGhxa/KCZOXr0NIUKHs/ECuC0yk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=FGrd93FwKvkMEAfo2ya0gPZpz4EYdjLcl1jxv08SgSFsVCAVQp4gEDczvk//wPeOLcy8A9wltPVg6ItIGb2/OhSFkGVavZo9328oW1TyCv7Tf5ynoLZP741i0Te5yz3SJtgcVFelJ8ESV4cTSx8Grx2PPrmP66HrqDKBuHKKWXPmwnQXMxapJlH0piD6pGJGOoyEoXDMk2B1acITIyaX97NxCsAlJJxzxqIjKOv9x2Ka5mwSQBKSELpqnDuBtrALxVYTaubqFGSeq3ZO+ThbhRayNIHBW3FmMlun/rlwFK/izw4+JL6o61lMVqAcw1qV3r65c6YO6/MGFcaNOdB7rg==
+X-YMail-OSG: NFjme_UVM1ma33R8Jk204u6oTWI2ggTQRkToFfsC8JiBSwQXvFJ9jFnu0eC2bmv
+ 1EXlk_BrDi7qQgGnBWdnuAaNm3IGjjvOXqxB2ntKlGHW39YeQlDx1vyg9gpKFGpcQiXqjSsQVCZz
+ AJSw35oU3IoOyt5B6aFIzL9unx6Oc8oJpCvF85IkLrlNuXOFSPqP_13az4dfjQWqjrq_cs.QC92D
+ 9.r9YO74rN5.czjOncnKsrMgDOfp_bmLGsnhoizBDJgs26UKzmxjpH7JNDaOO_nSQuzk5VKOxswg
+ fbcaDfBgkDDbRuHoXG0KkZUdivnefBjkcqpY0ImK_GRnEbz9d1ljqeYakfBRko1hrwraPocn9mgm
+ GDGtV3alXzmorJBiC7MVrdx07hvBddDCaZ1VlymjEUm.gUXvA7JyoGRZNPDPEtxLn248A8QIIQi6
+ fCc9NW5mKA7ipwISOui2lQhmIKK36Mdrr_ZH6ldnpkoZvChmGFThh0blKP4Egx0RyZk451Eu_OsF
+ fjeQF3tIuxoud.ld8CrSyUwaFzbG_sXL_IFzqhnFU_H2zK8WVrvIfwuTHvWxzwV7D6Flog2VE6gU
+ uIoflECcsWsMj3_oOvzXOsBflaM_4Y3DkEGRFUvzwAR4Jm2yFChEPHiEUsFZes7NC29nMI8Tb6fe
+ RnAl0roYYxx4fVx0NUrjOeku6i8iIRqS1HWBc7FEDw7j0xk5znHWK84GmOqOcL7gPMWftNY2NXma
+ 8i0x82howSVNmn_R4nG82wu.09uhYi686xdwyRa51hapnfeBosUcNotBjvBg8Bs6o13Qfvl2KeMr
+ zcgvYJxY8vj8E6Q8XU_7TBOXInQBBkT0W6oBdAws.ZRyniUC74DvG9oQ0.4O_gUuPwn6vzj7QsRb
+ KI45x0B11SHhMKTPMRWHxgsHbX_RXFDlvBsSNpXG_2R4V8ipNgNulXp7GkDSVgx15Bbe4lNNXM9C
+ Au4fVPrgPpWetp_DFaQmIoU8C3wbB9Vnz9tmwmYFkscRysv0ixMUteMeUsWuJ89DA3FCBqYFtDEm
+ cdsssTCIUIaAdZNi5RdGkXSJRwPtIDzU0wcR.l92BwMMvIniEYWs_BCi0FlX7g4dRAGlXSjvCGSt
+ eon6HO4MkR262ZXYAzIheXQ3TGAZTzhcMObaROVRR66ji.d7dn5vyaTZ5P9R3pHite_bQujBj2hy
+ X0Q1C1YVwMjvSNSFO.77i276vP4a5VqAt1fleD5NiFV009xNVIFpl85ChIvttKjc.WC16ZmcNr98
+ AD55KRhPem6r9xNMeL.khyJOYU9XYMBF_P19.Gp7fY6hHeXxL0R5HrmGAXQNQDooiEAxE_D.oSHi
+ .7Q--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.ne1.yahoo.com with HTTP; Thu, 14 May 2020 12:46:17 +0000
+Date:   Thu, 14 May 2020 12:46:17 +0000 (UTC)
+From:   "Mrs. Mina A. Brunel" <mrs.minaabrunel209@gmail.com>
+Reply-To: mrs.minaabrunel30@gmail.com
+Message-ID: <128063437.104418.1589460377514@mail.yahoo.com>
+Subject: My Dear in the lord
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPj87rO1oG00ipUA57a1kGu7K2=-ugTreM7QXy_tWjbZ+KzkFg@mail.gmail.com>
-X-Operating-System: Linux phenom 5.6.0-1-amd64 
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <128063437.104418.1589460377514.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.15941 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 14, 2020 at 08:40:21AM +0100, Daniel Stone wrote:
-> On Thu, 14 May 2020 at 08:25, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
-> > On Thu, May 14, 2020 at 9:18 AM Daniel Stone <daniel@fooishbar.org> wrote:
-> > > On Thu, 14 May 2020 at 08:08, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
-> > > I'd be very much in favour of putting the blocking down in the kernel
-> > > at least until the kernel can give us a clear indication to tell us
-> > > what's going on, and ideally which other resources need to be dragged
-> > > in, in a way which is distinguishable from your compositor having
-> > > broken synchronisation.
-> >
-> > We know, the patch already computes that ... So would be a matter of
-> > exporting that to userspace. We have a mask of all additional crtc
-> > that will get an event and will -EBUSY until that's done.
-> 
-> Yep, but unless and until that happens, could we please get this in?
-> Given it would require uAPI changes, we'd need to modify all the
-> compositors to work with the old path (random EBUSY) and the new path
-> (predictable and obvious), so at least preserving the promise that
-> per-CRTC updates are really independent would be good.
 
-I haven't found the time to look at the intel-gfx-ci fail in igt nor
-really think about that. Nor care enough to just hammer this ignoring ci,
-since I didn't even get around to understand why the igt now fails If
-someone else takes this over, happy to see it land.
--Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+
+My Dear in the lord
+
+
+My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
+na Faso, I am married to Mr. Brunel Patrice, a politician who owns a small =
+gold company in Burkina Faso; He died of Leprosy and Radesyge, in the year =
+February 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Mi=
+llion Euro) Eight million, Five hundred thousand Euros in a bank in Ouagado=
+ugou the capital city of Burkina Faso in West Africa. The money was from th=
+e sale of his company and death benefits payment and entitlements of my dec=
+eased husband by his company.
+
+I am sending you this message with heavy tears in my eyes and great sorrow =
+in my heart, and also praying that it will reach you in good health because=
+ I am not in good health, I sleep every night without knowing if I may be a=
+live to see the next day. I am suffering from long time cancer and presentl=
+y I am partially suffering from Leprosy, which has become difficult for me =
+to move around. I was married to my late husband for more than 6 years with=
+out having a child and my doctor confided that I have less chance to live, =
+having to know when the cup of death will come, I decided to contact you to=
+ claim the fund since I don't have any relation I grew up from an orphanage=
+ home.
+
+I have decided to donate this money for the support of helping Motherless b=
+abies/Less privileged/Widows and churches also to build the house of God be=
+cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
+cided to donate from what I have inherited from my late husband to you for =
+the good work of Almighty God; I will be going in for an operation surgery =
+soon.
+
+Now I want you to stand as my next of kin to claim the funds for charity pu=
+rposes. Because of this money remains unclaimed after my death, the bank ex=
+ecutives or the government will take the money as unclaimed fund and maybe =
+use it for selfishness and worthless ventures, I need a very honest person =
+who can claim this money and use it for Charity works, for orphanages, wido=
+ws and also build schools and churches for less privilege that will be name=
+d after my late husband and my name.
+
+I need your urgent answer to know if you will be able to execute this proje=
+ct, and I will give you more information on how the fund will be transferre=
+d to your bank account or online banking.
+
+Thanks
+Mrs. Mina A. Brunel
