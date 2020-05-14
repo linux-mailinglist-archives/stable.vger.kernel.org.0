@@ -2,43 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EED111D3C50
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0625E1D39ED
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728514AbgENSw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:52:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51770 "EHLO mail.kernel.org"
+        id S1728524AbgENSw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:52:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728498AbgENSw5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:52:57 -0400
+        id S1728510AbgENSw6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:52:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AE8C207BB;
-        Thu, 14 May 2020 18:52:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 012B52065F;
+        Thu, 14 May 2020 18:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482376;
-        bh=MlcSKljYgpljWuTEmbal7pi1lzXa0+HQgb/c7fOshqM=;
+        s=default; t=1589482377;
+        bh=iYOKdNcutYidCxHGWJIfBepkfclK6/2LI0QUfCIk4Pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evYAfMKkbXm3BtszFEzq/4CcopWluGbQRZUaxOy7s7XSytzG9rVNMzOBCtTQdxkXD
-         PekUC8WeQlwwK8zpfyJu4qkHYJOYJiAL1SH4iJDl2Wt72Oa7wrjreUNMoQjUlnZM4s
-         f6Lm8SU6/E35rDA9MbA+bRh6d2ET+sFamvyLyfLM=
+        b=ieHITNlybZun7CQFpZ6tdKFstkC1PNZDpa7J4UlV78UEFK5YZ8q/NmwtroQikswKd
+         6Uktq6pCEScgRlzWgluBL1p60dPbRuvRFdyDCrhbNCGx6sKVi+EOlV+UubqvJdWc3d
+         lt7NGcUNLluvaZ+pAcej2ugfqSkO23XureBNyVpc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aymeric Agon-Rambosson <aymeric.agon@yandex.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Kieran Bingham <kbingham@kernel.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Nikolay Borisov <n.borisov.lkml@gmail.com>,
-        Jackie Liu <liuyun01@kylinos.cn>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 53/62] scripts/gdb: repair rb_first() and rb_last()
-Date:   Thu, 14 May 2020 14:51:38 -0400
-Message-Id: <20200514185147.19716-53-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 54/62] Stop the ad-hoc games with -Wno-maybe-initialized
+Date:   Thu, 14 May 2020 14:51:39 -0400
+Message-Id: <20200514185147.19716-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185147.19716-1-sashal@kernel.org>
 References: <20200514185147.19716-1-sashal@kernel.org>
@@ -51,55 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aymeric Agon-Rambosson <aymeric.agon@yandex.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 50e36be1fb9572b2e4f2753340bdce3116bf2ce7 ]
+[ Upstream commit 78a5255ffb6a1af189a83e493d916ba1c54d8c75 ]
 
-The current implementations of the rb_first() and rb_last() gdb
-functions have a variable that references itself in its instanciation,
-which causes the function to throw an error if a specific condition on
-the argument is met.  The original author rather intended to reference
-the argument and made a typo.  Referring the argument instead makes the
-function work as intended.
+We have some rather random rules about when we accept the
+"maybe-initialized" warnings, and when we don't.
 
-Signed-off-by: Aymeric Agon-Rambosson <aymeric.agon@yandex.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Kieran Bingham <kbingham@kernel.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Nikolay Borisov <n.borisov.lkml@gmail.com>
-Cc: Jackie Liu <liuyun01@kylinos.cn>
-Cc: Jason Wessel <jason.wessel@windriver.com>
-Link: http://lkml.kernel.org/r/20200427051029.354840-1-aymeric.agon@yandex.com
+For example, we consider it unreliable for gcc versions < 4.9, but also
+if -O3 is enabled, or if optimizing for size.  And then various kernel
+config options disabled it, because they know that they trigger that
+warning by confusing gcc sufficiently (ie PROFILE_ALL_BRANCHES).
+
+And now gcc-10 seems to be introducing a lot of those warnings too, so
+it falls under the same heading as 4.9 did.
+
+At the same time, we have a very straightforward way to _enable_ that
+warning when wanted: use "W=2" to enable more warnings.
+
+So stop playing these ad-hoc games, and just disable that warning by
+default, with the known and straight-forward "if you want to work on the
+extra compiler warnings, use W=123".
+
+Would it be great to have code that is always so obvious that it never
+confuses the compiler whether a variable is used initialized or not?
+Yes, it would.  In a perfect world, the compilers would be smarter, and
+our source code would be simpler.
+
+That's currently not the world we live in, though.
+
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gdb/linux/rbtree.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Makefile             |  7 +++----
+ init/Kconfig         | 18 ------------------
+ kernel/trace/Kconfig |  1 -
+ 3 files changed, 3 insertions(+), 23 deletions(-)
 
-diff --git a/scripts/gdb/linux/rbtree.py b/scripts/gdb/linux/rbtree.py
-index 39db889b874c9..c4b9916079178 100644
---- a/scripts/gdb/linux/rbtree.py
-+++ b/scripts/gdb/linux/rbtree.py
-@@ -12,7 +12,7 @@ rb_node_type = utils.CachedType("struct rb_node")
+diff --git a/Makefile b/Makefile
+index 744245f0c96cf..d226ec8bd167f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -708,10 +708,6 @@ else ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+ KBUILD_CFLAGS += -Os
+ endif
  
- def rb_first(root):
-     if root.type == rb_root_type.get_type():
--        node = node.address.cast(rb_root_type.get_type().pointer())
-+        node = root.address.cast(rb_root_type.get_type().pointer())
-     elif root.type != rb_root_type.get_type().pointer():
-         raise gdb.GdbError("Must be struct rb_root not {}".format(root.type))
+-ifdef CONFIG_CC_DISABLE_WARN_MAYBE_UNINITIALIZED
+-KBUILD_CFLAGS   += -Wno-maybe-uninitialized
+-endif
+-
+ # Tell gcc to never replace conditional load with a non-conditional one
+ KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
+ KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
+@@ -862,6 +858,9 @@ KBUILD_CFLAGS += -Wno-pointer-sign
+ # disable stringop warnings in gcc 8+
+ KBUILD_CFLAGS += $(call cc-disable-warning, stringop-truncation)
  
-@@ -28,7 +28,7 @@ def rb_first(root):
++# Enabled with W=2, disabled by default as noisy
++KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
++
+ # disable invalid "can't wrap" optimizations for signed / pointers
+ KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
  
- def rb_last(root):
-     if root.type == rb_root_type.get_type():
--        node = node.address.cast(rb_root_type.get_type().pointer())
-+        node = root.address.cast(rb_root_type.get_type().pointer())
-     elif root.type != rb_root_type.get_type().pointer():
-         raise gdb.GdbError("Must be struct rb_root not {}".format(root.type))
+diff --git a/init/Kconfig b/init/Kconfig
+index 4f717bfdbfe2d..ef59c5c36cdb5 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -36,22 +36,6 @@ config TOOLS_SUPPORT_RELR
+ config CC_HAS_ASM_INLINE
+ 	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
  
+-config CC_HAS_WARN_MAYBE_UNINITIALIZED
+-	def_bool $(cc-option,-Wmaybe-uninitialized)
+-	help
+-	  GCC >= 4.7 supports this option.
+-
+-config CC_DISABLE_WARN_MAYBE_UNINITIALIZED
+-	bool
+-	depends on CC_HAS_WARN_MAYBE_UNINITIALIZED
+-	default CC_IS_GCC && GCC_VERSION < 40900  # unreliable for GCC < 4.9
+-	help
+-	  GCC's -Wmaybe-uninitialized is not reliable by definition.
+-	  Lots of false positive warnings are produced in some cases.
+-
+-	  If this option is enabled, -Wno-maybe-uninitialzed is passed
+-	  to the compiler to suppress maybe-uninitialized warnings.
+-
+ config CONSTRUCTORS
+ 	bool
+ 	depends on !UML
+@@ -1249,14 +1233,12 @@ config CC_OPTIMIZE_FOR_PERFORMANCE
+ config CC_OPTIMIZE_FOR_PERFORMANCE_O3
+ 	bool "Optimize more for performance (-O3)"
+ 	depends on ARC
+-	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
+ 	help
+ 	  Choosing this option will pass "-O3" to your compiler to optimize
+ 	  the kernel yet more for performance.
+ 
+ config CC_OPTIMIZE_FOR_SIZE
+ 	bool "Optimize for size (-Os)"
+-	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
+ 	help
+ 	  Choosing this option will pass "-Os" to your compiler resulting
+ 	  in a smaller kernel.
+diff --git a/kernel/trace/Kconfig b/kernel/trace/Kconfig
+index 402eef84c859a..743647005f64e 100644
+--- a/kernel/trace/Kconfig
++++ b/kernel/trace/Kconfig
+@@ -466,7 +466,6 @@ config PROFILE_ANNOTATED_BRANCHES
+ config PROFILE_ALL_BRANCHES
+ 	bool "Profile all if conditionals" if !FORTIFY_SOURCE
+ 	select TRACE_BRANCH_PROFILING
+-	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
+ 	help
+ 	  This tracer profiles all branch conditions. Every if ()
+ 	  taken in the kernel is recorded whether it hit or miss.
 -- 
 2.20.1
 
