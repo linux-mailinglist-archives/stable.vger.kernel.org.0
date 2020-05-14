@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A5AC1D3B37
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC2AC1D3B33
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729245AbgENS74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:59:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56816 "EHLO mail.kernel.org"
+        id S1729555AbgENS7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:59:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729546AbgENS4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:56:00 -0400
+        id S1728305AbgENS4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:56:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD7C3206DC;
-        Thu, 14 May 2020 18:55:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C581207FB;
+        Thu, 14 May 2020 18:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482559;
-        bh=5PdqGDBag7/RCDTVeur3CUfRLsoo1DOUY0IAK6ySQhI=;
+        s=default; t=1589482561;
+        bh=0R8mz2R+nq6sMxuEDlBQl2ByD9/WeJn9V11MB1lxkeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKZ0GR1ONoFAZz4qhA6KLKTUAlYHf+4Gx775ZeOVMZ0mu64Z9W0VHnyx6tUtQYGrF
-         wu2OdCM0prhyV1+XJpI8x+GhCEPCZBsrJuGS6BVp5i2USxhPfMsq0uTtl+8DArl2UZ
-         jJcu8+x/lFkjR0OK5NxSVm7xpnQ2hQgcdoM1XEBM=
+        b=WTK01Ad5NsN2xWeeDtrjKNOv/mq4TzTk+B/M8AKZaGbadLEdT0k6UEZf+PIsSvi3q
+         GWDy40z7EWwTYiaL41DskiJCwK/671bVfkYMjs+jQPi0cjhwz3UpRYh2M02E3CORmj
+         zDDO6W2FHGkSqzahMpHFc8zwmJhfsWod+sNw7nps=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sasha Levin <sashal@kernel.org>,
-        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 07/27] batman-adv: Fix refcnt leak in batadv_v_ogm_process
-Date:   Thu, 14 May 2020 14:55:30 -0400
-Message-Id: <20200514185550.21462-7-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        kbuild test robot <lkp@intel.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 08/27] phy: tegra: Select USB_COMMON for usb_get_maximum_speed()
+Date:   Thu, 14 May 2020 14:55:31 -0400
+Message-Id: <20200514185550.21462-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185550.21462-1-sashal@kernel.org>
 References: <20200514185550.21462-1-sashal@kernel.org>
@@ -46,48 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 6f91a3f7af4186099dd10fa530dd7e0d9c29747d ]
+[ Upstream commit 0d5c9bc7c68009af04bbadf22306467674c6fb90 ]
 
-batadv_v_ogm_process() invokes batadv_hardif_neigh_get(), which returns
-a reference of the neighbor object to "hardif_neigh" with increased
-refcount.
+The usb_get_maximum_speed() function is part of the usb-common module,
+so enable it by selecting the corresponding Kconfig symbol.
 
-When batadv_v_ogm_process() returns, "hardif_neigh" becomes invalid, so
-the refcount should be decreased to keep refcount balanced.
+While at it, also make sure to depend on USB_SUPPORT because USB_PHY
+requires that. This can lead to Kconfig conflicts if USB_SUPPORT is not
+enabled while attempting to enable PHY_TEGRA_XUSB.
 
-The reference counting issue happens in one exception handling paths of
-batadv_v_ogm_process(). When batadv_v_ogm_orig_get() fails to get the
-orig node and returns NULL, the refcnt increased by
-batadv_hardif_neigh_get() is not decreased, causing a refcnt leak.
-
-Fix this issue by jumping to "out" label when batadv_v_ogm_orig_get()
-fails to get the orig node.
-
-Fixes: 9323158ef9f4 ("batman-adv: OGMv2 - implement originators logic")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Reported-by: kbuild test robot <lkp@intel.com>
+Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20200330101038.2422389-1-thierry.reding@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_v_ogm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/tegra/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/bat_v_ogm.c b/net/batman-adv/bat_v_ogm.c
-index b0cae59bd327c..d2e6885479cb1 100644
---- a/net/batman-adv/bat_v_ogm.c
-+++ b/net/batman-adv/bat_v_ogm.c
-@@ -709,7 +709,7 @@ static void batadv_v_ogm_process(const struct sk_buff *skb, int ogm_offset,
+diff --git a/drivers/phy/tegra/Kconfig b/drivers/phy/tegra/Kconfig
+index a3b1de953fb70..bf4e93b835e91 100644
+--- a/drivers/phy/tegra/Kconfig
++++ b/drivers/phy/tegra/Kconfig
+@@ -1,6 +1,7 @@
+ config PHY_TEGRA_XUSB
+ 	tristate "NVIDIA Tegra XUSB pad controller driver"
+-	depends on ARCH_TEGRA
++	depends on ARCH_TEGRA && USB_SUPPORT
++	select USB_COMMON
+ 	help
+ 	  Choose this option if you have an NVIDIA Tegra SoC.
  
- 	orig_node = batadv_v_ogm_orig_get(bat_priv, ogm_packet->orig);
- 	if (!orig_node)
--		return;
-+		goto out;
- 
- 	neigh_node = batadv_neigh_node_get_or_create(orig_node, if_incoming,
- 						     ethhdr->h_source);
 -- 
 2.20.1
 
