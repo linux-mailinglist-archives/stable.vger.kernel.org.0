@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D4E1D3B05
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF5771D3A40
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729275AbgENSzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:55:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55284 "EHLO mail.kernel.org"
+        id S1729278AbgENSzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:55:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729265AbgENSzB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:55:01 -0400
+        id S1728456AbgENSzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:55:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB8BF206F1;
-        Thu, 14 May 2020 18:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F21B52078C;
+        Thu, 14 May 2020 18:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482500;
-        bh=ryExQOqJfowyk+yxGk4cWSfxd7KEFPZqFSFmovtxKUI=;
+        s=default; t=1589482501;
+        bh=jQoFJSWE+b5sWXK1XaHTPQsUf+lErTrt/chz9Uz3FYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vmSORFkyXNoIDDcgHdYF9Y7VdGe9Akq4aQId32J4QrWYUxromnv2MOh9Il6ONLuwd
-         MBxj6sNcIJEdoz3vWyQ9zbBOKnA7MzYUVzTowwJ1VoxsmXRpLr9zwmnO6EDbYS6ykb
-         j6h9xMocEkjwaa9w3cBCKlWLJg/rXx3vMG9uILbc=
+        b=2N/1yElKaywmwGi95IeNn/SJGpRTg+fP6zRJU3bzoGGlmB3FnurJurOO+giCOT16z
+         3ghCiDLTkAeu+qn67qJXUTkCOIBg8pv5K2bR2MZ7ajHnmA/kyoj0BtuVBl2NfksS6O
+         gh5854TdoYGOZuJigyjuB6M7xYLYq5wxOihlpEdQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 03/39] HID: multitouch: add eGalaxTouch P80H84 support
-Date:   Thu, 14 May 2020 14:54:20 -0400
-Message-Id: <20200514185456.21060-3-sashal@kernel.org>
+Cc:     George Spelvin <lkml@sdf.org>, Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>,
+        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/39] batman-adv: fix batadv_nc_random_weight_tq
+Date:   Thu, 14 May 2020 14:54:21 -0400
+Message-Id: <20200514185456.21060-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185456.21060-1-sashal@kernel.org>
 References: <20200514185456.21060-1-sashal@kernel.org>
@@ -43,51 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: George Spelvin <lkml@sdf.org>
 
-[ Upstream commit f9e82295eec141a0569649d400d249333d74aa91 ]
+[ Upstream commit fd0c42c4dea54335967c5a86f15fc064235a2797 ]
 
-Add support for P80H84 touchscreen from eGalaxy:
+and change to pseudorandom numbers, as this is a traffic dithering
+operation that doesn't need crypto-grade.
 
-  idVendor           0x0eef D-WAV Scientific Co., Ltd
-  idProduct          0xc002
-  iManufacturer           1 eGalax Inc.
-  iProduct                2 eGalaxTouch P80H84 2019 vDIVA_1204_T01 k4.02.146
+The previous code operated in 4 steps:
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+1. Generate a random byte 0 <= rand_tq <= 255
+2. Multiply it by BATADV_TQ_MAX_VALUE - tq
+3. Divide by 255 (= BATADV_TQ_MAX_VALUE)
+4. Return BATADV_TQ_MAX_VALUE - rand_tq
+
+This would apperar to scale (BATADV_TQ_MAX_VALUE - tq) by a random
+value between 0/255 and 255/255.
+
+But!  The intermediate value between steps 3 and 4 is stored in a u8
+variable.  So it's truncated, and most of the time, is less than 255, after
+which the division produces 0.  Specifically, if tq is odd, the product is
+always even, and can never be 255.  If tq is even, there's exactly one
+random byte value that will produce a product byte of 255.
+
+Thus, the return value is 255 (511/512 of the time) or 254 (1/512
+of the time).
+
+If we assume that the truncation is a bug, and the code is meant to scale
+the input, a simpler way of looking at it is that it's returning a random
+value between tq and BATADV_TQ_MAX_VALUE, inclusive.
+
+Well, we have an optimized function for doing just that.
+
+Fixes: 3c12de9a5c75 ("batman-adv: network coding - code and transmit packets if possible")
+Signed-off-by: George Spelvin <lkml@sdf.org>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h        | 1 +
- drivers/hid/hid-multitouch.c | 3 +++
- 2 files changed, 4 insertions(+)
+ net/batman-adv/network-coding.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9d372fa7c298c..a1e5e0529545b 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -369,6 +369,7 @@
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002	0xc002
+diff --git a/net/batman-adv/network-coding.c b/net/batman-adv/network-coding.c
+index 7a7dcac205667..7aacec24958eb 100644
+--- a/net/batman-adv/network-coding.c
++++ b/net/batman-adv/network-coding.c
+@@ -1017,15 +1017,8 @@ static struct batadv_nc_path *batadv_nc_get_path(struct batadv_priv *bat_priv,
+  */
+ static u8 batadv_nc_random_weight_tq(u8 tq)
+ {
+-	u8 rand_val, rand_tq;
+-
+-	get_random_bytes(&rand_val, sizeof(rand_val));
+-
+ 	/* randomize the estimated packet loss (max TQ - estimated TQ) */
+-	rand_tq = rand_val * (BATADV_TQ_MAX_VALUE - tq);
+-
+-	/* normalize the randomized packet loss */
+-	rand_tq /= BATADV_TQ_MAX_VALUE;
++	u8 rand_tq = prandom_u32_max(BATADV_TQ_MAX_VALUE + 1 - tq);
  
- #define USB_VENDOR_ID_ELAN		0x04f3
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 07d92d4a9f7c8..db29bf539a4b2 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1550,6 +1550,9 @@ static const struct hid_device_id mt_devices[] = {
- 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
- 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
-+	{ .driver_data = MT_CLS_EGALAX,
-+		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
- 
- 	/* Elitegroup panel */
- 	{ .driver_data = MT_CLS_SERIAL,
+ 	/* convert to (randomized) estimated tq again */
+ 	return BATADV_TQ_MAX_VALUE - rand_tq;
 -- 
 2.20.1
 
