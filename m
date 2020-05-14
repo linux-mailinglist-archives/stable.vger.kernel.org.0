@@ -2,453 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 331521D2AC2
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 10:57:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E64E31D2ADC
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 11:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726139AbgENI5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 04:57:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
+        id S1725935AbgENJEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 05:04:13 -0400
+Received: from mga05.intel.com ([192.55.52.43]:7894 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726140AbgENI5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 04:57:18 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3E58206DC;
-        Thu, 14 May 2020 08:57:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589446635;
-        bh=sFc8UrAuUBE0EcpnCUv0uox7Ut3Ih3dQy2KgpcfVwbI=;
-        h=Subject:To:Cc:From:Date:From;
-        b=ih7Bg3mHzNied5PNY1Hkg0Uq7cpoZlJ2fSd0HdWfRLK74VcwDFBsjYO5H/j6iMTJV
-         V5cD00CXsQCzqlJ50kLxdxyxWP8mTGc46PPAYWP7LfUt52vegopOnCe+GsbuJSDXt0
-         kXPRKmkrd5ydN/jJ4/CbMmuECimzLKYHNTDxhf0M=
-Subject: Linux 5.6.13
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date:   Thu, 14 May 2020 10:56:53 +0200
-Message-ID: <1589446613180105@kroah.com>
+        id S1725878AbgENJEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 05:04:13 -0400
+IronPort-SDR: haClnx/OnqU9S0DKtMd0HxcVR8FY9p+jj6gdWJzbYt+Ua5XzjLSRQc73etcNunWFZEQEe7yiPc
+ YFXjjn/tEydA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 May 2020 02:04:12 -0700
+IronPort-SDR: 6g7PhAes1/ffcOuu602Ss5n1cSCWho6Maf3apvyFknAMH9ujTNMVJn2T0X+HwYWUAK6+Bp6gsC
+ WHWVAqHu26cg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,390,1583222400"; 
+   d="scan'208";a="298647899"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.170]) ([10.237.72.170])
+  by orsmga008.jf.intel.com with ESMTP; 14 May 2020 02:04:08 -0700
+Subject: =?UTF-8?B?UmU6IOWbnuWkjTogW1BBVENIIDEvMV0gdXNiOiBob3N0OiB4aGNpLXBs?=
+ =?UTF-8?Q?at=3a_keep_runtime_active_when_remove_host?=
+To:     Alan Stern <stern@rowland.harvard.edu>,
+        Peter Chen <peter.chen@nxp.com>
+Cc:     Jun Li <jun.li@nxp.com>, Manu Gautam <mgautam@codeaurora.org>,
+        "mathias.nyman@intel.com" <mathias.nyman@intel.com>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        Baolin Wang <baolin.wang@linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20200512023547.31164-1-peter.chen@nxp.com>
+ <a5ba9001-0371-e675-e013-b8dd4f1c38e2@codeaurora.org>
+ <AM7PR04MB7157A3036C121654E7C70FB38BBE0@AM7PR04MB7157.eurprd04.prod.outlook.com>
+ <62e24805-5c80-f6b4-b8ba-cb6d649a878b@linux.intel.com>
+ <VE1PR04MB6528D2A1C08ED9F091BCF3FD89BF0@VE1PR04MB6528.eurprd04.prod.outlook.com>
+ <20200514013221.GA20346@b29397-desktop>
+ <20200514013425.GB10515@rowland.harvard.edu>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=mathias.nyman@linux.intel.com; prefer-encrypt=mutual; keydata=
+ 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 fiD/
+Message-ID: <ac353786-16a5-8e23-4948-fbdef30a786f@linux.intel.com>
+Date:   Thu, 14 May 2020 12:06:59 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+In-Reply-To: <20200514013425.GB10515@rowland.harvard.edu>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.6.13 kernel.
-
-All users of the 5.6 kernel series must upgrade.
-
-The updated 5.6.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.6.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                                   |    2 
- arch/arm/crypto/chacha-glue.c                              |   14 +
- arch/arm/crypto/nhpoly1305-neon-glue.c                     |    2 
- arch/arm/crypto/poly1305-glue.c                            |   15 +
- arch/arm64/crypto/chacha-neon-glue.c                       |   14 +
- arch/arm64/crypto/nhpoly1305-neon-glue.c                   |    2 
- arch/arm64/crypto/poly1305-glue.c                          |   15 +
- arch/arm64/kvm/guest.c                                     |    7 
- arch/arm64/mm/hugetlbpage.c                                |    2 
- arch/riscv/mm/init.c                                       |    3 
- arch/s390/kvm/priv.c                                       |    4 
- arch/x86/crypto/blake2s-glue.c                             |   10 -
- arch/x86/crypto/chacha_glue.c                              |   14 +
- arch/x86/crypto/nhpoly1305-avx2-glue.c                     |    2 
- arch/x86/crypto/nhpoly1305-sse2-glue.c                     |    2 
- arch/x86/crypto/poly1305_glue.c                            |   13 -
- arch/x86/entry/calling.h                                   |   40 ++--
- arch/x86/entry/entry_64.S                                  |   14 -
- arch/x86/include/asm/kvm_host.h                            |    4 
- arch/x86/include/asm/unwind.h                              |    2 
- arch/x86/kernel/unwind_orc.c                               |   61 +++++-
- arch/x86/kvm/ioapic.c                                      |   10 -
- arch/x86/kvm/svm.c                                         |    2 
- arch/x86/kvm/vmx/vmenter.S                                 |    3 
- arch/x86/mm/pat/set_memory.c                               |   12 -
- block/blk-iocost.c                                         |  117 +++++++------
- drivers/amba/bus.c                                         |    1 
- drivers/base/platform.c                                    |    2 
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c                 |    7 
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c      |   31 ++-
- drivers/gpu/drm/ingenic/ingenic-drm.c                      |    1 
- drivers/hid/usbhid/hid-core.c                              |   37 +++-
- drivers/hid/usbhid/usbhid.h                                |    1 
- drivers/hid/wacom_sys.c                                    |    4 
- drivers/hid/wacom_wac.c                                    |   88 ++-------
- drivers/iommu/virtio-iommu.c                               |    2 
- drivers/misc/mei/hw-me.c                                   |    8 
- drivers/misc/mei/hw-me.h                                   |    4 
- drivers/misc/mei/pci-me.c                                  |    2 
- drivers/net/ethernet/broadcom/bnxt/bnxt.c                  |   20 +-
- drivers/net/ethernet/broadcom/bnxt/bnxt.h                  |    1 
- drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h          |    2 
- drivers/net/ethernet/broadcom/bnxt/bnxt_sriov.c            |   10 -
- drivers/net/ethernet/cadence/macb_main.c                   |   24 +-
- drivers/net/ethernet/chelsio/cxgb4/sge.c                   |   39 ++++
- drivers/net/ethernet/freescale/enetc/enetc_pci_mdio.c      |    2 
- drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c             |    3 
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c            |    2 
- drivers/net/ethernet/mellanox/mlx4/main.c                  |    4 
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c              |    6 
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c           |    9 -
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c |   14 +
- drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_tcam.c    |   12 +
- drivers/net/ethernet/netronome/nfp/abm/main.c              |    1 
- drivers/net/ethernet/toshiba/tc35815.c                     |    2 
- drivers/net/macsec.c                                       |    3 
- drivers/net/phy/dp83640.c                                  |    2 
- drivers/net/phy/marvell10g.c                               |   27 ++-
- drivers/net/usb/qmi_wwan.c                                 |    1 
- drivers/net/wireguard/queueing.c                           |    4 
- drivers/net/wireguard/receive.c                            |    8 
- drivers/net/wireguard/send.c                               |    4 
- drivers/net/wireguard/socket.c                             |   12 -
- drivers/nvme/host/core.c                                   |   28 +--
- drivers/staging/gasket/gasket_core.c                       |    4 
- drivers/thunderbolt/usb4.c                                 |    3 
- drivers/tty/serial/xilinx_uartps.c                         |    1 
- drivers/tty/vt/vt.c                                        |    9 -
- drivers/usb/chipidea/ci_hdrc_msm.c                         |    2 
- drivers/usb/serial/garmin_gps.c                            |    4 
- drivers/usb/serial/qcserial.c                              |    1 
- drivers/usb/storage/unusual_uas.h                          |    7 
- fs/ceph/mds_client.c                                       |    8 
- fs/ceph/quota.c                                            |    4 
- fs/coredump.c                                              |    8 
- fs/eventpoll.c                                             |   61 +++---
- fs/ext4/ext4_jbd2.h                                        |    3 
- fs/ext4/super.c                                            |   13 +
- fs/io_uring.c                                              |    6 
- fs/notify/fanotify/fanotify.c                              |    9 -
- fs/notify/inotify/inotify_fsnotify.c                       |    4 
- fs/notify/inotify/inotify_user.c                           |    2 
- include/linux/amba/bus.h                                   |    1 
- include/linux/backing-dev-defs.h                           |    1 
- include/linux/backing-dev.h                                |    9 -
- include/linux/fsnotify_backend.h                           |    7 
- include/linux/platform_device.h                            |    1 
- include/linux/virtio_net.h                                 |   26 ++
- include/net/inet_ecn.h                                     |   57 ++++++
- include/net/ip6_fib.h                                      |    4 
- include/net/net_namespace.h                                |    7 
- ipc/mqueue.c                                               |   34 ++-
- kernel/trace/preemptirq_delay_test.c                       |   30 ++-
- kernel/trace/trace.c                                       |   13 +
- kernel/trace/trace_boot.c                                  |   20 --
- kernel/trace/trace_kprobe.c                                |    8 
- kernel/umh.c                                               |    5 
- mm/backing-dev.c                                           |   13 +
- mm/memcontrol.c                                            |   15 +
- mm/page_alloc.c                                            |    9 +
- net/batman-adv/bat_v_ogm.c                                 |    2 
- net/batman-adv/network-coding.c                            |    9 -
- net/batman-adv/sysfs.c                                     |    3 
- net/bridge/br_netlink.c                                    |    1 
- net/core/devlink.c                                         |   12 +
- net/core/neighbour.c                                       |    6 
- net/dsa/dsa2.c                                             |    2 
- net/dsa/master.c                                           |    3 
- net/ipv6/route.c                                           |   25 ++
- net/netfilter/nf_nat_proto.c                               |    4 
- net/netfilter/nfnetlink_osf.c                              |   12 -
- net/sched/sch_choke.c                                      |    3 
- net/sched/sch_fq_codel.c                                   |    2 
- net/sched/sch_sfq.c                                        |    9 +
- net/sched/sch_skbprio.c                                    |    3 
- net/sctp/sm_statefuns.c                                    |    6 
- net/tipc/topsrv.c                                          |    5 
- net/tls/tls_sw.c                                           |    7 
- scripts/decodecode                                         |    2 
- tools/cgroup/iocost_monitor.py                             |    7 
- tools/objtool/check.c                                      |    2 
- tools/testing/selftests/net/tcp_mmap.c                     |    7 
- tools/testing/selftests/wireguard/netns.sh                 |   54 +++++-
- virt/kvm/arm/hyp/aarch32.c                                 |    8 
- virt/kvm/arm/vgic/vgic-mmio.c                              |    4 
- 125 files changed, 963 insertions(+), 458 deletions(-)
-
-Alan Stern (1):
-      HID: usbhid: Fix race between usbhid_close() and usbhid_stop()
-
-Amir Goldstein (2):
-      fsnotify: replace inode pointer with an object id
-      fanotify: merge duplicate events on parent and child
-
-Andy Shevchenko (1):
-      net: macb: Fix runtime PM refcounting
-
-Anthony Felice (1):
-      net: tc35815: Fix phydev supported/advertising mask
-
-Arnd Bergmann (1):
-      netfilter: nf_osf: avoid passing pointer to local var
-
-Aya Levin (1):
-      devlink: Fix reporter's recovery condition
-
-Baruch Siach (1):
-      net: phy: marvell10g: fix temperature sensor on 2110
-
-Bryan O'Donoghue (1):
-      usb: chipidea: msm: Ensure proper controller reset using role switch API
-
-Christian Borntraeger (1):
-      KVM: s390: Remove false WARN_ON_ONCE for the PQAP instruction
-
-Christoph Hellwig (3):
-      nvme: refactor nvme_identify_ns_descs error handling
-      bdi: move bdi_dev_name out of line
-      bdi: add a ->dev_name field to struct backing_dev_info
-
-Dan Carpenter (2):
-      net: mvpp2: prevent buffer overflow in mvpp22_rss_ctx()
-      net: mvpp2: cls: Prevent buffer overflow in mvpp2_ethtool_cls_rule_del()
-
-Daniel Kolesa (1):
-      drm/amd/display: work around fp code being emitted outside of DC_FP_START/END
-
-David Ahern (1):
-      ipv6: Use global sernum for dst validation with nexthop objects
-
-David Hildenbrand (1):
-      mm/page_alloc: fix watchdog soft lockups during set_zone_contiguous()
-
-Dejin Zheng (2):
-      net: macb: fix an issue about leak related system resources
-      net: enetc: fix an issue about leak system resources
-
-Erez Shitrit (1):
-      net/mlx5: DR, On creation set CQ's arm_db member to right value
-
-Eric Dumazet (6):
-      fq_codel: fix TCA_FQ_CODEL_DROP_BATCH_SIZE sanity checks
-      net_sched: sch_skbprio: add message validation to skbprio_change()
-      sch_choke: avoid potential panic in choke_reset()
-      sch_sfq: validate silly quantum values
-      selftests: net: tcp_mmap: clear whole tcp_zerocopy_receive struct
-      selftests: net: tcp_mmap: fix SO_RCVLOWAT setting
-
-Eric Whitney (1):
-      ext4: disable dioread_nolock whenever delayed allocation is disabled
-
-Evan Quan (2):
-      drm/amdgpu: move kfd suspend after ip_suspend_phase1
-      drm/amdgpu: drop redundant cg/pg ungate on runpm enter
-
-Florian Fainelli (2):
-      net: dsa: Do not leave DSA master with NULL netdev_ops
-      net: dsa: Do not make user port errors fatal
-
-George Spelvin (1):
-      batman-adv: fix batadv_nc_random_weight_tq
-
-Greg Kroah-Hartman (1):
-      Linux 5.6.13
-
-Guillaume Nault (1):
-      netfilter: nat: never update the UDP checksum when it's 0
-
-H. Nikolaus Schaller (1):
-      drm: ingenic-drm: add MODULE_DEVICE_TABLE
-
-Henry Willard (1):
-      mm: limit boost_watermark on small zones
-
-Ido Schimmel (1):
-      net: bridge: vlan: Add a schedule point during VLAN processing
-
-Ivan Delalande (1):
-      scripts/decodecode: fix trapping instruction formatting
-
-Jakub Kicinski (1):
-      devlink: fix return value after hitting end in region read
-
-Janakarajan Natarajan (1):
-      arch/x86/kvm/svm/sev.c: change flag passed to GUP fast in sev_pin_memory()
-
-Jann Horn (1):
-      x86/entry/64: Fix unwind hints in rewind_stack_do_exit()
-
-Jason A. Donenfeld (5):
-      wireguard: queueing: cleanup ptr_ring in error path of packet_queue_init
-      wireguard: socket: remove errant restriction on looping to self
-      wireguard: send/receive: cond_resched() when processing worker ringbuffers
-      crypto: arch/nhpoly1305 - process in explicit 4k chunks
-      crypto: arch/lib - limit simd usage to 4k chunks
-
-Jason Gerecke (3):
-      HID: wacom: Read HID_DG_CONTACTMAX directly for non-generic devices
-      Revert "HID: wacom: generic: read the number of expected touches on a per collection basis"
-      HID: wacom: Report 2nd-gen Intuos Pro S center button status over BT
-
-Jeff Layton (1):
-      ceph: fix endianness bug when handling MDS session feature bits
-
-Jere Leppänen (1):
-      sctp: Fix bundling of SHUTDOWN with COOKIE-ACK
-
-Jiri Pirko (1):
-      mlxsw: spectrum_acl_tcam: Position vchunk in a vregion list properly
-
-Josh Poimboeuf (7):
-      x86/entry/64: Fix unwind hints in register clearing code
-      x86/entry/64: Fix unwind hints in kernel exit path
-      x86/entry/64: Fix unwind hints in __switch_to_asm()
-      x86/unwind/orc: Prevent unwinding before ORC initialization
-      x86/unwind/orc: Fix error path for bad ORC entry type
-      x86/unwind/orc: Fix premature unwind stoppage due to IRET frames
-      objtool: Fix stack offset tracking for indirect CFAs
-
-Julia Lawall (2):
-      dp83640: reverse arguments to list_add_tail
-      iommu/virtio: Reverse arguments to list_add
-
-Khazhismel Kumykov (1):
-      eventpoll: fix missing wakeup for ovflist in ep_poll_callback
-
-Luis Chamberlain (1):
-      coredump: fix crash when umh is disabled
-
-Luis Henriques (1):
-      ceph: demote quotarealm lookup warning to a debug message
-
-Marc Zyngier (2):
-      KVM: arm: vgic: Fix limit condition when writing to GICD_I[CS]ACTIVER
-      KVM: arm64: Fix 32bit PC wrap-around
-
-Mark Rutland (1):
-      arm64: hugetlb: avoid potential NULL dereference
-
-Masami Hiramatsu (3):
-      tracing/kprobes: Fix a double initialization typo
-      tracing/boottime: Fix kprobe event API usage
-      tracing/kprobes: Reject new event if loc is NULL
-
-Matt Jolly (2):
-      USB: serial: qcserial: Add DW5816e support
-      net: usb: qmi_wwan: add support for DW5816e
-
-Max Kellermann (1):
-      io_uring: don't use 'fd' for openat/openat2/statx
-
-Michael Chan (4):
-      bnxt_en: Fix VF anti-spoof filter setup.
-      bnxt_en: Improve AER slot reset.
-      bnxt_en: Return error when allocating zero size context memory.
-      bnxt_en: Fix VLAN acceleration handling in bnxt_fix_features().
-
-Mika Westerberg (1):
-      thunderbolt: Check return value of tb_sw_read() in usb4_switch_op()
-
-Miroslav Benes (1):
-      x86/unwind/orc: Don't skip the first frame for inactive tasks
-
-Moshe Shemesh (2):
-      net/mlx5: Fix forced completion access non initialized command entry
-      net/mlx5: Fix command entry leak in Internal Error State
-
-Nicolas Pitre (1):
-      vt: fix unicode console freeing with a common interface
-
-Oleg Nesterov (1):
-      ipc/mqueue.c: change __do_notify() to bypass check_kill_permission()
-
-Oliver Neukum (2):
-      USB: uas: add quirk for LaCie 2Big Quadra
-      USB: serial: garmin_gps: add sanity checking for data length
-
-Oscar Carter (1):
-      staging: gasket: Check the return value of gasket_get_bar_index()
-
-Paolo Bonzini (1):
-      kvm: ioapic: Restrict lazy EOI update to edge-triggered interrupts
-
-Qiushi Wu (1):
-      nfp: abm: fix a memory leak bug
-
-Rahul Lakkireddy (1):
-      cxgb4: fix EOTID leak when disabling TC-MQPRIO offload
-
-Rick Edgecombe (1):
-      x86/mm/cpa: Flush direct map alias during cpa
-
-Ritesh Harjani (1):
-      ext4: don't set dioread_nolock by default for blocksize < pagesize
-
-Roi Dayan (1):
-      net/mlx5e: Fix q counters on uplink representors
-
-Roman Mashak (1):
-      neigh: send protocol value in neighbor create notification
-
-Roman Penyaev (1):
-      epoll: atomically remove wait entry on wake up
-
-Sagi Grimberg (1):
-      nvme: fix possible hang when ns scanning fails during error recovery
-
-Scott Dial (1):
-      net: macsec: preserve ingress frame ordering
-
-Sean Christopherson (1):
-      KVM: VMX: Explicitly clear RFLAGS.CF and RFLAGS.ZF in VM-Exit RSB path
-
-Shubhrajyoti Datta (1):
-      tty: xilinx_uartps: Fix missing id assignment to the console
-
-Steven Rostedt (VMware) (2):
-      tracing: Wait for preempt irq delay thread to finish
-      tracing: Add a vmalloc_sync_mappings() for safe measure
-
-Suravee Suthikulpanit (1):
-      KVM: x86: Fixes posted interrupt check for IRQs delivery modes
-
-Tariq Toukan (1):
-      net/mlx4_core: Fix use of ENOSPC around mlx4_counter_alloc()
-
-Tejun Heo (1):
-      iocost: protect iocg->abs_vdebt with iocg->waitq.lock
-
-Toke Høiland-Jørgensen (2):
-      tunnel: Propagate ECT(1) when decapsulating as recommended by RFC6040
-      wireguard: receive: use tunnel helpers for decapsulating ECN markings
-
-Tomas Winkler (1):
-      mei: me: disable mei interface on LBG servers.
-
-Tuong Lien (1):
-      tipc: fix partial topology connection closure
-
-Ulf Hansson (2):
-      driver core: platform: Initialize dma_parms for platform devices
-      amba: Initialize dma_parms for amba devices
-
-Vasundhara Volam (1):
-      bnxt_en: Reduce BNXT_MSIX_VEC_MAX value to supported CQs per PF.
-
-Vincent Chen (1):
-      riscv: set max_pfn to the PFN of the last page
-
-Willem de Bruijn (1):
-      net: stricter validation of untrusted gso packets
-
-Xiyu Yang (5):
-      net/tls: Fix sk_psock refcnt leak in bpf_exec_tx_verdict()
-      net/tls: Fix sk_psock refcnt leak when in tls_data_ready()
-      batman-adv: Fix refcnt leak in batadv_show_throughput_override
-      batman-adv: Fix refcnt leak in batadv_store_throughput_override
-      batman-adv: Fix refcnt leak in batadv_v_ogm_process
-
-Yafang Shao (1):
-      mm, memcg: fix error return value of mem_cgroup_css_alloc()
-
+On 14.5.2020 4.34, Alan Stern wrote:
+> On Thu, May 14, 2020 at 01:31:59AM +0000, Peter Chen wrote:
+>> On 20-05-13 14:45:42, Jun Li wrote:
+>>> ​
+>>> ...
+>>>> Would it make sense to change xhci_plat_remove() to
+>>>
+>>>
+>>>
+>>>> xhci_plat_remove()
+>>>
+>>>>   pm_runtime_disable()
+>>>
+>>>>   <remove and put both hcd's>
+>>>
+>>>>   pm_runtime_set_suspended()
+>>>
+>>>
+>>>
+>>>> or possibly wrapping the remove in a runtime get/put:
+>>>
+>>>> xhci_plat_remove()
+>>>
+>>>>  pm_runtime_get_noresume()
+>>>
+>>>>   pm_runtime_disable()
+>>>
+>>>  >  <remove and put both hcd's>
+>>>
+>>>  >  pm_runtime_set_suspended()
+>>>
+>>>  >  pm_runtime_put_noidle()
+>>>
+>>> I think it's better to keep runtime active during driver removal,
+>>> how about this:
+>>>
+>>> pm_runtime_get_sync()
+>>> <remove and put both hcd's>
+>>> pm_runtime_disable()
+>>> pm_runtime_put_noidle()
+>>> pm_runtime_set_suspended()
+>>>
+>>
+>> I think it is more reasonable since for some DRD controllers if
+>> DRD core is suspended, access the xHCI register (eg, we remove
+>> xhci-plat-hcd module at the time) may hang the system. Alan &
+>> Mathias, what's your opinion?
+
+Makes sense to me
+
+> 
+> Jun's suggestion looks good to me.
+> 
+> Alan Stern
+> 
+
+Great, lets go with this then.
+Jun, or Peter, could you turn this into a patch and check that it works?
+I only got PCI xHC's to play with myself.
+
+Thanks
+-Mathias
