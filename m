@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B09A1D3B30
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 787C11D3AE1
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729358AbgENS7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:59:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56880 "EHLO mail.kernel.org"
+        id S1728575AbgENS4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:56:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727904AbgENS4C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:56:02 -0400
+        id S1728373AbgENS4D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:56:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F4CD20801;
-        Thu, 14 May 2020 18:56:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D96F20809;
+        Thu, 14 May 2020 18:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482562;
-        bh=umsyuoNpLQ17v3hGaAHM5Ts4XabLpMvGpymU0+W+YQY=;
+        s=default; t=1589482563;
+        bh=HFAswY58QVMy+ZlOL6ETdXJNak7GLAW3Bl0hMPqHTPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k5xOF27K9ZcNMtQ/ZG3bqawh6iSS10CoebPQOc9GDoRLdLvOeZ7FMGueelmyksB5u
-         B/ghmrIEzbnY2R2u1npiN33w+AcEOlJpej0Uy5DRfMlZ38WdF9bo+JWPJONG6//2CD
-         kXoTxlXiM4SyAv69OIdHgpy4fpcycfz+NYF83MZc=
+        b=sralPgH1Jz28iISEvuSCU+3Mgvg6j+1j8zWpERARBzPSu8m8cWkP7pXFuuA/9CT5V
+         KYN5ITblw8X/NAaUX2qWH0A26h/HP5QgGlhQIe0KmqIfJLN0Fo3xw5hRJEpC3/0HA/
+         QtXIaUEplkp1imSFtgZIj1DTQI8BKE/p23NPiOkI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 09/27] configfs: fix config_item refcnt leak in configfs_rmdir()
-Date:   Thu, 14 May 2020 14:55:32 -0400
-Message-Id: <20200514185550.21462-9-sashal@kernel.org>
+Cc:     Michael Chan <michael.chan@broadcom.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 10/27] bnxt_en: Fix VLAN acceleration handling in bnxt_fix_features().
+Date:   Thu, 14 May 2020 14:55:33 -0400
+Message-Id: <20200514185550.21462-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185550.21462-1-sashal@kernel.org>
 References: <20200514185550.21462-1-sashal@kernel.org>
@@ -43,45 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 8aebfffacfa379ba400da573a5bf9e49634e38cb ]
+[ Upstream commit c72cb303aa6c2ae7e4184f0081c6d11bf03fb96b ]
 
-configfs_rmdir() invokes configfs_get_config_item(), which returns a
-reference of the specified config_item object to "parent_item" with
-increased refcnt.
+The current logic in bnxt_fix_features() will inadvertently turn on both
+CTAG and STAG VLAN offload if the user tries to disable both.  Fix it
+by checking that the user is trying to enable CTAG or STAG before
+enabling both.  The logic is supposed to enable or disable both CTAG and
+STAG together.
 
-When configfs_rmdir() returns, local variable "parent_item" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
-
-The reference counting issue happens in one exception handling path of
-configfs_rmdir(). When down_write_killable() fails, the function forgets
-to decrease the refcnt increased by configfs_get_config_item(), causing
-a refcnt leak.
-
-Fix this issue by calling config_item_put() when down_write_killable()
-fails.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 5a9f6b238e59 ("bnxt_en: Enable and disable RX CTAG and RX STAG VLAN acceleration together.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index c2ef617d2f97d..c875f246cb0e9 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -1537,6 +1537,7 @@ static int configfs_rmdir(struct inode *dir, struct dentry *dentry)
- 		spin_lock(&configfs_dirent_lock);
- 		configfs_detach_rollback(dentry);
- 		spin_unlock(&configfs_dirent_lock);
-+		config_item_put(parent_item);
- 		return -EINTR;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 736e550163e10..bbf382439a8b9 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -5997,6 +5997,7 @@ static netdev_features_t bnxt_fix_features(struct net_device *dev,
+ 					   netdev_features_t features)
+ {
+ 	struct bnxt *bp = netdev_priv(dev);
++	netdev_features_t vlan_features;
+ 
+ 	if ((features & NETIF_F_NTUPLE) && !bnxt_rfs_capable(bp))
+ 		features &= ~NETIF_F_NTUPLE;
+@@ -6004,12 +6005,14 @@ static netdev_features_t bnxt_fix_features(struct net_device *dev,
+ 	/* Both CTAG and STAG VLAN accelaration on the RX side have to be
+ 	 * turned on or off together.
+ 	 */
+-	if ((features & (NETIF_F_HW_VLAN_CTAG_RX | NETIF_F_HW_VLAN_STAG_RX)) !=
+-	    (NETIF_F_HW_VLAN_CTAG_RX | NETIF_F_HW_VLAN_STAG_RX)) {
++	vlan_features = features & (NETIF_F_HW_VLAN_CTAG_RX |
++				    NETIF_F_HW_VLAN_STAG_RX);
++	if (vlan_features != (NETIF_F_HW_VLAN_CTAG_RX |
++			      NETIF_F_HW_VLAN_STAG_RX)) {
+ 		if (dev->features & NETIF_F_HW_VLAN_CTAG_RX)
+ 			features &= ~(NETIF_F_HW_VLAN_CTAG_RX |
+ 				      NETIF_F_HW_VLAN_STAG_RX);
+-		else
++		else if (vlan_features)
+ 			features |= NETIF_F_HW_VLAN_CTAG_RX |
+ 				    NETIF_F_HW_VLAN_STAG_RX;
  	}
- 	frag->frag_dead = true;
 -- 
 2.20.1
 
