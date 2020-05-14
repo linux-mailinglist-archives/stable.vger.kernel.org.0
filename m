@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 117691D3A1B
-	for <lists+stable@lfdr.de>; Thu, 14 May 2020 20:55:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 097C21D3BDE
+	for <lists+stable@lfdr.de>; Thu, 14 May 2020 21:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728894AbgENSx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 14:53:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53612 "EHLO mail.kernel.org"
+        id S1728905AbgENSyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 14:54:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728891AbgENSx6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 14:53:58 -0400
+        id S1728895AbgENSx7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 May 2020 14:53:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AF9120767;
-        Thu, 14 May 2020 18:53:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B82782076A;
+        Thu, 14 May 2020 18:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589482437;
-        bh=DZ5qTTuGiQ8ince+iTyYGDPiQ52kRRQ7QbhT+igfATI=;
+        s=default; t=1589482438;
+        bh=JsMmsJ4J2SaBxdTW5GPPIgLM1VAjhlWJyeoMW/Vs5IY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkajXWRpMQX7e39SsJxMzDoEBxT90h4qptYtW4WU4lFVnaYHlswFaF2dOgebB/qxW
-         4ptlkcDEdRtdWINqqm/oWSu6+EJwTUusi/PeqlJdapKhOMGZBR35I9H3dSah/pdsdc
-         KzTujFDVBk1WlcDHDCVHY1HpmUrLRq1FNp0zKnSA=
+        b=Hrs0vagwcfZBDoAB6xVdws1uSkHuIfxAGnc63Q3zsYGG4bp0JuShPv8WpmpU6X5zm
+         JqbnlRE/GlS4Nqd1CnbiBZZyPm87EyEhPqY6MuaXhRiVBbEjng7BRVbjFL5fjL7z1H
+         ahxxBKxC4hNwHi2KEk/lVVF8DGb+TJhu2JHcEwn4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Harry Wentland <Harry.Wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 37/49] drm/amd/display: Prevent dpcd reads with passive dongles
-Date:   Thu, 14 May 2020 14:52:58 -0400
-Message-Id: <20200514185311.20294-37-sashal@kernel.org>
+Cc:     Peter Xu <peterx@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 38/49] KVM: selftests: Fix build for evmcs.h
+Date:   Thu, 14 May 2020 14:52:59 -0400
+Message-Id: <20200514185311.20294-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200514185311.20294-1-sashal@kernel.org>
 References: <20200514185311.20294-1-sashal@kernel.org>
@@ -45,61 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurabindo Pillai <aurabindo.pillai@amd.com>
+From: Peter Xu <peterx@redhat.com>
 
-[ Upstream commit e6142dd511425cb827b5db869f489eb81f5f994d ]
+[ Upstream commit 8ffdaf9155ebe517cdec5edbcca19ba6e7ee9c3c ]
 
-[why]
-During hotplug, a DP port may be connected to the sink through
-passive adapter which does not support DPCD reads. Issuing reads
-without checking for this condition will result in errors
+I got this error when building kvm selftests:
 
-[how]
-Ensure the link is in aux_mode before initiating operation that result
-in a DPCD read.
+/usr/bin/ld: /home/xz/git/linux/tools/testing/selftests/kvm/libkvm.a(vmx.o):/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:222: multiple definition of `current_evmcs'; /tmp/cco1G48P.o:/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:222: first defined here
+/usr/bin/ld: /home/xz/git/linux/tools/testing/selftests/kvm/libkvm.a(vmx.o):/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:223: multiple definition of `current_vp_assist'; /tmp/cco1G48P.o:/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:223: first defined here
 
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+I think it's because evmcs.h is included both in a test file and a lib file so
+the structs have multiple declarations when linking.  After all it's not a good
+habit to declare structs in the header files.
+
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Message-Id: <20200504220607.99627-1-peterx@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c   | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ tools/testing/selftests/kvm/include/evmcs.h  | 4 ++--
+ tools/testing/selftests/kvm/lib/x86_64/vmx.c | 3 +++
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index be61ae1430ed9..c9c2984138263 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1422,17 +1422,22 @@ amdgpu_dm_update_connector_after_detect(struct amdgpu_dm_connector *aconnector)
- 		dc_sink_retain(aconnector->dc_sink);
- 		if (sink->dc_edid.length == 0) {
- 			aconnector->edid = NULL;
--			drm_dp_cec_unset_edid(&aconnector->dm_dp_aux.aux);
-+			if (aconnector->dc_link->aux_mode) {
-+				drm_dp_cec_unset_edid(
-+					&aconnector->dm_dp_aux.aux);
-+			}
- 		} else {
- 			aconnector->edid =
--				(struct edid *) sink->dc_edid.raw_edid;
--
-+				(struct edid *)sink->dc_edid.raw_edid;
+diff --git a/tools/testing/selftests/kvm/include/evmcs.h b/tools/testing/selftests/kvm/include/evmcs.h
+index 4912d23844bc6..e31ac9c5ead0c 100644
+--- a/tools/testing/selftests/kvm/include/evmcs.h
++++ b/tools/testing/selftests/kvm/include/evmcs.h
+@@ -217,8 +217,8 @@ struct hv_enlightened_vmcs {
+ #define HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_MASK	\
+ 		(~((1ull << HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_SHIFT) - 1))
  
- 			drm_connector_update_edid_property(connector,
--					aconnector->edid);
--			drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
--					    aconnector->edid);
-+							   aconnector->edid);
-+
-+			if (aconnector->dc_link->aux_mode)
-+				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
-+						    aconnector->edid);
- 		}
-+
- 		amdgpu_dm_update_freesync_caps(connector, aconnector->edid);
+-struct hv_enlightened_vmcs *current_evmcs;
+-struct hv_vp_assist_page *current_vp_assist;
++extern struct hv_enlightened_vmcs *current_evmcs;
++extern struct hv_vp_assist_page *current_vp_assist;
  
- 	} else {
+ int vcpu_enable_evmcs(struct kvm_vm *vm, int vcpu_id);
+ 
+diff --git a/tools/testing/selftests/kvm/lib/x86_64/vmx.c b/tools/testing/selftests/kvm/lib/x86_64/vmx.c
+index f6ec97b7eaef6..8cc4a59ff369f 100644
+--- a/tools/testing/selftests/kvm/lib/x86_64/vmx.c
++++ b/tools/testing/selftests/kvm/lib/x86_64/vmx.c
+@@ -17,6 +17,9 @@
+ 
+ bool enable_evmcs;
+ 
++struct hv_enlightened_vmcs *current_evmcs;
++struct hv_vp_assist_page *current_vp_assist;
++
+ struct eptPageTableEntry {
+ 	uint64_t readable:1;
+ 	uint64_t writable:1;
 -- 
 2.20.1
 
