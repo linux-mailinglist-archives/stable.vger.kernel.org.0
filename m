@@ -2,22 +2,22 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE8131D4F24
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 15:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5689A1D4F25
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 15:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726632AbgEONUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 09:20:11 -0400
-Received: from lizzard.sbs.de ([194.138.37.39]:55967 "EHLO lizzard.sbs.de"
+        id S1726226AbgEONUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 09:20:21 -0400
+Received: from lizzard.sbs.de ([194.138.37.39]:55990 "EHLO lizzard.sbs.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726226AbgEONUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 May 2020 09:20:11 -0400
-Received: from mail1.sbs.de (mail1.sbs.de [192.129.41.35])
-        by lizzard.sbs.de (8.15.2/8.15.2) with ESMTPS id 04FDJqNm001992
+        id S1726227AbgEONUV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 May 2020 09:20:21 -0400
+Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
+        by lizzard.sbs.de (8.15.2/8.15.2) with ESMTPS id 04FDKARu002266
         (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 15 May 2020 15:19:52 +0200
+        Fri, 15 May 2020 15:20:10 +0200
 Received: from localhost.localdomain ([167.87.8.125])
-        by mail1.sbs.de (8.15.2/8.15.2) with ESMTP id 04FDJp8s021991;
-        Fri, 15 May 2020 15:19:51 +0200
+        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 04FDK8Di013102;
+        Fri, 15 May 2020 15:20:09 +0200
 From:   Henning Schild <henning.schild@siemens.com>
 To:     stable@vger.kernel.org
 Cc:     Greg KH <greg@kroah.com>,
@@ -25,9 +25,9 @@ Cc:     Greg KH <greg@kroah.com>,
         Ronnie Sahlberg <lsahlber@redhat.com>,
         Pavel Shilovsky <pshilov@microsoft.com>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.4.y] cifs: Fix a race condition with cifs_echo_request
-Date:   Fri, 15 May 2020 15:19:47 +0200
-Message-Id: <20200515131947.17862-1-henning.schild@siemens.com>
+Subject: [PATCH 4.9.y] cifs: Fix a race condition with cifs_echo_request
+Date:   Fri, 15 May 2020 15:20:05 +0200
+Message-Id: <20200515132005.17949-1-henning.schild@siemens.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200515125748.GA1936050@kroah.com>
 References: <20200515125748.GA1936050@kroah.com>
@@ -67,10 +67,10 @@ Signed-off-by: Henning Schild <henning.schild@siemens.com>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index c9793ce0d336..52884a00d9f0 100644
+index c018d161735c..f54277049512 100644
 --- a/fs/cifs/connect.c
 +++ b/fs/cifs/connect.c
-@@ -548,10 +548,10 @@ static bool
+@@ -551,10 +551,10 @@ static bool
  server_unresponsive(struct TCP_Server_Info *server)
  {
  	/*
@@ -83,15 +83,15 @@ index c9793ce0d336..52884a00d9f0 100644
  	 * 30s echo workqueue job pops, and decides we got a response recently
  	 *     and don't need to send another
  	 * ...
-@@ -559,9 +559,9 @@ server_unresponsive(struct TCP_Server_Info *server)
+@@ -562,9 +562,9 @@ server_unresponsive(struct TCP_Server_Info *server)
  	 *     a response in >60s.
  	 */
  	if (server->tcpStatus == CifsGood &&
--	    time_after(jiffies, server->lstrp + 2 * SMB_ECHO_INTERVAL)) {
-+	    time_after(jiffies, server->lstrp + 3 * SMB_ECHO_INTERVAL)) {
- 		cifs_dbg(VFS, "Server %s has not responded in %d seconds. Reconnecting...\n",
--			 server->hostname, (2 * SMB_ECHO_INTERVAL) / HZ);
-+			 server->hostname, (3 * SMB_ECHO_INTERVAL) / HZ);
+-	    time_after(jiffies, server->lstrp + 2 * server->echo_interval)) {
++	    time_after(jiffies, server->lstrp + 3 * server->echo_interval)) {
+ 		cifs_dbg(VFS, "Server %s has not responded in %lu seconds. Reconnecting...\n",
+-			 server->hostname, (2 * server->echo_interval) / HZ);
++			 server->hostname, (3 * server->echo_interval) / HZ);
  		cifs_reconnect(server);
  		wake_up(&server->response_q);
  		return true;
