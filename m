@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB41D1D5095
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 16:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12BC01D5096
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 16:34:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726179AbgEOOdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 10:33:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47818 "EHLO mail.kernel.org"
+        id S1726171AbgEOOeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 10:34:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726140AbgEOOdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 May 2020 10:33:47 -0400
+        id S1726140AbgEOOeB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 May 2020 10:34:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 322A62076A;
-        Fri, 15 May 2020 14:33:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44FBC2076A;
+        Fri, 15 May 2020 14:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589553226;
-        bh=mhMybVuHy0oreNUZFSqVD+pbc7XXwVJigrQ0IjMcctk=;
+        s=default; t=1589553239;
+        bh=uDpqywmvJIYPg/eEk+BxYmug6ZkXbBwnQTMjQDruAnM=;
         h=Subject:To:From:Date:From;
-        b=DMj4iS/sQnX3V17igj906OrlEwyJbP/uu/MEX7PsVKLhmZtDzBF9nvSuRCUZL0UDh
-         TaOCBrcupIjcRWUqYzb9miibgewZcqDoIeSIzJ4T5skqV8GUDgkTodu5v1ncCNfH7S
-         8Gk+QaZPDhq2eTulzd75/HBHj/Yar+5KEakD3w5o=
-Subject: patch "mei: release me_cl object reference" added to char-misc-linus
-To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, teroincn@gmail.com, tomas.winkler@intel.com
+        b=X7T3NPKwOFCbLU8+XRQULJmuSFi2zme8q8YFOTa4zY1PoM5hMGoU647EvfYkpb1Vy
+         +MAJ5u9khRFDobXsmgshilEMjXCZIfMkWt4Vu8cxA6yxEJK/x90PleQR5WKYEVxdO8
+         +IklV/xJ4C1NXS2JCtBJi12yuHscVekO4vcdGnaQ=
+Subject: patch "ipack: tpci200: fix error return code in tpci200_register()" added to char-misc-linus
+To:     weiyongjun1@huawei.com, gregkh@linuxfoundation.org,
+        hulkci@huawei.com, siglesias@igalia.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 15 May 2020 16:33:44 +0200
-Message-ID: <158955322419843@kroah.com>
+Date:   Fri, 15 May 2020 16:33:45 +0200
+Message-ID: <158955322520465@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    mei: release me_cl object reference
+    ipack: tpci200: fix error return code in tpci200_register()
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -55,47 +55,36 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From fc9c03ce30f79b71807961bfcb42be191af79873 Mon Sep 17 00:00:00 2001
-From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Wed, 13 May 2020 01:31:40 +0300
-Subject: mei: release me_cl object reference
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 133317479f0324f6faaf797c4f5f3e9b1b36ce35 Mon Sep 17 00:00:00 2001
+From: Wei Yongjun <weiyongjun1@huawei.com>
+Date: Thu, 7 May 2020 09:42:37 +0000
+Subject: ipack: tpci200: fix error return code in tpci200_register()
 
-Allow me_cl object to be freed by releasing the reference
-that was acquired  by one of the search functions:
-__mei_me_cl_by_uuid_id() or __mei_me_cl_by_uuid()
+Fix to return negative error code -ENOMEM from the ioremap() error handling
+case instead of 0, as done elsewhere in this function.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: 亿一 <teroincn@gmail.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200512223140.32186-1-tomas.winkler@intel.com
+Fixes: 43986798fd50 ("ipack: add error handling for ioremap_nocache")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Link: https://lore.kernel.org/r/20200507094237.13599-1-weiyongjun1@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/client.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/ipack/carriers/tpci200.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/mei/client.c b/drivers/misc/mei/client.c
-index 204d807e755b..b32c825a0945 100644
---- a/drivers/misc/mei/client.c
-+++ b/drivers/misc/mei/client.c
-@@ -266,6 +266,7 @@ void mei_me_cl_rm_by_uuid(struct mei_device *dev, const uuid_le *uuid)
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid(dev, uuid);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
- 
-@@ -287,6 +288,7 @@ void mei_me_cl_rm_by_uuid_id(struct mei_device *dev, const uuid_le *uuid, u8 id)
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid_id(dev, uuid, id);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
+diff --git a/drivers/ipack/carriers/tpci200.c b/drivers/ipack/carriers/tpci200.c
+index 23445ebfda5c..ec71063fff76 100644
+--- a/drivers/ipack/carriers/tpci200.c
++++ b/drivers/ipack/carriers/tpci200.c
+@@ -306,6 +306,7 @@ static int tpci200_register(struct tpci200_board *tpci200)
+ 			"(bn 0x%X, sn 0x%X) failed to map driver user space!",
+ 			tpci200->info->pdev->bus->number,
+ 			tpci200->info->pdev->devfn);
++		res = -ENOMEM;
+ 		goto out_release_mem8_space;
+ 	}
  
 -- 
 2.26.2
