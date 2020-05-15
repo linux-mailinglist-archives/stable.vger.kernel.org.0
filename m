@@ -2,86 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E86E01D555B
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 17:59:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D6711D554F
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 17:58:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726283AbgEOP7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 11:59:09 -0400
-Received: from sender4-of-o53.zoho.com ([136.143.188.53]:21353 "EHLO
-        sender4-of-o53.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726261AbgEOP7J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 11:59:09 -0400
-ARC-Seal: i=1; a=rsa-sha256; t=1589558327; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=js7nHHp4RDiX2u7KG5XdzhlJJL9Syu4mTvwcqylefC4Yvi+ZSR/TyBkq57Dru5ekbWRDXVkwCN4zNmKfUyVQ3Ve61BlaISFzwVGBTmJzsg4qQG3YkTwPlpeJ0Ie5Xi3DgMRCuYkRGBWyv/inZNBnpMC4T3nMfO0POEyoLsNeoZ8=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1589558327; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=i3Mm6W/KrRulKC5mcoHwCQYRpmn7OT2z0qAo4Y0yXKs=; 
-        b=cX4pGE8hu/khb/2msut16tFTOS2EJLA4dhB0YtZxpeiD4kcun3MLxSJV30VTg/Tol3JAfFS98hTBMqrjT6i3ZjEuubcK2+fEseV2RPxDEHgMGtFmEls1wht9RcjHzzkvfBSkUuEBd5mhf9Q+Swujf1+6sL72NfTGHaVXaAV1BuI=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        dkim=pass  header.i=embedjournal.com;
-        spf=pass  smtp.mailfrom=siddharth@embedjournal.com;
-        dmarc=pass header.from=<siddharth@embedjournal.com> header.from=<siddharth@embedjournal.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1589558327;
-        s=zoho; d=embedjournal.com; i=siddharth@embedjournal.com;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To;
-        bh=i3Mm6W/KrRulKC5mcoHwCQYRpmn7OT2z0qAo4Y0yXKs=;
-        b=ObhMCqdnsT/fJmONuJu2qVbEWDB45MCIRnqcDr0i5VcvSZM3ItYul4GnQm5Dk5bM
-        2WdxCI2ypMwjYno3sFacdv2drBprYxIzPlJIYSkLTr/X2OJjIKDtej5KD/zlURtE35W
-        WCaaydOlJKCm25csHpa7mIvHAD9tRmLkWvOaAWuU=
-Received: from csiddharth-a01.vmware.com (115.97.41.221 [115.97.41.221]) by mx.zohomail.com
-        with SMTPS id 1589558324404513.8227238926163; Fri, 15 May 2020 08:58:44 -0700 (PDT)
-Date:   Fri, 15 May 2020 21:28:38 +0530
-From:   Siddharth Chandrasekaran <siddharth@embedjournal.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Siddharth Chandrasekaran <csiddharth@vmware.com>,
-        srostedt@vmware.com, stable@vger.kernel.org, srivatsab@vmware.com,
-        dchinner@redhat.com, darrick.wong@oracle.com,
-        srivatsa@csail.mit.edu
-Subject: Re: [PATCH v2] Backport xfs security fix to 4.9 and 4.4 stable trees
-Message-ID: <20200515155838.GA9039@csiddharth-a01.vmware.com>
-References: <cover.1589544531.git.csiddharth@vmware.com>
- <20200515152230.GA2599290@kroah.com>
+        id S1726610AbgEOP6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 11:58:54 -0400
+Received: from mga11.intel.com ([192.55.52.93]:23856 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726407AbgEOP6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 May 2020 11:58:53 -0400
+IronPort-SDR: 2mHQnDI+cDVuxPl4+6x4XzYcU9BCzxzHCrj7+4wEp8s+/sre3qQeA2EMi46obvskbTsdfHECEA
+ YPKufeby6AzA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2020 08:58:53 -0700
+IronPort-SDR: HirYw8rAPztdjIA+/NI+F9pTHI7jr2RVdgGVqpP6A1KNTRdCnoAGKJuyB90njmSwKQdRaaUe4r
+ 3Fk2+H3/lEUQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,395,1583222400"; 
+   d="scan'208";a="263229930"
+Received: from rjwysock-mobl1.ger.corp.intel.com (HELO [10.249.131.101]) ([10.249.131.101])
+  by orsmga003.jf.intel.com with ESMTP; 15 May 2020 08:58:48 -0700
+Subject: Re: [PATCH v2 20/20] cpufreq: Return zero on success in boost sw
+ setting
+To:     Sergey.Semin@baikalelectronics.ru,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Matthias Kaehlcke <mka@chromium.org>
+Cc:     Serge Semin <fancer.lancer@gmail.com>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org, stable@vger.kernel.org,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Yue Hu <huyue2@yulong.com>,
+        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200306124807.3596F80307C2@mail.baikalelectronics.ru>
+ <20200506174238.15385-1-Sergey.Semin@baikalelectronics.ru>
+ <20200506174238.15385-21-Sergey.Semin@baikalelectronics.ru>
+From:   "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Organization: Intel Technology Poland Sp. z o. o., KRS 101882, ul. Slowackiego
+ 173, 80-298 Gdansk
+Message-ID: <c5109483-4c14-1a0c-efa9-51edf01c12de@intel.com>
+Date:   Fri, 15 May 2020 17:58:47 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200515152230.GA2599290@kroah.com>
-X-ZohoMailClient: External
+In-Reply-To: <20200506174238.15385-21-Sergey.Semin@baikalelectronics.ru>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 15, 2020 at 05:22:30PM +0200, Greg KH wrote:
-> On Fri, May 15, 2020 at 08:41:07PM +0530, Siddharth Chandrasekaran wrote:
-> > Hello,
-> > 
-> > Lack of proper validation that cached inodes are free during allocation can,
-> > cause a crash in fs/xfs/xfs_icache.c (refer: CVE-2018-13093). To address this
-> > issue, I'm backporting upstream commit [1] to 4.4 and 4.9 stable trees
-> > (a backport of [1] to 4.14 already exists).
-> > 
-> > Also, commit [1] references another commit [2] which added checks only to
-> > xfs_iget_cache_miss(). In this patch, those checks have been moved into a
-> > dedicated checker method and both xfs_iget_cache_miss() and
-> > xfs_iget_cache_hit() are made to call that method. This code reorg in commit
-> > [1], makes commit [2] redundant in the history of the 4.9 and 4.4 stable
-> > trees. So commit [2] is not being backported.
-> > 
-> > -- Sid
-> > 
-> > [1]: afca6c5b2595 ("xfs: validate cached inodes are free when allocated")
-> > [2]: ee457001ed6c ("xfs: catch inode allocation state mismatch corruption")
-> > 
-> > change log:
-> > v2:
-> >  - Reword cover letter.
-> >  - Fix accidental worong patch that got mailed.
-> 
-> As the XFS maintainers want to see xfstests pass with any changes made,
-> have you done so for the 4.9 and 4.4 trees with this patch applied?
+On 5/6/2020 7:42 PM, Sergey.Semin@baikalelectronics.ru wrote:
+> From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+>
+> Recent commit e61a41256edf ("cpufreq: dev_pm_qos_update_request() can
+> return 1 on success") fixed a problem when active policies traverse
+> was falsely stopped due to invalidly treating the non-zero return value
+> from freq_qos_update_request() method as an error. Yes, that function
+> can return positive values if the requested update actually took place.
+> The current problem is that the returned value is then passed to the
+> return cell of the cpufreq_boost_set_sw() (set_boost callback) method.
+> This value is then also analyzed for being non-zero, which is also
+> treated as having an error. As a result during the boost activation
+> we'll get an error returned while having the QOS frequency update
+> successfully performed. Fix this by returning a negative value from the
+> cpufreq_boost_set_sw() if actual error was encountered and zero
+> otherwise treating any positive values as the successful operations
+> completion.
+>
+> Fixes: 18c49926c4bf ("cpufreq: Add QoS requests for userspace constraints")
+> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+> Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Paul Burton <paulburton@kernel.org>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: linux-mips@vger.kernel.org
+> Cc: devicetree@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> ---
+>   drivers/cpufreq/cpufreq.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+> index 045f9fe157ce..5870cdca88cf 100644
+> --- a/drivers/cpufreq/cpufreq.c
+> +++ b/drivers/cpufreq/cpufreq.c
+> @@ -2554,7 +2554,7 @@ static int cpufreq_boost_set_sw(int state)
+>   			break;
+>   	}
+>   
+> -	return ret;
+> +	return ret < 0 ? ret : 0;
+>   }
+>   
+>   int cpufreq_boost_trigger_state(int state)
 
-I haven't run them yet. I'll do so and get back with the results
-shortly.
+IMO it is better to update the caller of this function to handle the 
+positive value possibly returned by it correctly.
 
--- Sid.
+Thanks!
+
+
