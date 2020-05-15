@@ -2,107 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 437F81D57F6
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 19:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D051D58A0
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 20:06:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726249AbgEORbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 13:31:21 -0400
-Received: from mail-eopbgr750103.outbound.protection.outlook.com ([40.107.75.103]:37147
-        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726168AbgEORbU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 May 2020 13:31:20 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ld2UG/qhw34tyfhC4Df/XJ5gpSSDtiwHT6wetC/B+QSRbxs9pWDIcb6VQQywjItRHCryTNZryrjR417WRSDwjI76G+zep3xvoynnh31Waqff+Nmmlh75E6fL8m8/FQx+WfeYTRl36CO62vCZKr1yGRL1uQhrDIaJLB02Ph4oudCp1m/BKtS9SuqI3TAQVAtE6e51M+/3c7mk5K7+2xY7DM2MeeUvCOb9pg6r0cdUVIn+rUDHBrr4Om/IpNXw+ppjB880Y2YtlDJIy8Rwl7cMcxVD99QsVy3mOftl/7BdNnCnzT2iFjhFey3TeT9GbBxvf3iCPyFflD82W9WeG49JPQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xN5OcL/BoLxsqm6h+hWUVPH3oxT9j5TryL5u5t2YNbk=;
- b=IpA7ehsaeO52YpkzXvwB9Nfuy6Dr5S60L2FDtWziKWyPdV1OEj9mJpzJsv8INp/MW+SeJRBrcjNmyGGtuup9iNQRr5WSWC1ZBuEpCQPb0sXmbj7z/qQivDtjGtrwJrGnHuGJHB/U+TPq1uAq1tMAkb73sqybHW2kUR6DZAuuheOAuy5Qs0GowgSV2oYFgqsVpf2UjrYTJKKLDahglMv61E68giw3moVk0dvqIjWPNWynz5Ct9cgSd1GlM0qTcMy0bexM2LbvUZDCeOxiNbJ4tSqQNXdNCQJONRWg3UkCUvbuzpjUAwis8P9zbZXPFsTnzgbodLvd/ndNdpxF1HPISA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xN5OcL/BoLxsqm6h+hWUVPH3oxT9j5TryL5u5t2YNbk=;
- b=LhP7hUrMvROONZOdNt1qtdecDRO6uA2bGDgGx6s91Rsewvm0EXqrqOSCkClFpKhAe1I2gY2Oe/F5vSlsip5t6AgcjgxB0sNXYi/U/qIlKqYagUaOw0Xc/wGzusfqPjS5SBiqFiSSAp/XWDX7i8aqiSvAKgTosipufFJkcvxM6oA=
-Received: from SN6PR2101MB0974.namprd21.prod.outlook.com (2603:10b6:805:4::27)
- by SN6PR2101MB0926.namprd21.prod.outlook.com (2603:10b6:805:a::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3000.11; Fri, 15 May
- 2020 17:31:17 +0000
-Received: from SN6PR2101MB0974.namprd21.prod.outlook.com
- ([fe80::d0a3:23c8:602d:c574]) by SN6PR2101MB0974.namprd21.prod.outlook.com
- ([fe80::d0a3:23c8:602d:c574%4]) with mapi id 15.20.3000.007; Fri, 15 May 2020
- 17:31:17 +0000
-From:   Pavel Shilovskiy <pshilov@microsoft.com>
-To:     Sasha Levin <sashal@kernel.org>, Greg KH <greg@kroah.com>
-CC:     Henning Schild <henning.schild@siemens.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steven French <Steven.French@microsoft.com>
-Subject: RE: [EXTERNAL] Re: backport of cifs patch to 4.4.x and 4.9.x
-Thread-Topic: [EXTERNAL] Re: backport of cifs patch to 4.4.x and 4.9.x
-Thread-Index: AQHWKrh1sZBW0BPoHEeReTLP1WQLpKipJPqAgABCcEA=
-Date:   Fri, 15 May 2020 17:31:17 +0000
-Message-ID: <SN6PR2101MB097473B87E1F9913926FFC2DB6BD0@SN6PR2101MB0974.namprd21.prod.outlook.com>
-References: <20200515134420.50480bb7@md1za8fc.ad001.siemens.net>
- <20200515125748.GA1936050@kroah.com> <20200515133159.GE29995@sasha-vm>
-In-Reply-To: <20200515133159.GE29995@sasha-vm>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2020-05-15T17:31:15Z;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=8446b63c-6b44-4884-91c0-24f8ad52c520;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
-authentication-results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=microsoft.com;
-x-originating-ip: [174.21.165.24]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 111c44e1-7cb0-41f3-ef50-08d7f8f5c680
-x-ms-traffictypediagnostic: SN6PR2101MB0926:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <SN6PR2101MB09264F97BA6D697BD5694E8AB6BD0@SN6PR2101MB0926.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:1284;
-x-forefront-prvs: 04041A2886
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: crvLMRM7JNTFXRBIF6XM5NJSP88yVh/y0JLLNMh3e0qKAU5WJ85VUb/zYPCKP6UzboOjSP6k0ybiJxx74x7KD8fRtWcnkOUPNEf7O3q+GkLP5Un+KNLSlyS5fNFaQdSglq3cK3Vvbj3BrUeOAJlkMtEh+Xt7nx7P5BS+gAvShyQfCr7aV5wkPwSKxeusKpDut+ufDt00wTOubAprc2SVx/hO2raHwcaLDHOEiyxXD0UgXoif/qRQ8/nF8r2EzHk7fI9BP+0BZ6t8TkMRE7R33pJRaaNesez1eMMJo6P0b/LYNpjBzfJAnorkwAJmH3pYmJv5xEaJwGxDOr7xPfxhmk75kZxrMdXRayDZA87mPk3UO0p1NiVo17AVRWVbbhjNQcFR4tUhq94MHffiuXNNKeiGqzSJiFhwtkLMpIZi7Y3QRksxVa77qnZeNmmtA86v
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR2101MB0974.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(136003)(366004)(39860400002)(396003)(376002)(346002)(64756008)(86362001)(82960400001)(4326008)(82950400001)(8676002)(76116006)(478600001)(110136005)(52536014)(66476007)(10290500003)(66556008)(54906003)(7696005)(66946007)(6506007)(107886003)(2906002)(26005)(316002)(71200400001)(8990500004)(9686003)(5660300002)(66446008)(33656002)(8936002)(186003)(55016002)(558084003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: J57JsAw10h4HqzVnz/bRwvh+WAE6NFZ6f8LOqtWDcSFAyLPYmQepdMUB6AeJlfnlUSYHGhe2b9chQUKoQ9WrtzcLoadeaU8G2ncKM7GJC/orfTwwYy7CZJKPHgwe1FDHBQU6V3lYUGFOyxJ9iYpkUzQPNQ6VcH5bHoX2UFYhOC95jbuvsirS7Mu5kFhojiiyioH7pt/HybZETKVgQDrvk7SvjqsBCwl/0Zwn8jB2Lp7GTvcMG0f9LsMv4UvoZz9A+UdG8MtdElJyuBoSBeGUSUayBJKLc3tSWd74bLbUe2SyaD+jMUlnNk+jKI/azPgu5qF/zXXDy8AbRNzv2UyjGOIcHLJOLoGBODNV/wS3bw3Jdnt1ynSOgCIfQzgsSOBmJYKJaEHHUtrjhULrHVjH1aRI0y9VRtg9i/Q3E/EXzExfSbGHDZt+JBkY5oby3mMRu/k2uWNWX7pDVFDZMhL/vw6Y6v6TbzYtfxyvAff0lYc=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 111c44e1-7cb0-41f3-ef50-08d7f8f5c680
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 May 2020 17:31:17.6009
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: jGPg5OPDVcWBJOvXfyUwH3MW7752I3EcgsaGDAWa4Nxh8QxsWNgHjgvkjduS2407Oib7TTBOoVJSS6j6p5Legg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR2101MB0926
+        id S1726252AbgEOSGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 14:06:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40670 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726023AbgEOSGb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 14:06:31 -0400
+Received: from mail-qt1-x84a.google.com (mail-qt1-x84a.google.com [IPv6:2607:f8b0:4864:20::84a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D942C061A0C
+        for <stable@vger.kernel.org>; Fri, 15 May 2020 11:06:31 -0700 (PDT)
+Received: by mail-qt1-x84a.google.com with SMTP id o16so3339016qto.12
+        for <stable@vger.kernel.org>; Fri, 15 May 2020 11:06:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=L/+EYSk36TST2rIE8NznK9E9+/xuLx5a1Z0fVdYAEAY=;
+        b=qt025oqxlccbdZIKGGePBSeQj+NCxNAypwS2fm5s7SgZ9lqy37Pi84+SlnfTpTPOsS
+         mxf/QQ6AGrrgLzSDCrVT4/cEDTlfMi9DB5vYjzvQc1T5BITZyPJ3ngCJVIxbe0dW6EWt
+         Zgevf/JvOHpzF+Lju6skjTrB35btnsBv7iPqTWYOabX0KXaTtScs0pH9A/MKWDCFRsS0
+         MBDhM5W5wPiIAZMb3lDPa7wANlc8OoW52cAsqIthcJEalPRg3FQ+nDjhS9JFXnAcFp23
+         Pb6tahUikecLS3UQTpHQK1WfVZCpnocrhUdU6RaRIHm1StsLfZazMj25CINrYUIoemZO
+         FlNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=L/+EYSk36TST2rIE8NznK9E9+/xuLx5a1Z0fVdYAEAY=;
+        b=cshuNTjpqcXH8rLb/Sj+RlD8dspEGjboKZ/IJTVPSwaZVQNP2cx/CXMVflzf0uzTDw
+         TXXzw0sdTZfahYJRTUnNNM9E6wlSqfo/FHc0Ak0ZMWsNYwtl3br/bTqFQIdaf/oHqf/f
+         CkkhR2/6R7/D8JU2ubZBSGNTAnToZuW9vf1IoD6r27aDaEF3fKO5diLm9qz6dIapSj4d
+         MqLXJcDymoqxPUCNx/8DwGDi+ftRr4na+g0mYVBw1R5e2h3UNhV/c1JCBgvJQreUsp8o
+         5qbv27YDTtRut+iQOzDs1DJFSTWFREi5DHmy8hyvAJ+66RSJZY8oDvIGmOWvpzISPM2F
+         lXuw==
+X-Gm-Message-State: AOAM531Oc5SZdUlUqNcYxsWHak52eoJutVvfDzCbcDDbHv87D5baEwBb
+        29KSG0XWs4dh8AOAtzrZcwRUmFwCo2Og7Ns=
+X-Google-Smtp-Source: ABdhPJxFCN+Odlk5Gn6l7v7mBMxOuNoAeU0ranBO58vemtSSApbHPxzmBLZpaewrmv5lJAR3lpJ4ZAm+4ElEfMU=
+X-Received: by 2002:a0c:9c4f:: with SMTP id w15mr4602062qve.245.1589565990696;
+ Fri, 15 May 2020 11:06:30 -0700 (PDT)
+Date:   Fri, 15 May 2020 11:05:40 -0700
+Message-Id: <20200515180544.59824-1-inglorion@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
+Subject: [PATCH] x86_64: fix jiffies ODR violation
+From:   Bob Haarman <inglorion@google.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc:     Fangrui Song <maskray@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Bob Haarman <inglorion@google.com>, stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Alistair Delva <adelva@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Kyung Min Park <kyung.min.park@intel.com>,
+        afzal mohammed <afzal.mohd.ma@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Kees Cook <keescook@chromium.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Baoquan He <bhe@redhat.com>,
+        Thomas Lendacky <Thomas.Lendacky@amd.com>,
+        Ross Zwisler <zwisler@chromium.org>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andi Kleen <ak@linux.intel.com>, linux-kernel@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 15, 2020 at 09:31:59AM -0400, Sasha Levin wrote:
-...=20
-> I've queued these two for 4.9 and 4.4:
->=20
-> f2caf901c1b7 ("cifs: Fix a race condition with cifs_echo_request")=20
-> 76e752701a8a ("cifs: Check for timeout on Negotiate stage")
+`jiffies` and `jiffies_64` are meant to alias (two different symbols
+that share the same address).  Most architectures make the symbols alias
+to the same address via linker script assignment in their
+arch/<arch>/kernel/vmlinux.lds.S:
 
-Thanks!
+jiffies = jiffies_64;
 
---
-Best regards,
-Pavel Shilovsky
+which is effectively a definition of jiffies.
+
+jiffies and jiffies_64 are both forward declared for all arch's in:
+include/linux/jiffies.h.
+
+jiffies_64 is defined in kernel/time/timer.c for all arch's.
+
+x86_64 was peculiar in that it wasn't doing the above linker script
+assignment, but rather was:
+1. defining jiffies in arch/x86/kernel/time.c instead via linker script.
+2. overriding the symbol jiffies_64 from kernel/time/timer.c in
+arch/x86/kernel/vmlinux.lds.s via `jiffies_64 = jiffies;`.
+
+As Fangrui notes:
+```
+In LLD, symbol assignments in linker scripts override definitions in
+object files. GNU ld appears to have the same behavior. It would
+probably make sense for LLD to error "duplicate symbol" but GNU ld is
+unlikely to adopt for compatibility reasons.
+```
+
+So we have an ODR violation (UB), which we seem to have gotten away
+with thus far. Where it becomes harmful is when we:
+
+1. Use -fno-semantic-interposition.
+
+As Fangrui notes:
+```
+Clang after LLVM
+commit 5b22bcc2b70d ("[X86][ELF] Prefer to lower MC_GlobalAddress
+operands to .Lfoo$local")
+defaults to -fno-semantic-interposition similar semantics which help
+-fpic/-fPIC code avoid GOT/PLT when the referenced symbol is defined
+within the same translation unit. Unlike GCC
+-fno-semantic-interposition, Clang emits such relocations referencing
+local symbols for non-pic code as well.
+```
+
+This causes references to jiffies to refer to `.Ljiffies$local` when
+jiffies is defined in the same translation unit. Likewise, references
+to jiffies_64 become references to `.Ljiffies_64$local` in translation
+units that define jiffies_64.  Because these differ from the names
+used in the linker script, they will not be rewritten to alias one
+another.
+
+Combined with ...
+
+2. Full LTO effectively treats all source files as one translation
+unit, causing these local references to be produced everywhere.  When
+the linker processes the linker script, there are no longer any
+references to `jiffies_64` anywhere to replace with `jiffies`.  And
+thus `.Ljiffies$local` and `.Ljiffies_64$local` no longer alias
+at all.
+
+In the process of porting patches enabling Full LTO from arm64 to
+x86_64, we observe spooky bugs where the kernel appeared to boot, but
+init doesn't get scheduled.
+
+Instead, we can avoid the ODR violation by matching other arch's by
+defining jiffies only by linker script.  For -fno-semantic-interposition
++ Full LTO, there is no longer a global definition of jiffies for the
+compiler to produce a local symbol which the linker script won't ensure
+aliases to jiffies_64.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/852
+Fixes: 40747ffa5aa8 ("asmlinkage: Make jiffies visible")
+Cc: stable@vger.kernel.org
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reported-by: Alistair Delva <adelva@google.com>
+Suggested-by: Fangrui Song <maskray@google.com>
+Debugged-by: Nick Desaulniers <ndesaulniers@google.com>
+Debugged-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Bob Haarman <inglorion@google.com>
+---
+ arch/x86/kernel/time.c        | 4 ----
+ arch/x86/kernel/vmlinux.lds.S | 4 ++--
+ 2 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/kernel/time.c b/arch/x86/kernel/time.c
+index 371a6b348e44..e42faa792c07 100644
+--- a/arch/x86/kernel/time.c
++++ b/arch/x86/kernel/time.c
+@@ -25,10 +25,6 @@
+ #include <asm/hpet.h>
+ #include <asm/time.h>
+ 
+-#ifdef CONFIG_X86_64
+-__visible volatile unsigned long jiffies __cacheline_aligned_in_smp = INITIAL_JIFFIES;
+-#endif
+-
+ unsigned long profile_pc(struct pt_regs *regs)
+ {
+ 	unsigned long pc = instruction_pointer(regs);
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 1bf7e312361f..7c35556c7827 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -40,13 +40,13 @@ OUTPUT_FORMAT(CONFIG_OUTPUT_FORMAT)
+ #ifdef CONFIG_X86_32
+ OUTPUT_ARCH(i386)
+ ENTRY(phys_startup_32)
+-jiffies = jiffies_64;
+ #else
+ OUTPUT_ARCH(i386:x86-64)
+ ENTRY(phys_startup_64)
+-jiffies_64 = jiffies;
+ #endif
+ 
++jiffies = jiffies_64;
++
+ #if defined(CONFIG_X86_64)
+ /*
+  * On 64-bit, align RODATA to 2MB so we retain large page mappings for
+-- 
+2.26.2.761.g0e0b3e54be-goog
+
