@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E621D4235
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 02:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 893F41D423A
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 02:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727116AbgEOAl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 20:41:27 -0400
-Received: from mo-csw1115.securemx.jp ([210.130.202.157]:59022 "EHLO
+        id S1728267AbgEOAnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 20:43:08 -0400
+Received: from mo-csw1115.securemx.jp ([210.130.202.157]:39008 "EHLO
         mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726046AbgEOAl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 20:41:27 -0400
-Received: by mo-csw.securemx.jp (mx-mo-csw1115) id 04F0fHYr007603; Fri, 15 May 2020 09:41:17 +0900
-X-Iguazu-Qid: 2wHHmtTgm5EShJ2HOj
-X-Iguazu-QSIG: v=2; s=0; t=1589503277; q=2wHHmtTgm5EShJ2HOj; m=F5IG6JWbQw0m8zDfmjMiZ9lVpsadh0g5Suh1sgtNL2c=
-Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
-        by relay.securemx.jp (mx-mr1110) id 04F0fG3B025780;
-        Fri, 15 May 2020 09:41:16 +0900
-Received: from enc01.localdomain ([106.186.93.100])
-        by imx2.toshiba.co.jp  with ESMTP id 04F0fG0P000648;
-        Fri, 15 May 2020 09:41:16 +0900 (JST)
-Received: from hop001.toshiba.co.jp ([133.199.164.63])
-        by enc01.localdomain  with ESMTP id 04F0fGbU028114;
-        Fri, 15 May 2020 09:41:16 +0900
+        with ESMTP id S1728243AbgEOAnI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 20:43:08 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1115) id 04F0gxAG014177; Fri, 15 May 2020 09:42:59 +0900
+X-Iguazu-Qid: 2wHHK1VZq39qv00Vfs
+X-Iguazu-QSIG: v=2; s=0; t=1589503379; q=2wHHK1VZq39qv00Vfs; m=X4TLZW8qLBljuurk1DFbS5Kq+hnkrbqxvMdJm2lfbts=
+Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
+        by relay.securemx.jp (mx-mr1111) id 04F0gwsO013505;
+        Fri, 15 May 2020 09:42:58 +0900
+Received: from enc02.toshiba.co.jp ([61.202.160.51])
+        by imx12.toshiba.co.jp  with ESMTP id 04F0gwC2000221;
+        Fri, 15 May 2020 09:42:58 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id 04F0gvkN003103;
+        Fri, 15 May 2020 09:42:58 +0900
 From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, "wuxu.wu" <wuxu.wu@huawei.com>,
         Mark Brown <broonie@kernel.org>,
-        Nobuhiro Iwamatsu <npbuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH for 4.4, 4.9] spi: spi-dw: Add lock protect dw_spi rx/tx to prevent concurrent calls
-Date:   Fri, 15 May 2020 09:40:56 +0900
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH v2 for 4.4, 4.9] spi: spi-dw: Add lock protect dw_spi rx/tx to prevent concurrent calls
+Date:   Fri, 15 May 2020 09:42:45 +0900
 X-TSB-HOP: ON
-Message-Id: <20200515004056.1069809-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+Message-Id: <20200515004245.1069864-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -75,7 +75,7 @@ instructions may out of order.
 Signed-off-by: wuxu.wu <wuxu.wu@huawei.com>
 Link: https://lore.kernel.org/r/1577849981-31489-1-git-send-email-wuxu.wu@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <npbuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 ---
  drivers/spi/spi-dw.c | 15 ++++++++++++---
  drivers/spi/spi-dw.h |  1 +
