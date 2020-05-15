@@ -2,117 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D6711D554F
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 17:58:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42AC81D55C5
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 18:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726610AbgEOP6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 11:58:54 -0400
-Received: from mga11.intel.com ([192.55.52.93]:23856 "EHLO mga11.intel.com"
+        id S1726170AbgEOQVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 12:21:11 -0400
+Received: from mga07.intel.com ([134.134.136.100]:20078 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726407AbgEOP6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 May 2020 11:58:53 -0400
-IronPort-SDR: 2mHQnDI+cDVuxPl4+6x4XzYcU9BCzxzHCrj7+4wEp8s+/sre3qQeA2EMi46obvskbTsdfHECEA
- YPKufeby6AzA==
+        id S1726168AbgEOQVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 May 2020 12:21:10 -0400
+IronPort-SDR: dn9g2uCryqs1UNVjKd11IK/SDEnsic6q2IpI3Jk3CY6I2+wXsOEAQw5nCvN3x5gRaIbqKBI02X
+ c5hw7kyIqyCg==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2020 08:58:53 -0700
-IronPort-SDR: HirYw8rAPztdjIA+/NI+F9pTHI7jr2RVdgGVqpP6A1KNTRdCnoAGKJuyB90njmSwKQdRaaUe4r
- 3Fk2+H3/lEUQ==
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2020 09:21:10 -0700
+IronPort-SDR: yWlc2JpfAU5yjlnpbMcfC912tnHbvl4HDAJvZzGQZB+QHSAa4z+B+C0XiRtFcj9CpFYLak1ZNA
+ d6yj4Vge+W0Q==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.73,395,1583222400"; 
-   d="scan'208";a="263229930"
-Received: from rjwysock-mobl1.ger.corp.intel.com (HELO [10.249.131.101]) ([10.249.131.101])
-  by orsmga003.jf.intel.com with ESMTP; 15 May 2020 08:58:48 -0700
-Subject: Re: [PATCH v2 20/20] cpufreq: Return zero on success in boost sw
- setting
-To:     Sergey.Semin@baikalelectronics.ru,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Matthias Kaehlcke <mka@chromium.org>
-Cc:     Serge Semin <fancer.lancer@gmail.com>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        devicetree@vger.kernel.org, stable@vger.kernel.org,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Yue Hu <huyue2@yulong.com>,
-        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20200306124807.3596F80307C2@mail.baikalelectronics.ru>
- <20200506174238.15385-1-Sergey.Semin@baikalelectronics.ru>
- <20200506174238.15385-21-Sergey.Semin@baikalelectronics.ru>
-From:   "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Organization: Intel Technology Poland Sp. z o. o., KRS 101882, ul. Slowackiego
- 173, 80-298 Gdansk
-Message-ID: <c5109483-4c14-1a0c-efa9-51edf01c12de@intel.com>
-Date:   Fri, 15 May 2020 17:58:47 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+   d="scan'208";a="307461969"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by FMSMGA003.fm.intel.com with SMTP; 15 May 2020 09:21:07 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Fri, 15 May 2020 19:21:06 +0300
+Date:   Fri, 15 May 2020 19:21:06 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Imre Deak <imre.deak@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH] drm/i915: Fix AUX power domain toggling
+ across TypeC mode resets
+Message-ID: <20200515162106.GL6112@intel.com>
+References: <20200514204553.27193-1-imre.deak@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20200506174238.15385-21-Sergey.Semin@baikalelectronics.ru>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200514204553.27193-1-imre.deak@intel.com>
+X-Patchwork-Hint: comment
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/6/2020 7:42 PM, Sergey.Semin@baikalelectronics.ru wrote:
-> From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
->
-> Recent commit e61a41256edf ("cpufreq: dev_pm_qos_update_request() can
-> return 1 on success") fixed a problem when active policies traverse
-> was falsely stopped due to invalidly treating the non-zero return value
-> from freq_qos_update_request() method as an error. Yes, that function
-> can return positive values if the requested update actually took place.
-> The current problem is that the returned value is then passed to the
-> return cell of the cpufreq_boost_set_sw() (set_boost callback) method.
-> This value is then also analyzed for being non-zero, which is also
-> treated as having an error. As a result during the boost activation
-> we'll get an error returned while having the QOS frequency update
-> successfully performed. Fix this by returning a negative value from the
-> cpufreq_boost_set_sw() if actual error was encountered and zero
-> otherwise treating any positive values as the successful operations
-> completion.
->
-> Fixes: 18c49926c4bf ("cpufreq: Add QoS requests for userspace constraints")
-> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-> Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-> Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-> Cc: Paul Burton <paulburton@kernel.org>
-> Cc: Ralf Baechle <ralf@linux-mips.org>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: linux-mips@vger.kernel.org
-> Cc: devicetree@vger.kernel.org
-> Cc: stable@vger.kernel.org
+On Thu, May 14, 2020 at 11:45:53PM +0300, Imre Deak wrote:
+> Make sure to select the port's AUX power domain while holding the TC
+> port lock. The domain depends on the port's current TC mode, which may
+> get changed under us if we're not holding the lock.
+
+Can we toss in a lockdep assert?
+
+Did this by any chance help with the MST issues you were seeing?
+
+> 
+> This was left out from
+> commit 8c10e2262663 ("drm/i915: Keep the TypeC port mode fixed for detect/AUX transfers")
+> 
+> Cc: <stable@vger.kernel.org> # v5.4+
+> Signed-off-by: Imre Deak <imre.deak@intel.com>
 > ---
->   drivers/cpufreq/cpufreq.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-> index 045f9fe157ce..5870cdca88cf 100644
-> --- a/drivers/cpufreq/cpufreq.c
-> +++ b/drivers/cpufreq/cpufreq.c
-> @@ -2554,7 +2554,7 @@ static int cpufreq_boost_set_sw(int state)
->   			break;
->   	}
->   
-> -	return ret;
-> +	return ret < 0 ? ret : 0;
->   }
->   
->   int cpufreq_boost_trigger_state(int state)
+>  drivers/gpu/drm/i915/display/intel_dp.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+> index 408c3c1c5e81..40d42dcff0b7 100644
+> --- a/drivers/gpu/drm/i915/display/intel_dp.c
+> +++ b/drivers/gpu/drm/i915/display/intel_dp.c
+> @@ -1359,8 +1359,7 @@ intel_dp_aux_xfer(struct intel_dp *intel_dp,
+>  	bool is_tc_port = intel_phy_is_tc(i915, phy);
+>  	i915_reg_t ch_ctl, ch_data[5];
+>  	u32 aux_clock_divider;
+> -	enum intel_display_power_domain aux_domain =
+> -		intel_aux_power_domain(intel_dig_port);
+> +	enum intel_display_power_domain aux_domain;
+>  	intel_wakeref_t aux_wakeref;
+>  	intel_wakeref_t pps_wakeref;
+>  	int i, ret, recv_bytes;
+> @@ -1375,6 +1374,8 @@ intel_dp_aux_xfer(struct intel_dp *intel_dp,
+>  	if (is_tc_port)
+>  		intel_tc_port_lock(intel_dig_port);
+>  
+> +	aux_domain = intel_aux_power_domain(intel_dig_port);
+> +
+>  	aux_wakeref = intel_display_power_get(i915, aux_domain);
+>  	pps_wakeref = pps_lock(intel_dp);
+>  
+> -- 
+> 2.23.1
+> 
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
 
-IMO it is better to update the caller of this function to handle the 
-positive value possibly returned by it correctly.
-
-Thanks!
-
-
+-- 
+Ville Syrjälä
+Intel
