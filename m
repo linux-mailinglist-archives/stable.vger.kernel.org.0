@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1221D4F68
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 15:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 786061D4FF7
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 16:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726163AbgEONmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 09:42:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
+        id S1726188AbgEOOGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 10:06:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726141AbgEONmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 May 2020 09:42:31 -0400
+        id S1726144AbgEOOGO (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Fri, 15 May 2020 10:06:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F00D20657;
-        Fri, 15 May 2020 13:42:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C521A206B6;
+        Fri, 15 May 2020 14:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589550150;
-        bh=+uZhB8AwYuzg1buYgPe1+LFPtRcIRJQEJJlMAhaZfl8=;
+        s=default; t=1589551574;
+        bh=+i3/ZFjHjz4Uqt351+PIV6upz86BE4NmrHdqXBcDdsg=;
         h=Subject:To:From:Date:From;
-        b=dwOpqnACTOFsK/wsgLydE+WBDv70fBfBgjo+P0RpT8U/OETLJ3sN574n8IqaMT6Q0
-         QTul4UqlkdJAiczlSBBbdCTj5cpkkTRj5iu2hGJq7H098peqJJ/JSOoYtmv2o8NOzS
-         FmC9DftANKje/PCAeOEMEVCchbJDNd1zHmWt9aDM=
-Subject: patch "USB: gadget: fix illegal array access in binding with UDC" added to usb-linus
-To:     kt0755@gmail.com, balbi@kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=sc01btdcULsJeQfSg2G+PXtWI4mt5SA/5jjqzv4WTdl0ep52gMIqvND9hPnDIyLbv
+         vEWidRgPJFE/JGFKeuAnBNOfLw23ymtLSTgrOylX+tNq9myMGYPbVolq+4lJiPXSNA
+         253VSnacQ5WwG3k9sJAlrbLNU4R46GMb8g3VbFXc=
+Subject: patch "staging: iio: ad2s1210: Fix SPI reading" added to staging-linus
+To:     dragos.bogdan@analog.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, alexandru.ardelean@analog.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 15 May 2020 15:42:28 +0200
-Message-ID: <1589550148151173@kroah.com>
+Date:   Fri, 15 May 2020 16:06:07 +0200
+Message-ID: <158955156758208@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,11 +40,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: gadget: fix illegal array access in binding with UDC
+    staging: iio: ad2s1210: Fix SPI reading
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -55,78 +55,65 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 15753588bcd4bbffae1cca33c8ced5722477fe1f Mon Sep 17 00:00:00 2001
-From: Kyungtae Kim <kt0755@gmail.com>
-Date: Sun, 10 May 2020 05:43:34 +0000
-Subject: USB: gadget: fix illegal array access in binding with UDC
+From 5e4f99a6b788047b0b8a7496c2e0c8f372f6edf2 Mon Sep 17 00:00:00 2001
+From: Dragos Bogdan <dragos.bogdan@analog.com>
+Date: Wed, 29 Apr 2020 10:21:29 +0300
+Subject: staging: iio: ad2s1210: Fix SPI reading
 
-FuzzUSB (a variant of syzkaller) found an illegal array access
-using an incorrect index while binding a gadget with UDC.
+If the serial interface is used, the 8-bit address should be latched using
+the rising edge of the WR/FSYNC signal.
 
-Reference: https://www.spinics.net/lists/linux-usb/msg194331.html
+This basically means that a CS change is required between the first byte
+sent, and the second one.
+This change splits the single-transfer transfer of 2 bytes into 2 transfers
+with a single byte, and CS change in-between.
 
-This bug occurs when a size variable used for a buffer
-is misused to access its strcpy-ed buffer.
-Given a buffer along with its size variable (taken from user input),
-from which, a new buffer is created using kstrdup().
-Due to the original buffer containing 0 value in the middle,
-the size of the kstrdup-ed buffer becomes smaller than that of the original.
-So accessing the kstrdup-ed buffer with the same size variable
-triggers memory access violation.
+Note fixes tag is not accurate, but reflects a point beyond which there
+are too many refactors to make backporting straight forward.
 
-The fix makes sure no zero value in the buffer,
-by comparing the strlen() of the orignal buffer with the size variable,
-so that the access to the kstrdup-ed buffer is safe.
-
-BUG: KASAN: slab-out-of-bounds in gadget_dev_desc_UDC_store+0x1ba/0x200
-drivers/usb/gadget/configfs.c:266
-Read of size 1 at addr ffff88806a55dd7e by task syz-executor.0/17208
-
-CPU: 2 PID: 17208 Comm: syz-executor.0 Not tainted 5.6.8 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xce/0x128 lib/dump_stack.c:118
- print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
- __kasan_report+0x131/0x1b0 mm/kasan/report.c:506
- kasan_report+0x12/0x20 mm/kasan/common.c:641
- __asan_report_load1_noabort+0x14/0x20 mm/kasan/generic_report.c:132
- gadget_dev_desc_UDC_store+0x1ba/0x200 drivers/usb/gadget/configfs.c:266
- flush_write_buffer fs/configfs/file.c:251 [inline]
- configfs_write_file+0x2f1/0x4c0 fs/configfs/file.c:283
- __vfs_write+0x85/0x110 fs/read_write.c:494
- vfs_write+0x1cd/0x510 fs/read_write.c:558
- ksys_write+0x18a/0x220 fs/read_write.c:611
- __do_sys_write fs/read_write.c:623 [inline]
- __se_sys_write fs/read_write.c:620 [inline]
- __x64_sys_write+0x73/0xb0 fs/read_write.c:620
- do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Signed-off-by: Kyungtae Kim <kt0755@gmail.com>
-Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200510054326.GA19198@pizza01
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b19e9ad5e2cb ("staging:iio:resolver:ad2s1210 general driver cleanup.")
+Signed-off-by: Dragos Bogdan <dragos.bogdan@analog.com>
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/usb/gadget/configfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/iio/resolver/ad2s1210.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
-index 32b637e3e1fa..6a9aa4413d64 100644
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -260,6 +260,9 @@ static ssize_t gadget_dev_desc_UDC_store(struct config_item *item,
- 	char *name;
- 	int ret;
+diff --git a/drivers/staging/iio/resolver/ad2s1210.c b/drivers/staging/iio/resolver/ad2s1210.c
+index 4b25a3a314ed..ed404355ea4c 100644
+--- a/drivers/staging/iio/resolver/ad2s1210.c
++++ b/drivers/staging/iio/resolver/ad2s1210.c
+@@ -130,17 +130,24 @@ static int ad2s1210_config_write(struct ad2s1210_state *st, u8 data)
+ static int ad2s1210_config_read(struct ad2s1210_state *st,
+ 				unsigned char address)
+ {
+-	struct spi_transfer xfer = {
+-		.len = 2,
+-		.rx_buf = st->rx,
+-		.tx_buf = st->tx,
++	struct spi_transfer xfers[] = {
++		{
++			.len = 1,
++			.rx_buf = &st->rx[0],
++			.tx_buf = &st->tx[0],
++			.cs_change = 1,
++		}, {
++			.len = 1,
++			.rx_buf = &st->rx[1],
++			.tx_buf = &st->tx[1],
++		},
+ 	};
+ 	int ret = 0;
  
-+	if (strlen(page) < len)
-+		return -EOVERFLOW;
-+
- 	name = kstrdup(page, GFP_KERNEL);
- 	if (!name)
- 		return -ENOMEM;
+ 	ad2s1210_set_mode(MOD_CONFIG, st);
+ 	st->tx[0] = address | AD2S1210_MSB_IS_HIGH;
+ 	st->tx[1] = AD2S1210_REG_FAULT;
+-	ret = spi_sync_transfer(st->sdev, &xfer, 1);
++	ret = spi_sync_transfer(st->sdev, xfers, 2);
+ 	if (ret < 0)
+ 		return ret;
+ 
 -- 
 2.26.2
 
