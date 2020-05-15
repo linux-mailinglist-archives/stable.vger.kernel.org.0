@@ -2,140 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB3B1D4389
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 04:31:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F881D441B
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 05:38:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728056AbgEOCbG convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 14 May 2020 22:31:06 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:34474 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727969AbgEOCbG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 22:31:06 -0400
-Received: from mail-pf1-f198.google.com ([209.85.210.198])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <kai.heng.feng@canonical.com>)
-        id 1jZQ7r-0007iZ-Kb
-        for stable@vger.kernel.org; Fri, 15 May 2020 02:31:03 +0000
-Received: by mail-pf1-f198.google.com with SMTP id t22so593380pfe.3
-        for <stable@vger.kernel.org>; Thu, 14 May 2020 19:31:03 -0700 (PDT)
+        id S1727981AbgEODi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 23:38:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45894 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726176AbgEODi1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 23:38:27 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DA2AC061A0C;
+        Thu, 14 May 2020 20:38:26 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id fu13so377187pjb.5;
+        Thu, 14 May 2020 20:38:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=semwFQKbUumCsuPBbqSdVLlwqa542y7E1U+Mdc3K92E=;
+        b=WypUw6qdOo65YLISnXVforHKpFkozUe/ijcZyTJzt0FmAWDGTjJ4rqrGug588F36k0
+         44S8bI9AFKtQBQHPErsXa1VE0z00X48q85tkDWHU4z4dPaFPdR15wGLY7knR6xXE7ywd
+         KAipCb1rHuTdj1IWB+04y5MmZOOpm9SJCyP9S+bP+GU4PxdJFceEki44iU8ZtucJZlQp
+         mKuQqrAkcmTfDVWQxYjZRIaYv4C1rGhsX15OOFEuKZWLKx4FZ8c0mgj10nHOl0fKjNAQ
+         E0iY8ES6AlJEU+uUx3NWrsvL2at5YpOa1N2y1GraTdz1kYgagj2lYbzLHKyHVeLOnByv
+         c3Tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=s8tcOcdPYeTodwqSl1QkZZy/pKZuDq5Dfiay8LkuQI4=;
-        b=uY4G3ZKO2X8NLk9F4WBCOjr4CLNb1EQvyOSiiDl6uPYF3ctQRhjew+Zwo4Z0yMMQSI
-         I2Q4w5djsnCi1O7l90bSycFbqxLOjUUecjH5ZhNIxjQq5oOdZxK7GKapjUEgzrl7KOpF
-         YnUfv+07N93uUK3TyeoEZB6KKoShfuhA2bwUHkyqota4hedEGygRLWFTmrX17D06yMHO
-         BB5ig5OO1zGw18DjThymlJ+2gIsBvjQ1e+7V3Rgjq4GfIPNM4iL+Q5/ZyClizpxjOONh
-         VznSPxBVq6k2WEGAHOE5svW9zmLG+4hfOxJnRhR8ZcDSA6r1VcwaONwRzZfSox9yS7DR
-         Q0vw==
-X-Gm-Message-State: AOAM533HdcWUY5PL4hFt3dloRsDyi2yqdu24ULaJyPgR7yyoYanw9dcN
-        M07312Fs09i7V3FNVv7zU7wTqdKdq0uZ3lJQYxZ8MB7WQtpDGvoqGv+7jWmixHJHIGjk1M0WFSN
-        UnDtfKULcqU3TimpGo1JVDcKnGT0ogPGJtA==
-X-Received: by 2002:a17:902:b401:: with SMTP id x1mr1530867plr.334.1589509862028;
-        Thu, 14 May 2020 19:31:02 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxbeP3r9puf7vMybibvhliGHuQC/LsBElDPmuxYS58JCZt6ir1uAtpEWJco+HN6Kzp8W3KFFQ==
-X-Received: by 2002:a17:902:b401:: with SMTP id x1mr1530832plr.334.1589509861600;
-        Thu, 14 May 2020 19:31:01 -0700 (PDT)
-Received: from [192.168.1.208] (220-133-187-190.HINET-IP.hinet.net. [220.133.187.190])
-        by smtp.gmail.com with ESMTPSA id c22sm459697pfc.127.2020.05.14.19.30.58
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 14 May 2020 19:31:00 -0700 (PDT)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Subject: Re: [PATCH] usb: core: hub: limit HUB_QUIRK_DISABLE_AUTOSUSPEND to
- USB5534B
-From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
-In-Reply-To: <20200514220246.13290-1-erosca@de.adit-jv.com>
-Date:   Fri, 15 May 2020 10:30:57 +0800
-Cc:     Alan Stern <stern@rowland.harvard.edu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Hardik Gajjar <hgajjar@de.adit-jv.com>,
-        linux-renesas-soc@vger.kernel.org, linux-usb@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-Message-Id: <FB436128-70A8-4558-808C-E068834EBF4F@canonical.com>
-References: <20200514220246.13290-1-erosca@de.adit-jv.com>
-To:     Eugeniu Rosca <erosca@de.adit-jv.com>
-X-Mailer: Apple Mail (2.3608.80.23.2.2)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=semwFQKbUumCsuPBbqSdVLlwqa542y7E1U+Mdc3K92E=;
+        b=QNh5oeFbYq7vUzZsitfDPcH2t1l6k7Nx0/nZ9Zn5e25ar57oN0cHuLU6W0V9wYIOwB
+         Z9BiN5PCPGjDBbrp+/jPhiyEiDTf3GVle+Bwr2nROx0bOS/eApSqXTwuD3QQhKSyT+Pm
+         i4btt3TgfgTMAql0MTg1ExhRZ5jM2OKLLuTWoM9wJIeuBFU/zq7Mt+3hiEGCG7On6fND
+         byubRSdCZowgyiItq0FCEGmgx1/x6xQP+1j0H4cXQKSf8yieulrvdixuizSacQTi8ZJq
+         AmrLYCSLA9J8XvY+OIYbfVOG/ZWgR46Y8/T/Gy5+WfaqLx1SrCy/8Ki17x7FtJQPfJbU
+         KhNw==
+X-Gm-Message-State: AOAM533oEhLr+2utGv/PCIAt9P+2DkHATzigo+aUHHDC1NbqeEYqYi9R
+        nTHR2u1G40+qWAtkV0b9I2FOsIC+CFy0fw==
+X-Google-Smtp-Source: ABdhPJzCMbrxc40SVrl5ucEdZxkKiSALPad6VLa4KrRDgvjs1AqMp0TeLFfCR2KvAnZ2GLBEAE+5aA==
+X-Received: by 2002:a17:90a:950a:: with SMTP id t10mr1243853pjo.193.1589513903969;
+        Thu, 14 May 2020 20:38:23 -0700 (PDT)
+Received: from dhcp-12-153.nay.redhat.com ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id b75sm371172pjc.23.2020.05.14.20.38.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2020 20:38:23 -0700 (PDT)
+From:   Hangbin Liu <liuhangbin@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, bpf@vger.kernel.org,
+        Andrii Nakryiko <andriin@fb.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        kernel test robot <rong.a.chen@intel.com>
+Subject: [PATCH 5.4] selftests/bpf: fix goto cleanup label not defined
+Date:   Fri, 15 May 2020 11:38:05 +0800
+Message-Id: <20200515033805.2172595-1-liuhangbin@gmail.com>
+X-Mailer: git-send-email 2.25.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+kernel test robot found a warning when build bpf selftest for 5.4.y stable
+tree:
 
+prog_tests/stacktrace_build_id_nmi.c:55:3: error: label ‘cleanup’ used but not defined
+   goto cleanup;
+   ^~~~
 
-> On May 15, 2020, at 06:02, Eugeniu Rosca <erosca@de.adit-jv.com> wrote:
-> 
-> On Tue, May 12, 2020 at 09:36:07PM +0800, Kai-Heng Feng wrote [1]:
->> This patch prevents my Raven Ridge xHCI from getting runtime suspend.
-> 
-> The problem described in v5.6 commit 1208f9e1d758c9 ("USB: hub: Fix the
-> broken detection of USB3 device in SMSC hub") applies solely to the
-> USB5534B hub [2] present on the Kingfisher Infotainment Carrier Board,
-> manufactured by Shimafuji Electric Inc [3].
-> 
-> Despite that, the aforementioned commit applied the quirk to _all_ hubs
-> carrying vendor ID 0x424 (i.e. SMSC), of which there are more [4] than
-> initially expected. Consequently, the quirk is now enabled on platforms
-> carrying SMSC/Microchip hub models which potentially don't exhibit the
-> original issue.
-> 
-> To avoid reports like [1], further limit the quirk's scope to
-> USB5534B [2], by employing both Vendor and Product ID checks.
-> 
-> Tested on H3ULCB + Kingfisher rev. M05.
-> 
-> [1] https://lore.kernel.org/linux-renesas-soc/73933975-6F0E-40F5-9584-D2B8F615C0F3@canonical.com/
-> [2] https://www.microchip.com/wwwproducts/en/USB5534B
-> [3] http://www.shimafuji.co.jp/wp/wp-content/uploads/2018/08/SBEV-RCAR-KF-M06Board_HWSpecificationEN_Rev130.pdf
-> [4] https://devicehunt.com/search/type/usb/vendor/0424/device/any
-> 
-> Fixes: 1208f9e1d758c9 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
-> Cc: stable@vger.kernel.org # v4.14+
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Alan Stern <stern@rowland.harvard.edu>
-> Cc: Hardik Gajjar <hgajjar@de.adit-jv.com>
-> Cc: linux-renesas-soc@vger.kernel.org
-> Cc: linux-usb@vger.kernel.org
-> Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+This is because we are lacking upstream commit dde53c1b763b
+("selftests/bpf: Convert few more selftest to skeletons"). But this
+commit is too large and need more backports. To fix it, the
+easiest way is just use the current goto label 'close_prog'.
 
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Fixes: da43712a7262 ("selftests/bpf: Skip perf hw events test if the setup disabled it")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+---
+ .../testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ---
-> drivers/usb/core/hub.c | 6 +++++-
-> 1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-> index 2b6565c06c23..fc748c731832 100644
-> --- a/drivers/usb/core/hub.c
-> +++ b/drivers/usb/core/hub.c
-> @@ -39,6 +39,7 @@
-> 
-> #define USB_VENDOR_GENESYS_LOGIC		0x05e3
-> #define USB_VENDOR_SMSC				0x0424
-> +#define USB_PRODUCT_USB5534B			0x5534
-> #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
-> #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
-> 
-> @@ -5621,8 +5622,11 @@ static void hub_event(struct work_struct *work)
-> }
-> 
-> static const struct usb_device_id hub_id_table[] = {
-> -    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_CLASS,
-> +    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
-> +                   | USB_DEVICE_ID_MATCH_PRODUCT
-> +                   | USB_DEVICE_ID_MATCH_INT_CLASS,
->       .idVendor = USB_VENDOR_SMSC,
-> +      .idProduct = USB_PRODUCT_USB5534B,
->       .bInterfaceClass = USB_CLASS_HUB,
->       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
->     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
-> -- 
-> 2.26.2
-> 
+diff --git a/tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c b/tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c
+index 1735faf17536..437cb93e72ac 100644
+--- a/tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c
++++ b/tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c
+@@ -52,7 +52,7 @@ void test_stacktrace_build_id_nmi(void)
+ 	if (pmu_fd < 0 && errno == ENOENT) {
+ 		printf("%s:SKIP:no PERF_COUNT_HW_CPU_CYCLES\n", __func__);
+ 		test__skip();
+-		goto cleanup;
++		goto close_prog;
+ 	}
+ 	if (CHECK(pmu_fd < 0, "perf_event_open", "err %d errno %d\n",
+ 		  pmu_fd, errno))
+-- 
+2.25.4
 
