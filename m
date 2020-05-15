@@ -2,104 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E17C31D49C1
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 11:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E27451D4A7F
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 12:10:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728005AbgEOJhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 05:37:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41464 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727785AbgEOJhS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 May 2020 05:37:18 -0400
-Received: from e123331-lin.nice.arm.com (amontpellier-657-1-18-247.w109-210.abo.wanadoo.fr [109.210.65.247])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F222206B6;
-        Fri, 15 May 2020 09:37:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589535438;
-        bh=5flVIIVoCW9OqOrK26kxVVwyL8Cf+v7jca5MloG5TN8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=z1uivef2SOZo6Oz9O9V8EN4yuJnLd5w4nXZ/hCNRKtsVRJUq7EyBDjtjunKSCHEUM
-         umyJADPcDlAHskHgdGCbtZsEhbvHKx6BzfGp0bD4zSXDzdCoEc4mTXTKE7nR2mkqUX
-         m8yHxALCxAn4Lv7oWDnxle6FdKA4XLQVziZegHYE=
-From:   Ard Biesheuvel <ardb@kernel.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] ACPI: GED: add support for _Exx / _Lxx handler methods
-Date:   Fri, 15 May 2020 11:36:13 +0200
-Message-Id: <20200515093613.18691-1-ardb@kernel.org>
-X-Mailer: git-send-email 2.17.1
+        id S1727999AbgEOKKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 06:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50318 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727927AbgEOKKK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 06:10:10 -0400
+Received: from mail-vk1-xa41.google.com (mail-vk1-xa41.google.com [IPv6:2607:f8b0:4864:20::a41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F48C061A0C;
+        Fri, 15 May 2020 03:10:10 -0700 (PDT)
+Received: by mail-vk1-xa41.google.com with SMTP id p139so430964vkd.7;
+        Fri, 15 May 2020 03:10:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lhigMlxhzrJnKPEuZs499FlSgqJIMriFF+MKS12l+uA=;
+        b=gp63hVTHYVuojW36b06JYhiTReOtH2+pg7/v0FgV+Ta6hcdtZGvwPDyvoqSOxSGDtN
+         oP4ZHdDKFOvyHJR10A/6nYElof0kMVJDPAoNTgKZxEIGa+nCyCfwHCiI7lFXwc0qaMzA
+         QAfKbSJ13sKqc8f+OXYJ9n35j/TnMdw1ZWoDyj9c/ixU0QS+YJHW8nSU546+3aSOA6Ux
+         XF8IKhCQyLoOHK9JXy+j+yExcJ6wrEbHiSh9Z0DxkEif/uCZ5Z55ljyO0QHaypYZ3Us0
+         8oC9LXlPJzcj52ZMtS73p+KmzpCK5aGkyR/IadwzfCicaErtAohw9QYfP8bff+OpX50s
+         iKyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lhigMlxhzrJnKPEuZs499FlSgqJIMriFF+MKS12l+uA=;
+        b=tCtS09q3p1KPLZFo5ean+FzflpaS5ZMSZrFl+Hr71WC/6ZqWQxWuSdGFHzNgQBv3Px
+         DMNtk7NidJQui8a5ShAk/BOY6ASPH2NvuRD2i4lE/8DLzp6/DwUnGe5xhK7mkRW5G1DU
+         XMDIUp1APsVnezb/fdUj3XOKCh4Uo4kyoV2t9ATTOCLtoTifmu5hzHiPVxrLKUap7HIt
+         s4CaTO/uUQ3kblCukEG+mxgMxpiTKzZas4l+200MvUbHtDyCUOce6LGNTP5N7LgkIm16
+         xRcwhpFjiAt46ZHwDPOv7UmBZ3DRa72M1TVL/JjoqmJOD9x4RQevSMSTcq8YdrAIsp1M
+         8vWQ==
+X-Gm-Message-State: AOAM533npPTX10LG3yKsZsqZxlAcABMDJ+CIoQT8trB4sIYtHn7ll9vs
+        C3o3f1GTFkIOpIvkQBs8eN8KqAVeNcviL3LJC63F+GtI3nA=
+X-Google-Smtp-Source: ABdhPJzaNbylRYStH6B+ZztSv24YNQNGSipyPFdD8gsTBnMBMP46eaL7d0io05RZRZvcuJ3Mg3DYYVRNdgElHQ0yNRE=
+X-Received: by 2002:a1f:cd06:: with SMTP id d6mr1918886vkg.94.1589537408919;
+ Fri, 15 May 2020 03:10:08 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200511123846.96594-1-christian.gmeiner@gmail.com>
+In-Reply-To: <20200511123846.96594-1-christian.gmeiner@gmail.com>
+From:   Christian Gmeiner <christian.gmeiner@gmail.com>
+Date:   Fri, 15 May 2020 12:09:57 +0200
+Message-ID: <CAH9NwWcJNhUVkzd0KAfJyxNZJ9a71KLzipW+qRwhgEWUmnnxmg@mail.gmail.com>
+Subject: Re: [PATCH] drm/etnaviv: fix perfmon domain interation
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Russell King <linux+etnaviv@armlinux.org.uk>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        The etnaviv authors <etnaviv@lists.freedesktop.org>,
+        DRI mailing list <dri-devel@lists.freedesktop.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Per the ACPI spec, interrupts in the range [0, 255] may be handled
-in AML using individual methods whose naming is based on the format
-_Exx or _Lxx, where xx is the hex representation of the interrupt
-index.
+Am Mo., 11. Mai 2020 um 14:38 Uhr schrieb Christian Gmeiner
+<christian.gmeiner@gmail.com>:
+>
+> The GC860 has one GPU device which has a 2d and 3d core. In this case
+> we want to expose perfmon information for both cores.
+>
+> The driver has one array which contains all possible perfmon domains
+> with some meta data - doms_meta. Here we can see that for the GC860
+> two elements of that array are relevant:
+>
+>   doms_3d: is at index 0 in the doms_meta array with 8 perfmon domains
+>   doms_2d: is at index 1 in the doms_meta array with 1 perfmon domain
+>
+> The userspace driver wants to get a list of all perfmon domains and
+> their perfmon signals. This is done by iterating over all domains and
+> their signals. If the userspace driver wants to access the domain with
+> id 8 the kernel driver fails and returns invalid data from doms_3d with
+> and invalid offset.
+>
+> This results in:
+>   Unable to handle kernel paging request at virtual address 00000000
+>
+> On such a device it is not possible to use the userspace driver at all.
+>
+> The fix for this off-by-one error is quite simple.
+>
+> Reported-by: Paul Cercueil <paul@crapouillou.net>
+> Tested-by: Paul Cercueil <paul@crapouillou.net>
+> Fixes: ed1dd899baa3 ("drm/etnaviv: rework perfmon query infrastructure")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+> ---
+>  drivers/gpu/drm/etnaviv/etnaviv_perfmon.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
+> index e6795bafcbb9..35f7171e779a 100644
+> --- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
+> +++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
+> @@ -453,7 +453,7 @@ static const struct etnaviv_pm_domain *pm_domain(const struct etnaviv_gpu *gpu,
+>                 if (!(gpu->identity.features & meta->feature))
+>                         continue;
+>
+> -               if (meta->nr_domains < (index - offset)) {
+> +               if ((meta->nr_domains - 1) < (index - offset)) {
+>                         offset += meta->nr_domains;
+>                         continue;
+>                 }
+> --
+> 2.26.2
+>
 
-Add support for this missing feature to our ACPI GED driver.
+ping
 
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Cc: linux-acpi@vger.kernel.org
-Cc: <stable@vger.kernel.org> # v4.9+
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
----
- drivers/acpi/evged.c | 22 +++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/acpi/evged.c b/drivers/acpi/evged.c
-index aba0d0027586..6d7a522952bf 100644
---- a/drivers/acpi/evged.c
-+++ b/drivers/acpi/evged.c
-@@ -79,6 +79,8 @@ static acpi_status acpi_ged_request_interrupt(struct acpi_resource *ares,
- 	struct resource r;
- 	struct acpi_resource_irq *p = &ares->data.irq;
- 	struct acpi_resource_extended_irq *pext = &ares->data.extended_irq;
-+	char ev_name[5];
-+	u8 trigger;
- 
- 	if (ares->type == ACPI_RESOURCE_TYPE_END_TAG)
- 		return AE_OK;
-@@ -87,14 +89,28 @@ static acpi_status acpi_ged_request_interrupt(struct acpi_resource *ares,
- 		dev_err(dev, "unable to parse IRQ resource\n");
- 		return AE_ERROR;
- 	}
--	if (ares->type == ACPI_RESOURCE_TYPE_IRQ)
-+	if (ares->type == ACPI_RESOURCE_TYPE_IRQ) {
- 		gsi = p->interrupts[0];
--	else
-+		trigger = p->triggering;
-+	} else {
- 		gsi = pext->interrupts[0];
-+		trigger = p->triggering;
-+	}
- 
- 	irq = r.start;
- 
--	if (ACPI_FAILURE(acpi_get_handle(handle, "_EVT", &evt_handle))) {
-+	switch (gsi) {
-+	case 0 ... 255:
-+		sprintf(ev_name, "_%c%02hhX",
-+			trigger == ACPI_EDGE_SENSITIVE ? 'E' : 'L', gsi);
-+
-+		if (ACPI_SUCCESS(acpi_get_handle(handle, ev_name, &evt_handle)))
-+			break;
-+		/* fall through */
-+	default:
-+		if (ACPI_SUCCESS(acpi_get_handle(handle, "_EVT", &evt_handle)))
-+			break;
-+
- 		dev_err(dev, "cannot locate _EVT method\n");
- 		return AE_ERROR;
- 	}
 -- 
-2.17.1
+greets
+--
+Christian Gmeiner, MSc
 
+https://christian-gmeiner.info/privacypolicy
