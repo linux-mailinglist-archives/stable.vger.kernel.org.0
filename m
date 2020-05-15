@@ -2,132 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECAF21D48A9
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 10:39:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCF571D48C7
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 10:48:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728048AbgEOIio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 04:38:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36114 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728030AbgEOIio (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 04:38:44 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8FBEC05BD0A
-        for <stable@vger.kernel.org>; Fri, 15 May 2020 01:38:42 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id a9so1111484lfb.8
-        for <stable@vger.kernel.org>; Fri, 15 May 2020 01:38:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=unikie-com.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=sXRSs/9NMJKgVBS5peisoJGVjTMEyPBHrie3FIkiVVo=;
-        b=ESGDxtEwDZMyvCjTLjTXkHtxqcj/ILNJpSRAuD9+GoJtCNy5ZOZGmWpSeRq2Ok+SXR
-         464LnTE7p1J1qLbQ7tf/DGPzM0MzCMR6SOujzfUptAPyh3/noO6XhdALEhxjf1oLXN3D
-         /3tXiYrqaPVbZL02DueqmzidRr/v+Hq1xXtUgyPzW2W4nhFdmZhWtX4sS0mVgmYScDQu
-         xTwitk00AMMKQgs+VAhUcGe62oTZyog4I/E6v9NL0oJzN1EcV6c7MXkVBC9BCe+W8+tt
-         AOJuNalHurQpRs034FRbfpmAha6AtWXpb4V/Il2qNNMYHLcW5HkSXAMoXR0fO8eF+ZLV
-         RjBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=sXRSs/9NMJKgVBS5peisoJGVjTMEyPBHrie3FIkiVVo=;
-        b=e3PlrzuRth/YkdRJFPk3/nRiWBWr65pllg17pnJUdoo6VDwlDGpjRQVa97lgYs5jqw
-         b1yTIL1vLAHR95Ik9vXRJjIcIpk9LH7Bx08Dn96tuSYDJ+U2flvroctZkyG9mAQW3HUX
-         M/rzANu3H0iCvjqfGTHgImBq4ToWzTpv78ydA6m8WUMgluORb0FxMv6kp28v9RW8eb82
-         eSuPD2gSkc36DSX3O2WkCqyJCwmYNMHF2kkAZ5ko4yBb5WFlNhuEMXjoJG56Pt+dvxdT
-         dQmt6IKSIrg9zSKBEN+w9rvR4gOPnbFkNO6USME6OIkS/6yvK1ymy8S0hB1ZfludXtNc
-         kUBA==
-X-Gm-Message-State: AOAM5320u8bByUXxTZ6FDx1/hUjbHQTSGcNXv0vr6BzdExucCp7Wylex
-        KgQfiPa9Ggz1gBLLuHyT1tufjw==
-X-Google-Smtp-Source: ABdhPJxIwCfPo7LL1CDPr/t6yU3XEg1Qyl7PhP16CcGW8J2V1WPxl0r6u9lzfrC6c5/h2dtxoGZvJQ==
-X-Received: by 2002:a19:84:: with SMTP id 126mr890626lfa.174.1589531920961;
-        Fri, 15 May 2020 01:38:40 -0700 (PDT)
-Received: from buimax ([109.204.208.150])
-        by smtp.gmail.com with ESMTPSA id q16sm1067188lfp.9.2020.05.15.01.38.40
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 15 May 2020 01:38:40 -0700 (PDT)
-Date:   Fri, 15 May 2020 11:38:38 +0300
-From:   Henri Rosten <henri.rosten@unikie.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Guillaume Tucker <guillaume.tucker@collabora.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: stable/linux-4.4.y bisection: baseline.login on
- at91-sama5d4_xplained
-Message-ID: <20200515083836.GA5005@buimax>
-References: <5eb8399a.1c69fb81.c5a60.8316@mx.google.com>
- <2db7e52e-86ae-7c87-1782-8c0cafcbadd8@collabora.com>
- <20200512111059.GA34497@piout.net>
- <980597f7-5170-72f2-ec2f-efc64f5e27eb@gmail.com>
- <20200512211519.GB29995@sasha-vm>
- <20200515081357.GA3257@buimax>
+        id S1726922AbgEOIsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 04:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47048 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726848AbgEOIsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 May 2020 04:48:23 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92F1C2054F;
+        Fri, 15 May 2020 08:48:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589532503;
+        bh=aTkW++N3XU8jEGVYQV4Zt4iwEcclpOOtZHBCB0mjvNU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qd2aobjyA14H3LtACCDy6+WZ9l0tSIzq5p9gTAolGS/l4Vd+pV9cUdSsOtBD89rNk
+         f/iUut9sdGUQvJgSMu8LhlbjWrw2h8AhToT5ZV7FfnW4KAbFXeglwPYLp33rTckVlQ
+         wVzsX2ACSBt1XSGu34dltkxwfjkTEilNF3j5gBQw=
+Date:   Fri, 15 May 2020 10:48:20 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH v4.4..v5.4] scsi: sg: add sg_remove_request in sg_write
+Message-ID: <20200515084820.GB1474499@kroah.com>
+References: <20200514150551.240275-1-linux@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200515081357.GA3257@buimax>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200514150551.240275-1-linux@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 15, 2020 at 11:14:00AM +0300, Henri Rosten wrote:
-> On Tue, May 12, 2020 at 05:15:19PM -0400, Sasha Levin wrote:
-> > On Tue, May 12, 2020 at 01:29:06PM -0700, Florian Fainelli wrote:
-> > > 
-> > > 
-> > > On 5/12/2020 4:10 AM, Alexandre Belloni wrote:
-> > > > Hi,
-> > > > 
-> > > > On 12/05/2020 06:54:29+0100, Guillaume Tucker wrote:
-> > > > > Please see the bisection report below about a boot failure.
-> > > > > 
-> > > > > Reports aren't automatically sent to the public while we're
-> > > > > trialing new bisection features on kernelci.org but this one
-> > > > > looks valid.
-> > > > > 
-> > > > > It appears to be due to the fact that the network interface is
-> > > > > failing to get brought up:
-> > > > > 
-> > > > > [  114.385000] Waiting up to 10 more seconds for network.
-> > > > > [  124.355000] Sending DHCP requests ...#
-> > > > > ..#
-> > > > > .#
-> > > > >  timed out!
-> > > > > [  212.355000] IP-Config: Reopening network devices...
-> > > > > [  212.365000] IPv6: ADDRCONF(NETDEV_UP): eth0: link is not ready
-> > > > > #
-> > > > > 
-> > > > > 
-> > > > > I guess the board would boot fine without network if it didn't
-> > > > > have ip=dhcp in the command line, so it's not strictly a kernel
-> > > > > boot failure but still an ethernet issue.
-> > > > > 
-> > > > 
-> > > > I think the resolution of this issue is
-> > > > 99f81afc139c6edd14d77a91ee91685a414a1c66. If this is taken, then I think
-> > > > f5aba91d7f186cba84af966a741a0346de603cd4 should also be backported.
-> > > 
-> > > Agreed.
-> > 
-> > Okay, I've queued both for 4.4, thanks!
+On Thu, May 14, 2020 at 08:05:51AM -0700, Guenter Roeck wrote:
+> From: Wu Bo <wubo40@huawei.com>
 > 
-> I notice 99f81afc139c was reverted in mainline with commit b43bd72835a5.  
-> The revert commit points out that:
+> [ Upstream commit 83c6f2390040f188cc25b270b4befeb5628c1aee ]
 > 
-> "It was papering over the real problem, which is fixed by commit
-> f555f34fdc58 ("net: phy: fix auto-negotiation stall due to unavailable
-> interrupt")"
+> If the __copy_from_user function failed we need to call sg_remove_request
+> in sg_write.
 > 
-> Maybe f555f34fdc58 should be backported to 4.4 instead of 
-> 99f81afc139c?
+> Link: https://lore.kernel.org/r/610618d9-e983-fd56-ed0f-639428343af7@huawei.com
+> Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+> Signed-off-by: Wu Bo <wubo40@huawei.com>
+> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> [groeck: Backport to v5.4.y and older kernels]
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> This patch fixes CVE-2020-12770, and the problem it fixes looks like a valid bug.
+> Please apply to v5.4.y and older kernel branches.
 
-Notice if f555f34fdc58 is taken, then I believe 215d08a85b9a should also 
-be backported.
+Now queud up, thanks.
 
--- Henri
+greg k-h
