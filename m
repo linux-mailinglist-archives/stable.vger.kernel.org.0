@@ -2,89 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 992F61D42BB
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 03:10:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31CE91D42F4
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 03:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727084AbgEOBKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 21:10:40 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:37152 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726216AbgEOBKk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 21:10:40 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04F13BTU130944;
-        Fri, 15 May 2020 01:10:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=corp-2020-01-29;
- bh=jxxby5iUD46yjAC399mm0IUPNoJCIBV3YoDAubY5aWk=;
- b=WpL+j7PDVHRMbo0q2ePpew+llQMO6OVc9IChPHEXUp47CL2/b/bxMpiFZuVx9494QvjI
- 4S4dpLqvthTYOWAEgkHvM3Pg/zG/FuwxyPa905owbOb9/w1KVzXTln4XPXIJ5uGuMuBv
- MV4/uMmEOXHXrMwlEfwyYvsspbMTQedFmKvCR8udZE0mEZ4yT6fB0Mw86LRxRQkCELiB
- zjK6BTzpJVCqhqUHb8CGumGt9CptagWaLD5hTiXHj4jk2QEbpMURVgKCGm+0A1BeONvZ
- /zhvvwpTBRQRc97aiuv9sEzUHM+HqRzix3Hh0u6wneOd0h3YKyJCuirACoqERgJw5EUM Wg== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 3100xwxp8x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 15 May 2020 01:10:33 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04F148KU003572;
-        Fri, 15 May 2020 01:10:33 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3030.oracle.com with ESMTP id 3100yhw4re-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 15 May 2020 01:10:32 +0000
-Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 04F1AV3W013992;
-        Fri, 15 May 2020 01:10:31 GMT
-Received: from ca-mkp.ca.oracle.com (/10.156.108.201)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 14 May 2020 18:10:31 -0700
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-To:     mchristi@redhat.com, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org, bly@catalogicsoftware.com,
-        Bodo Stroesser <bstroesser@ts.fujitsu.com>, bvanassche@acm.org
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] scsi: target: put lun_ref at end of tmr processing
-Date:   Thu, 14 May 2020 21:10:25 -0400
-Message-Id: <158950481363.8120.6288768454257707610.b4-ty@oracle.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200513153443.3554-1-bstroesser@ts.fujitsu.com>
-References: <20200513153443.3554-1-bstroesser@ts.fujitsu.com>
+        id S1726112AbgEOB3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 21:29:03 -0400
+Received: from mo-csw1514.securemx.jp ([210.130.202.153]:56474 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727029AbgEOB3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 21:29:03 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1514) id 04F1SjvH023296; Fri, 15 May 2020 10:28:45 +0900
+X-Iguazu-Qid: 34ts1iCWKmbS6Vv0ba
+X-Iguazu-QSIG: v=2; s=0; t=1589506124; q=34ts1iCWKmbS6Vv0ba; m=chjwo5BKAJN0yfaj8dQea3Edj3RZ5NTZdR5aGxFWEkc=
+Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
+        by relay.securemx.jp (mx-mr1511) id 04F1ShGo031210;
+        Fri, 15 May 2020 10:28:44 +0900
+Received: from enc01.localdomain ([106.186.93.100])
+        by imx2.toshiba.co.jp  with ESMTP id 04F1ShZY027002;
+        Fri, 15 May 2020 10:28:43 +0900 (JST)
+Received: from hop001.toshiba.co.jp ([133.199.164.63])
+        by enc01.localdomain  with ESMTP id 04F1ShSL009604;
+        Fri, 15 May 2020 10:28:43 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, Ben Hutchings <ben@decadent.org.uk>,
+        "wuxu.wu" <wuxu.wu@huawei.com>, Mark Brown <broonie@kernel.org>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [RFC/PATCH for 3.16] spi: spi-dw: Add lock protect dw_spi rx/tx to prevent concurrent calls
+Date:   Fri, 15 May 2020 10:28:29 +0900
+X-TSB-HOP: ON
+Message-Id: <20200515012829.1070159-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9621 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 malwarescore=0 bulkscore=0
- phishscore=0 suspectscore=0 adultscore=0 mlxscore=0 mlxlogscore=921
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2005150007
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9621 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 cotscore=-2147483648 bulkscore=0
- phishscore=0 adultscore=0 mlxlogscore=950 lowpriorityscore=0
- impostorscore=0 spamscore=0 malwarescore=0 priorityscore=1501 mlxscore=0
- suspectscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2004280000 definitions=main-2005150007
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 13 May 2020 17:34:43 +0200, Bodo Stroesser wrote:
+From: "wuxu.wu" <wuxu.wu@huawei.com>
 
-> Testing with Loopback I found, that after a Loopback LUN
-> has executed a TMR, I can no longer unlink the LUN.
-> The rm command hangs in transport_clear_lun_ref() at
-> wait_for_completion(&lun->lun_shutdown_comp)
-> The reason is, that transport_lun_remove_cmd() is not
-> called at the end of target_tmr_work().
-> 
-> [...]
+commit 19b61392c5a852b4e8a0bf35aecb969983c5932d upstream.
 
-Applied to 5.7/scsi-fixes, thanks!
+dw_spi_irq() and dw_spi_transfer_one concurrent calls.
 
-[1/1] scsi: target: Put lun_ref at end of tmr processing
-      https://git.kernel.org/mkp/scsi/c/f2e6b75f6ee8
+I find a panic in dw_writer(): txw = *(u8 *)(dws->tx), when dw->tx==null,
+dw->len==4, and dw->tx_end==1.
 
+When tpm driver's message overtime dw_spi_irq() and dw_spi_transfer_one
+may concurrent visit dw_spi, so I think dw_spi structure lack of protection.
+
+Otherwise dw_spi_transfer_one set dw rx/tx buffer and then open irq,
+store dw rx/tx instructions and other cores handle irq load dw rx/tx
+instructions may out of order.
+
+	[ 1025.321302] Call trace:
+	...
+	[ 1025.321319]  __crash_kexec+0x98/0x148
+	[ 1025.321323]  panic+0x17c/0x314
+	[ 1025.321329]  die+0x29c/0x2e8
+	[ 1025.321334]  die_kernel_fault+0x68/0x78
+	[ 1025.321337]  __do_kernel_fault+0x90/0xb0
+	[ 1025.321346]  do_page_fault+0x88/0x500
+	[ 1025.321347]  do_translation_fault+0xa8/0xb8
+	[ 1025.321349]  do_mem_abort+0x68/0x118
+	[ 1025.321351]  el1_da+0x20/0x8c
+	[ 1025.321362]  dw_writer+0xc8/0xd0
+	[ 1025.321364]  interrupt_transfer+0x60/0x110
+	[ 1025.321365]  dw_spi_irq+0x48/0x70
+	...
+
+Signed-off-by: wuxu.wu <wuxu.wu@huawei.com>
+Link: https://lore.kernel.org/r/1577849981-31489-1-git-send-email-wuxu.wu@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[iwamatsu: Backported to 3.16: adjut context]
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+---
+ drivers/spi/spi-dw.c | 14 ++++++++++++--
+ drivers/spi/spi-dw.h |  1 +
+ 2 files changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index 66e9e5196c8c5..b3e697d5b5966 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -182,9 +182,11 @@ static inline u32 rx_max(struct dw_spi *dws)
+ 
+ static void dw_writer(struct dw_spi *dws)
+ {
+-	u32 max = tx_max(dws);
++	u32 max;
+ 	u16 txw = 0;
+ 
++	spin_lock(&dws->buf_lock);
++	max = tx_max(dws);
+ 	while (max--) {
+ 		/* Set the tx word if the transfer's original "tx" is not null */
+ 		if (dws->tx_end - dws->len) {
+@@ -196,13 +198,16 @@ static void dw_writer(struct dw_spi *dws)
+ 		dw_writew(dws, DW_SPI_DR, txw);
+ 		dws->tx += dws->n_bytes;
+ 	}
++	spin_unlock(&dws->buf_lock);
+ }
+ 
+ static void dw_reader(struct dw_spi *dws)
+ {
+-	u32 max = rx_max(dws);
++	u32 max;
+ 	u16 rxw;
+ 
++	spin_lock(&dws->buf_lock);
++	max = rx_max(dws);
+ 	while (max--) {
+ 		rxw = dw_readw(dws, DW_SPI_DR);
+ 		/* Care rx only if the transfer's original "rx" is not null */
+@@ -214,6 +219,7 @@ static void dw_reader(struct dw_spi *dws)
+ 		}
+ 		dws->rx += dws->n_bytes;
+ 	}
++	spin_unlock(&dws->buf_lock);
+ }
+ 
+ static void *next_transfer(struct dw_spi *dws)
+@@ -368,6 +374,7 @@ static void pump_transfers(unsigned long data)
+ 	struct spi_transfer *previous = NULL;
+ 	struct spi_device *spi = NULL;
+ 	struct chip_data *chip = NULL;
++	unsigned long flags;
+ 	u8 bits = 0;
+ 	u8 imask = 0;
+ 	u8 cs_change = 0;
+@@ -406,6 +413,7 @@ static void pump_transfers(unsigned long data)
+ 	dws->dma_width = chip->dma_width;
+ 	dws->cs_control = chip->cs_control;
+ 
++	spin_lock_irqsave(&dws->buf_lock, flags);
+ 	dws->rx_dma = transfer->rx_dma;
+ 	dws->tx_dma = transfer->tx_dma;
+ 	dws->tx = (void *)transfer->tx_buf;
+@@ -415,6 +423,7 @@ static void pump_transfers(unsigned long data)
+ 	dws->len = dws->cur_transfer->len;
+ 	if (chip != dws->prev_chip)
+ 		cs_change = 1;
++	spin_unlock_irqrestore(&dws->buf_lock, flags);
+ 
+ 	cr0 = chip->cr0;
+ 
+@@ -651,6 +660,7 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
+ 	dws->dma_addr = (dma_addr_t)(dws->paddr + 0x60);
+ 	snprintf(dws->name, sizeof(dws->name), "dw_spi%d",
+ 			dws->bus_num);
++	spin_lock_init(&dws->buf_lock);
+ 
+ 	ret = request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dws->name, dws);
+ 	if (ret < 0) {
+diff --git a/drivers/spi/spi-dw.h b/drivers/spi/spi-dw.h
+index 6d2acad34f64f..be4119a2159bf 100644
+--- a/drivers/spi/spi-dw.h
++++ b/drivers/spi/spi-dw.h
+@@ -116,6 +116,7 @@ struct dw_spi {
+ 	size_t			len;
+ 	void			*tx;
+ 	void			*tx_end;
++	spinlock_t		buf_lock;
+ 	void			*rx;
+ 	void			*rx_end;
+ 	int			dma_mapped;
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+2.26.0
+
