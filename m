@@ -2,108 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2EC01D5A74
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 21:58:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF30B1D5AF7
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 22:50:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726494AbgEOT6x convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 15 May 2020 15:58:53 -0400
-Received: from mtaextp1.scidom.de ([146.107.3.202]:38200 "EHLO
-        mtaextp1.scidom.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726183AbgEOT6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 15:58:53 -0400
+        id S1726204AbgEOUuS convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 15 May 2020 16:50:18 -0400
+Received: from lithops.sigma-star.at ([195.201.40.130]:35188 "EHLO
+        lithops.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726212AbgEOUuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 16:50:18 -0400
 Received: from localhost (localhost [127.0.0.1])
-        by mtaextp1.scidom.de (Postfix) with ESMTP id 3616F181FD744;
-        Fri, 15 May 2020 21:58:46 +0200 (CEST)
-Received: from mtaextp1.scidom.de ([127.0.0.1])
-        by localhost (mtaextp1.scidom.de [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id yMGdHT3PPYBu; Fri, 15 May 2020 21:58:41 +0200 (CEST)
+        by lithops.sigma-star.at (Postfix) with ESMTP id 9190D6224FDF;
+        Fri, 15 May 2020 22:50:15 +0200 (CEST)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id AdrSYIIR5X19; Fri, 15 May 2020 22:50:15 +0200 (CEST)
 Received: from localhost (localhost [127.0.0.1])
-        by mtaextp1.scidom.de (Postfix) with ESMTP id 8CF94181FD756;
-        Fri, 15 May 2020 21:57:11 +0200 (CEST)
-X-Amavis-Modified: Mail body modified (using disclaimer) - mtaextp1.scidom.de
-X-Virus-Scanned: amavisd-new at 
-Received: from mtaextp1.scidom.de ([127.0.0.1])
-        by localhost (mtaextp1.scidom.de [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 8G3pzvUncV3P; Fri, 15 May 2020 21:57:11 +0200 (CEST)
-Received: from [192.168.8.101] (unknown [197.211.61.35])
-        by mtaextp1.scidom.de (Postfix) with ESMTPSA id F394F181FB42C;
-        Fri, 15 May 2020 21:55:47 +0200 (CEST)
-Content-Type: text/plain; charset="iso-8859-1"
+        by lithops.sigma-star.at (Postfix) with ESMTP id 2F4F160CEF22;
+        Fri, 15 May 2020 22:50:15 +0200 (CEST)
+Received: from lithops.sigma-star.at ([127.0.0.1])
+        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id DHwh6sPgqHHu; Fri, 15 May 2020 22:50:15 +0200 (CEST)
+Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
+        by lithops.sigma-star.at (Postfix) with ESMTP id 0B2AC6224FDF;
+        Fri, 15 May 2020 22:50:15 +0200 (CEST)
+Date:   Fri, 15 May 2020 22:50:14 +0200 (CEST)
+From:   Richard Weinberger <richard@nod.at>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
+        linux-mtd <linux-mtd@lists.infradead.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Message-ID: <568077266.223149.1589575814867.JavaMail.zimbra@nod.at>
+In-Reply-To: <20200515191704.GE1009@sol.localdomain>
+References: <20200502055945.1008194-1-ebiggers@kernel.org> <20200504071644.GS5877@pengutronix.de> <20200515191704.GE1009@sol.localdomain>
+Subject: Re: [PATCH] ubifs: fix wrong use of crypto_shash_descsize()
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Re: Vorschlag
-To:     Recipients <min.fan@helmholtz-muenchen.de>
-From:   Yi Huiman <min.fan@helmholtz-muenchen.de>
-Date:   Fri, 15 May 2020 20:55:52 +0100
-Reply-To: info@huiman.cf
-Message-Id: <20200515195547.F394F181FB42C@mtaextp1.scidom.de>
+X-Originating-IP: [195.201.40.130]
+X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF68 (Linux)/8.8.12_GA_3809)
+Thread-Topic: ubifs: fix wrong use of crypto_shash_descsize()
+Thread-Index: z+OnJhSOitcsTV8I0Jz25cDAthIH9w==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ein Vorschlag für Sie
+----- UrsprÃ¼ngliche Mail -----
+> Von: "Eric Biggers" <ebiggers@kernel.org>
+> An: "Sascha Hauer" <s.hauer@pengutronix.de>, "richard" <richard@nod.at>
+> CC: "linux-mtd" <linux-mtd@lists.infradead.org>, "Linux Crypto Mailing List" <linux-crypto@vger.kernel.org>, "stable"
+> <stable@vger.kernel.org>
+> Gesendet: Freitag, 15. Mai 2020 21:17:04
+> Betreff: Re: [PATCH] ubifs: fix wrong use of crypto_shash_descsize()
 
+> On Mon, May 04, 2020 at 09:16:44AM +0200, Sascha Hauer wrote:
+>> On Fri, May 01, 2020 at 10:59:45PM -0700, Eric Biggers wrote:
+>> > From: Eric Biggers <ebiggers@google.com>
+>> > 
+>> > crypto_shash_descsize() returns the size of the shash_desc context
+>> > needed to compute the hash, not the size of the hash itself.
+>> > 
+>> > crypto_shash_digestsize() would be correct, or alternatively using
+>> > c->hash_len and c->hmac_desc_len which already store the correct values.
+>> > But actually it's simpler to just use stack arrays, so do that instead.
+>> > 
+>> > Fixes: 49525e5eecca ("ubifs: Add helper functions for authentication support")
+>> > Fixes: da8ef65f9573 ("ubifs: Authenticate replayed journal")
+>> > Cc: <stable@vger.kernel.org> # v4.20+
+>> > Cc: Sascha Hauer <s.hauer@pengutronix.de>
+>> > Signed-off-by: Eric Biggers <ebiggers@google.com>
+>> 
+>> Looks better that way, thanks.
+>> 
+>> Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+>> 
+> 
+> Richard, could you take this through the ubifs tree for 5.8?
 
+Sure. I actually will send a PR with various MTD related fixes
+for 5.7.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Helmholtz Zentrum Muenchen
-Deutsches Forschungszentrum fuer Gesundheit und Umwelt (GmbH)
-Ingolstaedter Landstr. 1
-85764 Neuherberg
-www.helmholtz-muenchen.de
-Aufsichtsratsvorsitzende: MinDir.in Prof. Dr. Veronika von Messling
-Geschaeftsfuehrung: Prof. Dr. med. Dr. h.c. Matthias Tschoep, Kerstin Guenther
-Registergericht: Amtsgericht Muenchen HRB 6466
-USt-IdNr: DE 129521671
-
-
+Thanks,
+//richard
