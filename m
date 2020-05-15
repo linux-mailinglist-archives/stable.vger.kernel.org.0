@@ -2,79 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 343F91D4279
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 02:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 992F61D42BB
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 03:10:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726165AbgEOAzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 20:55:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40172 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726046AbgEOAzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 May 2020 20:55:32 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6657720748;
-        Fri, 15 May 2020 00:55:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589504131;
-        bh=dyv0R0ie8YtJy95FD9KX/0SzWGEPyzcOwMlclDh+UA4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uJSjrd+xSjB+lMuRVw90RcbqLGFHaXVtOIgqfx07hc1ld5s6DyfDgXH6HgOs4xQ1l
-         J2xXwpDTUJl3aIpJp50BsBsCONoto8RXR7nnKtrJebxML90qwN3NLUj5Wh8ghW9VXj
-         R30NpFNQJmBYlDidtvszjQo65EAGoXaguTwV2S6A=
-Date:   Thu, 14 May 2020 20:55:30 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-crypto@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.14 39/39] crypto: xts - simplify error handling
- in ->create()
-Message-ID: <20200515005530.GD29995@sasha-vm>
-References: <20200514185456.21060-1-sashal@kernel.org>
- <20200514185456.21060-39-sashal@kernel.org>
- <20200514190843.GA187179@gmail.com>
+        id S1727084AbgEOBKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 21:10:40 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:37152 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726216AbgEOBKk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 21:10:40 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04F13BTU130944;
+        Fri, 15 May 2020 01:10:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=corp-2020-01-29;
+ bh=jxxby5iUD46yjAC399mm0IUPNoJCIBV3YoDAubY5aWk=;
+ b=WpL+j7PDVHRMbo0q2ePpew+llQMO6OVc9IChPHEXUp47CL2/b/bxMpiFZuVx9494QvjI
+ 4S4dpLqvthTYOWAEgkHvM3Pg/zG/FuwxyPa905owbOb9/w1KVzXTln4XPXIJ5uGuMuBv
+ MV4/uMmEOXHXrMwlEfwyYvsspbMTQedFmKvCR8udZE0mEZ4yT6fB0Mw86LRxRQkCELiB
+ zjK6BTzpJVCqhqUHb8CGumGt9CptagWaLD5hTiXHj4jk2QEbpMURVgKCGm+0A1BeONvZ
+ /zhvvwpTBRQRc97aiuv9sEzUHM+HqRzix3Hh0u6wneOd0h3YKyJCuirACoqERgJw5EUM Wg== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by userp2120.oracle.com with ESMTP id 3100xwxp8x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 15 May 2020 01:10:33 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04F148KU003572;
+        Fri, 15 May 2020 01:10:33 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by userp3030.oracle.com with ESMTP id 3100yhw4re-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 15 May 2020 01:10:32 +0000
+Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 04F1AV3W013992;
+        Fri, 15 May 2020 01:10:31 GMT
+Received: from ca-mkp.ca.oracle.com (/10.156.108.201)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 14 May 2020 18:10:31 -0700
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     mchristi@redhat.com, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org, bly@catalogicsoftware.com,
+        Bodo Stroesser <bstroesser@ts.fujitsu.com>, bvanassche@acm.org
+Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] scsi: target: put lun_ref at end of tmr processing
+Date:   Thu, 14 May 2020 21:10:25 -0400
+Message-Id: <158950481363.8120.6288768454257707610.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200513153443.3554-1-bstroesser@ts.fujitsu.com>
+References: <20200513153443.3554-1-bstroesser@ts.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200514190843.GA187179@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9621 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 malwarescore=0 bulkscore=0
+ phishscore=0 suspectscore=0 adultscore=0 mlxscore=0 mlxlogscore=921
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2005150007
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9621 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 cotscore=-2147483648 bulkscore=0
+ phishscore=0 adultscore=0 mlxlogscore=950 lowpriorityscore=0
+ impostorscore=0 spamscore=0 malwarescore=0 priorityscore=1501 mlxscore=0
+ suspectscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2004280000 definitions=main-2005150007
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 14, 2020 at 12:08:43PM -0700, Eric Biggers wrote:
->On Thu, May 14, 2020 at 02:54:56PM -0400, Sasha Levin wrote:
->> From: Eric Biggers <ebiggers@google.com>
->>
->> [ Upstream commit 732e540953477083082e999ff553622c59cffd5f ]
->>
->> Simplify the error handling in the XTS template's ->create() function by
->> taking advantage of crypto_drop_skcipher() now accepting (as a no-op) a
->> spawn that hasn't been grabbed yet.
->>
->> Signed-off-by: Eric Biggers <ebiggers@google.com>
->> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->
->Please don't backport this patch.  It's a cleanup (not a fix) that depends on
->patches in 5.6, which you don't seem to be backporting.
+On Wed, 13 May 2020 17:34:43 +0200, Bodo Stroesser wrote:
 
-For 5.6-4.19 I grabbed these to take:
+> Testing with Loopback I found, that after a Loopback LUN
+> has executed a TMR, I can no longer unlink the LUN.
+> The rm command hangs in transport_clear_lun_ref() at
+> wait_for_completion(&lun->lun_shutdown_comp)
+> The reason is, that transport_lun_remove_cmd() is not
+> called at the end of target_tmr_work().
+> 
+> [...]
 
-	1a263ae60b04 ("gcc-10: avoid shadowing standard library 'free()' in crypto")
+Applied to 5.7/scsi-fixes, thanks!
 
-cleanly. I'll drop it as it's mostly to avoid silly gcc10 warnings, but
-I just wanted to let you know the reason they ended up here.
-
->Note, this comment applies to all stable trees as well as all the other
->"simplify error handling in ->create()" patches.
->I hope that I don't have to reply to every individual email.
-
-You don't :)
+[1/1] scsi: target: Put lun_ref at end of tmr processing
+      https://git.kernel.org/mkp/scsi/c/f2e6b75f6ee8
 
 -- 
-Thanks,
-Sasha
+Martin K. Petersen	Oracle Linux Engineering
