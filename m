@@ -2,142 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E9B1D41B1
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 01:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3E621D4235
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 02:41:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728101AbgENXaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 May 2020 19:30:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35358 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727956AbgENXaQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 19:30:16 -0400
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86FA6C061A0C
-        for <stable@vger.kernel.org>; Thu, 14 May 2020 16:30:16 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id s69so138568pjb.4
-        for <stable@vger.kernel.org>; Thu, 14 May 2020 16:30:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KCliDnGd2pigcrCNWSIr/GC+rbrkDaLd7pmmK5t5mZg=;
-        b=J3gb49AqumA6SOQGJZ8uS+Z4hXNnUGTuhPSI9HydehnUNvMaHJ+YTirRDGdwDY9/Jv
-         PqHt7kcQVc+bmR2A5CXvv6OzqiVoj4ZmQ6xi5+rqmiK5Gbne5l5du5GbSWRohnq18ktw
-         jLNPPiHTpEW/GT5abQlNGe628+kjoeptRnTqOSLU1s/wbKD1D4cD1oMglK1ysboAmgHb
-         eThXQPLyh65pym++f7SyRp8Mx/Vgsw0y5XVK2p9EStPU1Rc9Hbbxy5OroDKKah9qd90x
-         S8KtUCHz4TzOCG62rveDTW67MYTzgphLSYpBoE4yad3bDPkHMsao9Vsl78H6qGH45R6U
-         Rz5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KCliDnGd2pigcrCNWSIr/GC+rbrkDaLd7pmmK5t5mZg=;
-        b=H4c812cX4iX8NO9R35BBvSqmcvtNGCzr3rxd2RihCxOoOMhQOnR3d2gT4lmrrN76CO
-         oY1zLFosYCin1zQw50fnmImeAzW7AVyHzuyzc8sEEHCeef5bA0cyypKzQdf0wht/jtoE
-         LA2jFFlIzWll7dKew4Q/s0rDLRNC2z8YQPyUZr7OKvwCS7Vtx30x0RTgZgvqNtA7isJ0
-         FITvkplfTZr1XhJ4Jr0b5nKB0CwI029G3+HFa9sXYtOL5DeRHDo+Pf6U1ImWWaEn/E8N
-         Zzam0TrneW8JmuBDPyrqBA4iX2ioTbArzmSD6TmU5S6CePrUcJC1EpJmy4E8DI+FKk4Q
-         yj1w==
-X-Gm-Message-State: AOAM533uBGuZ4+7V5dnlpgvpdw9Q/WL1fV4O0EV/OBpGlX/zF6IvCrd1
-        qPKzmJobXpO2FZT2cGW8WtkoLdVryZs=
-X-Google-Smtp-Source: ABdhPJyhNBKB5PovMuErmfQnLm2NPH6XnYyfGqI1Dgfp8834OyEdkO6WyKIvqeeDFmX/hQbpMTSXNQ==
-X-Received: by 2002:a17:902:c403:: with SMTP id k3mr979153plk.12.1589499015750;
-        Thu, 14 May 2020 16:30:15 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d184sm249746pfc.130.2020.05.14.16.30.14
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2020 16:30:15 -0700 (PDT)
-Message-ID: <5ebdd487.1c69fb81.9cf74.12c4@mx.google.com>
-Date:   Thu, 14 May 2020 16:30:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.41-2-ged1728340b22
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-5.4.y boot: 165 boots: 2 failed,
- 153 passed with 5 offline, 5 untried/unknown (v5.4.41-2-ged1728340b22)
+        id S1727116AbgEOAl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 May 2020 20:41:27 -0400
+Received: from mo-csw1115.securemx.jp ([210.130.202.157]:59022 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726046AbgEOAl1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 May 2020 20:41:27 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1115) id 04F0fHYr007603; Fri, 15 May 2020 09:41:17 +0900
+X-Iguazu-Qid: 2wHHmtTgm5EShJ2HOj
+X-Iguazu-QSIG: v=2; s=0; t=1589503277; q=2wHHmtTgm5EShJ2HOj; m=F5IG6JWbQw0m8zDfmjMiZ9lVpsadh0g5Suh1sgtNL2c=
+Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
+        by relay.securemx.jp (mx-mr1110) id 04F0fG3B025780;
+        Fri, 15 May 2020 09:41:16 +0900
+Received: from enc01.localdomain ([106.186.93.100])
+        by imx2.toshiba.co.jp  with ESMTP id 04F0fG0P000648;
+        Fri, 15 May 2020 09:41:16 +0900 (JST)
+Received: from hop001.toshiba.co.jp ([133.199.164.63])
+        by enc01.localdomain  with ESMTP id 04F0fGbU028114;
+        Fri, 15 May 2020 09:41:16 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     gregkh@linuxfoundation.org, "wuxu.wu" <wuxu.wu@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Nobuhiro Iwamatsu <npbuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH for 4.4, 4.9] spi: spi-dw: Add lock protect dw_spi rx/tx to prevent concurrent calls
+Date:   Fri, 15 May 2020 09:40:56 +0900
+X-TSB-HOP: ON
+Message-Id: <20200515004056.1069809-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+X-Mailer: git-send-email 2.26.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 165 boots: 2 failed, 153 passed with 5 offline,=
- 5 untried/unknown (v5.4.41-2-ged1728340b22)
+From: "wuxu.wu" <wuxu.wu@huawei.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.41-2-ged1728340b22/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.41-2-ged1728340b22/
+commit 19b61392c5a852b4e8a0bf35aecb969983c5932d upstream.
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.41-2-ged1728340b22
-Git Commit: ed1728340b22cd2d0143fcc832c76ac40f409888
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 101 unique boards, 26 SoC families, 20 builds out of 200
+dw_spi_irq() and dw_spi_transfer_one concurrent calls.
 
-Boot Regressions Detected:
+I find a panic in dw_writer(): txw = *(u8 *)(dws->tx), when dw->tx==null,
+dw->len==4, and dw->tx_end==1.
 
-arm:
+When tpm driver's message overtime dw_spi_irq() and dw_spi_transfer_one
+may concurrent visit dw_spi, so I think dw_spi structure lack of protection.
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2837-rpi-3-b:
-              lab-baylibre: new failure (last pass: v5.4.40-91-g132220af41e=
-6)
+Otherwise dw_spi_transfer_one set dw rx/tx buffer and then open irq,
+store dw rx/tx instructions and other cores handle irq load dw rx/tx
+instructions may out of order.
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 96 days (last pass: v5.4.=
-17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+	[ 1025.321302] Call trace:
+	...
+	[ 1025.321319]  __crash_kexec+0x98/0x148
+	[ 1025.321323]  panic+0x17c/0x314
+	[ 1025.321329]  die+0x29c/0x2e8
+	[ 1025.321334]  die_kernel_fault+0x68/0x78
+	[ 1025.321337]  __do_kernel_fault+0x90/0xb0
+	[ 1025.321346]  do_page_fault+0x88/0x500
+	[ 1025.321347]  do_translation_fault+0xa8/0xb8
+	[ 1025.321349]  do_mem_abort+0x68/0x118
+	[ 1025.321351]  el1_da+0x20/0x8c
+	[ 1025.321362]  dw_writer+0xc8/0xd0
+	[ 1025.321364]  interrupt_transfer+0x60/0x110
+	[ 1025.321365]  dw_spi_irq+0x48/0x70
+	...
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 36 days (last pass: v5.4.30-37-g4=
-0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.4.40-87-g4fdbdad796=
-26)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    bcm2835_defconfig:
-        gcc-8:
-            bcm2837-rpi-3-b: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
+Signed-off-by: wuxu.wu <wuxu.wu@huawei.com>
+Link: https://lore.kernel.org/r/1577849981-31489-1-git-send-email-wuxu.wu@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <npbuhiro1.iwamatsu@toshiba.co.jp>
 ---
-For more info write to <info@kernelci.org>
+ drivers/spi/spi-dw.c | 15 ++++++++++++---
+ drivers/spi/spi-dw.h |  1 +
+ 2 files changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index 87a0e47eeae64..4edd38d03b939 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -180,9 +180,11 @@ static inline u32 rx_max(struct dw_spi *dws)
+ 
+ static void dw_writer(struct dw_spi *dws)
+ {
+-	u32 max = tx_max(dws);
++	u32 max;
+ 	u16 txw = 0;
+ 
++	spin_lock(&dws->buf_lock);
++	max = tx_max(dws);
+ 	while (max--) {
+ 		/* Set the tx word if the transfer's original "tx" is not null */
+ 		if (dws->tx_end - dws->len) {
+@@ -194,13 +196,16 @@ static void dw_writer(struct dw_spi *dws)
+ 		dw_write_io_reg(dws, DW_SPI_DR, txw);
+ 		dws->tx += dws->n_bytes;
+ 	}
++	spin_unlock(&dws->buf_lock);
+ }
+ 
+ static void dw_reader(struct dw_spi *dws)
+ {
+-	u32 max = rx_max(dws);
++	u32 max;
+ 	u16 rxw;
+ 
++	spin_lock(&dws->buf_lock);
++	max = rx_max(dws);
+ 	while (max--) {
+ 		rxw = dw_read_io_reg(dws, DW_SPI_DR);
+ 		/* Care rx only if the transfer's original "rx" is not null */
+@@ -212,6 +217,7 @@ static void dw_reader(struct dw_spi *dws)
+ 		}
+ 		dws->rx += dws->n_bytes;
+ 	}
++	spin_unlock(&dws->buf_lock);
+ }
+ 
+ static void int_error_stop(struct dw_spi *dws, const char *msg)
+@@ -284,6 +290,7 @@ static int dw_spi_transfer_one(struct spi_master *master,
+ {
+ 	struct dw_spi *dws = spi_master_get_devdata(master);
+ 	struct chip_data *chip = spi_get_ctldata(spi);
++	unsigned long flags;
+ 	u8 imask = 0;
+ 	u16 txlevel = 0;
+ 	u16 clk_div;
+@@ -291,12 +298,13 @@ static int dw_spi_transfer_one(struct spi_master *master,
+ 	int ret;
+ 
+ 	dws->dma_mapped = 0;
+-
++	spin_lock_irqsave(&dws->buf_lock, flags);
+ 	dws->tx = (void *)transfer->tx_buf;
+ 	dws->tx_end = dws->tx + transfer->len;
+ 	dws->rx = transfer->rx_buf;
+ 	dws->rx_end = dws->rx + transfer->len;
+ 	dws->len = transfer->len;
++	spin_unlock_irqrestore(&dws->buf_lock, flags);
+ 
+ 	spi_enable_chip(dws, 0);
+ 
+@@ -488,6 +496,7 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
+ 	dws->dma_inited = 0;
+ 	dws->dma_addr = (dma_addr_t)(dws->paddr + DW_SPI_DR);
+ 	snprintf(dws->name, sizeof(dws->name), "dw_spi%d", dws->bus_num);
++	spin_lock_init(&dws->buf_lock);
+ 
+ 	ret = request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dws->name, master);
+ 	if (ret < 0) {
+diff --git a/drivers/spi/spi-dw.h b/drivers/spi/spi-dw.h
+index 35589a270468d..d05b216ea3f87 100644
+--- a/drivers/spi/spi-dw.h
++++ b/drivers/spi/spi-dw.h
+@@ -117,6 +117,7 @@ struct dw_spi {
+ 	size_t			len;
+ 	void			*tx;
+ 	void			*tx_end;
++	spinlock_t		buf_lock;
+ 	void			*rx;
+ 	void			*rx_end;
+ 	int			dma_mapped;
+-- 
+2.26.0
+
