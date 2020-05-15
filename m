@@ -2,181 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A98651D4B49
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 12:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E16D1D4C6C
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 13:20:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728394AbgEOKoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 06:44:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55686 "EHLO
+        id S1726163AbgEOLUQ convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 15 May 2020 07:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728013AbgEOKoY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 06:44:24 -0400
-Received: from mail-ua1-x941.google.com (mail-ua1-x941.google.com [IPv6:2607:f8b0:4864:20::941])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82710C061A0C;
-        Fri, 15 May 2020 03:44:24 -0700 (PDT)
-Received: by mail-ua1-x941.google.com with SMTP id s5so619739uad.4;
-        Fri, 15 May 2020 03:44:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=YgrIIrg4mnIAMD9622ZNs+MTWyUAyrZXO6F1RXxlaUo=;
-        b=qBpBRBd+taT5XlFmUkeAv/Lh+hN7eLDn8H6QxhWoJpEpjwIwhm+RO81oNPuFkcPTiU
-         t5qFna5c2zvlntgknYHcHd5xd3W4vR8i10sbG3EVVO0S5qFs188+RcwEBhy7JSoCSrxQ
-         e4OmdKf5lv3LNLKVCbds2+5jvr0iYU8ItqiknQJz5P8m3VEUhUj1t3EBfNtdaqmwE8gU
-         7gvEyQ9YaHs0cvJ/8WPsWL+50Do3WQe6R/0LVv5AqqZfNSa9XbiqrU5NXyixK8CccUd4
-         4a5XzGqvgl5Pa4zBNVAfYThXRix4FJ6BTryUrzURbn9/d7u9EmqLX7InwgkwXvFSHJ55
-         6WlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=YgrIIrg4mnIAMD9622ZNs+MTWyUAyrZXO6F1RXxlaUo=;
-        b=mgkWiS+rOTgI1LEP7Gt47YCKK9ByFPqCHgzrsi63ilExICgds3NZypPVf0BByZJP+s
-         oLRxMPYREGbUIXtKY/7qGWu6HjwYtb6pFAbt6jPKdg7b24NHO0J38ywXDvjp10/TtBvg
-         kW1sH0gS22UUEskQWeH47dnUQGhiOyzxWZqZyufMu3Wo/Le+ivWfNZCJ5TuSNDkx5rFo
-         ntimjxib+fwR66hE35lV6pldvtYiNTB7n+IjPq1A7p6w71d6yyi9c0oYEyC4DVRuZPP9
-         8EFnTxTLqHsphXO5Pxi+7qHVYb3OjYwUAIus+rnV7xDd5FP8MoH45vbrRQCggZGjarcF
-         CeEQ==
-X-Gm-Message-State: AOAM532CzrcScuDsdnqEl/GJ6les7rK9AWeRLdw5QD30wthMRbjLbC21
-        Adno0vAjpzpGmu+EpLoZwHg6mMnDiRz7s1nZVmM=
-X-Google-Smtp-Source: ABdhPJzGP3waNVN9Q8Dt2zJH7viCURTLsKBnUK2Y9VknZqkyRmQ7DRt5B81IjaNpVV5vHr1rgJGqeMMQ4pnGv69SQTA=
-X-Received: by 2002:ab0:4ac9:: with SMTP id t9mr2350299uae.40.1589539463686;
- Fri, 15 May 2020 03:44:23 -0700 (PDT)
+        with ESMTP id S1726097AbgEOLUQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 07:20:16 -0400
+Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E13E7C061A0C;
+        Fri, 15 May 2020 04:20:15 -0700 (PDT)
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jZYNp-0006eH-2X; Fri, 15 May 2020 13:20:05 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id A6CD21C007F;
+        Fri, 15 May 2020 13:20:04 +0200 (CEST)
+Date:   Fri, 15 May 2020 11:20:04 -0000
+From:   "tip-bot2 for Borislav Petkov" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86: Fix early boot crash on gcc-10, third try
+Cc:     Sergei Trofimovich <slyfox@gentoo.org>,
+        Borislav Petkov <bp@suse.de>,
+        Kalle Valo <kvalo@codeaurora.org>, <stable@vger.kernel.org>,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200314164451.346497-1-slyfox@gentoo.org>
+References: <20200314164451.346497-1-slyfox@gentoo.org>
 MIME-Version: 1.0
-References: <20200511123846.96594-1-christian.gmeiner@gmail.com>
- <CAH9NwWcJNhUVkzd0KAfJyxNZJ9a71KLzipW+qRwhgEWUmnnxmg@mail.gmail.com>
- <X0BDAQ.L99CTJZCDEJE3@crapouillou.net> <a51cb70623c4c2441bb8df8385f56c99392b8435.camel@pengutronix.de>
- <CAH9NwWc6zUvoJ0xep9zO2Ocm8BzR7nRNx9=EQuwb5DXsX-J0Zw@mail.gmail.com> <ed4688343e443ff76644051be544c70fd8c5345b.camel@pengutronix.de>
-In-Reply-To: <ed4688343e443ff76644051be544c70fd8c5345b.camel@pengutronix.de>
-From:   Christian Gmeiner <christian.gmeiner@gmail.com>
-Date:   Fri, 15 May 2020 12:44:12 +0200
-Message-ID: <CAH9NwWctscn-cfU_Y1OV2GV_T3oNn1H2Tmu18OHQOD4=aTYbFA@mail.gmail.com>
-Subject: Re: [PATCH] drm/etnaviv: fix perfmon domain interation
-To:     Lucas Stach <l.stach@pengutronix.de>
-Cc:     Paul Cercueil <paul@crapouillou.net>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Russell King <linux+etnaviv@armlinux.org.uk>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        The etnaviv authors <etnaviv@lists.freedesktop.org>,
-        DRI mailing list <dri-devel@lists.freedesktop.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <158954160454.17951.15828011095215471629.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am Fr., 15. Mai 2020 um 12:33 Uhr schrieb Lucas Stach <l.stach@pengutronix.=
-de>:
->
-> Am Freitag, den 15.05.2020, 12:27 +0200 schrieb Christian Gmeiner:
-> > Am Fr., 15. Mai 2020 um 12:24 Uhr schrieb Lucas Stach <l.stach@pengutro=
-nix.de>:
-> > > Am Freitag, den 15.05.2020, 12:12 +0200 schrieb Paul Cercueil:
-> > > > Hi Christian,
-> > > >
-> > > > Le ven. 15 mai 2020 =C3=A0 12:09, Christian Gmeiner
-> > > > <christian.gmeiner@gmail.com> a =C3=A9crit :
-> > > > > Am Mo., 11. Mai 2020 um 14:38 Uhr schrieb Christian Gmeiner
-> > > > > <christian.gmeiner@gmail.com>:
-> > > > > >  The GC860 has one GPU device which has a 2d and 3d core. In th=
-is
-> > > > > > case
-> > > > > >  we want to expose perfmon information for both cores.
-> > > > > >
-> > > > > >  The driver has one array which contains all possible perfmon d=
-omains
-> > > > > >  with some meta data - doms_meta. Here we can see that for the =
-GC860
-> > > > > >  two elements of that array are relevant:
-> > > > > >
-> > > > > >    doms_3d: is at index 0 in the doms_meta array with 8 perfmon
-> > > > > > domains
-> > > > > >    doms_2d: is at index 1 in the doms_meta array with 1 perfmon
-> > > > > > domain
-> > > > > >
-> > > > > >  The userspace driver wants to get a list of all perfmon domain=
-s and
-> > > > > >  their perfmon signals. This is done by iterating over all doma=
-ins
-> > > > > > and
-> > > > > >  their signals. If the userspace driver wants to access the dom=
-ain
-> > > > > > with
-> > > > > >  id 8 the kernel driver fails and returns invalid data from dom=
-s_3d
-> > > > > > with
-> > > > > >  and invalid offset.
-> > > > > >
-> > > > > >  This results in:
-> > > > > >    Unable to handle kernel paging request at virtual address 00=
-000000
-> > > > > >
-> > > > > >  On such a device it is not possible to use the userspace drive=
-r at
-> > > > > > all.
-> > > > > >
-> > > > > >  The fix for this off-by-one error is quite simple.
-> > > > > >
-> > > > > >  Reported-by: Paul Cercueil <paul@crapouillou.net>
-> > > > > >  Tested-by: Paul Cercueil <paul@crapouillou.net>
-> > > > > >  Fixes: ed1dd899baa3 ("drm/etnaviv: rework perfmon query
-> > > > > > infrastructure")
-> > > > > >  Cc: stable@vger.kernel.org
-> > > > > >  Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-> > > > > >  ---
-> > > > > >   drivers/gpu/drm/etnaviv/etnaviv_perfmon.c | 2 +-
-> > > > > >   1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > > >
-> > > > > >  diff --git a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-> > > > > > b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-> > > > > >  index e6795bafcbb9..35f7171e779a 100644
-> > > > > >  --- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-> > > > > >  +++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-> > > > > >  @@ -453,7 +453,7 @@ static const struct etnaviv_pm_domain
-> > > > > > *pm_domain(const struct etnaviv_gpu *gpu,
-> > > > > >                  if (!(gpu->identity.features & meta->feature))
-> > > > > >                          continue;
-> > > > > >
-> > > > > >  -               if (meta->nr_domains < (index - offset)) {
-> > > > > >  +               if ((meta->nr_domains - 1) < (index - offset))=
+The following commit has been merged into the x86/urgent branch of tip:
+
+Commit-ID:     a9a3ed1eff3601b63aea4fb462d8b3b92c7c1e7e
+Gitweb:        https://git.kernel.org/tip/a9a3ed1eff3601b63aea4fb462d8b3b92c7c1e7e
+Author:        Borislav Petkov <bp@suse.de>
+AuthorDate:    Wed, 22 Apr 2020 18:11:30 +02:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 15 May 2020 11:48:01 +02:00
+
+x86: Fix early boot crash on gcc-10, third try
+
+... or the odyssey of trying to disable the stack protector for the
+function which generates the stack canary value.
+
+The whole story started with Sergei reporting a boot crash with a kernel
+built with gcc-10:
+
+  Kernel panic — not syncing: stack-protector: Kernel stack is corrupted in: start_secondary
+  CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc5—00235—gfffb08b37df9 #139
+  Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77M—D3H, BIOS F12 11/14/2013
+  Call Trace:
+    dump_stack
+    panic
+    ? start_secondary
+    __stack_chk_fail
+    start_secondary
+    secondary_startup_64
+  -—-[ end Kernel panic — not syncing: stack—protector: Kernel stack is corrupted in: start_secondary
+
+This happens because gcc-10 tail-call optimizes the last function call
+in start_secondary() - cpu_startup_entry() - and thus emits a stack
+canary check which fails because the canary value changes after the
+boot_init_stack_canary() call.
+
+To fix that, the initial attempt was to mark the one function which
+generates the stack canary with:
+
+  __attribute__((optimize("-fno-stack-protector"))) ... start_secondary(void *unused)
+
+however, using the optimize attribute doesn't work cumulatively
+as the attribute does not add to but rather replaces previously
+supplied optimization options - roughly all -fxxx options.
+
+The key one among them being -fno-omit-frame-pointer and thus leading to
+not present frame pointer - frame pointer which the kernel needs.
+
+The next attempt to prevent compilers from tail-call optimizing
+the last function call cpu_startup_entry(), shy of carving out
+start_secondary() into a separate compilation unit and building it with
+-fno-stack-protector, was to add an empty asm("").
+
+This current solution was short and sweet, and reportedly, is supported
+by both compilers but we didn't get very far this time: future (LTO?)
+optimization passes could potentially eliminate this, which leads us
+to the third attempt: having an actual memory barrier there which the
+compiler cannot ignore or move around etc.
+
+That should hold for a long time, but hey we said that about the other
+two solutions too so...
+
+Reported-by: Sergei Trofimovich <slyfox@gentoo.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200314164451.346497-1-slyfox@gentoo.org
+---
+ arch/x86/include/asm/stackprotector.h | 7 ++++++-
+ arch/x86/kernel/smpboot.c             | 8 ++++++++
+ arch/x86/xen/smp_pv.c                 | 1 +
+ include/linux/compiler.h              | 6 ++++++
+ init/main.c                           | 2 ++
+ 5 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/include/asm/stackprotector.h b/arch/x86/include/asm/stackprotector.h
+index 91e29b6..9804a79 100644
+--- a/arch/x86/include/asm/stackprotector.h
++++ b/arch/x86/include/asm/stackprotector.h
+@@ -55,8 +55,13 @@
+ /*
+  * Initialize the stackprotector canary value.
+  *
+- * NOTE: this must only be called from functions that never return,
++ * NOTE: this must only be called from functions that never return
+  * and it must always be inlined.
++ *
++ * In addition, it should be called from a compilation unit for which
++ * stack protector is disabled. Alternatively, the caller should not end
++ * with a function call which gets tail-call optimized as that would
++ * lead to checking a modified canary value.
+  */
+ static __always_inline void boot_init_stack_canary(void)
  {
-> > > > > >                          offset +=3D meta->nr_domains;
-> > > > > >                          continue;
-> > > > > >                  }
-> > > > > >  --
-> > > > > >  2.26.2
-> > > > > >
-> > > > >
-> > > > > ping
-> > > >
-> > > > I'll merge it tomorrow if there's no further feedback.
-> > >
-> > > Huh? Etnaviv patches are going through the etnaviv tree.
-> > >
-> > > We now have two different solutions to the same issue. I first want t=
-o
-> > > dig into the code to see why two developers can get confused enough b=
-y
-> > > the code to come up with totally different fixes.
-> > >
-> >
-> > You will see that the solutions are not totally different. I really hop=
-ed to
-> > get this fixed in the 5.7 release.. but I think its now too late.
->
-> I didn't have time to look at the full picture, yet. We still have at
-> least a week until the final 5.7 release, why would it be too late to
-> get a fix upstream?
->
-
-Great - so I count on you that we will have a fix in 5.7 release.
-
---=20
-greets
---
-Christian Gmeiner, MSc
-
-https://christian-gmeiner.info/privacypolicy
+diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+index 8c89e4d..2f24c33 100644
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -266,6 +266,14 @@ static void notrace start_secondary(void *unused)
+ 
+ 	wmb();
+ 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
++
++	/*
++	 * Prevent tail call to cpu_startup_entry() because the stack protector
++	 * guard has been changed a couple of function calls up, in
++	 * boot_init_stack_canary() and must not be checked before tail calling
++	 * another function.
++	 */
++	prevent_tail_call_optimization();
+ }
+ 
+ /**
+diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
+index 8fb8a50..f2adb63 100644
+--- a/arch/x86/xen/smp_pv.c
++++ b/arch/x86/xen/smp_pv.c
+@@ -93,6 +93,7 @@ asmlinkage __visible void cpu_bringup_and_idle(void)
+ 	cpu_bringup();
+ 	boot_init_stack_canary();
+ 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
++	prevent_tail_call_optimization();
+ }
+ 
+ void xen_smp_intr_free_pv(unsigned int cpu)
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 034b0a6..448c91b 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -356,4 +356,10 @@ static inline void *offset_to_ptr(const int *off)
+ /* &a[0] degrades to a pointer: a different type from an array */
+ #define __must_be_array(a)	BUILD_BUG_ON_ZERO(__same_type((a), &(a)[0]))
+ 
++/*
++ * This is needed in functions which generate the stack canary, see
++ * arch/x86/kernel/smpboot.c::start_secondary() for an example.
++ */
++#define prevent_tail_call_optimization()	mb()
++
+ #endif /* __LINUX_COMPILER_H */
+diff --git a/init/main.c b/init/main.c
+index 1a5da2c..ad3812b 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1036,6 +1036,8 @@ asmlinkage __visible void __init start_kernel(void)
+ 
+ 	/* Do the rest non-__init'ed, we're now alive */
+ 	arch_call_rest_init();
++
++	prevent_tail_call_optimization();
+ }
+ 
+ /* Call all constructor functions linked into the kernel. */
