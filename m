@@ -2,87 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 840761D48CD
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 10:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E96B1D48D2
+	for <lists+stable@lfdr.de>; Fri, 15 May 2020 10:52:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727050AbgEOIvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 04:51:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
+        id S1727803AbgEOIwF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 04:52:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726885AbgEOIvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 May 2020 04:51:12 -0400
+        id S1726922AbgEOIwF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 May 2020 04:52:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69442206B6;
-        Fri, 15 May 2020 08:51:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5501D206B6;
+        Fri, 15 May 2020 08:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589532671;
-        bh=3C/WE/cLJYbcqBfJ1AYsMlIORvaJH6kbT1mGEA0kYNI=;
+        s=default; t=1589532724;
+        bh=1LyoXzXBlHR/2FOqWA0gGiLvv9svrT2bA80Zjuz+qsA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ziEQqEDtrmYpajYvmeQSqFp4Lo2q7rqxK5UG8YP8o56yDcSR8L9SiF1CLrs6AmnGD
-         EZ1fklCkNQkSiF4eeUHorJdv6JgwnkjBEqXmCXNjKrx3YwySRlsbFQHI1n5N0ipMK0
-         rv7qSMg4vay98Ubnmy7b424zB8PGsKJL+01kZVZs=
-Date:   Fri, 15 May 2020 10:51:09 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     stable@vger.kernel.org, "wuxu.wu" <wuxu.wu@huawei.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v2 for 4.4, 4.9] spi: spi-dw: Add lock protect dw_spi
- rx/tx to prevent concurrent calls
-Message-ID: <20200515085109.GC1474499@kroah.com>
-References: <20200515004245.1069864-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+        b=pEx3rd/KyL0om8G/qSVfIA5d8W7HNz5VqBbCQopD9qHWF5Xv3qSUG/RD3KdlB08No
+         ti5aZbXAM9TFq0T1cWZABh9bDD/RCS+gPbMXMlYluCol/JxoyIdA+eT3GOYB2JGWeZ
+         U+vX/3I9p7VUTR5SmNXAwswvhdvmPBUX4EcCXFUU=
+Date:   Fri, 15 May 2020 10:52:02 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.6 000/118] 5.6.13-rc1 review
+Message-ID: <20200515085202.GD1474499@kroah.com>
+References: <20200513094417.618129545@linuxfoundation.org>
+ <6ef26ca0-ebb2-9f9a-c9a8-32365667a7a9@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200515004245.1069864-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+In-Reply-To: <6ef26ca0-ebb2-9f9a-c9a8-32365667a7a9@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 15, 2020 at 09:42:45AM +0900, Nobuhiro Iwamatsu wrote:
-> From: "wuxu.wu" <wuxu.wu@huawei.com>
+On Wed, May 13, 2020 at 04:59:52PM -0600, shuah wrote:
+> On 5/13/20 3:43 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.6.13 release.
+> > There are 118 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri, 15 May 2020 09:41:20 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.13-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> commit 19b61392c5a852b4e8a0bf35aecb969983c5932d upstream.
-> 
-> dw_spi_irq() and dw_spi_transfer_one concurrent calls.
-> 
-> I find a panic in dw_writer(): txw = *(u8 *)(dws->tx), when dw->tx==null,
-> dw->len==4, and dw->tx_end==1.
-> 
-> When tpm driver's message overtime dw_spi_irq() and dw_spi_transfer_one
-> may concurrent visit dw_spi, so I think dw_spi structure lack of protection.
-> 
-> Otherwise dw_spi_transfer_one set dw rx/tx buffer and then open irq,
-> store dw rx/tx instructions and other cores handle irq load dw rx/tx
-> instructions may out of order.
-> 
-> 	[ 1025.321302] Call trace:
-> 	...
-> 	[ 1025.321319]  __crash_kexec+0x98/0x148
-> 	[ 1025.321323]  panic+0x17c/0x314
-> 	[ 1025.321329]  die+0x29c/0x2e8
-> 	[ 1025.321334]  die_kernel_fault+0x68/0x78
-> 	[ 1025.321337]  __do_kernel_fault+0x90/0xb0
-> 	[ 1025.321346]  do_page_fault+0x88/0x500
-> 	[ 1025.321347]  do_translation_fault+0xa8/0xb8
-> 	[ 1025.321349]  do_mem_abort+0x68/0x118
-> 	[ 1025.321351]  el1_da+0x20/0x8c
-> 	[ 1025.321362]  dw_writer+0xc8/0xd0
-> 	[ 1025.321364]  interrupt_transfer+0x60/0x110
-> 	[ 1025.321365]  dw_spi_irq+0x48/0x70
-> 	...
-> 
-> Signed-off-by: wuxu.wu <wuxu.wu@huawei.com>
-> Link: https://lore.kernel.org/r/1577849981-31489-1-git-send-email-wuxu.wu@huawei.com
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
-> ---
->  drivers/spi/spi-dw.c | 15 ++++++++++++---
->  drivers/spi/spi-dw.h |  1 +
->  2 files changed, 13 insertions(+), 3 deletions(-)
+> Compiled and booted on my test system. No dmesg regressions.
 
-Now queued up, thanks.
+Thanks for testing all of these and letting me know.
 
 greg k-h
