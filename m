@@ -2,122 +2,249 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06AB61D5D23
-	for <lists+stable@lfdr.de>; Sat, 16 May 2020 02:19:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 530F11D5D49
+	for <lists+stable@lfdr.de>; Sat, 16 May 2020 02:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726653AbgEPAT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 20:19:28 -0400
-Received: from mail-pj1-f68.google.com ([209.85.216.68]:37289 "EHLO
-        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726550AbgEPAT2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 20:19:28 -0400
-Received: by mail-pj1-f68.google.com with SMTP id q9so1724423pjm.2;
-        Fri, 15 May 2020 17:19:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=S3G2WbRhtzm3ssLwF+7XHKy6fZ2iPExuIOPfpVM4JAQ=;
-        b=nJ7jGyFcUyB/+6Ee2Q5ua7TB1+rD0OuaW9c4o5BvMrWCILeiIbfcPqO4Djkg9PkYKH
-         KDP7dZYG0c3NYpIsFuAdk163ENKS698IevrrLFCmd4bdJ/XjYOxSTFWUsXr53bC1k4d+
-         uk/9CeTxBnY4d7rwDi2lJmnivJe2qF+26k8WnPDSuZQgAZB3ji/IiMG9UnZKlYs41d9F
-         eM5O7vg5hpkZWB/lwb0lnlcA+lDzJ8mS8hQYta1nM2IgxCBZcWAwCSFh2MSwGHq0A+q6
-         GaoYRKi1PSW4F4rC48vPvgU7T5Lj7W3MCkQVQVaOpKji4mlNkYVRfW2QCMDW11OcP/ro
-         iVTQ==
-X-Gm-Message-State: AOAM533Yoc3Hd2/gW8DAI1ob6zi8Tg6vO5Y+LMwq6Hz76LMp9VeNlDzk
-        1GxmBEZkH1YwHQZDreeODAc=
-X-Google-Smtp-Source: ABdhPJz6k+47GUDiMGXO63ssCn+K7ItCEDmDzqJpfrHokKVVPveIRMAHsO0swQtse9BfIHPxnx5nJQ==
-X-Received: by 2002:a17:902:c489:: with SMTP id n9mr4130738plx.186.1589588367396;
-        Fri, 15 May 2020 17:19:27 -0700 (PDT)
-Received: from localhost.localdomain ([2601:647:4000:d7:f99a:ee92:9332:42a])
-        by smtp.gmail.com with ESMTPSA id 30sm2542383pgp.38.2020.05.15.17.19.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2020 17:19:26 -0700 (PDT)
-From:   Bart Van Assche <bvanassche@acm.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>, stable@vger.kernel.org
-Subject: [PATCH 4/5] block: Fix zero_fill_bio()
-Date:   Fri, 15 May 2020 17:19:13 -0700
-Message-Id: <20200516001914.17138-5-bvanassche@acm.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200516001914.17138-1-bvanassche@acm.org>
-References: <20200516001914.17138-1-bvanassche@acm.org>
+        id S1726550AbgEPAk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 20:40:27 -0400
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:57504 "EHLO
+        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727801AbgEPAk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 20:40:27 -0400
+Received: from pps.filterd (m0109332.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 04G0ZeWc011390
+        for <stable@vger.kernel.org>; Fri, 15 May 2020 17:40:26 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=facebook; bh=tVFu8qef+B9U3NpS42uoEd9ioQ9gOfDj5dMAO7KW3LE=;
+ b=C7WCJU6SGL0xGDIfigxv0EfX31a9I29eHVjNyKDhVJ8wfqGRPzFIt/Owyxow06HrjOnn
+ ZVs5M0G01MYIuqEL6ZORltMIcqwNosU41qbQALgdE9iD/B5b6WbHZHm+QO6qaZ0HdC2i
+ 0QRGESuONC2AC0DjDoLwcnY3VjK/ba1dZq8= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com with ESMTP id 3100x7d2nh-3
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 15 May 2020 17:40:25 -0700
+Received: from intmgw002.08.frc2.facebook.com (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:82::f) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1847.3; Fri, 15 May 2020 17:40:24 -0700
+Received: by devbig012.ftw2.facebook.com (Postfix, from userid 137359)
+        id 0DE6A2EC39B6; Fri, 15 May 2020 17:40:20 -0700 (PDT)
+Smtp-Origin-Hostprefix: devbig
+From:   Andrii Nakryiko <andriin@fb.com>
+Smtp-Origin-Hostname: devbig012.ftw2.facebook.com
+To:     <bpf@vger.kernel.org>, <netdev@vger.kernel.org>, <ast@fb.com>,
+        <daniel@iogearbox.net>, <stable@vger.kernel.org>,
+        <gregkh@linuxfoundation.org>
+CC:     <andrii.nakryiko@gmail.com>, <kernel-team@fb.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Smtp-Origin-Cluster: ftw2c04
+Subject: [PATCH 5.4 1/2] libbpf: Extract and generalize CPU mask parsing logic
+Date:   Fri, 15 May 2020 17:40:16 -0700
+Message-ID: <20200516004018.3500869-1-andriin@fb.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.676
+ definitions=2020-05-15_07:2020-05-15,2020-05-15 signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 phishscore=0
+ cotscore=-2147483648 lowpriorityscore=0 spamscore=0 adultscore=0
+ impostorscore=0 mlxlogscore=999 priorityscore=1501 bulkscore=0
+ clxscore=1015 malwarescore=0 mlxscore=0 suspectscore=0 classifier=spam
+ adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2005160003
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Multiple block drivers use zero_fill_bio() to zero-initialize the data
-buffer used for read operations. Make sure that all pages are zeroed
-instead of only the first if one or more multi-page bvecs are used to
-describe the data buffer.
+commit 6803ee25f0ead1e836808acb14396bb9a9849113 upstream
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+This logic is re-used for parsing a set of online CPUs. Having it as an
+isolated piece of code working with input string makes it conveninent to =
+test
+this logic as well. While refactoring, also improve the robustness of ori=
+ginal
+implementation.
+
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20191212013548.1690564-1-andriin@fb.com
 ---
- block/bio.c         | 27 ++++++++++++++++++++++-----
- include/linux/bio.h |  1 +
- 2 files changed, 23 insertions(+), 5 deletions(-)
+ tools/lib/bpf/libbpf.c          | 126 +++++++++++++++++++++-----------
+ tools/lib/bpf/libbpf_internal.h |   2 +
+ 2 files changed, 86 insertions(+), 42 deletions(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 1594804fe8bc..48fcafbdae70 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -527,17 +527,34 @@ struct bio *bio_alloc_bioset(gfp_t gfp_mask, unsigned int nr_iovecs,
- }
- EXPORT_SYMBOL(bio_alloc_bioset);
- 
-+void zero_fill_bvec(const struct bio_vec *bvec)
-+{
-+	struct page *page = bvec->bv_page;
-+	u32 offset = bvec->bv_offset;
-+	u32 left = bvec->bv_len;
-+
-+	while (left) {
-+		u32 len = min_t(u32, left, PAGE_SIZE - offset);
-+		void *kaddr;
-+
-+		kaddr = kmap_atomic(page);
-+		memset(kaddr + offset, 0, len);
-+		flush_dcache_page(page);
-+		kunmap_atomic(kaddr);
-+		page++;
-+		left -= len;
-+		offset = 0;
-+	}
-+}
-+EXPORT_SYMBOL(zero_fill_bvec);
-+
- void zero_fill_bio_iter(struct bio *bio, struct bvec_iter start)
- {
--	unsigned long flags;
- 	struct bio_vec bv;
- 	struct bvec_iter iter;
- 
- 	__bio_for_each_segment(bv, bio, iter, start) {
--		char *data = bvec_kmap_irq(&bv, &flags);
--		memset(data, 0, bv.bv_len);
--		flush_dcache_page(bv.bv_page);
--		bvec_kunmap_irq(data, &flags);
-+		zero_fill_bvec(&bv);
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index b6403712c2f4..281cc65276e0 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -5905,62 +5905,104 @@ void bpf_program__bpil_offs_to_addr(struct bpf_p=
+rog_info_linear *info_linear)
  	}
  }
- EXPORT_SYMBOL(zero_fill_bio_iter);
-diff --git a/include/linux/bio.h b/include/linux/bio.h
-index 58e6134b1c05..9438cbdfa19e 100644
---- a/include/linux/bio.h
-+++ b/include/linux/bio.h
-@@ -455,6 +455,7 @@ extern void bio_copy_data_iter(struct bio *dst, struct bvec_iter *dst_iter,
- extern void bio_copy_data(struct bio *dst, struct bio *src);
- extern void bio_list_copy_data(struct bio *dst, struct bio *src);
- extern void bio_free_pages(struct bio *bio);
-+void zero_fill_bvec(const struct bio_vec *bvec);
- void zero_fill_bio_iter(struct bio *bio, struct bvec_iter iter);
- void bio_truncate(struct bio *bio, unsigned new_size);
- void guard_bio_eod(struct bio *bio);
+=20
+-int libbpf_num_possible_cpus(void)
++int parse_cpu_mask_str(const char *s, bool **mask, int *mask_sz)
+ {
+-	static const char *fcpu =3D "/sys/devices/system/cpu/possible";
+-	int len =3D 0, n =3D 0, il =3D 0, ir =3D 0;
+-	unsigned int start =3D 0, end =3D 0;
+-	int tmp_cpus =3D 0;
+-	static int cpus;
+-	char buf[128];
+-	int error =3D 0;
+-	int fd =3D -1;
++	int err =3D 0, n, len, start, end =3D -1;
++	bool *tmp;
+=20
+-	tmp_cpus =3D READ_ONCE(cpus);
+-	if (tmp_cpus > 0)
+-		return tmp_cpus;
++	*mask =3D NULL;
++	*mask_sz =3D 0;
++
++	/* Each sub string separated by ',' has format \d+-\d+ or \d+ */
++	while (*s) {
++		if (*s =3D=3D ',' || *s =3D=3D '\n') {
++			s++;
++			continue;
++		}
++		n =3D sscanf(s, "%d%n-%d%n", &start, &len, &end, &len);
++		if (n <=3D 0 || n > 2) {
++			pr_warning("Failed to get CPU range %s: %d\n", s, n);
++			err =3D -EINVAL;
++			goto cleanup;
++		} else if (n =3D=3D 1) {
++			end =3D start;
++		}
++		if (start < 0 || start > end) {
++			pr_warning("Invalid CPU range [%d,%d] in %s\n",
++				   start, end, s);
++			err =3D -EINVAL;
++			goto cleanup;
++		}
++		tmp =3D realloc(*mask, end + 1);
++		if (!tmp) {
++			err =3D -ENOMEM;
++			goto cleanup;
++		}
++		*mask =3D tmp;
++		memset(tmp + *mask_sz, 0, start - *mask_sz);
++		memset(tmp + start, 1, end - start + 1);
++		*mask_sz =3D end + 1;
++		s +=3D len;
++	}
++	if (!*mask_sz) {
++		pr_warning("Empty CPU range\n");
++		return -EINVAL;
++	}
++	return 0;
++cleanup:
++	free(*mask);
++	*mask =3D NULL;
++	return err;
++}
++
++int parse_cpu_mask_file(const char *fcpu, bool **mask, int *mask_sz)
++{
++	int fd, err =3D 0, len;
++	char buf[128];
+=20
+ 	fd =3D open(fcpu, O_RDONLY);
+ 	if (fd < 0) {
+-		error =3D errno;
+-		pr_warning("Failed to open file %s: %s\n",
+-			   fcpu, strerror(error));
+-		return -error;
++		err =3D -errno;
++		pr_warning("Failed to open cpu mask file %s: %d\n", fcpu, err);
++		return err;
+ 	}
+ 	len =3D read(fd, buf, sizeof(buf));
+ 	close(fd);
+ 	if (len <=3D 0) {
+-		error =3D len ? errno : EINVAL;
+-		pr_warning("Failed to read # of possible cpus from %s: %s\n",
+-			   fcpu, strerror(error));
+-		return -error;
++		err =3D len ? -errno : -EINVAL;
++		pr_warning("Failed to read cpu mask from %s: %d\n", fcpu, err);
++		return err;
+ 	}
+-	if (len =3D=3D sizeof(buf)) {
+-		pr_warning("File %s size overflow\n", fcpu);
+-		return -EOVERFLOW;
++	if (len >=3D sizeof(buf)) {
++		pr_warning("CPU mask is too big in file %s\n", fcpu);
++		return -E2BIG;
+ 	}
+ 	buf[len] =3D '\0';
+=20
+-	for (ir =3D 0, tmp_cpus =3D 0; ir <=3D len; ir++) {
+-		/* Each sub string separated by ',' has format \d+-\d+ or \d+ */
+-		if (buf[ir] =3D=3D ',' || buf[ir] =3D=3D '\0') {
+-			buf[ir] =3D '\0';
+-			n =3D sscanf(&buf[il], "%u-%u", &start, &end);
+-			if (n <=3D 0) {
+-				pr_warning("Failed to get # CPUs from %s\n",
+-					   &buf[il]);
+-				return -EINVAL;
+-			} else if (n =3D=3D 1) {
+-				end =3D start;
+-			}
+-			tmp_cpus +=3D end - start + 1;
+-			il =3D ir + 1;
+-		}
+-	}
+-	if (tmp_cpus <=3D 0) {
+-		pr_warning("Invalid #CPUs %d from %s\n", tmp_cpus, fcpu);
+-		return -EINVAL;
++	return parse_cpu_mask_str(buf, mask, mask_sz);
++}
++
++int libbpf_num_possible_cpus(void)
++{
++	static const char *fcpu =3D "/sys/devices/system/cpu/possible";
++	static int cpus;
++	int err, n, i, tmp_cpus;
++	bool *mask;
++
++	tmp_cpus =3D READ_ONCE(cpus);
++	if (tmp_cpus > 0)
++		return tmp_cpus;
++
++	err =3D parse_cpu_mask_file(fcpu, &mask, &n);
++	if (err)
++		return err;
++
++	tmp_cpus =3D 0;
++	for (i =3D 0; i < n; i++) {
++		if (mask[i])
++			tmp_cpus++;
+ 	}
++	free(mask);
+=20
+ 	WRITE_ONCE(cpus, tmp_cpus);
+ 	return tmp_cpus;
+diff --git a/tools/lib/bpf/libbpf_internal.h b/tools/lib/bpf/libbpf_inter=
+nal.h
+index 98216a69c32f..92940ae26ada 100644
+--- a/tools/lib/bpf/libbpf_internal.h
++++ b/tools/lib/bpf/libbpf_internal.h
+@@ -63,6 +63,8 @@ do {				\
+ #define pr_info(fmt, ...)	__pr(LIBBPF_INFO, fmt, ##__VA_ARGS__)
+ #define pr_debug(fmt, ...)	__pr(LIBBPF_DEBUG, fmt, ##__VA_ARGS__)
+=20
++int parse_cpu_mask_str(const char *s, bool **mask, int *mask_sz);
++int parse_cpu_mask_file(const char *fcpu, bool **mask, int *mask_sz);
+ int libbpf__load_raw_btf(const char *raw_types, size_t types_len,
+ 			 const char *str_sec, size_t str_len);
+=20
+--=20
+2.24.1
+
