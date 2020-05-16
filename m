@@ -2,76 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E0901D5DAB
-	for <lists+stable@lfdr.de>; Sat, 16 May 2020 03:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C6521D5EF1
+	for <lists+stable@lfdr.de>; Sat, 16 May 2020 07:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726247AbgEPBfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 May 2020 21:35:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57576 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726204AbgEPBfL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 May 2020 21:35:11 -0400
-Received: from gmail.com (unknown [104.132.1.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726253AbgEPFu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 May 2020 01:50:28 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:23025 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725807AbgEPFu2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 16 May 2020 01:50:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589608227;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1U+2TT+KSyuB8+J8otdmfu38tcV5l3t0X/8rEiqc8FA=;
+        b=es/d3cvjLJiqYI62pP314BgiyN3B3BCsS+1tOs+xl5uy8Bs51MKewI0gTxryjjBQz1sAqe
+        C2gmOtQtojVJqvyXL52YvvIBOW48U5YhMI8gjg8gKdqAJhdumQuYBAp3+XizHsNs0ihT++
+        dXQSL23Xh/zZ/vgFUOr6I4pnPUn2QWs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-217-O9lTJ3GLPui2cZwHYbKFlA-1; Sat, 16 May 2020 01:50:23 -0400
+X-MC-Unique: O9lTJ3GLPui2cZwHYbKFlA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DC8520671;
-        Sat, 16 May 2020 01:35:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589592910;
-        bh=A/YvaDksaFu99ghPmbMTUGhjLsi3EZ2qYC3LCwM1LwA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FCMPtDYJZcw2/loDgsY3buAEdq4MaFDRI7UZDPxP5gepuaSB8WfcULS3g2o24Y1TS
-         9mdJZvt0luVlxpROTQO7XI0TaX07kifa9ZQhWc3EaWqTS08KEjCd1DFoj1uEOcRoUA
-         yhKwDQLo3fV9GeVMpsSciRYU3i9zSMLQQDvVPm+0=
-Date:   Fri, 15 May 2020 18:35:09 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-crypto@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.14 39/39] crypto: xts - simplify error handling
- in ->create()
-Message-ID: <20200516013509.GA118329@gmail.com>
-References: <20200514185456.21060-1-sashal@kernel.org>
- <20200514185456.21060-39-sashal@kernel.org>
- <20200514190843.GA187179@gmail.com>
- <20200515005530.GD29995@sasha-vm>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6FCCA805721;
+        Sat, 16 May 2020 05:50:22 +0000 (UTC)
+Received: from T590 (ovpn-12-95.pek2.redhat.com [10.72.12.95])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id D48067053C;
+        Sat, 16 May 2020 05:50:16 +0000 (UTC)
+Date:   Sat, 16 May 2020 13:50:12 +0800
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Bart Van Assche <bvanassche@acm.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+Subject: Re: [PATCH 4/5] block: Fix zero_fill_bio()
+Message-ID: <20200516055012.GA3393@T590>
+References: <20200516001914.17138-1-bvanassche@acm.org>
+ <20200516001914.17138-5-bvanassche@acm.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200515005530.GD29995@sasha-vm>
+In-Reply-To: <20200516001914.17138-5-bvanassche@acm.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 14, 2020 at 08:55:30PM -0400, Sasha Levin wrote:
-> On Thu, May 14, 2020 at 12:08:43PM -0700, Eric Biggers wrote:
-> > On Thu, May 14, 2020 at 02:54:56PM -0400, Sasha Levin wrote:
-> > > From: Eric Biggers <ebiggers@google.com>
-> > > 
-> > > [ Upstream commit 732e540953477083082e999ff553622c59cffd5f ]
-> > > 
-> > > Simplify the error handling in the XTS template's ->create() function by
-> > > taking advantage of crypto_drop_skcipher() now accepting (as a no-op) a
-> > > spawn that hasn't been grabbed yet.
-> > > 
-> > > Signed-off-by: Eric Biggers <ebiggers@google.com>
-> > > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > 
-> > Please don't backport this patch.  It's a cleanup (not a fix) that depends on
-> > patches in 5.6, which you don't seem to be backporting.
+On Fri, May 15, 2020 at 05:19:13PM -0700, Bart Van Assche wrote:
+> Multiple block drivers use zero_fill_bio() to zero-initialize the data
+> buffer used for read operations. Make sure that all pages are zeroed
+> instead of only the first if one or more multi-page bvecs are used to
+> describe the data buffer.
 > 
-> For 5.6-4.19 I grabbed these to take:
+> Cc: Christoph Hellwig <hch@lst.de>
+> Cc: Ming Lei <ming.lei@redhat.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+> ---
+>  block/bio.c         | 27 ++++++++++++++++++++++-----
+>  include/linux/bio.h |  1 +
+>  2 files changed, 23 insertions(+), 5 deletions(-)
 > 
-> 	1a263ae60b04 ("gcc-10: avoid shadowing standard library 'free()' in crypto")
-> 
-> cleanly. I'll drop it as it's mostly to avoid silly gcc10 warnings, but
-> I just wanted to let you know the reason they ended up here.
-> 
+> diff --git a/block/bio.c b/block/bio.c
+> index 1594804fe8bc..48fcafbdae70 100644
+> --- a/block/bio.c
+> +++ b/block/bio.c
+> @@ -527,17 +527,34 @@ struct bio *bio_alloc_bioset(gfp_t gfp_mask, unsigned int nr_iovecs,
+>  }
+>  EXPORT_SYMBOL(bio_alloc_bioset);
+>  
+> +void zero_fill_bvec(const struct bio_vec *bvec)
+> +{
+> +	struct page *page = bvec->bv_page;
+> +	u32 offset = bvec->bv_offset;
+> +	u32 left = bvec->bv_len;
+> +
+> +	while (left) {
+> +		u32 len = min_t(u32, left, PAGE_SIZE - offset);
+> +		void *kaddr;
+> +
+> +		kaddr = kmap_atomic(page);
+> +		memset(kaddr + offset, 0, len);
+> +		flush_dcache_page(page);
+> +		kunmap_atomic(kaddr);
+> +		page++;
+> +		left -= len;
+> +		offset = 0;
+> +	}
+> +}
+> +EXPORT_SYMBOL(zero_fill_bvec);
+> +
+>  void zero_fill_bio_iter(struct bio *bio, struct bvec_iter start)
+>  {
+> -	unsigned long flags;
+>  	struct bio_vec bv;
+>  	struct bvec_iter iter;
+>  
+>  	__bio_for_each_segment(bv, bio, iter, start) {
 
-If the gcc 10 warning fix is needed, then you should just backport it on its
-own.  It just renames a function, so it seems it's trivial to fix the conflict?
+The 'bv' from __bio_for_each_segment() is single page bvec, and so far
+only [__]bio_for_each_bvec iterates over multi-page bvec.
 
-- Eric
+So nothing to be fixed and this patch isn't necessary.
+
+Thanks, 
+Ming
+
