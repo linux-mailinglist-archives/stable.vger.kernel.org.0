@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17EEC1D645B
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF271D645C
 	for <lists+stable@lfdr.de>; Sat, 16 May 2020 23:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726947AbgEPVvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 May 2020 17:51:42 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:46860 "EHLO
+        id S1726964AbgEPVvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 May 2020 17:51:49 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:46924 "EHLO
         crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726660AbgEPVvl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 16 May 2020 17:51:41 -0400
+        with ESMTP id S1726660AbgEPVvt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 16 May 2020 17:51:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1589665872; h=from:from:sender:reply-to:subject:subject:date:date:
+        s=mail; t=1589665874; h=from:from:sender:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=qffdGDv3DgtfzooGKPawMUzSJPFPf7ZHHFvRxoHINpg=;
-        b=OHFD6DUXNlYjXNKC6RI3DWsZnTlbGbayGdsGH/IYtQw1ElthnULEcHPG33W5ll/6Apam1d
-        Cu+6aOiPk6W5veB0eMplQAwtw45H3KkiSZm4GshlzIQXts9t75nEZxkBFWH3M9i7LLHcXz
-        wYY6YEpmnpvdUpaQ4HjaG0biVnQr6Gs=
+        bh=xiwtAtYu45iFXDcDagg5aGZp3J1GaKnWUnkhlQPNwrQ=;
+        b=hLiE2p98/HJlrqner3vfu136buvMUH01+JbjHiA1cV2YzReQ0BXaNKeu1QgvG4Ye7fim3t
+        tFDT3/KiduYBJ2gEqqJIe16FuofXRzkRax25LVaLBlSJVv2wbuKDqOFp2ysKILMuy+EVUT
+        qxmafI3wwXgG3qCTfaVAZVgmlqn34Rc=
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
         Rob Herring <robh+dt@kernel.org>,
@@ -28,9 +28,9 @@ To:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
 Cc:     od@zcrc.me, dri-devel@lists.freedesktop.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
-Subject: [PATCH 05/12] gpu/drm: Ingenic: Fix opaque pointer casted to wrong type
-Date:   Sat, 16 May 2020 23:50:50 +0200
-Message-Id: <20200516215057.392609-5-paul@crapouillou.net>
+Subject: [PATCH 06/12] gpu/drm: Ingenic: Fix incorrect assumption about plane->index
+Date:   Sat, 16 May 2020 23:50:51 +0200
+Message-Id: <20200516215057.392609-6-paul@crapouillou.net>
 In-Reply-To: <20200516215057.392609-1-paul@crapouillou.net>
 References: <20200516215057.392609-1-paul@crapouillou.net>
 MIME-Version: 1.0
@@ -40,12 +40,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The opaque pointer passed to the IRQ handler is a pointer to the
-drm_device, not a pointer to our ingenic_drm structure.
-
-It still worked, because our ingenic_drm structure contains the
-drm_device as its first field, so the pointer received had the same
-value, but this was not semantically correct.
+plane->index is NOT the index of the color plane in a YUV frame.
+Actually, a YUV frame is represented by a single drm_plane, even though
+it contains three Y, U, V planes.
 
 Cc: stable@vger.kernel.org # v5.3
 Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs")
@@ -55,18 +52,18 @@ Signed-off-by: Paul Cercueil <paul@crapouillou.net>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
-index 0c472382a08b..97244462599b 100644
+index 97244462599b..3207105755c9 100644
 --- a/drivers/gpu/drm/ingenic/ingenic-drm.c
 +++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
-@@ -476,7 +476,7 @@ static int ingenic_drm_encoder_atomic_check(struct drm_encoder *encoder,
+@@ -386,7 +386,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
+ 		addr = drm_fb_cma_get_gem_addr(state->fb, state, 0);
+ 		width = state->src_w >> 16;
+ 		height = state->src_h >> 16;
+-		cpp = state->fb->format->cpp[plane->index];
++		cpp = state->fb->format->cpp[0];
  
- static irqreturn_t ingenic_drm_irq_handler(int irq, void *arg)
- {
--	struct ingenic_drm *priv = arg;
-+	struct ingenic_drm *priv = drm_device_get_priv(arg);
- 	unsigned int state;
- 
- 	regmap_read(priv->map, JZ_REG_LCD_STATE, &state);
+ 		priv->dma_hwdesc->addr = addr;
+ 		priv->dma_hwdesc->cmd = width * height * cpp / 4;
 -- 
 2.26.2
 
