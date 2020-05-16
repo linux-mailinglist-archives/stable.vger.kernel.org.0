@@ -2,68 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF271D645C
-	for <lists+stable@lfdr.de>; Sat, 16 May 2020 23:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 139E21D649F
+	for <lists+stable@lfdr.de>; Sun, 17 May 2020 01:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726964AbgEPVvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 May 2020 17:51:49 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:46924 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726660AbgEPVvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 16 May 2020 17:51:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1589665874; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=xiwtAtYu45iFXDcDagg5aGZp3J1GaKnWUnkhlQPNwrQ=;
-        b=hLiE2p98/HJlrqner3vfu136buvMUH01+JbjHiA1cV2YzReQ0BXaNKeu1QgvG4Ye7fim3t
-        tFDT3/KiduYBJ2gEqqJIe16FuofXRzkRax25LVaLBlSJVv2wbuKDqOFp2ysKILMuy+EVUT
-        qxmafI3wwXgG3qCTfaVAZVgmlqn34Rc=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        Rob Herring <robh+dt@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>
-Cc:     od@zcrc.me, dri-devel@lists.freedesktop.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
-Subject: [PATCH 06/12] gpu/drm: Ingenic: Fix incorrect assumption about plane->index
-Date:   Sat, 16 May 2020 23:50:51 +0200
-Message-Id: <20200516215057.392609-6-paul@crapouillou.net>
-In-Reply-To: <20200516215057.392609-1-paul@crapouillou.net>
-References: <20200516215057.392609-1-paul@crapouillou.net>
+        id S1726660AbgEPXIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 May 2020 19:08:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36814 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726695AbgEPXIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 May 2020 19:08:12 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A20AE206F9;
+        Sat, 16 May 2020 23:08:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589670491;
+        bh=aSDJYt65gfHwTP2ldHRow9dEQtOjPVrtphZuiHCOv+o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Lp2MEMtfg1F7hSlTTWsT0/U06cieH89hqYRyiJX6PSkA2VCB92yBtD+eKPWMMxYuU
+         fO+rHmXGcbez1FqhKZS9cSfijfPSp/W7CEyA6MC7e1i9xgf7E/glxoiLQp24ft7SOP
+         B9FiTVUu+5i0kfjksRcPG62OaosFduiLT1l2ga9g=
+Date:   Sat, 16 May 2020 19:08:10 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Michel =?iso-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+        Marek =?utf-8?B?T2zFocOhaw==?= <marek.olsak@amd.com>,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Subject: Re: [PATCH AUTOSEL 5.6 33/50] drm/amdgpu: bump version for
+ invalidate L2 before SDMA IBs
+Message-ID: <20200516230810.GH29995@sasha-vm>
+References: <20200507142726.25751-1-sashal@kernel.org>
+ <20200507142726.25751-33-sashal@kernel.org>
+ <349b2cb9-71f9-a0cd-aceb-308512d7501a@daenzer.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <349b2cb9-71f9-a0cd-aceb-308512d7501a@daenzer.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-plane->index is NOT the index of the color plane in a YUV frame.
-Actually, a YUV frame is represented by a single drm_plane, even though
-it contains three Y, U, V planes.
+On Thu, May 07, 2020 at 06:11:17PM +0200, Michel Dänzer wrote:
+>On 2020-05-07 4:27 p.m., Sasha Levin wrote:
+>> From: Marek Olšák <marek.olsak@amd.com>
+>>
+>> [ Upstream commit 9017a4897a20658f010bebea825262963c10afa6 ]
+>>
+>> This fixes GPU hangs due to cache coherency issues.
+>> Bump the driver version. Split out from the original patch.
+>>
+>> Signed-off-by: Marek Olšák <marek.olsak@amd.com>
+>> Reviewed-by: Christian König <christian.koenig@amd.com>
+>> Tested-by: Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>
+>> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+>> index 42f4febe24c6d..8d45a2b662aeb 100644
+>> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+>> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+>> @@ -85,9 +85,10 @@
+>>   * - 3.34.0 - Non-DC can flip correctly between buffers with different pitches
+>>   * - 3.35.0 - Add drm_amdgpu_info_device::tcc_disabled_mask
+>>   * - 3.36.0 - Allow reading more status registers on si/cik
+>> + * - 3.37.0 - L2 is invalidated before SDMA IBs, needed for correctness
+>>   */
+>>  #define KMS_DRIVER_MAJOR	3
+>> -#define KMS_DRIVER_MINOR	36
+>> +#define KMS_DRIVER_MINOR	37
+>>  #define KMS_DRIVER_PATCHLEVEL	0
+>>
+>>  int amdgpu_vram_limit = 0;
+>>
+>
+>This requires the parent commit fdf83646c0542ecfb9adc4db8f741a1f43dca058
+>"drm/amdgpu: invalidate L2 before SDMA IBs (v2)". KMS_DRIVER_MINOR is
+>bumped to signal to userspace the fix in that commit is present.
 
-Cc: stable@vger.kernel.org # v5.3
-Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs")
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
----
- drivers/gpu/drm/ingenic/ingenic-drm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I've grabbed the commit you've pointed out as well as ce73516d42c9
+("drm/amdgpu: simplify padding calculations (v2)") to make the backport
+apply cleanly, thank you!
 
-diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
-index 97244462599b..3207105755c9 100644
---- a/drivers/gpu/drm/ingenic/ingenic-drm.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
-@@ -386,7 +386,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
- 		addr = drm_fb_cma_get_gem_addr(state->fb, state, 0);
- 		width = state->src_w >> 16;
- 		height = state->src_h >> 16;
--		cpp = state->fb->format->cpp[plane->index];
-+		cpp = state->fb->format->cpp[0];
- 
- 		priv->dma_hwdesc->addr = addr;
- 		priv->dma_hwdesc->cmd = width * height * cpp / 4;
 -- 
-2.26.2
-
+Thanks,
+Sasha
