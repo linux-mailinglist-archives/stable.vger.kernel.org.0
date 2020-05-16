@@ -2,87 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF30B1D5AF7
-	for <lists+stable@lfdr.de>; Fri, 15 May 2020 22:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06AB61D5D23
+	for <lists+stable@lfdr.de>; Sat, 16 May 2020 02:19:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbgEOUuS convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 15 May 2020 16:50:18 -0400
-Received: from lithops.sigma-star.at ([195.201.40.130]:35188 "EHLO
-        lithops.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726212AbgEOUuS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 16:50:18 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 9190D6224FDF;
-        Fri, 15 May 2020 22:50:15 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id AdrSYIIR5X19; Fri, 15 May 2020 22:50:15 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 2F4F160CEF22;
-        Fri, 15 May 2020 22:50:15 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id DHwh6sPgqHHu; Fri, 15 May 2020 22:50:15 +0200 (CEST)
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 0B2AC6224FDF;
-        Fri, 15 May 2020 22:50:15 +0200 (CEST)
-Date:   Fri, 15 May 2020 22:50:14 +0200 (CEST)
-From:   Richard Weinberger <richard@nod.at>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
-        linux-mtd <linux-mtd@lists.infradead.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Message-ID: <568077266.223149.1589575814867.JavaMail.zimbra@nod.at>
-In-Reply-To: <20200515191704.GE1009@sol.localdomain>
-References: <20200502055945.1008194-1-ebiggers@kernel.org> <20200504071644.GS5877@pengutronix.de> <20200515191704.GE1009@sol.localdomain>
-Subject: Re: [PATCH] ubifs: fix wrong use of crypto_shash_descsize()
+        id S1726653AbgEPAT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 May 2020 20:19:28 -0400
+Received: from mail-pj1-f68.google.com ([209.85.216.68]:37289 "EHLO
+        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726550AbgEPAT2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 May 2020 20:19:28 -0400
+Received: by mail-pj1-f68.google.com with SMTP id q9so1724423pjm.2;
+        Fri, 15 May 2020 17:19:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=S3G2WbRhtzm3ssLwF+7XHKy6fZ2iPExuIOPfpVM4JAQ=;
+        b=nJ7jGyFcUyB/+6Ee2Q5ua7TB1+rD0OuaW9c4o5BvMrWCILeiIbfcPqO4Djkg9PkYKH
+         KDP7dZYG0c3NYpIsFuAdk163ENKS698IevrrLFCmd4bdJ/XjYOxSTFWUsXr53bC1k4d+
+         uk/9CeTxBnY4d7rwDi2lJmnivJe2qF+26k8WnPDSuZQgAZB3ji/IiMG9UnZKlYs41d9F
+         eM5O7vg5hpkZWB/lwb0lnlcA+lDzJ8mS8hQYta1nM2IgxCBZcWAwCSFh2MSwGHq0A+q6
+         GaoYRKi1PSW4F4rC48vPvgU7T5Lj7W3MCkQVQVaOpKji4mlNkYVRfW2QCMDW11OcP/ro
+         iVTQ==
+X-Gm-Message-State: AOAM533Yoc3Hd2/gW8DAI1ob6zi8Tg6vO5Y+LMwq6Hz76LMp9VeNlDzk
+        1GxmBEZkH1YwHQZDreeODAc=
+X-Google-Smtp-Source: ABdhPJz6k+47GUDiMGXO63ssCn+K7ItCEDmDzqJpfrHokKVVPveIRMAHsO0swQtse9BfIHPxnx5nJQ==
+X-Received: by 2002:a17:902:c489:: with SMTP id n9mr4130738plx.186.1589588367396;
+        Fri, 15 May 2020 17:19:27 -0700 (PDT)
+Received: from localhost.localdomain ([2601:647:4000:d7:f99a:ee92:9332:42a])
+        by smtp.gmail.com with ESMTPSA id 30sm2542383pgp.38.2020.05.15.17.19.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 May 2020 17:19:26 -0700 (PDT)
+From:   Bart Van Assche <bvanassche@acm.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Ming Lei <ming.lei@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>, stable@vger.kernel.org
+Subject: [PATCH 4/5] block: Fix zero_fill_bio()
+Date:   Fri, 15 May 2020 17:19:13 -0700
+Message-Id: <20200516001914.17138-5-bvanassche@acm.org>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200516001914.17138-1-bvanassche@acm.org>
+References: <20200516001914.17138-1-bvanassche@acm.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [195.201.40.130]
-X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF68 (Linux)/8.8.12_GA_3809)
-Thread-Topic: ubifs: fix wrong use of crypto_shash_descsize()
-Thread-Index: z+OnJhSOitcsTV8I0Jz25cDAthIH9w==
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ Ursprüngliche Mail -----
-> Von: "Eric Biggers" <ebiggers@kernel.org>
-> An: "Sascha Hauer" <s.hauer@pengutronix.de>, "richard" <richard@nod.at>
-> CC: "linux-mtd" <linux-mtd@lists.infradead.org>, "Linux Crypto Mailing List" <linux-crypto@vger.kernel.org>, "stable"
-> <stable@vger.kernel.org>
-> Gesendet: Freitag, 15. Mai 2020 21:17:04
-> Betreff: Re: [PATCH] ubifs: fix wrong use of crypto_shash_descsize()
+Multiple block drivers use zero_fill_bio() to zero-initialize the data
+buffer used for read operations. Make sure that all pages are zeroed
+instead of only the first if one or more multi-page bvecs are used to
+describe the data buffer.
 
-> On Mon, May 04, 2020 at 09:16:44AM +0200, Sascha Hauer wrote:
->> On Fri, May 01, 2020 at 10:59:45PM -0700, Eric Biggers wrote:
->> > From: Eric Biggers <ebiggers@google.com>
->> > 
->> > crypto_shash_descsize() returns the size of the shash_desc context
->> > needed to compute the hash, not the size of the hash itself.
->> > 
->> > crypto_shash_digestsize() would be correct, or alternatively using
->> > c->hash_len and c->hmac_desc_len which already store the correct values.
->> > But actually it's simpler to just use stack arrays, so do that instead.
->> > 
->> > Fixes: 49525e5eecca ("ubifs: Add helper functions for authentication support")
->> > Fixes: da8ef65f9573 ("ubifs: Authenticate replayed journal")
->> > Cc: <stable@vger.kernel.org> # v4.20+
->> > Cc: Sascha Hauer <s.hauer@pengutronix.de>
->> > Signed-off-by: Eric Biggers <ebiggers@google.com>
->> 
->> Looks better that way, thanks.
->> 
->> Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
->> 
-> 
-> Richard, could you take this through the ubifs tree for 5.8?
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+---
+ block/bio.c         | 27 ++++++++++++++++++++++-----
+ include/linux/bio.h |  1 +
+ 2 files changed, 23 insertions(+), 5 deletions(-)
 
-Sure. I actually will send a PR with various MTD related fixes
-for 5.7.
-
-Thanks,
-//richard
+diff --git a/block/bio.c b/block/bio.c
+index 1594804fe8bc..48fcafbdae70 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -527,17 +527,34 @@ struct bio *bio_alloc_bioset(gfp_t gfp_mask, unsigned int nr_iovecs,
+ }
+ EXPORT_SYMBOL(bio_alloc_bioset);
+ 
++void zero_fill_bvec(const struct bio_vec *bvec)
++{
++	struct page *page = bvec->bv_page;
++	u32 offset = bvec->bv_offset;
++	u32 left = bvec->bv_len;
++
++	while (left) {
++		u32 len = min_t(u32, left, PAGE_SIZE - offset);
++		void *kaddr;
++
++		kaddr = kmap_atomic(page);
++		memset(kaddr + offset, 0, len);
++		flush_dcache_page(page);
++		kunmap_atomic(kaddr);
++		page++;
++		left -= len;
++		offset = 0;
++	}
++}
++EXPORT_SYMBOL(zero_fill_bvec);
++
+ void zero_fill_bio_iter(struct bio *bio, struct bvec_iter start)
+ {
+-	unsigned long flags;
+ 	struct bio_vec bv;
+ 	struct bvec_iter iter;
+ 
+ 	__bio_for_each_segment(bv, bio, iter, start) {
+-		char *data = bvec_kmap_irq(&bv, &flags);
+-		memset(data, 0, bv.bv_len);
+-		flush_dcache_page(bv.bv_page);
+-		bvec_kunmap_irq(data, &flags);
++		zero_fill_bvec(&bv);
+ 	}
+ }
+ EXPORT_SYMBOL(zero_fill_bio_iter);
+diff --git a/include/linux/bio.h b/include/linux/bio.h
+index 58e6134b1c05..9438cbdfa19e 100644
+--- a/include/linux/bio.h
++++ b/include/linux/bio.h
+@@ -455,6 +455,7 @@ extern void bio_copy_data_iter(struct bio *dst, struct bvec_iter *dst_iter,
+ extern void bio_copy_data(struct bio *dst, struct bio *src);
+ extern void bio_list_copy_data(struct bio *dst, struct bio *src);
+ extern void bio_free_pages(struct bio *bio);
++void zero_fill_bvec(const struct bio_vec *bvec);
+ void zero_fill_bio_iter(struct bio *bio, struct bvec_iter iter);
+ void bio_truncate(struct bio *bio, unsigned new_size);
+ void guard_bio_eod(struct bio *bio);
