@@ -2,95 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 507851D67F3
-	for <lists+stable@lfdr.de>; Sun, 17 May 2020 14:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8175F1D6D74
+	for <lists+stable@lfdr.de>; Sun, 17 May 2020 23:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727973AbgEQMUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 May 2020 08:20:08 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:45694 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727969AbgEQMUI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 May 2020 08:20:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1589718006; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=9lAqsVvAIASjKFbEhPDBxhbFVPKcLMddVhVPAD4MtNs=;
-        b=vG/oYm1r0CrhRofO/eXELE3n5/czRaZ1Mk0pnntlYvJyV4JqsSm+HtaxMXipIy2tzyGoYL
-        s8Ob0J1DuXgXhwqeMWHTJGIt3Y6zzy7vUxrwt9qBFhCqAtz6wHeQ7Nj9rivo8NPUWvYWnq
-        YAtndBgSbClCsZJN0j+Vcwm4HxmvV/w=
-Date:   Sun, 17 May 2020 14:19:54 +0200
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH 05/12] gpu/drm: Ingenic: Fix opaque pointer casted to
- wrong type
-To:     Sam Ravnborg <sam@ravnborg.org>
-Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        Rob Herring <robh+dt@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, od@zcrc.me, dri-devel@lists.freedesktop.org
-Message-Id: <696HAQ.LSNC2851KFSC@crapouillou.net>
-In-Reply-To: <20200517062105.GD609600@ravnborg.org>
-References: <20200516215057.392609-1-paul@crapouillou.net>
-        <20200516215057.392609-5-paul@crapouillou.net>
-        <20200517062105.GD609600@ravnborg.org>
+        id S1726550AbgEQV20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 May 2020 17:28:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39964 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726537AbgEQV20 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 May 2020 17:28:26 -0400
+Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5689C061A0C
+        for <stable@vger.kernel.org>; Sun, 17 May 2020 14:28:25 -0700 (PDT)
+Received: by mail-qv1-xf42.google.com with SMTP id fb16so3778508qvb.5
+        for <stable@vger.kernel.org>; Sun, 17 May 2020 14:28:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hR8L+XxeH3eijW5vNzyrWdQNDdMZfBNndiSBWjJ9E9Y=;
+        b=k5SQL9l64XRJm084jCUKZf8PbsK9aKPWl4wq4kHcJk6GpH0dL2cQY4E2rr24QBTto5
+         vxFGhb1Jo7MaSZ2SJTXbBj2OH+DW1VEQrrAbtreWtXC6yFEHlZNr0+gSru0t7b5aHUDC
+         +3X7r0eDj7B+eAlX1/pVw+1zUKzCfvAUDUMjL1BikivT+7rz8lcfKkSPfxXWXgo2iAII
+         BMOkFOiV4uMV0EBz9yhay+lBomjVL0QV3U7knqgxKky34FvIhMMj3R6a6tbqytKwOiOr
+         EDixRJxY7LZUtJPcRamwbqjUFq6myCfZQ8uE5Hrc/1YXr5x1V5s0/9E/JIRz6VKUubjQ
+         xQdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hR8L+XxeH3eijW5vNzyrWdQNDdMZfBNndiSBWjJ9E9Y=;
+        b=r4Neyev0JJQirySVJOhmxkY9gg3OYNPiezJIyV2vJ8Oj4qWnCAEhc5pByyeBkWkXuQ
+         Lzy+4j4o1C6BTM0xsyTJTOowudswuR2tZHw/MRkC4v4DLvh7rL1wq+3Eztow1rYP+mUQ
+         Zf13ukM2Kt9A2352KUDHNIUNu8eW1kg2MmzrNPzWoHZLJsazL2YEFFeiNBC2uBH4loYm
+         3kFWVyXmAZf+aNoJRT7SeTuVulHeQlorkIUmMBOeeWjzZy5rpWvGwu4pf1+3rFn+MHb6
+         n5t54W6hWPY+VMvEkzLn5FaS5TBl9q9y/NZhukk136HO907dT7pIJVkU+fUe18MTJ0z0
+         jcWA==
+X-Gm-Message-State: AOAM53133UlkCuxzhv9daTHdf5qFwu7v4h73pR+UCUf3oNfirYenloY0
+        s0KuPJvchUIQ0zGcO+i3kgVIkuq09wMaj92nNYI=
+X-Google-Smtp-Source: ABdhPJy76x1/A9z4b36Wr9pYv62HSn+NArnOEG9qqCSPVmVnSjPcgL1AJZoP11JnTLCCROQslCNA/Cinc8vpFj8Jads=
+X-Received: by 2002:a05:6214:1265:: with SMTP id r5mr12686299qvv.171.1589750905120;
+ Sun, 17 May 2020 14:28:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+References: <20200513131029.15603-1-miquel.raynal@bootlin.com> <20200513180943.63efe337@collabora.com>
+In-Reply-To: <20200513180943.63efe337@collabora.com>
+From:   Richard Weinberger <richard.weinberger@gmail.com>
+Date:   Sun, 17 May 2020 23:28:13 +0200
+Message-ID: <CAFLxGvw1L=VfvcBXo05EOPKPRk=yknzOUB0zoQ=-r=XCAce4vg@mail.gmail.com>
+Subject: Re: [PATCH resend] mtd: spinand: Propagate ECC information to the MTD structure
+To:     Boris Brezillon <boris.brezillon@collabora.com>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        linux-mtd@lists.infradead.org,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        stable <stable@vger.kernel.org>,
+        Tudor Ambarus <Tudor.Ambarus@microchip.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sam,
+On Wed, May 13, 2020 at 6:09 PM Boris Brezillon
+<boris.brezillon@collabora.com> wrote:
+>
+> On Wed, 13 May 2020 15:10:29 +0200
+> Miquel Raynal <miquel.raynal@bootlin.com> wrote:
+>
+> > This is done by default in the raw NAND core (nand_base.c) but was
+> > missing in the SPI-NAND core. Without these two lines the ecc_strength
+> > and ecc_step_size values are not exported to the user through sysfs.
+> >
+> > This fix depends on recent changes and should not be backported as-is.
+> >
+> > Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+>
+> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
 
-Le dim. 17 mai 2020 =E0 8:21, Sam Ravnborg <sam@ravnborg.org> a =E9crit :
-> On Sat, May 16, 2020 at 11:50:50PM +0200, Paul Cercueil wrote:
->>  The opaque pointer passed to the IRQ handler is a pointer to the
->>  drm_device, not a pointer to our ingenic_drm structure.
->>=20
->>  It still worked, because our ingenic_drm structure contains the
->>  drm_device as its first field, so the pointer received had the same
->>  value, but this was not semantically correct.
->>=20
->>  Cc: stable@vger.kernel.org # v5.3
->>  Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx=20
->> SoCs")
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Applied, thanks!
 
-Pushed to drm-misc-fixes, thanks for the review.
-
--Paul
-
->>  ---
->>   drivers/gpu/drm/ingenic/ingenic-drm.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>=20
->>  diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c=20
->> b/drivers/gpu/drm/ingenic/ingenic-drm.c
->>  index 0c472382a08b..97244462599b 100644
->>  --- a/drivers/gpu/drm/ingenic/ingenic-drm.c
->>  +++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
->>  @@ -476,7 +476,7 @@ static int=20
->> ingenic_drm_encoder_atomic_check(struct drm_encoder *encoder,
->>=20
->>   static irqreturn_t ingenic_drm_irq_handler(int irq, void *arg)
->>   {
->>  -	struct ingenic_drm *priv =3D arg;
->>  +	struct ingenic_drm *priv =3D drm_device_get_priv(arg);
->>   	unsigned int state;
->>=20
->>   	regmap_read(priv->map, JZ_REG_LCD_STATE, &state);
->>  --
->>  2.26.2
->>=20
->>  _______________________________________________
->>  dri-devel mailing list
->>  dri-devel@lists.freedesktop.org
->>  https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
-
+-- 
+Thanks,
+//richard
