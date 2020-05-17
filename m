@@ -2,111 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 444471D6D7F
-	for <lists+stable@lfdr.de>; Sun, 17 May 2020 23:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 363C91D6E27
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 01:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726458AbgEQVjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 May 2020 17:39:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41624 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726444AbgEQVjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 May 2020 17:39:12 -0400
-Received: from mail-qv1-xf43.google.com (mail-qv1-xf43.google.com [IPv6:2607:f8b0:4864:20::f43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B74C061A0C;
-        Sun, 17 May 2020 14:39:12 -0700 (PDT)
-Received: by mail-qv1-xf43.google.com with SMTP id r3so3840061qve.1;
-        Sun, 17 May 2020 14:39:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=AM7Zd0MxslnqLot1MzBGMFBYbuX//qg2mFKMsl+GXdA=;
-        b=QjJqxMSOxa+7rNqpVlN4ka8WO8uz2g8FKzSZ+7XQfrl4ZnMxnOCCWdP1dFasAdmuAj
-         awGpC25Wv5I1Q3I3HRkRt5VCkCiNqKnbhdHWV/nqs/lUWXjrir9BS7bTixIzCdbfMdXU
-         dO6rAkUj+l84sTt77Y/YQB1BOnpuM+2z5oNYUqplwQ3rHy3q6YWXHUaFCIO78+8mvAHd
-         FieT0fHdqcH40CPzghUmrpHkGeRjx0dQ7f6KmtYBZEO5Ks9gmRDbrLFQ/r84WW7HyrFA
-         +r3kXoq6aGe7po0s9z5ywqq8Eh81N+aKXSr9bP9PtBzsjkIA7qmXYvXgMaK3nF/Vogtw
-         vOQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=AM7Zd0MxslnqLot1MzBGMFBYbuX//qg2mFKMsl+GXdA=;
-        b=aXc2qLlKgFKaXZLQGU8t01uDViEcDOH0WGCGyC6ym4PUkDPOLra0le+lQcaIBKyJqy
-         TKxINhKfwSNUjdixSo2kMXwXHA6YvbHF/jcDMFlKDHAdFSwq7n0glsY0RcjrRV8iTiqb
-         buoDrZNukMdDlj4qZicUCCW3YAaf8PWPZAg+EM4g//SLYIQIWJpr85RakocAxcyFvWot
-         VPeqFF4zhq6rKHa2NbFWsvunsL43ZlAUwqJr9xHq0BFqP10pZmzr76+T+8yWA4tbz6V6
-         MEm4dBjkF4d0ktHS6JidH/s2cUWdHDEnsXsDm5sSFZbN8uJ2ogNLFHGvIPJ+oRpyxYIi
-         Up/w==
-X-Gm-Message-State: AOAM5320wAWwDo+ZZi/+sgpEnREMsyv4W8vVMLiD3JGJD97H+7/xGz80
-        cfKi0CfRxnI7FZDL/HZLV29OrVkqvtL9fyr0IYI=
-X-Google-Smtp-Source: ABdhPJwXU3h/f9ui36v++p/oav/xwWq3PX9W7HxRFV2aCFQvbfAIK+zN/BwaFzJKPXEcoif4EM3Cv2MplC67ZDb1eP8=
-X-Received: by 2002:a05:6214:7cd:: with SMTP id bb13mr13270302qvb.17.1589751551767;
- Sun, 17 May 2020 14:39:11 -0700 (PDT)
+        id S1726763AbgEQX4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 May 2020 19:56:22 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:15209 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726668AbgEQX4W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 May 2020 19:56:22 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5ec1ced80000>; Sun, 17 May 2020 16:55:04 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Sun, 17 May 2020 16:56:22 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Sun, 17 May 2020 16:56:22 -0700
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sun, 17 May
+ 2020 23:56:21 +0000
+Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Sun, 17 May 2020 23:56:21 +0000
+Received: from sandstorm.nvidia.com (Not Verified[10.2.48.175]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5ec1cf250001>; Sun, 17 May 2020 16:56:21 -0700
+From:   John Hubbard <jhubbard@nvidia.com>
+To:     LKML <linux-kernel@vger.kernel.org>
+CC:     John Hubbard <jhubbard@nvidia.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        <linux-media@vger.kernel.org>, <stable@vger.kernel.org>
+Subject: [PATCH 1/2] rapidio: fix an error in get_user_pages_fast() error handling
+Date:   Sun, 17 May 2020 16:56:19 -0700
+Message-ID: <20200517235620.205225-2-jhubbard@nvidia.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200517235620.205225-1-jhubbard@nvidia.com>
+References: <20200517235620.205225-1-jhubbard@nvidia.com>
 MIME-Version: 1.0
-References: <20200502055945.1008194-1-ebiggers@kernel.org> <20200504071644.GS5877@pengutronix.de>
- <20200515191704.GE1009@sol.localdomain> <568077266.223149.1589575814867.JavaMail.zimbra@nod.at>
-In-Reply-To: <568077266.223149.1589575814867.JavaMail.zimbra@nod.at>
-From:   Richard Weinberger <richard.weinberger@gmail.com>
-Date:   Sun, 17 May 2020 23:39:00 +0200
-Message-ID: <CAFLxGvx3-QvXnjhdfrqvv3a46opdcN6fyQ2Yc2QJ57TetBwfiA@mail.gmail.com>
-Subject: Re: [PATCH] ubifs: fix wrong use of crypto_shash_descsize()
-To:     Richard Weinberger <richard@nod.at>
-Cc:     Eric Biggers <ebiggers@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        linux-mtd <linux-mtd@lists.infradead.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-NVConfidentiality: public
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1589759704; bh=/caTfybzk6G8zCAwE/wUhpELjA48X6aFYrwn8ihzqac=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
+         Content-Transfer-Encoding:Content-Type;
+        b=dmu8XjIpWdlFyVyCLNuEEDWxs3IKVzKyvRAL4FwJTpqxQE6JVIUMLgNPyzRJjKFhp
+         EWzhzIg07dcjnuLMAV18Y48JC2BF6mKHnNrXuM9BcGCHDmTkprjgazysiwJnPr6paU
+         dIsibGJQIs7Jst04M2DTx6ot+HxZfrM7Nt8zovjQk+Ua17VwpMJjWoXZl43m0lrIpK
+         jXb/dElldN9iDmH8iuuGkLT5kC9ndZuZ6hYBi3gDVhcDj9J3pz16B4z+83gyiRnZBT
+         kIiEstjnTRbetP6lnvytfWmEkuePv3Jqixpb4XI8Vuk/0usrpbdnPY8qB0BLNi8khs
+         ffU4GgzyT4x4g==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 15, 2020 at 10:50 PM Richard Weinberger <richard@nod.at> wrote:
->
-> ----- Urspr=C3=BCngliche Mail -----
-> > Von: "Eric Biggers" <ebiggers@kernel.org>
-> > An: "Sascha Hauer" <s.hauer@pengutronix.de>, "richard" <richard@nod.at>
-> > CC: "linux-mtd" <linux-mtd@lists.infradead.org>, "Linux Crypto Mailing =
-List" <linux-crypto@vger.kernel.org>, "stable"
-> > <stable@vger.kernel.org>
-> > Gesendet: Freitag, 15. Mai 2020 21:17:04
-> > Betreff: Re: [PATCH] ubifs: fix wrong use of crypto_shash_descsize()
->
-> > On Mon, May 04, 2020 at 09:16:44AM +0200, Sascha Hauer wrote:
-> >> On Fri, May 01, 2020 at 10:59:45PM -0700, Eric Biggers wrote:
-> >> > From: Eric Biggers <ebiggers@google.com>
-> >> >
-> >> > crypto_shash_descsize() returns the size of the shash_desc context
-> >> > needed to compute the hash, not the size of the hash itself.
-> >> >
-> >> > crypto_shash_digestsize() would be correct, or alternatively using
-> >> > c->hash_len and c->hmac_desc_len which already store the correct val=
-ues.
-> >> > But actually it's simpler to just use stack arrays, so do that inste=
-ad.
-> >> >
-> >> > Fixes: 49525e5eecca ("ubifs: Add helper functions for authentication=
- support")
-> >> > Fixes: da8ef65f9573 ("ubifs: Authenticate replayed journal")
-> >> > Cc: <stable@vger.kernel.org> # v4.20+
-> >> > Cc: Sascha Hauer <s.hauer@pengutronix.de>
-> >> > Signed-off-by: Eric Biggers <ebiggers@google.com>
-> >>
-> >> Looks better that way, thanks.
-> >>
-> >> Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
-> >>
-> >
-> > Richard, could you take this through the ubifs tree for 5.8?
->
-> Sure. I actually will send a PR with various MTD related fixes
-> for 5.7.
+In the case of get_user_pages_fast() returning fewer pages than
+requested, rio_dma_transfer() does not quite do the right thing.
+It attempts to release all the pages that were requested, rather
+than just the pages that were pinned.
 
-Applied. Thanks for fixing!
+Fix the error handling so that only the pages that were successfully
+pinned are released.
 
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-media@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+---
+ drivers/rapidio/devices/rio_mport_cdev.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/dev=
+ices/rio_mport_cdev.c
+index 8155f59ece38..10af330153b5 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -877,6 +877,11 @@ rio_dma_transfer(struct file *filp, u32 transfer_mode,
+ 				rmcd_error("pinned %ld out of %ld pages",
+ 					   pinned, nr_pages);
+ 			ret =3D -EFAULT;
++			/*
++			 * Set nr_pages up to mean "how many pages to unpin, in
++			 * the error handler:
++			 */
++			nr_pages =3D pinned;
+ 			goto err_pg;
+ 		}
+=20
 --=20
-Thanks,
-//richard
+2.26.2
+
