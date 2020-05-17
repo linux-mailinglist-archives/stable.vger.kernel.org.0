@@ -2,84 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84C811D6652
-	for <lists+stable@lfdr.de>; Sun, 17 May 2020 08:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B09A31D665B
+	for <lists+stable@lfdr.de>; Sun, 17 May 2020 08:27:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726981AbgEQGVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 May 2020 02:21:11 -0400
-Received: from asavdk4.altibox.net ([109.247.116.15]:52342 "EHLO
-        asavdk4.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726740AbgEQGVK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 May 2020 02:21:10 -0400
-Received: from ravnborg.org (unknown [158.248.194.18])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by asavdk4.altibox.net (Postfix) with ESMTPS id 28BB5804B9;
-        Sun, 17 May 2020 08:21:07 +0200 (CEST)
-Date:   Sun, 17 May 2020 08:21:05 +0200
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        Rob Herring <robh+dt@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, od@zcrc.me, dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH 05/12] gpu/drm: Ingenic: Fix opaque pointer casted to
- wrong type
-Message-ID: <20200517062105.GD609600@ravnborg.org>
-References: <20200516215057.392609-1-paul@crapouillou.net>
- <20200516215057.392609-5-paul@crapouillou.net>
+        id S1727050AbgEQG1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 May 2020 02:27:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41846 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726982AbgEQG1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 May 2020 02:27:42 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08C40C061A0C
+        for <stable@vger.kernel.org>; Sat, 16 May 2020 23:27:42 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id h188so5215214lfd.7
+        for <stable@vger.kernel.org>; Sat, 16 May 2020 23:27:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=Gpeu15M8bOqTk8mBnXafjW9o2b4F22XVagvAGsDmIhg=;
+        b=LNtpPKmyffk1WUXa75AA4tVSwNQgiF4akVYU8TdQ7oQ21KLEUPVIDHICJ2TBeQ+r73
+         1Ni7aIAey6bTAquwI3ojErko9zHOqiV/5iM3sDFTnqYt5Ph4652hmKuegAbPF9PWlFXH
+         deWDfC313A+wU91QZY9xcECy4OzR0O5vfUNz3VPaP0C8ltExPsVbLtw0DFc1khRvc0Fs
+         LqSZFMVywp98e4I6HuH/n6uva7jaHSJaiKBMYyV5uqtEsHSJ5QDsnrnR7i+UxtCDB2RB
+         W82QG2cMJIe6/k27N5ORwfQlhiqr8h0pnuw8c61zXDxHdAlmFyrOPZLNVr5jiwOfRQj0
+         w7tA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=Gpeu15M8bOqTk8mBnXafjW9o2b4F22XVagvAGsDmIhg=;
+        b=ZrEpgFgToBiX6x9bolRTFeHNg8PpBfREN4eJh7fTgmC1C1IAcUOWanKJUeUPEe31UT
+         yGpXzsY4f89ux0nghHPBxyrRMC5hfBHWWC9UHNvbrElfmOGEjq+Vv7Foa8vlLFiqTIn8
+         qHjHn9O667Aheab9KB5dF46VumVjMPcNk7aGEsIj7Uh40XuT6pbepEYKYjBOpPPZGiPQ
+         F6Jb6DZqPmK/hbDKCuGC7ITmnVTiJRiFh5gBVtnFGy7aQhstHgkOcvpsXgatXhQvirBC
+         Y+5uL2ua6uPPnT2ivyvX6OQNQCI0ah0QOpau54+IpEDyMxdQhe95fpZqC2mMRul6AJFx
+         IA/g==
+X-Gm-Message-State: AOAM533Dki4jyOOJo8YGwCV6VuKNOgIQeCs9LbD53eaxk5Ko11ii7rMO
+        hQJi13Ht5vd/ullNeb0n+rAL5oZa7sCCAoaE0N4=
+X-Google-Smtp-Source: ABdhPJwgEY0Meu0pAINfEd1+OXXXw0dqiFE8VjYhz63S4XjfJmtkcxt5ki69YCcknjnVBULfyOg4JDvAPgCP9V3NxMg=
+X-Received: by 2002:ac2:58d7:: with SMTP id u23mr7343218lfo.119.1589696860489;
+ Sat, 16 May 2020 23:27:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200516215057.392609-5-paul@crapouillou.net>
-X-CMAE-Score: 0
-X-CMAE-Analysis: v=2.3 cv=MOBOZvRl c=1 sm=1 tr=0
-        a=UWs3HLbX/2nnQ3s7vZ42gw==:117 a=UWs3HLbX/2nnQ3s7vZ42gw==:17
-        a=kj9zAlcOel0A:10 a=VwQbUJbxAAAA:8 a=ER_8r6IbAAAA:8 a=7gkXJVJtAAAA:8
-        a=e5mUnYsNAAAA:8 a=qQq3a1_-SCO9fxz2cd8A:9 a=CjuIK1q_8ugA:10
-        a=AjGcO6oz07-iQ99wixmX:22 a=9LHmKk7ezEChjTCyhBa9:22
-        a=E9Po1WZjFZOl8hwRPBS3:22 a=Vxmtnl_E_bksehYqCbjh:22
-        a=pHzHmUro8NiASowvMSCR:22 a=nt3jZW36AmriUCFCBwmW:22
+Received: by 2002:a2e:978d:0:0:0:0:0 with HTTP; Sat, 16 May 2020 23:27:39
+ -0700 (PDT)
+Reply-To: lorir8611@gmail.com
+From:   Sister Lori Robinson <dribrahimaziz00@gmail.com>
+Date:   Sat, 16 May 2020 23:27:39 -0700
+Message-ID: <CAAJnOwCQmEMfYUdZ1uVGCo_RO6cB2U-kFZTC-dAfEkfbEfvaaw@mail.gmail.com>
+Subject: Your Sister In Christ,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, May 16, 2020 at 11:50:50PM +0200, Paul Cercueil wrote:
-> The opaque pointer passed to the IRQ handler is a pointer to the
-> drm_device, not a pointer to our ingenic_drm structure.
-> 
-> It still worked, because our ingenic_drm structure contains the
-> drm_device as its first field, so the pointer received had the same
-> value, but this was not semantically correct.
-> 
-> Cc: stable@vger.kernel.org # v5.3
-> Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs")
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-> ---
->  drivers/gpu/drm/ingenic/ingenic-drm.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
-> index 0c472382a08b..97244462599b 100644
-> --- a/drivers/gpu/drm/ingenic/ingenic-drm.c
-> +++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
-> @@ -476,7 +476,7 @@ static int ingenic_drm_encoder_atomic_check(struct drm_encoder *encoder,
->  
->  static irqreturn_t ingenic_drm_irq_handler(int irq, void *arg)
->  {
-> -	struct ingenic_drm *priv = arg;
-> +	struct ingenic_drm *priv = drm_device_get_priv(arg);
->  	unsigned int state;
->  
->  	regmap_read(priv->map, JZ_REG_LCD_STATE, &state);
-> -- 
-> 2.26.2
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+Hello I am Lori Robinson and I from Netherlands, I have an important
+thing to discuss with you very urgent, so please write me here or you
+can send you email address I will write there and tell you all you
+need to know about(lorir8611@gmail.com)
+Your Sister In Christ,
