@@ -2,105 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 699241D6584
-	for <lists+stable@lfdr.de>; Sun, 17 May 2020 06:07:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF6851D6651
+	for <lists+stable@lfdr.de>; Sun, 17 May 2020 08:17:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726637AbgEQEHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 May 2020 00:07:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48424 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726279AbgEQEHR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 May 2020 00:07:17 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0742FC061A0C;
-        Sat, 16 May 2020 21:07:17 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id t40so3056912pjb.3;
-        Sat, 16 May 2020 21:07:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=x723HYVX6DLr2jIwmsKENzW16HVJ+jFKg8Bzo5IJIqo=;
-        b=Ly7RNW5ONVRr1lsVIEEvunTmFQZPMJS0BL2/2+0C7odxoj8qWq5pOlGlIdLDJyiGq1
-         YxrE/b0BHmfFduqTzNwh3gqehaaN3HPT5jYevIwPLERxx7PRxkrMBUbycpYQVjauUIDS
-         PADC1OYz4Jq5uJMUZ7iibD/RLfR9GUKUkX47CfuSUUYDeDats4h1svSNLNfPgV6aYZmW
-         rhdD2J0segNnVnLIifq6Ywj5voMm0VylvEE+2GcEc0ewCK5IeWxvFtmCw/Y8rmdxEFyf
-         LbwkeR00B73H/5xC7t9o8X5FjGjk3t6hHYUA24aUgo4/7rPRSI4UWdkCt+s7xuPJf0zN
-         DWPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=x723HYVX6DLr2jIwmsKENzW16HVJ+jFKg8Bzo5IJIqo=;
-        b=ef79HsnMTDxb/lmnw+yXBYLrA02plioDqh4NV8UKmYPj6dhjP6yihXx+3PZVx6wHn+
-         FgYCCwDUoKxnwSPMPS9rp5He3pE+SHblcD9UXLWLZb8NB+Rglmsb8LL9ISMiVtA2KcPF
-         BwUEX8d7y9XHcZeErBSiD6d3zMUeepL/U0ZLN+8Gk9HNvvRR3OtHUUC4XI1Se8CL4bgy
-         sXUPvgkeD3rtsB4fmfcIjMAwixQnOwSvP/nKaY7FwhRMLhgmWGc/w2d92wxAjVOD3y3k
-         bODZlljwboUfmwN+uEIyonpHwF2yDxXfTGKsoFSEuNg7izOAdYgn/BOth1eeXANfMXGy
-         uABg==
-X-Gm-Message-State: AOAM532IDJSN693PqE0HJiDZm/2sosBQBOKTiwwqJVjAvQePx023JgPd
-        ItKBbHmNj/AAtZuviaGT2no=
-X-Google-Smtp-Source: ABdhPJxNqw3ZO5NstbH6AwW8qKBDc0jwi0iLWNJ5QQ0nOzpwujtm0ASMegdUJuo2DzT83gSoT7VdvA==
-X-Received: by 2002:a17:90a:1aa3:: with SMTP id p32mr12547758pjp.4.1589688436559;
-        Sat, 16 May 2020 21:07:16 -0700 (PDT)
-Received: from software.domain.org (28.144.92.34.bc.googleusercontent.com. [34.92.144.28])
-        by smtp.gmail.com with ESMTPSA id n9sm5081630pjt.29.2020.05.16.21.07.11
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 16 May 2020 21:07:16 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
-Cc:     kvm@vger.kernel.org, linux-mips@vger.kernel.org,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Xing Li <lixing@loongson.cn>, stable@vger.kernel.org,
-        Huacai Chen <chenhc@lemote.com>
-Subject: [PATCH V6 02/15] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
-Date:   Sun, 17 May 2020 12:05:59 +0800
-Message-Id: <1589688372-3098-3-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
-In-Reply-To: <1589688372-3098-1-git-send-email-chenhc@lemote.com>
-References: <1589688372-3098-1-git-send-email-chenhc@lemote.com>
+        id S1727015AbgEQGRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 May 2020 02:17:42 -0400
+Received: from asavdk4.altibox.net ([109.247.116.15]:51790 "EHLO
+        asavdk4.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726740AbgEQGRm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 May 2020 02:17:42 -0400
+Received: from ravnborg.org (unknown [158.248.194.18])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by asavdk4.altibox.net (Postfix) with ESMTPS id C667780533;
+        Sun, 17 May 2020 08:17:38 +0200 (CEST)
+Date:   Sun, 17 May 2020 08:17:37 +0200
+From:   Sam Ravnborg <sam@ravnborg.org>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
+        Rob Herring <robh+dt@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, od@zcrc.me, dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH 04/12] gpu/drm: ingenic: Fix bogus crtc_atomic_check
+ callback
+Message-ID: <20200517061737.GC609600@ravnborg.org>
+References: <20200516215057.392609-1-paul@crapouillou.net>
+ <20200516215057.392609-4-paul@crapouillou.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200516215057.392609-4-paul@crapouillou.net>
+X-CMAE-Score: 0
+X-CMAE-Analysis: v=2.3 cv=MOBOZvRl c=1 sm=1 tr=0
+        a=UWs3HLbX/2nnQ3s7vZ42gw==:117 a=UWs3HLbX/2nnQ3s7vZ42gw==:17
+        a=kj9zAlcOel0A:10 a=VwQbUJbxAAAA:8 a=ER_8r6IbAAAA:8 a=7gkXJVJtAAAA:8
+        a=e5mUnYsNAAAA:8 a=q0884fTdi5gFdvFPT1AA:9 a=CjuIK1q_8ugA:10
+        a=AjGcO6oz07-iQ99wixmX:22 a=9LHmKk7ezEChjTCyhBa9:22
+        a=E9Po1WZjFZOl8hwRPBS3:22 a=Vxmtnl_E_bksehYqCbjh:22
+        a=pHzHmUro8NiASowvMSCR:22 a=nt3jZW36AmriUCFCBwmW:22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xing Li <lixing@loongson.cn>
+On Sat, May 16, 2020 at 11:50:49PM +0200, Paul Cercueil wrote:
+> The code was comparing the SoC's maximum height with the mode's width,
+> and vice-versa. D'oh.
+> 
+> Cc: stable@vger.kernel.org # v5.6
+> Fixes: a7c909b7c037 ("gpu/drm: ingenic: Check for display size in CRTC atomic check")
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 
-If a CPU support more than 32bit vmbits (which is true for 64bit CPUs),
-VPN2_MASK set to fixed 0xffffe000 will lead to a wrong EntryHi in some
-functions such as _kvm_mips_host_tlb_inv().
-
-The cpu_vmbits definition of 32bit CPU in cpu-features.h is 31, so we
-still use the old definition.
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
-Signed-off-by: Xing Li <lixing@loongson.cn>
-[Huacai: Improve commit messages]
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- arch/mips/include/asm/kvm_host.h | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
-index a01cee9..caa2b936 100644
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -274,7 +274,11 @@ enum emulation_result {
- #define MIPS3_PG_SHIFT		6
- #define MIPS3_PG_FRAME		0x3fffffc0
- 
-+#if defined(CONFIG_64BIT)
-+#define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
-+#else
- #define VPN2_MASK		0xffffe000
-+#endif
- #define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
- #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
- #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
--- 
-2.7.0
-
+Looks correct.
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+> ---
+> 
+> Notes:
+>     This patch was previously sent standalone.
+>     I marked it as superseded in patchwork.
+>     Nothing has been changed here.
+> 
+>  drivers/gpu/drm/ingenic/ingenic-drm.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
+> index 632d72177123..0c472382a08b 100644
+> --- a/drivers/gpu/drm/ingenic/ingenic-drm.c
+> +++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
+> @@ -330,8 +330,8 @@ static int ingenic_drm_crtc_atomic_check(struct drm_crtc *crtc,
+>  	if (!drm_atomic_crtc_needs_modeset(state))
+>  		return 0;
+>  
+> -	if (state->mode.hdisplay > priv->soc_info->max_height ||
+> -	    state->mode.vdisplay > priv->soc_info->max_width)
+> +	if (state->mode.hdisplay > priv->soc_info->max_width ||
+> +	    state->mode.vdisplay > priv->soc_info->max_height)
+>  		return -EINVAL;
+>  
+>  	rate = clk_round_rate(priv->pix_clk,
+> -- 
+> 2.26.2
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
