@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA761D853C
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF63F1D80B7
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731755AbgERR5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:57:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35768 "EHLO mail.kernel.org"
+        id S1729300AbgERRlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731745AbgERR5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:57:18 -0400
+        id S1729294AbgERRlg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:41:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D46F3207C4;
-        Mon, 18 May 2020 17:57:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8748420657;
+        Mon, 18 May 2020 17:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824637;
-        bh=u+tb1MhbHdj6gwKS2wnmezEU8jBkWZxAUFSiHWyICI0=;
+        s=default; t=1589823695;
+        bh=d4BMgLQoXzWEKnQZXDP1fQuQggJi+WIqwZC85rLTDCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ajknDsTt1qaJ4Nc/zOvc6YFfsZ+z/v0KSLb4k2+sndjTDfW3y4gHgM0HVW8zbiMRN
-         LtNCXqdW4vcWHYjNfq6dI5ufJK855s6NqRUWi2dV9nY354gBBLfl0osjiElj9Pi5Nx
-         T4VONPww9OkWVZVOWMX6ytnz7SrEBxu/BpUcZ8Is=
+        b=YMFzhB7UshjTh1m+AllZ3M0AdMtCLywJfRhZnGr78FYAJ1ME9CTDAAvRydKAPyi/l
+         RbGIJCcW2EQ8kzbs4gTSJT34St2/yzgbBF8b/TIV3d4WJoTEP17pgXSHSrQWSs466T
+         s2GbwWFbmomP4PbXiGpLwvvsvFMdBg2zCpDHUuKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/147] NFSv3: fix rpc receive buffer size for MOUNT call
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Ulrich Hecht <uli+renesas@fpond.eu>
+Subject: [PATCH 4.4 84/86] ARM: dts: r8a7740: Add missing extal2 to CPG node
 Date:   Mon, 18 May 2020 19:36:55 +0200
-Message-Id: <20200518173525.023332403@linuxfoundation.org>
+Message-Id: <20200518173507.594465380@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 8eed292bc8cbf737e46fb1c119d4c8f6dcb00650 ]
+commit e47cb97f153193d4b41ca8d48127da14513d54c7 upstream.
 
-Prior to commit e3d3ab64dd66 ("SUNRPC: Use au_rslack when
-computing reply buffer size"), there was enough slack in the reply
-buffer to commodate filehandles of size 60bytes. However, the real
-problem was that the reply buffer size for the MOUNT operation was
-not correctly calculated. Received buffer size used the filehandle
-size for NFSv2 (32bytes) which is much smaller than the allowed
-filehandle size for the v3 mounts.
+The Clock Pulse Generator (CPG) device node lacks the extal2 clock.
+This may lead to a failure registering the "r" clock, or to a wrong
+parent for the "usb24s" clock, depending on MD_CK2 pin configuration and
+boot loader CPG_USBCKCR register configuration.
 
-Fix the reply buffer size (decode arguments size) for the MNT command.
+This went unnoticed, as this does not affect the single upstream board
+configuration, which relies on the first clock input only.
 
-Fixes: 2c94b8eca1a2 ("SUNRPC: Use au_rslack when computing reply buffer size")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d9ffd583bf345e2e ("ARM: shmobile: r8a7740: add SoC clocks to DTS")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Link: https://lore.kernel.org/r/20200508095918.6061-1-geert+renesas@glider.be
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/mount_clnt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/r8a7740.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/mount_clnt.c b/fs/nfs/mount_clnt.c
-index cb7c10e9721eb..a2593b787cc73 100644
---- a/fs/nfs/mount_clnt.c
-+++ b/fs/nfs/mount_clnt.c
-@@ -32,6 +32,7 @@
- #define MNT_fhs_status_sz	(1)
- #define MNT_fhandle_sz		XDR_QUADLEN(NFS2_FHSIZE)
- #define MNT_fhandle3_sz		(1 + XDR_QUADLEN(NFS3_FHSIZE))
-+#define MNT_fhandlev3_sz	XDR_QUADLEN(NFS3_FHSIZE)
- #define MNT_authflav3_sz	(1 + NFS_MAX_SECFLAVORS)
- 
- /*
-@@ -39,7 +40,7 @@
-  */
- #define MNT_enc_dirpath_sz	encode_dirpath_sz
- #define MNT_dec_mountres_sz	(MNT_status_sz + MNT_fhandle_sz)
--#define MNT_dec_mountres3_sz	(MNT_status_sz + MNT_fhandle_sz + \
-+#define MNT_dec_mountres3_sz	(MNT_status_sz + MNT_fhandlev3_sz + \
- 				 MNT_authflav3_sz)
- 
- /*
--- 
-2.20.1
-
+--- a/arch/arm/boot/dts/r8a7740.dtsi
++++ b/arch/arm/boot/dts/r8a7740.dtsi
+@@ -461,7 +461,7 @@
+ 		cpg_clocks: cpg_clocks@e6150000 {
+ 			compatible = "renesas,r8a7740-cpg-clocks";
+ 			reg = <0xe6150000 0x10000>;
+-			clocks = <&extal1_clk>, <&extalr_clk>;
++			clocks = <&extal1_clk>, <&extal2_clk>, <&extalr_clk>;
+ 			#clock-cells = <1>;
+ 			clock-output-names = "system", "pllc0", "pllc1",
+ 					     "pllc2", "r",
 
 
