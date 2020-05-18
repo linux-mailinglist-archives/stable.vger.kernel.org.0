@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C44881D8228
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C5B61D858F
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731212AbgERRxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:53:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58140 "EHLO mail.kernel.org"
+        id S1731195AbgERRx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:53:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731195AbgERRxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:53:53 -0400
+        id S1731216AbgERRx4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:53:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A2AF20715;
-        Mon, 18 May 2020 17:53:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AE1520674;
+        Mon, 18 May 2020 17:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824432;
-        bh=e923IeQUkDFGtCFMSIPljVav9gG9Zf2cBBiEpAXaqGA=;
+        s=default; t=1589824435;
+        bh=TCSfkFdi/twEiJetWOe/Yc9mtzPNxBQPr3/D4cRnD5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMyKWB/qmGrpgNfHqpwXO87ICT86JvGrRISHUOAmzj9jwwnsrLnr9X25lI5qO5JGv
-         cZLGvFHPuVVA6ovYmoOeDdx1UWqMrcPCmSDpJz9tgDyhx3yTkKZLnMQekAR+i0ntAl
-         YvlMz5hWPdAKigmqv7+155bu3k7KbhQqVr05IzRs=
+        b=qOEg88JFCQBCozda7/epfCFPUIJhoPLo4DuNj1Yh8zdei3Zmzwso/ItbLO5rIGWlv
+         olVD91zxIsFCaJj1DkAhRRlhJJuNEcpmWjoO1wneHxLpe7oXkVUCFXc+jaeo9k9SSC
+         thLDSm7wwFyWDqylsfOfLfDZgV+ZyY5ZQszHqvsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Maguire <alan.maguire@oracle.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 010/147] ftrace/selftests: workaround cgroup RT scheduling issues
-Date:   Mon, 18 May 2020 19:35:33 +0200
-Message-Id: <20200518173514.751474980@linuxfoundation.org>
+Subject: [PATCH 5.4 011/147] drop_monitor: work around gcc-10 stringop-overflow warning
+Date:   Mon, 18 May 2020 19:35:34 +0200
+Message-Id: <20200518173514.928899418@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
 References: <20200518173513.009514388@linuxfoundation.org>
@@ -45,85 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Maguire <alan.maguire@oracle.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 57c4cfd4a2eef8f94052bd7c0fce0981f74fb213 ]
+[ Upstream commit dc30b4059f6e2abf3712ab537c8718562b21c45d ]
 
-wakeup_rt.tc and wakeup.tc tests in tracers/ subdirectory
-fail due to the chrt command returning:
+The current gcc-10 snapshot produces a false-positive warning:
 
- chrt: failed to set pid 0's policy: Operation not permitted.
+net/core/drop_monitor.c: In function 'trace_drop_common.constprop':
+cc1: error: writing 8 bytes into a region of size 0 [-Werror=stringop-overflow=]
+In file included from net/core/drop_monitor.c:23:
+include/uapi/linux/net_dropmon.h:36:8: note: at offset 0 to object 'entries' with size 4 declared here
+   36 |  __u32 entries;
+      |        ^~~~~~~
 
-To work around this, temporarily disable grout RT scheduling
-during ftracetest execution.  Restore original value on
-test run completion.  With these changes in place, both
-tests consistently pass.
+I reported this in the gcc bugzilla, but in case it does not get
+fixed in the release, work around it by using a temporary variable.
 
-Fixes: c575dea2c1a5 ("selftests/ftrace: Add wakeup_rt tracer testcase")
-Fixes: c1edd060b413 ("selftests/ftrace: Add wakeup tracer testcase")
-Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 9a8afc8d3962 ("Network Drop Monitor: Adding drop monitor implementation & Netlink protocol")
+Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94881
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/ftrace/ftracetest | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ net/core/drop_monitor.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/ftracetest b/tools/testing/selftests/ftrace/ftracetest
-index 063ecb290a5a3..144308a757b70 100755
---- a/tools/testing/selftests/ftrace/ftracetest
-+++ b/tools/testing/selftests/ftrace/ftracetest
-@@ -29,8 +29,25 @@ err_ret=1
- # kselftest skip code is 4
- err_skip=4
+diff --git a/net/core/drop_monitor.c b/net/core/drop_monitor.c
+index 246a258b1fac2..af0130039f377 100644
+--- a/net/core/drop_monitor.c
++++ b/net/core/drop_monitor.c
+@@ -212,6 +212,7 @@ static void sched_send_work(struct timer_list *t)
+ static void trace_drop_common(struct sk_buff *skb, void *location)
+ {
+ 	struct net_dm_alert_msg *msg;
++	struct net_dm_drop_point *point;
+ 	struct nlmsghdr *nlh;
+ 	struct nlattr *nla;
+ 	int i;
+@@ -230,11 +231,13 @@ static void trace_drop_common(struct sk_buff *skb, void *location)
+ 	nlh = (struct nlmsghdr *)dskb->data;
+ 	nla = genlmsg_data(nlmsg_data(nlh));
+ 	msg = nla_data(nla);
++	point = msg->points;
+ 	for (i = 0; i < msg->entries; i++) {
+-		if (!memcmp(&location, msg->points[i].pc, sizeof(void *))) {
+-			msg->points[i].count++;
++		if (!memcmp(&location, &point->pc, sizeof(void *))) {
++			point->count++;
+ 			goto out;
+ 		}
++		point++;
+ 	}
+ 	if (msg->entries == dm_hit_limit)
+ 		goto out;
+@@ -243,8 +246,8 @@ static void trace_drop_common(struct sk_buff *skb, void *location)
+ 	 */
+ 	__nla_reserve_nohdr(dskb, sizeof(struct net_dm_drop_point));
+ 	nla->nla_len += NLA_ALIGN(sizeof(struct net_dm_drop_point));
+-	memcpy(msg->points[msg->entries].pc, &location, sizeof(void *));
+-	msg->points[msg->entries].count = 1;
++	memcpy(point->pc, &location, sizeof(void *));
++	point->count = 1;
+ 	msg->entries++;
  
-+# cgroup RT scheduling prevents chrt commands from succeeding, which
-+# induces failures in test wakeup tests.  Disable for the duration of
-+# the tests.
-+
-+readonly sched_rt_runtime=/proc/sys/kernel/sched_rt_runtime_us
-+
-+sched_rt_runtime_orig=$(cat $sched_rt_runtime)
-+
-+setup() {
-+  echo -1 > $sched_rt_runtime
-+}
-+
-+cleanup() {
-+  echo $sched_rt_runtime_orig > $sched_rt_runtime
-+}
-+
- errexit() { # message
-   echo "Error: $1" 1>&2
-+  cleanup
-   exit $err_ret
- }
- 
-@@ -39,6 +56,8 @@ if [ `id -u` -ne 0 ]; then
-   errexit "this must be run by root user"
- fi
- 
-+setup
-+
- # Utilities
- absdir() { # file_path
-   (cd `dirname $1`; pwd)
-@@ -235,6 +254,7 @@ TOTAL_RESULT=0
- 
- INSTANCE=
- CASENO=0
-+
- testcase() { # testfile
-   CASENO=$((CASENO+1))
-   desc=`grep "^#[ \t]*description:" $1 | cut -f2 -d:`
-@@ -406,5 +426,7 @@ prlog "# of unsupported: " `echo $UNSUPPORTED_CASES | wc -w`
- prlog "# of xfailed: " `echo $XFAILED_CASES | wc -w`
- prlog "# of undefined(test bug): " `echo $UNDEFINED_CASES | wc -w`
- 
-+cleanup
-+
- # if no error, return 0
- exit $TOTAL_RESULT
+ 	if (!timer_pending(&data->send_timer)) {
 -- 
 2.20.1
 
