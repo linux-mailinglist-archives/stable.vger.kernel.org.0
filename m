@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE9A1D8432
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F951D851B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732600AbgERSKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:10:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53542 "EHLO mail.kernel.org"
+        id S1728495AbgERSQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:16:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733052AbgERSFs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:48 -0400
+        id S1731888AbgERR6U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C9D6207D3;
-        Mon, 18 May 2020 18:05:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6125A207C4;
+        Mon, 18 May 2020 17:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825147;
+        s=default; t=1589824699;
         bh=z2CwPlf7bz18Akb6Y2vLQl3VvY12zCFv4kN7QHx18fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HeAGg3nQpACZG+3lcQg9s+A8bmtdWqhZLK4/s69Jvsr2rlkneBSffqk6n8aB8AXil
-         cpLmqdDX62x3r42mgj9DwR0Gw7FAGbAuUsaS8bbNkfpwOlT05V8PfWjjKRf6QEsDB2
-         s7F1E7LeWl2STmzX5M/VnJbsnScNUGD/23vnrFFk=
+        b=eWauLexNjhIjluFPNjp6o3FsuRfb94sLap8u9TJatbmK3BtegNMh3Mdf0YBevwVCd
+         LOzBtSyhhOf1myHMIAM2CsuVj6Ns4azomeh8YNpEAouC356DIpXB2UZGkg1ZJyE//1
+         xJjkMOkqLavJf20zRZ0Djp3wfL1hjEkMggbTj0ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
         Kishon Vijay Abraham I <kishon@ti.com>,
         Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.6 148/194] ARM: dts: dra7: Fix bus_dma_limit for PCIe
+Subject: [PATCH 5.4 115/147] ARM: dts: dra7: Fix bus_dma_limit for PCIe
 Date:   Mon, 18 May 2020 19:37:18 +0200
-Message-Id: <20200518173543.585798075@linuxfoundation.org>
+Message-Id: <20200518173527.379496085@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
