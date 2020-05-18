@@ -2,77 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 602AC1D83D0
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:08:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 129871D83E8
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729446AbgERSHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:07:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56870 "EHLO mail.kernel.org"
+        id S2387497AbgERSIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:08:24 -0400
+Received: from foss.arm.com ([217.140.110.172]:46554 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733068AbgERSHp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:07:45 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B8C220826;
-        Mon, 18 May 2020 18:07:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825264;
-        bh=CIq2PPOSmWi4JHR64jSM3ji9I2BJ5a3qOEkHQhHiRQk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O89FJJM1xFLlekOzaFNnGuHf7QbkZgxeeD2LztbcPwcjvkN0OBmR5ztbOMgHELBTv
-         QlJ9UjQW4TY5QH4idvShkwPDny8R8jhVcKhkmFs0kdDbgTiNZs7Wg4/RX0jgrggS7M
-         s0HH7QzdRlE6Zjh+fRePZCGoD5/usVVGUf8m4iVc=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Thomas Backlund <tmb@mageia.org>
-Subject: [PATCH 5.6 194/194] Makefile: disallow data races on gcc-10 as well
-Date:   Mon, 18 May 2020 19:38:04 +0200
-Message-Id: <20200518173547.533880996@linuxfoundation.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1732579AbgERSIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:08:22 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1230E101E;
+        Mon, 18 May 2020 11:08:21 -0700 (PDT)
+Received: from [192.168.0.14] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D701B3F305;
+        Mon, 18 May 2020 11:08:18 -0700 (PDT)
+Subject: Re: [ACPI] b13663bdf9:
+ BUG:sleeping_function_called_from_invalid_context_at_kernel/locking/mutex.c
+To:     Dan Williams <dan.j.williams@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc:     kernel test robot <rong.a.chen@intel.com>,
+        stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        Myron Stowe <myron.stowe@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>, lkp@lists.01.org,
+        Linux ACPI <linux-acpi@vger.kernel.org>,
+        "Huang, Ying" <ying.huang@intel.com>
+References: <20200511090034.GX5770@shao2-debian>
+ <440dae1b-9146-0bc3-e8f2-bd3cb3aa89bb@intel.com>
+ <CAPcyv4jKZp2bOZZ+ZMrcbFw9fPzeDu8waqwG6mBVpWwGq2DGtw@mail.gmail.com>
+From:   James Morse <james.morse@arm.com>
+Message-ID: <438c1743-5c8a-287d-3f97-e4a451ae8027@arm.com>
+Date:   Mon, 18 May 2020 19:08:17 +0100
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPcyv4jKZp2bOZZ+ZMrcbFw9fPzeDu8waqwG6mBVpWwGq2DGtw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+Hi guys,
 
-commit b1112139a103b4b1101d0d2d72931f2d33d8c978 upstream.
+On 12/05/2020 19:05, Dan Williams wrote:
+> On Tue, May 12, 2020 at 9:28 AM Rafael J. Wysocki
+> <rafael.j.wysocki@intel.com> wrote:
+>> Dan,
+>>
+>> Has this been addressed in the v2?
+> 
+> No, this looks like a case I was concerned about, i.e. the GHES code
+> is not being completely careful to avoid calling potentially sleeping
+> functions with interrupts disabled. There is the nice comment that
+> indicates that the fixmap should be used when ghes_notify_lock_irq()
+> is held, but there seems to be no infrastructure to use / divert to
+> the fixmap in the ghes_proc() path.
 
-gcc-10 will rename --param=allow-store-data-races=0
-to -fno-allow-store-data-races.
-
-The flag change happened at https://gcc.gnu.org/PR92046.
-
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Thomas Backlund <tmb@mageia.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- Makefile |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/Makefile
-+++ b/Makefile
-@@ -710,6 +710,7 @@ endif
- 
- # Tell gcc to never replace conditional load with a non-conditional one
- KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
-+KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
- 
- include scripts/Makefile.kcov
- include scripts/Makefile.gcc-plugins
+ghes_map()/ghes_unmap() use the fixmap for reading the firmware provided records,
+but this came through apei_read(), which claims to be IRQ and NMI safe...
 
 
+> That needs to be reworked first.
+> It seems the implementation was getting lucky before to hit the cached
+> acpi_ioremap in this path under rcu_read_lock(), but it appears it
+> should have always been using the fixmap. Ying, James, is my read
+> correct?
+
+The path through this thing is pretty tortuous: The static HEST contains the address of
+the pointer that firmware updates to point to CPER records when they are generated. This
+pointer might be static (records are always in the same place), it might not.
+
+The address in the tables is static. ghes.c maps it in ghes_new():
+|	rc = apei_map_generic_address(&generic->error_status_address);
+
+which happens before the ghes_add_timer()/request_irq()/ghes_nmi_add() stuff, so we should
+always use the existing mapping.
+
+__ghes_peek_estatus() reads the pointer with apei_read(), which should use the mapping
+from ghes_new(), then uses ghes_copy_tofrom_phys() which uses the fixmap to read the CPER
+records.
+
+
+Does apei_map_generic_address() no longer keep the GAR/address mapped?
+(also possible I've totally mis-understood how ACPIs caching of mappings works!)
+
+
+Thanks,
+
+James
