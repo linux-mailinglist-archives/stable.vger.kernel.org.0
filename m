@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 384F31D8744
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CF641D86A4
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728515AbgERRic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:38:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60858 "EHLO mail.kernel.org"
+        id S1730549AbgERSZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:25:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727938AbgERRib (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:38:31 -0400
+        id S1729197AbgERRqP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:46:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC777207C4;
-        Mon, 18 May 2020 17:38:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB91A20715;
+        Mon, 18 May 2020 17:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823511;
-        bh=ZL8lslyctz/kDmXfJgaIWutcSn67k4/dSk8Ze4W515A=;
+        s=default; t=1589823974;
+        bh=bNPbWd2gqtfRj8808VRysk3d+7TcYOolVI5Fr4orOK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Birvz4Oo9eTlXcDjvpId7JtyARkDCYn2g2393ULrB4WW6R/lkTfn5jebplw3a/Fli
-         6BggMqWbyvhFzoEim1lIMuwjuW4LoyYBaYIIJLeqTUHw3gZhy6yMP3KnoiVe1vKqm3
-         iCxxb+QIuUtORxVRCer5TiRGWn9rUtgatbWWGYaQ=
+        b=stEb4iKlMoCUr2t5FJbxCgNXhYH/ZQn3CVdtYX3STif7ouLmc7ldYEArC8xnBL+9X
+         3XPz7WAiegFhgl+vIcchmJkZGbfIHWEzWoSQd+yrGnLZEpXtiMKG4rkPUI7lFZ3B0p
+         bDeDmYNwJhxsIoJpzM9kRWTA4JxXeDJmXtLmC12E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 04/86] net/mlx4_core: Fix use of ENOSPC around mlx4_counter_alloc()
+Subject: [PATCH 4.14 003/114] fq_codel: fix TCA_FQ_CODEL_DROP_BATCH_SIZE sanity checks
 Date:   Mon, 18 May 2020 19:35:35 +0200
-Message-Id: <20200518173451.158442606@linuxfoundation.org>
+Message-Id: <20200518173503.692350759@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 40e473071dbad04316ddc3613c3a3d1c75458299 ]
+[ Upstream commit 14695212d4cd8b0c997f6121b6df8520038ce076 ]
 
-When ENOSPC is set the idx is still valid and gets set to the global
-MLX4_SINK_COUNTER_INDEX.  However gcc's static analysis cannot tell that
-ENOSPC is impossible from mlx4_cmd_imm() and gives this warning:
+My intent was to not let users set a zero drop_batch_size,
+it seems I once again messed with min()/max().
 
-drivers/net/ethernet/mellanox/mlx4/main.c:2552:28: warning: 'idx' may be
-used uninitialized in this function [-Wmaybe-uninitialized]
- 2552 |    priv->def_counter[port] = idx;
-
-Also, when ENOSPC is returned mlx4_allocate_default_counters should not
-fail.
-
-Fixes: 6de5f7f6a1fa ("net/mlx4_core: Allocate default counter per port")
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Fixes: 9d18562a2278 ("fq_codel: add batch ability to fq_codel_drop()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sched/sch_fq_codel.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/main.c
-@@ -2295,6 +2295,7 @@ static int mlx4_allocate_default_counter
+--- a/net/sched/sch_fq_codel.c
++++ b/net/sched/sch_fq_codel.c
+@@ -427,7 +427,7 @@ static int fq_codel_change(struct Qdisc
+ 		q->quantum = max(256U, nla_get_u32(tb[TCA_FQ_CODEL_QUANTUM]));
  
- 		if (!err || err == -ENOSPC) {
- 			priv->def_counter[port] = idx;
-+			err = 0;
- 		} else if (err == -ENOENT) {
- 			err = 0;
- 			continue;
-@@ -2344,7 +2345,8 @@ int mlx4_counter_alloc(struct mlx4_dev *
- 				   MLX4_CMD_TIME_CLASS_A, MLX4_CMD_WRAPPED);
- 		if (!err)
- 			*idx = get_param_l(&out_param);
--
-+		if (WARN_ON(err == -ENOSPC))
-+			err = -EINVAL;
- 		return err;
- 	}
- 	return __mlx4_counter_alloc(dev, idx);
+ 	if (tb[TCA_FQ_CODEL_DROP_BATCH_SIZE])
+-		q->drop_batch_size = min(1U, nla_get_u32(tb[TCA_FQ_CODEL_DROP_BATCH_SIZE]));
++		q->drop_batch_size = max(1U, nla_get_u32(tb[TCA_FQ_CODEL_DROP_BATCH_SIZE]));
+ 
+ 	if (tb[TCA_FQ_CODEL_MEMORY_LIMIT])
+ 		q->memory_limit = min(1U << 31, nla_get_u32(tb[TCA_FQ_CODEL_MEMORY_LIMIT]));
 
 
