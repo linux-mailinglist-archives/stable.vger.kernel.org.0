@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F361D8047
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE171D833E
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728535AbgERRif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:38:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60934 "EHLO mail.kernel.org"
+        id S1732616AbgERSDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:03:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727938AbgERRie (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:38:34 -0400
+        id S1732614AbgERSDI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:03:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D441207C4;
-        Mon, 18 May 2020 17:38:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3A3C207D3;
+        Mon, 18 May 2020 18:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823513;
-        bh=NElWdHSPE0Co3MWskyrX7Zbj7D9KTvqkOaLCXT/v8lg=;
+        s=default; t=1589824988;
+        bh=/vUl9F/NYMf2c7sOBI/8G/mLuRaIToq3VCuuxiOWLDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jw7H9T4IHNMhYzxrYYWeh6PtIFngPF32/lpVbVACmND0dvK+DWDQoVsdbRMRQkjMO
-         YDDWmTyDeCPa6I06jQhHEJQD2nu1MqN1g0as76aiB9dJCyUDDcAirOZZlTpePKn89J
-         irvRlh5I7KI/uAIHcNErx9U7ExsS18Jdqh2rNLgw=
+        b=pi8RXUyy2BM5W+CBxUNMNKjJpf+8PocWzc8MaruPJVMeA9hA57CQ1ZEl9My5n5XzE
+         6rWxyoIL7MNRA915IymEIOr1io4jCa62nR7GT44YepqGg1g+H93o892svwEwqzbMEi
+         DN/kLMC0Wa9sQkoWdMdhqgYm88elr8l0RfiJG27I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot+0251e883fe39e7a0cb0a@syzkaller.appspotmail.com,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 05/86] sch_sfq: validate silly quantum values
+        stable@vger.kernel.org, Iris Liu <iris@onechronos.com>,
+        Kelly Littlepage <kelly@onechronos.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.6 046/194] net: tcp: fix rx timestamp behavior for tcp_recvmsg
 Date:   Mon, 18 May 2020 19:35:36 +0200
-Message-Id: <20200518173451.334899502@linuxfoundation.org>
+Message-Id: <20200518173535.657718381@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kelly Littlepage <kelly@onechronos.com>
 
-[ Upstream commit df4953e4e997e273501339f607b77953772e3559 ]
+[ Upstream commit cc4de047b33be247f9c8150d3e496743a49642b8 ]
 
-syzbot managed to set up sfq so that q->scaled_quantum was zero,
-triggering an infinite loop in sfq_dequeue()
+The stated intent of the original commit is to is to "return the timestamp
+corresponding to the highest sequence number data returned." The current
+implementation returns the timestamp for the last byte of the last fully
+read skb, which is not necessarily the last byte in the recv buffer. This
+patch converts behavior to the original definition, and to the behavior of
+the previous draft versions of commit 98aaa913b4ed ("tcp: Extend
+SOF_TIMESTAMPING_RX_SOFTWARE to TCP recvmsg") which also match this
+behavior.
 
-More generally, we must only accept quantum between 1 and 2^18 - 7,
-meaning scaled_quantum must be in [1, 0x7FFF] range.
-
-Otherwise, we also could have a loop in sfq_dequeue()
-if scaled_quantum happens to be 0x8000, since slot->allot
-could indefinitely switch between 0 and 0x8000.
-
-Fixes: eeaeb068f139 ("sch_sfq: allow big packets and be fair")
+Fixes: 98aaa913b4ed ("tcp: Extend SOF_TIMESTAMPING_RX_SOFTWARE to TCP recvmsg")
+Co-developed-by: Iris Liu <iris@onechronos.com>
+Signed-off-by: Iris Liu <iris@onechronos.com>
+Signed-off-by: Kelly Littlepage <kelly@onechronos.com>
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot+0251e883fe39e7a0cb0a@syzkaller.appspotmail.com
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_sfq.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/ipv4/tcp.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/sched/sch_sfq.c
-+++ b/net/sched/sch_sfq.c
-@@ -635,6 +635,15 @@ static int sfq_change(struct Qdisc *sch,
- 	if (ctl->divisor &&
- 	    (!is_power_of_2(ctl->divisor) || ctl->divisor > 65536))
- 		return -EINVAL;
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2163,13 +2163,15 @@ skip_copy:
+ 			tp->urg_data = 0;
+ 			tcp_fast_path_check(sk);
+ 		}
+-		if (used + offset < skb->len)
+-			continue;
+ 
+ 		if (TCP_SKB_CB(skb)->has_rxtstamp) {
+ 			tcp_update_recv_tstamps(skb, &tss);
+ 			cmsg_flags |= 2;
+ 		}
 +
-+	/* slot->allot is a short, make sure quantum is not too big. */
-+	if (ctl->quantum) {
-+		unsigned int scaled = SFQ_ALLOT_SIZE(ctl->quantum);
++		if (used + offset < skb->len)
++			continue;
 +
-+		if (scaled <= 0 || scaled > SHRT_MAX)
-+			return -EINVAL;
-+	}
-+
- 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
- 					ctl_v1->Wlog))
- 		return -EINVAL;
+ 		if (TCP_SKB_CB(skb)->tcp_flags & TCPHDR_FIN)
+ 			goto found_fin_ok;
+ 		if (!(flags & MSG_PEEK))
 
 
