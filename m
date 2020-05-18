@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D117A1D793B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 15:04:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 367151D79DE
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 15:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726998AbgERNEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 09:04:15 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:50917 "EHLO
+        id S1726800AbgERNad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 09:30:33 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:41507 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726989AbgERNEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 09:04:15 -0400
+        by vger.kernel.org with ESMTP id S1726726AbgERNad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 09:30:33 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 518341940726;
-        Mon, 18 May 2020 09:04:14 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 18 May 2020 09:04:14 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id D7F9E19430A4;
+        Mon, 18 May 2020 09:30:31 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 18 May 2020 09:30:31 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gTW08H
-        eGvQh3v55uAZr6iYZhC/NDz71YELNev97YnEU=; b=gfKQ44pWaZnUsJ4r8qq57q
-        RRd+Mf2UbxnJOO51rCMNgSfS9opUoDEbP962hokuYSKtvuwtoJYChRCxBR508Nue
-        CmEFgB/C2GnyoKvHxF0b3Uo6Cr7qcaV28+5mRYZXTsXs9PWTVnGo/6UILM/PpaGb
-        7gqtZH7g11wjnYmmAi8I/L/HXyMnn4hbQFoWN9T221kDqXgH28D3JsVD3+Q+e0X9
-        UuEjJYQ/PjmzkzibGnRd5wkwTUsG3lVhGLcqi9QdgM/BTgyXB6NJpPPk30XFpu9/
-        wTwNc3va04Qb65wIiY4FD34ue3o9+6MwO6LNe/FWqu/uIU/gQAkeTfIO/L9gcihw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fS0nrW
+        FHD1qeJ7MSS96H3F+v7t8hsVlRGM/nBb+cpVk=; b=EFVDggrfk7b2+lj57nJB1S
+        gQRYF8/VaqWPP71158j5Mwspy5Nu38D1Py7+e+8+EGfZGH5vGV+D+8ZXru8rF24n
+        rrkr8Js9z2BLiMQ/E1fYXxqTsI9rQvuqmVQA73tM+7UBg+cIlyDhNP0fS8yHbJ/f
+        je0a9Rr/OHQrk+OOWoGa21lM15zHnaPzoBi8ZBjoR+punxGJx5j8VnlQO3RIat4A
+        WfeoutKgCtGABlA9sXm8qLoHRV0uiQUSHbQPcrKg8w8XWq7Mz8Rzrlru8qc3+DcZ
+        /uZvU+TZBG4ZLLj5z44LW7ILOb0OuZNWQnLlTMowalTPmpPXq6pq/naDIbaFEpbw
         ==
-X-ME-Sender: <xms:zYfCXoLTPrs0cqlWH630Zl8cF8xogAc7am2vqHPs20y4SuZi6FUXqQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddthedgheelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:9o3CXiX4RtgQEvCdQpnasKXCur1pPo3zZ-CJPl82us_wDNpNRJUZAQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddthedgieegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:zYfCXoL2lCvLguApHXtuAwRupec8x_NmUX97ZHeyCQGtEvJ_nxgItQ>
-    <xmx:zYfCXosZHlcqyYrjkjBG-aJDIiHJi0-QlsIoFIFK6rMH8Rz8z-yWNw>
-    <xmx:zYfCXlYuy30QxSjUnffl2t95btD93H-3PeiRzpBFuem-mvnvWpOJfw>
-    <xmx:zofCXmxuvaDjqv4Bg3I4uJkWFJ-ySimD3v5-DPXy0wUW5JOtEXVJtQ>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:943CXukBO_ncNCVgY6sqz0MQ50rCoZdU3pJHJUma2SCmdqW0KyGgqQ>
+    <xmx:943CXmZ-A-qWIvZKP-gP0Tla9CzpbB3SwDvMINGGuKbDX8XJLdQH7w>
+    <xmx:943CXpXh9wW37grLesuSzUZH4Jy9JN2FY1n397Ha0WEq56GqIOh-vw>
+    <xmx:943CXjvC_xxyaTQAEHFeSPK-fcbSc9nxFljAynCFK-IkuJWnTAIezQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 60078328005D;
-        Mon, 18 May 2020 09:04:13 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mmc: core: Fix recursive locking issue in CQE recovery path" failed to apply to 4.19-stable tree
-To:     sartgarg@codeaurora.org, adrian.hunter@intel.com,
-        stable@vger.kernel.org, stummala@codeaurora.org,
-        ulf.hansson@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id AB48830663ED;
+        Mon, 18 May 2020 09:30:30 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y" failed to apply to 5.6-stable tree
+To:     a.fatoum@pengutronix.de, clemens.gruber@pqgruber.com,
+        shawnguo@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 May 2020 15:04:10 +0200
-Message-ID: <1589807050123171@kroah.com>
+Date:   Mon, 18 May 2020 15:30:29 +0200
+Message-ID: <158980862996131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.6-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,69 +70,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 39a22f73744d5baee30b5f134ae2e30b668b66ed Mon Sep 17 00:00:00 2001
-From: Sarthak Garg <sartgarg@codeaurora.org>
-Date: Thu, 7 May 2020 21:45:33 +0530
-Subject: [PATCH] mmc: core: Fix recursive locking issue in CQE recovery path
+From 3100423dc133c25679dbaa1099404651b8ae3af9 Mon Sep 17 00:00:00 2001
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Date: Mon, 23 Mar 2020 09:19:33 +0100
+Subject: [PATCH] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y
 
-Consider the following stack trace
+512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+introduced an unintended linker error for i.MX6 configurations that have
+ARM_CPU_SUSPEND=n which can happen if neither CONFIG_PM, CONFIG_CPU_IDLE,
+nor ARM_PSCI_FW are selected.
 
--001|raw_spin_lock_irqsave
--002|mmc_blk_cqe_complete_rq
--003|__blk_mq_complete_request(inline)
--003|blk_mq_complete_request(rq)
--004|mmc_cqe_timed_out(inline)
--004|mmc_mq_timed_out
+Fix this by having v7_cpu_resume() compiled only when cpu_resume() it
+calls is available as well.
 
-mmc_mq_timed_out acquires the queue_lock for the first
-time. The mmc_blk_cqe_complete_rq function also tries to acquire
-the same queue lock resulting in recursive locking where the task
-is spinning for the same lock which it has already acquired leading
-to watchdog bark.
-
-Fix this issue with the lock only for the required critical section.
+The C declaration for the function remains unguarded to avoid future code
+inadvertently using a stub and introducing a regression to the bug the
+original commit fixed.
 
 Cc: <stable@vger.kernel.org>
-Fixes: 1e8e55b67030 ("mmc: block: Add CQE support")
-Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
-Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/1588868135-31783-1-git-send-email-vbadigan@codeaurora.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 
-diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
-index 25bee3daf9e2..b5fd3bc7eb58 100644
---- a/drivers/mmc/core/queue.c
-+++ b/drivers/mmc/core/queue.c
-@@ -107,7 +107,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
- 	case MMC_ISSUE_DCMD:
- 		if (host->cqe_ops->cqe_timeout(host, mrq, &recovery_needed)) {
- 			if (recovery_needed)
--				__mmc_cqe_recovery_notifier(mq);
-+				mmc_cqe_recovery_notifier(mrq);
- 			return BLK_EH_RESET_TIMER;
- 		}
- 		/* No timeout (XXX: huh? comment doesn't make much sense) */
-@@ -127,18 +127,13 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
- 	struct mmc_card *card = mq->card;
- 	struct mmc_host *host = card->host;
- 	unsigned long flags;
--	int ret;
-+	bool ignore_tout;
+diff --git a/arch/arm/mach-imx/Makefile b/arch/arm/mach-imx/Makefile
+index 03506ce46149..e7364e6c8c6b 100644
+--- a/arch/arm/mach-imx/Makefile
++++ b/arch/arm/mach-imx/Makefile
+@@ -91,8 +91,10 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7-a
+ obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
+ obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
+ endif
++ifeq ($(CONFIG_ARM_CPU_SUSPEND),y)
+ AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
+ obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
++endif
+ obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
  
- 	spin_lock_irqsave(&mq->lock, flags);
--
--	if (mq->recovery_needed || !mq->use_cqe || host->hsq_enabled)
--		ret = BLK_EH_RESET_TIMER;
--	else
--		ret = mmc_cqe_timed_out(req);
--
-+	ignore_tout = mq->recovery_needed || !mq->use_cqe || host->hsq_enabled;
- 	spin_unlock_irqrestore(&mq->lock, flags);
- 
--	return ret;
-+	return ignore_tout ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
- }
- 
- static void mmc_mq_recovery_handler(struct work_struct *work)
+ obj-$(CONFIG_SOC_IMX1) += mach-imx1.o
 
