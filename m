@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1060A1D8510
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42EE31D819D
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:49:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731850AbgERR6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37008 "EHLO mail.kernel.org"
+        id S1729506AbgERRt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:49:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731847AbgERR6A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:58:00 -0400
+        id S1729723AbgERRt2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52D2A20715;
-        Mon, 18 May 2020 17:57:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0710B20657;
+        Mon, 18 May 2020 17:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824679;
-        bh=V1Ja0lg4oMTIl71tYsWdRm+4wxF6tLKWIy2gbpYiJMU=;
+        s=default; t=1589824167;
+        bh=noemdQvLmANdTTAzdk8AoUEYw3LQed8XQsKZ/Irpfx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEcPpG/p40yL0xI0pnWgU2j6q+XlDrrluzImHhLCVeA9j+TFMr5o10LZuGImKefcU
-         nfoE2DQXTq/AGuI9o1t4tCUSQ/EAuPn6kg7OrKzquhjLgMn7KpPJyfxJC/OVy05NFN
-         wpSlthcdGb5xPyREBTkLUifCanjs3CxsAtRSoi88=
+        b=MmeSK7jAPRBJsMxyf+LJ3IjENZW5oQpsbvDx8hDKGly4lMbSUJWZlC2pceDY01XZY
+         tzh6UOl9+aOZbTLyPZsjFadZTqXoEyeFqTMhspVO4sGOtBVg+GNloctBG/JHOG9gaP
+         oD3ptOoXWGFr3TGKNnwqHZua26PaJHfzG/kfPWuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 107/147] ALSA: rawmidi: Fix racy buffer resize under concurrent accesses
+        stable@vger.kernel.org, Baolin Wang <baolin.wang@linaro.org>,
+        Peter Chen <peter.chen@nxp.com>, Li Jun <jun.li@nxp.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 098/114] usb: host: xhci-plat: keep runtime active when removing host
 Date:   Mon, 18 May 2020 19:37:10 +0200
-Message-Id: <20200518173526.564944717@linuxfoundation.org>
+Message-Id: <20200518173519.376060252@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,131 +44,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Li Jun <jun.li@nxp.com>
 
-commit c1f6e3c818dd734c30f6a7eeebf232ba2cf3181d upstream.
+commit 1449cb2c2253d37d998c3714aa9b95416d16d379 upstream.
 
-The rawmidi core allows user to resize the runtime buffer via ioctl,
-and this may lead to UAF when performed during concurrent reads or
-writes: the read/write functions unlock the runtime lock temporarily
-during copying form/to user-space, and that's the race window.
+While removing the host (e.g. for USB role switch from host to device),
+if runtime pm is enabled by user, below oops occurs on dwc3 and cdns3
+platforms.
+Keeping the xhci-plat device active during host removal, and disabling
+runtime pm before calling pm_runtime_set_suspended() fixes them.
 
-This patch fixes the hole by introducing a reference counter for the
-runtime buffer read/write access and returns -EBUSY error when the
-resize is performed concurrently against read/write.
+oops1:
+Unable to handle kernel NULL pointer dereference at virtual address
+0000000000000240
+Internal error: Oops: 96000004 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.4.3-00107-g64d454a-dirty
+Hardware name: FSL i.MX8MP EVK (DT)
+Workqueue: pm pm_runtime_work
+pstate: 60000005 (nZCv daif -PAN -UAO)
+pc : xhci_suspend+0x34/0x698
+lr : xhci_plat_runtime_suspend+0x2c/0x38
+sp : ffff800011ddbbc0
+Call trace:
+ xhci_suspend+0x34/0x698
+ xhci_plat_runtime_suspend+0x2c/0x38
+ pm_generic_runtime_suspend+0x28/0x40
+ __rpm_callback+0xd8/0x138
+ rpm_callback+0x24/0x98
+ rpm_suspend+0xe0/0x448
+ rpm_idle+0x124/0x140
+ pm_runtime_work+0xa0/0xf8
+ process_one_work+0x1dc/0x370
+ worker_thread+0x48/0x468
+ kthread+0xf0/0x120
+ ret_from_fork+0x10/0x1c
 
-Note that the ref count field is a simple integer instead of
-refcount_t here, since the all contexts accessing the buffer is
-basically protected with a spinlock, hence we need no expensive atomic
-ops.  Also, note that this busy check is needed only against read /
-write functions, and not in receive/transmit callbacks; the race can
-happen only at the spinlock hole mentioned in the above, while the
-whole function is protected for receive / transmit callbacks.
+oops2:
+usb 2-1: USB disconnect, device number 2
+xhci-hcd xhci-hcd.1.auto: remove, state 4
+usb usb2: USB disconnect, device number 1
+xhci-hcd xhci-hcd.1.auto: USB bus 2 deregistered
+xhci-hcd xhci-hcd.1.auto: remove, state 4
+usb usb1: USB disconnect, device number 1
+Unable to handle kernel NULL pointer dereference at virtual address
+0000000000000138
+Internal error: Oops: 96000004 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 2 PID: 7 Comm: kworker/u8:0 Not tainted 5.6.0-rc4-next-20200304-03578
+Hardware name: Freescale i.MX8QXP MEK (DT)
+Workqueue: 1-0050 tcpm_state_machine_work
+pstate: 20000005 (nzCv daif -PAN -UAO)
+pc : xhci_free_dev+0x214/0x270
+lr : xhci_plat_runtime_resume+0x78/0x88
+sp : ffff80001006b5b0
+Call trace:
+ xhci_free_dev+0x214/0x270
+ xhci_plat_runtime_resume+0x78/0x88
+ pm_generic_runtime_resume+0x30/0x48
+ __rpm_callback+0x90/0x148
+ rpm_callback+0x28/0x88
+ rpm_resume+0x568/0x758
+ rpm_resume+0x260/0x758
+ rpm_resume+0x260/0x758
+ __pm_runtime_resume+0x40/0x88
+ device_release_driver_internal+0xa0/0x1c8
+ device_release_driver+0x1c/0x28
+ bus_remove_device+0xd4/0x158
+ device_del+0x15c/0x3a0
+ usb_disable_device+0xb0/0x268
+ usb_disconnect+0xcc/0x300
+ usb_remove_hcd+0xf4/0x1dc
+ xhci_plat_remove+0x78/0xe0
+ platform_drv_remove+0x30/0x50
+ device_release_driver_internal+0xfc/0x1c8
+ device_release_driver+0x1c/0x28
+ bus_remove_device+0xd4/0x158
+ device_del+0x15c/0x3a0
+ platform_device_del.part.0+0x20/0x90
+ platform_device_unregister+0x28/0x40
+ cdns3_host_exit+0x20/0x40
+ cdns3_role_stop+0x60/0x90
+ cdns3_role_set+0x64/0xd8
+ usb_role_switch_set_role.part.0+0x3c/0x68
+ usb_role_switch_set_role+0x20/0x30
+ tcpm_mux_set+0x60/0xf8
+ tcpm_reset_port+0xa4/0xf0
+ tcpm_detach.part.0+0x28/0x50
+ tcpm_state_machine_work+0x12ac/0x2360
+ process_one_work+0x1c8/0x470
+ worker_thread+0x50/0x428
+ kthread+0xfc/0x128
+ ret_from_fork+0x10/0x18
+Code: c8037c02 35ffffa3 17ffe7c3 f9800011 (c85f7c01)
+---[ end trace 45b1a173d2679e44 ]---
 
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+[minor commit message cleanup  -Mathias]
+Cc: Baolin Wang <baolin.wang@linaro.org>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAFcO6XMWpUVK_yzzCpp8_XP7+=oUpQvuBeCbMffEDkpe8jWrfg@mail.gmail.com
-Link: https://lore.kernel.org/r/s5heerw3r5z.wl-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: b0c69b4bace3 ("usb: host: plat: Enable xHCI plat runtime PM")
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Tested-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200514110432.25564-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/sound/rawmidi.h |    1 +
- sound/core/rawmidi.c    |   31 +++++++++++++++++++++++++++----
- 2 files changed, 28 insertions(+), 4 deletions(-)
+ drivers/usb/host/xhci-plat.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/sound/rawmidi.h
-+++ b/include/sound/rawmidi.h
-@@ -61,6 +61,7 @@ struct snd_rawmidi_runtime {
- 	size_t avail_min;	/* min avail for wakeup */
- 	size_t avail;		/* max used buffer for wakeup */
- 	size_t xruns;		/* over/underruns counter */
-+	int buffer_ref;		/* buffer reference count */
- 	/* misc */
- 	spinlock_t lock;
- 	wait_queue_head_t sleep;
---- a/sound/core/rawmidi.c
-+++ b/sound/core/rawmidi.c
-@@ -97,6 +97,17 @@ static void snd_rawmidi_input_event_work
- 		runtime->event(runtime->substream);
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -334,6 +334,7 @@ static int xhci_plat_remove(struct platf
+ 	struct clk *clk = xhci->clk;
+ 	struct usb_hcd *shared_hcd = xhci->shared_hcd;
+ 
++	pm_runtime_get_sync(&dev->dev);
+ 	xhci->xhc_state |= XHCI_STATE_REMOVING;
+ 
+ 	usb_remove_hcd(shared_hcd);
+@@ -347,8 +348,9 @@ static int xhci_plat_remove(struct platf
+ 		clk_disable_unprepare(clk);
+ 	usb_put_hcd(hcd);
+ 
+-	pm_runtime_set_suspended(&dev->dev);
+ 	pm_runtime_disable(&dev->dev);
++	pm_runtime_put_noidle(&dev->dev);
++	pm_runtime_set_suspended(&dev->dev);
+ 
+ 	return 0;
  }
- 
-+/* buffer refcount management: call with runtime->lock held */
-+static inline void snd_rawmidi_buffer_ref(struct snd_rawmidi_runtime *runtime)
-+{
-+	runtime->buffer_ref++;
-+}
-+
-+static inline void snd_rawmidi_buffer_unref(struct snd_rawmidi_runtime *runtime)
-+{
-+	runtime->buffer_ref--;
-+}
-+
- static int snd_rawmidi_runtime_create(struct snd_rawmidi_substream *substream)
- {
- 	struct snd_rawmidi_runtime *runtime;
-@@ -646,6 +657,11 @@ static int resize_runtime_buffer(struct
- 		if (!newbuf)
- 			return -ENOMEM;
- 		spin_lock_irq(&runtime->lock);
-+		if (runtime->buffer_ref) {
-+			spin_unlock_irq(&runtime->lock);
-+			kvfree(newbuf);
-+			return -EBUSY;
-+		}
- 		oldbuf = runtime->buffer;
- 		runtime->buffer = newbuf;
- 		runtime->buffer_size = params->buffer_size;
-@@ -945,8 +961,10 @@ static long snd_rawmidi_kernel_read1(str
- 	long result = 0, count1;
- 	struct snd_rawmidi_runtime *runtime = substream->runtime;
- 	unsigned long appl_ptr;
-+	int err = 0;
- 
- 	spin_lock_irqsave(&runtime->lock, flags);
-+	snd_rawmidi_buffer_ref(runtime);
- 	while (count > 0 && runtime->avail) {
- 		count1 = runtime->buffer_size - runtime->appl_ptr;
- 		if (count1 > count)
-@@ -965,16 +983,19 @@ static long snd_rawmidi_kernel_read1(str
- 		if (userbuf) {
- 			spin_unlock_irqrestore(&runtime->lock, flags);
- 			if (copy_to_user(userbuf + result,
--					 runtime->buffer + appl_ptr, count1)) {
--				return result > 0 ? result : -EFAULT;
--			}
-+					 runtime->buffer + appl_ptr, count1))
-+				err = -EFAULT;
- 			spin_lock_irqsave(&runtime->lock, flags);
-+			if (err)
-+				goto out;
- 		}
- 		result += count1;
- 		count -= count1;
- 	}
-+ out:
-+	snd_rawmidi_buffer_unref(runtime);
- 	spin_unlock_irqrestore(&runtime->lock, flags);
--	return result;
-+	return result > 0 ? result : err;
- }
- 
- long snd_rawmidi_kernel_read(struct snd_rawmidi_substream *substream,
-@@ -1268,6 +1289,7 @@ static long snd_rawmidi_kernel_write1(st
- 			return -EAGAIN;
- 		}
- 	}
-+	snd_rawmidi_buffer_ref(runtime);
- 	while (count > 0 && runtime->avail > 0) {
- 		count1 = runtime->buffer_size - runtime->appl_ptr;
- 		if (count1 > count)
-@@ -1299,6 +1321,7 @@ static long snd_rawmidi_kernel_write1(st
- 	}
-       __end:
- 	count1 = runtime->avail < runtime->buffer_size;
-+	snd_rawmidi_buffer_unref(runtime);
- 	spin_unlock_irqrestore(&runtime->lock, flags);
- 	if (count1)
- 		snd_rawmidi_output_trigger(substream, 1);
 
 
