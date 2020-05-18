@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF2A1D872F
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 145C21D825C
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:56:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728372AbgERRkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:40:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35168 "EHLO mail.kernel.org"
+        id S1730501AbgERRzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728947AbgERRkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:40:01 -0400
+        id S1731550AbgERRzn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:55:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 134BC207C4;
-        Mon, 18 May 2020 17:40:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64E9520674;
+        Mon, 18 May 2020 17:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823600;
-        bh=hyWaDA4pn3Qhi+YpMfwyxF5VOu5UfUSJ24UOZtnnM4M=;
+        s=default; t=1589824542;
+        bh=qm2ebLQpPuB5UzhypP58ZpTegmhnDmthwg66hFvVqtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYeARB6Z7Ulorli1yYK81Sz9b1e6AvGsUEPhIpkohyQmFPIBGRvvwnFFSUDTqUZtj
-         FUiqZ0MHIrvTnGbjHAAObGhGBFvMDye57oE+ifDDpVE+gwllUOhHyMhD3svrESm4F3
-         x/FfXT2OpGhNXg/W236S4+D0aFa7m4E5OFk3dXXI=
+        b=2ZrylI9rmm0LfuLOAoT6Vt7yL5vnti1hlsBdIv8rTVIixUUdiQjarKTUiYobA/2xD
+         cA7Gt++zDzMKMYiNqL0Y9DiTxaGLl24amhpV9Bf7rJYBuZan5ILYRIYqMsXQgsAFje
+         g67WV4TrT5Lx1a4vNYGTdh9cPqj/W+7FTypRuKck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Schwab <schwab@suse.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Waiman Long <longman@redhat.com>, NeilBrown <neilb@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 46/86] ipc/util.c: sysvipc_find_ipc() incorrectly updates position index
+Subject: [PATCH 5.4 054/147] IB/hfi1: Fix another case where pq is left on waitlist
 Date:   Mon, 18 May 2020 19:36:17 +0200
-Message-Id: <20200518173459.940228469@linuxfoundation.org>
+Message-Id: <20200518173520.713628898@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,123 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-[ Upstream commit 5e698222c70257d13ae0816720dde57c56f81e15 ]
+[ Upstream commit fa8dac3968635dec8518a13ac78d662f2aa88e4d ]
 
-Commit 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase
-position index") is causing this bug (seen on 5.6.8):
+The commit noted below fixed a case where a pq is left on the sdma wait
+list.
 
-   # ipcs -q
+It however missed another case.
 
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
+user_sdma_send_pkts() has two calls from hfi1_user_sdma_process_request().
 
-   # ipcmk -Q
-   Message queue id: 0
-   # ipcs -q
+If the first one fails as indicated by -EBUSY, the pq will be placed on
+the waitlist as by design.
 
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x82db8127 0          root       644        0            0
+If the second call then succeeds, the pq is still on the waitlist setting
+up a race with the interrupt handler if a subsequent request uses a
+different SDMA engine
 
-   # ipcmk -Q
-   Message queue id: 1
-   # ipcs -q
+Fix by deleting the first call.
 
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x82db8127 0          root       644        0            0
-   0x76d1fb2a 1          root       644        0            0
+The use of pcount and the intent to send a short burst of packets followed
+by the larger balance of packets was never correctly implemented, because
+the two calls always send pcount packets no matter what.  A subsequent
+patch will correct that issue.
 
-   # ipcrm -q 0
-   # ipcs -q
-
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x76d1fb2a 1          root       644        0            0
-   0x76d1fb2a 1          root       644        0            0
-
-   # ipcmk -Q
-   Message queue id: 2
-   # ipcrm -q 2
-   # ipcs -q
-
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x76d1fb2a 1          root       644        0            0
-   0x76d1fb2a 1          root       644        0            0
-
-   # ipcmk -Q
-   Message queue id: 3
-   # ipcrm -q 1
-   # ipcs -q
-
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x7c982867 3          root       644        0            0
-   0x7c982867 3          root       644        0            0
-   0x7c982867 3          root       644        0            0
-   0x7c982867 3          root       644        0            0
-
-Whenever an IPC item with a low id is deleted, the items with higher ids
-are duplicated, as if filling a hole.
-
-new_pos should jump through hole of unused ids, pos can be updated
-inside "for" cycle.
-
-Fixes: 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase position index")
-Reported-by: Andreas Schwab <schwab@suse.de>
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Waiman Long <longman@redhat.com>
-Cc: NeilBrown <neilb@suse.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Manfred Spraul <manfred@colorfullife.com>
+Fixes: 9a293d1e21a6 ("IB/hfi1: Ensure pq is not left on waitlist")
+Link: https://lore.kernel.org/r/20200504130917.175613.43231.stgit@awfm-01.aw.intel.com
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/4921fe9b-9385-a2b4-1dc4-1099be6d2e39@virtuozzo.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- ipc/util.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/infiniband/hw/hfi1/user_sdma.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/ipc/util.c b/ipc/util.c
-index 2724f9071ab39..7af476b6dcdde 100644
---- a/ipc/util.c
-+++ b/ipc/util.c
-@@ -756,21 +756,21 @@ static struct kern_ipc_perm *sysvipc_find_ipc(struct ipc_ids *ids, loff_t pos,
- 			total++;
- 	}
+diff --git a/drivers/infiniband/hw/hfi1/user_sdma.c b/drivers/infiniband/hw/hfi1/user_sdma.c
+index 13e4203497b33..a92346e88628b 100644
+--- a/drivers/infiniband/hw/hfi1/user_sdma.c
++++ b/drivers/infiniband/hw/hfi1/user_sdma.c
+@@ -589,10 +589,6 @@ int hfi1_user_sdma_process_request(struct hfi1_filedata *fd,
  
--	*new_pos = pos + 1;
-+	ipc = NULL;
- 	if (total >= ids->in_use)
--		return NULL;
-+		goto out;
+ 	set_comp_state(pq, cq, info.comp_idx, QUEUED, 0);
+ 	pq->state = SDMA_PKT_Q_ACTIVE;
+-	/* Send the first N packets in the request to buy us some time */
+-	ret = user_sdma_send_pkts(req, pcount);
+-	if (unlikely(ret < 0 && ret != -EBUSY))
+-		goto free_req;
  
- 	for (; pos < IPCMNI; pos++) {
- 		ipc = idr_find(&ids->ipcs_idr, pos);
- 		if (ipc != NULL) {
- 			rcu_read_lock();
- 			ipc_lock_object(ipc);
--			return ipc;
-+			break;
- 		}
- 	}
--
--	/* Out of range - return NULL to terminate iteration */
--	return NULL;
-+out:
-+	*new_pos = pos + 1;
-+	return ipc;
- }
- 
- static void *sysvipc_proc_next(struct seq_file *s, void *it, loff_t *pos)
+ 	/*
+ 	 * This is a somewhat blocking send implementation.
 -- 
 2.20.1
 
