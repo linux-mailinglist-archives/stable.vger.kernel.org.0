@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31E1E1D86B7
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62D6D1D847F
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727006AbgERS1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:27:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42108 "EHLO mail.kernel.org"
+        id S1732729AbgERSEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:04:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729657AbgERRoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:44:04 -0400
+        id S1732728AbgERSED (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:04:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACE57207C4;
-        Mon, 18 May 2020 17:44:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3C4B20826;
+        Mon, 18 May 2020 18:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823843;
-        bh=e6+b2OsZ5WKqMKktF8KKi0LqxDz+d30duXatQxMSEsY=;
+        s=default; t=1589825043;
+        bh=mP6/Fq98/loB5l7a0oJ4n9SkaHwuIJL065iZLmumncI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8ZsPzKtg4t3IrMmvL1a2Pt7AQlsUWseBNic8yLNicBgVwgHZYJ6gPYKWLLpppV3z
-         UA+OSspaN+/XeLeCs4watp4zxDBz9JtX6SZVmtNYlkRFQjNY8f/0eaujfgGf2wWOQD
-         J4vy13XMxBdbKOHMkHPxcziy7Cv1l3gaAkf30ebU=
+        b=aQi6n2t83x884YE89WtzGeifi0FeKASUzfDLKP+Zi1AbgTGGpPzZXo5QJRkzMld9e
+         bVEEYg0UJrqFzzGpODGcypQyx1iuO/4qPWweXXtqVQVn07ggc9PdnYK36Jap6TjS8J
+         0CAn8/bYTLi+0SCUt/1XPPhYdqeTzClknqroEKHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jack Morgenstein <jackm@dev.mellanox.co.il>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Seiichi Ikarashi <s.ikarashi@fujitsu.com>,
+        Daisuke Matsuda <matsuda-daisuke@fujitsu.com>,
+        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 57/90] IB/mlx4: Test return value of calls to ib_get_cached_pkey
-Date:   Mon, 18 May 2020 19:36:35 +0200
-Message-Id: <20200518173502.736675760@linuxfoundation.org>
+Subject: [PATCH 5.6 106/194] nfs: fix NULL deference in nfs4_get_valid_delegation
+Date:   Mon, 18 May 2020 19:36:36 +0200
+Message-Id: <20200518173540.689662022@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +47,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Morgenstein <jackm@dev.mellanox.co.il>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 6693ca95bd4330a0ad7326967e1f9bcedd6b0800 ]
+[ Upstream commit 29fe839976266bc7c55b927360a1daae57477723 ]
 
-In the mlx4_ib_post_send() flow, some functions call ib_get_cached_pkey()
-without checking its return value. If ib_get_cached_pkey() returns an
-error code, these functions should return failure.
+We add the new state to the nfsi->open_states list, making it
+potentially visible to other threads, before we've finished initializing
+it.
 
-Fixes: 1ffeb2eb8be9 ("IB/mlx4: SR-IOV IB context objects and proxy/tunnel SQP support")
-Fixes: 225c7b1feef1 ("IB/mlx4: Add a driver Mellanox ConnectX InfiniBand adapters")
-Fixes: e622f2f4ad21 ("IB: split struct ib_send_wr")
-Link: https://lore.kernel.org/r/20200426075921.130074-1-leon@kernel.org
-Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+That wasn't a problem when all the readers were also taking the i_lock
+(as we do here), but since we switched to RCU, there's now a possibility
+that a reader could see the partially initialized state.
+
+Symptoms observed were a crash when another thread called
+nfs4_get_valid_delegation() on a NULL inode, resulting in an oops like:
+
+	BUG: unable to handle page fault for address: ffffffffffffffb0 ...
+	RIP: 0010:nfs4_get_valid_delegation+0x6/0x30 [nfsv4] ...
+	Call Trace:
+	 nfs4_open_prepare+0x80/0x1c0 [nfsv4]
+	 __rpc_execute+0x75/0x390 [sunrpc]
+	 ? finish_task_switch+0x75/0x260
+	 rpc_async_schedule+0x29/0x40 [sunrpc]
+	 process_one_work+0x1ad/0x370
+	 worker_thread+0x30/0x390
+	 ? create_worker+0x1a0/0x1a0
+	 kthread+0x10c/0x130
+	 ? kthread_park+0x80/0x80
+	 ret_from_fork+0x22/0x30
+
+Fixes: 9ae075fdd190 "NFSv4: Convert open state lookup to use RCU"
+Reviewed-by: Seiichi Ikarashi <s.ikarashi@fujitsu.com>
+Tested-by: Daisuke Matsuda <matsuda-daisuke@fujitsu.com>
+Tested-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Cc: stable@vger.kernel.org # v4.20+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/qp.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/nfs/nfs4state.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
-index 709d6491d2435..7284a9176844e 100644
---- a/drivers/infiniband/hw/mlx4/qp.c
-+++ b/drivers/infiniband/hw/mlx4/qp.c
-@@ -2307,6 +2307,7 @@ static int build_sriov_qp0_header(struct mlx4_ib_sqp *sqp,
- 	int send_size;
- 	int header_size;
- 	int spc;
-+	int err;
- 	int i;
- 
- 	if (wr->wr.opcode != IB_WR_SEND)
-@@ -2341,7 +2342,9 @@ static int build_sriov_qp0_header(struct mlx4_ib_sqp *sqp,
- 
- 	sqp->ud_header.lrh.virtual_lane    = 0;
- 	sqp->ud_header.bth.solicited_event = !!(wr->wr.send_flags & IB_SEND_SOLICITED);
--	ib_get_cached_pkey(ib_dev, sqp->qp.port, 0, &pkey);
-+	err = ib_get_cached_pkey(ib_dev, sqp->qp.port, 0, &pkey);
-+	if (err)
-+		return err;
- 	sqp->ud_header.bth.pkey = cpu_to_be16(pkey);
- 	if (sqp->qp.mlx4_ib_qp_type == MLX4_IB_QPT_TUN_SMI_OWNER)
- 		sqp->ud_header.bth.destination_qpn = cpu_to_be32(wr->remote_qpn);
-@@ -2618,9 +2621,14 @@ static int build_mlx_header(struct mlx4_ib_sqp *sqp, struct ib_ud_wr *wr,
- 	}
- 	sqp->ud_header.bth.solicited_event = !!(wr->wr.send_flags & IB_SEND_SOLICITED);
- 	if (!sqp->qp.ibqp.qp_num)
--		ib_get_cached_pkey(ib_dev, sqp->qp.port, sqp->pkey_index, &pkey);
-+		err = ib_get_cached_pkey(ib_dev, sqp->qp.port, sqp->pkey_index,
-+					 &pkey);
- 	else
--		ib_get_cached_pkey(ib_dev, sqp->qp.port, wr->pkey_index, &pkey);
-+		err = ib_get_cached_pkey(ib_dev, sqp->qp.port, wr->pkey_index,
-+					 &pkey);
-+	if (err)
-+		return err;
-+
- 	sqp->ud_header.bth.pkey = cpu_to_be16(pkey);
- 	sqp->ud_header.bth.destination_qpn = cpu_to_be32(wr->remote_qpn);
- 	sqp->ud_header.bth.psn = cpu_to_be32((sqp->send_psn++) & ((1 << 24) - 1));
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index f7723d221945b..459c7fb5d103a 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -734,9 +734,9 @@ nfs4_get_open_state(struct inode *inode, struct nfs4_state_owner *owner)
+ 		state = new;
+ 		state->owner = owner;
+ 		atomic_inc(&owner->so_count);
+-		list_add_rcu(&state->inode_states, &nfsi->open_states);
+ 		ihold(inode);
+ 		state->inode = inode;
++		list_add_rcu(&state->inode_states, &nfsi->open_states);
+ 		spin_unlock(&inode->i_lock);
+ 		/* Note: The reclaim code dictates that we add stateless
+ 		 * and read-only stateids to the end of the list */
 -- 
 2.20.1
 
