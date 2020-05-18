@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F981D865F
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6149F1D8450
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729839AbgERRpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:45:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43598 "EHLO mail.kernel.org"
+        id S1732874AbgERSFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728704AbgERRpA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:45:00 -0400
+        id S1732870AbgERSFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:05:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E56C020715;
-        Mon, 18 May 2020 17:44:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3007207F5;
+        Mon, 18 May 2020 18:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823900;
-        bh=IQGRJknKyaZjCOxSLRNNYP/kisqa8Fs/sQW+wF75x1g=;
+        s=default; t=1589825100;
+        bh=wTJg0jFheoUb3rI7lkPCoQitA0fFRvNW8bYbCpDSnlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z2YqUTA2p35SA8/PwF4yu+SyXLZymX50JTb+9klpAFaem88GtJw4OYfrFSI9B8zOW
-         Kbd/sqcLPUFhKCK7d8vBQv6Dkqqmb4ee0VV0oMd0TuGQDV9qZr3GtRRWnO8FBlJuKm
-         5hNBDF5YOgqF6mWHgutcniT93jTiMBXquIY89dsY=
+        b=fpO4is4O0E1vOuD7+ZDm5RxsqgcXc0EQryYXuaE6OE/+VU+0ln6r7MfLWTqwGOkKd
+         roaZ/dZUAi/8bqJvGdBTCfUF4WZ/apaTFo3zHE/4nl2r9kQ5LI2xCkkZvV5WsFNQDb
+         8U350hM58MQX5BxTejiwT2zIoK+4tHo6pEyZXBnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.9 82/90] usb: gadget: net2272: Fix a memory leak in an error handling path in net2272_plat_probe()
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.6 130/194] gcc-10: disable restrict warning for now
 Date:   Mon, 18 May 2020 19:37:00 +0200
-Message-Id: <20200518173507.888495926@linuxfoundation.org>
+Message-Id: <20200518173542.287850019@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit ccaef7e6e354fb65758eaddd3eae8065a8b3e295 upstream.
+commit adc71920969870dfa54e8f40dac8616284832d02 upstream.
 
-'dev' is allocated in 'net2272_probe_init()'. It must be freed in the error
-handling path, as already done in the remove function (i.e.
-'net2272_plat_remove()')
+gcc-10 now warns about passing aliasing pointers to functions that take
+restricted pointers.
 
-Fixes: 90fccb529d24 ("usb: gadget: Gadget directory cleanup - group UDC drivers")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+That's actually a great warning, and if we ever start using 'restrict'
+in the kernel, it might be quite useful.  But right now we don't, and it
+turns out that the only thing this warns about is an idiom where we have
+declared a few functions to be "printf-like" (which seems to make gcc
+pick up the restricted pointer thing), and then we print to the same
+buffer that we also use as an input.
+
+And people do that as an odd concatenation pattern, with code like this:
+
+    #define sysfs_show_gen_prop(buffer, fmt, ...) \
+        snprintf(buffer, PAGE_SIZE, "%s"fmt, buffer, __VA_ARGS__)
+
+where we have 'buffer' as both the destination of the final result, and
+as the initial argument.
+
+Yes, it's a bit questionable.  And outside of the kernel, people do have
+standard declarations like
+
+    int snprintf( char *restrict buffer, size_t bufsz,
+                  const char *restrict format, ... );
+
+where that output buffer is marked as a restrict pointer that cannot
+alias with any other arguments.
+
+But in the context of the kernel, that 'use snprintf() to concatenate to
+the end result' does work, and the pattern shows up in multiple places.
+And we have not marked our own version of snprintf() as taking restrict
+pointers, so the warning is incorrect for now, and gcc picks it up on
+its own.
+
+If we do start using 'restrict' in the kernel (and it might be a good
+idea if people find places where it matters), we'll need to figure out
+how to avoid this issue for snprintf and friends.  But in the meantime,
+this warning is not useful.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/udc/net2272.c |    2 ++
- 1 file changed, 2 insertions(+)
+ Makefile |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/gadget/udc/net2272.c
-+++ b/drivers/usb/gadget/udc/net2272.c
-@@ -2666,6 +2666,8 @@ net2272_plat_probe(struct platform_devic
-  err_req:
- 	release_mem_region(base, len);
-  err:
-+	kfree(dev);
+--- a/Makefile
++++ b/Makefile
+@@ -862,6 +862,9 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+ KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
+ KBUILD_CFLAGS += $(call cc-disable-warning, stringop-overflow)
+ 
++# Another good warning that we'll want to enable eventually
++KBUILD_CFLAGS += $(call cc-disable-warning, restrict)
 +
- 	return ret;
- }
+ # Enabled with W=2, disabled by default as noisy
+ KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
  
 
 
