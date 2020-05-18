@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91EEE1D84EC
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F0C1D84C1
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729719AbgERSOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:14:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41904 "EHLO mail.kernel.org"
+        id S1731187AbgERSOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:14:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732219AbgERSA1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:00:27 -0400
+        id S1732339AbgERSA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:00:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DE9120715;
-        Mon, 18 May 2020 18:00:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24AE520715;
+        Mon, 18 May 2020 18:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824827;
-        bh=qL+mTuSLwqoTGoWdrlMCBkmZTudQ4BJUVXLqeLHnYyc=;
+        s=default; t=1589824854;
+        bh=U0nGBAXnXM7Tw+rZ0/kIFaLfed/pznDVsWUflpE+rpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nT4se/wezt39TeGe4EKxkCmtYOUYqwEDx2gmwuR5eJQL7fg86c2nT4zkc5FjCB236
-         SeYkcJ8jEC5yFnbWiMgNkbJRzKWhETjCcHyL6x1w4Ikyp/PIhpkjQbjzNFfndq5duQ
-         hruS2+mJqKmF2bgyGdig51HFyaqX1H2gr35S6TTc=
+        b=Fl2c7RH5sfjo913putm+FAEwISwUvH1RRC2lKGqKg0ZrqfhwzMkhaDGxQO6dDxMCU
+         YEhyyO/BWZnTrXF2lBd9wxKKJ/GpAqnd5NbFFE1ZMG2MA0863RuDH6y/Z4ubtlMzTw
+         Ts6AEHTmNo/dHzC2gu6riEob3USVH+viNJ5lriY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Upton <oupton@google.com>,
-        Peter Shier <pshier@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 002/194] kvm: nVMX: reflect MTF VM-exits if injected by L1
-Date:   Mon, 18 May 2020 19:34:52 +0200
-Message-Id: <20200518173531.722065159@linuxfoundation.org>
+Subject: [PATCH 5.6 003/194] xprtrdma: Clean up the post_send path
+Date:   Mon, 18 May 2020 19:34:53 +0200
+Message-Id: <20200518173531.808301937@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
 References: <20200518173531.455604187@linuxfoundation.org>
@@ -46,69 +44,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Upton <oupton@google.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit b045ae906b42afb361dc7ecf1a3cea110fb0a65f ]
+[ Upstream commit 97d0de8812a10a66510ff95f8fe6e8d3053fd2ca ]
 
-According to SDM 26.6.2, it is possible to inject an MTF VM-exit via the
-VM-entry interruption-information field regardless of the 'monitor trap
-flag' VM-execution control. KVM appropriately copies the VM-entry
-interruption-information field from vmcs12 to vmcs02. However, if L1
-has not set the 'monitor trap flag' VM-execution control, KVM fails to
-reflect the subsequent MTF VM-exit into L1.
+Clean up: Simplify the synopses of functions in the post_send path
+by combining the struct rpcrdma_ia and struct rpcrdma_ep arguments.
 
-Fix this by consulting the VM-entry interruption-information field of
-vmcs12 to determine if L1 has injected the MTF VM-exit. If so, reflect
-the exit, regardless of the 'monitor trap flag' VM-execution control.
-
-Fixes: 5f3d45e7f282 ("kvm/x86: add support for MONITOR_TRAP_FLAG")
-Signed-off-by: Oliver Upton <oupton@google.com>
-Reviewed-by: Peter Shier <pshier@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20200414224746.240324-1-oupton@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ net/sunrpc/xprtrdma/backchannel.c |  2 +-
+ net/sunrpc/xprtrdma/frwr_ops.c    | 14 +++++++++-----
+ net/sunrpc/xprtrdma/transport.c   |  2 +-
+ net/sunrpc/xprtrdma/verbs.c       | 13 +++++--------
+ net/sunrpc/xprtrdma/xprt_rdma.h   |  5 ++---
+ 5 files changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index b773989308015..3a2f05ef51fa4 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -5504,6 +5504,23 @@ static bool nested_vmx_exit_handled_vmcs_access(struct kvm_vcpu *vcpu,
- 	return 1 & (b >> (field & 7));
+diff --git a/net/sunrpc/xprtrdma/backchannel.c b/net/sunrpc/xprtrdma/backchannel.c
+index 1a0ae0c61353c..4b43910a6ed21 100644
+--- a/net/sunrpc/xprtrdma/backchannel.c
++++ b/net/sunrpc/xprtrdma/backchannel.c
+@@ -115,7 +115,7 @@ int xprt_rdma_bc_send_reply(struct rpc_rqst *rqst)
+ 	if (rc < 0)
+ 		goto failed_marshal;
+ 
+-	if (rpcrdma_ep_post(&r_xprt->rx_ia, &r_xprt->rx_ep, req))
++	if (rpcrdma_post_sends(r_xprt, req))
+ 		goto drop_connection;
+ 	return 0;
+ 
+diff --git a/net/sunrpc/xprtrdma/frwr_ops.c b/net/sunrpc/xprtrdma/frwr_ops.c
+index 125297c9aa3e7..79059d48f52b7 100644
+--- a/net/sunrpc/xprtrdma/frwr_ops.c
++++ b/net/sunrpc/xprtrdma/frwr_ops.c
+@@ -372,18 +372,22 @@ static void frwr_wc_fastreg(struct ib_cq *cq, struct ib_wc *wc)
  }
  
-+static bool nested_vmx_exit_handled_mtf(struct vmcs12 *vmcs12)
-+{
-+	u32 entry_intr_info = vmcs12->vm_entry_intr_info_field;
-+
-+	if (nested_cpu_has_mtf(vmcs12))
-+		return true;
-+
-+	/*
-+	 * An MTF VM-exit may be injected into the guest by setting the
-+	 * interruption-type to 7 (other event) and the vector field to 0. Such
-+	 * is the case regardless of the 'monitor trap flag' VM-execution
-+	 * control.
-+	 */
-+	return entry_intr_info == (INTR_INFO_VALID_MASK
-+				   | INTR_TYPE_OTHER_EVENT);
-+}
-+
+ /**
+- * frwr_send - post Send WR containing the RPC Call message
+- * @ia: interface adapter
+- * @req: Prepared RPC Call
++ * frwr_send - post Send WRs containing the RPC Call message
++ * @r_xprt: controlling transport instance
++ * @req: prepared RPC Call
+  *
+  * For FRWR, chain any FastReg WRs to the Send WR. Only a
+  * single ib_post_send call is needed to register memory
+  * and then post the Send WR.
+  *
+- * Returns the result of ib_post_send.
++ * Returns the return code from ib_post_send.
++ *
++ * Caller must hold the transport send lock to ensure that the
++ * pointers to the transport's rdma_cm_id and QP are stable.
+  */
+-int frwr_send(struct rpcrdma_ia *ia, struct rpcrdma_req *req)
++int frwr_send(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req)
+ {
++	struct rpcrdma_ia *ia = &r_xprt->rx_ia;
+ 	struct ib_send_wr *post_wr;
+ 	struct rpcrdma_mr *mr;
+ 
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index 3cfeba68ee9a1..46e7949788e1a 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -694,7 +694,7 @@ xprt_rdma_send_request(struct rpc_rqst *rqst)
+ 		goto drop_connection;
+ 	rqst->rq_xtime = ktime_get();
+ 
+-	if (rpcrdma_ep_post(&r_xprt->rx_ia, &r_xprt->rx_ep, req))
++	if (rpcrdma_post_sends(r_xprt, req))
+ 		goto drop_connection;
+ 
+ 	rqst->rq_xmit_bytes_sent += rqst->rq_snd_buf.len;
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index 353f61ac8d519..4b9fbf69b4955 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -1502,20 +1502,17 @@ static void rpcrdma_regbuf_free(struct rpcrdma_regbuf *rb)
+ }
+ 
+ /**
+- * rpcrdma_ep_post - Post WRs to a transport's Send Queue
+- * @ia: transport's device information
+- * @ep: transport's RDMA endpoint information
++ * rpcrdma_post_sends - Post WRs to a transport's Send Queue
++ * @r_xprt: controlling transport instance
+  * @req: rpcrdma_req containing the Send WR to post
+  *
+  * Returns 0 if the post was successful, otherwise -ENOTCONN
+  * is returned.
+  */
+-int
+-rpcrdma_ep_post(struct rpcrdma_ia *ia,
+-		struct rpcrdma_ep *ep,
+-		struct rpcrdma_req *req)
++int rpcrdma_post_sends(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req)
+ {
+ 	struct ib_send_wr *send_wr = &req->rl_wr;
++	struct rpcrdma_ep *ep = &r_xprt->rx_ep;
+ 	int rc;
+ 
+ 	if (!ep->rep_send_count || kref_read(&req->rl_kref) > 1) {
+@@ -1526,7 +1523,7 @@ rpcrdma_ep_post(struct rpcrdma_ia *ia,
+ 		--ep->rep_send_count;
+ 	}
+ 
+-	rc = frwr_send(ia, req);
++	rc = frwr_send(r_xprt, req);
+ 	trace_xprtrdma_post_send(req, rc);
+ 	if (rc)
+ 		return -ENOTCONN;
+diff --git a/net/sunrpc/xprtrdma/xprt_rdma.h b/net/sunrpc/xprtrdma/xprt_rdma.h
+index 37d5080c250b8..600574a0d8387 100644
+--- a/net/sunrpc/xprtrdma/xprt_rdma.h
++++ b/net/sunrpc/xprtrdma/xprt_rdma.h
+@@ -469,8 +469,7 @@ void rpcrdma_ep_destroy(struct rpcrdma_xprt *r_xprt);
+ int rpcrdma_ep_connect(struct rpcrdma_ep *, struct rpcrdma_ia *);
+ void rpcrdma_ep_disconnect(struct rpcrdma_ep *, struct rpcrdma_ia *);
+ 
+-int rpcrdma_ep_post(struct rpcrdma_ia *, struct rpcrdma_ep *,
+-				struct rpcrdma_req *);
++int rpcrdma_post_sends(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req);
+ void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, bool temp);
+ 
  /*
-  * Return 1 if we should exit from L2 to L1 to handle an exit, or 0 if we
-  * should handle it ourselves in L0 (and then continue L2). Only call this
-@@ -5618,7 +5635,7 @@ bool nested_vmx_exit_reflected(struct kvm_vcpu *vcpu, u32 exit_reason)
- 	case EXIT_REASON_MWAIT_INSTRUCTION:
- 		return nested_cpu_has(vmcs12, CPU_BASED_MWAIT_EXITING);
- 	case EXIT_REASON_MONITOR_TRAP_FLAG:
--		return nested_cpu_has_mtf(vmcs12);
-+		return nested_vmx_exit_handled_mtf(vmcs12);
- 	case EXIT_REASON_MONITOR_INSTRUCTION:
- 		return nested_cpu_has(vmcs12, CPU_BASED_MONITOR_EXITING);
- 	case EXIT_REASON_PAUSE_INSTRUCTION:
+@@ -544,7 +543,7 @@ struct rpcrdma_mr_seg *frwr_map(struct rpcrdma_xprt *r_xprt,
+ 				struct rpcrdma_mr_seg *seg,
+ 				int nsegs, bool writing, __be32 xid,
+ 				struct rpcrdma_mr *mr);
+-int frwr_send(struct rpcrdma_ia *ia, struct rpcrdma_req *req);
++int frwr_send(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req);
+ void frwr_reminv(struct rpcrdma_rep *rep, struct list_head *mrs);
+ void frwr_unmap_sync(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req);
+ void frwr_unmap_async(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req);
 -- 
 2.20.1
 
