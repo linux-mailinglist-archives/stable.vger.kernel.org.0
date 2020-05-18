@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCEAA1D82F3
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4701D84C8
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732263AbgERSAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:00:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42480 "EHLO mail.kernel.org"
+        id S1732264AbgERSAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:00:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731464AbgERSAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:00:44 -0400
+        id S1732271AbgERSAr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:00:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0076220715;
-        Mon, 18 May 2020 18:00:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79ACA20835;
+        Mon, 18 May 2020 18:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824844;
-        bh=bilQRGimaC9QS9pokQ0sfLWFm5nTVThenmiGeoSWa9o=;
+        s=default; t=1589824846;
+        bh=0MrHvY0ae7Y33Xk5nmDJ/oINsCWIQXnx0aX1FFVz2FY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBAPjxQ3xQdO4WbwFZvXV6bEeq5TZy+6uZDsAc/MTeFPwaDuHnw806OMwUl1HLvkT
-         H8/HHCifNcrj/Ddh7ZRUinW5r4ijF6qdHJ6r/dgbBfRzBpJW/m3mB9wc1FMfauUkV6
-         ZRIVf0G7nHYunLqaARQY/6Zdam8or/px6EvwuoiM=
+        b=INhf0fJRL4+8sYaB9qngS5liBnHvdiUzbwjxC2x+HYPghYh7GP4jw1PHDJHiA4C+l
+         n2XDG9kv5lW83+EvnYuRTSOSwWVwqCjr3VZ64Na4kQn+Q1Wy+eCoPrUINO6rK+ky8c
+         ipIjoLhbLsp3+q5kk5sSuwkmUbrI7dEYvRJTCN0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 026/194] iommu/amd: Update Device Table in increase_address_space()
-Date:   Mon, 18 May 2020 19:35:16 +0200
-Message-Id: <20200518173533.708889920@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 027/194] net: dsa: ocelot: the MAC table on Felix is twice as large
+Date:   Mon, 18 May 2020 19:35:17 +0200
+Message-Id: <20200518173533.788669425@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
 References: <20200518173531.455604187@linuxfoundation.org>
@@ -43,140 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 19c6978fba68a2cdedee7d55fb8c3063d47982d9 ]
+[ Upstream commit 21ce7f3e16fbf89faaf149cfe0f730edfc553914 ]
 
-The Device Table needs to be updated before the new page-table root
-can be published in domain->pt_root. Otherwise a concurrent call to
-fetch_pte might fetch a PTE which is not reachable through the Device
-Table Entry.
+When running 'bridge fdb dump' on Felix, sometimes learnt and static MAC
+addresses would appear, sometimes they wouldn't.
 
-Fixes: 92d420ec028d ("iommu/amd: Relax locking in dma_ops path")
-Reported-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Tested-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/20200504125413.16798-5-joro@8bytes.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Turns out, the MAC table has 4096 entries on VSC7514 (Ocelot) and 8192
+entries on VSC9959 (Felix), so the existing code from the Ocelot common
+library only dumped half of Felix's MAC table. They are both organized
+as a 4-way set-associative TCAM, so we just need a single variable
+indicating the correct number of rows.
+
+Fixes: 56051948773e ("net: dsa: ocelot: add driver for Felix switch family")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 49 ++++++++++++++++++++++++++++-----------
- 1 file changed, 36 insertions(+), 13 deletions(-)
+ drivers/net/dsa/ocelot/felix.c          | 1 +
+ drivers/net/dsa/ocelot/felix.h          | 1 +
+ drivers/net/dsa/ocelot/felix_vsc9959.c  | 1 +
+ drivers/net/ethernet/mscc/ocelot.c      | 6 ++----
+ drivers/net/ethernet/mscc/ocelot_regs.c | 1 +
+ include/soc/mscc/ocelot.h               | 1 +
+ 6 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 28229a38af4d2..500d0a8c966fc 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -101,6 +101,8 @@ struct kmem_cache *amd_iommu_irq_cache;
- static void update_domain(struct protection_domain *domain);
- static int protection_domain_init(struct protection_domain *domain);
- static void detach_device(struct device *dev);
-+static void update_and_flush_device_table(struct protection_domain *domain,
-+					  struct domain_pgtable *pgtable);
+diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
+index 9e895ab586d5a..a7780c06fa65b 100644
+--- a/drivers/net/dsa/ocelot/felix.c
++++ b/drivers/net/dsa/ocelot/felix.c
+@@ -397,6 +397,7 @@ static int felix_init_structs(struct felix *felix, int num_phys_ports)
+ 	ocelot->stats_layout	= felix->info->stats_layout;
+ 	ocelot->num_stats	= felix->info->num_stats;
+ 	ocelot->shared_queue_sz	= felix->info->shared_queue_sz;
++	ocelot->num_mact_rows	= felix->info->num_mact_rows;
+ 	ocelot->ops		= felix->info->ops;
  
- /****************************************************************************
-  *
-@@ -1461,8 +1463,16 @@ static bool increase_address_space(struct protection_domain *domain,
- 
- 	*pte = PM_LEVEL_PDE(pgtable.mode, iommu_virt_to_phys(pgtable.root));
- 
--	root = amd_iommu_domain_encode_pgtable(pte, pgtable.mode + 1);
-+	pgtable.root  = pte;
-+	pgtable.mode += 1;
-+	update_and_flush_device_table(domain, &pgtable);
-+	domain_flush_complete(domain);
- 
-+	/*
-+	 * Device Table needs to be updated and flushed before the new root can
-+	 * be published.
-+	 */
-+	root = amd_iommu_domain_encode_pgtable(pte, pgtable.mode);
- 	atomic64_set(&domain->pt_root, root);
- 
- 	ret = true;
-@@ -1882,19 +1892,17 @@ static bool dma_ops_domain(struct protection_domain *domain)
- }
- 
- static void set_dte_entry(u16 devid, struct protection_domain *domain,
-+			  struct domain_pgtable *pgtable,
- 			  bool ats, bool ppr)
+ 	port_phy_modes = kcalloc(num_phys_ports, sizeof(phy_interface_t),
+diff --git a/drivers/net/dsa/ocelot/felix.h b/drivers/net/dsa/ocelot/felix.h
+index 3a7580015b621..8771d40324f10 100644
+--- a/drivers/net/dsa/ocelot/felix.h
++++ b/drivers/net/dsa/ocelot/felix.h
+@@ -15,6 +15,7 @@ struct felix_info {
+ 	const u32 *const		*map;
+ 	const struct ocelot_ops		*ops;
+ 	int				shared_queue_sz;
++	int				num_mact_rows;
+ 	const struct ocelot_stat_layout	*stats_layout;
+ 	unsigned int			num_stats;
+ 	int				num_ports;
+diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
+index 2c812b481778c..edc1a67c002b6 100644
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -1090,6 +1090,7 @@ struct felix_info felix_info_vsc9959 = {
+ 	.stats_layout		= vsc9959_stats_layout,
+ 	.num_stats		= ARRAY_SIZE(vsc9959_stats_layout),
+ 	.shared_queue_sz	= 128 * 1024,
++	.num_mact_rows		= 2048,
+ 	.num_ports		= 6,
+ 	.switch_pci_bar		= 4,
+ 	.imdio_pci_bar		= 0,
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index b14286dc49fb5..33ef8690eafe9 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -1016,10 +1016,8 @@ int ocelot_fdb_dump(struct ocelot *ocelot, int port,
  {
--	struct domain_pgtable pgtable;
- 	u64 pte_root = 0;
- 	u64 flags = 0;
- 	u32 old_domid;
+ 	int i, j;
  
--	amd_iommu_domain_get_pgtable(domain, &pgtable);
-+	if (pgtable->mode != PAGE_MODE_NONE)
-+		pte_root = iommu_virt_to_phys(pgtable->root);
+-	/* Loop through all the mac tables entries. There are 1024 rows of 4
+-	 * entries.
+-	 */
+-	for (i = 0; i < 1024; i++) {
++	/* Loop through all the mac tables entries. */
++	for (i = 0; i < ocelot->num_mact_rows; i++) {
+ 		for (j = 0; j < 4; j++) {
+ 			struct ocelot_mact_entry entry;
+ 			bool is_static;
+diff --git a/drivers/net/ethernet/mscc/ocelot_regs.c b/drivers/net/ethernet/mscc/ocelot_regs.c
+index b88b5899b2273..7d4fd1b6addaf 100644
+--- a/drivers/net/ethernet/mscc/ocelot_regs.c
++++ b/drivers/net/ethernet/mscc/ocelot_regs.c
+@@ -431,6 +431,7 @@ int ocelot_chip_init(struct ocelot *ocelot, const struct ocelot_ops *ops)
+ 	ocelot->stats_layout = ocelot_stats_layout;
+ 	ocelot->num_stats = ARRAY_SIZE(ocelot_stats_layout);
+ 	ocelot->shared_queue_sz = 224 * 1024;
++	ocelot->num_mact_rows = 1024;
+ 	ocelot->ops = ops;
  
--	if (pgtable.mode != PAGE_MODE_NONE)
--		pte_root = iommu_virt_to_phys(pgtable.root);
--
--	pte_root |= (pgtable.mode & DEV_ENTRY_MODE_MASK)
-+	pte_root |= (pgtable->mode & DEV_ENTRY_MODE_MASK)
- 		    << DEV_ENTRY_MODE_SHIFT;
- 	pte_root |= DTE_FLAG_IR | DTE_FLAG_IW | DTE_FLAG_V | DTE_FLAG_TV;
+ 	ret = ocelot_regfields_init(ocelot, ocelot_regfields);
+diff --git a/include/soc/mscc/ocelot.h b/include/soc/mscc/ocelot.h
+index f8e1955c86f14..7b5382e10bd29 100644
+--- a/include/soc/mscc/ocelot.h
++++ b/include/soc/mscc/ocelot.h
+@@ -437,6 +437,7 @@ struct ocelot {
+ 	unsigned int			num_stats;
  
-@@ -1967,6 +1975,7 @@ static void clear_dte_entry(u16 devid)
- static void do_attach(struct iommu_dev_data *dev_data,
- 		      struct protection_domain *domain)
- {
-+	struct domain_pgtable pgtable;
- 	struct amd_iommu *iommu;
- 	bool ats;
+ 	int				shared_queue_sz;
++	int				num_mact_rows;
  
-@@ -1982,7 +1991,9 @@ static void do_attach(struct iommu_dev_data *dev_data,
- 	domain->dev_cnt                 += 1;
- 
- 	/* Update device table */
--	set_dte_entry(dev_data->devid, domain, ats, dev_data->iommu_v2);
-+	amd_iommu_domain_get_pgtable(domain, &pgtable);
-+	set_dte_entry(dev_data->devid, domain, &pgtable,
-+		      ats, dev_data->iommu_v2);
- 	clone_aliases(dev_data->pdev);
- 
- 	device_flush_dte(dev_data);
-@@ -2293,22 +2304,34 @@ static int amd_iommu_domain_get_attr(struct iommu_domain *domain,
-  *
-  *****************************************************************************/
- 
--static void update_device_table(struct protection_domain *domain)
-+static void update_device_table(struct protection_domain *domain,
-+				struct domain_pgtable *pgtable)
- {
- 	struct iommu_dev_data *dev_data;
- 
- 	list_for_each_entry(dev_data, &domain->dev_list, list) {
--		set_dte_entry(dev_data->devid, domain, dev_data->ats.enabled,
--			      dev_data->iommu_v2);
-+		set_dte_entry(dev_data->devid, domain, pgtable,
-+			      dev_data->ats.enabled, dev_data->iommu_v2);
- 		clone_aliases(dev_data->pdev);
- 	}
- }
- 
-+static void update_and_flush_device_table(struct protection_domain *domain,
-+					  struct domain_pgtable *pgtable)
-+{
-+	update_device_table(domain, pgtable);
-+	domain_flush_devices(domain);
-+}
-+
- static void update_domain(struct protection_domain *domain)
- {
--	update_device_table(domain);
-+	struct domain_pgtable pgtable;
- 
--	domain_flush_devices(domain);
-+	/* Update device table */
-+	amd_iommu_domain_get_pgtable(domain, &pgtable);
-+	update_and_flush_device_table(domain, &pgtable);
-+
-+	/* Flush domain TLB(s) and wait for completion */
- 	domain_flush_tlb_pde(domain);
- }
- 
+ 	struct net_device		*hw_bridge_dev;
+ 	u16				bridge_mask;
 -- 
 2.20.1
 
