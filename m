@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 446C81D82FF
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 147171D8598
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731150AbgERSBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:01:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43210 "EHLO mail.kernel.org"
+        id S1730192AbgERSTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:19:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732358AbgERSBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:01:07 -0400
+        id S1731205AbgERRxu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:53:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4103020826;
-        Mon, 18 May 2020 18:01:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D376620674;
+        Mon, 18 May 2020 17:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824866;
-        bh=raz+isdNy/E92/IIzC/JGNOPqLGNyz1rATIizl4+t6U=;
+        s=default; t=1589824430;
+        bh=OVEPXqkdEHlw3GYRZgRCwXP6qOuH86MwaYU2UiQzTkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ci8+iqAcd4vXrF68qZNWU+BzY/ERBoQCRJtSXLBQv24nGxs5N36qhY71YQJyeXS96
-         fyOL+q8zb1jmEORrEgy1yTo+FZlD2RvssOwZ4I9wRwk4Y6AxCf/YYo8GDWeM4wgtkp
-         ThNLeKXer1+Gky13YTzj0EPRZj4gIwM2p6woCdek=
+        b=TFY6A3IJ74y99o14F5iKFke3HHqivUOZpSq5jtIn3ZTMHpbAp+KTBadRPpvgTJeWl
+         3Om7Jd665dMJ7OIGP83nvMW41IJFHSHAOLSFvWt46rEGNDWdMZOyBClB6yHWFwjDTN
+         giXm9cbGf9pjGfjwaXhQnQsvVn4YuUMD1fOp3T+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 034/194] net: phy: fix aneg restart in phy_ethtool_set_eee
+Subject: [PATCH 5.4 001/147] net: dsa: Do not make user port errors fatal
 Date:   Mon, 18 May 2020 19:35:24 +0200
-Message-Id: <20200518173534.458219948@linuxfoundation.org>
+Message-Id: <20200518173513.232072492@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,39 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 9de5d235b60a7cdfcdd5461e70c5663e713fde87 ]
+commit 86f8b1c01a0a537a73d2996615133be63cdf75db upstream.
 
-phy_restart_aneg() enables aneg in the PHY. That's not what we want
-if phydev->autoneg is disabled. In this case still update EEE
-advertisement register, but don't enable aneg and don't trigger an
-aneg restart.
+Prior to 1d27732f411d ("net: dsa: setup and teardown ports"), we would
+not treat failures to set-up an user port as fatal, but after this
+commit we would, which is a regression for some systems where interfaces
+may be declared in the Device Tree, but the underlying hardware may not
+be present (pluggable daughter cards for instance).
 
-Fixes: f75abeb8338e ("net: phy: restart phy autonegotiation after EEE advertisment change")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: 1d27732f411d ("net: dsa: setup and teardown ports")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/phy/phy.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -1132,9 +1132,11 @@ int phy_ethtool_set_eee(struct phy_devic
- 		/* Restart autonegotiation so the new modes get sent to the
- 		 * link partner.
- 		 */
--		ret = phy_restart_aneg(phydev);
--		if (ret < 0)
--			return ret;
-+		if (phydev->autoneg == AUTONEG_ENABLE) {
-+			ret = phy_restart_aneg(phydev);
-+			if (ret < 0)
-+				return ret;
-+		}
+
+---
+ net/dsa/dsa2.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -461,18 +461,12 @@ static int dsa_tree_setup_switches(struc
+ 
+ 			err = dsa_port_setup(dp);
+ 			if (err)
+-				goto ports_teardown;
++				continue;
+ 		}
  	}
  
  	return 0;
+ 
+-ports_teardown:
+-	for (i = 0; i < port; i++)
+-		dsa_port_teardown(&ds->ports[i]);
+-
+-	dsa_switch_teardown(ds);
+-
+ switch_teardown:
+ 	for (i = 0; i < device; i++) {
+ 		ds = dst->ds[i];
 
 
