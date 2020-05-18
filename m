@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C6381D8582
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B9E11D8709
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731399AbgERSTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:19:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59638 "EHLO mail.kernel.org"
+        id S1729977AbgERS3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:29:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731342AbgERRyn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:54:43 -0400
+        id S1729389AbgERRmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AB8A2086A;
-        Mon, 18 May 2020 17:54:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4880C207C4;
+        Mon, 18 May 2020 17:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824482;
-        bh=HzhzUmDKmEhn4BXR+WRZZo9dgSDG/SsJmeYNmu1EgwM=;
+        s=default; t=1589823731;
+        bh=qDmmf1H14DQGq38TlSbF7UeqBoaq2BFhXg9rvJ9XgF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XdfiAXjkR1E0XEamQ94l4o/P/tgro+WJxgKMmQM6aGsEVzNIR5gnsZeq7lb+G+sge
-         m4RanXMgFbYw67sxiBw6UzXg/AoopXJXl8Ylm/+KPfX6MRcRySeYbdKVtiX2UXXST4
-         3KQk3gPmKlQ90P07fBZMndXDkYi8U631TGLjQ9q8=
+        b=0fK8xP5eW+LHUZJCNnvBiJZmw/oeaBuzZetbWwEPMsoEWvnrnvV7OBb4GGb6U5Hko
+         tp2f5Yhde72eChXDyEPTn5CXEfObaLFrF38gZVQQJR9iC2NQgAEwEleLlTI+3F9vpy
+         PMqy7cEI6Eu+K6ajdrjfhhraNkxfTrjySjEF5/xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luo bin <luobin9@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 029/147] hinic: fix a bug of ndo_stop
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Ali Saidi <alisaidi@amazon.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Michal Hocko <mhocko@suse.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jann Horn <jannh@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 14/90] binfmt_elf: move brk out of mmap when doing direct loader exec
 Date:   Mon, 18 May 2020 19:35:52 +0200
-Message-Id: <20200518173517.473748026@linuxfoundation.org>
+Message-Id: <20200518173454.108423305@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,119 +50,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo bin <luobin9@huawei.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit e8a1b0efd632d1c9db7d4e93da66377c7b524862 ]
+commit bbdc6076d2e5d07db44e74c11b01a3e27ab90b32 upstream.
 
-if some function in ndo_stop interface returns failure because of
-hardware fault, must go on excuting rest steps rather than return
-failure directly, otherwise will cause memory leak.And bump the
-timeout for SET_FUNC_STATE to ensure that cmd won't return failure
-when hw is busy. Otherwise hw may stomp host memory if we free
-memory regardless of the return value of SET_FUNC_STATE.
+Commmit eab09532d400 ("binfmt_elf: use ELF_ET_DYN_BASE only for PIE"),
+made changes in the rare case when the ELF loader was directly invoked
+(e.g to set a non-inheritable LD_LIBRARY_PATH, testing new versions of
+the loader), by moving into the mmap region to avoid both ET_EXEC and
+PIE binaries.  This had the effect of also moving the brk region into
+mmap, which could lead to the stack and brk being arbitrarily close to
+each other.  An unlucky process wouldn't get its requested stack size
+and stack allocations could end up scribbling on the heap.
 
-Fixes: 51ba902a16e6 ("net-next/hinic: Initialize hw interface")
-Signed-off-by: Luo bin <luobin9@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This is illustrated here.  In the case of using the loader directly, brk
+(so helpfully identified as "[heap]") is allocated with the _loader_ not
+the binary.  For example, with ASLR entirely disabled, you can see this
+more clearly:
+
+$ /bin/cat /proc/self/maps
+555555554000-55555555c000 r-xp 00000000 ... /bin/cat
+55555575b000-55555575c000 r--p 00007000 ... /bin/cat
+55555575c000-55555575d000 rw-p 00008000 ... /bin/cat
+55555575d000-55555577e000 rw-p 00000000 ... [heap]
+...
+7ffff7ff7000-7ffff7ffa000 r--p 00000000 ... [vvar]
+7ffff7ffa000-7ffff7ffc000 r-xp 00000000 ... [vdso]
+7ffff7ffc000-7ffff7ffd000 r--p 00027000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7ffd000-7ffff7ffe000 rw-p 00028000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7ffe000-7ffff7fff000 rw-p 00000000 ...
+7ffffffde000-7ffffffff000 rw-p 00000000 ... [stack]
+
+$ /lib/x86_64-linux-gnu/ld-2.27.so /bin/cat /proc/self/maps
+...
+7ffff7bcc000-7ffff7bd4000 r-xp 00000000 ... /bin/cat
+7ffff7bd4000-7ffff7dd3000 ---p 00008000 ... /bin/cat
+7ffff7dd3000-7ffff7dd4000 r--p 00007000 ... /bin/cat
+7ffff7dd4000-7ffff7dd5000 rw-p 00008000 ... /bin/cat
+7ffff7dd5000-7ffff7dfc000 r-xp 00000000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7fb2000-7ffff7fd6000 rw-p 00000000 ...
+7ffff7ff7000-7ffff7ffa000 r--p 00000000 ... [vvar]
+7ffff7ffa000-7ffff7ffc000 r-xp 00000000 ... [vdso]
+7ffff7ffc000-7ffff7ffd000 r--p 00027000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7ffd000-7ffff7ffe000 rw-p 00028000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7ffe000-7ffff8020000 rw-p 00000000 ... [heap]
+7ffffffde000-7ffffffff000 rw-p 00000000 ... [stack]
+
+The solution is to move brk out of mmap and into ELF_ET_DYN_BASE since
+nothing is there in the direct loader case (and ET_EXEC is still far
+away at 0x400000).  Anything that ran before should still work (i.e.
+the ultimately-launched binary already had the brk very far from its
+text, so this should be no different from a COMPAT_BRK standpoint).  The
+only risk I see here is that if someone started to suddenly depend on
+the entire memory space lower than the mmap region being available when
+launching binaries via a direct loader execs which seems highly
+unlikely, I'd hope: this would mean a binary would _not_ work when
+exec()ed normally.
+
+(Note that this is only done under CONFIG_ARCH_HAS_ELF_RANDOMIZATION
+when randomization is turned on.)
+
+Link: http://lkml.kernel.org/r/20190422225727.GA21011@beast
+Link: https://lkml.kernel.org/r/CAGXu5jJ5sj3emOT2QPxQkNQk0qbU6zEfu9=Omfhx_p0nCKPSjA@mail.gmail.com
+Fixes: eab09532d400 ("binfmt_elf: use ELF_ET_DYN_BASE only for PIE")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reported-by: Ali Saidi <alisaidi@amazon.com>
+Cc: Ali Saidi <alisaidi@amazon.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jann Horn <jannh@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c |   16 ++++++++++++----
- drivers/net/ethernet/huawei/hinic/hinic_main.c    |   18 +++---------------
- 2 files changed, 15 insertions(+), 19 deletions(-)
 
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
-@@ -45,6 +45,8 @@
+---
+ fs/binfmt_elf.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -1100,6 +1100,17 @@ static int load_elf_binary(struct linux_
+ 	current->mm->start_stack = bprm->p;
  
- #define MGMT_MSG_TIMEOUT                5000
- 
-+#define SET_FUNC_PORT_MGMT_TIMEOUT	25000
+ 	if ((current->flags & PF_RANDOMIZE) && (randomize_va_space > 1)) {
++		/*
++		 * For architectures with ELF randomization, when executing
++		 * a loader directly (i.e. no interpreter listed in ELF
++		 * headers), move the brk area out of the mmap region
++		 * (since it grows up, and may collide early with the stack
++		 * growing down), and into the unused ELF_ET_DYN_BASE region.
++		 */
++		if (IS_ENABLED(CONFIG_ARCH_HAS_ELF_RANDOMIZE) && !interpreter)
++			current->mm->brk = current->mm->start_brk =
++				ELF_ET_DYN_BASE;
 +
- #define mgmt_to_pfhwdev(pf_mgmt)        \
- 		container_of(pf_mgmt, struct hinic_pfhwdev, pf_to_mgmt)
- 
-@@ -238,12 +240,13 @@ static int msg_to_mgmt_sync(struct hinic
- 			    u8 *buf_in, u16 in_size,
- 			    u8 *buf_out, u16 *out_size,
- 			    enum mgmt_direction_type direction,
--			    u16 resp_msg_id)
-+			    u16 resp_msg_id, u32 timeout)
- {
- 	struct hinic_hwif *hwif = pf_to_mgmt->hwif;
- 	struct pci_dev *pdev = hwif->pdev;
- 	struct hinic_recv_msg *recv_msg;
- 	struct completion *recv_done;
-+	unsigned long timeo;
- 	u16 msg_id;
- 	int err;
- 
-@@ -267,8 +270,9 @@ static int msg_to_mgmt_sync(struct hinic
- 		goto unlock_sync_msg;
- 	}
- 
--	if (!wait_for_completion_timeout(recv_done,
--					 msecs_to_jiffies(MGMT_MSG_TIMEOUT))) {
-+	timeo = msecs_to_jiffies(timeout ? timeout : MGMT_MSG_TIMEOUT);
-+
-+	if (!wait_for_completion_timeout(recv_done, timeo)) {
- 		dev_err(&pdev->dev, "MGMT timeout, MSG id = %d\n", msg_id);
- 		err = -ETIMEDOUT;
- 		goto unlock_sync_msg;
-@@ -342,6 +346,7 @@ int hinic_msg_to_mgmt(struct hinic_pf_to
- {
- 	struct hinic_hwif *hwif = pf_to_mgmt->hwif;
- 	struct pci_dev *pdev = hwif->pdev;
-+	u32 timeout = 0;
- 
- 	if (sync != HINIC_MGMT_MSG_SYNC) {
- 		dev_err(&pdev->dev, "Invalid MGMT msg type\n");
-@@ -353,9 +358,12 @@ int hinic_msg_to_mgmt(struct hinic_pf_to
- 		return -EINVAL;
- 	}
- 
-+	if (cmd == HINIC_PORT_CMD_SET_FUNC_STATE)
-+		timeout = SET_FUNC_PORT_MGMT_TIMEOUT;
-+
- 	return msg_to_mgmt_sync(pf_to_mgmt, mod, cmd, buf_in, in_size,
- 				buf_out, out_size, MGMT_DIRECT_SEND,
--				MSG_NOT_RESP);
-+				MSG_NOT_RESP, timeout);
- }
- 
- /**
---- a/drivers/net/ethernet/huawei/hinic/hinic_main.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_main.c
-@@ -483,7 +483,6 @@ static int hinic_close(struct net_device
- {
- 	struct hinic_dev *nic_dev = netdev_priv(netdev);
- 	unsigned int flags;
--	int err;
- 
- 	down(&nic_dev->mgmt_lock);
- 
-@@ -497,20 +496,9 @@ static int hinic_close(struct net_device
- 
- 	up(&nic_dev->mgmt_lock);
- 
--	err = hinic_port_set_func_state(nic_dev, HINIC_FUNC_PORT_DISABLE);
--	if (err) {
--		netif_err(nic_dev, drv, netdev,
--			  "Failed to set func port state\n");
--		nic_dev->flags |= (flags & HINIC_INTF_UP);
--		return err;
--	}
--
--	err = hinic_port_set_state(nic_dev, HINIC_PORT_DISABLE);
--	if (err) {
--		netif_err(nic_dev, drv, netdev, "Failed to set port state\n");
--		nic_dev->flags |= (flags & HINIC_INTF_UP);
--		return err;
--	}
-+	hinic_port_set_state(nic_dev, HINIC_PORT_DISABLE);
-+
-+	hinic_port_set_func_state(nic_dev, HINIC_FUNC_PORT_DISABLE);
- 
- 	if (nic_dev->flags & HINIC_RSS_ENABLE) {
- 		hinic_rss_deinit(nic_dev);
+ 		current->mm->brk = current->mm->start_brk =
+ 			arch_randomize_brk(current->mm);
+ #ifdef compat_brk_randomized
 
 
