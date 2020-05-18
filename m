@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB7A1D84B3
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA7CD1D8156
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:47:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732431AbgERSNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:13:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44102 "EHLO mail.kernel.org"
+        id S1730174AbgERRrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:47:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732424AbgERSBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:01:39 -0400
+        id S1728672AbgERRrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:47:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBA6E207C4;
-        Mon, 18 May 2020 18:01:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEF1420657;
+        Mon, 18 May 2020 17:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824899;
-        bh=/yFRTgkjOjuakAcUHMYNBsrRG7i5WsGSgwVe2mmzVsQ=;
+        s=default; t=1589824028;
+        bh=3buQ2INR/cncheX+j1GIwxDoRrtLBkthjHGxaijJLcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/lRikDQ7Ysu0ZUxQ5EySsDMS2+uozAYCUhhZaXzwocipfKfGXH3wMITszSF+/GeD
-         ZzDPb1ga5yva4agvIPe7sPabYlOzXJYPwpRBX3R0KdxpfdGv6Jq/J/tdfJoRfXOfVZ
-         1MHRxakIE5ODW/7OTh+IFovGpVlBV89aOs6afSy0=
+        b=NV5nEstKYYhc0LFvWW55+jv3cn8nPSwHuCHdTHJ7f6vTmTSGfTv5ZXh5hH7OAW06P
+         3k/+vaTwI3lJ8Yglj2HoZwTeF48p21if4GYo2tIUAMKaD7ll12I9o99a0VnCKmstQZ
+         ybpkAedHLitwgb3i7pExvXwEeoR0j8heNtP6d/DY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Minet <v.minet@criteo.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.6 049/194] umh: fix memory leak on execve failure
-Date:   Mon, 18 May 2020 19:35:39 +0200
-Message-Id: <20200518173535.892437661@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot+0251e883fe39e7a0cb0a@syzkaller.appspotmail.com,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 008/114] sch_sfq: validate silly quantum values
+Date:   Mon, 18 May 2020 19:35:40 +0200
+Message-Id: <20200518173504.720494834@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Minet <v.minet@criteo.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit db803036ada7d61d096783726f9771b3fc540370 ]
+[ Upstream commit df4953e4e997e273501339f607b77953772e3559 ]
 
-If a UMH process created by fork_usermode_blob() fails to execute,
-a pair of struct file allocated by umh_pipe_setup() will leak.
+syzbot managed to set up sfq so that q->scaled_quantum was zero,
+triggering an infinite loop in sfq_dequeue()
 
-Under normal conditions, the caller (like bpfilter) needs to manage the
-lifetime of the UMH and its two pipes. But when fork_usermode_blob()
-fails, the caller doesn't really have a way to know what needs to be
-done. It seems better to do the cleanup ourselves in this case.
+More generally, we must only accept quantum between 1 and 2^18 - 7,
+meaning scaled_quantum must be in [1, 0x7FFF] range.
 
-Fixes: 449325b52b7a ("umh: introduce fork_usermode_blob() helper")
-Signed-off-by: Vincent Minet <v.minet@criteo.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Otherwise, we also could have a loop in sfq_dequeue()
+if scaled_quantum happens to be 0x8000, since slot->allot
+could indefinitely switch between 0 and 0x8000.
+
+Fixes: eeaeb068f139 ("sch_sfq: allow big packets and be fair")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+0251e883fe39e7a0cb0a@syzkaller.appspotmail.com
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/umh.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/sched/sch_sfq.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/kernel/umh.c
-+++ b/kernel/umh.c
-@@ -475,6 +475,12 @@ static void umh_clean_and_save_pid(struc
- {
- 	struct umh_info *umh_info = info->data;
- 
-+	/* cleanup if umh_pipe_setup() was successful but exec failed */
-+	if (info->pid && info->retval) {
-+		fput(umh_info->pipe_to_umh);
-+		fput(umh_info->pipe_from_umh);
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -639,6 +639,15 @@ static int sfq_change(struct Qdisc *sch,
+ 	if (ctl->divisor &&
+ 	    (!is_power_of_2(ctl->divisor) || ctl->divisor > 65536))
+ 		return -EINVAL;
++
++	/* slot->allot is a short, make sure quantum is not too big. */
++	if (ctl->quantum) {
++		unsigned int scaled = SFQ_ALLOT_SIZE(ctl->quantum);
++
++		if (scaled <= 0 || scaled > SHRT_MAX)
++			return -EINVAL;
 +	}
 +
- 	argv_free(info->argv);
- 	umh_info->pid = info->pid;
- }
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+ 					ctl_v1->Wlog))
+ 		return -EINVAL;
 
 
