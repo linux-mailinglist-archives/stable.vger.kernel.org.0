@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D331D84BE
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B74C1D8578
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732368AbgERSBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:01:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43276 "EHLO mail.kernel.org"
+        id S1730990AbgERRyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:54:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732362AbgERSBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:01:10 -0400
+        id S1731274AbgERRyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:54:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F76C20826;
-        Mon, 18 May 2020 18:01:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D02520715;
+        Mon, 18 May 2020 17:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824869;
-        bh=q+c7ReZyw8cKraevnY75es7TAUo/GWn3VMPlGiTmqps=;
+        s=default; t=1589824457;
+        bh=9rzIDRtRGHjl2cYuAFprr0tLIdXvJ5jLfP+kGYkY8o0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSjr0OPQA2vXkmQfdd/U4FqLql0ZS+9DX/LmYYY6Rmx+FBfx0ZWwoKil+j0YEikbe
-         5w8GjePkpsGu0Z4LKkxvlOUAUSbJF1A3nLv8UEcFbxVRYtIXBGv84VrU7hdCbEqEeK
-         DfDS2+R7usVtnd2hjXWRZ10HJjdEsJlq6kU1y3kA=
+        b=OdqY9X8Ih/QtlrRAzeH/2JvEtc2Av7DpRCaycZxux6VJWxayo7dAElTHRw9qEb6rc
+         ruoYUjOUVutkA1VbcXFs6oUnYZBskveIMiDAE8jIz47yIlXvsgOKPokY9aTRaeZaPe
+         eFJx9NcTRNOxgj5zmJ7OkRGVSZ9hJcVWWQNAJtlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rahul Ankushrao Kawadgave <rahulak@qti.qualcomm.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 035/194] net: stmmac: fix num_por initialization
+        syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com,
+        syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 002/147] shmem: fix possible deadlocks on shmlock_user_lock
 Date:   Mon, 18 May 2020 19:35:25 +0200
-Message-Id: <20200518173534.557926933@linuxfoundation.org>
+Message-Id: <20200518173513.390093569@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,78 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Hugh Dickins <hughd@google.com>
 
-[ Upstream commit fd4a5177382230d39e0d95632d98103fb2938383 ]
+[ Upstream commit ea0dfeb4209b4eab954d6e00ed136bc6b48b380d ]
 
-Driver missed initializing num_por which is one of the por values that
-driver configures to hardware. In order to get these values, add a new
-structure ethqos_emac_driver_data which holds por and num_por values
-and populate that in driver probe.
+Recent commit 71725ed10c40 ("mm: huge tmpfs: try to split_huge_page()
+when punching hole") has allowed syzkaller to probe deeper, uncovering a
+long-standing lockdep issue between the irq-unsafe shmlock_user_lock,
+the irq-safe xa_lock on mapping->i_pages, and shmem inode's info->lock
+which nests inside xa_lock (or tree_lock) since 4.8's shmem_uncharge().
 
-Fixes: a7c30e62d4b8 ("net: stmmac: Add driver for Qualcomm ethqos")
-Reported-by: Rahul Ankushrao Kawadgave <rahulak@qti.qualcomm.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+user_shm_lock(), servicing SysV shmctl(SHM_LOCK), wants
+shmlock_user_lock while its caller shmem_lock() holds info->lock with
+interrupts disabled; but hugetlbfs_file_setup() calls user_shm_lock()
+with interrupts enabled, and might be interrupted by a writeback endio
+wanting xa_lock on i_pages.
+
+This may not risk an actual deadlock, since shmem inodes do not take
+part in writeback accounting, but there are several easy ways to avoid
+it.
+
+Requiring interrupts disabled for shmlock_user_lock would be easy, but
+it's a high-level global lock for which that seems inappropriate.
+Instead, recall that the use of info->lock to guard info->flags in
+shmem_lock() dates from pre-3.1 days, when races with SHMEM_PAGEIN and
+SHMEM_TRUNCATE could occur: nowadays it serves no purpose, the only flag
+added or removed is VM_LOCKED itself, and calls to shmem_lock() an inode
+are already serialized by the caller.
+
+Take info->lock out of the chain and the possibility of deadlock or
+lockdep warning goes away.
+
+Fixes: 4595ef88d136 ("shmem: make shmem_inode_info::lock irq-safe")
+Reported-by: syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com
+Reported-by: syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: Yang Shi <yang.shi@linux.alibaba.com>
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2004161707410.16322@eggly.anvils
+Link: https://lore.kernel.org/lkml/000000000000e5838c05a3152f53@google.com/
+Link: https://lore.kernel.org/lkml/0000000000003712b305a331d3b1@google.com/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c |   17 ++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ mm/shmem.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
-@@ -75,6 +75,11 @@ struct ethqos_emac_por {
- 	unsigned int value;
- };
+diff --git a/mm/shmem.c b/mm/shmem.c
+index e71b15da19854..98802ca76a5c3 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2183,7 +2183,11 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
+ 	struct shmem_inode_info *info = SHMEM_I(inode);
+ 	int retval = -ENOMEM;
  
-+struct ethqos_emac_driver_data {
-+	const struct ethqos_emac_por *por;
-+	unsigned int num_por;
-+};
-+
- struct qcom_ethqos {
- 	struct platform_device *pdev;
- 	void __iomem *rgmii_base;
-@@ -171,6 +176,11 @@ static const struct ethqos_emac_por emac
- 	{ .offset = RGMII_IO_MACRO_CONFIG2,	.value = 0x00002060 },
- };
+-	spin_lock_irq(&info->lock);
++	/*
++	 * What serializes the accesses to info->flags?
++	 * ipc_lock_object() when called from shmctl_do_lock(),
++	 * no serialization needed when called from shm_destroy().
++	 */
+ 	if (lock && !(info->flags & VM_LOCKED)) {
+ 		if (!user_shm_lock(inode->i_size, user))
+ 			goto out_nomem;
+@@ -2198,7 +2202,6 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
+ 	retval = 0;
  
-+static const struct ethqos_emac_driver_data emac_v2_3_0_data = {
-+	.por = emac_v2_3_0_por,
-+	.num_por = ARRAY_SIZE(emac_v2_3_0_por),
-+};
-+
- static int ethqos_dll_configure(struct qcom_ethqos *ethqos)
- {
- 	unsigned int val;
-@@ -442,6 +452,7 @@ static int qcom_ethqos_probe(struct plat
- 	struct device_node *np = pdev->dev.of_node;
- 	struct plat_stmmacenet_data *plat_dat;
- 	struct stmmac_resources stmmac_res;
-+	const struct ethqos_emac_driver_data *data;
- 	struct qcom_ethqos *ethqos;
- 	struct resource *res;
- 	int ret;
-@@ -471,7 +482,9 @@ static int qcom_ethqos_probe(struct plat
- 		goto err_mem;
- 	}
- 
--	ethqos->por = of_device_get_match_data(&pdev->dev);
-+	data = of_device_get_match_data(&pdev->dev);
-+	ethqos->por = data->por;
-+	ethqos->num_por = data->num_por;
- 
- 	ethqos->rgmii_clk = devm_clk_get(&pdev->dev, "rgmii");
- 	if (IS_ERR(ethqos->rgmii_clk)) {
-@@ -526,7 +539,7 @@ static int qcom_ethqos_remove(struct pla
+ out_nomem:
+-	spin_unlock_irq(&info->lock);
+ 	return retval;
  }
  
- static const struct of_device_id qcom_ethqos_match[] = {
--	{ .compatible = "qcom,qcs404-ethqos", .data = &emac_v2_3_0_por},
-+	{ .compatible = "qcom,qcs404-ethqos", .data = &emac_v2_3_0_data},
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, qcom_ethqos_match);
+-- 
+2.20.1
+
 
 
