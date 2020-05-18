@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97F6A1D8140
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:46:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6526A1D8325
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729541AbgERRqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:46:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45880 "EHLO mail.kernel.org"
+        id S1732497AbgERSCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:02:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729535AbgERRqU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:46:20 -0400
+        id S1732495AbgERSCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:02:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3257620715;
-        Mon, 18 May 2020 17:46:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB4DE20DD4;
+        Mon, 18 May 2020 18:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823979;
-        bh=mBawSD8zkHBMF5n1BRmQOVnLra3BFmatr3Y/TIxOxeY=;
+        s=default; t=1589824939;
+        bh=MDZdmsagPKCRha5QAA/DRBmtg2TCG7A+Bwmwop+1W9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xngi7dSWOxgv82Rj1as/S9n2fG6hVbHz9G0pmKQUntL9ahDHqipfRZAleRx11DIA+
-         3G3f7PmmhvtxJT68YkG+wZn/fx/DJNkV61lxltygbYXH4OuS0vI4bbDH9JgKX/2oAR
-         vfy6nNJaMPXlwQbMo5W7o5zhRCTDZLbFBA/FGTZ4=
+        b=Tjl30mGqujP85H1j31cHr3i2XbpLvq5uQrsxRQjcxvdRszrRduqeiTWXy2GpNTMAE
+         1HlGvz5GFkTciMZrv4Ln1b+ElzUu9gmuAb75lmy40E+1BRuJFhPF1NXsQnZajM/hVJ
+         OOoQ3aqIGhq1IYkEgRAnE8072TUVvvHBYyp+xhq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Andr=C3=A9=20Przywara?= <andre.przywara@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.14 022/114] KVM: arm: vgic: Fix limit condition when writing to GICD_I[CS]ACTIVER
+        stable@vger.kernel.org, Sung Lee <sung.lee@amd.com>,
+        Yongqiang Sun <yongqiang.sun@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 064/194] drm/amd/display: Update downspread percent to match spreadsheet for DCN2.1
 Date:   Mon, 18 May 2020 19:35:54 +0200
-Message-Id: <20200518173507.737668504@linuxfoundation.org>
+Message-Id: <20200518173537.046755931@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Sung Lee <sung.lee@amd.com>
 
-commit 1c32ca5dc6d00012f0c964e5fdd7042fcc71efb1 upstream.
+[ Upstream commit 668a6741f809f2d15d125cfe2b39661e8f1655ea ]
 
-When deciding whether a guest has to be stopped we check whether this
-is a private interrupt or not. Unfortunately, there's an off-by-one bug
-here, and we fail to recognize a whole range of interrupts as being
-global (GICv2 SPIs 32-63).
+[WHY]
+The downspread percentage was copied over from a previous version
+of the display_mode_lib spreadsheet. This value has been updated,
+and the previous value is too high to allow for such modes as
+4K120hz. The new value is sufficient for such modes.
 
-Fix the condition from > to be >=.
+[HOW]
+Update the value in dcn21_resource to match the spreadsheet.
 
-Cc: stable@vger.kernel.org
-Fixes: abd7229626b93 ("KVM: arm/arm64: Simplify active_change_prepare and plug race")
-Reported-by: André Przywara <andre.przywara@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sung Lee <sung.lee@amd.com>
+Reviewed-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/arm/vgic/vgic-mmio.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/virt/kvm/arm/vgic/vgic-mmio.c
-+++ b/virt/kvm/arm/vgic/vgic-mmio.c
-@@ -260,7 +260,7 @@ static void vgic_mmio_change_active(stru
- static void vgic_change_active_prepare(struct kvm_vcpu *vcpu, u32 intid)
- {
- 	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
--	    intid > VGIC_NR_PRIVATE_IRQS)
-+	    intid >= VGIC_NR_PRIVATE_IRQS)
- 		kvm_arm_halt_guest(vcpu->kvm);
- }
- 
-@@ -268,7 +268,7 @@ static void vgic_change_active_prepare(s
- static void vgic_change_active_finish(struct kvm_vcpu *vcpu, u32 intid)
- {
- 	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
--	    intid > VGIC_NR_PRIVATE_IRQS)
-+	    intid >= VGIC_NR_PRIVATE_IRQS)
- 		kvm_arm_resume_guest(vcpu->kvm);
- }
- 
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index 33d0a176841a5..122d3e734c59a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -250,7 +250,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
+ 	.dram_channel_width_bytes = 4,
+ 	.fabric_datapath_to_dcn_data_return_bytes = 32,
+ 	.dcn_downspread_percent = 0.5,
+-	.downspread_percent = 0.5,
++	.downspread_percent = 0.38,
+ 	.dram_page_open_time_ns = 50.0,
+ 	.dram_rw_turnaround_time_ns = 17.5,
+ 	.dram_return_buffer_per_channel_bytes = 8192,
+-- 
+2.20.1
+
 
 
