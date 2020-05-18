@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 131511D8641
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:24:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B735C1D8364
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730362AbgERRsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:48:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49136 "EHLO mail.kernel.org"
+        id S1732772AbgERSEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:04:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730353AbgERRsV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:48:21 -0400
+        id S1732316AbgERSEV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:04:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9E3020657;
-        Mon, 18 May 2020 17:48:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1022207D3;
+        Mon, 18 May 2020 18:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824100;
-        bh=ASD+fFzp4NJHBwKGUBzfOTPXS0YJQ2vb0CTvZsbplXk=;
+        s=default; t=1589825060;
+        bh=GhLdtHMBcvlMn7X3EK7g3WCOLHNCezwRMq8pXYaFogg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JWMredkF1Ey4uyZWtGAQv0c3+9AK6qwDKED88XZlk5DXn9kX9/wILQn2sdfk6wByK
-         7Eq8sNlLlGmJQ9cBnGwKNK96Hi/xY+E3k/a6psWWGsS95wPsEVx3oNZg5z8Nm4eANI
-         tsbmWpXtBA80zsKUPqrrS90ahUU11cbv0CYZx+GY=
+        b=YcloXx2IufP1YycrYEUNTgQ1yI+P0+q7ZK3kQu3Mzl67/Qw/mr0RJkSx5gyYT9Nrd
+         F6iO9Xz+EqOAEH447zbqLU6L83dKaaRqyuCVLZzTFEd6rCI5e7OLTdU3WPQcsEagtC
+         uymiiNUYt4H30JCrKz9DBDG5ThyHSAhYjnNY7N1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 070/114] pnp: Use list_for_each_entry() instead of open coding
+        stable@vger.kernel.org,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 112/194] IB/mlx4: Test return value of calls to ib_get_cached_pkey
 Date:   Mon, 18 May 2020 19:36:42 +0200
-Message-Id: <20200518173515.690166282@linuxfoundation.org>
+Message-Id: <20200518173541.087790530@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Jack Morgenstein <jackm@dev.mellanox.co.il>
 
-commit 01b2bafe57b19d9119413f138765ef57990921ce upstream.
+[ Upstream commit 6693ca95bd4330a0ad7326967e1f9bcedd6b0800 ]
 
-Aside from good practice, this avoids a warning from gcc 10:
+In the mlx4_ib_post_send() flow, some functions call ib_get_cached_pkey()
+without checking its return value. If ib_get_cached_pkey() returns an
+error code, these functions should return failure.
 
-./include/linux/kernel.h:997:3: warning: array subscript -31 is outside array bounds of ‘struct list_head[1]’ [-Warray-bounds]
-  997 |  ((type *)(__mptr - offsetof(type, member))); })
-      |  ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/linux/list.h:493:2: note: in expansion of macro ‘container_of’
-  493 |  container_of(ptr, type, member)
-      |  ^~~~~~~~~~~~
-./include/linux/pnp.h:275:30: note: in expansion of macro ‘list_entry’
-  275 | #define global_to_pnp_dev(n) list_entry(n, struct pnp_dev, global_list)
-      |                              ^~~~~~~~~~
-./include/linux/pnp.h:281:11: note: in expansion of macro ‘global_to_pnp_dev’
-  281 |  (dev) != global_to_pnp_dev(&pnp_global); \
-      |           ^~~~~~~~~~~~~~~~~
-arch/x86/kernel/rtc.c:189:2: note: in expansion of macro ‘pnp_for_each_dev’
-  189 |  pnp_for_each_dev(dev) {
-
-Because the common code doesn't cast the starting list_head to the
-containing struct.
-
+Fixes: 1ffeb2eb8be9 ("IB/mlx4: SR-IOV IB context objects and proxy/tunnel SQP support")
+Fixes: 225c7b1feef1 ("IB/mlx4: Add a driver Mellanox ConnectX InfiniBand adapters")
+Fixes: e622f2f4ad21 ("IB: split struct ib_send_wr")
+Link: https://lore.kernel.org/r/20200426075921.130074-1-leon@kernel.org
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-[ rjw: Whitespace adjustments ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/pnp.h |   29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ drivers/infiniband/hw/mlx4/qp.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/include/linux/pnp.h
-+++ b/include/linux/pnp.h
-@@ -220,10 +220,8 @@ struct pnp_card {
- #define global_to_pnp_card(n) list_entry(n, struct pnp_card, global_list)
- #define protocol_to_pnp_card(n) list_entry(n, struct pnp_card, protocol_list)
- #define to_pnp_card(n) container_of(n, struct pnp_card, dev)
--#define pnp_for_each_card(card) \
--	for((card) = global_to_pnp_card(pnp_cards.next); \
--	(card) != global_to_pnp_card(&pnp_cards); \
--	(card) = global_to_pnp_card((card)->global_list.next))
-+#define pnp_for_each_card(card)	\
-+	list_for_each_entry(card, &pnp_cards, global_list)
+diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
+index 26425dd2d960f..a2b1f6af5ba3f 100644
+--- a/drivers/infiniband/hw/mlx4/qp.c
++++ b/drivers/infiniband/hw/mlx4/qp.c
+@@ -2891,6 +2891,7 @@ static int build_sriov_qp0_header(struct mlx4_ib_sqp *sqp,
+ 	int send_size;
+ 	int header_size;
+ 	int spc;
++	int err;
+ 	int i;
  
- struct pnp_card_link {
- 	struct pnp_card *card;
-@@ -276,14 +274,9 @@ struct pnp_dev {
- #define card_to_pnp_dev(n) list_entry(n, struct pnp_dev, card_list)
- #define protocol_to_pnp_dev(n) list_entry(n, struct pnp_dev, protocol_list)
- #define	to_pnp_dev(n) container_of(n, struct pnp_dev, dev)
--#define pnp_for_each_dev(dev) \
--	for((dev) = global_to_pnp_dev(pnp_global.next); \
--	(dev) != global_to_pnp_dev(&pnp_global); \
--	(dev) = global_to_pnp_dev((dev)->global_list.next))
--#define card_for_each_dev(card,dev) \
--	for((dev) = card_to_pnp_dev((card)->devices.next); \
--	(dev) != card_to_pnp_dev(&(card)->devices); \
--	(dev) = card_to_pnp_dev((dev)->card_list.next))
-+#define pnp_for_each_dev(dev) list_for_each_entry(dev, &pnp_global, global_list)
-+#define card_for_each_dev(card, dev)	\
-+	list_for_each_entry(dev, &(card)->devices, card_list)
- #define pnp_dev_name(dev) (dev)->name
+ 	if (wr->wr.opcode != IB_WR_SEND)
+@@ -2925,7 +2926,9 @@ static int build_sriov_qp0_header(struct mlx4_ib_sqp *sqp,
  
- static inline void *pnp_get_drvdata(struct pnp_dev *pdev)
-@@ -437,14 +430,10 @@ struct pnp_protocol {
- };
- 
- #define to_pnp_protocol(n) list_entry(n, struct pnp_protocol, protocol_list)
--#define protocol_for_each_card(protocol,card) \
--	for((card) = protocol_to_pnp_card((protocol)->cards.next); \
--	(card) != protocol_to_pnp_card(&(protocol)->cards); \
--	(card) = protocol_to_pnp_card((card)->protocol_list.next))
--#define protocol_for_each_dev(protocol,dev) \
--	for((dev) = protocol_to_pnp_dev((protocol)->devices.next); \
--	(dev) != protocol_to_pnp_dev(&(protocol)->devices); \
--	(dev) = protocol_to_pnp_dev((dev)->protocol_list.next))
-+#define protocol_for_each_card(protocol, card)	\
-+	list_for_each_entry(card, &(protocol)->cards, protocol_list)
-+#define protocol_for_each_dev(protocol, dev)	\
-+	list_for_each_entry(dev, &(protocol)->devices, protocol_list)
- 
- extern struct bus_type pnp_bus_type;
- 
+ 	sqp->ud_header.lrh.virtual_lane    = 0;
+ 	sqp->ud_header.bth.solicited_event = !!(wr->wr.send_flags & IB_SEND_SOLICITED);
+-	ib_get_cached_pkey(ib_dev, sqp->qp.port, 0, &pkey);
++	err = ib_get_cached_pkey(ib_dev, sqp->qp.port, 0, &pkey);
++	if (err)
++		return err;
+ 	sqp->ud_header.bth.pkey = cpu_to_be16(pkey);
+ 	if (sqp->qp.mlx4_ib_qp_type == MLX4_IB_QPT_TUN_SMI_OWNER)
+ 		sqp->ud_header.bth.destination_qpn = cpu_to_be32(wr->remote_qpn);
+@@ -3212,9 +3215,14 @@ static int build_mlx_header(struct mlx4_ib_sqp *sqp, const struct ib_ud_wr *wr,
+ 	}
+ 	sqp->ud_header.bth.solicited_event = !!(wr->wr.send_flags & IB_SEND_SOLICITED);
+ 	if (!sqp->qp.ibqp.qp_num)
+-		ib_get_cached_pkey(ib_dev, sqp->qp.port, sqp->pkey_index, &pkey);
++		err = ib_get_cached_pkey(ib_dev, sqp->qp.port, sqp->pkey_index,
++					 &pkey);
+ 	else
+-		ib_get_cached_pkey(ib_dev, sqp->qp.port, wr->pkey_index, &pkey);
++		err = ib_get_cached_pkey(ib_dev, sqp->qp.port, wr->pkey_index,
++					 &pkey);
++	if (err)
++		return err;
++
+ 	sqp->ud_header.bth.pkey = cpu_to_be16(pkey);
+ 	sqp->ud_header.bth.destination_qpn = cpu_to_be32(wr->remote_qpn);
+ 	sqp->ud_header.bth.psn = cpu_to_be32((sqp->send_psn++) & ((1 << 24) - 1));
+-- 
+2.20.1
+
 
 
