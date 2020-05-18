@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D791D8748
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C6381D8582
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728640AbgERRiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:38:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33214 "EHLO mail.kernel.org"
+        id S1731399AbgERSTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:19:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728635AbgERRiy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:38:54 -0400
+        id S1731342AbgERRyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:54:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ADC020888;
-        Mon, 18 May 2020 17:38:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AB8A2086A;
+        Mon, 18 May 2020 17:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823533;
-        bh=+DhRDDaqz+WFGKxK71hc3s0l/CkV/hBF2GDGz5ad0IE=;
+        s=default; t=1589824482;
+        bh=HzhzUmDKmEhn4BXR+WRZZo9dgSDG/SsJmeYNmu1EgwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IlDusEBOWSG5l6hDtVLQ2rwA+Fl/iZeV540OEznTIpG9xJgDoYbQB2wA2TVKaVOH9
-         jnhyxIxAqCAvzuyqV2DBIc8PbtLLLksEXPo9Wbdut/ZJ9YDvNpU4o78BHY2DOodlyz
-         QcknyRtewI8s5R9Df2dX7uJi0CRMvS6P34V7Dfwg=
+        b=XdfiAXjkR1E0XEamQ94l4o/P/tgro+WJxgKMmQM6aGsEVzNIR5gnsZeq7lb+G+sge
+         m4RanXMgFbYw67sxiBw6UzXg/AoopXJXl8Ylm/+KPfX6MRcRySeYbdKVtiX2UXXST4
+         3KQk3gPmKlQ90P07fBZMndXDkYi8U631TGLjQ9q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.4 21/86] net: ipv6: add net argument to ip6_dst_lookup_flow
+        stable@vger.kernel.org, Luo bin <luobin9@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 029/147] hinic: fix a bug of ndo_stop
 Date:   Mon, 18 May 2020 19:35:52 +0200
-Message-Id: <20200518173454.753308245@linuxfoundation.org>
+Message-Id: <20200518173517.473748026@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,224 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Luo bin <luobin9@huawei.com>
 
-commit c4e85f73afb6384123e5ef1bba3315b2e3ad031e upstream.
+[ Upstream commit e8a1b0efd632d1c9db7d4e93da66377c7b524862 ]
 
-This will be used in the conversion of ipv6_stub to ip6_dst_lookup_flow,
-as some modules currently pass a net argument without a socket to
-ip6_dst_lookup. This is equivalent to commit 343d60aada5a ("ipv6: change
-ipv6_stub_impl.ipv6_dst_lookup to take net argument").
+if some function in ndo_stop interface returns failure because of
+hardware fault, must go on excuting rest steps rather than return
+failure directly, otherwise will cause memory leak.And bump the
+timeout for SET_FUNC_STATE to ensure that cmd won't return failure
+when hw is busy. Otherwise hw may stomp host memory if we free
+memory regardless of the return value of SET_FUNC_STATE.
 
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 4.4: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Fixes: 51ba902a16e6 ("net-next/hinic: Initialize hw interface")
+Signed-off-by: Luo bin <luobin9@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/ipv6.h               |    2 +-
- net/dccp/ipv6.c                  |    6 +++---
- net/ipv6/af_inet6.c              |    2 +-
- net/ipv6/datagram.c              |    2 +-
- net/ipv6/inet6_connection_sock.c |    4 ++--
- net/ipv6/ip6_output.c            |    8 ++++----
- net/ipv6/raw.c                   |    2 +-
- net/ipv6/syncookies.c            |    2 +-
- net/ipv6/tcp_ipv6.c              |    4 ++--
- net/l2tp/l2tp_ip6.c              |    2 +-
- net/sctp/ipv6.c                  |    4 ++--
- 11 files changed, 19 insertions(+), 19 deletions(-)
+ drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c |   16 ++++++++++++----
+ drivers/net/ethernet/huawei/hinic/hinic_main.c    |   18 +++---------------
+ 2 files changed, 15 insertions(+), 19 deletions(-)
 
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -853,7 +853,7 @@ static inline struct sk_buff *ip6_finish
+--- a/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
+@@ -45,6 +45,8 @@
  
- int ip6_dst_lookup(struct net *net, struct sock *sk, struct dst_entry **dst,
- 		   struct flowi6 *fl6);
--struct dst_entry *ip6_dst_lookup_flow(const struct sock *sk, struct flowi6 *fl6,
-+struct dst_entry *ip6_dst_lookup_flow(struct net *net, const struct sock *sk, struct flowi6 *fl6,
- 				      const struct in6_addr *final_dst);
- struct dst_entry *ip6_sk_dst_lookup_flow(struct sock *sk, struct flowi6 *fl6,
- 					 const struct in6_addr *final_dst);
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -209,7 +209,7 @@ static int dccp_v6_send_response(const s
- 	final_p = fl6_update_dst(&fl6, rcu_dereference(np->opt), &final);
- 	rcu_read_unlock();
+ #define MGMT_MSG_TIMEOUT                5000
  
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		dst = NULL;
-@@ -276,7 +276,7 @@ static void dccp_v6_ctl_send_reset(const
- 	security_skb_classify_flow(rxskb, flowi6_to_flowi(&fl6));
++#define SET_FUNC_PORT_MGMT_TIMEOUT	25000
++
+ #define mgmt_to_pfhwdev(pf_mgmt)        \
+ 		container_of(pf_mgmt, struct hinic_pfhwdev, pf_to_mgmt)
  
- 	/* sk = NULL, but it is safe for now. RST socket required. */
--	dst = ip6_dst_lookup_flow(ctl_sk, &fl6, NULL);
-+	dst = ip6_dst_lookup_flow(sock_net(ctl_sk), ctl_sk, &fl6, NULL);
- 	if (!IS_ERR(dst)) {
- 		skb_dst_set(skb, dst);
- 		ip6_xmit(ctl_sk, skb, &fl6, NULL, 0);
-@@ -879,7 +879,7 @@ static int dccp_v6_connect(struct sock *
- 	opt = rcu_dereference_protected(np->opt, sock_owned_by_user(sk));
- 	final_p = fl6_update_dst(&fl6, opt, &final);
- 
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		goto failure;
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -683,7 +683,7 @@ int inet6_sk_rebuild_header(struct sock
- 					 &final);
- 		rcu_read_unlock();
- 
--		dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+		dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 		if (IS_ERR(dst)) {
- 			sk->sk_route_caps = 0;
- 			sk->sk_err_soft = -PTR_ERR(dst);
---- a/net/ipv6/datagram.c
-+++ b/net/ipv6/datagram.c
-@@ -179,7 +179,7 @@ ipv4_connected:
- 	final_p = fl6_update_dst(&fl6, opt, &final);
- 	rcu_read_unlock();
- 
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	err = 0;
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
---- a/net/ipv6/inet6_connection_sock.c
-+++ b/net/ipv6/inet6_connection_sock.c
-@@ -88,7 +88,7 @@ struct dst_entry *inet6_csk_route_req(co
- 	fl6->fl6_sport = htons(ireq->ir_num);
- 	security_req_classify_flow(req, flowi6_to_flowi(fl6));
- 
--	dst = ip6_dst_lookup_flow(sk, fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_p);
- 	if (IS_ERR(dst))
- 		return NULL;
- 
-@@ -142,7 +142,7 @@ static struct dst_entry *inet6_csk_route
- 
- 	dst = __inet6_csk_dst_check(sk, np->dst_cookie);
- 	if (!dst) {
--		dst = ip6_dst_lookup_flow(sk, fl6, final_p);
-+		dst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_p);
- 
- 		if (!IS_ERR(dst))
- 			ip6_dst_store(sk, dst, NULL, NULL);
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1057,13 +1057,13 @@ EXPORT_SYMBOL_GPL(ip6_dst_lookup);
-  *	It returns a valid dst pointer on success, or a pointer encoded
-  *	error code.
-  */
--struct dst_entry *ip6_dst_lookup_flow(const struct sock *sk, struct flowi6 *fl6,
-+struct dst_entry *ip6_dst_lookup_flow(struct net *net, const struct sock *sk, struct flowi6 *fl6,
- 				      const struct in6_addr *final_dst)
+@@ -238,12 +240,13 @@ static int msg_to_mgmt_sync(struct hinic
+ 			    u8 *buf_in, u16 in_size,
+ 			    u8 *buf_out, u16 *out_size,
+ 			    enum mgmt_direction_type direction,
+-			    u16 resp_msg_id)
++			    u16 resp_msg_id, u32 timeout)
  {
- 	struct dst_entry *dst = NULL;
+ 	struct hinic_hwif *hwif = pf_to_mgmt->hwif;
+ 	struct pci_dev *pdev = hwif->pdev;
+ 	struct hinic_recv_msg *recv_msg;
+ 	struct completion *recv_done;
++	unsigned long timeo;
+ 	u16 msg_id;
  	int err;
  
--	err = ip6_dst_lookup_tail(sock_net(sk), sk, &dst, fl6);
-+	err = ip6_dst_lookup_tail(net, sk, &dst, fl6);
- 	if (err)
- 		return ERR_PTR(err);
- 	if (final_dst)
-@@ -1071,7 +1071,7 @@ struct dst_entry *ip6_dst_lookup_flow(co
- 	if (!fl6->flowi6_oif)
- 		fl6->flowi6_oif = l3mdev_fib_oif(dst->dev);
- 
--	return xfrm_lookup_route(sock_net(sk), dst, flowi6_to_flowi(fl6), sk, 0);
-+	return xfrm_lookup_route(net, dst, flowi6_to_flowi(fl6), sk, 0);
- }
- EXPORT_SYMBOL_GPL(ip6_dst_lookup_flow);
- 
-@@ -1096,7 +1096,7 @@ struct dst_entry *ip6_sk_dst_lookup_flow
- 
- 	dst = ip6_sk_dst_check(sk, dst, fl6);
- 	if (!dst)
--		dst = ip6_dst_lookup_flow(sk, fl6, final_dst);
-+		dst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_dst);
- 
- 	return dst;
- }
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -889,7 +889,7 @@ static int rawv6_sendmsg(struct sock *sk
- 	if (hdrincl)
- 		fl6.flowi6_flags |= FLOWI_FLAG_KNOWN_NH;
- 
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		goto out;
---- a/net/ipv6/syncookies.c
-+++ b/net/ipv6/syncookies.c
-@@ -231,7 +231,7 @@ struct sock *cookie_v6_check(struct sock
- 		fl6.fl6_sport = inet_sk(sk)->inet_sport;
- 		security_req_classify_flow(req, flowi6_to_flowi(&fl6));
- 
--		dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+		dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 		if (IS_ERR(dst))
- 			goto out_free;
+@@ -267,8 +270,9 @@ static int msg_to_mgmt_sync(struct hinic
+ 		goto unlock_sync_msg;
  	}
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -245,7 +245,7 @@ static int tcp_v6_connect(struct sock *s
  
- 	security_sk_classify_flow(sk, flowi6_to_flowi(&fl6));
+-	if (!wait_for_completion_timeout(recv_done,
+-					 msecs_to_jiffies(MGMT_MSG_TIMEOUT))) {
++	timeo = msecs_to_jiffies(timeout ? timeout : MGMT_MSG_TIMEOUT);
++
++	if (!wait_for_completion_timeout(recv_done, timeo)) {
+ 		dev_err(&pdev->dev, "MGMT timeout, MSG id = %d\n", msg_id);
+ 		err = -ETIMEDOUT;
+ 		goto unlock_sync_msg;
+@@ -342,6 +346,7 @@ int hinic_msg_to_mgmt(struct hinic_pf_to
+ {
+ 	struct hinic_hwif *hwif = pf_to_mgmt->hwif;
+ 	struct pci_dev *pdev = hwif->pdev;
++	u32 timeout = 0;
  
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		goto failure;
-@@ -831,7 +831,7 @@ static void tcp_v6_send_response(const s
- 	 * Underlying function will use this to retrieve the network
- 	 * namespace
- 	 */
--	dst = ip6_dst_lookup_flow(ctl_sk, &fl6, NULL);
-+	dst = ip6_dst_lookup_flow(sock_net(ctl_sk), ctl_sk, &fl6, NULL);
- 	if (!IS_ERR(dst)) {
- 		skb_dst_set(buff, dst);
- 		ip6_xmit(ctl_sk, buff, &fl6, NULL, tclass);
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -619,7 +619,7 @@ static int l2tp_ip6_sendmsg(struct sock
+ 	if (sync != HINIC_MGMT_MSG_SYNC) {
+ 		dev_err(&pdev->dev, "Invalid MGMT msg type\n");
+@@ -353,9 +358,12 @@ int hinic_msg_to_mgmt(struct hinic_pf_to
+ 		return -EINVAL;
+ 	}
  
- 	security_sk_classify_flow(sk, flowi6_to_flowi(&fl6));
++	if (cmd == HINIC_PORT_CMD_SET_FUNC_STATE)
++		timeout = SET_FUNC_PORT_MGMT_TIMEOUT;
++
+ 	return msg_to_mgmt_sync(pf_to_mgmt, mod, cmd, buf_in, in_size,
+ 				buf_out, out_size, MGMT_DIRECT_SEND,
+-				MSG_NOT_RESP);
++				MSG_NOT_RESP, timeout);
+ }
  
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		goto out;
---- a/net/sctp/ipv6.c
-+++ b/net/sctp/ipv6.c
-@@ -268,7 +268,7 @@ static void sctp_v6_get_dst(struct sctp_
- 	final_p = fl6_update_dst(fl6, rcu_dereference(np->opt), &final);
- 	rcu_read_unlock();
+ /**
+--- a/drivers/net/ethernet/huawei/hinic/hinic_main.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_main.c
+@@ -483,7 +483,6 @@ static int hinic_close(struct net_device
+ {
+ 	struct hinic_dev *nic_dev = netdev_priv(netdev);
+ 	unsigned int flags;
+-	int err;
  
--	dst = ip6_dst_lookup_flow(sk, fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_p);
- 	if (!asoc || saddr) {
- 		t->dst = dst;
- 		memcpy(fl, &_fl, sizeof(_fl));
-@@ -326,7 +326,7 @@ static void sctp_v6_get_dst(struct sctp_
- 		fl6->saddr = laddr->a.v6.sin6_addr;
- 		fl6->fl6_sport = laddr->a.v6.sin6_port;
- 		final_p = fl6_update_dst(fl6, rcu_dereference(np->opt), &final);
--		bdst = ip6_dst_lookup_flow(sk, fl6, final_p);
-+		bdst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_p);
+ 	down(&nic_dev->mgmt_lock);
  
- 		if (IS_ERR(bdst))
- 			continue;
+@@ -497,20 +496,9 @@ static int hinic_close(struct net_device
+ 
+ 	up(&nic_dev->mgmt_lock);
+ 
+-	err = hinic_port_set_func_state(nic_dev, HINIC_FUNC_PORT_DISABLE);
+-	if (err) {
+-		netif_err(nic_dev, drv, netdev,
+-			  "Failed to set func port state\n");
+-		nic_dev->flags |= (flags & HINIC_INTF_UP);
+-		return err;
+-	}
+-
+-	err = hinic_port_set_state(nic_dev, HINIC_PORT_DISABLE);
+-	if (err) {
+-		netif_err(nic_dev, drv, netdev, "Failed to set port state\n");
+-		nic_dev->flags |= (flags & HINIC_INTF_UP);
+-		return err;
+-	}
++	hinic_port_set_state(nic_dev, HINIC_PORT_DISABLE);
++
++	hinic_port_set_func_state(nic_dev, HINIC_FUNC_PORT_DISABLE);
+ 
+ 	if (nic_dev->flags & HINIC_RSS_ENABLE) {
+ 		hinic_rss_deinit(nic_dev);
 
 
