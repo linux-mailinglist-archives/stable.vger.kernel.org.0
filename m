@@ -2,106 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AED41D7105
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 08:31:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17EFC1D71CA
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 09:27:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726392AbgERGaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 02:30:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39130 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726499AbgERGaQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 02:30:16 -0400
-Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70BE1C061A0C
-        for <stable@vger.kernel.org>; Sun, 17 May 2020 23:30:16 -0700 (PDT)
-Received: by mail-oi1-x242.google.com with SMTP id r25so8108820oij.4
-        for <stable@vger.kernel.org>; Sun, 17 May 2020 23:30:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=sHKDXXFmKLefk7ouUJEbUpV3R1SbP7mtwMpt76UA+DA=;
-        b=oOcklF13g5FKv0XdSkU+nIchXKhrMAD2YtKUf53cr/ekI78PeQEwqlwcnGa8/5mFb+
-         i7H/Xf3FRnAjif1CwTTV7+pwmanqQtkY3MOk7AsO+Vfng0g6PI9XCZMXaEfyvsDextzF
-         QM0SJy2oXcoQEKKXnqqz+GdVP2hidVcv3TZVQN2+nqR+SK+b3BCgrrpo7EG6kV1Aw8Ta
-         Y3Qa7O0PztOl4Zprc8Xnq6HcVYSZZQIfT7BiATgHjY/k7pHoD8gGD8jMvkjigYfxsDXU
-         87nDCDaLsNeWgbQRDwa6LB96sDsP2g3o/KjckIca43DoMVZ+DHjFBdmKahGo9QvaAg/C
-         orag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=sHKDXXFmKLefk7ouUJEbUpV3R1SbP7mtwMpt76UA+DA=;
-        b=ogpUanh5ZQ/Cxr+9Vr7+f/yl66NViWJ4kTh7TxthZpdKOfOpHGvet5B3EnXVzH1Db7
-         9861HVNsHzyBaEwImyEEyUJQHGAvG1L0qkW7sObzZ0V1ON1L3loKZOUW+OzRP/MTPQHi
-         PCLNkp0syPyJwbk4nVtIwVkSnEAY9dH8AyyXy/66UzCla8GgtvAon1thA7z7N+ObSqe4
-         CWVZXo6QQ3kzUBlPoq2ENK7lFwII2nF4J79ig5Dc9C91stoon45O8gcU57y1oBy1EY8B
-         mRfpNSUlSNXUXTFbQzBeJsIZD742HfizvOXcENza5mN8wkbQtCUfOchNnOLkxRy1TkNV
-         Bwuw==
-X-Gm-Message-State: AOAM5305+yvw8mDdzEBKYLltezLlggj78zJX8eZyFJmIOcZG4AxlAJXf
-        kJMkwHk5gLdQbdf1Zs5GOytRfHWJxztjZgnrRnI=
-X-Google-Smtp-Source: ABdhPJwBmlZU258md8ZHINcCKtnMjDr7Nk9BiLOtYdv6WhQuQPRi5ZI4w3QKZ/jiNlFTIEKmCAjXb/ex8rxqEkJwVZo=
-X-Received: by 2002:aca:357:: with SMTP id 84mr9914280oid.145.1589783415630;
- Sun, 17 May 2020 23:30:15 -0700 (PDT)
+        id S1726889AbgERH10 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 03:27:26 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:48209 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726676AbgERH1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 03:27:25 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 1ADDB5D7F;
+        Mon, 18 May 2020 03:27:25 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 18 May 2020 03:27:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=WJXvjDve5mEkKZ0I6T2/VmzLncC
+        /OzA1t3Xk0zcb8iA=; b=BvEgbGblcwflKDHANGylbBeWQ3s9eROdA+jupVgz+a3
+        FuGFkjl5+NlVmTMn1Ovnh+S5D6X6ddTv/kJa9S9GCNVW1tE+iBFBEBxhd8OAF3hi
+        yJvrGS6W8XqTSOiAA1KcCH5IAZ++NllkOqfGM51FIW69eiLqJ/dXTkyJIJxnmKcV
+        YpcbZj4WPai0J8Y9A2FAwrCpPt6HP7HnSA/r2f41gKCN0Xs7bBK4JOIdBM9U/BdJ
+        NeJ38jkiJwSzqLwK/Mh2T2CR5xNVoqlbGaPbdp0fBggZSzbNgVpm/e7/uUetn9gz
+        jj6RKj1o1M9anAXR55N5Us682x3uK9TQpwnFSt78dhQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=WJXvjD
+        ve5mEkKZ0I6T2/VmzLncC/OzA1t3Xk0zcb8iA=; b=zOu/FuBHyASLd2rQkDW25L
+        p18CcPpRz8/MsnY+i/ODCVA82tczK0eKq6PQGIqJDltUV5tjaVID7E7STaJGqI2D
+        jUcPkykjuvmOI5sViyvOEbWMCq2ocfmIgTzRYvHayIfCU8h6HrnD1YssqbPwUPzf
+        k/VNy9MYJcQE+wxybQy3cRbFF09ehZxgoHLn/YnEu8d98I8UKGbAqhNCgdk/2KhT
+        gzOmBQaZU4JJAtr2YtGJEEVaLfc0jY2MYe/KfJYyD0bxEonNp50W2JjfGgY6nZfa
+        W7BwAvWb29tHhvolDCWJMFvKshHW5vV8opILkrkaIFyMUtXgC2j5QtTHaoYd7OAw
+        ==
+X-ME-Sender: <xms:3DjCXl0kGURlcrjtkvzerJs9W4iwWG3Cv-SoekJyKxB3nmMnIqSzlA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddtgedgudduiecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
+    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeek
+    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:3DjCXsElEgn0cZZTXyQEo7DViJrRIXYGM_ahm88nDrIIBLeGdt_utg>
+    <xmx:3DjCXl7R8U2SWnepryi24ZB08dVgy42OiyymEF2xYP0y3VgPXBH5Kw>
+    <xmx:3DjCXi0FnD3cc4Vb7KK8W4r4THCBO71MBdAC6Zz3jNT5EHHyGQCQOQ>
+    <xmx:3DjCXsTdlPW9WAwgnIS-4TJRdrCpsrp8EYSoku53ESM863-5QzfhBQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 509693280065;
+        Mon, 18 May 2020 03:27:24 -0400 (EDT)
+Date:   Mon, 18 May 2020 09:27:20 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Giuliano Procida <gprocida@google.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v2 0/4] backport request for use-after-free
+ blk_mq_queue_tag_busy_iter
+Message-ID: <20200518072720.GA3010296@kroah.com>
+References: <CAGvU0Hn2U88Dy2MEP-ZTNvfrWaKF4XL9EtR+4iF5BZ6_GW3Tvg@mail.gmail.com>
+ <20200415130017.244979-1-gprocida@google.com>
 MIME-Version: 1.0
-Received: by 2002:ac9:7bc6:0:0:0:0:0 with HTTP; Sun, 17 May 2020 23:30:15
- -0700 (PDT)
-From:   Hannah Wilson <hannahwilson192@gmail.com>
-Date:   Mon, 18 May 2020 06:30:15 +0000
-X-Google-Sender-Auth: lMxaw5aH_1hmD7CxVrOjYNXdL7M
-Message-ID: <CADHYjy5yWhBS-xq0EhEddJdLsFHrOoqU0SSmvFKGxxouMBhNAA@mail.gmail.com>
-Subject: please i really need your urgent assistance.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200415130017.244979-1-gprocida@google.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello My Dear.
+On Wed, Apr 15, 2020 at 02:00:13PM +0100, Giuliano Procida wrote:
+> v2: Updated commit messages following feedback from gregkh.
+> 
+> Here are the patches for linux-4.4.y.
+> 
+> There are 2 further patches over those for linux-4.9.y and the
+> differences after back-porting are non-trivial.
+> 
+> The code complies without warnings. However, I have no suitable
+> hardware or virtual machine to test this on.
 
-Please do not feel disturbed for contacting =C2=A0you in this regards, It
-was based on the critical health condition I find mine self. =C2=A0My names
- are Mrs. Hannah Wilson David, a widow and I=E2=80=99m suffering from brain
-tumor disease and this illness has gotten to a very bad stage, I
- married my husband for Ten years without any family members and no
-child. =C2=A0My husband died after a brief illness that lasted for few
-days.
+Sorry for the delay, now queued up.
 
-Since the death of my husband, I decided not to remarry again, When my
-late husband was alive he deposited the sum of =C2=A0($  11,450,000.00,
-Nine Million Four Hundred and Fifty Thousand Dollars) with the Bank.
-Presently this money is still in bank. And My  Doctor told me that I
-don't have much time to live because my illness has gotten to a very
-bad stage, Having known my condition I  decided to entrust over the
-deposited fund under your custody to take care of the less-privileged
-ones therein your country or position,
-which i believe that you will utilize this money the way I am going to
-instruct herein.
-
-However all I need and required from you is your sincerity and ability
-to carry out the transaction successfully and fulfill my final wish in
-implementing the charitable project as it requires absolute trust and
-devotion without any failure and I will be glad to see that the bank
-finally release and transfer the fund into your bank account in your
-country even before I die here in the hospital, because my present
-health condition is very critical at the moment everything needs to be
-process rapidly as soon as possible.
-
-It will be my pleasure to compensate you as my Investment
-Manager/Partner with 35 % percent of the total fund for your effort in
- handling the transaction, 5 % percent for any expenses or processing
-charges fee that will involve during this process while 60% of the
-fund will be Invested into the charity project there in your country
-for the mutual benefit of the orphans and the less privileges ones.
-
-Meanwhile I am waiting for your prompt respond, if only you are
-interested for further details of the transaction and execution of
-this  humanitarian project for the glory and honor of God the merciful
-compassionate.
-
-May bless you and your family.
-Regards,
-Mrs. Hannah Wilson David.
-written from Hospital.
+greg k-h
