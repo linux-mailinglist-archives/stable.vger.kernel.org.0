@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A52531D8171
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9267D1D85E3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730312AbgERRsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:48:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48628 "EHLO mail.kernel.org"
+        id S1730727AbgERRuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:50:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730307AbgERRsA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:48:00 -0400
+        id S1730715AbgERRuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:50:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BD0B20715;
-        Mon, 18 May 2020 17:47:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A688F20826;
+        Mon, 18 May 2020 17:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824080;
-        bh=AeFZBRmeTTtLuC6Tx5BC9x0nD9peBw6WD9MVHRwM2IU=;
+        s=default; t=1589824250;
+        bh=zvL4WUKqUr4egYTxLwiT19jrJbcEYPSa8vWOmxhsTdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hwvI5tt5XChSKyMNe7iYcQbvbdOjveV2yqMAPnzrdH6DK/nB3HvhsX9jh3zDTI+/7
-         sABhigvOfymLoxgmyjy0huIvuf+gJ33s0VVLA6W5HBBberh+g6dOjsfzGyBz+Xb1Tj
-         dgGVUGzl+9hxcSUwFp5hAFkV5PHq1jRFxVEwTp08=
+        b=KBz3WnlUPPm+IMrlR5LhELc5h81+ARmHafzQ7mkGP2CoTxFyVjH0GdbAYFrFHGIKN
+         ORUyw+0Tnl6A8CGx10qzzF98As7NbqhHbil5W3+34g0uE+lMws3RpbPS0Z+VJcOE0A
+         FZ5ruk5VDJKanUt/GD2Qsl4kM3sd5i9HKejQXYrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 063/114] ipmi: Fix NULL pointer dereference in ssif_probe
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 17/80] net: dsa: loop: Add module soft dependency
 Date:   Mon, 18 May 2020 19:36:35 +0200
-Message-Id: <20200518173514.489706001@linuxfoundation.org>
+Message-Id: <20200518173453.904987186@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit a8627cda7cfffe1792c199660c2b4f03ba2bd97b ]
+[ Upstream commit 3047211ca11bf77b3ecbce045c0aa544d934b945 ]
 
-There is a potential execution path in which function ssif_info_find()
-returns NULL, hence there is a NULL pointer dereference when accessing
-pointer *addr_info*
+There is a soft dependency against dsa_loop_bdinfo.ko which sets up the
+MDIO device registration, since there are no symbols referenced by
+dsa_loop.ko, there is no automatic loading of dsa_loop_bdinfo.ko which
+is needed.
 
-Fix this by null checking *addr_info* before dereferencing it.
-
-Addresses-Coverity-ID: 1473145 ("Explicit null dereferenced")
-Fixes: e333054a91d1 ("ipmi: Fix I2C client removal in the SSIF driver")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/dsa/dsa_loop.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/char/ipmi/ipmi_ssif.c b/drivers/char/ipmi/ipmi_ssif.c
-index 0146bc3252c5a..cf87bfe971e6b 100644
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -1731,7 +1731,9 @@ static int ssif_probe(struct i2c_client *client, const struct i2c_device_id *id)
+--- a/drivers/net/dsa/dsa_loop.c
++++ b/drivers/net/dsa/dsa_loop.c
+@@ -360,6 +360,7 @@ static void __exit dsa_loop_exit(void)
+ }
+ module_exit(dsa_loop_exit);
  
-  out:
- 	if (rv) {
--		addr_info->client = NULL;
-+		if (addr_info)
-+			addr_info->client = NULL;
-+
- 		dev_err(&client->dev, "Unable to start IPMI SSIF: %d\n", rv);
- 		kfree(ssif_info);
- 	}
--- 
-2.20.1
-
++MODULE_SOFTDEP("pre: dsa_loop_bdinfo");
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Florian Fainelli");
+ MODULE_DESCRIPTION("DSA loopback driver");
 
 
