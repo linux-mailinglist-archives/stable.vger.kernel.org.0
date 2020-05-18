@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85B681D8636
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:24:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 336E61D828B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:57:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730461AbgERSXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:23:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49938 "EHLO mail.kernel.org"
+        id S1731775AbgERR5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:57:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730432AbgERRsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:48:50 -0400
+        id S1731772AbgERR5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:57:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FDE420657;
-        Mon, 18 May 2020 17:48:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 918C4207C4;
+        Mon, 18 May 2020 17:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824129;
-        bh=e/IH5Ce3n1nTIjPjeRM0r54VhiqaeZ3w8gRLmUzzDOM=;
+        s=default; t=1589824640;
+        bh=ASD+fFzp4NJHBwKGUBzfOTPXS0YJQ2vb0CTvZsbplXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+iJaA9795yuG6oin3vPJtPGS2FneYH4y42mu6v3o36mQc44yPkyaDPJyatmI1T9x
-         Bwwao4M4793O4llTN/KNX+Jqda4xhJ/i9Vc6/PGY8xmncReWtrcZtzs4OjLKrXpzo7
-         hvGI+gCltoCyL05E618MiYc69xX5woUhJK5bN36o=
+        b=XFr8zmvopksZ2zjWyO8KlYswoJvOTgGHNpPcIM8Engst8qu/5KnLcrX6ZuPxSh/pJ
+         XvO4yHou6jOI7o3dYnW7WAmYiTwZX7olUG6vdkHTsalYwcOqQzeI0jj4PaGSs+6MGn
+         NEXDqky0Hy1r3XJd+GW66W+J/6muuVR9LThSNTWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 084/114] Revert "ipv6: add mtu lock check in __ip6_rt_update_pmtu"
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 093/147] pnp: Use list_for_each_entry() instead of open coding
 Date:   Mon, 18 May 2020 19:36:56 +0200
-Message-Id: <20200518173517.498171027@linuxfoundation.org>
+Message-Id: <20200518173525.143262436@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,63 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Maciej Żenczykowski" <maze@google.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 09454fd0a4ce23cb3d8af65066c91a1bf27120dd ]
+commit 01b2bafe57b19d9119413f138765ef57990921ce upstream.
 
-This reverts commit 19bda36c4299ce3d7e5bce10bebe01764a655a6d:
+Aside from good practice, this avoids a warning from gcc 10:
 
-| ipv6: add mtu lock check in __ip6_rt_update_pmtu
-|
-| Prior to this patch, ipv6 didn't do mtu lock check in ip6_update_pmtu.
-| It leaded to that mtu lock doesn't really work when receiving the pkt
-| of ICMPV6_PKT_TOOBIG.
-|
-| This patch is to add mtu lock check in __ip6_rt_update_pmtu just as ipv4
-| did in __ip_rt_update_pmtu.
+./include/linux/kernel.h:997:3: warning: array subscript -31 is outside array bounds of ‘struct list_head[1]’ [-Warray-bounds]
+  997 |  ((type *)(__mptr - offsetof(type, member))); })
+      |  ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./include/linux/list.h:493:2: note: in expansion of macro ‘container_of’
+  493 |  container_of(ptr, type, member)
+      |  ^~~~~~~~~~~~
+./include/linux/pnp.h:275:30: note: in expansion of macro ‘list_entry’
+  275 | #define global_to_pnp_dev(n) list_entry(n, struct pnp_dev, global_list)
+      |                              ^~~~~~~~~~
+./include/linux/pnp.h:281:11: note: in expansion of macro ‘global_to_pnp_dev’
+  281 |  (dev) != global_to_pnp_dev(&pnp_global); \
+      |           ^~~~~~~~~~~~~~~~~
+arch/x86/kernel/rtc.c:189:2: note: in expansion of macro ‘pnp_for_each_dev’
+  189 |  pnp_for_each_dev(dev) {
 
-The above reasoning is incorrect.  IPv6 *requires* icmp based pmtu to work.
-There's already a comment to this effect elsewhere in the kernel:
+Because the common code doesn't cast the starting list_head to the
+containing struct.
 
-  $ git grep -p -B1 -A3 'RTAX_MTU lock'
-  net/ipv6/route.c=4813=
-
-  static int rt6_mtu_change_route(struct fib6_info *f6i, void *p_arg)
-  ...
-    /* In IPv6 pmtu discovery is not optional,
-       so that RTAX_MTU lock cannot disable it.
-       We still use this lock to block changes
-       caused by addrconf/ndisc.
-    */
-
-This reverts to the pre-4.9 behaviour.
-
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Cc: Xin Long <lucien.xin@gmail.com>
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Fixes: 19bda36c4299 ("ipv6: add mtu lock check in __ip6_rt_update_pmtu")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+[ rjw: Whitespace adjustments ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/route.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -1479,8 +1479,10 @@ static void __ip6_rt_update_pmtu(struct
- 	const struct in6_addr *daddr, *saddr;
- 	struct rt6_info *rt6 = (struct rt6_info *)dst;
+---
+ include/linux/pnp.h |   29 +++++++++--------------------
+ 1 file changed, 9 insertions(+), 20 deletions(-)
+
+--- a/include/linux/pnp.h
++++ b/include/linux/pnp.h
+@@ -220,10 +220,8 @@ struct pnp_card {
+ #define global_to_pnp_card(n) list_entry(n, struct pnp_card, global_list)
+ #define protocol_to_pnp_card(n) list_entry(n, struct pnp_card, protocol_list)
+ #define to_pnp_card(n) container_of(n, struct pnp_card, dev)
+-#define pnp_for_each_card(card) \
+-	for((card) = global_to_pnp_card(pnp_cards.next); \
+-	(card) != global_to_pnp_card(&pnp_cards); \
+-	(card) = global_to_pnp_card((card)->global_list.next))
++#define pnp_for_each_card(card)	\
++	list_for_each_entry(card, &pnp_cards, global_list)
  
--	if (dst_metric_locked(dst, RTAX_MTU))
--		return;
-+	/* Note: do *NOT* check dst_metric_locked(dst, RTAX_MTU)
-+	 * IPv6 pmtu discovery isn't optional, so 'mtu lock' cannot disable it.
-+	 * [see also comment in rt6_mtu_change_route()]
-+	 */
+ struct pnp_card_link {
+ 	struct pnp_card *card;
+@@ -276,14 +274,9 @@ struct pnp_dev {
+ #define card_to_pnp_dev(n) list_entry(n, struct pnp_dev, card_list)
+ #define protocol_to_pnp_dev(n) list_entry(n, struct pnp_dev, protocol_list)
+ #define	to_pnp_dev(n) container_of(n, struct pnp_dev, dev)
+-#define pnp_for_each_dev(dev) \
+-	for((dev) = global_to_pnp_dev(pnp_global.next); \
+-	(dev) != global_to_pnp_dev(&pnp_global); \
+-	(dev) = global_to_pnp_dev((dev)->global_list.next))
+-#define card_for_each_dev(card,dev) \
+-	for((dev) = card_to_pnp_dev((card)->devices.next); \
+-	(dev) != card_to_pnp_dev(&(card)->devices); \
+-	(dev) = card_to_pnp_dev((dev)->card_list.next))
++#define pnp_for_each_dev(dev) list_for_each_entry(dev, &pnp_global, global_list)
++#define card_for_each_dev(card, dev)	\
++	list_for_each_entry(dev, &(card)->devices, card_list)
+ #define pnp_dev_name(dev) (dev)->name
  
- 	if (iph) {
- 		daddr = &iph->daddr;
+ static inline void *pnp_get_drvdata(struct pnp_dev *pdev)
+@@ -437,14 +430,10 @@ struct pnp_protocol {
+ };
+ 
+ #define to_pnp_protocol(n) list_entry(n, struct pnp_protocol, protocol_list)
+-#define protocol_for_each_card(protocol,card) \
+-	for((card) = protocol_to_pnp_card((protocol)->cards.next); \
+-	(card) != protocol_to_pnp_card(&(protocol)->cards); \
+-	(card) = protocol_to_pnp_card((card)->protocol_list.next))
+-#define protocol_for_each_dev(protocol,dev) \
+-	for((dev) = protocol_to_pnp_dev((protocol)->devices.next); \
+-	(dev) != protocol_to_pnp_dev(&(protocol)->devices); \
+-	(dev) = protocol_to_pnp_dev((dev)->protocol_list.next))
++#define protocol_for_each_card(protocol, card)	\
++	list_for_each_entry(card, &(protocol)->cards, protocol_list)
++#define protocol_for_each_dev(protocol, dev)	\
++	list_for_each_entry(dev, &(protocol)->devices, protocol_list)
+ 
+ extern struct bus_type pnp_bus_type;
+ 
 
 
