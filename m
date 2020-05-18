@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DB21D85B9
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 308DF1D8125
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728622AbgERRwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:52:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55334 "EHLO mail.kernel.org"
+        id S1729916AbgERRpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:45:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730914AbgERRwM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:52:12 -0400
+        id S1728721AbgERRpX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:45:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 572B020715;
-        Mon, 18 May 2020 17:52:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A20420671;
+        Mon, 18 May 2020 17:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824331;
-        bh=mbshnHENIYRB/FCVM459hXbxASVXtHsDAXUwyCDDyBQ=;
+        s=default; t=1589823922;
+        bh=whLZqJ4O2o7JyMgCL/E/IdRRjGMiXMlO2C7ihhGEA5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OziNCjWPuBW+xLloKa62AvDOrj7eClBljeA2uAY0AWs7CXjbwjoVQGslMgL3o17rj
-         /lt7F5Fq+5EBp9AFCYy92QP32xjnZzjM1vrJkYcCBhfdlTeyBPHg9jYZG5RNQHuajc
-         Ef6556VcqTLRA6QANrf0HQgJUxVE9imGh5XYiIc4=
+        b=UPFYx+YrnWwf6/63d1ZqITDIZbVomY8XW9STjmEjUr0HS0N6TjBA5eqQ+QOwztMBh
+         5X7u7hTo9zDsyFXKdhmVv7fGpkuRlG6Ri/eiLcXVylEJpNt7H4hFqZ1TbatJ5fRLoa
+         MdvyscS3fsidCNlo5wj1UlkBTl8NjOBOcNz4khrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 49/80] gcc-10: disable array-bounds warning for now
-Date:   Mon, 18 May 2020 19:37:07 +0200
-Message-Id: <20200518173500.338372416@linuxfoundation.org>
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Thomas Backlund <tmb@mageia.org>
+Subject: [PATCH 4.9 90/90] Makefile: disallow data races on gcc-10 as well
+Date:   Mon, 18 May 2020 19:37:08 +0200
+Message-Id: <20200518173509.336728757@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-commit 44720996e2d79e47d508b0abe99b931a726a3197 upstream.
+commit b1112139a103b4b1101d0d2d72931f2d33d8c978 upstream.
 
-This is another fine warning, related to the 'zero-length-bounds' one,
-but hitting the same historical code in the kernel.
+gcc-10 will rename --param=allow-store-data-races=0
+to -fno-allow-store-data-races.
 
-Because C didn't historically support flexible array members, we have
-code that instead uses a one-sized array, the same way we have cases of
-zero-sized arrays.
+The flag change happened at https://gcc.gnu.org/PR92046.
 
-The one-sized arrays come from either not wanting to use the gcc
-zero-sized array extension, or from a slight convenience-feature, where
-particularly for strings, the size of the structure now includes the
-allocation for the final NUL character.
-
-So with a "char name[1];" at the end of a structure, you can do things
-like
-
-       v = my_malloc(sizeof(struct vendor) + strlen(name));
-
-and avoid the "+1" for the terminator.
-
-Yes, the modern way to do that is with a flexible array, and using
-'offsetof()' instead of 'sizeof()', and adding the "+1" by hand.  That
-also technically gets the size "more correct" in that it avoids any
-alignment (and thus padding) issues, but this is another long-term
-cleanup thing that will not happen for 5.7.
-
-So disable the warning for now, even though it's potentially quite
-useful.  Having a slew of warnings that then hide more urgent new issues
-is not an improvement.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Acked-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Thomas Backlund <tmb@mageia.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
@@ -85,13 +66,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/Makefile
 +++ b/Makefile
-@@ -794,6 +794,7 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+@@ -665,6 +665,7 @@ endif
  
- # We'll want to enable this eventually, but it's not going away for 5.7 at least
- KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
-+KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
+ # Tell gcc to never replace conditional load with a non-conditional one
+ KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
++KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
  
- # Enabled with W=2, disabled by default as noisy
- KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
+ # check for 'asm goto'
+ ifeq ($(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-goto.sh $(CC) $(KBUILD_CFLAGS)), y)
 
 
