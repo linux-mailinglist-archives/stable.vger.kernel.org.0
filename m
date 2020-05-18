@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A40BA1D854D
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:18:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B191D8349
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731529AbgERR4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:56:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33648 "EHLO mail.kernel.org"
+        id S1732653AbgERSDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:03:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731571AbgERR4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:56:00 -0400
+        id S1732163AbgERSD2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:03:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AC8620715;
-        Mon, 18 May 2020 17:55:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 859E5207F5;
+        Mon, 18 May 2020 18:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824559;
-        bh=oiO+oGYe2TO77I0bRdx6WRJGyV4o5hYZ87yzWZ/FEvQ=;
+        s=default; t=1589825008;
+        bh=Svaos6vxxlnOv44Wz/7DLBgu5pGY5TzjWg76st8tLXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbobwBJkni2iyna+ZK64Gp+x4W3bZYao2sSItBEyPeVq4YqJ7mVsM7fdByf7/Flui
-         3ECBz4/KWuA09i8vp2XtYicKjhTnrlMv8kRBdodKRIjde0Va9LU8nsBROPlccJjaqp
-         LcLh4qYhxU4hXvebbHaHzSKQxxztvFk+J+U+w7SY=
+        b=Qcbmq/77cF5I0BRMnb+dhW+rM2fL7ttguHynhrjSKARvrmOFu4v4hysBmVtTiXF81
+         qQ+bxyIjTrfrQTFg6Zga0YcbsVurLhdXqwUhWxFB1j6YdhFfyGbkGgnOUoPTnivoOg
+         R/iG6Jo1s48JdxYMcKyjAC4aBQcfY5nVPQ6hOuG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 060/147] bpf: Fix error return code in map_lookup_and_delete_elem()
+Subject: [PATCH 5.6 093/194] mmc: block: Fix request completion in the CQE timeout path
 Date:   Mon, 18 May 2020 19:36:23 +0200
-Message-Id: <20200518173521.476624061@linuxfoundation.org>
+Message-Id: <20200518173539.889443507@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 7f645462ca01d01abb94d75e6768c8b3ed3a188b ]
+[ Upstream commit c077dc5e0620508a29497dac63a2822324ece52a ]
 
-Fix to return negative error code -EFAULT from the copy_to_user() error
-handling case instead of 0, as done elsewhere in this function.
+First, it should be noted that the CQE timeout (60 seconds) is substantial
+so a CQE request that times out is really stuck, and the race between
+timeout and completion is extremely unlikely. Nevertheless this patch
+fixes an issue with it.
 
-Fixes: bd513cd08f10 ("bpf: add MAP_LOOKUP_AND_DELETE_ELEM syscall")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20200430081851.166996-1-weiyongjun1@huawei.com
+Commit ad73d6feadbd7b ("mmc: complete requests from ->timeout")
+preserved the existing functionality, to complete the request.
+However that had only been necessary because the block layer
+timeout handler had been marking the request to prevent it from being
+completed normally. That restriction was removed at the same time, the
+result being that a request that has gone will have been completed anyway.
+That is, the completion was unnecessary.
+
+At the time, the unnecessary completion was harmless because the block
+layer would ignore it, although that changed in kernel v5.0.
+
+Note for stable, this patch will not apply cleanly without patch "mmc:
+core: Fix recursive locking issue in CQE recovery path"
+
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: ad73d6feadbd7b ("mmc: complete requests from ->timeout")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200508062227.23144-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/syscall.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mmc/core/queue.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 14f4a76b44d5f..946cfdd3b2cc2 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -1146,8 +1146,10 @@ static int map_lookup_and_delete_elem(union bpf_attr *attr)
- 	if (err)
- 		goto free_value;
- 
--	if (copy_to_user(uvalue, value, value_size) != 0)
-+	if (copy_to_user(uvalue, value, value_size) != 0) {
-+		err = -EFAULT;
- 		goto free_value;
-+	}
- 
- 	err = 0;
- 
+diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+index 4d1e468d39823..9c0ccb3744c28 100644
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -110,8 +110,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
+ 				mmc_cqe_recovery_notifier(mrq);
+ 			return BLK_EH_RESET_TIMER;
+ 		}
+-		/* No timeout (XXX: huh? comment doesn't make much sense) */
+-		blk_mq_complete_request(req);
++		/* The request has gone already */
+ 		return BLK_EH_DONE;
+ 	default:
+ 		/* Timeout is handled by mmc core */
 -- 
 2.20.1
 
