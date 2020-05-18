@@ -2,113 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 451871D8A16
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 23:37:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 790811D8B16
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 00:40:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728083AbgERVhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 17:37:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47048 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726250AbgERVhi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 17:37:38 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE81B205CB;
-        Mon, 18 May 2020 21:37:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589837858;
-        bh=Yr57iNU/6PqAGt9zXiupJG/Q44homhWpqBPRGpCJtYQ=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=CgLFBQg/p5JZ+xBcZKv2g+7hwlBRCuMy5XEnsoT6rGFV7DMiT/yT8lFxjhakGPv0+
-         UrG5N8bkumw4LxUY4Nq2OQzRYlKunQmRYcamuWv0dDOc+9G2f93kdPUuTWI7YE1f2o
-         pcRFBBdjqNZO9bMQ7kz4QWnbf4xtxzuI1y5nlpMo=
-Date:   Mon, 18 May 2020 14:37:37 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, alex.bou9@gmail.com,
-        dan.carpenter@oracle.com, jhubbard@nvidia.com,
-        mm-commits@vger.kernel.org, mporter@kernel.crashing.org,
-        stable@vger.kernel.org, sumit.semwal@linaro.org
-Subject:  +
- rapidio-fix-an-error-in-get_user_pages_fast-error-handling.patch added to
- -mm tree
-Message-ID: <20200518213737.wQv6yFzC8%akpm@linux-foundation.org>
-In-Reply-To: <20200513175005.1f4839360c18c0238df292d1@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1727900AbgERWkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 18:40:32 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:47395 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727831AbgERWkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 18:40:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589841630;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Zk6i9dtggpOFkaugjj5c+MXBxvEu5wGUbXo96pP70JY=;
+        b=RDlcq7jFqxo7yKmyGOWm4jGSX3UuYOQpdKML5cCJEh1NdSMzVhSMsUlUauB93wwLRhJL7G
+        0Qxe3bFIysSPvknAnaYK9rIGjh9v5PeytYae2slH2mCSrnhTDagUSZ78yj2Lr4LyA9WvER
+        GGiAd9Om/CWGFpNQ51UhwrJ11WEXnTU=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-442-i9Xn6am6MOymflsaxzkgmw-1; Mon, 18 May 2020 18:40:29 -0400
+X-MC-Unique: i9Xn6am6MOymflsaxzkgmw-1
+Received: by mail-wr1-f70.google.com with SMTP id p13so5162380wrt.1
+        for <stable@vger.kernel.org>; Mon, 18 May 2020 15:40:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Zk6i9dtggpOFkaugjj5c+MXBxvEu5wGUbXo96pP70JY=;
+        b=HNY0dZOlac1as1AtSUN+Zo+1dtbolJgTpoWOd6b2yX7pjxLZzisNtaIP52376sqEDa
+         E2KB6/xPwWA97ns6qK0Blv2ZB+wYEXIjbpC8x+JpRGKKAMsu9yfuVvM5AvJqKmIRk4P9
+         6DEYSoVGFI8wfw3TLii4vZkKBe05/2V0dwGg60g+nY745fGJdftaCTp9U2JkrE1nA+Ht
+         VmBu0pKL516ziPv5PMe2Ts7HLhU85kQAA/XCDdca1o1YBaKlKjzUxQxXTtpWkFyWn6a7
+         eVbbmCnFs7Bp7JGdxzV+0EShmNbuEbgBCswzX0VPDPyybnsq26KYqg8k16WH2goPaLsZ
+         DDLQ==
+X-Gm-Message-State: AOAM532vN4dC9Mmzqmn6IUODh+L8bAYynYe9rko3VxEQpLXDBxMWlJLj
+        6AgYhaTFwOwrHVzYG12Tkn+RzMcrCl9wE70CmqzSqDbOq8hWzaVhLyospr7vzyN/vIPT2k2S8YM
+        dB7rYl7xqTnJ08jZq
+X-Received: by 2002:a1c:541e:: with SMTP id i30mr1672178wmb.120.1589841627822;
+        Mon, 18 May 2020 15:40:27 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxQY8kAtkTYp0bwDBDlqhZOjSveAZMvd9tWu4uC7M+9koEfu2GVNcldVgZco9vgHy07saywwg==
+X-Received: by 2002:a1c:541e:: with SMTP id i30mr1672157wmb.120.1589841627542;
+        Mon, 18 May 2020 15:40:27 -0700 (PDT)
+Received: from [192.168.10.150] ([93.56.170.5])
+        by smtp.gmail.com with ESMTPSA id w82sm1264494wmg.28.2020.05.18.15.40.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 May 2020 15:40:26 -0700 (PDT)
+Subject: Re: [PATCH] KVM: x86: respect singlestep when emulating instruction
+To:     Felipe Franciosi <felipe@nutanix.com>
+Cc:     kvm@vger.kernel.org, stable@vger.kernel.org
+References: <20200518213620.2216-1-felipe@nutanix.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <babce5c7-16d6-7f46-1fd2-21b4b9bac83c@redhat.com>
+Date:   Tue, 19 May 2020 00:38:17 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
+MIME-Version: 1.0
+In-Reply-To: <20200518213620.2216-1-felipe@nutanix.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 18/05/20 23:36, Felipe Franciosi wrote:
+>  		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
+>  			kvm_rip_write(vcpu, ctxt->eip);
+> -			if (r && ctxt->tf)
+> +			if ((r && ctxt->tf) || (vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP))
+>  				r = kvm_vcpu_do_singlestep(vcpu);
 
-The patch titled
-     Subject: rapidio: fix an error in get_user_pages_fast() error handling
-has been added to the -mm tree.  Its filename is
-     rapidio-fix-an-error-in-get_user_pages_fast-error-handling.patch
+Almost:
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/rapidio-fix-an-error-in-get_user_pages_fast-error-handling.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/rapidio-fix-an-error-in-get_user_pages_fast-error-handling.patch
+	if (r && (ctxt->tf || (vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP))
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+This is because if r == 0 you have to exit to userspace with KVM_EXIT_MMIO
+and KVM_EXIT_IO before completing execution of the instruction.  Once
+this is done, you'll get here again and you'll be able to go through
+kvm_vcpu_do_singlestep.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Thanks,
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: rapidio: fix an error in get_user_pages_fast() error handling
-
-In the case of get_user_pages_fast() returning fewer pages than requested,
-rio_dma_transfer() does not quite do the right thing.  It attempts to
-release all the pages that were requested, rather than just the pages that
-were pinned.
-
-Fix the error handling so that only the pages that were successfully
-pinned are released.
-
-Link: http://lkml.kernel.org/r/20200517235620.205225-2-jhubbard@nvidia.com
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- drivers/rapidio/devices/rio_mport_cdev.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
---- a/drivers/rapidio/devices/rio_mport_cdev.c~rapidio-fix-an-error-in-get_user_pages_fast-error-handling
-+++ a/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -877,6 +877,11 @@ rio_dma_transfer(struct file *filp, u32
- 				rmcd_error("pinned %ld out of %ld pages",
- 					   pinned, nr_pages);
- 			ret = -EFAULT;
-+			/*
-+			 * Set nr_pages up to mean "how many pages to unpin, in
-+			 * the error handler:
-+			 */
-+			nr_pages = pinned;
- 			goto err_pg;
- 		}
- 
-_
-
-Patches currently in -mm which might be from jhubbard@nvidia.com are
-
-rapidio-fix-an-error-in-get_user_pages_fast-error-handling.patch
-mm-gup-introduce-pin_user_pages_unlocked.patch
-ivtv-convert-get_user_pages-pin_user_pages.patch
-rapidio-convert-get_user_pages-pin_user_pages.patch
+Paolo
 
