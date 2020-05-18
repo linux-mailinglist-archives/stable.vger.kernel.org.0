@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3B51D8689
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB74B1D86C5
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731565AbgERSYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:24:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47898 "EHLO mail.kernel.org"
+        id S1729103AbgERRni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:43:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729735AbgERRrd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:47:33 -0400
+        id S1729604AbgERRng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:43:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2F7120657;
-        Mon, 18 May 2020 17:47:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89B0920849;
+        Mon, 18 May 2020 17:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824053;
-        bh=RyauCsxiWR6yHzEGhM4ClHB52t/cCsIR3Yac2foI/cg=;
+        s=default; t=1589823816;
+        bh=bd0Z/Xy/yKAVxb3vsoj/gDqfJK1l6k8boULgRIH4QG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xteQisGzKJBmkTtDV/1hbvA2KI+DuoD0AW8nd64xHk0c94tB8pqNpPY51Xa8ULXxJ
-         E8yrzdTIQ5tU/a4yvbd7n7g/7batB2BGCGgUtHJdPx9xV0SsHH9SZ8OwbW0QKhluHk
-         WIn6BMHZZzcq02CdSx4RY3n+WO3Y+7r2kNx3/tlw=
+        b=nYJpCFq8td3QcVED04wANDOAPeMp9DR1cnVrxXF3/Zf8iHMbDWt5NzTWtPNnf4cir
+         8CoQK3TPidP6uWrneEMn5V/jIV7nYqgBV+DdchRVwCXluAYyA7bfbhNsPTyW0XTbzz
+         bC1rIwU/ONVxCZwq3KnbxLjnvT3ES+9KI7v5UpCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lance Digby <ldigby@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
+        stable@vger.kernel.org, Samuel Cabrero <scabrero@suse.de>,
+        =?UTF-8?q?Aur=C3=A9lien=20Aptel?= <aaptel@suse.de>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <smfrench@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 053/114] virtio-blk: handle block_device_operations callbacks after hot unplug
+Subject: [PATCH 4.9 47/90] cifs: Check for timeout on Negotiate stage
 Date:   Mon, 18 May 2020 19:36:25 +0200
-Message-Id: <20200518173512.887764736@linuxfoundation.org>
+Message-Id: <20200518173500.787954575@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,215 +46,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Hajnoczi <stefanha@redhat.com>
+From: Samuel Cabrero <scabrero@suse.de>
 
-[ Upstream commit 90b5feb8c4bebc76c27fcaf3e1a0e5ca2d319e9e ]
+[ Upstream commit 76e752701a8af4404bbd9c45723f7cbd6e4a251e ]
 
-A userspace process holding a file descriptor to a virtio_blk device can
-still invoke block_device_operations after hot unplug.  This leads to a
-use-after-free accessing vblk->vdev in virtblk_getgeo() when
-ioctl(HDIO_GETGEO) is invoked:
+Some servers seem to accept connections while booting but never send
+the SMBNegotiate response neither close the connection, causing all
+processes accessing the share hang on uninterruptible sleep state.
 
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000090
-  IP: [<ffffffffc00e5450>] virtio_check_driver_offered_feature+0x10/0x90 [virtio]
-  PGD 800000003a92f067 PUD 3a930067 PMD 0
-  Oops: 0000 [#1] SMP
-  CPU: 0 PID: 1310 Comm: hdio-getgeo Tainted: G           OE  ------------   3.10.0-1062.el7.x86_64 #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-  task: ffff9be5fbfb8000 ti: ffff9be5fa890000 task.ti: ffff9be5fa890000
-  RIP: 0010:[<ffffffffc00e5450>]  [<ffffffffc00e5450>] virtio_check_driver_offered_feature+0x10/0x90 [virtio]
-  RSP: 0018:ffff9be5fa893dc8  EFLAGS: 00010246
-  RAX: ffff9be5fc3f3400 RBX: ffff9be5fa893e30 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffff9be5fbc10b40
-  RBP: ffff9be5fa893dc8 R08: 0000000000000301 R09: 0000000000000301
-  R10: 0000000000000000 R11: 0000000000000000 R12: ffff9be5fdc24680
-  R13: ffff9be5fbc10b40 R14: ffff9be5fbc10480 R15: 0000000000000000
-  FS:  00007f1bfb968740(0000) GS:ffff9be5ffc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000090 CR3: 000000003a894000 CR4: 0000000000360ff0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   [<ffffffffc016ac37>] virtblk_getgeo+0x47/0x110 [virtio_blk]
-   [<ffffffff8d3f200d>] ? handle_mm_fault+0x39d/0x9b0
-   [<ffffffff8d561265>] blkdev_ioctl+0x1f5/0xa20
-   [<ffffffff8d488771>] block_ioctl+0x41/0x50
-   [<ffffffff8d45d9e0>] do_vfs_ioctl+0x3a0/0x5a0
-   [<ffffffff8d45dc81>] SyS_ioctl+0xa1/0xc0
+This happens when the cifs_demultiplex_thread detects the server is
+unresponsive so releases the socket and start trying to reconnect.
+At some point, the faulty server will accept the socket and the TCP
+status will be set to NeedNegotiate. The first issued command accessing
+the share will start the negotiation (pid 5828 below), but the response
+will never arrive so other commands will be blocked waiting on the mutex
+(pid 55352).
 
-A related problem is that virtblk_remove() leaks the vd_index_ida index
-when something still holds a reference to vblk->disk during hot unplug.
-This causes virtio-blk device names to be lost (vda, vdb, etc).
+This patch checks for unresponsive servers also on the negotiate stage
+releasing the socket and reconnecting if the response is not received
+and checking again the tcp state when the mutex is acquired.
 
-Fix these issues by protecting vblk->vdev with a mutex and reference
-counting vblk so the vd_index_ida index can be removed in all cases.
+PID: 55352  TASK: ffff880fd6cc02c0  CPU: 0   COMMAND: "ls"
+ #0 [ffff880fd9add9f0] schedule at ffffffff81467eb9
+ #1 [ffff880fd9addb38] __mutex_lock_slowpath at ffffffff81468fe0
+ #2 [ffff880fd9addba8] mutex_lock at ffffffff81468b1a
+ #3 [ffff880fd9addbc0] cifs_reconnect_tcon at ffffffffa042f905 [cifs]
+ #4 [ffff880fd9addc60] smb_init at ffffffffa042faeb [cifs]
+ #5 [ffff880fd9addca0] CIFSSMBQPathInfo at ffffffffa04360b5 [cifs]
+ ....
 
-Fixes: 48e4043d4529 ("virtio: add virtio disk geometry feature")
-Reported-by: Lance Digby <ldigby@redhat.com>
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
-Link: https://lore.kernel.org/r/20200430140442.171016-1-stefanha@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Which is waiting a mutex owned by:
+
+PID: 5828   TASK: ffff880fcc55e400  CPU: 0   COMMAND: "xxxx"
+ #0 [ffff880fbfdc19b8] schedule at ffffffff81467eb9
+ #1 [ffff880fbfdc1b00] wait_for_response at ffffffffa044f96d [cifs]
+ #2 [ffff880fbfdc1b60] SendReceive at ffffffffa04505ce [cifs]
+ #3 [ffff880fbfdc1bb0] CIFSSMBNegotiate at ffffffffa0438d79 [cifs]
+ #4 [ffff880fbfdc1c50] cifs_negotiate_protocol at ffffffffa043b383 [cifs]
+ #5 [ffff880fbfdc1c80] cifs_reconnect_tcon at ffffffffa042f911 [cifs]
+ #6 [ffff880fbfdc1d20] smb_init at ffffffffa042faeb [cifs]
+ #7 [ffff880fbfdc1d60] CIFSSMBQFSInfo at ffffffffa0434eb0 [cifs]
+ ....
+
+Signed-off-by: Samuel Cabrero <scabrero@suse.de>
+Reviewed-by: Aurélien Aptel <aaptel@suse.de>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <smfrench@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/virtio_blk.c | 86 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 78 insertions(+), 8 deletions(-)
+ fs/cifs/cifssmb.c | 12 ++++++++++++
+ fs/cifs/connect.c |  3 ++-
+ fs/cifs/smb2pdu.c | 12 ++++++++++++
+ 3 files changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 19d226ff15ef8..0e18eed62c575 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -31,6 +31,15 @@ struct virtio_blk_vq {
- } ____cacheline_aligned_in_smp;
- 
- struct virtio_blk {
+diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
+index 741b83c59a306..568abcd6d0dd3 100644
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -184,6 +184,18 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
+ 	 * reconnect the same SMB session
+ 	 */
+ 	mutex_lock(&ses->session_mutex);
++
 +	/*
-+	 * This mutex must be held by anything that may run after
-+	 * virtblk_remove() sets vblk->vdev to NULL.
-+	 *
-+	 * blk-mq, virtqueue processing, and sysfs attribute code paths are
-+	 * shut down before vblk->vdev is set to NULL and therefore do not need
-+	 * to hold this mutex.
++	 * Recheck after acquire mutex. If another thread is negotiating
++	 * and the server never sends an answer the socket will be closed
++	 * and tcpStatus set to reconnect.
 +	 */
-+	struct mutex vdev_mutex;
- 	struct virtio_device *vdev;
- 
- 	/* The disk structure for the kernel. */
-@@ -42,6 +51,13 @@ struct virtio_blk {
- 	/* Process context for config space updates */
- 	struct work_struct config_work;
- 
-+	/*
-+	 * Tracks references from block_device_operations open/release and
-+	 * virtio_driver probe/remove so this object can be freed once no
-+	 * longer in use.
-+	 */
-+	refcount_t refs;
-+
- 	/* What host tells us, plus 2 for header & tailer. */
- 	unsigned int sg_elems;
- 
-@@ -315,10 +331,55 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
- 	return err;
- }
- 
-+static void virtblk_get(struct virtio_blk *vblk)
-+{
-+	refcount_inc(&vblk->refs);
-+}
-+
-+static void virtblk_put(struct virtio_blk *vblk)
-+{
-+	if (refcount_dec_and_test(&vblk->refs)) {
-+		ida_simple_remove(&vd_index_ida, vblk->index);
-+		mutex_destroy(&vblk->vdev_mutex);
-+		kfree(vblk);
-+	}
-+}
-+
-+static int virtblk_open(struct block_device *bd, fmode_t mode)
-+{
-+	struct virtio_blk *vblk = bd->bd_disk->private_data;
-+	int ret = 0;
-+
-+	mutex_lock(&vblk->vdev_mutex);
-+
-+	if (vblk->vdev)
-+		virtblk_get(vblk);
-+	else
-+		ret = -ENXIO;
-+
-+	mutex_unlock(&vblk->vdev_mutex);
-+	return ret;
-+}
-+
-+static void virtblk_release(struct gendisk *disk, fmode_t mode)
-+{
-+	struct virtio_blk *vblk = disk->private_data;
-+
-+	virtblk_put(vblk);
-+}
-+
- /* We provide getgeo only to please some old bootloader/partitioning tools */
- static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
- {
- 	struct virtio_blk *vblk = bd->bd_disk->private_data;
-+	int ret = 0;
-+
-+	mutex_lock(&vblk->vdev_mutex);
-+
-+	if (!vblk->vdev) {
-+		ret = -ENXIO;
++	if (server->tcpStatus == CifsNeedReconnect) {
++		rc = -EHOSTDOWN;
++		mutex_unlock(&ses->session_mutex);
 +		goto out;
 +	}
- 
- 	/* see if the host passed in geometry config */
- 	if (virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_GEOMETRY)) {
-@@ -334,12 +395,16 @@ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
- 		geo->sectors = 1 << 5;
- 		geo->cylinders = get_capacity(bd->bd_disk) >> 11;
- 	}
--	return 0;
-+out:
-+	mutex_unlock(&vblk->vdev_mutex);
-+	return ret;
- }
- 
- static const struct block_device_operations virtblk_fops = {
- 	.ioctl  = virtblk_ioctl,
- 	.owner  = THIS_MODULE,
-+	.open = virtblk_open,
-+	.release = virtblk_release,
- 	.getgeo = virtblk_getgeo,
- };
- 
-@@ -659,6 +724,10 @@ static int virtblk_probe(struct virtio_device *vdev)
- 		goto out_free_index;
- 	}
- 
-+	/* This reference is dropped in virtblk_remove(). */
-+	refcount_set(&vblk->refs, 1);
-+	mutex_init(&vblk->vdev_mutex);
 +
- 	vblk->vdev = vdev;
- 	vblk->sg_elems = sg_elems;
- 
-@@ -821,8 +890,6 @@ static int virtblk_probe(struct virtio_device *vdev)
- static void virtblk_remove(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
--	int index = vblk->index;
--	int refc;
- 
- 	/* Make sure no work handler is accessing the device. */
- 	flush_work(&vblk->config_work);
-@@ -832,18 +899,21 @@ static void virtblk_remove(struct virtio_device *vdev)
- 
- 	blk_mq_free_tag_set(&vblk->tag_set);
- 
-+	mutex_lock(&vblk->vdev_mutex);
+ 	rc = cifs_negotiate_protocol(0, ses);
+ 	if (rc == 0 && ses->need_reconnect)
+ 		rc = cifs_setup_session(0, ses, nls_codepage);
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index c018d161735c4..37c8cac86431f 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -561,7 +561,8 @@ server_unresponsive(struct TCP_Server_Info *server)
+ 	 * 65s kernel_recvmsg times out, and we see that we haven't gotten
+ 	 *     a response in >60s.
+ 	 */
+-	if (server->tcpStatus == CifsGood &&
++	if ((server->tcpStatus == CifsGood ||
++	    server->tcpStatus == CifsNeedNegotiate) &&
+ 	    time_after(jiffies, server->lstrp + 2 * server->echo_interval)) {
+ 		cifs_dbg(VFS, "Server %s has not responded in %lu seconds. Reconnecting...\n",
+ 			 server->hostname, (2 * server->echo_interval) / HZ);
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index e8dc28dbe563e..0a23b6002ff12 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -246,6 +246,18 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon)
+ 	 * the same SMB session
+ 	 */
+ 	mutex_lock(&tcon->ses->session_mutex);
 +
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
- 
--	refc = kref_read(&disk_to_dev(vblk->disk)->kobj.kref);
-+	/* Virtqueues are stopped, nothing can use vblk->vdev anymore. */
-+	vblk->vdev = NULL;
++	/*
++	 * Recheck after acquire mutex. If another thread is negotiating
++	 * and the server never sends an answer the socket will be closed
++	 * and tcpStatus set to reconnect.
++	 */
++	if (server->tcpStatus == CifsNeedReconnect) {
++		rc = -EHOSTDOWN;
++		mutex_unlock(&tcon->ses->session_mutex);
++		goto out;
++	}
 +
- 	put_disk(vblk->disk);
- 	vdev->config->del_vqs(vdev);
- 	kfree(vblk->vqs);
--	kfree(vblk);
- 
--	/* Only free device id if we don't have any users */
--	if (refc == 1)
--		ida_simple_remove(&vd_index_ida, index);
-+	mutex_unlock(&vblk->vdev_mutex);
-+
-+	virtblk_put(vblk);
- }
- 
- #ifdef CONFIG_PM_SLEEP
+ 	rc = cifs_negotiate_protocol(0, tcon->ses);
+ 	if (!rc && tcon->ses->need_reconnect) {
+ 		rc = cifs_setup_session(0, tcon->ses, nls_codepage);
 -- 
 2.20.1
 
