@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EBF91D867B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAAE91D8473
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730108AbgERRqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:46:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46292 "EHLO mail.kernel.org"
+        id S1732555AbgERSCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:02:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730106AbgERRqe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:46:34 -0400
+        id S1732531AbgERSCh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:02:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D80F020674;
-        Mon, 18 May 2020 17:46:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AF372168B;
+        Mon, 18 May 2020 18:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823994;
-        bh=iy6j6swCAlxULuDgUtgeKn5KstcIEQebZnwQDhfl8WI=;
+        s=default; t=1589824956;
+        bh=HkR9eIszkiD1ualvNk8GTE0CLQxQ7QDWTDtJRxTZNl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=INT/17+2/S0vox9bMpaamhCuSvHXvC62n1gz35GHdUt2Uu843A/X8NdzHvpaIZLB8
-         QeR3uHp8JQ1wO6vkL1X7VL5Gq/n80bjHRQh6N0QTJ+k827fOYCgZYW2uzpFbA8cpcU
-         ulWFiuSovOw2rjbJqs4ZnHC/04Y20CnRM7uRhzYM=
+        b=dtrWqtK/zvcz27wZjY8CWcg3wHbzV95UTo98n63CTuAafF6tGWVioHD+BxhKP/e+G
+         kjX8KPgcyEEuH08cC4QjC75/bEAuSYs+bYX6jstLKgUqCp+GbqVT7ZtqBGv5z6tac1
+         bXOUvKtuzDteh3CAAT4DLl2GcOOjBmt/JXh0mRvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.14 028/114] batman-adv: Fix refcnt leak in batadv_v_ogm_process
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 070/194] ALSA: hda/realtek - Fix S3 pop noise on Dell Wyse
 Date:   Mon, 18 May 2020 19:36:00 +0200
-Message-Id: <20200518173508.820137597@linuxfoundation.org>
+Message-Id: <20200518173537.596244733@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 6f91a3f7af4186099dd10fa530dd7e0d9c29747d upstream.
+[ Upstream commit 52e4e36807aeac1cdd07b14e509c8a64101e1a09 ]
 
-batadv_v_ogm_process() invokes batadv_hardif_neigh_get(), which returns
-a reference of the neighbor object to "hardif_neigh" with increased
-refcount.
+Commit 317d9313925c ("ALSA: hda/realtek - Set default power save node to
+0") makes the ALC225 have pop noise on S3 resume and cold boot.
 
-When batadv_v_ogm_process() returns, "hardif_neigh" becomes invalid, so
-the refcount should be decreased to keep refcount balanced.
+The previous fix enable power save node universally for ALC225, however
+it makes some ALC225 systems unable to produce any sound.
 
-The reference counting issue happens in one exception handling paths of
-batadv_v_ogm_process(). When batadv_v_ogm_orig_get() fails to get the
-orig node and returns NULL, the refcnt increased by
-batadv_hardif_neigh_get() is not decreased, causing a refcnt leak.
+So let's only enable power save node for the affected Dell Wyse
+platform.
 
-Fix this issue by jumping to "out" label when batadv_v_ogm_orig_get()
-fails to get the orig node.
-
-Fixes: 9323158ef9f4 ("batman-adv: OGMv2 - implement originators logic")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 317d9313925c ("ALSA: hda/realtek - Set default power save node to 0")
+BugLink: https://bugs.launchpad.net/bugs/1866357
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200503152449.22761-2-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_v_ogm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/net/batman-adv/bat_v_ogm.c
-+++ b/net/batman-adv/bat_v_ogm.c
-@@ -734,7 +734,7 @@ static void batadv_v_ogm_process(const s
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index da4863d7f7f24..611498270c5e6 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5743,6 +5743,15 @@ static void alc233_alc662_fixup_lenovo_dual_codecs(struct hda_codec *codec,
+ 	}
+ }
  
- 	orig_node = batadv_v_ogm_orig_get(bat_priv, ogm_packet->orig);
- 	if (!orig_node)
--		return;
-+		goto out;
- 
- 	neigh_node = batadv_neigh_node_get_or_create(orig_node, if_incoming,
- 						     ethhdr->h_source);
++static void alc225_fixup_s3_pop_noise(struct hda_codec *codec,
++				      const struct hda_fixup *fix, int action)
++{
++	if (action != HDA_FIXUP_ACT_PRE_PROBE)
++		return;
++
++	codec->power_save_node = 1;
++}
++
+ /* Forcibly assign NID 0x03 to HP/LO while NID 0x02 to SPK for EQ */
+ static void alc274_fixup_bind_dacs(struct hda_codec *codec,
+ 				    const struct hda_fixup *fix, int action)
+@@ -5932,6 +5941,7 @@ enum {
+ 	ALC233_FIXUP_ACER_HEADSET_MIC,
+ 	ALC294_FIXUP_LENOVO_MIC_LOCATION,
+ 	ALC225_FIXUP_DELL_WYSE_MIC_NO_PRESENCE,
++	ALC225_FIXUP_S3_POP_NOISE,
+ 	ALC700_FIXUP_INTEL_REFERENCE,
+ 	ALC274_FIXUP_DELL_BIND_DACS,
+ 	ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
+@@ -6817,6 +6827,12 @@ static const struct hda_fixup alc269_fixups[] = {
+ 			{ }
+ 		},
+ 		.chained = true,
++		.chain_id = ALC225_FIXUP_S3_POP_NOISE
++	},
++	[ALC225_FIXUP_S3_POP_NOISE] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc225_fixup_s3_pop_noise,
++		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
+ 	},
+ 	[ALC700_FIXUP_INTEL_REFERENCE] = {
+-- 
+2.20.1
+
 
 
