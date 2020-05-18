@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F18741D849D
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D7E1D8279
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729626AbgERSMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:12:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47642 "EHLO mail.kernel.org"
+        id S1731688AbgERR4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729199AbgERSCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:02:49 -0400
+        id S1730672AbgERR4r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:56:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FFCA20715;
-        Mon, 18 May 2020 18:02:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E574C20715;
+        Mon, 18 May 2020 17:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824968;
-        bh=xKyfeEiHGfJHW6bGppshms0IL7S4z485dpab60U8Bt4=;
+        s=default; t=1589824607;
+        bh=ArCnMaJ2+sBqpCNTshjMt72aPj/mxeONg96DdATXufU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BYzFPv3CrjJNGRrkwRrvRa+fzCVFs9RfmZbX+GBgGt3O4ugBas6NR4NQKjPpjV4GA
-         T9LMzupi6ulUmWE/vZvCpnzmnqbbn6cFlXDbug2t6ZjYwHL6URWgrnOwr2bXezpu+x
-         ONc4kJVOGY2847KguXoGEnv0k8NuMW3yw8IdUFR0=
+        b=ZPbAbVPVDn0E4FeWVEN83vQ8DN5pek+r2BxlJlvqcBw3F9RfiKd61HhpFJ5e0OVw0
+         jdzNMMDgB8zrVxegtSCHk398UxJScRwT3+/dSTbWRQP8uvuhtFuse950F5oHtRWB+t
+         T3879r2wjpJU1i0ICfK2+3sJLdrOI8SfDBbaKl+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 075/194] pinctrl: sunrisepoint: Fix PAD lock register offset for SPT-H
+Subject: [PATCH 5.4 042/147] cpufreq: intel_pstate: Only mention the BIOS disabling turbo mode once
 Date:   Mon, 18 May 2020 19:36:05 +0200
-Message-Id: <20200518173538.046214538@linuxfoundation.org>
+Message-Id: <20200518173519.296562904@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 6b7275c87717652daace4c0b8131eb184c7d7516 ]
+[ Upstream commit 8c539776ac83c0857395e1ccc9c6b516521a2d32 ]
 
-It appears that SPT-H variant has different offset for PAD locking registers.
-Fix it here.
+Make a note of the first time we discover the turbo mode has been
+disabled by the BIOS, as otherwise we complain every time we try to
+update the mode.
 
-Fixes: 551fa5801ef1 ("pinctrl: intel: sunrisepoint: Add Intel Sunrisepoint-H support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-sunrisepoint.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/cpufreq/intel_pstate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-sunrisepoint.c b/drivers/pinctrl/intel/pinctrl-sunrisepoint.c
-index 330c8f077b73a..4d7a86a5a37b0 100644
---- a/drivers/pinctrl/intel/pinctrl-sunrisepoint.c
-+++ b/drivers/pinctrl/intel/pinctrl-sunrisepoint.c
-@@ -15,17 +15,18 @@
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index 45499e0b9f2f3..d3d7c4ef7d045 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -1058,7 +1058,7 @@ static ssize_t store_no_turbo(struct kobject *a, struct kobj_attribute *b,
  
- #include "pinctrl-intel.h"
- 
--#define SPT_PAD_OWN	0x020
--#define SPT_PADCFGLOCK	0x0a0
--#define SPT_HOSTSW_OWN	0x0d0
--#define SPT_GPI_IS	0x100
--#define SPT_GPI_IE	0x120
-+#define SPT_PAD_OWN		0x020
-+#define SPT_H_PADCFGLOCK	0x090
-+#define SPT_LP_PADCFGLOCK	0x0a0
-+#define SPT_HOSTSW_OWN		0x0d0
-+#define SPT_GPI_IS		0x100
-+#define SPT_GPI_IE		0x120
- 
- #define SPT_COMMUNITY(b, s, e)				\
- 	{						\
- 		.barno = (b),				\
- 		.padown_offset = SPT_PAD_OWN,		\
--		.padcfglock_offset = SPT_PADCFGLOCK,	\
-+		.padcfglock_offset = SPT_LP_PADCFGLOCK,	\
- 		.hostown_offset = SPT_HOSTSW_OWN,	\
- 		.is_offset = SPT_GPI_IS,		\
- 		.ie_offset = SPT_GPI_IE,		\
-@@ -47,7 +48,7 @@
- 	{						\
- 		.barno = (b),				\
- 		.padown_offset = SPT_PAD_OWN,		\
--		.padcfglock_offset = SPT_PADCFGLOCK,	\
-+		.padcfglock_offset = SPT_H_PADCFGLOCK,	\
- 		.hostown_offset = SPT_HOSTSW_OWN,	\
- 		.is_offset = SPT_GPI_IS,		\
- 		.ie_offset = SPT_GPI_IE,		\
+ 	update_turbo_state();
+ 	if (global.turbo_disabled) {
+-		pr_warn("Turbo disabled by BIOS or unavailable on processor\n");
++		pr_notice_once("Turbo disabled by BIOS or unavailable on processor\n");
+ 		mutex_unlock(&intel_pstate_limits_lock);
+ 		mutex_unlock(&intel_pstate_driver_lock);
+ 		return -EPERM;
 -- 
 2.20.1
 
