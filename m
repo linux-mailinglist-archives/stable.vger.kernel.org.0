@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCFE31D86DC
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C36C1D846A
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:13:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729466AbgERRmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:42:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39784 "EHLO mail.kernel.org"
+        id S1732288AbgERSBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:01:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728641AbgERRml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:42:41 -0400
+        id S1731641AbgERSBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:01:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1B9820715;
-        Mon, 18 May 2020 17:42:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B73C2207C4;
+        Mon, 18 May 2020 18:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823761;
-        bh=luDRrkNQ6wD/z/htdkPpWLZzmTGUoA+LXWWPZouOebg=;
+        s=default; t=1589824909;
+        bh=1nnHsVdBrNbkfWBXxTVXXxkC6uk3Re/8JIIgBHmsfGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2YAHk+0OeOrr7VOFck15xBgXI84FNQLiSHNdqDcL4fYRgwzQba549WUtdXC2ByI7y
-         v2xsQxOG0yp17JxTD07tDA4x4yLqAhFWRxSB8GzP9W+b9rNNEfKThGWKOmI8QZHihL
-         82D8iT8BYXcqcEbQ5lgMuRzt/F92/Lqd9w3hRC6o=
+        b=k1HhKfBe6kQ0TKKwk+klTFShhH78yTou8gs0jMK+pK9B/3kFo4PpTFF9Z8wwKzjTg
+         Rd12rJ3aqhIlYbp03ttCUSxJ0DVuV8n5G2H4PvorxLhwCfdSwz3/JDK8IcWdmKfnpE
+         NSbxZ0AEMgR0e8sENuMn8ShZ4/jZ5nPRROero/sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 05/90] net/mlx4_core: Fix use of ENOSPC around mlx4_counter_alloc()
+        stable@vger.kernel.org,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 053/194] dmaengine: pch_dma.c: Avoid data race between probe and irq handler
 Date:   Mon, 18 May 2020 19:35:43 +0200
-Message-Id: <20200518173452.132141899@linuxfoundation.org>
+Message-Id: <20200518173536.186626885@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit 40e473071dbad04316ddc3613c3a3d1c75458299 ]
+[ Upstream commit 2e45676a4d33af47259fa186ea039122ce263ba9 ]
 
-When ENOSPC is set the idx is still valid and gets set to the global
-MLX4_SINK_COUNTER_INDEX.  However gcc's static analysis cannot tell that
-ENOSPC is impossible from mlx4_cmd_imm() and gives this warning:
+pd->dma.dev is read in irq handler pd_irq().
+However, it is set to pdev->dev after request_irq().
+Therefore, set pd->dma.dev to pdev->dev before request_irq() to
+avoid data race between pch_dma_probe() and pd_irq().
 
-drivers/net/ethernet/mellanox/mlx4/main.c:2552:28: warning: 'idx' may be
-used uninitialized in this function [-Wmaybe-uninitialized]
- 2552 |    priv->def_counter[port] = idx;
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Also, when ENOSPC is returned mlx4_allocate_default_counters should not
-fail.
-
-Fixes: 6de5f7f6a1fa ("net/mlx4_core: Allocate default counter per port")
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Link: https://lore.kernel.org/r/20200416062335.29223-1-madhuparnabhowmik10@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/dma/pch_dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/main.c
-@@ -2478,6 +2478,7 @@ static int mlx4_allocate_default_counter
- 
- 		if (!err || err == -ENOSPC) {
- 			priv->def_counter[port] = idx;
-+			err = 0;
- 		} else if (err == -ENOENT) {
- 			err = 0;
- 			continue;
-@@ -2527,7 +2528,8 @@ int mlx4_counter_alloc(struct mlx4_dev *
- 				   MLX4_CMD_TIME_CLASS_A, MLX4_CMD_WRAPPED);
- 		if (!err)
- 			*idx = get_param_l(&out_param);
--
-+		if (WARN_ON(err == -ENOSPC))
-+			err = -EINVAL;
- 		return err;
+diff --git a/drivers/dma/pch_dma.c b/drivers/dma/pch_dma.c
+index 581e7a290d98e..a3b0b4c56a190 100644
+--- a/drivers/dma/pch_dma.c
++++ b/drivers/dma/pch_dma.c
+@@ -865,6 +865,7 @@ static int pch_dma_probe(struct pci_dev *pdev,
  	}
- 	return __mlx4_counter_alloc(dev, idx);
+ 
+ 	pci_set_master(pdev);
++	pd->dma.dev = &pdev->dev;
+ 
+ 	err = request_irq(pdev->irq, pd_irq, IRQF_SHARED, DRV_NAME, pd);
+ 	if (err) {
+@@ -880,7 +881,6 @@ static int pch_dma_probe(struct pci_dev *pdev,
+ 		goto err_free_irq;
+ 	}
+ 
+-	pd->dma.dev = &pdev->dev;
+ 
+ 	INIT_LIST_HEAD(&pd->dma.channels);
+ 
+-- 
+2.20.1
+
 
 
