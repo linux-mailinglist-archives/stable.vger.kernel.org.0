@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 689B81D8528
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DBCD1D85D3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:21:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730836AbgERSRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:17:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36236 "EHLO mail.kernel.org"
+        id S1730293AbgERSVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:21:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731805AbgERR5d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:57:33 -0400
+        id S1730903AbgERRv5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:51:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08C81207C4;
-        Mon, 18 May 2020 17:57:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 606D020674;
+        Mon, 18 May 2020 17:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824652;
-        bh=wJ83Aa/krfODHRG3CrpUcfs0wKQF3Hb1hqV/wfhwlF8=;
+        s=default; t=1589824316;
+        bh=B1k6/ieFLe0du67HPDRc6ybeufLWj68xmLG/knItTo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f1WIQbnw6S9EQSjdzKHJYbzUJ8V1osQNA7Tvj3nyr5agjBPekic8L/ZuAVGzIGB6U
-         1dPNgamgx0oX5iSUBV+QBIimNhrOQsl2mmraBxkByvjL3aMmB0AGNUU7lr5xFipOyE
-         KbEQCY3SzxWFalQJrOz3e3jE1i322RN3IzWbZT10=
+        b=IFU66lg/e2gTW/mdydsBgB45yLOMKoOUHaU9FKqYGbCoAB4wp5ObUGsdi529kNtqt
+         hc+C5o2yAEw+/bpHDe9rRxyz3Y3Uo2u2mLEuhokm5JpoqMRTrVQWGZPJdVAPCY3WzT
+         C9HA8CV6Xv9eZ8A/7dojAlqpumBtw4dGN7lICJ44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 097/147] gcc-10: disable array-bounds warning for now
-Date:   Mon, 18 May 2020 19:37:00 +0200
-Message-Id: <20200518173525.578271833@linuxfoundation.org>
+        stable@vger.kernel.org, Samu Nuutamo <samu.nuutamo@vincit.fi>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 43/80] hwmon: (da9052) Synchronize access with mfd
+Date:   Mon, 18 May 2020 19:37:01 +0200
+Message-Id: <20200518173459.011448976@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Samu Nuutamo <samu.nuutamo@vincit.fi>
 
-commit 44720996e2d79e47d508b0abe99b931a726a3197 upstream.
+[ Upstream commit 333e22db228f0bd0c839553015a6a8d3db4ba569 ]
 
-This is another fine warning, related to the 'zero-length-bounds' one,
-but hitting the same historical code in the kernel.
+When tsi-as-adc is configured it is possible for in7[0123]_input read to
+return an incorrect value if a concurrent read to in[456]_input is
+performed. This is caused by a concurrent manipulation of the mux
+channel without proper locking as hwmon and mfd use different locks for
+synchronization.
 
-Because C didn't historically support flexible array members, we have
-code that instead uses a one-sized array, the same way we have cases of
-zero-sized arrays.
+Switch hwmon to use the same lock as mfd when accessing the TSI channel.
 
-The one-sized arrays come from either not wanting to use the gcc
-zero-sized array extension, or from a slight convenience-feature, where
-particularly for strings, the size of the structure now includes the
-allocation for the final NUL character.
-
-So with a "char name[1];" at the end of a structure, you can do things
-like
-
-       v = my_malloc(sizeof(struct vendor) + strlen(name));
-
-and avoid the "+1" for the terminator.
-
-Yes, the modern way to do that is with a flexible array, and using
-'offsetof()' instead of 'sizeof()', and adding the "+1" by hand.  That
-also technically gets the size "more correct" in that it avoids any
-alignment (and thus padding) issues, but this is another long-term
-cleanup thing that will not happen for 5.7.
-
-So disable the warning for now, even though it's potentially quite
-useful.  Having a slew of warnings that then hide more urgent new issues
-is not an improvement.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4f16cab19a3d5 ("hwmon: da9052: Add support for TSI channel")
+Signed-off-by: Samu Nuutamo <samu.nuutamo@vincit.fi>
+[rebase to current master, reword commit message slightly]
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/da9052-hwmon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -858,6 +858,7 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+diff --git a/drivers/hwmon/da9052-hwmon.c b/drivers/hwmon/da9052-hwmon.c
+index a973eb6a28908..9e44d2385e6f9 100644
+--- a/drivers/hwmon/da9052-hwmon.c
++++ b/drivers/hwmon/da9052-hwmon.c
+@@ -250,9 +250,9 @@ static ssize_t da9052_read_tsi(struct device *dev,
+ 	int channel = to_sensor_dev_attr(devattr)->index;
+ 	int ret;
  
- # We'll want to enable this eventually, but it's not going away for 5.7 at least
- KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
-+KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
+-	mutex_lock(&hwmon->hwmon_lock);
++	mutex_lock(&hwmon->da9052->auxadc_lock);
+ 	ret = __da9052_read_tsi(dev, channel);
+-	mutex_unlock(&hwmon->hwmon_lock);
++	mutex_unlock(&hwmon->da9052->auxadc_lock);
  
- # Enabled with W=2, disabled by default as noisy
- KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
+ 	if (ret < 0)
+ 		return ret;
+-- 
+2.20.1
+
 
 
