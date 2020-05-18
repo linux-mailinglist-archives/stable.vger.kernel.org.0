@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE63D1D85AB
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD561D8210
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731745AbgERSUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:20:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56940 "EHLO mail.kernel.org"
+        id S1730318AbgERRxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:53:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729754AbgERRxI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:53:08 -0400
+        id S1730450AbgERRxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:53:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9EC6207F5;
-        Mon, 18 May 2020 17:53:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B15A420872;
+        Mon, 18 May 2020 17:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824388;
-        bh=QdbeTQUQUgpsomOMovWEX8b7FzoAXtK92cYw6zKL88M=;
+        s=default; t=1589824391;
+        bh=Cj7cUSqlMtLQsypc14N1oxxazOXuz+5fCic5poKP/xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjLZQfmQh9Ll/CyCT4Lxr/Xx0OnVM2qVcsBtVG+h6iphddD4la0sAMhPkyq1APpfU
-         NkJXFzkOF7ABcI4Hr0j0B/GW3vPmFjaTpFkbKruQDAEbdrCxZ4xJyvZ+5vLMS1/mFM
-         uBRPVgcdR6gZlgcNUUx5UHxoXg03GKGOaE1VeLck=
+        b=Fpm511ISuVjGHGpovJeOUrA2nAlo7Osj7lxOeq2AishMI9sNRxZ8RA6SK+W2HHXYm
+         0v9ip855+3VIcSLd4bKWduN2XaCHNeM5kekoPZ3hzR3BEOnXQT1PDvBFp4RqTGGUAO
+         WE6Ge0NzpTkNZgjutspdH+PZ2Md6Uu8+Lex6EDtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>
-Subject: [PATCH 4.19 73/80] clk: Unlink clock if failed to prepare or enable
-Date:   Mon, 18 May 2020 19:37:31 +0200
-Message-Id: <20200518173505.193731807@linuxfoundation.org>
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 4.19 74/80] arm64: dts: rockchip: Replace RK805 PMIC node name with "pmic" on rk3328 boards
+Date:   Mon, 18 May 2020 19:37:32 +0200
+Message-Id: <20200518173505.437385670@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
 References: <20200518173450.097837707@linuxfoundation.org>
@@ -45,42 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Chen-Yu Tsai <wens@csie.org>
 
-commit 018d4671b9bbd4a5c55cf6eab3e1dbc70a50b66e upstream.
+commit 83b994129fb4c18a8460fd395864a28740e5e7fb upstream.
 
-On failing to prepare or enable a clock, remove the core structure
-from the list it has been inserted as it is about to be freed.
+In some board device tree files, "rk805" was used for the RK805 PMIC's
+node name. However the policy for device trees is that generic names
+should be used.
 
-This otherwise leads to random crashes when subsequent clocks get
-registered, during which parsing of the clock tree becomes adventurous.
+Replace the "rk805" node name with the generic "pmic" name.
 
-Observed with QEMU's RPi-3 emulation.
-
-Fixes: 12ead77432f2 ("clk: Don't try to enable critical clocks if prepare failed")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Michael Turquette <mturquette@baylibre.com>
-Link: https://lkml.kernel.org/r/20200505140953.409430-1-maz@kernel.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 1e28037ec88e ("arm64: dts: rockchip: add rk805 node for rk3328-evb")
+Fixes: 955bebde057e ("arm64: dts: rockchip: add rk3328-rock64 board")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20200327030414.5903-3-wens@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/clk.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/rockchip/rk3328-evb.dts    |    2 +-
+ arch/arm64/boot/dts/rockchip/rk3328-rock64.dts |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -3105,6 +3105,9 @@ static int __clk_core_init(struct clk_co
- out:
- 	clk_pm_runtime_put(core);
- unlock:
-+	if (ret)
-+		hlist_del_init(&core->child_node);
-+
- 	clk_prepare_unlock();
+--- a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+@@ -92,7 +92,7 @@
+ &i2c1 {
+ 	status = "okay";
  
- 	if (!ret)
+-	rk805: rk805@18 {
++	rk805: pmic@18 {
+ 		compatible = "rockchip,rk805";
+ 		reg = <0x18>;
+ 		interrupt-parent = <&gpio2>;
+--- a/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
+@@ -112,7 +112,7 @@
+ &i2c1 {
+ 	status = "okay";
+ 
+-	rk805: rk805@18 {
++	rk805: pmic@18 {
+ 		compatible = "rockchip,rk805";
+ 		reg = <0x18>;
+ 		interrupt-parent = <&gpio2>;
 
 
