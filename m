@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B74C1D8578
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4171D857F
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730990AbgERRyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:54:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58884 "EHLO mail.kernel.org"
+        id S1730819AbgERRyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:54:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731274AbgERRyS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:54:18 -0400
+        id S1731353AbgERRyq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:54:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D02520715;
-        Mon, 18 May 2020 17:54:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFCBF20829;
+        Mon, 18 May 2020 17:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824457;
-        bh=9rzIDRtRGHjl2cYuAFprr0tLIdXvJ5jLfP+kGYkY8o0=;
+        s=default; t=1589824485;
+        bh=QitNHxHhfqNdqMYNIxGf8Vj+yrlLbQAmtA1kEfXAlLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OdqY9X8Ih/QtlrRAzeH/2JvEtc2Av7DpRCaycZxux6VJWxayo7dAElTHRw9qEb6rc
-         ruoYUjOUVutkA1VbcXFs6oUnYZBskveIMiDAE8jIz47yIlXvsgOKPokY9aTRaeZaPe
-         eFJx9NcTRNOxgj5zmJ7OkRGVSZ9hJcVWWQNAJtlE=
+        b=Dd/ANbirXY2Yhh0DN3Y2n/ibg3e4uIWiEBkxm3VAmYXHTy+T7sZaRFu99qRFtxv8U
+         9V0QrHsQYZENagL5DV2wv57LkHkS5ln9/J58RjXkzONkFNnWoxwI3Ld9Zj1CGH2RM7
+         FwYFnpQ1D+LMTh1uRpBuMR2p1FgDZD4u+pe+1sOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com,
-        syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Yuiko Oshino <yuiko.oshino@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 002/147] shmem: fix possible deadlocks on shmlock_user_lock
-Date:   Mon, 18 May 2020 19:35:25 +0200
-Message-Id: <20200518173513.390093569@linuxfoundation.org>
+Subject: [PATCH 5.4 003/147] net: phy: microchip_t1: add lan87xx_phy_init to initialize the lan87xx phy.
+Date:   Mon, 18 May 2020 19:35:26 +0200
+Message-Id: <20200518173513.537061282@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
 References: <20200518173513.009514388@linuxfoundation.org>
@@ -49,78 +44,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Yuiko Oshino <yuiko.oshino@microchip.com>
 
-[ Upstream commit ea0dfeb4209b4eab954d6e00ed136bc6b48b380d ]
+[ Upstream commit 63edbcceef612bdd95fa28ce100460c7b79008a4 ]
 
-Recent commit 71725ed10c40 ("mm: huge tmpfs: try to split_huge_page()
-when punching hole") has allowed syzkaller to probe deeper, uncovering a
-long-standing lockdep issue between the irq-unsafe shmlock_user_lock,
-the irq-safe xa_lock on mapping->i_pages, and shmem inode's info->lock
-which nests inside xa_lock (or tree_lock) since 4.8's shmem_uncharge().
+lan87xx_phy_init() initializes the lan87xx phy hardware
+including its TC10 Wake-up and Sleep features.
 
-user_shm_lock(), servicing SysV shmctl(SHM_LOCK), wants
-shmlock_user_lock while its caller shmem_lock() holds info->lock with
-interrupts disabled; but hugetlbfs_file_setup() calls user_shm_lock()
-with interrupts enabled, and might be interrupted by a writeback endio
-wanting xa_lock on i_pages.
-
-This may not risk an actual deadlock, since shmem inodes do not take
-part in writeback accounting, but there are several easy ways to avoid
-it.
-
-Requiring interrupts disabled for shmlock_user_lock would be easy, but
-it's a high-level global lock for which that seems inappropriate.
-Instead, recall that the use of info->lock to guard info->flags in
-shmem_lock() dates from pre-3.1 days, when races with SHMEM_PAGEIN and
-SHMEM_TRUNCATE could occur: nowadays it serves no purpose, the only flag
-added or removed is VM_LOCKED itself, and calls to shmem_lock() an inode
-are already serialized by the caller.
-
-Take info->lock out of the chain and the possibility of deadlock or
-lockdep warning goes away.
-
-Fixes: 4595ef88d136 ("shmem: make shmem_inode_info::lock irq-safe")
-Reported-by: syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com
-Reported-by: syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Yang Shi <yang.shi@linux.alibaba.com>
-Cc: Yang Shi <yang.shi@linux.alibaba.com>
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2004161707410.16322@eggly.anvils
-Link: https://lore.kernel.org/lkml/000000000000e5838c05a3152f53@google.com/
-Link: https://lore.kernel.org/lkml/0000000000003712b305a331d3b1@google.com/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 3e50d2da5850 ("Add driver for Microchip LAN87XX T1 PHYs")
+Signed-off-by: Yuiko Oshino <yuiko.oshino@microchip.com>
+v0->v1:
+    - Add more details in the commit message and source comments.
+    - Update to the latest initialization sequences.
+    - Add access_ereg_modify_changed().
+    - Fix access_ereg() to access SMI bank correctly.
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/shmem.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/phy/microchip_t1.c | 171 +++++++++++++++++++++++++++++++++
+ 1 file changed, 171 insertions(+)
 
-diff --git a/mm/shmem.c b/mm/shmem.c
-index e71b15da19854..98802ca76a5c3 100644
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2183,7 +2183,11 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
- 	struct shmem_inode_info *info = SHMEM_I(inode);
- 	int retval = -ENOMEM;
+diff --git a/drivers/net/phy/microchip_t1.c b/drivers/net/phy/microchip_t1.c
+index 001def4509c29..fed3e395f18e1 100644
+--- a/drivers/net/phy/microchip_t1.c
++++ b/drivers/net/phy/microchip_t1.c
+@@ -3,9 +3,21 @@
  
--	spin_lock_irq(&info->lock);
-+	/*
-+	 * What serializes the accesses to info->flags?
-+	 * ipc_lock_object() when called from shmctl_do_lock(),
-+	 * no serialization needed when called from shm_destroy().
-+	 */
- 	if (lock && !(info->flags & VM_LOCKED)) {
- 		if (!user_shm_lock(inode->i_size, user))
- 			goto out_nomem;
-@@ -2198,7 +2202,6 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
- 	retval = 0;
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/delay.h>
+ #include <linux/mii.h>
+ #include <linux/phy.h>
  
- out_nomem:
--	spin_unlock_irq(&info->lock);
- 	return retval;
++/* External Register Control Register */
++#define LAN87XX_EXT_REG_CTL                     (0x14)
++#define LAN87XX_EXT_REG_CTL_RD_CTL              (0x1000)
++#define LAN87XX_EXT_REG_CTL_WR_CTL              (0x0800)
++
++/* External Register Read Data Register */
++#define LAN87XX_EXT_REG_RD_DATA                 (0x15)
++
++/* External Register Write Data Register */
++#define LAN87XX_EXT_REG_WR_DATA                 (0x16)
++
+ /* Interrupt Source Register */
+ #define LAN87XX_INTERRUPT_SOURCE                (0x18)
+ 
+@@ -14,9 +26,160 @@
+ #define LAN87XX_MASK_LINK_UP                    (0x0004)
+ #define LAN87XX_MASK_LINK_DOWN                  (0x0002)
+ 
++/* phyaccess nested types */
++#define	PHYACC_ATTR_MODE_READ		0
++#define	PHYACC_ATTR_MODE_WRITE		1
++#define	PHYACC_ATTR_MODE_MODIFY		2
++
++#define	PHYACC_ATTR_BANK_SMI		0
++#define	PHYACC_ATTR_BANK_MISC		1
++#define	PHYACC_ATTR_BANK_PCS		2
++#define	PHYACC_ATTR_BANK_AFE		3
++#define	PHYACC_ATTR_BANK_MAX		7
++
+ #define DRIVER_AUTHOR	"Nisar Sayed <nisar.sayed@microchip.com>"
+ #define DRIVER_DESC	"Microchip LAN87XX T1 PHY driver"
+ 
++struct access_ereg_val {
++	u8  mode;
++	u8  bank;
++	u8  offset;
++	u16 val;
++	u16 mask;
++};
++
++static int access_ereg(struct phy_device *phydev, u8 mode, u8 bank,
++		       u8 offset, u16 val)
++{
++	u16 ereg = 0;
++	int rc = 0;
++
++	if (mode > PHYACC_ATTR_MODE_WRITE || bank > PHYACC_ATTR_BANK_MAX)
++		return -EINVAL;
++
++	if (bank == PHYACC_ATTR_BANK_SMI) {
++		if (mode == PHYACC_ATTR_MODE_WRITE)
++			rc = phy_write(phydev, offset, val);
++		else
++			rc = phy_read(phydev, offset);
++		return rc;
++	}
++
++	if (mode == PHYACC_ATTR_MODE_WRITE) {
++		ereg = LAN87XX_EXT_REG_CTL_WR_CTL;
++		rc = phy_write(phydev, LAN87XX_EXT_REG_WR_DATA, val);
++		if (rc < 0)
++			return rc;
++	} else {
++		ereg = LAN87XX_EXT_REG_CTL_RD_CTL;
++	}
++
++	ereg |= (bank << 8) | offset;
++
++	rc = phy_write(phydev, LAN87XX_EXT_REG_CTL, ereg);
++	if (rc < 0)
++		return rc;
++
++	if (mode == PHYACC_ATTR_MODE_READ)
++		rc = phy_read(phydev, LAN87XX_EXT_REG_RD_DATA);
++
++	return rc;
++}
++
++static int access_ereg_modify_changed(struct phy_device *phydev,
++				      u8 bank, u8 offset, u16 val, u16 mask)
++{
++	int new = 0, rc = 0;
++
++	if (bank > PHYACC_ATTR_BANK_MAX)
++		return -EINVAL;
++
++	rc = access_ereg(phydev, PHYACC_ATTR_MODE_READ, bank, offset, val);
++	if (rc < 0)
++		return rc;
++
++	new = val | (rc & (mask ^ 0xFFFF));
++	rc = access_ereg(phydev, PHYACC_ATTR_MODE_WRITE, bank, offset, new);
++
++	return rc;
++}
++
++static int lan87xx_phy_init(struct phy_device *phydev)
++{
++	static const struct access_ereg_val init[] = {
++		/* TX Amplitude = 5 */
++		{PHYACC_ATTR_MODE_MODIFY, PHYACC_ATTR_BANK_AFE, 0x0B,
++		 0x000A, 0x001E},
++		/* Clear SMI interrupts */
++		{PHYACC_ATTR_MODE_READ, PHYACC_ATTR_BANK_SMI, 0x18,
++		 0, 0},
++		/* Clear MISC interrupts */
++		{PHYACC_ATTR_MODE_READ, PHYACC_ATTR_BANK_MISC, 0x08,
++		 0, 0},
++		/* Turn on TC10 Ring Oscillator (ROSC) */
++		{PHYACC_ATTR_MODE_MODIFY, PHYACC_ATTR_BANK_MISC, 0x20,
++		 0x0020, 0x0020},
++		/* WUR Detect Length to 1.2uS, LPC Detect Length to 1.09uS */
++		{PHYACC_ATTR_MODE_WRITE, PHYACC_ATTR_BANK_PCS, 0x20,
++		 0x283C, 0},
++		/* Wake_In Debounce Length to 39uS, Wake_Out Length to 79uS */
++		{PHYACC_ATTR_MODE_WRITE, PHYACC_ATTR_BANK_MISC, 0x21,
++		 0x274F, 0},
++		/* Enable Auto Wake Forward to Wake_Out, ROSC on, Sleep,
++		 * and Wake_In to wake PHY
++		 */
++		{PHYACC_ATTR_MODE_WRITE, PHYACC_ATTR_BANK_MISC, 0x20,
++		 0x80A7, 0},
++		/* Enable WUP Auto Fwd, Enable Wake on MDI, Wakeup Debouncer
++		 * to 128 uS
++		 */
++		{PHYACC_ATTR_MODE_WRITE, PHYACC_ATTR_BANK_MISC, 0x24,
++		 0xF110, 0},
++		/* Enable HW Init */
++		{PHYACC_ATTR_MODE_MODIFY, PHYACC_ATTR_BANK_SMI, 0x1A,
++		 0x0100, 0x0100},
++	};
++	int rc, i;
++
++	/* Start manual initialization procedures in Managed Mode */
++	rc = access_ereg_modify_changed(phydev, PHYACC_ATTR_BANK_SMI,
++					0x1a, 0x0000, 0x0100);
++	if (rc < 0)
++		return rc;
++
++	/* Soft Reset the SMI block */
++	rc = access_ereg_modify_changed(phydev, PHYACC_ATTR_BANK_SMI,
++					0x00, 0x8000, 0x8000);
++	if (rc < 0)
++		return rc;
++
++	/* Check to see if the self-clearing bit is cleared */
++	usleep_range(1000, 2000);
++	rc = access_ereg(phydev, PHYACC_ATTR_MODE_READ,
++			 PHYACC_ATTR_BANK_SMI, 0x00, 0);
++	if (rc < 0)
++		return rc;
++	if ((rc & 0x8000) != 0)
++		return -ETIMEDOUT;
++
++	/* PHY Initialization */
++	for (i = 0; i < ARRAY_SIZE(init); i++) {
++		if (init[i].mode == PHYACC_ATTR_MODE_MODIFY) {
++			rc = access_ereg_modify_changed(phydev, init[i].bank,
++							init[i].offset,
++							init[i].val,
++							init[i].mask);
++		} else {
++			rc = access_ereg(phydev, init[i].mode, init[i].bank,
++					 init[i].offset, init[i].val);
++		}
++		if (rc < 0)
++			return rc;
++	}
++
++	return 0;
++}
++
+ static int lan87xx_phy_config_intr(struct phy_device *phydev)
+ {
+ 	int rc, val = 0;
+@@ -40,6 +203,13 @@ static int lan87xx_phy_ack_interrupt(struct phy_device *phydev)
+ 	return rc < 0 ? rc : 0;
  }
  
++static int lan87xx_config_init(struct phy_device *phydev)
++{
++	int rc = lan87xx_phy_init(phydev);
++
++	return rc < 0 ? rc : 0;
++}
++
+ static struct phy_driver microchip_t1_phy_driver[] = {
+ 	{
+ 		.phy_id         = 0x0007c150,
+@@ -48,6 +218,7 @@ static struct phy_driver microchip_t1_phy_driver[] = {
+ 
+ 		.features       = PHY_BASIC_T1_FEATURES,
+ 
++		.config_init	= lan87xx_config_init,
+ 		.config_aneg    = genphy_config_aneg,
+ 
+ 		.ack_interrupt  = lan87xx_phy_ack_interrupt,
 -- 
 2.20.1
 
