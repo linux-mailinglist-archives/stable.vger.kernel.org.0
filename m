@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 336E61D828B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:57:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5A0E1D86F3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731775AbgERR5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:57:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35848 "EHLO mail.kernel.org"
+        id S1728697AbgERRli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:41:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731772AbgERR5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:57:20 -0400
+        id S1729297AbgERRlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:41:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 918C4207C4;
-        Mon, 18 May 2020 17:57:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0557C20715;
+        Mon, 18 May 2020 17:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824640;
-        bh=ASD+fFzp4NJHBwKGUBzfOTPXS0YJQ2vb0CTvZsbplXk=;
+        s=default; t=1589823697;
+        bh=+jvSoIIa24wM8YY3J5dMy5VGin8vj9b9xKcxlTcyGoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XFr8zmvopksZ2zjWyO8KlYswoJvOTgGHNpPcIM8Engst8qu/5KnLcrX6ZuPxSh/pJ
-         XvO4yHou6jOI7o3dYnW7WAmYiTwZX7olUG6vdkHTsalYwcOqQzeI0jj4PaGSs+6MGn
-         NEXDqky0Hy1r3XJd+GW66W+J/6muuVR9LThSNTWM=
+        b=HX8Z9SCcbS9Nc9iBq3SEdtsVGBuH9LzytOXrjlg3ya5YVK9EVCC0+2IR+664iY2Fb
+         5rpxBsFQ/OoBlqR32hpWoXKw25xcZFPJe3vUyVACigoKIAuaUMaVPBDd7KD0K4NJwS
+         H8jpVOgfSsbEA2mcum2PhoiCufDb6iRt1Qo1TYXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 093/147] pnp: Use list_for_each_entry() instead of open coding
+        stable@vger.kernel.org, Jue Wang <juew@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 85/86] KVM: x86: Fix off-by-one error in kvm_vcpu_ioctl_x86_setup_mce
 Date:   Mon, 18 May 2020 19:36:56 +0200
-Message-Id: <20200518173525.143262436@linuxfoundation.org>
+Message-Id: <20200518173507.791136986@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Jim Mattson <jmattson@google.com>
 
-commit 01b2bafe57b19d9119413f138765ef57990921ce upstream.
+commit c4e0e4ab4cf3ec2b3f0b628ead108d677644ebd9 upstream.
 
-Aside from good practice, this avoids a warning from gcc 10:
+Bank_num is a one-based count of banks, not a zero-based index. It
+overflows the allocated space only when strictly greater than
+KVM_MAX_MCE_BANKS.
 
-./include/linux/kernel.h:997:3: warning: array subscript -31 is outside array bounds of ‘struct list_head[1]’ [-Warray-bounds]
-  997 |  ((type *)(__mptr - offsetof(type, member))); })
-      |  ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/linux/list.h:493:2: note: in expansion of macro ‘container_of’
-  493 |  container_of(ptr, type, member)
-      |  ^~~~~~~~~~~~
-./include/linux/pnp.h:275:30: note: in expansion of macro ‘list_entry’
-  275 | #define global_to_pnp_dev(n) list_entry(n, struct pnp_dev, global_list)
-      |                              ^~~~~~~~~~
-./include/linux/pnp.h:281:11: note: in expansion of macro ‘global_to_pnp_dev’
-  281 |  (dev) != global_to_pnp_dev(&pnp_global); \
-      |           ^~~~~~~~~~~~~~~~~
-arch/x86/kernel/rtc.c:189:2: note: in expansion of macro ‘pnp_for_each_dev’
-  189 |  pnp_for_each_dev(dev) {
-
-Because the common code doesn't cast the starting list_head to the
-containing struct.
-
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-[ rjw: Whitespace adjustments ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: a9e38c3e01ad ("KVM: x86: Catch potential overrun in MCE setup")
+Signed-off-by: Jue Wang <juew@google.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Peter Shier <pshier@google.com>
+Message-Id: <20200511225616.19557-1-jmattson@google.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/pnp.h |   29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ arch/x86/kvm/x86.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/pnp.h
-+++ b/include/linux/pnp.h
-@@ -220,10 +220,8 @@ struct pnp_card {
- #define global_to_pnp_card(n) list_entry(n, struct pnp_card, global_list)
- #define protocol_to_pnp_card(n) list_entry(n, struct pnp_card, protocol_list)
- #define to_pnp_card(n) container_of(n, struct pnp_card, dev)
--#define pnp_for_each_card(card) \
--	for((card) = global_to_pnp_card(pnp_cards.next); \
--	(card) != global_to_pnp_card(&pnp_cards); \
--	(card) = global_to_pnp_card((card)->global_list.next))
-+#define pnp_for_each_card(card)	\
-+	list_for_each_entry(card, &pnp_cards, global_list)
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -2941,7 +2941,7 @@ static int kvm_vcpu_ioctl_x86_setup_mce(
+ 	unsigned bank_num = mcg_cap & 0xff, bank;
  
- struct pnp_card_link {
- 	struct pnp_card *card;
-@@ -276,14 +274,9 @@ struct pnp_dev {
- #define card_to_pnp_dev(n) list_entry(n, struct pnp_dev, card_list)
- #define protocol_to_pnp_dev(n) list_entry(n, struct pnp_dev, protocol_list)
- #define	to_pnp_dev(n) container_of(n, struct pnp_dev, dev)
--#define pnp_for_each_dev(dev) \
--	for((dev) = global_to_pnp_dev(pnp_global.next); \
--	(dev) != global_to_pnp_dev(&pnp_global); \
--	(dev) = global_to_pnp_dev((dev)->global_list.next))
--#define card_for_each_dev(card,dev) \
--	for((dev) = card_to_pnp_dev((card)->devices.next); \
--	(dev) != card_to_pnp_dev(&(card)->devices); \
--	(dev) = card_to_pnp_dev((dev)->card_list.next))
-+#define pnp_for_each_dev(dev) list_for_each_entry(dev, &pnp_global, global_list)
-+#define card_for_each_dev(card, dev)	\
-+	list_for_each_entry(dev, &(card)->devices, card_list)
- #define pnp_dev_name(dev) (dev)->name
- 
- static inline void *pnp_get_drvdata(struct pnp_dev *pdev)
-@@ -437,14 +430,10 @@ struct pnp_protocol {
- };
- 
- #define to_pnp_protocol(n) list_entry(n, struct pnp_protocol, protocol_list)
--#define protocol_for_each_card(protocol,card) \
--	for((card) = protocol_to_pnp_card((protocol)->cards.next); \
--	(card) != protocol_to_pnp_card(&(protocol)->cards); \
--	(card) = protocol_to_pnp_card((card)->protocol_list.next))
--#define protocol_for_each_dev(protocol,dev) \
--	for((dev) = protocol_to_pnp_dev((protocol)->devices.next); \
--	(dev) != protocol_to_pnp_dev(&(protocol)->devices); \
--	(dev) = protocol_to_pnp_dev((dev)->protocol_list.next))
-+#define protocol_for_each_card(protocol, card)	\
-+	list_for_each_entry(card, &(protocol)->cards, protocol_list)
-+#define protocol_for_each_dev(protocol, dev)	\
-+	list_for_each_entry(dev, &(protocol)->devices, protocol_list)
- 
- extern struct bus_type pnp_bus_type;
- 
+ 	r = -EINVAL;
+-	if (!bank_num || bank_num >= KVM_MAX_MCE_BANKS)
++	if (!bank_num || bank_num > KVM_MAX_MCE_BANKS)
+ 		goto out;
+ 	if (mcg_cap & ~(KVM_MCE_CAP_SUPPORTED | 0xff | 0xff0000))
+ 		goto out;
 
 
