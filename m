@@ -2,108 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 333FA1D77DC
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 13:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D117A1D793B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 15:04:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726946AbgERLw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 07:52:27 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38270 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726413AbgERLw1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 07:52:27 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 04IBWP7F054515;
-        Mon, 18 May 2020 07:51:08 -0400
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 313r0xuesb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 May 2020 07:51:08 -0400
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 04IBWQWj054578;
-        Mon, 18 May 2020 07:51:07 -0400
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 313r0xuerc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 May 2020 07:51:07 -0400
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 04IBkXpk030546;
-        Mon, 18 May 2020 11:51:05 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 3127t5sn29-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 May 2020 11:51:05 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 04IBp3C743712642
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 18 May 2020 11:51:03 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D825952052;
-        Mon, 18 May 2020 11:51:02 +0000 (GMT)
-Received: from oc3871087118.ibm.com (unknown [9.145.23.117])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id D378B5204E;
-        Mon, 18 May 2020 11:51:01 +0000 (GMT)
-Date:   Mon, 18 May 2020 13:51:00 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Amritha Nambiar <amritha.nambiar@intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        "Tobin C . Harding" <tobin@kernel.org>,
-        Vineet Gupta <vineet.gupta1@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Willem de Bruijn <willemb@google.com>
-Subject: Re: [PATCH RESEND] lib: fix bitmap_parse() on 64-bit big endian archs
-Message-ID: <20200518115059.GA19150@oc3871087118.ibm.com>
-References: <1589798090-11136-1-git-send-email-agordeev@linux.ibm.com>
- <CAHp75VdM2yrpd2d3pK2RkmbhF3yiM4=fiTXL4i3yu3AxV3wY-A@mail.gmail.com>
+        id S1726998AbgERNEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 09:04:15 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:50917 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726989AbgERNEP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 09:04:15 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 518341940726;
+        Mon, 18 May 2020 09:04:14 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 18 May 2020 09:04:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gTW08H
+        eGvQh3v55uAZr6iYZhC/NDz71YELNev97YnEU=; b=gfKQ44pWaZnUsJ4r8qq57q
+        RRd+Mf2UbxnJOO51rCMNgSfS9opUoDEbP962hokuYSKtvuwtoJYChRCxBR508Nue
+        CmEFgB/C2GnyoKvHxF0b3Uo6Cr7qcaV28+5mRYZXTsXs9PWTVnGo/6UILM/PpaGb
+        7gqtZH7g11wjnYmmAi8I/L/HXyMnn4hbQFoWN9T221kDqXgH28D3JsVD3+Q+e0X9
+        UuEjJYQ/PjmzkzibGnRd5wkwTUsG3lVhGLcqi9QdgM/BTgyXB6NJpPPk30XFpu9/
+        wTwNc3va04Qb65wIiY4FD34ue3o9+6MwO6LNe/FWqu/uIU/gQAkeTfIO/L9gcihw
+        ==
+X-ME-Sender: <xms:zYfCXoLTPrs0cqlWH630Zl8cF8xogAc7am2vqHPs20y4SuZi6FUXqQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddthedgheelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:zYfCXoL2lCvLguApHXtuAwRupec8x_NmUX97ZHeyCQGtEvJ_nxgItQ>
+    <xmx:zYfCXosZHlcqyYrjkjBG-aJDIiHJi0-QlsIoFIFK6rMH8Rz8z-yWNw>
+    <xmx:zYfCXlYuy30QxSjUnffl2t95btD93H-3PeiRzpBFuem-mvnvWpOJfw>
+    <xmx:zofCXmxuvaDjqv4Bg3I4uJkWFJ-ySimD3v5-DPXy0wUW5JOtEXVJtQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 60078328005D;
+        Mon, 18 May 2020 09:04:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mmc: core: Fix recursive locking issue in CQE recovery path" failed to apply to 4.19-stable tree
+To:     sartgarg@codeaurora.org, adrian.hunter@intel.com,
+        stable@vger.kernel.org, stummala@codeaurora.org,
+        ulf.hansson@linaro.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 May 2020 15:04:10 +0200
+Message-ID: <1589807050123171@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHp75VdM2yrpd2d3pK2RkmbhF3yiM4=fiTXL4i3yu3AxV3wY-A@mail.gmail.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.676
- definitions=2020-05-18_04:2020-05-15,2020-05-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 cotscore=-2147483648
- phishscore=0 mlxlogscore=999 malwarescore=0 clxscore=1015 suspectscore=0
- impostorscore=0 bulkscore=0 adultscore=0 spamscore=0 priorityscore=1501
- mlxscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2004280000 definitions=main-2005180100
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 18, 2020 at 02:33:43PM +0300, Andy Shevchenko wrote:
-> On Mon, May 18, 2020 at 1:40 PM Alexander Gordeev
-> <agordeev@linux.ibm.com> wrote:
-> >
-> > Commit 2d6261583be0 ("lib: rework bitmap_parse()") does
-> > not take into account order of halfwords on 64-bit big
-> > endian architectures.
-> 
-> Thanks for report and the patch!
-> 
-> Did it work before? Can we have a test case for that that we will see
-> the failure?
 
-The test exists and enabled with CONFIG_TEST_BITMAP.
-It does not appear ever passed before on 64 BE.
-It does not fail on 64 LE for me either.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Thanks!
+thanks,
 
-[...]
+greg k-h
 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
+------------------ original commit in Linus's tree ------------------
+
+From 39a22f73744d5baee30b5f134ae2e30b668b66ed Mon Sep 17 00:00:00 2001
+From: Sarthak Garg <sartgarg@codeaurora.org>
+Date: Thu, 7 May 2020 21:45:33 +0530
+Subject: [PATCH] mmc: core: Fix recursive locking issue in CQE recovery path
+
+Consider the following stack trace
+
+-001|raw_spin_lock_irqsave
+-002|mmc_blk_cqe_complete_rq
+-003|__blk_mq_complete_request(inline)
+-003|blk_mq_complete_request(rq)
+-004|mmc_cqe_timed_out(inline)
+-004|mmc_mq_timed_out
+
+mmc_mq_timed_out acquires the queue_lock for the first
+time. The mmc_blk_cqe_complete_rq function also tries to acquire
+the same queue lock resulting in recursive locking where the task
+is spinning for the same lock which it has already acquired leading
+to watchdog bark.
+
+Fix this issue with the lock only for the required critical section.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 1e8e55b67030 ("mmc: block: Add CQE support")
+Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
+Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/1588868135-31783-1-git-send-email-vbadigan@codeaurora.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+
+diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+index 25bee3daf9e2..b5fd3bc7eb58 100644
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -107,7 +107,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
+ 	case MMC_ISSUE_DCMD:
+ 		if (host->cqe_ops->cqe_timeout(host, mrq, &recovery_needed)) {
+ 			if (recovery_needed)
+-				__mmc_cqe_recovery_notifier(mq);
++				mmc_cqe_recovery_notifier(mrq);
+ 			return BLK_EH_RESET_TIMER;
+ 		}
+ 		/* No timeout (XXX: huh? comment doesn't make much sense) */
+@@ -127,18 +127,13 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
+ 	struct mmc_card *card = mq->card;
+ 	struct mmc_host *host = card->host;
+ 	unsigned long flags;
+-	int ret;
++	bool ignore_tout;
+ 
+ 	spin_lock_irqsave(&mq->lock, flags);
+-
+-	if (mq->recovery_needed || !mq->use_cqe || host->hsq_enabled)
+-		ret = BLK_EH_RESET_TIMER;
+-	else
+-		ret = mmc_cqe_timed_out(req);
+-
++	ignore_tout = mq->recovery_needed || !mq->use_cqe || host->hsq_enabled;
+ 	spin_unlock_irqrestore(&mq->lock, flags);
+ 
+-	return ret;
++	return ignore_tout ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
+ }
+ 
+ static void mmc_mq_recovery_handler(struct work_struct *work)
+
