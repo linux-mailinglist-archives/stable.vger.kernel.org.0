@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B791D84E1
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:15:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B0141D8411
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732152AbgERR75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40952 "EHLO mail.kernel.org"
+        id S1733083AbgERSF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:05:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731651AbgERR75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:59:57 -0400
+        id S1733030AbgERSFz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:05:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DFBD208B8;
-        Mon, 18 May 2020 17:59:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B58FE20853;
+        Mon, 18 May 2020 18:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824796;
+        s=default; t=1589825155;
         bh=zer0Mc5CO845JMY0f/NI3pFp3JuFH8Aq0s6Pjo72w6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ks8mTZ5f0LDD4lgcvoNHlpjuEDxH3kQtlEQ2vkgG2mj0OUylPwa9cRzUrU/N70s9d
-         IbIchis86Xb4ftj2/OWHxdzOq/TeJCIFj2xrQxHa6QzGlMvaKIA+IweW8xxF+gq0Yq
-         QHnqkqEAVKg1m9+kJZVKUpqWuIzZ8Y9NwgROPL2c=
+        b=2VAGBl0nrysYySEWjBwo/OvABpzSfVFeJBb1zbwON6FZZlYylhwPM4LLYpGws0sVn
+         9grxFaDiSvq1gqeSvLZ7SS5PoNyqBdAA6g9AszZrnz7s9RnOR+jEpuFhhmVYCNP/Pv
+         JVbFRQJpQpktOHwBRosCZgMIK6gvRZFy+aGqWpQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
         Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.4 117/147] ARM: dts: imx6dl-yapp4: Fix Ursa board Ethernet connection
+Subject: [PATCH 5.6 150/194] ARM: dts: imx6dl-yapp4: Fix Ursa board Ethernet connection
 Date:   Mon, 18 May 2020 19:37:20 +0200
-Message-Id: <20200518173527.613356694@linuxfoundation.org>
+Message-Id: <20200518173543.752028151@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
