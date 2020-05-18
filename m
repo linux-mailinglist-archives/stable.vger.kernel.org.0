@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28E331D838C
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:06:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE9A1D8432
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733053AbgERSFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53492 "EHLO mail.kernel.org"
+        id S1732600AbgERSKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:10:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733030AbgERSFq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:46 -0400
+        id S1733052AbgERSFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:05:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCEB820715;
-        Mon, 18 May 2020 18:05:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C9D6207D3;
+        Mon, 18 May 2020 18:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825145;
-        bh=xQ6rsCzZqQTZ2g9SUkiO7LCrfHXHf9Hr1QRQfB9ELrA=;
+        s=default; t=1589825147;
+        bh=z2CwPlf7bz18Akb6Y2vLQl3VvY12zCFv4kN7QHx18fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ibv0UFU1Nh2KMTCi0M7sRtNbQHxxjjpSwD5elyTmt09r6GLjr5MlPZzXv6eDIBsZs
-         qVm5Cwa0qLvxu3HzkaiSsCgbSwkSmIVd5coLhSnezm/9QPdaFb9a0JKwz1gZT2rEWN
-         lxe+Px6kFkI9EKYVZozQLFBPwyAocZDwuLTHcC6I=
+        b=HeAGg3nQpACZG+3lcQg9s+A8bmtdWqhZLK4/s69Jvsr2rlkneBSffqk6n8aB8AXil
+         cpLmqdDX62x3r42mgj9DwR0Gw7FAGbAuUsaS8bbNkfpwOlT05V8PfWjjKRf6QEsDB2
+         s7F1E7LeWl2STmzX5M/VnJbsnScNUGD/23vnrFFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Jones <pjones@redhat.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: [PATCH 5.6 147/194] Make the "Reducing compressed framebufer size" message be DRM_INFO_ONCE()
-Date:   Mon, 18 May 2020 19:37:17 +0200
-Message-Id: <20200518173543.499889150@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.6 148/194] ARM: dts: dra7: Fix bus_dma_limit for PCIe
+Date:   Mon, 18 May 2020 19:37:18 +0200
+Message-Id: <20200518173543.585798075@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
 References: <20200518173531.455604187@linuxfoundation.org>
@@ -45,47 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Jones <pjones@redhat.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 82152d424b6cb6fc1ede7d03d69c04e786688740 upstream.
+commit 90d4d3f4ea45370d482fa609dbae4d2281b4074f upstream.
 
-This was sort of annoying me:
+Even though commit cfb5d65f2595 ("ARM: dts: dra7: Add bus_dma_limit
+for L3 bus") added bus_dma_limit for L3 bus, the PCIe controller
+gets incorrect value of bus_dma_limit.
 
-random:~$ dmesg | tail -1
-[523884.039227] [drm] Reducing the compressed framebuffer size. This may lead to less power savings than a non-reduced-size. Try to increase stolen memory size if available in BIOS.
-random:~$ dmesg | grep -c "Reducing the compressed"
-47
+Fix it by adding empty dma-ranges property to axi@0 and axi@1
+(parent device tree node of PCIe controller).
 
-This patch makes it DRM_INFO_ONCE() just like the similar message
-farther down in that function is pr_info_once().
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Peter Jones <pjones@redhat.com>
-Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1745
-Link: https://patchwork.freedesktop.org/patch/msgid/20180706190424.29194-1-pjones@redhat.com
-[vsyrjala: Rebase due to per-device logging]
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-(cherry picked from commit 6b7fc6a3e6af4ff5773949d0fed70d8e7f68d5ce)
-[Rodrigo: port back to DRM_INFO_ONCE]
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: stable@kernel.org
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/display/intel_fbc.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm/boot/dts/dra7.dtsi |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_fbc.c
-+++ b/drivers/gpu/drm/i915/display/intel_fbc.c
-@@ -478,8 +478,7 @@ static int intel_fbc_alloc_cfb(struct dr
- 	if (!ret)
- 		goto err_llb;
- 	else if (ret > 1) {
--		DRM_INFO("Reducing the compressed framebuffer size. This may lead to less power savings than a non-reduced-size. Try to increase stolen memory size if available in BIOS.\n");
--
-+		DRM_INFO_ONCE("Reducing the compressed framebuffer size. This may lead to less power savings than a non-reduced-size. Try to increase stolen memory size if available in BIOS.\n");
- 	}
- 
- 	fbc->threshold = ret;
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -172,6 +172,7 @@
+ 			#address-cells = <1>;
+ 			ranges = <0x51000000 0x51000000 0x3000
+ 				  0x0	     0x20000000 0x10000000>;
++			dma-ranges;
+ 			/**
+ 			 * To enable PCI endpoint mode, disable the pcie1_rc
+ 			 * node and enable pcie1_ep mode.
+@@ -185,7 +186,6 @@
+ 				device_type = "pci";
+ 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
+ 					  0x82000000 0 0x20013000 0x13000 0 0xffed000>;
+-				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
+ 				bus-range = <0x00 0xff>;
+ 				#interrupt-cells = <1>;
+ 				num-lanes = <1>;
+@@ -230,6 +230,7 @@
+ 			#address-cells = <1>;
+ 			ranges = <0x51800000 0x51800000 0x3000
+ 				  0x0	     0x30000000 0x10000000>;
++			dma-ranges;
+ 			status = "disabled";
+ 			pcie2_rc: pcie@51800000 {
+ 				reg = <0x51800000 0x2000>, <0x51802000 0x14c>, <0x1000 0x2000>;
+@@ -240,7 +241,6 @@
+ 				device_type = "pci";
+ 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
+ 					  0x82000000 0 0x30013000 0x13000 0 0xffed000>;
+-				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
+ 				bus-range = <0x00 0xff>;
+ 				#interrupt-cells = <1>;
+ 				num-lanes = <1>;
 
 
