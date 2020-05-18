@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66FDE1D848F
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27AD1D864D
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387575AbgERSMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:12:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49464 "EHLO mail.kernel.org"
+        id S1729938AbgERRrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:47:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732691AbgERSDq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:03:46 -0400
+        id S1730249AbgERRrn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:47:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41A8F2083E;
-        Mon, 18 May 2020 18:03:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76E6C20657;
+        Mon, 18 May 2020 17:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825025;
-        bh=mlbO5mkj8hkwmhIlSyW83zoCEI0BCQ9bqtui9lyhn44=;
+        s=default; t=1589824063;
+        bh=HmyanbqIU+mg0HbgtYSUBECyKESgiVSnXXzJzAHboeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cd5rAHFeboe26Gn9iRxSatHL2mwQL+G86YheF8/R8Qgr1SFsyNounPi0tWpSUlWH/
-         sl8p2z5yenX7M3gFNavvnScHABoluzSGjErknqzGlpI80Vwzr6Suyh9MC9b/XXHnfM
-         QMXKA1uzODhMSFAv+Bo9CThAPA2E6zzQdjumJJCw=
+        b=yrD2Md7UVEIsKIHbqL856NTgxRBJa9l24f6vTyITe7EHXQBcpH5uz1VLJQtg2R3Q4
+         mkMc7NTfGmNzlYgmRzofWJn/bYMhWIwnMXGwwabu3TH8qf9vQcViKCgFAoCNL9fAi9
+         tNcs8o1SojSHpQ3k8DdV8QRi4uPFjb8SofYFanu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 099/194] NFSv4: Fix fscache cookie aux_data to ensure change_attr is included
+Subject: [PATCH 4.14 057/114] cpufreq: intel_pstate: Only mention the BIOS disabling turbo mode once
 Date:   Mon, 18 May 2020 19:36:29 +0200
-Message-Id: <20200518173540.233891908@linuxfoundation.org>
+Message-Id: <20200518173513.479980002@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 50eaa652b54df1e2b48dc398d9e6114c9ed080eb ]
+[ Upstream commit 8c539776ac83c0857395e1ccc9c6b516521a2d32 ]
 
-Commit 402cb8dda949 ("fscache: Attach the index key and aux data to
-the cookie") added the aux_data and aux_data_len to parameters to
-fscache_acquire_cookie(), and updated the callers in the NFS client.
-In the process it modified the aux_data to include the change_attr,
-but missed adding change_attr to a couple places where aux_data was
-used.  Specifically, when opening a file and the change_attr is not
-added, the following attempt to lookup an object will fail inside
-cachefiles_check_object_xattr() = -116 due to
-nfs_fscache_inode_check_aux() failing memcmp on auxdata and returning
-FSCACHE_CHECKAUX_OBSOLETE.
+Make a note of the first time we discover the turbo mode has been
+disabled by the BIOS, as otherwise we complain every time we try to
+update the mode.
 
-Fix this by adding nfs_fscache_update_auxdata() to set the auxdata
-from all relevant fields in the inode, including the change_attr.
-
-Fixes: 402cb8dda949 ("fscache: Attach the index key and aux data to the cookie")
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/fscache.c | 34 ++++++++++++++++------------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+ drivers/cpufreq/intel_pstate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index f517184156068..a60df88efc404 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -225,6 +225,19 @@ void nfs_fscache_release_super_cookie(struct super_block *sb)
- 	}
- }
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index 7a5662425b291..1aa0b05c8cbdf 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -935,7 +935,7 @@ static ssize_t store_no_turbo(struct kobject *a, struct kobj_attribute *b,
  
-+static void nfs_fscache_update_auxdata(struct nfs_fscache_inode_auxdata *auxdata,
-+				  struct nfs_inode *nfsi)
-+{
-+	memset(auxdata, 0, sizeof(*auxdata));
-+	auxdata->mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
-+	auxdata->mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
-+	auxdata->ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
-+	auxdata->ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
-+
-+	if (NFS_SERVER(&nfsi->vfs_inode)->nfs_client->rpc_ops->version == 4)
-+		auxdata->change_attr = inode_peek_iversion_raw(&nfsi->vfs_inode);
-+}
-+
- /*
-  * Initialise the per-inode cache cookie pointer for an NFS inode.
-  */
-@@ -238,14 +251,7 @@ void nfs_fscache_init_inode(struct inode *inode)
- 	if (!(nfss->fscache && S_ISREG(inode->i_mode)))
- 		return;
- 
--	memset(&auxdata, 0, sizeof(auxdata));
--	auxdata.mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
--	auxdata.mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
--	auxdata.ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
--	auxdata.ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
--
--	if (NFS_SERVER(&nfsi->vfs_inode)->nfs_client->rpc_ops->version == 4)
--		auxdata.change_attr = inode_peek_iversion_raw(&nfsi->vfs_inode);
-+	nfs_fscache_update_auxdata(&auxdata, nfsi);
- 
- 	nfsi->fscache = fscache_acquire_cookie(NFS_SB(inode->i_sb)->fscache,
- 					       &nfs_fscache_inode_object_def,
-@@ -265,11 +271,7 @@ void nfs_fscache_clear_inode(struct inode *inode)
- 
- 	dfprintk(FSCACHE, "NFS: clear cookie (0x%p/0x%p)\n", nfsi, cookie);
- 
--	memset(&auxdata, 0, sizeof(auxdata));
--	auxdata.mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
--	auxdata.mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
--	auxdata.ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
--	auxdata.ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
-+	nfs_fscache_update_auxdata(&auxdata, nfsi);
- 	fscache_relinquish_cookie(cookie, &auxdata, false);
- 	nfsi->fscache = NULL;
- }
-@@ -309,11 +311,7 @@ void nfs_fscache_open_file(struct inode *inode, struct file *filp)
- 	if (!fscache_cookie_valid(cookie))
- 		return;
- 
--	memset(&auxdata, 0, sizeof(auxdata));
--	auxdata.mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
--	auxdata.mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
--	auxdata.ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
--	auxdata.ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
-+	nfs_fscache_update_auxdata(&auxdata, nfsi);
- 
- 	if (inode_is_open_for_write(inode)) {
- 		dfprintk(FSCACHE, "NFS: nfsi 0x%p disabling cache\n", nfsi);
+ 	update_turbo_state();
+ 	if (global.turbo_disabled) {
+-		pr_warn("Turbo disabled by BIOS or unavailable on processor\n");
++		pr_notice_once("Turbo disabled by BIOS or unavailable on processor\n");
+ 		mutex_unlock(&intel_pstate_limits_lock);
+ 		mutex_unlock(&intel_pstate_driver_lock);
+ 		return -EPERM;
 -- 
 2.20.1
 
