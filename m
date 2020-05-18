@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6149F1D8450
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D2B1D8630
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732874AbgERSFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52390 "EHLO mail.kernel.org"
+        id S1730523AbgERSXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:23:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732870AbgERSFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:01 -0400
+        id S1730461AbgERRtA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3007207F5;
-        Mon, 18 May 2020 18:04:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5699520715;
+        Mon, 18 May 2020 17:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825100;
-        bh=wTJg0jFheoUb3rI7lkPCoQitA0fFRvNW8bYbCpDSnlY=;
+        s=default; t=1589824139;
+        bh=t67HidTyqvuTCFA1pM7lYbAAr9hS5Sny8fXHsx5iDYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpO4is4O0E1vOuD7+ZDm5RxsqgcXc0EQryYXuaE6OE/+VU+0ln6r7MfLWTqwGOkKd
-         roaZ/dZUAi/8bqJvGdBTCfUF4WZ/apaTFo3zHE/4nl2r9kQ5LI2xCkkZvV5WsFNQDb
-         8U350hM58MQX5BxTejiwT2zIoK+4tHo6pEyZXBnY=
+        b=xBHhMa87zO9gGdOQLRfw3hbilIFEXtg9ZS9jtp8u1zfUDIF+IaYGHgC8O2dRqkP+4
+         DXmxyy0fx3h4MZDR9zKym0gNDzYJUnHer7B/kaxdX8gGn5zHJmCDLI5AZXUagBMR6C
+         H1CrU+8zs2tiWdjZXVnsvgiNQN1rViMYo9xE48II=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 130/194] gcc-10: disable restrict warning for now
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Zefan Li <lizefan@huawei.com>, Tejun Heo <tj@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 088/114] netprio_cgroup: Fix unlimited memory leak of v2 cgroups
 Date:   Mon, 18 May 2020 19:37:00 +0200
-Message-Id: <20200518173542.287850019@linuxfoundation.org>
+Message-Id: <20200518173518.278476162@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Zefan Li <lizefan@huawei.com>
 
-commit adc71920969870dfa54e8f40dac8616284832d02 upstream.
+[ Upstream commit 090e28b229af92dc5b40786ca673999d59e73056 ]
 
-gcc-10 now warns about passing aliasing pointers to functions that take
-restricted pointers.
+If systemd is configured to use hybrid mode which enables the use of
+both cgroup v1 and v2, systemd will create new cgroup on both the default
+root (v2) and netprio_cgroup hierarchy (v1) for a new session and attach
+task to the two cgroups. If the task does some network thing then the v2
+cgroup can never be freed after the session exited.
 
-That's actually a great warning, and if we ever start using 'restrict'
-in the kernel, it might be quite useful.  But right now we don't, and it
-turns out that the only thing this warns about is an idiom where we have
-declared a few functions to be "printf-like" (which seems to make gcc
-pick up the restricted pointer thing), and then we print to the same
-buffer that we also use as an input.
+One of our machines ran into OOM due to this memory leak.
 
-And people do that as an odd concatenation pattern, with code like this:
+In the scenario described above when sk_alloc() is called
+cgroup_sk_alloc() thought it's in v2 mode, so it stores
+the cgroup pointer in sk->sk_cgrp_data and increments
+the cgroup refcnt, but then sock_update_netprioidx()
+thought it's in v1 mode, so it stores netprioidx value
+in sk->sk_cgrp_data, so the cgroup refcnt will never be freed.
 
-    #define sysfs_show_gen_prop(buffer, fmt, ...) \
-        snprintf(buffer, PAGE_SIZE, "%s"fmt, buffer, __VA_ARGS__)
+Currently we do the mode switch when someone writes to the ifpriomap
+cgroup control file. The easiest fix is to also do the switch when
+a task is attached to a new cgroup.
 
-where we have 'buffer' as both the destination of the final result, and
-as the initial argument.
-
-Yes, it's a bit questionable.  And outside of the kernel, people do have
-standard declarations like
-
-    int snprintf( char *restrict buffer, size_t bufsz,
-                  const char *restrict format, ... );
-
-where that output buffer is marked as a restrict pointer that cannot
-alias with any other arguments.
-
-But in the context of the kernel, that 'use snprintf() to concatenate to
-the end result' does work, and the pattern shows up in multiple places.
-And we have not marked our own version of snprintf() as taking restrict
-pointers, so the warning is incorrect for now, and gcc picks it up on
-its own.
-
-If we do start using 'restrict' in the kernel (and it might be a good
-idea if people find places where it matters), we'll need to figure out
-how to avoid this issue for snprintf and friends.  But in the meantime,
-this warning is not useful.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: bd1060a1d671 ("sock, cgroup: add sock->sk_cgroup")
+Reported-by: Yang Yingliang <yangyingliang@huawei.com>
+Tested-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Zefan Li <lizefan@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ net/core/netprio_cgroup.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -862,6 +862,9 @@ KBUILD_CFLAGS += $(call cc-disable-warni
- KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
- KBUILD_CFLAGS += $(call cc-disable-warning, stringop-overflow)
+--- a/net/core/netprio_cgroup.c
++++ b/net/core/netprio_cgroup.c
+@@ -241,6 +241,8 @@ static void net_prio_attach(struct cgrou
+ 	struct task_struct *p;
+ 	struct cgroup_subsys_state *css;
  
-+# Another good warning that we'll want to enable eventually
-+KBUILD_CFLAGS += $(call cc-disable-warning, restrict)
++	cgroup_sk_alloc_disable();
 +
- # Enabled with W=2, disabled by default as noisy
- KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
+ 	cgroup_taskset_for_each(p, css, tset) {
+ 		void *v = (void *)(unsigned long)css->cgroup->id;
  
 
 
