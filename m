@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A401D854B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC0C1D8105
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731112AbgERR4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34580 "EHLO mail.kernel.org"
+        id S1729199AbgERRoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:44:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730648AbgERR4f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:56:35 -0400
+        id S1729680AbgERRoG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:44:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CAFD20674;
-        Mon, 18 May 2020 17:56:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19FB52083E;
+        Mon, 18 May 2020 17:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824595;
-        bh=5kS7ftuW0eVnEKt4iBHNF1ynTORvm3LKshKtVAfZDiM=;
+        s=default; t=1589823845;
+        bh=J3IsPnupG1bprp4tyhjpuDkdCJ3abZNdijJ9J9kjQPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdGuhnUFjbnevRk5K15xRCI2xGYjA5chJP/4Pga50cIugwQwWmnc2405fTHdbTERl
-         cBKrWB9tp1s4bGaPA6y7HrvUyQijY8uAd7BmHNNW/AFDTGfkAiG4MaR94utf+jmLYV
-         pBmuuvkWbSPbZXG3mh4j14Ms/S3cqQS9bCYrtfxs=
+        b=HodCwC4k44W3WJa013Q+LdSQekngSTdfidAfd+FKUk8Nm6OOVyNbwZFbryDv59mtD
+         MWkT2rFKVmseDfkRe1q0if63HQ7du83BzIGaF9AY+98y8lw5fV5Q6/hcgiHgS/RRgz
+         VeJL/ycNGaIojTvXQrii9Vx1C3IN6hJiOjYKxZsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/147] drm/amdgpu: force fbdev into vram
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.9 58/90] pnp: Use list_for_each_entry() instead of open coding
 Date:   Mon, 18 May 2020 19:36:36 +0200
-Message-Id: <20200518173523.026685180@linuxfoundation.org>
+Message-Id: <20200518173502.918228186@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit a6aacb2b26e85aa619cf0c6f98d0ca77314cd2a1 ]
+commit 01b2bafe57b19d9119413f138765ef57990921ce upstream.
 
-We set the fb smem pointer to the offset into the BAR, so keep
-the fbdev bo in vram.
+Aside from good practice, this avoids a warning from gcc 10:
 
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=207581
-Fixes: 6c8d74caa2fa33 ("drm/amdgpu: Enable scatter gather display support")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+./include/linux/kernel.h:997:3: warning: array subscript -31 is outside array bounds of ‘struct list_head[1]’ [-Warray-bounds]
+  997 |  ((type *)(__mptr - offsetof(type, member))); })
+      |  ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+./include/linux/list.h:493:2: note: in expansion of macro ‘container_of’
+  493 |  container_of(ptr, type, member)
+      |  ^~~~~~~~~~~~
+./include/linux/pnp.h:275:30: note: in expansion of macro ‘list_entry’
+  275 | #define global_to_pnp_dev(n) list_entry(n, struct pnp_dev, global_list)
+      |                              ^~~~~~~~~~
+./include/linux/pnp.h:281:11: note: in expansion of macro ‘global_to_pnp_dev’
+  281 |  (dev) != global_to_pnp_dev(&pnp_global); \
+      |           ^~~~~~~~~~~~~~~~~
+arch/x86/kernel/rtc.c:189:2: note: in expansion of macro ‘pnp_for_each_dev’
+  189 |  pnp_for_each_dev(dev) {
+
+Because the common code doesn't cast the starting list_head to the
+containing struct.
+
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+[ rjw: Whitespace adjustments ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/pnp.h |   29 +++++++++--------------------
+ 1 file changed, 9 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-index 143753d237e7c..eaa5e7b7c19d6 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-@@ -133,8 +133,7 @@ static int amdgpufb_create_pinned_object(struct amdgpu_fbdev *rfbdev,
- 	u32 cpp;
- 	u64 flags = AMDGPU_GEM_CREATE_CPU_ACCESS_REQUIRED |
- 			       AMDGPU_GEM_CREATE_VRAM_CONTIGUOUS     |
--			       AMDGPU_GEM_CREATE_VRAM_CLEARED 	     |
--			       AMDGPU_GEM_CREATE_CPU_GTT_USWC;
-+			       AMDGPU_GEM_CREATE_VRAM_CLEARED;
+--- a/include/linux/pnp.h
++++ b/include/linux/pnp.h
+@@ -219,10 +219,8 @@ struct pnp_card {
+ #define global_to_pnp_card(n) list_entry(n, struct pnp_card, global_list)
+ #define protocol_to_pnp_card(n) list_entry(n, struct pnp_card, protocol_list)
+ #define to_pnp_card(n) container_of(n, struct pnp_card, dev)
+-#define pnp_for_each_card(card) \
+-	for((card) = global_to_pnp_card(pnp_cards.next); \
+-	(card) != global_to_pnp_card(&pnp_cards); \
+-	(card) = global_to_pnp_card((card)->global_list.next))
++#define pnp_for_each_card(card)	\
++	list_for_each_entry(card, &pnp_cards, global_list)
  
- 	info = drm_get_format_info(adev->ddev, mode_cmd);
- 	cpp = info->cpp[0];
--- 
-2.20.1
-
+ struct pnp_card_link {
+ 	struct pnp_card *card;
+@@ -275,14 +273,9 @@ struct pnp_dev {
+ #define card_to_pnp_dev(n) list_entry(n, struct pnp_dev, card_list)
+ #define protocol_to_pnp_dev(n) list_entry(n, struct pnp_dev, protocol_list)
+ #define	to_pnp_dev(n) container_of(n, struct pnp_dev, dev)
+-#define pnp_for_each_dev(dev) \
+-	for((dev) = global_to_pnp_dev(pnp_global.next); \
+-	(dev) != global_to_pnp_dev(&pnp_global); \
+-	(dev) = global_to_pnp_dev((dev)->global_list.next))
+-#define card_for_each_dev(card,dev) \
+-	for((dev) = card_to_pnp_dev((card)->devices.next); \
+-	(dev) != card_to_pnp_dev(&(card)->devices); \
+-	(dev) = card_to_pnp_dev((dev)->card_list.next))
++#define pnp_for_each_dev(dev) list_for_each_entry(dev, &pnp_global, global_list)
++#define card_for_each_dev(card, dev)	\
++	list_for_each_entry(dev, &(card)->devices, card_list)
+ #define pnp_dev_name(dev) (dev)->name
+ 
+ static inline void *pnp_get_drvdata(struct pnp_dev *pdev)
+@@ -436,14 +429,10 @@ struct pnp_protocol {
+ };
+ 
+ #define to_pnp_protocol(n) list_entry(n, struct pnp_protocol, protocol_list)
+-#define protocol_for_each_card(protocol,card) \
+-	for((card) = protocol_to_pnp_card((protocol)->cards.next); \
+-	(card) != protocol_to_pnp_card(&(protocol)->cards); \
+-	(card) = protocol_to_pnp_card((card)->protocol_list.next))
+-#define protocol_for_each_dev(protocol,dev) \
+-	for((dev) = protocol_to_pnp_dev((protocol)->devices.next); \
+-	(dev) != protocol_to_pnp_dev(&(protocol)->devices); \
+-	(dev) = protocol_to_pnp_dev((dev)->protocol_list.next))
++#define protocol_for_each_card(protocol, card)	\
++	list_for_each_entry(card, &(protocol)->cards, protocol_list)
++#define protocol_for_each_dev(protocol, dev)	\
++	list_for_each_entry(dev, &(protocol)->devices, protocol_list)
+ 
+ extern struct bus_type pnp_bus_type;
+ 
 
 
