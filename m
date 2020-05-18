@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D59121D8346
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 538AB1D81D2
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732150AbgERSDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:03:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48744 "EHLO mail.kernel.org"
+        id S1730807AbgERRvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:51:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731507AbgERSDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:03:24 -0400
+        id S1730821AbgERRvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:51:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B69CA207F5;
-        Mon, 18 May 2020 18:03:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D37E3207F5;
+        Mon, 18 May 2020 17:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825003;
-        bh=eJDONeSSXm5ZMoCXxAaEjZbpOF+GULwXMkGcQKEsyTE=;
+        s=default; t=1589824267;
+        bh=zLUCqSvC236bu0DFeMlfYuTWti5TF2S5odgN6soGDug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=srTp3nI1luXSxkg+1sU4Ok6GdpDWfNPsDKnUSU0kQX57cTresHUVCP1ipAdlXK2R9
-         M+RRk4errJvXkyprJzrZV4jRoiwJygdKIRLLKr93Ini5iC44SHHg3+XH5fKHjNZT8R
-         t7eW0mZfiDs3H0jQlf6UEtSOGLhXp4SJLBjM6Lgk=
+        b=uLE8z4l9rSKNIZH9GoBDTq/S7C91Vk1kL637d1ckucBMTLHZCpS1ezB5550Fh3NMh
+         p9+K7hVGoMFDToixtuSkLjP5hGPWQLAwPiPjyo7H9PtIf8eRIYuJlq2buvb68kZQgc
+         ltYBVA+pucmMVqmop4hd7L8CfWwNNoUeSWHqof3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 091/194] mmc: core: Check request type before completing the request
+Subject: [PATCH 4.19 03/80] net/sonic: Fix a resource leak in an error handling path in jazz_sonic_probe()
 Date:   Mon, 18 May 2020 19:36:21 +0200
-Message-Id: <20200518173539.193412523@linuxfoundation.org>
+Message-Id: <20200518173450.825849382@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e6bfb1bf00852b55f4c771f47ae67004c04d3c87 ]
+[ Upstream commit 10e3cc180e64385edc9890c6855acf5ed9ca1339 ]
 
-In the request completion path with CQE, request type is being checked
-after the request is getting completed. This is resulting in returning
-the wrong request type and leading to the IO hang issue.
+A call to 'dma_alloc_coherent()' is hidden in 'sonic_alloc_descriptors()',
+called from 'sonic_probe1()'.
 
-ASYNC request type is getting returned for DCMD type requests.
-Because of this mismatch, mq->cqe_busy flag is never getting cleared
-and the driver is not invoking blk_mq_hw_run_queue. So requests are not
-getting dispatched to the LLD from the block layer.
+This is correctly freed in the remove function, but not in the error
+handling path of the probe function.
+Fix it and add the missing 'dma_free_coherent()' call.
 
-All these eventually leading to IO hang issues.
-So, get the request type before completing the request.
+While at it, rename a label in order to be slightly more informative.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 1e8e55b67030 ("mmc: block: Add CQE support")
-Signed-off-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/1588775643-18037-2-git-send-email-vbadigan@codeaurora.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/block.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/natsemi/jazzsonic.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
-index 663d87924e5e8..32db16f6debc7 100644
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -1417,6 +1417,7 @@ static void mmc_blk_cqe_complete_rq(struct mmc_queue *mq, struct request *req)
- 	struct mmc_request *mrq = &mqrq->brq.mrq;
- 	struct request_queue *q = req->q;
- 	struct mmc_host *host = mq->card->host;
-+	enum mmc_issue_type issue_type = mmc_issue_type(mq, req);
- 	unsigned long flags;
- 	bool put_card;
- 	int err;
-@@ -1446,7 +1447,7 @@ static void mmc_blk_cqe_complete_rq(struct mmc_queue *mq, struct request *req)
+diff --git a/drivers/net/ethernet/natsemi/jazzsonic.c b/drivers/net/ethernet/natsemi/jazzsonic.c
+index 51fa82b429a3c..40970352d2082 100644
+--- a/drivers/net/ethernet/natsemi/jazzsonic.c
++++ b/drivers/net/ethernet/natsemi/jazzsonic.c
+@@ -235,11 +235,13 @@ static int jazz_sonic_probe(struct platform_device *pdev)
  
- 	spin_lock_irqsave(&mq->lock, flags);
+ 	err = register_netdev(dev);
+ 	if (err)
+-		goto out1;
++		goto undo_probe1;
  
--	mq->in_flight[mmc_issue_type(mq, req)] -= 1;
-+	mq->in_flight[issue_type] -= 1;
+ 	return 0;
  
- 	put_card = (mmc_tot_in_flight(mq) == 0);
- 
+-out1:
++undo_probe1:
++	dma_free_coherent(lp->device, SIZEOF_SONIC_DESC * SONIC_BUS_SCALE(lp->dma_bitmode),
++			  lp->descriptors, lp->descriptors_laddr);
+ 	release_mem_region(dev->base_addr, SONIC_MEM_SIZE);
+ out:
+ 	free_netdev(dev);
 -- 
 2.20.1
 
