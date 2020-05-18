@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6526A1D8325
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:03:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 021631D8678
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732497AbgERSCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:02:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45964 "EHLO mail.kernel.org"
+        id S1729016AbgERRqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:46:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732495AbgERSCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:02:19 -0400
+        id S1730073AbgERRqX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:46:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB4DE20DD4;
-        Mon, 18 May 2020 18:02:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77FFD20671;
+        Mon, 18 May 2020 17:46:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824939;
-        bh=MDZdmsagPKCRha5QAA/DRBmtg2TCG7A+Bwmwop+1W9Y=;
+        s=default; t=1589823982;
+        bh=OJtl/DPKcnPBAinaU+XsrpPzPk9DjxH6KkyxoHcCLeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tjl30mGqujP85H1j31cHr3i2XbpLvq5uQrsxRQjcxvdRszrRduqeiTWXy2GpNTMAE
-         1HlGvz5GFkTciMZrv4Ln1b+ElzUu9gmuAb75lmy40E+1BRuJFhPF1NXsQnZajM/hVJ
-         OOoQ3aqIGhq1IYkEgRAnE8072TUVvvHBYyp+xhq0=
+        b=ezn0817SQQ/QDpZgw4DjkFYoZrnFJjGH/aXXjyaKyoJREYK8uuMeVzIdgPx3WtAxE
+         UN/M1/Je5nHx5wXSDo/2+r3A8PFbEqFtzAczlpYJlO8QAtoz6Ylgb8IE/VBmnqyQhF
+         wgH4cdtkJ/L/KZlLfOEHQKRBd02/Sg8HnBrTCcRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sung Lee <sung.lee@amd.com>,
-        Yongqiang Sun <yongqiang.sun@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 064/194] drm/amd/display: Update downspread percent to match spreadsheet for DCN2.1
-Date:   Mon, 18 May 2020 19:35:54 +0200
-Message-Id: <20200518173537.046755931@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        Baoquan He <bhe@redhat.com>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 023/114] mm/page_alloc: fix watchdog soft lockups during set_zone_contiguous()
+Date:   Mon, 18 May 2020 19:35:55 +0200
+Message-Id: <20200518173507.906629646@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sung Lee <sung.lee@amd.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 668a6741f809f2d15d125cfe2b39661e8f1655ea ]
+commit e84fe99b68ce353c37ceeecc95dce9696c976556 upstream.
 
-[WHY]
-The downspread percentage was copied over from a previous version
-of the display_mode_lib spreadsheet. This value has been updated,
-and the previous value is too high to allow for such modes as
-4K120hz. The new value is sufficient for such modes.
+Without CONFIG_PREEMPT, it can happen that we get soft lockups detected,
+e.g., while booting up.
 
-[HOW]
-Update the value in dcn21_resource to match the spreadsheet.
+  watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [swapper/0:1]
+  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.6.0-next-20200331+ #4
+  Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
+  RIP: __pageblock_pfn_to_page+0x134/0x1c0
+  Call Trace:
+   set_zone_contiguous+0x56/0x70
+   page_alloc_init_late+0x166/0x176
+   kernel_init_freeable+0xfa/0x255
+   kernel_init+0xa/0x106
+   ret_from_fork+0x35/0x40
 
-Signed-off-by: Sung Lee <sung.lee@amd.com>
-Reviewed-by: Yongqiang Sun <yongqiang.sun@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The issue becomes visible when having a lot of memory (e.g., 4TB)
+assigned to a single NUMA node - a system that can easily be created
+using QEMU.  Inside VMs on a hypervisor with quite some memory
+overcommit, this is fairly easy to trigger.
+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Reviewed-by: Baoquan He <bhe@redhat.com>
+Reviewed-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Shile Zhang <shile.zhang@linux.alibaba.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200416073417.5003-1-david@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/page_alloc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index 33d0a176841a5..122d3e734c59a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -250,7 +250,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
- 	.dram_channel_width_bytes = 4,
- 	.fabric_datapath_to_dcn_data_return_bytes = 32,
- 	.dcn_downspread_percent = 0.5,
--	.downspread_percent = 0.5,
-+	.downspread_percent = 0.38,
- 	.dram_page_open_time_ns = 50.0,
- 	.dram_rw_turnaround_time_ns = 17.5,
- 	.dram_return_buffer_per_channel_bytes = 8192,
--- 
-2.20.1
-
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1405,6 +1405,7 @@ void set_zone_contiguous(struct zone *zo
+ 		if (!__pageblock_pfn_to_page(block_start_pfn,
+ 					     block_end_pfn, zone))
+ 			return;
++		cond_resched();
+ 	}
+ 
+ 	/* We confirm that there is no hole */
 
 
